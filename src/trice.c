@@ -8,11 +8,11 @@
 #include "./box/SEGGER_RTT.c"
 #endif
 
-#if TRICE_INTERMEDIATE_BUFFER == TRICE_STACK_BUFFER
+#if TRICE_DIRECT_BUFFER == TRICE_STACK_BUFFER
 #include "./box/triceStackBuffer.c"
 #endif
 
-#if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
+#if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
 #include "./box/triceStaticBuffer.c"
 #endif
 

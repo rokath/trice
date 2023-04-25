@@ -230,7 +230,7 @@ void TriceWriteDeviceModbus( uint8_t *buf, size_t len ){
 }
 #endif
 
-#if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
+#if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
 uint32_t triceSingleBuffer[(TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)>>2];
 uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2];
 uint32_t* TriceBufferWritePosition;

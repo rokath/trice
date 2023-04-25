@@ -18,15 +18,15 @@ extern "C" {
 //! TRICE_DEFERRED_OUT needs to be defined if at least one out channel is used in deferred mode (usually UART).
 #define TRICE_DEFERRED_OUT
 
-//! TRICE_INTERMEDIATE_BUFFER selects, where the TRICE macros accumultate the trice data during a single TRICE execution.
+//! TRICE_DIRECT_BUFFER selects, where the TRICE macros accumultate the trice data during a single TRICE execution.
 //! By executing TRICE_LEAVE these data are copied away, so it is just an intermediade storage.
 //! Because TRICE supports up to 32767 data bytes, this buffer could get big. Anyway it cannot exeed TRICE_DATA_OFFSET+TRICE_SINGLE_MAX_SIZE.
 //! - Selectable options:
 //!   - TRICE_STACK_BUFFER means that no additional buffer is needed, what makes sense for single task systems. Direct mode is possible.
 //!   - TRICE_STATIC_BUFFER means single trice allocation in a separate static buffer, what makes sense in multi-tasking systems. Direct mode is possible.
 //!   - TRICE_DOUBLE_BUFFER no additional buffer nor stack is used for the TRICE macros. They write direct into the double buffer without 
-//!     any additional management action. This is the fastest execution option for TRICE macros but needs more RAM. Direct mode is NOT possible.
-#define TRICE_INTERMEDIATE_BUFFER TRICE_STATIC_BUFFER
+//!     any additional management action. This is the fastest execution option for TRICE macros but needs more RAM.
+#define TRICE_DIRECT_BUFFER TRICE_STATIC_BUFFER
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! - Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
@@ -39,14 +39,14 @@ extern "C" {
 //! When using real big buffers, 16 may be not enough.
 #define TRICE_DATA_OFFSET 16
 
-//! TRICE_ACCUMULATION_BUFFER is the buffer type used for deferred trices.
+//! TRICE_DEFERRED_BUFFER is the buffer type used for deferred trices.
 //! - TRICE_DOUBLE_BUFFER:
 //!   - Double Buffering output to UART. Fastest TRICE macro execution. It is the users reposibility to switch the 2 buffers leke every 10 or 100 milliseconds.
 //! - TRICE_STREAM_BUFFER: (legacy)
 //!   - Stream Buffering output to UART. Needs less buffer memory for the price of being a bit slower.
 //!   - Single Trice buffer address and length do into a fifo during the TRICE macro, which is read out and processed in the background then.
 //! - TRICE_DEFERRED_BUFFER
-#define TRICE_ACCUMULATION_BUFFER TRICE_DOUBLE_BUFFER
+#define TRICE_DEFERRED_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the default parameter bit width for TRICE macros not specifying the parameter bit width: 8, 16, 32 or 64.
 //! If for example the majority of your values is 16 bit, it makes sense to set this value to 16 to use TRICE for them and to use TRICE32 explicitely for 32-bit values.
@@ -65,12 +65,8 @@ extern "C" {
 //! here reduces the overgead a bit, but TRICE_DIRECT_MODE is still recommeded here.
 //! Options:
 //! - TRICE_DIRECT_MODE (recommended)
-//! - TRICE_DEFERRED_MODE (use only if TRICE_INTERMEDIATE_BUFFER == TRICE_DOUBLE_BUFFER)
+//! - TRICE_DEFERRED_MODE (use only if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER)
 #define TRICE_RTT_MODE TRICE_DIRECT_MODE
-
-
-
-
 
 
 /**/
@@ -87,7 +83,7 @@ extern "C" {
 //! here reduces the overgead a bit, but TRICE_DIRECT_MODE is still recommeded here.
 //! Options:
 //! - TRICE_DIRECT_MODE (recommended)
-//! - TRICE_DEFERRED_MODE (use only if TRICE_INTERMEDIATE_BUFFER == TRICE_DOUBLE_BUFFER)
+//! - TRICE_DEFERRED_MODE (use only if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER)
 #define TRICE_RTT_MODE TRICE_DIRECT_MODE
 
 //! TRICE_SEGGER_RTT_32BIT_WRITE==1 speeds up RTT transfer but needs function SEGGER_Write_RTT0_NoCheck32.
@@ -637,7 +633,7 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 
 
 
-#if TRICE_RTT_MODE ==  TRICE_DIRECT_MODE && TRICE_INTERMEDIATE_BUFFER == TRICE_DOUBLE_BUFFER
+#if TRICE_RTT_MODE ==  TRICE_DIRECT_MODE && TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
 #error
 #endif
 

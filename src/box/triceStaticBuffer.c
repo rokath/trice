@@ -3,7 +3,7 @@
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
-#if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
+#if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
 
 #if TRICE_DEFERRED_BUFFER_SIZE < 2*(TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET)
 #error
@@ -73,4 +73,4 @@ void TriceLogBufferInfo( void ){
     trice( iD( 2887), "att: Trice static buffer size:%5u ", TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE );
 }
 
-#endif // #if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
+#endif // #if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER

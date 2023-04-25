@@ -235,7 +235,7 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
 
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
 
-#if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
+#if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
 
 //! TRICE_DEFERRED_BUFFER_SIZE is the total size of the deferred buffer. Must be able to hold the max TRICE burst count or even more,
 //! if the write out speed is small.
@@ -295,7 +295,7 @@ static inline void triceSingleWrite( void ){
     triceSingleWrite(); \
     } TRICE_LEAVE_CRITICAL_SECTION
 
-#endif // #if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
+#endif // #if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
 
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations and Defaults
