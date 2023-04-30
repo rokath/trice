@@ -11,6 +11,6 @@ A more realistic (typical) timing with target location and µs timestamps, criti
 
 ![./ref/F030FullTiming.PNG](./ref/F030FullTiming.PNG)
 
-The MCU is clocked with 48 MHz and a *Trice* duration is about 2 µs, where alone the internal ReaUs() call is already nearly 1 µs long:
+The MCU is clocked with 48 MHz and a *Trice* duration is about 2 µs, where alone the internal ReadUs() call is already nearly 1 µs long:
 
 ![./ref/ReadUsF030.PNG](./ref/ReadUsF030.PNG)
