@@ -42,8 +42,8 @@ extern "C" {
 //lint -efunc( 666, aFloat, aDouble )
 //lint -esym( 666, aFloat, aDouble )
 
-
 #ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
+
 #define TRICE_ENTER
 #define TRICE_LEAVE
 #define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
@@ -51,11 +51,10 @@ extern "C" {
 #define PUT_BUFFER(b,l)        // do{ ((void)(b)); ((void)(l)); }while(0)
 #define TRICE_S( id, p, s )    // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
 #define TRICE_N( id, p, s, n ) // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
-#endif
 
-///////////////////////////////////////////////////////////////////////////////
+#endif // #ifdef TRICE_OFF
+
 // helper macros (the numbers are 32-bit random values)
-//
 
 //! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
 //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
@@ -65,23 +64,26 @@ extern "C" {
 //! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
 #define TRICE_PACK_MULTI_MODE  3987862482
 
+//! With TRICE_DIRECT_BUFFER == TRICE_STACK_BUFFER  the internal macro TRICE_PUT writes to the stack. 
+//! This is direct logging. This reduces memory needs if one stack is used.
+#define TRICE_STACK_BUFFER  2645382063 
 
-//#define TRICE_NO_BUFFER    802653143
-#define TRICE_STACK_BUFFER  2645382063 //!< With TRICE_STACK_BUFFER  the internal macro TRICE_PUT writes to the stack. This is direct logging. This reduces memory needs if one stack is used.
-#define TRICE_STATIC_BUFFER 1763551404 //!< With TRICE_STATIC_BUFFER the internal macro TRICE_PUT writes to a static buffer. This reduces memory needs if many stacks are used.
-#define TRICE_DOUBLE_BUFFER 1950870368 //!< With TRICE_DOUBLE_BUFFER the internal macro TRICE_PUT writes to a double buffer half. This is deferred logging using more space but the TRICE macros are executed faster. 
-#define TRICE_STREAM_BUFFER  877342878 //!< With TRICE_STREAM_BUFFER the internal macro TRICE_PUT writes to a fifo buffer. This is deferred logging using less space but the TRICE macros are executed a bit slower. 
-#define TRICE_UART_BUFFER   3185841916 //!< With TRICE_UART_BUFFER   the internal macro TRICE_PUT writes to a UART buffer. This is fast deferred logging using less space. 
+//! With TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER the internal macro TRICE_PUT writes to a static buffer. 
+//! This reduces memory needs if many stacks are used.
+#define TRICE_STATIC_BUFFER 1763551404
 
-#define TRICE_FRAMING_TCOBS 3745917584 //!< TRICE_FRAMING_TCOBS is recommended for trice transfer over UART.
-#define TRICE_FRAMING_COBS  2953804234 //!< TRICE_FRAMING_COBS is recommended for encryptede trices.
-#define TRICE_FRAMING_NONE  1431860787 //!< TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
+//! With TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER the internal macro TRICE_PUT writes to a double buffer half. 
+//! This is deferred logging using more space but the TRICE macros are executed faster. 
+#define TRICE_DOUBLE_BUFFER 1950870368 
 
-#define TRICE_DIRECT_MODE   2603257500
-#define TRICE_DEFERRED_MODE 2905999886
+//! TRICE_FRAMING_TCOBS is recommended for trice transfer over UART.
+#define TRICE_FRAMING_TCOBS 3745917584 
 
-//
-///////////////////////////////////////////////////////////////////////////////
+//! TRICE_FRAMING_COBS is recommended for encryptede trices.
+#define TRICE_FRAMING_COBS  2953804234
+
+//! TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
+#define TRICE_FRAMING_NONE  1431860787
 
 //! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
 //! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
@@ -91,22 +93,192 @@ extern "C" {
 #include <stdint.h> //lint !e537
 #include <string.h>
 #include "triceConfig.h"
+
+#ifdef TRICE_RTT0
+
+#include "SEGGER_RTT_Conf.h"
+#include "./box/SEGGER_RTT.h"
+
+#endif // #ifdef TRICE_RTT0
+
+// global function prototypes:
+
+//! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
+//! This function user has to provide.
+uint16_t TriceStamp16( void );
+
+//! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
+//! This function user has to provide.
+uint32_t TriceStamp32( void );
+
+void TriceDirectWrite( uint32_t* const triceStart, int wordCount );
+unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
+unsigned TriceOutDepth( void );
+int TriceSingleDeferredOut(uint32_t* addr);
+uint32_t* TriceNextRingWriteBuffer( uint32_t* TriceBufferWritePosition );
+size_t TriceDepth( void );
+size_t TriceDepthMax( void );
+void TriceLogDepthMax( void );
+void TriceDiagnostics( int index );
+void TriceOut( uint32_t* tb, size_t tLen );
+void TriceTransfer( void );
+void TriceCheck( int index ); // tests
+
+
+// global variables:
+
+extern uint32_t* const triceSingleBufferStartWritePosition;
+extern uint32_t* TriceBufferWritePosition;
+extern int singleTricesRingCount;
+extern char* const triceCommandBuffer;
+extern int triceCommandFlag;
+extern unsigned triceDepthMax;
+extern uint8_t TriceCycle;
+extern const int TriceTypeS0;
+extern const int TriceTypeS2;
+extern const int TriceTypeS4;
+extern const int TriceTypeX0;
+extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
+extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for diagnostics.
+
+// check configuration:
+
+#if defined(TRICE_RTT0) && (TRICE_DIRECT_BUFFER_SIZE > BUFFER_SIZE_UP)
+#error wrong configuration
+#endif
+
+#if defined( TRICE_UARTA ) && (TRICE_DIRECT_BUFFER != TRICE_RING_BUFFER) && (TRICE_DIRECT_BUFFER != TRICE_DOUBLE_BUFFER)
+#error wrong configuration
+#endif
+
+#if defined( TRICE_UARTB ) && (TRICE_DIRECT_BUFFER != TRICE_RING_BUFFER) && (TRICE_DIRECT_BUFFER != TRICE_DOUBLE_BUFFER)
+#error wrong configuration
+#endif
+
+#if (TRICE_DIRECT_BUFFER == TRICE_STACK_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
+#error wrong configuration
+#endif
+
+#if (TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
+#error wrong configuration
+#endif
+
+#if defined(TRICE_RTT0) && (TRICE_SEGGER_RTT_32BIT_WRITE == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
+#error wrong configuration
+#endif
+
+#if TRICE_DATA_OFFSET & 3
+#error All size values must be a multiple of 4!
+#endif
+
+#if TRICE_SINGLE_MAX_SIZE & 3 
+#error All size values must be a multiple of 4!
+#endif
+
+#if TRICE_DEFERRED_BUFFER_SIZE & 3
+#error All size values must be a multiple of 4!
+#endif
+
+// defaults:
+
+//! TRICE_DIRECT_BUFFER_SIZE is
+//! - the additional needed stack space when TRICE_DIRECT_BUFFER == TRICE_STACK_BUFFER
+//! - the statically allocated buffer size when TRICE_DIRECT_BUFFER TRICE_STATIC_BUFFER
+//! - the value before Ringbuffer wraps, when TRICE_DIRECT_BUFFER TRICE_STATIC_BUFFER 
+#define TRICE_DIRECT_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
+
+#ifndef TRICE_SEGGER_RTT_32BIT_WRITE
+
+//! TRICE_SEGGER_RTT_32BIT_WRITE==1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
+//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
+//! - If you do not need extrem speed, simply set this value to 0. Than the RTT trice packages are framed according to the set TRICE_FRAMING.
+#define TRICE_SEGGER_RTT_32BIT_WRITE 1 
+
+#endif
+
+#ifndef TRICE_DEFAULT_PARAMETER_BIT_WIDTH
+
+//! TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the default parameter bit width for TRICE macros not specifying the parameter bit width: 8, 16, 32 or 64.
+//! If for example the majority of your values is 16 bit, it makes sense to set this value to 16 to use TRICE for them and to use TRICE32 explicitely for 32-bit values.
+//! The trice tool CLI switch "-defaultTRICEBitwidth" needs to be set to the same bit width, default is 32.
+#define TRICE_DEFAULT_PARAMETER_BIT_WIDTH 32
+
+#endif
+
+#ifndef TRICE_B
+
+//! TRICE_B is a shortcut for TRICE8_B, TRICE16_B, TRICE32_B or TRICE64_B usable in your project.
+#define TRICE_B  TRICE8_B
+
+#endif
+
+#ifndef TRICE_F
+
+//! TRICE_F is a shortcut for TRICE8_F, TRICE16_F, TRICE32_F or TRICE64_F usable in your project.
+#define TRICE_F  TRICE8_F
+
+#endif
+
+#ifndef TRICE_CYCLE_COUNTER
+
+//! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message.
+//! If 0, do not add cycle counter. The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
+//! If 1, add an 8-bit cycle counter. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool. (reccommended)
+#define TRICE_CYCLE_COUNTER 1 
+
+#endif
+
+#ifndef TRICE_TRANSFER_MODE
+
+//! TRICE_TRANSFER_MODE is the selected trice transfer method. Options: TRICE_SAFE_SINGLE_MODE (recommended), TRICE_PACK_MULTI_MODE.
+//! TRICE_PACK_MULTI_MODE is usable only in TRICE_MODE TRICE_DOUBLE_BUFFER. It packs several trice messages before adding a 0-delimiter byte.
+#define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
+
+#endif
+
+#ifndef TRICE_COMMAND_SIZE_MAX
+
+//! TRICE_COMMAND_SIZE_MAX is the length limit command strings to target.
+#define TRICE_COMMAND_SIZE_MAX 120
+
+#endif
+
+#ifndef TRICE_DATA_OFFSET
+
+//! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a multiple of sizeof(uint32_t).
+//! If not defined, it is determined here automatically in a safe way (worst case consideration).
+
+#if defined(TRICE_HALF_BUFFER_SIZE) && (TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE)
+
+#define TRICE_DATA_OFFSET (((TRICE_HALF_BUFFER_SIZE/3)+4)&~3) // In worst case the buffer gets filled to the end only with 4-byte trices and each gets an additional sigil and a 0, so 33% are safe.
+
+#elif defined(TRICE_DIRECT_BUFFER_SIZE) // todo: make difference clear
+
+#define TRICE_DATA_OFFSET ((TRICE_DIRECT_BUFFER_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
+
+#else
+
+#define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end. Must be a multiple of 4.
+
+#endif
+
+#endif // #ifndef TRICE_DATA_OFFSET
+
+#if TRICE_CYCLE_COUNTER == 1
+
+#define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
+
+#else // #if TRICE_CYCLE_COUNTER == 1
+
+#define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
+
+#endif // #else // #if TRICE_CYCLE_COUNTER == 1
+
 #include "./box/trice8.h"
 #include "./box/trice16.h"
 #include "./box/trice32.h"
 #include "./box/trice64.h"
-
-#if TRICE_MODE == TRICE_DOUBLE_BUFFER
-extern uint32_t* TriceBufferWritePosition;
-#endif
-
-#if TRICE_MODE == TRICE_STREAM_BUFFER
-void TriceFifoPush( void* ta );
-uint32_t* TriceNextStreamBuffer( void );
-extern uint32_t* TriceBufferWritePosition; // todo: why?
-#endif
-
-unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
@@ -144,215 +316,66 @@ unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
-//! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
-//! This function is user provided.
-uint16_t TriceStamp16( void );
+#if TRICE_DIRECT_BUFFER ==  TRICE_STACK_BUFFER 
 
-//! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
-//! This function is user provided.
-uint32_t TriceStamp32( void );
-
-#if TRICE_MODE == TRICE_STACK_BUFFER 
-
-#define TRICE_STACK_BUFFER_MAX_SIZE (TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET)
-
-//! Start of TRICE macro
-#define TRICE_ENTER { /*TRICE_MODE == TRICE_STACK_BUFFER*/ \
-    uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
-    uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
-
-//! End of TRICE macro
-#define TRICE_LEAVE { /* TRICE_MODE == TRICE_STACK_BUFFER*/ \
-    unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
-    TriceOut( co, tLen ); } }
+//! TRICE_ENTER is the start of TRICE macro.
+#define TRICE_ENTER \
+		TRICE_ENTER_CRITICAL_SECTION { \
+    uint32_t triceSingleBuffer[TRICE_DIRECT_BUFFER_SIZE>>2]; \
+    uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2]; \
+    uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 #endif // #if TRICE_MODE == TRICE_STACK_BUFFER
 
-#if TRICE_MODE == TRICE_DOUBLE_BUFFER
-//! TRICE_HALF_BUFFER_SIZE is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
-//! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_HALF_BUFFER_SIZE  (((TRICE_BUFFER_SIZE/2) + 3) & ~3)
-
-#ifdef TRICE_RTT0 // special case
-// When RTT is configured, we want to get out the trice directly and not deferred.
-
-void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
-
-// When TRICE_MODE != TRICE_STACK_BUFFER (deferred mode for UART as example) and TRICE_RTT0 is defined
-// we need this value because TRICE_RTT0 is always in direct mode to support post mortem analysis.
-#define TRICE_STACK_BUFFER_MAX_SIZE (TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET) // TRICE_BUFFER_SIZE 
-
-//! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
-#define TRICE_ENTER \
-    TRICE_ENTER_CRITICAL_SECTION { \
-    uint32_t* TriceBufferWritePositionRtt0 = TriceBufferWritePosition;
-
-//! TRICE_LEAVE is the end of TRICE macro.
-//! Here we use a combination of direct buffer out for RTT and deferred buffer out for UART.
-//! The TRICE_PUT macros use the pointer TriceBufferWritePosition and the trice data are one after
-//! the other inside of the double buffer which has a TRICE_DATA_OFFSET space at the beginning.
-//! For direct out we need this space in front of each trice, therefore we must copy it.
-#define TRICE_LEAVE \
-    { \
-        unsigned tLenRtt0 = ((TriceBufferWritePosition - TriceBufferWritePositionRtt0)<<2); \
-        uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; \
-        memcpy( co + (TRICE_DATA_OFFSET>>2), TriceBufferWritePositionRtt0, tLenRtt0 ); \
-        TriceOutRtt0( co, tLenRtt0 ); \
-    } \
-    } TRICE_LEAVE_CRITICAL_SECTION
-
-#else // #ifdef TRICE_RTT0
-
-//! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION \
-
-//! TRICE_LEAVE is the end of TRICE macro.
-#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
-
-#endif // #else // #ifdef TRICE_RTT0
-
-#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-
-#if TRICE_MODE == TRICE_STREAM_BUFFER // todo: add RTT0 handling here too
-
-//! TRICE_STREAM_BUFFER_SIZE is the total size of the stream buffer. Must be able to hold the max TRICE burst count or even more,
-//! if the write out speed is small.
-#define TRICE_STREAM_BUFFER_SIZE  (TRICE_BUFFER_SIZE)
-
-//! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
-    uint32_t* ta = TriceBufferWritePosition; /* The last position points to free space.*/ \
-    TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* add offset */ 
-
-//! TRICE_LEAVE is the end of the TRICE macro.
-//! The triceFifo stores the write position before and after the TRICE macro execution.
-//! This is needed to know the trice size later in a general way. In the future several trice fifos possible. 
-#define TRICE_LEAVE \
-    TriceFifoPush( ta ); /* Store start of trice including TRICE_DATA_OFFSET. */ \
-    TriceFifoPush( TriceBufferWritePosition ); /* Store current limit for size detection in case of extended trices. */ \
-    TriceBufferWritePosition = TriceNextStreamBuffer(); /* Wrap stream buffer if needed. */ \
-    } TRICE_LEAVE_CRITICAL_SECTION
-
-#endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
-
 #if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
 
-//! TRICE_DEFERRED_BUFFER_SIZE is the total size of the deferred buffer. Must be able to hold the max TRICE burst count or even more,
-//! if the write out speed is small.
-#define TRICE_DEFERRED_BUFFER_SIZE  (TRICE_BUFFER_SIZE)
-
-extern uint32_t triceSingleBuffer[]; //!< triceSingleBuffer is an intermediate buffer for sigle trice messages.
-extern uint32_t* const triceSingleBufferStartWritePosition; // = &triceSingleBuffer[TRICE_DATA_OFFSET>>2]
-extern uint32_t* TriceBufferWritePosition;
-uint32_t* TriceNextDeferredBuffer( uint32_t wordCount );
-extern int singleTricesDeferredCount; //!< singleTricesDeferredCount >0 signals background to transfer trices.
-void singleTriceDirectOut( uint32_t* tb, size_t tLen );
-
-#include "box/SEGGER_RTT.h"
-extern SEGGER_RTT_BUFFER_UP* pRing;
-void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW );
-
-// | TRICE_DATA_OFFSET | data | ...
-//! triceSingleWrite copies a single trice from triceSingleBuffer to output.
-//! This is the time critical partexecuted inside TRICE_LEAVE.
-static inline void triceSingleWrite( void ){
-
-    // wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.
-    // The last written uint32_t trice value can contain 1 to 3 padding bytes.
-    size_t wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition;
-
-#if defined(TRICE_DIRECT_OUT) 
-
-    #if defined(TRICE_RTT0) && defined(TRICE_FRAMING_NONE)
-        #if TRICE_SEGGER_RTT_32BIT_WRITE
-            SEGGER_Write_RTT0_NoCheck32( triceSingleBufferStartWritePosition, wordCount );
-        #else // normal SEGGER RTT
-            size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
-            SEGGER_RTT_WriteNoLock(0, triceSingleBufferStartWritePosition, len ); // no encoding!!!!!!!!!!!
-        #endif
-    #else // encode data
-        singleTriceDirectOut( triceSingleBuffer, len ); // with encoding
-    #endif
-
-#endif
-
-#if defined(TRICE_DEFERRED_OUT)
-    uint32_t* next = TriceNextDeferredBuffer(wordCount+1); // +1 for the prefix
-    uint32_t* dest = next + (TRICE_DATA_OFFSET>>2); // keep space for encoding
-    uint32_t* src = triceSingleBufferStartWritePosition;
-    *dest++ = wordCount; // Add wordCount as prefix for fast processing. The trice messages contain length info too but not for real fast access.
-    while (wordCount--){
-        *dest++ = *src++; // transfer the trice message
-    }
-    singleTricesDeferredCount++; // The background task can now parse the deferred buffer area for the next trice.
-#endif
-}
-
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
+//! TRICE_ENTER is the start of TRICE macro.
+#define TRICE_ENTER \
+		TRICE_ENTER_CRITICAL_SECTION { \
     TriceBufferWritePosition = triceSingleBufferStartWritePosition;
-
-#define TRICE_LEAVE \
-    triceSingleWrite(); \
-    } TRICE_LEAVE_CRITICAL_SECTION
 
 #endif // #if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
 
-///////////////////////////////////////////////////////////////////////////////
-// Declarations and Defaults
+#if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
 
-#ifndef TRICE_COMMAND_SIZE_MAX
-#define TRICE_COMMAND_SIZE_MAX 120 //!< trice tool could transmit command strings to target
-#endif
-extern char* const triceCommandBuffer;
-extern int triceCommandFlag;
-extern int triceCommandLength;
+//! TRICE_ENTER is the start of TRICE macro.
+#define TRICE_ENTER \
+    TRICE_ENTER_CRITICAL_SECTION { \
+		uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
 
-size_t TriceDepth( void );
-size_t TriceDepthMax( void );
-void TriceDiagnostics( int index );
-size_t triceNonBlockingWriteUartA( void const * buf, size_t nByte );
-size_t triceNonBlockingWriteUartB( void const * buf, size_t nByte );
+#endif // #if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
 
-extern unsigned triceDepthMax;
-extern size_t triceFifoDepthMax;
-extern size_t triceStreamBufferDepthMax;
+#if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER
 
-void TriceOut( uint32_t* tb, size_t tLen );
-void TriceLogBufferInfo( void );
+//! TRICE_ENTER is the start of TRICE macro.
+#define TRICE_ENTER \
+    TRICE_ENTER_CRITICAL_SECTION { \
+		uint32_t* const triceSingleBufferStartWritePosition = TriceNextRingWriteBuffer(TriceBufferWritePosition) + (TRICE_DATA_OFFSET>>2); \
+		uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition; \
+		singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+		
+#endif // #if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER
 
-void TriceTransfer( void );
-void TriceCheck( int index ); //!< tests
+#if TRICE_DIRECT_OUTPUT
 
-#ifdef TRICE_RTT0
-#include "./box/SEGGER_RTT.h"
-#if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > BUFFER_SIZE_UP
-#error
-#endif
-#if defined(TRICE_STACK_BUFFER_SIZE) && TRICE_STACK_BUFFER_SIZE > BUFFER_SIZE_UP
-#error
-#endif
-#endif // #ifdef TRICE_RTT0
+//! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
+#define TRICE_LEAVE \
+    /* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
+    /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
+    int wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
+    TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
+    } TRICE_LEAVE_CRITICAL_SECTION
 
-//! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a multiple of uint32_t.
-#ifndef TRICE_DATA_OFFSET
-#if defined(TRICE_HALF_BUFFER_SIZE)
-#define TRICE_DATA_OFFSET (((TRICE_HALF_BUFFER_SIZE/3)+4)&~3) // In worst case the buffer gets filled to the end only with 4-byte trices and each gets an additional sigil and a 0, so 33% are safe.
-#elif defined(TRICE_STACK_BUFFER_MAX_SIZE)
-#define TRICE_DATA_OFFSET ((TRICE_STACK_BUFFER_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
-#else
-#define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end. Must be a multiple of 4.
-#endif
-#endif // #ifndef TRICE_DATA_OFFSET
+#else	//#if TRICE_DIRECT_OUTPUT
+		
+//! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
+#define TRICE_LEAVE \
+			/* nothing to do. */ \
+			} TRICE_LEAVE_CRITICAL_SECTION
 
-#if TRICE_CYCLE_COUNTER == 1
-extern uint8_t TriceCycle;
-#define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
-#else
-#define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
-#endif
+#endif // #else	//#if TRICE_DIRECT_OUTPUT		
 
-//
-///////////////////////////////////////////////////////////////////////////////
+// trice macros:
 
 #ifndef TRICE_PUT
 #define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = TRICE_HTOTL(x); }while(0); //! PUT copies a 32 bit x into the TRICE buffer.
@@ -360,14 +383,20 @@ extern uint8_t TriceCycle;
 
 #if ( defined( TRICE_MCU_IS_BIG_ENDIAN ) &&  defined( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN ) ) \
   ||(!defined( TRICE_MCU_IS_BIG_ENDIAN ) && !defined( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN ) )
+
     #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)(x) ); TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); // little endian
+
 #else
+
     #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); TRICE_PUT( (uint32_t)(x) ); // big endian
+
 #endif
 
 #ifndef TRICE_PUTBUFFER
+
 //! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
 #define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0)
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -396,7 +425,7 @@ extern uint8_t TriceCycle;
 // UART interface
 //
 
-#if defined( TRICE_UARTA ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) // buffered out to UARTA
+#if defined( TRICE_UARTA ) // deferred out to UARTA
 void TriceBlockingWriteUartA( uint8_t const * buf, unsigned len );
 uint8_t TriceNextUint8UartA( void );
 void triceServeTransmitUartA(void);
@@ -404,7 +433,7 @@ void triceTriggerTransmitUartA(void);
 unsigned TriceOutDepthUartA( void );
 #endif
 
-#if defined( TRICE_UARTB ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) // buffered out to UARTB
+#if defined( TRICE_UARTB ) // deferred out to UARTB
 void TriceBlockingWriteUartB( uint8_t const * buf, unsigned len );
 uint8_t TriceNextUint8UartB( void );
 void triceServeTransmitUartB(void);
@@ -412,7 +441,6 @@ void triceTriggerTransmitUartB(void);
 unsigned TriceOutDepthUartB( void );
 #endif
 
-unsigned TriceOutDepth( void );
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -545,21 +573,22 @@ static inline uint64_t aDouble( double x ){
 #endif // #ifndef TRICE_S
 
 #ifndef TRICE_PUT16
+
 //! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
 #define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = TRICE_HTOTS(x); TriceBufferWritePosition = (uint32_t*)p; }while(0)
+
 #endif
 
-extern const int TriceTypeS0;
-extern const int TriceTypeS2;
-extern const int TriceTypeS4;
-extern const int TriceTypeX0;
-
 #ifdef TRICE_MCU_IS_BIG_ENDIAN
+
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT1616( ts ) TRICE_PUT16( ts >> 16 ); TRICE_PUT16( ts ); 
+
 #else
+
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT1616( ts ) TRICE_PUT16( ts );       TRICE_PUT16( ((ts) >> 16) ); 
+
 #endif
 
 //! ID writes 14-bit id with 11 as 2 most significant bits, followed by a 32-bit stamp.
@@ -584,11 +613,15 @@ extern const int TriceTypeX0;
 #define CNTC(count) do{ uint16_t v = ((count)<<8) | TRICE_CYCLE; TRICE_PUT16( v ); }while(0)
 
 #if TRICE_CYCLE_COUNTER == 1
+
 //! LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
 #define LCNT(count) TRICE_PUT16( (0x8000 | (count)) ); TRICE_CYCLE  // increment TRICE_CYCLE but do not transmit it
+
 #else
+
 //! LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
 #define LCNT(count) TRICE_PUT16( (0x8000 | (count)) );  // no TRICE_CYCLE
+
 #endif
 
 //! TRICE0 writes trice data as fast as possible in a buffer.
@@ -629,22 +662,7 @@ TRICE_INLINE void trice0( uint16_t tid, char* pFmt ){
 #define TRICE_SHORT0( v ) (uint16_t)(v)
 #define TRICE_SHORT1( v ) ((uint32_t)(v)<<16) 
 
-
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
-
-#if defined(TRICE_LOG_OVER_MODBUS_FUNC24) && (TRICE_MODE != TRICE_STREAM_BUFFER)
-#error TRICE_LOG_OVER_MODBUS_FUNC24 works only with TRICE_MODE == TRICE_STREAM_BUFFER.
-#endif
-
-void TriceLogDepthMax( void );
-void TriceNonBlockingWriteModbusBuffer( uint8_t const * buf, unsigned len );
-size_t TriceModbusAlsoFetch( int index, uint8_t* tBuf );
-size_t TriceModbusOnlyFetch( int index, uint8_t* tBuf );
-
-#ifdef TRICE_SEGGER_RTT_DIAGNOSTICS
-extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
-extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for diagnostics.
-#endif
 
 #ifdef __cplusplus
 }

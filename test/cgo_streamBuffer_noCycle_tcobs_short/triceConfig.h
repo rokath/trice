@@ -125,9 +125,6 @@ extern "C" {
     TRICE0( Id( 2936), "s:                                          \n" ); \
     TRICE8( Id( 4305), "s:     CGO-TEST     TRICE_MODE %3u     \n", TRICE_MODE ); \
     TRICE0( Id( 2029), "s:                                          \n" ); \
-    TRICE0( Id( 1595), "s:     " ); \
-    TriceLogBufferInfo(); \
-    TRICE0( Id( 3003), "s:     \n" ); \
     TRICE0( Id( 5493), "s:                                          \n");
 
 //

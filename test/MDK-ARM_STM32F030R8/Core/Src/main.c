@@ -129,8 +129,6 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     for(;;){
-        uint32_t ms = milliSecond();
-
         // check for external commands
         if( triceCommandFlag ){
             triceCommandFlag = 0;
@@ -139,15 +137,17 @@ int main(void)
             TRICE( ID( 6967), "att:...done\n" );
         }
 
-        #if 0 //def TRICE_DEFERRED_OUT
+        uint32_t ms = milliSecond();
+
+				#if (TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER) || (TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER)
         // Serve trice transfer every few ms.
         // With an RTOS put this in a separate task.
-        static unsigned lastMs = 0;
-        if( ms >= lastMs + 10 ){ // TRICE_TRANSFER_INTERVAL_MS
-            lastMs = ms;
-            TriceTransfer();
-        }
-        #endif
+        //  static unsigned lastMs = 0;
+        //  if( ms >= lastMs + 10 ){
+        //      lastMs = ms;
+            TriceTransfer(); // serve deferred output
+        //  }
+        #endif // #if (TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER) || (TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
@@ -167,6 +167,8 @@ int main(void)
             loop++;
             #endif // #if TRICE_CHECK_CODE 
         }
+        UsDuty();
+				__WFE(); // wait for event (sleep)
         UsDuty();
     }
     /* USER CODE END WHILE */

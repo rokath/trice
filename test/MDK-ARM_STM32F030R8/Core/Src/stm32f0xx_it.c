@@ -112,10 +112,10 @@ void usDuty( void ){
 
 #if 1 // us timestamps
 
-// 16-bit us stamp, wraps after 10 milliseconds
+
 uint16_t TriceStamp16( void ){
-    return SysTick->VAL;
-    // return Us16();
+    return SysTick->VAL; // 16 bit clock backwards stamp 47999 -> 0 
+    // return Us16(); // 16-bit us stamp, wraps after 10 milliseconds
 }
 
 // 32-bit us stamp, wraps after 71,58 seconds

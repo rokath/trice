@@ -3,17 +3,30 @@
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
-#if TRICE_MODE == TRICE_DOUBLE_BUFFER
+#if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
 
-#if TRICE_HALF_BUFFER_SIZE < TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET
-#error
+//! TRICE_HALF_BUFFER_SIZE is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
+//! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_HALF_BUFFER_SIZE  (TRICE_DEFERRED_BUFFER_SIZE/2)
+
+#if TRICE_HALF_BUFFER_SIZE < TRICE_DIRECT_BUFFER_SIZE
+#error configuration error
 #endif
 
-static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is a double buffer for better write speed.
-static int triceSwap = 0; //!< triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
-    uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
-static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
+//! triceBuffer is a double buffer for better write speed.
+static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; 
 
+//! triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
+static int triceSwap = 0;
+
+//! TriceBufferWritePosition is the active write position.
+uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2];
+
+//! TriceBufferWritePosition is used by TRICE_PUT macros.
+uint32_t* TriceBufferLastWritePosition;
+
+//! triceBufferWriteLimit is the triceBuffer written limit. 
+static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
 
 //! triceBufferSwap swaps the trice double buffer and returns the read buffer address.
 static uint32_t* triceBufferSwap( void ){
@@ -36,7 +49,7 @@ static size_t triceDepth( uint32_t const* tb ){
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
 //! It is the resposibility of the app to call this function once every 10-100 milliseconds.
 void TriceTransfer( void ){
-    if( 0 == TriceOutDepth() ){ // transmission done, so a swap is possible
+    if( 0 == TriceOutDepth() ){ // transmission done for slowest output channel, so a swap is possible
         uint32_t* tb = triceBufferSwap(); 
         size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
         if( tLen ){
@@ -45,7 +58,7 @@ void TriceTransfer( void ){
     } // else: transmission not done yet
 }
 
-//! TriceDepth returns current trice buffer depth.
+//! TriceDepth returns current trice buffer depth. (diagnostics)
 size_t TriceDepth( void ){
     size_t currentDepth = (size_t)(4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0]));
     return currentDepth;
@@ -57,8 +70,4 @@ size_t TriceDepthMax( void ){
     return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
 }
 
-void TriceLogBufferInfo( void ){
-    trice16( iD( 7936), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE );
-}
-
-#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFER
+#endif // #if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER

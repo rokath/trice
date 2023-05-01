@@ -1215,6 +1215,10 @@
 		"Type": "TRICE",
 		"Strg": "test:yellow+h:black\\n"
 	},
+	"2804": {
+		"Type": "trice",
+		"Strg": "s:     |        NUCLEO-F030R8         |     \\n"
+	},
 	"2811": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+9.f (%%9.f)\\n"
@@ -4234,6 +4238,10 @@
 	"7459": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %b (%%b ,-1)\\n"
+	},
+	"7462": {
+		"Type": "TRICE16",
+		"Strg": "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\\n"
 	},
 	"7466": {
 		"Type": "TRICE64",
