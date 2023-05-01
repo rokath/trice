@@ -5,6 +5,8 @@
 
 #if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
 
+static void TriceOut( uint32_t* tb, size_t tLen );
+
 //! TRICE_HALF_BUFFER_SIZE is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
 //! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
 #define TRICE_HALF_BUFFER_SIZE  (TRICE_DEFERRED_BUFFER_SIZE/2)
@@ -68,6 +70,51 @@ size_t TriceDepth( void ){
 size_t TriceDepthMax( void ){
     size_t currentDepth = TriceDepth(); 
     return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
+}
+
+
+//! TriceOut encodes trices and writes them in one step to the output.
+//! This function is called only, when the slowest deferred output device has finished its last buffer.
+//! That 
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
+//! the tb start is for in-buffer encoding of the trice data.
+//! \param tLen is length of trice data. tlen is always a multiple of 4 because
+//! of 32-bit alignment and padding bytes.
+static void TriceOut( uint32_t* tb, size_t tLen ){
+    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
+    size_t encLen = 0;
+    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
+    size_t len = tLen; // (byte count)
+    int triceID;
+    // diagnostics
+    tLen += TRICE_DATA_OFFSET; 
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+    // do it
+    while(len){
+        uint8_t* triceStart;
+        size_t triceLen;
+        triceID = TriceNext( &buf, &len, &triceStart, &triceLen );
+        if( triceID <= 0 ){ // on data error
+            break;   // ignore following data
+        }
+        #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
+        encLen += TriceEncode( enc+encLen, triceStart, triceLen );
+        #endif
+        #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+        memmove(enc + TRICE_DATA_OFFSET + encLen, triceStart, triceLen );
+        encLen += triceLen;
+        #endif
+    }
+    #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+    encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
+    #endif
+    ToggleOpticalFeedbackLED();
+    
+		// Reaching here means all trice data in the current double buffer are encoded
+		// into a single continuous buffer having 0-delimiters between them or not but at the ent is a 0-delimiter.
+		//
+    // output	
+		TriceNonBlockingWrite( triceID, enc, encLen );
 }
 
 #endif // #if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER

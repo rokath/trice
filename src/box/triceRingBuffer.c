@@ -5,6 +5,8 @@
 
 #if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER
 
+static int TriceSingleDeferredOut(uint32_t* addr);
+
 //! triceRingBuffer is a kind of heap for trice messages.
 static uint32_t triceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] = {0};
 
@@ -57,6 +59,25 @@ void TriceTransfer( void ){
 		uint32_t* addr = triceNextRingBufferRead( lastWordCount );	
 		
     lastWordCount = TriceSingleDeferredOut(addr+(TRICE_DATA_OFFSET>>2));
+}
+
+//! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
+//! \param addr points to TRICE_DATA_OFFSET bytes usble space followed by the begin of a single trice.
+//! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
+//! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_DIRECT_BUFFER_SIZE/4)).
+//! Return values <= 0 signal an error.
+static int TriceSingleDeferredOut(uint32_t* addr){
+		uint32_t* pData = addr + (TRICE_DATA_OFFSET>>2);
+		uint8_t* pEnc = (uint8_t*)addr;
+
+		int wordCount;
+		uint8_t* pStart;
+		size_t Length;
+		int triceID = triceIDAndBuffer( pData, &wordCount, &pStart, &Length );
+	
+		size_t encLen = TriceEncode( pEnc, pStart, Length);
+		TriceNonBlockingWrite( triceID, pEnc, encLen );
+		return wordCount;
 }
 
 #endif // #if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER

@@ -114,16 +114,17 @@ uint32_t TriceStamp32( void );
 void TriceDirectWrite( uint32_t* const triceStart, int wordCount );
 unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 unsigned TriceOutDepth( void );
-int TriceSingleDeferredOut(uint32_t* addr);
 uint32_t* TriceNextRingWriteBuffer( uint32_t* TriceBufferWritePosition );
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
 void TriceLogDepthMax( void );
 void TriceDiagnostics( int index );
-void TriceOut( uint32_t* tb, size_t tLen );
 void TriceTransfer( void );
 void TriceCheck( int index ); // tests
-
+int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
+size_t TriceEncode( uint8_t* enc, uint8_t const* buf, size_t len );
+void TriceNonBlockingWrite( int ticeID, uint8_t* pBuf, size_t len );
+void TriceWriteDeviceAuxiliary( uint8_t *buf, size_t len );
 
 // global variables:
 

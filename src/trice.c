@@ -4,6 +4,10 @@
 
 #include "trice.h"
 
+#ifdef TRICE_AUXILIARY
+#include "./box/triceAuxiolary.c"
+#endif
+
 #ifdef TRICE_RTT0
 #include "./box/SEGGER_RTT.c"
 #endif

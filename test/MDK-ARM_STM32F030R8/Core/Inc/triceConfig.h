@@ -17,7 +17,7 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_RING_BUFFER.
-#define TRICE_DIRECT_BUFFER TRICE_RING_BUFFER
+#define TRICE_DIRECT_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
