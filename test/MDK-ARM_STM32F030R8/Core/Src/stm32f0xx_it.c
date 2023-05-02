@@ -157,7 +157,7 @@ uint32_t milliSecond( void ){
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-    trice( iD( 6576), "CRITICAL:NMI!\n" );
+    TRice( iD( 6576), "CRITICAL:NMI!\n" );
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
   while (1)
@@ -172,7 +172,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-    trice( iD( 2767), "FATAL:HardFault!\n" );
+    TRice( iD( 2767), "FATAL:HardFault!\n" );
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
@@ -222,10 +222,10 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
-#if defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_STREAM_BUFFER) ) // buffered out to UART
+#if defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UART
     triceTriggerTransmitUartA();
 #endif
-#if defined( TRICE_UARTB ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_STREAM_BUFFER) ) // buffered out to UART
+#if defined( TRICE_UARTB ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UART
     triceTriggerTransmitUartB();
 #endif
   /* USER CODE END SysTick_IRQn 1 */
@@ -266,7 +266,7 @@ void USART2_IRQHandler(void)
 #endif // #if defined( TRICE_UARTA )
     // If both flags active and only one was served, the IRQHandler gets activated again.
 
-#if defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_STREAM_BUFFER) ) // buffered out to UARTA
+#if defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UARTA
     if( LL_USART_IsActiveFlag_TXE(TRICE_UARTA) ){ // Transmit Data Register Empty Flag
         triceServeTransmitUartA();
         return;

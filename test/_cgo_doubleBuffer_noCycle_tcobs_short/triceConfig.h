@@ -17,7 +17,7 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_RING_BUFFER.
-#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
@@ -75,32 +75,34 @@ extern "C" {
 //#define XTEA_DECRYPT 
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_RTT0 0 // comment out, if you do not use RTT
+//#define TRICE_RTT0 0 // comment out, if you do not use RTT
 
 //! TRICE_SEGGER_RTT_DIAGNOSTICS allows to track SEGGER RTT buffer usage, if enabled here.
 //#define TRICE_SEGGER_RTT_DIAGNOSTICS // not for TRICE_SEGGER_RTT_32BIT_WRITE == 1
 
 //! Enable and set UARTA for deferred serial output.
-#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
-#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
-#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
+//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+//#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
+//#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
 //! Enable and set UARTB for deferred serial output.
 //#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
-#define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB. Define with TRICE_UARTB_MAX_ID if you want select trice output here.
-#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB. Define with TRICE_UARTB_MIN_ID if you want select trice output here.
+//#define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB. Define with TRICE_UARTB_MAX_ID if you want select trice output here.
+//#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB. Define with TRICE_UARTB_MIN_ID if you want select trice output here.
 
 //! Enable option for an additional interface, you can define by your own.
-#define TRICE_AUXILIARY // comment out, if you do not use TRICE_AUXILIARY
-#define TRICE_AUXILIARY_MIN_ID 1           //!< TRICE_AUXILIARY_MIN_ID is the smallest ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MAX_ID if you want select trice output here.
-#define TRICE_AUXILIARY_MAX_ID ((1<<14)-1) //!< TRICE_AUXILIARY_MAX_ID is the biggest  ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MIN_ID if you want select trice output here.
+//#define TRICE_AUXILIARY // comment out, if you do not use TRICE_AUXILIARY
+//#define TRICE_AUXILIARY_MIN_ID 1           //!< TRICE_AUXILIARY_MIN_ID is the smallest ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MAX_ID if you want select trice output here.
+//#define TRICE_AUXILIARY_MAX_ID ((1<<14)-1) //!< TRICE_AUXILIARY_MAX_ID is the biggest  ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MIN_ID if you want select trice output here.
 
 //! CGO interface (for testing the target code with Go only, do not enable)
-//#define TRICE_CGO 
+#define TRICE_CGO 
 
-//! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code.
+//! This is usable as the very first trice sequence after restart. Adapt it.
 #define TRICE_HEADLINE \
-    trice( iD( 7612), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈        𝕹𝖀𝕮𝕷𝕰𝕺-𝔽𝟘𝟛𝟘ℝ𝟠         🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+    trice( iD( 7746), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n" ); \
+    trice( iD( 2804), "s:     |           CGO Test           |     \n" ); \
+    trice( iD( 3248), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n");
 
 // Compiler Adaption:
 
@@ -111,7 +113,7 @@ extern "C" {
 //! #define TRICE_ENTER_CRITICAL_SECTION { 
 //! #define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 //! #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
-#define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { 
+#define TRICE_ENTER_CRITICAL_SECTION {  
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! If trices are used only outside critical sections or interrupts,
@@ -120,16 +122,16 @@ extern "C" {
 //! #define TRICE_LEAVE_CRITICAL_SECTION } 
 //! #define TRICE_LEAVE_CRITICAL_SECTION } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 //! #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
-#define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } 
+#define TRICE_LEAVE_CRITICAL_SECTION }  
 
 #define TRICE_INLINE static inline //! used for trice code
 
 // hardware interface:
 
-#include "main.h" // hardware specific definitions
+//#include "main.h" // hardware specific definitions
 
 TRICE_INLINE void ToggleOpticalFeedbackLED( void ){
-    LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+//    LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 }
 
 #ifdef TRICE_UARTA

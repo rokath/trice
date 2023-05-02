@@ -20,18 +20,10 @@ uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SI
 int singleTricesRingCount = 0; 
 
 //! TriceRingBufferReadPosition points to a valid trice message when singleTricesRingCount > 0.
-uint32_t* TriceRingBufferReadPosition = TriceRingBuffer; 
-
-//! TriceNextRingWriteBuffer returns a usable address with TRICR_BUFFER space.
-//! \trtval is the next usable address in the ring buffer. 
-//! If there is at least TRICE_DIRECT_BUFFER_SIZE TriceBufferWritePosition remains unchanged, otherwise it is set to the ring buffer start.
-//! For performance there is no full check, so the user needs tor read out faster than it is possible to fill the ring buffer.
-uint32_t* TriceNextRingWriteBuffer( void ){
-    if( (triceRingBufferLimit - TriceBufferWritePosition < (TRICE_DIRECT_BUFFER_SIZE>>2)) ){
-        TriceBufferWritePosition = TriceRingBuffer;
-    }
-    return TriceBufferWritePosition; 
-}
+//! This is first the TRICE_DATA_OFFSET byte space followedy the trice data.
+//! Initally this value is set to TriceRingBuffer minus TRICE_DATA_OFFSET byte space
+//! to ga correct value for the very first call of triceNextRingBufferRead
+uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2); 
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice are data starting at byte offset TRICE_DATA_OFFSET.
 //! Implicit assumed is singleTricesRingCount > 0.
@@ -39,8 +31,8 @@ uint32_t* TriceNextRingWriteBuffer( void ){
 //! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
 //! \retval is the address of the next trice data buffer.
 static uint32_t* triceNextRingBufferRead( int lastWordCount ){
-    TriceRingBufferReadPosition += lastWordCount;
-    if( (triceRingBufferLimit - TriceRingBufferReadPosition < (TRICE_DIRECT_BUFFER_SIZE>>2)) ){
+    TriceRingBufferReadPosition += (TRICE_DATA_OFFSET>>2) + lastWordCount;
+    if( (TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE>>2)) > triceRingBufferLimit ){
         TriceRingBufferReadPosition = TriceRingBuffer;
     }
     return TriceRingBufferReadPosition; 
@@ -58,13 +50,13 @@ void TriceTransfer( void ){
     static int lastWordCount = 0;
     uint32_t* addr = triceNextRingBufferRead( lastWordCount );  
     
-    lastWordCount = TriceSingleDeferredOut(addr+(TRICE_DATA_OFFSET>>2));
+    lastWordCount = TriceSingleDeferredOut(addr);
 }
 
 //! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
 //! \param addr points to TRICE_DATA_OFFSET bytes usble space followed by the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
-//! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_DIRECT_BUFFER_SIZE/4)).
+//! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
 //! Return values <= 0 signal an error.
 static int TriceSingleDeferredOut(uint32_t* addr){
     uint32_t* pData = addr + (TRICE_DATA_OFFSET>>2);

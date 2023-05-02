@@ -134,7 +134,6 @@ int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** p
 // global variables:
 
 extern uint32_t* const triceSingleBufferStartWritePosition;
-extern uint32_t* TriceBufferWritePosition;
 extern int singleTricesRingCount;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
@@ -150,6 +149,10 @@ extern unsigned triceErrorCount;
 extern uint32_t* const triceRingBufferLimit;
 extern uint32_t TriceRingBuffer[];
 
+#if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
+extern uint32_t* TriceBufferWritePosition;
+#endif
+
 // check configuration:
 
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
@@ -158,13 +161,13 @@ extern uint32_t TriceRingBuffer[];
 //! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
 #define TRICE_HALF_BUFFER_SIZE  (TRICE_DEFERRED_BUFFER_SIZE/2)
 
-#if TRICE_HALF_BUFFER_SIZE < TRICE_DIRECT_BUFFER_SIZE
+#if TRICE_HALF_BUFFER_SIZE < TRICE_BUFFER_SIZE
 #error configuration error
 #endif
 
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 
-#if defined(TRICE_RTT0) && (TRICE_DIRECT_BUFFER_SIZE > BUFFER_SIZE_UP)
+#if defined(TRICE_RTT0) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
 #error wrong configuration
 #endif
 
@@ -202,11 +205,11 @@ extern uint32_t TriceRingBuffer[];
 
 // defaults:
 
-//! TRICE_DIRECT_BUFFER_SIZE is
+//! TRICE_BUFFER_SIZE is
 //! - the additional needed stack space when TRICE_BUFFER == TRICE_STACK_BUFFER
 //! - the statically allocated buffer size when TRICE_BUFFER TRICE_STATIC_BUFFER
 //! - the value before Ringbuffer wraps, when TRICE_BUFFER TRICE_STATIC_BUFFER 
-#define TRICE_DIRECT_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
+#define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
 
 #ifndef TRICE_SEGGER_RTT_32BIT_WRITE
 
@@ -274,9 +277,9 @@ extern uint32_t TriceRingBuffer[];
 
 #define TRICE_DATA_OFFSET (((TRICE_HALF_BUFFER_SIZE/3)+4)&~3) // In worst case the buffer gets filled to the end only with 4-byte trices and each gets an additional sigil and a 0, so 33% are safe.
 
-#elif defined(TRICE_DIRECT_BUFFER_SIZE) // todo: make difference clear
+#elif defined(TRICE_BUFFER_SIZE) // todo: make difference clear
 
-#define TRICE_DATA_OFFSET ((TRICE_DIRECT_BUFFER_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
+#define TRICE_DATA_OFFSET ((TRICE_BUFFER_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
 
 #else
 
@@ -342,7 +345,7 @@ extern uint32_t TriceRingBuffer[];
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
-    uint32_t triceSingleBuffer[TRICE_DIRECT_BUFFER_SIZE>>2]; \
+    uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE>>2]; \
     uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2]; \
     uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
@@ -353,7 +356,7 @@ extern uint32_t TriceRingBuffer[];
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
-    TriceBufferWritePosition = triceSingleBufferStartWritePosition;
+    uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 #endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER
 
@@ -371,7 +374,7 @@ extern uint32_t TriceRingBuffer[];
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
-    TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_DIRECT_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+    TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
     TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
     uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
     singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
