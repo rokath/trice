@@ -17,13 +17,14 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_RING_BUFFER.
-#define TRICE_DIRECT_BUFFER TRICE_DOUBLE_BUFFER
+#define TRICE_DIRECT_BUFFER TRICE_STATIC_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
 //! Setting TRICE_DIRECT_BUFFER to TRICE_STACK_BUFFER or TRICE_STATIC_BUFFER demands TRICE_DIRECT_OUTPUT == 1, no deferred output at all.
-//! When TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER or TRICE_DIRECT_BUFFER TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
+//! When TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER or TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
+//! TRICE_DIRECT_BUFFER == TRICE_STACK_BUFFER or TRICE_DIRECT_BUFFER TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
 #define TRICE_DIRECT_OUTPUT 1
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
@@ -80,12 +81,12 @@ extern "C" {
 //#define TRICE_SEGGER_RTT_DIAGNOSTICS // not for TRICE_SEGGER_RTT_32BIT_WRITE == 1
 
 //! Enable and set UARTA for deferred serial output.
-#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 #define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 #define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
 //! Enable and set UARTB for deferred serial output.
-#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
+//#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
 #define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB. Define with TRICE_UARTB_MAX_ID if you want select trice output here.
 #define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB. Define with TRICE_UARTB_MIN_ID if you want select trice output here.
 

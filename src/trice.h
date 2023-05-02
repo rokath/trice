@@ -125,6 +125,7 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 size_t TriceEncode( uint8_t* enc, uint8_t const* buf, size_t len );
 void TriceNonBlockingWrite( int ticeID, uint8_t* pBuf, size_t len );
 void TriceWriteDeviceAuxiliary( uint8_t *buf, size_t len );
+int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
 
 // global variables:
 
@@ -321,7 +322,7 @@ extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for d
 
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
-		TRICE_ENTER_CRITICAL_SECTION { \
+    TRICE_ENTER_CRITICAL_SECTION { \
     uint32_t triceSingleBuffer[TRICE_DIRECT_BUFFER_SIZE>>2]; \
     uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2]; \
     uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
@@ -332,7 +333,7 @@ extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for d
 
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
-		TRICE_ENTER_CRITICAL_SECTION { \
+    TRICE_ENTER_CRITICAL_SECTION { \
     TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 #endif // #if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
@@ -342,7 +343,7 @@ extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for d
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
-		uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
+    uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
 
 #endif // #if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
 
@@ -351,10 +352,10 @@ extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for d
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
-		uint32_t* const triceSingleBufferStartWritePosition = TriceNextRingWriteBuffer(TriceBufferWritePosition) + (TRICE_DATA_OFFSET>>2); \
-		uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition; \
-		singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
-		
+    uint32_t* const triceSingleBufferStartWritePosition = TriceNextRingWriteBuffer(TriceBufferWritePosition) + (TRICE_DATA_OFFSET>>2); \
+    uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition; \
+    singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+    
 #endif // #if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER
 
 #if TRICE_DIRECT_OUTPUT
@@ -367,14 +368,14 @@ extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for d
     TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
     } TRICE_LEAVE_CRITICAL_SECTION
 
-#else	//#if TRICE_DIRECT_OUTPUT
-		
+#else  //#if TRICE_DIRECT_OUTPUT
+    
 //! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
 #define TRICE_LEAVE \
-			/* nothing to do. */ \
-			} TRICE_LEAVE_CRITICAL_SECTION
+    /* nothing to do. */ \
+    } TRICE_LEAVE_CRITICAL_SECTION
 
-#endif // #else	//#if TRICE_DIRECT_OUTPUT		
+#endif // #else  //#if TRICE_DIRECT_OUTPUT    
 
 // trice macros:
 

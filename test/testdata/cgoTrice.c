@@ -28,9 +28,9 @@ void CgoClearTriceBuffer( void  ){
     cgoTriceBufferDepth = 0;
 }
 
-//! triceNonBlockingWriteCgoBuffer copies buf with len into triceBuffer.
+//! TriceWriteDeviceCgo copies buf with len into triceBuffer.
 //! This function is called from the trice runtime inside TriceWriteDevice().
-void triceNonBlockingWriteCgoBuffer( uint8_t const * buf, unsigned len ){
+void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ){
     memcpy(cgoTriceBuffer, buf, len);
     cgoTriceBufferDepth = len;
 }

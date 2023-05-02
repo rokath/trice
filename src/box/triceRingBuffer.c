@@ -28,7 +28,7 @@ uint32_t* TriceRingBufferReadPosition = triceRingBuffer;
 //! For performance there is no full check, so the user needs tor read out faster than it is possible to fill the ring buffer.
 uint32_t* TriceNextRingWriteBuffer( uint32_t* TriceBufferWritePosition ){
     if( (triceRingBufferLimit - TriceBufferWritePosition < (TRICE_DIRECT_BUFFER_SIZE>>2)) ){
-				TriceBufferWritePosition = triceRingBuffer;
+        TriceBufferWritePosition = triceRingBuffer;
     }
     return TriceBufferWritePosition; 
 }
@@ -41,7 +41,7 @@ uint32_t* TriceNextRingWriteBuffer( uint32_t* TriceBufferWritePosition ){
 static uint32_t* triceNextRingBufferRead( int lastWordCount ){
     TriceRingBufferReadPosition += lastWordCount;
     if( (triceRingBufferLimit - TriceRingBufferReadPosition < (TRICE_DIRECT_BUFFER_SIZE>>2)) ){
-				TriceRingBufferReadPosition = triceRingBuffer;
+        TriceRingBufferReadPosition = triceRingBuffer;
     }
     return TriceRingBufferReadPosition; 
 }
@@ -51,13 +51,13 @@ void TriceTransfer( void ){
     if( singleTricesRingCount == 0 ){ // no data
         return;
     }
-		if( TriceOutDepth() ){ // last transmission not finished
-			  return;
-		}
+    if( TriceOutDepth() ){ // last transmission not finished
+        return;
+    }
     singleTricesRingCount--;
-		static int lastWordCount = 0;
-		uint32_t* addr = triceNextRingBufferRead( lastWordCount );	
-		
+    static int lastWordCount = 0;
+    uint32_t* addr = triceNextRingBufferRead( lastWordCount );  
+    
     lastWordCount = TriceSingleDeferredOut(addr+(TRICE_DATA_OFFSET>>2));
 }
 
@@ -67,17 +67,17 @@ void TriceTransfer( void ){
 //! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_DIRECT_BUFFER_SIZE/4)).
 //! Return values <= 0 signal an error.
 static int TriceSingleDeferredOut(uint32_t* addr){
-		uint32_t* pData = addr + (TRICE_DATA_OFFSET>>2);
-		uint8_t* pEnc = (uint8_t*)addr;
+    uint32_t* pData = addr + (TRICE_DATA_OFFSET>>2);
+    uint8_t* pEnc = (uint8_t*)addr;
 
-		int wordCount;
-		uint8_t* pStart;
-		size_t Length;
-		int triceID = triceIDAndBuffer( pData, &wordCount, &pStart, &Length );
-	
-		size_t encLen = TriceEncode( pEnc, pStart, Length);
-		TriceNonBlockingWrite( triceID, pEnc, encLen );
-		return wordCount;
+    int wordCount;
+    uint8_t* pStart;
+    size_t Length;
+    int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
+  
+    size_t encLen = TriceEncode( pEnc, pStart, Length);
+    TriceNonBlockingWrite( triceID, pEnc, encLen );
+    return wordCount;
 }
 
 #endif // #if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER
