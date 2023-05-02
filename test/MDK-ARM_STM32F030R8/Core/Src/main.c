@@ -16,6 +16,7 @@
   *
   ******************************************************************************
   */
+//lint -e525 Warning 525: Negative indentation from line
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -75,7 +76,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
     #ifdef TRICE_RTT0
-    SEGGER_RTT_Write(0, 0, 0 ); // This is just to force the INIT() call inside SEGGER_RTT.c what allows to use SEGGER_RTT_WriteNoLock instead of SEGGER_RTT_Write
+    SEGGER_RTT_Write(0, 0, 0 ); //lint !e534 // This is just to force the INIT() call inside SEGGER_RTT.c what allows to use SEGGER_RTT_WriteNoLock instead of SEGGER_RTT_Write
     #endif
     TRICE_HEADLINE;
 
@@ -139,15 +140,15 @@ int main(void)
 
         uint32_t ms = milliSecond();
 
-				#if (TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER) || (TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER)
+        #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
         // Serve trice transfer every few ms.
         // With an RTOS put this in a separate task.
         //  static unsigned lastMs = 0;
         //  if( ms >= lastMs + 10 ){
         //      lastMs = ms;
-            TriceTransfer(); // serve deferred output
+        TriceTransfer(); // serve deferred output
         //  }
-        #endif // #if (TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER) || (TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER)
+        #endif // #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
@@ -168,7 +169,7 @@ int main(void)
             #endif // #if TRICE_CHECK_CODE 
         }
         UsDuty();
-				__WFE(); // wait for event (sleep)
+        __WFE(); // wait for event (sleep)
         UsDuty();
     }
     /* USER CODE END WHILE */
@@ -336,11 +337,10 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  for(;;)
-  {
-  }
+    /* User can add his own implementation to report the HAL error return state */
+    __disable_irq();
+    for(;;){
+    }
   /* USER CODE END Error_Handler_Debug */
 }
 

@@ -3,32 +3,32 @@
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
-#if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER
+#if TRICE_BUFFER == TRICE_RING_BUFFER
 
 static int TriceSingleDeferredOut(uint32_t* addr);
 
-//! triceRingBuffer is a kind of heap for trice messages.
-static uint32_t triceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] = {0};
+//! TriceRingBuffer is a kind of heap for trice messages.
+uint32_t TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] = {0};
 
 //! TriceBufferWritePosition is used by the TRICE_PUT macros.
-uint32_t* TriceBufferWritePosition; 
+uint32_t* TriceBufferWritePosition = TriceRingBuffer; 
 
-//! triceBufferWriteLimit is the first address behind triceRingBuffer. 
-static uint32_t* const triceRingBufferLimit  =  &triceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2]; 
+//! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
+uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2]; 
 
-//! singleTricesRingCount holds the readable trices count inside triceRingBuffer.
+//! singleTricesRingCount holds the readable trices count inside TriceRingBuffer.
 int singleTricesRingCount = 0; 
 
 //! TriceRingBufferReadPosition points to a valid trice message when singleTricesRingCount > 0.
-uint32_t* TriceRingBufferReadPosition = triceRingBuffer; 
+uint32_t* TriceRingBufferReadPosition = TriceRingBuffer; 
 
-//! TriceNextRingWriteBuffer returns a usable address with TRICE_DIRECT_BUFFER space.
-//! TriceBufferWritePosition is the next usable address in the ring buffer. 
-//! If there is at least TRICE_DIRECT_BUFFER_SIZE the very same address is returned, otherwise the ring buffer start.
+//! TriceNextRingWriteBuffer returns a usable address with TRICR_BUFFER space.
+//! \trtval is the next usable address in the ring buffer. 
+//! If there is at least TRICE_DIRECT_BUFFER_SIZE TriceBufferWritePosition remains unchanged, otherwise it is set to the ring buffer start.
 //! For performance there is no full check, so the user needs tor read out faster than it is possible to fill the ring buffer.
-uint32_t* TriceNextRingWriteBuffer( uint32_t* TriceBufferWritePosition ){
+uint32_t* TriceNextRingWriteBuffer( void ){
     if( (triceRingBufferLimit - TriceBufferWritePosition < (TRICE_DIRECT_BUFFER_SIZE>>2)) ){
-        TriceBufferWritePosition = triceRingBuffer;
+        TriceBufferWritePosition = TriceRingBuffer;
     }
     return TriceBufferWritePosition; 
 }
@@ -41,7 +41,7 @@ uint32_t* TriceNextRingWriteBuffer( uint32_t* TriceBufferWritePosition ){
 static uint32_t* triceNextRingBufferRead( int lastWordCount ){
     TriceRingBufferReadPosition += lastWordCount;
     if( (triceRingBufferLimit - TriceRingBufferReadPosition < (TRICE_DIRECT_BUFFER_SIZE>>2)) ){
-        TriceRingBufferReadPosition = triceRingBuffer;
+        TriceRingBufferReadPosition = TriceRingBuffer;
     }
     return TriceRingBufferReadPosition; 
 }
@@ -80,4 +80,4 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     return wordCount;
 }
 
-#endif // #if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER
+#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER

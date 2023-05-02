@@ -12,19 +12,19 @@
 #include "./box/SEGGER_RTT.c"
 #endif
 
-#if TRICE_DIRECT_BUFFER == TRICE_STACK_BUFFER
+#if TRICE_BUFFER == TRICE_STACK_BUFFER
 #include "./box/triceStackBuffer.c"
 #endif
 
-#if TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER
+#if TRICE_BUFFER == TRICE_STATIC_BUFFER
 #include "./box/triceStaticBuffer.c"
 #endif
 
-#if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
+#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 #include "./box/triceDoubleBuffer.c"
 #endif
 
-#if TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER
+#if TRICE_BUFFER == TRICE_RING_BUFFER
 #include "./box/triceRingBuffer.c"
 #endif
 
@@ -34,10 +34,6 @@
 
 #if TRICE_DIRECT_OUT_FRAMING==TRICE_FRAMING_TCOBS
 #include "./box/tcobsv1Encode.c"
-#endif
-
-#if TRICE_MODE==TRICE_DOUBLE_BUFFER
-#include "./box/triceDoubleBuffer.c"
 #endif
 
 #if defined(TRICE_LOG_OVER_MODBUS_FUNC24_ALSO) || defined(TRICE_LOG_OVER_MODBUS_FUNC24_ONLY)

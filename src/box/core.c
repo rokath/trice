@@ -16,8 +16,8 @@
 // function prototypes:
 
 static size_t triceDataLen( uint8_t const* p );
-static size_t triceNonBlockingWriteUartA( void const * buf, size_t nByte );
-static size_t triceNonBlockingWriteUartB( void const * buf, size_t nByte );
+static void triceNonBlockingWriteUartA( void const * buf, size_t nByte );
+static void triceNonBlockingWriteUartB( void const * buf, size_t nByte );
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW );
 
 // local definines:
@@ -27,22 +27,14 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW );
 #define TRICE_TYPE_S2 2 //!< TRICE_TYPE_S2 ist a trice with 16-bit stamp.
 #define TRICE_TYPE_S4 3 //!< TRICE_TYPE_S4 ist a trice with 32-bit stamp.
 
-// local variables:
-
-// triceCommands is to make 32-bit alignment sure
-static uint32_t triceCommands[(TRICE_COMMAND_SIZE_MAX+3)>>2]; // with terminating 0
-
-//! triceCommandLength contains the count of valid bytes inside triceCommand including the terminating 0.
-static int triceCommandLength = 0;
-
-//! triceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
-//! That could happen, when the buffer wrapped before data are sent.
-static unsigned triceErrorCount = 0;
-
 // global variables:
 
+//! triceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
+//! That could happen, when the buffer wrapped before data are sent. The user app should check this diagnostic value.
+unsigned triceErrorCount = 0;
+
 //! triceCommand is the command receive buffer.
-char* const triceCommandBuffer = (char*)&triceCommands; // with terminating 0
+char triceCommandBuffer[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
 
 //! triceCommandFlag ist set, when a command was received completely.
 int triceCommandFlag = 0; // updated
@@ -66,7 +58,7 @@ uint8_t  TriceCycle = 0xc0;
 //! \li *da = ss0......extended trices are not used yet
 //! \li This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
 static size_t triceDataLen( uint8_t const* p ){
-    uint16_t nc = TRICE_TTOHS(*(uint16_t*)p); //lint !e826
+    uint16_t nc = TRICE_TTOHS(*(uint16_t*)p); // lint !e826
     size_t n = nc>>8;
     if( n < 128 ){
         return n;
@@ -103,7 +95,7 @@ int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** p
             len = 8 + triceDataLen(pStart + 6); // tyId ts32
             break;
         default:
-            //lint -fallthrugh
+            // fallthrugh
         case TRICE_TYPE_X0:
             triceErrorCount++;
             *ppStart = pStart;
@@ -128,7 +120,7 @@ int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** p
 //! \retval is the trice ID on success or negative on error.
 int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
     uint16_t* pTID = (uint16_t*)*buf; //lint !e826, get TID address
-    int TID = TRICE_TTOHS( *pTID ); // type and id
+    unsigned TID = TRICE_TTOHS( *pTID ); // type and id
     int triceID = 0x3FFF & TID;
     int triceType = TID >> 14;
     unsigned offset = 0;
@@ -224,7 +216,7 @@ void TriceNonBlockingWrite( int triceID, uint8_t* pBuf, size_t len ){
     //      #if defined(TRICE_RTT0_MIN_ID) && defined(TRICE_RTT0_MAX_ID)
     //      if( (TRICE_RTT0_MIN_ID < triceID) && (triceID < TRICE_RTT0_MAX_ID) )
     //      #endif
-    //      TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
+    //      TriceWriteDeviceRtt0( enc, encLen );
     //  #endif
     //  #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
     //      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
@@ -244,7 +236,7 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
     static SEGGER_RTT_BUFFER_UP * const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
     WrOff = pRingUp0->WrOff;
     RemW = (pRingUp0->SizeOfBuffer - WrOff)>>2;
-    volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF);
+    volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); //lint !e826
     if (RemW > NumW) { // All data fits before wrap around
         WrOff += NumW<<2;
         while (NumW--) {
@@ -257,7 +249,7 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
         while (NumWordsAtOnce--) {
             *pDstW++ = *pData++;
         };
-        pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF);
+        pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF); //lint !e826
         NumWordsAtOnce = NumW - RemW;
         while (NumWordsAtOnce--) {
             *pDstW++ = *pData++;
@@ -272,7 +264,7 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
 //! This is the time critical part, executed inside TRICE_LEAVE.
 //! The trice data start at triceStart and last wordCount values including 1-3 padding bytes at the end.
 //! In front of triceStart is TRICE_DATA_OFFSET bytes space usable for in-buffer encoding.
-void TriceDirectWrite( uint32_t* const triceStart, int wordCount ){
+void TriceDirectWrite( uint32_t const * const triceStart, unsigned wordCount ){
 
     #if defined(TRICE_RTT0) && TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE
         #if TRICE_SEGGER_RTT_32BIT_WRITE
@@ -301,11 +293,10 @@ static unsigned triceOutIndexUartA = 0;
 //! triceNonBlockingWriteUartA registers a buffer for TRICE_UARTA transmission.
 //! \param buf is byte buffer start.
 //! \param nByte is the number of bytes to transfer
-static size_t triceNonBlockingWriteUartA( void const * buf, size_t nByte ){
+static void triceNonBlockingWriteUartA( void const * buf, size_t nByte ){
     triceOutBufferUartA = buf;
     triceOutIndexUartA = 0;
     triceOutCountUartA = nByte;
-    return nByte;
 }
 
 //! TriceOutDepthUartA returns the amount of bytes not written yet to UARTB.
@@ -351,11 +342,10 @@ static unsigned triceOutIndexUartB = 0;
 //! triceNonBlockingWriteUartB registers a buffer for TRICE_UARTB transmission.
 //! \param buf is byte buffer start.
 //! \param nByte is the number of bytes to transfer
-static size_t triceNonBlockingWriteUartB( void const * buf, size_t nByte ){
+static void triceNonBlockingWriteUartB( void const * buf, size_t nByte ){
     triceOutBufferUartB = buf;
     triceOutIndexUartB = 0;
     triceOutCountUartB = nByte;
-    return nByte;
 }
 
 //! TriceOutDepthUartB returns the amount of bytes not written yet to UARTB.
@@ -398,7 +388,7 @@ unsigned TriceOutDepth( void ){
         // depth = d > depth ? d : depth;
     #endif
     #if defined( TRICE_UARTA ) 
-        d = TriceOutDepthUartA();
+        d = TriceOutDepthUartA(); //lint !e838
         depth = d > depth ? d : depth;
     #endif
     #if defined( TRICE_UARTB )
@@ -492,7 +482,7 @@ static void singleTriceDirectOut( uint32_t* tb, size_t tLen ){
         #endif
     }
     #ifdef TRICE_RTT0
-    TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
+    TriceWriteDeviceRtt0( enc, encLen );
     #endif
 }
 

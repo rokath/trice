@@ -1827,6 +1827,10 @@
 		"Type": "trice8_1",
 		"Strg": "value=%d\\n"
 	},
+	"3668": {
+		"Type": "TRice",
+		"Strg": "MSG: ?? STOP  TriceDepth = %d, TriceDepthMax = %d + %4u of %d\\n"
+	},
 	"3674": {
 		"Type": "trice32_0",
 		"Strg": "no value"
@@ -3490,6 +3494,10 @@
 	"6184": {
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6  %d %d %d %d %d %d\\n"
+	},
+	"6197": {
+		"Type": "TRice",
+		"Strg": "MSG: ?? STOP  TriceDepth = %d, TriceDepthMax = %d + %4u of %d\\n"
 	},
 	"6214": {
 		"Type": "TRICE",

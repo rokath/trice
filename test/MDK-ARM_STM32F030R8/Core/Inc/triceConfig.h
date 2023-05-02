@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-//! TRICE_DIRECT_BUFFER selects, where the TRICE macros accumultate the trice data during a single TRICE execution. Selectable options:
+//!  TRICE_BUFFER selects, where the TRICE macros accumultate the trice data during a single TRICE execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
 //! - TRICE_STATIC_BUFFER: A single trice is stored in a separate static buffer, what makes sense in single- and multi-tasking systems with direct output only.
 //! - TRICE_DOUBLE_BUFFER: TRICE macros write direct into a double buffer without any additional management action.
@@ -17,14 +17,14 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_RING_BUFFER.
-#define TRICE_DIRECT_BUFFER TRICE_STATIC_BUFFER
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
-//! Setting TRICE_DIRECT_BUFFER to TRICE_STACK_BUFFER or TRICE_STATIC_BUFFER demands TRICE_DIRECT_OUTPUT == 1, no deferred output at all.
-//! When TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER or TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
+//! Setting TRICE_BUFFER to TRICE_STACK_BUFFER or TRICE_STATIC_BUFFER demands TRICE_DIRECT_OUTPUT == 1, no deferred output at all.
+//! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
-//! TRICE_DIRECT_BUFFER == TRICE_STACK_BUFFER or TRICE_DIRECT_BUFFER TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
+//! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
 #define TRICE_DIRECT_OUTPUT 1
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
@@ -35,16 +35,16 @@ extern "C" {
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a ring buffer wrap.
 //! - Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
-//! - In direct mode, and also when you enabled TRICE_RTT0, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack with TRICE_MODE == TRICE_STACK_BUFFER.
+//! - In direct mode, and also when you enabled TRICE_RTT0, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
 #define TRICE_SINGLE_MAX_SIZE 112 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
-//! When TRICE_DIRECT_BUFFER == TRICE_STACK_BUFFER this value is not used.
-//! When TRICE_DIRECT_BUFFER == TRICE_STATIC_BUFFER this value is not used.
-//! When TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
-//! When TRICE_DIRECT_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
+//! When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
+//! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
+//! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
+//! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
 #define TRICE_DEFERRED_BUFFER_SIZE 2048 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs.
@@ -81,12 +81,12 @@ extern "C" {
 //#define TRICE_SEGGER_RTT_DIAGNOSTICS // not for TRICE_SEGGER_RTT_32BIT_WRITE == 1
 
 //! Enable and set UARTA for deferred serial output.
-//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 #define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 #define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
 //! Enable and set UARTB for deferred serial output.
-//#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
+#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
 #define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB. Define with TRICE_UARTB_MAX_ID if you want select trice output here.
 #define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB. Define with TRICE_UARTB_MIN_ID if you want select trice output here.
 

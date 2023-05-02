@@ -3,17 +3,9 @@
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
-#if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
+#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 
 static void TriceOut( uint32_t* tb, size_t tLen );
-
-//! TRICE_HALF_BUFFER_SIZE is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
-//! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_HALF_BUFFER_SIZE  (TRICE_DEFERRED_BUFFER_SIZE/2)
-
-#if TRICE_HALF_BUFFER_SIZE < TRICE_DIRECT_BUFFER_SIZE
-#error configuration error
-#endif
 
 //! triceBuffer is a double buffer for better write speed.
 static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; 
@@ -110,11 +102,11 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     #endif
     ToggleOpticalFeedbackLED();
     
-		// Reaching here means all trice data in the current double buffer are encoded
-		// into a single continuous buffer having 0-delimiters between them or not but at the ent is a 0-delimiter.
-		//
-    // output	
-		TriceNonBlockingWrite( triceID, enc, encLen );
+    // Reaching here means all trice data in the current double buffer are encoded
+    // into a single continuous buffer having 0-delimiters between them or not but at the ent is a 0-delimiter.
+    //
+    // output
+    TriceNonBlockingWrite( triceID, enc, encLen );
 }
 
-#endif // #if TRICE_DIRECT_BUFFER == TRICE_DOUBLE_BUFFER
+#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
