@@ -975,6 +975,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %-9.f (%%9.f)\\n"
 	},
+	"2446": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"2454": {
 		"Type": "TRICE",
 		"Strg": "sig:Colors and ticks\\n"
@@ -1188,7 +1192,7 @@
 		"Strg": "att: line %u\\n"
 	},
 	"2767": {
-		"Type": "trice",
+		"Type": "TRice",
 		"Strg": "FATAL:HardFault!\\n"
 	},
 	"2769": {
@@ -2275,6 +2279,10 @@
 		"Type": "TRICE32",
 		"Strg": "wrn:Transmit buffer truncated from %u to %u\\n"
 	},
+	"4330": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"4331": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 float %12.6F (%%12.6F)\\n"
@@ -3008,7 +3016,7 @@
 		"Strg": "interrupt:magenta+i:default+h\\n"
 	},
 	"5397": {
-		"Type": "Trice",
+		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"5417": {
@@ -3756,7 +3764,7 @@
 		"Strg": "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\\n"
 	},
 	"6576": {
-		"Type": "trice",
+		"Type": "TRice",
 		"Strg": "CRITICAL:NMI!\\n"
 	},
 	"6581": {
@@ -4494,6 +4502,10 @@
 	"7758": {
 		"Type": "TRICE",
 		"Strg": "RD:read         message, SysTick is %6u\\n"
+	},
+	"7761": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"7765": {
 		"Type": "TRICE_N",

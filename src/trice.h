@@ -107,14 +107,7 @@ extern "C" {
 
 // global function prototypes:
 
-//! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
-//! This function user has to provide.
-uint16_t TriceStamp16( void );
-
-//! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
-//! This function user has to provide.
-uint32_t TriceStamp32( void );
-
+uint32_t Us32( void );
 void TriceDirectWrite( uint32_t const* const triceStart, unsigned wordCount );
 unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 unsigned TriceOutDepth( void );
@@ -126,7 +119,8 @@ void TriceDiagnostics( int index );
 void TriceTransfer( void );
 void TriceCheck( int index ); // tests
 int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
-size_t TriceEncode( uint8_t* enc, uint8_t const* buf, size_t len );
+size_t TriceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len );
+size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len );
 void TriceNonBlockingWrite( int ticeID, uint8_t* pBuf, size_t len );
 void TriceWriteDeviceAuxiliary( uint8_t const * buf, size_t len );
 int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );

@@ -35,7 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TRICE_CHECK_CODE 0
+#define TRICE_CHECK_CODE 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -104,10 +104,11 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
     TRice( iD( 4114), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    //Trice( iD( 3394), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    //Trice( iD( 5397), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    //TRICE( Id( 6363), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    //TRICE( Id( 7529), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( iD( 4330), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD( 3394), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD( 2446), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD( 5397), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD( 7761), "w: Hello! 👋🙂 \a\n" ); // with sound!
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
@@ -144,16 +145,16 @@ int main(void)
         #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
         // Serve trice transfer every few ms.
         // With an RTOS put this in a separate task.
-        static unsigned lastMs = 0;
-        if( ms >= lastMs + 10 ){
-            lastMs = ms;
+        //static unsigned lastMs = 0;
+        //if( ms >= lastMs + 10 ){
+        //    lastMs = ms;
             TriceTransfer(); // serve deferred output
-        }
+        //}
         #endif // #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 2000; // change this value to change trice generation speed 
+        const unsigned msInterval = 5; // change this value to change trice generation speed 
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c
@@ -266,7 +267,7 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
-  USART_InitStruct.BaudRate = 921600;
+  USART_InitStruct.BaudRate = 115200;
   USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
   USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
   USART_InitStruct.Parity = LL_USART_PARITY_NONE;

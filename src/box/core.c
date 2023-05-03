@@ -162,31 +162,32 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
     return triceID;
 }
 
-//! TriceEncode expects at buf trice date with netto length len.
+//! TriceDeferredEncode expects at buf trice date with netto length len.
 //! \param enc is the destination.
 //! \param buf is the source.
 //! \param len is the source len.
 //! \retval is the encoded len with 0-delimiter byte.
-size_t TriceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
+size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
     len = (len + 7) & ~7; // todo: only multiple of 8 encryptable (needs some adaptions, later!)
     XTEAEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
     #endif
-    #if TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS
+    #if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
     encLen = (size_t)TCOBSEncode(enc, buf, len);
     enc[encLen++] = 0; // Add zero as package delimiter.
-    #elif TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS
+    #elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS
     encLen = (size_t)COBSEncode(enc, buf, len);
     enc[encLen++] = 0; // Add zero as package delimiter.
-    #elif TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE
+    #elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE
     memmove( enc, buf, len );
     encLen = len;
     #else
-    #error unknown TRICE_DIRECT_OUT_FRAMING
+    #error unknown TRICE_DEFERRED_OUT_FRAMING
     #endif
     return encLen;
 }
+
 
 // TriceNonBlockingWrite routes trice data to output channels.
 void TriceNonBlockingWrite( int triceID, uint8_t* pBuf, size_t len ){
@@ -409,6 +410,34 @@ unsigned TriceOutDepth( void ){
 
 
 #if 0
+
+
+
+//! TriceDirectEncode expects at buf trice date with netto length len.
+//! \param enc is the destination.
+//! \param buf is the source.
+//! \param len is the source len.
+//! \retval is the encoded len with 0-delimiter byte.
+size_t TriceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
+    size_t encLen;
+    #ifdef XTEA_ENCRYPT_KEY
+    len = (len + 7) & ~7; // todo: only multiple of 8 encryptable (needs some adaptions, later!)
+    XTEAEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
+    #endif
+    #if TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS
+    encLen = (size_t)TCOBSEncode(enc, buf, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS
+    encLen = (size_t)COBSEncode(enc, buf, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE
+    memmove( enc, buf, len );
+    encLen = len;
+    #else
+    #error unknown TRICE_DIRECT_OUT_FRAMING
+    #endif
+    return encLen;
+}
 
 
 #ifdef TRICE_CGO

@@ -259,6 +259,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	case typeS2: // 16-bit stamp
 		decoder.TargetTimestampSize = 2
 		if p.packageFraming == packageFramingNone {
+			if len(p.B) < 2 {
+				return // wait for more data
+			}
 			p.B = p.B[tyIdSize:] // When target encoding is done it removes the double 16-bit ID at the 16-bit timestamp trices. Without encoding it needs to be done here.
 		}
 	case typeS4: // 32-bit stamp
@@ -299,6 +302,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	p.B = p.B[decoder.TargetTimestampSize:]
 
+	if len(p.B) < 2 {
+		return // wait for more data
+	}
 	nc := p.ReadU16(p.B) // n = number of data bytes (without timestamp), most significant bit is the count encoding, c = cycle
 	p.B = p.B[ncSize:]
 

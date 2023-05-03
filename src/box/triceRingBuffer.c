@@ -67,7 +67,7 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     size_t Length;
     int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
   
-    size_t encLen = TriceEncode( pEnc, pStart, Length);
+    size_t encLen = TriceDeferredEncode( pEnc, pStart, Length);
     TriceNonBlockingWrite( triceID, pEnc, encLen );
     return wordCount;
 }

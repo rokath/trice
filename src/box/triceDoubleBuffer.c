@@ -90,7 +90,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
             break;   // ignore following data
         }
         #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
-        encLen += TriceEncode( enc+encLen, triceStart, triceLen );
+        encLen += TriceDeferredEncode( enc+encLen, triceStart, triceLen );
         #endif
         #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
         memmove(enc + TRICE_DATA_OFFSET + encLen, triceStart, triceLen );
@@ -98,7 +98,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         #endif
     }
     #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
-    encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
+    encLen = triceDeferredEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
     ToggleOpticalFeedbackLED();
     

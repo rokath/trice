@@ -92,6 +92,13 @@ static inline uint64_t Us64( void ){
     return us_1;
 }
 
+//! Us32 reads the 1us tick. A 32-bit us stamp, wraps after 71,58 seconds.
+//! \retval us count since last reset
+uint32_t Us32( void ){
+    US_DUTY
+    return us_1;
+}
+
 //! Us16 or Us64 needs be called in < 1ms intervals.
 static inline uint16_t Us16( void ){
     US_DUTY
@@ -109,32 +116,6 @@ void UsDuty( void ){
 void usDuty( void ){
     US_DUTY
 }
-
-#if 1 // us timestamps
-
-
-uint16_t TriceStamp16( void ){
-    return SysTick->VAL; // 16 bit clock backwards stamp 47999 -> 0 
-    // return Us16(); // 16-bit us stamp, wraps after 10 milliseconds
-}
-
-// 32-bit us stamp, wraps after 71,58 seconds
-uint32_t TriceStamp32( void ){
-    return Us64();
-}
-
-#else // ms timestamps
-
-// 16-bit ms stamp, wraps after 10 seconds 
-uint16_t TriceStamp16( void ){ 
-    return ms16;
-}
-
-// 32-bit ms stamp, wraps after 49,71 days
-uint32_t TriceStamp32( void ){
-    return ms32;
-}
-#endif
 
 uint32_t milliSecond( void ){
     return ms32;

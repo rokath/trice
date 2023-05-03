@@ -9,6 +9,14 @@
 extern "C" {
 #endif
 
+//! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
+//! The user has to provide this function. Defining a macro here, insead if providing `int16_t TriceStamp16( void );` has significant speed impact.
+#define TriceStamp16() (SysTick->VAL) 
+
+//! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
+//! The user has to provide this function. Defining a macro here, insead if providing `int32_t TriceStamp32( void );` has significant speed impact.
+#define TriceStamp32() Us32()
+
 //!  TRICE_BUFFER selects, where the TRICE macros accumulate the trice data during a single TRICE execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
 //! - TRICE_STATIC_BUFFER: A single trice is stored in a separate static buffer, what makes sense in single- and multi-tasking systems with direct output only.
@@ -17,7 +25,7 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_RING_BUFFER.
-#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
