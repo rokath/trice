@@ -106,7 +106,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     // into a single continuous buffer having 0-delimiters between them or not but at the ent is a 0-delimiter.
     //
     // output
-    TriceNonBlockingWrite( triceID, enc, encLen );
+    TriceNonBlockingWrite( triceID, enc, encLen ); //lint !e771 Info 771: Symbol 'triceID' conceivably not initialized. Comment: tLen is always > 0.
 }
 
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER

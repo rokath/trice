@@ -121,9 +121,10 @@ void TriceCheck( int index ); // tests
 int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 size_t TriceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len );
 size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len );
-void TriceNonBlockingWrite( int ticeID, uint8_t* pBuf, size_t len );
+void TriceNonBlockingWrite( int ticeID, uint8_t const * pBuf, size_t len );
 void TriceWriteDeviceAuxiliary( uint8_t const * buf, size_t len );
 int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
+int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
 
 // global variables:
 

@@ -25,7 +25,7 @@ int singleTricesRingCount = 0;
 //! This is first the TRICE_DATA_OFFSET byte space followedy the trice data.
 //! Initally this value is set to TriceRingBuffer minus TRICE_DATA_OFFSET byte space
 //! to ga correct value for the very first call of triceNextRingBufferRead
-uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2); 
+uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
 #pragma  pop
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice are data starting at byte offset TRICE_DATA_OFFSET.
@@ -51,8 +51,7 @@ void TriceTransfer( void ){
     }
     singleTricesRingCount--;
     static int lastWordCount = 0;
-    uint32_t* addr = triceNextRingBufferRead( lastWordCount );  
-    
+    uint32_t* addr = triceNextRingBufferRead( lastWordCount );
     lastWordCount = TriceSingleDeferredOut(addr);
 }
 
@@ -64,12 +63,10 @@ void TriceTransfer( void ){
 static int TriceSingleDeferredOut(uint32_t* addr){
     uint32_t* pData = addr + (TRICE_DATA_OFFSET>>2);
     uint8_t* pEnc = (uint8_t*)addr;
-
     int wordCount;
     uint8_t* pStart;
     size_t Length;
     int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
-  
     size_t encLen = TriceDeferredEncode( pEnc, pStart, Length);
     TriceNonBlockingWrite( triceID, pEnc, encLen );
     return wordCount;

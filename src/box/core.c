@@ -73,8 +73,7 @@ static size_t triceDataLen( uint8_t const* p ){
 //! \param pLength is filled with the netto trice length (without padding bytes), 0 on error.
 //! \retval is the triceID, a positive value on success or error information.
 int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength ){
-    uint16_t* pTID = (uint16_t*)pAddr; // get TID address
-    uint16_t TID = TRICE_TTOHS( *pTID ); // type and id
+    uint16_t TID = TRICE_TTOHS( *(uint16_t*)pAddr ); // type and id
     int triceID = 0x3FFF & TID;
     int triceType = TID >> 14;
     unsigned offset;
@@ -190,7 +189,7 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
 
 
 // TriceNonBlockingWrite routes trice data to output channels.
-void TriceNonBlockingWrite( int triceID, uint8_t* pBuf, size_t len ){
+void TriceNonBlockingWrite( int triceID, uint8_t const * pBuf, size_t len ){
     
     #if defined( TRICE_UARTA )
         #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
