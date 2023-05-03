@@ -86,7 +86,7 @@ int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** p
             len = 4 + triceDataLen(pStart + 2); // tyId
             break;
         case TRICE_TYPE_S2: // S2 = 16-bit stamp
-            *pStart += 2; // see Id(n) macro definition
+            pStart += 2; // see Id(n) macro definition
             offset = 2;
             len = 6 + triceDataLen(pStart + 4); // tyId ts16
             break;
