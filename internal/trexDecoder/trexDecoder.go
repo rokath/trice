@@ -115,7 +115,7 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	case "none":
 		p.packageFraming = packageFramingNone
 	default:
-		log.Fatal("Invalid framing switch:", decoder.PackageFraming)
+		log.Fatal("Invalid framing switch:\a", decoder.PackageFraming)
 	}
 	return p
 }
@@ -130,7 +130,7 @@ func (p *trexDec) nextData() {
 	m, err := p.In.Read(p.InnerBuffer)      // use p.InnerBuffer as destination read buffer
 	p.B = append(p.B, p.InnerBuffer[:m]...) // merge with leftovers
 	if err != nil && err != io.EOF {        // some serious error
-		log.Fatal("ERROR:internal reader error", err) // exit
+		log.Fatal("ERROR:internal reader error\a", err) // exit
 	}
 }
 
@@ -150,7 +150,7 @@ func (p *trexDec) nextPackage() {
 		m, err := p.In.Read(p.InnerBuffer)            // use p.InnerBuffer as bytes read buffer
 		p.IBuf = append(p.IBuf, p.InnerBuffer[:m]...) // merge with leftovers
 		if err != nil && err != io.EOF {              // some serious error
-			log.Fatal("ERROR:internal reader error", err) // exit
+			log.Fatal("ERROR:internal reader error\a", err) // exit
 		}
 		index = bytes.IndexByte(p.IBuf, 0) // find terminating 0
 		if index == -1 {                   // p.IBuf has no complete COBS data, so leave
@@ -168,24 +168,26 @@ func (p *trexDec) nextPackage() {
 		decoder.Dump(p.W, p.IBuf[:index+1])
 	}
 
+	frame := p.IBuf[:index]
+
 	// todo: automatically set default decoder.PackageFraming value to COBS if XTEA is active.
 	switch p.packageFraming {
 
 	case packageFramingCOBS:
-		p.B = p.B0                               // make([]byte, decoder.DefaultSize) // todo: avoid allocation
-		n, e := cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-		p.IBuf = p.IBuf[index+1:]                // step forward (next package data in p.IBuf now, if any)
+		p.B = p.B0                      // make([]byte, decoder.DefaultSize) // todo: avoid allocation
+		n, e := cobs.Decode(p.B, frame) // if index is 0, an empty buffer is decoded
+		p.IBuf = p.IBuf[index+1:]       // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
-			fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
+			fmt.Println("inconsistent COBS buffer:\a", frame) // show also terminating 0
 		}
 		p.B = p.B[:n]
 
 	case packageFramingTCOBS:
-		p.B = p.B0                                // make([]byte, decoder.DefaultSize) // todo: avoid allocation
-		n, e := tcobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-		p.IBuf = p.IBuf[index+1:]                 // step forward (next package data in p.IBuf now, if any)
+		p.B = p.B0                       // make([]byte, decoder.DefaultSize) // todo: avoid allocation
+		n, e := tcobs.Decode(p.B, frame) // if index is 0, an empty buffer is decoded
+		p.IBuf = p.IBuf[index+1:]        // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
-			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
+			fmt.Println("inconsistent TCOBSv1 buffer:\a", frame) // show also terminating 0
 			p.B = p.B[:0]
 		} else {
 			p.B = p.B[len(p.B)-n:] // buffer is filled from the end
@@ -277,7 +279,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		//case typeX3: // extended trice type X0
 		// todo: implement special case here
 		if p.packageFraming == packageFramingNone && len(p.B) > 0 { // typeX0 is not supported (yet)
-			n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+			n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
 			p.B0 = p.B0[1:] // remove first byte to try to resync
 			p.B = p.B0
 		}
@@ -323,11 +325,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if p.TriceSize > packageSize { // todo: change to '>' for multiple trices in one package (TriceOutMultiPackMode instead of TriceOutMultiSafeMode)
 		if p.packageFraming == packageFramingNone {
 			if p.packageFraming == packageFramingNone {
-				n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
 				p.B0 = p.B0[1:] // discard first byte and try again
 				p.B = p.B0
 			} else {
-				n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
+				n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
 				n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				p.B = p.B[len(p.B):] // discard buffer
@@ -338,7 +340,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 
 	// cycle counter automatic & check
 	if cycle == 0xc0 && p.cycle != 0xc0 && decoder.InitialCycle { // with cycle counter and seems to be a target reset
-		n += copy(b[n:], fmt.Sprintln("warning:   Target Reset?   "))
+		n += copy(b[n:], fmt.Sprintln("warning:\a   Target Reset?   "))
 		p.cycle = cycle + 1 // adjust cycle
 		decoder.InitialCycle = false
 	}
@@ -356,7 +358,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	if cycle != 0xc0 { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
-			n += copy(b[n:], fmt.Sprintln("CYCLE:", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
+			n += copy(b[n:], fmt.Sprintln("CYCLE:\a", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
 			p.cycle = cycle // adjust cycle
 		}
 		decoder.InitialCycle = false
@@ -369,11 +371,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.LutMutex.RUnlock()
 	if !ok {
 		if p.packageFraming == packageFramingNone {
-			n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+			n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 		} else {
-			n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice ending with", p.B))
+			n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", triceID, "- ignoring trice ending with", p.B))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
