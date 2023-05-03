@@ -8,7 +8,7 @@
 static void TriceOut( uint32_t* tb, size_t tLen );
 
 //! triceBuffer is a double buffer for better write speed.
-static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; 
+static uint32_t triceBuffer[2][TRICE_DEFERRED_BUFFER_SIZE/8] = {0}; 
 
 //! triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
 static int triceSwap = 0;

@@ -19,11 +19,14 @@ uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SI
 //! singleTricesRingCount holds the readable trices count inside TriceRingBuffer.
 int singleTricesRingCount = 0; 
 
+#pragma push
+#pragma diag_suppress=170 //warning:  #170-D: pointer points outside of underlying object
 //! TriceRingBufferReadPosition points to a valid trice message when singleTricesRingCount > 0.
 //! This is first the TRICE_DATA_OFFSET byte space followedy the trice data.
 //! Initally this value is set to TriceRingBuffer minus TRICE_DATA_OFFSET byte space
 //! to ga correct value for the very first call of triceNextRingBufferRead
 uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2); 
+#pragma  pop
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice are data starting at byte offset TRICE_DATA_OFFSET.
 //! Implicit assumed is singleTricesRingCount > 0.

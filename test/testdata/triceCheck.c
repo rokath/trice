@@ -156,7 +156,7 @@ void TriceCheck(int n) {
         //break; case __LINE__: TRICE( Id( 4481), "dbg:\a\aHi!\n" ); // sound!
         //break; case __LINE__: TRICE( Id( 7250), "dbg:\a\a\aHi!\n" ); // sound!
         //break; case __LINE__: TRICE( Id( 7888), "dbg:\\aHi!\n" );
-        break; case __LINE__: TRICE( Id( 3948), "err:An ERROR messgage with sound!\a\n" ); // sound!
+        //break; case __LINE__: TRICE( Id( 3948), "err:An ERROR messgage with sound!\a\n" ); // sound!
 
         break; case __LINE__: TRICE_S( ID( 3338), "sig:TRICE_S=%s\n", s );            //exp: time: 842,150_450default: sig:TRICE_S=AAAAAAAAAAAA
         break; case __LINE__: TRICE_N( ID( 7378), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time: 842,150_450default: sig:TRICE_N=AAAAAAAAAAAA

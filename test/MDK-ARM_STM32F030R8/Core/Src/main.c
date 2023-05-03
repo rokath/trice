@@ -63,9 +63,10 @@ uint32_t milliSecond( void );
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-    int beginTriceCheck = 20;
-    int limitTriceCheck = 400;
-
+#if TRICE_CHECK_CODE
+int beginTriceCheck = 20;
+int limitTriceCheck = 400;
+#endif
 /* USER CODE END 0 */
 
 /**
@@ -142,19 +143,14 @@ int main(void)
 
         uint32_t ms = milliSecond();
 
-        #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-        // Serve trice transfer every few ms.
-        // With an RTOS put this in a separate task.
-        //static unsigned lastMs = 0;
-        //if( ms >= lastMs + 10 ){
-        //    lastMs = ms;
-            TriceTransfer(); // serve deferred output
-        //}
+        #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
+        // Serve deferred trice transfer every few ms. With an RTOS put this in a separate task.
+        TriceTransfer(); // serve deferred output
         #endif // #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 5; // change this value to change trice generation speed 
+        const unsigned msInterval = 2; // change this value to change trice generation speed 
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c

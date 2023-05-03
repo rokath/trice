@@ -24,8 +24,8 @@ extern "C" {
 //!   This is the fastest execution option for TRICE macros but needs more RAM. Used for deferred output and optional additional direct output.
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
-//! If unsure select TRICE_RING_BUFFER.
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+//! If unsure select TRICE_DOUBLE_BUFFER. The TRICE_RING_BUFFER option works, but is experimental.
+#define TRICE_BUFFER TRICE_RING_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
@@ -99,7 +99,7 @@ extern "C" {
 #define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB. Define with TRICE_UARTB_MIN_ID if you want select trice output here.
 
 //! Enable option for an additional interface, you can define by your own.
-#define TRICE_AUXILIARY // comment out, if you do not use TRICE_AUXILIARY
+//#define TRICE_AUXILIARY // comment out, if you do not use TRICE_AUXILIARY
 #define TRICE_AUXILIARY_MIN_ID 1           //!< TRICE_AUXILIARY_MIN_ID is the smallest ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MAX_ID if you want select trice output here.
 #define TRICE_AUXILIARY_MAX_ID ((1<<14)-1) //!< TRICE_AUXILIARY_MAX_ID is the biggest  ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MIN_ID if you want select trice output here.
 

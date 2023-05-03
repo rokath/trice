@@ -147,56 +147,6 @@ extern uint32_t TriceRingBuffer[];
 extern uint32_t* TriceBufferWritePosition;
 #endif
 
-// check configuration:
-
-#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
-
-//! TRICE_HALF_BUFFER_SIZE is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
-//! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_HALF_BUFFER_SIZE  (TRICE_DEFERRED_BUFFER_SIZE/2)
-
-#if TRICE_HALF_BUFFER_SIZE < TRICE_BUFFER_SIZE
-#error configuration error
-#endif
-
-#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
-
-#if defined(TRICE_RTT0) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
-#error wrong configuration
-#endif
-
-#if defined( TRICE_UARTA ) && ( TRICE_BUFFER != TRICE_RING_BUFFER) && ( TRICE_BUFFER != TRICE_DOUBLE_BUFFER)
-#error wrong configuration
-#endif
-
-#if defined( TRICE_UARTB ) && ( TRICE_BUFFER != TRICE_RING_BUFFER) && ( TRICE_BUFFER != TRICE_DOUBLE_BUFFER)
-#error wrong configuration
-#endif
-
-#if ( TRICE_BUFFER == TRICE_STACK_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
-#error wrong configuration
-#endif
-
-#if ( TRICE_BUFFER == TRICE_STATIC_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
-#error wrong configuration
-#endif
-
-#if defined(TRICE_RTT0) && (TRICE_SEGGER_RTT_32BIT_WRITE == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
-#error wrong configuration
-#endif
-
-#if TRICE_DATA_OFFSET & 3
-#error All size values must be a multiple of 4!
-#endif
-
-#if TRICE_SINGLE_MAX_SIZE & 3 
-#error All size values must be a multiple of 4!
-#endif
-
-#if TRICE_DEFERRED_BUFFER_SIZE & 3
-#error All size values must be a multiple of 4!
-#endif
-
 // defaults:
 
 //! TRICE_BUFFER_SIZE is
@@ -247,10 +197,11 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif
 
-#ifndef TRICE_TRANSFER_MODE
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && !defined(TRICE_TRANSFER_MODE)
 
-//! TRICE_TRANSFER_MODE is the selected trice transfer method. Options: TRICE_SAFE_SINGLE_MODE (recommended), TRICE_PACK_MULTI_MODE.
-//! TRICE_PACK_MULTI_MODE is usable only in TRICE_BUFFER TRICE_DOUBLE_BUFFER. It packs several trice messages before adding a 0-delimiter byte.
+//! TRICE_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
+//! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).
+//! - TRICE_PACK_MULTI_MODE packs several trice messages before adding a 0-delimiter byte.
 #define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
 
 #endif
@@ -262,27 +213,6 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif
 
-#ifndef TRICE_DATA_OFFSET
-
-//! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a multiple of sizeof(uint32_t).
-//! If not defined, it is determined here automatically in a safe way (worst case consideration).
-
-#if defined(TRICE_HALF_BUFFER_SIZE) && (TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE)
-
-#define TRICE_DATA_OFFSET (((TRICE_HALF_BUFFER_SIZE/3)+4)&~3) // In worst case the buffer gets filled to the end only with 4-byte trices and each gets an additional sigil and a 0, so 33% are safe.
-
-#elif defined(TRICE_BUFFER_SIZE) // todo: make difference clear
-
-#define TRICE_DATA_OFFSET ((TRICE_BUFFER_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
-
-#else
-
-#define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end. Must be a multiple of 4.
-
-#endif
-
-#endif // #ifndef TRICE_DATA_OFFSET
-
 #if TRICE_CYCLE_COUNTER == 1
 
 #define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
@@ -292,6 +222,60 @@ extern uint32_t* TriceBufferWritePosition;
 #define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
+
+// check configuration:
+
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE/2 < TRICE_BUFFER_SIZE)
+#error configuration error
+#endif
+
+#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE < TRICE_BUFFER_SIZE)
+#error configuration error
+#endif
+
+#if defined(TRICE_RTT0) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
+#error wrong configuration
+#endif
+
+#if defined( TRICE_UARTA ) && ( TRICE_BUFFER != TRICE_RING_BUFFER) && ( TRICE_BUFFER != TRICE_DOUBLE_BUFFER)
+#error wrong configuration
+#endif
+
+#if defined( TRICE_UARTB ) && ( TRICE_BUFFER != TRICE_RING_BUFFER) && ( TRICE_BUFFER != TRICE_DOUBLE_BUFFER)
+#error wrong configuration
+#endif
+
+#if ( TRICE_BUFFER == TRICE_STACK_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
+#error wrong configuration
+#endif
+
+#if ( TRICE_BUFFER == TRICE_STATIC_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
+#error wrong configuration
+#endif
+
+#if defined(TRICE_RTT0) && (TRICE_SEGGER_RTT_32BIT_WRITE == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
+#error wrong configuration
+#endif
+
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0) && !defined(TRICE_UARTA) && !defined(TRICE_UARTB) && !defined(TRICE_AUXILIARY)
+#error wrong configuration
+#endif
+
+#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 0) && !defined(TRICE_UARTA) && !defined(TRICE_UARTB) && !defined(TRICE_AUXILIARY)
+#error wrong configuration
+#endif
+
+#if TRICE_DATA_OFFSET & 3
+#error All size values must be a multiple of 4!
+#endif
+
+#if TRICE_SINGLE_MAX_SIZE & 3 
+#error All size values must be a multiple of 4!
+#endif
+
+#if TRICE_DEFERRED_BUFFER_SIZE & 3
+#error All size values must be a multiple of 4!
+#endif
 
 #include "./box/trice8.h"
 #include "./box/trice16.h"
@@ -354,16 +338,24 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER
 
-#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
-    uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
+    uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
-#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
+#endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
-#if TRICE_BUFFER == TRICE_RING_BUFFER
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
+
+//! TRICE_ENTER is the start of TRICE macro.
+#define TRICE_ENTER \
+    TRICE_ENTER_CRITICAL_SECTION {
+
+#endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
+
+#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
@@ -373,7 +365,18 @@ extern uint32_t* TriceBufferWritePosition;
     uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
     singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
+#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 1)
+
+#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
+
+//! TRICE_ENTER is the start of TRICE macro.
+#define TRICE_ENTER \
+    TRICE_ENTER_CRITICAL_SECTION { \
+    TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+    TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+    singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+
+#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 
 #if TRICE_DIRECT_OUTPUT
 

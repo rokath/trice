@@ -11,7 +11,7 @@ void showTriceDepth( void ){
     {
         uint32_t triceDepth = TriceDepth();
         triceDepthMax = TriceDepthMax();
-        TRice( iD( 3668), "MSG: ?? STOP  TriceDepth = %d, TriceDepthMax = %d + %4u of %d\n", triceDepth, TRICE_DATA_OFFSET, triceDepthMax-TRICE_DATA_OFFSET, TRICE_HALF_BUFFER_SIZE ); //lint !e585
+        TRice( iD( 3668), "MSG: ?? STOP  TriceDepth = %d, TriceDepthMax = %d + %4u of %d\n", triceDepth, TRICE_DATA_OFFSET, triceDepthMax-TRICE_DATA_OFFSET, TRICE_DEFERRED_BUFFER_SIZE/2 ); //lint !e585
     } 
     #endif
 }
@@ -19,10 +19,10 @@ void showTriceDepth( void ){
 void TriceLogDepthMax( void ){
     #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
     size_t tdm = TriceDepthMax();
-    if( tdm <= TRICE_HALF_BUFFER_SIZE ){
-        TRice16( iD( 6149), "diag:TriceDepthMax =%4u of %d\n", tdm, TRICE_HALF_BUFFER_SIZE );
+    if( tdm <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
+        TRice16( iD( 6149), "diag:TriceDepthMax =%4u of %d\n", tdm, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }else{
-        TRice16( iD( 6885), "err:TriceDepthMax =%4u of %d (overflow!)\n", tdm, TRICE_HALF_BUFFER_SIZE );
+        TRice16( iD( 6885), "err:TriceDepthMax =%4u of %d (overflow!)\n", tdm, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }
     #endif
 }

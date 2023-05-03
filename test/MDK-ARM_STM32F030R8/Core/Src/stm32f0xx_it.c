@@ -85,12 +85,12 @@ static uint64_t us_1 = 0;
     } \
     us_1 = us + correction; /* keep for next call */
 
-//! Us64 reads the 1us tick.
-//! \retval us count since last reset
-static inline uint64_t Us64( void ){
-    US_DUTY
-    return us_1;
-}
+//  //! Us64 reads the 1us tick.
+//  //! \retval us count since last reset
+//  static inline uint64_t Us64( void ){
+//      US_DUTY
+//      return us_1;
+//  }
 
 //! Us32 reads the 1us tick. A 32-bit us stamp, wraps after 71,58 seconds.
 //! \retval us count since last reset
@@ -99,11 +99,11 @@ uint32_t Us32( void ){
     return us_1;
 }
 
-//! Us16 or Us64 needs be called in < 1ms intervals.
-static inline uint16_t Us16( void ){
-    US_DUTY
-    return us16 + usOffset + correction; // max 9000 + max 999 + max 1000 = max 10999 us;
-}
+//  //! Us16 or Us64 needs be called in < 1ms intervals.
+//  static inline uint16_t Us16( void ){
+//      US_DUTY
+//      return us16 + usOffset + correction; // max 9000 + max 999 + max 1000 = max 10999 us;
+//  }
 
 // UsDuty is usable in wait loops, waiting for a hardware flag for example.
 void UsDuty( void ){
