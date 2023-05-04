@@ -22,19 +22,15 @@ void CgoSetTriceBuffer( uint8_t* buf  ){
     cgoTriceBuffer = buf;
 }
 
-//! triceNonBlockingWriteCgoBuffer copies buf with len into triceBuffer.
+// CgoClearTriceBuffer sets the internal cgoTriceBuffer cgoTriceBufferDepth to 0. 
+// This function is called from Go for next test setup.
+void CgoClearTriceBuffer( void  ){
+    cgoTriceBufferDepth = 0;
+}
+
+//! TriceWriteDeviceCgo copies buf with len into triceBuffer.
 //! This function is called from the trice runtime inside TriceWriteDevice().
-void triceNonBlockingWriteCgoBuffer( uint8_t const * buf, unsigned len ){
+void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ){
     memcpy(cgoTriceBuffer, buf, len);
     cgoTriceBufferDepth = len;
-}
-
-// TriceStamp16 is used internally be the macro "Id"
-uint16_t TriceStamp16( void ){
-    return 0x1616;
-}
-
-// TriceStamp16 is used internally be the macro "ID"
-uint32_t TriceStamp32( void ){ 
-    return 0x32323232; 
 }

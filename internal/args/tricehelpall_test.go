@@ -104,11 +104,11 @@ func TestHelpAll(t *testing.T) {
       example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
         -args string
               Use to pass port specific parameters. The "default" value depends on the used port:
-              port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence.
-              port "DUMP": default="", Option for args is any space or comma separated byte sequence in hex like "7B 1A ee,88, 5a".
+              port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
+              port "DUMP": default="", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
               port "COMn": default="", Unused option for a different driver. (For baud rate settings see -baud.)
-              port "FILE": default="trices.raw", Option for args is any file name. Trice retries on EOF.
-              port "FILEBUFFER": default="trices.raw", Option for args is any file name. Trice stops on EOF.
+              port "FILE": default="trices.raw", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice retries on EOF.
+              port "FILEBUFFER": default="trices.raw", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice stops on EOF.
               port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
                       The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
                       For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
@@ -165,7 +165,9 @@ func TestHelpAll(t *testing.T) {
                                 COBS = TLE (obsolete naming)
                                 DUMP prints the received bytes as hex code (see switch -dc too).
                (default "TREX")
-        -hs string
+        -exec string
+               Use to pass an additional command line for port TCP4 (like gdbserver start).
+         -hs string
               PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
               This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
               "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")

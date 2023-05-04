@@ -3,6 +3,10 @@
 //! ///////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
+//lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
+//lint -e701  Info 701: Shift left of signed quantity (int)
+//lint -e712  Info 712: Loss of precision (assignment) (unsigned long long to unsigned int)
+
 #if ENABLE_trice64fn_0 
 void trice64fn_0( uint16_t tid ){
     trice64m_0( tid );

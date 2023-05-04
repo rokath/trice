@@ -8,6 +8,8 @@
 #include "tcobs.h"
 #include "tcobsv1Internal.h"
 
+//lint -e801 Info 801: Use of goto is deprecated
+
 //! ASSERT checks for a true condition, otherwise stop.
 //! This macro was used during development to verify the code.
 #define ASSERT( condition ) //  do{ if( !(condition) ){ for(;;){} } }while(0);

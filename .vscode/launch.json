@@ -200,6 +200,26 @@
             ]
         },
         {
+            "name": "trice l -p DUMP -pf none",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                    "-idlist",
+                    "${workspaceFolder}/test/testdata/til.json",
+                    "-li",
+                    "${workspaceFolder}/test/testdata/li.json",
+                    "-port",
+                     "DUMP",
+                     "-args",
+                     "59 dc 00 00 00 00 c0 00 42 5e c1 00 65 4a c2 00 1d 59 c3 04 88 00 00 00 1b 59 c4 00 b0 8c b0 8c 00 00 c5 00 99 57 c6 08 14 00 00 00 90 01 00 00",
+                     "-packageFraming",
+                     "none"
+            ]
+        },
+        {
             "name": "trice l -p BUFFER",
             "type": "go",
             "request": "launch",
@@ -221,7 +241,7 @@
             ]
         },
         {
-            "name": "trice l -p COM6",
+            "name": "trice l -p COM6 -baud 921600",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -229,9 +249,9 @@
             "env": {},
             "args": ["log",
                     "-idlist",
-                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/til.json",
+                    "${workspaceFolder}/test/testdata/til.json",
                     "-li",
-                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/li.json",
+                    "${workspaceFolder}/test/testdata/li.json",
                     "-port",
                      "COM6",
                      "-baud",
@@ -247,13 +267,15 @@
             "env": {},
             "args": ["log",
                     "-idlist",
-                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/til.json",
+                    "${workspaceFolder}/test/testdata/til.json",
                     "-li",
-                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/li.json",
+                    "${workspaceFolder}/test/testdata/li.json",
                     "-port",
                      "JLINK",
                      "-args",
-                     "-device STM32F030R8 -if SWD -speed 4000 -RTTChannel 0"
+                     "-device STM32F030R8 -if SWD -speed 4000 -RTTChannel 0",
+                     "-packageFraming",
+                     "none"
             ]
         },
         {
