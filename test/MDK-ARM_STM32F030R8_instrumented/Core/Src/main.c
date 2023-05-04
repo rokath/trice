@@ -35,7 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TRICE_CHECK_CODE 1
+#define TRICE_CHECK_CODE 0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
