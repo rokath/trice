@@ -34,13 +34,3 @@ void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ){
     memcpy(cgoTriceBuffer, buf, len);
     cgoTriceBufferDepth = len;
 }
-
-// TriceStamp16 is used internally be the macro "Id"
-uint16_t TriceStamp16( void ){
-    return 0x1616;
-}
-
-// TriceStamp32 is used internally be the macro "ID"
-uint32_t TriceStamp32( void ){ 
-    return 0x32323232; 
-}

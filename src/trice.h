@@ -107,24 +107,28 @@ extern "C" {
 
 // global function prototypes:
 
-uint32_t Us32( void );
+void TriceCheck( int index ); // tests and examples
+void TriceDiagnostics( int index );
 void TriceDirectWrite( uint32_t const* const triceStart, unsigned wordCount );
-unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
+void TriceLogDepthMax( void );
+void TriceNonBlockingWrite( int ticeID, uint8_t const * pBuf, size_t len );
+void TriceTransfer( void );
+void TriceWriteDeviceAuxiliary( uint8_t const * buf, size_t len );
+void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ); // only needed for testing C-sources from Go
+
+int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
+int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
+int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
+
 unsigned TriceOutDepth( void );
-uint32_t* TriceNextRingWriteBuffer( void );
+unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
+
+uint32_t Us32( void );
+
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
-void TriceLogDepthMax( void );
-void TriceDiagnostics( int index );
-void TriceTransfer( void );
-void TriceCheck( int index ); // tests
-int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 size_t TriceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len );
 size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len );
-void TriceNonBlockingWrite( int ticeID, uint8_t const * pBuf, size_t len );
-void TriceWriteDeviceAuxiliary( uint8_t const * buf, size_t len );
-int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
-int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
 
 // global variables:
 
