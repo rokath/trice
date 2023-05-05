@@ -164,20 +164,20 @@
 
 ###  2.4. <a name='Portit'></a>Port it 
 
-Compare folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32F030R8` to see in a quick way any needed adaptions for your target project to port trice to it.
+Compare folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32F030R8_instrumented` to see in a quick way any needed adaptions for your target project to port trice to it.
 
 Main steps are:
 
 * Add [./src/trice.c](../src/trice.c) to your project. It includes the files in [./src/box](../src/box) automatically.
 * Add [./src](../src) to your compiler library include path.
-* Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
+* Copy file [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8instrumented/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
-* Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h) to your embedded project and adapt it to your needs, when using RTT.
+* Copy file [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h) to your embedded project and adapt it to your needs, when using RTT.
   * You can exchange `SEGGER_RTT_Conf.h` and `./src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
 
 ####  2.4.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
 
-* Add the 2 hardware specific functions to your project (example in [./test/MDK-ARM_STM32F030R8/Core/Src/stm32f0xx_it.c](../test/MDK-ARM_STM32F030R8/Core/Src/stm32f0xx_it.c) ):
+* Add the 2 hardware specific macros/functions to your project (example in `triceConfig.h` and [./test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c](../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c) ).
   
     ```c
     ///////////////////////////////////////////////////////////////////////////////
@@ -205,7 +205,7 @@ Main steps are:
   ![x](./ref/0-16-32BitTimeStamps.jpg)
 
 - The trice tool `-ts*` CLI switches allow customization. With `-hs off` host time stamps are suppressed.
-- It is also possible to use the (time) stamp option not for timestamps but for any values, like addresses or a voltage.
+- It is also possible to use the (time) stamp option not for timestamps but for any values, like addresses or a voltage or for different time bases.
 
 ####  2.4.2. <a name='TriceChecks'></a>Trice Checks
 
@@ -264,15 +264,15 @@ Main steps are:
 | [./src/box/trice32.c](../src/box/trice32.c)                       | 32-bit trice code |
 | [./src/box/trice64.h](../src/box/trice64.h)                       | 64-bit trice code interface |
 | [./src/box/trice64.c](../src/box/trice64.c)                       | 64-bit trice code |
-| [./src/box/triceDoubleBuffer.c](../src/box/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest indirect mode |
+| [./src/box/triceDoubleBuffer.c](../src/box/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode |
 | [./src/box/triceModbusBuffer.c](../src/box/triceModbusBuffer.c)   | trice runtime lib extension needed for Modbus mode (not usable yet) |
 | [./src/box/triceStackBuffer.c](../src/box/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode |
-| [./src/box/triceStreamBuffer.c](../src/box/triceStreamBuffer.c)   | trice runtime lib extension needed for recommended indirect mode |
+| [./src/box/triceRingBuffer.c](../src/box/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode |
 | [./src/box/xtea.c](../src/box/xtea.h)                             | XTEA message encryption/decryption interface |
 | [./src/box/xtea.c](../src/box/xtea.c)                             | XTEA message encryption/decryption code |
   
 * The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/Cv1](https://github.com/rokath/tcobs/tree/master/Cv1). They are maintained there and extensively tested and probably not a matter of significant change.
-* The SEGGER files are copied from and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
+* The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -354,7 +354,7 @@ Main steps are:
     // trice( "Hi!" );
     ```
 
-- All parameters inside one trice have the same bit width. If for example there are a single double and 10 bytes values, the needed trice macro is `trice64` providing 8 bytes space for all parameter values, therefore increasing the transmit overhead, but this can be handled by splitting into 2 trices:
+- All parameters inside one trice have the same bit width. If for example there are a single double and 10 bytes values, the needed trice macro is `trice64` providing 8 bytes space for all parameter values, therefore increasing the transmit overhead. With the default TCOBS framing the overhead is marginal because of the compression. Also this can be handled by splitting into 2 trices:
 
   ```C
   // 92 bytes: 4 bytes header plus 11 times 8 bytes
