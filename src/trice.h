@@ -136,7 +136,6 @@ extern uint32_t* const triceSingleBufferStartWritePosition;
 extern int singleTricesRingCount;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
-extern unsigned triceHalfBufferDepthMax;
 extern uint8_t TriceCycle;
 extern const int TriceTypeS0;
 extern const int TriceTypeS2;

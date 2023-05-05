@@ -30,19 +30,30 @@ uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2)
 
 #if TRICE_DIAGNOSTICS
 
+//! singleTricesRingCountMax holds the max count of trices occurred inside the ring buffer.
+static unsigned singleTricesRingCountMax = 0;
+
 //! triceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
 unsigned triceSingleMaxWordCount = 0;
+
+//! triceRingBufferDepthMax holds the max occurred ring buffer depth.
+static unsigned triceRingBufferDepthMax = 0;
 
 //! TriceLogDiagnosticValues shows the max used half buffer space. 
 void TriceLogDiagnosticValues( void ){
     unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( iD( 6149), "diag:TriceDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD( 3293), "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
-        TRice16( iD( 6885), "err:TriceDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD( 5963), "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
-    
-    // todo: ring buffer max fill state solution
+    trice16( iD( 5593), "diag:singleTricesRingCountMax = %u, ", singleTricesRingCountMax );
+    if( triceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
+        trice16( iD( 6523), "diag:triceRingBufferDepthMax =%4u of%5d\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+    }else{
+        trice16( iD( 6584), "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+    }
+
 }
 
 #endif
@@ -57,6 +68,13 @@ static uint32_t* triceNextRingBufferRead( int lastWordCount ){
     if( (TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE>>2)) > triceRingBufferLimit ){
         TriceRingBufferReadPosition = TriceRingBuffer;
     }
+    #if TRICE_DIAGNOSTICS
+    int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition)<<2;
+    if( depth < 0 ){
+        depth += TRICE_DEFERRED_BUFFER_SIZE;
+    }
+    triceRingBufferDepthMax = (depth > triceRingBufferDepthMax) ? depth : triceRingBufferDepthMax;
+    #endif
     return TriceRingBufferReadPosition; 
 }
 
@@ -68,6 +86,9 @@ void TriceTransfer( void ){
     if( TriceOutDepth() ){ // last transmission not finished
         return;
     }
+    #if TRICE_DIAGNOSTICS
+    singleTricesRingCountMax = (singleTricesRingCount > singleTricesRingCountMax) ? singleTricesRingCount : singleTricesRingCountMax;
+    #endif
     singleTricesRingCount--;
     static int lastWordCount = 0;
     uint32_t* addr = triceNextRingBufferRead( lastWordCount );

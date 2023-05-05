@@ -28,7 +28,7 @@ static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
 unsigned triceSingleMaxWordCount = 0;
 
 //! triceHalfBufferDepthMax is a diagnostics value usable to optimize buffer size.
-unsigned triceHalfBufferDepthMax = 0; 
+static unsigned triceHalfBufferDepthMax = 0; 
 
 //! TriceLogDiagnosticValues shows the max used half buffer space. 
 void TriceLogDiagnosticValues( void ){

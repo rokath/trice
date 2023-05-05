@@ -223,6 +223,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: f \t%x \tBase 16, lowercase\\n"
 	},
+	"1294": {
+		"Type": "trice16",
+		"Strg": "diag:singleTricesRingCountMax = %u, "
+	},
 	"1297": {
 		"Type": "TRICE32_1",
 		"Strg": "tst:TRICE32_1 %d\\n"
@@ -254,6 +258,10 @@
 	"1327": {
 		"Type": "TRICE",
 		"Strg": "alarm:red+i:white+h\\n"
+	},
+	"1336": {
+		"Type": "TRice16",
+		"Strg": "err:TriceDepthMax =%4u of %d (overflow!), "
 	},
 	"1340": {
 		"Type": "TRICE",
@@ -543,6 +551,10 @@
 		"Type": "Trice16_1",
 		"Strg": "value=%d\\n"
 	},
+	"1779": {
+		"Type": "TRice",
+		"Strg": "WritePosition=%p, ReadPosition=%p, wc=%d, ringBufferDepth=%d, Max=%d\\n"
+	},
 	"1792": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d\\n"
@@ -758,6 +770,10 @@
 	"2134": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %12.6f (%%12.6f), aDouble(y)\\n"
+	},
+	"2141": {
+		"Type": "TRice16",
+		"Strg": "diag:TriceDepthMax =%4u of %d, "
 	},
 	"2173": {
 		"Type": "TRICE32",
@@ -1098,6 +1114,10 @@
 	"2701": {
 		"Type": "TRICE32",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
+	},
+	"2707": {
+		"Type": "TRice",
+		"Strg": "WritePosition=%p, ReadPosition=%p, diff=%d, ringBufferDepth=%d, Max=%d\\n"
 	},
 	"2710": {
 		"Type": "Trice",
@@ -1475,6 +1495,10 @@
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"3293": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d, "
+	},
 	"3294": {
 		"Type": "trice32",
 		"Strg": "value=%d\\n"
@@ -1810,6 +1834,10 @@
 	"3695": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %F (%%F)\\n"
+	},
+	"3696": {
+		"Type": "trice16",
+		"Strg": "diag:singleTricesRingCountMax = %g,\\n"
 	},
 	"3707": {
 		"Type": "Trice64_1",
@@ -2523,6 +2551,10 @@
 		"Type": "Trice64",
 		"Strg": "value=%d\\n"
 	},
+	"4806": {
+		"Type": "TRice",
+		"Strg": "debug:TriceBufferWritePosition=%p, TriceRingBufferReadPosition=%p, "
+	},
 	"4809": {
 		"Type": "trice8_6",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
@@ -2646,6 +2678,10 @@
 	"5035": {
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %x\\n"
+	},
+	"5037": {
+		"Type": "TRice",
+		"Strg": "WritePosition=%p, ReadPosition=%p, wc=%d, ringBufferDepth=%d, Max=%d\\n"
 	},
 	"5041": {
 		"Type": "trice64_9",
@@ -2995,6 +3031,10 @@
 		"Type": "TRICE",
 		"Strg": "att:formatted float \u0026 double\\n"
 	},
+	"5593": {
+		"Type": "trice16",
+		"Strg": "diag:singleTricesRingCountMax = %u, "
+	},
 	"5595": {
 		"Type": "TRICE",
 		"Strg": "write:black+u:yellow+h\\n"
@@ -3250,6 +3290,10 @@
 	"5952": {
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
+	},
+	"5963": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!), "
 	},
 	"5966": {
 		"Type": "TRICE",
@@ -3591,6 +3635,10 @@
 		"Type": "Trice64_5",
 		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
 	},
+	"6523": {
+		"Type": "trice16",
+		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
+	},
 	"6533": {
 		"Type": "TRICE_3",
 		"Strg": "rd:TRICE_3 %d, %d, %d\\n"
@@ -3634,6 +3682,10 @@
 	"6583": {
 		"Type": "TRice32",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"6584": {
+		"Type": "trice16",
+		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
 	"6592": {
 		"Type": "TRICE64_2",
@@ -3858,6 +3910,10 @@
 	"6950": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d\\n"
+	},
+	"6961": {
+		"Type": "trice16",
+		"Strg": "diag:singleTricesRingCountMax = %u,\\n"
 	},
 	"6967": {
 		"Type": "TRICE",
