@@ -35,7 +35,7 @@
 
 ## `TRICE_RING_BUFFER`
 
-- `TRICE_ENTER`: Keep TriceBufferWritePosition and add offset.
+- `TRICE_ENTER`: Keep or wrap TriceBufferWritePosition and add offset.
 - `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
 The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice location is read by a deferred task.
