@@ -1,4 +1,4 @@
-7# *Trice* over RTT
+# *Trice* over RTT
 
 > _(Read only you are interested in)_
 >
