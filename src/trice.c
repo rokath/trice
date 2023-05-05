@@ -36,10 +36,6 @@
 #include "./box/tcobsv1Encode.c"
 #endif
 
-#if defined(TRICE_LOG_OVER_MODBUS_FUNC24_ALSO) || defined(TRICE_LOG_OVER_MODBUS_FUNC24_ONLY)
-#include "./box/triceModbusBuffer.c"
-#endif
-
 #ifdef XTEA_ENCRYPT_KEY
 #include "./box/xtea.c"
 #endif
