@@ -25,7 +25,7 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_DOUBLE_BUFFER. The TRICE_RING_BUFFER option works, but is experimental.
-#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
@@ -67,7 +67,8 @@ extern "C" {
 //! - TRICE_FRAMING_TCOBS: Recommended for internal transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice data with a user tool.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
-//!   If TRICE_FRAMING_(T)COBS is selected here, #define TRICE_SEGGER_RTT_32BIT_WRITE 0, for 8-bit RTT buffer transfer.
+//! - With TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1 or TRICE_SEGGER_RTT_BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
+//!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
 #define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
@@ -85,11 +86,18 @@ extern "C" {
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 #define TRICE_DIAGNOSTICS 1
 
-//! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_RTT0 0 // comment out, if you do not use RTT
-
 //! TRICE_SEGGER_RTT_DIAGNOSTICS allows to track SEGGER RTT buffer usage, if enabled here.
 //#define TRICE_SEGGER_RTT_DIAGNOSTICS // not for TRICE_SEGGER_RTT_32BIT_WRITE == 1
+
+//! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
+//! Than the RTT trice packages are framed according to the set TRICE_DIRECT_OUT_FRAMING.
+#define TRICE_RTT0 0 // comment out, if you do not use RTT
+
+//! TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING==1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
+//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
+//! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
+#define TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING 1 
 
 //! Enable and set UARTA for deferred serial output.
 #define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA

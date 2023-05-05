@@ -19,7 +19,7 @@ static void triceNonBlockingWriteUartA( void const * buf, size_t nByte );
 static void triceNonBlockingWriteUartB( void const * buf, size_t nByte );
 #endif
 
-#if TRICE_SEGGER_RTT_32BIT_WRITE
+#if TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW );
 #endif
 
@@ -229,7 +229,7 @@ void TriceNonBlockingWrite( int triceID, uint8_t const * pBuf, size_t len ){
     //  #endif
 }
 
-#if TRICE_SEGGER_RTT_32BIT_WRITE
+#if TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) {
     unsigned NumWordsAtOnce;
@@ -261,24 +261,48 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
         pRingUp0->WrOff = (NumW - RemW)<<2;
     }
 }
-#endif // #if TRICE_SEGGER_RTT_32BIT_WRITE
+#endif // #if TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING
+
+#if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
+//! TriceEncryptAndCobsFraming32 doea an in-buffer encryption and COBS encoding of a single trice message.
+//! \param triceStart is the start of the trice message. In front of it are TRICE_DATA_OFFSET byte space for in-buffer encoding.
+//! The result data are starting TRICE_DATA_OFFSET bytes before triceStart.
+//! Up to 4 bytes after the trice message are used as scratch area, what makes the code faster. Be careful when used in deferred output.
+//! \param wordCount is the amount of trice message 32-bit values. When this value is odd, it is internally incremented by 1, so that 4 more (garbage) bytes are encrypted.
+//! This is ok, because the trice message internally carries its length and the additional data are ignored then.
+//! \retval wordCount is the word count stored at dest. The resulting message gets a 0-delimiter byte and 1-3 padding zeroes.
+unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wordCount ){
+    unsigned wcEven = ((wordCount + 1) & ~1); // only multiple of 8 encryptable 
+    XTEAEncrypt( triceStart, wcEven ); // in-buffer encryption
+    uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
+    unsigned encLen = COBSEncode(enc, triceStart, wcEven<<2);
+    do{
+        enc[encLen++] = 0; // add 0-delimiter and optional padding zeroes
+    }while( (encLen & 3) == 0 ); 
+    return encLen>>2;
+}
+#endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
 
 //! TriceDirectWrite copies a single trice from triceStart to output.
 //! This is the time critical part, executed inside TRICE_LEAVE.
 //! The trice data start at triceStart and last wordCount values including 1-3 padding bytes at the end.
 //! In front of triceStart is TRICE_DATA_OFFSET bytes space usable for in-buffer encoding.
-void TriceDirectWrite( uint32_t const * const triceStart, unsigned wordCount ){
+void TriceDirectWrite( uint32_t * const triceStart, unsigned wordCount ){
 
-    #if defined(TRICE_RTT0) && TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE
-        #if TRICE_SEGGER_RTT_32BIT_WRITE
-            SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
-        #else // normal SEGGER RTT
-            size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
-            SEGGER_RTT_WriteNoLock(0, triceStart, len ); // no encoding!!!!!!!!!!!
-        #endif
-    #else // encode data
-  //todo:        singleTriceDirectOut( triceSingleBuffer, len ); // with encoding
+    #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
+        wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
+    #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
+    
+    #if TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING
+        SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
     #endif
+    #if TRICE_SEGGER_RTT_8BIT_WRITE // normal SEGGER RTT without framing
+        size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
+        SEGGER_RTT_WriteNoLock(0, triceStart, len );
+    #endif
+
+    //singleTriceDirectOut( triceStart, wordCount<<2 ); // with encoding
+
 
 }
 

@@ -109,7 +109,7 @@ extern "C" {
 
 void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
-void TriceDirectWrite( uint32_t const* const triceStart, unsigned wordCount );
+void TriceDirectWrite( uint32_t * const triceStart, unsigned wordCount );
 void TriceLogDiagnosticValues( void );
 void TriceNonBlockingWrite( int ticeID, uint8_t const * pBuf, size_t len );
 void TriceTransfer( void );
@@ -154,19 +154,26 @@ extern uint32_t* TriceBufferWritePosition;
 
 // defaults:
 
+#ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
+
+//! TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS == 1 is a special case for RTT32 encryption and framing. (experimental)
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS 0
+
+#endif
+
+
 //! TRICE_BUFFER_SIZE is
 //! - the additional needed stack space when TRICE_BUFFER == TRICE_STACK_BUFFER
 //! - the statically allocated buffer size when TRICE_BUFFER TRICE_STATIC_BUFFER
 //! - the value before Ringbuffer wraps, when TRICE_BUFFER TRICE_STATIC_BUFFER 
 #define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
 
-#ifndef TRICE_SEGGER_RTT_32BIT_WRITE
+#ifndef TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING
 
-//! TRICE_SEGGER_RTT_32BIT_WRITE==1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
-//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
-//! - If you do not need extrem speed, simply set this value to 0. Than the RTT trice packages are framed according to the set TRICE_FRAMING.
-#define TRICE_SEGGER_RTT_32BIT_WRITE 1 
+//! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
+#define TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING 0
 
 #endif
 
@@ -230,6 +237,18 @@ extern uint32_t* TriceBufferWritePosition;
 
 // check configuration:
 
+#if (TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) && (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1)
+#error configuration error
+#endif
+
+#if (TRICE_RTT0 == 1) && (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1)
+#error wrong configuration
+#endif
+
+#if (TRICE_RTT0 == 1) && (TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1)
+#error wrong configuration
+#endif
+
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE/2 < TRICE_BUFFER_SIZE)
 #error configuration error
 #endif
@@ -238,7 +257,15 @@ extern uint32_t* TriceBufferWritePosition;
 #error configuration error
 #endif
 
-#if defined(TRICE_RTT0) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
+#if (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
+#error wrong configuration
+#endif
+
+#if (TRICE_SEGGER_RTT_BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
+#error wrong configuration
+#endif
+
+#if (TRICE_RTT0 == 1) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
 #error wrong configuration
 #endif
 
@@ -255,10 +282,6 @@ extern uint32_t* TriceBufferWritePosition;
 #endif
 
 #if ( TRICE_BUFFER == TRICE_STATIC_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
-#error wrong configuration
-#endif
-
-#if defined(TRICE_RTT0) && (TRICE_SEGGER_RTT_32BIT_WRITE == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
 #error wrong configuration
 #endif
 
@@ -409,7 +432,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #if TRICE_DIRECT_OUTPUT
 
-    //! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
+    //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
     #define TRICE_LEAVE \
         /* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
         /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
@@ -420,7 +443,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #else  //#if TRICE_DIRECT_OUTPUT
     
-    //! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
+    //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
     #define TRICE_LEAVE \
         TRICE_DIAGNOSTICS_SINGLE_BUFFER \
         } TRICE_LEAVE_CRITICAL_SECTION
