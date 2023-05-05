@@ -10,8 +10,8 @@
       <TargetName>MDK-ARM_STM32F030R8</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
+      <pCCUsed>6160000::V6.16::ARMCLANG</pCCUsed>
+      <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F030R8Tx</Device>
@@ -313,7 +313,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>5</Optim>
             <oTime>1</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -322,7 +322,7 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>3</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
@@ -414,9 +414,84 @@
           <GroupName>Trice</GroupName>
           <Files>
             <File>
+              <FileName>xtea.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\xtea.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceStaticBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceStaticBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceStackBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceStackBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceRingBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceRingBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceDoubleBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceDoubleBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceAuxiolary.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceAuxiolary.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice64.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice64.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice32.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice16.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice16.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice8.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice8.c</FilePath>
+            </File>
+            <File>
               <FileName>trice.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\trice.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcobsv1Encode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\tcobsv1Encode.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcobsv1Decode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\tcobsv1Decode.c</FilePath>
+            </File>
+            <File>
+              <FileName>SEGGER_RTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\SEGGER_RTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>cobsEncode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\cobsEncode.c</FilePath>
+            </File>
+            <File>
+              <FileName>cobsDecode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\cobsDecode.c</FilePath>
             </File>
           </Files>
         </Group>

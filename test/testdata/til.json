@@ -75,6 +75,10 @@
 		"Type": "TRICE8",
 		"Strg": "value=%d\\n"
 	},
+	"1126": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of%4d, "
+	},
 	"1139": {
 		"Type": "TRICE",
 		"Strg": "rd: 1111 \t%b \tBase 2\\n"
@@ -514,6 +518,10 @@
 	"1745": {
 		"Type": "TRICE",
 		"Strg": "INFO:cyan+b:default+h\\n"
+	},
+	"1746": {
+		"Type": "TRice16",
+		"Strg": "diag:triceHalfBufferDepthMax =%4u of%5d\\n"
 	},
 	"1751": {
 		"Type": "TRICE8_7",
@@ -1739,6 +1747,10 @@
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n"
 	},
+	"3642": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d\\n"
+	},
 	"3645": {
 		"Type": "TRICE64_7",
 		"Strg": "tst:TRICE64_7  %d %d %d %d %d %d %d\\n"
@@ -2751,6 +2763,10 @@
 		"Type": "Trice8_0",
 		"Strg": "no value"
 	},
+	"5223": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of%4d (overflow!), "
+	},
 	"5225": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -2766,6 +2782,10 @@
 	"5232": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %-f (%%f)\\n"
+	},
+	"5233": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!)\\n"
 	},
 	"5235": {
 		"Type": "TRICE8",
@@ -3391,6 +3411,10 @@
 		"Type": "TRICE",
 		"Strg": "MESSAGE:green+h:black\\n"
 	},
+	"6227": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!)\\n"
+	},
 	"6235": {
 		"Type": "TRice8_0",
 		"Strg": "no value"
@@ -3570,6 +3594,10 @@
 	"6533": {
 		"Type": "TRICE_3",
 		"Strg": "rd:TRICE_3 %d, %d, %d\\n"
+	},
+	"6536": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d\\n"
 	},
 	"6540": {
 		"Type": "TRICE8",
@@ -4238,6 +4266,10 @@
 	"7684": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE32_1 line %d\\n"
+	},
+	"7698": {
+		"Type": "TRice16",
+		"Strg": "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
 	"7700": {
 		"Type": "TRice64_1",

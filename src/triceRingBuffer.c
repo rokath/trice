@@ -19,14 +19,33 @@ uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SI
 //! singleTricesRingCount holds the readable trices count inside TriceRingBuffer.
 int singleTricesRingCount = 0; 
 
-#pragma push
-#pragma diag_suppress=170 //warning:  #170-D: pointer points outside of underlying object
+//ARM5 #pragma push
+//ARM5 #pragma diag_suppress=170 //warning:  #170-D: pointer points outside of underlying object
 //! TriceRingBufferReadPosition points to a valid trice message when singleTricesRingCount > 0.
 //! This is first the TRICE_DATA_OFFSET byte space followedy the trice data.
 //! Initally this value is set to TriceRingBuffer minus TRICE_DATA_OFFSET byte space
 //! to ga correct value for the very first call of triceNextRingBufferRead
 uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
-#pragma  pop
+//ARM5 #pragma  pop
+
+#if TRICE_DIAGNOSTICS
+
+//! triceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
+unsigned triceSingleMaxWordCount = 0;
+
+//! TriceLogDiagnosticValues shows the max used half buffer space. 
+void TriceLogDiagnosticValues( void ){
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( iD( 6149), "diag:TriceDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( iD( 6885), "err:TriceDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    
+    // todo: ring buffer max fill state solution
+}
+
+#endif
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice are data starting at byte offset TRICE_DATA_OFFSET.
 //! Implicit assumed is singleTricesRingCount > 0.

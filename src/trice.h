@@ -101,7 +101,7 @@ extern "C" {
 #ifdef TRICE_RTT0
 
 #include "SEGGER_RTT_Conf.h"
-#include "./box/SEGGER_RTT.h"
+#include "SEGGER_RTT.h"
 
 #endif // #ifdef TRICE_RTT0
 
@@ -110,7 +110,7 @@ extern "C" {
 void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
 void TriceDirectWrite( uint32_t const* const triceStart, unsigned wordCount );
-void TriceLogDepthMax( void );
+void TriceLogDiagnosticValues( void );
 void TriceNonBlockingWrite( int ticeID, uint8_t const * pBuf, size_t len );
 void TriceTransfer( void );
 void TriceWriteDeviceAuxiliary( uint8_t const * buf, size_t len );
@@ -136,7 +136,7 @@ extern uint32_t* const triceSingleBufferStartWritePosition;
 extern int singleTricesRingCount;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
-extern unsigned triceDepthMax;
+extern unsigned triceHalfBufferDepthMax;
 extern uint8_t TriceCycle;
 extern const int TriceTypeS0;
 extern const int TriceTypeS2;
@@ -147,6 +147,7 @@ extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for d
 extern unsigned triceErrorCount;
 extern uint32_t* const triceRingBufferLimit;
 extern uint32_t TriceRingBuffer[];
+extern unsigned triceSingleMaxWordCount;
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 extern uint32_t* TriceBufferWritePosition;
@@ -282,10 +283,10 @@ extern uint32_t* TriceBufferWritePosition;
 #error All size values must be a multiple of 4!
 #endif
 
-#include "./box/trice8.h"
-#include "./box/trice16.h"
-#include "./box/trice32.h"
-#include "./box/trice64.h"
+#include "trice8.h"
+#include "trice16.h"
+#include "trice32.h"
+#include "trice64.h"
 
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
@@ -323,6 +324,28 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
+#if TRICE_DIAGNOSTICS
+
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
+    uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER do { \
+    unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
+    triceSingleMaxWordCount = (wordCount < triceSingleMaxWordCount) >  ? triceSingleMaxWordCount : wordCount; \
+    } while(0);
+
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT do { \
+    triceSingleMaxWordCount = (wordCount < triceSingleMaxWordCount) ? triceSingleMaxWordCount : wordCount; \
+    } while(0);
+
+#else // #if TRICE_DIAGNOSTICS
+
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT 
+
+#endif // #else // #if TRICE_DIAGNOSTICS
+
 #if TRICE_BUFFER ==  TRICE_STACK_BUFFER 
 
 //! TRICE_ENTER is the start of TRICE macro.
@@ -356,7 +379,8 @@ extern uint32_t* TriceBufferWritePosition;
 
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
-    TRICE_ENTER_CRITICAL_SECTION {
+    TRICE_ENTER_CRITICAL_SECTION { \
+    TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
@@ -379,28 +403,32 @@ extern uint32_t* TriceBufferWritePosition;
     TRICE_ENTER_CRITICAL_SECTION { \
     TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
     TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+    TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
     singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 
 #if TRICE_DIRECT_OUTPUT
 
-//! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
-#define TRICE_LEAVE \
-    /* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
-    /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
-    unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
-    TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
-    } TRICE_LEAVE_CRITICAL_SECTION
+    //! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
+    #define TRICE_LEAVE \
+        /* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
+        /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
+        unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
+        TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT \
+        TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
+        } TRICE_LEAVE_CRITICAL_SECTION
 
 #else  //#if TRICE_DIRECT_OUTPUT
     
-//! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
-#define TRICE_LEAVE \
-    /* nothing to do. */ \
-    } TRICE_LEAVE_CRITICAL_SECTION
+    //! TRICE_LEAVE is the end of TRICE macro. It is the same for all variants.
+    #define TRICE_LEAVE \
+        TRICE_DIAGNOSTICS_SINGLE_BUFFER \
+        } TRICE_LEAVE_CRITICAL_SECTION
 
 #endif // #else  //#if TRICE_DIRECT_OUTPUT    
+
+
 
 // trice macros:
 

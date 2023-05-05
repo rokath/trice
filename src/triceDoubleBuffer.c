@@ -22,6 +22,33 @@ uint32_t* TriceBufferLastWritePosition;
 //! triceBufferWriteLimit is the triceBuffer written limit. 
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
 
+#if TRICE_DIAGNOSTICS
+
+//! triceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
+unsigned triceSingleMaxWordCount = 0;
+
+//! triceHalfBufferDepthMax is a diagnostics value usable to optimize buffer size.
+unsigned triceHalfBufferDepthMax = 0; 
+
+//! TriceLogDiagnosticValues shows the max used half buffer space. 
+void TriceLogDiagnosticValues( void ){
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
+
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( iD( 1126), "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( iD( 5223), "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+
+    if( triceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
+        TRice16( iD( 1746), "diag:triceHalfBufferDepthMax =%4u of%5d\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+    }else{
+        TRice16( iD( 7698), "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+    }
+}
+
+#endif
+
 //! triceBufferSwap swaps the trice double buffer and returns the read buffer address.
 static uint32_t* triceBufferSwap( void ){
     TRICE_ENTER_CRITICAL_SECTION
@@ -52,19 +79,6 @@ void TriceTransfer( void ){
     } // else: transmission not done yet
 }
 
-//! TriceDepth returns current trice buffer depth. (diagnostics)
-size_t TriceDepth( void ){
-    size_t currentDepth = (size_t)(4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0]));
-    return currentDepth;
-}
-
-//! TriceDepthMax returns the max trice buffer depth until now.
-size_t TriceDepthMax( void ){
-    size_t currentDepth = TriceDepth(); 
-    return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
-}
-
-
 //! TriceOut encodes trices and writes them in one step to the output.
 //! This function is called only, when the slowest deferred output device has finished its last buffer.
 //! That 
@@ -78,9 +92,10 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
     size_t len = tLen; // (byte count)
     int triceID;
-    // diagnostics
+    #if TRICE_DIAGNOSTICS
     tLen += TRICE_DATA_OFFSET; 
-    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+    triceHalfBufferDepthMax = tLen < triceHalfBufferDepthMax ? triceHalfBufferDepthMax : tLen;
+    #endif
     // do it
     while(len){
         uint8_t* triceStart;

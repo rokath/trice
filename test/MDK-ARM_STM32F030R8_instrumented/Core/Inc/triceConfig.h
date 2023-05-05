@@ -25,7 +25,7 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_DOUBLE_BUFFER. The TRICE_RING_BUFFER option works, but is experimental.
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+#define TRICE_BUFFER TRICE_RING_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
@@ -46,7 +46,7 @@ extern "C" {
 //! - In direct mode, and also when you enabled TRICE_RTT0, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
-#define TRICE_SINGLE_MAX_SIZE 112 // must be a multiple of 4
+#define TRICE_SINGLE_MAX_SIZE 104 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
 //! When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
@@ -80,7 +80,10 @@ extern "C" {
 //#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks.
-//#define XTEA_DECRYPT 
+//#define XTEA_DECRYPT
+
+//! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
+#define TRICE_DIAGNOSTICS 1
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 #define TRICE_RTT0 0 // comment out, if you do not use RTT
@@ -89,7 +92,7 @@ extern "C" {
 //#define TRICE_SEGGER_RTT_DIAGNOSTICS // not for TRICE_SEGGER_RTT_32BIT_WRITE == 1
 
 //! Enable and set UARTA for deferred serial output.
-#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 #define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 #define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
@@ -202,7 +205,14 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 }
 #endif // #ifdef TRICE_UARTB
 
+#define TRICE_8_BIT_SUPPORT  1
+#define TRICE_16_BIT_SUPPORT 1
+#define TRICE_32_BIT_SUPPORT 1
+#define TRICE_64_BIT_SUPPORT 1
+
 // See trice/doc/TriceProjectImageSizeOptimization.md for details:
+
+#if TRICE_8_BIT_SUPPORT
 
 // without stamp 8-bit values functions
 #define ENABLE_trice8fn_0  1
@@ -249,6 +259,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice8fn_11 1
 #define ENABLE_TRice8fn_12 1
 
+#endif // #if TRICE_8_BIT_SUPPORT
+
+#if TRICE_16_BIT_SUPPORT
+
 // without stamp 16-bit values functions
 #define ENABLE_trice16fn_0  1
 #define ENABLE_trice16fn_1  1
@@ -293,6 +307,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice16fn_10 1
 #define ENABLE_TRice16fn_11 1
 #define ENABLE_TRice16fn_12 1
+
+#endif // #if TRICE_16_BIT_SUPPORT
+
+#if TRICE_32_BIT_SUPPORT
 
 // without stamp 32-bit values functions
 #define ENABLE_trice32fn_0  1
@@ -339,6 +357,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice32fn_11 1
 #define ENABLE_TRice32fn_12 1
 
+#endif // #if TRICE_32_BIT_SUPPORT
+
+#if TRICE_64_BIT_SUPPORT
+
 // without stamp 64-bit values functions
 #define ENABLE_trice64fn_0  1
 #define ENABLE_trice64fn_1  1
@@ -383,6 +405,8 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice64fn_10 1
 #define ENABLE_TRice64fn_11 1
 #define ENABLE_TRice64fn_12 1
+
+#endif // #if TRICE_32_BIT_SUPPORT
 
 //
 ///////////////////////////////////////////////////////////////////////////////
