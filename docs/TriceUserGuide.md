@@ -837,7 +837,7 @@ trice zeroSourceTreeIds -src ./
 ![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
 
 * Normally nobody uses that (now). But if you intend to integrate some existing sources into a project using [ID management](./TriceIDManagement.md) options, this could be a need.
-  * HINT: It is planned to extend the *trice* tool to restore the IDs after a `trice z` during the next `trice u` exacltly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice z` as a post compilation step. 
+  * HINT: It is planned to extend the *trice* tool to restore the IDs after a `trice z` during the next `trice u` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice z` as a post compilation step. 
 * Calling `trice u` afterwards will assign new IDs, but calling `trice u -shared IDs` will assign the same IDs again.
 
 ####  8.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
