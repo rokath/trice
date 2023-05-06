@@ -8,7 +8,7 @@
 #include "./box/triceAuxiolary.c"
 #endif
 
-#ifdef TRICE_RTT0
+#ifdef SEGGER_RTT
 #include "./box/SEGGER_RTT.c"
 #endif
 

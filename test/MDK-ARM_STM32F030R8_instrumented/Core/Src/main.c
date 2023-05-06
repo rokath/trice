@@ -76,7 +76,7 @@ int limitTriceCheck = 400;
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-    #ifdef TRICE_RTT0
+    #ifdef SEGGER_RTT
     SEGGER_RTT_Write(0, 0, 0 ); //lint !e534 // This is just to force the INIT() call inside SEGGER_RTT.c what allows to use SEGGER_RTT_WriteNoLock instead of SEGGER_RTT_Write
     #endif
 

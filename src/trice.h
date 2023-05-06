@@ -98,12 +98,16 @@ extern "C" {
 #include <string.h>
 #include "triceConfig.h"
 
-#ifdef TRICE_RTT0
+#if (TRICE_RTT0 == 1) \
+ || (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) \
+ || (TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) 
 
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 
-#endif // #ifdef TRICE_RTT0
+#define SEGGER_RTT
+
+#endif 
 
 // global function prototypes:
 
@@ -237,6 +241,10 @@ extern uint32_t* TriceBufferWritePosition;
 
 // check configuration:
 
+#if defined (TRICE_CGO) && defined(SEGGER_RTT) 
+#error configuration error
+#endif
+
 #if (TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) && (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1)
 #error configuration error
 #endif
@@ -265,7 +273,7 @@ extern uint32_t* TriceBufferWritePosition;
 #error wrong configuration
 #endif
 
-#if (TRICE_RTT0 == 1) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
+#if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
 #error wrong configuration
 #endif
 

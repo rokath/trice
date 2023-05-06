@@ -67,7 +67,8 @@ extern "C" {
 //! - TRICE_FRAMING_TCOBS: Recommended for internal transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice data with a user tool.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
-//!   If TRICE_FRAMING_(T)COBS is selected here, #define TRICE_SEGGER_RTT_32BIT_WRITE 0, for 8-bit RTT buffer transfer.
+//! - With TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1 or TRICE_SEGGER_RTT_BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
+//!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
 #define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
@@ -80,13 +81,24 @@ extern "C" {
 //#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks.
-//#define XTEA_DECRYPT 
+//#define XTEA_DECRYPT
 
-//! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-//#define TRICE_RTT0 0 // comment out, if you do not use RTT
+//! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
+#define TRICE_DIAGNOSTICS 1
 
 //! TRICE_SEGGER_RTT_DIAGNOSTICS allows to track SEGGER RTT buffer usage, if enabled here.
 //#define TRICE_SEGGER_RTT_DIAGNOSTICS // not for TRICE_SEGGER_RTT_32BIT_WRITE == 1
+
+//! TRICE_RTT0 == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
+//! Than the RTT trice packages are can be framed according to the set TRICE_DIRECT_OUT_FRAMING.
+//! Not useable with TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING
+#define TRICE_RTT0 0
+
+//! TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
+//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
+//! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
+#define TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING 0 
 
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
@@ -106,9 +118,8 @@ extern "C" {
 //! CGO interface (for testing the target code with Go only, do not enable)
 #define TRICE_CGO 
 #define TRICE_CYCLE_COUNTER 0
-#define TRICE_SEGGER_RTT_32BIT_WRITE 0
 
-//! This is usable as the very first trice sequence after restart. Adapt it.
+//! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code.
 #define TRICE_HEADLINE \
         trice( iD( 7612), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\n\n\n");
 
@@ -204,7 +215,14 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 }
 #endif // #ifdef TRICE_UARTB
 
+#define TRICE_8_BIT_SUPPORT  1
+#define TRICE_16_BIT_SUPPORT 1
+#define TRICE_32_BIT_SUPPORT 1
+#define TRICE_64_BIT_SUPPORT 1
+
 // See trice/doc/TriceProjectImageSizeOptimization.md for details:
+
+#if TRICE_8_BIT_SUPPORT
 
 // without stamp 8-bit values functions
 #define ENABLE_trice8fn_0  1
@@ -251,6 +269,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice8fn_11 1
 #define ENABLE_TRice8fn_12 1
 
+#endif // #if TRICE_8_BIT_SUPPORT
+
+#if TRICE_16_BIT_SUPPORT
+
 // without stamp 16-bit values functions
 #define ENABLE_trice16fn_0  1
 #define ENABLE_trice16fn_1  1
@@ -295,6 +317,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice16fn_10 1
 #define ENABLE_TRice16fn_11 1
 #define ENABLE_TRice16fn_12 1
+
+#endif // #if TRICE_16_BIT_SUPPORT
+
+#if TRICE_32_BIT_SUPPORT
 
 // without stamp 32-bit values functions
 #define ENABLE_trice32fn_0  1
@@ -341,6 +367,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice32fn_11 1
 #define ENABLE_TRice32fn_12 1
 
+#endif // #if TRICE_32_BIT_SUPPORT
+
+#if TRICE_64_BIT_SUPPORT
+
 // without stamp 64-bit values functions
 #define ENABLE_trice64fn_0  1
 #define ENABLE_trice64fn_1  1
@@ -385,6 +415,8 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice64fn_10 1
 #define ENABLE_TRice64fn_11 1
 #define ENABLE_TRice64fn_12 1
+
+#endif // #if TRICE_32_BIT_SUPPORT
 
 //
 ///////////////////////////////////////////////////////////////////////////////

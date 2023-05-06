@@ -104,7 +104,7 @@ static void singleTriceDirectOut( uint32_t* tb, size_t tLen ){
         encLen += TriceEncode( enc+encLen, triceStart, triceLen );
         #endif
     }
-    #ifdef TRICE_RTT0
+    #if TRICE_RTT0 == 1
     TriceWriteDeviceRtt0( enc, encLen );
     #endif
 }
@@ -174,9 +174,9 @@ void TriceWriteDeviceRtt0( uint8_t *buf, size_t len ){
     // action
     SEGGER_RTT_WriteNoLock(0, buf, len );
 }
-//#endif // #ifdef TRICE_RTT0
+//#endif // #if TRICE_RTT0
 
-#ifdef TRICE_RTT0
+#if TRICE_RTT0 == 1
 //! TriceOutRtt0 encodes trices and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
@@ -205,6 +205,6 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ){
     }
     TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
 }
-#endif // #ifdef TRICE_RTT0
+#endif // #if TRICE_RTT0 == 1
 
 #endif

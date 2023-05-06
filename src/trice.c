@@ -215,7 +215,7 @@ void TriceNonBlockingWrite( int triceID, uint8_t const * pBuf, size_t len ){
     #ifdef TRICE_CGO
         TriceWriteDeviceCgo( pBuf, len );
     #endif
-    //  #if defined(TRICE_RTT0) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_RING_BUFFER) // only when RTT0 is alone
+    //  #if (TRICE_RTT0 == 1) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_RING_BUFFER) // only when RTT0 is alone
     //      #if defined(TRICE_RTT0_MIN_ID) && defined(TRICE_RTT0_MAX_ID)
     //      if( (TRICE_RTT0_MIN_ID < triceID) && (triceID < TRICE_RTT0_MAX_ID) )
     //      #endif
@@ -408,7 +408,7 @@ void triceTriggerTransmitUartB(void){
 //! TriceOutDepth returns the amount of bytes not written yet from the slowest device.
 unsigned TriceOutDepth( void ){
     unsigned d = 0, depth = 0;
-    #ifdef TRICE_RTT0
+    #ifdef SEGGER_RTT
         // When no RTT host is connected, the RTT buffer runs full.
         // If a RTT host is connected, it is assumed to be the fastest device.
         // d = BUFFER_SIZE_UP - SEGGER_RTT_GetAvailWriteSpace(TRICE_RTT0);

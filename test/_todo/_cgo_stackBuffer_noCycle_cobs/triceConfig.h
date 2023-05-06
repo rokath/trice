@@ -82,8 +82,16 @@ extern "C" {
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks.
 //#define XTEA_DECRYPT 
 
-//! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-//#define TRICE_RTT0 0 // comment out, if you do not use RTT
+//! TRICE_RTT0 == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
+//! Than the RTT trice packages are can be framed according to the set TRICE_DIRECT_OUT_FRAMING.
+//! Not useable with TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING
+#define TRICE_RTT0 0
+
+//! TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
+//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
+//! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
+#define TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING 0 
 
 //! TRICE_SEGGER_RTT_DIAGNOSTICS allows to track SEGGER RTT buffer usage, if enabled here.
 //#define TRICE_SEGGER_RTT_DIAGNOSTICS // not for TRICE_SEGGER_RTT_32BIT_WRITE == 1
@@ -106,7 +114,6 @@ extern "C" {
 //! CGO interface (for testing the target code with Go only, do not enable)
 #define TRICE_CGO 
 #define TRICE_CYCLE_COUNTER 0
-#define TRICE_SEGGER_RTT_32BIT_WRITE 0
 
 //! This is usable as the very first trice sequence after restart. Adapt it.
 #define TRICE_HEADLINE \
