@@ -83,9 +83,6 @@ extern "C" {
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks.
 //#define XTEA_DECRYPT
 
-//! TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1 is usable to XTEA encrypt and COBS encode direct data.
-#define TRICE_32BIT_DIRECT_XTEA_AND_COBS 1 // experimental!
-
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 #define TRICE_DIAGNOSTICS 1
 
@@ -97,11 +94,11 @@ extern "C" {
 //! Not useable with TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE or TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
 #define TRICE_RTT0 0
 
-//! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
-#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 1 
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1 
  
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
