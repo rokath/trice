@@ -25,7 +25,7 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_DOUBLE_BUFFER. The TRICE_RING_BUFFER option works, but is experimental.
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+#define TRICE_BUFFER TRICE_STACK_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
@@ -39,14 +39,14 @@ extern "C" {
 //! - When using real big buffers, 16 may be not enough.
 //! - When having only short trices but lots of trice bursts, it may make sense to reduce this value to 4.
 //! - Without encoding/framing this value can be 0.
-#define TRICE_DATA_OFFSET 4 // must be a multiple of 4
+#define TRICE_DATA_OFFSET 8 // must be a multiple of 4
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a ring buffer wrap.
 //! - Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
 //! - In direct mode, and also when you enabled TRICE_RTT0, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
-#define TRICE_SINGLE_MAX_SIZE 104 // must be a multiple of 4
+#define TRICE_SINGLE_MAX_SIZE 128 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
 //! When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
@@ -78,10 +78,13 @@ extern "C" {
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_TCOBS
 
 // XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption  with the key. (experimental)
-//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks.
 //#define XTEA_DECRYPT
+
+//! TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1 is usable to XTEA encrypt and COBS encode direct data.
+#define TRICE_32BIT_DIRECT_XTEA_AND_COBS 1 // experimental!
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 #define TRICE_DIAGNOSTICS 1
@@ -100,11 +103,10 @@ extern "C" {
 //! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
 #define TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING 1 
  
-
 //! Enable and set UARTA for deferred serial output.
-#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
-#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
-#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
+//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+//#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
+//#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
 //! Enable and set UARTB for deferred serial output.
 //#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
