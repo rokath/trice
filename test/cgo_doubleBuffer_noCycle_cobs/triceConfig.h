@@ -67,7 +67,7 @@ extern "C" {
 //! - TRICE_FRAMING_TCOBS: Recommended for internal transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice data with a user tool.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
-//! - With TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1 or TRICE_SEGGER_RTT_BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
+//! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
 #define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
 
@@ -91,14 +91,14 @@ extern "C" {
 
 //! TRICE_RTT0 == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
 //! Than the RTT trice packages are can be framed according to the set TRICE_DIRECT_OUT_FRAMING.
-//! Not useable with TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING
+//! Not useable with TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE or TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
 #define TRICE_RTT0 0
 
-//! TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
-#define TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING 0 
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0 
 
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA

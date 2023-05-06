@@ -35,7 +35,7 @@ void TriceLogDiagnosticValues( void ){
     unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
 
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( iD( 1126), "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD( 3751), "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
         TRice16( iD( 5223), "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
@@ -43,7 +43,7 @@ void TriceLogDiagnosticValues( void ){
     if( triceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
         TRice16( iD( 1746), "diag:triceHalfBufferDepthMax =%4u of%5d\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }else{
-        TRice16( iD( 7698), "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+        TRice16( iD( 1099), "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }
 }
 

@@ -19,7 +19,7 @@ static void triceNonBlockingWriteUartA( void const * buf, size_t nByte );
 static void triceNonBlockingWriteUartB( void const * buf, size_t nByte );
 #endif
 
-#if TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING
+#if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW );
 #endif
 
@@ -229,7 +229,7 @@ void TriceNonBlockingWrite( int triceID, uint8_t const * pBuf, size_t len ){
     //  #endif
 }
 
-#if TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING
+#if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) {
     unsigned NumWordsAtOnce;
@@ -261,13 +261,13 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
         pRingUp0->WrOff = (NumW - RemW)<<2;
     }
 }
-#endif // #if TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING
+#endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 
 #if TRICE_32BIT_DIRECT_XTEA_AND_COBS
-//! TriceEncryptAndCobsFraming32 doea an in-buffer encryption and COBS encoding of a single trice message.
-//! \param triceStart is the start of the trice message. In front of it are TRICE_DATA_OFFSET byte space for in-buffer encoding.
+//! TriceEncryptAndCobsFraming32 does an in-buffer encryption and COBS encoding of a single trice message.
+//! \param triceStart is the start of the trice message. In front of it is TRICE_DATA_OFFSET bytes space for in-buffer encoding.
 //! The result data are starting TRICE_DATA_OFFSET bytes before triceStart.
-//! Up to 4 bytes after the trice message are used as scratch area, what makes the code faster. Be careful when used in deferred output.
+//! Up to 4 bytes behind the trice message are used as scratch area, what makes the code faster. Be careful when used in deferred output.
 //! \param wordCount is the amount of trice message 32-bit values. When this value is odd, it is internally incremented by 1, so that 4 more (garbage) bytes are encrypted.
 //! This is ok, because the trice message internally carries its length and the additional data are ignored then.
 //! \retval wordCount is the word count stored at dest. The resulting message gets a 0-delimiter byte and 1-3 padding zeroes.
@@ -294,10 +294,10 @@ void TriceDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         triceStart -= TRICE_DATA_OFFSET>>2;
     #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
     
-    #if TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING
+    #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
         SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
     #endif
-    #if TRICE_SEGGER_RTT_8BIT_WRITE // normal SEGGER RTT without framing
+    #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE // normal SEGGER RTT without framing
         size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
         SEGGER_RTT_WriteNoLock(0, triceStart, len );
     #endif

@@ -279,7 +279,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_IDLE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_TC(TRICE_UARTA) ){
-        //TRICE0( Id( 6548), "wr:TRICE_UARTA Transmission Complete Flag is set\n" );
+        //TRICE0( Id( 1084), "wr:TRICE_UARTA Transmission Complete Flag is set\n" );
         LL_USART_ClearFlag_TC(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_nCTS(TRICE_UARTA) ){
@@ -300,10 +300,10 @@ void USART2_IRQHandler(void)
         TRICE( Id( 3318), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_BUSY(TRICE_UARTA) ){
-        TRICE( Id( 3570), "inf:TRICE_UARTA Busy Flag is set\n" );
+        TRICE( Id( 4140), "inf:TRICE_UARTA Busy Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_CM(TRICE_UARTA) ){
-        TRICE( Id( 2978), "wrn:TRICE_UARTA Character Match Flag is set\n" );
+        TRICE( Id( 4308), "wrn:TRICE_UARTA Character Match Flag is set\n" );
         LL_USART_ClearFlag_CM(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_SBK(TRICE_UARTA) ){

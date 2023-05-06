@@ -47,9 +47,9 @@ void TriceLogDiagnosticValues( void ){
     }else{
         TRice16( iD( 5963), "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
-    trice16( iD( 5593), "diag:singleTricesRingCountMax = %u, ", singleTricesRingCountMax );
+    trice16( iD( 7971), "diag:singleTricesRingCountMax = %u, ", singleTricesRingCountMax );
     if( triceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
-        trice16( iD( 6523), "diag:triceRingBufferDepthMax =%4u of%5d\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+        trice16( iD( 7229), "diag:triceRingBufferDepthMax =%4u of%5d\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }else{
         trice16( iD( 6584), "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }

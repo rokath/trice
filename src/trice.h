@@ -99,8 +99,8 @@ extern "C" {
 #include "triceConfig.h"
 
 #if (TRICE_RTT0 == 1) \
- || (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) \
- || (TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) 
+ || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
+ || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) 
 
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
@@ -172,12 +172,22 @@ extern uint32_t* TriceBufferWritePosition;
 //! - the value before Ringbuffer wraps, when TRICE_BUFFER TRICE_STATIC_BUFFER 
 #define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
 
-#ifndef TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING
+#ifndef TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
 
-//! TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock.
+//! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
-#define TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING 0
+#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
+
+#endif
+
+#ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE
+
+//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
+//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
+//! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
 
 #endif
 
@@ -245,15 +255,15 @@ extern uint32_t* TriceBufferWritePosition;
 #error configuration error
 #endif
 
-#if (TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) && (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1)
+#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
 #error configuration error
 #endif
 
-#if (TRICE_RTT0 == 1) && (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1)
+#if (TRICE_RTT0 == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
 #error wrong configuration
 #endif
 
-#if (TRICE_RTT0 == 1) && (TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1)
+#if (TRICE_RTT0 == 1) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1)
 #error wrong configuration
 #endif
 
@@ -265,11 +275,11 @@ extern uint32_t* TriceBufferWritePosition;
 #error configuration error
 #endif
 
-#if (TRICE_SEGGER_RTT_32BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
+#if (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
 #error wrong configuration
 #endif
 
-#if (TRICE_SEGGER_RTT_BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
+#if (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
 #error wrong configuration
 #endif
 
@@ -458,8 +468,6 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else  //#if TRICE_DIRECT_OUTPUT    
 
-
-
 // trice macros:
 
 #ifndef TRICE_PUT
@@ -636,7 +644,7 @@ static inline uint64_t aDouble( double x ){
     uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size --> todo: consider 64-bit stamp! */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( id( 4325), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        TRICE32( id( 6534), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
     TRICE_ENTER tid; \

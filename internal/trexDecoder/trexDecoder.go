@@ -226,8 +226,8 @@ func (p *trexDec) nextPackage() {
 			fmt.Println("inconsistent TCOBSv1 buffer:\a", frame) // show also terminating 0
 			p.B = p.B[:0]
 		} else {
-			p.B = p.B[len(p.B)-n:] // buffer is filled from the end
-		        p.IBuf = p.IBuf[index+1:]  // step forward (next package data in p.IBuf now, if any) // from merging:
+			p.B = p.B[len(p.B)-n:]    // buffer is filled from the end
+			p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any) // from merging:
 		}
 
 	//  case packageFramingTCOBSv2:
@@ -297,11 +297,13 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestampSize = 0
 	case typeS2: // 16-bit stamp
 		decoder.TargetTimestampSize = 2
-		if p.packageFraming == packageFramingNone {
+		if p.packageFraming == packageFramingNone || cipher.Password != "" {
 			if len(p.B) < 2 {
 				return // wait for more data
 			}
-			p.B = p.B[tyIdSize:] // When target encoding is done it removes the double 16-bit ID at the 16-bit timestamp trices. Without encoding it needs to be done here.
+			// Without encoding it needs to be done here.
+			// Also encrypted trice messages carry a double 16-bit ID.
+			p.B = p.B[tyIdSize:] // When target encoding is done, it removes the double 16-bit ID at the 16-bit timestamp trices.
 		}
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestampSize = 4

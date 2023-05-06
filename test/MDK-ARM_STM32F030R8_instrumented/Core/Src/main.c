@@ -79,6 +79,9 @@ int main(void)
     #ifdef SEGGER_RTT
     SEGGER_RTT_Write(0, 0, 0 ); //lint !e534 // This is just to force the INIT() call inside SEGGER_RTT.c what allows to use SEGGER_RTT_WriteNoLock instead of SEGGER_RTT_Write
     #endif
+    #ifdef XTEA_ENCRYPT_KEY
+        XTEAInitTable();
+    #endif
 
     TRICE_HEADLINE;
 
@@ -108,7 +111,7 @@ int main(void)
     TRice( iD( 4330), "w: Hello! 👋🙂 \a\n" ); // with sound!
     Trice( iD( 3394), "w: Hello! 👋🙂 \a\n" ); // with sound!
     Trice( iD( 2446), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD( 5397), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD( 7346), "w: Hello! 👋🙂 \a\n" ); // with sound!
     trice( iD( 7761), "w: Hello! 👋🙂 \a\n" ); // with sound!
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
@@ -118,9 +121,6 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-    #ifdef XTEA_ENCRYPT_KEY
-        XTEAInitTable();
-    #endif
     #ifdef TRICE_UARTA
     LL_USART_EnableIT_RXNE(TRICE_UARTA); // enable UART2 interrupt
     #endif
