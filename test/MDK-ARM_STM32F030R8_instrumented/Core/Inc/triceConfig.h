@@ -25,7 +25,7 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_DOUBLE_BUFFER. The TRICE_RING_BUFFER option works, but is experimental.
-#define TRICE_BUFFER TRICE_STACK_BUFFER
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
@@ -43,7 +43,7 @@ extern "C" {
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a ring buffer wrap.
 //! - Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
-//! - In direct mode, and also when you enabled TRICE_RTT0, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
+//! - In direct mode, and also when you enabled TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
 #define TRICE_SINGLE_MAX_SIZE 128 // must be a multiple of 4
@@ -85,14 +85,6 @@ extern "C" {
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 #define TRICE_DIAGNOSTICS 1
-
-//! TRICE_SEGGER_RTT_DIAGNOSTICS allows to track SEGGER RTT buffer usage, if enabled here.
-//#define TRICE_SEGGER_RTT_DIAGNOSTICS // not for TRICE_SEGGER_RTT_32BIT_WRITE == 1
-
-//! TRICE_RTT0 == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
-//! Than the RTT trice packages are can be framed according to the set TRICE_DIRECT_OUT_FRAMING.
-//! Not useable with TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE or TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
-#define TRICE_RTT0 0
 
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.

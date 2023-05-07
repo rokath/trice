@@ -22,7 +22,7 @@ uint32_t* TriceBufferLastWritePosition;
 //! triceBufferWriteLimit is the triceBuffer written limit. 
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
 
-#if TRICE_DIAGNOSTICS
+#if TRICE_DIAGNOSTICS == 1
 
 //! triceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
 unsigned triceSingleMaxWordCount = 0;
@@ -32,6 +32,10 @@ static unsigned triceHalfBufferDepthMax = 0;
 
 //! TriceLogDiagnosticValues shows the max used half buffer space. 
 void TriceLogDiagnosticValues( void ){
+    #ifdef SEGGER_RTT
+    TriceLogSeggerDiagnostics();
+    #endif
+    
     unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
 
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
@@ -92,19 +96,20 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
     size_t len = tLen; // (byte count)
     int triceID;
-    #if TRICE_DIAGNOSTICS
+    #if TRICE_DIAGNOSTICS == 1
     tLen += TRICE_DATA_OFFSET; 
     triceHalfBufferDepthMax = tLen < triceHalfBufferDepthMax ? triceHalfBufferDepthMax : tLen;
     #endif
     // do it
     while(len){
         uint8_t* triceStart;
-        size_t triceLen;
+        size_t triceLen; // This is the trice netto length (without padding bytes).
         triceID = TriceNext( &buf, &len, &triceStart, &triceLen );
         if( triceID <= 0 ){ // on data error
             break;   // ignore following data
         }
         #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
+        // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
         encLen += TriceDeferredEncode( enc+encLen, triceStart, triceLen );
         #endif
         #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
@@ -113,7 +118,8 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         #endif
     }
     #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
-    encLen = triceDeferredEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
+    // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
+    encLen = TriceDeferredEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
     ToggleOpticalFeedbackLED();
     

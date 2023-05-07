@@ -98,7 +98,38 @@ extern "C" {
 #include <string.h>
 #include "triceConfig.h"
 
-#if (TRICE_RTT0 == 1) \
+// defaults 1:
+
+#ifndef TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
+
+//! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock.
+//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
+//! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
+#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
+
+#endif
+
+#ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE
+
+//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
+//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
+//! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
+
+#endif
+
+#ifndef TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE
+
+//! TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
+//! Than the RTT trice packages are can be framed according to the set TRICE_DIRECT_OUT_FRAMING.
+//! Not useable with TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE or TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
+//! Switch this on, if you wish deferred Segger RTT output.
+#define TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE 0
+
+#endif
+
+#if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) \
  || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) 
 
@@ -115,6 +146,7 @@ void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
 void TriceDirectWrite( uint32_t * const triceStart, unsigned wordCount );
 void TriceLogDiagnosticValues( void );
+void TriceLogSeggerDiagnostics( void );
 void TriceNonBlockingWrite( int ticeID, uint8_t const * pBuf, size_t len );
 void TriceTransfer( void );
 void TriceWriteDeviceAuxiliary( uint8_t const * buf, size_t len );
@@ -156,7 +188,7 @@ extern unsigned triceSingleMaxWordCount;
 extern uint32_t* TriceBufferWritePosition;
 #endif
 
-// defaults:
+// defaults 2:
 
 #ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
 
@@ -171,25 +203,6 @@ extern uint32_t* TriceBufferWritePosition;
 //! - the statically allocated buffer size when TRICE_BUFFER TRICE_STATIC_BUFFER
 //! - the value before Ringbuffer wraps, when TRICE_BUFFER TRICE_STATIC_BUFFER 
 #define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
-
-#ifndef TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
-
-//! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock.
-//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
-//! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
-#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
-
-#endif
-
-#ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE
-
-//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
-//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
-//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
-//! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
-
-#endif
 
 #ifndef TRICE_DEFAULT_PARAMETER_BIT_WIDTH
 
@@ -266,11 +279,11 @@ extern uint32_t* TriceBufferWritePosition;
 #error configuration error
 #endif
 
-#if (TRICE_RTT0 == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
+#if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
 #error wrong configuration
 #endif
 
-#if (TRICE_RTT0 == 1) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1)
+#if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1)
 #error wrong configuration
 #endif
 
@@ -371,7 +384,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
-#if TRICE_DIAGNOSTICS
+#if TRICE_DIAGNOSTICS == 1
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
     uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
@@ -385,13 +398,13 @@ extern uint32_t* TriceBufferWritePosition;
     triceSingleMaxWordCount = (wordCount < triceSingleMaxWordCount) ? triceSingleMaxWordCount : wordCount; \
     } while(0);
 
-#else // #if TRICE_DIAGNOSTICS
+#else // #if TRICE_DIAGNOSTICS == 1
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT 
 
-#endif // #else // #if TRICE_DIAGNOSTICS
+#endif // #else // #if TRICE_DIAGNOSTICS == 1
 
 #if TRICE_BUFFER ==  TRICE_STACK_BUFFER 
 

@@ -104,7 +104,7 @@ static void singleTriceDirectOut( uint32_t* tb, size_t tLen ){
         encLen += TriceEncode( enc+encLen, triceStart, triceLen );
         #endif
     }
-    #if TRICE_RTT0 == 1
+    #if TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1
     TriceWriteDeviceRtt0( enc, encLen );
     #endif
 }
@@ -156,27 +156,7 @@ static size_t triceIDAndLen( uint32_t* pBuf, int* triceID ){
     return triceSize;
 }
 
-#ifdef TRICE_SEGGER_RTT_DIAGNOSTICS
-unsigned RTT0_writeSpaceMin = BUFFER_SIZE_UP; //! RTT0_writeSpaceMin is usable for diagnostics.
-unsigned RTT0_bytesInBufferMax = 0;        //! RTT0_bytesInBufferMax is usable for diagnostics.
-#endif
-
-void TriceWriteDeviceRtt0( uint8_t *buf, size_t len ){
-    
-    // diagnostics
-    #ifdef TRICE_SEGGER_RTT_DIAGNOSTICS
-    unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
-    unsigned bytesInBuffer = SEGGER_RTT_GetBytesInBuffer(0);
-    RTT0_writeSpaceMin    = RTT0_writeSpaceMin    < writeSpace    ? RTT0_writeSpaceMin    : writeSpace;
-    RTT0_bytesInBufferMax = RTT0_bytesInBufferMax > bytesInBuffer ? RTT0_bytesInBufferMax : bytesInBuffer;
-    #endif
-    
-    // action
-    SEGGER_RTT_WriteNoLock(0, buf, len );
-}
-//#endif // #if TRICE_RTT0
-
-#if TRICE_RTT0 == 1
+#if TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1
 //! TriceOutRtt0 encodes trices and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
@@ -205,6 +185,6 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ){
     }
     TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
 }
-#endif // #if TRICE_RTT0 == 1
+#endif // #if TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1
 
 #endif

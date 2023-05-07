@@ -191,6 +191,40 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
 }
 
 
+#if (TRICE_DIAGNOSTICS ==1) && defined(SEGGER_RTT)
+
+unsigned RTT0_writeSpaceMin = BUFFER_SIZE_UP; //! RTT0_writeSpaceMin is usable for diagnostics.
+unsigned RTT0_bytesInBufferMax = 0;        //! RTT0_bytesInBufferMax is usable for diagnostics.
+
+static void triceSeggerRTTDiagnostics( void ){
+    unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
+    unsigned bytesInBuffer = SEGGER_RTT_GetBytesInBuffer(0);
+    RTT0_writeSpaceMin    = RTT0_writeSpaceMin    < writeSpace    ? RTT0_writeSpaceMin    : writeSpace;
+    RTT0_bytesInBufferMax = RTT0_bytesInBufferMax > bytesInBuffer ? RTT0_bytesInBufferMax : bytesInBuffer;
+}
+
+void TriceLogSeggerDiagnostics( void ){
+    if( (RTT0_writeSpaceMin > 4) && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
+        trice( iD( 1278), "diag:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\n", RTT0_bytesInBufferMax, RTT0_writeSpaceMin );
+    }else{
+        trice( iD( 1249), "err:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\n", RTT0_bytesInBufferMax, RTT0_writeSpaceMin );
+    }
+}
+
+#endif // #if (TRICE_DIAGNOSTICS ==1) && defined(SEGGER_RTT)
+
+#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
+
+void TriceWriteDeviceRtt0( uint8_t *buf, size_t len ){
+    SEGGER_RTT_WriteNoLock(0, buf, len );
+
+    #if TRICE_DIAGNOSTICS == 1
+    triceSeggerRTTDiagnostics();
+    #endif
+}
+
+#endif // #if TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1
+
 // TriceNonBlockingWrite routes trice data to output channels.
 void TriceNonBlockingWrite( int triceID, uint8_t const * pBuf, size_t len ){
     
@@ -215,12 +249,12 @@ void TriceNonBlockingWrite( int triceID, uint8_t const * pBuf, size_t len ){
     #ifdef TRICE_CGO
         TriceWriteDeviceCgo( pBuf, len );
     #endif
-    //  #if (TRICE_RTT0 == 1) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_RING_BUFFER) // only when RTT0 is alone
-    //      #if defined(TRICE_RTT0_MIN_ID) && defined(TRICE_RTT0_MAX_ID)
-    //      if( (TRICE_RTT0_MIN_ID < triceID) && (triceID < TRICE_RTT0_MAX_ID) )
-    //      #endif
-    //      TriceWriteDeviceRtt0( enc, encLen );
-    //  #endif
+    #if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_RING_BUFFER) // only when RTT0 is alone
+        #if defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID)
+        if( (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID) )
+        #endif
+        TriceWriteDeviceRtt0( enc, encLen );
+    #endif
     //  #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
     //      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
     //      if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
@@ -260,6 +294,9 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
         RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
         pRingUp0->WrOff = (NumW - RemW)<<2;
     }
+    #if TRICE_DIAGNOSTICS == 1
+    triceSeggerRTTDiagnostics();
+    #endif
 }
 #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 
@@ -297,9 +334,9 @@ void TriceDirectWrite( uint32_t * triceStart, unsigned wordCount ){
     #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
         SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
     #endif
-    #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE // normal SEGGER RTT without framing
+    #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1// normal SEGGER RTT without framing
         size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
-        SEGGER_RTT_WriteNoLock(0, triceStart, len );
+        TriceWriteDeviceRtt0( triceStart, len );
     #endif
 
     //singleTriceDirectOut( triceStart, wordCount<<2 ); // with encoding
@@ -412,8 +449,6 @@ unsigned TriceOutDepth( void ){
     #ifdef SEGGER_RTT
         // When no RTT host is connected, the RTT buffer runs full.
         // If a RTT host is connected, it is assumed to be the fastest device.
-        // d = BUFFER_SIZE_UP - SEGGER_RTT_GetAvailWriteSpace(TRICE_RTT0);
-        // depth = d > depth ? d : depth;
     #endif
     #if defined( TRICE_UARTA ) 
         d = TriceOutDepthUartA(); //lint !e838

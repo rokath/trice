@@ -28,7 +28,7 @@ int singleTricesRingCount = 0;
 uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
 //ARM5 #pragma  pop
 
-#if TRICE_DIAGNOSTICS
+#if TRICE_DIAGNOSTICS == 1
 
 //! singleTricesRingCountMax holds the max count of trices occurred inside the ring buffer.
 static unsigned singleTricesRingCountMax = 0;
@@ -41,6 +41,10 @@ static unsigned triceRingBufferDepthMax = 0;
 
 //! TriceLogDiagnosticValues shows the max used half buffer space. 
 void TriceLogDiagnosticValues( void ){
+    #ifdef SEGGER_RTT
+    TriceLogSeggerDiagnostics();
+    #endif
+
     unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
         TRice16( iD( 3293), "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
@@ -68,7 +72,7 @@ static uint32_t* triceNextRingBufferRead( int lastWordCount ){
     if( (TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE>>2)) > triceRingBufferLimit ){
         TriceRingBufferReadPosition = TriceRingBuffer;
     }
-    #if TRICE_DIAGNOSTICS
+    #if TRICE_DIAGNOSTICS == 1
     int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition)<<2;
     if( depth < 0 ){
         depth += TRICE_DEFERRED_BUFFER_SIZE;
@@ -86,7 +90,7 @@ void TriceTransfer( void ){
     if( TriceOutDepth() ){ // last transmission not finished
         return;
     }
-    #if TRICE_DIAGNOSTICS
+    #if TRICE_DIAGNOSTICS == 1
     singleTricesRingCountMax = (singleTricesRingCount > singleTricesRingCountMax) ? singleTricesRingCount : singleTricesRingCountMax;
     #endif
     singleTricesRingCount--;
@@ -105,9 +109,12 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     uint8_t* pEnc = (uint8_t*)addr;
     int wordCount;
     uint8_t* pStart;
-    size_t Length;
+    size_t Length; // This is the trice netto length (without padding bytes).
     int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
+    
+    // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
     size_t encLen = TriceDeferredEncode( pEnc, pStart, Length);
+    
     TriceNonBlockingWrite( triceID, pEnc, encLen );
     return wordCount;
 }

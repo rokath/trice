@@ -63,6 +63,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "rd:TRICE8_4 %d, %d, %d, %d\\n"
 	},
+	"1094": {
+		"Type": "trice",
+		"Strg": "err:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\\n"
+	},
 	"1099": {
 		"Type": "TRice16",
 		"Strg": "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
@@ -171,6 +175,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %E (%%E)\\n"
 	},
+	"1249": {
+		"Type": "trice",
+		"Strg": "err:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\\n"
+	},
 	"1256": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 %d\\n"
@@ -182,6 +190,10 @@
 	"1273": {
 		"Type": "Trice64",
 		"Strg": "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\\n"
+	},
+	"1278": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\\n"
 	},
 	"1279": {
 		"Type": "TRICE",
@@ -1614,6 +1626,10 @@
 	"3594": {
 		"Type": "TRICE",
 		"Strg": "rd: 123.456000\t\t%f \t%%f Decimal point, no exponent\\n"
+	},
+	"3598": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\\n"
 	},
 	"3599": {
 		"Type": "Trice8_11",
