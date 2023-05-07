@@ -168,7 +168,7 @@ Compare folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32
 
 Main steps are:
 
-* Add [./src/trice.c](../src/trice.c) to your project. It includes the files in [./src/box](../src/box) automatically.
+* Add all files [./src/\*.c](../src/) to your project. Some files are excluded automatically according to the [triceConfig.h](../test/MDK-ARM_STM32F030R8instrumented/Core/Inc/triceConfig.h) configuration. 
 * Add [./src](../src) to your compiler library include path.
 * Copy file [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8instrumented/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
