@@ -424,15 +424,19 @@ static void triceNonBlockingDirectWrite( int triceID, uint8_t const * pBuf, size
 //! In front of triceStart is TRICE_DATA_OFFSET bytes space usable for in-buffer encoding.
 void TriceDirectWrite( uint32_t * triceStart, unsigned wordCount ){
 
-    #if TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1
-        wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
-        triceStart -= TRICE_DATA_OFFSET>>2;
-    #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
-    
     #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
+        #if TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1
+            wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
+            triceStart -= TRICE_DATA_OFFSET>>2;
+        #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
         SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
     #endif
+
     #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1// normal SEGGER RTT without framing
+        #if TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1
+            wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
+            triceStart -= TRICE_DATA_OFFSET>>2;
+        #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
         size_t len8 = wordCount<<2; // len8 is the trice len without TRICE_OFFSET but with padding bytes.
         TriceWriteDeviceRtt0( triceStart, len8 );
     #endif

@@ -39,3 +39,29 @@
 - `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
 The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice location is read by a deferred task.
+
+## Deferred Out
+
+### Double Buffer
+
+- TriceTransfer
+  - TriceOut
+  - TriceNonBlockingWrite( triceID, enc, encLen );
+  
+### Ring Buffer
+
+- TriceTransfer
+  - lastWordCount = TriceSingleDeferredOut(addr);
+    - int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
+    - TriceNonBlockingWrite( triceID, pEnc, encLen );
+
+## Direct Transfer
+
+- TRICE_LEAVE
+  - TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount);
+    - optional RTT32 with optional XTEAwithCOBS
+    - optional RTT8  with optional XTEAwithCOBS
+    - optional
+      - triceIDAndLen
+      - triceDirectEncode
+      - triceNonBlockingDirectWrite
