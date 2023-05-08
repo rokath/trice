@@ -163,7 +163,6 @@ uint32_t Us32( void );
 
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
-size_t TriceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len );
 size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len );
 
 // global variables:
@@ -270,6 +269,10 @@ extern uint32_t* TriceBufferWritePosition;
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
 // check configuration:
+
+#if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUTPUT == 0)
+#error configuration error
+#endif
 
 #if defined (TRICE_CGO) && defined(SEGGER_RTT) 
 #error configuration error
@@ -468,7 +471,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 
-#if TRICE_DIRECT_OUTPUT
+#if TRICE_DIRECT_OUTPUT == 1
 
     //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
     #define TRICE_LEAVE \
@@ -479,14 +482,14 @@ extern uint32_t* TriceBufferWritePosition;
         TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
         } TRICE_LEAVE_CRITICAL_SECTION
 
-#else  //#if TRICE_DIRECT_OUTPUT
+#else  //#if TRICE_DIRECT_OUTPUT == 1
     
     //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
     #define TRICE_LEAVE \
         TRICE_DIAGNOSTICS_SINGLE_BUFFER \
         } TRICE_LEAVE_CRITICAL_SECTION
 
-#endif // #else  //#if TRICE_DIRECT_OUTPUT    
+#endif // #else  //#if TRICE_DIRECT_OUTPUT == 1
 
 // trice macros:
 

@@ -121,8 +121,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
     encLen = TriceDeferredEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
-    ToggleOpticalFeedbackLED();
-    
+
     // Reaching here means all trice data in the current double buffer are encoded
     // into a single continuous buffer having 0-delimiters between them or not but at the ent is a 0-delimiter.
     //

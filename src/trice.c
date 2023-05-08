@@ -190,6 +190,35 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     return encLen;
 }
 
+#if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+
+//! TriceDirectEncode expects at buf trice date with netto length len.
+//! \param enc is the destination.
+//! \param buf is the source.
+//! \param len is the source len.
+//! \retval is the encoded len with 0-delimiter byte.
+static size_t triceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
+    size_t encLen;
+    #ifdef XTEA_ENCRYPT_KEY
+    len = (len + 7) & ~7; // only multiple of 8 encryptable
+    XTEAEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
+    #endif
+    #if TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS
+    encLen = (size_t)TCOBSEncode(enc, buf, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS
+    encLen = (size_t)COBSEncode(enc, buf, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE
+    memmove( enc, buf, len );
+    encLen = len;
+    #else
+    #error unknown TRICE_DIRECT_OUT_FRAMING
+    #endif
+    return encLen;
+}
+
+#endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 
 #if (TRICE_DIAGNOSTICS ==1) && defined(SEGGER_RTT)
 
@@ -240,7 +269,7 @@ void TriceNonBlockingWrite( int triceID, uint8_t const * pBuf, size_t len ){
         #endif
         { triceNonBlockingWriteUartB( pBuf, len ); }
     #endif
-    #ifdef TRICE_AUXILIARY
+    #if defined( TRICE_AUXILIARY )
         #if defined(TRICE_AUXILIARY_MIN_ID) && defined(TRICE_AUXILIARY_MAX_ID)
         if( (TRICE_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_AUXILIARY_MAX_ID) )
         #endif
@@ -309,7 +338,7 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
 //! This is ok, because the trice message internally carries its length and the additional data are ignored then.
 //! \retval wordCount is the word count stored at dest. The resulting message gets a 0-delimiter byte and 1-3 padding zeroes.
 unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wordCount ){
-    unsigned wcEven = ((wordCount + 1) & ~1); // only multiple of 8 encryptable 
+    unsigned wcEven = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
     XTEAEncrypt( triceStart, wcEven ); // in-buffer encryption
     uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
     unsigned encLen = COBSEncode(enc, triceStart, wcEven<<2);
@@ -320,13 +349,82 @@ unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wor
 }
 #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
 
+#if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+
+//! triceIDAndLen expects at buf a trice message and returns the ID for routing.
+//! \param pBuf is where the trice message starts.
+//! \param triceID is filled positive ID value on success or negative on error.
+//! \retval is the netto trice length (without padding bytes), 0 on error.
+static size_t triceIDAndLen( uint32_t* pBuf, int* triceID ){
+    uint16_t* pTID = (uint16_t*)*pBuf; // get TID address
+    uint16_t TID = TRICE_TTOHS( *pTID ); // type and id
+    *triceID = 0x3FFF & TID;
+    int triceType = TID >> 14;
+    unsigned offset = 0;
+    size_t len;
+    uint8_t* pStart = (uint8_t*)pBuf;
+    switch( triceType ){
+        case TRICE_TYPE_S0: // S0 = no stamp
+            len = 4 + triceDataLen(pStart + 2); // tyId
+            break;
+        case TRICE_TYPE_S2: // S2 = 16-bit stamp
+            *pStart += 2; // see Id(n) macro definition
+            offset = 2;
+            len = 6 + triceDataLen(pStart + 4); // tyId ts16
+            break;
+        case TRICE_TYPE_S4: // S4 = 32-bit stamp
+            len = 8 + triceDataLen(pStart + 6); // tyId ts32
+            break;
+        default:
+            //lint -fallthrugh
+        case TRICE_TYPE_X0:
+            triceErrorCount++;
+            *triceID = -__LINE__; // extended trices not supported (yet)
+            return 0;
+    }
+    size_t triceSize = (len + offset + 3) & ~3;
+    // S16 case example:            triceSize  len   t-0-3   t-o
+    // 80id 80id 1616 00cc                8     6      3      6
+    // 80id 80id 1616 01cc dd            12     7      7     10
+    // 80id 80id 1616 02cc dd dd         12     8      7     10
+    // 80id 80id 1616 03cc dd dd dd      12     9      7     10
+    // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
+    if( !( triceSize - (offset + 3) <= len && len <= triceSize - offset )){ // todo: simplify expression, if possible
+        // corrupt data
+        triceErrorCount++;
+        *triceID = -__LINE__; //
+        return 0;
+    }    
+    return triceSize;
+}
+
+
+// triceNonBlockingDirectWrite routes trice data to output channels.
+static void triceNonBlockingDirectWrite( int triceID, uint8_t const * pBuf, size_t len ){
+
+    #if defined( TRICE_DIRECT_AUXILIARY )
+        #if defined(TRICE_DIRECT_AUXILIARY_MIN_ID) && defined(TRICE_DIRECT_AUXILIARY_MAX_ID)
+        if( (TRICE_DIRECT_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DIRECT_AUXILIARY_MAX_ID) )
+        #endif
+        { TriceDirectWriteDeviceAuxiliary( pBuf, len ); }
+    #endif
+
+    //  #ifdef TRICE_CGO
+    //      TriceWriteDeviceCgo( pBuf, len );
+    //  #endif
+}
+
+#endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+
+#if TRICE_DIRECT_OUTPUT == 1
+
 //! TriceDirectWrite copies a single trice from triceStart to output.
 //! This is the time critical part, executed inside TRICE_LEAVE.
 //! The trice data start at triceStart and last wordCount values including 1-3 padding bytes at the end.
 //! In front of triceStart is TRICE_DATA_OFFSET bytes space usable for in-buffer encoding.
 void TriceDirectWrite( uint32_t * triceStart, unsigned wordCount ){
 
-    #if TRICE_32BIT_DIRECT_XTEA_AND_COBS
+    #if TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1
         wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
         triceStart -= TRICE_DATA_OFFSET>>2;
     #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
@@ -335,14 +433,21 @@ void TriceDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
     #endif
     #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1// normal SEGGER RTT without framing
-        size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
-        TriceWriteDeviceRtt0( triceStart, len );
+        size_t len8 = wordCount<<2; // len8 is the trice len without TRICE_OFFSET but with padding bytes.
+        TriceWriteDeviceRtt0( triceStart, len8 );
     #endif
 
-    //singleTriceDirectOut( triceStart, wordCount<<2 ); // with encoding
-
-
+    #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+    int triceID;
+    size_t len = triceIDAndLen( triceStart, &triceID );
+    uint8_t* triceStart8 = (uint8_t*)triceStart;
+    uint8_t* enc = triceStart8 - TRICE_DATA_OFFSET;
+    size_t encLen = triceDirectEncode( enc, triceStart8, len );
+    triceNonBlockingDirectWrite( triceID, enc, encLen );
+    #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 }
+
+#endif // #if TRICE_DIRECT_OUTPUT == 1
 
 #if defined( TRICE_UARTA ) // deferred out to UART
 

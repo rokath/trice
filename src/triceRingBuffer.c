@@ -100,6 +100,7 @@ void TriceTransfer( void ){
 }
 
 //! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
+//! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
 //! \param addr points to TRICE_DATA_OFFSET bytes usble space followed by the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
 //! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
