@@ -19,7 +19,21 @@ package cgot
 // void CgoSetTriceBuffer( uint8_t* buf );
 // void CgoClearTriceBuffer( void );
 // #cgo CFLAGS: -g -I../../src
+// #include "../../src/cobsDecode.c"
+// #include "../../src/cobsEncode.c"
+// #include "../../src/tcobsv1Decode.c"
+// #include "../../src/tcobsv1Encode.c"
 // #include "../../src/trice.c"
+// #include "../../src/trice16.c"
+// #include "../../src/trice32.c"
+// #include "../../src/trice64.c"
+// #include "../../src/trice8.c"
+// #include "../../src/triceAuxiliary.c"
+// #include "../../src/triceDoubleBuffer.c"
+// #include "../../src/triceRingBuffer.c"
+// #include "../../src/triceStackBuffer.c"
+// #include "../../src/triceStaticBuffer.c"
+// #include "../../src/xtea.c"
 // #include "../testdata/triceCheck.c"
 // #include "../testdata/cgoTrice.c"
 import "C"
