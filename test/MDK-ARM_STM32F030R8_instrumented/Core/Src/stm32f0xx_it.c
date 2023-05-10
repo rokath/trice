@@ -263,7 +263,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_PE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_FE(TRICE_UARTA) ){
-        TRICE( Id( 4098), "err:TRICE_UARTA Framing Error Flag is set\n" );
+        TRICE( Id( 4696), "err:TRICE_UARTA Framing Error Flag is set\n" );
         LL_USART_ClearFlag_FE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_NE(TRICE_UARTA) ){
@@ -275,7 +275,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_ORE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_IDLE(TRICE_UARTA) ){
-        TRICE( Id( 4174), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
+        TRICE( Id( 2242), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
         LL_USART_ClearFlag_IDLE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_TC(TRICE_UARTA) ){
@@ -283,14 +283,14 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_TC(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_nCTS(TRICE_UARTA) ){
-        TRICE( Id( 5667), "wrn:TRICE_UARTA CTS interrupt Flag is set\n" );
+        TRICE( Id( 4680), "wrn:TRICE_UARTA CTS interrupt Flag is set\n" );
         LL_USART_ClearFlag_nCTS(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_CTS(TRICE_UARTA) ){
         TRICE( Id( 3536), "wrn:TRICE_UARTA CTS Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RTO(TRICE_UARTA) ){
-        TRICE( Id( 1495), "err:TRICE_UARTA Receiver Time Out Flag is set\n" );
+        TRICE( Id( 4276), "err:TRICE_UARTA Receiver Time Out Flag is set\n" );
         LL_USART_ClearFlag_RTO(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_ABRE(TRICE_UARTA) ){
@@ -307,7 +307,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_CM(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_SBK(TRICE_UARTA) ){
-        TRICE( Id( 3283), "wrn:TRICE_UARTA Send Break Flag is set\n" );
+        TRICE( Id( 6412), "wrn:TRICE_UARTA Send Break Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RWU(TRICE_UARTA) ){
         TRICE( Id( 3903), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );

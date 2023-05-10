@@ -20,7 +20,7 @@ void TriceLogDiagnosticValues( void ){
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
         TRice16( iD( 6536), "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
-        TRice16( iD( 5233), "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD( 2107), "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
 }
 

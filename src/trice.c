@@ -69,6 +69,44 @@ static size_t triceDataLen( uint8_t const* p ){
     return nc & 0x7fff;
 }
 
+#if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+
+//! triceIDAndLen expects at buf a trice message and returns the ID for routing.
+//! \param pBuf is where the trice message starts.
+//! \param ppStart return the trice data start address. This is pBuf or 2 bytes later.
+//! \param triceID is filled positive ID value on success or negative on error.
+//! \retval is the netto trice length (without padding bytes), 0 on error.
+static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
+    uint16_t* pTID = (uint16_t*)pBuf; // get TID address
+    uint16_t TID = TRICE_TTOHS( *pTID ); // type and id
+    *triceID = 0x3FFF & TID;
+    int triceType = TID >> 14;
+    size_t len;
+    uint8_t* pStart = (uint8_t*)pBuf;
+    switch( triceType ){
+        case TRICE_TYPE_S0: // S0 = no stamp
+            len = 4 + triceDataLen(pStart + 2); // tyId
+            break;
+        case TRICE_TYPE_S2: // S2 = 16-bit stamp
+            pStart += 2; // see Id(n) macro definition
+            len = 6 + triceDataLen(pStart + 4); // tyId ts16
+            break;
+        case TRICE_TYPE_S4: // S4 = 32-bit stamp
+            len = 8 + triceDataLen(pStart + 6); // tyId ts32
+            break;
+        default:
+            //lint -fallthrugh
+        case TRICE_TYPE_X0:
+            triceErrorCount++;
+            *triceID = -__LINE__; // extended trices not supported (yet)
+            return 0;
+    }
+    *ppStart = pStart;
+    return len;
+}
+
+#endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+
 //! TriceIDAndBuffer evaluates a trice message and returns the ID for routing.
 //! \param pAddr is where the trice message starts.
 //! \param pWordCount is filled with the word count the trice data occupy from pAddr.
@@ -236,7 +274,7 @@ void TriceLogSeggerDiagnostics( void ){
     if( (RTT0_writeSpaceMin > 4) && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
         trice( iD( 1278), "diag:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\n", RTT0_bytesInBufferMax, RTT0_writeSpaceMin );
     }else{
-        trice( iD( 1249), "err:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\n", RTT0_bytesInBufferMax, RTT0_writeSpaceMin );
+        trice( iD( 1544), "err:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\n", RTT0_bytesInBufferMax, RTT0_writeSpaceMin );
     }
 }
 
@@ -244,8 +282,8 @@ void TriceLogSeggerDiagnostics( void ){
 
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
 
-void TriceWriteDeviceRtt0( uint8_t *buf, size_t len ){
-    SEGGER_RTT_WriteNoLock(0, buf, len );
+static void TriceWriteDeviceRtt0( uint8_t* enc, size_t encLen ){
+    SEGGER_RTT_WriteNoLock(0, enc, encLen );
 
     #if TRICE_DIAGNOSTICS == 1
     triceSeggerRTTDiagnostics();
@@ -253,44 +291,6 @@ void TriceWriteDeviceRtt0( uint8_t *buf, size_t len ){
 }
 
 #endif // #if TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1
-
-// TriceNonBlockingWrite routes trice data to output channels.
-void TriceNonBlockingWrite( int triceID, uint8_t const * pBuf, size_t len ){
-    
-    #if defined( TRICE_UARTA )
-        #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
-        if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
-        #endif
-        { triceNonBlockingWriteUartA( pBuf, len ); }
-    #endif
-    #if defined( TRICE_UARTB )
-        #if defined(TRICE_UARTB_MIN_ID) && defined(TRICE_UARTB_MAX_ID)
-        if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) )
-        #endif
-        { triceNonBlockingWriteUartB( pBuf, len ); }
-    #endif
-    #if defined( TRICE_AUXILIARY )
-        #if defined(TRICE_AUXILIARY_MIN_ID) && defined(TRICE_AUXILIARY_MAX_ID)
-        if( (TRICE_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_AUXILIARY_MAX_ID) )
-        #endif
-        { TriceWriteDeviceAuxiliary( pBuf, len ); }
-    #endif
-    #ifdef TRICE_CGO
-        TriceWriteDeviceCgo( pBuf, len );
-    #endif
-    #if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_RING_BUFFER) // only when RTT0 is alone
-        #if defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID)
-        if( (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID) )
-        #endif
-        TriceWriteDeviceRtt0( enc, encLen );
-    #endif
-    //  #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
-    //      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
-    //      if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
-    //      #endif
-    //      TriceWriteDeviceModbus( enc, encLen );
-    //  #endif
-}
 
 #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
@@ -349,80 +349,13 @@ unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wor
 }
 #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
 
-#if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
-
-//! triceIDAndLen expects at buf a trice message and returns the ID for routing.
-//! \param pBuf is where the trice message starts.
-//! \param triceID is filled positive ID value on success or negative on error.
-//! \retval is the netto trice length (without padding bytes), 0 on error.
-static size_t triceIDAndLen( uint32_t* pBuf, int* triceID ){
-    uint16_t* pTID = (uint16_t*)*pBuf; // get TID address
-    uint16_t TID = TRICE_TTOHS( *pTID ); // type and id
-    *triceID = 0x3FFF & TID;
-    int triceType = TID >> 14;
-    unsigned offset = 0;
-    size_t len;
-    uint8_t* pStart = (uint8_t*)pBuf;
-    switch( triceType ){
-        case TRICE_TYPE_S0: // S0 = no stamp
-            len = 4 + triceDataLen(pStart + 2); // tyId
-            break;
-        case TRICE_TYPE_S2: // S2 = 16-bit stamp
-            *pStart += 2; // see Id(n) macro definition
-            offset = 2;
-            len = 6 + triceDataLen(pStart + 4); // tyId ts16
-            break;
-        case TRICE_TYPE_S4: // S4 = 32-bit stamp
-            len = 8 + triceDataLen(pStart + 6); // tyId ts32
-            break;
-        default:
-            //lint -fallthrugh
-        case TRICE_TYPE_X0:
-            triceErrorCount++;
-            *triceID = -__LINE__; // extended trices not supported (yet)
-            return 0;
-    }
-    size_t triceSize = (len + offset + 3) & ~3;
-    // S16 case example:            triceSize  len   t-0-3   t-o
-    // 80id 80id 1616 00cc                8     6      3      6
-    // 80id 80id 1616 01cc dd            12     7      7     10
-    // 80id 80id 1616 02cc dd dd         12     8      7     10
-    // 80id 80id 1616 03cc dd dd dd      12     9      7     10
-    // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
-    if( !( triceSize - (offset + 3) <= len && len <= triceSize - offset )){ // todo: simplify expression, if possible
-        // corrupt data
-        triceErrorCount++;
-        *triceID = -__LINE__; //
-        return 0;
-    }    
-    return triceSize;
-}
-
-
-// triceNonBlockingDirectWrite routes trice data to output channels.
-static void triceNonBlockingDirectWrite( int triceID, uint8_t const * pBuf, size_t len ){
-
-    #if defined( TRICE_DIRECT_AUXILIARY )
-        #if defined(TRICE_DIRECT_AUXILIARY_MIN_ID) && defined(TRICE_DIRECT_AUXILIARY_MAX_ID)
-        if( (TRICE_DIRECT_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DIRECT_AUXILIARY_MAX_ID) )
-        #endif
-        { TriceDirectWriteDeviceAuxiliary( pBuf, len ); }
-    #endif
-
-    //  #ifdef TRICE_CGO
-    //      TriceWriteDeviceCgo( pBuf, len );
-    //  #endif
-}
-
-#endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
-
 #if TRICE_DIRECT_OUTPUT == 1
 
-//! TriceDirectWrite copies a single trice from triceStart to output.
+//! TriceNonBlockingDirectWrite copies a single trice from triceStart to output.
 //! This is the time critical part, executed inside TRICE_LEAVE.
 //! The trice data start at triceStart and last wordCount values including 1-3 padding bytes at the end.
 //! In front of triceStart is TRICE_DATA_OFFSET bytes space usable for in-buffer encoding.
-void TriceDirectWrite( uint32_t * triceStart, unsigned wordCount ){
+void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
 
     #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
         #if TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1
@@ -442,16 +375,77 @@ void TriceDirectWrite( uint32_t * triceStart, unsigned wordCount ){
     #endif
 
     #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
-    int triceID;
-    size_t len = triceIDAndLen( triceStart, &triceID );
-    uint8_t* triceStart8 = (uint8_t*)triceStart;
-    uint8_t* enc = triceStart8 - TRICE_DATA_OFFSET;
-    size_t encLen = triceDirectEncode( enc, triceStart8, len );
-    triceNonBlockingDirectWrite( triceID, enc, encLen );
+
+        uint8_t* triceStart2;
+        int triceID;
+        size_t len = triceIDAndLen( triceStart, &triceStart2, &triceID );
+        uint8_t* enc = triceStart2 - TRICE_DATA_OFFSET;
+        size_t encLen = triceDirectEncode( enc, triceStart2, len );
+        
+        #if TRICE_DIRECT_AUXILIARY == 1
+            #if defined(TRICE_DIRECT_AUXILIARY_MIN_ID) && defined(TRICE_DIRECT_AUXILIARY_MAX_ID)
+            if( (TRICE_DIRECT_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DIRECT_AUXILIARY_MAX_ID) )
+            #endif
+            { TriceNonBlockingDirectWriteAuxiliary( enc, encLen ); }
+        #endif
+        
+        #if TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1
+            #if defined(TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MAX_ID)
+            if( (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MAX_ID) )
+            #endif
+            { SEGGER_RTT_WriteNoLock(0, enc, encLen ); }
+        #endif
+        
+        #ifdef TRICE_CGO
+            TriceWriteDeviceCgo( enc, encLen );
+        #endif
+    
     #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 }
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1
+
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) 
+
+// TriceNonBlockingDeferredWrite routes trice data to output channels.
+void TriceNonBlockingDeferredWrite( int triceID, uint8_t const * enc, size_t encLen ){
+    
+    #if defined( TRICE_UARTA )
+        #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
+        if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
+        #endif
+        { triceNonBlockingWriteUartA( enc, encLen ); }
+    #endif
+    #if defined( TRICE_UARTB )
+        #if defined(TRICE_UARTB_MIN_ID) && defined(TRICE_UARTB_MAX_ID)
+        if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) )
+        #endif
+        { triceNonBlockingWriteUartB( enc, encLen ); }
+    #endif
+    #if ( TRICE_DEFERRED_AUXILIARY == 1)
+        #if defined(TRICE_DEFERRED_AUXILIARY_MIN_ID) && defined(TRICE_DEFERRED_AUXILIARY_MAX_ID)
+        if( (TRICE_DEFERRED_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_AUXILIARY_MAX_ID) )
+        #endif
+        { TriceNonBlockingDeferredWriteAuxiliary( enc, encLen ); }
+    #endif
+    #ifdef TRICE_CGO
+        TriceWriteDeviceCgo( enc, encLen );
+    #endif
+    #if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
+        #if defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID)
+        if( (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID) )
+        #endif
+        TriceWriteDeviceRtt0( enc, encLen );
+    #endif
+    //  #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+    //      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
+    //      if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
+    //      #endif
+    //      TriceWriteDeviceModbus( enc, encLen );
+    //  #endif
+}
+
+#endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)
 
 #if defined( TRICE_UARTA ) // deferred out to UART
 

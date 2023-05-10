@@ -28,7 +28,7 @@ package cgot
 // #include "../../src/trice32.c"
 // #include "../../src/trice64.c"
 // #include "../../src/trice8.c"
-// #include "../../src/triceAuxiolary.c"
+// #include "../../src/triceAuxiliary.c"
 // #include "../../src/triceDoubleBuffer.c"
 // #include "../../src/triceRingBuffer.c"
 // #include "../../src/triceStackBuffer.c"

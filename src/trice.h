@@ -109,6 +109,16 @@ extern "C" {
 
 #endif
 
+
+#ifndef TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE
+
+//! TRICE_SEGGER_RTT_8BIT_DIRECT_ROUTED_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock.
+//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
+//! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
+#define TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE 0
+
+#endif
+
 #ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE
 
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
@@ -129,9 +139,10 @@ extern "C" {
 
 #endif
 
-#if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) \
+#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) \
+ || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
- || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) 
+ || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) \
 
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
@@ -144,12 +155,13 @@ extern "C" {
 
 void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
-void TriceDirectWrite( uint32_t * const triceStart, unsigned wordCount );
+void TriceNonBlockingDirectWrite( uint32_t * const triceStart, unsigned wordCount );
+void TriceNonBlockingDirectWriteAuxiliary( uint8_t * const enc, size_t encLen );
+void TriceNonBlockingDeferredWriteAuxiliary( uint8_t * const enc, size_t encLen );
 void TriceLogDiagnosticValues( void );
 void TriceLogSeggerDiagnostics( void );
-void TriceNonBlockingWrite( int ticeID, uint8_t const * pBuf, size_t len );
+void TriceNonBlockingDeferredWrite( int ticeID, uint8_t const * enc, size_t encLen );
 void TriceTransfer( void );
-void TriceWriteDeviceAuxiliary( uint8_t const * buf, size_t len );
 void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ); // only needed for testing C-sources from Go
 
 int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
@@ -188,6 +200,28 @@ extern uint32_t* TriceBufferWritePosition;
 #endif
 
 // defaults 2:
+
+#ifndef TRICE_DIRECT_AUXILIARY
+
+//! TRICE_DIRECT_AUXILIARY enables a user defined optionally routed direct trice write.
+#define TRICE_DIRECT_AUXILIARY 0
+
+#endif
+
+#ifndef TRICE_DEFERRED_AUXILIARY
+
+//! TRICE_DEFERRED_AUXILIARY enables a user defined optionally routed deferred trice write.
+#define TRICE_DEFERRED_AUXILIARY 0
+
+#endif
+
+#ifndef TRICE_DIRECT_OUTPUT_WITH_ROUTING
+
+//! TRICE_DIRECT_OUTPUT_WITH_ROUTING allows to send an ID range of trices directly to an auxiolary output.
+//! The called auxiolary output function usually is executed inside an interrupt and should therefore be non-blocking and fast.
+#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 0
+
+#endif
 
 #ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
 
@@ -290,6 +324,18 @@ extern uint32_t* TriceBufferWritePosition;
 #error wrong configuration
 #endif
 
+#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1)
+#error wrong configuration
+#endif
+
+#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
+#error wrong configuration
+#endif
+
+#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) && (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
+#error wrong configuration
+#endif
+
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE/2 < TRICE_BUFFER_SIZE)
 #error configuration error
 #endif
@@ -326,11 +372,11 @@ extern uint32_t* TriceBufferWritePosition;
 #error wrong configuration
 #endif
 
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0) && !defined(TRICE_UARTA) && !defined(TRICE_UARTB) && !defined(TRICE_AUXILIARY)
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0) && !defined(TRICE_UARTA) && !defined(TRICE_UARTB) && !defined(TRICE_DEFERRED_AUXILIARY)
 #error wrong configuration
 #endif
 
-#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 0) && !defined(TRICE_UARTA) && !defined(TRICE_UARTB) && !defined(TRICE_AUXILIARY)
+#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 0) && !defined(TRICE_UARTA) && !defined(TRICE_UARTB) && !defined(TRICE_DEFERRED_AUXILIARY)
 #error wrong configuration
 #endif
 
@@ -479,7 +525,7 @@ extern uint32_t* TriceBufferWritePosition;
         /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
         unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
         TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT \
-        TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
+        TriceNonBlockingDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
         } TRICE_LEAVE_CRITICAL_SECTION
 
 #else  //#if TRICE_DIRECT_OUTPUT == 1
@@ -667,7 +713,7 @@ static inline uint64_t aDouble( double x ){
     uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size --> todo: consider 64-bit stamp! */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( id( 6534), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        TRICE32( id( 6327), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
     TRICE_ENTER tid; \

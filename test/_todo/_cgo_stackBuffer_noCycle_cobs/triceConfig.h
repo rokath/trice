@@ -93,16 +93,6 @@ extern "C" {
 //#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 //#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
-//! Enable and set UARTB for deferred serial output.
-//#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
-//#define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB. Define with TRICE_UARTB_MAX_ID if you want select trice output here.
-//#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB. Define with TRICE_UARTB_MIN_ID if you want select trice output here.
-
-//! Enable option for an additional interface, you can define by your own.
-//#define TRICE_AUXILIARY // comment out, if you do not use TRICE_AUXILIARY
-//#define TRICE_AUXILIARY_MIN_ID 1           //!< TRICE_AUXILIARY_MIN_ID is the smallest ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MAX_ID if you want select trice output here.
-//#define TRICE_AUXILIARY_MAX_ID ((1<<14)-1) //!< TRICE_AUXILIARY_MAX_ID is the biggest  ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MIN_ID if you want select trice output here.
-
 //! CGO interface (for testing the target code with Go only, do not enable)
 #define TRICE_CGO 
 #define TRICE_CYCLE_COUNTER 0

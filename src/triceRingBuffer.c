@@ -49,11 +49,11 @@ void TriceLogDiagnosticValues( void ){
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
         TRice16( iD( 3293), "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
-        TRice16( iD( 5963), "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD( 3497), "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
     trice16( iD( 7971), "diag:singleTricesRingCountMax = %u, ", singleTricesRingCountMax );
     if( triceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
-        trice16( iD( 7229), "diag:triceRingBufferDepthMax =%4u of%5d\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+        trice16( iD( 4508), "diag:triceRingBufferDepthMax =%4u of%5d\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }else{
         trice16( iD( 6584), "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }
@@ -116,7 +116,7 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
     size_t encLen = TriceDeferredEncode( pEnc, pStart, Length);
     
-    TriceNonBlockingWrite( triceID, pEnc, encLen );
+    TriceNonBlockingDeferredWrite( triceID, pEnc, encLen );
     return wordCount;
 }
 

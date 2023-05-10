@@ -12,6 +12,7 @@ trice u -src ./testdata/triceCheck.c -i ./testdata/til.json -li ./testdata/li.js
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
 CGOTESTDIRS="
+cgo_stackBuffer_noCycle_tcobs_short
 cgo_ringBuffer_noCycle_cobs_short
 cgo_ringBuffer_noCycle_cobs
 cgo_ringBuffer_noCycle_tcobs_short
@@ -29,5 +30,5 @@ done
 go clean -cache
 
 # give til.json to target project for ID add ons
-cp ./testdata/til.json MDK-ARM_STM32F030R8/til.json
-cp ./testdata/li.json  MDK-ARM_STM32F030R8/li.json
+cp ./testdata/til.json MDK-ARM_STM32F030R8_instrumented/til.json
+cp ./testdata/li.json  MDK-ARM_STM32F030R8_instrumented/li.json

@@ -35,6 +35,8 @@ extern "C" {
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
 #define TRICE_DIRECT_OUTPUT 1
 
+#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 1
+
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
 //! - When having only short trices but lots of trice bursts, it may make sense to reduce this value to 4.
@@ -46,14 +48,14 @@ extern "C" {
 //! - In direct mode, and also when you enabled TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
-#define TRICE_SINGLE_MAX_SIZE 112 // must be a multiple of 4
+#define TRICE_SINGLE_MAX_SIZE 128 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
 //! When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 2048 // must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 2000 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs.
 //#define TRICE_MCU_IS_BIG_ENDIAN 
@@ -67,8 +69,9 @@ extern "C" {
 //! - TRICE_FRAMING_TCOBS: Recommended for internal transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice data with a user tool.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
-//!   If TRICE_FRAMING_(T)COBS is selected here, #define TRICE_SEGGER_RTT_32BIT_WRITE 0, for 8-bit RTT buffer transfer.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
+//! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_BIT_DIRECT_WRITE == 1,
+//!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_TCOBS
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.
@@ -82,6 +85,9 @@ extern "C" {
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks.
 //#define XTEA_DECRYPT 
 
+//! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
+#define TRICE_DIAGNOSTICS 1
+
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
@@ -93,21 +99,11 @@ extern "C" {
 //#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 //#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
-//! Enable and set UARTB for deferred serial output.
-//#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
-//#define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB. Define with TRICE_UARTB_MAX_ID if you want select trice output here.
-//#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB. Define with TRICE_UARTB_MIN_ID if you want select trice output here.
-
-//! Enable option for an additional interface, you can define by your own.
-//#define TRICE_AUXILIARY // comment out, if you do not use TRICE_AUXILIARY
-//#define TRICE_AUXILIARY_MIN_ID 1           //!< TRICE_AUXILIARY_MIN_ID is the smallest ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MAX_ID if you want select trice output here.
-//#define TRICE_AUXILIARY_MAX_ID ((1<<14)-1) //!< TRICE_AUXILIARY_MAX_ID is the biggest  ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MIN_ID if you want select trice output here.
-
 //! CGO interface (for testing the target code with Go only, do not enable)
 #define TRICE_CGO 
 #define TRICE_CYCLE_COUNTER 0
 
-//! This is usable as the very first trice sequence after restart. Adapt it.
+//! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code.
 #define TRICE_HEADLINE \
         trice( iD( 7612), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\n\n\n");
 
@@ -203,7 +199,14 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 }
 #endif // #ifdef TRICE_UARTB
 
+#define TRICE_8_BIT_SUPPORT  1
+#define TRICE_16_BIT_SUPPORT 1
+#define TRICE_32_BIT_SUPPORT 1
+#define TRICE_64_BIT_SUPPORT 1
+
 // See trice/doc/TriceProjectImageSizeOptimization.md for details:
+
+#if TRICE_8_BIT_SUPPORT
 
 // without stamp 8-bit values functions
 #define ENABLE_trice8fn_0  1
@@ -250,6 +253,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice8fn_11 1
 #define ENABLE_TRice8fn_12 1
 
+#endif // #if TRICE_8_BIT_SUPPORT
+
+#if TRICE_16_BIT_SUPPORT
+
 // without stamp 16-bit values functions
 #define ENABLE_trice16fn_0  1
 #define ENABLE_trice16fn_1  1
@@ -294,6 +301,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice16fn_10 1
 #define ENABLE_TRice16fn_11 1
 #define ENABLE_TRice16fn_12 1
+
+#endif // #if TRICE_16_BIT_SUPPORT
+
+#if TRICE_32_BIT_SUPPORT
 
 // without stamp 32-bit values functions
 #define ENABLE_trice32fn_0  1
@@ -340,6 +351,10 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice32fn_11 1
 #define ENABLE_TRice32fn_12 1
 
+#endif // #if TRICE_32_BIT_SUPPORT
+
+#if TRICE_64_BIT_SUPPORT
+
 // without stamp 64-bit values functions
 #define ENABLE_trice64fn_0  1
 #define ENABLE_trice64fn_1  1
@@ -384,6 +399,8 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 #define ENABLE_TRice64fn_10 1
 #define ENABLE_TRice64fn_11 1
 #define ENABLE_TRice64fn_12 1
+
+#endif // #if TRICE_32_BIT_SUPPORT
 
 //
 ///////////////////////////////////////////////////////////////////////////////

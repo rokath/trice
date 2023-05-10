@@ -67,6 +67,7 @@ uint32_t milliSecond( void );
 int beginTriceCheck = 20;
 int limitTriceCheck = 400;
 #endif
+
 /* USER CODE END 0 */
 
 /**
@@ -112,7 +113,7 @@ int main(void)
     Trice( iD( 3394), "w: Hello! 👋🙂 \a\n" ); // with sound!
     Trice( iD( 2446), "w: Hello! 👋🙂 \a\n" ); // with sound!
     trice( iD( 7346), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD( 7761), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD( 5379), "w: Hello! 👋🙂 \a\n" ); // with sound!
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
@@ -149,7 +150,7 @@ int main(void)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 20; // change this value to change trice generation speed 
+        const unsigned msInterval = 200; // change this value to change trice generation speed 
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c
@@ -162,6 +163,7 @@ int main(void)
                     #endif
                 }
             #else
+                //loop = 0x11111111;
                 TRice( iD( 2693), "msg:%32b loops\n", loop );
                 loop++;
             #endif // #if TRICE_CHECK_CODE 

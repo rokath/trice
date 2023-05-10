@@ -41,11 +41,11 @@ void TriceLogDiagnosticValues( void ){
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
         TRice16( iD( 3751), "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
-        TRice16( iD( 5223), "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD( 5199), "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
 
     if( triceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
-        TRice16( iD( 1746), "diag:triceHalfBufferDepthMax =%4u of%5d\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+        TRice16( iD( 3925), "diag:triceHalfBufferDepthMax =%4u of%5d\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }else{
         TRice16( iD( 1099), "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }
@@ -126,7 +126,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     // into a single continuous buffer having 0-delimiters between them or not but at the ent is a 0-delimiter.
     //
     // output
-    TriceNonBlockingWrite( triceID, enc, encLen ); //lint !e771 Info 771: Symbol 'triceID' conceivably not initialized. Comment: tLen is always > 0.
+    TriceNonBlockingDeferredWrite( triceID, enc, encLen ); //lint !e771 Info 771: Symbol 'triceID' conceivably not initialized. Comment: tLen is always > 0.
 }
 
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
