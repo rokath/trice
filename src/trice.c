@@ -357,7 +357,14 @@ unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wor
 //! In front of triceStart is TRICE_DATA_OFFSET bytes space usable for in-buffer encoding.
 void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
 
-    #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
+    // The 16-bit stamped trices start with 2-times 16-bit ID for alignent and speed reasons.
+    // The trice tool knows and expects that when switch -packageFraming = NONE was applied.
+    // The 2 additional transmit bytes are avoidable then but that would need a 2nd NONE option for the trice tool,
+    // what makes usage more confusing.
+    // That the TRICE_FRAMING_NONE does not remove the 2 additional bytes for 16-bit stamped trices has the 
+    // main reason in the TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE option for the fast 32-bit transfer, what probably will be a common use case.
+
+    #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT without framing 
         #if TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1
             wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
             triceStart -= TRICE_DATA_OFFSET>>2;
@@ -373,34 +380,46 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         size_t len8 = wordCount<<2; // len8 is the trice len without TRICE_OFFSET but with padding bytes.
         TriceWriteDeviceRtt0( triceStart, len8 );
     #endif
-
-    #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
-
-        uint8_t* triceStart2;
-        int triceID;
-        size_t len = triceIDAndLen( triceStart, &triceStart2, &triceID );
-        uint8_t* enc = triceStart2 - TRICE_DATA_OFFSET;
-        size_t encLen = triceDirectEncode( enc, triceStart2, len );
-        
-        #if TRICE_DIRECT_AUXILIARY == 1
-            #if defined(TRICE_DIRECT_AUXILIARY_MIN_ID) && defined(TRICE_DIRECT_AUXILIARY_MAX_ID)
-            if( (TRICE_DIRECT_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DIRECT_AUXILIARY_MAX_ID) )
-            #endif
-            { TriceNonBlockingDirectWriteAuxiliary( enc, encLen ); }
-        #endif
-        
-        #if TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1
-            #if defined(TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MAX_ID)
-            if( (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MAX_ID) )
-            #endif
-            { SEGGER_RTT_WriteNoLock(0, enc, encLen ); }
-        #endif
-        
-        #ifdef TRICE_CGO
-            TriceWriteDeviceCgo( enc, encLen );
-        #endif
     
-    #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+    #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) 
+        #if (TRICE_DIRECT_AUXILIARY == 1)
+            TriceNonBlockingDirectWriteAuxiliary( (uint8_t*)triceStart, wordCount<<2 );
+        #endif
+
+        #if defined(TRICE_CGO)
+            TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
+        #endif
+    #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) 
+        #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) 
+
+            uint8_t* triceStart2;
+            int triceID;
+            size_t len = triceIDAndLen( triceStart, &triceStart2, &triceID );
+            uint8_t* enc = triceStart2 - TRICE_DATA_OFFSET;
+            size_t encLen = triceDirectEncode( enc, triceStart2, len );
+            
+            #if TRICE_DIRECT_AUXILIARY == 1
+                #if defined(TRICE_DIRECT_AUXILIARY_MIN_ID) && defined(TRICE_DIRECT_AUXILIARY_MAX_ID)
+                if( (TRICE_DIRECT_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DIRECT_AUXILIARY_MAX_ID) )
+                #endif
+                { TriceNonBlockingDirectWriteAuxiliary( enc, encLen ); }
+            #endif
+            
+            #if TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1
+                #if defined(TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MAX_ID)
+                if( (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MAX_ID) )
+                #endif
+                { SEGGER_RTT_WriteNoLock(0, enc, encLen ); }
+            #endif
+            
+            #ifdef TRICE_CGO
+                TriceWriteDeviceCgo( enc, encLen );
+            #endif
+
+        #else // #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) 
+              #error unexpected configuration
+        #endif // #else // #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1)
+    #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 }
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1

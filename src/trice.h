@@ -139,10 +139,11 @@ extern "C" {
 
 #endif
 
-#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) \
+#if (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1) \
+ || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) \
  || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
- || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) \
+ || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
 
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
@@ -440,7 +441,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER do { \
     unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
-    triceSingleMaxWordCount = (wordCount < triceSingleMaxWordCount) >  ? triceSingleMaxWordCount : wordCount; \
+    triceSingleMaxWordCount = (wordCount < triceSingleMaxWordCount) ? triceSingleMaxWordCount : wordCount; \
     } while(0);
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT do { \
