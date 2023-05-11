@@ -153,7 +153,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-    TRice( iD( 7846), "FATAL:HardFault!\n" );
+    TRice( iD( 3627), "FATAL:HardFault!\n" );
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
@@ -259,7 +259,7 @@ void USART2_IRQHandler(void)
 
     /*
     if( LL_USART_IsActiveFlag_PE(TRICE_UARTA) ){
-        TRICE( Id( 2971), "err:TRICE_UARTA Parity Error Flag is set\n" );
+        TRICE( Id( 4863), "err:TRICE_UARTA Parity Error Flag is set\n" );
         LL_USART_ClearFlag_PE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_FE(TRICE_UARTA) ){
@@ -271,7 +271,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_NE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_ORE(TRICE_UARTA) ){
-        //TRICE( Id( 2421), "err:TRICE_UARTA OverRun Error Flag is set\n" );
+        //TRICE( Id( 3550), "err:TRICE_UARTA OverRun Error Flag is set\n" );
         LL_USART_ClearFlag_ORE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_IDLE(TRICE_UARTA) ){
@@ -297,7 +297,7 @@ void USART2_IRQHandler(void)
         TRICE0( Id( 6017), "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_ABR(TRICE_UARTA) ){
-        TRICE( Id( 6978), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );
+        TRICE( Id( 4210), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_BUSY(TRICE_UARTA) ){
         TRICE( Id( 3800), "inf:TRICE_UARTA Busy Flag is set\n" );

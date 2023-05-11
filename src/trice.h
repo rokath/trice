@@ -400,6 +400,14 @@ extern uint32_t* TriceBufferWritePosition;
 #error All size values must be a multiple of 4!
 #endif
 
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_TRANSFER_MODE != TRICE_SAFE_SINGLE_MODE) && (TRICE_TRANSFER_MODE != TRICE_PACK_MULTI_MODE)
+#error wrong configuration
+#endif
+
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_TRANSFER_MODE == TRICE_SAVE_SINGLE_MODE) && defined (XTEA_ENCRYPT_KEY)
+#error wrong configuration: use (TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE)
+#endif
+
 #include "trice8.h"
 #include "trice16.h"
 #include "trice32.h"

@@ -39,7 +39,7 @@ void TriceLogDiagnosticValues( void ){
     unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
 
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( iD( 3751), "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD( 5400), "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
         TRice16( iD( 5199), "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
@@ -83,9 +83,13 @@ void TriceTransfer( void ){
     } // else: transmission not done yet
 }
 
+//! TODO: XTEA SUPPORT
 //! TriceOut encodes trices and writes them in one step to the output.
 //! This function is called only, when the slowest deferred output device has finished its last buffer.
-//! That 
+//! At the half buffer start tb,ls -l are TRICE_DATA_OFFSET bytes space followed by a number of trice messages which all contain
+//! 0-3 padding bytes and therefor have a length of a multiple of 4. There is no additional space between these trice messages.
+//! When XTEA enabled, only (TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE) is allowed, because the 4 bytes behind a trice messages
+//! are changed, when the trice length is not a multiple of 8, but only of 4. (XTEA can encrypt only multiple of 8 lenth packages.)
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
 //! \param tLen is length of trice data. tlen is always a multiple of 4 because
