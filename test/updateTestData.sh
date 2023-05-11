@@ -26,6 +26,7 @@ ringBuffer_deferred_cobs
 doubleBuffer_deferred_single_tcobs
 doubleBuffer_deferred_multi_tcobs
 doubleBuffer_deferred_single_cobs
+_doubleBuffer_deferred_single_xtea_cobs
 doubleBuffer_deferred_multi_cobs
 
 doubleBuffer_direct_noRouting_nopf
