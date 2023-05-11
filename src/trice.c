@@ -378,8 +378,8 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
             wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
             triceStart -= TRICE_DATA_OFFSET>>2;
         #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
-        size_t len8 = wordCount<<2; // len8 is the trice len without TRICE_OFFSET but with padding bytes.
-        TriceWriteDeviceRtt0( triceStart, len8 );
+        // wordCount<<2  is the trice len without TRICE_OFFSET but with padding bytes.
+        TriceWriteDeviceRtt0( (uint8_t*)triceStart, wordCount<<2 );
     #endif
     
     #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) 

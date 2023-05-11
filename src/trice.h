@@ -148,6 +148,13 @@ extern "C" {
 #include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 
+#endif 
+
+#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) \
+ || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
+ || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
+ || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
+
 #define SEGGER_RTT
 
 #endif 

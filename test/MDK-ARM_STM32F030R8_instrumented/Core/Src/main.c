@@ -138,7 +138,7 @@ int main(void)
             triceCommandFlag = 0;
             TRICE_S( Id( 5865), "att:Executing command %s ...\a\n", triceCommandBuffer ); // with sound!
             // do
-            TRICE( ID( 6967), "att:...done\n" );
+            TRICE( ID( 7116), "att:...done\n" );
         }
 
         uint32_t ms = milliSecond();
