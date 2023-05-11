@@ -33,7 +33,7 @@ extern "C" {
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
-#define TRICE_DIRECT_OUTPUT 1
+#define TRICE_DIRECT_OUTPUT 0
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -77,6 +77,8 @@ extern "C" {
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_TCOBS
 
+#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE
+
 // XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption  with the key. (experimental)
 //#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
@@ -99,7 +101,7 @@ extern "C" {
 
 //! CGO interface (for testing the target code with Go only, do not enable)
 // #define TRICE_CGO 
-#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 1
+
 
 //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code.
 #define TRICE_HEADLINE \

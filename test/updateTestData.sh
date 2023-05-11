@@ -16,27 +16,19 @@ staticBuffer_cobs
 staticBuffer_tcobs
 staticBuffer_nopf
 
-staticBuffer_cobs_short
-staticBuffer_tcobs_short
-staticBuffer_nopf_short
-
-stackBuffer_tcobs_short
-stackBuffer_cobs_short
-stackBuffer_nopf_short
 stackBuffer_tcobs
 stackBuffer_cobs
+stackBuffer_nopf
 
-ringBuffer_deferred_tcobs_short
-ringBuffer_deferred_cobs_short
 ringBuffer_deferred_tcobs
 ringBuffer_deferred_cobs
 
-doubleBuffer_deferred_tcobs_short
-doubleBuffer_deferred_cobs_short
-doubleBuffer_deferred_tcobs
-doubleBuffer_deferred_cobs
+doubleBuffer_deferred_single_tcobs
+doubleBuffer_deferred_multi_tcobs
+doubleBuffer_deferred_single_cobs
+doubleBuffer_deferred_multi_cobs
 
-_doubleBuffer_direct_noRouting_nopf
+doubleBuffer_direct_noRouting_nopf
 "
 for d in $CGOTESTDIRS
 do

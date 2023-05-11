@@ -53,7 +53,8 @@ import (
 )
 
 var (
-	triceDir string // holds the trice directory path
+	triceDir  string // triceDir holds the trice directory path.
+	testLines = 15   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 )
 
 type triceMode int

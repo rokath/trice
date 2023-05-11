@@ -25,7 +25,7 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_DOUBLE_BUFFER. The TRICE_RING_BUFFER option works, but is experimental.
-#define TRICE_BUFFER TRICE_STACK_BUFFER
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
@@ -33,9 +33,7 @@ extern "C" {
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
-#define TRICE_DIRECT_OUTPUT 1
-
-#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 1
+#define TRICE_DIRECT_OUTPUT 0
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -48,14 +46,14 @@ extern "C" {
 //! - In direct mode, and also when you enabled TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
-#define TRICE_SINGLE_MAX_SIZE 128 // must be a multiple of 4
+#define TRICE_SINGLE_MAX_SIZE 112 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
 //! When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 2000 // must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 2048 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs.
 //#define TRICE_MCU_IS_BIG_ENDIAN 
@@ -69,21 +67,23 @@ extern "C" {
 //! - TRICE_FRAMING_TCOBS: Recommended for internal transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice data with a user tool.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
-//! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_BIT_DIRECT_WRITE == 1,
+//! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice date with Python or an other language.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
-#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_TCOBS
+#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
+
+#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE
 
 // XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption  with the key. (experimental)
 //#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks.
-//#define XTEA_DECRYPT 
+//#define XTEA_DECRYPT
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 #define TRICE_DIAGNOSTICS 1
