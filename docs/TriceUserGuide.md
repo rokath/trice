@@ -175,7 +175,7 @@ Main steps are:
   * Other `triceConfig.h` files are usable as well as starting point, but the above is usually the most actual one.
   * Insisde the [../test/](../test/) subfolders some configuration variants are as test projects. Comparing these `triceConfig.h` files gives hints for the needed configuration settings.
 * Copy file [../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h) to your embedded project and adapt it to your needs, when using RTT.
-  * You can exchange `SEGGER_RTT_Conf.h` and `./src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
+  * You can exchange `SEGGER_RTT_Conf.h` and `./src/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
 
 ####  2.4.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
 
@@ -244,34 +244,34 @@ Main steps are:
 | -                                                               | -           |
 | [./src/trice.h](../src/trice.h) & [./src/trice.c](../src/trice.c) | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
 
-* `./src/box`: **Internal Components** (only partially needed according to configuration)
+* `./src`: **Internal Components** (only partially needed according to configuration)
 
-| File                                                              | description |
-| -                                                                 | -           |
-| [./src/box/cobs.h](../src/box/cobs.h)                             | message packaging, alternatively for tcobs |
-| [./src/box/cobsEncode.c](../src/box/cobsEncode.c)                 | message encoding, alternatively for tcobs |
-| [./src/box/cobsDecode.c](../src/box/cobsDecode.c)                 | message decoding, normally not needed |
-| [./src/box/core.c](../src/box/core.c)                             | trice core lib |
-| [./src/box/SEGGER_RTT.h](../src/box/SEGGER_RTT.h)                 | Segger RTT code interface |
-| [./src/box/SEGGER_RTT.c](../src/box/SEGGER_RTT.c)                 | Segger RTT code |
-| [./src/box/tcobs.h](../src/box/tcobs.h)                           | message compression and packaging interface|
-| [./src/box/tcobsv1Encode.c](../src/box/tcobsv1Encode.c)           | message encoding and packaging |
-| [./src/box/tcobsv1Decode.c](../src/box/tcobsv1Decode.c)           | message decoding and packaging, normally not needed |
-| [./src/box/tcobsv1Internal.h](../src/box/tcobsv1Internal.h)       | message decoding and packaging internal interface |
-| [./src/box/trice8.h](../src/box/trice8.h)                         | 8-bit trice code interface |
-| [./src/box/trice8.c](../src/box/trice8.c)                         | 8-bit trice code |
-| [./src/box/trice16.h](../src/box/trice16.h)                       | 16-bit trice code interface |
-| [./src/box/trice16.c](../src/box/trice16.c)                       | 16-bit trice code |
-| [./src/box/trice32.h](../src/box/trice32.h)                       | 32-bit trice code interface |
-| [./src/box/trice32.c](../src/box/trice32.c)                       | 32-bit trice code |
-| [./src/box/trice64.h](../src/box/trice64.h)                       | 64-bit trice code interface |
-| [./src/box/trice64.c](../src/box/trice64.c)                       | 64-bit trice code |
-| [./src/box/triceDoubleBuffer.c](../src/box/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode |
-| [./src/box/triceModbusBuffer.c](../src/box/triceModbusBuffer.c)   | trice runtime lib extension needed for Modbus mode (not usable yet) |
-| [./src/box/triceStackBuffer.c](../src/box/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode |
-| [./src/box/triceRingBuffer.c](../src/box/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode |
-| [./src/box/xtea.c](../src/box/xtea.h)                             | XTEA message encryption/decryption interface |
-| [./src/box/xtea.c](../src/box/xtea.c)                             | XTEA message encryption/decryption code |
+| File                                                      | description |
+| -                                                         | -           |
+| [./src/cobs.h](../src/cobs.h)                             | message packaging, alternatively for tcobs |
+| [./src/cobsEncode.c](../src/cobsEncode.c)                 | message encoding, alternatively for tcobs |
+| [./src/cobsDecode.c](../src/cobsDecode.c)                 | message decoding, normally not needed |
+| [./src/core.c](../src/core.c)                             | trice core lib |
+| [./src/SEGGER_RTT.h](../src/SEGGER_RTT.h)                 | Segger RTT code interface |
+| [./src/SEGGER_RTT.c](../src/SEGGER_RTT.c)                 | Segger RTT code |
+| [./src/tcobs.h](../src/tcobs.h)                           | message compression and packaging interface|
+| [./src/tcobsv1Encode.c](../src/tcobsv1Encode.c)           | message encoding and packaging |
+| [./src/tcobsv1Decode.c](../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed |
+| [./src/tcobsv1Internal.h](../src/tcobsv1Internal.h)       | message decoding and packaging internal interface |
+| [./src/trice8.h](../src/trice8.h)                         | 8-bit trice code interface |
+| [./src/trice8.c](../src/trice8.c)                         | 8-bit trice code |
+| [./src/trice16.h](../src/trice16.h)                       | 16-bit trice code interface |
+| [./src/trice16.c](../src/trice16.c)                       | 16-bit trice code |
+| [./src/trice32.h](../src/trice32.h)                       | 32-bit trice code interface |
+| [./src/trice32.c](../src/trice32.c)                       | 32-bit trice code |
+| [./src/trice64.h](../src/trice64.h)                       | 64-bit trice code interface |
+| [./src/trice64.c](../src/trice64.c)                       | 64-bit trice code |
+| [./src/triceDoubleBuffer.c](../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode |
+| [./src/triceModbusBuffer.c](../src/triceModbusBuffer.c)   | trice runtime lib extension needed for Modbus mode (not usable yet) |
+| [./src/triceStackBuffer.c](../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode |
+| [./src/triceRingBuffer.c](../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode |
+| [./src/xtea.c](../src/xtea.h)                             | XTEA message encryption/decryption interface |
+| [./src/xtea.c](../src/xtea.c)                             | XTEA message encryption/decryption code |
   
 * The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/Cv1](https://github.com/rokath/tcobs/tree/master/Cv1). They are maintained there and extensively tested and probably not a matter of significant change.
 * The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
