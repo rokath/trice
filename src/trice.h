@@ -183,7 +183,7 @@ uint32_t Us32( void );
 
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
-size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len );
+size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len );
 
 // global variables:
 
@@ -197,7 +197,6 @@ extern const int TriceTypeS2;
 extern const int TriceTypeS4;
 extern const int TriceTypeX0;
 extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
-extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for diagnostics.
 extern unsigned triceErrorCount;
 extern uint32_t* const triceRingBufferLimit;
 extern uint32_t TriceRingBuffer[];

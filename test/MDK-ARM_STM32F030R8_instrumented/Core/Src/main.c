@@ -35,7 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TRICE_CHECK_CODE 0
+#define TRICE_CHECK_CODE 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -150,7 +150,7 @@ int main(void)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 200; // change this value to change trice generation speed 
+        unsigned const msInterval = 200; // change this value to change trice generation speed 
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c
@@ -159,8 +159,12 @@ int main(void)
                 if( triceCheckIndex >= limitTriceCheck - beginTriceCheck ){
                     triceCheckIndex = 0; // triceCheck() loop handling
                     #if TRICE_DIAGNOSTICS
-                    TriceLogDiagnosticValues();
+                        TriceLogDiagnosticValues();
                     #endif
+              //}else{ // for more details
+              //    #if TRICE_DIAGNOSTICS
+              //        TriceLogDiagnosticValues();
+              //    #endif
                 }
             #else
                 //loop = 0x11111111;

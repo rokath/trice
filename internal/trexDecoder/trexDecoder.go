@@ -36,8 +36,9 @@ const (
 	packageFramingCOBS
 	packageFramingTCOBS   //v1
 	packageFramingTCOBSv2 //v2
-
 )
+
+var Doubled16BitID bool
 
 /*
 var (
@@ -258,6 +259,14 @@ func (p *trexDec) nextPackage() {
 	}
 }
 
+func isZero(bytes []byte) bool {
+	b := byte(0)
+	for _, s := range bytes {
+		b |= s
+	}
+	return b == 0
+}
+
 // Read is the provided read method for TREX decoding and provides next string as byte slice.
 //
 // It uses inner reader p.In and internal id look-up table to fill b with a string.
@@ -277,6 +286,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		p.nextData() // returns all unprocessed data inside p.B
 		p.B0 = p.B   // keep data for re-sync
 	} else {
+		if cipher.Password != "" && len(p.B) < 8 && isZero(p.B) {
+			p.B = p.B[:0] // Discard trailing zeroes. ATTENTION: incomplete trice messages containing many zeroes could be problematic here!
+		}
 		if len(p.B) == 0 { // last decoded package exhausted
 			p.nextPackage() // returns one decoded package inside p.B
 		}
@@ -297,7 +309,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestampSize = 0
 	case typeS2: // 16-bit stamp
 		decoder.TargetTimestampSize = 2
-		if p.packageFraming == packageFramingNone || cipher.Password != "" {
+		if Doubled16BitID { // p.packageFraming == packageFramingNone || cipher.Password != "" {
 			if len(p.B) < 2 {
 				return // wait for more data
 			}

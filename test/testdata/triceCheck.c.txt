@@ -13,7 +13,7 @@
 
 static int32_t FloatToInt32( float f );
 static int64_t DoubleToInt64( double f );
-static void exampleOfManualSerialization( void );
+//static void exampleOfManualSerialization( void );
 static void exampleOfManualJSONencoding(void);
 
 //! TriceCheck performs trice code sequence n. TriceCheck writes out all types of trices with fixed values for testing
@@ -81,7 +81,7 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
-        break; case __LINE__: exampleOfManualSerialization();
+      //break; case __LINE__: exampleOfManualSerialization(); // ATTENTION: This occupies ~1024 bytes in one half buffer when double buffer ist used!
 
         break; case __LINE__: trice8   (         "value=%x\n", 0x55 );                           //exp: time:            default: value=55
         break; case __LINE__: trice8   ( iD(0),  "value=%x\n", 0x88 );                           //exp: time:            default: value=88
@@ -1281,7 +1281,7 @@ static int64_t DoubleToInt64( double f ){
     return -(int64_t)-f;
 }
 
-
+/*
 //! SCOPY is a helper macro for struct serialization.
 #define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( "rd:sizeof(%8s)", n ); TRICE( " = %d\n", size);}while(0);
 
@@ -1416,6 +1416,7 @@ static void exampleOfManualSerialization( void ){
     TRICE8_F( Id(0), "info:TryoutStructFunction", &tx, sizeof(tx) );
     TRICE8_F( Id(0), "info:TryoutBufferFunction", dst, len ); //lint !e670
 }
+*/
 
 static void exampleOfManualJSONencoding(void){
     typedef  struct {

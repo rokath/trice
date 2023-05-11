@@ -427,6 +427,8 @@ func TestHelpLog(t *testing.T) {
               "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
               "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
                (default "default")
+        -d16
+              Short for '-Doubled16BitID'.
         -databits int
               Set the serial port databits, options: 7, 9 (default 8)
         -dc int
@@ -438,6 +440,8 @@ func TestHelpLog(t *testing.T) {
         -displayserver
               Send trice lines to displayserver @ ipa:ipp.
               Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.
+        -doubled16BitID
+              Tells, that 16-bit IDs are doubled. That switch is needed when un-routed direct output is used like (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1), but also with double buffer in (TRICE_TRANSFER_MODE==TRICE_PACK_MULTI_MODE) and XTEA encryption. Read the user guide for more details.
         -ds
               Short for '-displayserver'.
         -e string
@@ -451,7 +455,7 @@ func TestHelpLog(t *testing.T) {
                                 DUMP prints the received bytes as hex code (see switch -dc too).
                (default "TREX")
         -exec string
-               Use to pass an additional command line for port TCP4 (like gdbserver start).
+              Use to pass an additional command line for port TCP4 (like gdbserver start).
         -hs string
               PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
               This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
@@ -550,7 +554,7 @@ func TestHelpLog(t *testing.T) {
         -triceEndianness string
               Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
         -ts string
-            Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" or 'off' or 'none' to suppress existing target timestamps. Sets ts0, ts16, ts32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "µs")
+              Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" or 'off' or 'none' to suppress existing target timestamps. Sets ts0, ts16, ts32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "µs")
         -ts0 string
               Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "time:            ")
         -ts16 string
@@ -565,7 +569,7 @@ func TestHelpLog(t *testing.T) {
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
               This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-      `
+`
 	id.FnJSON = "til.json"
 	execHelper(t, args, expect)
 }

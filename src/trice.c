@@ -204,14 +204,18 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
 }
 
 //! TriceDeferredEncode expects at buf trice date with netto length len.
+//! ATTENTION: Up to 7 bytes behind len are used as scratch pad!
 //! \param enc is the destination.
 //! \param buf is the source.
 //! \param len is the source len.
 //! \retval is the encoded len with 0-delimiter byte.
-size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
+size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
-    len = (len + 7) & ~7; // todo: only multiple of 8 encryptable (needs some adaptions, later!)
+    size_t len8 = (len + 7) & ~7; // todo: only multiple of 8 encryptable (needs some adaptions, later!)
+    while( len < len8 ){
+        buf[len++] = 0; // clear padding space
+    }
     XTEAEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
     #endif
     #if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
@@ -262,20 +266,17 @@ static size_t triceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
 #if (TRICE_DIAGNOSTICS ==1) && defined(SEGGER_RTT)
 
 unsigned RTT0_writeSpaceMin = BUFFER_SIZE_UP; //! RTT0_writeSpaceMin is usable for diagnostics.
-unsigned RTT0_bytesInBufferMax = 0;        //! RTT0_bytesInBufferMax is usable for diagnostics.
 
 static void triceSeggerRTTDiagnostics( void ){
     unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
-    unsigned bytesInBuffer = SEGGER_RTT_GetBytesInBuffer(0);
-    RTT0_writeSpaceMin    = RTT0_writeSpaceMin    < writeSpace    ? RTT0_writeSpaceMin    : writeSpace;
-    RTT0_bytesInBufferMax = RTT0_bytesInBufferMax > bytesInBuffer ? RTT0_bytesInBufferMax : bytesInBuffer;
+    RTT0_writeSpaceMin    = RTT0_writeSpaceMin    > writeSpace    ? writeSpace : RTT0_writeSpaceMin;
 }
 
 void TriceLogSeggerDiagnostics( void ){
-    if( (RTT0_writeSpaceMin > 4) && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
-        trice( iD( 1278), "diag:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\n", RTT0_bytesInBufferMax, RTT0_writeSpaceMin );
+    if( (RTT0_writeSpaceMin < 8) ){ // && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
+        trice( iD( 1091), "ERROR:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
     }else{
-        trice( iD( 1544), "err:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin\n", RTT0_bytesInBufferMax, RTT0_writeSpaceMin );
+        trice( iD( 6598), "diag:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
     }
 }
 
@@ -283,7 +284,7 @@ void TriceLogSeggerDiagnostics( void ){
 
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
 
-static void TriceWriteDeviceRtt0( uint8_t* enc, size_t encLen ){
+static void TriceWriteDeviceRtt0( uint8_t const * enc, size_t encLen ){
     SEGGER_RTT_WriteNoLock(0, enc, encLen );
 
     #if TRICE_DIAGNOSTICS == 1
@@ -291,7 +292,7 @@ static void TriceWriteDeviceRtt0( uint8_t* enc, size_t encLen ){
     #endif
 }
 
-#endif // #if TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1
+#endif // (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
 
 #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.

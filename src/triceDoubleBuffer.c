@@ -113,16 +113,22 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
             break;   // ignore following data
         }
         #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
-        // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
+            #ifdef XTEA_ENCRYPT_KEY
+                // Behind the trice brutto length (with padding bytes), 4 bytes could be used as scratch pad when XTEA is active.
+                // Therefore, when XTEA is used, the single trice must be moved first by 4 bytes in lower address direction if its length is not a multiple of 4.
+                #error not implemented
+            #endif
         encLen += TriceDeferredEncode( enc+encLen, triceStart, triceLen );
         #endif
         #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+        // This action removes all padding bytes of the trices, compacting their sequence this way
         memmove(enc + TRICE_DATA_OFFSET + encLen, triceStart, triceLen );
         encLen += triceLen;
         #endif
     }
     #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
-    // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
+    // At this point the compacted trice messages start TRICE_DATA_OFFSET bytes after tb (now enc) and the encLen is their total netto length.
+    // Behind this up to 7 bytes can be used as scratch pad when XTEA is active. That is ok, because the half buffer should not get totally filled.
     encLen = TriceDeferredEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
 

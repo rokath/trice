@@ -8,15 +8,6 @@
 
 
 
-#ifdef TRICE_CGO
-
-//! TriceWriteDeviceCgo 
-void TriceWriteDeviceCgo( uint8_t *buf, size_t len ){
-    void triceNonBlockingWriteCgoBuffer( uint8_t const * buf, unsigned len );
-    triceNonBlockingWriteCgoBuffer( buf, len ); // defined in cgoTrice.c
-}
-
-#endif
 
 
 //! TriceSingleEncode expects a single trice at addr and returns the wordCount amount of this trice which includes 1-3 padding bytes.

@@ -166,6 +166,28 @@
             ]
         },
         {
+            "name": "RTT -pw MySecret ",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-p",
+                     "JLINK",
+                     "-args",
+                     "-Device STM32F030R8 -If SWD -Speed 4000 -RTTChannel 0",
+                     "-pw",
+                     "MySecret",
+                     "-pf",
+                     "COBS",
+                     "-idlist",
+                     "${workspaceFolder}/test/testdata/til.json",
+                     "-li",
+                     "${workspaceFolder}/test/testdata/li.json"
+            ]
+        },
+        {
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // commenst inside json generally not possible, but VScode tolerates this here
             //

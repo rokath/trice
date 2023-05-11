@@ -98,10 +98,10 @@ func TestHelpAll(t *testing.T) {
         -z    Show zeroSourceTreeIds specific help.
         -zeroSourceTreeIds
               Show zeroSourceTreeIds specific help.
-      sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
-      example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
-      example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
-      example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
+              sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
+              example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
+              example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
+              example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
         -args string
               Use to pass port specific parameters. The "default" value depends on the used port:
               port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
@@ -142,6 +142,8 @@ func TestHelpAll(t *testing.T) {
               "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
               "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
                (default "default")
+        -d16
+              Short for '-Doubled16BitID'.
         -databits int
               Set the serial port databits, options: 7, 9 (default 8)
         -dc int
@@ -153,6 +155,8 @@ func TestHelpAll(t *testing.T) {
         -displayserver
               Send trice lines to displayserver @ ipa:ipp.
               Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.
+        -doubled16BitID
+              Tells, that 16-bit IDs are doubled. That switch is needed when un-routed direct output is used like (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1), but also with double buffer in (TRICE_TRANSFER_MODE==TRICE_PACK_MULTI_MODE) and XTEA encryption. Read the user guide for more details.
         -ds
               Short for '-displayserver'.
         -e string
@@ -166,8 +170,8 @@ func TestHelpAll(t *testing.T) {
                                 DUMP prints the received bytes as hex code (see switch -dc too).
                (default "TREX")
         -exec string
-               Use to pass an additional command line for port TCP4 (like gdbserver start).
-         -hs string
+              Use to pass an additional command line for port TCP4 (like gdbserver start).
+        -hs string
               PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
               This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
               "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")

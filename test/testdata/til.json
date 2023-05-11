@@ -51,6 +51,10 @@
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
 	},
+	"1091": {
+		"Type": "trice",
+		"Strg": "ERROR:RTT0_writeSpaceMin=%u, "
+	},
 	"1093": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1171,6 +1175,10 @@
 		"Type": "TRICE_N",
 		"Strg": "sig:TRICE_N=%s\\n"
 	},
+	"2766": {
+		"Type": "trice",
+		"Strg": "ERROR:RTT0_writeSpaceMin=%u, "
+	},
 	"2767": {
 		"Type": "TRICE32",
 		"Strg": "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\\n"
@@ -1210,6 +1218,10 @@
 	"2801": {
 		"Type": "TRICE8_1",
 		"Strg": "msg:value=%u\\n"
+	},
+	"2823": {
+		"Type": "trice",
+		"Strg": "ERROR:RTT0_writeSpaceMin=%u\\n"
 	},
 	"2826": {
 		"Type": "TRICE",
@@ -1642,6 +1654,10 @@
 	"3627": {
 		"Type": "TRice",
 		"Strg": "FATAL:HardFault!\\n"
+	},
+	"3633": {
+		"Type": "trice",
+		"Strg": "ERROR:RTT0_writeSpaceMin=%u\\n"
 	},
 	"3639": {
 		"Type": "TRICE32_2",
@@ -2867,6 +2883,14 @@
 		"Type": "TRice16",
 		"Strg": "diag:triceSingleDepthMax =%4u of%4d, "
 	},
+	"5404": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin=%u\\n"
+	},
+	"5415": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeSpaceMin=%u, "
+	},
 	"5416": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %12.6e (%%12.6e), aDouble(y)\\n"
@@ -2878,6 +2902,10 @@
 	"5433": {
 		"Type": "TRICE16_6",
 		"Strg": "tst:TRICE16_6  %d %d %d %d %d %d\\n"
+	},
+	"5443": {
+		"Type": "trice",
+		"Strg": "ERROR:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin=%u\\n"
 	},
 	"5445": {
 		"Type": "TRice",
@@ -3046,6 +3074,10 @@
 	"5746": {
 		"Type": "TRICE32_4",
 		"Strg": "tst:TRICE32_4 %u %u %u %u\\n"
+	},
+	"5755": {
+		"Type": "trice",
+		"Strg": "err:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin=%u\\n"
 	},
 	"5760": {
 		"Type": "Trice32_1",
@@ -3574,6 +3606,10 @@
 	"6595": {
 		"Type": "TRICE",
 		"Strg": "att:positive float \u0026 double in variants\\n"
+	},
+	"6598": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeSpaceMin=%u, "
 	},
 	"6603": {
 		"Type": "TRICE8_9",
@@ -4107,6 +4143,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1 %d\\n"
 	},
+	"7374": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeSpaceMin=%u\\n"
+	},
 	"7381": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X, %X\\n"
@@ -4351,6 +4391,10 @@
 		"Type": "TRICE32_B",
 		"Strg": "  %08x"
 	},
+	"7808": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeSpaceMin=%u\\n"
+	},
 	"7825": {
 		"Type": "TRICE64_12",
 		"Strg": "tst:TRICE64_12 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
@@ -4434,6 +4478,10 @@
 	"7957": {
 		"Type": "TRice16",
 		"Strg": "msg:value=%d\\n"
+	},
+	"7968": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_bytesInBufferMax=%u, RTT0_writeSpaceMin=%u\\n"
 	},
 	"7969": {
 		"Type": "TRICE_N",

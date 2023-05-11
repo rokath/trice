@@ -13,7 +13,7 @@
 
 static int32_t FloatToInt32( float f );
 static int64_t DoubleToInt64( double f );
-static void exampleOfManualSerialization( void );
+//static void exampleOfManualSerialization( void );
 static void exampleOfManualJSONencoding(void);
 
 //! TriceCheck performs trice code sequence n. TriceCheck writes out all types of trices with fixed values for testing
@@ -81,10 +81,10 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( iD( 1301), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: trice16( iD( 1645), "att: line %u\n", __LINE__ );
-        break; case __LINE__: exampleOfManualSerialization();
+      //break; case __LINE__: exampleOfManualSerialization(); // ATTENTION: This occupies ~1024 bytes in one half buffer when double buffer ist used!
 
-        break; case __LINE__: trice8   ( iD( 6449),         "value=%x\n", 0x55 );                           //exp: time:            default: value=55
-        break; case __LINE__: trice8   ( iD( 3475),  "value=%x\n", 0x88 );                           //exp: time:            default: value=88
+        break; case __LINE__: trice8   ( iD( 6449), "value=%x\n", 0x55 );                           //exp: time:            default: value=55
+        break; case __LINE__: trice8   ( iD( 3475), "value=%x\n", 0x88 );                           //exp: time:            default: value=88
 
         break; case __LINE__: TRICE( ID( 5379), "att:mixed int & float & double & bits\n" );
         break; case __LINE__: TRICE32( ID( 1820), "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\n",       FloatToInt32(x),   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time: 842,150_450default: rd:TRICE32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
@@ -323,7 +323,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
         break; case __LINE__: trice16( iD( 4013), "att: line %u\n", __LINE__ );
 
-#ifdef TRICE_CGO
+#ifdef TRICE_CGO // the following code is commented out to keep image size not too big
 
         break; case __LINE__: TRICE  ( ID( 4593), "rd:%E (%%E)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556E+08 (%E)
         break; case __LINE__: TRICE  ( ID( 4792), "rd:%F (%%F)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555584.000000 (%F)
@@ -1281,7 +1281,7 @@ static int64_t DoubleToInt64( double f ){
     return -(int64_t)-f;
 }
 
-
+/*
 //! SCOPY is a helper macro for struct serialization.
 #define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( ID( 1661), "rd:sizeof(%8s)", n ); TRICE( ID( 3156), " = %d\n", size);}while(0);
 
@@ -1416,6 +1416,7 @@ static void exampleOfManualSerialization( void ){
     TRICE8_F( Id( 2347), "info:TryoutStructFunction", &tx, sizeof(tx) );
     TRICE8_F( Id( 3049), "info:TryoutBufferFunction", dst, len ); //lint !e670
 }
+*/
 
 static void exampleOfManualJSONencoding(void){
     typedef  struct {
