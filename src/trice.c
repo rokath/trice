@@ -51,15 +51,16 @@ uint8_t  TriceCycle = 0xc0;
 
 //! triceDataLen returns encoded len.
 //! \param p points to nc
-//! To avoid alignment issues, the optional payload (...) needs to start at a 32-bit boundary.
+//! To avoid alignment issues, the optional payload needs to start at a 32-bit boundary.
 //! The provided buffer starts also at a 32-bit boundary.
 //! To ensure, the first 16-bit value is ssiiiiiiI we do the following:
-//! \li       v__________________ v___________ v__ (32-bit alignment positions)
-//! \li *da = 11iiiiiiI TT        TT        NC ... | ID(n): After writing 11iiiiiiI write the 32-bit TTTT value in 2 16-bit write operations.
-//! \li *da = 10iiiiiiI 10iiiiiiI TT        NC ... | Id(n): Write 10iiiiiiI as doubled value in one 32-bit operation into the trice buffer. The first 16-bit will be removed just before sending to the out channel. 
-//! \li *da =                     01iiiiiiI NC ... | id(n): Just write 01iiiiiiI as 16-bit operation.
-//! \li *da = ss0......extended trices are not used yet
-//! \li This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
+//! -       v__________________ v___________ v__ (32-bit alignment positions)
+//! - *da = 11iiiiiiI TT        TT        NC ... | ID(n): After writing 11iiiiiiI write the 32-bit TTTT value in 2 16-bit write operations.
+//! - *da = 10iiiiiiI 10iiiiiiI TT        NC ... | Id(n): Write 10iiiiiiI as doubled value in one 32-bit operation into the trice buffer. The first 16-bit will be removed just before sending to the out channel. 
+//! - *da =                     01iiiiiiI NC ... | id(n): Just write 01iiiiiiI as 16-bit operation.
+//! - *da = 00xxxxxxX extended trices are not used yet, unspecified length >= 2
+//! - This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
+//! - With framing, user 1-byte messages allowed and ignored by the trice tool.
 static size_t triceDataLen( uint8_t const* p ){
     uint16_t nc = TRICE_TTOHS(*(uint16_t*)p); // lint !e826
     size_t n = nc>>8;
