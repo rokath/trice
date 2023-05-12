@@ -373,20 +373,17 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
-	if p.TriceSize > packageSize { // todo: change to '>' for multiple trices in one package (TriceOutMultiPackMode instead of TriceOutMultiSafeMode)
+	if p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
 		if p.packageFraming == packageFramingNone {
-			if p.packageFraming == packageFramingNone {
-				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
-				p.B0 = p.B0[1:] // discard first byte and try again
-				p.B = p.B0
-			} else {
-				n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
-				n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
-				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-				p.B = p.B[len(p.B):] // discard buffer
-			}
+			n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+			p.B0 = p.B0[1:] // discard first byte and try again
+			p.B = p.B0
+			return
 		}
-		return
+		n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
+		n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		p.B = p.B[len(p.B):] // discard buffer
 	}
 
 	// cycle counter automatic & check
