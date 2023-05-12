@@ -7,7 +7,7 @@
 // The C-files referring to the trice sources this way avoiding code duplication.
 // The Go functions defined here are not exported. They are called by the Go test functions in this package.
 // This way the test functions are executing the trice C-code compiled with the triceConfig.h here.
-// Inside ./testdate this file is named cgoPackage.go where it is maintained.
+// Inside ./testdata this file is named cgoPackage.go where it is maintained.
 // The test/updateTestData.sh script copied this file under the name generated_cgoPackage.go into various
 // package folders, where it is used separately.
 package cgot
