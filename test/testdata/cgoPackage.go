@@ -97,7 +97,7 @@ func triceClearOutBuffer() {
 	C.CgoClearTriceBuffer()
 }
 
-// linesInFile does get the lines in a file and store them in a string slice.
+// linesInFile does get the lines in a file and stores them in a string slice.
 func linesInFile(fh afero.File) []string { // https://www.dotnetperls.com/lines-file-go
 	// Create new Scanner.
 	scanner := bufio.NewScanner(fh)
