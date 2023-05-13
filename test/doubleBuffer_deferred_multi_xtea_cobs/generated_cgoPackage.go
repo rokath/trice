@@ -7,7 +7,7 @@
 // The C-files referring to the trice sources this way avoiding code duplication.
 // The Go functions defined here are not exported. They are called by the Go test functions in this package.
 // This way the test functions are executing the trice C-code compiled with the triceConfig.h here.
-// Inside ./testdate this file is named cgoPackage.go where it is maintained.
+// Inside ./testdata this file is named cgoPackage.go where it is maintained.
 // The test/updateTestData.sh script copied this file under the name generated_cgoPackage.go into various
 // package folders, where it is used separately.
 package cgot
@@ -69,6 +69,7 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0) // filename is the test executable inside the package dir like cgo_stackBuffer_noCycle_tcobs
 	testDir := path.Dir(filename)
 	triceDir = path.Join(testDir, "../../")
+	C.TriceInit()
 }
 
 // setTriceBuffer tells the underlying C code where to output the trice byte stream.
@@ -97,7 +98,7 @@ func triceClearOutBuffer() {
 	C.CgoClearTriceBuffer()
 }
 
-// linesInFile does get the lines in a file and store them in a string slice.
+// linesInFile does get the lines in a file and stores them in a string slice.
 func linesInFile(fh afero.File) []string { // https://www.dotnetperls.com/lines-file-go
 	// Create new Scanner.
 	scanner := bufio.NewScanner(fh)

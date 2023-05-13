@@ -49,6 +49,20 @@ uint8_t  TriceCycle = 0xc0;
 
 #endif
 
+//! TriceInit needs to run before the first trice macro is executed.
+//! Not neseecary for all configurations.
+void TriceInit( void ){
+
+    #ifdef SEGGER_RTT
+        // This is just to force the INIT() call inside SEGGER_RTT.c what allows to use
+        // SEGGER_RTT_WriteNoLock or SEGGER_Write_RTT0_NoCheck32 instead of SEGGER_RTT_Write.
+        SEGGER_RTT_Write(0, 0, 0 ); //lint !e534 
+    #endif
+
+    #ifdef XTEA_ENCRYPT_KEY
+        XTEAInitTable();
+    #endif
+}
 //! triceDataLen returns encoded len.
 //! \param p points to nc
 //! To avoid alignment issues, the optional payload needs to start at a 32-bit boundary.

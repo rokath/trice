@@ -69,6 +69,7 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0) // filename is the test executable inside the package dir like cgo_stackBuffer_noCycle_tcobs
 	testDir := path.Dir(filename)
 	triceDir = path.Join(testDir, "../../")
+	C.TriceInit()
 }
 
 // setTriceBuffer tells the underlying C code where to output the trice byte stream.

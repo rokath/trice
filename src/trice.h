@@ -166,6 +166,7 @@ void TriceDiagnostics( int index );
 void TriceNonBlockingDirectWrite( uint32_t * const triceStart, unsigned wordCount );
 void TriceNonBlockingDirectWriteAuxiliary( uint8_t * const enc, size_t encLen );
 void TriceNonBlockingDeferredWriteAuxiliary( uint8_t * const enc, size_t encLen );
+void TriceInit( void );
 void TriceLogDiagnosticValues( void );
 void TriceLogSeggerDiagnostics( void );
 void TriceNonBlockingDeferredWrite( int ticeID, uint8_t const * enc, size_t encLen );
