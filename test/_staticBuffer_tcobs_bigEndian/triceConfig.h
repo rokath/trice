@@ -10,14 +10,13 @@ extern "C" {
 #endif
 
 #define TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
-
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
-#define TriceStamp16() (0x1616) //(SysTick->VAL) 
+#define TriceStamp16() (0x1616) 
 
 //! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int32_t TriceStamp32( void );` has significant speed impact.
-#define TriceStamp32() (0x32323232) //Us32()
+#define TriceStamp32() (0x32323232)
 
 //!  TRICE_BUFFER selects, where the TRICE macros accumulate the trice data during a single TRICE execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
@@ -27,15 +26,17 @@ extern "C" {
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 //! If unsure select TRICE_DOUBLE_BUFFER. The TRICE_RING_BUFFER option works, but is experimental.
-#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_BUFFER TRICE_STACK_BUFFER
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
 //! Setting TRICE_BUFFER to TRICE_STACK_BUFFER or TRICE_STATIC_BUFFER demands TRICE_DIRECT_OUTPUT == 1, no deferred output at all.
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
-//! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
-#define TRICE_DIRECT_OUTPUT 0
+//! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
+#define TRICE_DIRECT_OUTPUT 1
+
+#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 1
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -55,7 +56,7 @@ extern "C" {
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 0x200 // must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 2000 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs.
 //#define TRICE_MCU_IS_BIG_ENDIAN 
@@ -69,50 +70,45 @@ extern "C" {
 //! - TRICE_FRAMING_TCOBS: Recommended for internal transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice data with a user tool.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
-//! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
+//! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_BIT_DIRECT_WRITE == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_TCOBS
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice date with Python or an other language.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
-#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
+#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_TCOBS
 
-//! XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption  with the key. (experimental)
-//! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
-//! The byte sequence you see then, copy and paste it here.
-#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+// XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption  with the key. (experimental)
+//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
-//! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
-//#define XTEA_DECRYPT
+//! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks.
+//#define XTEA_DECRYPT 
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
-//! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
 #define TRICE_DIAGNOSTICS 1
 
-//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32 and needs ((TRICE_DIRECT_OUTPUT == 1).
+//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
-//! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0. 
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
- 
+//! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0 
+
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 //#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 //#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
 //! CGO interface (for testing the target code with Go only, do not enable)
-// #define TRICE_CGO 
+#define TRICE_CGO 
+#define TRICE_CYCLE_COUNTER 0
 
-//! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
+//! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code.
 #define TRICE_HEADLINE \
-    trice( iD( 2194), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-𝔽𝟘𝟛𝟘ℝ𝟠   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+        trice( iD( 7612), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\n\n\n");
 
 // Compiler Adaption:
-
-//! USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1 includes SEGGER_RTT header files even SEGGER_RTT is not used.
-#define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 1
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
 //! If trices are used only outside critical sections or interrupts,
@@ -121,7 +117,7 @@ extern "C" {
 //! #define TRICE_ENTER_CRITICAL_SECTION { 
 //! #define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 //! #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
-#define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { 
+#define TRICE_ENTER_CRITICAL_SECTION {  
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! If trices are used only outside critical sections or interrupts,
@@ -130,16 +126,16 @@ extern "C" {
 //! #define TRICE_LEAVE_CRITICAL_SECTION } 
 //! #define TRICE_LEAVE_CRITICAL_SECTION } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 //! #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
-#define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } 
+#define TRICE_LEAVE_CRITICAL_SECTION }  
 
 #define TRICE_INLINE static inline //! used for trice code
 
 // hardware interface:
 
-#include "main.h" // hardware specific definitions
+//#include "main.h" // hardware specific definitions
 
 TRICE_INLINE void ToggleOpticalFeedbackLED( void ){
-    LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+//    LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 }
 
 #ifdef TRICE_UARTA

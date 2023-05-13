@@ -422,27 +422,43 @@ extern uint32_t* TriceBufferWritePosition;
 #include "trice64.h"
 
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+// https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
+//#include <byteswap.h>
 
-// Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
-#define TRICE_SWAPINT16(x) ( \
-    (((uint16_t)(x) & 0x00FFU) << 8) | \
-    (((uint16_t)(x) & 0xFF00U) >> 8))
-  
-//Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
-#define TRICE_SWAPINT32(x) ( \
-    (((uint32_t)(x) & 0x000000FFUL) << 24) | \
-    (((uint32_t)(x) & 0x0000FF00UL) << 8) | \
-    (((uint32_t)(x) & 0x00FF0000UL) >> 8) | \
-    (((uint32_t)(x) & 0xFF000000UL) >> 24))
+//  // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+//  #define TRICE_SWAPINT16(x) ( \
+//      (((uint16_t)(x) & 0x00FFU) << 8) | \
+//      (((uint16_t)(x) & 0xFF00U) >> 8))
+//    
+//  //Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+//  #define TRICE_SWAPINT32(x) ( \
+//      (((uint32_t)(x) & 0x000000FFUL) << 24) | \
+//      (((uint32_t)(x) & 0x0000FF00UL) << 8) | \
+//      (((uint32_t)(x) & 0x00FF0000UL) >> 8) | \
+//      (((uint32_t)(x) & 0xFF000000UL) >> 24))
+
+static inline uint16_t Reverse16(uint16_t value)
+{
+    return (((value & 0x00FF) << 8) |
+            ((value & 0xFF00) >> 8));
+}
+    
+TRICE_INLINE uint32_t Reverse32(uint32_t value) 
+{
+    return (((value & 0x000000FF) << 24) |
+            ((value & 0x0000FF00) <<  8) |
+            ((value & 0x00FF0000) >>  8) |
+            ((value & 0xFF000000) >> 24));
+}
 
     //! TRICE_HTOTS reorders short values from host order into trice transfer order. 
-    #define TRICE_HTOTS(x) TRICE_SWAPINT16(x)
+    #define TRICE_HTOTS(x) Reverse16(x) // __bswap_16((x))) // TRICE_SWAPINT16(x)
 
     //! TRICE_HTOTL reorders long values from host order x into trice transfer order. 
-    #define TRICE_HTOTL(x) TRICE_SWAPINT32(x)
+    #define TRICE_HTOTL(x) Reverse32(x) // __bswap_32((x))) // TRICE_SWAPINT32(x)
 
     //! TRICE_TTOHS reorders short values from trice transfer order into host order. 
-    #define TRICE_TTOHS(x) TRICE_SWAPINT16(x)
+    #define TRICE_TTOHS(x) Reverse16(x) // __bswap_16((x))) // TRICE_SWAPINT16(x)
 
 #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
