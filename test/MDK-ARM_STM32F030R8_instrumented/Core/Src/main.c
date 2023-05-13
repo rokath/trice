@@ -163,7 +163,7 @@ int main(void)
                 }
             #else
                 //loop = 0x11111111;
-                TRice( iD( 2693), "msg:%32b loops\n", loop );
+                TRice( iD( 7869), "msg:%32b loops\n", loop );
                 loop++;
             #endif // #if TRICE_CHECK_CODE 
         }

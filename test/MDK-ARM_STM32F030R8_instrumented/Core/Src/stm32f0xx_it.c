@@ -138,7 +138,7 @@ uint32_t milliSecond( void ){
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-    TRice( iD( 6576), "CRITICAL:NMI!\n" );
+    TRice( iD( 6409), "CRITICAL:NMI!\n" );
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
   while (1)
@@ -153,7 +153,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-    TRice( iD( 3627), "FATAL:HardFault!\n" );
+    TRice( iD( 1546), "FATAL:HardFault!\n" );
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
@@ -267,7 +267,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_FE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_NE(TRICE_UARTA) ){
-        TRICE( Id( 4957), "err:TRICE_UARTA Noise error detected Flag is set\n" );
+        TRICE( Id( 3239), "err:TRICE_UARTA Noise error detected Flag is set\n" );
         LL_USART_ClearFlag_NE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_ORE(TRICE_UARTA) ){
@@ -275,7 +275,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_ORE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_IDLE(TRICE_UARTA) ){
-        TRICE( Id( 2242), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
+        TRICE( Id( 7406), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
         LL_USART_ClearFlag_IDLE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_TC(TRICE_UARTA) ){
@@ -297,20 +297,20 @@ void USART2_IRQHandler(void)
         TRICE0( Id( 6017), "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_ABR(TRICE_UARTA) ){
-        TRICE( Id( 4210), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );
+        TRICE( Id( 5533), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_BUSY(TRICE_UARTA) ){
         TRICE( Id( 3800), "inf:TRICE_UARTA Busy Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_CM(TRICE_UARTA) ){
-        TRICE( Id( 4308), "wrn:TRICE_UARTA Character Match Flag is set\n" );
+        TRICE( Id( 6614), "wrn:TRICE_UARTA Character Match Flag is set\n" );
         LL_USART_ClearFlag_CM(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_SBK(TRICE_UARTA) ){
         TRICE( Id( 6412), "wrn:TRICE_UARTA Send Break Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RWU(TRICE_UARTA) ){
-        TRICE( Id( 3903), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );
+        TRICE( Id( 3254), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_TEACK(TRICE_UARTA) ){
         //TRICE( Id( 4009), "wr:TRICE_UARTA Transmit Enable Acknowledge Flag is set\n" );

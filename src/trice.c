@@ -226,7 +226,7 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
 size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
-    size_t len8 = (len + 7) & ~7; // todo: only multiple of 8 encryptable (needs some adaptions, later!)
+    size_t len8 = (len + 7) & ~7; // only multiple of 8 encryptable
     while( len < len8 ){
         buf[len++] = 0; // clear padding space
     }
