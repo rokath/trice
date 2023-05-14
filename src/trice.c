@@ -122,6 +122,8 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
 
 #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 
+#if TRICE_BUFFER == TRICE_RING_BUFFER
+
 //! TriceIDAndBuffer evaluates a trice message and returns the ID for routing.
 //! \param pAddr is where the trice message starts.
 //! \param pWordCount is filled with the word count the trice data occupy from pAddr.
@@ -141,9 +143,15 @@ int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** p
             len = 4 + triceDataLen(pStart + 2); // tyId
             break;
         case TRICE_TYPE_S2: // S2 = 16-bit stamp
-            pStart += 2; // see Id(n) macro definition
+            len = 6 + triceDataLen(pStart + 6); // tyId ts16
             offset = 2;
-            len = 6 + triceDataLen(pStart + 4); // tyId ts16
+            #ifdef XTEA_ENCRYPT_KEY
+                // move trice to start at a uint32_t alingment border
+                memmove(pStart, pStart+2, len ); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
+            #else // #ifdef XTEA_ENCRYPT_KEY
+                // Like for UART transfer no uint32_t alignment is needed.
+                pStart += 2; // see Id(n) macro definition        
+            #endif // #else // #ifdef XTEA_ENCRYPT_KEY
             break;
         case TRICE_TYPE_S4: // S4 = 32-bit stamp
             offset = 0;
@@ -168,6 +176,8 @@ int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** p
     *pLength = len;
     return triceID;
 }
+
+#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
 
 //todo: use this function only when MULTI
 //! TriceNext expects at *buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
@@ -226,10 +236,6 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
 size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
-    if( (((int)buf) & 3) ){ // buf is not uint32_t aligned because of 16-bit stamp
-        buf -= 2;
-        memmove(buf, buf+2, len ); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
-    }
     size_t len8 = (len + 7) & ~7; // only multiple of 8 encryptable
     while( len < len8 ){
         buf[len++] = 0; // clear padding space
