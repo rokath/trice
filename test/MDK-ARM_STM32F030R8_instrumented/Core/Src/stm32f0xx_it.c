@@ -300,14 +300,14 @@ void USART2_IRQHandler(void)
         TRICE( Id( 5533), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_BUSY(TRICE_UARTA) ){
-        TRICE( Id( 3800), "inf:TRICE_UARTA Busy Flag is set\n" );
+        TRICE( Id( 3479), "inf:TRICE_UARTA Busy Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_CM(TRICE_UARTA) ){
-        TRICE( Id( 6614), "wrn:TRICE_UARTA Character Match Flag is set\n" );
+        TRICE( Id( 7833), "wrn:TRICE_UARTA Character Match Flag is set\n" );
         LL_USART_ClearFlag_CM(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_SBK(TRICE_UARTA) ){
-        TRICE( Id( 6412), "wrn:TRICE_UARTA Send Break Flag is set\n" );
+        TRICE( Id( 7804), "wrn:TRICE_UARTA Send Break Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RWU(TRICE_UARTA) ){
         TRICE( Id( 5010), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );

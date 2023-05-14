@@ -35,7 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TRICE_CHECK_CODE 1
+#define TRICE_CHECK_CODE 0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -131,7 +131,7 @@ int main(void)
         // check for external commands
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id( 5865), "att:Executing command %s ...\a\n", triceCommandBuffer ); // with sound!
+            TRICE_S( Id( 7621), "att:Executing command %s ...\a\n", triceCommandBuffer ); // with sound!
             // do
             TRICE( ID( 6622), "att:...done\n" );
         }

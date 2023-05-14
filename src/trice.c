@@ -226,6 +226,10 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
 size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
+    if( (((int)buf) & 3) ){ // buf is not uint32_t aligned because of 16-bit stamp
+        buf -= 2;
+        memmove(buf, buf+2, len ); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
+    }
     size_t len8 = (len + 7) & ~7; // only multiple of 8 encryptable
     while( len < len8 ){
         buf[len++] = 0; // clear padding space

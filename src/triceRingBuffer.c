@@ -13,8 +13,20 @@ uint32_t TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] = {0};
 //! TriceBufferWritePosition is used by the TRICE_PUT macros.
 uint32_t* TriceBufferWritePosition = TriceRingBuffer; 
 
+
+#ifdef XTEA_ENCRYPT_KEY
+
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
-uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2]; 
+//! With encryption it can happen that 4 bytes following triceRingBufferLimit are user as scratch pad.
+//! See comment inside TriceSingleDeferredOut.
+uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] - 1;
+
+#else // #ifdef XTEA_ENCRYPT_KEY
+
+//! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
+uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2];
+
+#endif // #else // #ifdef XTEA_ENCRYPT_KEY
 
 //! singleTricesRingCount holds the readable trices count inside TriceRingBuffer.
 int singleTricesRingCount = 0; 
@@ -108,12 +120,17 @@ void TriceTransfer( void ){
 static int TriceSingleDeferredOut(uint32_t* addr){
     uint32_t* pData = addr + (TRICE_DATA_OFFSET>>2);
     uint8_t* pEnc = (uint8_t*)addr;
+    
     int wordCount;
     uint8_t* pStart;
     size_t Length; // This is the trice netto length (without padding bytes).
     int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
     
     // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
+    // This i ok, when behind triceRingBufferLimit are at least 4 bytes unused space.
+    // After TriceIDAndBuffer pStart has a 2 bytes offset, what is an alignmet issue for encryption.
+    // That gets corrected inside TriceDeferredEncode.
+    // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
     size_t encLen = TriceDeferredEncode( pEnc, pStart, Length);
     
     TriceNonBlockingDeferredWrite( triceID, pEnc, encLen );

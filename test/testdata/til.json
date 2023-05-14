@@ -83,9 +83,17 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
 	},
+	"1087": {
+		"Type": "trice16",
+		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
+	},
 	"1098": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4O -\u003e %4O %4O %4O %4O\\n"
+	},
+	"1099": {
+		"Type": "TRice16",
+		"Strg": "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
 	"1100": {
 		"Type": "TRICE64",
@@ -186,6 +194,10 @@
 	"1243": {
 		"Type": "TRICE8_7",
 		"Strg": "rd:TRICE8_7 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"1246": {
+		"Type": "trice",
+		"Strg": "msg:Trice check range is [%u...%u)\\n"
 	},
 	"1261": {
 		"Type": "Trice64_1",
@@ -335,6 +347,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1546": {
+		"Type": "TRice",
+		"Strg": "FATAL:HardFault!\\n"
+	},
 	"1551": {
 		"Type": "TRice16",
 		"Strg": "msg:value=%u\\n"
@@ -354,6 +370,10 @@
 	"1592": {
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 %d\\n"
+	},
+	"1608": {
+		"Type": "trice16",
+		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
 	},
 	"1618": {
 		"Type": "TRICE64",
@@ -567,6 +587,10 @@
 		"Type": "Trice8_0",
 		"Strg": "no value"
 	},
+	"1991": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-𝔽𝟘𝟛𝟘ℝ𝟠   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	},
 	"1993": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d\\n"
@@ -634,6 +658,10 @@
 	"2104": {
 		"Type": "TRICE64_1",
 		"Strg": "msg:value=%u\\n"
+	},
+	"2107": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!)\\n"
 	},
 	"2113": {
 		"Type": "TRICE",
@@ -735,6 +763,14 @@
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
 	},
+	"2262": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"2268": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!)\\n"
+	},
 	"2270": {
 		"Type": "TRICE",
 		"Strg": "att:formatted float \u0026 double\\n"
@@ -835,6 +871,10 @@
 		"Type": "TRice8",
 		"Strg": "value=%d\\n"
 	},
+	"2446": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"2451": {
 		"Type": "TRICE",
 		"Strg": "sig:Float (indent, precision, scientific notation)\\n"
@@ -918,6 +958,10 @@
 	"2606": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d\\n"
+	},
+	"2608": {
+		"Type": "TRICE0",
+		"Strg": "wr:TRICE_UARTA Transmission Complete Flag is set\\n"
 	},
 	"2612": {
 		"Type": "TRICE8",
@@ -1319,9 +1363,17 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
 	},
+	"3210": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE_UARTA Receive Enable Acknowledge Flag is set\\n"
+	},
 	"3222": {
 		"Type": "TRICE",
 		"Strg": "time:i"
+	},
+	"3239": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UARTA Noise error detected Flag is set\\n"
 	},
 	"3242": {
 		"Type": "TRICE_10",
@@ -1350,6 +1402,10 @@
 	"3283": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d\\n"
+	},
+	"3284": {
+		"Type": "trice16",
+		"Strg": "diag:singleTricesRingCountMax = %u, "
 	},
 	"3286": {
 		"Type": "TRICE",
@@ -1483,9 +1539,17 @@
 		"Type": "Trice64_0",
 		"Strg": "no value"
 	},
+	"3472": {
+		"Type": "trice",
+		"Strg": "ERROR:RTT0_writeSpaceMin=%u, "
+	},
 	"3473": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"3479": {
+		"Type": "TRICE",
+		"Strg": "inf:TRICE_UARTA Busy Flag is set\\n"
 	},
 	"3483": {
 		"Type": "TRICE",
@@ -1506,6 +1570,10 @@
 	"3496": {
 		"Type": "TRICE64",
 		"Strg": "rd:%E (%%E)\\n"
+	},
+	"3497": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!), "
 	},
 	"3498": {
 		"Type": "TRICE64",
@@ -1551,6 +1619,10 @@
 		"Type": "TRICE8",
 		"Strg": "msg:value=%u\\n"
 	},
+	"3550": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UARTA OverRun Error Flag is set\\n"
+	},
 	"3572": {
 		"Type": "trice16",
 		"Strg": "msg:value=%u\\n"
@@ -1574,6 +1646,10 @@
 	"3629": {
 		"Type": "TRICE",
 		"Strg": "test:yellow+h:black\\n"
+	},
+	"3642": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d\\n"
 	},
 	"3646": {
 		"Type": "TRICE",
@@ -1707,6 +1783,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"3925": {
+		"Type": "TRice16",
+		"Strg": "diag:triceHalfBufferDepthMax =%4u of%5d\\n"
+	},
 	"3935": {
 		"Type": "trice8_9",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1762,6 +1842,10 @@
 	"4008": {
 		"Type": "TRICE",
 		"Strg": "rd: 0015 \t%04d \tPad with zeroes (width 4)\\n"
+	},
+	"4009": {
+		"Type": "TRICE",
+		"Strg": "wr:TRICE_UARTA Transmit Enable Acknowledge Flag is set\\n"
 	},
 	"4033": {
 		"Type": "TRICE",
@@ -1935,6 +2019,10 @@
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
 	},
+	"4276": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UARTA Receiver Time Out Flag is set\\n"
+	},
 	"4277": {
 		"Type": "TRICE",
 		"Strg": "sig:Character (quoted, Unicode)\\n"
@@ -1967,6 +2055,10 @@
 		"Type": "TRICE",
 		"Strg": "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\\n"
 	},
+	"4330": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"4334": {
 		"Type": "Trice16",
 		"Strg": "msg:value=%d, %d\\n"
@@ -1986,6 +2078,10 @@
 	"4353": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4x -\u003e %4x %4x %4x %4x\\n"
+	},
+	"4355": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA CTS Flag is set\\n"
 	},
 	"4356": {
 		"Type": "TRICE_N",
@@ -2263,9 +2359,17 @@
 		"Type": "Trice",
 		"Strg": "info:This is a message without values and a 16-bit stamp.\\n"
 	},
+	"4680": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA CTS interrupt Flag is set\\n"
+	},
 	"4691": {
 		"Type": "TRICE32",
 		"Strg": "dbg:len=%u:"
+	},
+	"4696": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UARTA Framing Error Flag is set\\n"
 	},
 	"4705": {
 		"Type": "TRICE",
@@ -2379,6 +2483,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:TRICE_n with 1 to 12 values\\n"
 	},
+	"4863": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UARTA Parity Error Flag is set\\n"
+	},
 	"4882": {
 		"Type": "TRICE",
 		"Strg": "sig:Legacy TRICE8\\n"
@@ -2394,6 +2502,10 @@
 	"4897": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64 with variable param count 1 to 12\\n"
+	},
+	"4902": {
+		"Type": "TRICE",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"4903": {
 		"Type": "TRICE16",
@@ -2459,6 +2571,10 @@
 		"Type": "Trice8",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"5010": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\\n"
+	},
 	"5014": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
@@ -2507,6 +2623,10 @@
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 int %X, float %f (%%f), %08x, %032b\\n"
 	},
+	"5090": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d\\n"
+	},
 	"5102": {
 		"Type": "TRICE32",
 		"Strg": "msg:value=%u\\n"
@@ -2543,6 +2663,10 @@
 		"Type": "trice16_3",
 		"Strg": "msg:value=%d, %d, %d\\n"
 	},
+	"5150": {
+		"Type": "TRICE32",
+		"Strg": "wrn:Transmit buffer truncated from %u to %u\\n"
+	},
 	"5160": {
 		"Type": "TRICE_2",
 		"Strg": "rd:TRICE_2 %d, %d\\n"
@@ -2566,6 +2690,10 @@
 	"5196": {
 		"Type": "TRICE",
 		"Strg": "sig:Boolean (true/false)\\n"
+	},
+	"5199": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of%4d (overflow!), "
 	},
 	"5206": {
 		"Type": "trice16",
@@ -2747,6 +2875,10 @@
 		"Type": "TRice8",
 		"Strg": "msg:value=%d\\n"
 	},
+	"5533": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\\n"
+	},
 	"5547": {
 		"Type": "TRICE",
 		"Strg": "trace:default+i:default+h\\n"
@@ -2762,6 +2894,10 @@
 	"5579": {
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1  %d\\n"
+	},
+	"5582": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"5587": {
 		"Type": "TRICE",
@@ -2830,6 +2966,10 @@
 	"5678": {
 		"Type": "trice8_1",
 		"Strg": "value=%d\\n"
+	},
+	"5682": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"5687": {
 		"Type": "TRICE",
@@ -2979,6 +3119,10 @@
 		"Type": "TRice",
 		"Strg": "value=%d\\n"
 	},
+	"5915": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of%4d, "
+	},
 	"5929": {
 		"Type": "TRICE32_1",
 		"Strg": "tst:TRICE32_1  %d\\n"
@@ -3046,6 +3190,10 @@
 	"6013": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64_n with 1 to 12 values\\n"
+	},
+	"6017": {
+		"Type": "TRICE0",
+		"Strg": "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\\n"
 	},
 	"6019": {
 		"Type": "TRICE_8",
@@ -3283,6 +3431,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "value=%d\\n"
 	},
+	"6409": {
+		"Type": "TRice",
+		"Strg": "CRITICAL:NMI!\\n"
+	},
 	"6412": {
 		"Type": "trice8",
 		"Strg": "no value"
@@ -3395,6 +3547,10 @@
 		"Type": "TRice",
 		"Strg": "\\nA TRice message starting with a a newline\\n"
 	},
+	"6557": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"6561": {
 		"Type": "trice64_6",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
@@ -3427,6 +3583,10 @@
 		"Type": "TRice32_1",
 		"Strg": "msg:value=%d\\n"
 	},
+	"6598": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeSpaceMin=%u, "
+	},
 	"6599": {
 		"Type": "TRICE64_5",
 		"Strg": "rd:TRICE64_5 %d, %d, %d, %d, %d\\n"
@@ -3442,6 +3602,10 @@
 	"6620": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"6622": {
+		"Type": "TRICE",
+		"Strg": "att:...done\\n"
 	},
 	"6625": {
 		"Type": "TRICE",
@@ -3618,6 +3782,10 @@
 	"6928": {
 		"Type": "Trice32",
 		"Strg": "msg:value=%u\\n"
+	},
+	"6931": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d, "
 	},
 	"6932": {
 		"Type": "TRICE",
@@ -3907,6 +4075,10 @@
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %d %d %d %d %d %d\\n"
 	},
+	"7346": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"7351": {
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
@@ -3946,6 +4118,10 @@
 	"7402": {
 		"Type": "TRICE32_10",
 		"Strg": "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"7406": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA IDLE line detected Flag is set\\n"
 	},
 	"7407": {
 		"Type": "TRICE16_3",
@@ -4067,6 +4243,10 @@
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
 	},
+	"7621": {
+		"Type": "TRICE_S",
+		"Strg": "att:Executing command %s ...\\a\\n"
+	},
 	"7629": {
 		"Type": "TRICE64_12",
 		"Strg": "tst:TRICE64_12 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
@@ -4155,6 +4335,10 @@
 		"Type": "TRICE",
 		"Strg": "TRANSMIT:black:black+h\\n"
 	},
+	"7804": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA Send Break Flag is set\\n"
+	},
 	"7809": {
 		"Type": "TRICE",
 		"Strg": "1"
@@ -4174,6 +4358,10 @@
 	"7830": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d\\n"
+	},
+	"7833": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA Character Match Flag is set\\n"
 	},
 	"7842": {
 		"Type": "TRICE",
@@ -4202,6 +4390,10 @@
 	"7865": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %t (%%t -1)\\n"
+	},
+	"7869": {
+		"Type": "TRice",
+		"Strg": "msg:%32b loops\\n"
 	},
 	"7876": {
 		"Type": "TRICE16_1",

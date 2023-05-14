@@ -22,7 +22,7 @@ stackBuffer_nopf
 
 ringBuffer_deferred_tcobs
 ringBuffer_deferred_cobs
-_ringBuffer_deferred_xtea_cobs
+ringBuffer_deferred_xtea_cobs
 
 doubleBuffer_deferred_single_tcobs
 doubleBuffer_deferred_multi_tcobs
