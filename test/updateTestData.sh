@@ -15,14 +15,16 @@ CGOTESTDIRS="
 staticBuffer_cobs
 staticBuffer_tcobs
 staticBuffer_nopf
+_staticBuffer_tcobs_bigEndian
 
 stackBuffer_tcobs
 stackBuffer_cobs
 stackBuffer_nopf
+_stackBuffer_cobs_bigEndian
 
 ringBuffer_deferred_tcobs
 ringBuffer_deferred_cobs
-ringBuffer_deferred_xtea_cobs
+_ringBuffer_deferred_xtea_cobs
 
 doubleBuffer_deferred_single_tcobs
 doubleBuffer_deferred_multi_tcobs
@@ -31,6 +33,7 @@ doubleBuffer_deferred_multi_cobs
 doubleBuffer_deferred_multi_xtea_cobs
 
 doubleBuffer_direct_noRouting_nopf
+_doubleBuffer_direct_noRouting_nopf_deferred_multi_cobs
 "
 for d in $CGOTESTDIRS
 do

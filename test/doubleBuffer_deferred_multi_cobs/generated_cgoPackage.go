@@ -189,3 +189,54 @@ func triceLogTest(t *testing.T, triceLog logF, limit int, mode triceMode) {
 		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
 	}
 }
+
+// triceLogTest2 works like triceLogTest but additionally expects doubled output: direct and deferred.
+func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
+
+	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
+
+	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
+	out := make([]byte, 32768)
+	setTriceBuffer(out)
+
+	result := getExpectedResults(osFSys, triceDir+"./test/testdata/triceCheck.c")
+
+	var count int
+	for i, r := range result {
+
+		count++
+		if limit >= 0 && count >= limit {
+			return
+		}
+		fmt.Println(i, r)
+
+		// target activity
+		triceCheck(r.line)
+
+		// check direct output
+		length := triceOutDepth()
+		bin := out[:length] // bin contains the binary trice data of trice message i
+
+		buf := fmt.Sprint(bin)
+		buffer := buf[1 : len(buf)-1]
+
+		act := triceLog0(t, osFSys, buffer)
+		triceClearOutBuffer()
+
+		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+
+		// check deferred output
+		triceTransfer()
+
+		length = triceOutDepth()
+		bin = out[:length] // bin contains the binary trice data of trice message i
+
+		buf = fmt.Sprint(bin)
+		buffer = buf[1 : len(buf)-1]
+
+		act = triceLog1(t, osFSys, buffer)
+		triceClearOutBuffer()
+
+		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+	}
+}
