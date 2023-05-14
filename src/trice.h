@@ -421,6 +421,16 @@ extern uint32_t* TriceBufferWritePosition;
 #include "trice32.h"
 #include "trice64.h"
 
+
+//! TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN can be defined on little endian MCUs if the trice data are needed in network order,
+//! or on big endian MCUs if the trice data are needed in little endian order. You should avoid using this macro because
+//! it increases the trice storage time and the needed code amount. 
+//! This is not completely implemented and needs automatic tests as well.
+//! The main to implement:
+//! - implement compiler agnostic access macros (byte swapping)
+//! - The TriceIDAndBuffer function and it relatives need to use access macros. 
+//#define TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 // https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
 //#include <byteswap.h>
@@ -753,7 +763,7 @@ static inline uint64_t aDouble( double x ){
     uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size --> todo: consider 64-bit stamp! */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( id( 6327), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        TRICE32( id( 5150), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
     TRICE_ENTER tid; \

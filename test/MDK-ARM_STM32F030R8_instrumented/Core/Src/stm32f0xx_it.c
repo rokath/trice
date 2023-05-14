@@ -310,13 +310,13 @@ void USART2_IRQHandler(void)
         TRICE( Id( 6412), "wrn:TRICE_UARTA Send Break Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RWU(TRICE_UARTA) ){
-        TRICE( Id( 3254), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );
+        TRICE( Id( 5010), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_TEACK(TRICE_UARTA) ){
         //TRICE( Id( 4009), "wr:TRICE_UARTA Transmit Enable Acknowledge Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_REACK(TRICE_UARTA) ){
-        //TRICE( Id( 1628), "rd:TRICE_UARTA Receive Enable Acknowledge Flag is set\n" );
+        //TRICE( Id( 3210), "rd:TRICE_UARTA Receive Enable Acknowledge Flag is set\n" );
     }
 */
   /* USER CODE END USART2_IRQn 0 */

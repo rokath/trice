@@ -58,11 +58,6 @@ extern "C" {
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs.
 //#define TRICE_MCU_IS_BIG_ENDIAN 
 
-//! TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN can be defined on little endian MCUs if the trice data are needed in network order,
-//! or on big endian MCUs if the trice data are needed in little endian order. You should avoid using this macro because
-//! it increases the trice storage time and the needed code amount. 
-//#define TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
-
 //! TRICE_DIRECT_OUT_FRAMING defines the framing method of the binary trice data stream for direct output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for internal transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice data with a user tool.

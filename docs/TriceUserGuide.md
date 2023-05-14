@@ -1204,7 +1204,7 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 - To interpret a decoded package, it´s endianness needs to be known.
 - For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
 - On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
-- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
+- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount. The implementation is not completed yet.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1268,12 +1268,21 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 - In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position.
 - The `0` selector is usable for any user encoding. The **trice** tool ignores such packages.
 
-  | 16-bit groups            | Selector (2 msb)| Comment                                                 |
-  | :-                       | :-:             | -                                                       |
-  | `00xxxxxxX ...`          | 0               | >= 4-byte message, reserved for extensions or user data |
-  | `01iiiiiiI NC  ...`      | 1               | >= 4-byte message, *Trice* format without     stamp     |
-  | `10iiiiiiI TT NC ...`    | 2               | >= 4-byte message, *Trice* format with 16-bit stamp     |
-  | `11iiiiiiI TT TT NC ...` | 3               | >= 4-byte message, *Trice* format with 32-bit stamp     |
+  | 16-bit groups            | Selector (2 msb)|Comment                                                 | Endianness sizes            |
+  | :-                       | :-:             |-                                                       | :-                          |
+  | `00xxxxxxX ...`          | 0               |>= 4-byte message, reserved for extensions or user data |         `u16 ?...?`         |
+  | `01iiiiiiI NC  ...`      | 1               |>= 4-byte message, *Trice* format without     stamp     |     `u16 u16 [uX] ... [uX]` |
+  | `10iiiiiiI TT NC ...`    | 2               |>= 4-byte message, *Trice* format with 16-bit stamp     | `u16 u16 u16 [uX] ... [uX]` |
+  | `11iiiiiiI TT TT NC ...` | 3               |>= 4-byte message, *Trice* format with 32-bit stamp     | `u16 u32 u16 [uX] ... [uX]` |
+
+- When the receiving tool has to convert the endianness it needs some rules:
+  - convert u16=`ssiiiiii iiiiiiii` or u16=`ssxxxxxx xxxxxxxx` and split into selector and ID
+  - check the 2 selector bits:
+    - 0: reserved
+    - 1: convert u16=NC
+    - 2: convert u16=stamp16 & u16=NC
+    - 3: convert u32=stamp32 & u16=NC
+  - use ID to get param width X=8,16,32,64 and count and convert appropriate.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

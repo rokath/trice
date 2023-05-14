@@ -288,7 +288,7 @@ static void triceSeggerRTTDiagnostics( void ){
 
 void TriceLogSeggerDiagnostics( void ){
     if( (RTT0_writeSpaceMin < 8) ){ // && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
-        trice( iD( 1091), "ERROR:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
+        trice( iD( 3472), "ERROR:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
     }else{
         trice( iD( 6598), "diag:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
     }
@@ -296,7 +296,7 @@ void TriceLogSeggerDiagnostics( void ){
 
 #endif // #if (TRICE_DIAGNOSTICS ==1) && defined(SEGGER_RTT)
 
-#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
+#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1)
 
 static void TriceWriteDeviceRtt0( uint8_t const * enc, size_t encLen ){
     SEGGER_RTT_WriteNoLock(0, enc, encLen );
@@ -306,7 +306,7 @@ static void TriceWriteDeviceRtt0( uint8_t const * enc, size_t encLen ){
     #endif
 }
 
-#endif // (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
+#endif // (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1)
 
 #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
@@ -425,7 +425,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
                 #if defined(TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MAX_ID)
                 if( (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE_MAX_ID) )
                 #endif
-                { SEGGER_RTT_WriteNoLock(0, enc, encLen ); }
+                { TriceWriteDeviceRtt0( enc, encLen ); }
             #endif
             
             #ifdef TRICE_CGO
