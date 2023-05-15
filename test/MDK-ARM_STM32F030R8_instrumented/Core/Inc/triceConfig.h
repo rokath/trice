@@ -9,8 +9,6 @@
 extern "C" {
 #endif
 
-#define TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE 1
-
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
 #define TriceStamp16() (0x1616) //(SysTick->VAL) 
@@ -35,7 +33,7 @@ extern "C" {
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
-#define TRICE_DIRECT_OUTPUT 0
+#define TRICE_DIRECT_OUTPUT 1
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -66,18 +64,18 @@ extern "C" {
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
 //! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_TCOBS
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice date with Python or an other language.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
-#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
+#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_TCOBS
 
 //! XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption  with the key. (experimental)
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and paste it here.
-#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT
@@ -90,10 +88,10 @@ extern "C" {
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1
  
 //! Enable and set UARTA for deferred serial output.
-//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 //#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 //#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 

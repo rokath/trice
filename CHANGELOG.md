@@ -35,8 +35,13 @@
 | 2023-MAY-05 |  0.58.0 | Target files all now direct in src folder and need to be included all. Direct XTEA with RTT32 (experimental). |
 | 2023-MAY-10 |  0.59.0 | Target code better structured. Automatic target tests working and now extendable with more configuration variants. Auxiliary support for direct and deferred. Common RTT Diagnostics for all RTT Modes as part of TRICE_DIAGNOSTICS. |
 | 2023-MAY-14 |  0.60.0 | XTEA working with doubleBuffer in multi-pack mode and also with ringBuffer (safe-single mode). Tests for that added and also a test for twin mode (direct plus deferred output) is working. more target code tests |
+| 2023-MAY-15 |  0.60.1 | Twice Log enabled in https://github.com/rokath/trice/tree/master/test/MDK-ARM_STM32F030R8_instrumented as `triceConfig.h` example.
 
+## v0.60.1 Twice Log Screen Shot
 
+- Please look at the used command lines carefully, expecially the `-d16` switch
+
+![x](./docs/ref/v0.60.1TwiceLog.png)
 ## v0.56.0 Changes
 
 This is a major release hopefully not breaking too much!
