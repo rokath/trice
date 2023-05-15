@@ -1,14 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 #if 0
-
-
-
-
-
 
 //! TriceSingleEncode expects a single trice at addr and returns the wordCount amount of this trice which includes 1-3 padding bytes.
 //! The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
@@ -24,7 +14,6 @@ static int TriceSingleEncode(uint32_t* addr, int* pTriceID, uint8_t** pEnc, size
     *pLen = TriceEncode( *pEnc, buf, len );
     return (len+3)>>2;
 }
-
 
 //! singleTriceDirectOut encodes a single trice and writes it to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
@@ -73,7 +62,6 @@ static void singleTriceDirectOut( uint32_t* tb, size_t tLen ){
     TriceWriteDeviceRtt0( enc, encLen );
     #endif
 }
-
 
 #if TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1
 //! TriceOutRtt0 encodes trices and writes them in one step to the output.
