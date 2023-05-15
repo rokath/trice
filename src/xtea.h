@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include <stdint.h>  //lint !e537 !e451  Warning 537: Repeated include file,  Warning 451: Header file repeatedly included but does not have a standard
 
 void XTEAInitTable( void );
 void XTEADecrypt( uint32_t* p, unsigned count );

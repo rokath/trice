@@ -22,12 +22,16 @@ void TriceLogDiagnosticValues( void ){
     }else{
         TRice16( iD( 2107), "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
+    
+    if(TriceErrorCount > 0){
+        trice( iD( 2172), "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
 }
 
 #endif
 
 #ifdef TRICE_CGO
-void TriceTransfer( void ){} // todo 
+void TriceTransfer( void ){}
 #endif
 
 #endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER

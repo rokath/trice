@@ -19,8 +19,6 @@
 //! The idea behind is to generate an id - function pointer referece list from the generated til.json file to
 //! compile it into a remote device and execute the inside pFmt named function remotely.
 //! Look for "TRICE64_F example" inside triceCheck.c.
-#define TRICE64_F  TRICE64_B
-
 #define TRICE64_F TRICE64_B 
 
 #define TRICE_PUT64_1( v0 )                                                 TRICE_PUT64( v0 ); 

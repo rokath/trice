@@ -11,7 +11,6 @@ extern "C" {
 #endif
 
 #include <stddef.h>
-#include <stdint.h>
 
 //! TCOBSEncode stuffs "length" bytes of data beginning at the location pointed to by "input" and writes the output to the 
 //! location pointed to by "output". Returns the number of bytes written to "output" or a negative value in error case.

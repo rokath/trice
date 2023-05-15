@@ -49,6 +49,10 @@ void TriceLogDiagnosticValues( void ){
     }else{
         TRice16( iD( 1099), "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }
+
+    if(TriceErrorCount > 0){
+        trice( iD( 6306), "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
 }
 
 #endif
@@ -83,7 +87,6 @@ void TriceTransfer( void ){
     } // else: transmission not done yet
 }
 
-//! TODO: XTEA SUPPORT
 //! TriceOut encodes trices and writes them in one step to the output.
 //! This function is called only, when the slowest deferred output device has finished its last buffer.
 //! At the half buffer start tb,ls -l are TRICE_DATA_OFFSET bytes space followed by a number of trice messages which all contain

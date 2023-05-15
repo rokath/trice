@@ -156,10 +156,6 @@ int main(void)
                     #if TRICE_DIAGNOSTICS
                         TriceLogDiagnosticValues();
                     #endif
-              //}else{ // for more details
-              //    #if TRICE_DIAGNOSTICS
-              //        TriceLogDiagnosticValues();
-              //    #endif
                 }
             #else
                 //loop = 0x11111111;

@@ -37,13 +37,36 @@ co-ARMCC-6.lnt
 -wlib(1)
 +libdir(C:\Keil_v5\ARM\ARMCLANG\include)
 
-// Single File mode:
--u
-
 // Format Output to uVision:
 -hsfb^3
 -format="*** LINT: %(%f(%l) %)%t %n: %m"
 -width(160,4)
 
 // Source file(s) for verification:
+..\..\testdata\triceCheck.c
+../Core/Src/main.c
+../Core/Src/stm32f0xx_it.c
+..\..\..\src\xtea.c
+..\..\..\src\triceStaticBuffer.c
+..\..\..\src\triceStackBuffer.c
+..\..\..\src\triceRingBuffer.c
+..\..\..\src\triceDoubleBuffer.c
+..\..\..\src\trice64.c
+..\..\..\src\trice32.c
+..\..\..\src\trice16.c
+..\..\..\src\trice8.c
+..\..\..\src\trice.c
+..\..\..\src\tcobsv1Encode.c
+..\..\..\src\tcobsv1Decode.c
+..\..\..\src\SEGGER_RTT.c
 ..\..\..\src\cobsEncode.c
+..\..\..\src\cobsDecode.c
+..\..\..\src\triceAuxiliary.c
+../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_gpio.c
+../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_pwr.c
+../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_exti.c
+../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_usart.c
+../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_rcc.c
+../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_dma.c
+../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_utils.c
+../Core/Src/system_stm32f0xx.c

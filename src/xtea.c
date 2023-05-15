@@ -25,13 +25,13 @@ static uint32_t table[64];
 //! It is possible to put this table completely into FLASH by precomputing it during compile time.
 void XTEAInitTable( void ){
     uint32_t sum = 0;
-    int i;
+    unsigned i;
     // Two rounds of XTEA applied per loop
     for( i = 0; i < numRounds; ) {
         table[i] = sum + k[sum&3];
         i++;
         sum += delta;
-        table[i] = sum + k[(sum>>11)&3];
+        table[i] = sum + k[(sum>>11)&3]; //lint !e661 Warning 661: Possible access of out-of-bounds pointer (1 beyond end of data) by operator '[' 
         i++;
     }
 }
@@ -41,11 +41,11 @@ void XTEAInitTable( void ){
 //!\param v 64 bits of data in v[0] and v[1] are encoded in place
 static void encipher( uint32_t v[2] ) {
     uint32_t v0 = v[0], v1 = v[1];
-    int i;
+    unsigned i;
     for( i=0; i < numRounds; ) {
         v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ table[i];
         i++;
-        v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ table[i];
+        v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ table[i]; //lint !e661 Warning 661: Possible access of out-of-bounds pointer (1 beyond end of data) by operator '[' 
         i++;
     }
     v[0] = v0; v[1] = v1;
@@ -80,7 +80,7 @@ void XTEADecrypt( uint32_t* p, unsigned count ){
 //! \param p pointer to 8 byte buffer.
 //! count is expected to be an even number.
 void XTEAEncrypt( uint32_t* p, unsigned count ){
-    int i;
+    unsigned i;
     for( i = 0; i < count; i +=2 ){
         encipher( &p[i] ); // byte swap is done inside receiver
     }

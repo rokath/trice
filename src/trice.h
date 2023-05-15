@@ -9,6 +9,12 @@
 extern "C" {
 #endif
 
+//lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
+//lint -e629  Warning 629: static class for function '' is non standard
+ 
+
+//lint -emacro( 701, TRICE* ) Info 701: Shift left of signed quantity (int)
+
 //lint -emacro( 123, TRICE* )
 //lint -emacro( 571, TRICE* )
 //lint -emacro( 572, TRICE* )
@@ -58,43 +64,43 @@ extern "C" {
 
 //! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
 //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
-#define TRICE_SAFE_SINGLE_MODE  787345706
+#define TRICE_SAFE_SINGLE_MODE  787345706U
 
 //! TRICE_PACK_MULTI_MODE packs all trices of a buffer in a single TCOBS package and a following 0-delimiter byte. 
 //! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
-#define TRICE_PACK_MULTI_MODE  3987862482
+#define TRICE_PACK_MULTI_MODE  3987862482U
 
 //! With TRICE_BUFFER == TRICE_STACK_BUFFER  the internal macro TRICE_PUT writes to the stack. 
 //! This is direct logging. This reduces memory needs if one stack is used.
-#define TRICE_STACK_BUFFER  2645382063 
+#define TRICE_STACK_BUFFER  2645382063U
 
 //! With TRICE_BUFFER == TRICE_STATIC_BUFFER the internal macro TRICE_PUT writes to a static buffer. 
 //! This reduces memory needs if many stacks are used.
-#define TRICE_STATIC_BUFFER 1763551404
+#define TRICE_STATIC_BUFFER 1763551404U
 
 //! With TRICE_BUFFER == TRICE_DOUBLE_BUFFER the internal macro TRICE_PUT writes to a double buffer half. 
 //! This is deferred logging using more space but the TRICE macros are executed faster. 
-#define TRICE_DOUBLE_BUFFER 1950870368 
+#define TRICE_DOUBLE_BUFFER 1950870368U
 
 //! With TRICE_BUFFER == TRICE_RING_BUFFER the internal macro TRICE_PUT writes to a ring buffer segment. 
 //! This is deferred logging using less space but the TRICE macros are executed a bit slower. 
-#define TRICE_RING_BUFFER 2237719049
+#define TRICE_RING_BUFFER 2237719049U
 
 //! TRICE_FRAMING_TCOBS is recommended for trice transfer over UART.
-#define TRICE_FRAMING_TCOBS 3745917584 
+#define TRICE_FRAMING_TCOBS 3745917584U
 
 //! TRICE_FRAMING_COBS is recommended for encryptede trices.
-#define TRICE_FRAMING_COBS  2953804234
+#define TRICE_FRAMING_COBS  2953804234U
 
 //! TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
-#define TRICE_FRAMING_NONE  1431860787
+#define TRICE_FRAMING_NONE  1431860787U
 
 //! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
 //! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
 //! This is extendable until a 32767 bytes payload.
 #define TRICE_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
 
-#include <stdint.h> //lint !e537
+//#include <stdint.h> //lint !e537
 #include <string.h>
 #include "triceConfig.h"
 
@@ -145,7 +151,6 @@ extern "C" {
  || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
 
-#include "SEGGER_RTT_Conf.h"
 #include "SEGGER_RTT.h"
 
 #endif 
@@ -163,7 +168,7 @@ extern "C" {
 
 void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
-void TriceNonBlockingDirectWrite( uint32_t * const triceStart, unsigned wordCount );
+void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount );
 void TriceNonBlockingDirectWriteAuxiliary( uint8_t * const enc, size_t encLen );
 void TriceNonBlockingDeferredWriteAuxiliary( uint8_t * const enc, size_t encLen );
 void TriceInit( void );
@@ -189,7 +194,7 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len );
 // global variables:
 
 extern uint32_t* const triceSingleBufferStartWritePosition;
-extern int singleTricesRingCount;
+extern unsigned singleTricesRingCount;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
 extern uint8_t TriceCycle;
@@ -198,7 +203,7 @@ extern const int TriceTypeS2;
 extern const int TriceTypeS4;
 extern const int TriceTypeX0;
 extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
-extern unsigned triceErrorCount;
+extern unsigned TriceErrorCount;
 extern uint32_t* const triceRingBufferLimit;
 extern uint32_t TriceRingBuffer[];
 extern unsigned triceSingleMaxWordCount;
@@ -435,17 +440,19 @@ extern uint32_t* TriceBufferWritePosition;
 // https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
 //#include <byteswap.h>
 
-//  // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
-//  #define TRICE_SWAPINT16(x) ( \
-//      (((uint16_t)(x) & 0x00FFU) << 8) | \
-//      (((uint16_t)(x) & 0xFF00U) >> 8))
-//    
-//  //Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
-//  #define TRICE_SWAPINT32(x) ( \
-//      (((uint32_t)(x) & 0x000000FFUL) << 24) | \
-//      (((uint32_t)(x) & 0x0000FF00UL) << 8) | \
-//      (((uint32_t)(x) & 0x00FF0000UL) >> 8) | \
-//      (((uint32_t)(x) & 0xFF000000UL) >> 24))
+/*
+// Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+#define TRICE_SWAPINT16(x) ( \
+    (((uint16_t)(x) & 0x00FFU) << 8) | \
+    (((uint16_t)(x) & 0xFF00U) >> 8))
+  
+//Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+#define TRICE_SWAPINT32(x) ( \
+    (((uint32_t)(x) & 0x000000FFUL) << 24) | \
+    (((uint32_t)(x) & 0x0000FF00UL) << 8) | \
+    (((uint32_t)(x) & 0x00FF0000UL) >> 8) | \
+    (((uint32_t)(x) & 0xFF000000UL) >> 24))
+*/
 
 static inline uint16_t Reverse16(uint16_t value)
 {
@@ -842,17 +849,9 @@ static inline uint64_t aDouble( double x ){
     TRICE_ENTER id; CNTC(0); \
     TRICE_LEAVE
 
-TRICE_INLINE void TRice0( uint16_t tid, char* pFmt ){
-    TRice32m_0( tid ); \
-}
-
-TRICE_INLINE void Trice0( uint16_t tid, char* pFmt ){
-    Trice32m_0( tid ); \
-}
-
-TRICE_INLINE void trice0( uint16_t tid, char* pFmt ){
-    trice32m_0( tid ); \
-}
+TRICE_INLINE void TRice0( uint16_t tid, char const * pFmt ){ TRice32m_0( tid ); }
+TRICE_INLINE void Trice0( uint16_t tid, char const * pFmt ){ Trice32m_0( tid ); }
+TRICE_INLINE void trice0( uint16_t tid, char const * pFmt ){ trice32m_0( tid ); }
 
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 

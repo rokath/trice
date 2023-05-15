@@ -3,6 +3,10 @@
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
+//lint -e715 Info 715: Symbol 'pFmt' (line 854, file ..\..\..\src\trice.h) not referenced
+//lint -e528 Warning 528: Symbol 'Trice0(unsigned short, const char *)'  not referenced
+//lint -e438 Warning 438: Last value assigned to variable 'singleTricesRingCount' not used.
+
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 
 static int TriceSingleDeferredOut(uint32_t* addr);
@@ -29,7 +33,7 @@ uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SI
 #endif // #else // #ifdef XTEA_ENCRYPT_KEY
 
 //! singleTricesRingCount holds the readable trices count inside TriceRingBuffer.
-int singleTricesRingCount = 0; 
+unsigned singleTricesRingCount = 0;
 
 //ARM5 #pragma push
 //ARM5 #pragma diag_suppress=170 //warning:  #170-D: pointer points outside of underlying object
@@ -57,7 +61,7 @@ void TriceLogDiagnosticValues( void ){
     TriceLogSeggerDiagnostics();
     #endif
 
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
         TRice16( iD( 6931), "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
@@ -68,6 +72,10 @@ void TriceLogDiagnosticValues( void ){
         trice16( iD( 1608), "diag:triceRingBufferDepthMax =%4u of%5d\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }else{
         trice16( iD( 1087), "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+    }
+
+    if(TriceErrorCount > 0){
+        trice( iD( 5820), "err: TriceErrorCount = %u\n", TriceErrorCount );
     }
 
 }
@@ -85,13 +93,13 @@ static uint32_t* triceNextRingBufferRead( int lastWordCount ){
         TriceRingBufferReadPosition = TriceRingBuffer;
     }
     #if TRICE_DIAGNOSTICS == 1
-    int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition)<<2;
+    int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition)<<2; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( depth < 0 ){
         depth += TRICE_DEFERRED_BUFFER_SIZE;
     }
-    triceRingBufferDepthMax = (depth > triceRingBufferDepthMax) ? depth : triceRingBufferDepthMax;
+    triceRingBufferDepthMax = (depth > triceRingBufferDepthMax) ? depth : triceRingBufferDepthMax; //lint !e574 !e737 Warning 574: Signed-unsigned mix with relational, Info 737: Loss of sign in promotion from int to unsigned int
     #endif
-    return TriceRingBufferReadPosition; 
+    return TriceRingBufferReadPosition; //lint !e674 Warning 674: Returning address of auto through variable 'TriceRingBufferReadPosition'
 }
 
 //! TriceTransfer needs to be called cyclically to read out the Ring Buffer.

@@ -7,6 +7,9 @@
 #include "cobs.h"
 #include "xtea.h"
 
+//lint -e550 Warning 550: Symbol 'TriceErrorCount' (line 40, file ..\..\..\src\trice.c) not accessed
+//lint -e438 Warning 438: Last value assigned to variable 'TriceErrorCount' 'triceCommandFlag' not used
+
 // function prototypes:
 
 static size_t triceDataLen( uint8_t const* p );
@@ -32,9 +35,9 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW );
 
 // global variables:
 
-//! triceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
+//! TriceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
 //! That could happen, when the buffer wrapped before data are sent. The user app should check this diagnostic value.
-unsigned triceErrorCount = 0;
+unsigned TriceErrorCount = 0; 
 
 //! triceCommand is the command receive buffer.
 char triceCommandBuffer[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
@@ -112,7 +115,7 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
         default:
             //lint -fallthrugh
         case TRICE_TYPE_X0:
-            triceErrorCount++;
+            TriceErrorCount++;
             *triceID = -__LINE__; // extended trices not supported (yet)
             return 0;
     }
@@ -160,7 +163,7 @@ int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** p
         default:
             // fallthrugh
         case TRICE_TYPE_X0:
-            triceErrorCount++;
+            TriceErrorCount++;
             *ppStart = pStart;
             *pLength = 0;
             return -__LINE__; // extended trices not supported (yet)
@@ -217,7 +220,7 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
     // 80id 80id 1616 03cc dd dd dd      12     9      7     10
     // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
     if( !( triceSize - (offset + 3) <= len && len <= triceSize - offset )){ // corrupt data
-        triceErrorCount++;
+        TriceErrorCount++;
         return -__LINE__;
     }    
     size -= triceSize;
@@ -233,7 +236,7 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
 //! \param buf is the source.
 //! \param len is the source len.
 //! \retval is the encoded len with 0-delimiter byte.
-size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
+size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){ 
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
     size_t len8 = (len + 7) & ~7; // only multiple of 8 encryptable
@@ -255,7 +258,7 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     #error unknown TRICE_DEFERRED_OUT_FRAMING
     #endif
     return encLen;
-}
+} //lint !e818 Info 818: Pointer parameter 'buf' could be declared as pointing to const
 
 #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 
@@ -381,7 +384,7 @@ unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wor
 //! This is the time critical part, executed inside TRICE_LEAVE.
 //! The trice data start at triceStart and last wordCount values including 1-3 padding bytes at the end.
 //! In front of triceStart is TRICE_DATA_OFFSET bytes space usable for in-buffer encoding.
-void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
+void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
 
     // The 16-bit stamped trices start with 2-times 16-bit ID for alignent and speed reasons.
     // The trice tool knows and expects that when switch -packageFraming = NONE was applied.
@@ -446,7 +449,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
               #error unexpected configuration
         #endif // #else // #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1)
     #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-}
+} //lint !e818 Info 818: Pointer parameter 'triceStart' could be declared as pointing to const
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1
 
@@ -488,7 +491,7 @@ void TriceNonBlockingDeferredWrite( int triceID, uint8_t const * enc, size_t enc
     //      #endif
     //      TriceWriteDeviceModbus( enc, encLen );
     //  #endif
-}
+} //lint !e715 Info 715: Symbol 'triceID' not referenced
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)
 
