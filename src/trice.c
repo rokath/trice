@@ -66,6 +66,7 @@ void TriceInit( void ){
         XTEAInitTable();
     #endif
 }
+
 //! triceDataLen returns encoded len.
 //! \param p points to nc
 //! To avoid alignment issues, the optional payload needs to start at a 32-bit boundary.
