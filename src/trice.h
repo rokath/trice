@@ -68,6 +68,7 @@ extern "C" {
 
 //! TRICE_PACK_MULTI_MODE packs all trices of a buffer in a single TCOBS package and a following 0-delimiter byte. 
 //! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
+//! Olny relevant when TRICE_DOUBLE_BUFFER is selected 
 #define TRICE_PACK_MULTI_MODE  3987862482U
 
 //! With TRICE_BUFFER == TRICE_STACK_BUFFER  the internal macro TRICE_PUT writes to the stack. 
