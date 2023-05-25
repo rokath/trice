@@ -21,7 +21,7 @@ uint32_t* TriceBufferWritePosition = TriceRingBuffer;
 #ifdef XTEA_ENCRYPT_KEY
 
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
-//! With encryption it can happen that 4 bytes following triceRingBufferLimit are user as scratch pad.
+//! With encryption it can happen that 4 bytes following triceRingBufferLimit are used as scratch pad.
 //! See comment inside TriceSingleDeferredOut.
 uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] - 1;
 
