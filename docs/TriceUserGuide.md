@@ -211,7 +211,7 @@ Main steps are:
 
 ####  2.4.2. <a name='TriceChecks'></a>Trice Checks
 
-* Optionally copy all or parts parts of [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) to your project if you wish to perform some checks.
+* Optionally copy all or parts of [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   * Do not inlucde it directly, because it gets overwritten when `updateTestData.sh` is executed inside the `./test` folder.
 * In your source.c files add line `#include "trice.h"` at the top.
 * In a function write a trice message like: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );`.

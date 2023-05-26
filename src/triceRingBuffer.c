@@ -21,7 +21,7 @@ uint32_t* TriceBufferWritePosition = TriceRingBuffer;
 #ifdef XTEA_ENCRYPT_KEY
 
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
-//! With encryption it can happen that 4 bytes following triceRingBufferLimit are user as scratch pad.
+//! With encryption it can happen that 4 bytes following triceRingBufferLimit are used as scratch pad.
 //! See comment inside TriceSingleDeferredOut.
 uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] - 1;
 
@@ -80,7 +80,7 @@ void TriceLogDiagnosticValues( void ){
 
 }
 
-#endif
+#endif // #if TRICE_DIAGNOSTICS == 1
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice are data starting at byte offset TRICE_DATA_OFFSET.
 //! Implicit assumed is singleTricesRingCount > 0.
