@@ -80,7 +80,7 @@ void TriceLogDiagnosticValues( void ){
 
 }
 
-#endif
+#endif // #if TRICE_DIAGNOSTICS == 1
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice are data starting at byte offset TRICE_DATA_OFFSET.
 //! Implicit assumed is singleTricesRingCount > 0.
