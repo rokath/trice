@@ -30,7 +30,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 1. Each singe *trice* is build inside a common buffer and finally copied inside the sub-macro `TRICE_LEAVE`.
 2. Disabled relevant interrupts between `TRICE_ENTER` and `TRICE_LEAVE` are mantadory for `TRICE_STATIC_BUFFER`.
 3. Usable for multiple non-blocking physical *trice* channels but **not** recommended for some time blocking channels.
-4. Copy call inside `TRICE_LEAVE`.
+4. A copy call is executed inside `TRICE_LEAVE`.
 
 * With appropriate mapping a direct write to physical output(s) is possible:
   * RTT0 without extra copy.
