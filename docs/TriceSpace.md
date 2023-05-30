@@ -44,6 +44,6 @@ The following numbers are measured with a legacy encoding, showing that the inst
 | Project                       | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark  |
 | -                             | -           | -            | -                      | -                                             | -       |
 | MDK-ARM_STM32F030R8_generated | CLANG v6.19 | -Oz          | yes                    |Code=1020 RO-data=196 RW-data=0 ZI-data=1024   | This is the plain generated project without trice instrumentation.|
-| MDK-ARM_STM32F030R8           | CLANG v6.19 | -Oz          | yes                    |Code=4726 RO-data=238 RW-data=16 ZI-data=4608  | This is with full trice instrumentation with example messages.|
+| MDK-ARM_STM32F030R8_instrumented | CLANG v6.19 | -Oz          | yes                    |Code=4726 RO-data=238 RW-data=16 ZI-data=4608  | This is with full trice instrumentation with example messages.|
 
-* The trice size needs is less than 4 KB. See also [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md).
+* The size need is less than 4 KB. See also [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md).
