@@ -156,9 +156,9 @@
     * Hint: It is planned to add `trice z ...` as a post-compile step in the future, so that you can check in your project sources without IDs. That is **NOT** recommended right now.
 * `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
 * `trice` is compiler agnostic - it should work with any compiler. 
-* The ARM µVision MDK is free downloadable and free usable for STM M0/M0+ MCUs, like the `./test/MDK-ARM_STM32F030R8` project.
-  * Even if you do not have such hardware, you can download ARM µVision MDK and compile the `./test/MDK-ARM_STM32F030R8` project just to get started.
-  * When adding or modifying `trice` macros inside `.test/MDK-ARM_STM32F030R8/Core/Src/main.c` and recompiling you should see automatically changed ID numbers inside the code.
+* The ARM µVision MDK is free downloadable and free usable for STM M0/M0+ MCUs, like the `./test/MDK-ARM_STM32F030R8_instrumented` project.
+  * Even if you do not have such hardware, you can download ARM µVision MDK and compile the `./test/MDK-ARM_STM32F030R8instrumented` project just to get started.
+  * When adding or modifying `trice` macros inside [../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c](../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c.) and recompiling you should see automatically changed ID numbers inside the code.
   
 <p align="right">(<a href="#top">back to top</a>)</p>
 
