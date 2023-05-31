@@ -146,7 +146,7 @@
       | CLI command                    | Description |
       | -                              | - |
       | `touch ./til.json`             | Create an empty `til.json file`. This is needed only the very first time. |
-      | `trice u -src . -src ../myLib` | Update the current and your `../myLib` folder. This will read\|exrend\|modify `./til.json` and create a new `./li.json` file. |
+      | `trice u -src . -src ../myLib` | Update the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and create a new `./li.json` file. |
       | ...                            | Compile your project |
       | `trice l -p com1 -baud 921600 -lf my/path/auto` | Start Logging over UART and create automatically a new log file in `my/path/`. |
       | `cat filename.log`             | View a recorded log file. | 
