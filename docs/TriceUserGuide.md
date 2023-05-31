@@ -179,7 +179,7 @@ Main steps are:
 
 ####  2.4.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
 
-* Add the 2 hardware specific macros/functions to your project (example in `triceConfig.h` and [./test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c](../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c) ).
+* Add the 2 hardware specific macros/functions to your project (example in [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) and [./test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c](../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c) ).
   
     ```c
     ///////////////////////////////////////////////////////////////////////////////
