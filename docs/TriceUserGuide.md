@@ -173,8 +173,8 @@ Main steps are:
 * Add [./src](../src) to your compiler library include path.
 * Copy file [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well as starting point, but the above is usually the most actual one.
-  * Insisde the [../test/](../test/) subfolders some configuration variants are as test projects. Comparing these `triceConfig.h` files gives hints for the needed configuration settings.
-* Copy file [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h) to your embedded project and adapt it to your needs, when using RTT.
+  * Insisde the [./test/](../test/) subfolders some configuration variants are as test projects. Comparing these `triceConfig.h` files gives hints for the needed configuration settings.
+* Copy file [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h) to your embedded project and adapt it to your needs, when using RTT. Usually the default is ok.
   * You can exchange `SEGGER_RTT_Conf.h` and `./src/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
 
 ####  2.4.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
