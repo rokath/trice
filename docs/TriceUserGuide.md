@@ -164,7 +164,7 @@
 
 ###  2.4. <a name='Portit'></a>Port it 
 
-Compare folder [`./test/MDK-ARM_STM32F030R8_generated`](../test/MDK-ARM_STM32F030R8_generated) with [`./test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) to see in a quick way any needed adaptions for your target project to port trice to it.
+Compare folder [`../test/MDK-ARM_STM32F030R8_generated`](../test/MDK-ARM_STM32F030R8_generated) with [`../test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) to see in a quick way any needed adaptions for your target project to port trice to it.
 
 Main steps are:
 
