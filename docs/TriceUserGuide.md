@@ -157,14 +157,14 @@
 * `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
 * `trice` is compiler agnostic - it should work with any compiler. 
 * The ARM µVision MDK is free downloadable and free usable for STM M0/M0+ MCUs, like the [`../test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) project.
-  * Even if you do not have such hardware, you can download ARM µVision MDK and compile the `../test/MDK-ARM_STM32F030R8instrumented` project just to get started.
+  * Even if you do not have such hardware, you can download ARM µVision MDK and compile the [`../test/MDK-ARM_STM32F030R8instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) project just to get started.
   * When adding or modifying `trice` macros inside [../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c](../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
   
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ###  2.4. <a name='Portit'></a>Port it 
 
-Compare folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32F030R8_instrumented` to see in a quick way any needed adaptions for your target project to port trice to it.
+Compare folder [`./test/MDK-ARM_STM32F030R8_generated`](../test/MDK-ARM_STM32F030R8_generated) with [`./test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) to see in a quick way any needed adaptions for your target project to port trice to it.
 
 Main steps are:
 
