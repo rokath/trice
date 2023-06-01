@@ -1262,7 +1262,7 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
   | `X` `X`                  | 2-byte message, reserved for extensions or user data                                                          |
   | `X` `X` `X`              | 3-byte message, reserved for extensions or user data                                                          |
 
-- In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position.
+- In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position in the known endianness.
 - The `0` selector is usable for any user encoding. The **trice** tool ignores such packages.
 
   | 16-bit groups            | Selector (2 msb)|Comment                                                 | Endianness sizes            |
