@@ -1248,6 +1248,7 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 | `D`     | `dddddddd` = data byte |
 | `...`   | 0 to 32767 data bytes |
 | `"..."` | format string |
+| `W`     | bit width 8, 16, 32 or 64 |
 | `x`     | unspecified bit |
 | `X`     | =`xxxxxxxx` unspecified byte |
 
@@ -1268,9 +1269,9 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
   | 16-bit groups            | Selector (2 msb)|Comment                                                 | Endianness sizes            |
   | :-                       | :-:             |-                                                       | :-                          |
   | `00xxxxxxX ...`          | 0               |>= 4-byte message, reserved for extensions or user data |         `u16 ?...?`         |
-  | `01iiiiiiI NC  ...`      | 1               |>= 4-byte message, *Trice* format without     stamp     |     `u16 u16 [uX] ... [uX]` |
-  | `10iiiiiiI TT NC ...`    | 2               |>= 4-byte message, *Trice* format with 16-bit stamp     | `u16 u16 u16 [uX] ... [uX]` |
-  | `11iiiiiiI TT TT NC ...` | 3               |>= 4-byte message, *Trice* format with 32-bit stamp     | `u16 u32 u16 [uX] ... [uX]` |
+  | `01iiiiiiI NC  ...`      | 1               |>= 4-byte message, *Trice* format without     stamp     |     `u16 u16 [uW] ... [uW]` |
+  | `10iiiiiiI TT NC ...`    | 2               |>= 4-byte message, *Trice* format with 16-bit stamp     | `u16 u16 u16 [uW] ... [uW]` |
+  | `11iiiiiiI TT TT NC ...` | 3               |>= 4-byte message, *Trice* format with 32-bit stamp     | `u16 u32 u16 [uW] ... [uW]` |
 
 - When the receiving tool has to convert the endianness it needs some rules:
   - convert u16=`ssiiiiii iiiiiiii` or u16=`ssxxxxxx xxxxxxxx` and split into selector and ID
