@@ -1248,6 +1248,7 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 | `D`     | `dddddddd` = data byte |
 | `...`   | 0 to 32767 data bytes |
 | `"..."` | format string |
+| `W`     | bit width 8, 16, 32 or 64 |
 | `x`     | unspecified bit |
 | `X`     | =`xxxxxxxx` unspecified byte |
 
@@ -1262,24 +1263,25 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
   | `X` `X`                  | 2-byte message, reserved for extensions or user data                                                          |
   | `X` `X` `X`              | 3-byte message, reserved for extensions or user data                                                          |
 
-- In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position.
+- In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position in the known endianness.
 - The `0` selector is usable for any user encoding. The **trice** tool ignores such packages.
 
   | 16-bit groups            | Selector (2 msb)|Comment                                                 | Endianness sizes            |
   | :-                       | :-:             |-                                                       | :-                          |
   | `00xxxxxxX ...`          | 0               |>= 4-byte message, reserved for extensions or user data |         `u16 ?...?`         |
-  | `01iiiiiiI NC  ...`      | 1               |>= 4-byte message, *Trice* format without     stamp     |     `u16 u16 [uX] ... [uX]` |
-  | `10iiiiiiI TT NC ...`    | 2               |>= 4-byte message, *Trice* format with 16-bit stamp     | `u16 u16 u16 [uX] ... [uX]` |
-  | `11iiiiiiI TT TT NC ...` | 3               |>= 4-byte message, *Trice* format with 32-bit stamp     | `u16 u32 u16 [uX] ... [uX]` |
+  | `01iiiiiiI NC  ...`      | 1               |>= 4-byte message, *Trice* format without     stamp     |     `u16 u16 [uW] ... [uW]` |
+  | `10iiiiiiI TT NC ...`    | 2               |>= 4-byte message, *Trice* format with 16-bit stamp     | `u16 u16 u16 [uW] ... [uW]` |
+  | `11iiiiiiI TT TT NC ...` | 3               |>= 4-byte message, *Trice* format with 32-bit stamp     | `u16 u32 u16 [uW] ... [uW]` |
 
+- Within one trice message the parameter bit width `W` does not change.
 - When the receiving tool has to convert the endianness it needs some rules:
   - convert u16=`ssiiiiii iiiiiiii` or u16=`ssxxxxxx xxxxxxxx` and split into selector and ID
   - check the 2 selector bits:
     - 0: reserved
-    - 1: convert u16=NC
-    - 2: convert u16=stamp16 & u16=NC
-    - 3: convert u32=stamp32 & u16=NC
-  - use ID to get param width X=8,16,32,64 and count and convert appropriate.
+    - 1: convert then u16=NC
+    - 2: convert then u16=stamp16 & u16=NC
+    - 3: convert then u32=stamp32 & u16=NC
+  - use ID to get param width `W`=8,16,32,64 and count and convert appropriate.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
