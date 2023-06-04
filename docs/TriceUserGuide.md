@@ -1418,7 +1418,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
       - the values are *Trice* format string structs (bit width plus format string) named f.
       - This ID look-up is the key-value map `ilu TriceIDLookUp` as `map[TriceID]TriceFmt`.
         - Each ID i as key, points to one and only one f.
-        - The TriceFmt structs contain the parameter width and the format string.
+        - The TriceFmt structs contains the parameter width and the format string.
       - The ilu is reverted then into `flu triceFmtLookUp` as map[TriceFmt]TriceIDs.
         - `TriceIDs` is a triceID slice because the identical f can have several ids (no shared IDs).
         - The format struct f look-up map flu is used internally for faster access and always in sync with ilu.
@@ -1430,6 +1430,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
     - Each ID as key points to one and only one li.
 
 - The `til.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
+  - That is possible after code edit, for example code copied or modified.    
 - The `li.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
 - The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. To keep `trice u` short in execution. `trice refresh` could be run in such cases.
 
@@ -1438,13 +1439,13 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 - The `trice u` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 - Also the changes should be minimal.
 - As a general rule lu (ilu and flu) is only extendable.
-- li is rebuild from scratch
+- li is rebuild from scratch.
 
 ###  20.3. <a name='Method'></a>Method
 
 - li is renamed into oli, which stays untouched and is used only in cases when identical f are found.
 - A new empty li is created and used for duplicate detection too.
-- Walk the src and create a source tree map STM with
+- Walk the src and create a **s**ource **t**ree **m**ap STM with
   - key=`Trice+LI` and
   - value=**ID**.
 - During STM creation use these rules:
