@@ -1,4 +1,4 @@
-/* USER CODE BEGIN Header */
+﻿/* USER CODE BEGIN Header */
 /**
  ******************************************************************************
  * @file           : main.c
@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,23 +60,10 @@ void StartDefaultTask(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#if 0
-// https://stackoverflow.com/questions/73742774/gcc-arm-none-eabi-11-3-is-not-implemented-and-will-always-fail
-void _close(void){
-}
-
-// https://stackoverflow.com/questions/73742774/gcc-arm-none-eabi-11-3-is-not-implemented-and-will-always-fail
-void _lseek(void){
-}
-
-// https://stackoverflow.com/questions/73742774/gcc-arm-none-eabi-11-3-is-not-implemented-and-will-always-fail
-void _read(void){
-}
-
-// https://stackoverflow.com/questions/73742774/gcc-arm-none-eabi-11-3-is-not-implemented-and-will-always-fail
-void _write(void){
-}
-#endif
+volatile uint32_t * const DWT_CONTROL = (uint32_t *) 0xE0001000;
+volatile uint32_t * const DWT_CYCCNT = (uint32_t *) 0xE0001004;
+volatile uint32_t * const DEMCR = (uint32_t *) 0xE000EDFC;
+volatile uint32_t * const LAR  = (uint32_t *) 0xE0001FB0;   // lock access register
 /* USER CODE END 0 */
 
 /**
@@ -86,6 +73,20 @@ void _write(void){
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+
+*DEMCR = *DEMCR | 0x01000000;     // enable trace
+*LAR = 0xC5ACCE55;                // <-- added unlock access to DWT (ITM, etc.)registers 
+*DWT_CYCCNT = 0;                  // clear DWT cycle counter
+*DWT_CONTROL = *DWT_CONTROL | 1;  // enable DWT cycle counter
+
+
+    TriceInit();
+    TRice( iD( 7004), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( iD( 2619), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD( 2018), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD( 5060), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD( 6357), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD( 6782), "w: Hello! 👋🙂 \a\n" ); // with sound!
 
   /* USER CODE END 1 */
 

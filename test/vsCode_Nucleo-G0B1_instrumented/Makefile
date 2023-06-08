@@ -60,6 +60,24 @@ Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
 
+C_SOURCES += \
+../../src/cobsDecode.c \
+../../src/cobsEncode.c \
+../../src/SEGGER_RTT.c \
+../../src/tcobsv1Decode.c \
+../../src/tcobsv1Encode.c \
+../../src/trice.c \
+../../src/trice16.c \
+../../src/trice32.c \
+../../src/trice64.c \
+../../src/trice8.c \
+../../src/triceAuxiliary.c \
+../../src/triceDoubleBuffer.c \
+../../src/triceRingBuffer.c \
+../../src/triceStackBuffer.c \
+../../src/triceStaticBuffer.c \
+../../src/xtea.c 
+
 # ASM sources
 ASM_SOURCES =  \
 startup_stm32g0b1xx.s
@@ -99,13 +117,32 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32G0xx/Include \
 -IDrivers/CMSIS/Include
 
+C_INCLUDES += \
+-I../../src
+
 include flags.mak
 
-clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin 
+.PHONY: all gcc clean
+.SECONDARY: main-build
+
+all: pre-build main-build
+
+pre-build:
+	@trice u -src ../../src -src ./
+	@echo -e
+
+post-build:
+	@echo -e
+
+main-build: clang
+
+clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
+	@$(MAKE) --no-print-directory post-build
 
 gcc:     $(GCC_BUILD)/$(TARGET).elf   $(GCC_BUILD)/$(TARGET).hex   $(GCC_BUILD)/$(TARGET).bin
+	@$(MAKE) --no-print-directory post-build
 
-all:      gcc clang
+#all:      gcc clang
 #	@ls -l build/*.o
 #	@ls -l build/$(TARGET).*
 #	@ls -l $(GCC_OBJECTS) 
