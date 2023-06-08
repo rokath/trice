@@ -101,11 +101,26 @@ C_INCLUDES =  \
 
 include flags.mak
 
-clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin 
+.PHONY: all gcc clean
+.SECONDARY: main-build
+
+all: pre-build main-build
+
+pre-build:
+	@echo PRE
+
+post-build:
+	@echo POST
+
+main-build: clang
+
+clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
+	@$(MAKE) --no-print-directory post-build
 
 gcc:     $(GCC_BUILD)/$(TARGET).elf   $(GCC_BUILD)/$(TARGET).hex   $(GCC_BUILD)/$(TARGET).bin
+	@$(MAKE) --no-print-directory post-build
 
-all:      gcc clang
+#all:      gcc clang
 #	@ls -l build/*.o
 #	@ls -l build/$(TARGET).*
 #	@ls -l $(GCC_OBJECTS) 

@@ -60,10 +60,7 @@ void StartDefaultTask(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-volatile uint32_t * const DWT_CONTROL = (uint32_t *) 0xE0001000;
-volatile uint32_t * const DWT_CYCCNT = (uint32_t *) 0xE0001004;
-volatile uint32_t * const DEMCR = (uint32_t *) 0xE000EDFC;
-volatile uint32_t * const LAR  = (uint32_t *) 0xE0001FB0;   // lock access register
+
 /* USER CODE END 0 */
 
 /**
@@ -73,13 +70,6 @@ volatile uint32_t * const LAR  = (uint32_t *) 0xE0001FB0;   // lock access regis
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
-*DEMCR = *DEMCR | 0x01000000;     // enable trace
-*LAR = 0xC5ACCE55;                // <-- added unlock access to DWT (ITM, etc.)registers 
-*DWT_CYCCNT = 0;                  // clear DWT cycle counter
-*DWT_CONTROL = *DWT_CONTROL | 1;  // enable DWT cycle counter
-
-
     TriceInit();
     TRice( iD( 7004), "w: Hello! 👋🙂 \a\n" ); // with sound!
     TRice( iD( 2619), "w: Hello! 👋🙂 \a\n" ); // with sound!
