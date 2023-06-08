@@ -271,7 +271,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_NE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_ORE(TRICE_UARTA) ){
-        //TRICE( Id( 3550), "err:TRICE_UARTA OverRun Error Flag is set\n" );
+        //TRICE( Id( 6801), "err:TRICE_UARTA OverRun Error Flag is set\n" );
         LL_USART_ClearFlag_ORE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_IDLE(TRICE_UARTA) ){
@@ -279,7 +279,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_IDLE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_TC(TRICE_UARTA) ){
-        //TRICE0( Id( 2608), "wr:TRICE_UARTA Transmission Complete Flag is set\n" );
+        //TRICE0( Id( 5084), "wr:TRICE_UARTA Transmission Complete Flag is set\n" );
         LL_USART_ClearFlag_TC(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_nCTS(TRICE_UARTA) ){
@@ -294,7 +294,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_RTO(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_ABRE(TRICE_UARTA) ){
-        TRICE0( Id( 6017), "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\n" );
+        TRICE0( Id( 2465), "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_ABR(TRICE_UARTA) ){
         TRICE( Id( 5533), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );

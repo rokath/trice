@@ -108,7 +108,7 @@ int main(void)
     Trice( iD( 2262), "w: Hello! 👋🙂 \a\n" ); // with sound!
     Trice( iD( 2446), "w: Hello! 👋🙂 \a\n" ); // with sound!
     trice( iD( 7346), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD( 6557), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD( 4121), "w: Hello! 👋🙂 \a\n" ); // with sound!
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 

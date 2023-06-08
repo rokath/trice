@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "clang Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "./build.clang/G0B1.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "jlink",
+            "interface": "swd",
+            "device": "STM32G0B1RE",
+            "svdFile": "./STM32G0B1.svd",
+            "runToMain": true
+        },
+        {
+            "name": "gcc Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "./build.gcc/G0B1.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "jlink",
+            "interface": "swd",
+            "device": "STM32G0B1RE",
+            "svdFile": "./STM32G0B1.svd",
+            "runToMain": true
+        }
+    ]
+}
