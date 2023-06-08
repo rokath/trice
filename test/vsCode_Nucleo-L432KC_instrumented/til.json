@@ -1,7 +1,23 @@
 {
-	"1790": {
-		"Type": "trice",
-		"Strg": "DWT=%d\\n"
+	"1087": {
+		"Type": "trice16",
+		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
+	},
+	"1099": {
+		"Type": "TRice16",
+		"Strg": "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
+	},
+	"1140": {
+		"Type": "trice16",
+		"Strg": "diag:singleTricesRingCountMax = %u, "
+	},
+	"1232": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d\\n"
+	},
+	"1608": {
+		"Type": "trice16",
+		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
 	},
 	"1991": {
 		"Type": "trice",
@@ -11,37 +27,81 @@
 		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
+	"2172": {
+		"Type": "trice",
+		"Strg": "err: TriceErrorCount = %u\\n"
+	},
+	"2268": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!)\\n"
+	},
 	"2619": {
 		"Type": "TRice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"3164": {
+	"3001": {
 		"Type": "trice",
-		"Strg": "DWT=%d\\n"
+		"Strg": "err: TriceErrorCount = %u\\n"
 	},
-	"4763": {
+	"3472": {
 		"Type": "trice",
-		"Strg": "DWT=%d\\n"
+		"Strg": "ERROR:RTT0_writeSpaceMin=%u, "
 	},
-	"4996": {
-		"Type": "trice",
-		"Strg": "DWT=%d\\n"
+	"3497": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!), "
+	},
+	"3925": {
+		"Type": "TRice16",
+		"Strg": "diag:triceHalfBufferDepthMax =%4u of%5d\\n"
+	},
+	"4531": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of%4d (overflow!), "
+	},
+	"4661": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!)\\n"
 	},
 	"5060": {
 		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"5674": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	"5090": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d\\n"
+	},
+	"5150": {
+		"Type": "TRICE32",
+		"Strg": "wrn:Transmit buffer truncated from %u to %u\\n"
+	},
+	"5820": {
+		"Type": "trice",
+		"Strg": "err: TriceErrorCount = %u\\n"
+	},
+	"5915": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of%4d, "
+	},
+	"6306": {
+		"Type": "trice",
+		"Strg": "err: TriceErrorCount = %u\\n"
 	},
 	"6357": {
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
+	"6598": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeSpaceMin=%u, "
+	},
 	"6782": {
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"6931": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d, "
 	},
 	"7004": {
 		"Type": "TRice",
