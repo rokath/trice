@@ -37,6 +37,7 @@
 | 2023-MAY-14 |  0.60.0 | XTEA working with doubleBuffer in multi-pack mode and also with ringBuffer (safe-single mode). Tests for that added and also a test for twin mode (direct plus deferred output) is working. more target code tests |
 | 2023-MAY-15 |  0.60.1 | Twice Log enabled in https://github.com/rokath/trice/tree/master/test/MDK-ARM_STM32F030R8_instrumented as `triceConfig.h` example. |
 | 2023-MAY-16 |  0.60.2 | Target code linted. |
+| 2023-JUN-09 |  0.60.3 | vsCode with Clang\|GCC examples added |
 
 ## v0.60.1 Twice Log Screen Shot
 
