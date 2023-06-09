@@ -165,17 +165,17 @@
 
 Compare folders of one of these folder groups:
 
-| Without Instrumentation                                                          | With Trice Instrumentation                                                             |
-|----------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| [`./test/MDK-ARM_STM32F030R8_generated`](../test/MDK-ARM_STM32F030R8_generated)  | [`./test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented)  |
-| [`./test/vsCode_Nucleo-G0B1_generated`](../test/MDK-ARM_STM32F030R8_generated)   | [`./test/vsCode_Nucleo-G0B1_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented)   |
-| [`./test/vsCode_Nucleo-L432KC_generated`](../test/MDK-ARM_STM32F030R8_generated) | [`./test/vsCode_Nucleo-L432KC_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) |
+| Without Instrumentation                                                           | With Trice Instrumentation                                                              |
+|-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| [`./test/MDK-ARM_STM32F030R8_generated`](../test/MDK-ARM_STM32F030R8_generated)   | [`./test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented)   |
+| [`./test/vsCode_Nucleo-G0B1_generated`](../test/vsCode_Nucleo-G0B1_generated)     | [`./test/vsCode_Nucleo-G0B1_instrumented`](../test/vsCode_Nucleo-G0B1_instrumented)     |
+| [`./test/vsCode_Nucleo-L432KC_generated`](../test/vsCode_Nucleo-L432KC_generated) | [`./test/vsCode_Nucleo-L432KC_instrumented`](../test/vsCode_Nucleo-L432KC_instrumented) |
 
 This way you see in a quick way any needed adaptions for your target project to port trice to it.
 
 - Project [`./test/Nucleo-STM32L432LC_generated`](../test/testNucleo-STM32L432LC_generated) was first the result of a STM32CubeMX generation.
 - Then it was edited to make it comfortable usable with VS-Code. See the [ReadMe.md](../test/testNucleo-STM32L432LC_generated/ReadMe.md) there for details.
-- To compile also with CLang [`./test/Nucleo-STM32L432LC_generated`](../test/testNucleo-STM32L432LC_generated) was used to manually derive project [`./test/vsCode_Nucleo-L432KC_generated`](../test/MDK-ARM_STM32F030R8_generated) as starting point for the trice instrumentation.
+- To compile also with CLang [`./test/Nucleo-STM32L432LC_generated`](../test/testNucleo-STM32L432LC_generated) was used to manually derive project [`./test/vsCode_Nucleo-L432KC_generated`](../test/vsCode_Nucleo-L432KC_generated) as starting point for the trice instrumentation.
 
 Main steps are:
 
