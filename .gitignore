@@ -37,3 +37,5 @@ test/MDK-ARM_STM32F030R8/temp/
 test/testdata/temp/
 
 test/vsCode_Nucleo-G0B1_instrumented/temp/
+
+test/Nucleo-STM32L432LC_generated/build/
