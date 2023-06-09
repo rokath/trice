@@ -41,6 +41,7 @@
 - In terminal: `make`
 - Click Run&Debug & click green triangle
 
-## TODO
+## Status
 
-- Configure Makefile configuration
+This folder is just as reference for tracking the manual made Makefile changes performed in [../vsCode_Nucle-L432KC_generated](../vsCode_Nucle-L432KC_generated)
+
