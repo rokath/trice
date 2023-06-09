@@ -107,10 +107,14 @@ include flags.mak
 all: pre-build main-build
 
 pre-build:
-	@echo PRE
+	@#echo PRE ...
+	@#echo PRE ... done
+	@#echo -e
 
 post-build:
-	@echo POST
+	@#echo POST ...
+	@#echo POST ... done
+	@#echo -e
 
 main-build: clang
 
@@ -135,7 +139,7 @@ include gcc1.mak
 include clang1.mak
 
 clean:
-	-rm -fR $(GCC_BUILD) $(CLANG_BUILD) 
+	@-rm -fR $(GCC_BUILD) $(CLANG_BUILD) 
   
 # openocdflashgcc: all
 # 	openocd -f interface/jlink.cfg -f target/stm32g0x.cfg -c "program $(GCC_BUILD)/$(TARGET).elf verify reset exit"

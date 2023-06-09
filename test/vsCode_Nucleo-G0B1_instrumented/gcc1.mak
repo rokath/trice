@@ -17,7 +17,7 @@ $(GCC_BUILD)/%.o: %.s $(MAKEFILE) | $(GCC_BUILD)
 #	@echo -e
 
 # compiler
-$(GCC_BUILD)/%.o: %.c $(MAKEFILE) | $(GCC_BUILD)
+$(GCC_BUILD)/%.o: %.c $(MAKEFILE) | $(GCC_BUILD) pre-build
 	@echo $<
 	@$(GCC_CC) $(VERBOSE) $(C_FLAGS) $(C_DEFS) $(C_INCLUDES) $(GCC_ONLY_FLAGS) -c $< -o $@
 #	@echo -e

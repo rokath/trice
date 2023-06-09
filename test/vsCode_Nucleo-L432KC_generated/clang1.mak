@@ -17,7 +17,7 @@ $(CLANG_BUILD)/%.o: %.s $(MAKEFILE) | $(CLANG_BUILD)
 #	@echo -
 
 # compiler
-$(CLANG_BUILD)/%.o: %.c $(MAKEFILE) | $(CLANG_BUILD)
+$(CLANG_BUILD)/%.o: %.c $(MAKEFILE) | $(CLANG_BUILD) pre-build
 	@echo $<
 	@$(CLANG_CC) $(VERBOSE) $(C_FLAGS) $(C_DEFS) $(C_INCLUDES) $(CLANG_ONLY_FLAGS) -c $< -o $@
 #	@echo -e
