@@ -109,17 +109,17 @@
 
 ##  1. <a name='Projectstructure'></a>Project structure
 
-| name                            | info                                            |
-|---------------------------------|-------------------------------------------------|
-| [./cmd/trice](../cmd/trice)     | `trice` tool command Go sources                 |
-| [./cmd/cui](../cmd/cui)         | (do not use) command user interface tryout code |
-| [./cmd/stim](../cmd/stim)       | (do not use) target stimulation tool tryout code|
-| [./docs](./docs)                | documentation                                   |
-| [./internal](../internal)       | `trice` tool internal Go packages               |
-| [./pkg](../pkg)                 | `trice` tool common Go packages                 |
-| [./src/](../src)                | C sources for trice instrumentation             |
-| [./test](../test)               | example target projects and tests               |
-| [./third_party](../third_party) | external components                             |
+| name                            | info                                             |
+|---------------------------------|--------------------------------------------------|
+| [./cmd/trice](../cmd/trice)     | `trice` tool command Go sources                  |
+| [./cmd/cui](../cmd/cui)         | (do not use) command user interface tryout code  |
+| [./cmd/stim](../cmd/stim)       | (do not use) target stimulation tool tryout code |
+| [./docs](./docs)                | documentation                                    |
+| [./internal](../internal)       | `trice` tool internal Go packages                |
+| [./pkg](../pkg)                 | `trice` tool common Go packages                  |
+| [./src/](../src)                | C sources for trice instrumentation              |
+| [./test](../test)               | example target projects and tests                |
+| [./third_party](../third_party) | external components                              |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -142,15 +142,15 @@
   - There are only 2 important commands: `trice u[pdate]` and `trice l[og]`. Call them with the right CLI switches.
     - `trice h -u[pdate]` and `trice h -l[og]` show partial help.
     - Examples:
-      | CLI command                    | Description |
-      | -                              | - |
-      | `touch ./til.json`             | Create an empty `til.json file`. This is needed only the very first time. |
-      | `trice u -src . -src ../myLib` | Update the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and create a new `./li.json` file. |
-      | ...                            | Compile your project |
-      | `trice l -p com1 -baud 921600 -lf my/path/auto` | Start Logging over UART and create automatically a new log file in `my/path/`. |
-      | `cat filename.log`             | View a recorded log file. | 
-      | `trice l -p JLINK -args "..."` | Start Logging over RTT. Binary log files are collected in `./temp`. |
-      | `trice l -p FILEBUFFER -args logfile.bin` | Play a recorded binary log file. |
+      | CLI command                                     | Description                                                                                                                   |
+      |-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+      | `touch ./til.json`                              | Create an empty `til.json file`. This is needed only the very first time.                                                     |
+      | `trice u -src . -src ../myLib`                  | Update the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and create a new `./li.json` file. |
+      | ...                                             | Compile your project                                                                                                          |
+      | `trice l -p com1 -baud 921600 -lf my/path/auto` | Start Logging over UART and create automatically a new log file in `my/path/`.                                                |
+      | `cat filename.log`                              | View a recorded log file.                                                                                                     |
+      | `trice l -p JLINK -args "..."`                  | Start Logging over RTT. Binary log files are collected in `./temp`.                                                           |
+      | `trice l -p FILEBUFFER -args logfile.bin`       | Play a recorded binary log file.                                                                                              |
     - It is recommended to add `trice u ...` as pre-compile step into the tool chain.
     - Hint: It is planned to add `trice z ...` as a post-compile step in the future, so that you can check in your project sources without IDs. That is **NOT** recommended right now.
 - `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
@@ -161,19 +161,31 @@
   
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  2.4. <a name='Portit'></a>Port it 
+###  2.4. <a name='Portit'></a>Port it
 
-Compare folder [`./test/MDK-ARM_STM32F030R8_generated`](../test/MDK-ARM_STM32F030R8_generated) with [`./test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) to see in a quick way any needed adaptions for your target project to port trice to it.
+Compare folders of one of these folder groups:
+
+| Without Instrumentation                                                          | With Trice Instrumentation                                                             |
+|----------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| [`./test/MDK-ARM_STM32F030R8_generated`](../test/MDK-ARM_STM32F030R8_generated)  | [`./test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented)  |
+| [`./test/vsCode_Nucleo-G0B1_generated`](../test/MDK-ARM_STM32F030R8_generated)   | [`./test/vsCode_Nucleo-G0B1_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented)   |
+| [`./test/vsCode_Nucleo-L432KC_generated`](../test/MDK-ARM_STM32F030R8_generated) | [`./test/vsCode_Nucleo-L432KC_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) |
+
+This way you see in a quick way any needed adaptions for your target project to port trice to it.
+
+- Project [`./test/Nucleo-STM32L432LC_generated`](../test/testNucleo-STM32L432LC_generated) was first the result of a STM32CubeMX generation.
+- Then it was edited to make it comfortable usable with VS-Code. See the [ReadMe.md](../test/testNucleo-STM32L432LC_generated/ReadMe.md) there for details.
+- To compile also with CLang [`./test/Nucleo-STM32L432LC_generated`](../test/testNucleo-STM32L432LC_generated) was used to manually derive project [`./test/vsCode_Nucleo-L432KC_generated`](../test/MDK-ARM_STM32F030R8_generated) as starting point for the trice instrumentation.
 
 Main steps are:
 
 - Add all files [./src/\*.c](../src/) to your project. Some files are excluded automatically according to the [triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) configuration. 
-  - Once you lerned, what you need, you can remove unnessesary code. 
+  - Once you learned, what you need, you can remove unnecessary code.
 - Add [./src](../src) to your compiler library include path.
-- Copy file [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
-  - Other `triceConfig.h` files are usable as well as starting point, but the above is usually the most actual one.
-  - Insisde the [./test/](../test/) subfolders some configuration variants are as test projects. Comparing these `triceConfig.h` files gives hints for the needed configuration settings.
-- Copy file [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/SEGGER_RTT_Conf.h) to your embedded project and adapt it to your needs, when using RTT. Usually the default is ok.
+- Copy file `triceConfig.h` from one of the instrumented projects to your embedded project and adapt it to your needs.
+  - Other `triceConfig.h` files are usable as well as starting point, but the above are usually the most actual ones.
+  - Inside the [./test/](../test/) subfolders some configuration variants are as test projects. Comparing these `triceConfig.h` files gives hints for the needed configuration settings.
+- Copy file `SEGGER_RTT_Conf.h` to your embedded project and adapt it to your needs, when using RTT. Usually the default is ok.
   - You can exchange `SEGGER_RTT_Conf.h` and `./src/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
 
 ####  2.4.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
@@ -239,38 +251,38 @@ Main steps are:
 
 - `./src`: **User Interface**
 
-| File                                                            | description |
-| -                                                               | -           |
+| File                                                              | description                                                                                                                                                                                   |
+|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [./src/trice.h](../src/trice.h) & [./src/trice.c](../src/trice.c) | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
 
 - `./src`: **Internal Components** (only partially needed according to configuration)
 
-| File                                                      | description |
-| -                                                         | -           |
-| [./src/cobs.h](../src/cobs.h)                             | message packaging, alternatively for tcobs |
-| [./src/cobsEncode.c](../src/cobsEncode.c)                 | message encoding, alternatively for tcobs |
-| [./src/cobsDecode.c](../src/cobsDecode.c)                 | message decoding, normally not needed |
-| [./src/core.c](../src/core.c)                             | trice core lib |
-| [./src/SEGGER_RTT.h](../src/SEGGER_RTT.h)                 | Segger RTT code interface |
-| [./src/SEGGER_RTT.c](../src/SEGGER_RTT.c)                 | Segger RTT code |
-| [./src/tcobs.h](../src/tcobs.h)                           | message compression and packaging interface|
-| [./src/tcobsv1Encode.c](../src/tcobsv1Encode.c)           | message encoding and packaging |
-| [./src/tcobsv1Decode.c](../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed |
-| [./src/tcobsv1Internal.h](../src/tcobsv1Internal.h)       | message decoding and packaging internal interface |
-| [./src/trice8.h](../src/trice8.h)                         | 8-bit trice code interface |
-| [./src/trice8.c](../src/trice8.c)                         | 8-bit trice code |
-| [./src/trice16.h](../src/trice16.h)                       | 16-bit trice code interface |
-| [./src/trice16.c](../src/trice16.c)                       | 16-bit trice code |
-| [./src/trice32.h](../src/trice32.h)                       | 32-bit trice code interface |
-| [./src/trice32.c](../src/trice32.c)                       | 32-bit trice code |
-| [./src/trice64.h](../src/trice64.h)                       | 64-bit trice code interface |
-| [./src/trice64.c](../src/trice64.c)                       | 64-bit trice code |
-| [./src/triceDoubleBuffer.c](../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode |
-| [./src/triceModbusBuffer.c](../src/triceModbusBuffer.c)   | trice runtime lib extension needed for Modbus mode (not usable yet) |
-| [./src/triceStackBuffer.c](../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode |
-| [./src/triceRingBuffer.c](../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode |
-| [./src/xtea.c](../src/xtea.h)                             | XTEA message encryption/decryption interface |
-| [./src/xtea.c](../src/xtea.c)                             | XTEA message encryption/decryption code |
+| File                                                    | description                                                         |
+|---------------------------------------------------------|---------------------------------------------------------------------|
+| [./src/cobs.h](../src/cobs.h)                           | message packaging, alternatively for tcobs                          |
+| [./src/cobsEncode.c](../src/cobsEncode.c)               | message encoding, alternatively for tcobs                           |
+| [./src/cobsDecode.c](../src/cobsDecode.c)               | message decoding, normally not needed                               |
+| [./src/core.c](../src/core.c)                           | trice core lib                                                      |
+| [./src/SEGGER_RTT.h](../src/SEGGER_RTT.h)               | Segger RTT code interface                                           |
+| [./src/SEGGER_RTT.c](../src/SEGGER_RTT.c)               | Segger RTT code                                                     |
+| [./src/tcobs.h](../src/tcobs.h)                         | message compression and packaging interface                         |
+| [./src/tcobsv1Encode.c](../src/tcobsv1Encode.c)         | message encoding and packaging                                      |
+| [./src/tcobsv1Decode.c](../src/tcobsv1Decode.c)         | message decoding and packaging, normally not needed                 |
+| [./src/tcobsv1Internal.h](../src/tcobsv1Internal.h)     | message decoding and packaging internal interface                   |
+| [./src/trice8.h](../src/trice8.h)                       | 8-bit trice code interface                                          |
+| [./src/trice8.c](../src/trice8.c)                       | 8-bit trice code                                                    |
+| [./src/trice16.h](../src/trice16.h)                     | 16-bit trice code interface                                         |
+| [./src/trice16.c](../src/trice16.c)                     | 16-bit trice code                                                   |
+| [./src/trice32.h](../src/trice32.h)                     | 32-bit trice code interface                                         |
+| [./src/trice32.c](../src/trice32.c)                     | 32-bit trice code                                                   |
+| [./src/trice64.h](../src/trice64.h)                     | 64-bit trice code interface                                         |
+| [./src/trice64.c](../src/trice64.c)                     | 64-bit trice code                                                   |
+| [./src/triceDoubleBuffer.c](../src/triceDoubleBuffer.c) | trice runtime lib extension needed for fastest deferred mode        |
+| [./src/triceModbusBuffer.c](../src/triceModbusBuffer.c) | trice runtime lib extension needed for Modbus mode (not usable yet) |
+| [./src/triceStackBuffer.c](../src/triceStackBuffer.c)   | trice runtime lib extension needed for direct mode                  |
+| [./src/triceRingBuffer.c](../src/triceRingBuffer.c)     | trice runtime lib extension needed for recommended deferred mode    |
+| [./src/xtea.c](../src/xtea.h)                           | XTEA message encryption/decryption interface                        |
+| [./src/xtea.c](../src/xtea.c)                           | XTEA message encryption/decryption code                             |
   
 - The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/Cv1](https://github.com/rokath/tcobs/tree/master/Cv1). They are maintained there and extensively tested and probably not a matter of significant change.
 - The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
@@ -1211,17 +1223,17 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 - By selecting the letter case you decide for each single *Trice* macro about the stamp size.
 - Default notation (function call):
 
-  | notation              | stamp size | remark |
-  | -                     | -          | -      |
-  | `trice( "...", ...);` | 0-bit      | no stamp at all, shortest footprint |
+  | notation              | stamp size | remark                                                                      |
+  |-----------------------|------------|-----------------------------------------------------------------------------|
+  | `trice( "...", ...);` | 0-bit      | no stamp at all, shortest footprint                                         |
   | `Trice( "...", ...);` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
   | `TRice( "...", ...);` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
 
 - Legacy notation (code inlining):
 
-  | notation                    | stamp size | remark |
-  | -                           | -          | -      |
-  | `TRICE( id(0), "...", ...)` | 0-bit      | no stamp at all, shortest footprint |
+  | notation                    | stamp size | remark                                                                      |
+  |-----------------------------|------------|-----------------------------------------------------------------------------|
+  | `TRICE( id(0), "...", ...)` | 0-bit      | no stamp at all, shortest footprint                                         |
   | `TRICE( Id(0), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
   | `TRICE( ID(0), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
 
@@ -1233,11 +1245,11 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 ###  15.1. <a name='Symbols'></a>Symbols
 
-| Symbol  | Meaning |
-| :-:     | - | 
-| `i`     | ID bit |
-| `I`     | `iiiiiiii` = ID byte |
-| `n`     | number bit |
+| Symbol | Meaning              |
+|:------:|----------------------|
+|  `i`   | ID bit               |
+|  `I`   | `iiiiiiii` = ID byte |
+|  `n`   | number bit           |
 | `s`     | selector bit
 | `N`     | `snnnnnnnn` = 7-bit number byte |
 | `c`     | cycle counter bit |
@@ -1256,22 +1268,22 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 - All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the **trice** tool.
 
-  | bytes                    | Comment                                                                                                       |
-  | :-                       | -                                                                                                             |
-  | ``                       | This is an empty package, which can have also a meaning. It is detectable by 2 consecutive 0-delimiter bytes. |
-  | `X`                      | 1-byte message, reserved for extensions or user data                                                          |
-  | `X` `X`                  | 2-byte message, reserved for extensions or user data                                                          |
-  | `X` `X` `X`              | 3-byte message, reserved for extensions or user data                                                          |
+  | bytes       | Comment                                                                                                       |
+  |:------------|---------------------------------------------------------------------------------------------------------------|
+  | ``          | This is an empty package, which can have also a meaning. It is detectable by 2 consecutive 0-delimiter bytes. |
+  | `X`         | 1-byte message, reserved for extensions or user data                                                          |
+  | `X` `X`     | 2-byte message, reserved for extensions or user data                                                          |
+  | `X` `X` `X` | 3-byte message, reserved for extensions or user data                                                          |
 
 - In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position in the known endianness.
 - The `0` selector is usable for any user encoding. The **trice** tool ignores such packages.
 
-  | 16-bit groups            | Selector (2 msb)|Comment                                                 | Endianness sizes            |
-  | :-                       | :-:             |-                                                       | :-                          |
-  | `00xxxxxxX ...`          | 0               |>= 4-byte message, reserved for extensions or user data |         `u16 ?...?`         |
-  | `01iiiiiiI NC  ...`      | 1               |>= 4-byte message, *Trice* format without     stamp     |     `u16 u16 [uW] ... [uW]` |
-  | `10iiiiiiI TT NC ...`    | 2               |>= 4-byte message, *Trice* format with 16-bit stamp     | `u16 u16 u16 [uW] ... [uW]` |
-  | `11iiiiiiI TT TT NC ...` | 3               |>= 4-byte message, *Trice* format with 32-bit stamp     | `u16 u32 u16 [uW] ... [uW]` |
+  | 16-bit groups            | Selector (2 msb) | Comment                                                 | Endianness sizes            |
+  |:-------------------------|:----------------:|---------------------------------------------------------|:----------------------------|
+  | `00xxxxxxX ...`          |        0         | >= 4-byte message, reserved for extensions or user data | `u16 ?...?`                 |
+  | `01iiiiiiI NC  ...`      |        1         | >= 4-byte message, *Trice* format without     stamp     | `u16 u16 [uW] ... [uW]`     |
+  | `10iiiiiiI TT NC ...`    |        2         | >= 4-byte message, *Trice* format with 16-bit stamp     | `u16 u16 u16 [uW] ... [uW]` |
+  | `11iiiiiiI TT TT NC ...` |        3         | >= 4-byte message, *Trice* format with 32-bit stamp     | `u16 u32 u16 [uW] ... [uW]` |
 
 - Within one trice message the parameter bit width `W` does not change.
 - When the receiving tool has to convert the endianness it needs some rules:
@@ -1475,22 +1487,22 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 - A *Trice* **ID** is inserted by `trice update` as shown in the table:
 
-  | Unpatched User Code       | After `trice update`          | Remark                                               |
-  |---------------------------|-------------------------------|------------------------------------------------------|
-  | `trice( "Hi!\n");`        | `trice( 12345, "Hi!\n");`     | no stamps                                            |
-  | `Trice( "Hi!\n");`        | `Trice( 12345, "Hi!\n");`     | 16-bit stamps                                        |
-  | `TRice( "Hi!\n");`        | `TRice( 12345, "Hi!\n");`     | 32-bit stamps                                        |
+  | Unpatched User Code | After `trice update`      | Remark        |
+  |---------------------|---------------------------|---------------|
+  | `trice( "Hi!\n");`  | `trice( 12345, "Hi!\n");` | no stamps     |
+  | `Trice( "Hi!\n");`  | `Trice( 12345, "Hi!\n");` | 16-bit stamps |
+  | `TRice( "Hi!\n");`  | `TRice( 12345, "Hi!\n");` | 32-bit stamps |
 
 - Legacy code is handled this way:
 
-  | Unpatched User Code       | After `trice update`          | Remark                                               |
-  |---------------------------|-------------------------------|------------------------------------------------------|
-  | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice u -defaultStampSize 0`        |
-  | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice u -defaultStampSize 16`   |
-  | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice u -defaultStampSize 32`   |
-  | `TRICE( id(0), "Hi!\n");` | `TRICE( id(12345), "Hi!\n");` | no stamps                                            |
-  | `TRICE( Id(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 16-bit stamps                                        |
-  | `TRICE( ID(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps                                        |
+  | Unpatched User Code       | After `trice update`          | Remark                                             |
+  |---------------------------|-------------------------------|----------------------------------------------------|
+  | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice u -defaultStampSize 0`      |
+  | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice u -defaultStampSize 16` |
+  | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice u -defaultStampSize 32` |
+  | `TRICE( id(0), "Hi!\n");` | `TRICE( id(12345), "Hi!\n");` | no stamps                                          |
+  | `TRICE( Id(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 16-bit stamps                                      |
+  | `TRICE( ID(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps                                      |
 
 - A pre-build step `trice update` generates the `Id(12345)` part. Examples:
   - `trice u` in your project root expects a til.json file there and checks sources and **til.json** for changes to update.
@@ -1579,32 +1591,32 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 <details><summary>Details</summary><ol>
 
-| Date        | Version | Comment |
-| -           | -       | - |
-| 2022-MAR-15 |  0.0.0  | Initial Draft |
-| 2022-MAR-15 |  0.1.0  | Minor corrections applied. |
-| 2022-MAR-15 |  0.2.0  | Sigil byte encoding clarified. |
-| 2022-MAR-15 |  0.3.0  | Forward versus backward COBS encoding discussion inserted. |
-| 2022-MAR-15 |  0.4.0  | Forward versus backward COBS encoding reworked. Disruption detection added. |
-| 2022-MAR-15 |  0.5.0  | Minor corrections |
-| 2022-MAR-16 |  0.6.0  | TCOBS prime number comment added, simplified |
-| 2022-MAR-17 |  0.7.0  | TCOBS move into a separate [TCOBS Specification](./TCOBSSpecification.md), Framing more detailed. |
-| 2022-MAR-20 |  0.7.1  | Contributive *Trice* extension remark added. |
-| 2022-APR-12 |  0.8.0  | TREX mainstream format changed to timestamps immediate after ID. |
-| 2022-MAY-20 |  0.8.1  | Formatting, Spelling |
-| 2022-JUN-19 |  0.9.0  | Implementation hint added to chapter Framing. |
-| 2022-AUG-14 | 0.10.0  | Chapter ID Management added |
-| 2022-AUG-19 | 0.11.0  | Chapter Main Stream Logs changed/extended |
-| 2022-SEP-15 | 0.11.1  | TS32, TS16, NOTS, MOD7 added |
-| 2022-OCT-08 | 0.11.2  | S0...X3 added |
-| 2022-NOV-28 | 0.11.3  | +[#337](https://github.com/rokath/trice/issues/337) in [Framing](#Framing)|
-| 2022-DEC-11 | 0.12.0  | restructured |
-| 2022-DEC-13 | 0.13.0  | unneeded text removed, some clarifications |
+| Date        | Version | Comment                                                                                                      |
+|-------------|---------|--------------------------------------------------------------------------------------------------------------|
+| 2022-MAR-15 | 0.0.0   | Initial Draft                                                                                                |
+| 2022-MAR-15 | 0.1.0   | Minor corrections applied.                                                                                   |
+| 2022-MAR-15 | 0.2.0   | Sigil byte encoding clarified.                                                                               |
+| 2022-MAR-15 | 0.3.0   | Forward versus backward COBS encoding discussion inserted.                                                   |
+| 2022-MAR-15 | 0.4.0   | Forward versus backward COBS encoding reworked. Disruption detection added.                                  |
+| 2022-MAR-15 | 0.5.0   | Minor corrections                                                                                            |
+| 2022-MAR-16 | 0.6.0   | TCOBS prime number comment added, simplified                                                                 |
+| 2022-MAR-17 | 0.7.0   | TCOBS move into a separate [TCOBS Specification](./TCOBSSpecification.md), Framing more detailed.            |
+| 2022-MAR-20 | 0.7.1   | Contributive *Trice* extension remark added.                                                                 |
+| 2022-APR-12 | 0.8.0   | TREX mainstream format changed to timestamps immediate after ID.                                             |
+| 2022-MAY-20 | 0.8.1   | Formatting, Spelling                                                                                         |
+| 2022-JUN-19 | 0.9.0   | Implementation hint added to chapter Framing.                                                                |
+| 2022-AUG-14 | 0.10.0  | Chapter ID Management added                                                                                  |
+| 2022-AUG-19 | 0.11.0  | Chapter Main Stream Logs changed/extended                                                                    |
+| 2022-SEP-15 | 0.11.1  | TS32, TS16, NOTS, MOD7 added                                                                                 |
+| 2022-OCT-08 | 0.11.2  | S0...X3 added                                                                                                |
+| 2022-NOV-28 | 0.11.3  | +[#337](https://github.com/rokath/trice/issues/337) in [Framing](#Framing)                                   |
+| 2022-DEC-11 | 0.12.0  | restructured                                                                                                 |
+| 2022-DEC-13 | 0.13.0  | unneeded text removed, some clarifications                                                                   |
 | 2023-JAN-14 | 0.14.0  | Formatting improved, [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start) added. |
-| 2023-JAN-14 | 0.15.0  | [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm) added |
-| 2023-JAN-21 | 0.15.1  | Corrections |
-| 2023-FEB-25 | 0.16.0  | Many parts reworked and restructured |
-|             |         | |
+| 2023-JAN-14 | 0.15.0  | [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm) added                                    |
+| 2023-JAN-21 | 0.15.1  | Corrections                                                                                                  |
+| 2023-FEB-25 | 0.16.0  | Many parts reworked and restructured                                                                         |
+|             |         |                                                                                                              |
 
 <p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 
@@ -1746,26 +1758,26 @@ Additionally only 2 IDs (1 bit) are needed without cycle and count:
   - For each line an appropriate target and host code needs to be done.
   - Then the target configuration must match the CLI switches.
   - Table example:
-    |Position | Encoding                          | Remarks                                       |
-    | -   | -                                     | -                                             |
-    | pos | `00nniiii I D D`                      | 12 bit ID, no timestamp, 1x 16 bit data       |
-    | pos | `00nniiii I D D`                      | 12 bit ID, no timestamp, 2x 8 bit data        |
-    | pos | `00nniiii I D D D D`                  | 12 bit ID, no timestamp, 2x 16 bit data       |
-    | pos | `00nniiii I T T  D D`                 | 12 bit ID, 16 bit timestamp,1x16 bit data     |
-    | pos | `00nniiii I T T  D D D D`             | 12 bit ID, 16 bit timestamp, 1x32 bit data    |
-    | pos | `00nniidd dddddddd`                   | 2 bit ID & 1x 10 bit data                     |
-    |   6 | `00nndddd dddddddd`                   | no ID, 12 bit data as a 5 and a 7 bit value   |
-    | pos | `00nndddd`                            | no ID, 4x 1 bit data                          |
-    | pos | `00nniiii I`                          | 12 bit ID, no data                            |
-    | pos | `00nniiii D D`                        | 4 bit ID, 1x 16 bit data                      |
-    | pos | `00nniiii I D D`                      | 12 bit ID, 2x 8 bit data                      |
-    | pos | `00nniiii I T T`                      | 12 bit ID, 16 bit timestamp, no data          |
-    | pos | `00nniiii D D T`                      | ...                                           |
-    |  13 | `00nniiii C T T  D D D D`             | 8 bit cyle counter, 16 bit timestamp, a float |
-    | pos | `00nniiii C D D  T T T T`             | ...                                           |
-    | pos | `00nniiii I D D  T`                   | ...                                           |
-    | pos | `00nniiii tttttttt ttttdddd dddddddd` | 4 bit ID, 12 bit timestamp, 12 bit data       |
-    | ... | `00nn...`                             | ...                                           |
+    | Position | Encoding                              | Remarks                                       |
+    |----------|---------------------------------------|-----------------------------------------------|
+    | pos      | `00nniiii I D D`                      | 12 bit ID, no timestamp, 1x 16 bit data       |
+    | pos      | `00nniiii I D D`                      | 12 bit ID, no timestamp, 2x 8 bit data        |
+    | pos      | `00nniiii I D D D D`                  | 12 bit ID, no timestamp, 2x 16 bit data       |
+    | pos      | `00nniiii I T T  D D`                 | 12 bit ID, 16 bit timestamp,1x16 bit data     |
+    | pos      | `00nniiii I T T  D D D D`             | 12 bit ID, 16 bit timestamp, 1x32 bit data    |
+    | pos      | `00nniidd dddddddd`                   | 2 bit ID & 1x 10 bit data                     |
+    | 6        | `00nndddd dddddddd`                   | no ID, 12 bit data as a 5 and a 7 bit value   |
+    | pos      | `00nndddd`                            | no ID, 4x 1 bit data                          |
+    | pos      | `00nniiii I`                          | 12 bit ID, no data                            |
+    | pos      | `00nniiii D D`                        | 4 bit ID, 1x 16 bit data                      |
+    | pos      | `00nniiii I D D`                      | 12 bit ID, 2x 8 bit data                      |
+    | pos      | `00nniiii I T T`                      | 12 bit ID, 16 bit timestamp, no data          |
+    | pos      | `00nniiii D D T`                      | ...                                           |
+    | 13       | `00nniiii C T T  D D D D`             | 8 bit cyle counter, 16 bit timestamp, a float |
+    | pos      | `00nniiii C D D  T T T T`             | ...                                           |
+    | pos      | `00nniiii I D D  T`                   | ...                                           |
+    | pos      | `00nniiii tttttttt ttttdddd dddddddd` | 4 bit ID, 12 bit timestamp, 12 bit data       |
+    | ...      | `00nn...`                             | ...                                           |
   - Examples:
     - `-ex0 13` means TRICEX0 = `0000iiii C T T  D D D D`.
       - Usage: `TRICEX0( "result %f\n", aFloat(v));`
