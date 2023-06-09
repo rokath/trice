@@ -173,9 +173,9 @@ Compare folders of one of these folder groups:
 
 This way you see in a quick way any needed adaptions for your target project to port trice to it.
 
-- Project [`./test/Nucleo-STM32L432LC_generated`](../test/testNucleo-STM32L432LC_generated) was first the result of a STM32CubeMX generation.
-- Then it was edited to make it comfortable usable with VS-Code. See the [ReadMe.md](../test/testNucleo-STM32L432LC_generated/ReadMe.md) there for details.
-- To compile also with CLang [`./test/Nucleo-STM32L432LC_generated`](../test/testNucleo-STM32L432LC_generated) was used to manually derive project [`./test/vsCode_Nucleo-L432KC_generated`](../test/vsCode_Nucleo-L432KC_generated) as starting point for the trice instrumentation.
+- Project [`./test/Nucleo-STM32L432LC_generated`](../test/Nucleo-STM32L432LC_generated) was first the result of a STM32CubeMX generation.
+- Then it was edited to make it comfortable usable with VS-Code. See the [ReadMe.md](../test/Nucleo-STM32L432LC_generated/ReadMe.md) there for details.
+- To compile also with CLang [`./test/Nucleo-STM32L432LC_generated`](../test/Nucleo-STM32L432LC_generated) was used to manually derive project [`./test/vsCode_Nucleo-L432KC_generated`](../test/vsCode_Nucleo-L432KC_generated) as starting point for the trice instrumentation.
 
 Main steps are:
 
