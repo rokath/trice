@@ -1445,8 +1445,8 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
     - The `til.json` is a serialized key-value map, where
       - the keys are the IDs i and
       - the values are *Trice* format string structs (bit width plus format string) named f.
-      - When de-serializing it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not dne.
-        - The trice tool lets win the last usage, but will report that as error.
+      - When de-serializing it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not done.
+        - The trice tool will report that as error.
       - This ID look-up is the key-value map `ilu TriceIDLookUp` as `map[TriceID]TriceFmt`.
         - Each ID i as key, points to one and only one f.
         - The TriceFmt structs contains the parameter width and the format string.
@@ -1475,21 +1475,47 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 ###  20.3. <a name='Method'></a>Method
 
-- De-serialize `li.json`. On error abort and report for manual correction.
-- De-serialize `til.json`. On error abort and report for manual correction.
-- li is renamed into oli, which stays untouched and is used only in cases when identical f are found.
-- A new empty li is created (and used for duplicate detection too?).
+- De-serialize `li.json`. On error abort and report for manual correction. One result is a slice with used IDs.
+- De-serialize `til.json`. On error abort and report for manual correction. As result the slice with used IDs is extended.
+- Create a slice IRroom with numbers IDmin ... IDmax (1 ... 16383)
+- Remove all used IDs from there.
+  - If used IDs outside IDmin and IDmax, for example IDmin=1000, IDmax=1999 and some used IDs are bigger or smaller these are not removable from IDroom what is ok.
+
+> ? - li is renamed into oli, which stays untouched and is used only in cases when identical f are found.
+
+> ? - A new empty li is created (and used for duplicate detection too?).
+
 - Walk the src and create a **s**ource **t**ree **m**ap STM with
   - key=`Trice+LI` and
   - value=**ID**.
-- During STM creation use these rules: 
-  - If the next found f src ID == 0: 
+- During STM creation use these rules:
+  - If the next found f src ID == n != 0:
+    - If ID n already inside STM set ID = 0 (that is brutal but ok)
+    - Otherwise extend STM with ID n and remove n from IDroom 
+      - It is possible, f is used n times with different IDs, so that is no problem.
+      - It is possible, f is used n times with the same ID, so the first occurrence is the winner.
+  - If the next found f src ID == 0 (normal case after trice z):
     - Look in flu
-      - If not there, create new id. 
+      - If not there, create new id and extend STM.
         - The new ID is "new", so forbidden to be inside ilu.
         - If it is accidentally somewhere in the so far unparsed src, we do not know that and therefore do not care about.
-          - That is a seldom case and not worth to parse the source tree twice al the time.
-        - Patch id into source and extend lu and li.
+          - That is a seldom case and not worth to parse the source tree twice all the time.
+        - Patch id into source and extend STM.
+      - If the ID slice has len 1 (usually the case), take that n, extend STM and remove f from flu.
+        - That is important because f could be copied before.
+      - If the ID slice has a len > 1 (several IDs on the same string) check li
+        - If li is empty, just remove the first id from the slice and extend STM
+        - Loop over slice IDs
+          - If a file matches, take the first occurrence, extend STM and remove id from the ID slice
+          - If no file matches do the same as when li is empty.
+          - That means, after file renaming or code copying between files during trice z state, new IDs are generated for that parts.
+            - That is only for same f with several IDs cases
+          - File changes during trice u state are ok, because STM is generated with the IDs inside the sources.
+
+Until here the algorithm seem to be ok.
+
+<!---
+
       - If there, it points to an id slice, because f could be n times in src.
       - In most cases the slice contains only one ID. Only if the same f is used several time there are several IDs in the appropriate slice. For each i in id slice check oli for a fitting file and the closest match and that this i is not yet inside li.
         - If success patch id into source and extend li.
@@ -1502,8 +1528,12 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
     - If yes check li.
       - If yes (duplicate) create new id and extend lu and li and overwrite src ID.
       - If not, extend li.
-    - If src ID not in lu, it cannot be in li, extend lu & li.
+    - If src ID not in lu, it cannot be in li, extend lu & li
+-->
+
 - STM is not needed but maybe helpful during debugging.
+- STM than is usable to regenerate li.json and to extend til.json
+  
 - If after `trice u` a `trice z` and a `trice u` again is executed, all IDs are expected to be at the same place again. If in between `trice u`, an optional `trice z`and a `trice u` src was edited, most IDs are expected to be at the same place again.
 
 <!--
