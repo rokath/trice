@@ -4,9 +4,13 @@
 package id
 
 import (
+	"fmt"
+	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/spf13/afero"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -24,26 +28,43 @@ func TestArrayFlag(t *testing.T) {
 	assert.Equal(t, af.String(), Srcs.String())
 }
 
-//  // TestConditionalFilePath checks if ConditionalFilePath works as expected.
-//  func TestConditionalFilePathAfero(t *testing.T) {
-//  	fSys := &afero.Afero{Fs: afero.NewOsFs()} //os.DirFS("")
-//  	//s := ConditionalFilePath2(fSys, "off")
-//  	//assert.Equal(t, "off", s)
-//  	//s = ConditionalFilePath2(fSys, "none")
-//  	//assert.Equal(t, "none", s)
-//  	s := FullFilePath2(fSys, "/tatue/tata")
-//  	b := filepath.Base(s)
-//  	assert.Equal(t, b, "tata")
-//  }
-//
-//  // TestConditionalFilePath checks if ConditionalFilePath works as expected.
-//  func TestConditionalFilePathOs(t *testing.T) {
-//  	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-//  	//s := ConditionalFilePath2(fSys, "off")
-//  	//assert.Equal(t, "off", s)
-//  	//s = ConditionalFilePath2(fSys, "none")
-//  	//assert.Equal(t, "none", s)
-//  	s := FullFilePath2(fSys, "/tatue/tata")
-//  	b := filepath.Base(s)
-//  	assert.Equal(t, b, "tata")
-//  }
+// TestConditionalFilePath checks if ConditionalFilePath works as expected.
+func TestConditionalFilePathAfero(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} //os.DirFS("")
+	//s := ConditionalFilePath2(fSys, "off")
+	//assert.Equal(t, "off", s)
+	//s = ConditionalFilePath2(fSys, "none")
+	//assert.Equal(t, "none", s)
+	s := fullFilePath2(fSys, "/tatue/tata")
+	b := filepath.Base(s)
+	assert.Equal(t, b, "tata")
+}
+
+// TestConditionalFilePath checks if ConditionalFilePath works as expected.
+func TestConditionalFilePathOs(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	//s := ConditionalFilePath2(fSys, "off")
+	//assert.Equal(t, "off", s)
+	//s = ConditionalFilePath2(fSys, "none")
+	//assert.Equal(t, "none", s)
+	s := fullFilePath2(fSys, "/tatue/tata")
+	b := filepath.Base(s)
+	assert.Equal(t, b, "tata")
+}
+
+// fullFilePath2 returns absolute file path if fn is not "off" or "none".
+func fullFilePath2(fSys *afero.Afero, fn string) string {
+	xType := reflect.TypeOf(fSys)
+	xValue := reflect.ValueOf(fSys)
+	fmt.Println(xType, xValue) // Os: *afero.Afero &{0x85d228} // MemMap: *afero.Afero &{0xc00007bb60}
+	if fn == "none" || fn == "off" {
+		return fn
+	}
+	var e error
+	var s string
+	//if xValue < &{0xc000000000} {
+	s, e = filepath.Abs(fn)
+	msg.InfoOnErr(e, fmt.Sprintf("failed to parse %s\n", fn))
+	//}
+	return s
+}

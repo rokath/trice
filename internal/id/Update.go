@@ -538,7 +538,7 @@ func ScZeroMulti(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
 	}
 	for i := range Srcs {
 		s := Srcs[i]
-		srcZ := s                                  // FullFilePath2(fSys, s)
+		srcZ := s
 		if _, err := fSys.Stat(srcZ); err == nil { // path exists
 			zeroSourceTreeIds(w, fSys, srcZ, !DryRun)
 		} else if os.IsNotExist(err) { // path does *not* exist

@@ -81,8 +81,8 @@
       - [18.1.4. Adding legacy sources with `trice refresh`](#1814-adding-legacy-sources-with-trice-refresh)
   - [19. ID reference list **til.json**](#19-id-reference-list-tiljson)
     - [19.1. **til.json** Version control](#191-tiljson-version-control)
-    - [19.2. Long Time availability](#192-long-time-availability)
-  - [20. The `trice update` algorithm](#20-the-trice-update-algorithm)
+    - [19.2. Long Time Availability](#192-long-time-availability)
+  - [20. The `trice update` Algorithm](#20-the-trice-update-algorithm)
     - [20.1. Starting Conditions](#201-starting-conditions)
     - [20.2. Aims](#202-aims)
     - [20.3. Method](#203-method)
@@ -1331,6 +1331,17 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - In a future **trice** tool it can be possible to give each *trice* channel an **ID** range making it possible to implement *Trice* channel specific runtime on/off on the target side if that is needed. This could be interesting for routing purposes also.
   - To stay compatible with previous **trice** tool versions such implementation would use the `-args` switch, which then contains the relevant channels like `trice u -args "err:20:99,wrn:200:300"`. This needs to be specified in more detail, especially the error handling.
 
+<!--
+
+_### New Method to get a random ID
+
+- Create Slice with numbers 1...16383
+- Remove all used ID numbers from this slice
+- Get random number between 0 and len(slice)
+- remove this ID from slice and use it as new ID
+
+-->
+
 ###  17.2. <a name='IDnumberusageandstability'></a>ID number usage and stability
 
 - If you write `trice( "msg:%d", 1);` again on a 2nd location, the copy gets a different **ID**, because each *Trice* gets its own **ID**.
@@ -1365,6 +1376,8 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 ####  18.1.2. <a name='DifferentIDsforsameTrices'></a>Different IDs for same *Trices*
 
+> depreciated, functionality will be removed in favor for location information
+
 - When the same *Trice* is used several times with different IDs and `trice update -IDreuse force` is called, only the one ID is used for all identical TRICEs in the source code. The other IDs stay inside **til.json** until they are removed (`trice renew`).
 
 ####  18.1.3. <a name='SameIDsfordifferentTrices'></a>Same IDs for different *Trices*
@@ -1375,6 +1388,8 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - That is done silently for you during the next `trice update`.
 
 ####  18.1.4. <a name='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
+
+> depreciated, functionality will be removed in favor for no-ids functionality
 
 When including legacy library code in several different projects, each with its own **til.json** ID reference list you probably do not want the IDs inside the library code be changed. If you missed the option to use prober ID ranges starting your project  `trice refresh` could help:
 
@@ -1396,7 +1411,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 ##  19. <a name='IDreferencelisttil.json'></a>ID reference list **til.json**
 
-- The `trice update` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you sure to create a new **til.json** file create an empty one: `touch til.json`.
+- The `trice update` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you are sure to create a new **til.json** file, create an empty one: `touch til.json`.
 - The name **til.json** is a default one. With the command line parameter `-i` you can use any filename.
 - It is possible to use several **til.json** files - for example one for each target project but it is easier to maintain only one **til.json*- file for all projects.
 - The ID reference list keeps all obsolete IDs with their format strings allowing compatibility to former firmware versions.
@@ -1411,15 +1426,17 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
   - This could be done by running `trice renew`. That is the same as deleting the **til.json** contents and running `trice u`.
 - An other option is to delete **til.json** just before a release build and then check-in the new generated **til.json**.
 
-###  19.2. <a name='LongTimeavailability'></a>Long Time availability
+> For the planned no-ids option deleting **til.json** should not not be done when the sources are without IDs. That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
+
+###  19.2. <a name='LongTimeavailability'></a>Long Time Availability
 
 - You could place a download link for the **trice** tool and the used **til.json** list.
-- Link a compressed/encrypted **til.json** file into the target binary and optionally get it back long years later in a safe way.
+- Link a compressed/encrypted **til.json** file as resource into the target binary and optionally get it back long years later in a safe way.
 - Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 20 years.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  20. <a name='Thetriceupdatealgorithm'></a>The `trice update` algorithm
+##  20. <a name='Thetriceupdatealgorithm'></a>The `trice update` Algorithm
 
 ###  20.1. <a name='StartingConditions'></a>Starting Conditions
 
@@ -1428,6 +1445,8 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
     - The `til.json` is a serialized key-value map, where
       - the keys are the IDs i and
       - the values are *Trice* format string structs (bit width plus format string) named f.
+      - When de-serializing it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not dne.
+        - The trice tool lets win the last usage, but will report that as error.
       - This ID look-up is the key-value map `ilu TriceIDLookUp` as `map[TriceID]TriceFmt`.
         - Each ID i as key, points to one and only one f.
         - The TriceFmt structs contains the parameter width and the format string.
@@ -1440,10 +1459,11 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
       - the keys are the IDs i and
       - the values are the location information (filename, line and position in line) structs.
     - Each ID as key points to one and only one li.
-
 - The `til.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
-  - That is possible after code edit, for example code copied or modified.    
+  - That is possible after code edit, for example code copied or modified.
+  - One and only one position is used and relevant, all others are ignored. If no `til.json` exists on the expected location the user must provide one, at least an empty file.
 - The `li.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
+  - One and only one position is used and relevant, all others are ignored. If no `li.json` exists on the expected location trice update creates one there.
 - The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. To keep `trice u` short in execution. `trice refresh` could be run in such cases.
 
 ###  20.2. <a name='Aims'></a>Aims
@@ -1455,18 +1475,21 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 ###  20.3. <a name='Method'></a>Method
 
+- De-serialize `li.json`. On error abort and report for manual correction.
+- De-serialize `til.json`. On error abort and report for manual correction.
 - li is renamed into oli, which stays untouched and is used only in cases when identical f are found.
-- A new empty li is created and used for duplicate detection too.
+- A new empty li is created (and used for duplicate detection too?).
 - Walk the src and create a **s**ource **t**ree **m**ap STM with
   - key=`Trice+LI` and
   - value=**ID**.
-- During STM creation use these rules:
-  - If the next found f src ID == 0:
+- During STM creation use these rules: 
+  - If the next found f src ID == 0: 
     - Look in flu
-      - If not there, create new id.
+      - If not there, create new id. 
         - The new ID is "new", so forbidden to be inside ilu.
         - If it is accidentally somewhere in the so far unparsed src, we do not know that and therefore do not care about.
-        - patch id into source and extend lu and li.
+          - That is a seldom case and not worth to parse the source tree twice al the time.
+        - Patch id into source and extend lu and li.
       - If there, it points to an id slice, because f could be n times in src.
       - In most cases the slice contains only one ID. Only if the same f is used several time there are several IDs in the appropriate slice. For each i in id slice check oli for a fitting file and the closest match and that this i is not yet inside li.
         - If success patch id into source and extend li.
@@ -1482,6 +1505,12 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
     - If src ID not in lu, it cannot be in li, extend lu & li.
 - STM is not needed but maybe helpful during debugging.
 - If after `trice u` a `trice z` and a `trice u` again is executed, all IDs are expected to be at the same place again. If in between `trice u`, an optional `trice z`and a `trice u` src was edited, most IDs are expected to be at the same place again.
+
+<!--
+_### Tests
+
+
+-->
 
 ###  20.4. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
 
