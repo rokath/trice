@@ -254,6 +254,9 @@ func TestHelpHelp(t *testing.T) {
       example 'trice h -log': Print log help.
         -all
               Show all help.
+        -c    Show cleanSourceTreeIds specific help.
+        -cleanSourceTreeIds
+              Show cleanSourceTreeIds specific help.
         -displayserver
               Show ds|displayserver specific help.
         -ds
@@ -261,6 +264,9 @@ func TestHelpHelp(t *testing.T) {
         -h    Show h|help specific help.
         -help
               Show h|help specific help.
+        -i    Show i|insert specific help.
+        -insert
+              Show i|insert specific help.
         -l    Show l|log specific help.
         -lf string
               Short for logfile (default "off")
@@ -301,7 +307,7 @@ func TestHelpHelp(t *testing.T) {
               Show ver|version specific help.
         -z    Show zeroSourceTreeIds specific help.
         -zeroSourceTreeIds
-              Show zeroSourceTreeIds specific help.      
+              Show zeroSourceTreeIds specific help.     
       `
 	execHelper(t, args, expect)
 }

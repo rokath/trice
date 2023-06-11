@@ -12,7 +12,7 @@ import (
 func TestHelpAll(t *testing.T) {
 	input := []string{"trice", "help", "-all"}
 	expect := `syntax: 'trice sub-command' [params]
-      sub-command 'ds|displayServer': Starts a display server.
+      sub-command 'ds|displayServer': Starts a display server. 
       Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
       Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
       Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
@@ -50,6 +50,9 @@ func TestHelpAll(t *testing.T) {
       example 'trice h -log': Print log help.
         -all
               Show all help.
+        -c    Show cleanSourceTreeIds specific help.
+        -cleanSourceTreeIds
+              Show cleanSourceTreeIds specific help.
         -displayserver
               Show ds|displayserver specific help.
         -ds
@@ -57,6 +60,9 @@ func TestHelpAll(t *testing.T) {
         -h    Show h|help specific help.
         -help
               Show h|help specific help.
+        -i    Show i|insert specific help.
+        -insert
+              Show i|insert specific help.
         -l    Show l|log specific help.
         -lf string
               Short for logfile (default "off")
@@ -98,10 +104,10 @@ func TestHelpAll(t *testing.T) {
         -z    Show zeroSourceTreeIds specific help.
         -zeroSourceTreeIds
               Show zeroSourceTreeIds specific help.
-              sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
-              example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
-              example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
-              example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
+      sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
+      example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
+      example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
+      example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
         -args string
               Use to pass port specific parameters. The "default" value depends on the used port:
               port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
@@ -471,6 +477,63 @@ func TestHelpAll(t *testing.T) {
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
               This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+      sub-command 'i|insert': For updating ID list and source files.
+      "trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
+      The "insert" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
+      example: 'trice i -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
+        -IDMax value
+              Upper end of ID range for normal trices. (default 7999)
+        -IDMethod string
+              Search method for new ID's in range- Options are 'upward', 'downward' & 'random'. (default "random")
+        -IDMin value
+              Lower end of ID range for normal trices. (default 1000)
+        -addParamCount
+              Extend TRICE macro names with the parameter count _n to enable compile time checks.
+        -defaultStampSize int
+              Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32. (default 32)
+        -dry-run
+              No changes applied but output shows what would happen.
+              "trice update -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+        -i string
+              Short for '-idlist'.
+               (default "til.json")
+        -idList string
+              Alternate for '-idlist'.
+               (default "til.json")
+        -idlist string
+              The trice ID list file.
+              The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
+               (default "til.json")
+        -li string
+              Short for '-locationInformation'.
+               (default "li.json")
+        -locationInformation string
+              The trice location list file.
+              The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
+              It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
+              log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+              This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
+              location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+               (default "li.json")
+        -s value
+              Short for src.
+        -src value
+              Source dir or file, It has one parameter. Not usable in the form "-src *.c".
+              This is a multi-flag switch. It can be used several times for directories and also for files.
+              Example: "trice update -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
+              source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
+              Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
+               (default "./")
+        -til string
+              Short for '-idlist'.
+               (default "til.json")
+        -v    short for verbose
+        -verbose
+              Gives more informal output if used. Can be helpful during setup.
+              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0).
       The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.
       example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
@@ -484,6 +547,27 @@ func TestHelpAll(t *testing.T) {
               Source dir or file, It has one parameter. Not usable in the form "-src *.c".
               This is a multi-flag switch. It can be used several times for directories and also for files.
               Example: "trice zeroSourceTreeIds -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
+              source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
+              Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
+               (default "./")
+        -v    short for verbose
+        -verbose
+              Gives more informal output if used. Can be helpful during setup.
+              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+      sub-command 'cleanSourceTreeIds': Set all Id(n) inside source tree dir to 0).
+      The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.
+      example: 'trice cleanSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A.
+        -dry-run
+              No changes applied but output shows what would happen.
+              "trice cleanSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+        -s value
+              Short for src.
+        -src value
+              Source dir or file, It has one parameter. Not usable in the form "-src *.c".
+              This is a multi-flag switch. It can be used several times for directories and also for files.
+              Example: "trice cleanSourceTreeIds -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
               source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
               Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
                (default "./")

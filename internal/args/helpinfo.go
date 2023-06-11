@@ -30,7 +30,9 @@ func scHelp(w io.Writer) error {
 		{allHelp || shutdownHelp, shutdownInfo},
 		{allHelp || versionHelp, versionInfo},
 		{allHelp || updateHelp, updateInfo},
+		{allHelp || insertIDsHelp, insertIDsInfo},
 		{allHelp || zeroIDsHelp, zeroIDsInfo},
+		{allHelp || cleanIDsHelp, cleanIDsInfo},
 	}
 	for _, z := range x {
 		if z.flag {
@@ -128,6 +130,16 @@ example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all 
 	return e
 }
 
+func insertIDsInfo(w io.Writer) error {
+	_, e := fmt.Fprintln(w, `sub-command 'i|insert': For updating ID list and source files.
+"trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
+The "insert" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
+example: 'trice i -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json`)
+	fsScUpdate.SetOutput(w)
+	fsScUpdate.PrintDefaults()
+	return e
+}
+
 func versionInfo(w io.Writer) error {
 	_, e := fmt.Fprintln(w, `sub-command 'ver|version': For displaying version information.
 "trice v" will print the version information. If trice is not versioned the build time will be displayed instead.`)
@@ -142,5 +154,14 @@ The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" 
 example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!`)
 	fsScZero.SetOutput(w)
 	fsScZero.PrintDefaults()
+	return e
+}
+
+func cleanIDsInfo(w io.Writer) error {
+	_, e := fmt.Fprintln(w, `sub-command 'cleanSourceTreeIds': Set all Id(n) inside source tree dir to 0). 
+The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.
+example: 'trice cleanSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A.`)
+	fsScClean.SetOutput(w)
+	fsScClean.PrintDefaults()
 	return e
 }

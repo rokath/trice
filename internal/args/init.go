@@ -47,6 +47,8 @@ func FlagsInit() {
 	renewInit()
 	updateInit()
 	zeroInit()
+	insertIDsInit()
+	cleanIDsInit()
 	versionInit()
 	dsInit()
 	scanInit()
@@ -71,10 +73,14 @@ func helpInit() {
 	fsScHelp.BoolVar(&shutdownHelp, "sd", false, "Show sd|shutdown specific help.")
 	fsScHelp.BoolVar(&updateHelp, "update", false, "Show u|update specific help.")
 	fsScHelp.BoolVar(&updateHelp, "u", false, "Show u|update specific help.")
+	fsScHelp.BoolVar(&insertIDsHelp, "insert", false, "Show i|insert specific help.")
+	fsScHelp.BoolVar(&insertIDsHelp, "i", false, "Show i|insert specific help.")
 	fsScHelp.BoolVar(&versionHelp, "version", false, "Show ver|version specific help.")
 	fsScHelp.BoolVar(&versionHelp, "ver", false, "Show ver|version specific help.")
 	fsScHelp.BoolVar(&zeroIDsHelp, "zeroSourceTreeIds", false, "Show zeroSourceTreeIds specific help.")
 	fsScHelp.BoolVar(&zeroIDsHelp, "z", false, "Show zeroSourceTreeIds specific help.")
+	fsScHelp.BoolVar(&cleanIDsHelp, "cleanSourceTreeIds", false, "Show cleanSourceTreeIds specific help.")
+	fsScHelp.BoolVar(&cleanIDsHelp, "c", false, "Show cleanSourceTreeIds specific help.")
 	flagLogfile(fsScHelp)
 	flagVerbosity(fsScHelp)
 }
@@ -206,8 +212,15 @@ func updateInit() {
 	// Hint: If you have equal TriceIDs with equal TriceFmt's after some copy and paste simply replace these TriceIDs with 0 to force new and different TriceIDs. ('trice h -z' shows how to automate)`)
 }
 
-// SharedIDs true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
-// SharedIDs false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
+func insertIDsInit() {
+	fsScInsert = flag.NewFlagSet("insertSourceTreeIds", flag.ExitOnError) // sub-command
+	flagsRefreshAndUpdate(fsScInsert)
+	fsScInsert.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
+	fsScInsert.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
+	fsScInsert.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
+	fsScInsert.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
+	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
+}
 
 func zeroInit() {
 	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)
@@ -215,6 +228,13 @@ func zeroInit() {
 	//pSrcZ = fsScZero.String("src", "", "Zero all Id(n) inside source tree dir, required.") // flag
 	flagDryRun(fsScZero)
 	flagVerbosity(fsScZero)
+}
+
+func cleanIDsInit() {
+	fsScClean = flag.NewFlagSet("cleanSourceTreeIds", flag.ContinueOnError)
+	flagSrcs(fsScClean)
+	flagDryRun(fsScClean)
+	flagVerbosity(fsScClean)
 }
 
 func versionInit() {
