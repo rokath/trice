@@ -14,7 +14,7 @@ for d in $VSCODETARGETDIRS
 do
 echo ______ $d ______
 cd $d
-make -j8
+make clean
 cd -
 echo -e
 done
@@ -28,7 +28,7 @@ for d in $ARMKEILTARGETDIRS
 do
 echo ______ $d ______
 cd $d/MDK-ARM
-/c/Keil_v5/UV4/UV4.exe -rc MDK-ARM_STM32F030R8.uvprojx
+rm -rf RTE/ MDK-ARM_STM32F030R8/ DebugConfig/
 cd -
 echo -e
 done

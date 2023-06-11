@@ -116,7 +116,7 @@ func walkSrcs(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmtLoo
 	}
 	for i := range Srcs {
 		s := Srcs[i]
-		srcU := s                                  // FullFilePath2(fSys, s)
+		srcU := s
 		if _, err := fSys.Stat(srcU); err == nil { // path exists
 			f(w, fSys, srcU, ilu, flu, pListModified, lim)
 		} else if os.IsNotExist(err) { // path does *not* exist
