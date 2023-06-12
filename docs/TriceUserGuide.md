@@ -1548,9 +1548,9 @@ _### Tests
 
   | Unpatched User Code | After `trice update`      | Remark        |
   |---------------------|---------------------------|---------------|
-  | `trice( "Hi!\n");`  | `trice( 12345, "Hi!\n");` | no stamps     |
-  | `Trice( "Hi!\n");`  | `Trice( 12345, "Hi!\n");` | 16-bit stamps |
-  | `TRice( "Hi!\n");`  | `TRice( 12345, "Hi!\n");` | 32-bit stamps |
+  | `trice( "Hi!\n");`  | `trice( iD(12345), "Hi!\n");` | no stamps     |
+  | `Trice( "Hi!\n");`  | `Trice( iD(12345), "Hi!\n");` | 16-bit stamps |
+  | `TRice( "Hi!\n");`  | `TRice( iD(12345), "Hi!\n");` | 32-bit stamps |
 
 - Legacy code is handled this way:
 
