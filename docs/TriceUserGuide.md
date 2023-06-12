@@ -1675,7 +1675,7 @@ _### Tests
 | 2023-JAN-14 | 0.15.0  | [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm) added                                    |
 | 2023-JAN-21 | 0.15.1  | Corrections                                                                                                  |
 | 2023-FEB-25 | 0.16.0  | Many parts reworked and restructured                                                                         |
-|             |         |                                                                                                              |
+| 2023-JUN-10 | 0.17.0  | trice update algorithm refined     |                                                                                                              |
 
 <p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 
