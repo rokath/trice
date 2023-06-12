@@ -1546,8 +1546,8 @@ _### Tests
 
 - A *Trice* **ID** is inserted by `trice update` as shown in the table:
 
-  | Unpatched User Code | After `trice update`      | Remark        |
-  |---------------------|---------------------------|---------------|
+  | Unpatched User Code | After `trice update`          | Remark        |
+  |---------------------|-------------------------------|---------------|
   | `trice( "Hi!\n");`  | `trice( iD(12345), "Hi!\n");` | no stamps     |
   | `Trice( "Hi!\n");`  | `Trice( iD(12345), "Hi!\n");` | 16-bit stamps |
   | `TRice( "Hi!\n");`  | `TRice( iD(12345), "Hi!\n");` | 32-bit stamps |
@@ -1573,17 +1573,17 @@ _### Tests
   - Previously updated (patched) user code copied to a different location:
 
     ```C
-    trice(12345, "Hi!\n"); // copied
-    trice(12345, "Hi!\n"); // original
-    trice(12345, "Hi!\n"); // copied
+    trice(iD(12345), "Hi!\n"); // copied
+    trice(iD(12345), "Hi!\n"); // original
+    trice(iD(12345), "Hi!\n"); // copied
     ```
 
   - After updating (patching) again:
 
     ```C
-    trice(12345, "Hi!\n");
-    trice( 1233, "Hi!\n"); // re-patched
-    trice( 1234, "Hi!\n"); // re-patched
+    trice(iD(12345), "Hi!\n");
+    trice(iD( 1233), "Hi!\n"); // re-patched
+    trice(iD( 1234), "Hi!\n"); // re-patched
     ```
   
     - If the code is copied inside the same file, the first occurrence after the copy stays unchanged and the following are modified.
@@ -1591,28 +1591,28 @@ _### Tests
   - Previously updated (patched) user code copied and modified:
 
     ```C
-    trice(12345, "Ha!\n"); // copied and modified
-    trice(12345, "Hi!\n"); // original
-    trice(12345, "Ha!\n"); // copied and modified
+    trice(iD(12345), "Ha!\n"); // copied and modified
+    trice(iD(12345), "Hi!\n"); // original
+    trice(iD(12345), "Ha!\n"); // copied and modified
     ```
 
   - After updating (patching) again:
 
     ```C
-    trice( 2333, "Ha!\n"); // re-patched
-    trice(12345, "Hi!\n"); // unchanged
-    trice( 1234, "Ha!\n"); // re-patched
+    trice(iD( 2333), "Ha!\n"); // re-patched
+    trice(iD(12345), "Hi!\n"); // unchanged
+    trice(iD( 1234), "Ha!\n"); // re-patched
     ```
 
   - If the code is copied to other files, it is re-patched.
 - A *Trice* **ID** is stays the same if the stamp size is changed. Example:
 
   ```C
-  trice( 12345, "Hi!" ); // original
+  trice( iD(12345), "Hi!" ); // original
   ```
 
   ```C
-  TRice( 12345, "Hi!" ); // manually changed stamp size and then "trice u" performed.
+  TRice( iD(12345), "Hi!" ); // manually changed stamp size and then "trice u" performed.
   ```
 
 ###  20.6. <a name='UserCodeUn-Patching'></a>User Code Un-Patching
