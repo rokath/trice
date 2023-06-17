@@ -531,7 +531,29 @@ func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, 
 	}
 }
 
-// ScZero does replace all ID's in source tree with 0
+// ScIdClean does removes all trice ID's in source tree.
+func ScIdClean(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
+	// todo: just a copy of ScZeroMulti right now.
+	if len(Srcs) == 0 {
+		Srcs = append(Srcs, "./") // default value
+	}
+	for i := range Srcs {
+		s := Srcs[i]
+		srcZ := s
+		if _, err := fSys.Stat(srcZ); err == nil { // path exists
+			zeroSourceTreeIds(w, fSys, srcZ, !DryRun)
+		} else if os.IsNotExist(err) { // path does *not* exist
+			fmt.Fprintln(w, s, " -> ", srcZ, "does not exist!")
+		} else {
+			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
+			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+		}
+	}
+	return nil
+}
+
+// ScZeroMulti does replace all ID's in source tree with 0
 func ScZeroMulti(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
 	if len(Srcs) == 0 {
 		Srcs = append(Srcs, "./") // default value

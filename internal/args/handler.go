@@ -77,11 +77,19 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		msg.OnErr(fsScUpdate.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return id.SubCmdUpdate(w, fSys)
+	case "i", "insert":
+		msg.OnErr(fsScInsert.Parse(subArgs))
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		return id.SubCmdIdInsert(w, fSys)
 	case "z", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		//  return id.ScZero(w, *pSrcZ, fsScZero)
 		return id.ScZeroMulti(w, fSys, fsScZero)
+	case "c", "clean":
+		msg.OnErr(fsScClean.Parse(subArgs))
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		return id.ScIdClean(w, fSys, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
