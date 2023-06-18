@@ -95,14 +95,16 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
 	lim := make(TriceIDLookUpLI, 4000)
 	ilu := NewLut(w, fSys, FnJSON)
 	flu := ilu.reverseS()
-	var listModified bool
+	var listModified int
 	o := len(ilu)
-	walkSrcs(w, fSys, ilu, flu, &listModified, lim, idsInsert)
+	itemLu := make(TriceItemLookUpID, 4000)
+	idLu := make(TriceIDLookupItem, 4000)
+	walkSrcsInsert(w, fSys, ilu, flu, &listModified, lim, itemLu, idLu, idsInsert)
 	if Verbose {
 		fmt.Fprintln(w, len(ilu), "ID's in List", FnJSON, "listModified=", listModified)
 	}
 
-	if (len(ilu) != o || listModified) && !DryRun {
+	if (len(ilu) != o || listModified > 0) && !DryRun {
 		msg.FatalOnErr(ilu.toFile(fSys, FnJSON))
 	}
 	if LIFnJSON == "off" || LIFnJSON == "none" {
@@ -132,8 +134,9 @@ func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
 	return lim.toFile(fSys, LIFnJSON)
 }
 
-func walkSrcs(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI, f func(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI)) {
-	if len(Srcs) == 0 {
+func walkSrcs(w io.Writer, fSys *afero.Afero /*******/, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI,
+	f func(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI)) {
+	if len(Srcs) == 0 { // Srcs is an array flag containing desired folders & files
 		Srcs = append(Srcs, "./") // default value
 	}
 	for i := range Srcs {
@@ -141,6 +144,26 @@ func walkSrcs(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmtLoo
 		srcU := s
 		if _, err := fSys.Stat(srcU); err == nil { // path exists
 			f(w, fSys, srcU, ilu, flu, pListModified, lim)
+		} else if os.IsNotExist(err) { // path does *not* exist
+			fmt.Fprintln(w, s, " -> ", srcU, "does not exist!")
+		} else {
+			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
+			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+		}
+	}
+}
+
+func walkSrcsInsert(w io.Writer, fSys *afero.Afero /**********/, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *int, lim TriceIDLookUpLI, itemLu TriceItemLookUpID, idLu TriceIDLookupItem,
+	/******/ f func(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *int, lim TriceIDLookUpLI, itemLu TriceItemLookUpID, idLu TriceIDLookupItem)) {
+	if len(Srcs) == 0 {
+		Srcs = append(Srcs, "./") // default value
+	}
+	for i := range Srcs {
+		s := Srcs[i]
+		srcU := s
+		if _, err := fSys.Stat(srcU); err == nil { // path exists
+			f(w, fSys, srcU, ilu, flu, pListModified, lim, itemLu, idLu)
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Fprintln(w, s, " -> ", srcU, "does not exist!")
 		} else {

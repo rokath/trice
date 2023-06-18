@@ -11,9 +11,9 @@ import (
 )
 
 type srcFile struct {
-	fn     string
-	clean  string
-	insert string
+	fn          string
+	clean       string
+	insertedIDs string
 }
 
 func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
@@ -41,8 +41,9 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 		}
 	}`
 	testSet := []srcFile{
-		{"file0.c", `TRice( "Hi!" );`, `TRice( iD( 1200), "Hi!" );`},
-		{"file1.c", `TRice( "Hi!" );`, `TRice( iD( 1201), "Hi!" );`},
+		// fn:       clean:                            insertedIDs:
+		{"file0.c", `TRice( "Hi!" );TRice( "Hi!" );`, `TRice( iD( 1200), "Hi!" ); TRice( iD( 1000), "Hi!" );`},
+		{"file1.c", `TRice( "Hi!" );TRice( "Hi!" );`, `TRice( iD( 1201), "Hi!" ); TRice( iD( 1001), "Hi!" );`},
 	}
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
@@ -59,13 +60,13 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-src", "."}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-src", ".", "-IDMin", "1000", "-IDMethod", "upward"}))
 
 	// check source files
 	for _, k := range testSet {
 		actSrc, e := fSys.ReadFile(k.fn)
 		assert.Nil(t, e)
-		assert.Equal(t, k.insert, string(actSrc))
+		assert.Equal(t, k.insertedIDs, string(actSrc))
 	}
 
 }
@@ -95,7 +96,7 @@ func TestInsertIDsIntoCleanFilesWithEmptyTilJSON(t *testing.T) {
 	for _, k := range testSet {
 		actSrc, e := fSys.ReadFile(k.fn)
 		assert.Nil(t, e)
-		assert.Equal(t, k.insert, string(actSrc))
+		assert.Equal(t, k.insertedIDs, string(actSrc))
 	}
 }
 

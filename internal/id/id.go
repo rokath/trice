@@ -81,3 +81,13 @@ type TriceLI struct {
 }
 
 type TriceIDLookUpLI map[TriceID]TriceLI
+
+type TriceItem struct {
+	fmt        TriceFmt
+	li         TriceLI
+	lineOffset int // line offset, several trices are allowed to be in one single line and must be distinguishable
+}
+
+type TriceItemLookUpID map[TriceItem]TriceID
+
+type TriceIDLookupItem map[TriceID]TriceItem
