@@ -97,7 +97,7 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
 	flu := ilu.reverseS()
 	var listModified bool
 	o := len(ilu)
-	walkSrcs(w, fSys, ilu, flu, &listModified, lim, idsUpdate)
+	walkSrcs(w, fSys, ilu, flu, &listModified, lim, idsInsert)
 	if Verbose {
 		fmt.Fprintln(w, len(ilu), "ID's in List", FnJSON, "listModified=", listModified)
 	}

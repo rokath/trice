@@ -205,7 +205,7 @@ func refreshList(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp,
 //   - Keep the ID which is in til.json and set others to 0 with message.
 //   - If none of the more than 1 time used ID is in til.json set all to 0 with message.
 // - Check if in source code exist IDs not in til.json so far and extend til.json if there is no conflict.
-//  - If the ID in soure code is already used in til.json differently set the ID in source code to 0 with message.
+//  - If the ID in source code is already used in til.json differently set the ID in source code to 0 with message.
 // NOT NEEDED: - Check if in til.json ID's not in source tree and mark them with `removed` timestamp.
 // NOT NEEDED:   - If several source trees use same til.json, the `removed` timestamp is without sense.
 // NOT NEEDED:   - If a `removed` timestamp is set, but the ID is in the source tree the `removed` timestamp is set to 0.
