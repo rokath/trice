@@ -16,6 +16,10 @@ type srcFile struct {
 	insertedIDs string
 }
 
+// TestInsertIDsIntoCleanFilesWithTilJSON ...
+//
+// IDs 1200 & 1201 are exist, so they are expected to be restored on the old position.
+// The IDs 1000 & 1001 are newly assigned.
 func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 	// trice ID list
 	tilJSON := `{

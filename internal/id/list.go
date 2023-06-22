@@ -154,6 +154,7 @@ func walkSrcs(w io.Writer, fSys *afero.Afero /*******/, ilu TriceIDLookUp, flu t
 	}
 }
 
+// walkSrcsInsert calls f for each file in selected source tree.
 func walkSrcsInsert(w io.Writer, fSys *afero.Afero /**********/, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *int, lim TriceIDLookUpLI, itemLu TriceItemLookUpID, idLu TriceIDLookupItem,
 	/******/ f func(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *int, lim TriceIDLookUpLI, itemLu TriceItemLookUpID, idLu TriceIDLookupItem)) {
 	if len(Srcs) == 0 {

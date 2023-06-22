@@ -76,6 +76,7 @@ func insertParamCountAndID0(w io.Writer, text string, extendMacroName bool) (str
 }
 
 // idsInsert is for now a copy of idsUpdate
+// idsInsert is called for each source tree file
 func idsInsert(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *int, lim TriceIDLookUpLI, itemLu TriceItemLookUpID, idLu TriceIDLookupItem) {
 	if Verbose && FnJSON != "emptyFile" {
 		fmt.Fprintln(w, "dir=", root)
@@ -84,8 +85,11 @@ func idsInsert(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, f
 	msg.FatalInfoOnErr(fSys.Walk(root, visitInsert(w, fSys, ilu, flu, pListModified, lim)), "failed to walk tree")
 }
 
+// triceIDInsertion does the real ID insertion task.
+// If file was modified it returns fileModified 1.
 func triceIDInsertion(
 	w io.Writer, // messages destination
+	fSys *afero.Afero, // file system
 	path string, // file name
 	fi os.FileInfo, // file type
 	ilu TriceIDLookUp, // id lookup map with history, extendable
@@ -93,8 +97,42 @@ func triceIDInsertion(
 	lim TriceIDLookUpLI, // location information map only as lookup reference
 	itemLu TriceItemLookUpID, // build from current source tree
 	idLu TriceIDLookupItem, // build from current source tree
-) int {
-	return 1
+) (fileModified int, err error) {
+
+	//  if isCFile(fileName) {
+	//  	text, fileModified2 = updateTriceFileId(w, lu, flu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
+	//  }
+
+	// wipwipwipwipwip
+
+	text, err := readFile(w, fSys, path, fi, nil)
+	if nil != err {
+		return 0, err
+	}
+	fileName := filepath.Base(path)
+
+	var dummy bool
+
+	// todo: each file is parsed 3 times -> put this in one function
+	textN, fileModified0 := insertParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                                      // update parameter count: TRICE* to TRICE*_n
+	textU, fileModified1 := insertIDsUniqOrShared(w, false /*SharedIDs*/, Min, Max, SearchMethod, textN, ilu, flu, &dummy /*pListModified*/) // update IDs: Id(0) -> Id(M)
+	insertIDs(w, fileName, textU, ilu, flu, lim)                                                                                             // workaround: do it again to update li.json.
+
+	// write out
+	if fileModified0 || fileModified1 /*|| fileModified2*/ {
+		fileModified = 1
+	}
+	if fileModified == 1 && !DryRun {
+		if Verbose {
+			fmt.Fprintln(w, "Changed: ", path)
+		}
+		err = fSys.WriteFile(path, []byte(textU), fi.Mode())
+		if err != nil {
+			return 0, fmt.Errorf("failed to change %s: %v", path, err)
+		}
+	}
+
+	return fileModified, nil
 }
 
 // visitInsert is for now a copy of visitUpdate
@@ -116,47 +154,15 @@ func visitInsert(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmt
 	// containing directory.
 	return func(path string, fi os.FileInfo, err error) error {
 
-		//  if isCFile(fileName) {
-		//  	text, fileModified2 = updateTriceFileId(w, lu, flu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
-		//  }
-
-		///////////////////////////
-		///////////////////////////
-		///////////////////////////
-
-		text, err := readFile(w, fSys, path, fi, err)
-		if nil != err {
-			return err
-		}
-		fileName := filepath.Base(path)
-
-		var dummy bool
-
-		// todo: each file is parsed 3 times -> put this in one function
-		textN, fileModified0 := insertParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                                      // update parameter count: TRICE* to TRICE*_n
-		textU, fileModified1 := insertIDsUniqOrShared(w, false /*SharedIDs*/, Min, Max, SearchMethod, textN, ilu, flu, &dummy /*pListModified*/) // update IDs: Id(0) -> Id(M)
-		insertIDs(w, fileName, textU, ilu, flu, lim)                                                                                             // workaround: do it again to update li.json.
-
-		// write out
-		fileModified := fileModified0 || fileModified1 /*|| fileModified2*/
-		if fileModified && !DryRun {
-			if Verbose {
-				fmt.Fprintln(w, "Changed: ", path)
-			}
-			err = fSys.WriteFile(path, []byte(textU), fi.Mode())
-			if nil != err {
-				return fmt.Errorf("failed to change %s: %v", path, err)
-			}
-		}
-
 		///////////////////////////
 		///////////////////////////
 		///////////////////////////
 		var itemLu TriceItemLookUpID
 		var idLu TriceIDLookupItem
 
-		*pListModified += triceIDInsertion(
+		modified, err := triceIDInsertion(
 			w,      // messages destination
+			fSys,   // file system
 			path,   // file name
 			fi,     // file type
 			ilu,    // id lookup map with history, extendable
@@ -165,6 +171,10 @@ func visitInsert(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmt
 			itemLu, // build from current source tree
 			idLu)   // build from current source tree
 
+		if err != nil {
+			return err
+		}
+		*pListModified += modified
 		///////////////////////////
 		///////////////////////////
 		///////////////////////////
@@ -253,6 +263,8 @@ func insertIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, 
 
 // insertIDs is for now a copy of refreshIDs.
 // refreshIDs parses text for valid trices tf and adds them to ilu & flu and updates location information map lim.
+//
+// insertIDs ist called for each file (fileName)
 func insertIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu triceFmtLookUp, lim TriceIDLookUpLI) {
 	subs := text[:] // create a copy of text and assign it to subs
 	line := 1       // source cole lines start with 1 for some reason
