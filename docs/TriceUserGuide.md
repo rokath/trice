@@ -82,10 +82,11 @@
   - [19. ID reference list **til.json**](#19-id-reference-list-tiljson)
     - [19.1. **til.json** Version control](#191-tiljson-version-control)
     - [19.2. Long Time Availability](#192-long-time-availability)
-  - [20. The `trice update` Algorithm](#20-the-trice-update-algorithm)
+  - [20. The `trice insert` Algorithm](#20-the-trice-insert-algorithm)
     - [20.1. Starting Conditions](#201-starting-conditions)
     - [20.2. Aims](#202-aims)
     - [20.3. Method](#203-method)
+      - [`insert` Initialization](#insert-initialization)
     - [20.4. User Code Patching (`trice update`)](#204-user-code-patching-trice-update)
     - [20.5. User Code Patching Examples](#205-user-code-patching-examples)
     - [20.6. User Code Un-Patching](#206-user-code-un-patching)
@@ -1436,54 +1437,71 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  20. <a name='Thetriceupdatealgorithm'></a>The `trice update` Algorithm
+##  20. <a name='Thetriceupdatealgorithm'></a>The `trice insert` Algorithm
 
 ###  20.1. <a name='StartingConditions'></a>Starting Conditions
 
-- Before `trice u` is executed on a source tree, the starting conditions are partially undefined:
+- Before `trice i` is executed on a source tree, the starting conditions are partially undefined:
   - A trice ID list file `til.json` file must exist, but it is allowed to be empty.
     - The `til.json` is a serialized key-value map, where
       - the keys are the IDs i and
       - the values are *Trice* format string structs (bit width plus format string) named f.
       - When de-serializing it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not done.
-        - The trice tool will report that as error.
-      - This ID look-up is the key-value map `ilu TriceIDLookUp` as `map[TriceID]TriceFmt`.
+        - The trice tool will report that as error and stop.
+      - This ID look-up is the key-value map `idToFmt TriceIDLookUp` as `map[TriceID]TriceFmt`.
         - Each ID i as key, points to one and only one f.
         - The TriceFmt structs contains the parameter width and the format string.
-      - The ilu is reverted then into `flu triceFmtLookUp` as map[TriceFmt]TriceIDs.
+      - The idToFmt is reverted then into `fmtToId triceFmtLookUp` as map[TriceFmt]TriceIDs.
         - `TriceIDs` is a triceID slice because the identical f can have several ids (no shared IDs).
-        - The format struct f look-up map flu is used internally for faster access and always in sync with ilu.
-    - ilu and flu together are named lu.
+        - The format struct f look-up map fmtToId is used internally for faster access and always in sync with idToFmt.
+    - idToFmt and fmtToId together are named lu.
   - A location information file `li.json` may exist or not.
-    - The `li.json` is a serialized key-value map `li TriceIDLookUpLI`, a `map[TriceID]TriceLI`, where
+    - The `li.json` is a serialized key-value map `idToLocRef TriceIDLookUpLI`, a `map[TriceID]TriceLI`, where
       - the keys are the IDs i and
       - the values are the location information (filename, line and position in line) structs.
-    - Each ID as key points to one and only one li.
+    - Each ID as key points to one and only one location information.
 - The `til.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
-  - That is possible after code edit, for example code copied or modified.
+  - That is possible after code edit, for example or code copied or modified.
   - One and only one position is used and relevant, all others are ignored. If no `til.json` exists on the expected location the user must provide one, at least an empty file.
 - The `li.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
   - One and only one position is used and relevant, all others are ignored. If no `li.json` exists on the expected location trice update creates one there.
-- The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. To keep `trice u` short in execution. `trice refresh` could be run in such cases.
+- The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. <!-- To keep `trice u` short in execution. `trice refresh` could be run in such cases. -->
 
 ###  20.2. <a name='Aims'></a>Aims
 
-- The `trice u` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
+- The `trice insert` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 - Also the changes should be minimal.
-- As a general rule lu (ilu and flu) is only extendable.
+- As a general rule lu is only extendable.
 - li is rebuild from scratch.
+- For faster operation files will be processed parallel.
+- To keep the ID management simple, the `insert` operation acts "per file". That means, that in case a file is renamed or code containing trice statements is copied to an other file, new IDs are generated for the affectes trices.
+  - File name changes occur are not that often, so tha should be acceptable.
 
 ###  20.3. <a name='Method'></a>Method
 
-- De-serialize `li.json`. On error abort and report for manual correction. One result is a slice with used IDs.
-- De-serialize `til.json`. On error abort and report for manual correction. As result the slice with used IDs is extended.
-- Create a slice IRroom with numbers IDmin ... IDmax (1 ... 16383)
-- Remove all used IDs from there.
+#### `insert` Initialization
+
+```Go
+// insertIDsData holds the insert run specific data.
+type insertIDsData struct {
+    idToFmt    TriceIDLookUp     // idToFmt is a trice ID lookup map and is generated from existing til.json file at the begin of SubCmdIdInsert. This map is only extended during SubCmdIdInsert and goes back into til.json afterwards.
+    fmtToId    triceFmtLookUp    // fmtToId is a trice fmt lookup map (reversed idToFmt for faster operation) and kept in sync with idToFmt. Each fmt can have several trice IDs (slice).
+    idToLocRef TriceIDLookUpLI   // idToLocInf is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
+    itemToId   TriceItemLookUpID // itemToId is a trice item lookup ID map, extended from source tree during SubCmdIdInsert after each found and maybe modified trice item.
+    idToItem   TriceIDLookupItem // idToItem is a trice ID lookup item map (reversed itemToId for faster operation) and kept in sync with itemToId.
+}
+```
+
+- Create a `insertIDsData` instance.
+- De-serialize `til.json` into `idToFmt` and `fmtToId`. On error abort and report for manual correction. One result is a slice with used IDs.
+- De-serialize `li.json` into `idToLocRef`. On error abort and report for manual correction. As result the slice with used IDs is extended.
+  - If `li.json` contains IDs not already inside `til.json`, these are reported as warning.
+  - `idToLocRef` stays untouched and is used only in cases when identical f are found.
+- Create a slice `IDSpace` with numbers IDmin ... IDmax (1 ... 16383, or 1000 ... 1999 if specified in the command line that way)
+- Remove all used IDs from `IDSpace`.
   - If used IDs outside IDmin and IDmax, for example IDmin=1000, IDmax=1999 and some used IDs are bigger or smaller these are not removable from IDroom what is ok.
+- Create empty `itemToId` and `idToItem`.
 
-> ? - li is renamed into oli, which stays untouched and is used only in cases when identical f are found.
-
-> ? - A new empty li is created (and used for duplicate detection too?).
 
 - Walk the src and create a **s**ource **t**ree **m**ap STM with
   - key=`Trice+LI` and

@@ -89,40 +89,6 @@ func updateList(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, lim TriceIDLo
 	return nil // SubCmdUpdate() // todo?
 }
 
-type projectInfo struct {
-	lim    TriceIDLookUpLI   // existing location information as reference
-	ilu    TriceIDLookUp     // trice ID lookup map
-	flu    triceFmtLookUp    // trice fmt lookup map (reversed ilu for faster operation)
-	itemLu TriceItemLookUpID // trice item lookup ID map
-	idLu   TriceIDLookupItem // trice ID lookup item map
-	// triceIDsExtended int
-	// triceLIModified int
-}
-
-// SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
-func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
-	// todo: right now just a copy of SubCmdUpdate
-	lim := make(TriceIDLookUpLI, 4000)
-	ilu := NewLut(w, fSys, FnJSON)
-	flu := ilu.reverseS()
-	o := len(ilu)
-	itemLu := make(TriceItemLookUpID, 4000)
-	idLu := make(TriceIDLookupItem, 4000)
-	var listModified int
-	walkSrcsInsert(w, fSys, ilu, flu, &listModified, lim, itemLu, idLu, idsInsert)
-	if Verbose {
-		fmt.Fprintln(w, len(ilu), "ID's in List", FnJSON, "listModified=", listModified)
-	}
-
-	if (len(ilu) != o || listModified > 0) && !DryRun {
-		msg.FatalOnErr(ilu.toFile(fSys, FnJSON))
-	}
-	if LIFnJSON == "off" || LIFnJSON == "none" {
-		return nil
-	}
-	return lim.toFile(fSys, LIFnJSON)
-}
-
 // SubCmdUpdate is sub-command update
 func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
 	lim := make(TriceIDLookUpLI, 4000)
@@ -154,27 +120,6 @@ func walkSrcs(w io.Writer, fSys *afero.Afero /*******/, ilu TriceIDLookUp, flu t
 		srcU := s
 		if _, err := fSys.Stat(srcU); err == nil { // path exists
 			f(w, fSys, srcU, ilu, flu, pListModified, lim)
-		} else if os.IsNotExist(err) { // path does *not* exist
-			fmt.Fprintln(w, s, " -> ", srcU, "does not exist!")
-		} else {
-			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
-			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
-		}
-	}
-}
-
-// walkSrcsInsert calls f for each file in selected source tree.
-func walkSrcsInsert(w io.Writer, fSys *afero.Afero /**********/, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *int, lim TriceIDLookUpLI, itemLu TriceItemLookUpID, idLu TriceIDLookupItem,
-	/******/ f func(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *int, lim TriceIDLookUpLI, itemLu TriceItemLookUpID, idLu TriceIDLookupItem)) {
-	if len(Srcs) == 0 {
-		Srcs = append(Srcs, "./") // default value
-	}
-	for i := range Srcs {
-		s := Srcs[i]
-		srcU := s
-		if _, err := fSys.Stat(srcU); err == nil { // path exists
-			f(w, fSys, srcU, ilu, flu, pListModified, lim, itemLu, idLu)
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Fprintln(w, s, " -> ", srcU, "does not exist!")
 		} else {

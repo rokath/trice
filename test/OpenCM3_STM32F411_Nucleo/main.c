@@ -103,7 +103,7 @@ void exti15_10_isr(void)
 {
 	exti_reset_request(EXTI13);
 	#if TRICE_MODE == 200
-	TRICE( Id( 4863),"Button press at, %d\n", system_millis);
+	TRICE( Id( 6665),"Button press at, %d\n", system_millis);
 	#endif
 }
 

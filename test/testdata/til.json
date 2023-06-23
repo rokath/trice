@@ -111,6 +111,10 @@
 		"Type": "TRICE",
 		"Strg": "--------------------------------------------------\\n"
 	},
+	"1157": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	},
 	"1165": {
 		"Type": "Trice32_11",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -447,6 +451,10 @@
 		"Type": "TRice16_7",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1701": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice 2x half buffer size:%4u "
+	},
 	"1716": {
 		"Type": "trice64",
 		"Strg": "msg:value=%d, %d, %d\\n"
@@ -639,6 +647,10 @@
 		"Type": "TRICE",
 		"Strg": "INFO:informal   message, SysTick is %6u\\n"
 	},
+	"2018": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"2019": {
 		"Type": "TRICE",
 		"Strg": "WRITE:black+u:yellow+h\\n"
@@ -787,6 +799,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X\\n"
 	},
+	"2280": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
 	"2282": {
 		"Type": "TRICE8_1",
 		"Strg": "value=%d\\n"
@@ -846,6 +862,10 @@
 	"2383": {
 		"Type": "TRICE",
 		"Strg": "2"
+	},
+	"2385": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"2387": {
 		"Type": "trice16_1",
@@ -1015,6 +1035,10 @@
 		"Type": "TRice32",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"2619": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"2629": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\\n"
@@ -1167,6 +1191,10 @@
 		"Type": "TRICE",
 		"Strg": "tim:TRICE --------------------------------------------------\\n"
 	},
+	"2926": {
+		"Type": "TRICE",
+		"Strg": "Hello, TRICE\\n"
+	},
 	"2935": {
 		"Type": "trice32",
 		"Strg": "value=%d\\n"
@@ -1178,6 +1206,10 @@
 	"2943": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %g (%%g)\\n"
+	},
+	"2944": {
+		"Type": "TRICE32",
+		"Strg": "att:Single Trice Stack buf size:%4u"
 	},
 	"2945": {
 		"Type": "TRICE64",
@@ -1971,6 +2003,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:%E (%%E)\\n"
 	},
+	"4030": {
+		"Type": "TRICE",
+		"Strg": "Hello, TRICE, %d\\n"
+	},
 	"4033": {
 		"Type": "TRICE32_9",
 		"Strg": "tst:TRICE32_9  %d %d %d %d %d %d %d %d %d\\n"
@@ -2122,6 +2158,10 @@
 	"4241": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d\\n"
+	},
+	"4245": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
 	},
 	"4261": {
 		"Type": "TRICE32_1",
@@ -2327,6 +2367,10 @@
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
 	},
+	"4604": {
+		"Type": "TRICE0",
+		"Strg": "s:     "
+	},
 	"4605": {
 		"Type": "TRICE",
 		"Strg": "rd: 15 \t%d \tBase 10\\n"
@@ -2402,6 +2446,10 @@
 	"4682": {
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3  %d %d %d\\n"
+	},
+	"4683": {
+		"Type": "TRICE0",
+		"Strg": "Hello, TRICE\\n"
 	},
 	"4696": {
 		"Type": "TRICE",
@@ -2622,6 +2670,10 @@
 	"5059": {
 		"Type": "TRICE32_1",
 		"Strg": "tst:TRICE32_1  %d\\n"
+	},
+	"5060": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-F411RE     TRICE_MODE %3u     \\n"
 	},
 	"5067": {
 		"Type": "TRICE64_5",
@@ -3443,6 +3495,10 @@
 		"Type": "TRICE",
 		"Strg": "value=%d\\n"
 	},
+	"6329": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"6334": {
 		"Type": "TRICE32_1",
 		"Strg": "tst:TRICE32_1 %d\\n"
@@ -3458,6 +3514,10 @@
 	"6356": {
 		"Type": "Trice16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"6357": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"6371": {
 		"Type": "TRICE8_7",
@@ -3647,9 +3707,17 @@
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %d %d %d %d\\n"
 	},
+	"6665": {
+		"Type": "TRICE",
+		"Strg": "Button press at, %d\\n"
+	},
 	"6667": {
 		"Type": "TRice16_1",
 		"Strg": "msg:value=%d\\n"
+	},
+	"6668": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
 	},
 	"6675": {
 		"Type": "TRICE8",
@@ -3694,6 +3762,10 @@
 	"6770": {
 		"Type": "TRICE",
 		"Strg": "sig:Runtime generated strings\\n"
+	},
+	"6782": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"6796": {
 		"Type": "TRICE8_B",
@@ -3830,6 +3902,10 @@
 	"6987": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d\\n"
+	},
+	"7004": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"7005": {
 		"Type": "TRICE",
@@ -3974,6 +4050,10 @@
 	"7252": {
 		"Type": "TRICE16_9",
 		"Strg": "tst:TRICE16_9  %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"7263": {
+		"Type": "TRICE0",
+		"Strg": "Hello, TRICE0()\\n"
 	},
 	"7266": {
 		"Type": "TRICE64",
@@ -4135,6 +4215,10 @@
 		"Type": "TRice64",
 		"Strg": "value=%d\\n"
 	},
+	"7505": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	},
 	"7507": {
 		"Type": "TRICE32",
 		"Strg": "dbg:len=%u: "
@@ -4198,6 +4282,14 @@
 	"7604": {
 		"Type": "TRice16",
 		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"7611": {
+		"Type": "TRICE0",
+		"Strg": "s:     \\n"
+	},
+	"7612": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\\n\\n\\n"
 	},
 	"7615": {
 		"Type": "Trice16_2",

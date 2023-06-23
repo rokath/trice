@@ -105,12 +105,12 @@ extern "C" {
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
     TRICE0( Id( 6668), "s:                                          \n" ); \
-    TRICE8( Id( 5952), "s:     NUCLEO-F411RE     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE8( Id( 5060), "s:     NUCLEO-F411RE     TRICE_MODE %3u     \n", TRICE_MODE ); \
     TRICE0( Id( 4245), "s:                                          \n" ); \
     TRICE0( Id( 4604), "s:     " ); \
     TRICE_BUFFER_INFO; \
     TRICE0( Id( 7611), "s:     \n" ); \
-    TRICE0( Id( 3748), "s:                                          \n");
+    TRICE0( Id( 2280), "s:                                          \n");
 
 
 //
