@@ -289,10 +289,6 @@ func visitUpdate(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmt
 		}
 		fileName := filepath.Base(path)
 
-		//  if isCFile(fileName) {
-		//  	text, fileModified2 = updateTriceFileId(w, lu, flu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
-		//  }
-
 		// todo: each file is parsed 3 times -> put this in one function
 		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                           // update parameter count: TRICE* to TRICE*_n
 		textU, fileModified1 := updateIDsUniqOrShared(w, false /*SharedIDs*/, Min, Max, SearchMethod, textN, ilu, flu, pListModified) // update IDs: Id(0) -> Id(M)

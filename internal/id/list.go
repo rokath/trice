@@ -89,16 +89,26 @@ func updateList(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, lim TriceIDLo
 	return nil // SubCmdUpdate() // todo?
 }
 
+type projectInfo struct {
+	lim    TriceIDLookUpLI   // existing location information as reference
+	ilu    TriceIDLookUp     // trice ID lookup map
+	flu    triceFmtLookUp    // trice fmt lookup map (reversed ilu for faster operation)
+	itemLu TriceItemLookUpID // trice item lookup ID map
+	idLu   TriceIDLookupItem // trice ID lookup item map
+	// triceIDsExtended int
+	// triceLIModified int
+}
+
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
 	// todo: right now just a copy of SubCmdUpdate
 	lim := make(TriceIDLookUpLI, 4000)
 	ilu := NewLut(w, fSys, FnJSON)
 	flu := ilu.reverseS()
-	var listModified int
 	o := len(ilu)
 	itemLu := make(TriceItemLookUpID, 4000)
 	idLu := make(TriceIDLookupItem, 4000)
+	var listModified int
 	walkSrcsInsert(w, fSys, ilu, flu, &listModified, lim, itemLu, idLu, idsInsert)
 	if Verbose {
 		fmt.Fprintln(w, len(ilu), "ID's in List", FnJSON, "listModified=", listModified)
