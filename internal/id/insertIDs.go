@@ -39,9 +39,27 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
 	// prepare
 	iid.itemToId = make(TriceItemLookUpID, 4000)
 	iid.idToItem = make(TriceIDLookupItem, 4000)
+	if len(Srcs) == 0 {
+		Srcs = append(Srcs, "./") // default value
+	}
 
 	// processing Srcs list ...
-	walkSrcsInsert(w, fSys, &iid, idsInsert)
+	for _, path := range Srcs {
+		if _, err := fSys.Stat(path); err == nil { // path exists
+			dir := path
+			iid.wg.Add(1)
+			go func() {
+				defer iid.wg.Done()
+				idsInsert(w, fSys, dir, &iid) // processing folders parallel
+			}()
+		} else if os.IsNotExist(err) { // path does *not* exist
+			fmt.Fprintln(w, path, "does not exist!")
+		} else {
+			fmt.Fprintln(w, path, "Schrodinger: file may or may not exist. See err for details.")
+			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+		}
+	}
 
 	// ...waiting
 	iid.wg.Wait()
@@ -58,25 +76,6 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
 	}
 	li := iid.idToLocRef // todo: derive from iid.idToItem
 	return li.toFile(fSys, LIFnJSON)
-}
-
-// walkSrcsInsert calls f for each file in selected source tree.
-func walkSrcsInsert(w io.Writer, fSys *afero.Afero /**********/, piid *insertIDsData,
-	/******/ f func(w io.Writer, fSys *afero.Afero, root string, piid *insertIDsData)) {
-	if len(Srcs) == 0 {
-		Srcs = append(Srcs, "./") // default value
-	}
-	for _, path := range Srcs {
-		if _, err := fSys.Stat(path); err == nil { // path exists
-			/*go*/ f(w, fSys, path, piid) // todo: parallel execution here (that is processing folders parallel)
-		} else if os.IsNotExist(err) { // path does *not* exist
-			fmt.Fprintln(w, path, "does not exist!")
-		} else {
-			fmt.Fprintln(w, path, "Schrodinger: file may or may not exist. See err for details.")
-			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
-		}
-	}
 }
 
 // idsInsert is passed as argument of walkSrcsInsert, called by SubCmdIdInsert and this way called for each path in Srcs.
@@ -116,13 +115,10 @@ func visitInsert(w io.Writer, fSys *afero.Afero, piid *insertIDsData) filepath.W
 			return err // forward any error and do nothing
 		}
 
-		///////////////////////////
-		///////////////////////////
-		///////////////////////////
 		piid.wg.Add(1)
 		go func() {
 			defer piid.wg.Done()
-			triceIDInsertion( // todo: for more speed start a go routine for each file here
+			triceIDInsertion( // processing files parallel
 				w,        // messages destination
 				fSys,     // file system
 				path,     // file name
