@@ -19,7 +19,7 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
 }
 
 // triceIDInsertion does the real ID insertion task.
-// For reference look into file TriceUserGuide.me part "The `trice insert` Algorithm".
+// For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
 func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, idd *idData) {
 
 	read, err := fSys.ReadFile(path)
