@@ -1,11 +1,13 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package id
+// package ant performs a function of type Processing on each file in several files, folders and sub-folders.
+package ant
 
 // source tree management
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -17,21 +19,23 @@ import (
 )
 
 // Processing is a function type, executed for each file inside the visit function.
-type Processing func(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, p *WalkData) error
+type Processing func(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, p *Admin) error
 
-// WalkData holds the walk specific data.
-type WalkData struct {
-	walkTreeData interface{}
-	wg           sync.WaitGroup // wg is sync medium for parallel processing.
-	action       Processing     // action is the function executed on each file in passed source tree.
-	errorCount   int
+// Admin holds the walk specific data.
+type Admin struct {
+	Trees            []string                  // Trees contains all files and folders to process. Sub-folders are walked automatically.
+	MatchingFileName func(fi os.FileInfo) bool // MatchingFileName is a user provided function and returns true on matching user conditions. Simplest case: func(_ os.FileInfo){ return true } for all files.
+	Action           Processing                // Action is the user provided function executed on each file in Trees.
+	TreesData        interface{}               // TreesData is a user provided struct with methods usable by Action internally.
+	wg               sync.WaitGroup            // wg is sync medium for parallel processing. Walk returns, when all parallel processed files done.
+	errorCount       int                       // errorCount gets incremented by each started go routine on an error.
 }
 
-// Walk performs f on each file in source tree.
-func (p *WalkData) Walk(w io.Writer, fSys *afero.Afero) error {
+// Walk performs p.action on each file in passed srcs and all sub trees.
+func (p *Admin) Walk(w io.Writer, fSys *afero.Afero) error {
 
-	// processing Srcs list ...
-	for _, path := range Srcs {
+	// processing tree list ...
+	for _, path := range p.Trees {
 		if _, err := fSys.Stat(path); err == nil { // path exists
 			path := path // make a copy for each go routine
 			p.wg.Add(1)
@@ -50,13 +54,17 @@ func (p *WalkData) Walk(w io.Writer, fSys *afero.Afero) error {
 
 	// ...waiting
 	p.wg.Wait()
+
+	if p.errorCount > 0 {
+		return errors.New(fmt.Sprint(p.errorCount, "walk errors"))
+	}
 	return nil
 }
 
 // visit is passed to fSys.Walk and executed for each file found in the processed root folder.
 // To speed processing up, for each file a go routine is started.
 // Error handling is done through abort.
-func visit(w io.Writer, fSys *afero.Afero, wd *WalkData) filepath.WalkFunc {
+func visit(w io.Writer, fSys *afero.Afero, jalan *Admin) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -74,17 +82,17 @@ func visit(w io.Writer, fSys *afero.Afero, wd *WalkData) filepath.WalkFunc {
 	// containing directory.
 	return func(path string, fileInfo os.FileInfo, err error) error {
 
-		if err != nil || fileInfo.IsDir() || !isSourceFile(fileInfo) {
+		if err != nil || fileInfo.IsDir() || !jalan.MatchingFileName(fileInfo) {
 			return err // forward any error and do nothing
 		}
 
-		wd.wg.Add(1)
+		jalan.wg.Add(1)
 		go func() {
-			defer wd.wg.Done()
-			err := wd.action(w, fSys, path, fileInfo, wd)
+			defer jalan.wg.Done()
+			err := jalan.Action(w, fSys, path, fileInfo, jalan)
 			if err != nil {
-				fmt.Fprintln(w, path, err)
-				wd.errorCount++
+				fmt.Fprintln(w, "Action on", path, "returned", err)
+				jalan.errorCount++
 			}
 		}()
 

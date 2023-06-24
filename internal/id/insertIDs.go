@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/rokath/trice/pkg/ant"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
@@ -26,14 +27,25 @@ type idData struct {
 
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
+	// create
 	p := new(idData)
-	wd := new(WalkData)
-	wd.walkTreeData = p
-	wd.action = triceIDInsertion
+	wd := new(ant.Admin)
 
+	// initialize
+	wd.TreesData = p
+	wd.Action = triceIDInsertion
+	if len(Srcs) == 0 {
+		wd.Trees = append(Srcs, "./") // default value
+	} else {
+		wd.Trees = Srcs
+	}
+	wd.MatchingFileName = isSourceFile
+
+	// process
 	p.PreProcessing(w, fSys)
 	err := wd.Walk(w, fSys)
 	p.PreProcessing(w, fSys)
+
 	return err
 }
 
@@ -48,12 +60,11 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 	// prepare
 	p.itemToId = make(TriceItemLookUpID, 4000)
 	p.idToItem = make(TriceIDLookupItem, 4000)
-	if len(Srcs) == 0 {
-		Srcs = append(Srcs, "./") // default value
-	}
+
 }
 
 func (p *idData) PostProcessing(w io.Writer, fSys *afero.Afero) {
+
 	// finalize
 	if Verbose {
 		fmt.Fprintln(w, len(p.idToFmt), "ID's in List", FnJSON)
@@ -73,7 +84,7 @@ func (p *idData) PostProcessing(w io.Writer, fSys *afero.Afero) {
 }
 
 // triceIDInsertion reads file, processes it and writes it back, if needed.
-func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, wd *WalkData) error {
+func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, jalan *ant.Admin) error {
 
 	in, err := fSys.ReadFile(path)
 	if err != nil {
@@ -83,7 +94,7 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 		fmt.Fprintln(w, path)
 	}
 
-	out, fileModified, err := insertTriceIDs(w, path, in, wd)
+	out, fileModified, err := insertTriceIDs(w, path, in, jalan)
 	if err != nil {
 		return err
 	}
@@ -100,11 +111,11 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 // insertTriceIDs does the real ID insertion task on in and returns the result in out.
 // modified gets true when any changes where made.
 // For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
-func insertTriceIDs(w io.Writer, path string, in []byte, wd *WalkData) (out []byte, modified bool, err error) {
+func insertTriceIDs(w io.Writer, path string, in []byte, jalan *ant.Admin) (out []byte, modified bool, err error) {
 
 	//text := string(read)
 	// todo: insert action using path && wd
-	_, err = fmt.Fprintln(w, "processing", path)
+	_, err = fmt.Fprintln(w, "processing", path) // todo, jalan.TreesData.idCount)
 
 	return in, modified, err
 }
