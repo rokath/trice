@@ -90,7 +90,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		msg.OnErr(fsScClean.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return id.SubCmdIdClean(w, fSys)
-	//  case "clean":
+	//  case "clear": // todo: remove
 	//  	msg.OnErr(fsScClean.Parse(subArgs))
 	//  	w = do.DistributeArgs(w, fSys, logfileName, verbose)
 	//  	return id.ScIdClean(w, fSys, fsScZero)

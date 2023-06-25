@@ -54,21 +54,24 @@ const (
 
 	patID = `\s*\b(i|I)(d|D)\b\s*` // `\s*\b(I|i)d\b\s*`
 
-	patNumber = `\d+`
+	//patNumber = `\d+`
 
 	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 	patNbID = `\b` + patID + `\(\s*[0-9]*\s*\)`
 
+	patNb = `\d+` // // `[0-9]*`
+
 	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
 	patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
 
-	patIncludeTriceHeader = `#include\s*"trice\.h"`
+	//patIncludeTriceHeader = `#include\s*"trice\.h"`
 )
 
 var (
 	matchSourceFile          = regexp.MustCompile(patSourceFile)
 	matchNbTRICE             = regexp.MustCompile(patNbTRICE)
 	matchNbID                = regexp.MustCompile(patNbID)
+	matchNb                  = regexp.MustCompile(patNb)
 	matchTypNameTRICE        = regexp.MustCompile(patTypNameTRICE)
 	matchFmtString           = regexp.MustCompile(patFmtString)
 	matchNextFormatSpecifier = regexp.MustCompile(patNextFormatSpecifier)
