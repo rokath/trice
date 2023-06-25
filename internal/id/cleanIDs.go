@@ -47,6 +47,7 @@ func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 
 // cleanTriceIDs does the ID clearance task on in, uses local pointer idd and returns the result in out with modified==true when any changes where made.
 // For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
+// The trice id numbers n are set to 0, but the iD(n), id(n), Id(n) or iD(n) stay untouched.
 func cleanTriceIDs(w io.Writer, path string, in []byte, _ *ant.Admin) (out []byte, modified bool) {
 
 	//a.Mutex.RLock()
