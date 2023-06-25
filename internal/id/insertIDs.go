@@ -11,80 +11,16 @@ import (
 	"os"
 
 	"github.com/rokath/trice/pkg/ant"
-	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
 
-// idData holds the Id specific data.
-type idData struct {
-	idToFmt    TriceIDLookUp     // idToFmt is a trice ID lookup map and is generated from existing til.json file at the begin of SubCmdIdInsert. This map is only extended during SubCmdIdInsert and goes back into til.json afterwards.
-	fmtToId    triceFmtLookUp    // fmtToId is a trice fmt lookup map (reversed idToFmt for faster operation) and kept in sync with idToFmt. Each fmt can have several trice IDs (slice).
-	idToLocRef TriceIDLookUpLI   // idToLocInf is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
-	itemToId   TriceItemLookUpID // itemToId is a trice item lookup ID map, extended from source tree during SubCmdIdInsert after each found and maybe modified trice item.
-	idToItem   TriceIDLookupItem // idToItem is a trice ID lookup item map (reversed itemToId for faster operation) and kept in sync with itemToId.
-	idCount    int               // initial ID count
-}
-
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
-	// create
-	p := new(idData)
-	wd := new(ant.Admin)
-
-	// initialize
-	wd.TreesData = p
-	wd.Action = triceIDInsertion
-	if len(Srcs) == 0 {
-		wd.Trees = append(Srcs, "./") // default value
-	} else {
-		wd.Trees = Srcs
-	}
-	wd.MatchingFileName = isSourceFile
-
-	// process
-	p.PreProcessing(w, fSys)
-	err := wd.Walk(w, fSys)
-	p.PreProcessing(w, fSys)
-
-	return err
-}
-
-func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
-
-	// get state
-	p.idToFmt = NewLut(w, fSys, FnJSON)
-	p.fmtToId = p.idToFmt.reverseS()
-	p.idCount = len(p.idToFmt)
-	p.idToLocRef = make(TriceIDLookUpLI, 4000)
-
-	// prepare
-	p.itemToId = make(TriceItemLookUpID, 4000)
-	p.idToItem = make(TriceIDLookupItem, 4000)
-
-}
-
-func (p *idData) PostProcessing(w io.Writer, fSys *afero.Afero) {
-
-	// finalize
-	if Verbose {
-		fmt.Fprintln(w, len(p.idToFmt), "ID's in List", FnJSON)
-	}
-	idsAdded := len(p.idToFmt) - p.idCount
-	if idsAdded > 0 && !DryRun {
-		if Verbose {
-			fmt.Fprintln(w, idsAdded, "ID's were added to List", FnJSON)
-		}
-		msg.FatalOnErr(p.idToFmt.toFile(fSys, FnJSON))
-	}
-	if LIFnJSON == "off" || LIFnJSON == "none" {
-		return
-	}
-	li := p.idToLocRef // todo: derive from iid.idToItem
-	msg.FatalInfoOnErr(li.toFile(fSys, LIFnJSON), "could not write LIFnJSON")
+	return cmdManageTriceIDs(w, fSys, triceIDInsertion)
 }
 
 // triceIDInsertion reads file, processes it and writes it back, if needed.
-func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, jalan *ant.Admin) error {
+func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
 
 	in, err := fSys.ReadFile(path)
 	if err != nil {
@@ -94,7 +30,7 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 		fmt.Fprintln(w, path)
 	}
 
-	out, fileModified, err := insertTriceIDs(w, path, in, jalan)
+	out, fileModified, err := insertTriceIDs(w, path, in, a)
 	if err != nil {
 		return err
 	}
@@ -108,14 +44,16 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 	return err
 }
 
-// insertTriceIDs does the real ID insertion task on in and returns the result in out.
-// modified gets true when any changes where made.
+// insertTriceIDs does the ID insertion task on in, uses local pointer idd and returns the result in out with modified==true when any changes where made.
 // For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
-func insertTriceIDs(w io.Writer, path string, in []byte, jalan *ant.Admin) (out []byte, modified bool, err error) {
+func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 
 	//text := string(read)
 	// todo: insert action using path && wd
-	_, err = fmt.Fprintln(w, "processing", path) // todo, jalan.TreesData.idCount)
+	a.Mutex.RLock()
+	tfmt, found := idd.idToFmt[TriceID(1)]
+	_, err = fmt.Fprintln(w, "insertingt", path, found, tfmt)
+	a.Mutex.RUnlock()
 
 	return in, modified, err
 }

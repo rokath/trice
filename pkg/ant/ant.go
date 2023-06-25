@@ -26,7 +26,7 @@ type Admin struct {
 	Trees            []string                  // Trees contains all files and folders to process. Sub-folders are walked automatically.
 	MatchingFileName func(fi os.FileInfo) bool // MatchingFileName is a user provided function and returns true on matching user conditions. Simplest case: func(_ os.FileInfo){ return true } for all files.
 	Action           Processing                // Action is the user provided function executed on each file in Trees.
-	TreesData        interface{}               // TreesData is a user provided struct with methods usable by Action internally.
+	Mutex            sync.RWMutex              // A sync.RWMutex is thus preferable for data that is mostly read.
 	wg               sync.WaitGroup            // wg is sync medium for parallel processing. Walk returns, when all parallel processed files done.
 	errorCount       int                       // errorCount gets incremented by each started go routine on an error.
 }
