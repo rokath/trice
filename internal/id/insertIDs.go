@@ -52,7 +52,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 	// todo: insert action using path && wd
 	a.Mutex.RLock()
 	tfmt, found := idd.idToFmt[TriceID(1)]
-	_, err = fmt.Fprintln(w, "insertingt", path, found, tfmt)
+	_, err = fmt.Fprintln(w, "inserting to", path, found, tfmt)
 	a.Mutex.RUnlock()
 
 	return in, modified, err

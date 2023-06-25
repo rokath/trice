@@ -89,7 +89,11 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	case "c", "clean":
 		msg.OnErr(fsScClean.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
-		return id.ScIdClean(w, fSys, fsScZero)
+		return id.SubCmdIdClean(w, fSys)
+	//  case "clean":
+	//  	msg.OnErr(fsScClean.Parse(subArgs))
+	//  	w = do.DistributeArgs(w, fSys, logfileName, verbose)
+	//  	return id.ScIdClean(w, fSys, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
