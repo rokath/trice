@@ -21,7 +21,8 @@ type idData struct {
 	idToLocRef TriceIDLookUpLI   // idToLocInf is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
 	itemToId   TriceItemLookUpID // itemToId is a trice item lookup ID map, extended from source tree during SubCmdIdInsert after each found and maybe modified trice item.
 	idToItem   TriceIDLookupItem // idToItem is a trice ID lookup item map (reversed itemToId for faster operation) and kept in sync with itemToId.
-	idCount    int               // initial ID count
+	idCount    int               // idCount is the initial used ID count.
+	IDSpace    []TriceID         // IDSpace contains unused IDs.
 }
 
 var (
@@ -36,10 +37,25 @@ func (p *idData) preProcessing(w io.Writer, fSys *afero.Afero) {
 	p.idCount = len(p.idToFmt)
 	p.idToLocRef = make(TriceIDLookUpLI, 4000)
 
+	// create IDSpace
+	p.IDSpace = make([]TriceID, 0, Max-Min+1)
+	for id := Min; id <= Max; id++ {
+		_, usedFmt := p.idToFmt[id]
+		_, usedLoc := p.idToLocRef[id]
+		if !usedFmt && !usedLoc {
+			p.IDSpace = append(p.IDSpace, id)
+		}
+		if usedFmt && !usedLoc {
+			fmt.Fprintln(w, "ID", id, "only inside til.json")
+		}
+		if !usedFmt && usedLoc {
+			fmt.Fprintln(w, "ID", id, "only inside li.json")
+		}
+	}
+
 	// prepare
 	p.itemToId = make(TriceItemLookUpID, 4000)
 	p.idToItem = make(TriceIDLookupItem, 4000)
-
 }
 
 func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) {

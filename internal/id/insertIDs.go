@@ -50,11 +50,32 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 
 	//text := string(read)
 	// todo: insert action using path && wd
-	a.Mutex.RLock()
-	tfmt, found := idd.idToFmt[TriceID(1)]
-	_, err = fmt.Fprintln(w, "inserting to", path, found, tfmt)
-	a.Mutex.RUnlock()
+	//  a.Mutex.RLock()
+	//  tfmt, found := idd.idToFmt[TriceID(1)]
+	//  _, err = fmt.Fprintln(w, "inserting to", path, found, tfmt)
+	//  a.Mutex.RUnlock()
 
+	s := string(in)
+	rest := s
+
+	for {
+		loc := matchNbTRICE.FindStringIndex(rest) // loc is the position of the next trice statement.
+		if loc == nil {
+			break // done
+		}
+		nbTRICE := rest[loc[0]:loc[1]]
+		nbID := matchNbID.FindString(nbTRICE) // nbID is the `ID(n)` inside the trice statement.
+		if nbID == "" {
+			// no id(n) - todo
+		}
+		nb := matchNb.FindString(nbID) // nb is the plain id number
+		if nb == "0" {
+			//  	id , ok = idd.fmtToId
+		} else {
+			//  	id, ok = idd.fmtToId
+		}
+
+	}
 	return in, modified, err
 }
 
