@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/spf13/afero"
@@ -44,26 +46,156 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 	return err
 }
 
-// insertTriceIDs does the ID insertion task on in, uses local pointer idd and returns the result in out with modified==true when any changes where made.
+type parseStateType int
+
+const (
+	normal parseStateType = iota
+	noIdFound
+	idFoundButWithoutNumber
+	unexpectedCannotConvertNIntoNumber
+)
+
+type idStateType int
+
+const (
+	fmtNotKnown idStateType = iota
+	used
+)
+
+// insertTriceIDs does the ID insertion task on in, uses internally local pointer idd and returns the result in out with modified==true when out != in.
+// in is the read file path content and out is the write file content.
+// a is used for mutex access to til.json. path is needed for location information checks.
 // For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
 func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 
-	//text := string(read)
-	// todo: insert action using path && wd
-	//  a.Mutex.RLock()
 	//  tfmt, found := idd.idToFmt[TriceID(1)]
-	//  _, err = fmt.Fprintln(w, "inserting to", path, found, tfmt)
-	//  a.Mutex.RUnlock()
 
-	s := string(in)
-	rest := s
+	var parseState parseStateType
+	var idn TriceID     // idn is the next found id inside the source.
+	rest := string(in)  // rest is the so far not processed part of the file
+	var fmtSpace string // fmtSpace starts behind ID(n), if ID(n) exists, otherwise it starts behind found trice type.
+	var idOld string    // idOld is the "iD(n)" part, if found otherwise "".
+	var idNew string    // idNew is the "iD(x)" part for replacement of iD(0)
 
 	for {
-		loc := matchNbTRICE.FindStringIndex(rest) // loc is the position of the next trice statement.
-		if loc == nil {
+		idn = 0
+		typeLoc := matchTypNameTRICE.FindStringIndex(rest) // typeLoc is the position of the next trice type (statement name without following parentheses).
+		if typeLoc == nil {
 			break // done
 		}
-		nbTRICE := rest[loc[0]:loc[1]]
+		var t TriceFmt
+		t.Type = rest[typeLoc[0]:typeLoc[1]]     // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
+		rest = rest[typeLoc[1]:]                 // We can set a new starting point here.
+		idLoc := matchNbID.FindStringIndex(rest) // idLoc is the space for an eventually following ID(n).
+		if idLoc == nil {                        // no ID(n) found
+			idOld = "(" // just the opening parenthesis after t.Type
+			fmtSpace = rest
+			parseState = noIdFound
+		} else { // ID(n) found
+			idOld = rest[idLoc[0]:idLoc[1]]
+			fmtSpace = rest[idLoc[1]:]
+			nSpace := rest[idLoc[0]:idLoc[1]] // nSpace is where we expect n.
+			nLoc := matchNb.FindStringIndex(nSpace)
+			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
+				parseState = idFoundButWithoutNumber
+			} else { // This is the normal case like trice( iD( 111)... .
+				n, err := strconv.Atoi(nSpace[idLoc[0]:idLoc[1]])
+				if err != nil {
+					parseState = unexpectedCannotConvertNIntoNumber // That should never happen.
+				} else { // ok
+					parseState = normal
+					idn = TriceID(n) // idn is the assigned id inside source file.
+				}
+			}
+		}
+		// example cases:
+		// trice( "foo", ... );           --> idn =   0, parseState = noIdFound
+		// trice( iD(0x111), "foo", ... ) --> idn =   0, parseState = idFoundButWithoutNumber
+		// trice( iD(foo), "foo", ... )   --> idn =   0, parseState = idFoundButWithoutNumber
+		// trice( iD(1.1), "foo", ... )   --> idn =   0, parseState = unexpectedCannotConvertNIntoNumber
+		// trice( iD(0), "foo, ... ")     --> idn =   0, parseState = normal
+		// trice( iD(111), "foo, ... ")   --> idn = 111, parseState = normal
+
+		fmtLoc := matchFmtString.FindStringIndex(fmtSpace)
+		if fmtLoc == nil {
+			fmt.Fprintln(w, "No fmt string found after", t.Type)
+			rest = fmtSpace // Skip (ID(n) if there was one. Example: trice( foo ) is ignored.
+			continue        // This is unexpected, so we ignore, but report that.
+		}
+		t.Strg = fmtSpace[fmtLoc[0]:fmtLoc[1]] // Now we have the complete trice t (Type and Strg)
+		if parseState == idFoundButWithoutNumber || parseState == unexpectedCannotConvertNIntoNumber {
+			rest = fmtSpace[fmtLoc[1]:] // reduce search space
+			continue                    // start over
+		}
+		// example cases:
+		// trice( "foo", ... );           --> idn =   0, parseState = noIdFound
+		// trice( iD(0), "foo, ... ")     --> idn =   0, parseState = normal
+		// trice( iD(111), "foo, ... ")   --> idn = 111, parseState = normal
+		// state here:
+		// rest starts at first char after trice name. We need to keep that point for later ID(n) manipulation.
+		// fmtSpace starts after ID(n). We need to keep that point for later ID(n) manipulation.
+		// idn holds the trice id found in the source and parseState is set
+
+		//var idState idStateType
+		a.Mutex.Lock()
+		idf, okf := idd.fmtToId[t] // idf holds all available trice IDs for t.
+		if !okf {
+			a.Mutex.Unlock()
+			//idState = fmtNotKnown
+		} else { // found (x times) inside til.json
+			if len(idf) == 1 { // t occurs only one time, what is mostly the case.
+				if idn == 0 || idn == idf[0] { // idn is 0 or identical what is the normal case.
+					delete(idd.fmtToId, t) // We do not care if it is in an other file because til.json says, that t is used only one times.
+					// Code could be copied into other files. Such cases are rare and we accept that an ID can move to an other file then.
+				} else { // idn is not 0 and not inside til.json. That is the case after importing new sources with IDs.
+					// Do not delete t from idd.fmtToId, because it refers to a different ID there.
+					idd.idToFmt[idn] = t // Extend til.json.
+				}
+				//idState = used
+				a.Mutex.Unlock()
+
+				if idn != 0 { // The ID is already inside source file.
+					rest = fmtSpace[fmtLoc[1]:] // reduce search space
+					continue
+				} else { // patch source
+					var idName string
+					if parseState == noIdFound { // TRice..., Trice..., trice..., TRICE... are the cases
+						if t.Type[2] == 'i' {
+							idName = "iD"
+						} else {
+							if DefaultStampSize == 32 {
+								idName = "ID"
+							} else if DefaultStampSize == 16 {
+								idName = "Id"
+							} else {
+								idName = "id"
+							}
+						}
+					}
+					if idOld == "(" { // no id statement at all
+						idNew = fmt.Sprintf("( %s(%d),", idName, idf[0])
+					} else { // idOld is s.th. like Id(0)
+						idNew = fmt.Sprintf("%s(%d)", idName, idf[0])
+					}
+					rest = strings.Replace(rest, idOld, idNew, 1)
+				}
+			} else {
+				//for _, id := range idf {
+				//_, okl := idd.idToLocRef[id]
+				fmt.Fprintln(w, "ignoring multi ids on", t, "for now")
+				//  if !okl { // no location information
+				//  	continue
+				//  }
+				//  if li.File == path {
+				//  	// todo
+				//  }
+				//}
+			}
+		}
+
+		// now we have the complete t
+
+		nbTRICE := ""                         //rest[loc[0]:loc[1]]
 		nbID := matchNbID.FindString(nbTRICE) // nbID is the `ID(n)` inside the trice statement.
 		if nbID == "" {
 			// no id(n) - todo

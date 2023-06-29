@@ -29,12 +29,19 @@ const (
 
 	// patTrice matches any TRICE name variant  The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
 	patTypNameTRICE = `(?iU)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
-	//               `(?iU)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
+	//                `(?iU)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
 	//                `(?iU)(\b((TRICE((_(S|N|B|F)|0)|((8|16|32|64)*(_[0-9]*)*))))\b)` // https://regex101.com/r/IkIhV3/1
 	//                `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
+	//                `(?iU)(\b((TRICE(|_S|_N|(8|16|32|64)?_B|(8|16|32|64)?_F|0|(8|16|32|64)_*[0-9]*)))\b)`
 
-	// patFmtString is a regex matching the first format string inside trice
-	patFmtString = `"(.*)"`
+	// patMatchingParentheses is finding matching parentheses
+	//patMatchingParentheses = `(?U)\([^)(]*+(?:(?R)[^)(]*)*+\)` // https://regex101.com/r/eBtSTM/1
+
+	// patNbID is a regex pattern matching any first "Id(n)" and usable in matches after patTypNameTRICE. It works also over line breaks.
+	patNbID = `(?Ui)\s*\b(i)(D)\b\s*\(\s*\d+\s*\)` // https://regex101.com/r/2BlNSv/1
+
+	// patFmtString is a regex matching the first format string inside trice even containing newlines and \"
+	patFmtString = `(?Us)(["'])(?:(?=(\\?))\2.)*?\1` // https://regex101.com/r/RusrRv/1
 
 	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/mllhNQ/1
 	// https://regex101.com/r/4hz1r8/1
@@ -55,9 +62,6 @@ const (
 	patID = `\s*\b(i|I)(d|D)\b\s*` // `\s*\b(I|i)d\b\s*`
 
 	//patNumber = `\d+`
-
-	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
-	patNbID = `\b` + patID + `\(\s*[0-9]*\s*\)`
 
 	patNb = `\d+` // // `[0-9]*`
 
