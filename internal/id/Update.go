@@ -41,7 +41,8 @@ const (
 	patNbID = `(?Ui)\s*\b(i)(D)\b\s*\(\s*\d+\s*\)` // https://regex101.com/r/2BlNSv/1
 
 	// patFmtString is a regex matching the first format string inside trice even containing newlines and \"
-	patFmtString = `(?Us)(["'])(?:(?=(\\?))\2.)*?\1` // https://regex101.com/r/RusrRv/1
+	patFmtString = `(?Us)(["'])(?:(\\?).)*?\1`
+	////////////// `(?Us)(["'])(?:(?=(\\?))\2.)*?\1` // https://regex101.com/r/RusrRv/1 - positive look ahead needs to be done for Go // https://regex101.com/r/FDhldb/1
 
 	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/mllhNQ/1
 	// https://regex101.com/r/4hz1r8/1
