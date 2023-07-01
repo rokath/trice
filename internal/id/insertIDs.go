@@ -116,12 +116,13 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		// trice( iD(0), "foo, ... ")     --> idn =   0, parseState = normal
 		// trice( iD(111), "foo, ... ")   --> idn = 111, parseState = normal
 
-		fmtLoc := matchFmtString.FindStringIndex(fmtSpace)
+		fmtLoc := matchFormatString(fmtSpace)
 		if fmtLoc == nil {
 			fmt.Fprintln(w, "No fmt string found after", t.Type)
 			rest = fmtSpace // Skip (ID(n) if there was one. Example: trice( foo ) is ignored.
 			continue        // This is unexpected, so we ignore, but report that.
 		}
+
 		t.Strg = fmtSpace[fmtLoc[0]:fmtLoc[1]] // Now we have the complete trice t (Type and Strg)
 		if parseState == idFoundButWithoutNumber || parseState == unexpectedCannotConvertNIntoNumber {
 			rest = fmtSpace[fmtLoc[1]:] // reduce search space
@@ -209,6 +210,29 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 
 	}
 	return in, modified, err
+}
+
+// matchFormatString returns a two-element slice of integers defining the location of the leftmost match in s of the matchFmtString regular expression.
+// The match itself is at s[loc[0]:loc[1]]. A return value of nil indicates no match.
+// If the format string contains `\"` elements, the found sub strings are concatenated to the returned result.
+func matchFormatString(s string) (loc []int) {
+	ss := s
+	for {
+		fmtLoc := matchFmtString.FindStringIndex(ss)
+		if fmtLoc == nil {
+			return loc // done
+		}
+		if loc == nil {
+			loc = fmtLoc // Keep start position and current ent position.
+		}
+		fs := ss[fmtLoc[0]:fmtLoc[1]]       // fs is the found string.
+		if ss[len(fs)-2:len(fs)-1] != `\` { // Check for "a\"b" cases
+			return loc // done
+		}
+		// s ends with `\"`, so we need to continue parsing
+		ss = ss[fmtLoc[1]:]             // cut off ss start for next parsing round
+		loc[1] += fmtLoc[1] - fmtLoc[0] // set new value for loc[1]
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

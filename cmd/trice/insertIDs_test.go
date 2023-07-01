@@ -25,11 +25,11 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 	tilJSON := `{
 	"1200": {
 		"Type": "TRice",
-		"Strg": "Hi!"
+		"Strg": "\"Hi!\""
 	},
 	"1201": {
 		"Type": "TRice",
-		"Strg": "Hi!"
+		"Strg": "\"Hi!\""
 	}
 }`
 
@@ -46,8 +46,8 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 	}`
 	testSet := []srcFile{
 		// fn:       clean:                            insertedIDs:
-		{"file0.c", `TRice( "Hi!" );TRice( "Hi!" );`, `TRice( iD( 1200), "Hi!" ); TRice( iD( 1000), "Hi!" );`},
-		{"file1.c", `TRice( "Hi!" );TRice( "Hi!" );`, `TRice( iD( 1201), "Hi!" ); TRice( iD( 1001), "Hi!" );`},
+		{"file0.c", `TRice( "Hi!" ); TRice( "Hi!" );`, `TRice( iD( 1200), "Hi!" ); TRice( iD( 1000), "Hi!" );`},
+		{"file1.c", `TRice( "Hi!" ); TRice( "Hi!" );`, `TRice( iD( 1201), "Hi!" ); TRice( iD( 1001), "Hi!" );`},
 	}
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
