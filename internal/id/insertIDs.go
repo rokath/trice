@@ -6,6 +6,7 @@ package id
 // source tree management
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -92,14 +93,15 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 			fmtSpace = rest
 			parseState = noIdFound
 		} else { // ID(n) found
-			idOld = rest[idLoc[0]:idLoc[1]]
+			idOld = rest[idLoc[0]:idLoc[1]] // idOld is where we expect n.
 			fmtSpace = rest[idLoc[1]:]
-			nSpace := rest[idLoc[0]:idLoc[1]] // nSpace is where we expect n.
-			nLoc := matchNb.FindStringIndex(nSpace)
+			nLoc := matchNb.FindStringIndex(idOld)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
 				parseState = idFoundButWithoutNumber
 			} else { // This is the normal case like trice( iD( 111)... .
-				n, err := strconv.Atoi(nSpace[idLoc[0]:idLoc[1]])
+				nStrg := idOld[nLoc[0]:nLoc[1]]
+				fmt.Fprintln(w, "ffffffffffffffffffffffffff", nStrg, "ffffffffffffffffff")
+				n, err := strconv.Atoi(nStrg)
 				if err != nil {
 					parseState = unexpectedCannotConvertNIntoNumber // That should never happen.
 				} else { // ok
@@ -212,27 +214,53 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 	return in, modified, err
 }
 
+// stringLiterals is explained in https://stackoverflow.com/questions/76587323.
+var stringLiterals bufio.SplitFunc = func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	scanning := false
+	var delim byte
+	var i int
+	var start, end int
+	for i < len(data) {
+		b := data[i]
+		switch b {
+		case '\\': // skip escape sequences
+			i += 2
+			continue
+		case '"':
+			fallthrough
+		case '\'':
+			fallthrough
+		case '`':
+			if scanning && delim == b {
+				end = i + 1
+				token = data[start:end]
+				advance = end
+				return
+			} else if !scanning {
+				scanning = true
+				start = i
+				delim = b
+			}
+		}
+		i++
+	}
+	if atEOF {
+		return len(data), nil, nil
+	}
+	return start, nil, nil
+}
+
 // matchFormatString returns a two-element slice of integers defining the location of the leftmost match in s of the matchFmtString regular expression.
 // The match itself is at s[loc[0]:loc[1]]. A return value of nil indicates no match.
 // If the format string contains `\"` elements, the found sub strings are concatenated to the returned result.
-func matchFormatString(s string) (loc []int) {
-	ss := s
-	for {
-		fmtLoc := matchFmtString.FindStringIndex(ss)
-		if fmtLoc == nil {
-			return loc // done
-		}
-		if loc == nil {
-			loc = fmtLoc // Keep start position and current ent position.
-		}
-		fs := ss[fmtLoc[0]:fmtLoc[1]]       // fs is the found string.
-		if ss[len(fs)-2:len(fs)-1] != `\` { // Check for "a\"b" cases
-			return loc // done
-		}
-		// s ends with `\"`, so we need to continue parsing
-		ss = ss[fmtLoc[1]:]             // cut off ss start for next parsing round
-		loc[1] += fmtLoc[1] - fmtLoc[0] // set new value for loc[1]
+func matchFormatString(input string) (loc []int) {
+	scanner := bufio.NewScanner(strings.NewReader(input))
+	scanner.Split(stringLiterals)
+	if scanner.Scan() {
+		loc = append(loc, strings.Index(input, scanner.Text()))
+		loc = append(loc, loc[0]+len(scanner.Text()))
 	}
+	return
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

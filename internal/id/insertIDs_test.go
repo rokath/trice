@@ -13,7 +13,7 @@ import (
 	"github.com/tj/assert"
 )
 
-func _TestInsert(t *testing.T) {
+func TestInsert(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	// create src file
