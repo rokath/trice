@@ -90,7 +90,7 @@ type TriceItem struct {
 }
 
 // TriceItemLookUpID ...
-type TriceItemLookUpID map[TriceItem]TriceID
+//type TriceItemLookUpID map[TriceItem]TriceID
 
 // TriceIDLookupItem ...
-type TriceIDLookupItem map[TriceID]TriceItem
+//type TriceIDLookupItem map[TriceID]TriceItem

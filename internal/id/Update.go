@@ -38,7 +38,7 @@ const (
 	//patMatchingParentheses = `(?U)\([^)(]*+(?:(?R)[^)(]*)*+\)` // https://regex101.com/r/eBtSTM/1
 
 	// patNbID is a regex pattern matching any first "Id(n)" and usable in matches after patTypNameTRICE. It works also over line breaks.
-	patNbID = `(?Ui)\s*\b(i)(D)\b\s*\(\s*\d+\s*\)` // https://regex101.com/r/2BlNSv/1
+	patNbID = `(?Ui)\b(i)(D)\b\s*\(\s*\d+\s*\)` // https://regex101.com/r/2BlNSv/1
 
 	// patFmtString is a regex matching the first format string inside trice even containing newlines and \"
 	patFmtString = `"(?s)(.*)"` // https://stackoverflow.com/questions/159118/how-do-i-match-any-character-across-multiple-lines-in-a-regular-expression
@@ -394,7 +394,7 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found idType) {
 // refreshIDs parses text for valid trices tf and adds them to ilu & flu and updates location information map lim.
 func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu triceFmtLookUp, lim TriceIDLookUpLI) {
 	subs := text[:] // create a copy of text and assign it to subs
-	line := 1       // source cole lines start with 1 for some reason
+	line := 1       // source code lines start with 1 for some reason
 	var li TriceLI
 	li.File = filepath.Base(fileName)
 	for {

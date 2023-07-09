@@ -1,0 +1,32 @@
+// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+// Use of this source code is governed by a license that can be found in the LICENSE file.
+
+package id
+
+import (
+	"testing"
+
+	"github.com/tj/assert"
+)
+
+func TestMatchTrice(t *testing.T) {
+	var testSet = []struct {
+		text, triceType, triceID, triceFmts string
+	}{
+		{`...TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
+		{`......TRice( iD(0), "a" ); ,...`, `TRice`, `iD(0)`, `"a"`}, // 6 11 12 13 18 20 23
+		{`."x"..TRice( iD(0), "a" ); ,...`, `TRice`, `iD(0)`, `"a"`}, // 6 11 12  0  0 20 23
+		{`... ttt ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},       // 12 17 18 0 0 19 22
+		{`... "t" ... TRice(        "a" ); ,...`, `TRice`, ``, `"a"`},
+		{`... "a" ... TRice( iD(99),"a" ); ,...`, `TRice`, `iD(99)`, `"a"`},
+		{`. "a" "b".. TRice( iD(99),"a" ); ,...`, `TRice`, `iD(99)`, `"a"`},
+		{`...TRice( "a\"b" ); ,...`, `TRice`, ``, `"a\"b"`},
+		// not{`...// "trice" ... "aa" ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
+	}
+	for _, s := range testSet {
+		loc := matchTrice(s.text)
+		assert.Equal(t, s.triceType, s.text[loc[0]:loc[1]])
+		assert.Equal(t, s.triceID, s.text[loc[3]:loc[4]])
+		assert.Equal(t, s.triceFmts, s.text[loc[5]:loc[6]])
+	}
+}
