@@ -21,7 +21,11 @@ func TestMatchTrice(t *testing.T) {
 		{`... "a" ... TRice( iD(99),"a" ); ,...`, `TRice`, `iD(99)`, `"a"`},
 		{`. "a" "b".. TRice( iD(99),"a" ); ,...`, `TRice`, `iD(99)`, `"a"`},
 		{`...TRice( "a\"b" ); ,...`, `TRice`, ``, `"a\"b"`},
-		// not{`...// "trice" ... "aa" ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
+		{`...// "trice" ... "aa" ... TRice(        "a" ); ,...`, `TRice`, ``, `"a"`},
+		{`...// "trice" ... "aa" ... TRice( iD(7), "a" ); ,...`, `TRice`, `iD(7)`, `"a"`},
+		{`...// "trice" ... "aa" ... TRice( iD( 77 ), "a" ); ,...`, `TRice`, `iD( 77 )`, `"a"`},
+		{`...a "trice(" .b. "aa" ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
+		{`...a "trice(" .b. "aa" ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
 	}
 	for _, s := range testSet {
 		loc := matchTrice(s.text)
