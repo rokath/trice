@@ -25,7 +25,18 @@ func TestMatchTrice(t *testing.T) {
 		{`...// "trice" ... "aa" ... TRice( iD(7), "a" ); ,...`, `TRice`, `iD(7)`, `"a"`},
 		{`...// "trice" ... "aa" ... TRice( iD( 77 ), "a" ); ,...`, `TRice`, `iD( 77 )`, `"a"`},
 		{`...a "trice(" .b. "aa" ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
-		{`...a "trice(" .b. "aa" ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
+		{`...a "trice( id(8() \"hi\" )" .b. "aa" ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
+		{`...a "trice( id(8() "hi" )" .b. "aa" ... TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
+		{`... "a" ... TRice( iD(99),"a
+		b" ); ,...`, `TRice`, `iD(99)`, `"a
+		b"`},
+		{`... ttt ... TRice( "a", "b" ); ,...`, `TRice`, ``, `"a"`}, // 12 17 18 0 0 19 22
+		{`... ttt ... TRice( 
+			"a", "b" ); ,...`, `TRice`, ``, `"a"`}, // 12 17 18 0 0 19 22
+		{`... ttt ... TRice
+			( "a", "b" ); ,...`, `TRice`, ``, `"a"`}, // 12 17 18 0 0 19 22
+		{`... ttt ... TRice
+			( iD(5), "a", "b" ); ,...`, `TRice`, `iD(5)`, `"a"`}, // 12 17 18 0 0 19 22
 	}
 	for _, s := range testSet {
 		loc := matchTrice(s.text)

@@ -85,7 +85,7 @@ func removeID(t TriceFmt, ids []TriceID, triceToId triceFmtLookUp) TriceID {
 // Data usage:
 // - idd.idToTrice is the serialized til.json. It is extended with unknown and new IDs and written back to til.json finally.
 // - idd.triceToId is the initially reverted idd.idToTrice. It is shrinked for each used ID amd used to find out if an ID is already fresh used.
-//   - When starting idd.triceToId holds all IDs from til.json and no ID is fresh used yet. If an ID is to be (fresh) used it is removed from idd.triceToId.
+//   - When starting, idd.triceToId holds all IDs from til.json and no ID is fresh used yet. If an ID is to be (fresh) used it is removed from idd.triceToId.
 //   - If an ID is found in idd.idToTrice but not found in idd.triceToId anymore, it is already (fresh) used and not usable again.
 //   - If a new ID is generated, it is added to idd.idToTrice only. This way it gets automatically used.
 //
@@ -93,7 +93,7 @@ func removeID(t TriceFmt, ids []TriceID, triceToId triceFmtLookUp) TriceID {
 // - idd.idToLocNew is new generated during insertTriceIDs execution.
 // For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
 // insertTriceIDs is executed parallel in many go routines, one for each file.
-// It parses the file content from the beginning for the next trice statement, deals with it and continues until the end.
+// It parses the file content from the beginning for the next trice statement, deals with it and continues until the file content end.
 // When a trice statement was found, general cases are:
 // - idInSourceIsNonZero, id is inside idd.idToTrice with matching trice and inside idd.triceToId -> use ID (remove from idd.triceToId)
 // - idInSourceIsNonZero, id is inside idd.idToTrice with matching trice and not in idd.triceToId -> used ID! -> create new ID && invalidate ID in source
@@ -106,36 +106,32 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 	var idParseState idParseStateType
 	var idn TriceID     // idn is the last found id inside the source.
 	rest := string(in)  // rest is the so far not processed part of the file
-	var fmtSpace string // fmtSpace starts behind ID(n), if ID(n) exists, otherwise it starts behind found trice type.
+	var fmtSpace string // fmtSpace starts behind ID(n), if ID(n) exists, otherwise it starts behind found trice type opening parenthesis.
 	var idOld string    // idOld is the "iD(n)" part, if found otherwise "(".
 	var idNew string    // idNew is the "iD(n)" part for replacement of idOld
-	line := 1           // line counts source code lines, these start with 1.
-
+	var t TriceFmt
+	line := 1 // line counts source code lines, these start with 1.
 	for {
-		// idn = 0
 		idParseState = normal
-		typeLoc := matchTrice(rest) // typeLoc is the position of the next trice type (statement name without following parentheses).
-		if typeLoc == nil {
+		loc := matchTrice(rest) // loc is the position of the next trice type (statement name without following parentheses).
+		if loc == nil {
 			break // done
 		}
-		var t TriceFmt
-		t.Type = rest[typeLoc[0]:typeLoc[1]]           // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
-		line += strings.Count(rest[:typeLoc[1]], "\n") // Keep line number up-to-date for location information.
-		rest = rest[typeLoc[1]:]                       // We can set a new starting point here.
-		idLoc := matchNbID.FindStringIndex(rest)       // idLoc is the space for an eventually following ID(n).
-		if idLoc == nil {                              // no ID(n) found
-			idOld = "(" // just the opening parenthesis after t.Type as a replacement anchor
-			fmtSpace = rest
+		t.Type = rest[loc[0]:loc[1]] // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
+		t.Strg = rest[loc[5]:loc[6]] // Now we have the complete trice t (Type and Strg)
+		if loc[3] == loc[4] {        // no ID(n) found
+			//idOld = "(" // just the opening parenthesis after t.Type as a replacement anchor
 			idParseState = noIdStatementFound
 			idn = 0
 		} else { // ID(n) found
-			idOld = rest[idLoc[0]:idLoc[1]] // idOld is where we expect n. Also usable as replacement anchor, if n needs modification.
-			fmtSpace = rest[idLoc[1]:]
+			idOld = rest[loc[3]:loc[4]] // idOld is where we expect n. Also usable as replacement anchor, if n needs modification.
 			nLoc := matchNb.FindStringIndex(idOld)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
 				if Verbose {
 					fmt.Fprintln(w, "unexpected syntax", idOld)
 				}
+				line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information.
+				rest = rest[loc[6]:]
 				continue // ignore such cases
 			} else { // This is the normal case like trice( iD( 111)... .
 				nStrg := idOld[nLoc[0]:nLoc[1]] // nStrng is the plain number string
@@ -144,6 +140,8 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 					if Verbose {
 						fmt.Fprintln(w, err, nStrg)
 					}
+					line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information.
+					rest = rest[loc[6]:]
 					continue // ignore such cases
 				} else { // ok
 					idParseState = normal
@@ -151,13 +149,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 				}
 			}
 		}
-		fmtLoc := matchFormatString(fmtSpace)
-		if fmtLoc == nil {
-			fmt.Fprintln(w, "No fmt string found after", t.Type)
-			rest = fmtSpace // Skip (ID(n) if there was one. Example: trice( foo ) is ignored.
-			continue        // This is unexpected, so we ignore, but report that.
-		}
-		t.Strg = fmtSpace[fmtLoc[0]:fmtLoc[1]] // Now we have the complete trice t (Type and Strg)
+		line += strings.Count(rest[:loc[1]], "\n") // Keep line number up-to-date for location information.
 
 		// example cases:
 		// trice( "foo", ... );           --> idn =   0, idParseState = noIdStatementFound
@@ -174,9 +166,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 			if ids, ok := idd.triceToId[t]; ok { // unused ID -> use ID (remove from idd.triceToId)
 				idn = removeID(t, ids, idd.triceToId)
 				//writeID()
-
 			}
-
 		}
 
 		var idState idStateType
