@@ -113,7 +113,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 	line := 1 // line counts source code lines, these start with 1.
 	for {
 		idParseState = normal
-		loc := matchTrice(rest) // loc is the position of the next trice type (statement name without following parentheses).
+		loc := matchTrice(rest) // loc is the position of the next trice type (statement name with opening parenthesis followed by a format string).
 		if loc == nil {
 			break // done
 		}
@@ -136,21 +136,19 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 			} else { // This is the normal case like trice( iD( 111)... .
 				nStrg := idOld[nLoc[0]:nLoc[1]] // nStrng is the plain number string
 				n, err := strconv.Atoi(nStrg)
-				if err != nil {
-					if Verbose {
-						fmt.Fprintln(w, err, nStrg)
-					}
+				if err == nil {
+					idParseState = normal
+					idn = TriceID(n) // idn is the assigned id inside source file.
+				} else { // unexpected
+					fmt.Fprintln(w, err, nStrg)
 					line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information.
 					rest = rest[loc[6]:]
 					continue // ignore such cases
-				} else { // ok
-					idParseState = normal
-					idn = TriceID(n) // idn is the assigned id inside source file.
 				}
 			}
 		}
-		line += strings.Count(rest[:loc[1]], "\n") // Keep line number up-to-date for location information.
-
+		//     line += strings.Count(rest[:loc[1]], "\n") // Keep line number up-to-date for location information.
+		//     rest = rest[loc[1]:]
 		// example cases:
 		// trice( "foo", ... );           --> idn =   0, idParseState = noIdStatementFound
 		// trice( iD(0), "foo, ... ")     --> idn =   0, idParseState = normal
@@ -158,12 +156,23 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 
 		// state here:
 		// trice t (t.Type & t.Strg) is known.
-		// rest starts at first char after trice name. We need to keep that point for later ID(n) manipulation.
-		// fmtSpace starts after ID(n). We need to keep that point for later ID(n) manipulation.
+		//xxxxxxxxxxxxxxxxxxxxxxxxxxxxrest starts at first char after trice name. We need to keep that point for later ID(n) manipulation.
+		//xxxxxxxxxxxxxxxxxxxxxxxxxxxxfmtSpace starts after ID(n). We need to keep that point for later ID(n) manipulation.
 		// idn holds the trice id found in the source and idParseState is set.
 
 		if idn == 0 { // normal case
-			if ids, ok := idd.triceToId[t]; ok { // unused ID -> use ID (remove from idd.triceToId)
+			if ids, ok := idd.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
+				for i, id := range ids {
+					if li, ok := idd.idToLocRef[id]; ok {
+						if li.File == path { // id is usable
+							// remove from slice
+							ids[i] = ids[len(ids)-1]
+							ids = ids[:len(ids)-1]
+hier weiter
+						}
+					}
+				}
+				// unused ID -> use ID (remove from idd.triceToId)
 				idn = removeID(t, ids, idd.triceToId)
 				//writeID()
 			}
