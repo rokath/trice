@@ -691,7 +691,7 @@ Quick workaround:
   Call TxStart();TxContinue(); cyclically in sufficient long intervals like 1 ms
 ```
 
-- After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
+- After compiling and flashing run `trice l -port COMn -baud m` with n and m set to correct values
 - Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the [til.json](https://github.com/rokath/trice/blob/master/til.json) file of your project.
 - If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE** statements. TRICE32 will do in most cases but for better performance take **TRICE8** or **TRICE16** where possible.
 - `printf(...)` statements containing string format specifier are quickly portable by using `TRICE_P(...)` but without the trice space and speed advantage. The TRICE_P() is intended only for the few dynamic strings in a ported  project.  Enable `TRICE_PRINTF_ADAPTER` increases the needed code size by a few KB.
@@ -823,11 +823,11 @@ trice l -p COM3 -binaryLogfile trice.bin
 
 This creates a new binary logfile `trice.bin` on first start and appends to it on each next **trice** start.
 
-Binary logfiles store the **trice** messages as they come out of the target in binary form. They are much smaller than normal logfiles, but the **trice** tool with the *til.json* is needed for displaying them and the PC timestamps are the displaying time: `trice -p FILEBUFFER -args trice.log`.
+Binary logfiles store the **trice** messages as they come out of the target in binary form. They are much smaller than normal logfiles, but the **trice** tool with the *til.json* is needed for displaying them and the PC timestamps are the displaying time: `trice l -p FILEBUFFER -args trice.log`.
 
 Binary logfiles are handy in the field for long data recordings.
 
-When using RTT, the data are exchanged over a file interface. These binary logfiles are stored in the project [./temp] folder and accessable for later view: `trice -p FILEBUFFER -args ./temp/logfileName.bin`. Of course the host timestamps are the playing time then.
+When using RTT, the data are exchanged over a file interface. These binary logfiles are stored in the project [./temp] folder and accessable for later view: `trice l -p FILEBUFFER -args ./temp/logfileName.bin`. Of course the host timestamps are the playing time then.
 
 ####  8.2.6. <a name='TCPoutput'></a>TCP output
 
