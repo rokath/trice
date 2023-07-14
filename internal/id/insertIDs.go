@@ -91,7 +91,6 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		}
 		t.Type = rest[loc[0]:loc[1]]       // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
 		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
-		fmt.Println(t)
 		if loc[3] != loc[4] { // iD(n) found
 			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)
@@ -126,9 +125,8 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 			for i, id := range ids { // It is also possible, that no id matches idn != 0.
 				if li, ok := idd.idToLocRef[id]; ok && li.File == path && (idn == 0 || idn == id) {
 					// id exists inside location information for this file and is usable, so remove from unused list.
-					ids[i] = ids[len(ids)-1]
+					ids[i] = ids[len(ids)-1] // todo: avoid inversion!
 					ids = ids[:len(ids)-1]
-					// No need for mutex here. There is only one Go routine for each file.
 					if len(ids) == 0 {
 						delete(idd.triceToId, t)
 					} else {
@@ -144,12 +142,12 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 				// Therefore such idn are discarded by not copying them to idN.
 			}
 		}
-		a.Mutex.Unlock()
 		if idN == 0 { // create a new ID
 			idN = idd.newID()
 			idd.idToTrice[idN] = t // add ID to idd.idToTrice
 		}
 	idUsable:
+		a.Mutex.Unlock()
 		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
 		if idN != idn {                            // Need to change source.
 			outs = writeID(outs, offset, loc, t, idN)
