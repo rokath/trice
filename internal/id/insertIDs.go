@@ -47,242 +47,143 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 	return err
 }
 
-type idParseStateType int
-
-const (
-	normal idParseStateType = iota
-	noIdStatementFound
-	//idFoundButWithoutNumber
-	//unexpectedCannotConvertNIntoNumber
-)
-
-type idStateType int
-
-const (
-	idInSourceIsZero idStateType = iota
-	idInSourceIsOK
-	idInSourceIsUnknown
-	idInSourceNeedsInvalidation
-)
-
-type fmtStateType int
-
-const (
-	fmtNotKnown fmtStateType = iota
-	fmtIsKnown
-)
-
-// removeID removes one id from ids and returns that. It writes the reduced ids back to the triceToId map.
-// If the reduced ids is empty, it removes the t key from the triceToId map.
-func removeID(t TriceFmt, ids []TriceID, triceToId triceFmtLookUp) TriceID {
-	return 0
-}
-
 // insertTriceIDs does the ID insertion task on in. insertTriceIDs uses internally local pointer idd because idd cannot be easily passed via parameters.
 // insertTriceIDs returns the result in out with modified==true when out != in.
 // in is the read file path content and out is the file content which needs to be written.
 // a is used for mutex access to idd data. path is needed for location information.
+// insertTriceIDs is intended to be used in several Go routines (one for each file) for faster ID insertion.
 // Data usage:
 // - idd.idToTrice is the serialized til.json. It is extended with unknown and new IDs and written back to til.json finally.
-// - idd.triceToId is the initially reverted idd.idToTrice. It is shrinked for each used ID amd used to find out if an ID is already fresh used.
+// - idd.triceToId is the initially reverted idd.idToTrice. It is shrunk for each used ID amd used to find out if an ID is already fresh used.
 //   - When starting, idd.triceToId holds all IDs from til.json and no ID is fresh used yet. If an ID is to be (fresh) used it is removed from idd.triceToId.
 //   - If an ID is found in idd.idToTrice but not found in idd.triceToId anymore, it is already (fresh) used and not usable again.
 //   - If a new ID is generated, it is added to idd.idToTrice only. This way it gets automatically used.
 //
-// - idd.idToLocRef is only for reference (Refinement).
-// - idd.idToLocNew is new generated during insertTriceIDs execution.
+// - idd.idToLocRef is only for reference and not changed. It is the "old" location information.
+// - idd.idToLocNew is new generated during insertTriceIDs execution and finally written back to li.json as "new" location information.
 // For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
-// insertTriceIDs is executed parallel in many go routines, one for each file.
-// It parses the file content from the beginning for the next trice statement, deals with it and continues until the file content end.
+// insertTriceIDs parses the file content from the beginning for the next trice statement, deals with it and continues until the file content end.
 // When a trice statement was found, general cases are:
 // - idInSourceIsNonZero, id is inside idd.idToTrice with matching trice and inside idd.triceToId -> use ID (remove from idd.triceToId)
+//   - If trice is assigned to several IDs, the location information consulted. If a matching path exists, its first occurrence is used.
+//
 // - idInSourceIsNonZero, id is inside idd.idToTrice with matching trice and not in idd.triceToId -> used ID! -> create new ID && invalidate ID in source
 // - idInSourceIsNonZero, id is inside idd.idToTrice with different trice                         -> used ID! -> create new ID && invalidate ID in source
 // - idInSourceIsNonZero, id is not inside idd.idToTrice (cannot be inside idd.triceToId)         -> add ID to idd.idToTrice
-// - idInSourceIsZero,    trice is not inside idd.triceToId                                       -> create new ID
+// - idInSourceIsZero,    trice is not inside idd.triceToId                                       -> create new ID & add ID to idd.idToTrice
 // - idInSourceIsZero,    trice is is inside idd.triceToId                                        -> unused ID -> use ID (remove from idd.triceToId)
-//   - Refinement: If trice is assigned to several IDs, the location information could be consulted. If a matching path exists, its first occurance is used.
+//   - If trice is assigned to several IDs, the location information consulted. If a matching path exists, its first occurrence is used.
 func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
-	var idParseState idParseStateType
-	var idn TriceID     // idn is the last found id inside the source.
-	rest := string(in)  // rest is the so far not processed part of the file
-	var fmtSpace string // fmtSpace starts behind ID(n), if ID(n) exists, otherwise it starts behind found trice type opening parenthesis.
-	var idOld string    // idOld is the "iD(n)" part, if found otherwise "(".
-	var idNew string    // idNew is the "iD(n)" part for replacement of idOld
-	var t TriceFmt
-	line := 1 // line counts source code lines, these start with 1.
+	var idn TriceID    // idn is the last found id inside the source.
+	var idN TriceID    // idN is the to be written id into the source.
+	var idS string     // idS is the "iD(n)" statement, if found.
+	rest := string(in) // rest is the so far not processed part of the file.
+	outs := rest       // outs is the resulting string.
+	var offset int     // offset is incremented by n, when rest is reduced by n.
+	var t TriceFmt     // t is the actual located trice.
+	line := 1          // line counts source code lines, these start with 1.
 	for {
-		idParseState = normal
+		idn = 0                 // clear here
+		idN = 0                 // clear here
 		loc := matchTrice(rest) // loc is the position of the next trice type (statement name with opening parenthesis followed by a format string).
 		if loc == nil {
 			break // done
 		}
-		t.Type = rest[loc[0]:loc[1]] // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
-		t.Strg = rest[loc[5]:loc[6]] // Now we have the complete trice t (Type and Strg)
-		if loc[3] == loc[4] {        // no ID(n) found
-			//idOld = "(" // just the opening parenthesis after t.Type as a replacement anchor
-			idParseState = noIdStatementFound
-			idn = 0
-		} else { // ID(n) found
-			idOld = rest[loc[3]:loc[4]] // idOld is where we expect n. Also usable as replacement anchor, if n needs modification.
-			nLoc := matchNb.FindStringIndex(idOld)
+		t.Type = rest[loc[0]:loc[1]]       // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
+		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
+		fmt.Println(t)
+		if loc[3] != loc[4] { // iD(n) found
+			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
+			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
 				if Verbose {
-					fmt.Fprintln(w, "unexpected syntax", idOld)
+					fmt.Fprintln(w, "unexpected syntax", idS)
 				}
 				line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information.
 				rest = rest[loc[6]:]
+				offset += loc[6]
 				continue // ignore such cases
 			} else { // This is the normal case like trice( iD( 111)... .
-				nStrg := idOld[nLoc[0]:nLoc[1]] // nStrng is the plain number string
+				nStrg := idS[nLoc[0]:nLoc[1]] // nStrg is the plain number string.
 				n, err := strconv.Atoi(nStrg)
 				if err == nil {
-					idParseState = normal
 					idn = TriceID(n) // idn is the assigned id inside source file.
 				} else { // unexpected
-					fmt.Fprintln(w, err, nStrg)
+					fmt.Fprintln(w, err, nStrg)                // report
 					line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information.
 					rest = rest[loc[6]:]
+					offset += loc[6]
 					continue // ignore such cases
 				}
 			}
 		}
-		//     line += strings.Count(rest[:loc[1]], "\n") // Keep line number up-to-date for location information.
-		//     rest = rest[loc[1]:]
-		// example cases:
-		// trice( "foo", ... );           --> idn =   0, idParseState = noIdStatementFound
-		// trice( iD(0), "foo, ... ")     --> idn =   0, idParseState = normal
-		// trice( iD(111), "foo, ... ")   --> idn = 111, idParseState = normal
-
-		// state here:
-		// trice t (t.Type & t.Strg) is known.
-		//xxxxxxxxxxxxxxxxxxxxxxxxxxxxrest starts at first char after trice name. We need to keep that point for later ID(n) manipulation.
-		//xxxxxxxxxxxxxxxxxxxxxxxxxxxxfmtSpace starts after ID(n). We need to keep that point for later ID(n) manipulation.
-		// idn holds the trice id found in the source and idParseState is set.
-
-		if idn == 0 { // normal case
-			if ids, ok := idd.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
-				for i, id := range ids {
-					if li, ok := idd.idToLocRef[id]; ok {
-						if li.File == path { // id is usable
-							// remove from slice
-							ids[i] = ids[len(ids)-1]
-							ids = ids[:len(ids)-1]
-hier weiter
-						}
+		// trice t (t.Type & t.Strg) is known now. idn holds the trice id found in the source. Example cases are:
+		// - trice( "foo", ... );           --> idn =   0, loc[3] == loc[4]
+		// - trice( iD(0), "foo, ... ")     --> idn =   0, loc[3] != loc[4]
+		// - trice( iD(111), "foo, ... ")   --> idn = 111, loc[3] != loc[4]
+		a.Mutex.Lock()                       // several files could contain the same t
+		if ids, ok := idd.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
+			for i, id := range ids { // It is also possible, that no id matches idn != 0.
+				if li, ok := idd.idToLocRef[id]; ok && li.File == path && (idn == 0 || idn == id) {
+					// id exists inside location information for this file and is usable, so remove from unused list.
+					ids[i] = ids[len(ids)-1]
+					ids = ids[:len(ids)-1]
+					// No need for mutex here. There is only one Go routine for each file.
+					if len(ids) == 0 {
+						delete(idd.triceToId, t)
+					} else {
+						idd.triceToId[t] = ids
 					}
+					idN = id // This gets into the source. No need to remove id from idd.idToLocRef.
+					goto idUsable
 				}
-				// unused ID -> use ID (remove from idd.triceToId)
-				idn = removeID(t, ids, idd.triceToId)
-				//writeID()
+				// The case idn != 0 and idn != id is possible, when idn was manually written into the code or code with IDs was merged.
+				// It is not expected, that in such cases idn is found inside idd.idToLocRef. Example:
+				// TRice( iD(3), "foo" ) in file1.c && t{TRice, "foo"} gives []int{1,2}
+				// li.json could contain ID 3 for file1.c, but that must be for a different trice then.
+				// Therefore such idn are discarded by not copying them to idN.
 			}
 		}
-
-		var idState idStateType
-		if idn != 0 {
-			triceItem, ok := idd.idToTrice[idn]
-			if ok { // ID inside souce code is inside til.json
-				if triceItem != t { // but for a different trice.
-					idState = idInSourceNeedsInvalidation
-				} else { // matches same trice
-					idState = idInSourceIsOK
-				}
-			} else { // ID inside souce code is not inside til.json
-				idState = idInSourceIsUnknown
-			}
+		a.Mutex.Unlock()
+		if idN == 0 { // create a new ID
+			idN = idd.newID()
+			idd.idToTrice[idN] = t // add ID to idd.idToTrice
 		}
-
-		// state here:
-		// idParseState        idState                       idn fmtState
-		// normal              idInSourceNeedsInvalidation   != 0
-		// normal              idInSourceIsOK                != 0
-		// normal              idInSourceIsUnknown           != 0
-		// normal                                            == 0
-		// noIdStatementFound  (nil)                         == 0
-
-		a.Mutex.Lock()
-		var fmtState fmtStateType
-		idf, okf := idd.triceToId[t] // idf holds all available trice IDs for t.
-		if !okf {
-			a.Mutex.Unlock()
-			fmtState = fmtNotKnown
-		} else { // found (x times) inside til.json
-			fmtState = fmtIsKnown
-			if len(idf) == 1 { // t occurs only one time, what is mostly the case.
-				if idn == 0 { // id inside source is 0 what is the normal case.
-					idState = idInSourceIsZero
-					delete(idd.triceToId, t) // We do not care if it is in an other file because til.json says, that t is used only one times.
-					// Code could be copied into other files. Such cases are rare and we accept that an ID can move to an other file then.
-				} else if idn == idf[0] { // id inside source is not 0 and identical with value inside til.json what is a normal case.
-					idState = idInSourceIsOK
-					delete(idd.triceToId, t) // not usable again
-				} else { // idn is not 0 and not inside til.json. That is the case after importing new sources with IDs.
-					idState = idInSourceIsUnknown
-					// Do not delete t from idd.fmtToId, because it refers to a different ID, if at all there.
-					idd.idToTrice[idn] = t // Extend til.json.
-				}
-				a.Mutex.Unlock()
-				fmt.Fprintln(w, fmtState)
-				if idState == idInSourceIsOK { // The ID is already inside source file.
-					rest = fmtSpace[fmtLoc[1]:] // reduce search space
-					// todo: extend location information
-					continue
-				} else if idState == idInSourceIsUnknown { // The ID inside source file is now integrated into ti.json.
-					rest = fmtSpace[fmtLoc[1]:] // reduce search space
-					// todo: extend location information
-					continue
-				} else { // patch source
-					var idName string
-					if idParseState == noIdStatementFound { // TRice..., Trice..., trice..., TRICE... are the cases
-						if t.Type[2] == 'i' { // small letter
-							idName = "iD"
-						} else {
-							if DefaultStampSize == 32 {
-								idName = "ID"
-							} else if DefaultStampSize == 16 {
-								idName = "Id"
-							} else {
-								idName = "id"
-							}
-						}
-					}
-					if idOld == "(" { // no id statement at all
-						idNew = fmt.Sprintf("( %s(%d),", idName, idf[0])
-					} else { // idOld is s.th. like Id(0)
-						idNew = fmt.Sprintf("%s(%d)", idName, idf[0])
-					}
-					rest = strings.Replace(rest, idOld, idNew, 1)
-				}
-			} else {
-				//for _, id := range idf {
-				//_, okl := idd.idToLocRef[id]
-				fmt.Fprintln(w, "ignoring multi ids on", t, "for now")
-				//  if !okl { // no location information
-				//  	continue
-				//  }
-				//  if li.File == path {
-				//  	// todo
-				//  }
-				//}
-			}
+	idUsable:
+		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
+		if idN != idn {                            // Need to change source.
+			outs = writeID(outs, offset, loc, t, idN)
+			modified = true
 		}
-
-		// now we have the complete t
-
-		nbTRICE := ""                         //rest[loc[0]:loc[1]]
-		nbID := matchNbID.FindString(nbTRICE) // nbID is the `ID(n)` inside the trice statement.
-		if nbID == "" {
-			// no id(n) - todo
-		}
-		nb := matchNb.FindString(nbID) // nb is the plain id number
-		if nb == "0" {
-			//  	id , ok = idd.fmtToId
-		} else {
-			//  	id, ok = idd.fmtToId
-		}
-
+		idd.idToLocNew[idN] = TriceLI{path, line}        // Add to new location information.
+		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information.
+		rest = rest[loc[6]:]
+		offset += loc[6]
 	}
-	return in, modified, err
+	out = []byte(outs)
+	return
+}
+
+// writeID inserts id into s according to loc information
+func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) string {
+	var idName string
+	if t.Type[2] == 'i' { // small letter
+		idName = "iD"
+	} else {
+		if DefaultStampSize == 32 {
+			idName = "ID"
+		} else if DefaultStampSize == 16 {
+			idName = "Id"
+		} else {
+			idName = "id"
+		}
+	}
+	// Example:
+	// `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1  );`
+	// loc:                   0   123     4  5              6
+	result := s[:offset+loc[2]] + idName + "(" + strconv.Itoa(int(id)) + ")" + s[offset+loc[4]:]
+	return result
+	//  rest = strings.Replace(rest, idOld, idNew, 1)
 }
 
 // stringLiterals is explained in https://stackoverflow.com/questions/76587323.
@@ -333,239 +234,3 @@ func matchFormatString(input string) (loc []int) {
 	}
 	return
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-//  // triceIDInsertion does the real ID insertion task.
-//  // If file was modified it returns fileModified 1.
-//  func triceIDInsertionLegacyForReference(
-//  	w io.Writer, // messages destination
-//  	fSys *afero.Afero, // file system
-//  	path string, // file name
-//  	fileInfo os.FileInfo, // fileInfo is needed to pass the permissions when opening source files - could probably optimized away.
-//  	ilu TriceIDLookUp, // id lookup map with history, extendable
-//  	flu triceFmtLookUp, // fmt lookup map with history, extendable
-//  	lim TriceIDLookUpLI, // location information map only as lookup reference
-//  	itemLu TriceItemLookUpID, // build from current source tree
-//  	idLu TriceIDLookupItem, // build from current source tree
-//  ) (fileModified int, err error) {
-//
-//  	text, err := readFile(w, fSys, path, fileInfo, nil)
-//  	if nil != err {
-//  		return 0, err
-//  	}
-//
-//  	var dummy bool
-//
-//  	// todo: each file is parsed 3 times -> put this in one function
-//  	textN, fileModified0 := insertParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                                        // update parameter count: TRICE* to TRICE*_n
-//  	textU, fileModified1 := insertIDsAtSamePosition(w, false /*SharedIDs*/, Min, Max, SearchMethod, textN, ilu, flu, &dummy /*pListModified*/) // update IDs: Id(0) -> Id(M)
-//
-//  	// probably not needed anymore
-//  	parseValidTriceIDsAndUpdateLocationInfo(w, path, textU, ilu, flu, lim) // parses text for valid trices tf and adds them to ilu & flu and updates location information map lim.                                                                                                 // workaround: do it again to update li.json.
-//
-//  	// write out
-//  	if fileModified0 || fileModified1 /*|| fileModified2*/ {
-//  		fileModified = 1
-//  	}
-//  	if fileModified == 1 && !DryRun {
-//  		if Verbose {
-//  			fmt.Fprintln(w, "Changed: ", path)
-//  		}
-//  		err = fSys.WriteFile(path, []byte(textU), fileInfo.Mode())
-//  		if err != nil {
-//  			return 0, fmt.Errorf("failed to change %s: %v", path, err)
-//  		}
-//  	}
-//
-//  	return fileModified, nil
-//  }
-//
-//  // insertParamCountAndID0 is for now a copy of updateParamCountAndID0
-//  func insertParamCountAndID0(w io.Writer, text string, extendMacroName bool) (string, bool) {
-//  	var modified bool
-//  	subs := text[:] // create a copy of text and assign it to subs
-//  	for {
-//  		loc := matchFullAnyTrice.FindStringIndex(subs) // find the next TRICE location in file
-//  		if nil == loc {
-//  			return text, modified // done
-//  		}
-//  		trice := subs[loc[0]:loc[1]] // the whole TRICE*(*);
-//  		triceC := trice              // make a copy
-//  		if extendMacroName {
-//  			locNoLen := matchTriceNoLen.FindStringIndex(trice) // find the next TRICE no len location in trice
-//  			if nil != locNoLen {                               // need to add len to trice name
-//  				n := formatSpecifierCount(triceC)
-//  				triceNameNoLen := triceC[locNoLen[0]:locNoLen[1]]
-//  				triceNameWithLen := addFormatSpecifierCount(w, triceNameNoLen, n)
-//  				// In this example `Trice8_1( id(  800), "rd:Trice8 line %d, %d\n", __LINE__, 2 );` triceNameNoLen is "Trice8",
-//  				// that is the Trice8 after "rd:" and triceNameWithLen is Trice8_1.
-//  				// The following line would replace the first `Trice8` which is part of `Trice8_1` with `Trice8_1` resulting in
-//  				// `Trice8_1_1( id(  800), "rd:Trice8 line %d, %d\n", __LINE__, 2 );` what is a bug.
-//  				// triceC = strings.Replace(triceC, triceNameNoLen, triceNameWithLen, 1) // insert _n
-//  				// Therefore the replacement is donne manually:
-//  				triceC = triceC[:locNoLen[0]] + triceNameWithLen + triceC[locNoLen[1]:] // insert _n
-//  				modified = true
-//  				if Verbose {
-//  					fmt.Fprint(w, triceNameNoLen)
-//  					fmt.Fprint(w, " -> ")
-//  					fmt.Fprintln(w, triceNameWithLen)
-//  				}
-//  			}
-//  		}
-//  		// here trice name in triceC contains _n and now we need to check for Id existence.
-//  		// triceC could have been modified here but text is unchanged so far.
-//  		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
-//  		if nil == idLoc { // no Id(n) inside trice, so we add it
-//  			triceO := matchAnyTriceStart.FindString(triceC) // TRICE*( part (the trice start)
-//  			var triceU string
-//  			if strings.Contains(triceO, "ice") {
-//  				triceU = triceO + " iD(0),"
-//  			} else {
-//  				triceU = triceO + StampSizeId
-//  			}
-//  			triceC = strings.Replace(triceC, triceO, triceU, 1) // insert Id(0) into trice copy
-//  			modified = true
-//  			if Verbose {
-//  				fmt.Fprint(w, triceO)
-//  				fmt.Fprint(w, " -> ")
-//  				fmt.Fprintln(w, triceU)
-//  			}
-//  		}
-//  		if modified {
-//  			text = strings.Replace(text, trice, triceC, 1) // this works, because a trice gets changed only once
-//  		}
-//  		subs = subs[loc[1]:] // The replacement makes text not shorter, so next search can start at loc[1]
-//  	}
-//  }
-//
-//  // insertIDsAtSamePosition is for now a copy of updateIDsUniqOrShared
-//  func insertIDsAtSamePosition(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, text string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool) (string, bool) {
-//  	var fileModified bool
-//  	subs := text[:] // create a copy of text and assign it to subs
-//  	for {
-//  		loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
-//  		if nil == loc {
-//  			return text, fileModified // done
-//  		}
-//  		nbTRICE := subs[loc[0]:loc[1]] // full trice expression with Id(n)
-//  		// prepare subs for next loop
-//  		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
-//  		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
-//
-//  		nbID, id, tf, idTypeResult := triceParse(nbTRICE)
-//  		//if idTypeResult == idTypeS8 {
-//  		//	continue
-//  		//}
-//  		tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
-//
-//  		// In ilu id could point to a different tf. So we need to check that and invalidate id in that case.
-//  		// - That typically happens after tf was changed in source but the id not.
-//  		// - Also the source file with id:tf could be added from a different project and refresh could not add it to ilu because id is used differently.
-//  		if id != 0 {
-//  			if tfL, ok := ilu[id]; ok { // found
-//  				tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
-//  				if !reflect.DeepEqual(tf, tfL) {
-//  					id = -id // mark as invalid
-//  				}
-//  			}
-//  		}
-//  		if id <= 0 { // marked as invalid: id is 0 or inside ilu used differently
-//
-//  			invalID := nbID
-//  			invalTRICE := nbTRICE
-//
-//  			//<<<<<<<<< Temporary merge branch 1
-//  			//			// we need a new one
-//  			//			id = ilu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
-//  			//			*pListModified = true
-//  			//			// patch the id into text
-//  			//			nID := fmt.Sprintf("Id(%5d)", id)
-//  			//=========
-//  			//if id, found := flu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
-//  			//	msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
-//  			//} else
-//  			//{ // no, we need a new one
-//  			id = ilu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
-//  			*pListModified = true
-//  			//}
-//  			var nID string // patch the id into text
-//  			switch idTypeResult {
-//  			case idTypeS8:
-//  				nID = fmt.Sprintf("iD(%5d)", id) // todo: patID
-//  			case idTypeS4:
-//  				nID = fmt.Sprintf("ID(%5d)", id) // todo: patID
-//  			case idTypeS2:
-//  				nID = fmt.Sprintf("Id(%5d)", id) // todo: patID
-//  			case idTypeS0:
-//  				nID = fmt.Sprintf("id(%5d)", id) // todo: patID
-//  			}
-//  			//>>>>>>>>> Temporary merge branch 2
-//  			if Verbose {
-//  				if nID != invalID {
-//  					fmt.Fprint(w, invalID, " -> ")
-//  				}
-//  				fmt.Fprintln(w, nID)
-//  			}
-//  			nbTRICE := strings.Replace(nbTRICE, invalID, nID, 1)
-//  			text = strings.Replace(text, invalTRICE, nbTRICE, 1)
-//  			fileModified = true
-//  		}
-//  		// update map: That is needed after an invalid trice or if id:tf is valid but not inside ilu & flu yet, for example after manual code changes or forgotten refresh before update.
-//  		ilu[id] = tf
-//  		addID(tf, id, flu)
-//  	}
-//  }
-//
-//  // parseValidTriceIDsAndUpdateLocationInfo is for now a copy of refreshIDs.
-//  // refreshIDs parses text for valid trices tf and adds them to ilu & flu and updates location information map lim.
-//  //
-//  // parseValidTriceIDsAndUpdateLocationInfo ist called for each file (fileName)
-//  func parseValidTriceIDsAndUpdateLocationInfo(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu triceFmtLookUp, lim TriceIDLookUpLI) {
-//  	subs := text[:] // create a copy of text and assign it to subs
-//  	line := 1       // source cole lines start with 1 for some reason
-//  	for {
-//  		loc := matchNbTRICE.FindStringSubmatchIndex(subs) // find the next TRICE location in file
-//  		if nil == loc {
-//  			return // done
-//  		}
-//  		line += strings.Count(subs[:loc[0]], "\n")
-//  		nbTRICE := subs[loc[0]:loc[1]] // full trice expression with Id(n)
-//  		// prepare subs for next loop
-//  		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
-//  		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
-//
-//  		_, id, tf, _ /*found*/ := triceParse(nbTRICE)
-//  		//  if found == idTypeS8 {
-//  		//  	continue
-//  		//  }
-//  		tfS := tf
-//  		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
-//
-//  		// In ilu id could point to a different tf. So we need to check that and invalidate id in that case.
-//  		// - That typically happens after tf was changed in source but the id not.
-//  		// - Also the source file with id:tf could be added from a different project and refresh could not add it to ilu because id is used differently.
-//  		// Without this check double used IDs are silently loose one of their usages, what is ok, but this way we get a warning.
-//  		if id != 0 {
-//  			if tfL, ok := ilu[id]; ok { // found
-//  				tfL.Type = strings.ToUpper(tfL.Type)
-//  				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
-//  					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.") // todo: patID
-//  					id = -id                                                            // mark as invalid
-//  				}
-//  			}
-//  		}
-//  		if id > 0 {
-//  			var li TriceLI
-//  			li.File = filepath.Base(fileName)
-//  			li.Line = line
-//  			lim[id] = li
-//  			ilu[id] = tf
-//  			addID(tfS, id, flu)
-//  		}
-//  	}
-//  }

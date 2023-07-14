@@ -18,7 +18,7 @@ func TestInsert(t *testing.T) {
 
 	// create src file
 	sFn := "file.c"
-	src := `break; case __LINE__: trice( iD(0), "msg:value=%d\n", -1  );`
+	src := `break; case __LINE__: TRice( iD(0), "msg:value=%d\n", -1  );`
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
@@ -29,13 +29,34 @@ func TestInsert(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
 
 	// check modified src file
-	expSrc := `break; case __LINE__: trice( iD(999), "msg:value=%d\n", -1  );`
-
+	expSrc := `break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );`
 	actSrc, e := fSys.ReadFile(sFn)
 	assert.Nil(t, e)
-
 	assert.Equal(t, expSrc, string(actSrc))
+
+	// check modified li.json file
+	expLI := `{
+	"999": {
+		"File": "file.c",
+		"Line": 1
+	}
+}`
+	actLI, e := fSys.ReadFile("li.json")
+	assert.Nil(t, e)
+	assert.Equal(t, expLI, string(actLI))
+
+	// check modified til.json file
+	expTIL := `{
+	"999": {
+		"Type": "TRice",
+		"Strg": "msg:value=%d\\n"
+	}
+}`
+	actTIL, e := fSys.ReadFile(jFn)
+	assert.Nil(t, e)
+	assert.Equal(t, expTIL, string(actTIL))
+
 }

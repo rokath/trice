@@ -78,19 +78,6 @@ type triceFmtLookUp map[TriceFmt]TriceIDs
 type TriceLI struct {
 	File string `json:"File"` // source file name of trice id
 	Line int    `json:"Line"` // source file line of trice id
-	Offs int    `json:"Offs"` // line offset, several trices are allowed to be in one single line and must be distinguishable
 }
 
 type TriceIDLookUpLI map[TriceID]TriceLI
-
-// TriceItem is a unique description for each trice inside the source tree.
-type TriceItem struct {
-	fmt TriceFmt
-	li  TriceLI
-}
-
-// TriceItemLookUpID ...
-//type TriceItemLookUpID map[TriceItem]TriceID
-
-// TriceIDLookupItem ...
-//type TriceIDLookupItem map[TriceID]TriceItem
