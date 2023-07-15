@@ -126,10 +126,10 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		uct.Type = strings.ToUpper(t.Type)     // Lower case and upper case Type are not distinguished.
 		if ids, ok := idd.triceToId[uct]; ok { // t has at least one unused ID, but it could be from a different file.
 			for i, id := range ids { // It is also possible, that no id matches idn != 0.
-				if li, ok := idd.idToLocRef[id]; ok && li.File == path && (idn == 0 || idn == id) {
+				li, ok := idd.idToLocRef[id]
+				if ok && li.File == path && (idn == 0 || idn == id) {
 					// id exists inside location information for this file and is usable, so remove from unused list.
-					ids[i] = ids[len(ids)-1] // todo: avoid inversion!
-					ids = ids[:len(ids)-1]
+					ids = removeIndex(ids, i)
 					if len(ids) == 0 {
 						delete(idd.triceToId, uct)
 					} else {
@@ -157,7 +157,9 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 			offset += delta
 			modified = true
 		}
-		idd.idToLocNew[idN] = TriceLI{path, line}        // Add to new location information.
+		a.Mutex.Lock()
+		idd.idToLocNew[idN] = TriceLI{path, line} // Add to new location information.
+		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information.
 		rest = rest[loc[6]:]
 		offset += loc[6]
@@ -240,4 +242,10 @@ func matchFormatString(input string) (loc []int) {
 		loc = append(loc, loc[0]+len(scanner.Text()))
 	}
 	return
+}
+
+// removeIndex removes the element at index from s.
+// https://stackoverflow.com/questions/37334119/how-to-delete-an-element-from-a-slice-in-golang
+func removeIndex(s TriceIDs, index int) TriceIDs {
+	return append(s[:index], s[index+1:]...)
 }

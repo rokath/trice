@@ -1,4 +1,4 @@
-package main
+package id_test
 
 import (
 	"bytes"
@@ -25,11 +25,11 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 	tilJSON := `{
 	"1200": {
 		"Type": "TRICE",
-		"Strg": "\"Hi!\""
+		"Strg": "Hi!"
 	},
 	"1201": {
 		"Type": "TRICE",
-		"Strg": "\"Hi!\""
+		"Strg": "Hi!"
 	}
 }`
 
@@ -46,8 +46,8 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 	}`
 	testSet := []srcFile{
 		// fn:       clean:                            insertedIDs:
-		{"file0.c", `TRice( "Hi!" ); TRice( "Hi!" );`, `TRice( iD(1200), "Hi!" ); TRice( iD(1000), "Hi!" );`},
-		{"file1.c", `TRice( "Hi!" ); TRice( "Hi!" );`, `TRice( iD(1201), "Hi!" ); TRice( iD(1001), "Hi!" );`},
+		{"file0.c", `TRice( "Hi!" ); TRice( "Hi!" );`, `TRice( iD(1200), "Hi!" ); TRice( iD(1001), "Hi!" );`},
+		{"file1.c", `TRice( "Hi!" ); TRice( "Hi!" );`, `TRice( iD(1201), "Hi!" ); TRice( iD(1000), "Hi!" );`},
 	}
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
@@ -77,8 +77,8 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 
 func TestInsertIDsIntoCleanFilesWithEmptyTilJSON(t *testing.T) {
 	testSet := []srcFile{
-		{"file0.c", `TRice( "Hi!" );`, `TRice( iD(1000), "Hi!" );`},
-		{"file1.c", `TRice( "Hi!" );`, `TRice( iD(1001), "Hi!" );`},
+		{"file0.c", `TRice( "Hi!" );`, `TRice( iD(1001), "Hi!" );`},
+		{"file1.c", `TRice( "Hi!" );`, `TRice( iD(1000), "Hi!" );`},
 	}
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
@@ -127,12 +127,12 @@ func TestInsertIDsAndJSON(t *testing.T) {
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src", ".", "-IDMin", "1000", "-IDMethod", "upward"}))
 
 	// check source files
-	expSrc0 := `TRice( iD(1000), "Hi!" );`
+	expSrc0 := `TRice( iD(1001), "Hi!" );`
 	actSrc0, e := fSys.ReadFile(sFn0)
 	assert.Nil(t, e)
 	//fmt.Println(string(actSrc))
 	assert.Equal(t, expSrc0, string(actSrc0))
-	expSrc1 := `TRice( iD(1001), "Hi!" );`
+	expSrc1 := `TRice( iD(1000), "Hi!" );`
 	actSrc1, e := fSys.ReadFile(sFn1)
 	assert.Nil(t, e)
 	//fmt.Println(string(actSrc))
@@ -157,11 +157,11 @@ func TestInsertIDsAndJSON(t *testing.T) {
 	// check location information
 	expLI := `{
 	"1000": {
-		"File": "file0.c",
+		"File": "file1.c",
 		"Line": 1
 	},
 	"1001": {
-		"File": "file1.c",
+		"File": "file0.c",
 		"Line": 1
 	}
 }`
