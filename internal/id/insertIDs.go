@@ -1,4 +1,4 @@
-&// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package id
@@ -80,6 +80,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 	rest := string(in) // rest is the so far not processed part of the file.
 	outs := rest       // outs is the resulting string.
 	var offset int     // offset is incremented by n, when rest is reduced by n.
+	var delta int      // offset change cause by ID statement insertion
 	var t TriceFmt     // t is the actual located trice.
 	line := 1          // line counts source code lines, these start with 1.
 	for {
@@ -91,7 +92,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		}
 		t.Type = rest[loc[0]:loc[1]]       // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
 		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
-		if loc[3] != loc[4] { // iD(n) found
+		if loc[3] != loc[4] {              // iD(n) found
 			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
@@ -120,17 +121,19 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		// - trice( "foo", ... );           --> idn =   0, loc[3] == loc[4]
 		// - trice( iD(0), "foo, ... ")     --> idn =   0, loc[3] != loc[4]
 		// - trice( iD(111), "foo, ... ")   --> idn = 111, loc[3] != loc[4]
-		a.Mutex.Lock()                       // several files could contain the same t
-		if ids, ok := idd.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
+		a.Mutex.Lock() // several files could contain the same t
+		uct := t
+		uct.Type = strings.ToUpper(t.Type)     // Lower case and upper case Type are not distinguished.
+		if ids, ok := idd.triceToId[uct]; ok { // t has at least one unused ID, but it could be from a different file.
 			for i, id := range ids { // It is also possible, that no id matches idn != 0.
 				if li, ok := idd.idToLocRef[id]; ok && li.File == path && (idn == 0 || idn == id) {
 					// id exists inside location information for this file and is usable, so remove from unused list.
 					ids[i] = ids[len(ids)-1] // todo: avoid inversion!
 					ids = ids[:len(ids)-1]
 					if len(ids) == 0 {
-						delete(idd.triceToId, t)
+						delete(idd.triceToId, uct)
 					} else {
-						idd.triceToId[t] = ids
+						idd.triceToId[uct] = ids
 					}
 					idN = id // This gets into the source. No need to remove id from idd.idToLocRef.
 					goto idUsable
@@ -144,13 +147,14 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		}
 		if idN == 0 { // create a new ID
 			idN = idd.newID()
-			idd.idToTrice[idN] = t // add ID to idd.idToTrice
+			idd.idToTrice[idN] = uct // add ID to idd.idToTrice
 		}
 	idUsable:
 		a.Mutex.Unlock()
 		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
 		if idN != idn {                            // Need to change source.
-			outs = writeID(outs, offset, loc, t, idN)
+			outs, delta = writeID(outs, offset, loc, t, idN)
+			offset += delta
 			modified = true
 		}
 		idd.idToLocNew[idN] = TriceLI{path, line}        // Add to new location information.
@@ -162,30 +166,31 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 	return
 }
 
-// writeID inserts id into s according to loc information
-func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) string {
+// writeID inserts id into s according to loc information and returns the result together with the changed len.
+func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result string, delta int) {
 	var idName string
 	if t.Type[2] == 'i' { // small letter
-		idName = "iD"
+		idName = " iD("
 	} else {
 		if loc[3] != loc[4] {
-			idName = s[offset+loc[3]:offset+loc[3]+1]
-		}else{
-		        if DefaultStampSize == 32 {
-			        idName = "ID"
-		        } else if DefaultStampSize == 16 {
-			        idName = "Id"
-		        } else {
-			        idName = "id"
-		        }
+			idName = " " + s[offset+loc[3]:offset+loc[3]+2] + "("
+		} else {
+			if DefaultStampSize == 32 {
+				idName = " ID("
+			} else if DefaultStampSize == 16 {
+				idName = " Id("
+			} else {
+				idName = " id("
+			}
 		}
 	}
-	// Example:
-	// `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1  );`
-	// loc:                   0   123     4  5              6
-	result := s[:offset+loc[2]] + idName + "(" + strconv.Itoa(int(id)) + ")" + s[offset+loc[4]:]
-	return result
-	//  rest = strings.Replace(rest, idOld, idNew, 1)
+	first := s[:offset+loc[2]]                      // first is the not touched s part before the replacement space.
+	idSiz := loc[5] - loc[2]                        // idSiz is the size of the replaced ID space inside the source code.
+	last := s[offset+loc[5]:]                       // last is the not touched s part after the replacement space.
+	idIns := idName + strconv.Itoa(int(id)) + "), " // idIns is the ID statement replace string.
+	result = first + idIns + last                   //
+	delta = len(idIns) - idSiz                      // delta is the offset change.
+	return
 }
 
 // stringLiterals is explained in https://stackoverflow.com/questions/76587323.

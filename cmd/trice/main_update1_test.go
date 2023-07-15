@@ -24,7 +24,7 @@ func TestUpdateSet1(t *testing.T) { // Anti-Virus issue
 
 	expLI := `{
 	"1000": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 1
 	}
 }`
@@ -78,7 +78,7 @@ func TestUpdateSet0(t *testing.T) { // Anti-Virus issue
 
 	expLI := `{
 	"1000": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 1
 	}
 }`
@@ -172,7 +172,7 @@ func TestUpdateLegacy0(t *testing.T) { // Anti-Virus issue
 	// check generated li.json file
 	expLI := `{
 	"1000": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 1
 	}
 }`
@@ -322,35 +322,35 @@ Changed:  file.c
 		"Line": 2
 	},
 	"1001": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 3
 	},
 	"1002": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 5
 	},
 	"1003": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 7
 	},
 	"1004": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 8
 	},
 	"1005": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 9
 	},
 	"1006": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 10
 	},
 	"1007": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 12
 	},
 	"7009": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 11
 	}
 }`

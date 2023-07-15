@@ -107,27 +107,27 @@ Changed:  file.c
 	// check generated li.json file
 	expLI := `{
 	"1000": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 2
 	},
 	"1001": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 3
 	},
 	"1002": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 4
 	},
 	"1003": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 5
 	},
 	"1004": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 6
 	},
 	"1005": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 7
 	}
 }`
