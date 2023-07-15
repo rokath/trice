@@ -1,4 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+&// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package id
@@ -168,12 +168,16 @@ func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) string {
 	if t.Type[2] == 'i' { // small letter
 		idName = "iD"
 	} else {
-		if DefaultStampSize == 32 {
-			idName = "ID"
-		} else if DefaultStampSize == 16 {
-			idName = "Id"
-		} else {
-			idName = "id"
+		if loc[3] != loc[4] {
+			idName = s[offset+loc[3]:offset+loc[3]+1]
+		}else{
+		        if DefaultStampSize == 32 {
+			        idName = "ID"
+		        } else if DefaultStampSize == 16 {
+			        idName = "Id"
+		        } else {
+			        idName = "id"
+		        }
 		}
 	}
 	// Example:
