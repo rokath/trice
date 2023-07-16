@@ -6,8 +6,8 @@ cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
 rm ./testdata/til.json
 touch ./testdata/til.json
 
-#  add IDs
-trice u -src ./testdata/triceCheck.c -i ./testdata/til.json -li ./testdata/li.json -IDMin 1000 -IDMax 7999
+#  insert IDs
+trice i -src ./testdata/triceCheck.c -i ./testdata/til.json -li ./testdata/li.json -IDMin 1000 -IDMax 7999
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
