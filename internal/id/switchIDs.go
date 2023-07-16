@@ -77,6 +77,9 @@ func (p *idData) preProcessing(w io.Writer, fSys *afero.Afero) {
 			}
 		}
 	}
+	if Verbose {
+		fmt.Fprintln(w, Max-Min+1, "IDs total space,", len(p.IDSpace), "IDs usable")
+	}
 }
 
 // postProcessing
@@ -87,13 +90,13 @@ func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) {
 		msg.FatalOnErr(p.idToTrice.toFile(fSys, FnJSON))
 	}
 	if Verbose {
-		fmt.Fprintln(w, idsAdded, "ID's added, now", len(p.idToTrice), "ID's in", FnJSON)
+		fmt.Fprintln(w, idsAdded, "ID's added, now", len(p.idToTrice), "ID's in", FnJSON, "file.")
 	}
 
 	// li.json
 	msg.FatalInfoOnErr(p.idToLocNew.toFile(fSys, LIFnJSON), "could not write LIFnJSON")
 	if Verbose {
-		fmt.Fprintln(w, len(p.idToLocNew), "ID's in source code and now in", LIFnJSON)
+		fmt.Fprintln(w, len(p.idToLocNew), "ID's in source code and now in", LIFnJSON, "file.")
 	}
 }
 
