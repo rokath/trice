@@ -413,7 +413,7 @@ func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu trice
 		//  	continue
 		//  }
 		tfS := tf
-		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
+		//tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
 
 		// In ilu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
@@ -421,7 +421,7 @@ func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu trice
 		// Without this check double used IDs are silently loose one of their usages, what is ok, but this way we get a warning.
 		if id != 0 {
 			if tfL, ok := ilu[id]; ok { // found
-				tfL.Type = strings.ToUpper(tfL.Type)
+				//tfL.Type = strings.ToUpper(tfL.Type)
 				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
 					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.") // todo: patID
 					id = -id                                                            // mark as invalid
@@ -474,14 +474,14 @@ func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, 
 		//if idTypeResult == idTypeS8 {
 		//	continue
 		//}
-		tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
+		//tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 
 		// In ilu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to ilu because id is used differently.
 		if id != 0 {
 			if tfL, ok := ilu[id]; ok { // found
-				tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
+				//tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 				if !reflect.DeepEqual(tf, tfL) {
 					id = -id // mark as invalid
 				}

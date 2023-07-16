@@ -278,8 +278,8 @@ func (ilu TriceIDLookUp) reverseS() (flu triceFmtLookUp) {
 
 // addID adds tF and id to flu. If tF already exists inside flu, its id slice is extended with id.
 func addID(tF TriceFmt, id TriceID, flu triceFmtLookUp) {
-	tF.Type = strings.ToUpper(tF.Type) // no distinction for lower and upper case Type
-	idSlice := flu[tF]                 // If the key doesn't exist, the first value will be the default zero value.
+	// tF.Type = strings.ToUpper(tF.Type) // no distinction for lower and upper case Type
+	idSlice := flu[tF] // If the key doesn't exist, the first value will be the default zero value.
 	idSlice = append(idSlice, id)
 	flu[tF] = idSlice
 }

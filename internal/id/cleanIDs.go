@@ -46,6 +46,9 @@ func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 	return err
 }
 
+// cleanTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.
+// If an ID is inside til.json referencing to a different trice, it is silently set to 0.
+// All valid IDs are used to build a new li.json file.
 func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID    // idn is the last found id inside the source.
 	var idS string     // idS is the "iD(n)" statement, if found.
@@ -97,20 +100,19 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		}
 		// trice t (t.Type & t.Strg) is known now. idn holds the trice id found in the source. Example case: trice( iD(111), "foo, ... ")
 		// We do not simply replace the ID with 0. We check til.json, extend it if needed and we build a new li.json.
-		uct := t
-		uct.Type = strings.ToUpper(t.Type) // Lower case and upper case Type are not distinguished.
-		a.Mutex.Lock()                     // several files could contain the same t or idn.
-		tt, ok := idd.idToTrice[idn]       // check til.json.
-		if !ok {                           // idn is not inside til.json.
-			idd.idToTrice[idn] = uct // Add idn.
+		a.Mutex.Lock()               // several files could contain the same t or idn.
+		tt, ok := idd.idToTrice[idn] // check til.json.
+		if !ok {                     // idn is not inside til.json.
+			idd.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
-			if tt != uct { // idn references to a different t.
+			if tt != t { // idn references to a different t.
 				idn = 0 // silently set it to 0
 			}
 		}
 		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
 		if idn != 0 {
 			idd.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.
+			fmt.Fprintln(w, idn, path, line, "added to li")
 		}
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information.
@@ -120,6 +122,7 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		rest = rest[loc[6]:]
 		offset += loc[6]
 	}
+	fmt.Fprintln(w, len(idd.idToLocNew), "items inside li")
 	out = []byte(outs)
 	return
 }

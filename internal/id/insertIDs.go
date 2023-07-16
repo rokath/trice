@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -121,23 +122,37 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		// - trice( "foo", ... );           --> idn =   0, loc[3] == loc[4]
 		// - trice( iD(0), "foo, ... ")     --> idn =   0, loc[3] != loc[4]
 		// - trice( iD(111), "foo, ... ")   --> idn = 111, loc[3] != loc[4]
-		a.Mutex.Lock() // several files could contain the same t
-		uct := t
-		uct.Type = strings.ToUpper(t.Type)     // Lower case and upper case Type are not distinguished.
-		if ids, ok := idd.triceToId[uct]; ok { // t has at least one unused ID, but it could be from a different file.
+		a.Mutex.Lock()                       // several files could contain the same t
+		if ids, ok := idd.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
+			if len(ids) == 1 { // Most common case: just one ID for t, so we take it, even it is from a different file.
+				idN = ids[0]
+				delete(idd.triceToId, t)
+				goto idUsable
+			}
+			idCandidateIndex := math.MaxInt
+			idCandidateLine := math.MaxInt
 			for i, id := range ids { // It is also possible, that no id matches idn != 0.
-				li, ok := idd.idToLocRef[id]
+				li, ok := idd.idToLocRef[id] // Get location information.
 				if ok && li.File == path && (idn == 0 || idn == id) {
-					// id exists inside location information for this file and is usable, so remove from unused list.
-					ids = removeIndex(ids, i)
-					if len(ids) == 0 {
-						delete(idd.triceToId, uct)
-					} else {
-						idd.triceToId[uct] = ids
+					// id exists inside location information for this file and is usable, but it could occur
+					// in path several times. In such cases we take the ID with the smallest line number first,
+					// because we are reading from the beginning. Therefore we need to check that.
+					if li.Line < idCandidateLine {
+						idCandidateLine = li.Line
+						idCandidateIndex = i
 					}
-					idN = id // This gets into the source. No need to remove id from idd.idToLocRef.
-					goto idUsable
 				}
+			}
+			if idCandidateIndex < math.MaxInt { // usable, so remove from unused list.
+				idN = ids[idCandidateIndex] // This gets into the source. No need to remove id from idd.idToLocRef.
+				ids = removeIndex(ids, idCandidateIndex)
+				if len(ids) == 0 {
+					delete(idd.triceToId, t)
+				} else {
+					idd.triceToId[t] = ids
+				}
+				goto idUsable
+
 				// The case idn != 0 and idn != id is possible, when idn was manually written into the code or code with IDs was merged.
 				// It is not expected, that in such cases idn is found inside idd.idToLocRef. Example:
 				// TRice( iD(3), "foo" ) in file1.c && t{TRice, "foo"} gives []int{1,2}
@@ -147,7 +162,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		}
 		if idN == 0 { // create a new ID
 			idN = idd.newID()
-			idd.idToTrice[idN] = uct // add ID to idd.idToTrice
+			idd.idToTrice[idN] = t // add ID to idd.idToTrice
 		}
 	idUsable:
 		a.Mutex.Unlock()

@@ -460,7 +460,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 func (p *trexDec) sprintTrice(b []byte) (n int) {
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
-	p.Trice.Type = strings.ToUpper(p.Trice.Type) // do not distinguish upper and lower case
+	//p.Trice.Type = strings.ToUpper(p.Trice.Type) // do not distinguish upper and lower case
 
 	var triceType string                           // need to reconstruct full TRICE info, if not exist in type string
 	if strings.HasPrefix(p.Trice.Type, "TRICE_") { // when no bitwidth, insert it
