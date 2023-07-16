@@ -29,6 +29,8 @@ var (
 	idd idData
 )
 
+// newID returns a new, so far unused trice ID for usage.
+// The global variable SearchMethod controls the way a new ID is selected.
 func (p *idData) newID() (id TriceID) {
 	if SearchMethod == "random" {
 		index := rand.Intn(len(p.IDSpace))
@@ -45,6 +47,8 @@ func (p *idData) newID() (id TriceID) {
 	return
 }
 
+// preProcessing reads til.json and li.json and converts the data for processing.
+// Also the ID space for new trice IDs is created.
 func (p *idData) preProcessing(w io.Writer, fSys *afero.Afero) {
 
 	// get state
@@ -61,35 +65,41 @@ func (p *idData) preProcessing(w io.Writer, fSys *afero.Afero) {
 		_, usedLoc := p.idToLocRef[id]
 		if !usedFmt && !usedLoc {
 			p.IDSpace = append(p.IDSpace, id)
-		}
-		if usedFmt && !usedLoc {
-			fmt.Fprintln(w, "ID", id, "only inside til.json")
-		}
-		if !usedFmt && usedLoc {
-			fmt.Fprintln(w, "ID", id, "only inside li.json")
+		} else if Verbose {
+			if usedFmt && !usedLoc {
+				fmt.Fprintln(w, "ID", id, "used, but only inside til.json")
+			}
+			if !usedFmt && usedLoc {
+				fmt.Fprintln(w, "ID", id, "used, but only inside li.json")
+			}
+			if usedFmt && usedLoc {
+				fmt.Fprintln(w, "ID", id, "used inside til.json and li.json")
+			}
 		}
 	}
 }
 
+// postProcessing
 func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) {
-	// finalize
-	if Verbose {
-		fmt.Fprintln(w, len(p.idToTrice), "ID's in List", FnJSON)
-	}
+	// til.json
 	idsAdded := len(p.idToTrice) - p.idInitialCount
-	if Verbose {
-		fmt.Fprintln(w, idsAdded, "ID's added to List", FnJSON)
-	}
 	if idsAdded > 0 && !DryRun {
 		msg.FatalOnErr(p.idToTrice.toFile(fSys, FnJSON))
 	}
-	if LIFnJSON == "off" || LIFnJSON == "none" {
-		return
+	if Verbose {
+		fmt.Fprintln(w, idsAdded, "ID's added, now", len(p.idToTrice), "ID's in", FnJSON)
 	}
+
+	// li.json
 	msg.FatalInfoOnErr(p.idToLocNew.toFile(fSys, LIFnJSON), "could not write LIFnJSON")
+	if Verbose {
+		fmt.Fprintln(w, len(p.idToLocNew), "ID's in source code and now in", LIFnJSON)
+	}
 }
 
-func cmdManageTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) error {
+// cmdSwitchTriceIDs performs action (triceIDCleaning or triceIDInsertion) between preProcessing and postProcessing.
+// This is done implicit by calling a.Walk for all source tree files, each in a separate Go routine.
+func cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) error {
 	// initialize
 	a := new(ant.Admin)
 	a.Action = action

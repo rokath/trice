@@ -19,7 +19,7 @@ import (
 
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) error {
-	return cmdManageTriceIDs(w, fSys, triceIDInsertion)
+	return cmdSwitchTriceIDs(w, fSys, triceIDInsertion)
 }
 
 // triceIDInsertion reads file, processes it and writes it back, if needed.
