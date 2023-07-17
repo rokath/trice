@@ -1,5 +1,7 @@
 package id_test
 
+// The tests in this file cannot run concurrently!
+
 import (
 	"bytes"
 	"io"
@@ -24,11 +26,11 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 	// trice ID list
 	tilJSON := `{
 	"1200": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "Hi!"
 	},
 	"1201": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "Hi!"
 	}
 }`
@@ -141,11 +143,11 @@ func TestInsertIDsAndJSON(t *testing.T) {
 	// check til.json
 	expJSON := `{
 	"1000": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "Hi!"
 	},
 	"1001": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "Hi!"
 	}
 }`

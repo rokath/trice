@@ -124,40 +124,49 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		// - trice( iD(111), "foo, ... ")   --> idn = 111, loc[3] != loc[4]
 		a.Mutex.Lock()                       // several files could contain the same t
 		if ids, ok := idd.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
-			if len(ids) == 1 { // Most common case: just one ID for t, so we take it, even it is from a different file.
-				idN = ids[0]
-				delete(idd.triceToId, t)
-				goto idUsable
-			}
-			idCandidateIndex := math.MaxInt
-			idCandidateLine := math.MaxInt
-			for i, id := range ids { // It is also possible, that no id matches idn != 0.
+			if len(ids) == 1 { // Most common case: just one ID for t.
+				id := ids[0]
+				// Even there is only one singe ID inside ids, we cannot take it, if it is for a different file.
+				// ids could have been larger before and we would steel the id from a different file then.
 				li, ok := idd.idToLocRef[id] // Get location information.
 				if ok && li.File == path && (idn == 0 || idn == id) {
-					// id exists inside location information for this file and is usable, but it could occur
-					// in path several times. In such cases we take the ID with the smallest line number first,
-					// because we are reading from the beginning. Therefore we need to check that.
-					if li.Line < idCandidateLine {
-						idCandidateLine = li.Line
-						idCandidateIndex = i
+					// id exists inside location information for this file and is usable.
+					idN = id
+					delete(idd.triceToId, t)
+					goto idUsable
+				}
+				// If we arrive here, the location information does not match or idn != 0 and idn != id.
+				// In such case a new ID is needed.
+			} else { // Several IDs for t exist.
+				idCandidateIndex := math.MaxInt
+				idCandidateLine := math.MaxInt
+				for i, id := range ids { // It is also possible, that no id matches idn != 0.
+					li, ok := idd.idToLocRef[id] // Get location information.
+					if ok && li.File == path && (idn == 0 || idn == id) {
+						// id exists inside location information for this file and is usable, but it could occur
+						// in path several times. In such cases we take the ID with the smallest line number first,
+						// because we are reading from the beginning. Therefore we need to check that.
+						if li.Line < idCandidateLine {
+							idCandidateLine = li.Line
+							idCandidateIndex = i
+						}
 					}
 				}
-			}
-			if idCandidateIndex < math.MaxInt { // usable, so remove from unused list.
-				idN = ids[idCandidateIndex] // This gets into the source. No need to remove id from idd.idToLocRef.
-				ids = removeIndex(ids, idCandidateIndex)
-				if len(ids) == 0 {
-					delete(idd.triceToId, t)
-				} else {
-					idd.triceToId[t] = ids
+				if idCandidateIndex < math.MaxInt { // usable, so remove from unused list.
+					idN = ids[idCandidateIndex] // This gets into the source. No need to remove id from idd.idToLocRef.
+					ids = removeIndex(ids, idCandidateIndex)
+					if len(ids) == 0 {
+						delete(idd.triceToId, t)
+					} else {
+						idd.triceToId[t] = ids
+					}
+					goto idUsable
+					// The case idn != 0 and idn != id is possible, when idn was manually written into the code or code with IDs was merged.
+					// It is not expected, that in such cases idn is found inside idd.idToLocRef. Example:
+					// TRice( iD(3), "foo" ) in file1.c && t{TRice, "foo"} gives []int{1,2}
+					// li.json could contain ID 3 for file1.c, but that must be for a different trice then.
+					// Therefore such idn are discarded by not copying them to idN.
 				}
-				goto idUsable
-
-				// The case idn != 0 and idn != id is possible, when idn was manually written into the code or code with IDs was merged.
-				// It is not expected, that in such cases idn is found inside idd.idToLocRef. Example:
-				// TRice( iD(3), "foo" ) in file1.c && t{TRice, "foo"} gives []int{1,2}
-				// li.json could contain ID 3 for file1.c, but that must be for a different trice then.
-				// Therefore such idn are discarded by not copying them to idN.
 			}
 		}
 		if idN == 0 { // create a new ID

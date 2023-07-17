@@ -313,20 +313,21 @@ func (p *cobsDec) sprintTrice(b []byte) (n int) {
 
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
-	var triceType string                           // need to reconstruct full TRICE info, if not exist in type string
-	if strings.HasPrefix(p.Trice.Type, "TRICE_") { // when no bitwidth, insert it
-		triceType = "TRICE" + id.DefaultTriceBitWidth + "_" + p.Trice.Type[6:]
+	triceType := "unknownTriceType" // need to reconstruct full TRICE info, if not exist in type string
+	for _, name := range []string{"TRICE", "TRice", "Trice", "trice"} {
+		if strings.HasPrefix(p.Trice.Type, name+"_") { // when no bitwidth, insert it
+			triceType = name + id.DefaultTriceBitWidth + "_" + p.Trice.Type[6:]
+		}
+		if p.Trice.Type == name { // when nothing
+			triceType = fmt.Sprintf("TRICE"+id.DefaultTriceBitWidth+"_%d", len(p.u)) // append bitwidth and count
+		}
+		//  if p.Trice.Type == name && len(p.u) == 0 { // special case, overwrite
+		//  	triceType = name + "0"
+		//  }
+		if p.Trice.Type == name+"8" || p.Trice.Type == name+"16" || p.Trice.Type == name+"32" || p.Trice.Type == name+"64" { // when no count
+			triceType = fmt.Sprintf(p.Trice.Type+"_%d", len(p.u)) // append count
+		}
 	}
-	if p.Trice.Type == "TRICE" { // when nothing
-		triceType = fmt.Sprintf("TRICE"+id.DefaultTriceBitWidth+"_%d", len(p.u)) // append bitwidth and count
-	}
-	if p.Trice.Type == "TRICE" && len(p.u) == 0 { // special case, overwrite
-		triceType = "TRICE0"
-	}
-	if p.Trice.Type == "TRICE8" || p.Trice.Type == "TRICE16" || p.Trice.Type == "TRICE32" || p.Trice.Type == "TRICE64" { // when no count
-		triceType = fmt.Sprintf(p.Trice.Type+"_%d", len(p.u)) // append count
-	}
-
 	for _, s := range cobsFunctionPtrList { // walk through the list and try to find a match for execution
 		if s.triceType == p.Trice.Type || s.triceType == triceType { // match list entry "TRICE..."
 			if s.ParamSpace == p.ParamSpace { // size ok

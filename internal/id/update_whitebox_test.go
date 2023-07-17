@@ -129,7 +129,7 @@ func TestRefreshIDListSingle2(t *testing.T) {
 		"Strg": "ho %64b\\n"
 	},
 	"12345": {
-		"Type": "trice16_3",
+		"Type": "TRICE16_3",
 		"Strg": "hi %2d, %13u, %64b\\n"
 	}
 }`
@@ -178,14 +178,14 @@ func TestInsertSharedIDs0WithParamCount(t *testing.T) {
 	im := make(TriceIDLookUp)
 	em := make(TriceIDLookUp)
 	em[10000] = TriceFmt{Type: "TRICE", Strg: "Go is fun"}
-	em[10001] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
-	em[10002] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
+	em[10001] = TriceFmt{Type: "trice8_1", Strg: "hi %d"}
+	em[10002] = TriceFmt{Type: "trice8_1", Strg: "hi %d"}
 	em[10003] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
 	em[10004] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
-	em[10005] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
-	em[10006] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
-	em[10007] = TriceFmt{Type: "TRICE8_2", Strg: "hi %d %u"}
-	em[10008] = TriceFmt{Type: "TRICE16_1", Strg: "hi %d"}
+	em[10005] = TriceFmt{Type: "trice8_1", Strg: "hi %d"}
+	em[10006] = TriceFmt{Type: "Trice8_1", Strg: "hi %d"}
+	em[10007] = TriceFmt{Type: "Trice8_2", Strg: "hi %d %u"}
+	em[10008] = TriceFmt{Type: "Trice16_1", Strg: "hi %d"}
 	checkList3(t, false, 10000, 10099, "upward", tt, false, im, em)
 }
 

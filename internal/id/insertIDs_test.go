@@ -215,11 +215,11 @@ func TestInsert2(t *testing.T) {
 	// check modified til.json file
 	expTIL := `{
 	"998": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "msg:value=%d\\n"
 	},
 	"999": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "msg:value=%d\\n"
 	}
 }`
@@ -266,7 +266,7 @@ func TestInsert1(t *testing.T) {
 	// check modified til.json file
 	expTIL := `{
 	"999": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "msg:value=%d\\n"
 	}
 }`
@@ -313,7 +313,7 @@ func TestInsert0(t *testing.T) {
 	// check modified til.json file
 	expTIL := `{
 	"999": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "msg:value=%d\\n"
 	}
 }`

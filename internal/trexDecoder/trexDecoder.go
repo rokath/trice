@@ -457,23 +457,27 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 }
 
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
+//
+// p.Trice.Type is the received trice, in fact the name from til.json.
 func (p *trexDec) sprintTrice(b []byte) (n int) {
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
-	//p.Trice.Type = strings.ToUpper(p.Trice.Type) // do not distinguish upper and lower case
-
-	var triceType string                           // need to reconstruct full TRICE info, if not exist in type string
-	if strings.HasPrefix(p.Trice.Type, "TRICE_") { // when no bitwidth, insert it
-		triceType = "TRICE" + id.DefaultTriceBitWidth + "_" + p.Trice.Type[6:]
-	}
-	if p.Trice.Type == "TRICE" { // when nothing
-		triceType = fmt.Sprintf("TRICE"+id.DefaultTriceBitWidth+"_%d", len(p.u)) // append bitwidth and count
-	}
-	if p.Trice.Type == "TRICE" && len(p.u) == 0 { // special case, overwrite
-		triceType = "TRICE0"
-	}
-	if p.Trice.Type == "TRICE8" || p.Trice.Type == "TRICE16" || p.Trice.Type == "TRICE32" || p.Trice.Type == "TRICE64" { // when no count
-		triceType = fmt.Sprintf(p.Trice.Type+"_%d", len(p.u)) // append count
+	triceType := p.Trice.Type
+	// need to reconstruct full TRICE info, if not exist in type string
+	for _, name := range []string{"TRICE", "TRice", "Trice", "trice"} {
+		if strings.HasPrefix(p.Trice.Type, name+"_") { // when no bit width, insert it
+			triceType = name + id.DefaultTriceBitWidth + "_" + p.Trice.Type[6:]
+		}
+		if p.Trice.Type == name { // when plain trice name
+			if len(p.u) == 0 { // no parameters
+				//triceType = name + "0" // special case
+			} else { // append bit width and count
+				triceType = fmt.Sprintf(name+id.DefaultTriceBitWidth+"_%d", len(p.u))
+			}
+		}
+		if p.Trice.Type == name+"8" || p.Trice.Type == name+"16" || p.Trice.Type == name+"32" || p.Trice.Type == name+"64" { // when no count
+			triceType = fmt.Sprintf(p.Trice.Type+"_%d", len(p.u)) // append count
+		}
 	}
 
 	for _, s := range cobsFunctionPtrList { // walk through the list and try to find a match for execution
