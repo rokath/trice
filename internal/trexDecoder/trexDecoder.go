@@ -470,7 +470,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 		}
 		if p.Trice.Type == name { // when plain trice name
 			if len(p.u) == 0 { // no parameters
-				//triceType = name + "0" // special case
+				triceType = name + "0" // special case
 			} else { // append bit width and count
 				triceType = fmt.Sprintf(name+id.DefaultTriceBitWidth+"_%d", len(p.u))
 			}
@@ -480,8 +480,10 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 		}
 	}
 
-	for _, s := range cobsFunctionPtrList { // walk through the list and try to find a match for execution
-		if s.triceType == p.Trice.Type || s.triceType == triceType { // match list entry "TRICE..."
+	ucTriceTypeReceived := strings.ToUpper(p.Trice.Type)   // examples: TRICE_S,   TRICE,   TRICE32,   TRICE16_2
+	ucTriceTypeReconstructed := strings.ToUpper(triceType) // examples: TRICE32_S, TRICE0,  TRICE32_4, TRICE16_2
+	for _, s := range cobsFunctionPtrList {                // walk through the list and try to find a match for execution
+		if s.triceType == ucTriceTypeReconstructed || s.triceType == ucTriceTypeReceived { // match list entry "TRICE..."
 			if len(p.B) < p.ParamSpace {
 				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package", p.B[:len(p.B)]))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))

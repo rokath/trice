@@ -396,19 +396,21 @@
             ]
         },        
         {
-            "name": "l -p COM6",
+            "name": "l -p comX",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["log",
-                    "-til",
-                    "${workspaceFolder}/til.json",
+                     "-idlist",
+                     "${workspaceFolder}/test/testdata/til.json",
+                     "-locationInformation",
+                     "${workspaceFolder}/test/testdata/li.json",
                      "-p",
-                     "com6",
+                     "com4",
                      "-baud",
-                     "921600"
+                     "115200"
             ]
         },        
         {
