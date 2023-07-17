@@ -26,10 +26,22 @@ start:
 			return
 		}
 		for {
+			// todo:
+			// - match next closing parenthesis A, after loc[2] if loc[4]==0 or after loc[4]
 			fmtLoc := matchFormatString(s)
 			if fmtLoc == nil { // not found
 				return
 			}
+
+			// todo:
+			// - if A is located before format string starts, discard trice
+			// - if A is located inside format string, search for first closing parenthesis B after format string.
+			// - ExampleX: trice( id(0), "%x", (uint8_t)x );
+			//   -         0   12 3   4  5  6
+			//   -                                     A
+			// - ExampleY: trice(tid, fmt, ...) ... "y"   ... (y)
+			//  -          0   12 00                5 6
+			//  -                             A                       -> discard
 
 			if fmtLoc[1] < triceStartloc[1] { // formatString ends before typeName, continue with reduced string
 				cut := fmtLoc[1]
