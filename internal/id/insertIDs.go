@@ -11,6 +11,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -34,7 +35,7 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 		fmt.Fprintln(w, path)
 	}
 
-	out, fileModified, err := insertTriceIDs(w, path, in, a)
+	out, fileModified, err := insertTriceIDs(w, filepath.ToSlash(path), in, a)
 	if err != nil {
 		return err
 	}
@@ -50,6 +51,7 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 
 // insertTriceIDs does the ID insertion task on in. insertTriceIDs uses internally local pointer idd because idd cannot be easily passed via parameters.
 // insertTriceIDs returns the result in out with modified==true when out != in.
+//
 // in is the read file path content and out is the file content which needs to be written.
 // a is used for mutex access to idd data. path is needed for location information.
 // insertTriceIDs is intended to be used in several Go routines (one for each file) for faster ID insertion.

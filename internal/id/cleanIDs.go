@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -32,7 +33,7 @@ func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 		fmt.Fprintln(w, path)
 	}
 
-	out, modified, err := cleanTriceIDs(w, path, in, a)
+	out, modified, err := cleanTriceIDs(w, filepath.ToSlash(path), in, a)
 	if err != nil {
 		return err
 	}
