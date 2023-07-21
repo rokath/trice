@@ -43,7 +43,7 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( iD(5413), "att: line %u\n", __LINE__ );
 
         // normal use cases
-        break; case __LINE__: TRICE( ID(3047), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
+        break; case __LINE__: TRICE( ID(1301), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
         break; case __LINE__: Trice( iD(7783), "info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
         break; case __LINE__: trice( iD(4188), "info:This is a message without values and without stamp.\n"  ); //exp: time:            default: info:This is a message without values and without stamp.
 
