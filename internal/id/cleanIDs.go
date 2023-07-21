@@ -48,7 +48,7 @@ func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 }
 
 // cleanTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.
-// If an ID is inside til.json referencing to a different trice, it is silently set to 0.
+// If an ID is inside til.json referencing to a different trice, it is set to 0 inside in.
 // All valid IDs are used to build a new li.json file.
 func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID    // idn is the last found id inside the source.
@@ -107,6 +107,7 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 			idd.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
 			if tt != t { // idn references to a different t.
+				fmt.Fprintln(w, "ID inside", path, "refers to", t, "but is already used inside til.json for", tt)
 				idn = 0 // silently set it to 0
 			}
 		}

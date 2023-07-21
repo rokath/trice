@@ -232,9 +232,7 @@ func zeroInit() {
 
 func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("cleanSourceTreeIds", flag.ContinueOnError)
-	flagSrcs(fsScClean)
-	flagDryRun(fsScClean)
-	flagVerbosity(fsScClean)
+	flagsRefreshAndUpdate(fsScClean)
 }
 
 func versionInit() {
