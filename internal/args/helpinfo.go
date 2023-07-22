@@ -121,10 +121,12 @@ example: 'trice sd': Shut down remote display server.`)
 }
 
 func updateInfo(w io.Writer) error {
-	_, e := fmt.Fprintln(w, `sub-command 'u|update': For updating ID list and source files.
-"trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
-The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
-example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json`)
+	_, e := fmt.Fprintln(w, `sub-command 'u|update': DEPRECIATED! 
+DEPRECIATED! For updating ID list and source files.
+DEPRECIATED! "trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
+DEPRECIATED! The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
+DEPRECIATED! Example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json.
+Use command "insert" instead.`)
 	fsScUpdate.SetOutput(w)
 	fsScUpdate.PrintDefaults()
 	return e
@@ -133,6 +135,9 @@ example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all 
 func insertIDsInfo(w io.Writer) error {
 	_, e := fmt.Fprintln(w, `sub-command 'i|insert': For updating ID list and source files.
 "trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
+This command relies on existing til.json and li.json files. The li.json file is used as reference and generated new during insert.
+Without li.json the insert command assigns new IDs to all found trice macros, because it cannot assign files to them, and extends the til.json file accordingly.
+With an empty til.json file, the insert command ................................todo
 The "insert" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
 example: 'trice i -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json`)
 	fsScUpdate.SetOutput(w)
@@ -149,18 +154,22 @@ func versionInfo(w io.Writer) error {
 }
 
 func zeroIDsInfo(w io.Writer) error {
-	_, e := fmt.Fprintln(w, `sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0). 
-The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.
-example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!`)
+	_, e := fmt.Fprintln(w, `sub-command 'zeroSourceTreeIds': DEPRECIATED! 
+DEPRECIATED! Set all Id(n) inside source tree dir to Id(0). 
+DEPRECIATED! The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times. USE command "clean" instead.
+DEPRECIATED! example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
+Use command "clean" instead.`)
 	fsScZero.SetOutput(w)
 	fsScZero.PrintDefaults()
 	return e
 }
 
 func cleanIDsInfo(w io.Writer) error {
-	_, e := fmt.Fprintln(w, `sub-command 'cleanSourceTreeIds': Set all Id(n) inside source tree dir to 0). 
-The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.
-example: 'trice cleanSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A.`)
+	_, e := fmt.Fprintln(w, `sub-command 'clean': Set all Id(n) inside source tree dir to 0.
+All in source code found IDs are added to til.json if not already there. Inside ti.json differently used IDs are 
+reported and just cleaned inside the source files. The existing li.json is not used. A new li.json is generated. 
+The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
+Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c`)
 	fsScClean.SetOutput(w)
 	fsScClean.PrintDefaults()
 	return e
