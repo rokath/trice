@@ -126,7 +126,9 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		rest = rest[loc[6]:]
 		offset += loc[6]
 	}
-	fmt.Fprintln(w, len(idd.idToLocNew), "items inside li")
+	if Verbose {
+		fmt.Fprintln(w, len(idd.idToLocNew), "items inside li")
+	}
 	out = []byte(outs)
 	return
 }
