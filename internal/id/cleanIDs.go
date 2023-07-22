@@ -114,7 +114,9 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
 		if idn != 0 {
 			idd.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.
-			fmt.Fprintln(w, idn, path, line, "added to li")
+			if Verbose {
+				fmt.Fprintln(w, idn, path, line, "added to li")
+			}
 		}
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information.
