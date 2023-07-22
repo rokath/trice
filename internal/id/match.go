@@ -3,6 +3,8 @@
 
 package id
 
+import "strings"
+
 // matchTrice searches in s for the next trice statement. If not found loc is nil.
 // When found, s[loc[0]:loc[1]] is the typeName and at s[loc[2] is the opening parenthesis behind the typeName.
 // If the found trice statement contains an ID statement, it is s[loc[3]:loc[4]]. Otherwise is loc[3]==loc[4].
@@ -17,8 +19,16 @@ package id
 //
 // - TRice ( iD(999) ,  "a" )
 // - 0   1 2 3     4    5 6
+//
+// - TRice(example,example); "string" )
+// -                     `)`
+// - nil
+// - TRice(id,string); "string" )
+// -               `)`
+// - nil
 func matchTrice(s string) (loc []int) {
 	var offset int
+	var clpIndex int
 start:
 	for {
 		triceStartloc := matchAnyTriceStart.FindStringIndex(s)
@@ -26,22 +36,15 @@ start:
 			return
 		}
 		for {
-			// todo:
-			// - match next closing parenthesis A, after loc[2] if loc[4]==0 or after loc[4]
 			fmtLoc := matchFormatString(s)
 			if fmtLoc == nil { // not found
 				return
 			}
-
-			// todo:
-			// - if A is located before format string starts, discard trice
-			// - if A is located inside format string, search for first closing parenthesis B after format string.
-			// - ExampleX: trice( id(0), "%x", (uint8_t)x );
-			//   -         0   12 3   4  5  6
-			//   -                                     A
-			// - ExampleY: trice(tid, fmt, ...) ... "y"   ... (y)
-			//  -          0   12 00                5 6
-			//  -                             A                       -> discard
+			// Check, if there is a closing parenthesis after the format string
+			clpIndex = strings.Index(s[fmtLoc[1]:], `)`)
+			if clpIndex == -1 { // no closing parenthesis found after format string
+				return
+			}
 
 			if fmtLoc[1] < triceStartloc[1] { // formatString ends before typeName, continue with reduced string
 				cut := fmtLoc[1]
@@ -68,10 +71,19 @@ start:
 			rest := s[triceStartloc[1]:fmtLoc[0]]
 			idLoc := matchNbID.FindStringIndex(rest)
 			if idLoc == nil { // no ID statement
+				clpIndex = strings.Index(rest, `)`)
+				// - if `)` is located before format string starts, discard trice
+				// - ExampleY: trice(tid, fmt, ...) ... "y"   ... (y)
+				//  -          0   12 00                5 6
+				//  -                            `)`                       -> discard
+				if clpIndex != -1 { // a closing parenthesis was found before format string
+					return
+				}
 				loc = append(loc, triceStartloc[0], triceStartloc[0]+typeNameLoc[1], triceStartloc[1], 0, 0, fmtLoc[0], fmtLoc[1])
 			} else {
 				loc = append(loc, triceStartloc[0], triceStartloc[0]+typeNameLoc[1], triceStartloc[1], triceStartloc[1]+idLoc[0], triceStartloc[1]+idLoc[1], fmtLoc[0], fmtLoc[1])
 			}
+
 			if offset != 0 {
 				for i := range loc {
 					loc[i] = loc[i] + offset
