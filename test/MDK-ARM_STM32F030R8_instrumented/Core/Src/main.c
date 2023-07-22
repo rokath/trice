@@ -83,7 +83,7 @@ int main(void)
 
     #if TRICE_CHECK_CODE
         int triceCheckIndex = 0; 
-        trice( iD(0), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
+        trice( iD(1246), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
     #else // // #if TRICE_CHECK_CODE
         uint32_t loop = 0;
     #endif // #else // // #if TRICE_CHECK_CODE
@@ -103,12 +103,12 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-    TRice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( iD(5582), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( iD(4330), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(2262), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(5607), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD(7346), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD(4797), "w: Hello! 👋🙂 \a\n" ); // with sound!
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
@@ -131,9 +131,9 @@ int main(void)
         // check for external commands
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id(0), "att:Executing command %s ...\a\n", triceCommandBuffer ); // with sound!
+            TRICE_S( Id(2481), "att:Executing command %s ...\a\n", triceCommandBuffer ); // with sound!
             // do
-            TRICE( ID(0), "att:...done\n" );
+            TRICE( ID(5335), "att:...done\n" );
         }
 
         uint32_t ms = milliSecond();
@@ -159,7 +159,7 @@ int main(void)
                 }
             #else
                 //loop = 0x11111111;
-                TRice( iD(0), "msg:%32b loops\n", loop );
+                TRice( iD(7869), "msg:%32b loops\n", loop );
                 loop++;
             #endif // #if TRICE_CHECK_CODE 
         }

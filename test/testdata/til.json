@@ -927,6 +927,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "rd:TRICE8_4 %d, %d, %d, %d\\n"
 	},
+	"2481": {
+		"Type": "TRICE_S",
+		"Strg": "att:Executing command %s ...\\a\\n"
+	},
 	"2488": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+f (%%f)\\n"
@@ -1067,6 +1071,10 @@
 		"Type": "TRICE",
 		"Strg": "dbg:\\tHi!\\n"
 	},
+	"2739": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"2740": {
 		"Type": "TRICE",
 		"Strg": "diag:f"
@@ -1122,6 +1130,10 @@
 	"2814": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE8 with 1 to 12 values\\n"
+	},
+	"2816": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\\n\\n\\n"
 	},
 	"2819": {
 		"Type": "TRICE",
@@ -1415,6 +1427,10 @@
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
 	},
+	"3354": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\\n\\n\\n"
+	},
 	"3369": {
 		"Type": "TRICE",
 		"Strg": "DBG:debug       message, SysTick is %6u\\n"
@@ -1594,6 +1610,10 @@
 	"3606": {
 		"Type": "TRICE",
 		"Strg": "rd:e\\n"
+	},
+	"3607": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\\n\\n\\n"
 	},
 	"3615": {
 		"Type": "TRICE8_1",
@@ -2951,6 +2971,10 @@
 		"Type": "TRICE64",
 		"Strg": "att:TRICE64 %70b\\n"
 	},
+	"5607": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"5610": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE32 with 1 to 12 values\\n"
@@ -3122,6 +3146,10 @@
 	"5897": {
 		"Type": "TRice64",
 		"Strg": "no value"
+	},
+	"5908": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice 2x half buffer size:%4u "
 	},
 	"5918": {
 		"Type": "TRICE8",
@@ -3507,9 +3535,17 @@
 		"Type": "Trice64_11",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"6474": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	},
 	"6485": {
 		"Type": "TRICE32_4",
 		"Strg": "tst:TRICE32_4  %d %d %d %d\\n"
+	},
+	"6491": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA CTS Flag is set\\n"
 	},
 	"6496": {
 		"Type": "TRice16_1",
@@ -3734,6 +3770,10 @@
 	"6817": {
 		"Type": "TRICE_S",
 		"Strg": "rd:sizeof(%8s)"
+	},
+	"6822": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"6836": {
 		"Type": "TRICE",
@@ -4426,6 +4466,10 @@
 	"7869": {
 		"Type": "TRice",
 		"Strg": "msg:%32b loops\\n"
+	},
+	"7871": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UARTA CTS interrupt Flag is set\\n"
 	},
 	"7872": {
 		"Type": "TRICE64_12",
