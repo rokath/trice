@@ -562,6 +562,28 @@ func TestHelpAll(t *testing.T) {
               No changes applied but output shows what would happen.
               "trice cleanSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
               This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -i string
+    	Short for '-idlist'.
+    	 (default "til.json")
+  -idList string
+    	Alternate for '-idlist'.
+    	 (default "til.json")
+  -idlist string
+    	The trice ID list file.
+    	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
+    	 (default "til.json")
+  -li string
+    	Short for '-locationInformation'.
+    	 (default "li.json")
+  -locationInformation string
+    	The trice location list file.
+    	The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
+    	It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+    	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
+    	location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+    	 (default "li.json")
         -s value
               Short for src.
         -src value
@@ -571,6 +593,9 @@ func TestHelpAll(t *testing.T) {
               source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
               Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
                (default "./")
+  -til string
+    	Short for '-idlist'.
+    	 (default "til.json")
         -v    short for verbose
         -verbose
               Gives more informal output if used. Can be helpful during setup.
