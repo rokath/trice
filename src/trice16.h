@@ -3,12 +3,20 @@
 *******************************************************************************/
 
 #define TRICE16(  tid, fmt, ...) CONCAT2(TRICE16_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+
+#ifdef TRICE_CLEAN
+
+#define trice16( fmt, ...)
+#define Trice16( fmt, ...)
+#define TRice16( fmt, ...)
+
+#else // #ifdef TRICE_CLEAN
+
 #define trice16(  tid, fmt, ...) CONCAT2(trice16_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define Trice16(  tid, fmt, ...) CONCAT2(Trice16_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define TRice16(  tid, fmt, ...) CONCAT2(TRice16_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-//#define trice16M( tid, fmt, ...) CONCAT2(trice16M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-//#define Trice16M( tid, fmt, ...) CONCAT2(trice16M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-//#define TRice16M( tid, fmt, ...) CONCAT2(trice16M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+
+#endif // #else // #ifdef TRICE_CLEAN
 
 //!TRICE16_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //! It is usable for showing n 16-bit values.
@@ -177,6 +185,8 @@
     TRICE_PUT16_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
+//! trice16m_0 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define trice16m_0( tid ) \
     TRICE_ENTER \
     TRICE_PUT( (0<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
@@ -257,19 +267,37 @@
     TRICE_PUT16_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define trice16_0( tid,  fmt ) trice16fn_0( tid ) //!< trice16M_0 is a macro calling a function to reduce code size.
-#define trice16_1( tid,  fmt, v0 ) trice16fn_1( tid,  (uint16_t)(v0) ) //!< trice16M_1 is a macro calling a function to reduce code size.
-#define trice16_2( tid,  fmt, v0, v1 ) trice16fn_2( tid,  (uint16_t)(v0), (uint16_t)(v1) ) //!< trice16M_2 is a macro calling a function to reduce code size.
-#define trice16_3( tid,  fmt, v0, v1, v2 ) trice16fn_3( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2) ) //!< trice16M_3 is a macro calling a function to reduce code size.
-#define trice16_4( tid,  fmt, v0, v1, v2, v3 ) trice16fn_4( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3) ) //!< trice16M_4 is a macro calling a function to reduce code size.
-#define trice16_5( tid,  fmt, v0, v1, v2, v3, v4 ) trice16fn_5( tid,  (uint16_t)v0, (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4) ) //!< trice16M_5 is a macro calling a function to reduce code size.
-#define trice16_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) trice16fn_6( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5) ) //!< trice16M_6 is a macro calling a function to reduce code size.
-#define trice16_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) trice16fn_7( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6) ) //!< trice16M_7 is a macro calling a function to reduce code size.
-#define trice16_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) trice16fn_8( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7) ) //!< trice16M_8 is a macro calling a function to reduce code size.
-#define trice16_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) trice16fn_9( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8) ) //!< trice16M_9 is a macro calling a function to reduce code size.
-#define trice16_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) trice16fn_10( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9) ) //!< trice16M_10 is a macro calling a function to reduce code size.
-#define trice16_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice16fn_11( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10) ) //!< trice16M_11 is a macro calling a function to reduce code size.
-#define trice16_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice16fn_12( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11) ) //!< trice16M_12 is a macro calling a function to reduce code size.
+#ifdef TRICE_CLEAN
+
+#define trice16_0( fmt )                                                   //!< trice16_1 is a macro calling a function to reduce code size.
+#define trice16_1( fmt, v0 )                                               //!< trice16_1 is a macro calling a function to reduce code size.
+#define trice16_2( fmt, v0, v1 )                                           //!< trice16_2 is a macro calling a function to reduce code size.
+#define trice16_3( fmt, v0, v1, v2 )                                       //!< trice16_3 is a macro calling a function to reduce code size.
+#define trice16_4( fmt, v0, v1, v2, v3 )                                   //!< trice16_4 is a macro calling a function to reduce code size.
+#define trice16_5( fmt, v0, v1, v2, v3, v4 )                               //!< trice16_5 is a macro calling a function to reduce code size.
+#define trice16_6( fmt, v0, v1, v2, v3, v4, v5 )                           //!< trice16_6 is a macro calling a function to reduce code size.
+#define trice16_7( fmt, v0, v1, v2, v3, v4, v5, v6 )                       //!< trice16_7 is a macro calling a function to reduce code size.
+#define trice16_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 )                   //!< trice16_8 is a macro calling a function to reduce code size.
+#define trice16_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 )               //!< trice16_9 is a macro calling a function to reduce code size.
+#define trice16_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 )           //!< trice16_10 is a macro calling a function to reduce code size.
+#define trice16_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 )      //!< trice16_11 is a macro calling a function to reduce code size.
+#define trice16_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice16_12 is a macro calling a function to reduce code size.
+
+#else // #ifdef TRICE_CLEAN
+
+#define trice16_0( tid,  fmt ) trice16fn_0( tid ) //!< trice16_0 is a macro calling a function to reduce code size.
+#define trice16_1( tid,  fmt, v0 ) trice16fn_1( tid,  (uint16_t)(v0) ) //!< trice16_1 is a macro calling a function to reduce code size.
+#define trice16_2( tid,  fmt, v0, v1 ) trice16fn_2( tid,  (uint16_t)(v0), (uint16_t)(v1) ) //!< trice16_2 is a macro calling a function to reduce code size.
+#define trice16_3( tid,  fmt, v0, v1, v2 ) trice16fn_3( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2) ) //!< trice16_3 is a macro calling a function to reduce code size.
+#define trice16_4( tid,  fmt, v0, v1, v2, v3 ) trice16fn_4( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3) ) //!< trice16_4 is a macro calling a function to reduce code size.
+#define trice16_5( tid,  fmt, v0, v1, v2, v3, v4 ) trice16fn_5( tid,  (uint16_t)v0, (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4) ) //!< trice16_5 is a macro calling a function to reduce code size.
+#define trice16_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) trice16fn_6( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5) ) //!< trice16_6 is a macro calling a function to reduce code size.
+#define trice16_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) trice16fn_7( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6) ) //!< trice16_7 is a macro calling a function to reduce code size.
+#define trice16_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) trice16fn_8( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7) ) //!< trice16_8 is a macro calling a function to reduce code size.
+#define trice16_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) trice16fn_9( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8) ) //!< trice16_9 is a macro calling a function to reduce code size.
+#define trice16_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) trice16fn_10( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9) ) //!< trice16_10 is a macro calling a function to reduce code size.
+#define trice16_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice16fn_11( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10) ) //!< trice16_11 is a macro calling a function to reduce code size.
+#define trice16_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice16fn_12( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11) ) //!< trice16_12 is a macro calling a function to reduce code size.
 
 void trice16fn_0( uint16_t tid );
 void trice16fn_1( uint16_t tid,  uint16_t v0 );
@@ -284,6 +312,8 @@ void trice16fn_9( uint16_t tid,  uint16_t v0, uint16_t v1, uint16_t v2, uint16_t
 void trice16fn_10( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9 );
 void trice16fn_11( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10 );
 void trice16fn_12( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11 );
+
+#endif // #else // #ifdef TRICE_CLEAN
 
 #define Trice16m_0( tid ) \
     TRICE_ENTER \
@@ -391,19 +421,37 @@ void trice16fn_12( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t
     TRICE_PUT16_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define Trice16_0( tid,  fmt ) Trice16fn_0( tid ) //!< Trice16M_0 is a macro calling a function to reduce code size.
-#define Trice16_1( tid,  fmt, v0 ) Trice16fn_1( tid,  (uint16_t)(v0) ) //!< Trice16M_1 is a macro calling a function to reduce code size.
-#define Trice16_2( tid,  fmt, v0, v1 ) Trice16fn_2( tid,  (uint16_t)(v0), (uint16_t)(v1) ) //!< Trice16M_2 is a macro calling a function to reduce code size.
-#define Trice16_3( tid,  fmt, v0, v1, v2 ) Trice16fn_3( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2) ) //!< Trice16M_3 is a macro calling a function to reduce code size.
-#define Trice16_4( tid,  fmt, v0, v1, v2, v3 ) Trice16fn_4( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3) ) //!< Trice16M_4 is a macro calling a function to reduce code size.
-#define Trice16_5( tid,  fmt, v0, v1, v2, v3, v4 ) Trice16fn_5( tid,  (uint16_t)v0, (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4) ) //!< Trice16M_5 is a macro calling a function to reduce code size.
-#define Trice16_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) Trice16fn_6( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5) ) //!< Trice16M_6 is a macro calling a function to reduce code size.
-#define Trice16_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) Trice16fn_7( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6) ) //!< Trice16M_7 is a macro calling a function to reduce code size.
-#define Trice16_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) Trice16fn_8( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7) ) //!< Trice16M_8 is a macro calling a function to reduce code size.
-#define Trice16_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) Trice16fn_9( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8) ) //!< Trice16M_9 is a macro calling a function to reduce code size.
-#define Trice16_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) Trice16fn_10( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9) ) //!< Trice16M_10 is a macro calling a function to reduce code size.
-#define Trice16_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) Trice16fn_11( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10) ) //!< Trice16M_11 is a macro calling a function to reduce code size.
-#define Trice16_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) Trice16fn_12( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11) ) //!< Trice16M_12 is a macro calling a function to reduce code size.
+#ifdef TRICE_CLEAN
+
+#define Trice16_0( fmt )                                                   //!< Trice16_1 is a macro calling a function to reduce code size.
+#define Trice16_1( fmt, v0 )                                               //!< Trice16_1 is a macro calling a function to reduce code size.
+#define Trice16_2( fmt, v0, v1 )                                           //!< Trice16_2 is a macro calling a function to reduce code size.
+#define Trice16_3( fmt, v0, v1, v2 )                                       //!< Trice16_3 is a macro calling a function to reduce code size.
+#define Trice16_4( fmt, v0, v1, v2, v3 )                                   //!< Trice16_4 is a macro calling a function to reduce code size.
+#define Trice16_5( fmt, v0, v1, v2, v3, v4 )                               //!< Trice16_5 is a macro calling a function to reduce code size.
+#define Trice16_6( fmt, v0, v1, v2, v3, v4, v5 )                           //!< Trice16_6 is a macro calling a function to reduce code size.
+#define Trice16_7( fmt, v0, v1, v2, v3, v4, v5, v6 )                       //!< Trice16_7 is a macro calling a function to reduce code size.
+#define Trice16_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 )                   //!< Trice16_8 is a macro calling a function to reduce code size.
+#define Trice16_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 )               //!< Trice16_9 is a macro calling a function to reduce code size.
+#define Trice16_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 )           //!< Trice16_10 is a macro calling a function to reduce code size.
+#define Trice16_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 )      //!< Trice16_11 is a macro calling a function to reduce code size.
+#define Trice16_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice16_12 is a macro calling a function to reduce code size.
+
+#else // #ifdef TRICE_CLEAN
+
+#define Trice16_0( tid,  fmt ) Trice16fn_0( tid ) //!< Trice16_0 is a macro calling a function to reduce code size.
+#define Trice16_1( tid,  fmt, v0 ) Trice16fn_1( tid,  (uint16_t)(v0) ) //!< Trice16_1 is a macro calling a function to reduce code size.
+#define Trice16_2( tid,  fmt, v0, v1 ) Trice16fn_2( tid,  (uint16_t)(v0), (uint16_t)(v1) ) //!< Trice16_2 is a macro calling a function to reduce code size.
+#define Trice16_3( tid,  fmt, v0, v1, v2 ) Trice16fn_3( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2) ) //!< Trice16_3 is a macro calling a function to reduce code size.
+#define Trice16_4( tid,  fmt, v0, v1, v2, v3 ) Trice16fn_4( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3) ) //!< Trice16_4 is a macro calling a function to reduce code size.
+#define Trice16_5( tid,  fmt, v0, v1, v2, v3, v4 ) Trice16fn_5( tid,  (uint16_t)v0, (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4) ) //!< Trice16_5 is a macro calling a function to reduce code size.
+#define Trice16_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) Trice16fn_6( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5) ) //!< Trice16_6 is a macro calling a function to reduce code size.
+#define Trice16_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) Trice16fn_7( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6) ) //!< Trice16_7 is a macro calling a function to reduce code size.
+#define Trice16_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) Trice16fn_8( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7) ) //!< Trice16_8 is a macro calling a function to reduce code size.
+#define Trice16_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) Trice16fn_9( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8) ) //!< Trice16_9 is a macro calling a function to reduce code size.
+#define Trice16_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) Trice16fn_10( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9) ) //!< Trice16_10 is a macro calling a function to reduce code size.
+#define Trice16_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) Trice16fn_11( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10) ) //!< Trice16_11 is a macro calling a function to reduce code size.
+#define Trice16_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) Trice16fn_12( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11) ) //!< Trice16_12 is a macro calling a function to reduce code size.
 
 void Trice16fn_0( uint16_t tid );
 void Trice16fn_1( uint16_t tid,  uint16_t v0 );
@@ -418,6 +466,8 @@ void Trice16fn_9( uint16_t tid,  uint16_t v0, uint16_t v1, uint16_t v2, uint16_t
 void Trice16fn_10( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9 );
 void Trice16fn_11( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10 );
 void Trice16fn_12( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11 );
+
+#endif // #else // #ifdef TRICE_CLEAN
 
 #define TRice16m_0( tid ) \
     TRICE_ENTER \
@@ -525,19 +575,37 @@ void Trice16fn_12( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t
     TRICE_PUT16_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define TRice16_0( tid,  fmt ) TRice16fn_0( tid ) //!< TRice16M_0 is a macro calling a function to reduce code size.
-#define TRice16_1( tid,  fmt, v0 ) TRice16fn_1( tid,  (uint16_t)(v0) ) //!< TRice16M_1 is a macro calling a function to reduce code size.
-#define TRice16_2( tid,  fmt, v0, v1 ) TRice16fn_2( tid,  (uint16_t)(v0), (uint16_t)(v1) ) //!< TRice16M_2 is a macro calling a function to reduce code size.
-#define TRice16_3( tid,  fmt, v0, v1, v2 ) TRice16fn_3( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2) ) //!< TRice16M_3 is a macro calling a function to reduce code size.
-#define TRice16_4( tid,  fmt, v0, v1, v2, v3 ) TRice16fn_4( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3) ) //!< TRice16M_4 is a macro calling a function to reduce code size.
-#define TRice16_5( tid,  fmt, v0, v1, v2, v3, v4 ) TRice16fn_5( tid,  (uint16_t)v0, (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4) ) //!< TRice16M_5 is a macro calling a function to reduce code size.
-#define TRice16_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) TRice16fn_6( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5) ) //!< TRice16M_6 is a macro calling a function to reduce code size.
-#define TRice16_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) TRice16fn_7( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6) ) //!< TRice16M_7 is a macro calling a function to reduce code size.
+#ifdef TRICE_CLEAN
+
+#define TRice16_0( fmt )                                                   //!< TRice16_1 is a macro calling a function to reduce code size.
+#define TRice16_1( fmt, v0 )                                               //!< TRice16_1 is a macro calling a function to reduce code size.
+#define TRice16_2( fmt, v0, v1 )                                           //!< TRice16_2 is a macro calling a function to reduce code size.
+#define TRice16_3( fmt, v0, v1, v2 )                                       //!< TRice16_3 is a macro calling a function to reduce code size.
+#define TRice16_4( fmt, v0, v1, v2, v3 )                                   //!< TRice16_4 is a macro calling a function to reduce code size.
+#define TRice16_5( fmt, v0, v1, v2, v3, v4 )                               //!< TRice16_5 is a macro calling a function to reduce code size.
+#define TRice16_6( fmt, v0, v1, v2, v3, v4, v5 )                           //!< TRice16_6 is a macro calling a function to reduce code size.
+#define TRice16_7( fmt, v0, v1, v2, v3, v4, v5, v6 )                       //!< TRice16_7 is a macro calling a function to reduce code size.
+#define TRice16_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 )                   //!< TRice16_8 is a macro calling a function to reduce code size.
+#define TRice16_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 )               //!< TRice16_9 is a macro calling a function to reduce code size.
+#define TRice16_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 )           //!< TRice16_10 is a macro calling a function to reduce code size.
+#define TRice16_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 )      //!< TRice16_11 is a macro calling a function to reduce code size.
+#define TRice16_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice16_12 is a macro calling a function to reduce code size.
+
+#else // #ifdef TRICE_CLEAN
+
+#define TRice16_0( tid,  fmt ) TRice16fn_0( tid ) //!< TRice16_0 is a macro calling a function to reduce code size.
+#define TRice16_1( tid,  fmt, v0 ) TRice16fn_1( tid,  (uint16_t)(v0) ) //!< TRice16_1 is a macro calling a function to reduce code size.
+#define TRice16_2( tid,  fmt, v0, v1 ) TRice16fn_2( tid,  (uint16_t)(v0), (uint16_t)(v1) ) //!< TRice16_2 is a macro calling a function to reduce code size.
+#define TRice16_3( tid,  fmt, v0, v1, v2 ) TRice16fn_3( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2) ) //!< TRice16_3 is a macro calling a function to reduce code size.
+#define TRice16_4( tid,  fmt, v0, v1, v2, v3 ) TRice16fn_4( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3) ) //!< TRice16_4 is a macro calling a function to reduce code size.
+#define TRice16_5( tid,  fmt, v0, v1, v2, v3, v4 ) TRice16fn_5( tid,  (uint16_t)v0, (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4) ) //!< TRice16_5 is a macro calling a function to reduce code size.
+#define TRice16_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) TRice16fn_6( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5) ) //!< TRice16_6 is a macro calling a function to reduce code size.
+#define TRice16_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) TRice16fn_7( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6) ) //!< TRice16_7 is a macro calling a function to reduce code size.
 #define TRice16_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) TRice16fn_8( tid,  (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7) ) //!< TRice16_16_M is a macro calling a function to reduce code size.
-#define TRice16_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) TRice16fn_9( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8) ) //!< TRice16M_9 is a macro calling a function to reduce code size.
-#define TRice16_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) TRice16fn_10( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9) ) //!< TRice16M_10 is a macro calling a function to reduce code size.
-#define TRice16_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) TRice16fn_11( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10) ) //!< TRice16M_11 is a macro calling a function to reduce code size.
-#define TRice16_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) TRice16fn_12( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11) ) //!< TRice16M_12 is a macro calling a function to reduce code size.
+#define TRice16_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) TRice16fn_9( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8) ) //!< TRice16_9 is a macro calling a function to reduce code size.
+#define TRice16_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) TRice16fn_10( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9) ) //!< TRice16_10 is a macro calling a function to reduce code size.
+#define TRice16_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) TRice16fn_11( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10) ) //!< TRice16_11 is a macro calling a function to reduce code size.
+#define TRice16_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) TRice16fn_12( tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11) ) //!< TRice16_12 is a macro calling a function to reduce code size.
 
 void TRice16fn_0( uint16_t tid );
 void TRice16fn_1( uint16_t tid,  uint16_t v0 );
@@ -553,6 +621,7 @@ void TRice16fn_10( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t
 void TRice16fn_11( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10 );
 void TRice16fn_12( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11 );
 
+#endif // #else // #ifdef TRICE_CLEAN
 
 ///////////////////////////////////////////////////////////////////////////////
 //
