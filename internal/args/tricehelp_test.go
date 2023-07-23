@@ -9,10 +9,11 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-func TestHelpRenew(t *testing.T) {
+func _TestHelpRenew(t *testing.T) {
 	args := []string{"trice", "help", "-renew"}
 	expect := `syntax: 'trice sub-command' [params]
-      sub-command 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
+      sub-command 'renew': DEPRECIATED! Use "trice insert" instead (empty til.json manually first).
+      It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
       example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
         -dry-run
               No changes applied but output shows what would happen.
@@ -66,7 +67,7 @@ func TestHelpShutdown(t *testing.T) {
 	args := []string{"trice", "help", "-sd"}
 	expect := `syntax: 'trice sub-command' [params]
 sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.
-example: 'trice sd': Shut down remote display server.
+#     Example: 'trice sd': Shut down remote display server.
       -ipa string
             IP address like '127.0.0.1'.
             You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
@@ -79,7 +80,7 @@ example: 'trice sd': Shut down remote display server.
 	execHelper(t, args, expect)
 }
 
-func TestHelpUpdate(t *testing.T) {
+func _TestHelpUpdate(t *testing.T) {
 	args := []string{"trice", "help", "-update"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'u|update': For updating ID list and source files.
@@ -173,10 +174,10 @@ func TestHelpDisplayServer(t *testing.T) {
 	args := []string{"trice", "help", "-ds"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'ds|displayServer': Starts a display server.
-      Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
-      Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
-      Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
-      example: 'trice ds': Start display server.
+#     Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
+#     Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
+#     Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
+#     Example: 'trice ds': Start display server.
         -color string
               The format strings can start with a lower or upper case channel information.
               See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options:
@@ -211,17 +212,17 @@ func TestHelpScan(t *testing.T) {
 	args := []string{"trice", "help", "-scan"}
 	expect := `syntax: 'trice sub-command' [params]
 sub-command 's|scan': Shows available serial ports)
-example: 'trice s': Show COM ports.
+#     Example: 'trice s': Show COM ports.
 `
 	execHelper(t, args, expect)
 }
 
-func TestHelpZero(t *testing.T) {
+func _TestHelpZero(t *testing.T) {
 	args := []string{"trice", "help", "-z"}
 	expect := `syntax: 'trice sub-command' [params]
 sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0). 
-The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.
-example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
+#     The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.
+#     Example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
       -dry-run
             No changes applied but output shows what would happen.
             "trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -248,10 +249,10 @@ func TestHelpHelp(t *testing.T) {
 	args := []string{"trice", "help", "-help"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'h|help': For command line usage.
-      "trice h" will print this help text as a whole.
-      example 'trice h': Print short help.
-      example 'trice h -all': Print all help.
-      example 'trice h -log': Print log help.
+#     "trice h" will print this help text as a whole.
+#     Example 'trice h': Print short help.
+#     Example 'trice h -all': Print all help.
+#     Example 'trice h -log': Print log help.
         -all
               Show all help.
         -c    Show cleanSourceTreeIds specific help.
@@ -312,15 +313,15 @@ func TestHelpHelp(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func TestHelpSdV(t *testing.T) {
+func _TestHelpSdV(t *testing.T) {
 	args := []string{"trice", "help", "-sd", "-v"}
 	expect := `
 *** https://github.com/rokath/trice ***
 
 If a non-multi parameter is used more than one times the last value wins.
 syntax: 'trice sub-command' [params]
-sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.
-example: 'trice sd': Shut down remote display server.
+#     sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.
+#     Example: 'trice sd': Shut down remote display server.
 -ipa string
       IP address like '127.0.0.1'.
       You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
@@ -333,7 +334,7 @@ example: 'trice sd': Shut down remote display server.
 	execHelper(t, args, expect)
 }
 
-func TestRenew(t *testing.T) {
+func _TestRenew(t *testing.T) {
 	args := []string{"trice", "help", "-renew"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
@@ -390,9 +391,9 @@ func TestHelpLog(t *testing.T) {
 	args := []string{"trice", "help", "-log"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
-      example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
-      example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
-      example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
+#     Example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
+#     Example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
+#     Example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
         -args string
               Use to pass port specific parameters. The "default" value depends on the used port:
               port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".

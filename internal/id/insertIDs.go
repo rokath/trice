@@ -170,7 +170,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 					// Therefore such idn are discarded by not copying them to idN.
 				}
 			}
-		} else { // t is not known inside til.json
+		} else if idn != 0 { // t is not known inside til.json and idn is not 0
 			if tt, ok := idd.idToTrice[idn]; ok { // idn in source is used in til.json differently
 				if t == tt {
 					fmt.Fprintln(w, "unexpected error!")

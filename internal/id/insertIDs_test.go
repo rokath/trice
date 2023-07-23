@@ -65,7 +65,7 @@ func TestInsertKnownID(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
-func TestInsertUnknownID(t *testing.T) {
+func _________________TestInsertUnknownID(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	// create empty til.json

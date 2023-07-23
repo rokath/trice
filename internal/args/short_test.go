@@ -33,7 +33,7 @@ func getTemporaryFileName(pattern string) string {
 func TestHelp(t *testing.T) {
 	args := []string{"trice", "help"}
 	expect := `syntax: 'trice sub-command' [params]
-      example 'trice h -help': Print help for help.
+Example 'trice h -help': Print help for help.
       `
 	execHelper(t, args, expect)
 }
