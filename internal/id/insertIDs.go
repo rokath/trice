@@ -170,6 +170,16 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 					// Therefore such idn are discarded by not copying them to idN.
 				}
 			}
+		} else { // t is not known inside til.json
+			if tt, ok := idd.idToTrice[idn]; ok { // idn in source is used in til.json differently
+				if t == tt {
+					fmt.Fprintln(w, "unexpected error!")
+				}
+				fmt.Fprintln(w, "ID found in", path, "and used for", t, "is used already in", FnJSON, "for", tt, "- assigning a new ID.")
+			} else { // idn in source is not used in til.json - add idn to til.json
+				idd.idToTrice[idn] = t
+				idN = idn
+			}
 		}
 		if idN == 0 { // create a new ID
 			idN = idd.newID()
