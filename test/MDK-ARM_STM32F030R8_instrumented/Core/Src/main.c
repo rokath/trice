@@ -122,7 +122,7 @@ int main(void)
     //xTRice64( "w: Hello! 👋🙂 \a\n", 1 ); // with sound!
     //xTRice8_1( "w: Hello! 👋🙂 \a\n", 1 ); // with sound!
 
-    TRice( iD( 3432), "w: Hello! 👋🙂 \a\n", 1 ); // with sound!
+    TRice( iD(3432), "w: Hello! 👋🙂 \a\n" ); // with sound!
     TRice( iD(5582), "w: Hello! 👋🙂 \a\n" ); // with sound!
     TRice( iD(4330), "w: Hello! 👋🙂 \a\n" ); // with sound!
     Trice( iD(2262), "w: Hello! 👋🙂 \a\n" ); // with sound!

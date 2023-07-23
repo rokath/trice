@@ -7,8 +7,6 @@ package id
 // List management
 
 import (
-	"errors"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -18,15 +16,15 @@ import (
 	"github.com/spf13/afero"
 )
 
-// _ScZero does replace all ID's in source tree with 0
-func _ScZero(w io.Writer, fSys *afero.Afero, SrcZ string, cmd *flag.FlagSet) error {
-	if SrcZ == "" {
-		cmd.PrintDefaults()
-		return errors.New("no source tree root specified")
-	}
-	zeroSourceTreeIds(w, fSys, SrcZ, !DryRun)
-	return nil
-}
+//  // _ScZero does replace all ID's in source tree with 0
+//  func _ScZero(w io.Writer, fSys *afero.Afero, SrcZ string, cmd *flag.FlagSet) error {
+//  	if SrcZ == "" {
+//  		cmd.PrintDefaults()
+//  		return errors.New("no source tree root specified")
+//  	}
+//  	zeroSourceTreeIds(w, fSys, SrcZ, !DryRun)
+//  	return nil
+//  }
 
 // SubCmdReNewList renews the trice id list parsing the source tree without changing any source file.
 // It creates a new FnJSON and tries to add id:tf pairs from the source tree.

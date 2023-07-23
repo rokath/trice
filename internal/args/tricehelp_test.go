@@ -307,6 +307,8 @@ func TestHelpHelp(t *testing.T) {
         -version
               Show ver|version specific help.
         -z    Show zeroSourceTreeIds specific help.
+        -zero
+              Show zeroSourceTreeIds specific help.
         -zeroSourceTreeIds
               Show zeroSourceTreeIds specific help.     
       `

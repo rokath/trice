@@ -17,13 +17,13 @@ import (
 	"github.com/spf13/afero"
 )
 
-// SubCmdIdClean performs sub-command clear, removing trice IDs from source tree.
-func SubCmdIdClean(w io.Writer, fSys *afero.Afero) error {
-	return cmdSwitchTriceIDs(w, fSys, triceIDCleaning)
+// SubCmdIdZero performs sub-command zero, setting trice IDs in source tree to 0.
+func SubCmdIdZero(w io.Writer, fSys *afero.Afero) error {
+	return cmdSwitchTriceIDs(w, fSys, triceIDZeroing)
 }
 
-// triceIDCleaning reads file, processes it and writes it back, if needed.
-func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+// triceIDZeroing reads file, processes it and writes it back, if needed.
+func triceIDZeroing(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
 
 	in, err := fSys.ReadFile(path)
 	if err != nil {
@@ -33,7 +33,7 @@ func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 		fmt.Fprintln(w, path)
 	}
 
-	out, modified, err := cleanTriceIDs(w, filepath.ToSlash(path), in, a)
+	out, modified, err := zeroTriceIDs(w, filepath.ToSlash(path), in, a)
 	if err != nil {
 		return err
 	}
@@ -47,10 +47,10 @@ func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 	return err
 }
 
-// cleanTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.
-// If an ID is inside til.json referencing to a different trice, it is set to 0 inside in.
+// zeroTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.
+// If an ID is inside til.json referencing to a different trice, it is reported and set to 0 inside in.
 // All valid IDs are used to build a new li.json file.
-func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+func zeroTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID    // idn is the last found id inside the source.
 	var idS string     // idS is the "iD(n)" statement, if found.
 	var ignore bool    // ignore gets true if a found trice statement is skipped.
@@ -75,7 +75,8 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
 				if Verbose {
-					fmt.Fprintln(w, "unexpected syntax", idS)
+					lineNumber := line + strings.Count(rest[:loc[6]], "\n")
+					fmt.Fprintln(w, "unexpected syntax", idS, "in file", path, "line", lineNumber)
 				}
 				ignore = true
 			} else { // This is the normal case like trice( iD( 111)... .
@@ -101,17 +102,17 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		}
 		// trice t (t.Type & t.Strg) is known now. idn holds the trice id found in the source. Example case: trice( iD(111), "foo, ... ")
 		// We do not simply replace the ID with 0. We check til.json, extend it if needed and we build a new li.json.
-		a.Mutex.Lock()               // several files could contain the same t or idn.
-		tt, ok := idd.idToTrice[idn] // check til.json.
-		if !ok {                     // idn is not inside til.json.
+		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
+		a.Mutex.Lock()                             // several files could contain the same t or idn.
+		tt, ok := idd.idToTrice[idn]               // check til.json.
+		if !ok {                                   // idn is not inside til.json.
 			idd.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
 			if tt != t { // idn references to a different t.
-				fmt.Fprintln(w, "ID inside", path, "refers to", t, "but is already used inside til.json for", tt)
+				fmt.Fprintln(w, "ID inside", path, "line", line, "refers to", t, "but is already used inside til.json for", tt)
 				idn = 0 // silently set it to 0
 			}
 		}
-		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
 		if idn != 0 {
 			idd.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.
 			if Verbose {

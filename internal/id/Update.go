@@ -6,7 +6,6 @@ package id
 // source tree management
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -370,9 +369,9 @@ func triceFmtParse(t string) (tf TriceFmt, found bool) {
 	return
 }
 
-func lineCount(text string) {
-
-}
+//  func lineCount(text string) {
+//
+//  }
 
 // triceParse expects a string t containing a trice macro in the form `TRICE*(Id(n), "...", ...);`
 // Returned nbID is the extracted string part containing 'Id(n)'.
@@ -534,6 +533,7 @@ func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, 
 	}
 }
 
+/*
 // ScIdClean does removes all trice ID's in source tree.
 func ScIdClean(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
 	// todo: just a copy of ScZeroMulti right now.
@@ -556,26 +556,26 @@ func ScIdClean(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
 	return nil
 }
 
-// ScZeroMulti does replace all ID's in source tree with 0
-func ScZeroMulti(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
-	if len(Srcs) == 0 {
-		Srcs = append(Srcs, "./") // default value
-	}
-	for i := range Srcs {
-		s := Srcs[i]
-		srcZ := s
-		if _, err := fSys.Stat(srcZ); err == nil { // path exists
-			zeroSourceTreeIds(w, fSys, srcZ, !DryRun)
-		} else if os.IsNotExist(err) { // path does *not* exist
-			fmt.Fprintln(w, s, " -> ", srcZ, "does not exist!")
-		} else {
-			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
-			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
-		}
-	}
-	return nil
-}
+//  // ScZeroMulti does replace all ID's in source tree with 0
+//  func ScZeroMulti(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
+//  	if len(Srcs) == 0 {
+//  		Srcs = append(Srcs, "./") // default value
+//  	}
+//  	for i := range Srcs {
+//  		s := Srcs[i]
+//  		srcZ := s
+//  		if _, err := fSys.Stat(srcZ); err == nil { // path exists
+//  			zeroSourceTreeIds(w, fSys, srcZ, !DryRun)
+//  		} else if os.IsNotExist(err) { // path does *not* exist
+//  			fmt.Fprintln(w, s, " -> ", srcZ, "does not exist!")
+//  		} else {
+//  			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
+//  			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+//  			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+//  		}
+//  	}
+//  	return nil
+//  }
 
 // zeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
 func zeroSourceTreeIds(w io.Writer, fSys *afero.Afero, srcRoot string, run bool) {
@@ -664,3 +664,4 @@ func zeroNextID(w io.Writer, modifiedIn bool, subsIn, in string) (found bool, mo
 	modifiedOut = true
 	return
 }
+*/
