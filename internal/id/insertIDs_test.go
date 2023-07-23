@@ -65,7 +65,7 @@ func TestInsertKnownID(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
-func _________________TestInsertUnknownID(t *testing.T) {
+func TestInsertExistingID(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	// create empty til.json
@@ -84,13 +84,22 @@ func _________________TestInsertUnknownID(t *testing.T) {
 	var b bytes.Buffer
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
 
-	// check modified src file1
-	expSrc1 := `
-	TRice( iD(999), "x" );
-	`
+	// check untouched src file1
 	actSrc1, e := fSys.ReadFile(sFn1)
 	assert.Nil(t, e)
-	assert.Equal(t, expSrc1, string(actSrc1))
+	assert.Equal(t, src1, string(actSrc1))
+
+	// create expected til.json file
+	expTil := `{
+	"77": {
+		"Type": "TRice",
+		"Strg": "x"
+	}
+}`
+	actTil, e := fSys.ReadFile("til.json")
+	assert.Nil(t, e)
+	assert.Equal(t, expTil, string(actTil))
+
 }
 
 func TestInsert99(t *testing.T) {
