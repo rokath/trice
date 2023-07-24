@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-// SubCmdIdClean performs sub-command clear, removing trice IDs from source tree.
+// SubCmdIdClean performs sub-command clean, zeroing or removing trice IDs from source tree.
 func SubCmdIdClean(w io.Writer, fSys *afero.Afero) error {
 	return cmdSwitchTriceIDs(w, fSys, triceIDCleaning)
 }
@@ -75,7 +75,8 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
 				if Verbose {
-					fmt.Fprintln(w, "unexpected syntax", idS)
+					lineNumber := line + strings.Count(rest[:loc[6]], "\n")
+					fmt.Fprintln(w, "unexpected syntax", idS, "in file", path, "line", lineNumber)
 				}
 				ignore = true
 			} else { // This is the normal case like trice( iD( 111)... .
@@ -101,17 +102,17 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		}
 		// trice t (t.Type & t.Strg) is known now. idn holds the trice id found in the source. Example case: trice( iD(111), "foo, ... ")
 		// We do not simply replace the ID with 0. We check til.json, extend it if needed and we build a new li.json.
-		a.Mutex.Lock()               // several files could contain the same t or idn.
-		tt, ok := idd.idToTrice[idn] // check til.json.
-		if !ok {                     // idn is not inside til.json.
+		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
+		a.Mutex.Lock()                             // several files could contain the same t or idn.
+		tt, ok := idd.idToTrice[idn]               // check til.json.
+		if !ok {                                   // idn is not inside til.json.
 			idd.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
 			if tt != t { // idn references to a different t.
-				fmt.Fprintln(w, "ID inside", path, "refers to", t, "but is already used inside til.json for", tt)
+				fmt.Fprintln(w, "ID inside", path, "line", line, "refers to", t, "but is already used inside til.json for", tt)
 				idn = 0 // silently set it to 0
 			}
 		}
-		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
 		if idn != 0 {
 			idd.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.
 			if Verbose {
