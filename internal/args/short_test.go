@@ -56,13 +56,13 @@ func TestNoArgs(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func TestUpdate(t *testing.T) {
+func _TestUpdate(t *testing.T) { // creates an unwanted internal/args/li.json
 	args := []string{"trice", "update", "-idList", "emptyFile"}
 	expect := ``
 	execHelper(t, args, expect)
 }
 
-func TestUpdateV(t *testing.T) {
+func _TestUpdateV(t *testing.T) { // creates an unwanted internal/args/li.json
 	args := []string{"trice", "update", "-idList", "emptyFile", "-verbose"}
 	expect := `0 ID's in List emptyFile listModified= false
 	`

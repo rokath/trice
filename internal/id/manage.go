@@ -167,6 +167,8 @@ func (ilu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
 	return ilu.FromJSON(b)
 }
 
+var Logging bool // Logging is true, when sub command log is active.
+
 // fromFile reads fSys file fn into lut.
 func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
 	//b, err := os.ReadFile(fn)
@@ -175,10 +177,16 @@ func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
 	if err == nil { // file found
 		return li.FromJSON(b)
 	}
-	if Verbose {
-		fmt.Println("File ", fn, "not found, not showing location information")
+	// no li.json
+	if Logging {
+		if Verbose {
+			fmt.Println("File ", fn, "not found, not showing location information")
+		}
+		return nil // silently ignore non existing file
 	}
-	return nil // silently ignore non existing file
+	s := fmt.Sprintf("%s not found, maybe need to create an empty file first? (Safety feature)", fn)
+	msg.FatalInfoOnErr(err, s)
+	return err // not reached
 }
 
 // AddFmtCount adds inside ilu to all trice type names without format specifier count the appropriate count.

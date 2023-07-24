@@ -14,7 +14,7 @@ func _TestCOBSLog(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func containsAny(s, chars string) bool {
+func _containsAny(s, chars string) bool {
 	for i := 0; i < len(s); i++ {
 		for j := 0; j < len(chars); j++ {
 			if s[i] == chars[j] {

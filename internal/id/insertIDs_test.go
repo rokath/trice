@@ -73,6 +73,9 @@ func TestInsertExistingID(t *testing.T) {
 	JSONFile := ``
 	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
 
+	// create empty li.json
+	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+
 	// create src file1
 	sFn1 := "file1.c"
 	src1 := `
@@ -109,6 +112,9 @@ func TestInsert99(t *testing.T) {
 	jFn := "til.json"
 	JSONFile := ``
 	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
+
+	// create empty li.json
+	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
 
 	// create src file1
 	sFn1 := "file1.c"
@@ -156,6 +162,9 @@ func TestInsert11(t *testing.T) {
 	JSONFile := ``
 	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
 
+	// create empty li.json
+	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+
 	// create src file1
 	sFn1 := "file1.c"
 	src1 := `
@@ -192,6 +201,9 @@ func TestInsert2(t *testing.T) {
 	jFn := "til.json"
 	JSONFile := ``
 	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
+
+	// create empty li.json
+	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
 
 	// action
 	var b bytes.Buffer
@@ -251,6 +263,9 @@ func TestInsert1(t *testing.T) {
 	JSONFile := ``
 	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
 
+	// create empty li.json
+	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+
 	// action
 	var b bytes.Buffer
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
@@ -297,6 +312,9 @@ func TestInsert0(t *testing.T) {
 	jFn := "til.json"
 	JSONFile := ``
 	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
+
+	// create empty li.json
+	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
 
 	// action
 	var b bytes.Buffer

@@ -107,6 +107,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
+		id.Logging = true
 		msg.OnErr(fsScLog.Parse(subArgs))
 		decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
 		decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")

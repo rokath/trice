@@ -27,6 +27,9 @@ func TestClean(t *testing.T) {
 	JSONFile := ``
 	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
 
+	// create empty li.json
+	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+
 	// action
 	var b bytes.Buffer
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean"}))
