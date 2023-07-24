@@ -602,6 +602,8 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
 #	reported and just cleaned inside the source files. The existing li.json is not used. A new li.json is generated in place. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
+#	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs,
+#	EXPERIMENTAL! if macro TRICE_CLEAN is not defined before "#include "trice.h". For that a good idea is needed.
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice cleanSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
