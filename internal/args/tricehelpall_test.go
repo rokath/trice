@@ -290,7 +290,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'r|refresh': DEPRECIATED! Use "trice insert" instead.
+sub-command 'r|refresh': DEPRECIATED! Will be removed in the future.
+#	Use "trice z|zero" and "trice i|insert" instead.
 #	DEPRECIATED! For updating ID list from source files but does not change the source files.
 #	DEPRECIATED! "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
 #	DEPRECIATED! This command should be run on adding source files to the project before the first time "trice update" is called.
@@ -346,7 +347,8 @@ sub-command 'r|refresh': DEPRECIATED! Use "trice insert" instead.
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'renew': DEPRECIATED! Use "trice insert" instead (empty til.json manually first).
+sub-command 'renew': DEPRECIATED! Will be removed in the future. 
+#	Use "trice z|zero" and "trice i|insert" instead (empty til.json manually first).
 #	DEPRECIATED! It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
 #	DEPRECIATED! Example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
   -dry-run
@@ -422,7 +424,8 @@ sub-command 'ver|version': For displaying version information.
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'u|update': DEPRECIATED! 
+sub-command 'u|update': DEPRECIATED! Will be removed in the future.
+#	Use "trice i|insert" instead.
 #	DEPRECIATED! For updating ID list and source files.
 #	DEPRECIATED! "trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
 #	DEPRECIATED! The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
@@ -481,17 +484,18 @@ sub-command 'u|update': DEPRECIATED!
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'i|insert': EXPERIMENTAL! For updating ID list and source files.
-#	EXPERIMENTAL! "trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
-#	EXPERIMENTAL! This command relies on existing til.json and li.json files. The li.json file is used as reference and generated new during insert.
-#	EXPERIMENTAL! Without li.json the insert command assigns new IDs to all found trice macros, because it cannot assign files to them, and extends 
-#	EXPERIMENTAL! the til.json file accordingly. That is, because the insert command acts in multiple Go routines per file. 
-#	EXPERIMENTAL! If you lost the li.json file, you can run "trice clean" first, to re-generate a new li.json and then execute "trice insert".
-#	EXPERIMENTAL! With an empty til.json file, the insert command re-creates a new til.json (and a fresh li.json) from the source code.
-#	EXPERIMENTAL! If the insert command finds an ID for a trice inside the sources, used already for an other trice inside til.json, it reports that
-#	EXPERIMENTAL! and assigns a new ID into the source file, adding it to til.json as well.
-#	EXPERIMENTAL! The "insert" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
-#	EXPERIMENTAL! Example: 'trice i -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
+sub-command 'i|insert': For updating til.json and inserting IDs into source files.
+#	"trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and extend the JSON list.
+#	This command relies on existing til.json and li.json files. The li.json file is used as reference and generated new during insert.
+#	Without li.json the insert command assigns new IDs to all found trice macros, because it cannot assign files to them, and extends 
+#	the til.json file accordingly. That is for safety, because the insert command acts in multiple Go routines per file parallel. 
+#	If you lost the li.json file, you can run "trice clean|zero" first, to re-generate a new li.json and then execute "trice insert".
+#	With an empty til.json file, the insert command re-creates a new til.json (and a fresh li.json) from the source code.
+#	If the insert command finds an ID for a trice inside the sources, used already for an other trice inside til.json, it reports that
+#	and assigns a new ID into the source file, adding it to til.json as well.
+#	The "insert" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
+#	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
+#	Example: 'trice i -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
   -IDMax value
     	Upper end of ID range for normal trices. (default 7999)
   -IDMethod string
@@ -545,11 +549,11 @@ sub-command 'i|insert': EXPERIMENTAL! For updating ID list and source files.
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'zeroSourceTreeIds': DEPRECIATED! 
-#	DEPRECIATED! Set all Id(n) inside source tree dir to Id(0). 
-#	DEPRECIATED! The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times. USE command "clean" instead.
-#	DEPRECIATED! example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
-#	Use command "clean" instead.
+sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|ID|iD](0).
+#	All in source code found IDs are added to til.json if not already there. Inside ti.json differently used IDs are 
+#	reported and just zeroed inside the source files. The existing li.json is not used. A new li.json is generated in place. 
+#	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
+#	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -593,11 +597,11 @@ sub-command 'zeroSourceTreeIds': DEPRECIATED!
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'clean': EXPERIMENTAL! Set all Id(n) inside source tree dir to 0.
-#	EXPERIMENTAL! All in source code found IDs are added to til.json if not already there. Inside ti.json differently used IDs are 
-#	EXPERIMENTAL! reported and just cleaned inside the source files. The existing li.json is not used. A new li.json is generated. 
-#	EXPERIMENTAL! The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
-#	EXPERIMENTAL! Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
+sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID](0). Remove all iD(n).
+#	All in source code found IDs are added to til.json if not already there. Inside ti.json differently used IDs are 
+#	reported and just cleaned inside the source files. The existing li.json is not used. A new li.json is generated in place. 
+#	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
+#	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice cleanSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
