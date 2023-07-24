@@ -125,7 +125,9 @@ func cleanIDsInfo(w io.Writer) error {
 #	All in source code found IDs are added to til.json if not already there. Inside ti.json differently used IDs are 
 #	reported and just cleaned inside the source files. The existing li.json is not used. A new li.json is generated in place. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
-#	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c`)
+#	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
+#	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs,
+#	EXPERIMENTAL! if macro TRICE_CLEAN is not defined before "#include "trice.h". For that a good idea is needed.`)
 	fsScClean.SetOutput(w)
 	fsScClean.PrintDefaults()
 	return e
