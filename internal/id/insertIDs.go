@@ -207,7 +207,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 // writeID inserts id into s according to loc information and returns the result together with the changed len.
 func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result string, delta int) {
 	var idName string
-	if t.Type[2] == 'i' { // small letter
+	if t.Type[2] == 'i' { // lower case letter
 		idName = " iD("
 	} else {
 		if loc[3] != loc[4] {
@@ -228,6 +228,21 @@ func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result st
 	idIns := idName + strconv.Itoa(int(id)) + "), " // idIns is the ID statement replace string.
 	result = first + idIns + last                   //
 	delta = len(idIns) - idSiz                      // delta is the offset change.
+	return
+}
+
+// cleanID inserts id 0 into s or removes ID statement according to loc information and returns the result together with the changed len.
+func cleanID(s string, offset int, loc []int, t TriceFmt) (result string, delta int) {
+	// code is similar to writeiD code for clarity.
+	if t.Type[2] == 'I' { // Upper case letter (s.th. like TRICE*...), we set id just to 0.
+		return writeID(s, offset, loc, t, 0)
+	}
+	first := s[:offset+loc[2]]    // first is the not touched s part before the replacement space.
+	idSiz := loc[5] - loc[2]      // idSiz is the size of the replaced ID space inside the source code.
+	last := s[offset+loc[5]:]     // last is the not touched s part after the replacement space.
+	idIns := " "                  // replacement string
+	result = first + idIns + last //
+	delta = len(idIns) - idSiz    // delta is the offset change.
 	return
 }
 

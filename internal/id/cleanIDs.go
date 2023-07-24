@@ -121,7 +121,7 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		}
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information.
-		outs, delta = writeID(outs, offset, loc, t, 0)   // Do the clean.
+		outs, delta = cleanID(outs, offset, loc, t)      // Do the clean.
 		offset += delta
 		modified = true
 		rest = rest[loc[6]:]
