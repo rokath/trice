@@ -1,1 +1,4618 @@
-{}
+{
+	"1007": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1205
+	},
+	"1008": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 89
+	},
+	"1010": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 624
+	},
+	"1023": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 682
+	},
+	"1025": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 606
+	},
+	"1026": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 310
+	},
+	"1037": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 313
+	},
+	"1040": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1042
+	},
+	"1050": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 357
+	},
+	"1063": {
+		"File": "src/triceRingBuffer.c",
+		"Line": 66
+	},
+	"1067": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 122
+	},
+	"1070": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 688
+	},
+	"1075": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1082
+	},
+	"1076": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 654
+	},
+	"1078": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1086
+	},
+	"1084": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1150
+	},
+	"1098": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 73
+	},
+	"1100": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 692
+	},
+	"1102": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 630
+	},
+	"1103": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 441
+	},
+	"1111": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 948
+	},
+	"1115": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 180
+	},
+	"1117": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 818
+	},
+	"1141": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 364
+	},
+	"1143": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 422
+	},
+	"1164": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 141
+	},
+	"1167": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 549
+	},
+	"1174": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 589
+	},
+	"1177": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 561
+	},
+	"1182": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 286
+	},
+	"1187": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 568
+	},
+	"1189": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 754
+	},
+	"1192": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 143
+	},
+	"1195": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 909
+	},
+	"1200": {
+		"File": "test/OpenCM3_STM32F411_Nucleo/triceConfig.h",
+		"Line": 108
+	},
+	"1202": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 229
+	},
+	"1213": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 172
+	},
+	"1225": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 537
+	},
+	"1232": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1034
+	},
+	"1236": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 408
+	},
+	"1245": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1253
+	},
+	"1248": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1412
+	},
+	"1259": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 901
+	},
+	"1262": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 989
+	},
+	"1281": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1225
+	},
+	"1282": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 479
+	},
+	"1283": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 300
+	},
+	"1293": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 377
+	},
+	"1302": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 777
+	},
+	"1315": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 680
+	},
+	"1326": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 974
+	},
+	"1328": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 609
+	},
+	"1333": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 148
+	},
+	"1338": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 456
+	},
+	"1349": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 840
+	},
+	"1351": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 708
+	},
+	"1381": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1030
+	},
+	"1382": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1192
+	},
+	"1385": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 801
+	},
+	"1388": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 448
+	},
+	"1399": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1231
+	},
+	"1411": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1037
+	},
+	"1415": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1241
+	},
+	"1423": {
+		"File": "src/triceStaticBuffer.c",
+		"Line": 33
+	},
+	"1432": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 684
+	},
+	"1439": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 703
+	},
+	"1440": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 399
+	},
+	"1442": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 889
+	},
+	"1445": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 69
+	},
+	"1458": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 425
+	},
+	"1462": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 995
+	},
+	"1468": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 757
+	},
+	"1491": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 811
+	},
+	"1503": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 960
+	},
+	"1505": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 968
+	},
+	"1508": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 373
+	},
+	"1512": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1236
+	},
+	"1516": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 449
+	},
+	"1517": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 657
+	},
+	"1521": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 812
+	},
+	"1526": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1262
+	},
+	"1531": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1175
+	},
+	"1535": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 400
+	},
+	"1536": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 382
+	},
+	"1537": {
+		"File": "test/OpenCM3_STM32F411_Nucleo/triceConfig.h",
+		"Line": 112
+	},
+	"1541": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1062
+	},
+	"1544": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 983
+	},
+	"1551": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 437
+	},
+	"1556": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1008
+	},
+	"1571": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 72
+	},
+	"1573": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1074
+	},
+	"1580": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 294
+	},
+	"1581": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 406
+	},
+	"1589": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 276
+	},
+	"1596": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 53
+	},
+	"1602": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 797
+	},
+	"1604": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 511
+	},
+	"1607": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 626
+	},
+	"1612": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 622
+	},
+	"1634": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 383
+	},
+	"1647": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 856
+	},
+	"1652": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 67
+	},
+	"1656": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 640
+	},
+	"1658": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 827
+	},
+	"1659": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 112
+	},
+	"1665": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 144
+	},
+	"1669": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 442
+	},
+	"1671": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 353
+	},
+	"1674": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 103
+	},
+	"1676": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 784
+	},
+	"1678": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 307
+	},
+	"1680": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 725
+	},
+	"1681": {
+		"File": "src/triceRingBuffer.c",
+		"Line": 78
+	},
+	"1683": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 952
+	},
+	"1685": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 504
+	},
+	"1693": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1068
+	},
+	"1696": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 141
+	},
+	"1699": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 756
+	},
+	"1705": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1053
+	},
+	"1707": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 674
+	},
+	"1712": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 123
+	},
+	"1720": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 538
+	},
+	"1727": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 555
+	},
+	"1735": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 963
+	},
+	"1738": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 759
+	},
+	"1757": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 394
+	},
+	"1763": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 643
+	},
+	"1770": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1154
+	},
+	"1771": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 615
+	},
+	"1773": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 859
+	},
+	"1779": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 200
+	},
+	"1780": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1157
+	},
+	"1781": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 182
+	},
+	"1782": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 446
+	},
+	"1784": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1135
+	},
+	"1786": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 986
+	},
+	"1791": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1015
+	},
+	"1797": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 201
+	},
+	"1804": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1244
+	},
+	"1808": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 849
+	},
+	"1812": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 274
+	},
+	"1815": {
+		"File": "test/OpenCM3_STM32F411_Nucleo/triceConfig.h",
+		"Line": 107
+	},
+	"1830": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 573
+	},
+	"1834": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 953
+	},
+	"1838": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1091
+	},
+	"1839": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 709
+	},
+	"1847": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1102
+	},
+	"1854": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1005
+	},
+	"1870": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 876
+	},
+	"1872": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 806
+	},
+	"1876": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 977
+	},
+	"1881": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 987
+	},
+	"1887": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 344
+	},
+	"1891": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1024
+	},
+	"1893": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 473
+	},
+	"1894": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 694
+	},
+	"1900": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 415
+	},
+	"1905": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 768
+	},
+	"1911": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 962
+	},
+	"1915": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 522
+	},
+	"1920": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 897
+	},
+	"1930": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 559
+	},
+	"1946": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 385
+	},
+	"1952": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 111
+	},
+	"1971": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 761
+	},
+	"1974": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1259
+	},
+	"1982": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 800
+	},
+	"1988": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1095
+	},
+	"1990": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 930
+	},
+	"1996": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 458
+	},
+	"2007": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 722
+	},
+	"2012": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 567
+	},
+	"2013": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 513
+	},
+	"2015": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 701
+	},
+	"2017": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 345
+	},
+	"2040": {
+		"File": "test/vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
+		"Line": 76
+	},
+	"2042": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1063
+	},
+	"2054": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1198
+	},
+	"2056": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 571
+	},
+	"2059": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 47
+	},
+	"2065": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1002
+	},
+	"2068": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 926
+	},
+	"2081": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 416
+	},
+	"2091": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1200
+	},
+	"2097": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 869
+	},
+	"2101": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 750
+	},
+	"2103": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 562
+	},
+	"2104": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 975
+	},
+	"2109": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 929
+	},
+	"2110": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 81
+	},
+	"2111": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1111
+	},
+	"2121": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 501
+	},
+	"2124": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 832
+	},
+	"2128": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 443
+	},
+	"2136": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 447
+	},
+	"2137": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 107
+	},
+	"2139": {
+		"File": "src/triceStaticBuffer.c",
+		"Line": 29
+	},
+	"2142": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 119
+	},
+	"2144": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 380
+	},
+	"2155": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 440
+	},
+	"2157": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1106
+	},
+	"2171": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 340
+	},
+	"2172": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1012
+	},
+	"2184": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 436
+	},
+	"2185": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 277
+	},
+	"2189": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 691
+	},
+	"2192": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 828
+	},
+	"2195": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1257
+	},
+	"2203": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 328
+	},
+	"2204": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1223
+	},
+	"2205": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 464
+	},
+	"2216": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 454
+	},
+	"2220": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 101
+	},
+	"2233": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 291
+	},
+	"2234": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1127
+	},
+	"2236": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 702
+	},
+	"2248": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 659
+	},
+	"2253": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 711
+	},
+	"2262": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 966
+	},
+	"2263": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 972
+	},
+	"2267": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1181
+	},
+	"2274": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 524
+	},
+	"2278": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1196
+	},
+	"2293": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 410
+	},
+	"2295": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1209
+	},
+	"2304": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 668
+	},
+	"2306": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 395
+	},
+	"2315": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 421
+	},
+	"2320": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 86
+	},
+	"2324": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1246
+	},
+	"2333": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 763
+	},
+	"2335": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 740
+	},
+	"2340": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 623
+	},
+	"2341": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1105
+	},
+	"2345": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 699
+	},
+	"2351": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1069
+	},
+	"2355": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1202
+	},
+	"2357": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 980
+	},
+	"2360": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 804
+	},
+	"2363": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 517
+	},
+	"2369": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 533
+	},
+	"2371": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 781
+	},
+	"2380": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 297
+	},
+	"2387": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 551
+	},
+	"2399": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1197
+	},
+	"2403": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1191
+	},
+	"2405": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1019
+	},
+	"2420": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 619
+	},
+	"2421": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 306
+	},
+	"2424": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 358
+	},
+	"2427": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 438
+	},
+	"2429": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 923
+	},
+	"2446": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 633
+	},
+	"2454": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 196
+	},
+	"2466": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 717
+	},
+	"2473": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 404
+	},
+	"2474": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 128
+	},
+	"2478": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 298
+	},
+	"2498": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1145
+	},
+	"2505": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 429
+	},
+	"2507": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 356
+	},
+	"2509": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1119
+	},
+	"2517": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1402
+	},
+	"2519": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 572
+	},
+	"2520": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 462
+	},
+	"2524": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 696
+	},
+	"2531": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 402
+	},
+	"2541": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 278
+	},
+	"2546": {
+		"File": "test/vsCode_Nucleo-G0B1_instrumented/Core/Inc/triceConfig.h",
+		"Line": 100
+	},
+	"2552": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1085
+	},
+	"2562": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 834
+	},
+	"2568": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 189
+	},
+	"2581": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 890
+	},
+	"2589": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 367
+	},
+	"2590": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 700
+	},
+	"2591": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 490
+	},
+	"2615": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 463
+	},
+	"2636": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 944
+	},
+	"2638": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 927
+	},
+	"2642": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 140
+	},
+	"2659": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1059
+	},
+	"2665": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 266
+	},
+	"2678": {
+		"File": "src/triceStaticBuffer.c",
+		"Line": 27
+	},
+	"2680": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 332
+	},
+	"2689": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 98
+	},
+	"2700": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 831
+	},
+	"2701": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 678
+	},
+	"2703": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 868
+	},
+	"2709": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 805
+	},
+	"2714": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1032
+	},
+	"2715": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1103
+	},
+	"2716": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 312
+	},
+	"2719": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 391
+	},
+	"2723": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 384
+	},
+	"2734": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 579
+	},
+	"2737": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 921
+	},
+	"2742": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 681
+	},
+	"2758": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 667
+	},
+	"2761": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 791
+	},
+	"2768": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 793
+	},
+	"2773": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 564
+	},
+	"2776": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 199
+	},
+	"2777": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 526
+	},
+	"2778": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 636
+	},
+	"2801": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1054
+	},
+	"2813": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 734
+	},
+	"2814": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 366
+	},
+	"2829": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1417
+	},
+	"2830": {
+		"File": "src/triceDoubleBuffer.c",
+		"Line": 48
+	},
+	"2835": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1067
+	},
+	"2836": {
+		"File": "test/ringBuffer_deferred_xtea_cobs/triceConfig.h",
+		"Line": 104
+	},
+	"2838": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1239
+	},
+	"2845": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 925
+	},
+	"2849": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1129
+	},
+	"2850": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 894
+	},
+	"2852": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 744
+	},
+	"2860": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 110
+	},
+	"2874": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 727
+	},
+	"2900": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 566
+	},
+	"2909": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 996
+	},
+	"2911": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1213
+	},
+	"2912": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 748
+	},
+	"2913": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 54
+	},
+	"2914": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 55
+	},
+	"2920": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1013
+	},
+	"2925": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1415
+	},
+	"2929": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 719
+	},
+	"2936": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 714
+	},
+	"2950": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1195
+	},
+	"2953": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 939
+	},
+	"2960": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 871
+	},
+	"2962": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1207
+	},
+	"2978": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 243
+	},
+	"2981": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 938
+	},
+	"2996": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 500
+	},
+	"3008": {
+		"File": "test/vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
+		"Line": 85
+	},
+	"3010": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1003
+	},
+	"3025": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1120
+	},
+	"3030": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 480
+	},
+	"3031": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 124
+	},
+	"3038": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 525
+	},
+	"3040": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 616
+	},
+	"3042": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 603
+	},
+	"3045": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 958
+	},
+	"3050": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 74
+	},
+	"3070": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 306
+	},
+	"3071": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 641
+	},
+	"3072": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1007
+	},
+	"3073": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1094
+	},
+	"3075": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 285
+	},
+	"3078": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 274
+	},
+	"3082": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 322
+	},
+	"3086": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 87
+	},
+	"3087": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1168
+	},
+	"3091": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 712
+	},
+	"3100": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1427
+	},
+	"3105": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 198
+	},
+	"3106": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1173
+	},
+	"3109": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 642
+	},
+	"3117": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 280
+	},
+	"3130": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 695
+	},
+	"3140": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 284
+	},
+	"3143": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 771
+	},
+	"3150": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 191
+	},
+	"3151": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1092
+	},
+	"3158": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 582
+	},
+	"3169": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 778
+	},
+	"3174": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 106
+	},
+	"3175": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 444
+	},
+	"3178": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 95
+	},
+	"3181": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 848
+	},
+	"3183": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 56
+	},
+	"3186": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 59
+	},
+	"3189": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 152
+	},
+	"3190": {
+		"File": "test/ringBuffer_deferred_cobs/triceConfig.h",
+		"Line": 104
+	},
+	"3191": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 521
+	},
+	"3193": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1249
+	},
+	"3197": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 824
+	},
+	"3210": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 959
+	},
+	"3212": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 552
+	},
+	"3216": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 192
+	},
+	"3222": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 347
+	},
+	"3223": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1003
+	},
+	"3224": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 137
+	},
+	"3232": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1162
+	},
+	"3251": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 776
+	},
+	"3257": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 130
+	},
+	"3258": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1039
+	},
+	"3259": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1258
+	},
+	"3268": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 669
+	},
+	"3275": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 217
+	},
+	"3279": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 313
+	},
+	"3281": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 919
+	},
+	"3288": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 351
+	},
+	"3293": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 666
+	},
+	"3300": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1089
+	},
+	"3314": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 994
+	},
+	"3319": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 743
+	},
+	"3321": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1238
+	},
+	"3326": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1256
+	},
+	"3331": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 833
+	},
+	"3334": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1164
+	},
+	"3347": {
+		"File": "src/triceStackBuffer.c",
+		"Line": 27
+	},
+	"3349": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 563
+	},
+	"3352": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 735
+	},
+	"3357": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 877
+	},
+	"3369": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 83
+	},
+	"3374": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 672
+	},
+	"3395": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1026
+	},
+	"3396": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 488
+	},
+	"3406": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 810
+	},
+	"3410": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 393
+	},
+	"3412": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 816
+	},
+	"3418": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1224
+	},
+	"3430": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 532
+	},
+	"3435": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 846
+	},
+	"3455": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 426
+	},
+	"3462": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 787
+	},
+	"3465": {
+		"File": "test/vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
+		"Line": 79
+	},
+	"3468": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 902
+	},
+	"3497": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1117
+	},
+	"3501": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 314
+	},
+	"3506": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 392
+	},
+	"3507": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 610
+	},
+	"3511": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 577
+	},
+	"3535": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 946
+	},
+	"3536": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1220
+	},
+	"3549": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 753
+	},
+	"3554": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1286
+	},
+	"3557": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 309
+	},
+	"3564": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1043
+	},
+	"3566": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 104
+	},
+	"3569": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 268
+	},
+	"3578": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 602
+	},
+	"3580": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 931
+	},
+	"3581": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 467
+	},
+	"3584": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1112
+	},
+	"3589": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 918
+	},
+	"3595": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 331
+	},
+	"3600": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 529
+	},
+	"3604": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 46
+	},
+	"3613": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 649
+	},
+	"3614": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 365
+	},
+	"3626": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 726
+	},
+	"3635": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 705
+	},
+	"3644": {
+		"File": "src/triceRingBuffer.c",
+		"Line": 70
+	},
+	"3646": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1080
+	},
+	"3648": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 51
+	},
+	"3650": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 908
+	},
+	"3662": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1171
+	},
+	"3666": {
+		"File": "test/vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
+		"Line": 88
+	},
+	"3669": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1065
+	},
+	"3688": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1002
+	},
+	"3690": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 737
+	},
+	"3699": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 732
+	},
+	"3700": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1011
+	},
+	"3704": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 337
+	},
+	"3705": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 935
+	},
+	"3710": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 747
+	},
+	"3712": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 912
+	},
+	"3726": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1099
+	},
+	"3727": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 990
+	},
+	"3731": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 216
+	},
+	"3732": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 585
+	},
+	"3736": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 368
+	},
+	"3737": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 969
+	},
+	"3743": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 961
+	},
+	"3754": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 94
+	},
+	"3759": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 396
+	},
+	"3760": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 802
+	},
+	"3772": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 343
+	},
+	"3778": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 508
+	},
+	"3781": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1010
+	},
+	"3782": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 52
+	},
+	"3785": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 739
+	},
+	"3786": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 870
+	},
+	"3787": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1163
+	},
+	"3789": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 102
+	},
+	"3792": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 565
+	},
+	"3795": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 857
+	},
+	"3796": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 767
+	},
+	"3805": {
+		"File": "src/triceStackBuffer.c",
+		"Line": 23
+	},
+	"3807": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 168
+	},
+	"3809": {
+		"File": "test/doubleBuffer_deferred_multi_cobs/triceConfig.h",
+		"Line": 106
+	},
+	"3817": {
+		"File": "test/vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
+		"Line": 90
+	},
+	"3819": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 796
+	},
+	"3834": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 507
+	},
+	"3835": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 205
+	},
+	"3839": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 847
+	},
+	"3845": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1017
+	},
+	"3847": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 789
+	},
+	"3850": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 679
+	},
+	"3861": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 316
+	},
+	"3884": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1020
+	},
+	"3885": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 116
+	},
+	"3886": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 625
+	},
+	"3903": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 319
+	},
+	"3914": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1041
+	},
+	"3916": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 917
+	},
+	"3918": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 764
+	},
+	"3928": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 108
+	},
+	"3929": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 594
+	},
+	"3936": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 541
+	},
+	"3944": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 476
+	},
+	"3947": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 288
+	},
+	"3953": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 470
+	},
+	"3958": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1022
+	},
+	"3962": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 300
+	},
+	"3980": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 819
+	},
+	"3984": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 472
+	},
+	"3996": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1131
+	},
+	"4000": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 363
+	},
+	"4008": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 745
+	},
+	"4023": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 154
+	},
+	"4026": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 244
+	},
+	"4030": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 460
+	},
+	"4033": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 627
+	},
+	"4038": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1204
+	},
+	"4039": {
+		"File": "src/triceDoubleBuffer.c",
+		"Line": 50
+	},
+	"4042": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 809
+	},
+	"4054": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1252
+	},
+	"4062": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 934
+	},
+	"4063": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 920
+	},
+	"4064": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1214
+	},
+	"4065": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 772
+	},
+	"4066": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1411
+	},
+	"4072": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 317
+	},
+	"4094": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 741
+	},
+	"4098": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 305
+	},
+	"4100": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1027
+	},
+	"4122": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 78
+	},
+	"4131": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 913
+	},
+	"4133": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 601
+	},
+	"4134": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 450
+	},
+	"4136": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 933
+	},
+	"4138": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 539
+	},
+	"4161": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1289
+	},
+	"4174": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1184
+	},
+	"4178": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1132
+	},
+	"4180": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 498
+	},
+	"4187": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1221
+	},
+	"4193": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 455
+	},
+	"4198": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 554
+	},
+	"4213": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1056
+	},
+	"4219": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 230
+	},
+	"4227": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1190
+	},
+	"4231": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 675
+	},
+	"4232": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1201
+	},
+	"4237": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 648
+	},
+	"4243": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1167
+	},
+	"4246": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 863
+	},
+	"4254": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1166
+	},
+	"4262": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 282
+	},
+	"4266": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1182
+	},
+	"4272": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1229
+	},
+	"4273": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 774
+	},
+	"4279": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 197
+	},
+	"4282": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 390
+	},
+	"4288": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 270
+	},
+	"4298": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1172
+	},
+	"4307": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 866
+	},
+	"4308": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1057
+	},
+	"4310": {
+		"File": "test/OpenCM3_STM32F411_Nucleo/triceConfig.h",
+		"Line": 100
+	},
+	"4322": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 457
+	},
+	"4325": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 451
+	},
+	"4352": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 690
+	},
+	"4369": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 924
+	},
+	"4380": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 135
+	},
+	"4397": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 765
+	},
+	"4406": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1122
+	},
+	"4409": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 798
+	},
+	"4410": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 979
+	},
+	"4411": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1137
+	},
+	"4416": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 424
+	},
+	"4423": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 311
+	},
+	"4431": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 967
+	},
+	"4435": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 61
+	},
+	"4439": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 475
+	},
+	"4449": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1136
+	},
+	"4461": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1216
+	},
+	"4463": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 746
+	},
+	"4469": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1149
+	},
+	"4478": {
+		"File": "test/doubleBuffer_deferred_single_cobs/triceConfig.h",
+		"Line": 104
+	},
+	"4480": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1108
+	},
+	"4486": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 770
+	},
+	"4502": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 434
+	},
+	"4514": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1035
+	},
+	"4523": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 873
+	},
+	"4525": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 459
+	},
+	"4527": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 115
+	},
+	"4534": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 413
+	},
+	"4552": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 593
+	},
+	"4555": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 807
+	},
+	"4561": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 984
+	},
+	"4567": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 685
+	},
+	"4572": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 142
+	},
+	"4573": {
+		"File": "test/doubleBuffer_deferred_single_tcobs/triceConfig.h",
+		"Line": 101
+	},
+	"4578": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 209
+	},
+	"4579": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 842
+	},
+	"4580": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 163
+	},
+	"4585": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 896
+	},
+	"4593": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 57
+	},
+	"4597": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1128
+	},
+	"4598": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1110
+	},
+	"4605": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 433
+	},
+	"4630": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 671
+	},
+	"4655": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1234
+	},
+	"4660": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1161
+	},
+	"4663": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 320
+	},
+	"4666": {
+		"File": "test/staticBuffer_tcobs/triceConfig.h",
+		"Line": 106
+	},
+	"4669": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1189
+	},
+	"4671": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 523
+	},
+	"4672": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 354
+	},
+	"4673": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 350
+	},
+	"4674": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 715
+	},
+	"4676": {
+		"File": "src/triceDoubleBuffer.c",
+		"Line": 42
+	},
+	"4678": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 646
+	},
+	"4689": {
+		"File": "test/vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
+		"Line": 74
+	},
+	"4691": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1226
+	},
+	"4700": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 587
+	},
+	"4710": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1248
+	},
+	"4738": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 887
+	},
+	"4748": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 271
+	},
+	"4752": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1079
+	},
+	"4759": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 574
+	},
+	"4772": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1227
+	},
+	"4782": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 516
+	},
+	"4789": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 489
+	},
+	"4790": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 296
+	},
+	"4808": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1124
+	},
+	"4811": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 270
+	},
+	"4814": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 898
+	},
+	"4827": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1188
+	},
+	"4832": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 432
+	},
+	"4834": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 999
+	},
+	"4838": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 318
+	},
+	"4875": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 360
+	},
+	"4878": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 228
+	},
+	"4879": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 208
+	},
+	"4885": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 914
+	},
+	"4888": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 779
+	},
+	"4895": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 484
+	},
+	"4898": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 821
+	},
+	"4901": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 97
+	},
+	"4904": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1071
+	},
+	"4906": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 906
+	},
+	"4920": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 361
+	},
+	"4925": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 114
+	},
+	"4947": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 598
+	},
+	"4953": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 957
+	},
+	"4954": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 814
+	},
+	"4955": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1113
+	},
+	"4958": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 951
+	},
+	"4969": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 792
+	},
+	"4971": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 845
+	},
+	"4974": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 113
+	},
+	"4976": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 536
+	},
+	"4979": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1031
+	},
+	"4981": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 790
+	},
+	"4989": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 553
+	},
+	"4999": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1254
+	},
+	"5003": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1152
+	},
+	"5006": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 973
+	},
+	"5013": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 697
+	},
+	"5019": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 936
+	},
+	"5031": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 899
+	},
+	"5045": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1170
+	},
+	"5047": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 188
+	},
+	"5066": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 486
+	},
+	"5070": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 466
+	},
+	"5072": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 992
+	},
+	"5074": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1014
+	},
+	"5075": {
+		"File": "test/ringBuffer_deferred_tcobs/triceConfig.h",
+		"Line": 104
+	},
+	"5103": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1156
+	},
+	"5110": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 335
+	},
+	"5111": {
+		"File": "test/vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
+		"Line": 89
+	},
+	"5116": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 839
+	},
+	"5119": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 372
+	},
+	"5136": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 855
+	},
+	"5139": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 43
+	},
+	"5141": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 497
+	},
+	"5145": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 64
+	},
+	"5153": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 947
+	},
+	"5159": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 858
+	},
+	"5162": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 581
+	},
+	"5169": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 655
+	},
+	"5171": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 815
+	},
+	"5175": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 892
+	},
+	"5181": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 286
+	},
+	"5183": {
+		"File": "test/doubleBuffer_deferred_multi_tcobs/triceConfig.h",
+		"Line": 106
+	},
+	"5186": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 676
+	},
+	"5187": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 591
+	},
+	"5190": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 502
+	},
+	"5192": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1148
+	},
+	"5195": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 187
+	},
+	"5197": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 293
+	},
+	"5201": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1183
+	},
+	"5203": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1286
+	},
+	"5206": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 556
+	},
+	"5222": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 179
+	},
+	"5223": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1016
+	},
+	"5228": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 496
+	},
+	"5230": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 266
+	},
+	"5233": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 837
+	},
+	"5247": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 245
+	},
+	"5251": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 156
+	},
+	"5264": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 147
+	},
+	"5270": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1088
+	},
+	"5275": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 632
+	},
+	"5279": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 398
+	},
+	"5283": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 190
+	},
+	"5289": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 218
+	},
+	"5291": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 158
+	},
+	"5304": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 751
+	},
+	"5321": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1109
+	},
+	"5344": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 569
+	},
+	"5346": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 874
+	},
+	"5355": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 60
+	},
+	"5357": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1075
+	},
+	"5364": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1121
+	},
+	"5369": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 835
+	},
+	"5374": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1018
+	},
+	"5375": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 693
+	},
+	"5381": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 543
+	},
+	"5390": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1185
+	},
+	"5393": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 867
+	},
+	"5399": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 100
+	},
+	"5404": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1000
+	},
+	"5406": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 854
+	},
+	"5408": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 184
+	},
+	"5412": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 940
+	},
+	"5417": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 310
+	},
+	"5434": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 181
+	},
+	"5442": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1060
+	},
+	"5450": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1048
+	},
+	"5452": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 677
+	},
+	"5464": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 117
+	},
+	"5469": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1073
+	},
+	"5473": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 506
+	},
+	"5483": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 411
+	},
+	"5484": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1009
+	},
+	"5492": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 163
+	},
+	"5497": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1066
+	},
+	"5499": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 514
+	},
+	"5505": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1003
+	},
+	"5506": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 733
+	},
+	"5523": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 273
+	},
+	"5528": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1123
+	},
+	"5529": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1151
+	},
+	"5531": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 471
+	},
+	"5535": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 86
+	},
+	"5536": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 813
+	},
+	"5543": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 580
+	},
+	"5549": {
+		"File": "test/vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
+		"Line": 87
+	},
+	"5550": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 851
+	},
+	"5553": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 550
+	},
+	"5558": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 985
+	},
+	"5574": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 862
+	},
+	"5575": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 576
+	},
+	"5596": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 76
+	},
+	"5607": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 407
+	},
+	"5613": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 108
+	},
+	"5614": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 96
+	},
+	"5618": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1083
+	},
+	"5628": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 575
+	},
+	"5629": {
+		"File": "test/staticBuffer_nopf/triceConfig.h",
+		"Line": 106
+	},
+	"5632": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 58
+	},
+	"5635": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 195
+	},
+	"5651": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1250
+	},
+	"5657": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1211
+	},
+	"5663": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 905
+	},
+	"5664": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 174
+	},
+	"5668": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 90
+	},
+	"5671": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 121
+	},
+	"5674": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 493
+	},
+	"5679": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 287
+	},
+	"5681": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1203
+	},
+	"5682": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 352
+	},
+	"5685": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 302
+	},
+	"5701": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1232
+	},
+	"5702": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1098
+	},
+	"5706": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 731
+	},
+	"5710": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 895
+	},
+	"5713": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1206
+	},
+	"5718": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1049
+	},
+	"5719": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1228
+	},
+	"5734": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 861
+	},
+	"5744": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 548
+	},
+	"5749": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 720
+	},
+	"5756": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 760
+	},
+	"5764": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 290
+	},
+	"5765": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 381
+	},
+	"5776": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 965
+	},
+	"5781": {
+		"File": "test/stackBuffer_tcobs/triceConfig.h",
+		"Line": 106
+	},
+	"5785": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1002
+	},
+	"5789": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 495
+	},
+	"5794": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 374
+	},
+	"5797": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 333
+	},
+	"5799": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 911
+	},
+	"5803": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 453
+	},
+	"5804": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 186
+	},
+	"5815": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 903
+	},
+	"5816": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 607
+	},
+	"5817": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 295
+	},
+	"5825": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 916
+	},
+	"5829": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 91
+	},
+	"5831": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1138
+	},
+	"5840": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1093
+	},
+	"5841": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1180
+	},
+	"5851": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 272
+	},
+	"5852": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 481
+	},
+	"5853": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 661
+	},
+	"5859": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 418
+	},
+	"5872": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1212
+	},
+	"5873": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 950
+	},
+	"5876": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1006
+	},
+	"5880": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 786
+	},
+	"5882": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1177
+	},
+	"5884": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1242
+	},
+	"5910": {
+		"File": "test/OpenCM3_STM32F411_Nucleo/triceConfig.h",
+		"Line": 110
+	},
+	"5911": {
+		"File": "test/vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
+		"Line": 75
+	},
+	"5920": {
+		"File": "src/triceRingBuffer.c",
+		"Line": 74
+	},
+	"5936": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 370
+	},
+	"5943": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 469
+	},
+	"5953": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 915
+	},
+	"5955": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 303
+	},
+	"5959": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 369
+	},
+	"5961": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 976
+	},
+	"5979": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 112
+	},
+	"5980": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 528
+	},
+	"5987": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1179
+	},
+	"5994": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 474
+	},
+	"5998": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1187
+	},
+	"6003": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1139
+	},
+	"6014": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1070
+	},
+	"6016": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 718
+	},
+	"6024": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 93
+	},
+	"6028": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 388
+	},
+	"6038": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 773
+	},
+	"6040": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1404
+	},
+	"6062": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 660
+	},
+	"6068": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1263
+	},
+	"6070": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1159
+	},
+	"6072": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 910
+	},
+	"6075": {
+		"File": "test/staticBuffer_cobs/triceConfig.h",
+		"Line": 106
+	},
+	"6078": {
+		"File": "src/triceRingBuffer.c",
+		"Line": 72
+	},
+	"6081": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 420
+	},
+	"6089": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 386
+	},
+	"6099": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1114
+	},
+	"6112": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 817
+	},
+	"6141": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 904
+	},
+	"6145": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 430
+	},
+	"6146": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 852
+	},
+	"6148": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 578
+	},
+	"6149": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 775
+	},
+	"6152": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 293
+	},
+	"6158": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 401
+	},
+	"6163": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 324
+	},
+	"6164": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1077
+	},
+	"6175": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 545
+	},
+	"6176": {
+		"File": "test/OpenCM3_STM32F411_Nucleo/triceConfig.h",
+		"Line": 102
+	},
+	"6184": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 964
+	},
+	"6191": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 349
+	},
+	"6192": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1222
+	},
+	"6197": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1115
+	},
+	"6198": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 558
+	},
+	"6199": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1160
+	},
+	"6209": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 673
+	},
+	"6211": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1178
+	},
+	"6219": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 884
+	},
+	"6225": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 795
+	},
+	"6232": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1193
+	},
+	"6241": {
+		"File": "test/stackBuffer_nopf/triceConfig.h",
+		"Line": 106
+	},
+	"6243": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 618
+	},
+	"6244": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 376
+	},
+	"6248": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1218
+	},
+	"6251": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 109
+	},
+	"6253": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1036
+	},
+	"6278": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 487
+	},
+	"6282": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 560
+	},
+	"6290": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1116
+	},
+	"6291": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1104
+	},
+	"6297": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 652
+	},
+	"6303": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 494
+	},
+	"6311": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 782
+	},
+	"6320": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 445
+	},
+	"6328": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1143
+	},
+	"6333": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1247
+	},
+	"6336": {
+		"File": "test/doubleBuffer_deferred_multi_xtea_cobs/triceConfig.h",
+		"Line": 105
+	},
+	"6343": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 955
+	},
+	"6344": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 881
+	},
+	"6345": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 547
+	},
+	"6346": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 830
+	},
+	"6352": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 290
+	},
+	"6353": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 698
+	},
+	"6357": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1217
+	},
+	"6363": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 723
+	},
+	"6382": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1021
+	},
+	"6384": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 600
+	},
+	"6389": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 665
+	},
+	"6391": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1140
+	},
+	"6400": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1025
+	},
+	"6405": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 534
+	},
+	"6413": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 785
+	},
+	"6419": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1081
+	},
+	"6429": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 907
+	},
+	"6468": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 736
+	},
+	"6474": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1165
+	},
+	"6477": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 888
+	},
+	"6488": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 588
+	},
+	"6499": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 321
+	},
+	"6518": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 706
+	},
+	"6523": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 758
+	},
+	"6546": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 769
+	},
+	"6562": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 880
+	},
+	"6566": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 359
+	},
+	"6576": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 978
+	},
+	"6577": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 92
+	},
+	"6578": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 162
+	},
+	"6583": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1096
+	},
+	"6592": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 125
+	},
+	"6598": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 843
+	},
+	"6599": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 762
+	},
+	"6607": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 844
+	},
+	"6609": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 512
+	},
+	"6610": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1401
+	},
+	"6613": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 109
+	},
+	"6616": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 68
+	},
+	"6617": {
+		"File": "test/vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
+		"Line": 78
+	},
+	"6622": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 483
+	},
+	"6626": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 110
+	},
+	"6627": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1142
+	},
+	"6631": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 428
+	},
+	"6635": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 278
+	},
+	"6646": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 111
+	},
+	"6648": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 704
+	},
+	"6661": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 728
+	},
+	"6663": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 477
+	},
+	"6669": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 988
+	},
+	"6674": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1100
+	},
+	"6689": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 412
+	},
+	"6694": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 663
+	},
+	"6695": {
+		"File": "test/OpenCM3_STM32F411_Nucleo/triceConfig.h",
+		"Line": 109
+	},
+	"6704": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 943
+	},
+	"6708": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1255
+	},
+	"6729": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 183
+	},
+	"6731": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1023
+	},
+	"6736": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1046
+	},
+	"6739": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1215
+	},
+	"6742": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 515
+	},
+	"6748": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 319
+	},
+	"6754": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 378
+	},
+	"6769": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 510
+	},
+	"6772": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1038
+	},
+	"6777": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 414
+	},
+	"6780": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1146
+	},
+	"6789": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 825
+	},
+	"6796": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 981
+	},
+	"6810": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 885
+	},
+	"6814": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 595
+	},
+	"6816": {
+		"File": "src/triceRingBuffer.c",
+		"Line": 68
+	},
+	"6817": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 397
+	},
+	"6823": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 971
+	},
+	"6830": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1240
+	},
+	"6848": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 998
+	},
+	"6856": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1047
+	},
+	"6857": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1237
+	},
+	"6863": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 658
+	},
+	"6864": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h",
+		"Line": 102
+	},
+	"6865": {
+		"File": "test/doubleBuffer_direct_noRouting_nopf/triceConfig.h",
+		"Line": 104
+	},
+	"6879": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 749
+	},
+	"6881": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1052
+	},
+	"6882": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1064
+	},
+	"6884": {
+		"File": "test/OpenCM3_STM32F411_Nucleo/triceConfig.h",
+		"Line": 113
+	},
+	"6886": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 707
+	},
+	"6893": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1045
+	},
+	"6894": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 729
+	},
+	"6900": {
+		"File": "test/stackBuffer_cobs/triceConfig.h",
+		"Line": 106
+	},
+	"6901": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 118
+	},
+	"6906": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 875
+	},
+	"6908": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1147
+	},
+	"6913": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 297
+	},
+	"6915": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1107
+	},
+	"6924": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1141
+	},
+	"6928": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1251
+	},
+	"6939": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 932
+	},
+	"6942": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 379
+	},
+	"6944": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 742
+	},
+	"6947": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 48
+	},
+	"6949": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 592
+	},
+	"6954": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 482
+	},
+	"6961": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1169
+	},
+	"6967": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 803
+	},
+	"6968": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1040
+	},
+	"6980": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 783
+	},
+	"6981": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 527
+	},
+	"6987": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 468
+	},
+	"6989": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 535
+	},
+	"6997": {
+		"File": "src/triceDoubleBuffer.c",
+		"Line": 54
+	},
+	"7011": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1219
+	},
+	"7016": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1210
+	},
+	"7017": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 838
+	},
+	"7023": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 799
+	},
+	"7028": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1058
+	},
+	"7030": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 546
+	},
+	"7037": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 956
+	},
+	"7040": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1072
+	},
+	"7057": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 362
+	},
+	"7073": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1101
+	},
+	"7078": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 653
+	},
+	"7086": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 339
+	},
+	"7095": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1134
+	},
+	"7112": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 145
+	},
+	"7115": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 77
+	},
+	"7116": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1087
+	},
+	"7121": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 99
+	},
+	"7130": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 282
+	},
+	"7131": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 342
+	},
+	"7146": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 461
+	},
+	"7150": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 303
+	},
+	"7153": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 853
+	},
+	"7159": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 893
+	},
+	"7162": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 631
+	},
+	"7176": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 316
+	},
+	"7177": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1199
+	},
+	"7179": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1260
+	},
+	"7188": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 829
+	},
+	"7197": {
+		"File": "test/doubleBuffer_twin_direct_noRouting_nopf_deferred_multi_cobs/triceConfig.h",
+		"Line": 104
+	},
+	"7211": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1245
+	},
+	"7234": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 120
+	},
+	"7240": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 151
+	},
+	"7264": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1413
+	},
+	"7267": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1144
+	},
+	"7268": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 62
+	},
+	"7273": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 275
+	},
+	"7280": {
+		"File": "test/vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
+		"Line": 86
+	},
+	"7287": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 637
+	},
+	"7308": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1153
+	},
+	"7311": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 689
+	},
+	"7312": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 891
+	},
+	"7315": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1230
+	},
+	"7322": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 265
+	},
+	"7325": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1406
+	},
+	"7330": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 237
+	},
+	"7334": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 519
+	},
+	"7337": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 584
+	},
+	"7341": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 878
+	},
+	"7344": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 872
+	},
+	"7352": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1243
+	},
+	"7358": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 203
+	},
+	"7365": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1186
+	},
+	"7370": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 820
+	},
+	"7371": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 937
+	},
+	"7375": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 348
+	},
+	"7377": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 146
+	},
+	"7379": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 530
+	},
+	"7389": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1130
+	},
+	"7390": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 949
+	},
+	"7391": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 540
+	},
+	"7394": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 993
+	},
+	"7401": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 721
+	},
+	"7413": {
+		"File": "test/vsCode_Nucleo-L432KC_instrumented/Core/Inc/triceConfig.h",
+		"Line": 107
+	},
+	"7424": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1055
+	},
+	"7425": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 730
+	},
+	"7432": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 614
+	},
+	"7440": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1029
+	},
+	"7455": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 375
+	},
+	"7458": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 686
+	},
+	"7459": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 243
+	},
+	"7480": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 417
+	},
+	"7489": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 177
+	},
+	"7500": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 617
+	},
+	"7502": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 194
+	},
+	"7503": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 166
+	},
+	"7506": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 409
+	},
+	"7513": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 687
+	},
+	"7528": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1261
+	},
+	"7538": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1405
+	},
+	"7541": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 329
+	},
+	"7548": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 826
+	},
+	"7550": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1050
+	},
+	"7554": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 499
+	},
+	"7557": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1155
+	},
+	"7560": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 945
+	},
+	"7561": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1176
+	},
+	"7570": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1125
+	},
+	"7572": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 405
+	},
+	"7574": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1235
+	},
+	"7580": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 170
+	},
+	"7590": {
+		"File": "src/triceDoubleBuffer.c",
+		"Line": 44
+	},
+	"7591": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 586
+	},
+	"7592": {
+		"File": "src/triceStackBuffer.c",
+		"Line": 21
+	},
+	"7593": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 193
+	},
+	"7599": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 137
+	},
+	"7608": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 941
+	},
+	"7612": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 942
+	},
+	"7616": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 338
+	},
+	"7621": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 485
+	},
+	"7622": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 841
+	},
+	"7628": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 336
+	},
+	"7645": {
+		"File": "test/vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
+		"Line": 77
+	},
+	"7652": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1174
+	},
+	"7655": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 928
+	},
+	"7657": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 860
+	},
+	"7686": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 330
+	},
+	"7688": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1044
+	},
+	"7693": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 713
+	},
+	"7702": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
+		"Line": 106
+	},
+	"7703": {
+		"File": "test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
+		"Line": 262
+	},
+	"7705": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 922
+	},
+	"7736": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1133
+	},
+	"7737": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 882
+	},
+	"7739": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 611
+	},
+	"7742": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 149
+	},
+	"7745": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1084
+	},
+	"7746": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 509
+	},
+	"7749": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 185
+	},
+	"7756": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 599
+	},
+	"7761": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 755
+	},
+	"7764": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 883
+	},
+	"7768": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 865
+	},
+	"7769": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 716
+	},
+	"7776": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1001
+	},
+	"7782": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1289
+	},
+	"7785": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1158
+	},
+	"7787": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 165
+	},
+	"7794": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1126
+	},
+	"7800": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 279
+	},
+	"7807": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1028
+	},
+	"7824": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1051
+	},
+	"7836": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 683
+	},
+	"7843": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 608
+	},
+	"7844": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 997
+	},
+	"7845": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 389
+	},
+	"7860": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 346
+	},
+	"7873": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 590
+	},
+	"7875": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1416
+	},
+	"7876": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 886
+	},
+	"7883": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 662
+	},
+	"7888": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 304
+	},
+	"7890": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 520
+	},
+	"7891": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1076
+	},
+	"7901": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 503
+	},
+	"7903": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1097
+	},
+	"7917": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 664
+	},
+	"7924": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 991
+	},
+	"7925": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 542
+	},
+	"7933": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1400
+	},
+	"7957": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 670
+	},
+	"7972": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 970
+	},
+	"7983": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 823
+	},
+	"7984": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 788
+	},
+	"7988": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 647
+	},
+	"7992": {
+		"File": "test/testdata/triceCheck.c",
+		"Line": 1078
+	}
+}
