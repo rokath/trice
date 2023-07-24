@@ -63,19 +63,19 @@ void TriceLogDiagnosticValues( void ){
 
     unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( iD(6931), "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD(0), "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
-        TRice16( iD(3497), "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( iD(0), "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
-    trice16( iD(1140), "diag:singleTricesRingCountMax = %u, ", singleTricesRingCountMax );
+    trice16( iD(0), "diag:singleTricesRingCountMax = %u, ", singleTricesRingCountMax );
     if( triceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
-        trice16( iD(1608), "diag:triceRingBufferDepthMax =%4u of%5d\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+        trice16( iD(0), "diag:triceRingBufferDepthMax =%4u of%5d\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }else{
-        trice16( iD(1087), "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+        trice16( iD(0), "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", triceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }
 
     if(TriceErrorCount > 0){
-        trice( iD(5820), "err: TriceErrorCount = %u\n", TriceErrorCount );
+        trice( iD(0), "err: TriceErrorCount = %u\n", TriceErrorCount );
     }
 
 }
