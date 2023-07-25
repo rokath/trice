@@ -145,7 +145,7 @@ func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
 // It uses the inside fSys specified til.json and returns the log output.
 type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 
-// triceLogTest creates a list of expected results from triceDir+"./test/testdata/triceCheck.c".
+// triceLogTest creates a list of expected results from  path.Join(triceDir, "./test/testdata/triceCheck.c").
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.
 // This function is test package specific defined. The file cgoPackage.go is
@@ -161,7 +161,7 @@ func triceLogTest(t *testing.T, triceLog logF, limit int, mode triceMode) {
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 
-	result := getExpectedResults(osFSys, triceDir+"./test/testdata/triceCheck.c")
+	result := getExpectedResults(osFSys, path.Join(triceDir, "./test/testdata/triceCheck.c"))
 
 	var count int
 	for i, r := range result {
@@ -199,7 +199,7 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 
-	result := getExpectedResults(osFSys, triceDir+"./test/testdata/triceCheck.c")
+	result := getExpectedResults(osFSys, path.Join(triceDir, "./test/testdata/triceCheck.c"))
 
 	var count int
 	for i, r := range result {

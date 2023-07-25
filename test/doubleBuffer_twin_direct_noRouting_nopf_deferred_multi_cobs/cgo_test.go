@@ -3,6 +3,7 @@ package cgot
 import (
 	"bytes"
 	"io"
+	"path"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -16,7 +17,7 @@ func TestLogs(t *testing.T) {
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog0 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", triceDir + "/test/testdata/til.json", "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=NONE", "-d16"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=NONE", "-d16"}))
 		return o.String()
 	}
 
@@ -24,7 +25,7 @@ func TestLogs(t *testing.T) {
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog1 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", triceDir + "/test/testdata/til.json", "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=COBS", "-d16=false"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=COBS", "-d16=false"}))
 		return o.String()
 	}
 
