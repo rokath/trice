@@ -417,6 +417,8 @@ Main steps are:
   TRICE8_B( " %02x", &b, sizeof(b) ); trice( "\n" );
   ```
 
+Hint: With the defaut TCOBS framing 8-bit values as 32-bit parameters typically occupy only 2-bytes during transmission.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
