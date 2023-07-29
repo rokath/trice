@@ -18,13 +18,13 @@ void TriceLogDiagnosticValues( void ){
 
     unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( iD(0), "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
-        TRice16( iD(0), "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
     
     if(TriceErrorCount > 0){
-        trice( iD(0), "err: TriceErrorCount = %u\n", TriceErrorCount );
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
     }
 }
 
