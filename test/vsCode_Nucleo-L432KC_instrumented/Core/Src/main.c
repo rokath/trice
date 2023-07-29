@@ -82,12 +82,12 @@ int main(void)
 
 
     TriceInit();
-    TRice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
 
   /* USER CODE END 1 */
 

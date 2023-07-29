@@ -83,7 +83,7 @@ int main(void)
 
     #if TRICE_CHECK_CODE
         int triceCheckIndex = 0; 
-        trice( iD(0), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
+        trice( "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
     #else // // #if TRICE_CHECK_CODE
         uint32_t loop = 0;
     #endif // #else // // #if TRICE_CHECK_CODE
@@ -103,13 +103,13 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-    TRice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
@@ -160,7 +160,7 @@ int main(void)
                 }
             #else
                 //loop = 0x11111111;
-                TRice( iD(0), "msg:%32b loops\n", loop );
+                TRice( "msg:%32b loops\n", loop );
                 loop++;
             #endif // #if TRICE_CHECK_CODE 
         }
