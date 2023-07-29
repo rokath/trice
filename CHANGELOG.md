@@ -39,7 +39,8 @@
 | 2023-MAY-16 |  0.60.2 | Target code linted. |
 | 2023-JUN-09 |  0.60.3 | vsCode with Clang\|GCC examples added |
 | 2023-JUL-24 |  0.61.0 | `trice insert` as new command is successor for `trice update`. With `trice zero` all IDs in source can be set to 0. A following `trice insert` will restore the IDs. Experimental `trice clean` command added. `trice update|renew|refresh` depreciated now and will be removed in the future. |
-| 2023-JUL-24 |  0.61.1 | Fixed #407 |
+| 2023-JUL-24 |  0.61.1 | Fixed [#407](https://github.com/rokath/trice/issues/407) |
+| 2023-JUL-24 |  0.61.2 | Fixed [#423](https://github.com/rokath/trice/issues/423) |
 
 ## v0.60.1 Twice Log Screen Shot
 
