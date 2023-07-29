@@ -35,7 +35,15 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 		fmt.Fprintln(w, path)
 	}
 
-	out, fileModified, err := insertTriceIDs(w, filepath.ToSlash(path), in, a)
+	var liPath string
+
+	if LiPathIsIsRelative {
+		liPath = filepath.ToSlash(path)
+	} else {
+		liPath = filepath.Base(path)
+	}
+
+	out, fileModified, err := insertTriceIDs(w, liPath, in, a)
 	if err != nil {
 		return err
 	}

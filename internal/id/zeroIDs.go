@@ -33,7 +33,15 @@ func triceIDZeroing(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fil
 		fmt.Fprintln(w, path)
 	}
 
-	out, modified, err := zeroTriceIDs(w, filepath.ToSlash(path), in, a)
+	var liPath string
+
+	if LiPathIsIsRelative {
+		liPath = filepath.ToSlash(path)
+	} else {
+		liPath = filepath.Base(path)
+	}
+
+	out, modified, err := zeroTriceIDs(w, liPath, in, a)
 	if err != nil {
 		return err
 	}
