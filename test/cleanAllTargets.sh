@@ -33,4 +33,8 @@ cd -
 echo -e
 done
 
+# create til.json && li.json if not existing
+touch ./testdata/til.json ./testdata/li.json
 
+# remove IDs from source code
+trice clean -src ../src -src . -i ./testdata/til.json -li ./testdata/li.json -IDMin 1000 -IDMax 7999
