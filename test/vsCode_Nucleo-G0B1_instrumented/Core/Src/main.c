@@ -71,12 +71,12 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
     TriceInit();
-    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( iD(4632), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( iD(5497), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(7613), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(4420), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD(2657), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD(6369), "w: Hello! 👋🙂 \a\n" ); // with sound!
 
   /* USER CODE END 1 */
 

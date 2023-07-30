@@ -103,7 +103,7 @@ extern "C" {
 
 //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code.
 #define TRICE_HEADLINE \
-        trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\n\n\n");
+        trice( iD(1621), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n🎈🎈🎈🎈       CGO-Test       🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃\n\n\n");
 
 // Compiler Adaption:
 
