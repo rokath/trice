@@ -35,7 +35,7 @@ func triceIDZeroing(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fil
 
 	var liPath string
 
-	if LiPathIsIsRelative {
+	if LiPathIsRelative {
 		liPath = filepath.ToSlash(path)
 	} else {
 		liPath = filepath.Base(path)

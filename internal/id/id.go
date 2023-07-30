@@ -33,8 +33,8 @@ var (
 	// SearchMethod is the next ID search method.
 	SearchMethod = "random"
 
-	// LiPathIsIsRelative causes to store relative paths instead of base names only inside li.json.
-	LiPathIsIsRelative bool
+	// LiPathIsRelative causes to store relative paths instead of base names only inside li.json.
+	LiPathIsRelative bool
 )
 
 // TriceID is the trice ID referencing to Fmt.

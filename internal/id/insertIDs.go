@@ -37,7 +37,7 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 
 	var liPath string
 
-	if LiPathIsIsRelative {
+	if LiPathIsRelative {
 		liPath = filepath.ToSlash(path)
 	} else {
 		liPath = filepath.Base(path)
@@ -60,8 +60,8 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 // insertTriceIDs does the ID insertion task on in. insertTriceIDs uses internally local pointer idd because idd cannot be easily passed via parameters.
 // insertTriceIDs returns the result in out with modified==true when out != in.
 //
-// in is the read file path content and out is the file content which needs to be written.
-// a is used for mutex access to idd data. path is needed for location information.
+// in is the read file liPath content and out is the file content which needs to be written.
+// a is used for mutex access to idd data. liPath is needed for location information.
 // insertTriceIDs is intended to be used in several Go routines (one for each file) for faster ID insertion.
 // Data usage:
 // - idd.idToTrice is the serialized til.json. It is extended with unknown and new IDs and written back to til.json finally.
@@ -76,15 +76,15 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 // insertTriceIDs parses the file content from the beginning for the next trice statement, deals with it and continues until the file content end.
 // When a trice statement was found, general cases are:
 // - idInSourceIsNonZero, id is inside idd.idToTrice with matching trice and inside idd.triceToId -> use ID (remove from idd.triceToId)
-//   - If trice is assigned to several IDs, the location information consulted. If a matching path exists, its first occurrence is used.
+//   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
 //
 // - idInSourceIsNonZero, id is inside idd.idToTrice with matching trice and not in idd.triceToId -> used ID! -> create new ID && invalidate ID in source
 // - idInSourceIsNonZero, id is inside idd.idToTrice with different trice                         -> used ID! -> create new ID && invalidate ID in source
 // - idInSourceIsNonZero, id is not inside idd.idToTrice (cannot be inside idd.triceToId)         -> add ID to idd.idToTrice
 // - idInSourceIsZero,    trice is not inside idd.triceToId                                       -> create new ID & add ID to idd.idToTrice
 // - idInSourceIsZero,    trice is is inside idd.triceToId                                        -> unused ID -> use ID (remove from idd.triceToId)
-//   - If trice is assigned to several IDs, the location information consulted. If a matching path exists, its first occurrence is used.
-func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+//   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
+func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID    // idn is the last found id inside the source.
 	var idN TriceID    // idN is the to be written id into the source.
 	var idS string     // idS is the "iD(n)" statement, if found.
@@ -134,12 +134,18 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 		// - trice( iD(111), "foo, ... ")   --> idn = 111, loc[3] != loc[4]
 		a.Mutex.Lock()                       // several files could contain the same t
 		if ids, ok := idd.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
+			var filenameMatch bool
 			if len(ids) == 1 { // Most common case: just one ID for t.
 				id := ids[0]
 				// Even there is only one singe ID inside ids, we cannot take it, if it is for a different file.
 				// ids could have been larger before and we would steel the id from a different file then.
 				li, ok := idd.idToLocRef[id] // Get location information.
-				if ok && li.File == path && (idn == 0 || idn == id) {
+				if LiPathIsRelative {
+					filenameMatch = filepath.ToSlash(li.File) == liPath
+				} else {
+					filenameMatch = filepath.Base(li.File) == liPath
+				}
+				if ok && filenameMatch && (idn == 0 || idn == id) {
 					// id exists inside location information for this file and is usable.
 					idN = id
 					delete(idd.triceToId, t)
@@ -152,7 +158,12 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 				idCandidateLine := math.MaxInt
 				for i, id := range ids { // It is also possible, that no id matches idn != 0.
 					li, ok := idd.idToLocRef[id] // Get location information.
-					if ok && li.File == path && (idn == 0 || idn == id) {
+					if LiPathIsRelative {
+						filenameMatch = filepath.ToSlash(li.File) == liPath
+					} else {
+						filenameMatch = filepath.Base(li.File) == liPath
+					}
+					if ok && filenameMatch && (idn == 0 || idn == id) {
 						// id exists inside location information for this file and is usable, but it could occur
 						// in path several times. In such cases we take the ID with the smallest line number first,
 						// because we are reading from the beginning. Therefore we need to check that.
@@ -183,7 +194,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 				if t == tt {
 					fmt.Fprintln(w, "unexpected error!")
 				}
-				fmt.Fprintln(w, "ID found in", path, "and used for", t, "is used already in", FnJSON, "for", tt, "- assigning a new ID.")
+				fmt.Fprintln(w, "ID found in", liPath, "and used for", t, "is used already in", FnJSON, "for", tt, "- assigning a new ID.")
 			} else { // idn in source is not used in til.json - add idn to til.json
 				idd.idToTrice[idn] = t
 				idN = idn
@@ -202,7 +213,7 @@ func insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []by
 			modified = true
 		}
 		a.Mutex.Lock()
-		idd.idToLocNew[idN] = TriceLI{path, line} // Add to new location information.
+		idd.idToLocNew[idN] = TriceLI{liPath, line} // Add to new location information.
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information.
 		rest = rest[loc[6]:]

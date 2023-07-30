@@ -332,7 +332,7 @@ location information. See information for the -SharedIDs switch for additionals 
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.
 `) // flag
-	p.BoolVar(&id.LiPathIsIsRelative, "liPathIsRelative", false, `Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
+	p.BoolVar(&id.LiPathIsRelative, "liPathIsRelative", false, `Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
 The default is to use only the files basename.`)
 }
 

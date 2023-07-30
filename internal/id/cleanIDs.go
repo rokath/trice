@@ -35,7 +35,7 @@ func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 
 	var liPath string
 
-	if LiPathIsIsRelative {
+	if LiPathIsRelative {
 		liPath = filepath.ToSlash(path)
 	} else {
 		liPath = filepath.Base(path)
