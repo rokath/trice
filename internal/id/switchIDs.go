@@ -94,7 +94,9 @@ func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) {
 	}
 
 	// li.json
-	msg.FatalInfoOnErr(p.idToLocNew.toFile(fSys, LIFnJSON), "could not write LIFnJSON")
+	if len(p.idToLocNew) > 0 { // Renew li.json only if there are some data.
+		msg.FatalInfoOnErr(p.idToLocNew.toFile(fSys, LIFnJSON), "could not write LIFnJSON")
+	}
 	if Verbose {
 		fmt.Fprintln(w, len(p.idToLocNew), "ID's in source code and now in", LIFnJSON, "file.")
 	}
