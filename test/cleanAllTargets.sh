@@ -28,7 +28,7 @@ for d in $ARMKEILTARGETDIRS
 do
 echo ______ $d ______
 cd $d/MDK-ARM
-rm -rf RTE/ MDK-ARM_STM32F030R8/ DebugConfig/
+rm -rf RTE/ MDK-ARM_STM32F030R8/ DebugConfig/ ../til.json ../li.json
 cd -
 echo -e
 done
@@ -37,4 +37,4 @@ done
 touch ./testdata/til.json ./testdata/li.json
 
 # remove IDs from source code
-trice clean -src ../src -src . -i ./testdata/til.json -li ./testdata/li.json
+trice clean -src ../src -src . -i ./testdata/til.json -li ./testdata/li.json -liPathIsRelative
