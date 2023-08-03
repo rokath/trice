@@ -1,4 +1,4 @@
-# *Trice* user guide
+6# *Trice* user guide
 
 > _(Read this)
 >
@@ -137,6 +137,7 @@
 ###  2.2. <a name='InstallIt'></a>Install It
 
 - Place the **trice** [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
+- Copy the src folder into your project.
 
 ###  2.3. <a name='Tryit'></a>Try it
 
@@ -153,11 +154,11 @@ int tryIt( void ){
 You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`.
 
 - Create 2 empty files `til.json` and `li.json`.
-- Run `trice i` and the trice code line changes to `trice( iD(1234), "Hello! 👋🙂\a\n" );`.
+- Run `trice insert` and the trice code line changes to `trice( iD(1234), "Hello! 👋🙂\a\n" );`.
 - The 2 JSON files are now filled with information.
-- Run `trice c` and the trice code line changes to `trice( "Hello! 👋🙂\a\n" );`.
+- Run `trice clean` and the trice code line changes back to `trice( "Hello! 👋🙂\a\n" );`.
 
-The `trice clean` command is not needed, but when you use `trice i` as pre- as `trice c` as post-compile step, you do not visually spoil your source code with IDs. Or, use `trice i` in a post-checkout and `trice c` in a pre-check-in script to keep the repository clean.
+You can use `trice i|insert` as pre- and `trice c|clean` as post-compile step, to not spoil your source code with IDs. Or, use `trice i` in a post-checkout and `trice c` in a pre-check-in script to keep the repository clean. Using only `trice i` as pre-compile step is possible too, especially when the code is used just in a single project and you wish to have it as compiled.
 
 ###  2.4. <a name='UseIt'></a>Use It
 
