@@ -1,4 +1,4 @@
-# *Trice* user guide
+6# *Trice* user guide
 
 > _(Read this)
 >
@@ -11,93 +11,92 @@
 
 <!-- vscode-markdown-toc -->
 
-- [*Trice* user guide](#trice-user-guide)
-  - [1. Project structure](#1-project-structure)
-  - [2. Get started](#2-get-started)
-    - [2.1. Get it](#21-get-it)
-    - [2.2. Install It](#22-install-it)
-    - [2.3. Try it](#23-try-it)
-    - [2.4. Use It](#24-use-it)
-    - [2.5. Port it](#25-port-it)
-      - [2.5.1. Target Trice Stamps](#251-target-trice-stamps)
-      - [2.5.2. Trice Checks](#252-trice-checks)
-      - [2.5.3. Communication Ports](#253-communication-ports)
-      - [2.5.4. Target Code Overview](#254-target-code-overview)
-      - [2.5.5. User Code Adaption](#255-user-code-adaption)
-      - [2.5.6. Limitations](#256-limitations)
-      - [2.5.7. Trice (Time) Stamps](#257-trice-time-stamps)
-      - [2.5.8. Trice Parameter Bit Widths](#258-trice-parameter-bit-widths)
-  - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
-  - [4.  Embedded system code configuration](#4--embedded-system-code-configuration)
-  - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
-  - [6. Encryption](#6-encryption)
-  - [7. CLI Options for `trice` tool](#7-cli-options-for-trice-tool)
-  - [8. *Trice* command line examples](#8-trice-command-line-examples)
-    - [8.1. Common information](#81-common-information)
-    - [8.2. Further examples](#82-further-examples)
-      - [8.2.1. Automated pre-build update command example](#821-automated-pre-build-update-command-example)
-      - [8.2.2. Some Log examples](#822-some-log-examples)
-      - [8.2.3. Logging over a display server](#823-logging-over-a-display-server)
-      - [8.2.4. Logfile output](#824-logfile-output)
-      - [8.2.5. Binary Logfile](#825-binary-logfile)
-      - [8.2.6. TCP output](#826-tcp-output)
-      - [8.2.7. Set all IDs in a directory tree to 0](#827-set-all-ids-in-a-directory-tree-to-0)
-      - [8.2.8. Stimulate target with a user command over UART](#828-stimulate-target-with-a-user-command-over-uart)
-      - [8.2.9. Explpore and modify channels and their colors](#829-explpore-and-modify-channels-and-their-colors)
-      - [8.2.10. Location Information](#8210-location-information)
-  - [9. Additional hints](#9-additional-hints)
-    - [9.1. Pre-built executables are available](#91-pre-built-executables-are-available)
-    - [9.2. Configuration file `triceConfig.h`](#92-configuration-file-triceconfigh)
-    - [9.3. Setting up the very first connection](#93-setting-up-the-very-first-connection)
-    - [9.4. Avoid buffer overruns](#94-avoid-buffer-overruns)
-    - [9.5. Limitation "trice u" requires TRICE macros on a single line](#95-limitation-trice-u-requires-trice-macros-on-a-single-line)
-    - [9.6. Limitation TRICE in TRICE not possible](#96-limitation-trice-in-trice-not-possible)
-    - [9.7. Dynamic strings/buffers only as variable inside `TRICE` macros](#97-dynamic-stringsbuffers-only-as-variable-inside-trice-macros)
-    - [9.8. Logfile viewing](#98-logfile-viewing)
-    - [9.9. Using the `trice` tool with 3rd party tools](#99-using-the-trice-tool-with-3rd-party-tools)
-    - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
-    - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
-    - [9.12. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
-  - [10. Switching *Trice* ON and OFF](#10-switching-trice-on-and-off)
-    - [10.1. Target side *Trice* On-Off](#101-target-side-trice-on-off)
-    - [10.2. Host side *Trice* On-Off](#102-host-side-trice-on-off)
-  - [11. Framing](#11-framing)
-  - [12. Optional XTEA Encryption](#12-optional-xtea-encryption)
-  - [13. Endianness](#13-endianness)
-  - [14. `TRICE` (Time)Stamps](#14-trice-timestamps)
-  - [15. Binary Encoding](#15-binary-encoding)
-    - [15.1. Symbols](#151-symbols)
-    - [15.2. Package Format](#152-package-format)
-  - [16. Trice Decoding](#16-trice-decoding)
-    - [16.1. *Trice* ID list `til.json`](#161-trice-id-list-tiljson)
-    - [16.2. *Trice* location information file `li.json`](#162-trice-location-information-file-lijson)
-  - [17. *Trice* ID Numbers](#17-trice-id-numbers)
-    - [17.1. ID number selection](#171-id-number-selection)
-    - [17.2. ID number usage and stability](#172-id-number-usage-and-stability)
-    - [17.3. *Trice* ID 0](#173-trice-id-0)
-  - [18. Trice ID management](#18-trice-id-management)
-    - [18.1. *Trices* inside source code](#181-trices-inside-source-code)
-      - [18.1.1. *Trices* in source code comments](#1811-trices-in-source-code-comments)
-      - [18.1.2. Different IDs for same *Trices*](#1812-different-ids-for-same-trices)
-      - [18.1.3. Same IDs for different *Trices*](#1813-same-ids-for-different-trices)
-      - [18.1.4. Adding legacy sources with `trice refresh`](#1814-adding-legacy-sources-with-trice-refresh)
-  - [19. ID reference list **til.json**](#19-id-reference-list-tiljson)
-    - [19.1. **til.json** Version control](#191-tiljson-version-control)
-    - [19.2. Long Time Availability](#192-long-time-availability)
-  - [20. The `trice insert` Algorithm](#20-the-trice-insert-algorithm)
-    - [20.1. Starting Conditions](#201-starting-conditions)
-    - [20.2. Aims](#202-aims)
-    - [20.3. Method](#203-method)
-      - [20.3.1. `insert` Initialization](#2031-insert-initialization)
-    - [20.4. User Code Patching (`trice update`)](#204-user-code-patching-trice-update)
-    - [20.5. User Code Patching Examples](#205-user-code-patching-examples)
-    - [20.6. User Code Un-Patching](#206-user-code-un-patching)
-    - [20.7. ID Usage Options](#207-id-usage-options)
-    - [20.8. General ID Management Information](#208-general-id-management-information)
-    - [20.9. Option 1: Let the inserted Trice ID be a Part of the User Code](#209-option-1-let-the-inserted-trice-id-be-a-part-of-the-user-code)
-    - [20.10. Option 2: Un-patching in a Post-build process](#2010-option-2-un-patching-in-a-post-build-process)
-    - [20.11. Option 3: Un-patching on Repository Check-In](#2011-option-3-un-patching-on-repository-check-in)
-  - [21. Changelog](#21-changelog)
+- [1. Project structure](#1-project-structure)
+- [2. Get started](#2-get-started)
+  - [2.1. Get it](#21-get-it)
+  - [2.2. Install It](#22-install-it)
+  - [2.3. Try it](#23-try-it)
+  - [2.4. Use It](#24-use-it)
+  - [2.5. Port it](#25-port-it)
+    - [2.5.1. Target Trice Stamps](#251-target-trice-stamps)
+    - [2.5.2. Trice Checks](#252-trice-checks)
+    - [2.5.3. Communication Ports](#253-communication-ports)
+    - [2.5.4. Target Code Overview](#254-target-code-overview)
+    - [2.5.5. User Code Adaption](#255-user-code-adaption)
+    - [2.5.6. Limitations](#256-limitations)
+    - [2.5.7. Trice (Time) Stamps](#257-trice-time-stamps)
+    - [2.5.8. Trice Parameter Bit Widths](#258-trice-parameter-bit-widths)
+- [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
+- [4.  Embedded system code configuration](#4--embedded-system-code-configuration)
+- [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
+- [6. Encryption](#6-encryption)
+- [7. CLI Options for `trice` tool](#7-cli-options-for-trice-tool)
+- [8. *Trice* command line examples](#8-trice-command-line-examples)
+  - [8.1. Common information](#81-common-information)
+  - [8.2. Further examples](#82-further-examples)
+    - [8.2.1. Automated pre-build update command example](#821-automated-pre-build-update-command-example)
+    - [8.2.2. Some Log examples](#822-some-log-examples)
+    - [8.2.3. Logging over a display server](#823-logging-over-a-display-server)
+    - [8.2.4. Logfile output](#824-logfile-output)
+    - [8.2.5. Binary Logfile](#825-binary-logfile)
+    - [8.2.6. TCP output](#826-tcp-output)
+    - [8.2.7. Set all IDs in a directory tree to 0](#827-set-all-ids-in-a-directory-tree-to-0)
+    - [8.2.8. Stimulate target with a user command over UART](#828-stimulate-target-with-a-user-command-over-uart)
+    - [8.2.9. Explpore and modify channels and their colors](#829-explpore-and-modify-channels-and-their-colors)
+    - [8.2.10. Location Information](#8210-location-information)
+- [9. Additional hints](#9-additional-hints)
+  - [9.1. Pre-built executables are available](#91-pre-built-executables-are-available)
+  - [9.2. Configuration file `triceConfig.h`](#92-configuration-file-triceconfigh)
+  - [9.3. Setting up the very first connection](#93-setting-up-the-very-first-connection)
+  - [9.4. Avoid buffer overruns](#94-avoid-buffer-overruns)
+  - [9.5. Limitation "trice u" requires TRICE macros on a single line](#95-limitation-trice-u-requires-trice-macros-on-a-single-line)
+  - [9.6. Limitation TRICE in TRICE not possible](#96-limitation-trice-in-trice-not-possible)
+  - [9.7. Dynamic strings/buffers only as variable inside `TRICE` macros](#97-dynamic-stringsbuffers-only-as-variable-inside-trice-macros)
+  - [9.8. Logfile viewing](#98-logfile-viewing)
+  - [9.9. Using the `trice` tool with 3rd party tools](#99-using-the-trice-tool-with-3rd-party-tools)
+  - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
+  - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
+  - [9.12. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
+- [10. Switching *Trice* ON and OFF](#10-switching-trice-on-and-off)
+  - [10.1. Target side *Trice* On-Off](#101-target-side-trice-on-off)
+  - [10.2. Host side *Trice* On-Off](#102-host-side-trice-on-off)
+- [11. Framing](#11-framing)
+- [12. Optional XTEA Encryption](#12-optional-xtea-encryption)
+- [13. Endianness](#13-endianness)
+- [14. `TRICE` (Time)Stamps](#14-trice-timestamps)
+- [15. Binary Encoding](#15-binary-encoding)
+  - [15.1. Symbols](#151-symbols)
+  - [15.2. Package Format](#152-package-format)
+- [16. Trice Decoding](#16-trice-decoding)
+  - [16.1. *Trice* ID list `til.json`](#161-trice-id-list-tiljson)
+  - [16.2. *Trice* location information file `li.json`](#162-trice-location-information-file-lijson)
+- [17. *Trice* ID Numbers](#17-trice-id-numbers)
+  - [17.1. ID number selection](#171-id-number-selection)
+  - [17.2. ID number usage and stability](#172-id-number-usage-and-stability)
+  - [17.3. *Trice* ID 0](#173-trice-id-0)
+- [18. Trice ID management](#18-trice-id-management)
+  - [18.1. *Trices* inside source code](#181-trices-inside-source-code)
+    - [18.1.1. *Trices* in source code comments](#1811-trices-in-source-code-comments)
+    - [18.1.2. Different IDs for same *Trices*](#1812-different-ids-for-same-trices)
+    - [18.1.3. Same IDs for different *Trices*](#1813-same-ids-for-different-trices)
+    - [18.1.4. Adding legacy sources with `trice refresh`](#1814-adding-legacy-sources-with-trice-refresh)
+- [19. ID reference list **til.json**](#19-id-reference-list-tiljson)
+  - [19.1. **til.json** Version control](#191-tiljson-version-control)
+  - [19.2. Long Time Availability](#192-long-time-availability)
+- [20. The `trice insert` Algorithm](#20-the-trice-insert-algorithm)
+  - [20.1. Starting Conditions](#201-starting-conditions)
+  - [20.2. Aims](#202-aims)
+  - [20.3. Method](#203-method)
+    - [20.3.1. `insert` Initialization](#2031-insert-initialization)
+  - [20.4. User Code Patching (`trice update`)](#204-user-code-patching-trice-update)
+  - [20.5. User Code Patching Examples](#205-user-code-patching-examples)
+  - [20.6. User Code Un-Patching](#206-user-code-un-patching)
+  - [20.7. ID Usage Options](#207-id-usage-options)
+  - [20.8. General ID Management Information](#208-general-id-management-information)
+  - [20.9. Option 1: Let the inserted Trice ID be a Part of the User Code](#209-option-1-let-the-inserted-trice-id-be-a-part-of-the-user-code)
+  - [20.10. Option 2: Un-patching in a Post-build process](#2010-option-2-un-patching-in-a-post-build-process)
+  - [20.11. Option 3: Un-patching on Repository Check-In](#2011-option-3-un-patching-on-repository-check-in)
+- [21. Changelog](#21-changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -136,7 +135,8 @@
 
 ###  2.2. <a name='InstallIt'></a>Install It
 
-- Place the **trice** [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
+- Place the extracted **trice** [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
+- Copy the src folder into your project.
 
 ###  2.3. <a name='Tryit'></a>Try it
 
@@ -153,11 +153,11 @@ int tryIt( void ){
 You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`.
 
 - Create 2 empty files `til.json` and `li.json`.
-- Run `trice i` and the trice code line changes to `trice( iD(1234), "Hello! 👋🙂\a\n" );`.
+- Run `trice insert` and the trice code line changes to `trice( iD(1234), "Hello! 👋🙂\a\n" );`.
 - The 2 JSON files are now filled with information.
-- Run `trice c` and the trice code line changes to `trice( "Hello! 👋🙂\a\n" );`.
+- Run `trice clean` and the trice code line changes back to `trice( "Hello! 👋🙂\a\n" );`.
 
-The `trice clean` command is not needed, but when you use `trice i` as pre- as `trice c` as post-compile step, you do not visually spoil your source code with IDs. Or, use `trice i` in a post-checkout and `trice c` in a pre-check-in script to keep the repository clean.
+You can use `trice i|insert` as pre- and `trice c|clean` as post-compile step, to not spoil your source code with IDs. Or, use `trice i` in a post-checkout and `trice c` in a pre-check-in script to keep the repository clean. Using only `trice i` as pre-compile step is possible too, especially when the code is used just in a single project and you wish to have it as compiled.
 
 ###  2.4. <a name='UseIt'></a>Use It
 
@@ -169,8 +169,9 @@ The `trice clean` command is not needed, but when you use `trice i` as pre- as `
       | CLI command                                     | Description                                                                                                                       |
       |-------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
       | `touch ./til.json`                              | Create an empty `til.json file`. This is needed only the very first time.                                                         |
-      | `trice i -src . -src ../myLib`                  | Update the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file. |
+      | `trice i -src . -src ../myLib`                  | Insert IDs to the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file. |
       | ...                                             | Compile your project                                                                                                              |
+      | `trice c -src . -src ../myLib`                  | Optionally restore the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file. |
       | `trice l -p com1 -baud 921600 -lf my/path/auto` | Start Logging over UART and create automatically a new log file in `my/path/`.                                                    |
       | `cat filename.log`                              | View a recorded log file.                                                                                                         |
       | `trice l -p JLINK -args "..."`                  | Start Logging over RTT. Binary log files are collected in `./temp`.                                                               |
@@ -188,7 +189,7 @@ The `trice clean` command is not needed, but when you use `trice i` as pre- as `
 
 ###  2.5. <a name='Portit'></a>Port it
 
-_Hint:_ The easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or parallel is also no big deal.
+_Hint:_ The easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or additionally is also no big deal.
 
 Compare folders of one of these folder groups:
 
@@ -257,7 +258,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 - In a function write a trice message like: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );`.
 - In **project root**:
   - Create empty file: `touch til.json`.
-  - With correct CLI switches `trice u` should perform **automatically** these things (The numbers are just examples.):
+  - With correct CLI switches `trice i` should perform **automatically** these things (The numbers are just examples.):
     - Patch source.c to `TRice( iD(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
       - C & H files containing TRICE macros, are only modified if needed (missing or obsolete ID)
     - Extend `til.json`
@@ -269,8 +270,9 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 ####  2.5.3. <a name='CommunicationPorts'></a>Communication Ports
 
 - For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [./TriceOverRTT.md](./TriceOverRTT.md) for more info.
-  - If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. 
-  - The direct trice mode (`TRICE_STACK_BUFFER`) is usable also inside interrupts and recommended for RTT. The single trice execution is a bit longer then, but the log is completely done in one shot. 
+  - If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. But you cannot use it in the field usually.
+  - The direct trice mode is usable also inside interrupts and recommended for RTT. The single trice execution is a bit longer then, but the log is completely done in one shot. It takes about 100-150 processor clocks, aka 1-2 microseconds.
+    - Info: All deferred trice modes are faster and work also inside interrupts.
 - For UART transfer add UART write functionality. The deferred mode is recommended for UART transfer.
 - It is possible to log over several channels parallel and to select an ID range for each channel.
 - An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality. 
@@ -359,7 +361,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 ####  2.5.6. <a name='Limitations'></a>Limitations
 
 - The maximum parameter count per trice is 12.
-- Each trice must fit into a single line.
+- Each trice must fit into a single line in trice versions before v0.61.0.
   - Not ok before v0.61.0:
 
     ```c
@@ -375,18 +377,18 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
     ```
 
 - Strings directly as parameter are possible now.
-  - Not ok before v0.61.0:
+  - Ok from v0.61.0:
 
     ```c
-    trice( "hello %s\n", "world" );
+    TRICE_S( "hello %s\n", "world" );
     ```
 
-  - Ok:
+  - Ok always:
 
     ```c
-    s = "world"; trice( "hello %s\n", s );
+    s = "world"; TRICE_S( "hello %s\n", s );
     #define WORLD "world"
-    trice( "hello %s\n", WORLD );
+    TRICE_S( "hello %s\n", WORLD );
     ```
 
 You should be aware that these parameter strings go into the target and slow down the execution.
@@ -454,7 +456,7 @@ Hint: With the defaut TCOBS framing 8-bit values as 32-bit parameters typically 
 ##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
 
 - Install [Go](https://golang.org/).
-- On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/).
+- On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
   - Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
   - Recommendation: Minimal online installer.
   - GCC is only needed to test the target C-code on the host.
@@ -510,7 +512,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 ##  4. <a name='Embeddedsystemcodeconfiguration'></a> Embedded system code configuration
 
-Check comments inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h).
+Check comments inside [triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h).
 
 <!--
 * Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
@@ -738,8 +740,8 @@ Quick workaround:
 
 - You can deliver your device with encrypted trices. This way only the service [wo]men is able to read the *Trices*.
 - Implemented is XTEA but this is exchangeable.
-- The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h). You need to add `-password MySecret` as `trice log` switch and you're done.
-- Any password is usable instead of `MySecret`. Simply add once the `-show` switch and copy the displayed passphrase into the [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
+- The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside [triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h). You need to add `-password MySecret` as `trice log` switch and you're done.
+- Any password is usable instead of `MySecret`. Simply add once the `-show` switch and copy the displayed passphrase into the [triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) file.
 - The encryption takes part **before** the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -755,7 +757,7 @@ trice sub-command -switch1 -switch2 parameter -switch3 ...
 
 Which sub-command switches are usable for each sub-command is shown with `trice help -all`. This gives also information about their default values.
 
-Info for a special sub-command is shown with `trice h -l`, `trice h -u`, ... .
+Info for a special sub-command is shown with `trice h -l`, `trice h -z`, ... .
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -787,7 +789,7 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -u`, ... .
 - Scan directories `../src`, `../lib/src` and `./` to update the IDs there and extend list file `../../../til.json`
 
 ```bash
-trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./
+trice i -v -i ../../../til.json -src ../src -src ../lib/src -src ./
 ```
 
 This is a typical line you can add to your project as an automatic pre-compile step.
@@ -876,14 +878,14 @@ This additionally sends **trice** output to a 3rd party TCP listener, for exampl
 ####  8.2.7. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
 
 ```bash
-trice zeroSourceTreeIds -src ./ 
+trice zero -src ./ 
 ```
 
 ![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
 
-- Normally nobody uses that (now). But if you intend to integrate some existing sources into a project using [ID management](./TriceIDManagement.md) options, this could be a need.
-  - HINT: It is planned to extend the *trice* tool to restore the IDs after a `trice z` during the next `trice u` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice z` as a post compilation step. 
-- Calling `trice u` afterwards will assign new IDs, but calling `trice u -shared IDs` will assign the same IDs again.
+- If you intend to integrate some existing sources into a project using [18. Trice ID management](#18-trice-id-management) options, this could be a need.
+  - From v0.61.0 is possible to restore the IDs after a `trice z` during the next `trice i` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice c|z` as a post compilation step. 
+- Calling `trice i` afterwards will assign the same IDs.
 
 ####  8.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
 
@@ -897,7 +899,7 @@ See file [./TriceColor.md](./TriceColor.md)
 
 ####  8.2.10. <a name='LocationInformation'></a>Location Information
 
-When running  `trice update`, a file `li.json` is created, what you can control with the `-locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves an an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuild with each compilation, when `trice u` is a prebuild step.
+When running  `trice insert`, a file `li.json` is created, what you can control with the `-li|locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves as an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuild with each compilation, when `trice i` is a prebuild step. When `trice clean` is used, the file `li.json` needs version management too.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
