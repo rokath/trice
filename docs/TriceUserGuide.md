@@ -136,7 +136,7 @@
 
 ###  2.2. <a name='InstallIt'></a>Install It
 
-- Place the **trice** [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
+- Place the extracted **trice** [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
 - Copy the src folder into your project.
 
 ###  2.3. <a name='Tryit'></a>Try it
