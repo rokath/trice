@@ -68,6 +68,10 @@ When having lots of program memory simply let all values be `1`. With specific l
 
 With GCC use the `-flto` CLI switch directly.
 
+### LLVM ARM Clang
+
+This compiler is much faster and creates the smallest images. Right now it uses the GCC libs and linker.
+
 ###  5.4. <a name='OtherIDEsandcompilers'></a>Other IDE´s and compilers
 
 Please check the manuals and create a pull request or simply let me know.
