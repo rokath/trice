@@ -170,8 +170,9 @@ You can use `trice i|insert` as pre- and `trice c|clean` as post-compile step, t
       | CLI command                                     | Description                                                                                                                       |
       |-------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
       | `touch ./til.json`                              | Create an empty `til.json file`. This is needed only the very first time.                                                         |
-      | `trice i -src . -src ../myLib`                  | Update the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file. |
+      | `trice i -src . -src ../myLib`                  | Insert IDs to the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file. |
       | ...                                             | Compile your project                                                                                                              |
+      | `trice c -src . -src ../myLib`                  | Optionally restore the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file. |
       | `trice l -p com1 -baud 921600 -lf my/path/auto` | Start Logging over UART and create automatically a new log file in `my/path/`.                                                    |
       | `cat filename.log`                              | View a recorded log file.                                                                                                         |
       | `trice l -p JLINK -args "..."`                  | Start Logging over RTT. Binary log files are collected in `./temp`.                                                               |
@@ -189,7 +190,7 @@ You can use `trice i|insert` as pre- and `trice c|clean` as post-compile step, t
 
 ###  2.5. <a name='Portit'></a>Port it
 
-_Hint:_ The easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or parallel is also no big deal.
+_Hint:_ The easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or additionally is also no big deal.
 
 Compare folders of one of these folder groups:
 
