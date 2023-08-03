@@ -457,7 +457,7 @@ Hint: With the defaut TCOBS framing 8-bit values as 32-bit parameters typically 
 ##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
 
 - Install [Go](https://golang.org/).
-- On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/).
+- On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
   - Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
   - Recommendation: Minimal online installer.
   - GCC is only needed to test the target C-code on the host.
