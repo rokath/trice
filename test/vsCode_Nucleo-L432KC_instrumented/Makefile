@@ -1,4 +1,7 @@
 
+# LLVM for ARM needs to be first in path
+export PATH := C:\bin\ArmClang\bin:C:\bin\ArmGNUToolchain\bin:$(PATH)
+export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\\include
 
 MAKEFILE = Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
 VERBOSE = # -v
@@ -129,8 +132,7 @@ all: pre-build main-build
 
 pre-build:
 	@#echo PRE ...
-	@rm -f li.json
-	@trice u -src ../../src -src ./
+	@trice i -src ../../src -src ./ -til ../testdata/li.json -li ../testdata/li.json
 	@#echo PRE ... done
 	@#echo -e
 
@@ -162,7 +164,10 @@ include gcc1.mak
 include clang1.mak
 
 clean:
-	@-rm -fR $(GCC_BUILD) $(CLANG_BUILD) 
+	@rm -fR $(GCC_BUILD) $(CLANG_BUILD)
+
+log:
+	@trice l -p JLINK -args "-Device STM32L432KC -If SWD -Speed 4000 -RTTChannel 0" -pf none -d16 -til ../testdata/til.json
   
 # openocdflashgcc: all
 # 	openocd -f interface/jlink.cfg -f target/stm32g0x.cfg -c "program $(GCC_BUILD)/$(TARGET).elf verify reset exit"
