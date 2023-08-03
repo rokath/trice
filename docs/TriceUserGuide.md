@@ -884,7 +884,7 @@ trice zero -src ./
 ![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
 
 - If you intend to integrate some existing sources into a project using [18. Trice ID management](#18-trice-id-management) options, this could be a need.
-  - From v0.61.0 is possible to restore the IDs after a `trice z` during the next `trice i` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice c|z` as a post compilation step. 
+  - From v0.61.0 is possible to restore the IDs after a `trice c|z` during the next `trice i` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice c|z` as a post compilation step. 
 - Calling `trice i` afterwards will assign the same IDs.
 
 ####  8.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
@@ -912,12 +912,12 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
 
 - When setting up your first project you need a `triceConfig.h` file.
 - You should **not** use the `./test/cgo.../triceConfig.h` because it is customized for internal tests with CGO.
-- Please choose one of the `./test/MDK.../triceConfig.h` files as starting point.
+- Please choose one of the `./test/*_instrumented/triceConfig.h` files as starting point.
 - Comparing them and understandig the differences helps quick starting.
 
 ###  9.3. <a name='Settinguptheveryfirstconnection'></a>Setting up the very first connection
 
-If you see nothing in the beginning, what is normally ;-), add the `-s` (`-showInputBytes`) switch to see if any data arrive. There is also a switch `-debug` showing you the received packages, if you are interested in.
+If you see nothing in the beginning, what is normal ;-), add the `-s` (`-showInputBytes`) switch to see if any data arrive. There is also a switch `-debug` showing you the received packages, if you are interested in.
 
 ###  9.4. <a name='Avoidbufferoverruns'></a>Avoid buffer overruns
 
@@ -928,10 +928,10 @@ If the target application produces more *Trice* data than transmittable, a buffe
 Configuring the ring buffer option makes buffer overruns impossible but losses will occur when producing more data than transmittable.
 That is detectable with the cycle counter. The internal 8-bit cycle counter is usually enabled. If *Trice* data are lost, the receiver side will detect that because the cycle counter is not as expected. There is a chance of 1/256 that the detection does not work. You can check the detection by unplugging the trice UART cable for a time. Also resetting the target during transmission should display a cycle error.
 
-###  9.5. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation "trice u" requires TRICE macros on a single line
+###  9.5. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation gone: "trice i" does not require TRICE macros on a single line
 
-- The implemented parser (currently) does not support `TRICE` macros over several source code lines. Each `TRICE` macro needs to be completely on one line.
-- It is possible to have several (complete) `TRICE` macros on one source code line.
+- The implemented parser supports `TRICE` macros over several source code lines now (v0.61.0 and later).
+- It ipossible to have several (complete) `TRICE` macros on one source code line.
 
 ###  9.6. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
 
@@ -953,9 +953,9 @@ int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
 ```
 
-###  9.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros
+###  9.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0 
 
-- No-Good Example:
+- No-Good Example before v0.61.0:
 
 ```C
 void f0( void ){ TRICE_S( "msg:%s\n", "Hello" ); } // will not work
@@ -973,7 +973,7 @@ The above code line causes the string "Hello" to be transferred bytewise. One ca
 void f0( void ){ TRICE( "msg:Hello\n" ); }
 ```
 
-By the way, string concatenation within TRICE macros is untested and expected not to work. The reason lays inside the way the update tool works (right now):
+By the way, string concatenation within TRICE macros does not work. The reason lays inside the way the update tool works:
 
 ```C
 void f0( void ){ TRICE( "msg:" ## "Hello\n" ); } // ERROR!
