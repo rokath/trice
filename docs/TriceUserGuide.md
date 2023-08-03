@@ -790,7 +790,7 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -z`, ... .
 - Scan directories `../src`, `../lib/src` and `./` to update the IDs there and extend list file `../../../til.json`
 
 ```bash
-trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./
+trice i -v -i ../../../til.json -src ../src -src ../lib/src -src ./
 ```
 
 This is a typical line you can add to your project as an automatic pre-compile step.
@@ -879,7 +879,7 @@ This additionally sends **trice** output to a 3rd party TCP listener, for exampl
 ####  8.2.7. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
 
 ```bash
-trice zeroSourceTreeIds -src ./ 
+trice zero -src ./ 
 ```
 
 ![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
