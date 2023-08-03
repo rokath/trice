@@ -362,7 +362,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 ####  2.5.6. <a name='Limitations'></a>Limitations
 
 - The maximum parameter count per trice is 12.
-- Each trice must fit into a single line.
+- Each trice must fit into a single line in trice versions before v0.61.0.
   - Not ok before v0.61.0:
 
     ```c
@@ -378,13 +378,13 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
     ```
 
 - Strings directly as parameter are possible now.
-  - Not ok before v0.61.0:
+  - Ok from v0.61.0:
 
     ```c
     trice( "hello %s\n", "world" );
     ```
 
-  - Ok:
+  - Ok always:
 
     ```c
     s = "world"; trice( "hello %s\n", s );
