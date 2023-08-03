@@ -513,7 +513,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 ##  4. <a name='Embeddedsystemcodeconfiguration'></a> Embedded system code configuration
 
-Check comments inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h).
+Check comments inside [triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h).
 
 <!--
 * Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
