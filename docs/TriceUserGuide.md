@@ -1007,7 +1007,7 @@ You can connect each target over its transmit channel with an own **trice** inst
 
 ###  9.11. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
 
-The C-code is executed during some tests. Prerequisite is a installed GCC.
+The C-code is executed during some tests. Prerequisite is an installed GCC.
 
 ###  9.12. <a name='DirectTRICEOutTRICE_MODETRICE_STACK_BUFFERcouldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
 
