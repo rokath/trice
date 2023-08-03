@@ -758,7 +758,7 @@ trice sub-command -switch1 -switch2 parameter -switch3 ...
 
 Which sub-command switches are usable for each sub-command is shown with `trice help -all`. This gives also information about their default values.
 
-Info for a special sub-command is shown with `trice h -l`, `trice h -u`, ... .
+Info for a special sub-command is shown with `trice h -l`, `trice h -z`, ... .
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
