@@ -259,7 +259,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 - In a function write a trice message like: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );`.
 - In **project root**:
   - Create empty file: `touch til.json`.
-  - With correct CLI switches `trice u` should perform **automatically** these things (The numbers are just examples.):
+  - With correct CLI switches `trice i` should perform **automatically** these things (The numbers are just examples.):
     - Patch source.c to `TRice( iD(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
       - C & H files containing TRICE macros, are only modified if needed (missing or obsolete ID)
     - Extend `til.json`
