@@ -26,7 +26,7 @@ for d in $ARMKEILTARGETDIRS
 do
 echo ______ $d ______
 cd $d/MDK-ARM
-rm -rf RTE/ MDK-ARM_STM32F030R8/ DebugConfig/ *._2i *.crf *.d *.o *.fed *.hex *.htm *.l2p *.map *.lnt *.lnp *.dep *.axf  
+rm -rf RTE/ MDK-ARM_STM32F030R8/ DebugConfig/ *._2i *.crf *.d *.o *.fed *.hex *.htm *.l2p *.map *.lnt *.lnp *.dep *.axf *.lst
 cd -
 echo -e
 done
