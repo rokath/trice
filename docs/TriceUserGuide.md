@@ -1672,8 +1672,8 @@ _### Tests
 
 ###  20.7. <a name='IDUsageOptions'></a>ID Usage Options
 
-- Per default the `trice update` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
-- After `trice z` all src IDs are removed or 0. In this state the src should go into the version management system.
+- Per default the `trice insert` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
+- After `trice c` all src IDs are removed or 0. In this state the src should go into the version management system.
   
 ###  20.8. <a name='GeneralIDManagementInformation'></a>General ID Management Information
 
@@ -1689,11 +1689,11 @@ _### Tests
 - It allows to reconstruct lost til.json information.
 - Recommendet for small projects.
 
-###  20.10. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Un-patching in a Post-build process
+###  20.10. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Cleaning in a Post-build process
 
 - The code is visually free of IDs all the time.
 
-###  20.11. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Un-patching on Repository Check-In
+###  20.11. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Cleaning on Repository Check-In
 
 - The code is visually free of IDs only inside the repository.
 
@@ -1728,7 +1728,8 @@ _### Tests
 | 2023-JAN-14 | 0.15.0  | [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm) added                                    |
 | 2023-JAN-21 | 0.15.1  | Corrections                                                                                                  |
 | 2023-FEB-25 | 0.16.0  | Many parts reworked and restructured                                                                         |
-| 2023-JUN-10 | 0.17.0  | trice update algorithm refined     |                                                                                                              |
+| 2023-JUN-10 | 0.17.0  | trice update algorithm refined                                                                               | 
+| 2023-AUG-03 | 0.18.0  | update ---> insert                          |
 
 <p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 
