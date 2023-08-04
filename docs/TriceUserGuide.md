@@ -1384,7 +1384,7 @@ _### New Method to get a random ID
 - If you change `trice( "msg:%d", 1);` to `TRice8( "msg:%d", 1);`, to get a 32-bit stamp, the associated **ID** remains unchanged. That is because the optional stamp is not a part of the *Trice* itself.
 - IDs stay constant and get only changed to solve conflicts.
 - To make sure, a single ID will not be changed, you could change it manually to a hexadecimal syntax.
-  - This lets the `trice insert` command ignore such `TRICE` macros and therefore a full [til.json](../til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
+  - This lets the `trice insert` command ignore such `TRICE` macros and therefore a full [til.json](../test/testdata/til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
   - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice i|c|z` if no conflicts occur.
 - If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
 - If the same string appears again in the same file this ID is active again.
