@@ -884,7 +884,7 @@ trice zero -src ./
 ![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
 
 - If you intend to integrate some existing sources into a project using [18. Trice ID management](#18-trice-id-management) options, this could be a need.
-  - From v0.61.0 is possible to restore the IDs after a `trice z` during the next `trice i` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice c|z` as a post compilation step. 
+  - From v0.61.0 is possible to restore the IDs after a `trice c|z` during the next `trice i` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice c|z` as a post compilation step. 
 - Calling `trice i` afterwards will assign the same IDs.
 
 ####  8.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
@@ -912,12 +912,12 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
 
 - When setting up your first project you need a `triceConfig.h` file.
 - You should **not** use the `./test/cgo.../triceConfig.h` because it is customized for internal tests with CGO.
-- Please choose one of the `./test/MDK.../triceConfig.h` files as starting point.
+- Please choose one of the `./test/*_instrumented/triceConfig.h` files as starting point.
 - Comparing them and understandig the differences helps quick starting.
 
 ###  9.3. <a name='Settinguptheveryfirstconnection'></a>Setting up the very first connection
 
-If you see nothing in the beginning, what is normally ;-), add the `-s` (`-showInputBytes`) switch to see if any data arrive. There is also a switch `-debug` showing you the received packages, if you are interested in.
+If you see nothing in the beginning, what is normal ;-), add the `-s` (`-showInputBytes`) switch to see if any data arrive. There is also a switch `-debug` showing you the received packages, if you are interested in.
 
 ###  9.4. <a name='Avoidbufferoverruns'></a>Avoid buffer overruns
 
@@ -928,10 +928,10 @@ If the target application produces more *Trice* data than transmittable, a buffe
 Configuring the ring buffer option makes buffer overruns impossible but losses will occur when producing more data than transmittable.
 That is detectable with the cycle counter. The internal 8-bit cycle counter is usually enabled. If *Trice* data are lost, the receiver side will detect that because the cycle counter is not as expected. There is a chance of 1/256 that the detection does not work. You can check the detection by unplugging the trice UART cable for a time. Also resetting the target during transmission should display a cycle error.
 
-###  9.5. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation "trice u" requires TRICE macros on a single line
+###  9.5. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation gone: "trice i" does not require TRICE macros on a single line
 
-- The implemented parser (currently) does not support `TRICE` macros over several source code lines. Each `TRICE` macro needs to be completely on one line.
-- It is possible to have several (complete) `TRICE` macros on one source code line.
+- The implemented parser supports `TRICE` macros over several source code lines now (v0.61.0 and later).
+- It ipossible to have several (complete) `TRICE` macros on one source code line.
 
 ###  9.6. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
 
@@ -953,9 +953,9 @@ int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
 ```
 
-###  9.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros
+###  9.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0 
 
-- No-Good Example:
+- No-Good Example before v0.61.0:
 
 ```C
 void f0( void ){ TRICE_S( "msg:%s\n", "Hello" ); } // will not work
@@ -973,7 +973,7 @@ The above code line causes the string "Hello" to be transferred bytewise. One ca
 void f0( void ){ TRICE( "msg:Hello\n" ); }
 ```
 
-By the way, string concatenation within TRICE macros is untested and expected not to work. The reason lays inside the way the update tool works (right now):
+By the way, string concatenation within TRICE macros does not work. The reason lays inside the way the update tool works:
 
 ```C
 void f0( void ){ TRICE( "msg:" ## "Hello\n" ); } // ERROR!
@@ -1007,7 +1007,7 @@ You can connect each target over its transmit channel with an own **trice** inst
 
 ###  9.11. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
 
-The C-code is executed during some tests. Prerequisite is a installed GCC.
+The C-code is executed during some tests. Prerequisite is an installed GCC.
 
 ###  9.12. <a name='DirectTRICEOutTRICE_MODETRICE_STACK_BUFFERcouldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
 
@@ -1248,7 +1248,7 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 - To interpret a decoded package, it´s endianness needs to be known.
 - For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
 - On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
-- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount. The implementation is not completed yet.
+- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1354,17 +1354,17 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ###  17.1. <a name='IDnumberselection'></a>ID number selection
 
 - The default encoding TREX supports 14-bit IDs, so over 16000 IDs possible. Other encodings can work with other ID sizes.
-- `trice("Hi!\n");` ➡ `trice u` ➡ `trice( 12345, "Hi!\n");` ➡ `trice z` ➡ `trice("Hi!\n");`
+- `trice("Hi!\n");` ➡ `trice i` ➡ `trice( iD(12345), "Hi!\n");` ➡ `trice c` ➡ `trice("Hi!\n");`
 - The **ID** `12345` is a number assigned to `trice( "Hi!\n");` in the above example.
   - It is a so far unused number, according to rules you can control:
     - The `-IDMethod` switch allows a selection method for new IDs.
       - Per default new IDs determined randomly to keep the chance low, that several developers grab the same ID.
-      - Example: `trice update -IDMin 1000 -IDMethod upward` will choose the smallest free ID >= 1000.
+      - Example: `trice insert -IDMin 1000 -IDMethod upward` will choose the smallest free ID >= 1000.
         - This allows to use the ID space without wholes.
     - The `-IDMin` and `-IDMax` switches are usable to control the ID range, a new ID is selected from, making it possible to divide the ID space. Each developer can gets it region.
-      - Example: `trice update -IDMin 6000 -IDMax 6999` will choose new randomly IDs only between 6000 and 6999.
+      - Example: `trice insert -IDMin 6000 -IDMax 6999` will choose new randomly IDs only between 6000 and 6999.
 - In a future **trice** tool it can be possible to give each *trice* channel an **ID** range making it possible to implement *Trice* channel specific runtime on/off on the target side if that is needed. This could be interesting for routing purposes also.
-  - To stay compatible with previous **trice** tool versions such implementation would use the `-args` switch, which then contains the relevant channels like `trice u -args "err:20:99,wrn:200:300"`. This needs to be specified in more detail, especially the error handling.
+  - To stay compatible with previous **trice** tool versions such implementation would use the `-args` switch, which then contains the relevant channels like `trice i -args "err:20:99,wrn:200:300"`. This needs to be specified in more detail, especially the error handling.
 
 <!--
 
@@ -1384,17 +1384,17 @@ _### New Method to get a random ID
 - If you change `trice( "msg:%d", 1);` to `TRice8( "msg:%d", 1);`, to get a 32-bit stamp, the associated **ID** remains unchanged. That is because the optional stamp is not a part of the *Trice* itself.
 - IDs stay constant and get only changed to solve conflicts.
 - To make sure, a single ID will not be changed, you could change it manually to a hexadecimal syntax.
-  - This lets the `trice update` command ignore such `TRICE` macros and therefore a full [til.json](../til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
-  - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u` if no conflicts occur.
+  - This lets the `trice insert` command ignore such `TRICE` macros and therefore a full [til.json](../test/testdata/til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
+  - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice i|c|z` if no conflicts occur.
 - If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
-- If the same string appears again this ID is active again.
+- If the same string appears again in the same file this ID is active again.
 - If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets its ID back.
 
 ###  17.3. <a name='TriceID0'></a>*Trice* ID 0
 
-- The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice update` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
+- The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice insert` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
   - It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
-- With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
+- With `trice zero` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1404,25 +1404,24 @@ _### New Method to get a random ID
 
 ####  18.1.1. <a name='Tricesinsourcecodecomments'></a>*Trices* in source code comments
 
-- `TRICE` macros commented out, are visible for the `trice update` command and therefore regarded.
-  - Example: `// TRICE( Id(12345), "Hi!\n" );` is still regarded by the `trice u`.
-- During `trice update` TRICE macros, commented out, are treated in the same way as active TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability across several firmware versions or variants.
+- `TRICE` macros commented out, are visible for the `trice insert` command and therefore regarded.
+  - Example: `// TRICE( Id(12345), "Hi!\n" );` is still regarded by the `trice i`.
+- During `trice insert` TRICE macros, commented out, are treated in the same way as active TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability across several firmware versions or variants.
 - The trice tool does treat trice statements inside comments or excluded by compiler switches also.
 
 ####  18.1.2. <a name='DifferentIDsforsameTrices'></a>Different IDs for same *Trices*
 
-> depreciated, functionality will be removed in favor for location information
-
-- When the same *Trice* is used several times with different IDs and `trice update -IDreuse force` is called, only the one ID is used for all identical TRICEs in the source code. The other IDs stay inside **til.json** until they are removed (`trice renew`).
+- When the same *Trice* is used several times with identical IDs, after copying, and `trice insert` is called, only one ID survives in the source code. 
 
 ####  18.1.3. <a name='SameIDsfordifferentTrices'></a>Same IDs for different *Trices*
 
 - If duplicate ID's with different format strings found inside the source tree (case several developers or source code merging) one ID is replaced by a new ID. The probability for such case is low, because of the default random ID generation.
 - Also you can simply copy a *Trice* statement and modify it without dealing with the ID.
-- The **trice** tool will detect the 2nd (or 3rd) usage of this ID and assign a new one also extending the ID list.
-- That is done silently for you during the next `trice update`.
+- The **trice** tool will detect the 2nd (or 3rd) usage of this ID and assign a new one, also extending the ID list.
+- That is done silently for you during the next `trice insert`.
 
-####  18.1.4. <a name='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
+<!--
+_####  18.1.4. <a name='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
 
 > depreciated, functionality will be removed in favor for no-ids functionality
 
@@ -1442,15 +1441,17 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
         The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
 ```
 
+-->
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  19. <a name='IDreferencelisttil.json'></a>ID reference list **til.json**
 
-- The `trice update` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you are sure to create a new **til.json** file, create an empty one: `touch til.json`.
+- The `trice insert` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you are sure to create a new **til.json** file, create an empty one: `touch til.json`.
 - The name **til.json** is a default one. With the command line parameter `-i` you can use any filename.
 - It is possible to use several **til.json** files - for example one for each target project but it is easier to maintain only one **til.json*- file for all projects.
 - The ID reference list keeps all obsolete IDs with their format strings allowing compatibility to former firmware versions.
-- One can delete the ID reference list. It will be reconstructed automatically from the source tree with the next `trice update` command, but history is lost then.
+- One can delete the ID reference list when IDs inside the code. It will be reconstructed automatically from the source tree with the next `trice clean` command, but history is lost then.
 - Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
 
 ###  19.1. <a name='til.jsonVersioncontrol'></a>**til.json** Version control
@@ -1458,16 +1459,16 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 - The ID list should go into the version control repository of your project.
 - To keep it clean from the daily development garbage one could delete the **til.json**, then check-out again and re-build just before check-in. A small script could do that.
 - For a firmware release it makes sense to remove all unused IDs from til.json.
-  - This could be done by running `trice renew`. That is the same as deleting the **til.json** contents and running `trice u`.
+  - Just delete the **til.json** contents and run `trice clean`.
 - An other option is to delete **til.json** just before a release build and then check-in the new generated **til.json**.
 
-> For the planned no-ids option deleting **til.json** should not not be done when the sources are without IDs. That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
+> For the no-ids option deleting **til.json** should not not be done when the sources are without IDs. That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
 
 ###  19.2. <a name='LongTimeAvailability'></a>Long Time Availability
 
 - You could place a download link for the **trice** tool and the used **til.json** list.
 - Link a compressed/encrypted **til.json** file as resource into the target binary and optionally get it back long years later in a safe way.
-- Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 20 years.
+- Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 200 years.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1480,7 +1481,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
     - The `til.json` is a serialized key-value map, where
       - the keys are the IDs i and
       - the values are *Trice* format string structs (bit width plus format string) named f.
-      - When de-serializing it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not done.
+      - When de-serializing, it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not done.
         - The trice tool will report that as error and stop.
       - This ID look-up is the key-value map `idToFmt TriceIDLookUp` as `map[TriceID]TriceFmt`.
         - Each ID i as key, points to one and only one f.
@@ -1608,9 +1609,9 @@ _### Tests
 
   | Unpatched User Code       | After `trice update`          | Remark                                             |
   |---------------------------|-------------------------------|----------------------------------------------------|
-  | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice u -defaultStampSize 0`      |
-  | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice u -defaultStampSize 16` |
-  | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice u -defaultStampSize 32` |
+  | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice i -defaultStampSize 0`      |
+  | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice i -defaultStampSize 16` |
+  | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice i -defaultStampSize 32` |
   | `TRICE( id(0), "Hi!\n");` | `TRICE( id(12345), "Hi!\n");` | no stamps                                          |
   | `TRICE( Id(0), "Hi!\n");` | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps                                      |
   | `TRICE( ID(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps                                      |
@@ -1671,8 +1672,8 @@ _### Tests
 
 ###  20.7. <a name='IDUsageOptions'></a>ID Usage Options
 
-- Per default the `trice update` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
-- After `trice z` all src IDs are removed or 0. In this state the src should go into the version management system.
+- Per default the `trice insert` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
+- After `trice c` all src IDs are removed or 0. In this state the src should go into the version management system.
   
 ###  20.8. <a name='GeneralIDManagementInformation'></a>General ID Management Information
 
@@ -1688,11 +1689,11 @@ _### Tests
 - It allows to reconstruct lost til.json information.
 - Recommendet for small projects.
 
-###  20.10. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Un-patching in a Post-build process
+###  20.10. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Cleaning in a Post-build process
 
 - The code is visually free of IDs all the time.
 
-###  20.11. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Un-patching on Repository Check-In
+###  20.11. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Cleaning on Repository Check-In
 
 - The code is visually free of IDs only inside the repository.
 
@@ -1727,7 +1728,8 @@ _### Tests
 | 2023-JAN-14 | 0.15.0  | [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm) added                                    |
 | 2023-JAN-21 | 0.15.1  | Corrections                                                                                                  |
 | 2023-FEB-25 | 0.16.0  | Many parts reworked and restructured                                                                         |
-| 2023-JUN-10 | 0.17.0  | trice update algorithm refined     |                                                                                                              |
+| 2023-JUN-10 | 0.17.0  | trice update algorithm refined                                                                               | 
+| 2023-AUG-03 | 0.18.0  | update ---> insert                          |
 
 <p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 
