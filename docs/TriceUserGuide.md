@@ -1447,11 +1447,11 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 ##  19. <a name='IDreferencelisttil.json'></a>ID reference list **til.json**
 
-- The `trice update` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you are sure to create a new **til.json** file, create an empty one: `touch til.json`.
+- The `trice insert` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you are sure to create a new **til.json** file, create an empty one: `touch til.json`.
 - The name **til.json** is a default one. With the command line parameter `-i` you can use any filename.
 - It is possible to use several **til.json** files - for example one for each target project but it is easier to maintain only one **til.json*- file for all projects.
 - The ID reference list keeps all obsolete IDs with their format strings allowing compatibility to former firmware versions.
-- One can delete the ID reference list. It will be reconstructed automatically from the source tree with the next `trice update` command, but history is lost then.
+- One can delete the ID reference list when IDs inside the code. It will be reconstructed automatically from the source tree with the next `trice clean` command, but history is lost then.
 - Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
 
 ###  19.1. <a name='til.jsonVersioncontrol'></a>**til.json** Version control
@@ -1459,16 +1459,16 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 - The ID list should go into the version control repository of your project.
 - To keep it clean from the daily development garbage one could delete the **til.json**, then check-out again and re-build just before check-in. A small script could do that.
 - For a firmware release it makes sense to remove all unused IDs from til.json.
-  - This could be done by running `trice renew`. That is the same as deleting the **til.json** contents and running `trice u`.
+  - Just delete the **til.json** contents and run `trice clean`.
 - An other option is to delete **til.json** just before a release build and then check-in the new generated **til.json**.
 
-> For the planned no-ids option deleting **til.json** should not not be done when the sources are without IDs. That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
+> For the no-ids option deleting **til.json** should not not be done when the sources are without IDs. That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
 
 ###  19.2. <a name='LongTimeAvailability'></a>Long Time Availability
 
 - You could place a download link for the **trice** tool and the used **til.json** list.
 - Link a compressed/encrypted **til.json** file as resource into the target binary and optionally get it back long years later in a safe way.
-- Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 20 years.
+- Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 200 years.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
