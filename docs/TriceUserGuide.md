@@ -1481,7 +1481,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
     - The `til.json` is a serialized key-value map, where
       - the keys are the IDs i and
       - the values are *Trice* format string structs (bit width plus format string) named f.
-      - When de-serializing it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not done.
+      - When de-serializing, it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not done.
         - The trice tool will report that as error and stop.
       - This ID look-up is the key-value map `idToFmt TriceIDLookUp` as `map[TriceID]TriceFmt`.
         - Each ID i as key, points to one and only one f.
@@ -1609,9 +1609,9 @@ _### Tests
 
   | Unpatched User Code       | After `trice update`          | Remark                                             |
   |---------------------------|-------------------------------|----------------------------------------------------|
-  | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice u -defaultStampSize 0`      |
-  | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice u -defaultStampSize 16` |
-  | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice u -defaultStampSize 32` |
+  | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice i -defaultStampSize 0`      |
+  | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice i -defaultStampSize 16` |
+  | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice i -defaultStampSize 32` |
   | `TRICE( id(0), "Hi!\n");` | `TRICE( id(12345), "Hi!\n");` | no stamps                                          |
   | `TRICE( Id(0), "Hi!\n");` | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps                                      |
   | `TRICE( ID(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps                                      |
