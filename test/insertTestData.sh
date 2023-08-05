@@ -38,7 +38,3 @@ cp ./testdata/cgoPackage.go ./$d/generated_cgoPackage.go
 done
 
 go clean -cache
-
-# give til.json to target project for ID add ons
-cp ./testdata/til.json MDK-ARM_STM32F030R8_instrumented/til.json
-cp ./testdata/li.json  MDK-ARM_STM32F030R8_instrumented/li.json

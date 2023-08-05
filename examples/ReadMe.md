@@ -4,6 +4,18 @@
 - All provided information is just as example and needs adaption to your needs.
 - There is no need to setup the environment in the given order.
 
+## Examples
+
+| Project Name | Description |
+| - | - |
+| [MDK-ARM_STM32F030R8_generated](./MDK-ARM_STM32F030R8_generated) | For the [NUCLEO-STM32F030R8](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) with the free [CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) generated empty project as compare base for the trice instrumentation. |
+| [MDK-ARM_STM32F030R8_instrumented](./MDK-ARM_STM32F030R8_instrumented) | The [MDK-ARM_STM32F030R8_generated](./MDK-ARM_STM32F030R8_generated) project was trice instrumented for parallel usage of RTT and UART transfer. |
+| [OpenCM3_STM32F411_Nucleo](./OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./OpenCM3_STM32F411_Nucleo/Readme.md) in this folder.
+
+## Important to know
+
+The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes not recognize external file modifications. That means for example: After editing `main.c` by adding a `trice( "Hi!\n" )` and executing `trice u` as pre-compile step it could happen, that an updated `trice( iD(12345), "Hi!\n" )`  was inserted and correct compiled but the update in `main.c` is not shown. Simply close and reopen `main.c` before editing again. This seem to be a [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) "feature".
+
 ## Animation
 
 (In line 79 the trice ID occurs just during the compilation.)

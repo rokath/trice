@@ -31,10 +31,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 443
 	},
-	"1037": {
-		"File": "OpenCM3_STM32F411_Nucleo/triceConfig.h",
-		"Line": 113
-	},
 	"1038": {
 		"File": "testdata/triceCheck.c",
 		"Line": 363
@@ -135,10 +131,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 399
 	},
-	"1198": {
-		"File": "OpenCM3_STM32F411_Nucleo/triceConfig.h",
-		"Line": 102
-	},
 	"1201": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1064
@@ -158,10 +150,6 @@
 	"1218": {
 		"File": "testdata/triceCheck.c",
 		"Line": 817
-	},
-	"1233": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 108
 	},
 	"1241": {
 		"File": "testdata/triceCheck.c",
@@ -491,14 +479,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 793
 	},
-	"1665": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 270
-	},
-	"1672": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 135
-	},
 	"1675": {
 		"File": "testdata/triceCheck.c",
 		"Line": 60
@@ -623,10 +603,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 764
 	},
-	"1873": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 278
-	},
 	"1875": {
 		"File": "testdata/triceCheck.c",
 		"Line": 440
@@ -674,10 +650,6 @@
 	"1940": {
 		"File": "testdata/triceCheck.c",
 		"Line": 998
-	},
-	"1943": {
-		"File": "OpenCM3_STM32F411_Nucleo/triceConfig.h",
-		"Line": 100
 	},
 	"1951": {
 		"File": "testdata/triceCheck.c",
@@ -983,10 +955,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1190
 	},
-	"2357": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 286
-	},
 	"2359": {
 		"File": "testdata/triceCheck.c",
 		"Line": 600
@@ -994,10 +962,6 @@
 	"2366": {
 		"File": "testdata/triceCheck.c",
 		"Line": 744
-	},
-	"2381": {
-		"File": "OpenCM3_STM32F411_Nucleo/triceConfig.h",
-		"Line": 108
 	},
 	"2387": {
 		"File": "testdata/triceCheck.c",
@@ -1074,10 +1038,6 @@
 	"2503": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1254
-	},
-	"2507": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 106
 	},
 	"2511": {
 		"File": "testdata/triceCheck.c",
@@ -1163,10 +1123,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1235
 	},
-	"2646": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 266
-	},
 	"2647": {
 		"File": "testdata/triceCheck.c",
 		"Line": 484
@@ -1174,10 +1130,6 @@
 	"2651": {
 		"File": "testdata/triceCheck.c",
 		"Line": 827
-	},
-	"2657": {
-		"File": "vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
-		"Line": 78
 	},
 	"2666": {
 		"File": "testdata/triceCheck.c",
@@ -1274,10 +1226,6 @@
 	"2788": {
 		"File": "testdata/triceCheck.c",
 		"Line": 966
-	},
-	"2793": {
-		"File": "OpenCM3_STM32F411_Nucleo/triceConfig.h",
-		"Line": 112
 	},
 	"2804": {
 		"File": "testdata/triceCheck.c",
@@ -1395,10 +1343,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1164
 	},
-	"2976": {
-		"File": "vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
-		"Line": 90
-	},
 	"2987": {
 		"File": "../src/triceDoubleBuffer.c",
 		"Line": 50
@@ -1430,10 +1374,6 @@
 	"3027": {
 		"File": "testdata/triceCheck.c",
 		"Line": 996
-	},
-	"3030": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 243
 	},
 	"3035": {
 		"File": "stackBuffer_cobs/triceConfig.h",
@@ -1554,10 +1494,6 @@
 	"3195": {
 		"File": "testdata/triceCheck.c",
 		"Line": 788
-	},
-	"3197": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 303
 	},
 	"3198": {
 		"File": "testdata/triceCheck.c",
@@ -1714,10 +1650,6 @@
 	"3460": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1400
-	},
-	"3463": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 111
 	},
 	"3472": {
 		"File": "testdata/triceCheck.c",
@@ -1899,10 +1831,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 721
 	},
-	"3725": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 141
-	},
 	"3727": {
 		"File": "testdata/triceCheck.c",
 		"Line": 89
@@ -1947,10 +1875,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1177
 	},
-	"3774": {
-		"File": "vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
-		"Line": 89
-	},
 	"3778": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1157
@@ -1958,10 +1882,6 @@
 	"3780": {
 		"File": "testdata/triceCheck.c",
 		"Line": 103
-	},
-	"3789": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 293
 	},
 	"3818": {
 		"File": "testdata/triceCheck.c",
@@ -2042,10 +1962,6 @@
 	"3938": {
 		"File": "testdata/triceCheck.c",
 		"Line": 693
-	},
-	"3946": {
-		"File": "OpenCM3_STM32F411_Nucleo/triceConfig.h",
-		"Line": 107
 	},
 	"3950": {
 		"File": "testdata/triceCheck.c",
@@ -2139,10 +2055,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 803
 	},
-	"4144": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 316
-	},
 	"4145": {
 		"File": "testdata/triceCheck.c",
 		"Line": 146
@@ -2202,10 +2114,6 @@
 	"4234": {
 		"File": "testdata/triceCheck.c",
 		"Line": 725
-	},
-	"4237": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 290
 	},
 	"4241": {
 		"File": "testdata/triceCheck.c",
@@ -2319,14 +2227,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 844
 	},
-	"4420": {
-		"File": "vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
-		"Line": 77
-	},
-	"4429": {
-		"File": "vsCode_Nucleo-L432KC_instrumented/Core/Inc/triceConfig.h",
-		"Line": 107
-	},
 	"4432": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1240
@@ -2342,10 +2242,6 @@
 	"4437": {
 		"File": "testdata/triceCheck.c",
 		"Line": 872
-	},
-	"4453": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 297
 	},
 	"4459": {
 		"File": "testdata/triceCheck.c",
@@ -2479,10 +2375,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 955
 	},
-	"4600": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 306
-	},
 	"4601": {
 		"File": "testdata/triceCheck.c",
 		"Line": 546
@@ -2510,10 +2402,6 @@
 	"4625": {
 		"File": "staticBuffer_tcobs/triceConfig.h",
 		"Line": 106
-	},
-	"4632": {
-		"File": "vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
-		"Line": 74
 	},
 	"4651": {
 		"File": "testdata/triceCheck.c",
@@ -2563,10 +2451,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 271
 	},
-	"4723": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h",
-		"Line": 102
-	},
 	"4731": {
 		"File": "testdata/triceCheck.c",
 		"Line": 528
@@ -2574,10 +2458,6 @@
 	"4732": {
 		"File": "testdata/triceCheck.c",
 		"Line": 542
-	},
-	"4739": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 237
 	},
 	"4742": {
 		"File": "testdata/triceCheck.c",
@@ -2863,10 +2743,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 527
 	},
-	"5260": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 163
-	},
 	"5262": {
 		"File": "testdata/triceCheck.c",
 		"Line": 930
@@ -2939,10 +2815,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 411
 	},
-	"5349": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 107
-	},
 	"5352": {
 		"File": "testdata/triceCheck.c",
 		"Line": 845
@@ -2958,10 +2830,6 @@
 	"5363": {
 		"File": "testdata/triceCheck.c",
 		"Line": 712
-	},
-	"5367": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 137
 	},
 	"5369": {
 		"File": "testdata/triceCheck.c",
@@ -3051,10 +2919,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 690
 	},
-	"5497": {
-		"File": "vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
-		"Line": 75
-	},
 	"5501": {
 		"File": "testdata/triceCheck.c",
 		"Line": 852
@@ -3086,10 +2950,6 @@
 	"5548": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1106
-	},
-	"5556": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 112
 	},
 	"5557": {
 		"File": "testdata/triceCheck.c",
@@ -3143,10 +3003,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 68
 	},
-	"5645": {
-		"File": "vsCode_Nucleo-G0B1_instrumented/Core/Inc/triceConfig.h",
-		"Line": 100
-	},
 	"5664": {
 		"File": "testdata/triceCheck.c",
 		"Line": 59
@@ -3154,10 +3010,6 @@
 	"5665": {
 		"File": "testdata/triceCheck.c",
 		"Line": 581
-	},
-	"5671": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 313
 	},
 	"5675": {
 		"File": "testdata/triceCheck.c",
@@ -3274,10 +3126,6 @@
 	"5851": {
 		"File": "testdata/triceCheck.c",
 		"Line": 774
-	},
-	"5855": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 319
 	},
 	"5857": {
 		"File": "testdata/triceCheck.c",
@@ -3483,10 +3331,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 709
 	},
-	"6192": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 110
-	},
 	"6222": {
 		"File": "testdata/triceCheck.c",
 		"Line": 883
@@ -3498,10 +3342,6 @@
 	"6235": {
 		"File": "testdata/triceCheck.c",
 		"Line": 688
-	},
-	"6250": {
-		"File": "vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
-		"Line": 87
 	},
 	"6267": {
 		"File": "testdata/triceCheck.c",
@@ -3518,10 +3358,6 @@
 	"6292": {
 		"File": "testdata/triceCheck.c",
 		"Line": 748
-	},
-	"6295": {
-		"File": "vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
-		"Line": 85
 	},
 	"6298": {
 		"File": "testdata/triceCheck.c",
@@ -3575,10 +3411,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 434
 	},
-	"6369": {
-		"File": "vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
-		"Line": 79
-	},
 	"6384": {
 		"File": "testdata/triceCheck.c",
 		"Line": 456
@@ -3618,10 +3450,6 @@
 	"6467": {
 		"File": "testdata/triceCheck.c",
 		"Line": 654
-	},
-	"6468": {
-		"File": "vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
-		"Line": 86
 	},
 	"6469": {
 		"File": "testdata/triceCheck.c",
@@ -3666,10 +3494,6 @@
 	"6552": {
 		"File": "testdata/triceCheck.c",
 		"Line": 828
-	},
-	"6559": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 156
 	},
 	"6561": {
 		"File": "testdata/triceCheck.c",
@@ -3719,14 +3543,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 394
 	},
-	"6649": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 262
-	},
-	"6654": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 274
-	},
 	"6661": {
 		"File": "ringBuffer_deferred_cobs/triceConfig.h",
 		"Line": 104
@@ -3754,10 +3570,6 @@
 	"6686": {
 		"File": "testdata/triceCheck.c",
 		"Line": 568
-	},
-	"6689": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 310
 	},
 	"6692": {
 		"File": "testdata/triceCheck.c",
@@ -3891,10 +3703,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 336
 	},
-	"6873": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 109
-	},
 	"6874": {
 		"File": "testdata/triceCheck.c",
 		"Line": 981
@@ -3930,10 +3738,6 @@
 	"6903": {
 		"File": "testdata/triceCheck.c",
 		"Line": 992
-	},
-	"6912": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c",
-		"Line": 86
 	},
 	"6916": {
 		"File": "testdata/triceCheck.c",
@@ -3994,10 +3798,6 @@
 	"7006": {
 		"File": "testdata/triceCheck.c",
 		"Line": 422
-	},
-	"7008": {
-		"File": "OpenCM3_STM32F411_Nucleo/triceConfig.h",
-		"Line": 109
 	},
 	"7012": {
 		"File": "testdata/triceCheck.c",
@@ -4066,10 +3866,6 @@
 	"7171": {
 		"File": "testdata/triceCheck.c",
 		"Line": 857
-	},
-	"7172": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 300
 	},
 	"7173": {
 		"File": "testdata/triceCheck.c",
@@ -4331,10 +4127,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 469
 	},
-	"7548": {
-		"File": "OpenCM3_STM32F411_Nucleo/triceConfig.h",
-		"Line": 110
-	},
 	"7565": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1260
@@ -4359,10 +4151,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1021
 	},
-	"7597": {
-		"File": "vsCode_Nucleo-L432KC_instrumented/Core/Src/main.c",
-		"Line": 88
-	},
 	"7601": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1069
@@ -4371,10 +4159,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 655
 	},
-	"7613": {
-		"File": "vsCode_Nucleo-G0B1_instrumented/Core/Src/main.c",
-		"Line": 76
-	},
 	"7614": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1035
@@ -4382,10 +4166,6 @@
 	"7615": {
 		"File": "testdata/triceCheck.c",
 		"Line": 295
-	},
-	"7621": {
-		"File": "MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c",
-		"Line": 282
 	},
 	"7630": {
 		"File": "testdata/triceCheck.c",
