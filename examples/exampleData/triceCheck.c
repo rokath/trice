@@ -1426,3 +1426,79 @@ static void exampleOfManualJSONencoding(void){
     Ex_t Ex = { -1, 2, (float)2.781 };
     TRICE( Id(0), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
 }
+
+#if TRICE_DIAGNOSTICS == 1
+
+//! TriceLogDiagnosticValues shows the max used half buffer space. 
+void TriceLogDiagnosticValues( void ){
+
+#ifdef SEGGER_RTT
+    if( (RTT0_writeSpaceMin < 8) ){ // && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
+        trice( "ERROR:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
+    }else{
+        trice( "diag:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
+    }
+#endif // #ifdef SEGGER_RTT
+
+#if TRICE_BUFFER == TRICE_STACK_BUFFER
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+#endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER
+
+#if TRICE_BUFFER == TRICE_STATIC_BUFFER
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+#endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER
+	
+#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    if( TriceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
+        TRice16( "diag:TriceHalfBufferDepthMax =%4u of%5d\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+    }else{
+        TRice16( "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+    }
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
+
+#if TRICE_BUFFER == TRICE_RING_BUFFER
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    trice16( "diag:SingleTricesRingCountMax = %u, ", SingleTricesRingCountMax );
+    if( TriceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
+        trice16( "diag:triceRingBufferDepthMax =%4u of%5d\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+    }else{
+        trice16( "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+    }
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
+}
+
+#endif // #if TRICE_DIAGNOSTICS == 1

@@ -40,51 +40,51 @@ void TriceCheck(int n) {
     switch( n ){
         default:
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         // normal use cases
-        break; case __LINE__: TRice( iD(0), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
-        break; case __LINE__: Trice( iD(0), "info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
-        break; case __LINE__: trice( iD(0), "info:This is a message without values and without stamp.\n"  ); //exp: time:            default: info:This is a message without values and without stamp.
+        break; case __LINE__: TRice( "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
+        break; case __LINE__: Trice( "info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
+        break; case __LINE__: trice( "info:This is a message without values and without stamp.\n"  ); //exp: time:            default: info:This is a message without values and without stamp.
 
         // special use cases
-        break; case __LINE__: TRice64( iD(0), "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time: 842,150_450default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 32-bit stamp.
-        break; case __LINE__: Trice64( iD(0), "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:       5_654default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 16-bit stamp.
-        break; case __LINE__: trice64( iD(0), "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:            default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and without stamp.
-        break; case __LINE__: TRice32( iD(0), "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
-        break; case __LINE__: Trice32( iD(0), "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
-        break; case __LINE__: trice32( iD(0), "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
-        break; case __LINE__: TRice16( iD(0), "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
-        break; case __LINE__: Trice16( iD(0), "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
-        break; case __LINE__: trice16( iD(0), "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
-        break; case __LINE__: TRice8 ( iD(0), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
-        break; case __LINE__: Trice8 ( iD(0), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
-        break; case __LINE__: trice8 ( iD(0), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
+        break; case __LINE__: TRice64( "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time: 842,150_450default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 32-bit stamp.
+        break; case __LINE__: Trice64( "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:       5_654default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 16-bit stamp.
+        break; case __LINE__: trice64( "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:            default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and without stamp.
+        break; case __LINE__: TRice32( "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
+        break; case __LINE__: Trice32( "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
+        break; case __LINE__: trice32( "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
+        break; case __LINE__: TRice16( "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
+        break; case __LINE__: Trice16( "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
+        break; case __LINE__: trice16( "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
+        break; case __LINE__: TRice8 ( "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
+        break; case __LINE__: Trice8 ( "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
+        break; case __LINE__: trice8 ( "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         // CGO compiler issue
-    //  break; case __LINE__: TRice( iD(0), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
-    //  break; case __LINE__: Trice( iD(0), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:       5_654default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 16-bit stamp.
-    //  break; case __LINE__: trice( iD(0), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and without stamp.
+    //  break; case __LINE__: TRice( "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
+    //  break; case __LINE__: Trice( "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:       5_654default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 16-bit stamp.
+    //  break; case __LINE__: trice( "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and without stamp.
 
         // todo: improve parsing of //exp string containing special characters
-        //break; case __LINE__: TRice( iD(0), "A TRice message containing a newline\nbefore the line end\n" );               //exp: time: 842,150_450default: A TRice message containing a newline\n                                         before the line end                                                                                                      
-        //break; case __LINE__: TRice( iD(0), "\nA TRice message starting with a a newline\n" );                             //exp: time: 842,150_450default: \n                                         A TRice message starting with a a newline                                                                                                                   
-        //break; case __LINE__: TRice( iD(0), "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" ); //exp: time: 842,150_450default: line0:A TRice message with several lines\\n                                         line1\n                                         line2\n                                         line3:last line
+        //break; case __LINE__: TRice( "A TRice message containing a newline\nbefore the line end\n" );               //exp: time: 842,150_450default: A TRice message containing a newline\n                                         before the line end                                                                                                      
+        //break; case __LINE__: TRice( "\nA TRice message starting with a a newline\n" );                             //exp: time: 842,150_450default: \n                                         A TRice message starting with a a newline                                                                                                                   
+        //break; case __LINE__: TRice( "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" ); //exp: time: 842,150_450default: line0:A TRice message with several lines\\n                                         line1\n                                         line2\n                                         line3:last line
 
-        break; case __LINE__: TRice16( iD(0), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time: 842,150_450default: att: 0x8888 == 8888h
-        break; case __LINE__: Trice16( iD(0), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:       5_654default: att: 0x8888 == 8888h
-        break; case __LINE__: trice16( iD(0), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:            default: att: 0x8888 == 8888h
+        break; case __LINE__: TRice16( "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time: 842,150_450default: att: 0x8888 == 8888h
+        break; case __LINE__: Trice16( "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:       5_654default: att: 0x8888 == 8888h
+        break; case __LINE__: trice16( "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:            default: att: 0x8888 == 8888h
 
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
       //break; case __LINE__: exampleOfManualSerialization(); // ATTENTION: This occupies ~1024 bytes in one half buffer when double buffer ist used!
 
-        break; case __LINE__: trice8   ( iD(0), "value=%x\n", 0x55 );                           //exp: time:            default: value=55
-        break; case __LINE__: trice8   ( iD(0), "value=%x\n", 0x88 );                           //exp: time:            default: value=88
+        break; case __LINE__: trice8   ( "value=%x\n", 0x55 );                           //exp: time:            default: value=55
+        break; case __LINE__: trice8   ( "value=%x\n", 0x88 );                           //exp: time:            default: value=88
 
         break; case __LINE__: TRICE( ID(0), "att:mixed int & float & double & bits\n" );
         break; case __LINE__: TRICE32( ID(0), "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\n",       FloatToInt32(x),   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time: 842,150_450default: rd:TRICE32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
@@ -103,7 +103,7 @@ void TriceCheck(int n) {
     //  break; case __LINE__: TRICE64( ID(0), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n",                  -y, aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time: 842,150_450default: rd:TRICE64 int 518, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000 
         break; case __LINE__: TRICE64( ID(0), "rd:TRICE64 int %X, double %f (%%f), %016x, %064b\n", -0x4080307020601050, aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time: 842,150_450default: rd:TRICE64 int BF7FCF8FDF9FEFB0, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000 
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE_S( ID(0), "msg:With TRICE_S:%s\n", sABCDE );                           //exp: time: 842,150_450default: msg:With TRICE_S:abcde 12345
         break; case __LINE__: TRICE_N( ID(0), "sig:With TRICE_N:%s\n", sABCDE, lenABCDE );                 //exp: time: 842,150_450default: sig:With TRICE_N:abcde 12345
@@ -125,7 +125,7 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE64_F( ID(0), "info:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: info:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
         break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:       5_654default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( Id(0), "MSG:1/11 = %g\n", aFloat( 1.0/11 ) ); //exp: time:       5_654default: MSG:1/11 = 0.09090909
         break; case __LINE__: { //exp: time: 842,150_450default: msg:x = 5.934 = 5.934, 5.934
@@ -151,7 +151,7 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE_S( ID(0), "sig:TRICE_S=%s\n", s );            //exp: time: 842,150_450default: sig:TRICE_S=AAAAAAAAAAAA
         break; case __LINE__: TRICE_N( ID(0), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time: 842,150_450default: sig:TRICE_N=AAAAAAAAAAAA
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
 //      break; case __LINE__: 
 //  #ifdef XTEA_ENCRYPT_KEY
@@ -174,7 +174,7 @@ void TriceCheck(int n) {
 //          TRICE0 ( Id(0), "--------------------------------------------------\n" );
 //  #endif
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(0), "sig:Some time measurements\n" );
         break; case __LINE__: TRICE( ID(0), "isr:TRICE isr message, SysTick is %6d\n", SYSTICKVAL);
@@ -200,7 +200,7 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE32_2( ID(0), "rd:TRICE32_2 line %d,%d\n", __LINE__, 2 );
         break; case __LINE__: TRICE64_2( ID(0), "rd:TRICE64_2 line %d,%d\n", __LINE__, 2 );
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(0), "sig:Runtime generated strings\n" );
         break; case __LINE__: {
@@ -265,7 +265,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE32( ID(0), "dbg:len=%u: ", strlen(s) );
         break; case __LINE__: TRICE_S( ID(0), "sig:%s\n", s );
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(0), "sig:Integer (indent, base, sign) - see https://yourbasic.org/golang/fmt-printf-reference-cheat-sheet/\n" );
         break; case __LINE__: TRICE( ID(0), "rd: 15 	%d 	Base 10\n", 15 );                                        //ex_: time: 842,150_450default: rd: 15 	15 	Base 10                                   
@@ -279,7 +279,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE( ID(0), "rd: F 	%X 	Base 16, uppercase\n", 15 );                             //ex_: time: 842,150_450default: rd: F 	F 	Base 16, uppercase                        
         break; case __LINE__: TRICE( ID(0), "rd: 0xf 	%#x 	Base 16, with leading 0x\n", 15 );                   //ex_: time: 842,150_450default: rd: 0xf 	0xf 	Base 16, with leading 0x                  
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(0), "sig:Character (quoted, Unicode)\n" );
         break; case __LINE__: TRICE( ID(0), "rd: A 	%c 	Character\n", 'A' );                                     //exp: time: 842,150_450default: rd: A 	A 	Character
@@ -297,7 +297,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE64( ID(0), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x1122334455667788 ); //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (1122334455667788)
         break; case __LINE__: TRICE  ( ID(0), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd);          //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (aabbccdd)        
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(0), "sig:Float (indent, precision, scientific notation)\n" );
         break; case __LINE__: TRICE( ID(0), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aFloat(123.456) );                       //exp: time: 842,150_450default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
@@ -321,7 +321,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: s = "café"; TRICE_S( ID(0), "rd: 636166c3a9 		%x	Hex dump of byte values\n", s );    //exp: time: 842,150_450default: rd: 636166c3a9 		636166c3a9	Hex dump of byte values 
         break; case __LINE__: s = "café"; TRICE_S( ID(0), "rd: 63 61 66 c3 a9 	% x	Hex dump with spaces\n", s );       //exp: time: 842,150_450default: rd: 63 61 66 c3 a9 	63 61 66 c3 a9	Hex dump with spaces
 
-        break; case __LINE__: trice16( iD(0), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
 #ifdef TRICE_CGO
 
@@ -353,73 +353,73 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE64( ID(0), "msg:%X (%%X)\n", -1 ); //exp: time: 842,150_450default: msg:FFFFFFFFFFFFFFFF (%X)
         break; case __LINE__: TRICE64( ID(0), "msg:%x (%%x)\n", -1 ); //exp: time: 842,150_450default: msg:ffffffffffffffff (%x)
 
-        //break; case __LINE__: TRice        ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        //break; case __LINE__: Trice        ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        //break; case __LINE__: trice        ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice8       ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice8       ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: trice8       ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice16      ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice16      ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: trice16      ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice32      ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice32      ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: trice32      ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice64      ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice64      ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: trice64      ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
+        //break; case __LINE__: TRice        ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        //break; case __LINE__: Trice        ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        //break; case __LINE__: trice        ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: TRice8       ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice8       ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: trice8       ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: TRice16      ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice16      ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: trice16      ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: TRice32      ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice32      ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: trice32      ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: TRice64      ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice64      ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: trice64      ( "value=%d\n", -2  ); //exp: time:            default: value=-2
         
-        //break; case __LINE__: TRice_1      ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        //break; case __LINE__: Trice_1      ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        //break; case __LINE__: trice_1      ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        //break; case __LINE__: TRice8_1     ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        //break; case __LINE__: Trice8_1     ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        //break; case __LINE__: trice8_1     ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        //break; case __LINE__: TRice16_1    ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        //break; case __LINE__: Trice16_1    ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        //break; case __LINE__: trice16_1    ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        //break; case __LINE__: TRice32_1    ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        //break; case __LINE__: Trice32_1    ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        //break; case __LINE__: trice32_1    ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        //break; case __LINE__: TRice64_1    ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        //break; case __LINE__: Trice64_1    ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        //break; case __LINE__: trice64_1    ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
+        //break; case __LINE__: TRice_1      ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        //break; case __LINE__: Trice_1      ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        //break; case __LINE__: trice_1      ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        //break; case __LINE__: TRice8_1     ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        //break; case __LINE__: Trice8_1     ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        //break; case __LINE__: trice8_1     ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        //break; case __LINE__: TRice16_1    ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        //break; case __LINE__: Trice16_1    ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        //break; case __LINE__: trice16_1    ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        //break; case __LINE__: TRice32_1    ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        //break; case __LINE__: Trice32_1    ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        //break; case __LINE__: trice32_1    ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        //break; case __LINE__: TRice64_1    ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        //break; case __LINE__: Trice64_1    ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        //break; case __LINE__: trice64_1    ( "value=%d\n", -2  ); //exp: time:            default: value=-2
         
-        //break; case __LINE__: TRice        ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice        ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice        ( iD(0), "no value" ); //exp: time:            default: no value
-        //break; case __LINE__: TRice8       ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice8       ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice8       ( iD(0), "no value" ); //exp: time:            default: no value
-        //break; case __LINE__: TRice16      ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice16      ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice16      ( iD(0), "no value" ); //exp: time:            default: no value
-        //break; case __LINE__: TRice32      ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice32      ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice32      ( iD(0), "no value" ); //exp: time:            default: no value
-        //break; case __LINE__: TRice64      ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice64      ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice64      ( iD(0), "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice        ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice        ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice        ( "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice8       ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice8       ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice8       ( "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice16      ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice16      ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice16      ( "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice32      ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice32      ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice32      ( "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice64      ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice64      ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice64      ( "no value" ); //exp: time:            default: no value
         
-        //break; case __LINE__: TRice_0      ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice_0      ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice_0      ( iD(0), "no value" ); //exp: time:            default: no value
-        //break; case __LINE__: TRice8_0     ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice8_0     ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice8_0     ( iD(0), "no value" ); //exp: time:            default: no value
-        //break; case __LINE__: TRice16_0    ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice16_0    ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice16_0    ( iD(0), "no value" ); //exp: time:            default: no value
-        //break; case __LINE__: TRice32_0    ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice32_0    ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice32_0    ( iD(0), "no value" ); //exp: time:            default: no value
-        //break; case __LINE__: TRice64_0    ( iD(0), "no value" ); //exp: time: 842,150_450default: no value
-        //break; case __LINE__: Trice64_0    ( iD(0), "no value" ); //exp: time:       5_654default: no value
-        //break; case __LINE__: trice64_0    ( iD(0), "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice_0      ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice_0      ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice_0      ( "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice8_0     ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice8_0     ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice8_0     ( "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice16_0    ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice16_0    ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice16_0    ( "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice32_0    ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice32_0    ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice32_0    ( "no value" ); //exp: time:            default: no value
+        //break; case __LINE__: TRice64_0    ( "no value" ); //exp: time: 842,150_450default: no value
+        //break; case __LINE__: Trice64_0    ( "no value" ); //exp: time:       5_654default: no value
+        //break; case __LINE__: trice64_0    ( "no value" ); //exp: time:            default: no value
 
-    //  break; case __LINE__: TRice( iD(0), "info:This is a message with one value %d and a 32-bit stamp.\n", -2  ); //exp: time: 842,150_450default: info:This is a message with one value -2 and a 32-bit stamp.
-    //  break; case __LINE__: Trice( iD(0), "info:This is a message with one value %d and a 16-bit stamp.\n", -2  ); //exp: time:       5_654default: info:This is a message with one value -2 and a 16-bit stamp.
-    //  break; case __LINE__: trice( iD(0), "info:This is a message with one value %d and without stamp.\n" , -2  ); //exp: time:            default: info:This is a message with one value -2 and without stamp.
+    //  break; case __LINE__: TRice( "info:This is a message with one value %d and a 32-bit stamp.\n", -2  ); //exp: time: 842,150_450default: info:This is a message with one value -2 and a 32-bit stamp.
+    //  break; case __LINE__: Trice( "info:This is a message with one value %d and a 16-bit stamp.\n", -2  ); //exp: time:       5_654default: info:This is a message with one value -2 and a 16-bit stamp.
+    //  break; case __LINE__: trice( "info:This is a message with one value %d and without stamp.\n" , -2  ); //exp: time:            default: info:This is a message with one value -2 and without stamp.
 
         break; case __LINE__: TRICE( ID(0), "info:This is a message without values and a 32-bit stamp.\n" );        //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
         break; case __LINE__: TRICE( Id(0), "info:This is a message without values and a 16-bit stamp.\n" );        //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
@@ -443,12 +443,12 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE8_1 ( Id(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
         break; case __LINE__: TRICE8   ( ID(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
         break; case __LINE__: TRICE8_1 ( ID(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: trice8   ( iD(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: trice8_1 ( iD(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: Trice8   ( iD(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: Trice8_1 ( iD(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRice8   ( iD(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRice8_1 ( iD(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: trice8   ( "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
+        break; case __LINE__: trice8_1 ( "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
+        break; case __LINE__: Trice8   ( "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
+        break; case __LINE__: Trice8_1 ( "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
+        break; case __LINE__: TRice8   ( "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: TRice8_1 ( "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
 
         break; case __LINE__: TRICE16  ( id(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: TRICE16_1( id(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
@@ -456,12 +456,12 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE16_1( Id(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
         break; case __LINE__: TRICE16  ( ID(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
         break; case __LINE__: TRICE16_1( ID(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: trice16  ( iD(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: trice16_1( iD(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: Trice16  ( iD(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: Trice16_1( iD(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRice16  ( iD(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRice16_1( iD(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: trice16  ( "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
+        break; case __LINE__: trice16_1( "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
+        break; case __LINE__: Trice16  ( "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
+        break; case __LINE__: Trice16_1( "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
+        break; case __LINE__: TRice16  ( "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: TRice16_1( "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
 
         break; case __LINE__: TRICE32  ( id(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: TRICE32_1( id(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
@@ -469,12 +469,12 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE32_1( Id(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
         break; case __LINE__: TRICE32  ( ID(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
         break; case __LINE__: TRICE32_1( ID(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: trice32  ( iD(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: trice32_1( iD(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: Trice32  ( iD(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: Trice32_1( iD(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRice32  ( iD(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRice32_1( iD(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: trice32  ( "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
+        break; case __LINE__: trice32_1( "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
+        break; case __LINE__: Trice32  ( "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
+        break; case __LINE__: Trice32_1( "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
+        break; case __LINE__: TRice32  ( "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: TRice32_1( "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
 
         break; case __LINE__: TRICE64  ( id(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: TRICE64_1( id(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
@@ -482,149 +482,149 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE64_1( Id(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
         break; case __LINE__: TRICE64  ( ID(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
         break; case __LINE__: TRICE64_1( ID(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: trice64  ( iD(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: trice64_1( iD(0), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: Trice64  ( iD(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: Trice64_1( iD(0), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRice64  ( iD(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRice64_1( iD(0), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: trice64  ( "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
+        break; case __LINE__: trice64_1( "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
+        break; case __LINE__: Trice64  ( "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
+        break; case __LINE__: Trice64_1( "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
+        break; case __LINE__: TRice64  ( "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: TRice64_1( "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
 
         // mixed 16-bit and 32-bit timestamp 
-        break; case __LINE__: TRice8( iD(0), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice8( iD(0), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
-        break; case __LINE__: trice8( iD(0), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice8( iD(0), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice8( iD(0), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
-        break; case __LINE__: trice8( iD(0), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice8( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice8( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
-        break; case __LINE__: trice8( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice8( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice8( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
-        break; case __LINE__: trice8( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: TRice8( "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
+        break; case __LINE__: Trice8( "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: trice8( "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
+        break; case __LINE__: TRice8( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice8( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: trice8( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
+        break; case __LINE__: TRice8( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice8( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: trice8( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
+        break; case __LINE__: TRice8( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice8( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: trice8( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice16( iD(0), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice16( iD(0), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
-        break; case __LINE__: trice16( iD(0), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice16( iD(0), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice16( iD(0), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
-        break; case __LINE__: trice16( iD(0), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice16( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice16( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
-        break; case __LINE__: trice16( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice16( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice16( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
-        break; case __LINE__: trice16( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: TRice16( "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
+        break; case __LINE__: Trice16( "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: trice16( "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
+        break; case __LINE__: TRice16( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice16( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: trice16( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
+        break; case __LINE__: TRice16( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: trice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
+        break; case __LINE__: TRice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: trice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice32( iD(0), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice32( iD(0), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
-        break; case __LINE__: trice32( iD(0), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice32( iD(0), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice32( iD(0), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
-        break; case __LINE__: trice32( iD(0), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice32( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice32( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
-        break; case __LINE__: trice32( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice32( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice32( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
-        break; case __LINE__: trice32( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: TRice32( "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
+        break; case __LINE__: Trice32( "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: trice32( "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
+        break; case __LINE__: TRice32( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice32( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: trice32( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
+        break; case __LINE__: TRice32( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: trice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
+        break; case __LINE__: TRice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: trice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice64( iD(0), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice64( iD(0), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
-        break; case __LINE__: trice64( iD(0), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice64( iD(0), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice64( iD(0), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
-        break; case __LINE__: trice64( iD(0), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice64( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice64( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
-        break; case __LINE__: trice64( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice64( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice64( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
-        break; case __LINE__: trice64( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: TRice64( "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
+        break; case __LINE__: Trice64( "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: trice64( "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
+        break; case __LINE__: TRice64( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice64( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: trice64( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
+        break; case __LINE__: TRice64( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: trice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
+        break; case __LINE__: TRice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: trice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice8_1 ( iD(0), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice8_2 ( iD(0), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
-        break; case __LINE__: trice8_3 ( iD(0), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice8_4 ( iD(0), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice8_5 ( iD(0), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
-        break; case __LINE__: trice8_6 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice8_7 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice8_8 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
-        break; case __LINE__: trice8_9 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice8_10( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice8_11( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
-        break; case __LINE__: trice8_12( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: TRice8_1 ( "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
+        break; case __LINE__: Trice8_2 ( "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: trice8_3 ( "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
+        break; case __LINE__: TRice8_4 ( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice8_5 ( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: trice8_6 ( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
+        break; case __LINE__: TRice8_7 ( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice8_8 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: trice8_9 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
+        break; case __LINE__: TRice8_10( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice8_11( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: trice8_12( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice16_1 ( iD(0), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice16_2 ( iD(0), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
-        break; case __LINE__: trice16_3 ( iD(0), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice16_4 ( iD(0), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice16_5 ( iD(0), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
-        break; case __LINE__: trice16_6 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice16_7 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice16_8 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
-        break; case __LINE__: trice16_9 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice16_10( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice16_11( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
-        break; case __LINE__: trice16_12( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: TRice16_1 ( "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
+        break; case __LINE__: Trice16_2 ( "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: trice16_3 ( "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
+        break; case __LINE__: TRice16_4 ( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice16_5 ( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: trice16_6 ( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
+        break; case __LINE__: TRice16_7 ( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice16_8 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: trice16_9 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
+        break; case __LINE__: TRice16_10( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice16_11( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: trice16_12( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice32_1 ( iD(0), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice32_2 ( iD(0), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
-        break; case __LINE__: trice32_3 ( iD(0), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice32_4 ( iD(0), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice32_5 ( iD(0), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
-        break; case __LINE__: trice32_6 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice32_7 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice32_8 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
-        break; case __LINE__: trice32_9 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice32_10( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice32_11( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
-        break; case __LINE__: trice32_12( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: TRice32_1 ( "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
+        break; case __LINE__: Trice32_2 ( "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: trice32_3 ( "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
+        break; case __LINE__: TRice32_4 ( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice32_5 ( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: trice32_6 ( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
+        break; case __LINE__: TRice32_7 ( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice32_8 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: trice32_9 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
+        break; case __LINE__: TRice32_10( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice32_11( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: trice32_12( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice64_1 ( iD(0), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice64_2 ( iD(0), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
-        break; case __LINE__: trice64_3 ( iD(0), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice64_4 ( iD(0), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice64_5 ( iD(0), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
-        break; case __LINE__: trice64_6 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice64_7 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice64_8 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
-        break; case __LINE__: trice64_9 ( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice64_10( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice64_11( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
-        break; case __LINE__: trice64_12( iD(0), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: TRice64_1 ( "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
+        break; case __LINE__: Trice64_2 ( "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: trice64_3 ( "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
+        break; case __LINE__: TRice64_4 ( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice64_5 ( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: trice64_6 ( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
+        break; case __LINE__: TRice64_7 ( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice64_8 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: trice64_9 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
+        break; case __LINE__: TRice64_10( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice64_11( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: trice64_12( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
         // use cases for 8-bit data
-        break; case __LINE__: trice8     ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice8     ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice8     ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: trice8_1   ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice8_1   ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice8_1   ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: trice8     ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: Trice8     ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice8     ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: trice8_1   ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: Trice8_1   ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice8_1   ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
 
         // use cases for 16-bit data
-        break; case __LINE__: trice16    ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice16    ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice16    ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: trice16_1  ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice16_1  ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice16_1  ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: trice16    ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: Trice16    ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice16    ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: trice16_1  ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: Trice16_1  ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice16_1  ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
 
         // use cases for 32-bit data
-        break; case __LINE__: trice32    ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice32    ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice32    ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: trice32_1  ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice32_1  ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice32_1  ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: trice32    ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: Trice32    ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice32    ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: trice32_1  ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: Trice32_1  ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice32_1  ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
 
         // use cases for 64-bit data
-        break; case __LINE__: trice64    ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice64    ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice64    ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: trice64_1  ( iD(0), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice64_1  ( iD(0), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice64_1  ( iD(0), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: trice64    ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: Trice64    ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice64    ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: trice64_1  ( "value=%d\n", -2  ); //exp: time:            default: value=-2
+        break; case __LINE__: Trice64_1  ( "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice64_1  ( "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
 
         // legacy use cases
         break; case __LINE__: TRICE      ( ID(0), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
@@ -637,20 +637,20 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE8_1   ( ID(0), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
 
         // no stamp
-        break; case __LINE__: trice8     ( iD(0), "value=%d\n", -2 ); //exp: time:            default: value=-2
-        break; case __LINE__: trice8_1   ( iD(0), "value=%d\n", -2 ); //exp: time:            default: value=-2
+        break; case __LINE__: trice8     ( "value=%d\n", -2 ); //exp: time:            default: value=-2
+        break; case __LINE__: trice8_1   ( "value=%d\n", -2 ); //exp: time:            default: value=-2
         break; case __LINE__: TRICE8     ( id(0), "value=%d\n", -2 ); //exp: time:            default: value=-2
         break; case __LINE__: TRICE8_1   ( id(0), "value=%d\n", -2 ); //exp: time:            default: value=-2
 
         // 16-bit stamp:
-        break; case __LINE__: Trice8     ( iD(0), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: Trice8_1   ( iD(0), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: Trice8     ( "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: Trice8_1   ( "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
         break; case __LINE__: TRICE8     ( Id(0), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
         break; case __LINE__: TRICE8_1   ( Id(0), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
 
         // 32-bit stamp:
-        break; case __LINE__: TRice8     ( iD(0), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: TRice8_1   ( iD(0), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: TRice8     ( "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: TRice8_1   ( "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
         break; case __LINE__: TRICE8     ( ID(0), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
         break; case __LINE__: TRICE8_1   ( ID(0), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
 
@@ -1426,3 +1426,79 @@ static void exampleOfManualJSONencoding(void){
     Ex_t Ex = { -1, 2, (float)2.781 };
     TRICE( Id(0), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
 }
+
+#if TRICE_DIAGNOSTICS == 1
+
+//! TriceLogDiagnosticValues shows the max used half buffer space. 
+void TriceLogDiagnosticValues( void ){
+
+#ifdef SEGGER_RTT
+    if( (RTT0_writeSpaceMin < 8) ){ // && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
+        trice( "ERROR:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
+    }else{
+        trice( "diag:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
+    }
+#endif // #ifdef SEGGER_RTT
+
+#if TRICE_BUFFER == TRICE_STACK_BUFFER
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+#endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER
+
+#if TRICE_BUFFER == TRICE_STATIC_BUFFER
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+#endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER
+	
+#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    if( TriceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
+        TRice16( "diag:TriceHalfBufferDepthMax =%4u of%5d\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+    }else{
+        TRice16( "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+    }
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
+
+#if TRICE_BUFFER == TRICE_RING_BUFFER
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
+    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+        TRice16( "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }else{
+        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    }
+    trice16( "diag:SingleTricesRingCountMax = %u, ", SingleTricesRingCountMax );
+    if( TriceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
+        trice16( "diag:triceRingBufferDepthMax =%4u of%5d\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+    }else{
+        trice16( "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+    }
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
+}
+
+#endif // #if TRICE_DIAGNOSTICS == 1

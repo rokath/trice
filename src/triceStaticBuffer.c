@@ -13,26 +13,8 @@ uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_D
 
 #if TRICE_DIAGNOSTICS == 1
 
-//! triceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
-unsigned triceSingleMaxWordCount = 0;
-
-//! TriceLogDiagnosticValues shows the max used half buffer space. 
-void TriceLogDiagnosticValues( void ){
-    #ifdef SEGGER_RTT
-    TriceLogSeggerDiagnostics();
-    #endif
-
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
-    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( iD(7291), "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }else{
-        TRice16( iD(6459), "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }
-
-    if(TriceErrorCount > 0){
-        trice( iD(2309), "err: TriceErrorCount = %u\n", TriceErrorCount );
-    }
-}
+//! TriceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
+unsigned TriceSingleMaxWordCount = 0;
 
 #endif
 

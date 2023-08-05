@@ -24,36 +24,11 @@ static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
 
 #if TRICE_DIAGNOSTICS == 1
 
-//! triceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
-unsigned triceSingleMaxWordCount = 0;
+//! TriceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
+unsigned TriceSingleMaxWordCount = 0;
 
-//! triceHalfBufferDepthMax is a diagnostics value usable to optimize buffer size.
-static unsigned triceHalfBufferDepthMax = 0; 
-
-//! TriceLogDiagnosticValues shows the max used half buffer space. 
-void TriceLogDiagnosticValues( void ){
-    #ifdef SEGGER_RTT
-    TriceLogSeggerDiagnostics();
-    #endif
-    
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (triceSingleMaxWordCount<<2);
-
-    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( iD(6366), "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }else{
-        TRice16( iD(4186), "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }
-
-    if( triceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
-        TRice16( iD(2122), "diag:triceHalfBufferDepthMax =%4u of%5d\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
-    }else{
-        TRice16( iD(2987), "err:triceHalfBufferDepthMax =%4u of%5d (overflow!)\n", triceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
-    }
-
-    if(TriceErrorCount > 0){
-        trice( iD(5036), "err: TriceErrorCount = %u\n", TriceErrorCount );
-    }
-}
+//! TriceHalfBufferDepthMax is a diagnostics value usable to optimize buffer size.
+unsigned TriceHalfBufferDepthMax = 0; 
 
 #endif
 
@@ -105,7 +80,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     int triceID;
     #if TRICE_DIAGNOSTICS == 1
     tLen += TRICE_DATA_OFFSET; 
-    triceHalfBufferDepthMax = tLen < triceHalfBufferDepthMax ? triceHalfBufferDepthMax : tLen;
+    TriceHalfBufferDepthMax = tLen < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : tLen;
     #endif
     // do it
     while(len){

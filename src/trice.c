@@ -300,14 +300,6 @@ static void triceSeggerRTTDiagnostics( void ){
     RTT0_writeSpaceMin    = RTT0_writeSpaceMin    > writeSpace    ? writeSpace : RTT0_writeSpaceMin;
 }
 
-void TriceLogSeggerDiagnostics( void ){
-    if( (RTT0_writeSpaceMin < 8) ){ // && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
-        trice( iD( 3472), "ERROR:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
-    }else{
-        trice( iD( 6598), "diag:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
-    }
-}
-
 #endif // #if (TRICE_DIAGNOSTICS ==1) && defined(SEGGER_RTT)
 
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1)

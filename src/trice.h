@@ -195,7 +195,8 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len );
 // global variables:
 
 extern uint32_t* const triceSingleBufferStartWritePosition;
-extern unsigned singleTricesRingCount;
+extern unsigned SingleTricesRingCount;
+extern unsigned SingleTricesRingCountMax;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
 extern uint8_t TriceCycle;
@@ -207,7 +208,8 @@ extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnos
 extern unsigned TriceErrorCount;
 extern uint32_t* const triceRingBufferLimit;
 extern uint32_t TriceRingBuffer[];
-extern unsigned triceSingleMaxWordCount;
+extern unsigned TriceSingleMaxWordCount;
+extern unsigned TriceRingBufferDepthMax;
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 extern uint32_t* TriceBufferWritePosition;
@@ -498,11 +500,11 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER do { \
     unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
-    triceSingleMaxWordCount = (wordCount < triceSingleMaxWordCount) ? triceSingleMaxWordCount : wordCount; \
+    TriceSingleMaxWordCount = (wordCount < TriceSingleMaxWordCount) ? TriceSingleMaxWordCount : wordCount; \
     } while(0);
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT do { \
-    triceSingleMaxWordCount = (wordCount < triceSingleMaxWordCount) ? triceSingleMaxWordCount : wordCount; \
+    TriceSingleMaxWordCount = (wordCount < TriceSingleMaxWordCount) ? TriceSingleMaxWordCount : wordCount; \
     } while(0);
 
 #else // #if TRICE_DIAGNOSTICS == 1
@@ -559,7 +561,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
     TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
     TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
     uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
-    singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+    SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 1)
 
@@ -571,7 +573,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
     TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
     TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
     TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
-    singleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+    SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 

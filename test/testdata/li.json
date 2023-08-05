@@ -115,6 +115,10 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1002
 	},
+	"1175": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1478
+	},
 	"1179": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1170
@@ -190,6 +194,10 @@
 	"1284": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1057
+	},
+	"1286": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1490
 	},
 	"1288": {
 		"File": "testdata/triceCheck.c",
@@ -370,10 +378,6 @@
 	"1533": {
 		"File": "testdata/triceCheck.c",
 		"Line": 768
-	},
-	"1537": {
-		"File": "../src/triceRingBuffer.c",
-		"Line": 72
 	},
 	"1542": {
 		"File": "testdata/triceCheck.c",
@@ -771,10 +775,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 208
 	},
-	"2122": {
-		"File": "../src/triceDoubleBuffer.c",
-		"Line": 48
-	},
 	"2124": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1181
@@ -911,13 +911,13 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1222
 	},
+	"2301": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1461
+	},
 	"2306": {
 		"File": "testdata/triceCheck.c",
 		"Line": 897
-	},
-	"2309": {
-		"File": "../src/triceStaticBuffer.c",
-		"Line": 33
 	},
 	"2312": {
 		"File": "testdata/triceCheck.c",
@@ -1035,6 +1035,10 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 307
 	},
+	"2496": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1446
+	},
 	"2503": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1254
@@ -1078,6 +1082,10 @@
 	"2596": {
 		"File": "testdata/triceCheck.c",
 		"Line": 511
+	},
+	"2597": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1476
 	},
 	"2601": {
 		"File": "testdata/triceCheck.c",
@@ -1155,13 +1163,13 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1100
 	},
-	"2694": {
-		"File": "../src/triceStackBuffer.c",
-		"Line": 21
-	},
 	"2700": {
 		"File": "testdata/triceCheck.c",
 		"Line": 849
+	},
+	"2704": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1488
 	},
 	"2710": {
 		"File": "testdata/triceCheck.c",
@@ -1238,6 +1246,10 @@
 	"2827": {
 		"File": "testdata/triceCheck.c",
 		"Line": 599
+	},
+	"2829": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1459
 	},
 	"2831": {
 		"File": "testdata/triceCheck.c",
@@ -1342,10 +1354,6 @@
 	"2975": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1164
-	},
-	"2987": {
-		"File": "../src/triceDoubleBuffer.c",
-		"Line": 50
 	},
 	"2991": {
 		"File": "testdata/triceCheck.c",
@@ -1479,10 +1487,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 93
 	},
-	"3172": {
-		"File": "../src/triceRingBuffer.c",
-		"Line": 78
-	},
 	"3176": {
 		"File": "testdata/triceCheck.c",
 		"Line": 413
@@ -1534,6 +1538,14 @@
 	"3239": {
 		"File": "testdata/triceCheck.c",
 		"Line": 78
+	},
+	"3241": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1492
+	},
+	"3255": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1471
 	},
 	"3261": {
 		"File": "testdata/triceCheck.c",
@@ -1811,10 +1823,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 277
 	},
-	"3702": {
-		"File": "../src/triceRingBuffer.c",
-		"Line": 74
-	},
 	"3710": {
 		"File": "testdata/triceCheck.c",
 		"Line": 393
@@ -1854,6 +1862,10 @@
 	"3753": {
 		"File": "testdata/triceCheck.c",
 		"Line": 377
+	},
+	"3757": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1448
 	},
 	"3761": {
 		"File": "testdata/triceCheck.c",
@@ -2007,6 +2019,10 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1234
 	},
+	"4061": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1499
+	},
 	"4068": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1232
@@ -2014,10 +2030,6 @@
 	"4078": {
 		"File": "testdata/triceCheck.c",
 		"Line": 854
-	},
-	"4081": {
-		"File": "../src/triceStackBuffer.c",
-		"Line": 27
 	},
 	"4087": {
 		"File": "testdata/triceCheck.c",
@@ -2078,10 +2090,6 @@
 	"4180": {
 		"File": "testdata/triceCheck.c",
 		"Line": 886
-	},
-	"4186": {
-		"File": "../src/triceDoubleBuffer.c",
-		"Line": 44
 	},
 	"4192": {
 		"File": "testdata/triceCheck.c",
@@ -2415,10 +2423,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 504
 	},
-	"4677": {
-		"File": "../src/triceStackBuffer.c",
-		"Line": 23
-	},
 	"4682": {
 		"File": "testdata/triceCheck.c",
 		"Line": 653
@@ -2434,10 +2438,6 @@
 	"4692": {
 		"File": "testdata/triceCheck.c",
 		"Line": 584
-	},
-	"4701": {
-		"File": "../src/triceRingBuffer.c",
-		"Line": 68
 	},
 	"4706": {
 		"File": "testdata/triceCheck.c",
@@ -2498,6 +2498,10 @@
 	"4799": {
 		"File": "testdata/triceCheck.c",
 		"Line": 735
+	},
+	"4806": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1496
 	},
 	"4811": {
 		"File": "testdata/triceCheck.c",
@@ -2623,10 +2627,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 825
 	},
-	"5036": {
-		"File": "../src/triceDoubleBuffer.c",
-		"Line": 54
-	},
 	"5046": {
 		"File": "testdata/triceCheck.c",
 		"Line": 945
@@ -2674,10 +2674,6 @@
 	"5138": {
 		"File": "testdata/triceCheck.c",
 		"Line": 177
-	},
-	"5151": {
-		"File": "../src/triceRingBuffer.c",
-		"Line": 66
 	},
 	"5154": {
 		"File": "testdata/triceCheck.c",
@@ -2758,6 +2754,10 @@
 	"5280": {
 		"File": "testdata/triceCheck.c",
 		"Line": 580
+	},
+	"5281": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1473
 	},
 	"5284": {
 		"File": "testdata/triceCheck.c",
@@ -2907,6 +2907,10 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 199
 	},
+	"5455": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1494
+	},
 	"5459": {
 		"File": "testdata/triceCheck.c",
 		"Line": 830
@@ -2938,10 +2942,6 @@
 	"5518": {
 		"File": "testdata/triceCheck.c",
 		"Line": 896
-	},
-	"5525": {
-		"File": "../src/triceRingBuffer.c",
-		"Line": 70
 	},
 	"5527": {
 		"File": "testdata/triceCheck.c",
@@ -3403,10 +3403,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 586
 	},
-	"6366": {
-		"File": "../src/triceDoubleBuffer.c",
-		"Line": 42
-	},
 	"6368": {
 		"File": "testdata/triceCheck.c",
 		"Line": 434
@@ -3442,10 +3438,6 @@
 	"6452": {
 		"File": "testdata/triceCheck.c",
 		"Line": 87
-	},
-	"6459": {
-		"File": "../src/triceStaticBuffer.c",
-		"Line": 29
 	},
 	"6467": {
 		"File": "testdata/triceCheck.c",
@@ -3571,9 +3563,17 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 568
 	},
+	"6691": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1439
+	},
 	"6692": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1076
+	},
+	"6698": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1481
 	},
 	"6701": {
 		"File": "testdata/triceCheck.c",
@@ -3923,6 +3923,10 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1030
 	},
+	"7235": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1437
+	},
 	"7236": {
 		"File": "testdata/triceCheck.c",
 		"Line": 476
@@ -3970,10 +3974,6 @@
 	"7288": {
 		"File": "testdata/triceCheck.c",
 		"Line": 147
-	},
-	"7291": {
-		"File": "../src/triceStaticBuffer.c",
-		"Line": 27
 	},
 	"7292": {
 		"File": "testdata/triceCheck.c",
@@ -4042,6 +4042,10 @@
 	"7376": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1220
+	},
+	"7398": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1464
 	},
 	"7406": {
 		"File": "testdata/triceCheck.c",
@@ -4342,6 +4346,10 @@
 	"7900": {
 		"File": "testdata/triceCheck.c",
 		"Line": 648
+	},
+	"7906": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1452
 	},
 	"7907": {
 		"File": "testdata/triceCheck.c",
