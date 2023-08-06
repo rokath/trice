@@ -57,8 +57,7 @@ builds:
     env:
       - CGO_ENABLED=0
 archives:
-  - #rlcp: true
-    # rlcp: true
+  - 
     #- format: tar.gz
     # this name template makes the OS and Arch compatible with the results of uname.
     #name_template: >-
