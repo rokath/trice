@@ -27,3 +27,5 @@ test/Nucleo-STM32L432LC_generated/build/
 test/PSoC-Creator-4.2-Workspace/PSoC-Creator-4.2-Workspace.cywrk.ms
 test/PSoC-Creator-4.2-Workspace/Software_Transmit_UART.cydsn/Software_Transmit_UART.cyfit
 test/PSoC-Creator-4.2-Workspace/Software_Transmit_UART.cydsn/Software_Transmit_UART.rpt
+
+dist/
