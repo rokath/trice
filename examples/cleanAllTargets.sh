@@ -25,8 +25,9 @@ MDK-ARM_STM32F030R8_instrumented
 for d in $ARMKEILTARGETDIRS
 do
 echo ______ $d ______
+rm -rf temp/
 cd $d/MDK-ARM
-rm -rf RTE/ MDK-ARM_STM32F030R8/ DebugConfig/ *._2i *.crf *.d *.o *.fed *.hex *.htm *.l2p *.map *.lnt *.lnp *.dep *.axf *.lst
+rm -rf RTE/ MDK-ARM_STM32F030R8/ DebugConfig/ *._2i *.crf *.d *.o *.fed *.hex *.htm *.l2p *.map *.lnt *.lnp *.dep *.axf *.lst *.uvguix.* *.iex EventRecorderStub.scvd *.uvoptx
 cd -
 echo -e
 done

@@ -93,9 +93,6 @@ archives:
     # name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ .Arm }}"
 
-
-
-
     # Set to true, if you want all files in the archive to be in a single directory.
     # If set to true, and you extract the archive 'goreleaser_Linux_arm64.tar.gz',
     # you get a folder 'goreleaser_Linux_arm64'.
@@ -121,23 +118,25 @@ archives:
     # Defaults are any files matching `LICENCE*`, `LICENSE*`,
     # `README*` and `CHANGELOG*` (case-insensitive).
     files:
-      - AUTHORS.md
-      - CHANGELOG.md
-      - CODE_OF_CONDUCT.md
-      - CONTRIBUTING.md
-      - LICENSE.md
-      - README.md
-      - go.mod
-      - go.sum
-      - GoInfos.txt
       - .vscode/*
       - cmd
       - docs/*
+      - examples/*
       - internal
       - pkg
       - src
       - test/*
       - third_party/*
+      - AUTHORS.md
+      - CHANGELOG.md
+      - CODE_OF_CONDUCT.md
+      - CONTRIBUTING.md
+      - FoldersAndFiles.md
+      - go.mod
+      - go.sum
+      - GoInfos.txt
+      - LICENSE.md
+      - README.md
 
 checksum:
   # You can change the name of the checksums file.
