@@ -1,0 +1,161 @@
+# This is an example .goreleaser.yaml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+# https://goreleaser.com/customization/#Builds
+builds:
+  - 
+    # ID of the build.
+    # Defaults to the project name.
+    id: "trice"
+
+    # Path to project's (sub)directory containing Go code.
+    # This is the working directory for the Go build command(s).
+    # Default is `.`.
+    dir: .
+
+    # Path to main.go file or main package.
+    # Default is `.`.
+    main: ./cmd/trice/.
+ 
+    # Binary name.
+    # Can be a path (e.g. `bin/app`) to wrap the binary in a directory.
+    # Default is the name of the project directory.
+    binary: trice
+
+    # GOOS list to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+  #- env:
+  #    - CGO_ENABLED=0
+    goos:
+      - windows
+      - linux
+      - darwin
+
+    # GOARCH to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    # Defaults are 386 and amd64.
+    goarch:
+      - 386
+      - amd64
+      - arm # build error on server?
+      - arm64 # build error on server?
+
+    # GOARM to build for when GOARCH is arm.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    # Default is only 6.
+    goarm:
+      - 6
+      - 7
+
+    # Custom environment variables to be set during the builds.
+    # Default is empty.
+    env:
+      - CGO_ENABLED=0
+archives:
+  - rlcp: true
+    # rlcp: true
+    #- format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of uname.
+    #name_template: >-
+    #  {{ .ProjectName }}_
+    #  {{- title .Os }}_
+    #  {{- if eq .Arch "amd64" }}x86_64
+    #  {{- else if eq .Arch "386" }}i386
+    #  {{- else }}{{ .Arch }}
+    #  {{ end }}
+    #  {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # name_template: "{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ .Arm }}"
+
+    # Set to true, if you want all files in the archive to be in a single directory.
+    # If set to true, and you extract the archive 'goreleaser_Linux_arm64.tar.gz',
+    # you get a folder 'goreleaser_Linux_arm64'.
+    # If set to false, all files are extracted separately.
+    # You can also set it to a custom folder name (templating is supported).
+    # Default is false.
+    wrap_in_directory: true
+    
+    # Archive format. Valid options are `tar.gz`, `gz`, `zip` and `binary`.
+    # If format is `binary`, no archives are created and the binaries are instead
+    # uploaded directly.
+    # Default is `tar.gz`.
+    format: tar.gz
+    
+    # use zip for windows archives
+    # Can be used to change the archive formats for specific GOOSs.
+    # Most common use case is to archive as zip on Windows.
+    # Default is empty.
+    format_overrides:
+    - goos: windows
+      format: zip
+    # Additional files/globs you want to add to the archive.
+    # Defaults are any files matching `LICENCE*`, `LICENSE*`,
+    # `README*` and `CHANGELOG*` (case-insensitive).
+    files:
+      - .vscode/*
+      - cmd
+      - docs/*
+      - examples/*
+      - internal
+      - pkg
+      - src
+      - test/*
+      - third_party/*
+      - AUTHORS.md
+      - CHANGELOG.md
+      - CODE_OF_CONDUCT.md
+      - CONTRIBUTING.md
+      - FoldersAndFiles.md
+      - go.mod
+      - go.sum
+      - GoInfos.txt
+      - LICENSE.md
+      - README.md
+checksum:
+  # You can change the name of the checksums file.
+  # Default is `{{ .ProjectName }}_{{ .Version }}_checksums.txt`.
+  #name_template: "{{ .ProjectName }}_checksums.txt"
+  #name_template: 'checksums.txt'
+  # Algorithm to be used.
+  # Accepted options are sha256, sha512, sha1, crc32, md5, sha224 and sha384.
+  # Default is sha256.
+  #algorithm: sha256
+snapshot:
+  # Allows you to change the name of the generated snapshot
+  #
+  # Note that some pipes require this to be semantic version compliant (nfpm,
+  # for example).
+  #
+  # Default is `{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}`.
+  #name_template: 1.2.3-SNAPSHOT-{{.Commit}}
+  #name_template: "{{ .Tag }}-next"
+  #name_template: "{{ incpatch .Version }}-next"
+
+# You can customize how the changelog is generated using the changelog section in the config file
+changelog:
+  # set it to true if you wish to skip the changelog generation
+  #skip: false
+  # could either be asc, desc or empty
+  # Default is empty
+  sort: asc
+  filters:
+    # commit messages matching the regexp listed here will be removed from
+    # the changelog
+    # Default is empty
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - typo
+      - minor
+      - Update
+      - wip
+
+# The lines beneath this are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
