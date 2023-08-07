@@ -1783,6 +1783,10 @@
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %u %u %u %u %u\\n"
 	},
+	"3649": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
+	},
 	"3652": {
 		"Type": "TRice32",
 		"Strg": "value=%d\\n"
@@ -1946,6 +1950,10 @@
 	"3856": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64_n with 1 to 12 values\\n"
+	},
+	"3860": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 2.71828182845904523536 (the full number as string)\\n"
 	},
 	"3866": {
 		"Type": "Trice16",
@@ -3643,6 +3651,10 @@
 		"Type": "TRICE16_9",
 		"Strg": "tst:TRICE16_9  %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"6457": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
+	},
 	"6465": {
 		"Type": "TRICE",
 		"Strg": "time:i"
@@ -3790,6 +3802,10 @@
 	"6729": {
 		"Type": "TRICE64_1",
 		"Strg": "msg:value=%u\\n"
+	},
+	"6731": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %f (default rounded float)\\n"
 	},
 	"6738": {
 		"Type": "trice16",

@@ -1675,6 +1675,10 @@
 		"File": "triceCheck.c",
 		"Line": 949
 	},
+	"3649": {
+		"File": "main.c",
+		"Line": 96
+	},
 	"3652": {
 		"File": "triceCheck.c",
 		"Line": 365
@@ -1826,6 +1830,10 @@
 	"3856": {
 		"File": "triceCheck.c",
 		"Line": 865
+	},
+	"3860": {
+		"File": "main.c",
+		"Line": 97
 	},
 	"3866": {
 		"File": "triceCheck.c",
@@ -2014,10 +2022,6 @@
 	"4157": {
 		"File": "triceCheck.c",
 		"Line": 1038
-	},
-	"4158": {
-		"File": "main.c",
-		"Line": 94
 	},
 	"4160": {
 		"File": "triceCheck.c",
@@ -3399,6 +3403,10 @@
 		"File": "triceCheck.c",
 		"Line": 1056
 	},
+	"6457": {
+		"File": "main.c",
+		"Line": 95
+	},
 	"6465": {
 		"File": "triceCheck.c",
 		"Line": 992
@@ -3534,6 +3542,10 @@
 	"6729": {
 		"File": "triceCheck.c",
 		"Line": 484
+	},
+	"6731": {
+		"File": "main.c",
+		"Line": 94
 	},
 	"6738": {
 		"File": "triceCheck.c",
@@ -4286,10 +4298,6 @@
 	"7872": {
 		"File": "triceCheck.c",
 		"Line": 666
-	},
-	"7875": {
-		"File": "main.c",
-		"Line": 95
 	},
 	"7879": {
 		"File": "triceCheck.c",
