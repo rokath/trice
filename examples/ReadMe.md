@@ -18,7 +18,7 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
 
 ## Animation
 
-(The trice ID occurs just during the compilation.)
+(The trice IDs occur just during the compilation.)
 
 ![x](./Animation.gif)
 
@@ -76,7 +76,7 @@ OR
 
 #### Install ARM Clang (optional)
 
-With the ARM Clang you get a quicker compilation runs and smaller images.
+With the ARM Clang you get quicker compilation runs and smaller images.
 
 - You need to install ARM GCC as well to use ARM Clang.
   - ARM Clang uses the GCC libraries. For that it looks for `C_INCLUDE_PATH`.
