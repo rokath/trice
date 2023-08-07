@@ -148,6 +148,8 @@ The paths must match with the installation locations.
 
 #### Update NUCLEO Onboard Debugger (other ST evaluation boards too)
 
+(https://www.st.com/en/development-tools/stsw-link007.html)
+
 This step is recommended before re-flashing with the J-Link onboard debugger software.
 
 - Connect STM evaluation board over USB
