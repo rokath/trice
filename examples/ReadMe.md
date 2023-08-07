@@ -159,6 +159,8 @@ This step is recommended before re-flashing with the J-Link onboard debugger sof
 
 ### Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
 
+(https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
+
 Using the J-Link onboard debugger software allows parallel debugging and RTT usage.
 
 Unfortunately this is not possible with **v3** onboard debugger hardware! But you can use a J-Link hardware instead. Also it is possible to use a v2 onboard debugger from a different evaluation board or a "Bluepill" Development Board Module with ARM Cortex M3 processor".
