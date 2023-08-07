@@ -55,6 +55,10 @@
 		"Type": "TRICE",
 		"Strg": "WRN:warning     message, SysTick is %6u\\n"
 	},
+	"1073": {
+		"Type": "TRice8",
+		"Strg": "w: Hello! 👋🙂 %d\\n"
+	},
 	"1079": {
 		"Type": "trice16",
 		"Strg": "value=%d\\n"
@@ -118,6 +122,10 @@
 	"1146": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
+	},
+	"1148": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
 	},
 	"1151": {
 		"Type": "TRice8",
@@ -879,6 +887,10 @@
 		"Type": "TRice16",
 		"Strg": "err:triceSingleDepthMax =%4u of %d (overflow!)\\n"
 	},
+	"2270": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
+	},
 	"2273": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
@@ -1011,6 +1023,10 @@
 		"Type": "TRICE32",
 		"Strg": "msg:%O (%%O)\\n"
 	},
+	"2454": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂\\a\\n"
+	},
 	"2457": {
 		"Type": "TRICE32",
 		"Strg": "att:TRICE32 %40b\\n"
@@ -1046,6 +1062,10 @@
 	"2527": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n"
+	},
+	"2549": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 %f\\n"
 	},
 	"2550": {
 		"Type": "TRICE64",
@@ -2123,6 +2143,10 @@
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d\\n"
 	},
+	"4158": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %f\\n"
+	},
 	"4160": {
 		"Type": "TRICE16_1",
 		"Strg": "tim: pre TriceDecryption SysTick=%d\\n"
@@ -2166,6 +2190,10 @@
 	"4229": {
 		"Type": "TRice8",
 		"Strg": "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\\n"
+	},
+	"4233": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 %f\\n"
 	},
 	"4234": {
 		"Type": "TRICE32",
@@ -2843,6 +2871,10 @@
 		"Type": "trice32",
 		"Strg": "msg:value=%u\\n"
 	},
+	"5285": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
+	},
 	"5288": {
 		"Type": "TRice64",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -2954,6 +2986,10 @@
 	"5456": {
 		"Type": "trice8",
 		"Strg": "msg:value=%u\\n"
+	},
+	"5457": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 %d\\n"
 	},
 	"5460": {
 		"Type": "TRICE64_F",
@@ -4235,6 +4271,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"7436": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
+	},
 	"7443": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p\\n"
@@ -4534,6 +4574,10 @@
 	"7872": {
 		"Type": "TRICE",
 		"Strg": "TIME:blue+i:blue+h\\n"
+	},
+	"7875": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 %f\\n"
 	},
 	"7879": {
 		"Type": "TRICE16_5",

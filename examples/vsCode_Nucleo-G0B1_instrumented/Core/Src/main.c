@@ -70,13 +70,6 @@ void StartDefaultTask(void const * argument);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-    TriceInit();
-    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
 
   /* USER CODE END 1 */
 
@@ -93,7 +86,13 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+    TriceInit();
+    TRice( "w: Hello! 👋🙂\a\n" ); // with sound!
+    TRice8( "w: Hello! 👋🙂 %d\n", 1 );
+    Trice8( "w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
+    Trice8( "w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );
+    trice( "w: Hello! 👋🙂 %f\n", aFloat( 2.718281828459045235360287471352 ) );
+    trice64( "w: Hello! 👋🙂 %f\n", aDouble( 2.718281828459045235360287471352 ) ); // See https://github.com/rokath/trice/issues/426 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

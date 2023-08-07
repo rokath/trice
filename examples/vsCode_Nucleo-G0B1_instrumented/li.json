@@ -55,6 +55,10 @@
 		"File": "triceCheck.c",
 		"Line": 888
 	},
+	"1073": {
+		"File": "main.c",
+		"Line": 91
+	},
 	"1079": {
 		"File": "triceCheck.c",
 		"Line": 364
@@ -106,6 +110,10 @@
 	"1146": {
 		"File": "triceCheck.c",
 		"Line": 282
+	},
+	"1148": {
+		"File": "main.c",
+		"Line": 92
 	},
 	"1151": {
 		"File": "triceCheck.c",
@@ -947,6 +955,10 @@
 		"File": "triceCheck.c",
 		"Line": 345
 	},
+	"2454": {
+		"File": "main.c",
+		"Line": 90
+	},
 	"2457": {
 		"File": "triceCheck.c",
 		"Line": 916
@@ -1291,10 +1303,6 @@
 		"File": "triceCheck.c",
 		"Line": 688
 	},
-	"2982": {
-		"File": "main.c",
-		"Line": 77
-	},
 	"2988": {
 		"File": "triceCheck.c",
 		"Line": 311
@@ -1550,10 +1558,6 @@
 	"3470": {
 		"File": "triceCheck.c",
 		"Line": 1226
-	},
-	"3476": {
-		"File": "main.c",
-		"Line": 75
 	},
 	"3480": {
 		"File": "triceCheck.c",
@@ -2010,6 +2014,10 @@
 	"4157": {
 		"File": "triceCheck.c",
 		"Line": 1038
+	},
+	"4158": {
+		"File": "main.c",
+		"Line": 94
 	},
 	"4160": {
 		"File": "triceCheck.c",
@@ -2611,10 +2619,6 @@
 		"File": "triceCheck.c",
 		"Line": 461
 	},
-	"5188": {
-		"File": "main.c",
-		"Line": 76
-	},
 	"5213": {
 		"File": "triceCheck.c",
 		"Line": 180
@@ -2866,10 +2870,6 @@
 	"5550": {
 		"File": "triceCheck.c",
 		"Line": 654
-	},
-	"5558": {
-		"File": "main.c",
-		"Line": 74
 	},
 	"5563": {
 		"File": "triceCheck.c",
@@ -3431,10 +3431,6 @@
 		"File": "triceCheck.c",
 		"Line": 379
 	},
-	"6516": {
-		"File": "main.c",
-		"Line": 78
-	},
 	"6529": {
 		"File": "triceCheck.c",
 		"Line": 1160
@@ -3775,10 +3771,6 @@
 		"File": "triceCheck.c",
 		"Line": 363
 	},
-	"7084": {
-		"File": "main.c",
-		"Line": 79
-	},
 	"7088": {
 		"File": "triceCheck.c",
 		"Line": 1220
@@ -4002,6 +3994,10 @@
 	"7432": {
 		"File": "triceCheck.c",
 		"Line": 779
+	},
+	"7436": {
+		"File": "main.c",
+		"Line": 93
 	},
 	"7443": {
 		"File": "triceCheck.c",
@@ -4290,6 +4286,10 @@
 	"7872": {
 		"File": "triceCheck.c",
 		"Line": 666
+	},
+	"7875": {
+		"File": "main.c",
+		"Line": 95
 	},
 	"7879": {
 		"File": "triceCheck.c",
