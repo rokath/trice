@@ -18,9 +18,9 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
 
 ## Animation
 
-(In line 79 the trice ID occurs just during the compilation.)
+(The trice ID occurs just during the compilation.)
 
-![x](./exampleData/Animation.gif)
+![x](./Animation.gif)
 
 ## Setup PC
 
@@ -233,7 +233,7 @@ Extend the path variable:
 
 `trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -ts ms -d16` (example)
 
-![x](./exampleData/Animation.gif)
+![x](./Animation.gif)
 
 ## Setting up a new project
 
