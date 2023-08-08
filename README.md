@@ -14,7 +14,9 @@
 [![test](https://github.com/shogo82148/actions-goveralls/workflows/test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=master)](https://coveralls.io/github/rokath/trice?branch=master)
 
-Log in (a) trice ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif) - even inside interrupts!
+Log in (a) trice ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif)
+
+even inside **↯ interrupts** in less than 1 µs❗
 
 ## About
 
