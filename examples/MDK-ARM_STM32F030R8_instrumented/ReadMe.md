@@ -2,6 +2,7 @@
 
 Delivers parallel TRICE logs over UART and RTT channel 0. See [./Core/Inc/triceConfig.h](./Core/Inc/triceConfig.h) for settings.
 
+Compare with [../MDK-ARM_STM32F030R8_generated](../MDK-ARM_STM32F030R8_generated) to see all changes for the instrumentation. 
 ## Folders & Files
 
 | Name | Content |
