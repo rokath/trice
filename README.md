@@ -21,7 +21,7 @@
 - Replace `printf` or `log` in **C**-code for getting:
   - **[Speed](./docs/TriceSpeed.md)**, to be usable also **inside interrupts**,
   - **[Space](./docs/TriceSpace.md)**, to reduce needed FLASH memory size,
-  - and various **[Features](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
+  - **[Features](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
 - <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserGuide.md#2-get-started).
 - *Trice* consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super-fast embedded device real-time trace/log code
