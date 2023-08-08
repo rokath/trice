@@ -10,7 +10,17 @@
 | - | - |
 | [MDK-ARM_STM32F030R8_generated](./MDK-ARM_STM32F030R8_generated) | For the [NUCLEO-STM32F030R8](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) with the free [CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) generated empty project as compare base for the trice instrumentation. |
 | [MDK-ARM_STM32F030R8_instrumented](./MDK-ARM_STM32F030R8_instrumented) | The [MDK-ARM_STM32F030R8_generated](./MDK-ARM_STM32F030R8_generated) project was trice instrumented for parallel usage of RTT and UART transfer. |
-| [OpenCM3_STM32F411_Nucleo](./OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./OpenCM3_STM32F411_Nucleo/Readme.md) in this folder.
+|||
+| [OpenCM3_STM32F411_Nucleo](./OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
+|||
+| [Nucleo-STM32L432KC_generated](./Nucleo-STM32L432KC_generated) | This is a minimal STM32CubeMX generated Makefile project. |
+| [Nucleo-STM32L432KC_adapted_toClang](./Nucleo-STM32L432KC_adapted_toClang) | This is a minimal STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [vsCode_Nucleo-L432KC_generated](./vsCode_Nucleo-L432KC_generated) project is then a next step performable. |
+| [vsCode_Nucleo-L432KC_generated](./vsCode_Nucleo-L432KC_generated) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [vsCode_Nucleo-L432KC_instrumented](./vsCode_Nucleo-L432KC_instrumented) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+|||
+| [vsCode_Nucleo-G0B1_generated](./vsCode_Nucleo-G0B1_generated) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [vsCode_Nucleo-G0B1_instrumented](./vsCode_Nucleo-G0B1_instrumented) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+|||
 
 ## Important to know
 
