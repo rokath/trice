@@ -52,6 +52,8 @@ ASM_SOURCES =  \
 startup_stm32l432xx.s
 
 
+include clang0.mak
+
 #######################################
 # binaries
 #######################################
@@ -148,6 +150,9 @@ LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BU
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
+include clang1.mak mcu.mak flags.mak
+
+.PHONY: all qqq clean
 
 #######################################
 # build the application

@@ -96,6 +96,12 @@ git clone https://github.com/rokath/trice.git
 - [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications
 - [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 
+## Debugging using VS-Code and Clang for a Trice-instrumented Project in Direct-Out Mode over SEGGER-RTT
+
+(See folder [./examples](./examples) for more details.)
+
+![x](./examples/Animation.gif)
+
 <!--- B A C K U P
 
 - [call stack logger function instrumentation](https://sii.pl/blog/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution/) (a way to trace programs flow of execution)
