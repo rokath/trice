@@ -33,6 +33,6 @@ See [TriceOverRTT](../../docs/TriceOverRTT.md).
 
 ### J-LINK
 
-- Install J-LINK software. 
+- Install [J-LINK](https://www.segger.com/downloads/jlink/) software. 
 - Enter command `trice l -p J-LINK -args "-Device STM32F030R8 -If SWD -Speed 4000 -RTTChannel 0"`
 
