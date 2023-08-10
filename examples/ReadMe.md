@@ -199,9 +199,10 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
     - `"device": "STM32G0B1KE",` or `"STM32L432KC"` or ...
     - `"svdFile": "./STM32G0B1KE.svd",` or `"./STM32L4x2.svd"` or ...
     - `"runToMain": true`
-  - Set the commas right. 
-- Download file [`./STM32G0B1KE.svd`](./STM32G0B1KE.svd) from https://www.st.com/resource/en/svd/stm32G0_svd.zip (example)
-- Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
+  - Set the commas right.
+- Latest SVD Files can be found here: https://www.st.com/content/st_com/en/search.html#q=svd-t=resources-page=1
+  - Download file [`./STM32G0B1KE.svd`](./STM32G0B1KE.svd) from https://www.st.com/resource/en/svd/stm32G0_svd.zip (example)
+  - Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
 
 ## Makefile with Clang too
 
