@@ -83,7 +83,7 @@ extern "C" {
 //#define XTEA_DECRYPT
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
-//! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
+//! During development TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
 #define TRICE_DIAGNOSTICS 1
 
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32 and needs ((TRICE_DIRECT_OUTPUT == 1).
