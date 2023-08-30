@@ -201,7 +201,8 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
     - `"runToMain": true`
   - Set the commas right.
 - Latest SVD Files can be found here: https://www.st.com/content/st_com/en/search.html#q=svd-t=resources-page=1
-  - Download file [`./STM32G0B1KE.svd`](./STM32G0B1KE.svd) from https://www.st.com/resource/en/svd/stm32G0_svd.zip (example)
+- Download file [`./STM32G0B1.svd`](./STM32G0B1.svd) from https://www.st.com/resource/en/svd/stm32G0_svd.zip (example)
+  - Alternatively copy it from `"C:\ST\STM32CubeIDE_1.13.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.productdb.debug_2.1.0.202306151215\resources\cmsis\STMicroelectronics_CMSIS_SVD\STM32G0B1.svd"` if you have the STM32CubeIDE installed.
   - Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
 
 ## Makefile with Clang too
