@@ -1283,19 +1283,21 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 - By selecting the letter case you decide for each single *Trice* macro about the stamp size.
 - Default notation (function call):
 
-  | notation              | stamp size | remark                                                                      |
-  |-----------------------|------------|-----------------------------------------------------------------------------|
-  | `trice( "...", ...);` | 0-bit      | no stamp at all, shortest footprint                                         |
-  | `Trice( "...", ...);` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
-  | `TRice( "...", ...);` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
+  | notation                     | stamp size | remark                                                                      |
+  |------------------------------|------------|-----------------------------------------------------------------------------|
+  | `trice( iD(n), "...", ...);` | 0-bit      | no stamp at all, shortest footprint                                         |
+  | `Trice( iD(n), "...", ...);` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
+  | `TRice( iD(n), "...", ...);` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
+
+- No upper case macro, like `TRICE_S` works with the internal `iD(n)` macro. They need `id(n)`, `Id(n)` or `ID(n)`. See next table.
 
 - Legacy notation (code inlining):
 
   | notation                    | stamp size | remark                                                                      |
   |-----------------------------|------------|-----------------------------------------------------------------------------|
-  | `TRICE( id(0), "...", ...)` | 0-bit      | no stamp at all, shortest footprint                                         |
-  | `TRICE( Id(0), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
-  | `TRICE( ID(0), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
+  | `TRICE( id(n), "...", ...)` | 0-bit      | no stamp at all, shortest footprint                                         |
+  | `TRICE( Id(n), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
+  | `TRICE( ID(n), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
 
 It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a µs or ms tick count but any values are allowed.
 
