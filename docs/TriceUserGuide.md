@@ -10,7 +10,6 @@
   <ol>
 
 <!-- vscode-markdown-toc -->
-
 - [*Trice* user guide](#trice-user-guide)
   - [1. Project structure](#1-project-structure)
   - [2. Get started](#2-get-started)
@@ -53,13 +52,13 @@
     - [9.5. Limitation gone: "trice i" does not require TRICE macros on a single line](#95-limitation-gone-trice-i-does-not-require-trice-macros-on-a-single-line)
     - [9.6. Limitation TRICE in TRICE not possible](#96-limitation-trice-in-trice-not-possible)
     - [9.7. Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0](#97-dynamic-stringsbuffers-only-as-variable-inside-trice-macros-before-v0610)
-    - [Buffer Macros](#buffer-macros)
-    - [9.8. Logfile viewing](#98-logfile-viewing)
-    - [9.9. Using the `trice` tool with 3rd party tools](#99-using-the-trice-tool-with-3rd-party-tools)
-    - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
-    - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
-    - [9.12. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
-    - [Cycle Counter](#cycle-counter)
+    - [9.8. Buffer Macros](#98-buffer-macros)
+    - [9.9. Logfile viewing](#99-logfile-viewing)
+    - [9.10. Using the `trice` tool with 3rd party tools](#910-using-the-trice-tool-with-3rd-party-tools)
+    - [9.11. Several targets at the same time](#911-several-targets-at-the-same-time)
+    - [9.12. Executing `go test -race -count 100 ./...`](#912-executing-go-test--race--count-100-)
+    - [9.13. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#913-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
+    - [9.14. Cycle Counter](#914-cycle-counter)
   - [10. Switching *Trice* ON and OFF](#10-switching-trice-on-and-off)
     - [10.1. Target side *Trice* On-Off](#101-target-side-trice-on-off)
     - [10.2. Host side *Trice* On-Off](#102-host-side-trice-on-off)
@@ -99,12 +98,16 @@
     - [20.10. Option 2: Cleaning in a Post-build process](#2010-option-2-cleaning-in-a-post-build-process)
     - [20.11. Option 3: Cleaning on Repository Check-In](#2011-option-3-cleaning-on-repository-check-in)
   - [21. Changelog](#21-changelog)
-
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
-	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc --><div id="top"></div>
+	/vscode-markdown-toc-config
+
+  - Delete TOC.
+  - Shift-Ctrl-P -> "Generate TOC for Markdown" to Numbers the Headlines, than delete TOC.
+  - Shift-Ctrl-P -> "Markdown-all-in-onc:Create Table of Content".
+
+  <!-- /vscode-markdown-toc --><div id="top"></div>
 
 <!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
@@ -930,7 +933,7 @@ If the target application produces more *Trice* data than transmittable, a buffe
 Configuring the ring buffer option makes buffer overruns impossible but losses will occur when producing more data than transmittable.
 That is detectable with the cycle counter. The internal 8-bit cycle counter is usually enabled. If *Trice* data are lost, the receiver side will detect that because the cycle counter is not as expected. There is a chance of 1/256 that the detection does not work. You can check the detection by unplugging the trice UART cable for a time. Also resetting the target during transmission should display a cycle error.
 
-###  9.5. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation gone: "trice i" does not require TRICE macros on a single line
+###  9.5. <a name='Limitationgone:triceidoesnotrequireTRICEmacrosonasingleline'></a>Limitation gone: "trice i" does not require TRICE macros on a single line
 
 - The implemented parser supports `TRICE` macros over several source code lines now (v0.61.0 and later). This is valid `trice i` and `trice c` but not for `trice u`.
 - It ipossible to have several (complete) `TRICE` macros on one source code line.
@@ -955,7 +958,7 @@ int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
 ```
 
-###  9.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0 
+###  9.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacrosbeforev0.61.0'></a>Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0 
 
 - No-Good Example before v0.61.0:
 
@@ -991,7 +994,7 @@ TRICE_S( "msg:This part of the string is known at compile time. This part is dyn
 All the string literals (i.e. compile-time known strings) should be put inside the format string.
 Only the dynamic strings should be used as variables in TRICE_S macro.
 
-### Buffer Macros
+###  9.8. <a name='BufferMacros'></a>Buffer Macros
 
 (Examples in [../test/testdata/triceCheck.c](../test/testdata/triceCheck.c))
 
@@ -1004,7 +1007,7 @@ TRICE16_B  | Is for 16-bit buffer output according to the given format specifier
 TRICE32_B  | Is for 32-bit buffer output according to the given format specifier for a 32-bit value.
 TRICE_B | Is buffer output according to the given format specifier for a default unit according to configuration (8|16|32-bit value).
 
-###  9.8. <a name='Logfileviewing'></a>Logfile viewing
+###  9.9. <a name='Logfileviewing'></a>Logfile viewing
 
 Logfiles, **trice** tool generated with sub-command switch `-color off`, are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
@@ -1012,23 +1015,23 @@ Logfiles, **trice** tool generated with sub-command switch `-color off`, are nor
 - Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 - See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
 
-###  9.9. <a name='Usingthetricetoolwith3rdpartytools'></a>Using the `trice` tool with 3rd party tools
+###  9.10. <a name='Usingthetricetoolwith3rdpartytools'></a>Using the `trice` tool with 3rd party tools
 
 Parallel output as logfile, TCP or binary logfile is possible. See examples above.
 
-###  9.10. <a name='Severaltargetsatthesametime'></a>Several targets at the same time
+###  9.11. <a name='Severaltargetsatthesametime'></a>Several targets at the same time
 
 You can connect each target over its transmit channel with an own **trice** instance and integrate all transmissions line by line in an additional **trice** instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
 
-###  9.11. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
+###  9.12. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
 
 The C-code is executed during some tests. Prerequisite is an installed GCC.
 
-###  9.12. <a name='DirectTRICEOutTRICE_MODETRICE_STACK_BUFFERcouldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
+###  9.13. <a name='DirectTRICEOutTRICE_MODETRICE_STACK_BUFFERcouldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
-### Cycle Counter
+###  9.14. <a name='CycleCounter'></a>Cycle Counter
 
 - The trice tool expects the first cycle counter to start with 0xC0 (=192). If the target is already running and you connect the trice tool then, the first message is marked with "CYCLE: ? not equal expected value 192 - adjusting. Now 1 CycleEvents".
 - If the target is resetted asynchronous, the trice tool receives a cycle counter 192. Most probably the last cycle counter was not 191, so this triggers also a message  with "CYCLE: 192 not equal expected value ?- adjusting. Now n CycleEvents".
@@ -1711,11 +1714,11 @@ _### Tests
 - It allows to reconstruct lost til.json information.
 - Recommendet for small projects.
 
-###  20.10. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Cleaning in a Post-build process
+###  20.10. <a name='Option2:CleaninginaPost-buildprocess'></a>Option 2: Cleaning in a Post-build process
 
 - The code is visually free of IDs all the time.
 
-###  20.11. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Cleaning on Repository Check-In
+###  20.11. <a name='Option3:CleaningonRepositoryCheck-In'></a>Option 3: Cleaning on Repository Check-In
 
 - The code is visually free of IDs only inside the repository.
 
