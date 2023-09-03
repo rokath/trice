@@ -69,7 +69,7 @@ const (
 	patNextFormatPointerSpecifier = `%p` // assumes no `%%` inside string!
 
 	// hints is the help information in case of errors.
-	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Password? til.json? Version?"
+	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Format specifier? Password? til.json? Version?"
 
 	// DefaultStamp32 = "ssss,ms_µs" // "tim:%4d,%03d_%03d "
 	//
