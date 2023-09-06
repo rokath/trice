@@ -406,3 +406,42 @@ func TestInsert0(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, expTIL, string(actTIL))
 }
+
+func TestInsertWithTickInComment(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+
+	// create empty til.json
+	jFn := "til.json"
+	JSONFile := ``
+	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
+
+	// create empty li.json
+	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+
+	// create src file1
+	sFn1 := "file1.c"
+	src1 := `
+	//""'
+	//"
+	TRice( "x" );
+	//"
+	TRice( "x" );
+	`
+	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
+
+	// action
+	var b bytes.Buffer
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+
+	// check modified src file1
+	expSrc1 := `
+	//""'
+	//"
+	TRice( "x" );
+	//"
+	TRice( iD(999), "x" );
+	`
+	actSrc1, e := fSys.ReadFile(sFn1)
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc1, string(actSrc1))
+}

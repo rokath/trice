@@ -278,10 +278,13 @@ var stringLiterals bufio.SplitFunc = func(data []byte, atEOF bool) (advance int,
 			i += 2
 			continue
 		case '"':
-			fallthrough
-		case '\'':
-			fallthrough
-		case '`':
+			// If in a comment a ' occurs, this is taken as start point of a format string.
+			// So we do not allow trice( 'hi') and trice( `hi` ).
+			// One problem remains: A single unescaped " inside a comment excludes the rest of the file.
+			//  	fallthrough
+			//  case '\'':
+			//  	fallthrough
+			//  case '`':
 			if scanning && delim == b {
 				end = i + 1
 				token = data[start:end]
