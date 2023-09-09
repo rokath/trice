@@ -179,7 +179,9 @@ func (p *trexDec) nextPackage() {
 		n, e := cobs.Decode(p.B, frame) // if index is 0, an empty buffer is decoded
 		p.IBuf = p.IBuf[index+1:]       // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
-			fmt.Println("inconsistent COBS buffer:\a", frame) // show also terminating 0
+			if decoder.Verbose {
+				fmt.Println("inconsistent COBS buffer:\a", frame) // show also terminating 0
+			}
 		}
 		p.B = p.B[:n]
 
@@ -224,8 +226,12 @@ func (p *trexDec) nextPackage() {
 				index -= bytesCount
 				goto repeat
 			}
-			fmt.Println("inconsistent TCOBSv1 buffer:\a", frame) // show also terminating 0
+			if decoder.Verbose {
+				fmt.Println(e, "inconsistent TCOBSv1 buffer:\a", frame) // show also terminating 0
+			}
+			e = nil
 			p.B = p.B[:0]
+			p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any) // from merging:
 		} else {
 			p.B = p.B[len(p.B)-n:]    // buffer is filled from the end
 			p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any) // from merging:
@@ -289,6 +295,12 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if cipher.Password != "" && len(p.B) < 8 && isZero(p.B) {
 			p.B = p.B[:0] // Discard trailing zeroes. ATTENTION: incomplete trice messages containing many zeroes could be problematic here!
 		}
+		if len(p.B) == 1 { // last decoded package exhausted
+			if decoder.Verbose {
+				fmt.Println("inconsistent data, discarding single byte", p.B[0])
+			}
+			p.B = p.B[:0]
+		}
 		if len(p.B) == 0 { // last decoded package exhausted
 			p.nextPackage() // returns one decoded package inside p.B
 		}
@@ -330,7 +342,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		//case typeX3: // extended trice type X0
 		// todo: implement special case here
 		if p.packageFraming == packageFramingNone && len(p.B) > 0 { // typeX0 is not supported (yet)
-			n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+			if decoder.Verbose {
+				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+			}
 			p.B0 = p.B0[1:] // remove first byte to try to resync
 			p.B = p.B0
 		}
@@ -375,14 +389,18 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
 	if p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
 		if p.packageFraming == packageFramingNone {
-			n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+			if decoder.Verbose {
+				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 			return
 		}
-		n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
-		n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
-		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		if decoder.Verbose {
+			n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
+			n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
+			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		}
 		p.B = p.B[len(p.B):] // discard buffer
 	}
 
@@ -419,7 +437,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.LutMutex.RUnlock()
 	if !ok {
 		if p.packageFraming == packageFramingNone {
-			n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+			if decoder.Verbose {
+				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 		} else {
@@ -433,7 +453,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	n += p.sprintTrice(b[n:]) // use param info
 	if len(p.B) < p.ParamSpace {
 		if p.packageFraming == packageFramingNone {
-			n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+			if decoder.Verbose {
+				n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 		} else {
