@@ -9,6 +9,8 @@
   <summary>Table of Contents</summary>
   <ol>
 
+<!-- Use Shift-Ctrl-P "Generate TOC for Markdown to get the automatic numbering. -->
+<!-- Use Shift-Ctrl-P "Markdown All in Once: Create Table of Contence" to get correct links in the TOC. Delete the old one. -->
 <!-- vscode-markdown-toc -->
 - [*Trice* user guide](#trice-user-guide)
   - [1. Project structure](#1-project-structure)
@@ -26,6 +28,7 @@
       - [2.5.6. Limitations](#256-limitations)
       - [2.5.7. Trice (Time) Stamps](#257-trice-time-stamps)
       - [2.5.8. Trice Parameter Bit Widths](#258-trice-parameter-bit-widths)
+    - [2.6. Avoid it](#26-avoid-it)
   - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
   - [4.  Embedded system code configuration](#4--embedded-system-code-configuration)
   - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
@@ -98,16 +101,13 @@
     - [20.10. Option 2: Cleaning in a Post-build process](#2010-option-2-cleaning-in-a-post-build-process)
     - [20.11. Option 3: Cleaning on Repository Check-In](#2011-option-3-cleaning-on-repository-check-in)
   - [21. Changelog](#21-changelog)
+
+
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
-	/vscode-markdown-toc-config
-
-  - Delete TOC.
-  - Shift-Ctrl-P -> "Generate TOC for Markdown" to Numbers the Headlines, than delete TOC.
-  - Shift-Ctrl-P -> "Markdown-all-in-onc:Create Table of Content".
-
-  <!-- /vscode-markdown-toc --><div id="top"></div>
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->-><div id="top"></div>
 
 <!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
@@ -382,7 +382,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
     ```
 
 - Strings directly as parameter are possible now.
-  - Ok from v0.61.0:
+  - Ok from v0.61.0 with `trice insert` and `trice clean`:
 
     ```c
     TRICE_S( "hello %s\n", "world" );
@@ -414,6 +414,8 @@ You should be aware that these parameter strings go into the target and slow dow
   // 24 bytes: 4 bytes header plus 1 times 8 bytes plus 4 bytes header plus 8 times 1 byte
   trice64( "%g: ", aDouble(3.14159)); trice8( "%c%c%c%c%c%c%c%c%c%c", 61, 62, 63, 64, 65, 66, 67, 68, 69, 10 );
   ```
+
+- See also [2.6. Avoid it](#26-avoid-it).
 
 ####  2.5.7. <a name='TriceTimeStamps'></a>Trice (Time) Stamps
 
@@ -455,6 +457,29 @@ You should be aware that these parameter strings go into the target and slow dow
   ```
 
 Hint: With the defaut TCOBS framing 8-bit values as 32-bit parameters typically occupy only 2-bytes during transmission.
+
+###  2.6. <a name='Avoidit'></a>Avoid it
+
+Because the implemented souce code parser for `trice insert` and `trice clean` is only a simple one, there is one important limitation:
+
+- Do not use an unescaped singe double quote in soure code comments. Example:
+
+```C
+trice( "hi 0" );
+// An "allowed" example comment.
+trice( "hi 1");
+// An \" allowed example comment.
+trice( "hi 2");
+// A " NOT allowed example comment. This disrupts the parsing.
+trice( "hi 3");
+// A " NOT allowed example comment. This enables the parsing after a disruption.
+trice( "hi 4");
+```
+
+- The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here.
+- Workaround: Use `trice update` in such a rare case but better avoid any unescaped singe double quote inside comments.
+
+(See also [issue #427](https://github.com/rokath/trice/issues/427))
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
