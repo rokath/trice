@@ -34,6 +34,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 
 * With appropriate mapping a direct write to physical output(s) is possible:
   * RTT0 without extra copy.
+    * With `TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE` about 100 MCU clocks do the whole work, what is within 1.5 us @ 64 MHz.
   * AUX without extra copy.
   * Not (yet) supported UART transfer loop with polling. With 1MBit baud rate, 4-12 bytes would last 40-120 µs.
 
