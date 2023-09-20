@@ -179,7 +179,7 @@ void TriceNonBlockingDeferredWrite( int ticeID, uint8_t const * enc, size_t encL
 void TriceTransfer( void );
 void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ); // only needed for testing C-sources from Go
 
-int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
+int TCOBSEncode( void * __restrict output, const void * __restrict input, size_t length);
 int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
 int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 
@@ -515,6 +515,8 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
 #endif // #else // #if TRICE_DIAGNOSTICS == 1
 
+#ifndef TRICE_ENTER
+
 #if TRICE_BUFFER ==  TRICE_STACK_BUFFER 
 
 //! TRICE_ENTER is the start of TRICE macro.
@@ -577,6 +579,9 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 
+#endif
+
+#ifndef TRICE_LEAVE
 #if TRICE_DIRECT_OUTPUT == 1
 
     //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
@@ -596,6 +601,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         } TRICE_LEAVE_CRITICAL_SECTION
 
 #endif // #else  //#if TRICE_DIRECT_OUTPUT == 1
+#endif
 
 // trice macros:
 
