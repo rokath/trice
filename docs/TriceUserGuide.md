@@ -185,9 +185,9 @@ You can use `trice i|insert` as pre- and `trice c|clean` as post-compile step, t
     - Hint: It is possible to add `trice c ...` or `trice z ...`  as a post-compile step, so that you can check in your project sources without IDs. That is supported in v0.61.0 and later. This allows to use library sources with trices in different projects and the source code is not spoiled with IDs.
 - `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
 - `trice` is compiler agnostic - it should work with any compiler. 
-- The ARM µVision MDK is free downloadable and free usable for STM M0/M0+ MCUs, like the [`./test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) project.
-  - Even if you do not have such hardware, you can download ARM µVision MDK and compile the [`./test/MDK-ARM_STM32F030R8instrumented`](../test/MDK-ARM_STM32F030R8_instrumented) project just to get started.
-  - When adding or modifying `trice` macros inside [./test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c](../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
+- The ARM µVision MDK is free downloadable and free usable for STM M0/M0+ MCUs, like the [`./examples/MDK-ARM_STM32F030R8_instrumented`](../examples/MDK-ARM_STM32F030R8_instrumented) project.
+  - Even if you do not have such hardware, you can download ARM µVision MDK and compile the [`./examples/MDK-ARM_STM32F030R8instrumented`](../examples/MDK-ARM_STM32F030R8_instrumented) project just to get started.
+  - When adding or modifying `trice` macros inside [./examples/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
 - The test folder contains also vsCode Makefile projects as examples.
   
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -200,19 +200,19 @@ Compare folders of one of these folder groups:
 
 | Without Instrumentation                                                           | With Trice Instrumentation                                                              |
 |-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| [`./test/MDK-ARM_STM32F030R8_generated`](../test/MDK-ARM_STM32F030R8_generated)   | [`./test/MDK-ARM_STM32F030R8_instrumented`](../test/MDK-ARM_STM32F030R8_instrumented)   |
-| [`./test/vsCode_Nucleo-G0B1_generated`](../test/vsCode_Nucleo-G0B1_generated)     | [`./test/vsCode_Nucleo-G0B1_instrumented`](../test/vsCode_Nucleo-G0B1_instrumented)     |
-| [`./test/vsCode_Nucleo-L432KC_generated`](../test/vsCode_Nucleo-L432KC_generated) | [`./test/vsCode_Nucleo-L432KC_instrumented`](../test/vsCode_Nucleo-L432KC_instrumented) |
+| [`./examples/MDK-ARM_STM32F030R8_generated`](../examples/MDK-ARM_STM32F030R8_generated)   | [`./examples/MDK-ARM_STM32F030R8_instrumented`](../examples/MDK-ARM_STM32F030R8_instrumented)   |
+| [`./examples/vsCode_Nucleo-G0B1_generated`](../examples/vsCode_Nucleo-G0B1_generated)     | [`./examples/vsCode_Nucleo-G0B1_instrumented`](../examples/vsCode_Nucleo-G0B1_instrumented)     |
+| [`./examples/vsCode_Nucleo-L432KC_generated`](../examples/vsCode_Nucleo-L432KC_generated) | [`./examples/vsCode_Nucleo-L432KC_instrumented`](../examples/vsCode_Nucleo-L432KC_instrumented) |
 
 This way you see in a quick way any needed adaptions for your target project to port trice to it.
 
-- Project [`./test/Nucleo-STM32L432LC_generated`](../test/Nucleo-STM32L432LC_generated) was first the result of a STM32CubeMX generation.
-- Then it was edited to make it comfortable usable with VS-Code. See the [ReadMe.md](../test/Nucleo-STM32L432LC_generated/ReadMe.md) there for details.
-- To compile also with CLang [`./test/Nucleo-STM32L432LC_generated`](../test/Nucleo-STM32L432LC_generated) was used to manually derive project [`./test/vsCode_Nucleo-L432KC_generated`](../test/vsCode_Nucleo-L432KC_generated) as starting point for the trice instrumentation.
+- Project [`./examples/Nucleo-STM32L432KC_generated`](../examples/Nucleo-STM32L432KC_generated) was first the result of a STM32CubeMX generation.
+- Then it was edited to make it comfortable usable with VS-Code. See the [ReadMe.md](../examples/ReadMe.md) there for details.
+- To compile also with CLang [`./examples/Nucleo-STM32L432KC_generated`](../examples/Nucleo-STM32L432KC_generated) was used to manually derive project [`./examples/vsCode_Nucleo-L432KC_generated`](../examples/vsCode_Nucleo-L432KC_generated) as starting point for the trice instrumentation.
 
 Main steps are:
 
-- Add all files [./src/\*.c](../src/) to your project. Some files are excluded automatically according to the [triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) configuration. 
+- Add all files [./src/\*.c](../src/) to your project. Some files are excluded automatically according to the [triceConfig.h](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) configuration. 
   - Once you learned, what you need, you can remove unnecessary code.
 - Add [./src](../src) to your compiler library include path.
 - Copy file `triceConfig.h` from one of the instrumented projects to your embedded project and adapt it to your needs.
@@ -223,7 +223,7 @@ Main steps are:
 
 ####  2.5.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
 
-- Add the 2 hardware specific macros/functions to your project (example in [./test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) and [./test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c](../test/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c) ).
+- Add the 2 hardware specific macros/functions to your project (example in [./examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) and [./examples/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c) ).
   
     ```c
     ///////////////////////////////////////////////////////////////////////////////
