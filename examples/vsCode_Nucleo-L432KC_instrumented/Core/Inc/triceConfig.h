@@ -11,6 +11,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#define RESTRICT restrict //!< Adapt it to your compiler: restrict, __restrict, __restrict__ or empty
+
 extern volatile uint32_t * const DWT_CONTROL;
 extern volatile uint32_t * const DWT_CYCCNT ;
 extern volatile uint32_t * const DEMCR;

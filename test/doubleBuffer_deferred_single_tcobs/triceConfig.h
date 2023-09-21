@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define RESTRICT restrict //!< Adapt it to your compiler: restrict, __restrict, __restrict__ or empty
+
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
 #define TriceStamp16() (0x1616) 

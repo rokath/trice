@@ -167,6 +167,10 @@ extern "C" {
 
 // global function prototypes:
 
+#ifndef RESTRICT
+#define RESTRICT
+#endif
+
 void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
 void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount );
@@ -179,7 +183,7 @@ void TriceNonBlockingDeferredWrite( int ticeID, uint8_t const * enc, size_t encL
 void TriceTransfer( void );
 void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ); // only needed for testing C-sources from Go
 
-int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
+int TCOBSEncode( void * RESTRICT output, const void * RESTRICT input, size_t length);
 int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
 int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 

@@ -21,7 +21,7 @@
 	},
 	"1027": {
 		"File": "doubleBuffer_twin_direct_noRouting_nopf_deferred_multi_cobs/triceConfig.h",
-		"Line": 104
+		"Line": 106
 	},
 	"1029": {
 		"File": "testdata/triceCheck.c",
@@ -297,7 +297,7 @@
 	},
 	"1450": {
 		"File": "doubleBuffer_deferred_single_tcobs/triceConfig.h",
-		"Line": 101
+		"Line": 103
 	},
 	"1455": {
 		"File": "testdata/triceCheck.c",
@@ -449,7 +449,7 @@
 	},
 	"1621": {
 		"File": "doubleBuffer_deferred_multi_cobs/triceConfig.h",
-		"Line": 106
+		"Line": 108
 	},
 	"1623": {
 		"File": "testdata/triceCheck.c",
@@ -1385,7 +1385,7 @@
 	},
 	"3035": {
 		"File": "stackBuffer_cobs/triceConfig.h",
-		"Line": 106
+		"Line": 108
 	},
 	"3037": {
 		"File": "testdata/triceCheck.c",
@@ -1941,7 +1941,7 @@
 	},
 	"3898": {
 		"File": "doubleBuffer_deferred_multi_xtea_cobs/triceConfig.h",
-		"Line": 105
+		"Line": 107
 	},
 	"3901": {
 		"File": "testdata/triceCheck.c",
@@ -2409,7 +2409,7 @@
 	},
 	"4625": {
 		"File": "staticBuffer_tcobs/triceConfig.h",
-		"Line": 106
+		"Line": 108
 	},
 	"4651": {
 		"File": "testdata/triceCheck.c",
@@ -2661,7 +2661,7 @@
 	},
 	"5127": {
 		"File": "doubleBuffer_deferred_multi_tcobs/triceConfig.h",
-		"Line": 106
+		"Line": 108
 	},
 	"5129": {
 		"File": "testdata/triceCheck.c",
@@ -2701,7 +2701,7 @@
 	},
 	"5198": {
 		"File": "stackBuffer_nopf/triceConfig.h",
-		"Line": 106
+		"Line": 108
 	},
 	"5199": {
 		"File": "testdata/triceCheck.c",
@@ -2841,7 +2841,7 @@
 	},
 	"5375": {
 		"File": "stackBuffer_tcobs/triceConfig.h",
-		"Line": 106
+		"Line": 108
 	},
 	"5376": {
 		"File": "testdata/triceCheck.c",
@@ -2981,7 +2981,7 @@
 	},
 	"5602": {
 		"File": "ringBuffer_deferred_tcobs/triceConfig.h",
-		"Line": 104
+		"Line": 106
 	},
 	"5606": {
 		"File": "testdata/triceCheck.c",
@@ -3305,7 +3305,7 @@
 	},
 	"6134": {
 		"File": "doubleBuffer_direct_noRouting_nopf/triceConfig.h",
-		"Line": 104
+		"Line": 106
 	},
 	"6142": {
 		"File": "testdata/triceCheck.c",
@@ -3321,7 +3321,7 @@
 	},
 	"6184": {
 		"File": "staticBuffer_nopf/triceConfig.h",
-		"Line": 106
+		"Line": 108
 	},
 	"6187": {
 		"File": "testdata/triceCheck.c",
@@ -3481,7 +3481,7 @@
 	},
 	"6543": {
 		"File": "doubleBuffer_deferred_single_cobs/triceConfig.h",
-		"Line": 104
+		"Line": 106
 	},
 	"6552": {
 		"File": "testdata/triceCheck.c",
@@ -3537,7 +3537,7 @@
 	},
 	"6661": {
 		"File": "ringBuffer_deferred_cobs/triceConfig.h",
-		"Line": 104
+		"Line": 106
 	},
 	"6670": {
 		"File": "testdata/triceCheck.c",
@@ -3661,7 +3661,7 @@
 	},
 	"6812": {
 		"File": "ringBuffer_deferred_xtea_cobs/triceConfig.h",
-		"Line": 104
+		"Line": 106
 	},
 	"6825": {
 		"File": "testdata/triceCheck.c",
@@ -4017,7 +4017,7 @@
 	},
 	"7330": {
 		"File": "staticBuffer_cobs/triceConfig.h",
-		"Line": 106
+		"Line": 108
 	},
 	"7358": {
 		"File": "testdata/triceCheck.c",
