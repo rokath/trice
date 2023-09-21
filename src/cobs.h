@@ -8,7 +8,7 @@
 #include <stddef.h> //lint !e537 !e451  Warning 537: Repeated include file,  Warning 451: Header file repeatedly included but does not have a standard
 #include <stdint.h> //lint !e537 !e451  Warning 537: Repeated include file,  Warning 451: Header file repeatedly included but does not have a standard
 
-size_t COBSEncode(void * restrict out, const void * restrict in, size_t length);
-size_t COBSDecode(void * restrict out, const void * restrict in, size_t length);
+size_t COBSEncode(void * RESTRICT out, const void * RESTRICT in, size_t length);
+size_t COBSDecode(void * RESTRICT out, const void * RESTRICT in, size_t length);
 
 #endif

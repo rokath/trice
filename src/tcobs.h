@@ -19,7 +19,7 @@ extern "C" {
 //! should be >= next large whole number of length/31. because in the worst case for each 31 bytes an additional sigil byte 
 //! is inserted. The provided output buffer size should be >= length + next large whole number of length/31. This is a 
 //! responsibility of the caller and not checked for efficiency. Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
-int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
+int TCOBSEncode( void * RESTRICT output, const void * RESTRICT input, size_t length);
 
 //! TCOBSDecode decodes data ending at the location pointed to by "input" backwards (starting with the last byte)
 //! and writes the output also backwards to the location pointed to by "output" with a maximum size of max.
@@ -28,7 +28,7 @@ int TCOBSEncode( void * restrict output, const void * restrict input, size_t len
 //! THIS IS **IMPORTANT**: The decoded data start at output+max-returned, because output is filled from the end.
 //! Buffer overlapping is partially possible if output limit is _behind_ input limit with sufficient distance,
 //! but data can get much longer. Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
-int TCOBSDecode( void * restrict output, size_t max, const void * restrict input, size_t length );
+int TCOBSDecode( void * RESTRICT output, size_t max, const void * RESTRICT input, size_t length );
 
 #define OUT_BUFFER_TOO_SMALL -1000000 //!< OUT_BUFFER_TOO_SMALL is TCOBSDecode return error code.
 #define INPUT_DATA_CORRUPTED -2000000 //!< INPUT_DATA_CORRUPTED is TCOBSDecode return error code.
