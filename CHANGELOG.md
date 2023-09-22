@@ -44,6 +44,7 @@ date        | version | comment
 2023-AUG-06 |  0.62.0 | Examples moved from ./test to ./examples. ReadMe.md and scripts adapted. This includes the movement of TriceDiagnostics() to `triceCheck.c` because this is more a user specific and no library functionality.
 2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.
 2023-SEP-10 |  0.62.2 | Fixes issue #427. TCOBS decoder more robust against data garbage.
+2023-SEP-22 |  0.62.3 | Incorporated pull requests #433 && #435. Minor clarification in trice user guide.
 
 ## v0.60.1 Twice Log Screen Shot
 
