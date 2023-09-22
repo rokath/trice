@@ -1337,10 +1337,11 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 |  `i`   | ID bit               |
 |  `I`   | `iiiiiiii` = ID byte |
 |  `n`   | number bit           |
-| `s`     | selector bit
-| `N`     | `snnnnnnnn` = 7-bit number byte |
+| `z`     | count selector bit |
+| `s`| stamp selector bit |
+| `N`     | `znnnnnnnn` = count selector bit plus 7-bit number byte |
 | `c`     | cycle counter bit |
-| `C`     | s==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension |
+| `C`     | z==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension |
 | `t`     | (time)stamp bit |
 | `T`     | `tttttttt` = (time)stamp byte |
 | `d`     | data bit |
@@ -1362,10 +1363,10 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
   | `X` `X`     | 2-byte message, reserved for extensions or user data                                                          |
   | `X` `X` `X` | 3-byte message, reserved for extensions or user data                                                          |
 
-- In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position in the known endianness.
-- The `0` selector is usable for any user encoding. The **trice** tool ignores such packages.
+- In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 stamp selector bits at the most significant position in the known endianness.
+- The `0` stamp selector is usable for any user encoding. The **trice** tool ignores such packages.
 
-  | 16-bit groups            | Selector (2 msb) | Comment                                                 | Endianness sizes            |
+  | 16-bit groups            | Stamp Selector (2 msb) | Comment                                                 | Endianness sizes            |
   |:-------------------------|:----------------:|---------------------------------------------------------|:----------------------------|
   | `00xxxxxxX ...`          |        0         | >= 4-byte message, reserved for extensions or user data | `u16 ?...?`                 |
   | `01iiiiiiI NC  ...`      |        1         | >= 4-byte message, *Trice* format without     stamp     | `u16 u16 [uW] ... [uW]`     |
@@ -1374,8 +1375,8 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 - Within one trice message the parameter bit width `W` does not change.
 - When the receiving tool has to convert the endianness it needs some rules:
-  - convert u16=`ssiiiiii iiiiiiii` or u16=`ssxxxxxx xxxxxxxx` and split into selector and ID
-  - check the 2 selector bits:
+  - convert u16=`ssiiiiii iiiiiiii` or u16=`ssxxxxxx xxxxxxxx` and split into stamp selector and ID
+  - check the 2 stamp selector bits:
     - 0: reserved
     - 1: convert then u16=NC
     - 2: convert then u16=stamp16 & u16=NC
