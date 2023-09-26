@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"go.bug.st/serial"
 )
@@ -149,14 +150,21 @@ func GetSerialPorts(w io.Writer) ([]string, error) {
 		}
 		return ports, err
 	}
+	var wg sync.WaitGroup
 	for _, port := range ports {
-		pS := NewPort(w, port, false)
-		if pS.Open() {
-			pS.Close()
-			fmt.Fprintln(w, "Found port: ", port)
-		} else {
-			fmt.Fprintln(w, "Found port: ", port, "(used)")
-		}
+		wg.Add(1)
+		port := port
+		go func() {
+			defer wg.Done()
+			pS := NewPort(w, port, false)
+			if pS.Open() {
+				pS.Close()
+				fmt.Fprintln(w, "Found port: ", port)
+			} else {
+				fmt.Fprintln(w, "Found port: ", port, "(used)")
+			}
+		}()
+		wg.Wait()
 	}
 	return ports, err
 }
