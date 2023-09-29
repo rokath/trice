@@ -1,4 +1,4 @@
-# *Trice* user guide
+9# *Trice* user guide
 
 > _(Read this)
 >
@@ -116,16 +116,17 @@
 
 ##  1. <a name='Projectstructure'></a>Project structure
 
-| name                            | info                                             |
+| name                           | info                                           |
 |---------------------------------|--------------------------------------------------|
-| [./cmd/trice](../cmd/trice)     | `trice` tool command Go sources                  |
 | [./cmd/cui](../cmd/cui)         | (do not use) command user interface tryout code  |
 | [./cmd/stim](../cmd/stim)       | (do not use) target stimulation tool tryout code |
+| [./cmd/trice](../cmd/trice)     | `trice` tool command Go sources                  |
 | [./docs](./docs)                | documentation                                    |
+| [./examples](../examples)       | example target projects                          |
 | [./internal](../internal)       | `trice` tool internal Go packages                |
 | [./pkg](../pkg)                 | `trice` tool common Go packages                  |
 | [./src/](../src)                | C sources for trice instrumentation              |
-| [./test](../test)               | example target projects and tests                |
+| [./test](../test)               | target test projects                             |
 | [./third_party](../third_party) | external components                              |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
