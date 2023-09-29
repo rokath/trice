@@ -1,4 +1,4 @@
-9# *Trice* user guide
+# *Trice* user guide
 
 > _(Read this)
 >
