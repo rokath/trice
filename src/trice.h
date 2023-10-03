@@ -777,7 +777,7 @@ static inline uint64_t aDouble( double x ){
 
 #ifndef TRICE_N
 //! TRICE_N writes id and buffer of size len.
-//! \param id trice identifier
+//! \param tid trice identifier
 //! \param pFmt formatstring for trice (ignored here but used by the trice tool), could contain any add on information. The trice tool "sees" the "TRICE_N" and can handle that.
 //! \param dynString 0-terminated runtime generated string
 //! After the 4 byte trice message header are following 4 bytes coding n (only 2 used) and the buffer
@@ -806,12 +806,12 @@ static inline uint64_t aDouble( double x ){
 
 #ifndef TRICE_S
 //! TRICE_S writes id and dynString.
-//! \param id trice identifier
+//! \param tid trice identifier
 //! \param pFmt formatstring for trice (ignored here but used by the trice tool)
 //! \param dynString 0-terminated runtime generated string
-#define TRICE_S( id, pFmt, dynString) do { \
+#define TRICE_S( tid, pFmt, dynString) do { \
     uint32_t ssiz = strlen( dynString ); \
-    TRICE_N( id, pFmt, dynString, ssiz ); \
+    TRICE_N( tid, pFmt, dynString, ssiz ); \
 } while(0)
 #endif // #ifndef TRICE_S
 
@@ -868,9 +868,9 @@ static inline uint64_t aDouble( double x ){
 #endif
 
 //! TRICE0 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-#define TRICE0( id, pFmt ) \
-    TRICE_ENTER id; CNTC(0); \
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+#define TRICE0( tid, pFmt ) \
+    TRICE_ENTER tid; CNTC(0); \
     TRICE_LEAVE
 
 #ifdef TRICE_CLEAN

@@ -31,3 +31,4 @@ rm -rf RTE/ MDK-ARM_STM32F030R8/ DebugConfig/ *._2i *.crf *.d *.o *.fed *.hex *.
 cd -
 echo -e
 done
+trice clean -src ./MDK-ARM_STM32F030R8_instrumented -src ./exampleData/triceCheck.c -til ./MDK-ARM_STM32F030R8_instrumented/til.json -li ./MDK-ARM_STM32F030R8_instrumented/li.json
