@@ -909,6 +909,10 @@ TRICE_INLINE void trice0( uint16_t tid, char const * pFmt ){ trice32m_0( tid ); 
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
+void triceAssert( int idN, char* msg, int flag );
+void TriceAssert( int idN, char* msg, int flag );
+void TRiceAssert( int idN, char* msg, int flag );
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,6 +1,7 @@
 //! \file cobsEncode.c copied from https://github.com/rokath/cobs
 //! \author Thomas.Hoehenleitner [at] seerose.net
 
+#include "triceConfig.h"
 #include "cobs.h"
 
 //! COBSEncode encodes data to output.

@@ -109,6 +109,9 @@ int main(void)
     Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
     Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
     trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    triceAssert( "FATAL:Oh, no 1st test!\n", 0 );
+    TRiceAssert( "FATAL:Oh, no 2nd test!\n", 1 );
+    TriceAssert( "FATAL:Oh, no 3rd test!\n", 0 );
     trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */

@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "triceConfig.h"
 #include "tcobs.h"
 #include "tcobsv1Internal.h"
 
