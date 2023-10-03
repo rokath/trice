@@ -67,13 +67,13 @@
                                                                             TRICE_PUT( TRICE_BYTE3(v11)|TRICE_BYTE2(v10)|TRICE_BYTE1(v9) |TRICE_BYTE0(v8));
 
 //! TRICE8_0 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRICE8_0( tid, pFmt ) \
     TRICE_ENTER tid; CNTC(0); \
     TRICE_LEAVE
 
 //! TRICE8_1 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
 #define TRICE8_1( tid, pFmt, v0 ) \
     TRICE_ENTER tid; CNTC(1); \
@@ -81,96 +81,96 @@
     TRICE_LEAVE
 
 //! TRICE8_2 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v1 are 8 bit bit values
-#define TRICE8_2( id, pFmt, v0, v1 ) \
-    TRICE_ENTER id; CNTC(2); \
+#define TRICE8_2( tid, pFmt, v0, v1 ) \
+    TRICE_ENTER tid; CNTC(2); \
     TRICE_PUT8_2 ( v0, v1 ); \
     TRICE_LEAVE
 
 //! TRICE8_3 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v2 are 8 bit bit values
-#define TRICE8_3( id, pFmt, v0, v1, v2 ) \
-    TRICE_ENTER id; CNTC(3); \
+#define TRICE8_3( tid, pFmt, v0, v1, v2 ) \
+    TRICE_ENTER tid; CNTC(3); \
     TRICE_PUT8_3( v0, v1, v2 ); \
     TRICE_LEAVE
 
 //! TRICE8_4 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v3 are 8 bit bit values
-#define TRICE8_4( id, pFmt, v0, v1, v2, v3 ) \
-    TRICE_ENTER id; CNTC(4); \
+#define TRICE8_4( tid, pFmt, v0, v1, v2, v3 ) \
+    TRICE_ENTER tid; CNTC(4); \
     TRICE_PUT8_4( v0, v1, v2, v3  ); \
     TRICE_LEAVE
 
 //! TRICE8_5 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v4 are 8 bit bit values
-#define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4 ) \
-    TRICE_ENTER id; CNTC(5); \
+#define TRICE8_5( tid, pFmt, v0, v1, v2, v3, v4 ) \
+    TRICE_ENTER tid; CNTC(5); \
     TRICE_PUT8_5( v0, v1, v2, v3, v4  ); \
     TRICE_LEAVE
 
 //! TRICE8_6 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v5 are 8 bit bit values
-#define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
-    TRICE_ENTER id; CNTC(6); \
+#define TRICE8_6( tid, pFmt, v0, v1, v2, v3, v4, v5 ) \
+    TRICE_ENTER tid; CNTC(6); \
     TRICE_PUT8_6( v0, v1, v2, v3, v4, v5 ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v6 are 8 bit bit values
-#define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
-    TRICE_ENTER id; CNTC(7); \
+#define TRICE8_7( tid, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
+    TRICE_ENTER tid; CNTC(7); \
     TRICE_PUT8_7( v0, v1, v2, v3, v4, v5, v6 ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 8 bit bit values
-#define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
-    TRICE_ENTER id; CNTC(8); \
+#define TRICE8_8( tid, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
+    TRICE_ENTER tid; CNTC(8); \
     TRICE_PUT8_8( v0, v1, v2, v3, v4, v5, v6, v7 ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 8 bit bit values
-#define TRICE8_9( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
-    TRICE_ENTER id; CNTC(9); \
+#define TRICE8_9( tid, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
+    TRICE_ENTER tid; CNTC(9); \
     TRICE_PUT8_9( v0, v1, v2, v3, v4, v5, v6, v7, v8 ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 8 bit bit values
-#define TRICE8_10( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
-    TRICE_ENTER id; CNTC(10); \
+#define TRICE8_10( tid, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
+    TRICE_ENTER tid; CNTC(10); \
     TRICE_PUT8_10( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 8 bit bit values
-#define TRICE8_11( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
-    TRICE_ENTER id; CNTC(11); \
+#define TRICE8_11( tid, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
+    TRICE_ENTER tid; CNTC(11); \
     TRICE_PUT8_11( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ); \
     TRICE_LEAVE
 
 //! TRICE8_12 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v11 are 8 bit bit values
-#define TRICE8_12( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
-    TRICE_ENTER id; CNTC(12); \
+#define TRICE8_12( tid, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
+    TRICE_ENTER tid; CNTC(12); \
     TRICE_PUT8_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
 //! trice8m_0 writes trice data as fast as possible in a buffer.
 //! This macro is used internally and not intended for user applications.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define trice8m_0( tid ) \
     TRICE_ENTER \
     TRICE_PUT( (0<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
@@ -178,7 +178,7 @@
 
 //! trice8m_1 writes trice data as fast as possible in a buffer.
 //! This macro is used internally and not intended for user applications.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
 #define trice8m_1( tid, v0 ) \
     TRICE_ENTER \
@@ -302,7 +302,7 @@ void trice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, 
 
 //! Trice8m_0 writes trice data as fast as possible in a buffer.
 //! This macro is used internally and not intended for user applications.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define Trice8m_0( tid ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
@@ -312,7 +312,7 @@ void trice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, 
 
 //! Trice8m_1 writes trice data as fast as possible in a buffer.
 //! This macro is used internally and not intended for user applications.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
 #define Trice8m_1( tid, v0 ) \
     TRICE_ENTER \
@@ -459,7 +459,7 @@ void Trice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, 
 #endif // #else // #ifdef TRICE_CLEAN
 
 //! TRice8m_0 writes trice data as fast as possible in a buffer.
-//! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRice8m_0( tid ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
@@ -468,7 +468,7 @@ void Trice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, 
     TRICE_LEAVE
 
 //! TRice8m_1 writes trice data as fast as possible in a buffer.
-//! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
 #define TRice8m_1( tid, v0 ) \
     TRICE_ENTER \

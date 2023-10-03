@@ -84,13 +84,13 @@
                                                                             TRICE_PUT(TRICE_SHORT0(v10)| TRICE_SHORT1(v11));
 
 //! TRICE16_0 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRICE16_0( tid, pFmt ) \
     TRICE_ENTER tid; CNTC(0); \
     TRICE_LEAVE
 
 //! TRICE16_1 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 16 bit value
 #define TRICE16_1( tid, pFmt, v0 ) \
     TRICE_ENTER tid; CNTC(2); \
@@ -98,7 +98,7 @@
     TRICE_LEAVE
 
 //! TRICE16_2 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v1 are 16 bit values
 #define TRICE16_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER id; CNTC(4); \
@@ -106,7 +106,7 @@
     TRICE_LEAVE
 
 //! TRICE16_3 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v2 are 16 bit values
 #define TRICE16_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER id; CNTC(6); \
@@ -114,7 +114,7 @@
     TRICE_LEAVE
 
 //! TRICE16_4 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v3 are 16 bit values
 #define TRICE16_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER id; CNTC(8); \
@@ -122,7 +122,7 @@
     TRICE_LEAVE
 
 //! TRICE16_5 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v4 are 16 bit values
 #define TRICE16_5( id, pFmt, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER id; CNTC(10); \
@@ -130,7 +130,7 @@
     TRICE_LEAVE
 
 //! TRICE16_6 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v5 are 16 bit values
 #define TRICE16_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER id; CNTC(12); \
@@ -138,7 +138,7 @@
     TRICE_LEAVE
 
 //! TRICE16_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v6 are 16 bit values
 #define TRICE16_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER id; CNTC(14); \
@@ -146,7 +146,7 @@
     TRICE_LEAVE
 
 //! TRICE16_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER id; CNTC(16); \
@@ -154,7 +154,7 @@
     TRICE_LEAVE
 
 //! TRICE16_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_9( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER id; CNTC(18); \
@@ -162,7 +162,7 @@
     TRICE_LEAVE
 
 //! TRICE16_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_10( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER id; CNTC(20); \
@@ -170,7 +170,7 @@
     TRICE_LEAVE
 
 //! TRICE16_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_11( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER id; CNTC(22); \
@@ -178,7 +178,7 @@
     TRICE_LEAVE
 
 //! TRICE16_12 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v11 are 16 bit values
 #define TRICE16_12( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER id; CNTC(24); \
@@ -186,14 +186,14 @@
     TRICE_LEAVE
 
 //! trice16m_0 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define trice16m_0( tid ) \
     TRICE_ENTER \
     TRICE_PUT( (0<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_LEAVE
 
 //! trice16m_1 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 16 bit value
 #define trice16m_1( tid, v0 ) \
     TRICE_ENTER \
@@ -323,7 +323,7 @@ void trice16fn_12( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t
     TRICE_LEAVE
 
 //! Trice16m_1 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 16 bit value
 #define Trice16m_1( tid, v0 ) \
     TRICE_ENTER \
@@ -477,7 +477,7 @@ void Trice16fn_12( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t
     TRICE_LEAVE
 
 //! TRice16m_1 writes trice data as fast as possible in a buffer.
-//! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
+//! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 16 bit value
 #define TRice16m_1( tid, v0 ) \
     TRICE_ENTER \
