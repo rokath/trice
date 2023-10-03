@@ -1,4 +1,8 @@
 {
+	"1001": {
+		"File": "main.c",
+		"Line": 108
+	},
 	"1007": {
 		"File": "triceCheck.c",
 		"Line": 920
@@ -767,9 +771,17 @@
 		"File": "triceCheck.c",
 		"Line": 476
 	},
+	"2190": {
+		"File": "main.c",
+		"Line": 116
+	},
 	"2193": {
 		"File": "triceCheck.c",
 		"Line": 690
+	},
+	"2197": {
+		"File": "stm32f0xx_it.c",
+		"Line": 237
 	},
 	"2198": {
 		"File": "triceCheck.c",
@@ -798,6 +810,10 @@
 	"2247": {
 		"File": "triceCheck.c",
 		"Line": 358
+	},
+	"2252": {
+		"File": "stm32f0xx_it.c",
+		"Line": 316
 	},
 	"2263": {
 		"File": "triceCheck.c",
@@ -1062,6 +1078,10 @@
 	"2701": {
 		"File": "triceCheck.c",
 		"Line": 727
+	},
+	"2709": {
+		"File": "stm32f0xx_it.c",
+		"Line": 313
 	},
 	"2710": {
 		"File": "triceCheck.c",
@@ -1363,6 +1383,10 @@
 		"File": "triceCheck.c",
 		"Line": 1258
 	},
+	"3151": {
+		"File": "stm32f0xx_it.c",
+		"Line": 274
+	},
 	"3157": {
 		"File": "triceCheck.c",
 		"Line": 1007
@@ -1431,6 +1455,10 @@
 		"File": "triceCheck.c",
 		"Line": 1152
 	},
+	"3292": {
+		"File": "stm32f0xx_it.c",
+		"Line": 141
+	},
 	"3294": {
 		"File": "triceCheck.c",
 		"Line": 758
@@ -1438,6 +1466,10 @@
 	"3302": {
 		"File": "triceCheck.c",
 		"Line": 626
+	},
+	"3310": {
+		"File": "stm32f0xx_it.c",
+		"Line": 297
 	},
 	"3318": {
 		"File": "triceCheck.c",
@@ -1619,6 +1651,10 @@
 		"File": "triceCheck.c",
 		"Line": 804
 	},
+	"3598": {
+		"File": "main.c",
+		"Line": 139
+	},
 	"3601": {
 		"File": "triceCheck.c",
 		"Line": 1117
@@ -1735,6 +1771,10 @@
 		"File": "triceCheck.c",
 		"Line": 686
 	},
+	"3786": {
+		"File": "stm32f0xx_it.c",
+		"Line": 282
+	},
 	"3791": {
 		"File": "triceCheck.c",
 		"Line": 1101
@@ -1831,6 +1871,10 @@
 		"File": "triceCheck.c",
 		"Line": 313
 	},
+	"3923": {
+		"File": "main.c",
+		"Line": 109
+	},
 	"3929": {
 		"File": "triceCheck.c",
 		"Line": 573
@@ -1915,9 +1959,17 @@
 		"File": "triceCheck.c",
 		"Line": 935
 	},
+	"4117": {
+		"File": "main.c",
+		"Line": 83
+	},
 	"4118": {
 		"File": "triceCheck.c",
 		"Line": 1119
+	},
+	"4119": {
+		"File": "stm32f0xx_it.c",
+		"Line": 290
 	},
 	"4124": {
 		"File": "triceCheck.c",
@@ -2071,6 +2123,10 @@
 		"File": "triceCheck.c",
 		"Line": 174
 	},
+	"4350": {
+		"File": "stm32f0xx_it.c",
+		"Line": 310
+	},
 	"4354": {
 		"File": "triceCheck.c",
 		"Line": 655
@@ -2098,6 +2154,10 @@
 	"4403": {
 		"File": "triceCheck.c",
 		"Line": 898
+	},
+	"4410": {
+		"File": "main.c",
+		"Line": 113
 	},
 	"4417": {
 		"File": "triceCheck.c",
@@ -2174,6 +2234,10 @@
 	"4535": {
 		"File": "triceCheck.c",
 		"Line": 198
+	},
+	"4536": {
+		"File": "main.c",
+		"Line": 87
 	},
 	"4545": {
 		"File": "triceCheck.c",
@@ -2503,6 +2567,10 @@
 		"File": "triceCheck.c",
 		"Line": 1003
 	},
+	"5026": {
+		"File": "stm32f0xx_it.c",
+		"Line": 262
+	},
 	"5028": {
 		"File": "triceCheck.c",
 		"Line": 693
@@ -2671,6 +2739,10 @@
 		"File": "triceCheck.c",
 		"Line": 1011
 	},
+	"5306": {
+		"File": "main.c",
+		"Line": 111
+	},
 	"5315": {
 		"File": "triceCheck.c",
 		"Line": 1243
@@ -2678,6 +2750,14 @@
 	"5317": {
 		"File": "triceCheck.c",
 		"Line": 1246
+	},
+	"5329": {
+		"File": "stm32f0xx_it.c",
+		"Line": 319
+	},
+	"5333": {
+		"File": "main.c",
+		"Line": 141
 	},
 	"5351": {
 		"File": "triceCheck.c",
@@ -2718,6 +2798,14 @@
 	"5412": {
 		"File": "triceCheck.c",
 		"Line": 436
+	},
+	"5422": {
+		"File": "stm32f0xx_it.c",
+		"Line": 278
+	},
+	"5432": {
+		"File": "main.c",
+		"Line": 115
 	},
 	"5439": {
 		"File": "triceCheck.c",
@@ -2818,6 +2906,10 @@
 	"5606": {
 		"File": "triceCheck.c",
 		"Line": 441
+	},
+	"5609": {
+		"File": "main.c",
+		"Line": 112
 	},
 	"5611": {
 		"File": "triceCheck.c",
@@ -2995,6 +3087,10 @@
 		"File": "triceCheck.c",
 		"Line": 825
 	},
+	"5944": {
+		"File": "stm32f0xx_it.c",
+		"Line": 300
+	},
 	"5950": {
 		"File": "triceCheck.c",
 		"Line": 1070
@@ -3050,6 +3146,10 @@
 	"6024": {
 		"File": "triceCheck.c",
 		"Line": 1155
+	},
+	"6026": {
+		"File": "main.c",
+		"Line": 107
 	},
 	"6028": {
 		"File": "triceCheck.c",
@@ -3131,6 +3231,10 @@
 		"File": "triceCheck.c",
 		"Line": 859
 	},
+	"6097": {
+		"File": "stm32f0xx_it.c",
+		"Line": 286
+	},
 	"6102": {
 		"File": "triceCheck.c",
 		"Line": 865
@@ -3210,6 +3314,10 @@
 	"6229": {
 		"File": "triceCheck.c",
 		"Line": 1077
+	},
+	"6231": {
+		"File": "stm32f0xx_it.c",
+		"Line": 156
 	},
 	"6233": {
 		"File": "triceCheck.c",
@@ -3311,6 +3419,10 @@
 		"File": "triceCheck.c",
 		"Line": 961
 	},
+	"6366": {
+		"File": "stm32f0xx_it.c",
+		"Line": 266
+	},
 	"6368": {
 		"File": "triceCheck.c",
 		"Line": 90
@@ -3390,6 +3502,10 @@
 	"6496": {
 		"File": "triceCheck.c",
 		"Line": 1110
+	},
+	"6498": {
+		"File": "main.c",
+		"Line": 110
 	},
 	"6501": {
 		"File": "triceCheck.c",
@@ -3907,6 +4023,14 @@
 		"File": "triceCheck.c",
 		"Line": 823
 	},
+	"7262": {
+		"File": "stm32f0xx_it.c",
+		"Line": 293
+	},
+	"7265": {
+		"File": "stm32f0xx_it.c",
+		"Line": 303
+	},
 	"7268": {
 		"File": "triceCheck.c",
 		"Line": 1174
@@ -3914,6 +4038,10 @@
 	"7298": {
 		"File": "triceCheck.c",
 		"Line": 572
+	},
+	"7305": {
+		"File": "main.c",
+		"Line": 114
 	},
 	"7307": {
 		"File": "triceCheck.c",
@@ -4111,6 +4239,10 @@
 		"File": "triceCheck.c",
 		"Line": 1008
 	},
+	"7595": {
+		"File": "stm32f0xx_it.c",
+		"Line": 243
+	},
 	"7598": {
 		"File": "triceCheck.c",
 		"Line": 1220
@@ -4142,6 +4274,10 @@
 	"7692": {
 		"File": "triceCheck.c",
 		"Line": 939
+	},
+	"7697": {
+		"File": "stm32f0xx_it.c",
+		"Line": 306
 	},
 	"7700": {
 		"File": "triceCheck.c",
@@ -4271,6 +4407,10 @@
 		"File": "triceCheck.c",
 		"Line": 1001
 	},
+	"7889": {
+		"File": "stm32f0xx_it.c",
+		"Line": 270
+	},
 	"7891": {
 		"File": "triceCheck.c",
 		"Line": 190
@@ -4330,6 +4470,10 @@
 	"7965": {
 		"File": "triceCheck.c",
 		"Line": 108
+	},
+	"7970": {
+		"File": "main.c",
+		"Line": 167
 	},
 	"7983": {
 		"File": "triceCheck.c",
