@@ -87,6 +87,10 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
     TriceInit();
+    
+    //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
+    trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-G0B1RE   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+
     TRice( "w: Hello! 👋🙂\a\n" ); // with sound!
     TRice8( "w: Hello! 👋🙂 %d\n", 1 );
     Trice8( "w: Hello! 👋🙂 %d %d\a\n", 1, 2 );

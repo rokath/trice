@@ -29,6 +29,9 @@
       - [2.5.7. Trice (Time) Stamps](#257-trice-time-stamps)
       - [2.5.8. Trice Parameter Bit Widths](#258-trice-parameter-bit-widths)
     - [2.6. Avoid it](#26-avoid-it)
+      - [2.6.1. Parser Limitation](#261-parser-limitation)
+      - [2.6.2. No _trice_ macros in header files](#262-no-trice-macros-in-header-files)
+      - [2.6.3. No _trice_ macros inside other macros](#263-no-trice-macros-inside-other-macros)
   - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
   - [4.  Embedded system code configuration](#4--embedded-system-code-configuration)
   - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
@@ -101,7 +104,6 @@
     - [20.10. Option 2: Cleaning in a Post-build process](#2010-option-2-cleaning-in-a-post-build-process)
     - [20.11. Option 3: Cleaning on Repository Check-In](#2011-option-3-cleaning-on-repository-check-in)
   - [21. Changelog](#21-changelog)
-
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -461,9 +463,11 @@ Hint: With the defaut TCOBS framing 8-bit values as 32-bit parameters typically 
 
 ###  2.6. <a name='Avoidit'></a>Avoid it
 
-Because the implemented souce code parser for `trice insert` and `trice clean` is only a simple one, there is one important limitation:
+####  2.6.1. <a name='ParserLimitation'></a>Parser Limitation
 
-- Do not use an unescaped singe double quote in soure code comments. Example:
+Because the implemented source code parser for `trice insert` and `trice clean` is only a simple one, there is one important limitation:
+
+- Do not use an unescaped singe double quote in source code comments. Example:
 
 ```C
 trice( "hi 0" );
@@ -481,6 +485,17 @@ trice( "hi 4");
 - Workaround: Use `trice update` in such a rare case but better avoid any unescaped singe double quote inside comments.
 
 (See also [issue #427](https://github.com/rokath/trice/issues/427))
+
+####  2.6.2. <a name='No_trice_macrosinheaderfiles'></a>No _trice_ macros in header files
+
+- There is nothing wrong, when putting _trice_ macros into header files.
+- But: When you use `trice insert` as pre-build command and `trice clean` as post build command, those heder files get touched on each build and therefore all source code files including them will be re-translated every time.
+- For efficiency avoid that.
+
+####  2.6.3. <a name='No_trice_macrosinsideothermacros'></a>No _trice_ macros inside other macros
+
+- There is nothing wrong, when putting _trice_ macros into other macros.
+- But: When running the self made macro, the location information of the inner _trice_ macro will point to the self made macro definition and not to its execution location.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

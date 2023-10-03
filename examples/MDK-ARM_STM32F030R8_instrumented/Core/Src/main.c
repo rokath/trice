@@ -79,7 +79,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
     TriceInit();
 
-    TRICE_HEADLINE;
+    //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
+    trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-𝔽𝟘𝟛𝟘ℝ𝟠   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
 
     #if TRICE_CHECK_CODE
         int triceCheckIndex = 0; 

@@ -1007,6 +1007,10 @@
 		"Type": "TRice",
 		"Strg": "info:This is a message without values and a 32-bit stamp.\\n"
 	},
+	"2428": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-G0B1RE   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	},
 	"2433": {
 		"Type": "TRICE",
 		"Strg": "sig:This ASSERT error is just a demo and no real error:\\n"
