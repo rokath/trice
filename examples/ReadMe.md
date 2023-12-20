@@ -1,4 +1,4 @@
-# Example Projects without and with Trice Instrumentation
+7# Example Projects without and with Trice Instrumentation
 
 - All used tools are **Open Source**.
 - All provided information is just as example and needs adaption to your needs.
@@ -71,7 +71,7 @@ OR
 
 - Uninstall existing ARM GCC compilers optionally.
 - Check if $PATH is clean.
-  - In fact you can leave is as it is.
+  - In fact you can leave it as it is.
 - Check if `C_INCLUDE_PATH` is not defined.
   - It would cause issues performing Go tests with CGO.
   - The environment variable `C_INCLUDE_PATH` is needed by Clang, but is set temporarily inside the Makefile.
