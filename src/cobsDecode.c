@@ -9,7 +9,7 @@
 //! @param out Pointer to decoded output data.
 //! @return Number of bytes successfully decoded.
 //! @note Stops decoding if delimiter byte is found. Code taken from Wikipedia and slightly modyfied.
-size_t COBSDecode(void * RESTRICT out, const void * RESTRICT in, size_t length ) {
+size_t COBSDecode(void * __restrict out, const void * __restrict in, size_t length ) {
 	uint8_t* data = out;
 	const uint8_t * buffer = in;
 	const uint8_t *byte = buffer; // Encoded input byte pointer

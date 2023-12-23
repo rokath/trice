@@ -66,7 +66,7 @@
     reptCount = 0; \
     }
 
-int TCOBSEncode( void * RESTRICT output, const void * RESTRICT input, size_t length){
+int TCOBSEncode( void * __restrict output, const void * __restrict input, size_t length){
     uint8_t* o = output; // write pointer
     uint8_t* out = output;
     uint8_t const * i = input; // read pointer

@@ -9,7 +9,7 @@
 //! @param out Pointer to encoded output buffer.
 //! @return Encoded buffer length in bytes.
 //! @note Does not output delimiter byte. Code taken from Wikipedia and slightly adapted.
-size_t COBSEncode( void * RESTRICT out, const void * RESTRICT in, size_t length) {
+size_t COBSEncode( void * __restrict out, const void * __restrict in, size_t length) {
 	uint8_t * buffer = out;
 	uint8_t *encode = buffer; // Encoded byte pointer
 	uint8_t *codep = encode++; // Output code pointer
