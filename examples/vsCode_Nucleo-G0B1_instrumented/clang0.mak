@@ -2,10 +2,12 @@
 # Build path
 CLANG_BUILD = build.clang
 
-CLANG_CC = clang
-CLANG_AS = clang -x assembler-with-cpp
-CLANG_CP = llvm-objcopy
-CLANG_SZ = llvm-size
+VERSION = -17 # When a default version is used, this should be empty.
+
+CLANG_CC = clang$(VERSION)
+CLANG_AS = clang$(VERSION) -x assembler-with-cpp
+CLANG_CP = llvm-objcopy$(VERSION)
+CLANG_SZ = llvm-size$(VERSION)
 CLANG_HEX = $(CLANG_CP) -O ihex
 CLANG_BIN = $(CLANG_CP) -O binary -S
 
