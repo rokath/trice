@@ -1,4 +1,4 @@
-7# Example Projects without and with Trice Instrumentation
+# Example Projects without and with Trice Instrumentation
 
 - All used tools are **Open Source**.
 - All provided information is just as example and needs adaption to your needs.
