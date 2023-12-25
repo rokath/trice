@@ -111,7 +111,7 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 		p.packageFraming = packageFramingCOBS
 	case "tcobs", "tcobsv1":
 		p.packageFraming = packageFramingTCOBS
-	case "TCOBSv2", "TCOBSV2", "tcobsv2":
+	case "tcobsv2":
 		p.packageFraming = packageFramingTCOBSv2
 	case "none":
 		p.packageFraming = packageFramingNone
