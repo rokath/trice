@@ -484,7 +484,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 func (p *trexDec) sprintTrice(b []byte) (n int) {
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
-	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "Assert")
+	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertTrue")
+	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertFalse")
 	triceType := p.Trice.Type
 	// need to reconstruct full TRICE info, if not exist in type string
 	for _, name := range []string{"TRICE", "TRice", "Trice", "trice"} {
