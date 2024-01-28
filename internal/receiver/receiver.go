@@ -146,7 +146,7 @@ type tcp4 struct {
 }
 
 // newTCP4Connection returns a readCloser capable tcp4 instance.
-func newTCP4Connection(_ io.Writer, endpoint string) *tcp4 {
+func newTCP4Connection(endpoint string) *tcp4 {
 	r := &tcp4{}
 	addr, err := net.ResolveTCPAddr("tcp4", endpoint)
 	if err != nil {
@@ -184,7 +184,7 @@ type file struct {
 }
 
 // newFileReader returns a readCloser capable file instance.
-func newFileReader(_ io.Writer, fSys *afero.Afero, fn string) *file {
+func newFileReader(fSys *afero.Afero, fn string) *file {
 	r := &file{}
 	fh, err := fSys.Open(fn)
 	if err != nil {
@@ -238,13 +238,13 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		if ExecCommand != "" {
 			fmt.Println("todo: execute ", ExecCommand)
 		}
-		l := newTCP4Connection(w, args)
+		l := newTCP4Connection(args)
 		r = l
 	case "FILE", "FILEBUFFER":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultFileArgs
 		}
-		r = newFileReader(w, fSys, args)
+		r = newFileReader(fSys, args)
 	case "DUMP":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultDumpArgs
