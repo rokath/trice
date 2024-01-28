@@ -34,33 +34,68 @@ func TestTriceWrong1(t *testing.T) {
 	assert.Equal(t, "unknown sub-command 'wrong'. try: 'trice help|h'\n", fmt.Sprintln(e))
 }
 
+func TestDisplayServerStartAndShutdownLegacy(t *testing.T) {
+	var ds, sd bytes.Buffer
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
+	go args.Handler(&ds, fSys, []string{"trice", "ds", "-color", "none", "-ipp", "61496"})
+	for ds.String() != "displayServer @ localhost:61496\n" {
+	}
+	args.Handler(&sd, fSys, []string{"trice", "sd", "-ipp", "61496"})
+	assert.Equal(t, "displayServer @ localhost:61496\n\n\ndisplayServer shutdown\n\n\n", ds.String())
+	assert.Equal(t, "", sd.String())
+}
+
 // TestDisplayServerStartAndShutdown fails with -race.
 // ds should be a channel to avoid that, but I do notknow how to do that here without changing the args.Handler signature.
-func _TestDisplayServerStartAndShutdown(t *testing.T) {
+func TestDisplayServerStartAndShutdown0(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewOsFs()}
-	//mtb := milkthisbuffer.New(500)
-	//go mtb.StdoutAsync()
-	//ds:=
 
-	pipe1_reader, pipe1_writer := io.Pipe()
+	var ds bytes.Buffer
+	go args.Handler(&ds, fSys, []string{"trice", "ds", "-color", "none", "-ipp", "61496"})
 
-	//	go args.Handler(&ds, fSys, []string{"trice", "ds", "-color", "none", "-ipp", "61496"})
-	go args.Handler(pipe1_writer, fSys, []string{"trice", "ds", "-color", "none", "-ipp", "61496"})
-	//	expected := "displayServer @ localhost:61496\n"
-	expected := "displayServer @ localhost:61496\n"
-	out := make([]byte, 100)
-	time.Sleep(10 * time.Millisecond)
-	n, err := pipe1_reader.Read(out)
-	assert.Nil(t, err)
-	assert.Equal(t, n, len(expected))
-	result := string(out)
-	assert.Equal(t, expected, result[:n])
+	for ds.String() != "displayServer @ localhost:61496\n" {
+		time.Sleep(1 * time.Millisecond)
+	}
 
-	//for ds.String() != expected {
-	//	time.Sleep(time.Millisecond)
-	//}
+	expect := "displayServer @ localhost:61496\n"
+	actual := ds.String()
+	assert.Equal(t, expect, actual)
+
 	var sd bytes.Buffer
 	args.Handler(&sd, fSys, []string{"trice", "sd", "-ipp", "61496"})
-	//assert.Equal(t, "displayServer @ localhost:61496\n\n\ndisplayServer shutdown\n\n\n", ds.String())
+
+	exp := "displayServer @ localhost:61496\n\n\ndisplayServer shutdown\n\n\n"
+	act := ds.String()
+	assert.Equal(t, exp, act)
+	assert.Equal(t, "", sd.String())
+}
+
+// TestDisplayServerStartAndShutdown1 does not work for some reason!
+// ds should be a channel to avoid that, but I do notknow how to do that here without changing the args.Handler signature.
+func _TestDisplayServerStartAndShutdown1(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewOsFs()}
+
+	rd, wr := io.Pipe()
+	go args.Handler(wr, fSys, []string{"trice", "ds", "-color", "none", "-ipp", "61496"})
+	time.Sleep(100 * time.Millisecond)
+
+	expect := "displayServer @ localhost:61496\n"
+	out := make([]byte, 1000)
+	n, err := rd.Read(out)
+	assert.Nil(t, err)
+	actual := string(out[:n])
+	assert.Equal(t, expect, actual)
+
+	var sd bytes.Buffer
+	args.Handler(&sd, fSys, []string{"trice", "sd", "-ipp", "61496"})
+	time.Sleep(100 * time.Millisecond)
+	wr.Close() // close the writer, so the reader knows there's no more data
+
+	exp := "displayServer @ localhost:61496\n\n\ndisplayServer shutdown\n\n\n"
+	n, err = rd.Read(out)
+	assert.Nil(t, err)
+	act := string(out[:n])
+	assert.Equal(t, exp, act)
+
 	assert.Equal(t, "", sd.String())
 }
