@@ -6,7 +6,11 @@ vsCode_Nucleo-G0B1_generated
 vsCode_Nucleo-G0B1_instrumented
 vsCode_Nucleo-L432KC_generated
 vsCode_Nucleo-L432KC_instrumented
+Nucleo-STM32L432KC_generated
+Nucleo-STM32L432KC_adapted_toClangc
 "
+#vsCode_Nucleo-G071_instrumented 
+#OpenCM3_STM32F411_Nucleo
 
 for d in $VSCODETARGETDIRS
 do
