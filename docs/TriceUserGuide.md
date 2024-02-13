@@ -1364,7 +1364,7 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 |   `D`   | `dddddddd` = data byte                                                       |
 |  `...`  | 0 to 32767 data bytes                                                        |
 | `"..."` | format string                                                                |
-|   `W`   | bit width 8, 16, 32 or 64                                                    |
+|   `W`   | bit width 8, 16, 32 or 64 (uW stands for u8, u16, or u64)                    |
 |   `x`   | unspecified bit                                                              |
 |   `X`   | =`xxxxxxxx` unspecified byte                                                 |
 
