@@ -48,10 +48,15 @@
 
 ##  1. <a name='Preface'></a>Preface
 
-* This technique needs to be considered as experimental:
-  * RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
-  * Also ST-Link is usable, but maybe not parallel with debugging.
-  * Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
+This technique needs to be considered as experimental:
+
+* RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
+* Also ST-Link is usable for trice logs, but maybe not parallel with debugging.
+* Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
+  * When using very high trice loads over RTT for a long time, sometimes an on-board J-Link (re-flashed ST-Link) could get internally into an inconsistent state (probably internal buffer overrun), what needs a power cycle then.
+* You could consider RTT over open-OCD as an alternative.
+* The default SEGGER up-buffer size is 1024 bytes, enough for most cases. If not, adapt it in your *SEGGER_RTT_Conf.h* file.
+* Possible: Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([#446](https://github.com/rokath/trice/issues/446))
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
