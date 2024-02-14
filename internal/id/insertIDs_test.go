@@ -426,7 +426,12 @@ func TestInsertWithTickInComment(t *testing.T) {
 	TRice( "x" );
 	//"
 	TRice( "x" );
-	TRiceAssert( "x", flag );
+	triceAssertTrue( "x", flag );
+	TriceAssertTrue( "x", flag );
+	TRiceAssertTrue( "x", flag );
+	triceAssertFalse( "x", flag );
+	TriceAssertFalse( "x", flag );
+	TRiceAssertFalse( "x", flag );
 	`
 	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
 
@@ -441,7 +446,12 @@ func TestInsertWithTickInComment(t *testing.T) {
 	TRice( "x" );
 	//"
 	TRice( iD(999), "x" );
-	TRiceAssert( iD(998), "x", flag );
+	triceAssertTrue( iD(998), "x", flag );
+	TriceAssertTrue( iD(997), "x", flag );
+	TRiceAssertTrue( iD(996), "x", flag );
+	triceAssertFalse( iD(995), "x", flag );
+	TriceAssertFalse( iD(994), "x", flag );
+	TRiceAssertFalse( iD(993), "x", flag );
 	`
 	actSrc1, e := fSys.ReadFile(sFn1)
 	assert.Nil(t, e)

@@ -7,73 +7,70 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"testing"
 
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
+// TestBUFFERReceiver tests the NewReadWriteCloser BUFFER functionality.
 func TestBUFFERReceiver(t *testing.T) {
-	var verbose bool
-	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
-	rc, err := NewReadWriteCloser(os.Stdout, fSys, verbose, "BUFFER", "7 123 44")
+	rc, err := NewReadWriteCloser(nil, nil, false, "BUFFER", "7 123 44")
 	assert.Nil(t, err)
-	b := make([]byte, 100)
+	b := make([]byte, 4)
 	n, err := rc.Read(b)
 	assert.Nil(t, err)
 	assert.True(t, n == 3)
 	assert.True(t, b[0] == 7)
+	assert.True(t, b[1] == 123)
 	assert.True(t, b[2] == 44)
 	n, err = rc.Read(b)
-	assert.True(t, 0 == n)
-	assert.True(t, io.EOF == err)
+	assert.True(t, n == 0)
+	assert.True(t, err == io.EOF)
 	assert.Nil(t, rc.Close())
 }
 
+// TestDUMPReceiver tests the NewReadWriteCloser DUMP functionality.
 func TestDUMPReceiver(t *testing.T) {
-	var verbose bool
-	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
-	rc, err := NewReadWriteCloser(os.Stdout, fSys, verbose, "DUMP", "7B 1A ee,88, 5a")
+	rc, err := NewReadWriteCloser(nil, nil, false, "DUMP", "7B 1A ee,88, 5a")
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)
 	assert.Nil(t, err)
-	assert.True(t, 5 == n)
-	assert.True(t, 0x7b == b[0])
-	assert.True(t, 0x5a == b[4])
+	assert.True(t, n == 5)
+	assert.True(t, b[0] == 0x7b)
+	assert.True(t, b[4] == 0x5a)
 	n, err = rc.Read(b)
-	assert.True(t, 0 == n)
+	assert.True(t, n == 0)
 	assert.True(t, io.EOF == err)
 	assert.Nil(t, rc.Close())
 }
 
+// TestFILEReceiver tests the NewReadWriteCloser FILE functionality.
 func TestFILEReceiver(t *testing.T) {
-	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
-	dir := "."                                //t.TempDir() // todo
-	fn := dir + "/trices.raw"
+	fSys := &afero.Afero{Fs: afero.NewOsFs()}
+	fn := "./trices.raw"
 	f, err := fSys.Create(fn)
 	assert.Nil(t, err)
 	d := []byte{115, 111, 109, 101, 10}
 	n, err := f.Write(d)
 	assert.Nil(t, err)
 	assert.True(t, n == len(d))
-
-	var verbose bool
-	rc, err := NewReadWriteCloser(os.Stdout, fSys, verbose, "FILE", fn)
+	rc, err := NewReadWriteCloser(nil, fSys, false, "FILE", fn)
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err = rc.Read(b)
 	assert.Nil(t, err)
-	assert.True(t, 5 == n)
+	assert.True(t, n == len(d))
 	assert.True(t, b[0] == 115)
 	assert.True(t, b[4] == 10)
 	rc.Close()
 }
 
-// TestTCP4Receiver works, but fails when tested with -race
+// TestTCP4Receiver tests the NewReadWriteCloser TCP4 functionality.
 func TestTCP4Receiver(t *testing.T) {
-	var addr net.Addr
+	ch := make(chan net.Addr)
+
 	go func() {
 		const (
 			CONN_TYPE = "tcp4"
@@ -83,10 +80,9 @@ func TestTCP4Receiver(t *testing.T) {
 		// Listen for incoming connections.
 		l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
 		assert.Nil(t, err)
-		addr = l.Addr()
+		ch <- l.Addr()
 		// Close the listener when the application closes.
 		defer l.Close()
-		//fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
 		for {
 			// Listen for an incoming connection.
 			conn, err := l.Accept()
@@ -96,12 +92,9 @@ func TestTCP4Receiver(t *testing.T) {
 		}
 	}()
 
-	var verbose bool
-	for addr == nil { // wait until server is up
-	}
+	addr := <-ch
 	s := fmt.Sprint(addr)
-	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
-	rc, err := NewReadWriteCloser(os.Stdout, fSys, verbose, "TCP4", s)
+	rc, err := NewReadWriteCloser(nil, nil, false, "TCP4", s)
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)
@@ -109,7 +102,7 @@ func TestTCP4Receiver(t *testing.T) {
 	assert.Equal(t, []byte{0x01, 0x7f, 0xFF}, b[:n])
 }
 
-// Handles incoming requests.
+// handleRequest handles incoming requests.
 func handleRequest(conn net.Conn) {
 	// Send a response back to person contacting us.
 	conn.Write([]byte{0x01, 0x7f, 0xFF})

@@ -118,7 +118,7 @@
 
 ##  1. <a name='Projectstructure'></a>Project structure
 
-| name                           | info                                           |
+| name                            | info                                             |
 |---------------------------------|--------------------------------------------------|
 | [./cmd/cui](../cmd/cui)         | (do not use) command user interface tryout code  |
 | [./cmd/stim](../cmd/stim)       | (do not use) target stimulation tool tryout code |
@@ -201,8 +201,8 @@ _Hint:_ The easiest way is to use SEGGER J-Link with RTT as output. Setting up U
 
 Compare folders of one of these folder groups:
 
-| Without Instrumentation                                                           | With Trice Instrumentation                                                              |
-|-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| Without Instrumentation                                                                   | With Trice Instrumentation                                                                      |
+|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
 | [`./examples/MDK-ARM_STM32F030R8_generated`](../examples/MDK-ARM_STM32F030R8_generated)   | [`./examples/MDK-ARM_STM32F030R8_instrumented`](../examples/MDK-ARM_STM32F030R8_instrumented)   |
 | [`./examples/vsCode_Nucleo-G0B1_generated`](../examples/vsCode_Nucleo-G0B1_generated)     | [`./examples/vsCode_Nucleo-G0B1_instrumented`](../examples/vsCode_Nucleo-G0B1_instrumented)     |
 | [`./examples/vsCode_Nucleo-L432KC_generated`](../examples/vsCode_Nucleo-L432KC_generated) | [`./examples/vsCode_Nucleo-L432KC_instrumented`](../examples/vsCode_Nucleo-L432KC_instrumented) |
@@ -1348,25 +1348,25 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 ###  15.1. <a name='Symbols'></a>Symbols
 
-| Symbol | Meaning              |
-|:------:|----------------------|
-|  `i`   | ID bit               |
-|  `I`   | `iiiiiiii` = ID byte |
-|  `n`   | number bit           |
-| `z`     | count selector bit |
-| `s`| stamp selector bit |
-| `N`     | `znnnnnnnn` = count selector bit plus 7-bit number byte |
-| `c`     | cycle counter bit |
-| `C`     | z==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension |
-| `t`     | (time)stamp bit |
-| `T`     | `tttttttt` = (time)stamp byte |
-| `d`     | data bit |
-| `D`     | `dddddddd` = data byte |
-| `...`   | 0 to 32767 data bytes |
-| `"..."` | format string |
-| `W`     | bit width 8, 16, 32 or 64 |
-| `x`     | unspecified bit |
-| `X`     | =`xxxxxxxx` unspecified byte |
+| Symbol  | Meaning                                                                      |
+|:-------:|------------------------------------------------------------------------------|
+|   `i`   | ID bit                                                                       |
+|   `I`   | `iiiiiiii` = ID byte                                                         |
+|   `n`   | number bit                                                                   |
+|   `z`   | count selector bit                                                           |
+|   `s`   | stamp selector bit                                                           |
+|   `N`   | `znnnnnnnn` = count selector bit plus 7-bit number byte                      |
+|   `c`   | cycle counter bit                                                            |
+|   `C`   | z==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension |
+|   `t`   | (time)stamp bit                                                              |
+|   `T`   | `tttttttt` = (time)stamp byte                                                |
+|   `d`   | data bit                                                                     |
+|   `D`   | `dddddddd` = data byte                                                       |
+|  `...`  | 0 to 32767 data bytes                                                        |
+| `"..."` | format string                                                                |
+|   `W`   | bit width 8, 16, 32 or 64 (uW stands for u8, u16, or u64)                    |
+|   `x`   | unspecified bit                                                              |
+|   `X`   | =`xxxxxxxx` unspecified byte                                                 |
 
 ###  15.2. <a name='PackageFormat'></a>Package Format
 
@@ -1382,12 +1382,15 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 - In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 stamp selector bits at the most significant position in the known endianness.
 - The `0` stamp selector is usable for any user encoding. The **trice** tool ignores such packages.
 
-  | 16-bit groups            | Stamp Selector (2 msb) | Comment                                                 | Endianness sizes            |
-  |:-------------------------|:----------------:|---------------------------------------------------------|:----------------------------|
-  | `00xxxxxxX ...`          |        0         | >= 4-byte message, reserved for extensions or user data | `u16 ?...?`                 |
-  | `01iiiiiiI NC  ...`      |        1         | >= 4-byte message, *Trice* format without     stamp     | `u16 u16 [uW] ... [uW]`     |
-  | `10iiiiiiI TT NC ...`    |        2         | >= 4-byte message, *Trice* format with 16-bit stamp     | `u16 u16 u16 [uW] ... [uW]` |
-  | `11iiiiiiI TT TT NC ...` |        3         | >= 4-byte message, *Trice* format with 32-bit stamp     | `u16 u32 u16 [uW] ... [uW]` |
+  | 16-bit groups                      | Stamp Selector (2 msb) | Comment                                                 | Endianness sizes                |
+  |:-----------------------------------|:----------------------:|---------------------------------------------------------|:--------------------------------|
+  | _________ `00xxxxxxX ...`          |           0            | >= 4-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
+  | _________ `01iiiiiiI NC  ...`      |           1            | >= 4-byte message, *Trice* format without     stamp     | ___ `u16 u16 [uW] ... [uW]`     |
+  | _________ `10iiiiiiI TT NC ...`    |           2            | >= 4-byte message, *Trice* format with 16-bit stamp     | ___ `u16 u16 u16 [uW] ... [uW]` |
+  | `10iiiiiiI 10iiiiiiI TT NC ...`    |           2            | First 16bit are doubled. Info over `-d16` trice switch. | `u16 u16 u16 u16 [uW] ... [uW]` |
+  | _________ `11iiiiiiI TT TT NC ...` |           3            | >= 4-byte message, *Trice* format with 32-bit stamp     | ___ `u16 u32 u16 [uW] ... [uW]` |
+
+- The stamp selector 2 encoding has 2 possibilities. When using `TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given, what results from the triceConfig.h file.
 
 - Within one trice message the parameter bit width `W` does not change.
 - When the receiving tool has to convert the endianness it needs some rules:

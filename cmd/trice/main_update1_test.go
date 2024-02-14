@@ -96,6 +96,10 @@ func TestUpdateSet0(t *testing.T) { // Anti-Virus issue
 			`/* this is line 1*/ break; case __LINE__: TRICE8_1   ( Id(0),      "msg:value=%d\n", -1  ); // user written code with 16-bit stamp`,
 			`/* this is line 1*/ break; case __LINE__: TRICE8_1   ( Id( 1000),      "msg:value=%d\n", -1  ); // user written code with 16-bit stamp`,
 		},
+		{
+			`/* this is line 1*/ break; case __LINE__: TriceAssertTrue( "assert:Some flag\n", 1 ); // user written code with 16-bit stamp`,
+			`/* this is line 1*/ break; case __LINE__: TriceAssertTrue( iD( 1000), "assert:Some flag\n", 1 ); // user written code with 16-bit stamp`,
+		},
 	}
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -318,7 +322,7 @@ Changed:  file.c
 	// check generated li.json file
 	expLI := `{
 	"1000": {
-		"file": "file.c",
+		"File": "file.c",
 		"Line": 2
 	},
 	"1001": {
@@ -356,8 +360,6 @@ Changed:  file.c
 }`
 	actLI, e := fSys.ReadFile("li.json")
 	assert.Nil(t, e)
-
-	fmt.Println(string(actLI))
 
 	assert.Equal(t, expLI, string(actLI))
 }

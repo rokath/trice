@@ -613,24 +613,43 @@ unsigned TriceOutDepth( void ){
 
 //! TRICE_ASSERT writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+//! This is a helper macro and should not be used inuser code.
 #define TRICE_ASSERT( tid ) \
     TRICE_ENTER tid; CNTC(0); \
     TRICE_LEAVE
 
-void triceAssert( int idN, char* msg, int flag ){
+void triceAssertTrue( int idN, char* msg, int flag ){
     if( !flag ){
         TRICE_ASSERT( id( idN ) );
     }
 }
 
-void TriceAssert( int idN, char* msg, int flag ){
+void TriceAssertTrue( int idN, char* msg, int flag ){
     if( !flag ){
          TRICE_ASSERT( Id( idN ) );
     }
 }
 
-void TRiceAssert( int idN, char* msg, int flag ){
+void TRiceAssertTrue( int idN, char* msg, int flag ){
     if( !flag ){
+         TRICE_ASSERT( ID( idN ) );
+    }
+}
+
+void triceAssertFalse( int idN, char* msg, int flag ){
+    if( flag ){
+        TRICE_ASSERT( id( idN ) );
+    }
+}
+
+void TriceAssertFalse( int idN, char* msg, int flag ){
+    if( flag ){
+         TRICE_ASSERT( Id( idN ) );
+    }
+}
+
+void TRiceAssertFalse( int idN, char* msg, int flag ){
+    if( flag ){
          TRICE_ASSERT( ID( idN ) );
     }
 }
