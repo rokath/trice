@@ -914,6 +914,10 @@ void triceAssert( int idN, char* msg, int flag );
 void TriceAssert( int idN, char* msg, int flag );
 void TRiceAssert( int idN, char* msg, int flag );
 
+typedef void (*WriteAuxiliaryFn_t)( uint8_t const * enc, size_t encLen );
+extern WriteAuxiliaryFn_t UserNonBlockingDirectWriteAuxiliaryFn;
+extern WriteAuxiliaryFn_t UserNonBlockingDeferredWriteAuxiliaryFn;
+
 #ifdef __cplusplus
 }
 #endif
