@@ -1,7 +1,6 @@
 //! \file cobsDecode.c copied from https://github.com/rokath/cobs
 //! \author Thomas.Hoehenleitner [at] seerose.net
 
-#include "triceConfig.h"
 #include "cobs.h"
 
 //! COBSDecode decodes data from in buffer.

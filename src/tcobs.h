@@ -18,7 +18,8 @@ extern "C" {
 //! 00-byte delimiting. Buffer overlapping is allowed, when input lays inside output with a sufficient offset. The offset 
 //! should be >= next large whole number of length/31. because in the worst case for each 31 bytes an additional sigil byte 
 //! is inserted. The provided output buffer size should be >= length + next large whole number of length/31. This is a 
-//! responsibility of the caller and not checked for efficiency. Remove the "__restrict" qualifiers if compiling with a pre-C99 C dialect.
+//! responsibility of the caller and not checked for efficiency.
+//! If your compiler uses a pre-C99 C dialect and does not know The "__restrict" keyword, you can define it in the project settings.
 int TCOBSEncode( void * __restrict output, const void * __restrict input, size_t length);
 
 //! TCOBSDecode decodes data ending at the location pointed to by "input" backwards (starting with the last byte)
@@ -27,7 +28,8 @@ int TCOBSEncode( void * __restrict output, const void * __restrict input, size_t
 //! > max, this is an error "output buffer too small". In case of an error, a negative value is returned.
 //! THIS IS **IMPORTANT**: The decoded data start at output+max-returned, because output is filled from the end.
 //! Buffer overlapping is partially possible if output limit is _behind_ input limit with sufficient distance,
-//! but data can get much longer. Remove the "__restrict" qualifiers if compiling with a pre-C99 C dialect.
+//! but data can get much longer.
+//! If your compiler uses a pre-C99 C dialect and does not know The "__restrict" keyword, you can define it in the project settings.
 int TCOBSDecode( void * __restrict output, size_t max, const void * __restrict input, size_t length );
 
 #define OUT_BUFFER_TOO_SMALL -1000000 //!< OUT_BUFFER_TOO_SMALL is TCOBSDecode return error code.

@@ -9,7 +9,9 @@
 extern "C" {
 #endif
 
-#define RESTRICT restrict //!< Adapt it to your compiler: restrict, __restrict, __restrict__ or empty
+#include <stdint.h>
+
+// #define RESTRICT restrict //!< Adapt it to your compiler: restrict, __restrict, __restrict__ or empty
 
 //#define TRICE_CLEAN
 
