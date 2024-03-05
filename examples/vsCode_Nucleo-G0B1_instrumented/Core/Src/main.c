@@ -89,16 +89,16 @@ int main(void)
     TriceInit();
     
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-    trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-G0B1RE   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+    trice( iD(2428), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-G0B1RE   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
 
-    TRice( "w: Hello! 👋🙂\a\n" ); // with sound!
-    TRice8( "w: Hello! 👋🙂 %d\n", 1 );
-    Trice8( "w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
-    Trice8( "w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );
-    trice( "w: Hello! 👋🙂 %f (default rounded float)\n",                                          aFloat( 2.71828182845904523536 ) );
-    trice( "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
-    trice64( "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
-                                                                                    trice( "w: Hello! 👋🙂 2.71828182845904523536 (the full number as string)\n" ); 
+    TRice( iD(2454), "w: Hello! 👋🙂\a\n" ); // with sound!
+    TRice8( iD(1073), "w: Hello! 👋🙂 %d\n", 1 );
+    Trice8( iD(1148), "w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
+    Trice8( iD(7436), "w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );
+    trice( iD(6731), "w: Hello! 👋🙂 %f (default rounded float)\n",                                          aFloat( 2.71828182845904523536 ) );
+    trice( iD(6457), "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
+    trice64( iD(3649), "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
+                                                                                    trice( iD(3860), "w: Hello! 👋🙂 2.71828182845904523536 (the full number as string)\n" ); 
 
   /* USER CODE END SysInit */
 
