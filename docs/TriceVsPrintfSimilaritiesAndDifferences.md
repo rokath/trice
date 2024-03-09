@@ -204,7 +204,7 @@ The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string wi
 | nothing printed                                                | n | - | - | Not supported.                                                              |
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
-* [x] Look in [triceCheck.c](../pkg/src/triceCheck.c) for exampe code producing this:
+* [x] Look in [triceCheck.c](../examples/exampleData/triceCheck.c) for exampe code producing this:
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
