@@ -24,7 +24,6 @@
 ## `TRICE_STATIC_BUFFER`
 
 - This is like `TRICE_STACK_BUFFER` but avoids stack allocation, what is better for many stacks.
-
 - `TRICE_ENTER`: Set TriceBufferWritePosition to buffer start.
 - `TRICE_LEAVE`: Call TriceDirectOut().
 
