@@ -106,7 +106,7 @@ static inline uint64_t aDouble( double x ){
 
 * The `%s` format specifier is not directly supported by the `TRICE` macro.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
-* Strings created at runtime, need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 1000 bytes each, if the configured *Trice* buffer size matches.
+* Strings created at runtime, need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32767 bytes each, if the configured *Trice* buffer size matches.
   * Example:
 
   ```c
