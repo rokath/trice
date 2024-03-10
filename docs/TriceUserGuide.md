@@ -330,8 +330,8 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 ####  2.5.5. <a name='UserCodeAdaption'></a>User Code Adaption
 
-- Replace all strings `puts` with the string `trice`.
-- Replace all strings `printf` with the string `trice`.
+- Replace all strings `puts` with the string `trice`, when the string follows immediately. For runtime generated strings see `TRICE_S`.
+- Replace all strings `printf` with the string `trice`, when the format string follows immediately.
 - Check for float and double format specifiers in the format strings. The appropriate parameters need to be covered with `aFloat()` or `a double()`. Example:
 
     ```c
