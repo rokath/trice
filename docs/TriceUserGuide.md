@@ -973,7 +973,7 @@ It is your responsibility to produce less data than transmittable. If this is no
 If the target application produces more *Trice* data than transmittable, a buffer overrun can let the target crash, because for performance reasons no overflow check is implemented in the double buffer. Also if such a check is added, the *Trice* code can only throw data away in such case.
 
 Configuring the ring buffer option makes buffer overruns impossible but losses will occur when producing more data than transmittable.
-That is detectable with the cycle counter. The internal 8-bit cycle counter is usually enabled. If *Trice* data are lost, the receiver side will detect that because the cycle counter is not as expected. There is a chance of 1/256 that the detection does not work. You can check the detection by unplugging the trice UART cable for a time. Also resetting the target during transmission should display a cycle error.
+That is detectable with the cycle counter. The internal 8-bit cycle counter is usually enabled. If *Trice* data are lost, the receiver side will detect that because the cycle counter is not as expected. There is a chance of 1/256 that the detection does not work for a single case. You can check the detection by unplugging the trice UART cable for a time. Also resetting the target during transmission should display a cycle error.
 
 ###  9.5. <a name='Limitationgone:triceidoesnotrequireTRICEmacrosonasingleline'></a>Limitation gone: "trice i" does not require TRICE macros on a single line
 
