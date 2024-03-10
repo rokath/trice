@@ -977,8 +977,8 @@ That is detectable with the cycle counter. The internal 8-bit cycle counter is u
 
 ###  9.5. <a name='Limitationgone:triceidoesnotrequireTRICEmacrosonasingleline'></a>Limitation gone: "trice i" does not require TRICE macros on a single line
 
-- The implemented parser supports `TRICE` macros over several source code lines now (v0.61.0 and later). This is valid `trice i` and `trice c` but not for `trice u`.
-- It ipossible to have several (complete) `TRICE` macros on one source code line.
+- The implemented parser supports `TRICE` macros over several source code lines now (v0.61.0 and later). This is valid for `trice i` and `trice c` but not for `trice u`.
+- It is possible to have several (complete) `TRICE` macros on one source code line.
 
 ###  9.6. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
 
