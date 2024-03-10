@@ -708,7 +708,7 @@ Executing `trice update` at the root of your project source updates in case of c
 
 With `trice log -port COM12` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at the 115200 default baudrate.
 
-The following capture output comes from an (old) example project inside [../test](../test).
+The following capture output comes from an (old) example project inside [../test](../examples).
 
 ![life.gif](./ref/life.gif)
 
