@@ -959,7 +959,7 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
 
 - When setting up your first project you need a `triceConfig.h` file.
 - You should **not** use the `./test/cgo.../triceConfig.h` because it is customized for internal tests with CGO.
-- Please choose one of the `./test/*_instrumented/triceConfig.h` files as starting point.
+- Please choose one of the `./examples/*_instrumented/triceConfig.h` files as starting point.
 - Comparing them and understandig the differences helps quick starting.
 
 ###  9.3. <a name='Settinguptheveryfirstconnection'></a>Setting up the very first connection
