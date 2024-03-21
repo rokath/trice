@@ -10,9 +10,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime/debug"
 	"sync"
 	"time"
 
+	"github.com/kr/pretty"
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/do"
@@ -42,6 +44,12 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 			} else {
 				Date = fmt.Sprint(err) // just in case, simply show the error
 			}
+		}
+		bi, ok := debug.ReadBuildInfo()
+		if !ok {
+			fmt.Println("buildInfo not ok")
+		} else {
+			pretty.Println(bi)
 		}
 	}
 
