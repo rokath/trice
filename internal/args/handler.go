@@ -32,9 +32,16 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	//id.FnJSON = id.FullFilePath(fSys, id.FnJSON)
 
 	if Date == "" { // goreleaser will set Date, otherwise use file info.
-		fi, err := fSys.Stat(args[0])
-		if nil == err { // On running main tests file-info is invalid, so do not use in that case.
-			Date = fi.ModTime().String()
+		path, err := os.Executable()
+		if err != nil {
+			Date = fmt.Sprint(err) // just in case, simply show the error
+		} else {
+			fi, err := fSys.Stat(path)
+			if err == nil { // On running main tests file-info is invalid, so do not use it in that case.
+				Date = fi.ModTime().String()
+			} else {
+				Date = fmt.Sprint(err) // just in case, simply show the error
+			}
 		}
 	}
 

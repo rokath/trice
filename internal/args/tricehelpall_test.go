@@ -40,7 +40,7 @@ func TestHelpAll(t *testing.T) {
     	"none": no logfile (same as "off")
     	"my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
     	"filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-    	All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+    	All trice output of the appropriate subcommands is appended per default into the logfile additionally to the normal output.
     	Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
     	 (default "off")
 sub-command 'h|help': For command line usage.
@@ -74,7 +74,7 @@ sub-command 'h|help': For command line usage.
     	"none": no logfile (same as "off")
     	"my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
     	"filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-    	All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+    	All trice output of the appropriate subcommands is appended per default into the logfile additionally to the normal output.
     	Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
     	 (default "off")
   -r	Show r|refresh specific help.
@@ -136,7 +136,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	"none": no binary logfile (same as "off")
     	"my/path/auto": Use as binary logfile name "my/path/2006-01-02_1504-05_trice.bin" with actual time. "my/path/" must exist.
     	"filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-    	All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+    	All trice output of the appropriate subcommands is appended per default into the logfile additionally to the normal output.
     	Change the filename with "-binaryLogfile myName.bin" or switch logging off with "-binaryLogfile none".
     	 (default "off")
   -blf string
@@ -226,7 +226,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	"none": no logfile (same as "off")
     	"my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
     	"filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-    	All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+    	All trice output of the appropriate subcommands is appended per default into the logfile additionally to the normal output.
     	Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
     	 (default "off")
   -newlineIndent int
@@ -425,7 +425,7 @@ sub-command 'ver|version': For displaying version information.
     	"none": no logfile (same as "off")
     	"my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
     	"filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-    	All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+    	All trice output of the appropriate subcommands is appended per default into the logfile additionally to the normal output.
     	Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
     	 (default "off")
   -v	short for verbose
