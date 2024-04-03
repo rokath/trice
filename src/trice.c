@@ -610,6 +610,8 @@ unsigned TriceOutDepth( void ){
     return depth;
 }
 
+#ifdef TRICE_CLEAN
+#else // #ifdef TRICE_CLEAN
 
 //! TRICE_ASSERT writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -653,3 +655,5 @@ void TRiceAssertFalse( int idN, char* msg, int flag ){
          TRICE_ASSERT( ID( idN ) );
     }
 }
+
+#endif // #else // #ifdef TRICE_CLEAN

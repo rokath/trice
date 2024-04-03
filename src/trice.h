@@ -905,9 +905,27 @@ TRICE_INLINE void trice0( uint16_t tid, char const * pFmt ){ trice32m_0( tid ); 
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
-void triceAssert( int idN, char* msg, int flag );
-void TriceAssert( int idN, char* msg, int flag );
-void TRiceAssert( int idN, char* msg, int flag );
+#ifdef TRICE_CLEAN
+
+TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){}
+TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){}
+TRICE_INLINE void TRiceAssertTrue( int idN, char* msg, int flag ){}
+
+TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){}
+TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){}
+TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){}
+
+#else // #ifdef TRICE_CLEAN
+
+void triceAssertTrue( int idN, char* msg, int flag );
+void TriceAssertTrue( int idN, char* msg, int flag );
+void TRiceAssertTrue( int idN, char* msg, int flag );
+
+void triceAssertFalse( int idN, char* msg, int flag );
+void TriceAssertFalse( int idN, char* msg, int flag );
+void TRiceAssertFalse( int idN, char* msg, int flag );
+
+#endif // #else // #ifdef TRICE_CLEAN
 
 typedef void (*WriteAuxiliaryFn_t)( uint8_t const * enc, size_t encLen );
 extern WriteAuxiliaryFn_t UserNonBlockingDirectWriteAuxiliaryFn;
