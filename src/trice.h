@@ -9,6 +9,12 @@
 extern "C" {
 #endif
 
+#undef ID // acoid name clashes in case ID was used by an other library
+#undef Id // acoid name clashes in case Id was used by an other library
+#undef id // acoid name clashes in case id was used by an other library
+#undef iD // acoid name clashes in case iD was used by an other library
+
+
 //lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
 //lint -e629  Warning 629: static class for function '' is non standard
  
