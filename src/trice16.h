@@ -2,7 +2,7 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#define TRICE16(  tid, fmt, ...) CONCAT2(TRICE16_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRICE16(  tid, fmt, ...) TRICE_CONCAT2(TRICE16_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #ifdef TRICE_CLEAN
 
@@ -12,9 +12,9 @@
 
 #else // #ifdef TRICE_CLEAN
 
-#define trice16(  tid, fmt, ...) CONCAT2(trice16_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice16(  tid, fmt, ...) CONCAT2(Trice16_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRice16(  tid, fmt, ...) CONCAT2(TRice16_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice16(  tid, fmt, ...) TRICE_CONCAT2(trice16_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice16(  tid, fmt, ...) TRICE_CONCAT2(Trice16_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice16(  tid, fmt, ...) TRICE_CONCAT2(TRice16_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #endif // #else // #ifdef TRICE_CLEAN
 
@@ -86,14 +86,14 @@
 //! TRICE16_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRICE16_0( tid, pFmt ) \
-    TRICE_ENTER tid; CNTC(0); \
+    TRICE_ENTER tid; TRICE_CNTC(0); \
     TRICE_LEAVE
 
 //! TRICE16_1 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 16 bit value
 #define TRICE16_1( tid, pFmt, v0 ) \
-    TRICE_ENTER tid; CNTC(2); \
+    TRICE_ENTER tid; TRICE_CNTC(2); \
     TRICE_PUT16_1( v0 )  \
     TRICE_LEAVE
 
@@ -101,7 +101,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v1 are 16 bit values
 #define TRICE16_2( id, pFmt, v0, v1 ) \
-    TRICE_ENTER id; CNTC(4); \
+    TRICE_ENTER id; TRICE_CNTC(4); \
     TRICE_PUT16_2 ( v0, v1 ); \
     TRICE_LEAVE
 
@@ -109,7 +109,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v2 are 16 bit values
 #define TRICE16_3( id, pFmt, v0, v1, v2 ) \
-    TRICE_ENTER id; CNTC(6); \
+    TRICE_ENTER id; TRICE_CNTC(6); \
     TRICE_PUT16_3( v0, v1, v2 ); \
     TRICE_LEAVE
 
@@ -117,7 +117,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v3 are 16 bit values
 #define TRICE16_4( id, pFmt, v0, v1, v2, v3 ) \
-    TRICE_ENTER id; CNTC(8); \
+    TRICE_ENTER id; TRICE_CNTC(8); \
     TRICE_PUT16_4( v0, v1, v2, v3  ); \
     TRICE_LEAVE
 
@@ -125,7 +125,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v4 are 16 bit values
 #define TRICE16_5( id, pFmt, v0, v1, v2, v3, v4 ) \
-    TRICE_ENTER id; CNTC(10); \
+    TRICE_ENTER id; TRICE_CNTC(10); \
     TRICE_PUT16_5( v0, v1, v2, v3, v4  ); \
     TRICE_LEAVE
 
@@ -133,7 +133,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v5 are 16 bit values
 #define TRICE16_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
-    TRICE_ENTER id; CNTC(12); \
+    TRICE_ENTER id; TRICE_CNTC(12); \
     TRICE_PUT16_6( v0, v1, v2, v3, v4, v5 ); \
     TRICE_LEAVE
 
@@ -141,7 +141,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v6 are 16 bit values
 #define TRICE16_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
-    TRICE_ENTER id; CNTC(14); \
+    TRICE_ENTER id; TRICE_CNTC(14); \
     TRICE_PUT16_7( v0, v1, v2, v3, v4, v5, v6 ); \
     TRICE_LEAVE
 
@@ -149,7 +149,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
-    TRICE_ENTER id; CNTC(16); \
+    TRICE_ENTER id; TRICE_CNTC(16); \
     TRICE_PUT16_8( v0, v1, v2, v3, v4, v5, v6, v7 ); \
     TRICE_LEAVE
 
@@ -157,7 +157,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_9( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
-    TRICE_ENTER id; CNTC(18); \
+    TRICE_ENTER id; TRICE_CNTC(18); \
     TRICE_PUT16_9( v0, v1, v2, v3, v4, v5, v6, v7, v8 ); \
     TRICE_LEAVE
 
@@ -165,7 +165,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_10( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
-    TRICE_ENTER id; CNTC(20); \
+    TRICE_ENTER id; TRICE_CNTC(20); \
     TRICE_PUT16_10( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ); \
     TRICE_LEAVE
 
@@ -173,7 +173,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_11( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
-    TRICE_ENTER id; CNTC(22); \
+    TRICE_ENTER id; TRICE_CNTC(22); \
     TRICE_PUT16_11( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ); \
     TRICE_LEAVE
 
@@ -181,7 +181,7 @@
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v11 are 16 bit values
 #define TRICE16_12( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
-    TRICE_ENTER id; CNTC(24); \
+    TRICE_ENTER id; TRICE_CNTC(24); \
     TRICE_PUT16_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 

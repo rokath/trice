@@ -377,11 +377,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 
 	var cycle uint8
 	if nc>>15 == 1 { // special case: more than data 127 bytes
-		// C code: #define LCNT(count) TRICE_PUT16( (0x8000 | (count)) );
+		// C code: #define TRICE_LCNT(count) TRICE_PUT16( (0x8000 | (count)) );
 		cycle = p.cycle                 // cycle is not transmitted, so set expected value
 		p.ParamSpace = int(0x7FFF & nc) // 15 bit for data byte count excluding timestamp
 	} else {
-		// C code: #define CNTC(count) TRICE_PUT16( ((count)<<8) | TRICE_CYCLE )
+		// C code: #define TRICE_CNTC(count) TRICE_PUT16( ((count)<<8) | TRICE_CYCLE )
 		cycle = uint8(nc)           // low byte is cycle
 		p.ParamSpace = int(nc >> 8) // high byte is 7 bit number of bytes for data count excluding timestamp
 	}

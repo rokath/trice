@@ -186,7 +186,7 @@ int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 unsigned TriceOutDepth( void );
 unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
-uint32_t Us32( void );
+// uint32_t Us32( void );
 
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
@@ -683,10 +683,10 @@ void XTEAInitTable(void);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-//! NTH_ARGUMENT just evaluates to the 15th argument. It is extendable.
-#define NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14 
+//! TRICE_NTH_ARGUMENT just evaluates to the 15th argument. It is extendable.
+#define TRICE_NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14 
 
-//! COUNT_ARGUMENTS builds upon NTH_ARGUMENT. The more arguments that are passed to COUNT_ARGUMENTS, 
+//! TRICE_COUNT_ARGUMENTS builds upon TRICE_NTH_ARGUMENT. The more arguments that are passed to TRICE_COUNT_ARGUMENTS, 
 //! the more the »counting arguments« (12, 11, 10, 9, 8, 7…) are pushed to the right. 
 //! Thus the macro evaluates to the number of arguments that are passed to the macro.
 //! If you set the C language to strict C (C90, C99, C11 or C17) the `##` operator doesn't remove the comma before it when `__VA_ARGS__` expands to nothing.
@@ -694,16 +694,16 @@ void XTEAInitTable(void);
 //! For more details see closed Issue #279. Special thanks @escherstair.
 //! If for example using CLANG 6.18 set C-language to gnu11, gnu99 or std to avoid the comma issue when no parameters are in a TRICE  macro.
 //! In case you have to set the C-Language to c11 or c99 you can use the TRICE0 macro directly instead of TRICE when no value parameters.
-#define COUNT_ARGUMENTS(...) NTH_ARGUMENT(dummy, ## __VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+#define TRICE_COUNT_ARGUMENTS(...) TRICE_NTH_ARGUMENT(dummy, ## __VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
-//! CONCAT concatenates the 2 arguments a and b (helper macro).
-#define CONCAT(a, b) a ## b 
+//! TRICE_CONCAT concatenates the 2 arguments a and b (helper macro).
+#define TRICE_CONCAT(a, b) a ## b 
 
-//! CONCAT2 concatenates the 2 arguments a and b (helper macro).
-#define CONCAT2(a, b) CONCAT(a, b)
+//! TRICE_CONCAT2 concatenates the 2 arguments a and b (helper macro).
+#define TRICE_CONCAT2(a, b) TRICE_CONCAT(a, b)
 
-//! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
-#define TRICE( tid, fmt, ...) CONCAT2(TRICE_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+//! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of TRICE_COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
+#define TRICE( tid, fmt, ...) TRICE_CONCAT2(TRICE_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #ifdef TRICE_CLEAN
 
@@ -713,9 +713,9 @@ void XTEAInitTable(void);
 
 #else // #ifdef TRICE_CLEAN
 
-#define TRice( tid, fmt, ...) CONCAT2(TRice_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice( tid, fmt, ...) CONCAT2(Trice_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define trice( tid, fmt, ...) CONCAT2(trice_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice( tid, fmt, ...) TRICE_CONCAT2(TRice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice( tid, fmt, ...) TRICE_CONCAT2(Trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice( tid, fmt, ...) TRICE_CONCAT2(trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #endif // #else // #ifdef TRICE_CLEAN
 
@@ -794,7 +794,7 @@ static inline uint64_t aDouble( double x ){
         len_ = limit; \
     } \
     TRICE_ENTER tid; \
-    if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
+    if( len_ <= 127 ){ TRICE_CNTC(len_); }else{ TRICE_LCNT(len_); } \
     TRICE_PUTBUFFER( buf, len_ ); \
     TRICE_LEAVE \
 } while(0)
@@ -848,25 +848,25 @@ static inline uint64_t aDouble( double x ){
 //! iD is just a code parsing helper.
 #define iD(n) (n)
 
-//! CNTC writes 7-bit byte count and 8-bit cycle counter.
-#define CNTC(count) do{ uint16_t v = ((count)<<8) | TRICE_CYCLE; TRICE_PUT16( v ); }while(0)
+//! TRICE_CNTC writes 7-bit byte count and 8-bit cycle counter.
+#define TRICE_CNTC(count) do{ uint16_t v = ((count)<<8) | TRICE_CYCLE; TRICE_PUT16( v ); }while(0)
 
 #if TRICE_CYCLE_COUNTER == 1
 
-//! LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
-#define LCNT(count) TRICE_PUT16( (0x8000 | (count)) ); TRICE_CYCLE  // increment TRICE_CYCLE but do not transmit it
+//! TRICE_LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
+#define TRICE_LCNT(count) TRICE_PUT16( (0x8000 | (count)) ); TRICE_CYCLE  // increment TRICE_CYCLE but do not transmit it
 
 #else
 
-//! LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
-#define LCNT(count) TRICE_PUT16( (0x8000 | (count)) );  // no TRICE_CYCLE
+//! TRICE_LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
+#define TRICE_LCNT(count) TRICE_PUT16( (0x8000 | (count)) );  // no TRICE_CYCLE
 
 #endif
 
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRICE0( tid, pFmt ) \
-    TRICE_ENTER tid; CNTC(0); \
+    TRICE_ENTER tid; TRICE_CNTC(0); \
     TRICE_LEAVE
 
 #ifdef TRICE_CLEAN
