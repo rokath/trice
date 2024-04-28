@@ -46,7 +46,7 @@ When having lots of program memory simply let all values be `1`. With specific l
 
 ##  4. <a name='LinkerOption--split-sectionsifsupported'></a>Linker Option `--split-sections` (if supported)
 
-* In ARM-MDK uVision `Project -> Options -> C/C++ -> "One EFL section for each function"` allows good optimization and getting rid of unused code without additional linker optimization. This leeds to a faster build process and is fine for most cases. It allows excluding unused functions.
+* In ARM-MDK uVision `Project -> Options -> C/C++ -> "One EFL section for each function"` allows good optimization and getting rid of unused code without additional linker optimization. This leads to a faster build process and is fine for most cases. It allows excluding unused functions.
 
 ##  5. <a name='LinkerOptimization-fltoifsupported'></a>Linker Optimization `-flto` (if supported)
 
