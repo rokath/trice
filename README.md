@@ -39,9 +39,9 @@ even inside **↯ interrupts** in less than 1 µs❗
 - You can see *Trice* also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
 - Storing *Trice* messages in [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) for later log analysis saves memory because a typical `TRICE` occupies only 4 bytes independently of the format string length plus optional values.
 - Also, it is possible to **encrypt** the *Trice* transfer packets to get a reasonable protection for many cases.
-  - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./test/MDK-ARM_STM32F030R8/til.json).
+  - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./test/testdata/til.json).
   - [XTEA](https://en.m.wikipedia.org/wiki/XTEA) is implemented as one option.
-- You can even translate the [til.json](./test/MDK-ARM_STM32F030R8/til.json) file in **different languages**, so changing a language is just changing the [til.json](./test/MDK-ARM_STM32F030R8/til.json) file without touching the target binary.
+- You can even translate the [til.json](./test/testdata/til.json) file in **different languages**, so changing a language is just changing the [til.json](./test/testdata/til.json) file without touching the target binary.
 - With *Trice* it is easy to do **timing analysis** on distributed embedded systems. Host and target timestamps are supported.
 
 ## How it approximately works (UART example)
