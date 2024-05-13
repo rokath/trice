@@ -1371,6 +1371,7 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 ###  15.2. <a name='PackageFormat'></a>Package Format
 
+- Because of the **TCOBS** or **COBS** package framing, the package sizes are detectable by the trice tool without additionlal length information.
 - All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the **trice** tool.
 
   | bytes       | Comment                                                                                                       |
@@ -1380,8 +1381,9 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
   | `X` `X`     | 2-byte message, reserved for extensions or user data                                                          |
   | `X` `X` `X` | 3-byte message, reserved for extensions or user data                                                          |
 
-- In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 stamp selector bits at the most significant position in the known endianness.
+- In decoded frames with >= 4-bytes the first 2 bytes contain 2 stamp selector bits at the most significant position in the known endianness.
 - The `0` stamp selector is usable for any user encoding. The **trice** tool ignores such packages.
+- The `1`, `2` and `3` stamp selector bits are followed by the 14-bit ID.
 
   | 16-bit groups                      | Stamp Selector (2 msb) | Comment                                                 | Endianness sizes                |
   |:-----------------------------------|:----------------------:|---------------------------------------------------------|:--------------------------------|
@@ -1391,17 +1393,16 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
   | `10iiiiiiI 10iiiiiiI TT NC ...`    |           2            | First 16bit are doubled. Info over `-d16` trice switch. | `u16 u16 u16 u16 [uW] ... [uW]` |
   | _________ `11iiiiiiI TT TT NC ...` |           3            | >= 4-byte message, *Trice* format with 32-bit stamp     | ___ `u16 u32 u16 [uW] ... [uW]` |
 
-- The stamp selector 2 encoding has 2 possibilities. When using `TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given, what results from the triceConfig.h file.
-
-- Within one trice message the parameter bit width `W` does not change.
-- When the receiving tool has to convert the endianness it needs some rules:
-  - convert u16=`ssiiiiii iiiiiiii` or u16=`ssxxxxxx xxxxxxxx` and split into stamp selector and ID
-  - check the 2 stamp selector bits:
-    - 0: reserved
-    - 1: convert then u16=NC
-    - 2: convert then u16=stamp16 & u16=NC
-    - 3: convert then u32=stamp32 & u16=NC
-  - use ID to get param width `W`=8,16,32,64 and count and convert appropriate.
+- The stamp selector `2` encoding has 2 possibilities. When using `TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
+- Default endianness is little endian as most MCUs use little endianness. Otherwise the `-triceEndianness=bigEndian` CLI switch is needed.
+- The receiving tool evaluates firstly the 2 stamp bits and follows some rules:
+    - 0: reserved -> ignore the whole package (discard) or treat it as user data.
+    - 1:                                    next 14 bits are the ID                                                              followed by 2 bytes u16=NC and optional parameter values. Package size is >= 4 bytes.
+    - 2 and `-d16` CLI switch not provided: next 14 bits are the ID                            and convert then u16=TT=stamp16   followed by 2 bytes u16=NC and optional parameter values. Package size is >= 6 bytes.
+    - 2 and `-d16` CLI switch     provided: next 14 bits are the ID, discard 2 following bytes and convert then u16=TT=stamp16   followed by 2 bytes u16=NC and optional parameter values. Package size is >= 8 bytes.
+    - 3:                                    next 14 bits are the ID                            and convert then u32=TTTT=stamp32 followed by 2 bytes u16=NC and optional parameter values. Package size is >= 8 bytes.
+- use ID to get parameters width `W`=8,16,32,64 from file *til.json* and and parameters count and convert appropriate.
+  - Within one trice message the parameter bit width `W` does not change.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
