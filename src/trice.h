@@ -566,6 +566,10 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 //! TRICE_ENTER is the start of TRICE macro.
 #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
+    /* The TriceBufferWritePosition stays unchanged, when there is enough space for the next trice at the current write position.*/ \
+    /* Because the the size of the next trice message is unknown here, the biggest value is assumed, that is TRICE_BUFFER_SIZE bytes. */ \
+    /* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */ \
+    /* This implementation is a bit different than a ring buffer is usually implemented. */ \
     TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
     TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
     uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
