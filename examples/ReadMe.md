@@ -52,6 +52,7 @@ Setting up a PC is for for Linux mostly straightforward but Windows PCs are more
     - TDM GCC is needed only if you wish to use CGO as well.
 - Setup J-Link if you use this debug probe as hardware or software (see below).
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
+- Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
 
 ### Setup Trice
 
