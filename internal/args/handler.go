@@ -31,8 +31,6 @@ import (
 // It returns for program exit.
 func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 
-	//id.FnJSON = id.FullFilePath(fSys, id.FnJSON)
-
 	if Date == "" { // goreleaser will set Date, otherwise use file info.
 		path, err := os.Executable()
 		if err != nil {
@@ -44,12 +42,6 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 			} else {
 				Date = fmt.Sprint(err) // just in case, simply show the error
 			}
-		}
-		bi, ok := debug.ReadBuildInfo()
-		if !ok {
-			fmt.Println("buildInfo not ok")
-		} else {
-			pretty.Println(bi)
 		}
 	}
 
@@ -79,6 +71,14 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		if verbose {
+			bi, ok := debug.ReadBuildInfo()
+			if !ok {
+				fmt.Println("buildInfo not ok")
+			} else {
+				pretty.Println(bi)
+			}
+		}
 		return scVersion(w)
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
