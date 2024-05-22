@@ -1015,7 +1015,7 @@ void f2( void ){
 }
 ```
 
-The problem here is the tick `'` in the `f1` comment. This will cause trouble for the Trice tool internals parser. It will ignore all text until the next `'` or to the end of the file. In this case the `Trice( "Hi" );` will get no ID during `trice i` or the ID will not be removed with `trice c`.
+The problem here is the tick `'` in the `f1` comment. This will cause trouble for the Trice tool internals parser. It will ignore all text until the next `'` or to the end of the file. In this case the `Trice( "Hello" );` will get no ID during `trice i` or the ID will not be removed with `trice c`.
 
 However, ticks `'` inside Trice format strings are allowed:
 
