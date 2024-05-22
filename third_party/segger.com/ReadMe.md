@@ -1,3 +1,3 @@
 # SEGGER downloaded Software
 
-* See ./doc/TriceUserGuide.md -> segger.com
+* See ./docs/TriceUserGuide.md -> segger.com
