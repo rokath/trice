@@ -188,6 +188,7 @@ void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ); // only needed fo
 
 int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
 int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
+int TriceEnoughSpace( void );
 
 unsigned TriceOutDepth( void );
 unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
@@ -545,47 +546,109 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
-//! TRICE_ENTER is the start of TRICE macro.
-#define TRICE_ENTER \
-    TRICE_ENTER_CRITICAL_SECTION { \
-    uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+    #ifdef TRICE_PROTECTED
+    
+        //! TRICE_ENTER is the start of TRICE macro.
+        #define TRICE_ENTER \
+        TRICE_ENTER_CRITICAL_SECTION { \
+        if( TriceEnoughSpace() ){ \
+            uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+
+    #else //  #ifdef TRICE_PROTECTED
+
+        //! TRICE_ENTER is the start of TRICE macro.
+        #define TRICE_ENTER \
+        TRICE_ENTER_CRITICAL_SECTION { \
+        { \
+            uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+
+    #endif // #else //  #ifdef TRICE_PROTECTED
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
-//! TRICE_ENTER is the start of TRICE macro.
-#define TRICE_ENTER \
-    TRICE_ENTER_CRITICAL_SECTION { \
-    TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
+    #ifdef TRICE_PROTECTED
+
+        //! TRICE_ENTER is the start of TRICE macro.
+        #define TRICE_ENTER \
+        TRICE_ENTER_CRITICAL_SECTION { \
+        if( TriceEnoughSpace() ){ \
+            TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
+
+    #else //  #ifdef TRICE_PROTECTED
+        
+        //! TRICE_ENTER is the start of TRICE macro.
+        #define TRICE_ENTER \
+        TRICE_ENTER_CRITICAL_SECTION { \
+        { \
+            TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
+
+    #endif // #else //  #ifdef TRICE_PROTECTED
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
-//! TRICE_ENTER is the start of TRICE macro.
-#define TRICE_ENTER \
-    TRICE_ENTER_CRITICAL_SECTION { \
-    /* The TriceBufferWritePosition stays unchanged, when there is enough space for the next trice at the current write position.*/ \
-    /* Because the the size of the next trice message is unknown here, the biggest value is assumed, that is TRICE_BUFFER_SIZE bytes. */ \
-    /* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */ \
-    /* This implementation is a bit different than a ring buffer is usually implemented. */ \
-    TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
-    TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
-    uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
-    SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+    #ifdef TRICE_PROTECTED
+
+        //! TRICE_ENTER is the start of TRICE macro.
+        #define TRICE_ENTER \
+        TRICE_ENTER_CRITICAL_SECTION { \
+        if( TriceEnoughSpace() ){ \
+            /* The TriceBufferWritePosition stays unchanged, when there is enough space for the next trice at the current write position.*/ \
+            /* Because the the size of the next trice message is unknown here, the biggest value is assumed, that is TRICE_BUFFER_SIZE bytes. */ \
+            /* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */ \
+            /* This implementation is a bit different than a ring buffer is usually implemented. */ \
+            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+            TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+            uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
+            SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+
+    #else //  #ifdef TRICE_PROTECTED
+
+        //! TRICE_ENTER is the start of TRICE macro.
+        #define TRICE_ENTER \
+        TRICE_ENTER_CRITICAL_SECTION { \
+        { \
+            /* The TriceBufferWritePosition stays unchanged, when there is enough space for the next trice at the current write position.*/ \
+            /* Because the the size of the next trice message is unknown here, the biggest value is assumed, that is TRICE_BUFFER_SIZE bytes. */ \
+            /* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */ \
+            /* This implementation is a bit different than a ring buffer is usually implemented. */ \
+            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+            TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+            uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
+            SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+
+    #endif // #else //  #ifdef TRICE_PROTECTED
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 1)
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
-//! TRICE_ENTER is the start of TRICE macro.
-#define TRICE_ENTER \
-    TRICE_ENTER_CRITICAL_SECTION { \
-    TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
-    TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
-    TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
-    SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+    #ifdef TRICE_PROTECTED
+
+        //! TRICE_ENTER is the start of TRICE macro.
+        #define TRICE_ENTER \
+        TRICE_ENTER_CRITICAL_SECTION { \
+        if( TriceEnoughSpace() ){ \
+            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+            TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+            TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
+            SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+
+    #else //  #ifdef TRICE_PROTECTED
+
+        //! TRICE_ENTER is the start of TRICE macro.
+        #define TRICE_ENTER \
+        TRICE_ENTER_CRITICAL_SECTION { \
+        { \
+            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+            TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+            TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
+            SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+
+    #endif // #else //  #ifdef TRICE_PROTECTED
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 
@@ -596,22 +659,24 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
     //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
     #define TRICE_LEAVE \
-        /* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
-        /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
-        unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
-        TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT \
-        TriceNonBlockingDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
-        } TRICE_LEAVE_CRITICAL_SECTION
+            /* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
+            /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
+            unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
+            TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT \
+            TriceNonBlockingDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
+        } \
+    } TRICE_LEAVE_CRITICAL_SECTION
 
 #else  //#if TRICE_DIRECT_OUTPUT == 1
     
     //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
     #define TRICE_LEAVE \
-        TRICE_DIAGNOSTICS_SINGLE_BUFFER \
-        } TRICE_LEAVE_CRITICAL_SECTION
+            TRICE_DIAGNOSTICS_SINGLE_BUFFER \
+        } \
+    } TRICE_LEAVE_CRITICAL_SECTION
 
 #endif // #else  //#if TRICE_DIRECT_OUTPUT == 1
-#endif
+#endif // #ifndef TRICE_LEAVE
 
 // trice macros:
 

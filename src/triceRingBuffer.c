@@ -57,7 +57,22 @@ unsigned TriceRingBufferDepthMax = 0;
 
 #endif // #if TRICE_DIAGNOSTICS == 1
 
-//! triceNextRingBufferRead returns a single trice data buffer address. The trice are data starting at byte offset TRICE_DATA_OFFSET.
+#ifdef TRICE_PROTECTED
+
+//! TriceEnoughSpace checks, if at least TRICE_SINGLE_MAX_SIZE bytes available for the next trice.
+//! \retval 0, when not enough space
+//! \retval 1, when enough space
+int TriceEnoughSpace( void ){
+    int depth32 = TriceBufferWritePosition - TriceRingBufferReadPosition; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
+    if( depth32 < 0 ){
+        depth32 += (TRICE_DEFERRED_BUFFER_SIZE>>2);
+    }
+    return depth32 + (TRICE_SINGLE_MAX_SIZE>>2) <= (TRICE_DEFERRED_BUFFER_SIZE>>2) ? 1 : 0; 
+}
+
+#endif // #ifdef TRICE_PROTECTED
+
+//! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET.
 //! Implicit assumed is SingleTricesRingCount > 0.
 //! \param lastWordCount is the uint32 count of the last read trice including padding bytes.
 //! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
@@ -110,7 +125,7 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
     
     // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
-    // This i ok, when behind triceRingBufferLimit are at least 4 bytes unused space.
+    // This is ok, when behind triceRingBufferLimit are at least 4 bytes unused space.
     // After TriceIDAndBuffer pStart has a 2 bytes offset, what is an alignmet issue for encryption.
     // That gets corrected inside TriceDeferredEncode.
     // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
