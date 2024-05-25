@@ -526,21 +526,23 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
 #if TRICE_BUFFER ==  TRICE_STACK_BUFFER 
 
-//! TRICE_ENTER is the start of TRICE macro.
-#define TRICE_ENTER \
+    //! TRICE_ENTER is the start of TRICE macro.
+    #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
-    uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE>>2]; \
-    uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2]; \
-    uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
+    { \
+        uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE>>2]; \
+        uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2]; \
+        uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 #endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER
 
 #if TRICE_BUFFER == TRICE_STATIC_BUFFER
 
-//! TRICE_ENTER is the start of TRICE macro.
-#define TRICE_ENTER \
+    //! TRICE_ENTER is the start of TRICE macro.
+    #define TRICE_ENTER \
     TRICE_ENTER_CRITICAL_SECTION { \
-    uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
+    { \
+        uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 #endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER
 
