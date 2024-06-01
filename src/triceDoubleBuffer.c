@@ -61,7 +61,7 @@ int TriceEnoughSpace( void ){
     // currentLimit32 points to the first 32-bit address outside the current write buffer.
     // TRICE_DEFERRED_BUFFER_SIZE is the total buffer size, so TRICE_DEFERRED_BUFFER_SIZE/2 is the half buffer size.
     // TRICE_DEFERRED_BUFFER_SIZE>>3 is the count of 32-bit value positions in the half buffer.
-    int currentLimit32 = &triceBuffer[triceSwap][TRICE_DEFERRED_BUFFER_SIZE>>3];
+    uint32_t* currentLimit32 = &triceBuffer[triceSwap][TRICE_DEFERRED_BUFFER_SIZE>>3];
     // space32 is the writable 32-bit value count in the current write buffer.
     int space32 = currentLimit32 - TriceBufferWritePosition; 
     // there need to be at least TRICE_SINGLE_MAX_SIZE bytes space in the current write buffer.
@@ -97,7 +97,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     size_t encLen = 0;
     uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
     size_t len = tLen; // (byte count)
-    int triceID;
+    int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
     #if TRICE_DIAGNOSTICS == 1
     tLen += TRICE_DATA_OFFSET; 
     TriceHalfBufferDepthMax = tLen < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : tLen;
