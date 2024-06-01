@@ -63,11 +63,19 @@ unsigned TriceRingBufferDepthMax = 0;
 //! \retval 0, when not enough space
 //! \retval 1, when enough space
 int TriceEnoughSpace( void ){
+    // depth32 is the used buffer space in 32-bit words. After reset TriceBufferWritePosition and TriceRingBufferReadPosition are equal and depth32 is 0.
+    // After some trice data writing TriceBufferWritePosition is > TriceRingBufferReadPosition and depth32 has a positive value.
+    // When trice data read out takes place, the TriceRingBufferReadPosition is incremented. That makes the depth32 value smaller again and
+    // gives write space. During the trice write operation TriceBufferWritePosition gets incremented by max TRICE_SINGLE_MAX_SIZE bytes.
+    // If afterwards the Trice BufferWritePosition is less TRICE_SINGLE_MAX_SIZE away from the buffer end, it is reset to the buffer start.
+    // That means, there are max TRICE_SINGLE_MAX_SIZE-4 bytes wasted in the worst case. So the needed safety space is 2*TRICE_SINGLE_MAX_SIZE-4.
+    const int neededSafetySpace32 = (TRICE_SINGLE_MAX_SIZE>>1)-1; // (TRICE_SINGLE_MAX_SIZE>>2) + (TRICE_SINGLE_MAX_SIZE>>2) - 1
     int depth32 = TriceBufferWritePosition - TriceRingBufferReadPosition; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( depth32 < 0 ){
         depth32 += (TRICE_DEFERRED_BUFFER_SIZE>>2);
     }
-    return depth32 + (TRICE_SINGLE_MAX_SIZE>>2) <= (TRICE_DEFERRED_BUFFER_SIZE>>2) ? 1 : 0; 
+    // This fn is called before an intended trice data write ande therefore additional at least TRICE_SINGLE_MAX_SIZE bytes need to fit in the buffer.
+    return depth32 + neededSafetySpace32 <= (TRICE_DEFERRED_BUFFER_SIZE>>2) ? 1 : 0; 
 }
 
 #endif // #ifdef TRICE_PROTECTED
