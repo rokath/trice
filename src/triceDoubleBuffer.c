@@ -16,7 +16,7 @@ static int triceSwap = 0;
 //! TriceBufferWritePosition is the active write position.
 uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2];
 
-//! TriceBufferWritePosition is used by TRICE_PUT macros.
+//! TriceBufferLastWritePosition is used by TRICE_PUT macros.
 uint32_t* TriceBufferLastWritePosition;
 
 //! triceBufferWriteLimit is the triceBuffer written limit. 
@@ -37,7 +37,9 @@ static uint32_t* triceBufferSwap( void ){
     TRICE_ENTER_CRITICAL_SECTION
     triceBufferWriteLimit = TriceBufferWritePosition; // keep end position
     triceSwap = !triceSwap; // exchange the 2 buffers
-    TriceBufferWritePosition = &triceBuffer[triceSwap][TRICE_DATA_OFFSET>>2]; // set write position for next TRICE
+    // Set write position for next TRICE.
+    // The TRICE_DATA_OFFSET value is used to have some recoding space during the transfer operation.
+    TriceBufferWritePosition = &triceBuffer[triceSwap][TRICE_DATA_OFFSET>>2];
     TRICE_LEAVE_CRITICAL_SECTION
     return &triceBuffer[!triceSwap][0]; //lint !e514
 }
@@ -56,8 +58,14 @@ static size_t triceDepth( uint32_t const* tb ){
 //! \retval 0, when not enough space
 //! \retval 1, when enough space
 int TriceEnoughSpace( void ){
-    int depth32 = triceBufferWriteLimit - tb; 
-    return depth32 + (TRICE_SINGLE_MAX_SIZE>>2) <= (TRICE_DEFERRED_BUFFER_SIZE>>2) ? 1 : 0; 
+    // currentLimit32 points to the first 32-bit address outside the current write buffer.
+    // TRICE_DEFERRED_BUFFER_SIZE is the total buffer size, so TRICE_DEFERRED_BUFFER_SIZE/2 is the half buffer size.
+    // TRICE_DEFERRED_BUFFER_SIZE>>3 is the count of 32-bit value positions in the half buffer.
+    int currentLimit32 = &triceBuffer[triceSwap][TRICE_DEFERRED_BUFFER_SIZE>>3];
+    // space32 is the writable 32-bit value count in the current write buffer.
+    int space32 = currentLimit32 - TriceBufferWritePosition; 
+    // there need to be at least TRICE_SINGLE_MAX_SIZE bytes space in the current write buffer.
+    return space32 + (TRICE_SINGLE_MAX_SIZE>>2) <= (TRICE_DEFERRED_BUFFER_SIZE>>3) ? 1 : 0; 
 }
 
 #endif // #ifdef TRICE_PROTECTED
