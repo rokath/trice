@@ -59,7 +59,7 @@ unsigned TriceRingBufferDepthMax = 0;
 
 #ifdef TRICE_PROTECTED
 
-//! TriceEnoughSpace checks, if at enough bytes available for the next trice.
+//! TriceEnoughSpace checks, if enough bytes available for the next trice.
 //! \retval 0, when not enough space
 //! \retval 1, when enough space
 int TriceEnoughSpace( void ){
