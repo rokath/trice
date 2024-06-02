@@ -107,11 +107,28 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
         #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-        // Serve deferred trice transfer every few ms. With an RTOS put this in a separate task.
-        TriceTransfer(); // serve deferred output
+        static uint32_t lastMs = 0;
+        if( lastMs != ms32 ){
+            lastMs = ms32;
+            static uint32_t msCount = 0;
+            msCount++;
+            if(msCount >= 10 ){
+                msCount = 0;
+                static uint32_t i = 0;
+                int k = 10;
+                while( k-->0 ){
+                    TRice( "w: %9d Hello! 👋🙂 \a\n", i ); // with sound!
+                    i++;
+                }
+                // Serve deferred trice transfer every few ms. With an RTOS put this in a separate task.
+                TriceTransfer(); // serve deferred output
+            }
+        }
         #endif // #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
+
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -203,7 +220,7 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
-  USART_InitStruct.BaudRate = 115200;
+  USART_InitStruct.BaudRate = 1000000;
   USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_9B;
   USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
   USART_InitStruct.Parity = LL_USART_PARITY_NONE;
