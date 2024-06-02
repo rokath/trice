@@ -38,7 +38,7 @@ unsigned SingleTricesRingCount = 0;
 //ARM5 #pragma push
 //ARM5 #pragma diag_suppress=170 //warning:  #170-D: pointer points outside of underlying object
 //! TriceRingBufferReadPosition points to a valid trice message when singleTricesRingCount > 0.
-//! This is first the TRICE_DATA_OFFSET byte space followedy the trice data.
+//! This is first the TRICE_DATA_OFFSET byte space followed by the trice data.
 //! Initally this value is set to TriceRingBuffer minus TRICE_DATA_OFFSET byte space
 //! to ga correct value for the very first call of triceNextRingBufferRead
 uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
@@ -47,6 +47,7 @@ uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2)
 #if TRICE_DIAGNOSTICS == 1
 
 //! SingleTricesRingCountMax holds the max count of trices occurred inside the ring buffer.
+//!
 unsigned SingleTricesRingCountMax = 0;
 
 //! TriceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
