@@ -24,9 +24,6 @@ static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
 
 #if TRICE_DIAGNOSTICS == 1
 
-//! TriceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
-unsigned TriceSingleMaxWordCount = 0;
-
 //! TriceHalfBufferDepthMax is a diagnostics value usable to optimize buffer size.
 unsigned TriceHalfBufferDepthMax = 0; 
 
@@ -65,7 +62,14 @@ int TriceEnoughSpace( void ){
     // space32 is the writable 32-bit value count in the current write buffer.
     int space32 = currentLimit32 - TriceBufferWritePosition; 
     // there need to be at least TRICE_SINGLE_MAX_SIZE bytes space in the current write buffer.
-    return space32 + (TRICE_SINGLE_MAX_SIZE>>2) <= (TRICE_DEFERRED_BUFFER_SIZE>>3) ? 1 : 0; 
+    if( space32 + (TRICE_SINGLE_MAX_SIZE>>2) <= (TRICE_DEFERRED_BUFFER_SIZE>>3) ){
+        return 1;
+    }else{
+        #if TRICE_DIAGNOSTICS == 1
+            TriceOverflowCount++;
+        #endif
+        return 0;
+    } 
 }
 
 #endif // #ifdef TRICE_PROTECTED

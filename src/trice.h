@@ -213,6 +213,7 @@ extern const int TriceTypeS4;
 extern const int TriceTypeX0;
 extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
 extern unsigned TriceErrorCount;
+extern unsigned TriceOverflowCount;
 extern uint32_t* const triceRingBufferLimit;
 extern uint32_t TriceRingBuffer[];
 extern unsigned TriceSingleMaxWordCount;
@@ -256,8 +257,8 @@ extern uint32_t* TriceBufferWritePosition;
 
 //! TRICE_BUFFER_SIZE is
 //! - the additional needed stack space when TRICE_BUFFER == TRICE_STACK_BUFFER
-//! - the statically allocated buffer size when TRICE_BUFFER TRICE_STATIC_BUFFER
-//! - the value before Ringbuffer wraps, when TRICE_BUFFER TRICE_STATIC_BUFFER 
+//! - the statically allocated buffer size when TRICE_BUFFER == TRICE_STATIC_BUFFER
+//! - the value before Ringbuffer wraps, when TRICE_BUFFER == TRICE_RING_BUFFER 
 #define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
 
 #ifndef TRICE_DEFAULT_PARAMETER_BIT_WIDTH

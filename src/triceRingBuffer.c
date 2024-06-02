@@ -47,11 +47,8 @@ uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2)
 #if TRICE_DIAGNOSTICS == 1
 
 //! SingleTricesRingCountMax holds the max count of trices occurred inside the ring buffer.
-//!
-unsigned SingleTricesRingCountMax = 0;
-
-//! TriceSingleMaxWordCount is a diagnostics value usable to optimize buffer size.
-unsigned TriceSingleMaxWordCount = 0;
+//! This value is only informal, because the length of the trice messages is not known.
+// unsigned SingleTricesRingCountMax = 0;
 
 //! TriceRingBufferDepthMax holds the max occurred ring buffer depth.
 unsigned TriceRingBufferDepthMax = 0;
@@ -77,13 +74,20 @@ int TriceEnoughSpace( void ){
         depth32 += (TRICE_DEFERRED_BUFFER_SIZE>>2);
     }
     // This fn is called before an intended trice data write ande therefore additional at least neededSafetySpace32 32-bit words need to fit in the buffer.
-    return depth32 + neededSafetySpace32 <= (TRICE_DEFERRED_BUFFER_SIZE>>2) ? 1 : 0; 
+    if( depth32 + neededSafetySpace32 <= (TRICE_DEFERRED_BUFFER_SIZE>>2) ){
+        return 1;
+    }else{
+        #if TRICE_DIAGNOSTICS == 1
+            TriceOverflowCount++;
+        #endif
+        return 0;
+    } 
 }
 
 #endif // #ifdef TRICE_PROTECTED
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET.
-//! Implicit assumed is SingleTricesRingCount > 0.
+//! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fullfilled.
 //! \param lastWordCount is the uint32 count of the last read trice including padding bytes.
 //! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
 //! \retval is the address of the next trice data buffer.
@@ -111,7 +115,7 @@ void TriceTransfer( void ){
         return;
     }
     #if TRICE_DIAGNOSTICS == 1
-    SingleTricesRingCountMax = (SingleTricesRingCount > SingleTricesRingCountMax) ? SingleTricesRingCount : SingleTricesRingCountMax;
+    // SingleTricesRingCountMax = (SingleTricesRingCount > SingleTricesRingCountMax) ? SingleTricesRingCount : SingleTricesRingCountMax;
     #endif
     SingleTricesRingCount--;
     static int lastWordCount = 0;
@@ -121,7 +125,7 @@ void TriceTransfer( void ){
 
 //! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
-//! \param addr points to TRICE_DATA_OFFSET bytes usable space followed by the begin of a single trice.
+//! \param addr points to TRICE_DATA_OFFSET bytes usable space, followed by the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
 //! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
 //! Return values <= 0 signal an error.

@@ -1489,7 +1489,7 @@ void TriceLogDiagnosticValues( void ){
     }else{
         TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
-    trice16( "diag:SingleTricesRingCountMax = %u, ", SingleTricesRingCountMax );
+    //trice16( "diag:SingleTricesRingCountMax = %u, ", SingleTricesRingCountMax );
     if( TriceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
         trice16( "diag:triceRingBufferDepthMax =%4u of%5d\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }else{

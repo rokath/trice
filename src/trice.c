@@ -52,6 +52,19 @@ uint8_t  TriceCycle = 0xc0;
 
 #endif
 
+#if TRICE_DIAGNOSTICS == 1
+
+//! TriceSingleMaxWordCount is a diagnostics value usable to optimize buffer space TRICE_BUFFER_SIZE for a single trice message.
+unsigned TriceSingleMaxWordCount = 0;
+
+#ifdef TRICE_PROTECTED
+
+unsigned TriceOverflowCount = 0;
+
+#endif
+
+#endif
+
 //! TriceInit needs to run before the first trice macro is executed.
 //! Not neseecary for all configurations.
 void TriceInit( void ){
