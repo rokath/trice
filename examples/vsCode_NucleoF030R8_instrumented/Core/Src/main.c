@@ -50,7 +50,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+void TriceLogDiagnosticValues( void );
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -116,6 +116,7 @@ int main(void)
             if(msCount >= 10 ){
                 msCount = 0;
                 static uint32_t i = 0;
+                TriceLogDiagnosticValues();
                 int k = 10;
                 while( k-->0 ){
                     TRice( "w: %9d Hello! 👋🙂 \a\n", i ); // with sound!

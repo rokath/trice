@@ -67,6 +67,8 @@ C_SOURCES += \
 ../../src/triceStaticBuffer.c \
 ../../src/xtea.c 
 
+C_SOURCES += ../exampleData/triceCheck.c
+
 # ASM sources
 ASM_SOURCES =  \
 startup_stm32f030x8.s
