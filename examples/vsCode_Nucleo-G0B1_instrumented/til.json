@@ -691,6 +691,10 @@
 		"Type": "trice_1",
 		"Strg": "value=%d\\n"
 	},
+	"1959": {
+		"Type": "trice",
+		"Strg": "ERROR:RTT0_writeSpaceMin=%u\\n"
+	},
 	"1973": {
 		"Type": "TRICE32_3",
 		"Strg": "rd:TRICE32_3 %d, %d, %d\\n"
@@ -1527,6 +1531,10 @@
 		"Type": "TRICE64_2",
 		"Strg": "rd:TRICE64_2 %x, %x\\n"
 	},
+	"3226": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeSpaceMin=%u\\n"
+	},
 	"3227": {
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n"
@@ -2295,6 +2303,10 @@
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2 %u %u\\n"
 	},
+	"4388": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
+	},
 	"4392": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64 with variable param count 1 to 12\\n"
@@ -2386,6 +2398,10 @@
 	"4502": {
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %d %d %d %d %d %d\\n"
+	},
+	"4510": {
+		"Type": "trice",
+		"Strg": "err: OverflowCount = %u\\n"
 	},
 	"4522": {
 		"Type": "Trice32",
@@ -3858,6 +3874,10 @@
 	"6779": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 double %G (%%G), aDouble(y)\\n"
+	},
+	"6781": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
 	},
 	"6782": {
 		"Type": "trice",

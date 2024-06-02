@@ -523,6 +523,10 @@
 		"Type": "TRICE_N",
 		"Strg": "sig:With TRICE_N:%s\\n"
 	},
+	"1696": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
+	},
 	"1711": {
 		"Type": "TRice64",
 		"Strg": "msg:value=%d, %d, %d, %d\\n"
@@ -2307,6 +2311,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %9.6f (%%9.6f)\\n"
 	},
+	"4331": {
+		"Type": "trice",
+		"Strg": "err: OverflowCount = %u\\n"
+	},
 	"4338": {
 		"Type": "TRICE",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
@@ -2894,6 +2902,10 @@
 	"5214": {
 		"Type": "TRICE",
 		"Strg": "alarm:red+i:white+h\\n"
+	},
+	"5218": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeSpaceMin=%u\\n"
 	},
 	"5229": {
 		"Type": "Trice64_8",
@@ -4171,6 +4183,10 @@
 		"Type": "TRICE",
 		"Strg": "dbg:\\t\\t\\tHi!\\n"
 	},
+	"7214": {
+		"Type": "trice",
+		"Strg": "ERROR:RTT0_writeSpaceMin=%u\\n"
+	},
 	"7215": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE8_n with 1 to 12 values\\n"
@@ -4338,6 +4354,10 @@
 	"7420": {
 		"Type": "trice8",
 		"Strg": "msg:value=%u\\n"
+	},
+	"7431": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
 	},
 	"7442": {
 		"Type": "TRICE",

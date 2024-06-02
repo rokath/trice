@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
+cp ./testdata/triceCheck.c.txt ../examples/exampleData/triceCheck.c
 
 # create til.json && li.json if not existing
 touch ./testdata/til.json ./testdata/li.json
