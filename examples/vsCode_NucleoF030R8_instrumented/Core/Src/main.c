@@ -91,6 +91,9 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
+#ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
+    TriceInitRingBufferMargins();
+#endif
     TriceInit();
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
     trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
@@ -108,24 +111,43 @@ int main(void)
   while (1)
   {
         #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
+
         static uint32_t lastMs = 0;
-        if( lastMs != ms32 ){
+        if( lastMs != ms32 ){ // each ms
             lastMs = ms32;
-            static uint32_t msCount = 0;
-            msCount++;
-            if(msCount >= 10 ){
-                msCount = 0;
+
+            static uint32_t msCheck = 0;
+            msCheck++;
+            if(msCheck >= 1 ){
+                msCheck = 0;
+
                 static uint32_t i = 0;
-                TriceLogDiagnosticValues();
-                int k = 10;
-                while( k-->0 ){
-                    TRice( "w: %9d Hello! 👋🙂 \a\n", i ); // with sound!
-                    i++;
+                if( i++ > 2000 ){
+                    i = 0;
                 }
+                TriceCheck( i ); // this generates plenty of trice data
+            }
+
+            static uint32_t msTransfer = 0;
+            msTransfer++;
+            if(msTransfer >= 10 ){
+                msTransfer = 0;
                 // Serve deferred trice transfer every few ms. With an RTOS put this in a separate task.
                 TriceTransfer(); // serve deferred output
             }
+
+            static uint32_t msDiag = 0;
+            msDiag++;
+            if(msDiag >= 1000 ){
+                msDiag = 0;
+                trice( "###################################################################\n");
+                TriceLogDiagnosticValues();
+                trice( "###################################################################\n");
+            }
         }
+        
+        WatchRingBufferMargins();
+
         #endif // #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 
     /* USER CODE END WHILE */

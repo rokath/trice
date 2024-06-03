@@ -17171,6 +17171,10 @@
 		"Type": "TRICE64",
 		"Strg": "msg:value=%u\\n"
 	},
+	"5610": {
+		"Type": "trice",
+		"Strg": "###################################################################\\n"
+	},
 	"5611": {
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
@@ -23642,6 +23646,10 @@
 	"7348": {
 		"Type": "TRice",
 		"Strg": "info:This is a message without values and a 32-bit stamp.\\n"
+	},
+	"7349": {
+		"Type": "trice",
+		"Strg": "###################################################################\\n"
 	},
 	"7350": {
 		"Type": "TRICE",

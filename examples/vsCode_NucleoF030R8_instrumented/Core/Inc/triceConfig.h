@@ -12,6 +12,9 @@ extern "C" {
 #include "stm32f0xx_ll_system.h"
 
 #define TRICE_PROTECTED
+#define TRICE_RINGBUFFER_OVERFLOW_WATCH
+void TriceInitRingBufferMargins( void );
+void WatchRingBufferMargins( void );
 
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.

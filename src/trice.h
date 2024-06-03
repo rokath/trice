@@ -214,8 +214,8 @@ extern const int TriceTypeX0;
 extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
 extern unsigned TriceErrorCount;
 extern unsigned TriceOverflowCount;
+extern uint32_t* const TriceRingBufferStart;
 extern uint32_t* const triceRingBufferLimit;
-extern uint32_t TriceRingBuffer[];
 extern unsigned TriceSingleMaxWordCount;
 extern unsigned TriceRingBufferDepthMax;
 
@@ -603,7 +603,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             /* Because the the size of the next trice message is unknown here, the biggest value is assumed, that is TRICE_BUFFER_SIZE bytes. */ \
             /* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */ \
             /* This implementation is a bit different than a ring buffer is usually implemented. */ \
-            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
             TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
@@ -618,7 +618,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             /* Because the the size of the next trice message is unknown here, the biggest value is assumed, that is TRICE_BUFFER_SIZE bytes. */ \
             /* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */ \
             /* This implementation is a bit different than a ring buffer is usually implemented. */ \
-            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
             TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
@@ -635,7 +635,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         #define TRICE_ENTER \
         TRICE_ENTER_CRITICAL_SECTION { \
         if( TriceEnoughSpace() ){ \
-            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
             TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
@@ -646,7 +646,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         #define TRICE_ENTER \
         TRICE_ENTER_CRITICAL_SECTION { \
         { \
-            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBuffer; \
+            TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
             TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.

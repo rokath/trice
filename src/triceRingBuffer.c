@@ -11,37 +11,52 @@
 
 static int TriceSingleDeferredOut(uint32_t* addr);
 
-//! TriceRingBuffer is a kind of heap for trice messages.
-uint32_t TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] = {0};
+#ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
 
-//! TriceBufferWritePosition is used by the TRICE_PUT macros.
-uint32_t* TriceBufferWritePosition = TriceRingBuffer; 
+#define TRICE_RINGBUFFER_LOWER_MARGIN 8 //!< 32-bit units just for debugging > 0
+#define TRICE_RINGBUFFER_UPPER_MARGIN 8 //!< 32-bit units just for debugging > 0
+#define TRICE_RINGBUFFER_MARGIN_FILL_VALUE 0xfee4deb
 
+#else
+
+#define TRICE_RINGBUFFER_LOWER_MARGIN 0 //!< 32-bit units just for debugging > 0
+#define TRICE_RINGBUFFER_UPPER_MARGIN 0 //!< 32-bit units just for debugging > 0
+#define TRICE_RINGBUFFER_FILL_VALUE   0
+
+#endif
+
+//! TriceRingBuffer is a kind of heap for trice messages. It needs to be initialized with 0.
+uint32_t TriceRingBufferMargined[TRICE_RINGBUFFER_LOWER_MARGIN + (TRICE_DEFERRED_BUFFER_SIZE>>2) + TRICE_RINGBUFFER_UPPER_MARGIN] = {0};
+
+uint32_t* const TriceRingBufferStart = TriceRingBufferMargined + TRICE_RINGBUFFER_LOWER_MARGIN;
 
 #ifdef XTEA_ENCRYPT_KEY
 
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
 //! With encryption it can happen that 4 bytes following triceRingBufferLimit are used as scratch pad.
 //! See comment inside TriceSingleDeferredOut.
-uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2] - 1;
+uint32_t* const triceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE>>2) - 1;
 
 #else // #ifdef XTEA_ENCRYPT_KEY
 
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
-uint32_t* const triceRingBufferLimit = &TriceRingBuffer[TRICE_DEFERRED_BUFFER_SIZE>>2];
+uint32_t* const triceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE>>2);
 
 #endif // #else // #ifdef XTEA_ENCRYPT_KEY
 
 //! SingleTricesRingCount holds the readable trices count inside TriceRingBuffer.
 unsigned SingleTricesRingCount = 0;
 
+//! TriceBufferWritePosition is used by the TRICE_PUT macros.
+uint32_t* TriceBufferWritePosition = TriceRingBufferStart; 
+
 //ARM5 #pragma push
 //ARM5 #pragma diag_suppress=170 //warning:  #170-D: pointer points outside of underlying object
 //! TriceRingBufferReadPosition points to a valid trice message when singleTricesRingCount > 0.
 //! This is first the TRICE_DATA_OFFSET byte space followed by the trice data.
-//! Initally this value is set to TriceRingBuffer minus TRICE_DATA_OFFSET byte space
-//! to ga correct value for the very first call of triceNextRingBufferRead
-uint32_t* TriceRingBufferReadPosition = TriceRingBuffer - (TRICE_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
+//! Initally this value is set to TriceRingBufferStart minus TRICE_DATA_OFFSET byte space
+//! to get a correct value for the very first call of triceNextRingBufferRead
+uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart - (TRICE_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
 //ARM5 #pragma  pop
 
 #if TRICE_DIAGNOSTICS == 1
@@ -94,7 +109,7 @@ int TriceEnoughSpace( void ){
 static uint32_t* triceNextRingBufferRead( int lastWordCount ){
     TriceRingBufferReadPosition += (TRICE_DATA_OFFSET>>2) + lastWordCount;
     if( (TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE>>2)) > triceRingBufferLimit ){
-        TriceRingBufferReadPosition = TriceRingBuffer;
+        TriceRingBufferReadPosition = TriceRingBufferStart;
     }
     #if TRICE_DIAGNOSTICS == 1
     int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition)<<2; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
@@ -148,5 +163,31 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     TriceNonBlockingDeferredWrite( triceID, pEnc, encLen );
     return wordCount;
 }
+
+#ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
+
+void TriceInitRingBufferMargins( void ){
+    for( int i = 0; i < TRICE_RINGBUFFER_LOWER_MARGIN; i++ ){
+        TriceRingBufferMargined[i] = TRICE_RINGBUFFER_MARGIN_FILL_VALUE;
+    }
+    for( int i = 0; i < TRICE_RINGBUFFER_UPPER_MARGIN; i++ ){
+         *(triceRingBufferLimit + i) = TRICE_RINGBUFFER_MARGIN_FILL_VALUE;
+    }    
+}
+
+void WatchRingBufferMargins( void ){
+    for( int i = 0; i < TRICE_RINGBUFFER_LOWER_MARGIN; i++ ){
+        if( TriceRingBufferMargined[i] != TRICE_RINGBUFFER_MARGIN_FILL_VALUE ){
+            for(;;);
+        }
+    }
+    for( int i = 0; i < TRICE_RINGBUFFER_UPPER_MARGIN; i++ ){
+        if( *(triceRingBufferLimit + i) != TRICE_RINGBUFFER_MARGIN_FILL_VALUE ){
+            for(;;);
+        }
+    }
+}
+
+#endif // #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
