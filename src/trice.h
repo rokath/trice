@@ -185,9 +185,10 @@ void TriceLogSeggerDiagnostics( void );
 void TriceNonBlockingDeferredWrite( int ticeID, uint8_t const * enc, size_t encLen );
 void TriceTransfer( void );
 void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ); // only needed for testing C-sources from Go
+size_t triceDataLen( uint8_t const* p );
 
-int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
-int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
+//int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
+//int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 int TriceEnoughSpace( void );
 
 unsigned TriceOutDepth( void );
@@ -198,6 +199,13 @@ unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
 size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len );
+
+// global defines
+
+#define TRICE_TYPE_X0 0 //!< TRICE_TYPE_X0 ist a unspecified trice (reserved)
+#define TRICE_TYPE_S0 1 //!< TRICE_TYPE_S0 ist a trice without stamp.
+#define TRICE_TYPE_S2 2 //!< TRICE_TYPE_S2 ist a trice with 16-bit stamp.
+#define TRICE_TYPE_S4 3 //!< TRICE_TYPE_S4 ist a trice with 32-bit stamp.
 
 // global variables:
 
@@ -218,6 +226,9 @@ extern uint32_t* const TriceRingBufferStart;
 extern uint32_t* const triceRingBufferLimit;
 extern unsigned TriceSingleMaxWordCount;
 extern unsigned TriceRingBufferDepthMax;
+extern unsigned TriceHalfBufferDepthMax;
+extern uint16_t TriceHalfBufferDepth;
+extern uint16_t TriceRingBufferDepth;
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 extern uint32_t* TriceBufferWritePosition;

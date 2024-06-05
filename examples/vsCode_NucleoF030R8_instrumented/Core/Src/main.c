@@ -116,11 +116,17 @@ int main(void)
         if( lastMs != ms32 ){ // each ms
             lastMs = ms32;
 
+            static uint32_t msDiag = 0;
+            msDiag++;
+            if(msDiag >= 10000 ){
+                msDiag = 0;
+                TriceLogDiagnosticValues();
+            }
+
             static uint32_t msCheck = 0;
             msCheck++;
-            if(msCheck >= 1 ){
-                msCheck = 0;
-
+            if(msCheck >= 10 ){
+                msCheck = 0; 
                 static uint32_t i = 0;
                 if( i++ > 2000 ){
                     i = 0;
@@ -135,18 +141,11 @@ int main(void)
                 // Serve deferred trice transfer every few ms. With an RTOS put this in a separate task.
                 TriceTransfer(); // serve deferred output
             }
-
-            static uint32_t msDiag = 0;
-            msDiag++;
-            if(msDiag >= 1000 ){
-                msDiag = 0;
-                trice( "###################################################################\n");
-                TriceLogDiagnosticValues();
-                trice( "###################################################################\n");
-            }
         }
         
+        #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
         WatchRingBufferMargins();
+        #endif
 
         #endif // #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 

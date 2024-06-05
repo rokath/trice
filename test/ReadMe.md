@@ -16,7 +16,7 @@ The folders `cgo_...` are Go packages just for tests. They all have the same pac
 
 The `cgo_.../triceConfig.h` files differ and correspondent to the `cgo_.../cgo_test.go` files. On test execution, the `./testdata/*.c` files are compiled into the trice test executable together with the trice sources `../src` using the `cgo_.../triceConfig.h` file. 
 
-The individual tests collects the expected results (`//exp: result`) together with the line numbers into a slice to execute the test loop on it. The `triceLogTest` function gets the `triceLog` function as parameter.
+The individual tests collect the expected results (`//exp: result`) together with the line numbers into a slice to execute the test loop on it. The `triceLogTest` function gets the `triceLog` function as parameter.
 
 `triceLogTest` iterates over the results slice and calls for each line the C-function `triceCheck`. Then the line specific binary data buffer is passed to the `triceLog` parameter function which "logs" the passed buffer into an actual result string which in turn is compared with the expected result.
 

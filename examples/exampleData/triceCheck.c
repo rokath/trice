@@ -1434,6 +1434,20 @@ static void exampleOfManualJSONencoding(void){
 
 //! TriceLogDiagnosticValues shows the max used half buffer space. 
 void TriceLogDiagnosticValues( void ){
+    static uint16_t n = 0;
+
+#ifdef TRICE_PROTECTED
+
+    if(TriceOverflowCount > 0){
+        // In case of internal overflows, also this trice message could be dropped!
+        trice( "err: OverflowCount = %u !\a ", TriceOverflowCount );
+    }
+
+#endif
+
+    if(TriceErrorCount > 0){
+        trice( "err: TriceErrorCount = %u !\a ", TriceErrorCount );
+    }
 
 #ifdef SEGGER_RTT
     if( (RTT0_writeSpaceMin < 8) ){ // && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
@@ -1443,24 +1457,12 @@ void TriceLogDiagnosticValues( void ){
     }
 #endif // #ifdef SEGGER_RTT
 
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
-    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }else{
-        TRice16( "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }
-    
-#ifdef TRICE_PROTECTED
-
-    if(TriceOverflowCount > 0){
-        trice( "err: OverflowCount = %u\n", TriceOverflowCount );
-    }
-
-#endif
-
-    if(TriceErrorCount > 0){
-        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
-    }
+    //  unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
+    //  if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
+    //      TRice16( "diag:%4u:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\n", n, triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    //  }else{
+    //      TRice16( "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+    //  }
 
 #if TRICE_BUFFER == TRICE_STACK_BUFFER
 #endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER
@@ -1470,19 +1472,21 @@ void TriceLogDiagnosticValues( void ){
 	
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
     if( TriceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
-        TRice16( "diag:TriceHalfBufferDepthMax =%4u of%5d\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+        trice16( "diag:%4u:TriceHalfBufferDepth = %u, Max = %u of %u\n", n, TriceHalfBufferDepth, TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }else{
-        TRice16( "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
+        trice16( "err:%4u:TriceHalfBufferDepth = %u, Max = %u of %u (overflow!)\n", n, TriceHalfBufferDepth, TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }
+    n++;    
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
     //trice16( "diag:SingleTricesRingCountMax = %u, ", SingleTricesRingCountMax );
     if( TriceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
-        trice16( "diag:triceRingBufferDepthMax =%4u of%5d\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+        trice16( "diag:%4u:TriceRingBufferDepth = %u, Max =%4u of%5d\n", n, TriceRingBufferDepth, TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }else{
-        trice16( "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
+        trice16( "err:%4u:TriceRingBufferDepth = %u, Max =%4u of%5d (overflow!)\n", n, TriceRingBufferDepth, TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }
+    n++;    
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
 }
 

@@ -12,8 +12,6 @@
 
 // function prototypes:
 
-static size_t triceDataLen( uint8_t const* p );
-
 #if defined( TRICE_UARTA )
 static void triceNonBlockingWriteUartA( void const * buf, size_t nByte );
 #endif
@@ -25,13 +23,6 @@ static void triceNonBlockingWriteUartB( void const * buf, size_t nByte );
 #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW );
 #endif
-
-// local definines:
-
-#define TRICE_TYPE_X0 0 //!< TRICE_TYPE_X0 ist a unspecified trice (reserved)
-#define TRICE_TYPE_S0 1 //!< TRICE_TYPE_S0 ist a trice without stamp.
-#define TRICE_TYPE_S2 2 //!< TRICE_TYPE_S2 ist a trice with 16-bit stamp.
-#define TRICE_TYPE_S4 3 //!< TRICE_TYPE_S4 ist a trice with 32-bit stamp.
 
 // global variables:
 
@@ -92,7 +83,7 @@ void TriceInit( void ){
 //! - *da = 00xxxxxxX extended trices are not used yet, unspecified length >= 2
 //! - This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
 //! - With framing, user 1-byte messages allowed and ignored by the trice tool.
-static size_t triceDataLen( uint8_t const* p ){
+size_t triceDataLen( uint8_t const* p ){
     uint16_t nc = TRICE_TTOHS(*(uint16_t*)p); // lint !e826
     size_t n = nc>>8;
     if( n < 128 ){
@@ -139,111 +130,6 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
 
 #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 
-#if TRICE_BUFFER == TRICE_RING_BUFFER
-
-//! TriceIDAndBuffer evaluates a trice message and returns the ID for routing.
-//! \param pAddr is where the trice message starts.
-//! \param pWordCount is filled with the word count the trice data occupy from pAddr.
-//! \param ppStart is filled with the trice netto data start. That is maybe a 2 bytes offset from pAddr.
-//! \param pLength is filled with the netto trice length (without padding bytes), 0 on error.
-//! \retval is the triceID, a positive value on success or error information.
-int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength ){
-    uint16_t TID = TRICE_TTOHS( *(uint16_t*)pAddr ); // type and id
-    int triceID = 0x3FFF & TID;
-    int triceType = TID >> 14;
-    unsigned offset;
-    size_t len;
-    uint8_t* pStart = (uint8_t*)pAddr;
-    switch( triceType ){
-        case TRICE_TYPE_S0: // S0 = no stamp
-            offset = 0;
-            len = 4 + triceDataLen(pStart + 2); // tyId
-            break;
-        case TRICE_TYPE_S2: // S2 = 16-bit stamp
-            len = 6 + triceDataLen(pStart + 6); // tyId ts16
-            offset = 2;
-            #ifdef XTEA_ENCRYPT_KEY
-                // move trice to start at a uint32_t alingment border
-                memmove(pStart, pStart+2, len ); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
-            #else // #ifdef XTEA_ENCRYPT_KEY
-                // Like for UART transfer no uint32_t alignment is needed.
-                pStart += 2; // see Id(n) macro definition        
-            #endif // #else // #ifdef XTEA_ENCRYPT_KEY
-            break;
-        case TRICE_TYPE_S4: // S4 = 32-bit stamp
-            offset = 0;
-            len = 8 + triceDataLen(pStart + 6); // tyId ts32
-            break;
-        default:
-            // fallthrugh
-        case TRICE_TYPE_X0:
-            TriceErrorCount++;
-            *ppStart = pStart;
-            *pLength = 0;
-            return -__LINE__; // extended trices not supported (yet)
-    }
-    // S16 case example:            triceSize  len   t-0-3   t-o
-    // 80id 80id 1616 00cc                8     6      3      6
-    // 80id 80id 1616 01cc dd            12     7      7     10
-    // 80id 80id 1616 02cc dd dd         12     8      7     10
-    // 80id 80id 1616 03cc dd dd dd      12     9      7     10
-    // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
-    *pWordCount = (len + offset + 3) >> 2;
-    *ppStart = pStart;
-    *pLength = len;
-    return triceID;
-}
-
-#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
-
-//todo: use this function only when MULTI
-//! TriceNext expects at *buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
-//! *buf is filled with the advanced buf and *pSize gets the reduced value.
-//! \retval is the trice ID on success or negative on error.
-int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
-    uint16_t* pTID = (uint16_t*)*buf; //lint !e826, get TID address
-    unsigned TID = TRICE_TTOHS( *pTID ); // type and id
-    int triceID = 0x3FFF & TID;
-    int triceType = TID >> 14;
-    unsigned offset = 0;
-    size_t size = *pSize;
-    size_t triceSize;
-    size_t len;
-    *pStart = *buf;
-    switch( triceType ){
-        default:
-        case TRICE_TYPE_S0: // S0 = no stamp
-            len = 4 + triceDataLen(*pStart + 2); // tyId
-            break;
-        case TRICE_TYPE_S2: // S2 = 16-bit stamp
-            *pStart += 2; // see Id(n) macro definition
-            offset = 2;
-            len = 6 + triceDataLen(*pStart + 4); // tyId ts16
-            break;
-        case TRICE_TYPE_S4: // S4 = 32-bit stamp
-            len = 8 + triceDataLen(*pStart + 6); // tyId ts32
-            break;
-        case TRICE_TYPE_X0:
-            return -__LINE__; // extended trices not supported (yet)
-    }
-    triceSize = (len + offset + 3) & ~3;
-    // S16 case example:            triceSize  len   t-0-3   t-o
-    // 80id 80id 1616 00cc                8     6      3      6
-    // 80id 80id 1616 01cc dd            12     7      7     10
-    // 80id 80id 1616 02cc dd dd         12     8      7     10
-    // 80id 80id 1616 03cc dd dd dd      12     9      7     10
-    // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
-    if( !( triceSize - (offset + 3) <= len && len <= triceSize - offset )){ // corrupt data
-        TriceErrorCount++;
-        return -__LINE__;
-    }    
-    size -= triceSize;
-    *buf += triceSize;
-    *pSize = size;
-    *pLen = len;
-    return triceID;
-}
-
 //! TriceDeferredEncode expects at buf trice date with netto length len.
 //! ATTENTION: Up to 7 bytes behind len are used as scratch pad!
 //! \param enc is the destination.
@@ -257,6 +143,7 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     while( len < len8 ){
         buf[len++] = 0; // clear padding space
     }
+    // In-place encryption here!!! Does not work with TRICE_RING_BUFFER.
     XTEAEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
     #endif
     #if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
@@ -382,7 +269,7 @@ unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wor
     }while( (encLen & 3) != 0 ); 
     return encLen>>2;
 }
-#endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
+#endif // #if TRICE_32BIT_DIRECT_XTEA_AND_COBS
 
 #if TRICE_DIRECT_OUTPUT == 1
 

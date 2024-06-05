@@ -9,6 +9,10 @@
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 
+#ifndef TRICE_RING_BUFFER_DATA_OFFSET
+#define TRICE_RING_BUFFER_DATA_OFFSET 16
+#endif
+
 static int TriceSingleDeferredOut(uint32_t* addr);
 
 #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
@@ -53,10 +57,10 @@ uint32_t* TriceBufferWritePosition = TriceRingBufferStart;
 //ARM5 #pragma push
 //ARM5 #pragma diag_suppress=170 //warning:  #170-D: pointer points outside of underlying object
 //! TriceRingBufferReadPosition points to a valid trice message when singleTricesRingCount > 0.
-//! This is first the TRICE_DATA_OFFSET byte space followed by the trice data.
-//! Initally this value is set to TriceRingBufferStart minus TRICE_DATA_OFFSET byte space
+//! This is first the TRICE_RING_BUFFER_DATA_OFFSET byte space followed by the trice data.
+//! Initally this value is set to TriceRingBufferStart minus TRICE_RING_BUFFER_DATA_OFFSET byte space
 //! to get a correct value for the very first call of triceNextRingBufferRead
-uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart - (TRICE_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
+uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart - (TRICE_RING_BUFFER_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
 //ARM5 #pragma  pop
 
 #if TRICE_DIAGNOSTICS == 1
@@ -101,23 +105,30 @@ int TriceEnoughSpace( void ){
 
 #endif // #ifdef TRICE_PROTECTED
 
-//! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET.
+#if TRICE_DIAGNOSTICS == 1
+uint16_t TriceRingBufferDepth = 0;
+#endif
+
+//! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_RING_BUFFER_DATA_OFFSET from this address.
 //! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fullfilled.
-//! \param lastWordCount is the uint32 count of the last read trice including padding bytes.
+//! \param lastWordCount is the u32 count of the last read trice including padding bytes.
 //! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
 //! \retval is the address of the next trice data buffer.
 static uint32_t* triceNextRingBufferRead( int lastWordCount ){
-    TriceRingBufferReadPosition += (TRICE_DATA_OFFSET>>2) + lastWordCount;
+    TriceRingBufferReadPosition += (TRICE_RING_BUFFER_DATA_OFFSET>>2) + lastWordCount;
     if( (TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE>>2)) > triceRingBufferLimit ){
         TriceRingBufferReadPosition = TriceRingBufferStart;
     }
+
     #if TRICE_DIAGNOSTICS == 1
-    int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition)<<2; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
-    if( depth < 0 ){
-        depth += TRICE_DEFERRED_BUFFER_SIZE;
-    }
-    TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax; //lint !e574 !e737 Warning 574: Signed-unsigned mix with relational, Info 737: Loss of sign in promotion from int to unsigned int
-    #endif
+        int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition)<<2; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
+        if( depth < 0 ){
+            depth += TRICE_DEFERRED_BUFFER_SIZE;
+        }
+        TriceRingBufferDepth = (uint16_t)depth;
+        TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax; //lint !e574 !e737 Warning 574: Signed-unsigned mix with relational, Info 737: Loss of sign in promotion from int to unsigned int
+    #endif // #if TRICE_DIAGNOSTICS == 1
+    
     return TriceRingBufferReadPosition; //lint !e674 Warning 674: Returning address of auto through variable 'TriceRingBufferReadPosition'
 }
 
@@ -137,6 +148,145 @@ void TriceTransfer( void ){
     uint32_t* addr = triceNextRingBufferRead( lastWordCount );
     lastWordCount = TriceSingleDeferredOut(addr);
 }
+
+#if 0 // experimental 
+
+//! TriceIDAndBuffer evaluates a trice message and returns the ID for routing.
+//! \param pData is where the trice message starts.
+//! \param pWordCount is filled with the word count the trice data occupy from pData.
+//! \param ppStart is filled with the trice netto data start. That is maybe a 2 bytes offset from pData.
+//! \param pLength is filled with the netto trice length (without padding bytes), 0 on error.
+//! \retval is the triceID, a positive value on success or error information.
+int TriceIDAndBuffer( uint32_t const * const pData, int* pWordCount, uint8_t** ppStart, size_t* pLength ){
+    uint16_t TID = TRICE_TTOHS( *(uint16_t*)pData ); // type and id
+    int triceID = 0x3FFF & TID;
+    int triceType = TID >> 14;
+    unsigned offset;
+    size_t len;
+    uint8_t* pStart = (uint8_t*)pData;
+    switch( triceType ){
+        case TRICE_TYPE_S0: // S0 = no stamp
+            offset = 0;
+            len = 4 + triceDataLen(pStart + 2); // tyId
+            break;
+        case TRICE_TYPE_S2: // S2 = 16-bit stamp
+            len = 6 + triceDataLen(pStart + 6); // tyId ts16
+            offset = 2;
+            #ifdef XTEA_ENCRYPT_KEY
+                // move trice to start at a uint32_t alingment border
+                memmove(pStart, pStart+2, len ); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
+            #else // #ifdef XTEA_ENCRYPT_KEY
+                // Like for UART transfer no uint32_t alignment is needed.
+                pStart += 2; // see Id(n) macro definition        
+            #endif // #else // #ifdef XTEA_ENCRYPT_KEY
+            break;
+        case TRICE_TYPE_S4: // S4 = 32-bit stamp
+            offset = 0;
+            len = 8 + triceDataLen(pStart + 6); // tyId ts32
+            break;
+        default:
+            // fallthrugh
+        case TRICE_TYPE_X0:
+            TriceErrorCount++;
+            *ppStart = pStart;
+            *pLength = 0;
+            return -__LINE__; // extended trices not supported (yet)
+    }
+    // S16 case example:            triceSize  len   t-0-3   t-o
+    // 80id 80id 1616 00cc                8     6      3      6
+    // 80id 80id 1616 01cc dd            12     7      7     10
+    // 80id 80id 1616 02cc dd dd         12     8      7     10
+    // 80id 80id 1616 03cc dd dd dd      12     9      7     10
+    // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
+    *pWordCount = (len + offset + 3) >> 2;
+    *ppStart = pStart;
+    *pLength = len;
+    return triceID;
+}
+
+//! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_RING_BUFFER_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
+//! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
+//! \param addr points to TRICE_RING_BUFFER_DATA_OFFSET bytes usable space, followed by the begin of a single trice.
+//! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
+//! The returned value is typically (TRICE_RING_BUFFER_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_RING_BUFFER_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
+//! Return values <= 0 signal an error.
+static int TriceSingleDeferredOut(uint32_t* addr){
+    uint32_t* pData = addr + (TRICE_RING_BUFFER_DATA_OFFSET>>2);
+    
+    int wordCount;
+    uint8_t* pStart;
+    size_t Length; // This is the trice netto length (without padding bytes).
+    int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
+    
+   
+    static uint8_t pEnc[TRICE_BUFFER_SIZE+16]; //!< This temporary buffer must not be on the stack! 
+
+    // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
+    // This is ok, when behind triceRingBufferLimit are at least 4 bytes unused space.
+    // After TriceIDAndBuffer pStart has a 2 bytes offset, what is an alignmet issue for encryption.
+    // That gets corrected inside TriceDeferredEncode.
+    // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
+    size_t encLen = TriceDeferredEncode( pEnc, pStart, Length);
+    
+    TriceNonBlockingDeferredWrite( triceID, pEnc, encLen );
+    return wordCount;
+}
+
+#else // legacy
+
+//! TriceIDAndBuffer evaluates a trice message and returns the ID for routing.
+//! \param pData is where the trice message starts.
+//! \param pWordCount is filled with the word count the trice data occupy from pData.
+//! \param ppStart is filled with the trice netto data start. That is maybe a 2 bytes offset from pData.
+//! \param pLength is filled with the netto trice length (without padding bytes), 0 on error.
+//! \retval is the triceID, a positive value on success or error information.
+int TriceIDAndBuffer( uint32_t const * const pData, int* pWordCount, uint8_t** ppStart, size_t* pLength ){
+    uint16_t TID = TRICE_TTOHS( *(uint16_t*)pData ); // type and id
+    int triceID = 0x3FFF & TID;
+    int triceType = TID >> 14;
+    unsigned offset;
+    size_t len;
+    uint8_t* pStart = (uint8_t*)pData;
+    switch( triceType ){
+        case TRICE_TYPE_S0: // S0 = no stamp
+            offset = 0;
+            len = 4 + triceDataLen(pStart + 2); // tyId
+            break;
+        case TRICE_TYPE_S2: // S2 = 16-bit stamp
+            len = 6 + triceDataLen(pStart + 6); // tyId ts16
+            offset = 2;
+            #ifdef XTEA_ENCRYPT_KEY
+                // move trice to start at a uint32_t alingment border
+                memmove(pStart, pStart+2, len ); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
+            #else // #ifdef XTEA_ENCRYPT_KEY
+                // Like for UART transfer no uint32_t alignment is needed.
+                pStart += 2; // see Id(n) macro definition        
+            #endif // #else // #ifdef XTEA_ENCRYPT_KEY
+            break;
+        case TRICE_TYPE_S4: // S4 = 32-bit stamp
+            offset = 0;
+            len = 8 + triceDataLen(pStart + 6); // tyId ts32
+            break;
+        default: // impossible
+            // fallthrugh
+        case TRICE_TYPE_X0:
+            TriceErrorCount++;
+            *ppStart = pStart;
+            *pLength = 0;
+            return -__LINE__; // extended trices not supported (yet)
+    }
+    // S16 case example:            triceSize  len   t-0-3   t-o
+    // 80id 80id 1616 00cc                8     6      3      6
+    // 80id 80id 1616 01cc dd            12     7      7     10
+    // 80id 80id 1616 02cc dd dd         12     8      7     10
+    // 80id 80id 1616 03cc dd dd dd      12     9      7     10
+    // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
+    *pWordCount = (len + offset + 3) >> 2;
+    *ppStart = pStart;
+    *pLength = len;
+    return triceID;
+}
+
 
 //! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
@@ -163,6 +313,8 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     TriceNonBlockingDeferredWrite( triceID, pEnc, encLen );
     return wordCount;
 }
+
+#endif
 
 #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
 
