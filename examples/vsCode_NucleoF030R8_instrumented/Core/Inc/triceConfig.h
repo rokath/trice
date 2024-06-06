@@ -29,7 +29,7 @@ extern uint32_t ms32;
 //!   This is the fastest execution option for TRICE macros but needs more RAM. Used for deferred output and optional additional direct output.
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
-#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! The TRICE_PROTECTED switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
 //! The trice library works well, when less data are produced in the average than transmitable and when in the double buffer case the TriceTransfer
@@ -54,7 +54,8 @@ void WatchRingBufferMargins( void );
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
-#define TRICE_DIRECT_OUTPUT 0
+#define TRICE_DIRECT_OUTPUT 1
+#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 1
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -90,7 +91,9 @@ void WatchRingBufferMargins( void );
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
 //! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_TCOBS
+#define TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE 1
+
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.

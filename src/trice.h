@@ -78,7 +78,7 @@ extern "C" {
 #define TRICE_PACK_MULTI_MODE  3987862482U
 
 //! With TRICE_BUFFER == TRICE_STACK_BUFFER  the internal macro TRICE_PUT writes to the stack. 
-//! This is direct logging. This reduces memory needs if one stack is used.
+//! This is direct logging. This reduces memory needs if only one stack is used.
 #define TRICE_STACK_BUFFER  2645382063U
 
 //! With TRICE_BUFFER == TRICE_STATIC_BUFFER the internal macro TRICE_PUT writes to a static buffer. 

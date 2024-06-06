@@ -92,7 +92,7 @@ size_t triceDataLen( uint8_t const* p ){
     return nc & 0x7fff;
 }
 
-#if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+#if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
 
 //! triceIDAndLen expects at buf a trice message and returns the ID for routing.
 //! \param pBuf is where the trice message starts.
@@ -161,7 +161,7 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     return encLen;
 } //lint !e818 Info 818: Pointer parameter 'buf' could be declared as pointing to const
 
-#if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
+#if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
 
 //! TriceDirectEncode expects at buf trice date with netto length len.
 //! \param enc is the destination.
@@ -312,7 +312,10 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
             TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
         #endif
     #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) 
-        #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) 
+        #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) \
+            && (    (TRICE_DIRECT_AUXILIARY == 1) \
+                 || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1) \
+                 || defined( TRICE_CGO ) )
 
             uint8_t* triceStart2;
             int triceID;
@@ -338,7 +341,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
                 TriceWriteDeviceCgo( enc, encLen );
             #endif
 
-        #else // #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) 
+        #else // #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && ...
               #error unexpected configuration
         #endif // #else // #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1)
     #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)

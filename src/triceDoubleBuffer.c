@@ -95,6 +95,7 @@ void TriceTransfer( void ){
 //! \param pStart points to the netto start of the next trice.
 //! \param pLen contains the nettlo length of the first trice.
 //! \retval is the trice ID on success or negative on error.
+//! The trices inside the double buffer start 32-bit aligned with maybe 1-3 padding bytes inbetween.
 //! \li |    ... |    trice   | trice | ... |  trice |
 //! \li before:  ^- buf
 //! \li before:  <-------------- pSize -------------->
