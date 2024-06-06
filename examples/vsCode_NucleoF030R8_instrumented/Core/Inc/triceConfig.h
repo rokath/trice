@@ -29,7 +29,7 @@ extern uint32_t ms32;
 //!   This is the fastest execution option for TRICE macros but needs more RAM. Used for deferred output and optional additional direct output.
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+#define TRICE_BUFFER TRICE_RING_BUFFER
 
 //! The TRICE_PROTECTED switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
 //! The trice library works well, when less data are produced in the average than transmitable and when in the double buffer case the TriceTransfer
@@ -61,6 +61,7 @@ void WatchRingBufferMargins( void );
 //! - When using real big buffers, 16 may be not enough.
 //! - When having only short trices but lots of trice bursts, it may make sense to reduce this value to 4.
 //! - Without encoding/framing this value can be 0.
+//! - When using XTEA, this value should incorporate additinal 4 bytes, because of the 64-bit encryption units.
 //! With TRICE_BUFFER == TRICE_RING_BUFFER, this amount of space is allocated in front of each single trice!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //! With TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this amount of space is allocated once in front of each half buffer.
 #define TRICE_DATA_OFFSET 16 // must be a multiple of 4

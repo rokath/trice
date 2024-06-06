@@ -171,17 +171,25 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
 static size_t triceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
-    len = (len + 7) & ~7; // only multiple of 8 encryptable
-    XTEAEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
+        // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
+        // A 64-bit trice data aligning would waste RAM.
+        // We need additional 4 bytes after each trice for the XTEA encryption.
+        // Therefore we copy the trice data to a place, we can use. 
+        memmove( enc + TRICE_DATA_OFFSET, buf, len );
+        uint8_t const* dat = (uint8_t const*)(enc + TRICE_DATA_OFFSET);
+        len = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+        XTEAEncrypt( (uint32_t*)dat, len>>2 );
+    #else
+        uint8_t const* dat = buf;
     #endif
     #if TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS
-    encLen = (size_t)TCOBSEncode(enc, buf, len);
+    encLen = (size_t)TCOBSEncode(enc, dat, len);
     enc[encLen++] = 0; // Add zero as package delimiter.
     #elif TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS
-    encLen = (size_t)COBSEncode(enc, buf, len);
+    encLen = (size_t)COBSEncode(enc, dat, len);
     enc[encLen++] = 0; // Add zero as package delimiter.
     #elif TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE
-    memmove( enc, buf, len );
+    memmove( enc, dat, len );
     encLen = len;
     #else
     #error unknown TRICE_DIRECT_OUT_FRAMING
@@ -320,7 +328,13 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
             uint8_t* triceStart2;
             int triceID;
             size_t len = triceIDAndLen( triceStart, &triceStart2, &triceID );
+        #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)
+            // When using deferred and direct mode parallel, we need to provide a temporary buffer here.
+            // That's, because here in the direct processing, we cannot use deferred buffer space, which is not read out yet.
+            static uint8_t enc[TRICE_BUFFER_SIZE];
+        #else
             uint8_t* enc = triceStart2 - TRICE_DATA_OFFSET;
+        #endif
             size_t encLen = triceDirectEncode( enc, triceStart2, len );
             
             #if TRICE_DIRECT_AUXILIARY == 1
