@@ -67,6 +67,13 @@ The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice l
 
 ## Some Thoughs
 
+Currently there are 2 similar implementations for trice encode
+
+```C
+static size_t triceDirectEncode(   uint8_t* enc, uint8_t const* buf, size_t len );
+       size_t TriceDeferredEncode( uint8_t* enc, uint8_t      * buf, size_t len );
+```
+
 Currently there are 3 similar implementations for trice buffer reads
 
 ```C

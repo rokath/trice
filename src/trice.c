@@ -130,6 +130,7 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
 
 #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 
+#if 0 // legacy
 //! TriceDeferredEncode expects at buf trice date with netto length len.
 //! ATTENTION: Up to 7 bytes behind len are used as scratch pad!
 //! \param enc is the destination.
@@ -160,9 +161,50 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     #endif
     return encLen;
 } //lint !e818 Info 818: Pointer parameter 'buf' could be declared as pointing to const
+#else
+//! TriceDeferredEncode expects at buf trice date with netto length len.
+//! \param enc is the destination. It must be 32-bit aligned.
+//! \param buf is the source.
+//! \param len is the source len.
+//! \retval is the encoded len with 0-delimiter byte.
+       size_t TriceDeferredEncode( uint8_t* enc, uint8_t      * buf, size_t len ){ 
+    size_t encLen;
+    #ifdef XTEA_ENCRYPT_KEY
+        // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
+        // A 64-bit trice data aligning would waste RAM.
+        // We need additional 4 bytes after each trice for the XTEA encryption.
+        // Therefore we copy the trice data to a place, we can use.
+		uint8_t* loc = enc + TRICE_DATA_OFFSET; // Give space in front for framing.
+        memmove( loc, buf, len ); // We use not memcpy here, because enc and buf allowed to overlap.
+        uint8_t const* dat = (uint8_t const*)loc;
+		size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+		while( len < len8 ){
+			loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
+		}
+		len = len8;
+		XTEAEncrypt( (uint32_t*)loc, len>>2 );
+    #else
+        uint8_t const* dat = buf;
+    #endif
 
+    #if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
+    encLen = (size_t)TCOBSEncode(enc, dat, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS
+    encLen = (size_t)COBSEncode(enc, dat, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE
+    memmove( enc, dat, len );
+    encLen = len;
+    #else
+    #error unknown TRICE_DEFERRED_OUT_FRAMING
+    #endif
+    return encLen;
+}
+#endif
 #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
 
+#if 0 // legacy
 //! TriceDirectEncode expects at buf trice date with netto length len.
 //! \param enc is the destination.
 //! \param buf is the source.
@@ -196,6 +238,47 @@ static size_t triceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     #endif
     return encLen;
 }
+#else
+//! triceDirectEncode expects at buf trice date with netto length len.
+//! \param enc is the destination. It must be 32-bit aligned.
+//! \param buf is the source.
+//! \param len is the source len.
+//! \retval is the encoded len with 0-delimiter byte.
+static size_t triceDirectEncode(   uint8_t* enc, uint8_t const* buf, size_t len ){
+    size_t encLen;
+    #ifdef XTEA_ENCRYPT_KEY
+        // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
+        // A 64-bit trice data aligning would waste RAM.
+        // We need additional 4 bytes after each trice for the XTEA encryption.
+        // Therefore we copy the trice data to a place, we can use.
+		uint8_t* loc = enc + TRICE_DATA_OFFSET; // Give space in front for framing.
+        memmove( loc, buf, len ); // We use not memcpy here, because enc and buf allowed to overlap.
+        uint8_t const* dat = (uint8_t const*)loc;
+        size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+		while( len < len8 ){
+			loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
+		}
+		len = len8;
+        XTEAEncrypt( (uint32_t*)loc, len>>2 );
+    #else
+        uint8_t const* dat = buf;
+    #endif
+	
+    #if TRICE_DIRECT_OUT_FRAMING   == TRICE_FRAMING_TCOBS
+    encLen = (size_t)TCOBSEncode(enc, dat, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_DIRECT_OUT_FRAMING   == TRICE_FRAMING_COBS
+    encLen = (size_t)COBSEncode(enc, dat, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_DIRECT_OUT_FRAMING   == TRICE_FRAMING_NONE
+    memmove( enc, dat, len );
+    encLen = len;
+    #else
+    #error unknown TRICE_DIRECT_OUT_FRAMING
+    #endif
+    return encLen;
+}
+#endif
 
 #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 
