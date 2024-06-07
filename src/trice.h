@@ -198,7 +198,8 @@ unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
-size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len );
+//size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len );
+size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t * buf, size_t len );
 
 // global defines
 

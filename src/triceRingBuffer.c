@@ -308,8 +308,13 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     // After TriceIDAndBuffer pStart has a 2 bytes offset, what is an alignmet issue for encryption.
     // That gets corrected inside TriceDeferredEncode.
     // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
-    size_t encLen = TriceDeferredEncode( pEnc, pStart, Length);
-    
+#ifdef XTEA_ENCRYPT_KEY
+//  size_t encLen = TriceDeferredEncode(                        pEnc, pStart, Length);
+    size_t encLen = TriceEncode( 1, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+#else
+//  size_t encLen = TriceDeferredEncode(                        pEnc, pStart, Length);
+    size_t encLen = TriceEncode( 0, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+#endif
     TriceNonBlockingDeferredWrite( triceID, pEnc, encLen );
     return wordCount;
 }

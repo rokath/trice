@@ -130,6 +130,56 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
 
 #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
 
+//! TriceEncode expects at buf trice netto data with netto length len.
+//! It fills dst with the next trice data, which are encoded and framed or not, according the selected switches.
+//! The areas of dst and buf are allowed to overlap.
+//! \param encrypt, when 0, then without encryption, when 1, then with XTEA encryption when XTEA_ENCRYPT_KEY is defined.
+//! \param framing selects if and which framing is used.
+//! \param dst is the destination. It must be 32-bit aligned.
+//! \param buf is the source. This can be not 32-bit aligned.
+//! \param len is the source len.
+//! \retval is the encoded len with 0-delimiter byte.
+size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t * buf, size_t len ){ 
+    size_t encLen;
+    const uint8_t * dat;
+    if( encrypt ){
+        #ifdef XTEA_ENCRYPT_KEY
+            // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
+            // A 64-bit trice data aligning would waste RAM.
+            // We need additional 4 bytes after each trice for the XTEA encryption.
+            // Therefore we copy the trice data to a place, we can use.
+            uint8_t* loc = dst + TRICE_DATA_OFFSET; // Give space in front for framing.
+            memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
+            dat = (uint8_t const*)loc;
+            size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+            while( len < len8 ){
+                loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
+            }
+            len = len8;
+            XTEAEncrypt( (uint32_t*)loc, len>>2 );
+        #else
+            dat = buf;
+        #endif
+    }else{
+        dat = buf;
+    }
+    switch( framing ){
+        case TRICE_FRAMING_TCOBS:
+            encLen = (size_t)TCOBSEncode(dst, dat, len);
+            dst[encLen++] = 0; // Add zero as package delimiter.
+            return encLen;
+        case TRICE_FRAMING_COBS:
+            encLen = (size_t)COBSEncode(dst, dat, len);
+            dst[encLen++] = 0; // Add zero as package delimiter.
+            return encLen;
+        case TRICE_FRAMING_NONE:
+            memmove( dst, dat, len );
+            encLen = len;
+            return encLen;
+    }
+    return 0; // unexpected
+}
+
 #if 0 // legacy
 //! TriceDeferredEncode expects at buf trice date with netto length len.
 //! ATTENTION: Up to 7 bytes behind len are used as scratch pad!
@@ -161,13 +211,13 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     #endif
     return encLen;
 } //lint !e818 Info 818: Pointer parameter 'buf' could be declared as pointing to const
-#else
+//#else
 //! TriceDeferredEncode expects at buf trice date with netto length len.
 //! \param enc is the destination. It must be 32-bit aligned.
 //! \param buf is the source.
 //! \param len is the source len.
 //! \retval is the encoded len with 0-delimiter byte.
-       size_t TriceDeferredEncode( uint8_t* enc, uint8_t      * buf, size_t len ){ 
+size_t TriceDeferredEncode( uint8_t* enc, const uint8_t * buf, size_t len ){ 
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
         // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
@@ -205,7 +255,7 @@ size_t TriceDeferredEncode( uint8_t* enc, uint8_t* buf, size_t len ){
 #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
 
 #if 0 // legacy
-//! TriceDirectEncode expects at buf trice date with netto length len.
+//! triceDirectEncode expects at buf trice date with netto length len.
 //! \param enc is the destination.
 //! \param buf is the source.
 //! \param len is the source len.
@@ -238,13 +288,13 @@ static size_t triceDirectEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     #endif
     return encLen;
 }
-#else
+//#else
 //! triceDirectEncode expects at buf trice date with netto length len.
 //! \param enc is the destination. It must be 32-bit aligned.
 //! \param buf is the source.
 //! \param len is the source len.
 //! \retval is the encoded len with 0-delimiter byte.
-static size_t triceDirectEncode(   uint8_t* enc, uint8_t const* buf, size_t len ){
+static size_t triceDirectEncode(   uint8_t* enc, const uint8_t * buf, size_t len ){
     size_t encLen;
     #ifdef XTEA_ENCRYPT_KEY
         // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
@@ -418,8 +468,13 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         #else
             uint8_t* enc = triceStart2 - TRICE_DATA_OFFSET;
         #endif
-            size_t encLen = triceDirectEncode( enc, triceStart2, len );
-            
+        #ifdef XTEA_ENCRYPT_KEY
+//          size_t encLen = triceDirectEncode(                       enc, triceStart2, len );
+            size_t encLen = TriceEncode(1, TRICE_DIRECT_OUT_FRAMING, enc, triceStart2, len );
+        #else
+//          size_t encLen = triceDirectEncode(                       enc, triceStart2, len );
+            size_t encLen = TriceEncode(0, TRICE_DIRECT_OUT_FRAMING, enc, triceStart2, len );
+        #endif    
             #if TRICE_DIRECT_AUXILIARY == 1
                 #if defined(TRICE_DIRECT_AUXILIARY_MIN_ID) && defined(TRICE_DIRECT_AUXILIARY_MAX_ID)
                 if( (TRICE_DIRECT_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DIRECT_AUXILIARY_MAX_ID) )

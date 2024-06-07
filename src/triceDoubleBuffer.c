@@ -101,9 +101,9 @@ void TriceTransfer( void ){
 //! \li before:  <-------------- pSize -------------->
 //! \li after:                 ^- buf
 //! \li after:                 <-------- pSize ------>
-//! \li after:     ^- pStart    (maybe 2 bytes > before buf)
+//! \li after:     ^- pStart    (is input buf or input buf + 2)
 //! \li after:     <- pLen ->   (maybe 1-3 bytes shorter)
-static int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
+static int TriceNext( uint8_t** buf, size_t* pSize, const uint8_t ** pStart, size_t* pLen ){
     uint16_t* pTID = (uint16_t*)*buf; //lint !e826, get TID address
     unsigned TID = TRICE_TTOHS( *pTID ); // type and id
     int triceID = 0x3FFF & TID;
@@ -111,19 +111,21 @@ static int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     unsigned offset;
     size_t size = *pSize;
     size_t triceSize;
-    size_t len;
-    *pStart = *buf;
+    size_t len;    
     switch( triceType ){
         case TRICE_TYPE_S0: // S0 = no stamp
+            *pStart = *buf;
             offset = 0;
             len = 4 + triceDataLen(*pStart + 2); // tyId
             break;
         case TRICE_TYPE_S2: // S2 = 16-bit stamp
+            *pStart = *buf; // see Id(n) macro definition
             *pStart += 2; // see Id(n) macro definition
             offset = 2;
             len = 6 + triceDataLen(*pStart + 4); // tyId ts16
             break;
         case TRICE_TYPE_S4: // S4 = 32-bit stamp
+            *pStart = *buf;
             offset = 0;
             len = 8 + triceDataLen(*pStart + 6); // tyId ts32
             break;
@@ -173,9 +175,9 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     #endif
     // do it
     while(tLen){
-        uint8_t* triceStart;
-        size_t triceLen; // This is the trice netto length (without padding bytes).
-        triceID = TriceNext( &buf, &tLen, &triceStart, &triceLen );
+        const uint8_t * triceNettoStart;
+        size_t triceNettoLen; // This is the trice netto length (without padding bytes).
+        triceID = TriceNext( &buf, &tLen, &triceNettoStart, &triceNettoLen );
         if( triceID <= 0 ){ // on data error
             break;   // ignore following data
         }
@@ -185,18 +187,26 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
                 // Therefore, when XTEA is used, the single trice must be moved first by 4 bytes in lower address direction if its length is not a multiple of 4.
                 #error not implemented (use "#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE" or ring buffer )
             #endif
-        encLen += TriceDeferredEncode( enc+encLen, triceStart, triceLen );
+//      encLen += TriceDeferredEncode(                         enc+encLen, triceNettoStart, triceNettoLen );
+        encLen += TriceEncode( 0, TRICE_DEFERRED_OUT_FRAMING,  enc+encLen, triceNettoStart, triceNettoLen );
         #endif
+
         #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
         // This action removes all padding bytes of the trices, compacting their sequence this way
-        memmove(enc + TRICE_DATA_OFFSET + encLen, triceStart, triceLen );
-        encLen += triceLen;
+        memmove(enc + TRICE_DATA_OFFSET + encLen, triceNettoStart, triceNettoLen );
+        encLen += triceNettoLen;
         #endif
     }
     #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
     // At this point the compacted trice messages start TRICE_DATA_OFFSET bytes after tb (now enc) and the encLen is their total netto length.
     // Behind this up to 7 bytes can be used as scratch pad when XTEA is active. That is ok, because the half buffer should not get totally filled.
-    encLen = TriceDeferredEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
+    #ifdef XTEA_ENCRYPT_KEY
+        //  encLen = TriceDeferredEncode(                         enc, enc + TRICE_DATA_OFFSET, encLen );
+            encLen += TriceEncode( 1, TRICE_DEFERRED_OUT_FRAMING, enc, enc + TRICE_DATA_OFFSET, encLen );
+        #else
+        //  encLen = TriceDeferredEncode(                         enc, enc + TRICE_DATA_OFFSET, encLen );
+            encLen += TriceEncode( 0, TRICE_DEFERRED_OUT_FRAMING, enc, enc + TRICE_DATA_OFFSET, encLen );
+        #endif
     #endif
 
     // Reaching here means all trice data in the current half buffer are encoded

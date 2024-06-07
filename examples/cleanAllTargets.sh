@@ -2,6 +2,8 @@
 
 VSCODETARGETDIRS="
 Nucleo-STM32L432KC_generated
+vsCode_NucleoF030R8_generated
+vsCode_NucleoF030R8_instrumented
 vsCode_Nucleo-G0B1_generated
 vsCode_Nucleo-G0B1_instrumented
 vsCode_Nucleo-L432KC_generated
