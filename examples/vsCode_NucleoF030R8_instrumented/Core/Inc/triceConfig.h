@@ -53,9 +53,12 @@ void WatchRingBufferMargins( void );
 //! Setting TRICE_BUFFER to TRICE_STACK_BUFFER or TRICE_STATIC_BUFFER demands TRICE_DIRECT_OUTPUT == 1, no deferred output at all.
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
-//! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
 #define TRICE_DIRECT_OUTPUT 1
-#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 1
+
+
+//! TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
+//! Enable this only, if you want only a specific ID ranges for direct Trice output. 
+//#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 1
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -93,7 +96,9 @@ void WatchRingBufferMargins( void );
 //! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
 #define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_TCOBS
-#define TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE 1
+
+
+//#define TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE 1
 
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
@@ -121,7 +126,7 @@ void WatchRingBufferMargins( void );
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1
  
 //! Enable and set UARTA for deferred serial output.
 #define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
