@@ -74,7 +74,7 @@ The default SEGGER tools only suport RTT channel 0.
 
 ###  2.2. <a name='StartusingJLinkLogger'></a>Start using JLinkLogger
 
-* Start Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0`
+* Start Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"`
   * Replace CLI details with your settings.
 * You may **not** need a **trice** tool restart after firmware reload.
 
