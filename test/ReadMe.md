@@ -1,10 +1,10 @@
-# Testing the Target `trice` C-code
+# Testing the Target `Trice` C-code
 
 The main aim of these tests is to automatic compile and run the target code in many different compiler switch variants avoiding manual testing this way.
 
 ## How to run the tests
 
-- In trice folder execute `go clean -cache && go test ./...`. Cleaning the cache is recommended, because the CGO tests somehow keep pre-compiled files and when editing, this can led to confusing results.
+- In `trice` folder execute `go clean -cache && go test ./...`. Cleaning the **Go** cache is recommended, because the CGO tests somehow keep pre-compiled files and when editing, this can led to confusing results.
 
 ## Tests Details
 
@@ -20,7 +20,7 @@ To be able to run `go test ./...` successfully without running the [./updateTest
 
 The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently.
 
-The `tf/triceConfig.h` files differ and correspondent to the `tf/cgo_test.go` files in the same folder. On test execution, the `./testdata/*.c` files are compiled into the trice test executable together with the trice sources `../src` using the `cgo_.../triceConfig.h` file. 
+The `tf/triceConfig.h` files differ and correspondent to the `tf/cgo_test.go` files in the same folder. On test execution, the `./testdata/*.c` files are compiled into the trice test executable together with the trice sources `../src` using the `tf/triceConfig.h` file. 
 
 The individual tests collect the expected results (`//exp: result`) together with the line numbers into a slice to execute the test loop on it. The `triceLogTest` function gets the `triceLog` function as parameter.
 
@@ -37,3 +37,20 @@ The `testdata\cgoPackage.go` file contains a variable `testLines = 20`, which li
 - Edit files `newTest/triceConfig.h` and `newTest/cgo_test.go` in a matching way.
 - Run command `go test test/newTest`
 
+## Test Internals
+
+Each `tf` is a **Go** package, which is not part of any **Go** application. They all named `cgot` and are only used independently for testing different configurations. The `tf/generated_cgoPackage.go` file is identical in all `tf`. Its master is `testdata/cgoPackage.go`. After editing the master, running the command `./updateTestData.sh` copies the master to all `tf` and renames it to `generated_cgoPackage.go`.
+
+The test specific target code configuration is inside `tf/trice.Config.h` and the appropriate Trice tool CLI switches are in `tf/cgo_test.go`.
+
+When running `go test ./test/tf` a Trice tool test executable is build, using the Trice tool packages and the `tf` package `cgot`, and the function `TestLogs` is executed. Its internal closure `triceLog` contains the Trice tool CLI switches and is passed to the `ccgot` package function `triceLogTest` together with the number of testLines and the trice mode (`directTransfer` or `deferrerdTransfer`).
+
+During the test, the file `triceCheck.c` is scanned for lines like
+
+```C
+reak; case __LINE__: TRice( iD(3537), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
+```
+
+Some C-code lines contain Trice statements and comments starting with `//exp: ` followed by the expected Trice tool output for that specific line. The **Go** testfunction collects these outputs in a slice together with the line numbers. Then for each found line number the execution of the **Go** function `func triceCheck(n int)` takes part, which in turn calls the CGO compiled C-function `TriceCheck(n)`. The now activated Trice C-code writes the generated trice bytes in a between **C** and **Go** shared buffer using the C-functoion `TriceWriteDeviceCgo`. After returning from the **Go** function `func triceCheck(n int)` and optionally calling `TriceTransfer` in deferred mode the Trice tool `triceLog()` function converts the Trice buffer bytes to the log string and compares the result with the expected data.
+
+Because each test runs a different configuration, all possible combinations are testable.
