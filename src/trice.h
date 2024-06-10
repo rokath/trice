@@ -663,27 +663,27 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 #endif
 
 #ifndef TRICE_LEAVE
-#if TRICE_DIRECT_OUTPUT == 1
+    #if TRICE_DIRECT_OUTPUT == 1
 
-    //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
-    #define TRICE_LEAVE \
-            /* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
-            /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
-            unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
-            TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT \
-            TriceNonBlockingDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
-        } \
-    } TRICE_LEAVE_CRITICAL_SECTION
+        //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
+        #define TRICE_LEAVE \
+                /* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
+                /* The last written uint32_t trice value can contain 1 to 3 padding bytes. */ \
+                unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition; \
+                TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT \
+                TriceNonBlockingDirectWrite(triceSingleBufferStartWritePosition, wordCount); \
+            } \
+        } TRICE_LEAVE_CRITICAL_SECTION
 
-#else  //#if TRICE_DIRECT_OUTPUT == 1
-    
-    //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
-    #define TRICE_LEAVE \
-            TRICE_DIAGNOSTICS_SINGLE_BUFFER \
-        } \
-    } TRICE_LEAVE_CRITICAL_SECTION
+    #else  //#if TRICE_DIRECT_OUTPUT == 1
+        
+        //! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
+        #define TRICE_LEAVE \
+                TRICE_DIAGNOSTICS_SINGLE_BUFFER \
+            } \
+        } TRICE_LEAVE_CRITICAL_SECTION
 
-#endif // #else  //#if TRICE_DIRECT_OUTPUT == 1
+    #endif // #else  //#if TRICE_DIRECT_OUTPUT == 1
 #endif // #ifndef TRICE_LEAVE
 
 // trice macros:
