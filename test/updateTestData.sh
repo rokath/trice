@@ -15,6 +15,9 @@ CGOTESTDIRS="
 staticBuffer_cobs
 staticBuffer_tcobs
 staticBuffer_nopf
+staticBuffer_xtea_nopf
+staticBuffer_xtea_cobs
+staticBuffer_xtea_tcobs
 
 stackBuffer_tcobs
 stackBuffer_cobs

@@ -338,7 +338,7 @@ extern uint32_t* TriceBufferWritePosition;
 #endif
 
 #if defined (TRICE_CGO) && defined(SEGGER_RTT) 
-#error configuration error
+// #error configuration error
 #endif
 
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
