@@ -66,7 +66,7 @@ void TriceInit( void ){
         SEGGER_RTT_Write(0, 0, 0 ); //lint !e534 
     #endif
 
-    #ifdef XTEA_ENCRYPT_KEY
+    #if XTEA_ENCRYPT
         XTEAInitTable();
     #endif
 }
@@ -133,7 +133,7 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
 //! TriceEncode expects at buf trice netto data with netto length len.
 //! It fills dst with the next trice data, which are encoded and framed or not, according the selected switches.
 //! The areas of dst and buf are allowed to overlap.
-//! \param encrypt, when 0, then without encryption, when 1, then with XTEA encryption when XTEA_ENCRYPT_KEY is defined.
+//! \param encrypt, when 0, then without encryption, when 1, then with XTEA encryption.
 //! \param framing selects if and which framing is used.
 //! \param dst is the destination. It must be 32-bit aligned.
 //! \param buf is the source. This can be not 32-bit aligned.
@@ -143,23 +143,19 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
     size_t encLen;
     const uint8_t * dat;
     if( encrypt ){
-        #ifdef XTEA_ENCRYPT_KEY
-            // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
-            // A 64-bit trice data aligning would waste RAM.
-            // We need additional 4 bytes after each trice for the XTEA encryption.
-            // Therefore we copy the trice data to a place, we can use.
-            uint8_t* loc = dst + TRICE_DATA_OFFSET; // Give space in front for framing.
-            memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
-            dat = (uint8_t const*)loc;
-            size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-            while( len < len8 ){
-                loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
-            }
-            len = len8;
-            XTEAEncrypt( (uint32_t*)loc, len>>2 );
-        #else
-            dat = buf;
-        #endif
+        // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
+        // A 64-bit trice data aligning would waste RAM.
+        // We need additional 4 bytes after each trice for the XTEA encryption.
+        // Therefore we copy the trice data to a place, we can use.
+        uint8_t* loc = dst + TRICE_DATA_OFFSET; // Give space in front for framing.
+        memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
+        dat = (uint8_t const*)loc;
+        size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+        while( len < len8 ){
+            loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
+        }
+        len = len8;
+        XTEAEncrypt( (uint32_t*)loc, len>>2 );
     }else{
         dat = buf;
     }
@@ -320,13 +316,8 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         #else
             uint8_t* enc = triceStart2 - TRICE_DATA_OFFSET;
         #endif
-        #ifdef XTEA_ENCRYPT_KEY
-//          size_t encLen = triceDirectEncode(                       enc, triceStart2, len );
-            size_t encLen = TriceEncode(1, TRICE_DIRECT_OUT_FRAMING, enc, triceStart2, len );
-        #else
-//          size_t encLen = triceDirectEncode(                       enc, triceStart2, len );
-            size_t encLen = TriceEncode(0, TRICE_DIRECT_OUT_FRAMING, enc, triceStart2, len );
-        #endif    
+            size_t encLen = TriceEncode(XTEA_ENCRYPT, TRICE_DIRECT_OUT_FRAMING, enc, triceStart2, len );
+
             #if TRICE_DIRECT_AUXILIARY == 1
                 #if defined(TRICE_DIRECT_AUXILIARY_MIN_ID) && defined(TRICE_DIRECT_AUXILIARY_MAX_ID)
                 if( (TRICE_DIRECT_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DIRECT_AUXILIARY_MAX_ID) )

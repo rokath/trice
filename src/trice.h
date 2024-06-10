@@ -766,9 +766,12 @@ unsigned TriceOutDepthUartB( void );
 // Encryption
 //
 #ifdef XTEA_ENCRYPT_KEY
-void XTEAEncrypt( uint32_t* p, unsigned count );
-void XTEADecrypt( uint32_t* p, unsigned count );
-void XTEAInitTable(void);
+    #define XTEA_ENCRYPT 1
+    void XTEAEncrypt( uint32_t* p, unsigned count );
+    void XTEADecrypt( uint32_t* p, unsigned count );
+    void XTEAInitTable(void);
+#else
+    #define XTEA_ENCRYPT 0
 #endif // #ifdef XTEA_ENCRYPT_KEY
 //
 ///////////////////////////////////////////////////////////////////////////////
