@@ -314,13 +314,6 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif
 
-#ifndef TRICE_32BIT_DIRECT_XTEA_AND_COBS
-
-//! TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1 is usable to XTEA encrypt and COBS encode direct data.
-#define TRICE_32BIT_DIRECT_XTEA_AND_COBS 0 // experimental!
-
-#endif
-
 #ifndef TRICE_COMMAND_SIZE_MAX
 
 //! TRICE_COMMAND_SIZE_MAX is the length limit for command strings to target.

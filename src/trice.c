@@ -144,8 +144,9 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
     const uint8_t * dat;
     if( encrypt ){
         // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
-        // A 64-bit trice data aligning would waste RAM.
+        // A 64-bit trice data aligning would waste RAM and costs a bit time during trice generation.
         // We need additional 4 bytes after each trice for the XTEA encryption.
+        // Also, the framing could make the trice message a bit longer.
         // Therefore we copy the trice data to a place, we can use.
         uint8_t* loc = dst + TRICE_DATA_OFFSET; // Give space in front for framing.
         memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
@@ -175,26 +176,6 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
     }
     return 0; // unexpected
 }
-
-#if TRICE_32BIT_DIRECT_XTEA_AND_COBS
-//! TriceEncryptAndCobsFraming32 does an in-buffer encryption and COBS encoding of a single trice message.
-//! \param triceStart is the start of the trice message. In front of it is TRICE_DATA_OFFSET bytes space for in-buffer encoding.
-//! The result data are starting TRICE_DATA_OFFSET bytes before triceStart.
-//! Up to 4 bytes behind the trice message are used as scratch area, what makes the code faster. Be careful when used in deferred output.
-//! \param wordCount is the amount of trice message 32-bit values. When this value is odd, it is internally incremented by 1, so that 4 more (garbage) bytes are encrypted.
-//! This is ok, because the trice message internally carries its length and the additional data are ignored then.
-//! \retval wordCount is the word count stored at dest. The resulting message gets a 0-delimiter byte and 1-3 padding zeroes.
-unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wordCount ){
-    unsigned wcEven = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
-    XTEAEncrypt( triceStart, wcEven ); // in-buffer encryption
-    uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
-    unsigned encLen = COBSEncode(enc, triceStart, wcEven<<2);
-    do{
-        enc[encLen++] = 0; // add 0-delimiter and optional padding zeroes
-    }while( (encLen & 3) != 0 ); 
-    return encLen>>2;
-}
-#endif // #if TRICE_32BIT_DIRECT_XTEA_AND_COBS
 
 #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
 
@@ -264,33 +245,89 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
 
 //! TriceNonBlockingDirectWrite copies a single trice from triceStart to output.
 //! This is the time critical part, executed inside TRICE_LEAVE.
-//! The trice data start at triceStart and last wordCount values including 1-3 padding bytes at the end.
-//! In front of triceStart is TRICE_DATA_OFFSET bytes space usable for in-buffer encoding.
+//! The trice data start at triceStart and include wordCount values with 1-3 padding bytes at the end.
+//! In front of triceStart are TRICE_DATA_OFFSET bytes space usable for optional in-buffer encoding.
+//! The space behind the trice (at triceStart + wordCount) is usable because in direct mode this is writable.
+//! Also in combined modes (direct plus deferred) this is allowed, because the next trice is not started yet.
 void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
 
-    // The 16-bit stamped trices start with 2-times 16-bit ID for alignent and speed reasons.
+    // The 16-bit stamped trices start with 2-times 16-bit ID for align and speed reasons.
     // The trice tool knows and expects that when switch -packageFraming = NONE was applied.
-    // The 2 additional transmit bytes are avoidable then but that would need a 2nd NONE option for the trice tool,
-    // what makes usage more confusing.
+    // The 2 additional transmit bytes are avoidable then but that would need a 2nd NONE option for the trice tool, what makes usage more confusing.
     // That the TRICE_FRAMING_NONE does not remove the 2 additional bytes for 16-bit stamped trices has the 
     // main reason in the TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE option for the fast 32-bit transfer, what probably will be a common use case.
 
-    #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT without framing 
-        #if TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1
-            wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
-            triceStart -= TRICE_DATA_OFFSET>>2;
-        #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
-        SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
-    #endif
+    #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT
+        // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
+        uint32_t * dat;
+        unsigned wc;
+        #if XTEA_ENCRYPT
+            wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
+            XTEAEncrypt( triceStart, wc ); // in-buffer encryption
+        #else
+            wc = wordCount;
+        #endif
+
+        #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+            dat = triceStart;
+        #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+            uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
+            #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
+            unsigned encLen = COBSEncode(enc, triceStart, wcEven<<2);
+            #endif
+            #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+            unsigned encLen = TCOBSEncode(enc, triceStart, wcEven<<2);
+            #endif
+            do{
+                enc[encLen++] = 0; // add 0-delimiter and optional padding zeroes
+            }while( (encLen & 3) != 0 ); 
+            dat = (uint32_t *)enc;
+            wc = encLen>>2;
+        #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+
+        #if defined(TRICE_CGO) // automated tests
+            TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
+        #else
+            SEGGER_Write_RTT0_NoCheck32( dat, wc );
+        #endif
+
+    #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT
 
     #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1// normal SEGGER RTT without framing
-        #if TRICE_32BIT_DIRECT_XTEA_AND_COBS == 1
-            wordCount = TriceEncryptAndCobsFraming32( triceStart, wordCount );
-            triceStart -= TRICE_DATA_OFFSET>>2;
-        #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
-        // wordCount<<2  is the trice len without TRICE_OFFSET but with padding bytes.
-        TriceWriteDeviceRtt0( (uint8_t*)triceStart, wordCount<<2 );
-    #endif
+        // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
+        uint8_t * dat;
+        unsigned bc;
+        #if XTEA_ENCRYPT
+            unsigned wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
+            XTEAEncrypt( triceStart, wc ); // in-buffer encryption
+            bc = wc << 2;
+        #else
+            bc = wordCount << 2;
+        #endif
+
+        #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+            dat = (uint8_t *)triceStart;
+        #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+            uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
+            #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
+            unsigned encLen = COBSEncode(enc, triceStart, wcEven<<2);
+            #endif
+            #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+            unsigned encLen = TCOBSEncode(enc, triceStart, wcEven<<2);
+            #endif
+
+            enc[encLen++] = 0; // add 0-delimiter
+            dat = enc;
+            bc = encLen;
+        #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+
+        #if defined(TRICE_CGO) // automated tests
+            TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
+        #else
+            TriceWriteDeviceRtt0( dat, bc );
+        #endif
+
+    #endif // #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1// normal SEGGER RTT without framing
     
     #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) 
         #if (TRICE_DIRECT_AUXILIARY == 1)
@@ -340,7 +377,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
               #error unexpected configuration
         #endif // #else // #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1)
     #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-} //lint !e818 Info 818: Pointer parameter 'triceStart' could be declared as pointing to const
+}
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1
 
