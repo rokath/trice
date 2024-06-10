@@ -180,6 +180,26 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
     return 0; // unexpected
 }
 
+#if TRICE_32BIT_DIRECT_XTEA_AND_COBS
+//! TriceEncryptAndCobsFraming32 does an in-buffer encryption and COBS encoding of a single trice message.
+//! \param triceStart is the start of the trice message. In front of it is TRICE_DATA_OFFSET bytes space for in-buffer encoding.
+//! The result data are starting TRICE_DATA_OFFSET bytes before triceStart.
+//! Up to 4 bytes behind the trice message are used as scratch area, what makes the code faster. Be careful when used in deferred output.
+//! \param wordCount is the amount of trice message 32-bit values. When this value is odd, it is internally incremented by 1, so that 4 more (garbage) bytes are encrypted.
+//! This is ok, because the trice message internally carries its length and the additional data are ignored then.
+//! \retval wordCount is the word count stored at dest. The resulting message gets a 0-delimiter byte and 1-3 padding zeroes.
+unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wordCount ){
+    unsigned wcEven = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
+    XTEAEncrypt( triceStart, wcEven ); // in-buffer encryption
+    uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
+    unsigned encLen = COBSEncode(enc, triceStart, wcEven<<2);
+    do{
+        enc[encLen++] = 0; // add 0-delimiter and optional padding zeroes
+    }while( (encLen & 3) != 0 ); 
+    return encLen>>2;
+}
+#endif // #if TRICE_32BIT_DIRECT_XTEA_AND_COBS
+
 #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
 
 #endif // #if TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1
@@ -243,26 +263,6 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
     #endif
 }
 #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
-
-#if TRICE_32BIT_DIRECT_XTEA_AND_COBS
-//! TriceEncryptAndCobsFraming32 does an in-buffer encryption and COBS encoding of a single trice message.
-//! \param triceStart is the start of the trice message. In front of it is TRICE_DATA_OFFSET bytes space for in-buffer encoding.
-//! The result data are starting TRICE_DATA_OFFSET bytes before triceStart.
-//! Up to 4 bytes behind the trice message are used as scratch area, what makes the code faster. Be careful when used in deferred output.
-//! \param wordCount is the amount of trice message 32-bit values. When this value is odd, it is internally incremented by 1, so that 4 more (garbage) bytes are encrypted.
-//! This is ok, because the trice message internally carries its length and the additional data are ignored then.
-//! \retval wordCount is the word count stored at dest. The resulting message gets a 0-delimiter byte and 1-3 padding zeroes.
-unsigned TriceEncryptAndCobsFraming32( uint32_t * const triceStart, unsigned wordCount ){
-    unsigned wcEven = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
-    XTEAEncrypt( triceStart, wcEven ); // in-buffer encryption
-    uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
-    unsigned encLen = COBSEncode(enc, triceStart, wcEven<<2);
-    do{
-        enc[encLen++] = 0; // add 0-delimiter and optional padding zeroes
-    }while( (encLen & 3) != 0 ); 
-    return encLen>>2;
-}
-#endif // #if TRICE_32BIT_DIRECT_XTEA_AND_COBS
 
 #if TRICE_DIRECT_OUTPUT == 1
 
