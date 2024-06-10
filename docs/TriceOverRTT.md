@@ -336,7 +336,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
   * NUCLEO-G071RB
   * NUCLEO_G031K8
 * After flashing back the ST-LINK OB firmware with the SEGGER tool, it is recommended to use the ST tool to update the ST-LINK OB firmware. Otherwise issues could occur.
-
+* [When using RTT, make sure that low-power modes are not used.](https://wiki.segger.com/RTT#Low-power_modes)
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  11. <a name='Links'></a>Links
