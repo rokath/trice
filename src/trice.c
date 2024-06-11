@@ -203,11 +203,14 @@ static void triceSeggerRTTDiagnostics( void ){
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1)
 
 static void TriceWriteDeviceRtt0( uint8_t const * enc, size_t encLen ){
-    SEGGER_RTT_WriteNoLock(0, enc, encLen );
-
-    #if TRICE_DIAGNOSTICS == 1
-    triceSeggerRTTDiagnostics();
-    #endif
+    #if defined(TRICE_CGO) // automated tests
+        TriceWriteDeviceCgo( enc, encLen );
+    #else // #if defined(TRICE_CGO)
+        SEGGER_RTT_WriteNoLock(0, enc, encLen );
+        #if TRICE_DIAGNOSTICS == 1
+            triceSeggerRTTDiagnostics(); // todo: maybe not needed
+        #endif
+    #endif // else // #if defined(TRICE_CGO)
 }
 
 #endif // (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1)
@@ -215,43 +218,47 @@ static void TriceWriteDeviceRtt0( uint8_t const * enc, size_t encLen ){
 #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) {
-    unsigned NumWordsAtOnce;
-    unsigned WrOff;
-    unsigned RemW;
-    #ifdef TRICE_PROTECT
-        unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
-        if( writeSpace < NumW<<2 ){
-            for(;;);
+    #if defined(TRICE_CGO) // automated tests
+        TriceWriteDeviceCgo( (uint8_t*)pData, NumW<<2 );
+    #else // #if defined(TRICE_CGO)
+        unsigned NumWordsAtOnce;
+        unsigned WrOff;
+        unsigned RemW;
+        #ifdef TRICE_PROTECT
+            unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
+            if( writeSpace < NumW<<2 ){
+                for(;;);
+            }
+        #endif
+        // Get "to-host" ring buffer.
+        static SEGGER_RTT_BUFFER_UP * const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
+        WrOff = pRingUp0->WrOff;
+        RemW = (pRingUp0->SizeOfBuffer - WrOff)>>2;
+        volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); //lint !e826
+        if (RemW > NumW) { // All data fits before wrap around
+            WrOff += NumW<<2;
+            while (NumW--) {
+                *pDstW++ = *pData++;
+            };
+            RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+            pRingUp0->WrOff = WrOff;
+        } else { // We reach the end of the buffer, so need to wrap around
+            NumWordsAtOnce = RemW;
+            while (NumWordsAtOnce--) {
+                *pDstW++ = *pData++;
+            };
+            pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF); //lint !e826
+            NumWordsAtOnce = NumW - RemW;
+            while (NumWordsAtOnce--) {
+                *pDstW++ = *pData++;
+            };
+            RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+            pRingUp0->WrOff = (NumW - RemW)<<2;
         }
-    #endif
-    // Get "to-host" ring buffer.
-    static SEGGER_RTT_BUFFER_UP * const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
-    WrOff = pRingUp0->WrOff;
-    RemW = (pRingUp0->SizeOfBuffer - WrOff)>>2;
-    volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); //lint !e826
-    if (RemW > NumW) { // All data fits before wrap around
-        WrOff += NumW<<2;
-        while (NumW--) {
-            *pDstW++ = *pData++;
-        };
-        RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
-        pRingUp0->WrOff = WrOff;
-    } else { // We reach the end of the buffer, so need to wrap around
-        NumWordsAtOnce = RemW;
-        while (NumWordsAtOnce--) {
-            *pDstW++ = *pData++;
-        };
-        pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF); //lint !e826
-        NumWordsAtOnce = NumW - RemW;
-        while (NumWordsAtOnce--) {
-            *pDstW++ = *pData++;
-        };
-        RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
-        pRingUp0->WrOff = (NumW - RemW)<<2;
-    }
-    #if TRICE_DIAGNOSTICS == 1
-        triceSeggerRTTDiagnostics();
-    #endif
+        #if TRICE_DIAGNOSTICS == 1
+            triceSeggerRTTDiagnostics();
+        #endif
+    #endif // #else // #if defined(TRICE_CGO)
 }
 #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 
@@ -275,90 +282,129 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
     // That the TRICE_FRAMING_NONE does not remove the 2 additional bytes for 16-bit stamped trices has the 
     // main reason in the TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE option for the fast 32-bit transfer, what probably will be a common use case.
 
-    #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT //////////////////////////////////////////////////////////////////////////////
-        // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
+    // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
+    #if (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && (TRICE_BUFFER != TRICE_RING_BUFFER) && (TRICE_BUFFER != TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
         uint32_t * dat;
         unsigned wc;
         #if XTEA_ENCRYPT
             wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
-            XTEAEncrypt( triceStart, wc ); // in-buffer encryption
+            XTEAEncrypt( triceStart, wc ); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
         #else
             wc = wordCount;
         #endif
-
-        #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-            dat = triceStart;
-        #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-            #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-                //! There is no gap between the Trices in double or ring buffer for efficient RAM usage. Therefore, when enabling 
-                //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE together with a deferred mode, for speed the RTT output can only be
-                //! unframed, what should not be a problem.
-                #error "Wrong configuration"
-            #endif
-            uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
-            #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
-            unsigned encLen = COBSEncode(enc, triceStart, wc<<2);
-            #endif
-            #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
-            unsigned encLen = TCOBSEncode(enc, triceStart, wc<<2);
-            #endif
-            do{
-                enc[encLen++] = 0; // add 0-delimiter and optional padding zeroes
-            }while( (encLen & 3) != 0 ); 
-            dat = (uint32_t *)enc;
-            wc = encLen>>2;
-        #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-
-        #if defined(TRICE_CGO) // automated tests
-            TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
-        #else // #if defined(TRICE_CGO)
-            #ifdef TRICE_PROTECT
-                unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
-                if( space >= wc<<2 ){
-                    SEGGER_Write_RTT0_NoCheck32( dat, wc );
-                }else{
-                    TriceErrorCount++;
-                }
-            #else // #ifdef TRICE_PROTECT
+        dat = triceStart;
+        #ifdef TRICE_PROTECT
+            unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
+            if( space >= wc<<2 ){
                 SEGGER_Write_RTT0_NoCheck32( dat, wc );
-            #endif // #else // #ifdef TRICE_PROTECT
-        #endif // #else // #if defined(TRICE_CGO)
+            }else{
+                TriceErrorCount++;
+            }
+        #else // #ifdef TRICE_PROTECT
+            SEGGER_Write_RTT0_NoCheck32( dat, wc );
+        #endif // #else // #ifdef TRICE_PROTECT
         return;
-    //#endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT
-    #elif TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1 // normal SEGGER RTT /////////////////////////////////////////////////////////////
-        // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
-        uint8_t * dat;
+
+    #elif (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_BUFFER != TRICE_RING_BUFFER) && (TRICE_BUFFER != TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+        unsigned wc;
         unsigned bc;
         #if XTEA_ENCRYPT
-            unsigned wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
-            XTEAEncrypt( triceStart, wc ); // in-buffer encryption
-            bc = wc << 2;
+            wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
+            XTEAEncrypt( triceStart, wc ); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
+            bc = wc<<2;
         #else
-            bc = wordCount << 2;
+            bc = wordCount<<2;
         #endif
-
-        #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-            dat = (uint8_t *)triceStart;
-        #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-            uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
-            #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
-            unsigned encLen = COBSEncode(enc, triceStart, bc);
-            #endif
-            #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
-            unsigned encLen = TCOBSEncode(enc, triceStart, bc);
-            #endif
-
-            enc[encLen++] = 0; // add 0-delimiter
-            dat = enc;
-            bc = encLen;
-        #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-
-        #if defined(TRICE_CGO) // automated tests
-            TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
-        #else
-            TriceWriteDeviceRtt0( dat, bc );
-        #endif
+        #ifdef TRICE_PROTECT
+            unsigned space = SEGGER_RTT_GetAvailWriteSpace (0); // todo: maybe not needed
+            if( space >= bc ){
+                TriceWriteDeviceRtt0( (const uint8_t *)triceStart, bc );
+            }else{
+                TriceErrorCount++;
+            }
+        #else // #ifdef TRICE_PROTECT
+            TriceWriteDeviceRtt0( (const uint8_t *)triceStart, bc );
+        #endif // #else // #ifdef TRICE_PROTECT
         return;
+//  #else
+//        #error "invalid configuration"
+//    #endif
+
+
+
+        //  #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+        //      dat = triceStart;
+        //  #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+        //      #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
+        //          //! There is no gap between the Trices in double or ring buffer for efficient RAM usage. Therefore, when enabling 
+        //          //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE together with a deferred mode, for speed the RTT output can only be
+        //          //! unframed, what should not be a problem.
+        //          #error "Wrong configuration"
+        //      #endif
+        //      uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
+        //      #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
+        //      unsigned encLen = COBSEncode(enc, triceStart, wc<<2);
+        //      #endif
+        //      #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+        //      unsigned encLen = TCOBSEncode(enc, triceStart, wc<<2);
+        //      #endif
+        //      do{
+        //          enc[encLen++] = 0; // add 0-delimiter and optional padding zeroes
+        //      }while( (encLen & 3) != 0 ); 
+        //      dat = (uint32_t *)enc;
+        //      wc = encLen>>2;
+        //  #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+
+        //  #if defined(TRICE_CGO) // automated tests
+        //      TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
+        //  #else // #if defined(TRICE_CGO)
+        //      #ifdef TRICE_PROTECT
+        //          unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
+        //          if( space >= wc<<2 ){
+        //              SEGGER_Write_RTT0_NoCheck32( dat, wc );
+        //          }else{
+        //              TriceErrorCount++;
+        //          }
+        //      #else // #ifdef TRICE_PROTECT
+        //          SEGGER_Write_RTT0_NoCheck32( dat, wc );
+        //      #endif // #else // #ifdef TRICE_PROTECT
+        //  #endif // #else // #if defined(TRICE_CGO)
+        //  return;
+    //#endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT
+    //  #elif TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1 // normal SEGGER RTT /////////////////////////////////////////////////////////////
+    //      // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
+    //      uint8_t * dat;
+    //      unsigned bc;
+    //      #if XTEA_ENCRYPT
+    //          unsigned wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
+    //          XTEAEncrypt( triceStart, wc ); // in-buffer encryption
+    //          bc = wc << 2;
+    //      #else
+    //          bc = wordCount << 2;
+    //      #endif
+//  
+    //      #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    //          dat = (uint8_t *)triceStart;
+    //      #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    //          uint8_t* enc = ((uint8_t*)triceStart) - TRICE_DATA_OFFSET;
+    //          #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
+    //          unsigned encLen = COBSEncode(enc, triceStart, bc);
+    //          #endif
+    //          #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+    //          unsigned encLen = TCOBSEncode(enc, triceStart, bc);
+    //          #endif
+//  
+    //          enc[encLen++] = 0; // add 0-delimiter
+    //          dat = enc;
+    //          bc = encLen;
+    //      #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+//  
+    //      #if defined(TRICE_CGO) // automated tests
+    //          TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
+    //      #else
+    //          TriceWriteDeviceRtt0( dat, bc );
+    //      #endif
+    //      return;
     //#endif // #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1// normal SEGGER RTT without framing
     #else //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -414,6 +460,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 
         #endif //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1

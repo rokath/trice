@@ -66,7 +66,8 @@ extern "C" {
 //! - TRICE_FRAMING_TCOBS: Recommended for internal transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice data with a user tool.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
-//! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1, ... todo
+//! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
+//!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
 #define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_TCOBS
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
@@ -92,7 +93,8 @@ extern "C" {
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1 
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
+#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 1
 
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
