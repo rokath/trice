@@ -128,10 +128,10 @@ int main(void)
             if(msCheck >= 10 ){
                 msCheck = 0; 
                 static uint32_t i = 0;
-                if( i++ > 2000 ){
+                if( i++ > 330 ){
                     i = 0;
                 }
-                TriceCheck( i ); // this generates plenty of trice data
+                TriceCheck( i ); // this generates trice data
             }
 
             static uint32_t msTransfer = 0;

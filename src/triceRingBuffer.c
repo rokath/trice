@@ -66,14 +66,14 @@ unsigned TriceRingBufferDepthMax = 0;
 
 #endif // #if TRICE_DIAGNOSTICS == 1
 
-#ifdef TRICE_PROTECTED
+#ifdef TRICE_PROTECT
 
 //! TriceEnoughSpace checks, if enough bytes available for the next trice.
 //! \retval 0, when not enough space
 //! \retval 1, when enough space
 int TriceEnoughSpace( void ){
     // depth32 is the used buffer space in 32-bit words. After reset TriceBufferWritePosition and TriceRingBufferReadPosition are equal and depth32 is 0.
-    // After some trice data writing TriceBufferWritePosition is > TriceRingBufferReadPosition and depth32 has a positive value.
+    // After some trice data writing, TriceBufferWritePosition is > TriceRingBufferReadPosition and depth32 has a positive value.
     // When trice data read out takes place, the TriceRingBufferReadPosition is incremented. That makes the depth32 value smaller again and
     // gives write space. During the trice write operation TriceBufferWritePosition gets incremented by max TRICE_SINGLE_MAX_SIZE bytes.
     // If afterwards the Trice BufferWritePosition is less TRICE_SINGLE_MAX_SIZE away from the buffer end, it is reset to the buffer start.
@@ -95,7 +95,7 @@ int TriceEnoughSpace( void ){
     } 
 }
 
-#endif // #ifdef TRICE_PROTECTED
+#endif // #ifdef TRICE_PROTECT
 
 #if TRICE_DIAGNOSTICS == 1
 uint16_t TriceRingBufferDepth = 0;

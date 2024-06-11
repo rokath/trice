@@ -31,15 +31,15 @@ extern uint32_t ms32;
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
-//! The TRICE_PROTECTED switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
+//! The TRICE_PROTECT switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
 //! The trice library works well, when less data are produced in the average than transmitable and when in the double buffer case the TriceTransfer
-//! function is called before too much data in a half buffer according to a good configuration. If that is guarantied you do not need to enable TRICE_PROTECTED.
-//! If because of an potential error this is not guarantied, you should enable TRICE_PROTECTED. This slows down the TRICE macros a bit, but makes buffer overflows impossible.
+//! function is called before too much data in a half buffer according to a good configuration. If that is guarantied you do not need to enable TRICE_PROTECT.
+//! If because of an potential error this is not guarantied, you should enable TRICE_PROTECT. This slows down the TRICE macros a bit, but makes buffer overflows impossible.
 //! A ring buffer cannot overflow in a first assunmption, because old, not yet transmitted, trices are overwritten by newer ones.
 //! But that can happen only to parts of trices. The ring buffer read out function relies on consistent data. If it gets data garbage, wrong values
-//! for the trice lengths are possible and buffer overruns not avoidable. When enabling TRICE_PROTECTED, new trices are only written into the deferred buffer,
+//! for the trice lengths are possible and buffer overruns not avoidable. When enabling TRICE_PROTECT, new trices are only written into the deferred buffer,
 //! if there is enough space. That guaranties data consistency. Because a suppressed trice cannot cause a cycle error, there is TriceOverflowCount as diagnostic value. 
-#define TRICE_PROTECTED
+#define TRICE_PROTECT
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 //! This is a helper to watch the ring buffer margins.
@@ -56,9 +56,10 @@ void WatchRingBufferMargins( void );
 #define TRICE_DIRECT_OUTPUT 1
 
 
-//! TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
-//! Enable this only, if you want only a specific ID ranges for direct Trice output. 
-//#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 1
+//! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
+//! Enable this only, if you want only a specific ID ranges for direct Trice output.
+//! If you use different direct output channels, you can change this only for all together.
+//#define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 1
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -95,7 +96,7 @@ void WatchRingBufferMargins( void );
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
 //! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_TCOBS
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
 
 
 //#define TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE 1

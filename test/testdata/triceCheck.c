@@ -149,7 +149,7 @@ void TriceCheck(int n) {
         //break; case __LINE__: TRICE( Id(4145), "dbg:\a\aHi!\n" ); // sound!
         //break; case __LINE__: TRICE( Id(7288), "dbg:\a\a\aHi!\n" ); // sound!
         //break; case __LINE__: TRICE( Id(4840), "dbg:\\aHi!\n" );
-        break; case __LINE__: TRICE( Id(3829), "err:An ERROR messgage with sound!\a\n" ); // sound!
+        //break; case __LINE__: TRICE( Id(3829), "err:An ERROR messgage with sound!\a\n" ); // sound!
 
         break; case __LINE__: TRICE_S( ID(5935), "sig:TRICE_S=%s\n", s );            //exp: time: 842,150_450default: sig:TRICE_S=AAAAAAAAAAAA
         break; case __LINE__: TRICE_N( ID(2601), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time: 842,150_450default: sig:TRICE_N=AAAAAAAAAAAA
@@ -887,7 +887,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE( ID(2762), "--------------------------------------------------\n");
         break; case __LINE__: TRICE( ID(3697), "sig:This ASSERT error is just a demo and no real error:\n");
         break; case __LINE__: TRICE( ID(4180), "--------------------------------------------------\n");
-        break; case __LINE__: TRICE( ID(1970), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
+      //break; case __LINE__: TRICE( ID(1970), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
         break; case __LINE__: TRICE( ID(7201), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
         break; case __LINE__: TRICE( ID(5404), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL);
         break; case __LINE__: TRICE( ID(5841), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL);
@@ -1432,14 +1432,15 @@ static void exampleOfManualJSONencoding(void){
 
 #if TRICE_DIAGNOSTICS == 1
 
-//! TriceLogDiagnosticValues shows the max used half buffer space. 
+//! TriceLogDiagnosticValues shows the max used buffer space. 
 void TriceLogDiagnosticValues( void ){
 
 #ifdef SEGGER_RTT
-    if( (RTT0_writeSpaceMin < 8) ){ // && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
-        trice( iD(7214), "ERROR:RTT0_writeSpaceMin=%u\n", RTT0_writeSpaceMin );
+    int RTT0_wrSpaceMin = BUFFER_SIZE_UP - RTT0_writeDepthMax;
+    if( (RTT0_wrSpaceMin < TRICE_BUFFER_SIZE) ){
+        trice( iD(6788), "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
     }else{
-        trice( iD(5218), "diag:RTT0_writeSpaceMin=%u\n", RTT0_writeSpaceMin );
+        trice( iD(7489), "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
     }
 #endif // #ifdef SEGGER_RTT
 
@@ -1450,7 +1451,7 @@ void TriceLogDiagnosticValues( void ){
         TRice16( iD(7431), "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
     
-#ifdef TRICE_PROTECTED
+#ifdef TRICE_PROTECT
 
     if(TriceOverflowCount > 0){
         trice( iD(4331), "err: OverflowCount = %u\n", TriceOverflowCount );

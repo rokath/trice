@@ -220,7 +220,7 @@ extern const int TriceTypeS0;
 extern const int TriceTypeS2;
 extern const int TriceTypeS4;
 extern const int TriceTypeX0;
-extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
+extern unsigned RTT0_writeDepthMax;
 extern unsigned TriceErrorCount;
 extern unsigned TriceOverflowCount;
 extern uint32_t* const TriceRingBufferStart;
@@ -251,11 +251,11 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif
 
-#ifndef TRICE_DIRECT_OUTPUT_WITH_ROUTING
+#ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
 
-//! TRICE_DIRECT_OUTPUT_WITH_ROUTING allows to send an ID range of trices directly to an auxiolary output.
+//! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an auxiolary output.
 //! The called auxiolary output function usually is executed inside an interrupt and should therefore be non-blocking and fast.
-#define TRICE_DIRECT_OUTPUT_WITH_ROUTING 0
+#define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 0
 
 #endif
 
@@ -333,7 +333,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 // check configuration:
 
-#if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUTPUT == 0)
+#if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DIRECT_OUTPUT == 0)
 #error configuration error
 #endif
 
@@ -554,7 +554,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
-    #ifdef TRICE_PROTECTED
+    #ifdef TRICE_PROTECT
     
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -562,7 +562,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         if( TriceEnoughSpace() ){ \
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
-    #else //  #ifdef TRICE_PROTECTED
+    #else //  #ifdef TRICE_PROTECT
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -570,13 +570,13 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         { \
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
-    #endif // #else //  #ifdef TRICE_PROTECTED
+    #endif // #else //  #ifdef TRICE_PROTECT
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
-    #ifdef TRICE_PROTECTED
+    #ifdef TRICE_PROTECT
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -584,7 +584,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         if( TriceEnoughSpace() ){ \
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
 
-    #else //  #ifdef TRICE_PROTECTED
+    #else //  #ifdef TRICE_PROTECT
         
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -592,13 +592,13 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         { \
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
 
-    #endif // #else //  #ifdef TRICE_PROTECTED
+    #endif // #else //  #ifdef TRICE_PROTECT
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
-    #ifdef TRICE_PROTECTED
+    #ifdef TRICE_PROTECT
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -613,7 +613,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-    #else //  #ifdef TRICE_PROTECTED
+    #else //  #ifdef TRICE_PROTECT
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -628,13 +628,13 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-    #endif // #else //  #ifdef TRICE_PROTECTED
+    #endif // #else //  #ifdef TRICE_PROTECT
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 1)
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
-    #ifdef TRICE_PROTECTED
+    #ifdef TRICE_PROTECT
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -645,7 +645,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-    #else //  #ifdef TRICE_PROTECTED
+    #else //  #ifdef TRICE_PROTECT
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -656,7 +656,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-    #endif // #else //  #ifdef TRICE_PROTECTED
+    #endif // #else //  #ifdef TRICE_PROTECT
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 

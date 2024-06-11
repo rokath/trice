@@ -62,6 +62,7 @@ type triceMode int
 const (
 	directTransfer triceMode = iota
 	deferredTransfer
+	combinedTransfer // todo!
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory

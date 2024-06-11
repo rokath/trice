@@ -51,7 +51,7 @@ static size_t triceDepth( uint32_t const* tb ){
     return depth - TRICE_DATA_OFFSET;
 }
 
-#ifdef TRICE_PROTECTED
+#ifdef TRICE_PROTECT
 
 //! TriceEnoughSpace checks, if at least TRICE_SINGLE_MAX_SIZE bytes available for the next trice.
 //! \retval 0, when not enough space
@@ -74,7 +74,7 @@ int TriceEnoughSpace( void ){
     } 
 }
 
-#endif // #ifdef TRICE_PROTECTED
+#endif // #ifdef TRICE_PROTECT
 
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
 //! It is the resposibility of the app to call this function once every 10-100 milliseconds.
