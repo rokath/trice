@@ -154,10 +154,13 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
         memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
         dat = (uint8_t const*)loc;
         size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-        while( len < len8 ){
-            loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
-        }
-        len = len8;
+        #if TRICE_CLEAR_PADDING_SPACE == 1
+            while( len < len8 ){
+                loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
+            }
+        #else
+            len = len8;
+        #endif
         XTEAEncrypt( (uint32_t*)loc, len>>2 );
     }else{
         dat = buf;
@@ -290,7 +293,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         #endif
         return;
     //#endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT
-    #elif TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1 // normal SEGGER RTT without framing /////////////////////////////////////////////////////////////
+    #elif TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1 // normal SEGGER RTT /////////////////////////////////////////////////////////////
         // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
         uint8_t * dat;
         unsigned bc;
@@ -336,7 +339,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
                 TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
             #endif
         #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) 
-            #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) \
+            #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1) \
                 && (    (TRICE_DIRECT_AUXILIARY == 1) \
                     || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1) \
                     || defined( TRICE_CGO ) )
