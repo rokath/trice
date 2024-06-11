@@ -94,7 +94,7 @@ size_t triceDataLen( uint8_t const* p ){
     return nc & 0x7fff;
 }
 
-#if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
+#if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1) 
 
 //! triceIDAndLen expects at buf a trice message and returns the ID for routing.
 //! \param pBuf is where the trice message starts.
@@ -130,7 +130,7 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
     return len;
 }
 
-#endif // #if (TRICE_DIRECT_OUTPUT_WITH_ROUTING == 1) && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
+#endif // #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
 
 //! TriceEncode expects at buf trice netto data with netto length len.
 //! It fills dst with the next trice data, which are encoded and framed or not, according the selected switches.
