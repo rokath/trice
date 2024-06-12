@@ -37,7 +37,10 @@ extern "C" {
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
 #define TRICE_DIRECT_OUTPUT 1
 
-#define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 0
+//! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1 and when TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE
+//! Enable this only, if you want only a specific ID ranges for direct Trice output.
+//! If you use different direct output channels, you can change this only for all together.
+#define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 1
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -94,7 +97,6 @@ extern "C" {
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
 #define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
-#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 1
 
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA

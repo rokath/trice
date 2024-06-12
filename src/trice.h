@@ -120,12 +120,6 @@ extern "C" {
 #define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
 #endif
 
-
-#ifndef TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE
-//! TRICE_SEGGER_RTT_8BIT_DIRECT_ROUTED_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock.
-#define TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE 0
-#endif
-
 #ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
@@ -143,8 +137,7 @@ extern "C" {
 #define TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE 0
 #endif
 
-#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) \
- || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
+#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
 #define SEGGER_RTT
