@@ -114,60 +114,44 @@ extern "C" {
 // defaults 1:
 
 #ifndef TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
-
 //! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
 #define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
-
 #endif
 
 
 #ifndef TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE
-
 //! TRICE_SEGGER_RTT_8BIT_DIRECT_ROUTED_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock.
 #define TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE 0
-
 #endif
 
 #ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE
-
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
 #define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
-
 #endif
 
 #ifndef TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE
-
 //! TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
 //! Than the RTT trice packages are can be framed according to the set TRICE_DIRECT_OUT_FRAMING.
 //! Not useable with TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE or TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
 //! Switch this on, if you wish deferred Segger RTT output.
 #define TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE 0
-
 #endif
-
-#if (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1) \
- || (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) \
- || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
- || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
- || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
-
-#include "SEGGER_RTT.h"
-
-#endif 
 
 #if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) \
  || (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
-
 #define SEGGER_RTT
+#endif 
 
+#if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
+#include "SEGGER_RTT.h"
 #endif 
 
 // global function prototypes:
@@ -328,100 +312,6 @@ extern uint32_t* TriceBufferWritePosition;
 #define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
-
-// check configuration:
-
-#if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DIRECT_OUTPUT == 0
-#endif
-
-#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
-#error configuration: only one direct output channel is possible
-#endif
-
-#if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
-#error configuration: only one direct output channel is possible
-#endif
-
-#if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1)
-#error configuration: only one RTT output channel is possible
-#endif
-
-#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1)
-#error configuration: only one direct output channel is possible
-#endif
-
-#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
-#error configuration: only one direct output channel is possible
-#endif
-
-#if (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE ==1) && (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
-#error configuration: only one RTT output channel is possible
-#endif
-
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE/2 < TRICE_BUFFER_SIZE)
-#error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
-#endif
-
-#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE < TRICE_BUFFER_SIZE)
-#error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
-#endif
-
-#if (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_OUTPUT != 1)
-#error configuration: TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
-#endif
-
-#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_OUTPUT != 1)
-#error configuration: TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
-#endif
-
-#if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
-#error configuration: BUFFER_SIZE_UP too small
-#endif
-
-#if defined( TRICE_UARTA ) && ( TRICE_BUFFER != TRICE_RING_BUFFER) && ( TRICE_BUFFER != TRICE_DOUBLE_BUFFER)
-#error configuration: direct-only mode needs no TRICE_UARTA
-#endif
-
-#if defined( TRICE_UARTB ) && ( TRICE_BUFFER != TRICE_RING_BUFFER) && ( TRICE_BUFFER != TRICE_DOUBLE_BUFFER)
-#error configuration: direct-only mode needs no TRICE_UARTA
-#endif
-
-#if ( TRICE_BUFFER == TRICE_STACK_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
-#endif
-
-#if ( TRICE_BUFFER == TRICE_STATIC_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
-#endif
-
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0) && !defined(TRICE_UARTA) && !defined(TRICE_UARTB) && !defined(TRICE_DEFERRED_AUXILIARY)
-#error configuration: deferred-only mode needs TRICE_UART or TRICE_DEFERRED_AUXILIARY
-#endif
-
-#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 0) && !defined(TRICE_UARTA) && !defined(TRICE_UARTB) && !defined(TRICE_DEFERRED_AUXILIARY)
-#error configuration: deferred-only mode needs TRICE_UART or TRICE_DEFERRED_AUXILIARY
-#endif
-
-#if TRICE_DATA_OFFSET & 3
-#error All size values must be a multiple of 4!
-#endif
-
-#if TRICE_SINGLE_MAX_SIZE & 3 
-#error All size values must be a multiple of 4!
-#endif
-
-#if TRICE_DEFERRED_BUFFER_SIZE & 3
-#error All size values must be a multiple of 4!
-#endif
-
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_TRANSFER_MODE != TRICE_SAFE_SINGLE_MODE) && (TRICE_TRANSFER_MODE != TRICE_PACK_MULTI_MODE)
-#error configuration: deferred mode needs a defined TRICE_TRANSFER_MODE
-#endif
-
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_TRANSFER_MODE == TRICE_SAVE_SINGLE_MODE) && defined (XTEA_ENCRYPT_KEY)
-#error configuration: use (TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE)
-#endif
 
 #include "trice8.h"
 #include "trice16.h"
