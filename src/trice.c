@@ -9,6 +9,10 @@
 
 // check configuration:
 
+#if (TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_AUXILIARY == 0) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 0) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 0)
+#warning configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel
+#endif
+
 #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DIRECT_OUTPUT == 0)
 #error configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DIRECT_OUTPUT == 0
 #endif
@@ -33,11 +37,11 @@
 #error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
 #endif
 
-#if (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_OUTPUT != 1)
+#if (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_OUTPUT == 0)
 #error configuration: TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_OUTPUT != 1)
+#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_OUTPUT == 0)
 #error configuration: TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
@@ -86,7 +90,9 @@
 #endif
 
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_TRANSFER_MODE == TRICE_SAVE_SINGLE_MODE) && defined (XTEA_ENCRYPT_KEY)
-#error configuration: use (TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE)
+#error configuration: use (TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE), TRICE_DOUBLE_BUFFER with TRICE_SAVE_SINGLE_MODE cannot encrypt (so far). 
+// To implement this: Align Trices to 64-bit or move single Trices backward by 4 bytes at least when not on a 64-bit bundary and not a multiple of 64-bit long.
+// Other possibility: Save 32-bit value behind the trice message, encryt and transmit the trice message and restore this value. 
 #endif
 
 #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)  && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)

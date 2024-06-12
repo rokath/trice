@@ -54,3 +54,23 @@ reak; case __LINE__: TRice( iD(3537), "info:This is a message without values and
 Some C-code lines contain Trice statements and comments starting with `//exp: ` followed by the expected Trice tool output for that specific line. The **Go** testfunction collects these outputs in a slice together with the line numbers. Then for each found line number the execution of the **Go** function `func triceCheck(n int)` takes part, which in turn calls the CGO compiled C-function `TriceCheck(n)`. The now activated Trice C-code writes the generated trice bytes in a between **C** and **Go** shared buffer using the C-functoion `TriceWriteDeviceCgo`. After returning from the **Go** function `func triceCheck(n int)` and optionally calling `TriceTransfer` in deferred mode the Trice tool `triceLog()` function converts the Trice buffer bytes to the log string and compares the result with the expected data.
 
 Because each test runs a different configuration, all possible combinations are testable.
+
+## Test Cases
+
+### Folder Naming Convention
+
+| Folder Name Part | Meaning                                                                                                   |
+|:----------------:|-----------------------------------------------------------------------------------------------------------|
+|    `testdata`    | This is no test folder. It contains data common to all tests.                                             |
+|      `_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.                      |
+| `staticBuffer_`  | direct mode                                                                                               |
+|  `stackBuffer_`  | direct mode                                                                                               |
+|  `ringBuffer_`   | deferred mode                                                                                             |
+| `doubleBuffer_`  | deferrec mode                                                                                             |
+|     `_AND_`      | deferred and direct mode together                                                                         |
+|     `_xtea_`     | with encryption, otherwise without encryption                                                             |
+|     `_tcobs`     | TCOBS package framing                                                                                     |
+|     `_cobs`      | COBS package framing                                                                                      |
+|     `_nopf`      | no package framing                                                                                        |
+|    `_multi_`     | Usually each Trice is handled separately. In multi mode groups of available Trices are frameded together. |
+
