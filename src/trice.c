@@ -326,6 +326,36 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
             TriceWriteDeviceRtt0( (const uint8_t *)triceStart, bc );
         #endif // #else // #ifdef TRICE_PROTECT
         return;
+
+    #elif (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && ((TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    // In twin mode (direct and deferred output) for runtime efficiency, for direct output no encryption is allowed and only package framing NONE is possible (for now).
+        #ifdef TRICE_PROTECT
+            unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
+            if( space >= wordCount<<2 ){
+                SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
+            }else{
+                TriceErrorCount++;
+            }
+        #else // #ifdef TRICE_PROTECT
+            SEGGER_Write_RTT0_NoCheck32( triceStart, wc );
+        #endif // #else // #ifdef TRICE_PROTECT
+        return;
+
+    #elif (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && ((TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    // In twin mode (direct and deferred output) for runtime efficiency, for direct output no encryption is allowed and only package framing NONE is possible (for now).
+        unsigned bc = wordCount<<2;
+        #ifdef TRICE_PROTECT
+            unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
+            if( space >= wordCount<<2 ){
+                TriceWriteDeviceRtt0( (const uint8_t *)triceStart, bc );
+            }else{
+                TriceErrorCount++;
+            }
+        #else // #ifdef TRICE_PROTECT
+            TriceWriteDeviceRtt0( (const uint8_t *)triceStart, bc );
+        #endif // #else // #ifdef TRICE_PROTECT
+        return;
+
 //  #else
 //        #error "invalid configuration"
 //    #endif
