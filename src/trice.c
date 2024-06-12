@@ -262,6 +262,28 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
 }
 #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 
+
+#if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)  && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+#error "configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE"
+#endif
+
+#if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 0)  && (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
+#error "configuration: TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE demands TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1"
+#endif
+
+#if (TRICE_DIRECT_AUXILIARY == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
+#error configuration: only one direct output channel is possible
+#endif
+
+#if (TRICE_DIRECT_AUXILIARY == 1) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1)
+#error configuration: only one direct output channel is possible
+#endif
+
+#if (TRICE_DIRECT_AUXILIARY == 1) && (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1)
+#error configuration: only one direct output channel is possible
+#endif
+
+
 #if TRICE_DIRECT_OUTPUT == 1
 
 //! TriceNonBlockingDirectWrite copies a single trice from triceStart to output.
@@ -284,6 +306,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
 
     // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
     #if (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && (TRICE_BUFFER != TRICE_RING_BUFFER) && (TRICE_BUFFER != TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    // direct-only mode without routing & framing
         uint32_t * dat;
         unsigned wc;
         #if XTEA_ENCRYPT
@@ -306,6 +329,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         return;
 
     #elif (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_BUFFER != TRICE_RING_BUFFER) && (TRICE_BUFFER != TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    // direct-only mode without routing & framing
         unsigned wc;
         unsigned bc;
         #if XTEA_ENCRYPT
@@ -327,8 +351,22 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         #endif // #else // #ifdef TRICE_PROTECT
         return;
 
+    #elif (TRICE_DIRECT_AUXILIARY == 1) && (TRICE_BUFFER != TRICE_RING_BUFFER) && (TRICE_BUFFER != TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    // direct-only mode without routing & framing
+        unsigned wc;
+        unsigned bc;
+        #if XTEA_ENCRYPT
+            wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
+            XTEAEncrypt( triceStart, wc ); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
+            bc = wc<<2;
+        #else
+            bc = wordCount<<2;
+        #endif
+        TriceNonBlockingDirectWriteAuxiliary( (const uint8_t *)triceStart, bc );
+        return;
+
     #elif (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) && ((TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-    // In twin mode (direct and deferred output) for runtime efficiency, for direct output no encryption is allowed and only package framing NONE is possible (for now).
+    // In this twin mode (direct and deferred output) for runtime efficiency, for direct output no encryption is allowed and only package framing NONE is possible (for now).
         #ifdef TRICE_PROTECT
             unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
             if( space >= wordCount<<2 ){
@@ -337,12 +375,12 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
                 TriceErrorCount++;
             }
         #else // #ifdef TRICE_PROTECT
-            SEGGER_Write_RTT0_NoCheck32( triceStart, wc );
+            SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
         #endif // #else // #ifdef TRICE_PROTECT
         return;
 
     #elif (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && ((TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-    // In twin mode (direct and deferred output) for runtime efficiency, for direct output no encryption is allowed and only package framing NONE is possible (for now).
+    // In this twin mode (direct and deferred output) for runtime efficiency, for direct output no encryption is allowed and only package framing NONE is possible (for now).
         unsigned bc = wordCount<<2;
         #ifdef TRICE_PROTECT
             unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
@@ -356,6 +394,13 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         #endif // #else // #ifdef TRICE_PROTECT
         return;
 
+    #elif (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1) && ((TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    // In this twin mode (direct and deferred output) for direct output no encryption is allowed and package framing NONE, COBS or TCOBS is possible.
+    #error todo 
+    #elif (TRICE_SEGGER_RTT_ROUTED_8BIT_DIRECT_WRITE == 1) && (TRICE_BUFFER != TRICE_RING_BUFFER) && (TRICE_BUFFER != TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+    // In this direct-only mode routing & framing is possible
+    #error todo 
+    
 //  #else
 //        #error "invalid configuration"
 //    #endif
@@ -441,6 +486,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) 
             #if (TRICE_DIRECT_AUXILIARY == 1)
                 TriceNonBlockingDirectWriteAuxiliary( (uint8_t*)triceStart, wordCount<<2 );
+                return;
             #endif
 
             #if defined(TRICE_CGO)
