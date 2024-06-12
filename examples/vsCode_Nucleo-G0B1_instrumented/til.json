@@ -5451,6 +5451,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
 	},
+	"5245": {
+		"Type": "TRICE",
+		"Strg": "\\n"
+	},
 	"5248": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %-f (%%f)\\n"
