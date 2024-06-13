@@ -68,7 +68,7 @@ extern "C" {
 
 // helper macros (the numbers are 32-bit random values)
 
-//! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
+//! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_DEFERRED_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
 //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
 #define TRICE_SAFE_SINGLE_MODE  787345706U
 
@@ -152,17 +152,17 @@ extern "C" {
 void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
 void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount );
-void TriceNonBlockingDirectWriteAuxiliary( uint8_t * const enc, size_t encLen );
-void TriceNonBlockingDeferredWriteAuxiliary( uint8_t const * enc, size_t encLen );
+void TriceNonBlockingDirectWriteAuxiliary( const uint8_t * enc, size_t encLen );
+void TriceNonBlockingDeferredWriteAuxiliary( const uint8_t * enc, size_t encLen );
 void TriceInit( void );
 void TriceLogDiagnosticValues( void );
 void TriceLogSeggerDiagnostics( void );
-void TriceNonBlockingDeferredWrite( int ticeID, uint8_t const * enc, size_t encLen );
+void TriceNonBlockingDeferredWrite( int ticeID, const uint8_t * enc, size_t encLen );
 void TriceTransfer( void );
-void TriceWriteDeviceCgo( uint8_t const * buf, unsigned len ); // only needed for testing C-sources from Go
-size_t triceDataLen( uint8_t const* p );
+void TriceWriteDeviceCgo( const uint8_t * buf, unsigned len ); // only needed for testing C-sources from Go
+size_t triceDataLen( const uint8_t * p );
 
-//int TriceIDAndBuffer( uint32_t const * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
+//int TriceIDAndBuffer( const uint32_t * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
 //int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 int TriceEnoughSpace( void );
 
@@ -173,7 +173,7 @@ unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
-//size_t TriceDeferredEncode( uint8_t* enc, uint8_t const* buf, size_t len );
+//size_t TriceDeferredEncode( uint8_t* enc, const uint8_t * buf, size_t len );
 size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t * buf, size_t len );
 
 // global defines
@@ -280,12 +280,12 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif
 
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && !defined(TRICE_TRANSFER_MODE)
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && !defined(TRICE_DEFERRED_TRANSFER_MODE)
 
-//! TRICE_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
+//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
 //! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).
 //! - TRICE_PACK_MULTI_MODE packs several trice messages before adding a 0-delimiter byte.
-#define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
 
 #endif
 
@@ -606,7 +606,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 //
 
 #if defined( TRICE_UARTA ) // deferred out to UARTA
-void TriceBlockingWriteUartA( uint8_t const * buf, unsigned len );
+void TriceBlockingWriteUartA( const uint8_t * buf, unsigned len );
 uint8_t TriceNextUint8UartA( void );
 void triceServeTransmitUartA(void);
 void triceTriggerTransmitUartA(void);
@@ -614,7 +614,7 @@ unsigned TriceOutDepthUartA( void );
 #endif
 
 #if defined( TRICE_UARTB ) // deferred out to UARTB
-void TriceBlockingWriteUartB( uint8_t const * buf, unsigned len );
+void TriceBlockingWriteUartB( const uint8_t * buf, unsigned len );
 uint8_t TriceNextUint8UartB( void );
 void triceServeTransmitUartB(void);
 void triceTriggerTransmitUartB(void);
@@ -826,15 +826,15 @@ static inline uint64_t aDouble( double x ){
 
 #ifdef TRICE_CLEAN
 
-TRICE_INLINE void TRice0( char const * pFmt ){}
-TRICE_INLINE void Trice0( char const * pFmt ){}
-TRICE_INLINE void trice0( char const * pFmt ){}
+TRICE_INLINE void TRice0( const char * pFmt ){}
+TRICE_INLINE void Trice0( const char * pFmt ){}
+TRICE_INLINE void trice0( const char * pFmt ){}
 
 #else // #ifdef TRICE_CLEAN
 
-TRICE_INLINE void TRice0( uint16_t tid, char const * pFmt ){ TRice32m_0( tid ); }
-TRICE_INLINE void Trice0( uint16_t tid, char const * pFmt ){ Trice32m_0( tid ); }
-TRICE_INLINE void trice0( uint16_t tid, char const * pFmt ){ trice32m_0( tid ); }
+TRICE_INLINE void TRice0( uint16_t tid, const char * pFmt ){ TRice32m_0( tid ); }
+TRICE_INLINE void Trice0( uint16_t tid, const char * pFmt ){ Trice32m_0( tid ); }
+TRICE_INLINE void trice0( uint16_t tid, const char * pFmt ){ trice32m_0( tid ); }
 
 #endif // #else // #ifdef TRICE_CLEAN
 
@@ -882,7 +882,7 @@ void TRiceAssertFalse( int idN, char* msg, int flag );
 
 #endif // #else // #ifdef TRICE_CLEAN
 
-typedef void (*WriteAuxiliaryFn_t)( uint8_t const * enc, size_t encLen );
+typedef void (*WriteAuxiliaryFn_t)( const uint8_t * enc, size_t encLen );
 extern WriteAuxiliaryFn_t UserNonBlockingDirectWriteAuxiliaryFn;
 extern WriteAuxiliaryFn_t UserNonBlockingDeferredWriteAuxiliaryFn;
 

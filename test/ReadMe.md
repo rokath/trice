@@ -66,7 +66,9 @@ Because each test runs a different configuration, all possible combinations are 
 | `staticBuffer_`  | direct mode                                                                                               |
 |  `stackBuffer_`  | direct mode                                                                                               |
 |  `ringBuffer_`   | deferred mode                                                                                             |
-| `doubleBuffer_`  | deferrec mode                                                                                             |
+| `doubleBuffer_`  | deferred mode                                                                                             |
+|     `_rtt8_`     | (simulated) SEGGER_RTT byte transfer                                                                      |
+|    `_rtt32_`     | (simulated) SEGGER_RTT word transfer                                                                      |
 |     `_AND_`      | deferred and direct mode together                                                                         |
 |     `_xtea_`     | with encryption, otherwise without encryption                                                             |
 |     `_tcobs`     | TCOBS package framing                                                                                     |

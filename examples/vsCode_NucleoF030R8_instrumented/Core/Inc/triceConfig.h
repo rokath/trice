@@ -109,7 +109,7 @@ void WatchRingBufferMargins( void );
 //! The byte sequence you see then, copy and paste it here.
 //#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
-//#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE // TRICE_SAVE_SINGLE_MODE or TRICE_PACK_MULTI_MODE
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SAVE_SINGLE_MODE // TRICE_SAVE_SINGLE_MODE or TRICE_PACK_MULTI_MODE
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT

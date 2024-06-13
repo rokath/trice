@@ -46,7 +46,7 @@ static uint32_t* triceBufferSwap( void ){
 //! triceDepth returns the total trice byte count ready for transfer.
 //! The trice data start at tb + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
-static size_t triceDepth( uint32_t const* tb ){
+static size_t triceDepth( const uint32_t * tb ){
     size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
     return depth - TRICE_DATA_OFFSET;
 }
@@ -159,7 +159,7 @@ static int TriceNext( uint8_t** buf, size_t* pSize, const uint8_t ** pStart, siz
 //! This function is called only, when the slowest deferred output device has finished its last buffer.
 //! At the half buffer start tb are TRICE_DATA_OFFSET bytes space followed by a number of trice messages which all contain
 //! 0-3 padding bytes and therefore have a length of a multiple of 4. There is no additional space between these trice messages.
-//! When XTEA enabled, only (TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE) is allowed, because the 4 bytes behind a trice messages
+//! When XTEA enabled, only (TRICE_DEFERRED_TRANSFER_MODE == TRICE_PACK_MULTI_MODE) is allowed, because the 4 bytes behind a trice messages
 //! are changed, when the trice length is not a multiple of 8, but only of 4. (XTEA can encrypt only multiple of 8 lenth packages.)
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at the tb start is for in-buffer encoding of the trice data.
 //! \param tLen is total length of several trice data. It is always a multiple of 4 because of 32-bit alignment and padding bytes.
@@ -182,24 +182,24 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         if( triceID <= 0 ){ // on data error
             break;   // ignore following data
         }
-        #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
+        #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
+        #warning todo: debug
             //#if XTEA_ENCRYPT
             //    // Behind the trice brutto length (with padding bytes), 4 bytes could be used as scratch pad when XTEA is active.
             //    // Therefore, when XTEA is used, the single trice must be moved first by 4 bytes in lower address direction if its length is not a multiple of 4.
-            //    #error not implemented (use "#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE" or ring buffer )
+            //    #error not implemented (use "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_PACK_MULTI_MODE" or ring buffer )
             //#endif
         dst = enc+encLen;
         encLen += TriceEncode( XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING,  dst, triceNettoStart, triceNettoLen );
-        #endif
 
-        #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+        #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
         dst = enc + TRICE_DATA_OFFSET + encLen;
         // This action removes all padding bytes of the trices, compacting their sequence this way
         memmove(dst, triceNettoStart, triceNettoLen );
         encLen += triceNettoLen;
-        #endif
+        #endif // #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
     }
-    #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+    #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
         // At this point the compacted trice messages start TRICE_DATA_OFFSET bytes after tb (now enc) and the encLen is their total netto length.
         // Behind this up to 7 bytes can be used as scratch pad when XTEA is active. That is ok, because the half buffer should not get totally filled.
         src =  enc + TRICE_DATA_OFFSET;

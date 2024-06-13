@@ -1299,7 +1299,7 @@ typedef struct{
     //float z; // it seems, that the compiler does not align this with -o3 & time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 } Point_t; //!< Point_t is small struct type.
 
-static int serializePoint( char* dst, Point_t const * src ){
+static int serializePoint( char* dst, const Point_t * src ){
     char * p = dst;
 
     SCOPY( x )
@@ -1309,7 +1309,7 @@ static int serializePoint( char* dst, Point_t const * src ){
     return p - dst;
 }
 
-static int deserializePoint( Point_t * const dst, char const * src ){
+static int deserializePoint( Point_t * const dst, const char * src ){
     char const * p = src;
 
     DCOPY( x )
@@ -1331,7 +1331,7 @@ typedef struct{
     uint64_t bitmask;
 } Tryout_t; //!<  Tryout_t is a struct example embedding an other struct.
 
-static int serializeTryout( char* dst, Tryout_t const * src ){
+static int serializeTryout( char* dst, const Tryout_t * src ){
     char * p = dst;
 
     SCOPY( z )
@@ -1347,7 +1347,7 @@ static int serializeTryout( char* dst, Tryout_t const * src ){
     return p - dst;
 }
 
-static int deserializeTryout( Tryout_t * const dst, char const * src ){
+static int deserializeTryout( Tryout_t * const dst, const char * src ){
     char const * p = src;
 
     DCOPY( z )
@@ -1438,9 +1438,9 @@ void TriceLogDiagnosticValues( void ){
 #ifdef SEGGER_RTT
     int RTT0_wrSpaceMin = BUFFER_SIZE_UP - RTT0_writeDepthMax;
     if( (RTT0_wrSpaceMin < TRICE_BUFFER_SIZE) ){
-        trice( iD(6788), "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
+        trice( iD(6336), "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
     }else{
-        trice( iD(7489), "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
+        trice( iD(2619), "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
     }
 #endif // #ifdef SEGGER_RTT
 

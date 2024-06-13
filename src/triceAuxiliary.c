@@ -11,7 +11,7 @@
 WriteAuxiliaryFn_t UserNonBlockingDirectWriteAuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDirectWriteAuxiliary writes to a user defined interface.
-void TriceNonBlockingDirectWriteAuxiliary( uint8_t const * enc, size_t encLen ){
+void TriceNonBlockingDirectWriteAuxiliary( const uint8_t * enc, size_t encLen ){
     #if defined(TRICE_CGO) // automated tests
         TriceWriteDeviceCgo( enc, encLen );
     #else
@@ -29,7 +29,7 @@ void TriceNonBlockingDirectWriteAuxiliary( uint8_t const * enc, size_t encLen ){
 WriteAuxiliaryFn_t UserNonBlockingDeferredWriteAuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDeferredWriteAuxiliary writes to a user defined interface.
-void TriceNonBlockingDeferredWriteAuxiliary( uint8_t const * enc, size_t encLen ){
+void TriceNonBlockingDeferredWriteAuxiliary( const uint8_t * enc, size_t encLen ){
     #if defined(TRICE_CGO) // automated tests
         TriceWriteDeviceCgo( enc, encLen );
     #else

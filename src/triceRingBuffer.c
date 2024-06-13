@@ -147,7 +147,7 @@ void TriceTransfer( void ){
 //! \param ppStart is filled with the trice netto data start. That is maybe a 2 bytes offset from pData.
 //! \param pLength is filled with the netto trice length (without padding bytes), 0 on error.
 //! \retval is the triceID, a positive value on success or error information.
-static int TriceIDAndBuffer( uint32_t const * const pData, int* pWordCount, uint8_t** ppStart, size_t* pLength ){
+static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint8_t** ppStart, size_t* pLength ){
     uint16_t TID = TRICE_TTOHS( *(uint16_t*)pData ); // type and id
     int triceID = 0x3FFF & TID;
     int triceType = TID >> 14; // 2 bits
