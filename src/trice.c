@@ -337,26 +337,6 @@ static void TriceDirectWrite8( const uint8_t * enc, size_t encLen ){
 
 #endif // #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_DIRECT_AUXILIARY == 1)
 
-//  #if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) || (TRICE_DEFERRED_AUXILIARY == 1)
-//  
-//  static void TriceDeferredWrite8( const uint8_t * enc, size_t encLen ){
-//      #if defined(TRICE_CGO) // automated tests
-//          TriceWriteDeviceCgo( enc, encLen );
-//      #else // #if defined(TRICE_CGO)
-//          #if TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1
-//              SEGGER_RTT_WriteNoLock(0, enc, encLen );
-//              #if TRICE_DIAGNOSTICS == 1
-//                  triceSeggerRTTDiagnostics(); // todo: maybe not needed
-//              #endif
-//          #endif
-//          #if TRICE_DEFERRED_AUXILIARY
-//              TriceNonBlockingDeferredWriteAuxiliary( enc, encLen );
-//          #endif
-//      #endif // else // #if defined(TRICE_CGO)
-//  }
-//  
-//  #endif // #if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1) || (TRICE_DEFERRED_AUXILIARY == 1)
-
 #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) {
@@ -670,44 +650,48 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1
 
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) 
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)
 
-// TriceNonBlockingDeferredWrite routes trice data to output channels.
-void TriceNonBlockingDeferredWrite( int triceID, const uint8_t * enc, size_t encLen ){
+// TriceNonBlockingDeferredWrite8 routes trice data to output channels.
+void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t encLen ){
     
-    #if defined( TRICE_UARTA )
-        #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
-        if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
-        #endif
-        { triceNonBlockingWriteUartA( enc, encLen ); }
-    #endif
-    #if defined( TRICE_UARTB )
-        #if defined(TRICE_UARTB_MIN_ID) && defined(TRICE_UARTB_MAX_ID)
-        if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) )
-        #endif
-        { triceNonBlockingWriteUartB( enc, encLen ); }
-    #endif
-    #if ( TRICE_DEFERRED_AUXILIARY == 1)
-        #if defined(TRICE_DEFERRED_AUXILIARY_MIN_ID) && defined(TRICE_DEFERRED_AUXILIARY_MAX_ID)
-        if( (TRICE_DEFERRED_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_AUXILIARY_MAX_ID) )
-        #endif
-        { TriceNonBlockingDeferredWriteAuxiliary( enc, encLen ); }
-    #endif
-    #ifdef TRICE_CGO
+    #if defined(TRICE_CGO) // automated tests
         TriceWriteDeviceCgo( enc, encLen );
-    #endif
-    #if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
-        #if defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID)
-        if( (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID) )
+    #else // #if defined(TRICE_CGO) // automated tests
+        #if defined( TRICE_UARTA )
+            #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
+            if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
+            #endif
+            { triceNonBlockingWriteUartA( enc, encLen ); }
         #endif
-        TriceWriteDeviceRtt0( enc, encLen );
-    #endif
-    //  #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
-    //      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
-    //      if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
-    //      #endif
-    //      TriceWriteDeviceModbus( enc, encLen );
-    //  #endif
+        #if defined( TRICE_UARTB )
+            #if defined(TRICE_UARTB_MIN_ID) && defined(TRICE_UARTB_MAX_ID)
+            if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) )
+            #endif
+            { triceNonBlockingWriteUartB( enc, encLen ); }
+        #endif
+        #if ( TRICE_DEFERRED_AUXILIARY == 1)
+            #if defined(TRICE_DEFERRED_AUXILIARY_MIN_ID) && defined(TRICE_DEFERRED_AUXILIARY_MAX_ID)
+            if( (TRICE_DEFERRED_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_AUXILIARY_MAX_ID) )
+            #endif
+            { TriceNonBlockingDeferredWrite8Auxiliary( enc, encLen ); }
+        #endif
+        #ifdef TRICE_CGO
+            
+        #endif
+        #if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
+            #if defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID) && defined(TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID)
+            if( (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MIN_ID < triceID) && (triceID < TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE_MAX_ID) )
+            #endif
+            TriceWriteDeviceRtt0( enc, encLen );
+        #endif
+        //  #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+        //      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
+        //      if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
+        //      #endif
+        //      TriceWriteDeviceModbus( enc, encLen );
+        //  #endif
+    #endif //  #else // #if defined(TRICE_CGO) // automated tests
 } //lint !e715 Info 715: Symbol 'triceID' not referenced
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)

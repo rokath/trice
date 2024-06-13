@@ -153,11 +153,11 @@ void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
 void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount );
 void TriceNonBlockingDirectWriteAuxiliary( const uint8_t * enc, size_t encLen );
-void TriceNonBlockingDeferredWriteAuxiliary( const uint8_t * enc, size_t encLen );
+void TriceNonBlockingDeferredWrite8Auxiliary( const uint8_t * enc, size_t encLen );
 void TriceInit( void );
 void TriceLogDiagnosticValues( void );
 void TriceLogSeggerDiagnostics( void );
-void TriceNonBlockingDeferredWrite( int ticeID, const uint8_t * enc, size_t encLen );
+void TriceNonBlockingDeferredWrite8( int ticeID, const uint8_t * enc, size_t encLen );
 void TriceTransfer( void );
 void TriceWriteDeviceCgo( const uint8_t * buf, unsigned len ); // only needed for testing C-sources from Go
 size_t triceDataLen( const uint8_t * p );

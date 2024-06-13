@@ -216,7 +216,7 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
     size_t encLen = TriceEncode( XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
 
-    TriceNonBlockingDeferredWrite( triceID, pEnc, encLen );
+    TriceNonBlockingDeferredWrite8( triceID, pEnc, encLen );
     return wordCount;
 }
 
