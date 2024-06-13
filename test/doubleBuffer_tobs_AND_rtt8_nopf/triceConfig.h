@@ -7,20 +7,15 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif   
-
-#include "stm32f0xx_ll_system.h"
+#endif
 
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
-#define TriceStamp16() (SysTick->VAL) // Counts from 31999 -> 0 in each ms.
-
-// ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
-extern uint32_t ms32;
+#define TriceStamp16() (0x1616) //(SysTick->VAL) 
 
 //! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int32_t TriceStamp32( void );` has significant speed impact.
-#define TriceStamp32() ms32 
+#define TriceStamp32() (0x32323232) //Us32()
 
 //! The TRICE_PROTECT switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
 //! The trice library works well, when less data are produced in the average than transmitable and when in the double buffer case the TriceTransfer
@@ -39,7 +34,7 @@ extern uint32_t ms32;
 //!   This is the fastest execution option for TRICE macros but needs more RAM. Used for deferred output and optional additional direct output.
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
-#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
 //! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).
@@ -127,26 +122,26 @@ void WatchRingBufferMargins( void );
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
 
 //! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
-#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
+#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 1
 
 //! Enable and set UARTA for deferred serial output.
-#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 //#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 //#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
 //! CGO interface (for testing the target code with Go only, do not enable)
-//#define TRICE_CGO 
-//#define TRICE_CYCLE_COUNTER 0
+#define TRICE_CGO 
+#define TRICE_CYCLE_COUNTER 0
 
 // Compiler Adaption:
 
 //! USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1 includes SEGGER_RTT header files even SEGGER_RTT is not used.
-#define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 1
+#define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 0
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
 //! If trices are used only outside critical sections or interrupts,
@@ -155,7 +150,7 @@ void WatchRingBufferMargins( void );
 //! #define TRICE_ENTER_CRITICAL_SECTION { 
 //! #define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 //! #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
-#define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { 
+#define TRICE_ENTER_CRITICAL_SECTION {  
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! If trices are used only outside critical sections or interrupts,
@@ -164,16 +159,16 @@ void WatchRingBufferMargins( void );
 //! #define TRICE_LEAVE_CRITICAL_SECTION } 
 //! #define TRICE_LEAVE_CRITICAL_SECTION } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 //! #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
-#define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } 
+#define TRICE_LEAVE_CRITICAL_SECTION }  
 
 #define TRICE_INLINE static inline //! used for trice code
 
 // hardware interface:
 
-#include "main.h" // hardware specific definitions
+//#include "main.h" // hardware specific definitions
 
 TRICE_INLINE void ToggleOpticalFeedbackLED( void ){
-    LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    //LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 }
 
 #ifdef TRICE_UARTA

@@ -280,7 +280,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif
 
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && !defined(TRICE_DEFERRED_TRANSFER_MODE)
+#ifndef TRICE_DEFERRED_TRANSFER_MODE
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
 //! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).

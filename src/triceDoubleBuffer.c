@@ -183,7 +183,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
             break;   // ignore following data
         }
         #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
-        #warning todo: debug
+        //#warning todo: debug
             //#if XTEA_ENCRYPT
             //    // Behind the trice brutto length (with padding bytes), 4 bytes could be used as scratch pad when XTEA is active.
             //    // Therefore, when XTEA is used, the single trice must be moved first by 4 bytes in lower address direction if its length is not a multiple of 4.
