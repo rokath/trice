@@ -111,7 +111,11 @@ extern "C" {
 #include <string.h>
 #include "triceConfig.h"
 
-// defaults 1:
+// defaults part 1:
+
+#if ( (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) ) && !defined(TRICE_DEFERRED_OUTPUT)
+#define TRICE_DEFERRED_OUTPUT 1
+#endif
 
 #ifndef TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
 //! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
@@ -210,7 +214,7 @@ extern uint16_t TriceRingBufferDepth;
 extern uint32_t* TriceBufferWritePosition;
 #endif
 
-// defaults 2:
+// defaults part 2:
 
 #ifndef TRICE_DIRECT_AUXILIARY
 
@@ -228,9 +232,17 @@ extern uint32_t* TriceBufferWritePosition;
 
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
 
-//! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an auxiolary output.
-//! The called auxiolary output function usually is executed inside an interrupt and should therefore be non-blocking and fast.
+//! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
+//! The called output function usually is executed inside an interrupt and should therefore be non-blocking and fast.
 #define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 0
+
+#endif
+
+#ifndef TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING
+
+//! TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
+//! The called output function should be non-blocking. 
+#define TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING 0
 
 #endif
 

@@ -23,6 +23,26 @@
 // Other possibility: Save 32-bit value behind the trice message, encryt and transmit the trice message and restore this value. 
 #endif
 
+#if (TRICE_DIRECT_OUTPUT == 0) && (TRICE_DEFERRED_OUTPUT == 0)
+#error configuration: need at east one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DDEFERRED_OUTPUT == 0)
+#endif
+
+#if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_RING_BUFFER)
+#error configuration: (TRICE_BUFFER == TRICE_RING_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1)
+#endif
+
+#if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
+#error configuration: (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1)
+#endif
+
+#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_BUFFER == TRICE_STACK_BUFFER)
+#error configuration: (TRICE_BUFFER == TRICE_STACK_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 0)
+#endif
+
+#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_BUFFER == TRICE_STATIC_BUFFER)
+#error configuration: (TRICE_BUFFER == TRICE_STATIC_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 0)
+#endif
+
 #if defined (TRICE_CGO) && (TRICE_CYCLE_COUNTER == 1)
 #warning configuration: TRICE_CGO needs TRICE_CYCLE_COUNTER == 0 for successful tests
 #endif
@@ -31,8 +51,12 @@
 #error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel
 #endif
 
+#if (TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DEFERRED_OUTPUT == 0)
+#error configuration: TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DEFERRED_OUTPUT == 1
+#endif
+
 #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DIRECT_OUTPUT == 0
+#error configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)
@@ -643,7 +667,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
                 int triceID;
                 size_t len = triceIDAndLen( triceStart, &triceStart2, &triceID );
 
-                #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)
+                #if TRICE_DEFERRED_OUTPUT
                     // When using deferred and direct mode parallel, we need to provide a temporary buffer here.
                     // That's, because here in the direct processing, we cannot use deferred buffer space, which is not read out yet.
                     static uint8_t enc[TRICE_BUFFER_SIZE];
@@ -682,7 +706,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1
 
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)
+#if TRICE_DEFERRED_OUTPUT
 
 // TriceNonBlockingDeferredWrite8 routes trice data to output channels.
 void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t encLen ){
@@ -726,7 +750,7 @@ void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t en
     #endif //  #else // #if defined(TRICE_CGO) // automated tests
 } //lint !e715 Info 715: Symbol 'triceID' not referenced
 
-#endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)
+#endif // #if TRICE_DEFERRED_OUTPUT
 
 #if defined( TRICE_UARTA ) // deferred out to UART
 
