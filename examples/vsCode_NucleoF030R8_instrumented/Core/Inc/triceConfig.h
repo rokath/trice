@@ -7,7 +7,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif   
+#endif
 
 #include "stm32f0xx_ll_system.h"
 
@@ -61,7 +61,6 @@ void WatchRingBufferMargins( void );
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
 #define TRICE_DIRECT_OUTPUT 1
 
-
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
 //! Enable this only, if you want only a specific ID ranges for direct Trice output.
 //! If you use different direct output channels, you can change this only for all together.
@@ -113,7 +112,7 @@ void WatchRingBufferMargins( void );
 //! XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and paste it here.
-//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT

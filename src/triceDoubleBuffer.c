@@ -184,13 +184,13 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         }
         #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
         //#warning todo: debug
-            //#if XTEA_ENCRYPT
+            //#if TRICE_XTEA_DEFERRED_ENCRYPT
             //    // Behind the trice brutto length (with padding bytes), 4 bytes could be used as scratch pad when XTEA is active.
             //    // Therefore, when XTEA is used, the single trice must be moved first by 4 bytes in lower address direction if its length is not a multiple of 4.
             //    #error not implemented (use "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_PACK_MULTI_MODE" or ring buffer )
             //#endif
         dst = enc+encLen;
-        encLen += TriceEncode( XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING,  dst, triceNettoStart, triceNettoLen );
+        encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING,  dst, triceNettoStart, triceNettoLen );
 
         #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
         dst = enc + TRICE_DATA_OFFSET + encLen;
@@ -204,7 +204,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         // Behind this up to 7 bytes can be used as scratch pad when XTEA is active. That is ok, because the half buffer should not get totally filled.
         src =  enc + TRICE_DATA_OFFSET;
         dst = enc;
-        encLen += TriceEncode( XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, src, encLen );
+        encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, src, encLen );
     #endif
 
     // Reaching here means all trice data in the current half buffer are encoded

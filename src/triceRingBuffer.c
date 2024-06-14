@@ -36,9 +36,9 @@ uint32_t* const TriceRingBufferStart = TriceRingBufferMargined + TRICE_RINGBUFFE
 
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
 //! With encryption it can happen that 4 bytes following triceRingBufferLimit are used as scratch pad.
-//! We use the value of XTEA_ENCRYPT (0 or 1) here to respect that
+//! We use the value of TRICE_XTEA_DEFERRED_ENCRYPT (0 or 1) here to respect that
 //! See also comment inside TriceSingleDeferredOut.
-uint32_t* const triceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE>>2) - XTEA_ENCRYPT;
+uint32_t* const triceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE>>2) - TRICE_XTEA_DEFERRED_ENCRYPT;
 
 //! SingleTricesRingCount holds the readable trices count inside TriceRingBuffer.
 unsigned SingleTricesRingCount = 0;
@@ -162,13 +162,13 @@ static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint
         case TRICE_TYPE_S2: // S2 = 16-bit stamp
             len = 6 + triceDataLen(pStart + 6); // tyId ts16
             offset = 2;
-            #if XTEA_ENCRYPT
+            #if TRICE_XTEA_DEFERRED_ENCRYPT
                 // move trice to start at a uint32_t alingment border
                 memmove(pStart, pStart+2, len ); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
-            #else // #if XTEA_ENCRYPT
+            #else // #if TRICE_XTEA_DEFERRED_ENCRYPT
                 // Like for UART transfer no uint32_t alignment is needed.
                 pStart += 2; // see Id(n) macro definition        
-            #endif // #else // #if XTEA_ENCRYPT
+            #endif // #else // #if TRICE_XTEA_DEFERRED_ENCRYPT
             break;
         case TRICE_TYPE_S4: // S4 = 32-bit stamp
             offset = 0;
@@ -214,7 +214,7 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     // After TriceIDAndBuffer pStart has a 2 bytes offset, what is an alignmet issue for encryption.
     // That gets corrected inside TriceDeferredEncode.
     // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
-    size_t encLen = TriceEncode( XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+    size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
 
     TriceNonBlockingDeferredWrite8( triceID, pEnc, encLen );
     return wordCount;

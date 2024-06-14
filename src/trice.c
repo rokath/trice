@@ -9,6 +9,20 @@
 
 // check configuration:
 
+#if ( (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1) ) && !defined(XTEA_ENCRYPT_KEY)
+#error configuration: TRICE_XTEA_DIRECT_ENCRYPT and TRICE_XTEA_DEFERRED_ENCRYPT need a defined XTEA_ENCRYPT_KEY.
+#endif
+
+#if ( (TRICE_XTEA_DIRECT_ENCRYPT == 0) && (TRICE_XTEA_DEFERRED_ENCRYPT == 0) ) && defined(XTEA_ENCRYPT_KEY)
+#warning configuration: TRICE_XTEA_DIRECT_ENCRYPT and TRICE_XTEA_DEFERRED_ENCRYPT are 0, so no need for a defined XTEA_ENCRYPT_KEY.
+#endif
+
+#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SAVE_SINGLE_MODE) && (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
+#error configuration: use (TRICE_DEFERRED_TRANSFER_MODE == TRICE_PACK_MULTI_MODE), TRICE_DOUBLE_BUFFER with TRICE_SAVE_SINGLE_MODE cannot encrypt (so far). 
+// To implement this: Align Trices to 64-bit or move single Trices backward by 4 bytes at least when not on a 64-bit bundary and not a multiple of 64-bit long.
+// Other possibility: Save 32-bit value behind the trice message, encryt and transmit the trice message and restore this value. 
+#endif
+
 #if defined (TRICE_CGO) && (TRICE_CYCLE_COUNTER == 1)
 #warning configuration: TRICE_CGO needs TRICE_CYCLE_COUNTER == 0 for successful tests
 #endif
@@ -89,12 +103,6 @@
 #error All size values must be a multiple of 4!
 #endif
 
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SAVE_SINGLE_MODE) && defined (XTEA_ENCRYPT_KEY)
-#error configuration: use (TRICE_DEFERRED_TRANSFER_MODE == TRICE_PACK_MULTI_MODE), TRICE_DOUBLE_BUFFER with TRICE_SAVE_SINGLE_MODE cannot encrypt (so far). 
-// To implement this: Align Trices to 64-bit or move single Trices backward by 4 bytes at least when not on a 64-bit bundary and not a multiple of 64-bit long.
-// Other possibility: Save 32-bit value behind the trice message, encryt and transmit the trice message and restore this value. 
-#endif
-
 #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)  && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 #error "configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE"
 #endif
@@ -169,7 +177,7 @@ void TriceInit( void ){
         #endif
     #endif
 
-    #if XTEA_ENCRYPT
+    #ifdef XTEA_ENCRYPT_KEY
         XTEAInitTable();
     #endif
 }
@@ -413,7 +421,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
     // direct-only mode without routing & framing
         uint32_t * dat;
         unsigned wc;
-        #if XTEA_ENCRYPT
+        #if TRICE_XTEA_DIRECT_ENCRYPT
             wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
             XTEAEncrypt( triceStart, wc ); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
         #else
@@ -443,7 +451,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
     // direct-only mode without routing & framing
         unsigned wc;
         unsigned bc;
-        #if XTEA_ENCRYPT
+        #if TRICE_XTEA_DIRECT_ENCRYPT
             wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
             XTEAEncrypt( triceStart, wc ); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
             bc = wc<<2;
@@ -473,7 +481,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
     // direct-only mode without routing & framing
         unsigned wc;
         unsigned bc;
-        #if XTEA_ENCRYPT
+        #if TRICE_XTEA_DIRECT_ENCRYPT
             wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
             XTEAEncrypt( triceStart, wc ); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
             bc = wc<<2;
@@ -583,7 +591,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
     //      // What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
     //      uint8_t * dat;
     //      unsigned bc;
-    //      #if XTEA_ENCRYPT
+    //      #if TRICE_XTEA_DIRECT_ENCRYPT
     //          unsigned wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
     //          XTEAEncrypt( triceStart, wc ); // in-buffer encryption
     //          bc = wc << 2;
@@ -643,7 +651,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
                     uint8_t* enc = triceStart2 - TRICE_DATA_OFFSET;
                 #endif
 
-                size_t encLen = TriceEncode(XTEA_ENCRYPT, TRICE_DIRECT_OUT_FRAMING, enc, triceStart2, len );
+                size_t encLen = TriceEncode(TRICE_XTEA_DIRECT_ENCRYPT, TRICE_DIRECT_OUT_FRAMING, enc, triceStart2, len );
 
                 #if TRICE_DIRECT_AUXILIARY == 1
                     #if defined(TRICE_DIRECT_AUXILIARY_MIN_ID) && defined(TRICE_DIRECT_AUXILIARY_MAX_ID)

@@ -157,7 +157,7 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
 //      break; case __LINE__: 
-//  #if XTEA_ENCRYPT
+//  #if TRICE_XTEA_DEFERRED_ENCRYPT
 //          TRICE0 ( Id(0), "--------------------------------------------------\n" );
 //          {
 //              uint32_t by[8] = {1,2,3,4,5,6};

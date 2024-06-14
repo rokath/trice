@@ -157,7 +157,7 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( iD(7276), "att: line %u\n", __LINE__ );
 
 //      break; case __LINE__: 
-//  #if XTEA_ENCRYPT
+//  #if TRICE_XTEA_DEFERRED_ENCRYPT
 //          TRICE0 ( Id(2514), "--------------------------------------------------\n" );
 //          {
 //              uint32_t by[8] = {1,2,3,4,5,6};
@@ -1438,9 +1438,9 @@ void TriceLogDiagnosticValues( void ){
 #ifdef SEGGER_RTT
     int RTT0_wrSpaceMin = BUFFER_SIZE_UP - RTT0_writeDepthMax;
     if( (RTT0_wrSpaceMin < TRICE_BUFFER_SIZE) ){
-        trice( iD(6336), "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
+        trice( iD(5488), "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
     }else{
-        trice( iD(2619), "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
+        trice( iD(7394), "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
     }
 #endif // #ifdef SEGGER_RTT
 

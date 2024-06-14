@@ -3119,6 +3119,10 @@
 		"Type": "TRICE",
 		"Strg": "debug:130+i\\n"
 	},
+	"5488": {
+		"Type": "trice",
+		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
+	},
 	"5497": {
 		"Type": "TRice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
@@ -4330,6 +4334,10 @@
 	"7376": {
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 line %t (%%t ,2)\\n"
+	},
+	"7394": {
+		"Type": "trice",
+		"Strg": "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
 	},
 	"7398": {
 		"Type": "trice",

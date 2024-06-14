@@ -125,7 +125,7 @@ int main(void)
 
             static uint32_t msCheck = 0;
             msCheck++;
-            if(msCheck >= 10 ){
+            if(msCheck >= 100 ){
                 msCheck = 0; 
                 static uint32_t i = 0;
                 if( i++ > 330 ){

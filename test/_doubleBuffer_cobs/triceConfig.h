@@ -54,8 +54,7 @@ void WatchRingBufferMargins( void );
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
-#define TRICE_DIRECT_OUTPUT 1
-
+#define TRICE_DIRECT_OUTPUT 0
 
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
 //! Enable this only, if you want only a specific ID ranges for direct Trice output.
@@ -113,6 +112,12 @@ void WatchRingBufferMargins( void );
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT
 
+//! TRICE_XTEA_DIRECT_ENCRYPT enables encryption for direct output. (experimental)
+#define TRICE_XTEA_DIRECT_ENCRYPT 0
+
+//! TRICE_XTEA_DEFERRED_ENCRYPT enables encryption for deferred output. (experimental)
+#define TRICE_XTEA_DEFERRED_ENCRYPT 0
+
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 //! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
 #define TRICE_DIAGNOSTICS 1
@@ -127,7 +132,13 @@ void WatchRingBufferMargins( void );
 //! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
-#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 1
+#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
+
+//! TRICE_DIRECT_AUXILIARY enables a user defined optionally routed direct trice write. (experimental)
+#define TRICE_DIRECT_AUXILIARY 0
+
+//! TRICE_DEFERRED_AUXILIARY enables a user defined optionally routed deferred trice write. (experimental)
+#define TRICE_DEFERRED_AUXILIARY 0
 
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA

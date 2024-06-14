@@ -112,6 +112,12 @@ void WatchRingBufferMargins( void );
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT
 
+//! TRICE_XTEA_DIRECT_ENCRYPT enables encryption for direct output. (experimental)
+#define TRICE_XTEA_DIRECT_ENCRYPT 0
+
+//! TRICE_XTEA_DEFERRED_ENCRYPT enables encryption for deferred output. (experimental)
+#define TRICE_XTEA_DEFERRED_ENCRYPT 0
+
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 //! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
 #define TRICE_DIAGNOSTICS 1
@@ -127,6 +133,12 @@ void WatchRingBufferMargins( void );
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
 #define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 1
+
+//! TRICE_DIRECT_AUXILIARY enables a user defined optionally routed direct trice write. (experimental)
+#define TRICE_DIRECT_AUXILIARY 0
+
+//! TRICE_DEFERRED_AUXILIARY enables a user defined optionally routed deferred trice write. (experimental)
+#define TRICE_DEFERRED_AUXILIARY 0
 
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA

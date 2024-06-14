@@ -17,6 +17,16 @@ extern "C" {
 //! The user has to provide this function. Defining a macro here, instead if providing `int32_t TriceStamp32( void );` has significant speed impact.
 #define TriceStamp32() (0x32323232) //Us32()
 
+//! The TRICE_PROTECT switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
+//! The trice library works well, when less data are produced in the average than transmitable and when in the double buffer case the TriceTransfer
+//! function is called before too much data in a half buffer according to a good configuration. If that is guarantied you do not need to enable TRICE_PROTECT.
+//! If because of an potential error this is not guarantied, you should enable TRICE_PROTECT. This slows down the TRICE macros a bit, but makes buffer overflows impossible.
+//! A ring buffer cannot overflow in a first assunmption, because old, not yet transmitted, trices are overwritten by newer ones.
+//! But that can happen only to parts of trices. The ring buffer read out function relies on consistent data. If it gets data garbage, wrong values
+//! for the trice lengths are possible and buffer overruns not avoidable. When enabling TRICE_PROTECT, new trices are only written into the deferred buffer,
+//! if there is enough space. That guaranties data consistency. Because a suppressed trice cannot cause a cycle error, there is TriceOverflowCount as diagnostic value. 
+#define TRICE_PROTECT
+
 //!  TRICE_BUFFER selects, where the TRICE macros accumulate the trice data during a single TRICE execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
 //! - TRICE_STATIC_BUFFER: A single trice is stored in a separate static buffer, what makes sense for multi-tasking systems with direct output only.
@@ -26,16 +36,10 @@ extern "C" {
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
-//! The TRICE_PROTECT switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
-//! The trice library works well, when less data are produced in the average than transmittable and when in the double buffer case the TriceTransfer
-//! function is called before too much data in a half buffer according to a good configuration. If that is guarantied you do not need to enable TRICE_PROTECT.
-//! If because of an potential error this is not guarantied, you should enable TRICE_PROTECT. This slows down the TRICE macros a bit, but makes buffer overflows impossible.
-//! A ring buffer cannot overflow in a first assumption, because old, not yet transmitted, trices are overwritten by newer ones.
-//! But that can happen only to parts of trices. The ring buffer read out function relies on consistent data. If it gets data garbage, wrong values
-//! for the trice lengths are possible and buffer overruns not avoidable. When enabling TRICE_PROTECT, new trices are only written into the deferred buffer,
-//! if there is enough space. That guaranties data consistency. Because a suppressed trice cannot cause a cycle error, there is TriceOverflowCount as diagnostic value.
-//! Do not enable together with TRICE_CGO for testing.
-// #define TRICE_PROTECT
+//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
+//! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).
+//! - TRICE_PACK_MULTI_MODE packs several trice messages before adding a 0-delimiter byte.
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 //! This is a helper to watch the ring buffer margins.
@@ -51,7 +55,6 @@ void WatchRingBufferMargins( void );
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
 #define TRICE_DIRECT_OUTPUT 0
-
 
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
 //! Enable this only, if you want only a specific ID ranges for direct Trice output.
@@ -101,8 +104,6 @@ void WatchRingBufferMargins( void );
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SAVE_SINGLE_MODE // TRICE_SAVE_SINGLE_MODE or TRICE_PACK_MULTI_MODE
-
 //! XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and paste it here.
@@ -110,6 +111,12 @@ void WatchRingBufferMargins( void );
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT
+
+//! TRICE_XTEA_DIRECT_ENCRYPT enables encryption for direct output. (experimental)
+#define TRICE_XTEA_DIRECT_ENCRYPT 0
+
+//! TRICE_XTEA_DEFERRED_ENCRYPT enables encryption for deferred output. (experimental)
+#define TRICE_XTEA_DEFERRED_ENCRYPT 0
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 //! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
@@ -126,6 +133,12 @@ void WatchRingBufferMargins( void );
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
 #define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
+
+//! TRICE_DIRECT_AUXILIARY enables a user defined optionally routed direct trice write. (experimental)
+#define TRICE_DIRECT_AUXILIARY 0
+
+//! TRICE_DEFERRED_AUXILIARY enables a user defined optionally routed deferred trice write. (experimental)
+#define TRICE_DEFERRED_AUXILIARY 0
 
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
@@ -166,7 +179,7 @@ void WatchRingBufferMargins( void );
 //#include "main.h" // hardware specific definitions
 
 TRICE_INLINE void ToggleOpticalFeedbackLED( void ){
-//    LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    //LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 }
 
 #ifdef TRICE_UARTA

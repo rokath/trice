@@ -627,13 +627,16 @@ unsigned TriceOutDepthUartB( void );
 ///////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
+#define TRICE_XTEA_DIRECT_ENCRYPT 0 // todo: set 1 and test code
+
+#ifndef TRICE_XTEA_DEFERRED_ENCRYPT
+#define TRICE_XTEA_DEFERRED_ENCRYPT 0
+#endif
+
 #ifdef XTEA_ENCRYPT_KEY
-    #define XTEA_ENCRYPT 1
     void XTEAEncrypt( uint32_t* p, unsigned count );
     void XTEADecrypt( uint32_t* p, unsigned count );
     void XTEAInitTable(void);
-#else
-    #define XTEA_ENCRYPT 0
 #endif // #ifdef XTEA_ENCRYPT_KEY
 //
 ///////////////////////////////////////////////////////////////////////////////

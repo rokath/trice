@@ -113,7 +113,7 @@
 	},
 	"1175": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1475
+		"Line": 1476
 	},
 	"1179": {
 		"File": "testdata/triceCheck.c",
@@ -485,7 +485,7 @@
 	},
 	"1696": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1448
+		"Line": 1449
 	},
 	"1711": {
 		"File": "testdata/triceCheck.c",
@@ -1065,7 +1065,7 @@
 	},
 	"2597": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1473
+		"Line": 1474
 	},
 	"2601": {
 		"File": "testdata/triceCheck.c",
@@ -1509,7 +1509,7 @@
 	},
 	"3241": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1480
+		"Line": 1481
 	},
 	"3261": {
 		"File": "testdata/triceCheck.c",
@@ -2133,7 +2133,7 @@
 	},
 	"4331": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1456
+		"Line": 1457
 	},
 	"4338": {
 		"File": "testdata/triceCheck.c",
@@ -2453,7 +2453,7 @@
 	},
 	"4806": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1484
+		"Line": 1485
 	},
 	"4811": {
 		"File": "testdata/triceCheck.c",
@@ -2667,10 +2667,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 709
 	},
-	"5218": {
-		"File": "testdata/triceCheck.c",
-		"Line": 1442
-	},
 	"5229": {
 		"File": "testdata/triceCheck.c",
 		"Line": 594
@@ -2849,7 +2845,7 @@
 	},
 	"5455": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1482
+		"Line": 1483
 	},
 	"5459": {
 		"File": "testdata/triceCheck.c",
@@ -2862,6 +2858,10 @@
 	"5479": {
 		"File": "testdata/triceCheck.c",
 		"Line": 693
+	},
+	"5488": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1441
 	},
 	"5501": {
 		"File": "testdata/triceCheck.c",
@@ -3811,10 +3811,6 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 146
 	},
-	"7214": {
-		"File": "testdata/triceCheck.c",
-		"Line": 1440
-	},
 	"7215": {
 		"File": "testdata/triceCheck.c",
 		"Line": 756
@@ -3947,6 +3943,10 @@
 		"File": "testdata/triceCheck.c",
 		"Line": 1223
 	},
+	"7394": {
+		"File": "testdata/triceCheck.c",
+		"Line": 1443
+	},
 	"7406": {
 		"File": "testdata/triceCheck.c",
 		"Line": 1242
@@ -3969,7 +3969,7 @@
 	},
 	"7431": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1450
+		"Line": 1451
 	},
 	"7442": {
 		"File": "testdata/triceCheck.c",
@@ -4253,7 +4253,7 @@
 	},
 	"7906": {
 		"File": "testdata/triceCheck.c",
-		"Line": 1462
+		"Line": 1463
 	},
 	"7907": {
 		"File": "testdata/triceCheck.c",
