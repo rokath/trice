@@ -278,24 +278,26 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
     size_t encLen;
     const uint8_t * dat;
     if( encrypt ){
-        // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
-        // A 64-bit trice data aligning would waste RAM and costs a bit time during trice generation.
-        // We need additional 4 bytes after each trice for the XTEA encryption.
-        // Also, the framing could make the trice message a bit longer.
-        // Therefore we copy the trice data to a place, we can use.
-        uint8_t* loc = dst + TRICE_DATA_OFFSET; // Give space in front for framing.
-        memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
-        dat = (const uint8_t *)loc;
-        size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-        #if TRICE_CLEAR_PADDING_SPACE == 1
-            while( len < len8 ){
-                loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
-            }
-        #else
-            #error configuration: TRICE_CLEAR_PADDING_SPACE == 1 is needed
-            len = len8;
-        #endif
-        XTEAEncrypt( (uint32_t*)loc, len>>2 );
+        #ifdef XTEA_ENCRYPT_KEY
+            // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
+            // A 64-bit trice data aligning would waste RAM and costs a bit time during trice generation.
+            // We need additional 4 bytes after each trice for the XTEA encryption.
+            // Also, the framing could make the trice message a bit longer.
+            // Therefore we copy the trice data to a place, we can use.
+            uint8_t* loc = dst + TRICE_DATA_OFFSET; // Give space in front for framing.
+            memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
+            dat = (const uint8_t *)loc;
+            size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+            #if 1 // TRICE_CLEAR_PADDING_SPACE == 1
+                while( len < len8 ){
+                    loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
+                }
+            #else
+                #error configuration: TRICE_CLEAR_PADDING_SPACE == 1 is needed
+                len = len8;
+            #endif
+            XTEAEncrypt( (uint32_t*)loc, len>>2 );
+        #endif // #ifdef XTEA_ENCRYPT_KEY
     }else{
         dat = buf;
     }
