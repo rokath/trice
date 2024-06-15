@@ -230,3 +230,7 @@ extern uint32_t ms32;
 - You can have 2 outputs:
   - In a terminal run `trice l -p com5 -baud 1000000`.
   - In a terminal run `trice l -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000" -d16 -pf none`
+
+## With XTEA
+
+` trice l -p com5 -baud 1000000 -pw MySecret -pf COBS`

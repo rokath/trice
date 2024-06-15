@@ -98,12 +98,12 @@ int main(void)
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
     trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
 
-    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
   /* USER CODE END 2 */
 
   /* Infinite loop */

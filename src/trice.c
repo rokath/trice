@@ -292,6 +292,7 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
                 loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
             }
         #else
+            #error configuration: TRICE_CLEAR_PADDING_SPACE == 1 is needed
             len = len8;
         #endif
         XTEAEncrypt( (uint32_t*)loc, len>>2 );
