@@ -162,7 +162,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Send trice lines to displayserver @ ipa:ipp.
     	Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.
   -doubled16BitID
-    	Tells, that 16-bit IDs are doubled. That switch is needed when un-routed direct output is used like (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1), but also with double buffer in (TRICE_DEFERRED_TRANSFER_MODE==TRICE_PACK_MULTI_MODE) and XTEA encryption. Read the user guide for more details.
+    	Tells, that 16-bit IDs are doubled. That switch is needed when un-routed direct output is used like (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1), but also with double buffer in (TRICE_DEFERRED_TRANSFER_MODE==TRICE_MULTI_PACK_MODE) and XTEA encryption. Read the user guide for more details.
   -ds
     	Short for '-displayserver'.
   -e string
