@@ -68,14 +68,14 @@ extern "C" {
 
 // helper macros (the numbers are 32-bit random values)
 
-//! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_DEFERRED_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
+//! TRICE_SINGLE_PACK_MODE is the recommended TRICE_DEFERRED_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
 //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
-#define TRICE_SAFE_SINGLE_MODE  787345706U
+#define TRICE_SINGLE_PACK_MODE  787345706U
 
-//! TRICE_PACK_MULTI_MODE packs all trices of a buffer in a single TCOBS package and a following 0-delimiter byte. 
+//! TRICE_MULTI_PACK_MODE packs all trices of a buffer in a single TCOBS package and a following 0-delimiter byte. 
 //! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
 //! Olny relevant when TRICE_DOUBLE_BUFFER is selected 
-#define TRICE_PACK_MULTI_MODE  3987862482U
+#define TRICE_MULTI_PACK_MODE  3987862482U
 
 //! With TRICE_BUFFER == TRICE_STACK_BUFFER  the internal macro TRICE_PUT writes to the stack. 
 //! This is direct logging. This reduces memory needs if only one stack is used.
@@ -201,7 +201,9 @@ extern const int TriceTypeS4;
 extern const int TriceTypeX0;
 extern unsigned RTT0_writeDepthMax;
 extern unsigned TriceErrorCount;
-extern unsigned TriceOverflowCount;
+extern unsigned TriceDynBufTruncateCount;
+extern unsigned TriceDirectOverflowCount;
+extern unsigned TriceDeferredOverflowCount;
 extern uint32_t* const TriceRingBufferStart;
 extern uint32_t* const triceRingBufferLimit;
 extern unsigned TriceSingleMaxWordCount;
@@ -209,6 +211,7 @@ extern unsigned TriceRingBufferDepthMax;
 extern unsigned TriceHalfBufferDepthMax;
 extern uint16_t TriceHalfBufferDepth;
 extern uint16_t TriceRingBufferDepth;
+extern int TriceDataOffsetDepthMax;
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 extern uint32_t* TriceBufferWritePosition;
@@ -284,20 +287,20 @@ extern uint32_t* TriceBufferWritePosition;
 #endif
 
 #ifndef TRICE_CYCLE_COUNTER
-
+//#warning configuration: TRICE_CYCLE_COUNTER is not defined, setting it to 1.
 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message.
-//! If 0, do not add cycle counter. The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
-//! If 1, add an 8-bit cycle counter. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool. (reccommended)
+//! If 0, do not add cycle counter. The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool. The cycle conter byte ist statically 0xC0.
+//! If 1, add an 8-bit cycle counter. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool. The cycle conter byte changes (reccommended).
 #define TRICE_CYCLE_COUNTER 1 
 
 #endif
 
 #ifndef TRICE_DEFERRED_TRANSFER_MODE
-
-//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
-//! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).
-//! - TRICE_PACK_MULTI_MODE packs several trice messages before adding a 0-delimiter byte.
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
+#warning configuration: TRICE_DEFERRED_TRANSFER_MODE is not defined, setting it to TRICE_SINGLE_PACK_MODE.
+//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
+//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #endif
 
@@ -757,10 +760,11 @@ static inline uint64_t aDouble( double x ){
 // todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
 //
 #define TRICE_N( tid, pFmt, buf, n) do { \
-    uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size --> todo: consider 64-bit stamp! */ \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head(2) + max timestamp size(4) + count(2) */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( id( 5150), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        /*TRICE32( id( 5150), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit );*/ \
+        TriceDynBufTruncateCount++; \
         len_ = limit; \
     } \
     TRICE_ENTER tid; \

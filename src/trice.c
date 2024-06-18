@@ -9,18 +9,20 @@
 
 // check configuration:
 
+#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DATA_OFFSET < 64)
+#warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
+#endif
+
+#if (TRICE_DEFERRED_TRANSFER_MODE != TRICE_SINGLE_PACK_MODE) && (TRICE_DEFERRED_TRANSFER_MODE != TRICE_MULTI_PACK_MODE)
+#error configuration: check TRICE_DEFERRED_TRANSFER_MODE value
+#endif
+
 #if ( (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1) ) && !defined(XTEA_ENCRYPT_KEY)
 #error configuration: TRICE_XTEA_DIRECT_ENCRYPT and TRICE_XTEA_DEFERRED_ENCRYPT need a defined XTEA_ENCRYPT_KEY.
 #endif
 
 #if ( (TRICE_XTEA_DIRECT_ENCRYPT == 0) && (TRICE_XTEA_DEFERRED_ENCRYPT == 0) ) && defined(XTEA_ENCRYPT_KEY)
 #warning configuration: TRICE_XTEA_DIRECT_ENCRYPT and TRICE_XTEA_DEFERRED_ENCRYPT are 0, so no need for a defined XTEA_ENCRYPT_KEY.
-#endif
-
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SAVE_SINGLE_MODE) && (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
-#error configuration: use (TRICE_DEFERRED_TRANSFER_MODE == TRICE_PACK_MULTI_MODE), TRICE_DOUBLE_BUFFER with TRICE_SAVE_SINGLE_MODE cannot encrypt (so far). 
-// To implement this: Align Trices to 64-bit or move single Trices backward by 4 bytes at least when not on a 64-bit bundary and not a multiple of 64-bit long.
-// Other possibility: Save 32-bit value behind the trice message, encryt and transmit the trice message and restore this value. 
 #endif
 
 #if (TRICE_DIRECT_OUTPUT == 0) && (TRICE_DEFERRED_OUTPUT == 0)
@@ -178,12 +180,19 @@ uint8_t  TriceCycle = 0xc0;
 
 #if TRICE_DIAGNOSTICS == 1
 
+//! TriceDataOffsetDepthMax measures the max used offset space.
+int TriceDataOffsetDepthMax = 0;
+
 //! TriceSingleMaxWordCount is a diagnostics value usable to optimize buffer space TRICE_BUFFER_SIZE for a single trice message.
 unsigned TriceSingleMaxWordCount = 0;
 
+//! TriceDynBufTruncateCount couts how often a dynamic buffer was truncated because it was too long.
+unsigned TriceDynBufTruncateCount = 0;
+
 #ifdef TRICE_PROTECT
 
-unsigned TriceOverflowCount = 0;
+unsigned TriceDirectOverflowCount = 0;
+unsigned TriceDeferredOverflowCount = 0;
 
 #endif
 
@@ -265,6 +274,7 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
 
 #endif // #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
 
+
 //! TriceEncode expects at buf trice netto data with netto length len.
 //! It fills dst with the next trice data, which are encoded and framed or not, according the selected switches.
 //! The areas of dst and buf are allowed to overlap.
@@ -275,6 +285,15 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
 //! \param len is the source len.
 //! \retval is the encoded len with 0-delimiter byte.
 size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t * buf, size_t len ){ 
+#if TRICE_DIAGNOSTICS == 1
+    int distance = buf - dst;
+    if(distance < 4 ){
+        TriceErrorCount++;
+    }
+    int TriceDataOffsetDepth = TRICE_DATA_OFFSET - distance;
+    TriceDataOffsetDepthMax = TriceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : TriceDataOffsetDepth;
+#endif
+
     size_t encLen;
     const uint8_t * dat;
     if( encrypt ){
@@ -284,19 +303,22 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
             // We need additional 4 bytes after each trice for the XTEA encryption.
             // Also, the framing could make the trice message a bit longer.
             // Therefore we copy the trice data to a place, we can use.
-            uint8_t* loc = dst + TRICE_DATA_OFFSET; // Give space in front for framing.
+            // The location for XTEAEncrypt must lay on a 32-bit boundary.
+
+            // Let space in front for framing, fee 4 bytes behind do a 32-bit align backwards.
+            // uint32_t * loc = (uint32_t *)(((unsigned)dst + TRICE_DATA_OFFSET - 4) & ~3); 
+            // The computing above does not work, because, when several Trices, this "free" location
+            // drifts into the unprocessed Trice data. So we create a buffer.
+            // Not on the stack, because small stacks could be a problem here.
+            static uint32_t loc[TRICE_SINGLE_MAX_SIZE>>2];
+
+            // Because dst + TRICE_DATA_OFFSET could be the buf value itself, we need to move at least 4 bytes.
             memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
-            dat = (const uint8_t *)loc;
+            dat = (const uint8_t *)loc; // That is also for the framing afterwards.
             size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-            #if 1 // TRICE_CLEAR_PADDING_SPACE == 1
-                while( len < len8 ){
-                    loc[len++] = 0; // clear padding space (todo: Is this better with memset?)
-                }
-            #else
-                #error configuration: TRICE_CLEAR_PADDING_SPACE == 1 is needed
-                len = len8;
-            #endif
-            XTEAEncrypt( (uint32_t*)loc, len>>2 );
+            memset(((uint8_t*)loc)+len, 0, len8 -len); // clear padding space
+            len = len8;
+            XTEAEncrypt( loc, len8>>2 );
         #endif // #ifdef XTEA_ENCRYPT_KEY
     }else{
         dat = buf;
@@ -456,16 +478,16 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
         #endif
         dat = triceStart;
         #ifdef TRICE_PROTECT
-        #ifdef TRICE_CGO
-            unsigned space = TRICE_BUFFER;
-        #else
-            unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
-        #endif
-            if( space >= wc<<2 ){
-                SEGGER_Write_RTT0_NoCheck32( dat, wc );
-            }else{
-                TriceErrorCount++;
-            }
+            #ifdef TRICE_CGO
+                unsigned space = TRICE_BUFFER;
+            #else
+                unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
+            #endif
+                if( space >= wc<<2 ){
+                    SEGGER_Write_RTT0_NoCheck32( dat, wc );
+                }else{
+                    TriceDirectOverflowCount++;
+                }
         #else // #ifdef TRICE_PROTECT
             SEGGER_Write_RTT0_NoCheck32( dat, wc );
         #endif // #else // #ifdef TRICE_PROTECT
@@ -494,7 +516,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
             if( space >= bc ){
                 TriceDirectWrite8( (const uint8_t *)triceStart, bc );
             }else{
-                TriceErrorCount++;
+                TriceDirectOverflowCount++;
             }
         #else // #ifdef TRICE_PROTECT
             TriceDirectWrite8( (const uint8_t *)triceStart, bc );
@@ -532,7 +554,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
             if( space >= wordCount<<2 ){
                 SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
             }else{
-                TriceErrorCount++;
+                TriceDirectOverflowCount++;
             }
         #else // #ifdef TRICE_PROTECT
             SEGGER_Write_RTT0_NoCheck32( triceStart, wordCount );
@@ -554,7 +576,7 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
             if( space >= wordCount<<2 ){
                 TriceDirectWrite8( (const uint8_t *)triceStart, bc );
             }else{
-                TriceErrorCount++;
+                TriceDirectOverflowCount++;
             }
         #else // #ifdef TRICE_PROTECT
             TriceDirectWrite8( (const uint8_t *)triceStart, bc );
@@ -783,7 +805,14 @@ unsigned TriceOutDepthUartA( void ){
 
 //! TriceNextUint8UartA returns the next trice byte for transmission to TRICE_UARTA.
 uint8_t TriceNextUint8UartA( void ){
-    return triceOutBufferUartA[triceOutIndexUartA++];
+    #if 0 // debugging
+        uint8_t * d = (uint8_t *)&(triceOutBufferUartA[triceOutIndexUartA]);
+        uint8_t b = triceOutBufferUartA[triceOutIndexUartA++];
+        *d = 0xdd;
+        return b;
+    #else
+        return triceOutBufferUartA[triceOutIndexUartA++];
+    #endif
 }
 
 //! triceServeTransmitUartA must be called cyclically to proceed ongoing write out.
