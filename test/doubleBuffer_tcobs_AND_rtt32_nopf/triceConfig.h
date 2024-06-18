@@ -36,10 +36,10 @@ extern "C" {
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
-//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
-//! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).
-//! - TRICE_PACK_MULTI_MODE packs several trice messages before adding a 0-delimiter byte.
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
+//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
+//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 //! This is a helper to watch the ring buffer margins.
@@ -68,7 +68,7 @@ void WatchRingBufferMargins( void );
 //! - When using XTEA, this value should incorporate additinal 4 bytes, because of the 64-bit encryption units.
 //! With TRICE_BUFFER == TRICE_RING_BUFFER, this amount of space is allocated in front of each single trice!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //! With TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this amount of space is allocated once in front of each half buffer.
-#define TRICE_DATA_OFFSET 16 // must be a multiple of 4
+#define TRICE_DATA_OFFSET 64 // must be a multiple of 4
 #define TRICE_RING_BUFFER_DATA_OFFSET 16
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings, to detect the need of a ring buffer wrap or to protect against overflow.

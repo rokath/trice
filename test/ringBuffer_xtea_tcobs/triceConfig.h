@@ -36,10 +36,10 @@ extern "C" {
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
-//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
-//! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).
-//! - TRICE_PACK_MULTI_MODE packs several trice messages before adding a 0-delimiter byte.
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
+//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
+//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 //! This is a helper to watch the ring buffer margins.
