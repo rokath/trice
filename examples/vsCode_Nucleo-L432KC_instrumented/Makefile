@@ -131,16 +131,16 @@ include flags.mak
 all: pre-build main-build
 
 pre-build:
-	@#echo PRE ...
-	@trice insert -src ../../src -src ./ -src ../exampleData
-	@#echo PRE ... done
-	@#echo -e
+	echo PRE ...
+	trice insert -src ../../src -src ./ -src ../exampleData
+	echo PRE ... done
+	echo -e
 
 post-build:
-	@#echo POST ...
-	@trice clean -src ../../src -src ./ -src ../exampleData
-	@#echo POST ... done
-	@#echo -e
+	echo POST ...
+	trice clean -src ../../src -src ./ -src ../exampleData
+	echo POST ... done
+	echo -e
 
 main-build: clang
 
