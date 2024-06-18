@@ -157,7 +157,7 @@ port "TCP4": default="`, receiver.DefaultTCP4Args, `", use any IP:port endpoint 
 	fsScLog.BoolVar(&emitter.DisplayRemote, "displayserver", false, `Send trice lines to displayserver @ ipa:ipp.
 Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.`)
 	fsScLog.BoolVar(&emitter.DisplayRemote, "ds", false, "Short for '-displayserver'.")
-	fsScLog.BoolVar(&trexDecoder.Doubled16BitID, "doubled16BitID", false, `Tells, that 16-bit IDs are doubled. That switch is needed when un-routed direct output is used like (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1), but also with double buffer in (TRICE_DEFERRED_TRANSFER_MODE==TRICE_PACK_MULTI_MODE) and XTEA encryption. Read the user guide for more details.`)
+	fsScLog.BoolVar(&trexDecoder.Doubled16BitID, "doubled16BitID", false, `Tells, that 16-bit IDs are doubled. That switch is needed when un-routed direct output is used like (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1), but also with double buffer in (TRICE_DEFERRED_TRANSFER_MODE==TRICE_MULTI_PACK_MODE) and XTEA encryption. Read the user guide for more details.`)
 	fsScLog.BoolVar(&trexDecoder.Doubled16BitID, "d16", false, "Short for '-Doubled16BitID'.")
 
 	fsScLog.StringVar(&receiver.ExecCommand, "exec", "", execInfo)

@@ -41,10 +41,10 @@ extern uint32_t ms32;
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
-//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method for (TRICE_BUFFER == TRICE_DOUBLE_BUFFER). Options: 
-//! - TRICE_SAFE_SINGLE_MODE: Each package is followed by a 0-delimiter byte (recommended).
-//! - TRICE_PACK_MULTI_MODE packs several trice messages before adding a 0-delimiter byte.
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_PACK_MULTI_MODE
+//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
+//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 //! This is a helper to watch the ring buffer margins.
@@ -53,7 +53,7 @@ void TriceInitRingBufferMargins( void );
 void WatchRingBufferMargins( void );
 #endif
 
-//! TRICE_DIRECT_OUTPUT == 0: no direct output
+//! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
 //! TRICE_DIRECT_OUTPUT == 1: with direct output, SEGGER_RTT output and/or TRICE_DIRECT_AUXILIARY output
 //! Setting TRICE_BUFFER to TRICE_STACK_BUFFER or TRICE_STATIC_BUFFER demands TRICE_DIRECT_OUTPUT == 1, no deferred output at all.
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
@@ -84,8 +84,10 @@ void WatchRingBufferMargins( void );
 //! - When using XTEA, this value should incorporate additinal 4 bytes, because of the 64-bit encryption units.
 //! With TRICE_BUFFER == TRICE_RING_BUFFER, this amount of space is allocated in front of each single trice!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //! With TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this amount of space is allocated once in front of each half buffer.
-#define TRICE_DATA_OFFSET 16 // must be a multiple of 4
-#define TRICE_RING_BUFFER_DATA_OFFSET 16
+//!  and should be at least 64.
+//! Thats because 
+#define TRICE_DATA_OFFSET 200 // must be a multiple of 4
+#define TRICE_RING_BUFFER_DATA_OFFSET 32
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings, to detect the need of a ring buffer wrap or to protect against overflow.
 //! - Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
@@ -93,15 +95,16 @@ void WatchRingBufferMargins( void );
 //!   stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
-//! - When not using dynamic string (or buffer) transfer, bigger values than 104 make no sense here and just spoiling RAM.
-#define TRICE_SINGLE_MAX_SIZE 512 // must be a multiple of 4
+//! - When NOT using dynamic string (or buffer) transfer, bigger values than 104 make no sense here and just spoiling RAM.
+//! - When USING dynamic string (or buffer) transfer, this value limits the max length of a trice. 2^15-1=32787 is the max possible value if you have enough RAM.
+#define TRICE_SINGLE_MAX_SIZE 160 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
 //! When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 4000 // must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 4720// must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding-
 //#define TRICE_MCU_IS_BIG_ENDIAN 
@@ -133,8 +136,6 @@ void WatchRingBufferMargins( void );
 
 //! TRICE_XTEA_DEFERRED_ENCRYPT enables encryption for deferred output. (experimental)
 #define TRICE_XTEA_DEFERRED_ENCRYPT 1
-
-#define TRICE_CLEAR_PADDING_SPACE 1 // todo
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 //! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
