@@ -8,6 +8,7 @@ package id
 import (
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 
 	"github.com/rokath/trice/pkg/ant"
@@ -33,6 +34,9 @@ var (
 // The global variable SearchMethod controls the way a new ID is selected.
 func (p *idData) newID() (id TriceID) {
 	if SearchMethod == "random" {
+		if len(p.IDSpace) <= 0 {
+			log.Fatal("Remaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)")
+		}
 		index := rand.Intn(len(p.IDSpace))
 		id = p.IDSpace[index]                          // use random
 		p.IDSpace[index] = p.IDSpace[len(p.IDSpace)-1] // overwrite with last
