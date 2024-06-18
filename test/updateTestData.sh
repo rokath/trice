@@ -12,17 +12,24 @@ trice insert -i ./testdata/til.json -li ./testdata/li.json -liPathIsRelative -ID
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
 CGOTESTDIRS="
-_doubleBuffer_multi_xtea_cobs/
+doubleBuffer_cobs/
+doubleBuffer_cobs_AND_rtt8_nopf/
+doubleBuffer_cobs_AND_rtt32_nopf/
+doubleBuffer_tcobs/
+doubleBuffer_tobs_AND_rtt8_nopf/
+doubleBuffer_tcobs_AND_rtt32_nopf/
+doubleBuffer_xtea_cobs/
 doubleBuffer_multi_cobs/
-doubleBuffer_multi_cobs_AND_rtt32_nopf/
 doubleBuffer_multi_cobs_AND_rtt8_nopf/
+doubleBuffer_multi_cobs_AND_rtt32_nopf/
 doubleBuffer_multi_tcobs/
-doubleBuffer_multi_tcobs_AND_rtt32_nopf/
 doubleBuffer_multi_tobs_AND_rtt8_nopf/
+doubleBuffer_multi_tcobs_AND_rtt32_nopf/
+doubleBuffer_multi_xtea_cobs/
 ringBuffer_cobs/
 ringBuffer_tcobs/
-ringBuffer_tcobs_AND_rtt32_nopf/
 ringBuffer_tcobs_AND_rtt8_nopf/
+ringBuffer_tcobs_AND_rtt32_nopf/
 ringBuffer_xtea_cobs/
 ringBuffer_xtea_tcobs/
 stackBuffer_aux8_nopf/

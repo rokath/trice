@@ -18,6 +18,7 @@ static int32_t FloatToInt32( float f );
 static int64_t DoubleToInt64( double f );
 //static void exampleOfManualSerialization( void );
 static void exampleOfManualJSONencoding(void);
+static void dynString( int n );
 
 //! TriceCheck performs trice code sequence n. TriceCheck writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
@@ -41,9 +42,163 @@ void TriceCheck(int n) {
     #endif // #ifdef TRICE_CGO
 
     switch( n ){
+        static int i;
         default:
 
-        break; case __LINE__: trice16( iD(7468), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(5842), "att: line %u\n", __LINE__ );
+        break; case __LINE__: for( ; i < 20; i++ ){ dynString(i); }
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        break; case __LINE__: dynString(__LINE__ - 50);
+        
 
         // normal use cases
         break; case __LINE__: TRice( iD(3537), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
@@ -64,7 +219,7 @@ void TriceCheck(int n) {
         break; case __LINE__: Trice8 ( iD(2318), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
         break; case __LINE__: trice8 ( iD(4436), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
 
-        break; case __LINE__: trice16( iD(4538), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(7978), "att: line %u\n", __LINE__ );
 
         // CGO compiler issue
     //  break; case __LINE__: TRice( iD(6300), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
@@ -81,9 +236,9 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( iD(3239), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:            default: att: 0x8888 == 8888h
 
 
-        break; case __LINE__: trice16( iD(5969), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(7100), "att: line %u\n", __LINE__ );
 
-        break; case __LINE__: trice16( iD(4161), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(4211), "att: line %u\n", __LINE__ );
       //break; case __LINE__: exampleOfManualSerialization(); // ATTENTION: This occupies ~1024 bytes in one half buffer when double buffer ist used!
 
         break; case __LINE__: trice8   ( iD(3353), "value=%x\n", 0x55 );                           //exp: time:            default: value=55
@@ -106,7 +261,7 @@ void TriceCheck(int n) {
     //  break; case __LINE__: TRICE64( ID(3780), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n",                  -y, aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time: 842,150_450default: rd:TRICE64 int 518, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000 
         break; case __LINE__: TRICE64( ID(7747), "rd:TRICE64 int %X, double %f (%%f), %016x, %064b\n", -0x4080307020601050, aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time: 842,150_450default: rd:TRICE64 int BF7FCF8FDF9FEFB0, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000 
 
-        break; case __LINE__: trice16( iD(3691), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(7732), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE_S( ID(2970), "msg:With TRICE_S:%s\n", sABCDE );                           //exp: time: 842,150_450default: msg:With TRICE_S:abcde 12345
         break; case __LINE__: TRICE_N( ID(1694), "sig:With TRICE_N:%s\n", sABCDE, lenABCDE );                 //exp: time: 842,150_450default: sig:With TRICE_N:abcde 12345
@@ -128,7 +283,7 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE64_F( ID(1442), "info:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: info:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
         break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:       5_654default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
 
-        break; case __LINE__: trice16( iD(1785), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(7755), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( Id(3494), "MSG:1/11 = %g\n", aFloat( 1.0/11 ) ); //exp: time:       5_654default: MSG:1/11 = 0.09090909
         break; case __LINE__: { //exp: time: 842,150_450default: msg:x = 5.934 = 5.934, 5.934
@@ -154,7 +309,7 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE_S( ID(5935), "sig:TRICE_S=%s\n", s );            //exp: time: 842,150_450default: sig:TRICE_S=AAAAAAAAAAAA
         break; case __LINE__: TRICE_N( ID(2601), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time: 842,150_450default: sig:TRICE_N=AAAAAAAAAAAA
 
-        break; case __LINE__: trice16( iD(7276), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(1089), "att: line %u\n", __LINE__ );
 
 //      break; case __LINE__: 
 //  #if TRICE_XTEA_DEFERRED_ENCRYPT
@@ -177,7 +332,7 @@ void TriceCheck(int n) {
 //          TRICE0 ( Id(7722), "--------------------------------------------------\n" );
 //  #endif
 
-        break; case __LINE__: trice16( iD(5138), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(4702), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(6629), "sig:Some time measurements\n" );
         break; case __LINE__: TRICE( ID(6676), "isr:TRICE isr message, SysTick is %6d\n", SYSTICKVAL);
@@ -203,7 +358,7 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE32_2( ID(7726), "rd:TRICE32_2 line %d,%d\n", __LINE__, 2 );
         break; case __LINE__: TRICE64_2( ID(7417), "rd:TRICE64_2 line %d,%d\n", __LINE__, 2 );
 
-        break; case __LINE__: trice16( iD(2666), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(1347), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(1975), "sig:Runtime generated strings\n" );
         break; case __LINE__: {
@@ -268,7 +423,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE32( ID(4534), "dbg:len=%u: ", strlen(s) );
         break; case __LINE__: TRICE_S( ID(1343), "sig:%s\n", s );
 
-        break; case __LINE__: trice16( iD(3648), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(1453), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(1783), "sig:Integer (indent, base, sign) - see https://yourbasic.org/golang/fmt-printf-reference-cheat-sheet/\n" );
         break; case __LINE__: TRICE( ID(4720), "rd: 15 	%d 	Base 10\n", 15 );                                        //ex_: time: 842,150_450default: rd: 15 	15 	Base 10                                   
@@ -282,7 +437,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE( ID(1776), "rd: F 	%X 	Base 16, uppercase\n", 15 );                             //ex_: time: 842,150_450default: rd: F 	F 	Base 16, uppercase                        
         break; case __LINE__: TRICE( ID(7830), "rd: 0xf 	%#x 	Base 16, with leading 0x\n", 15 );                   //ex_: time: 842,150_450default: rd: 0xf 	0xf 	Base 16, with leading 0x                  
 
-        break; case __LINE__: trice16( iD(3224), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(6177), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(5838), "sig:Character (quoted, Unicode)\n" );
         break; case __LINE__: TRICE( ID(1831), "rd: A 	%c 	Character\n", 'A' );                                     //exp: time: 842,150_450default: rd: A 	A 	Character
@@ -300,7 +455,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE64( ID(5467), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x1122334455667788 ); //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (1122334455667788)
         break; case __LINE__: TRICE  ( ID(4338), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd);          //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (aabbccdd)        
 
-        break; case __LINE__: trice16( iD(3000), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(2150), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(3761), "sig:Float (indent, precision, scientific notation)\n" );
         break; case __LINE__: TRICE( ID(5793), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aFloat(123.456) );                       //exp: time: 842,150_450default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
@@ -324,7 +479,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: s = "café"; TRICE_S( ID(1133), "rd: 636166c3a9 		%x	Hex dump of byte values\n", s );    //exp: time: 842,150_450default: rd: 636166c3a9 		636166c3a9	Hex dump of byte values 
         break; case __LINE__: s = "café"; TRICE_S( ID(4210), "rd: 63 61 66 c3 a9 	% x	Hex dump with spaces\n", s );       //exp: time: 842,150_450default: rd: 63 61 66 c3 a9 	63 61 66 c3 a9	Hex dump with spaces
 
-        break; case __LINE__: trice16( iD(2832), "att: line %u\n", __LINE__ );
+        break; case __LINE__: trice16( iD(7536), "att: line %u\n", __LINE__ );
 
 #ifdef TRICE_CGO
 
@@ -1430,6 +1585,14 @@ static void exampleOfManualJSONencoding(void){
     TRICE( Id(2602), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
 }
 
+static void dynString( int n ) {
+    char * s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
+    const size_t l = strlen(s);
+    n = n < l ? n : l;
+    trice( iD(7738), "sig:%3d:", n );
+    TRICE_N( id(1950), "wr:%s\n", s, n );
+}        
+
 #if TRICE_DIAGNOSTICS == 1
 
 //! TriceLogDiagnosticValues shows the max used buffer space. 
@@ -1451,10 +1614,23 @@ void TriceLogDiagnosticValues( void ){
         TRice16( iD(7431), "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
     
+    if( TriceDataOffsetDepthMax < 0 || TriceDataOffsetDepthMax >= TRICE_DATA_OFFSET ){
+        TRice16( iD(2423), "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
+    }else if( TriceDataOffsetDepthMax != 0 ){
+        TRice16( iD(3528), "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
+    }
+
+    if(TriceDynBufTruncateCount != 0){
+        trice( iD(4820), "err: TriceDynBufTruncateCount = %u\a\n", TriceDynBufTruncateCount );
+    }
+    
 #ifdef TRICE_PROTECT
 
-    if(TriceOverflowCount > 0){
-        trice( iD(4331), "err: OverflowCount = %u\n", TriceOverflowCount );
+    if(TriceDirectOverflowCount != 0){
+        trice( iD(1647), "err: TriceDirectOverflowCount = %u\a\n", TriceDirectOverflowCount );
+    }
+    if(TriceDeferredOverflowCount != 0){
+        trice( iD(5255), "err: TriceDeferredOverflowCount = %u\a\n", TriceDeferredOverflowCount );
     }
 
 #endif
