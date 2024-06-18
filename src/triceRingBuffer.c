@@ -89,7 +89,7 @@ int TriceEnoughSpace( void ){
         return 1;
     }else{
         #if TRICE_DIAGNOSTICS == 1
-            TriceOverflowCount++;
+            TriceDeferredOverflowCount++;
         #endif
         return 0;
     } 
@@ -237,6 +237,7 @@ void WatchRingBufferMargins( void ){
             for(;;);
         }
     }
+
     for( int i = 0; i < TRICE_RINGBUFFER_UPPER_MARGIN; i++ ){
         if( *(triceRingBufferLimit + i) != TRICE_RINGBUFFER_MARGIN_FILL_VALUE ){
             for(;;);
