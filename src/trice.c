@@ -304,21 +304,30 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
             // Also, the framing could make the trice message a bit longer.
             // Therefore we copy the trice data to a place, we can use.
             // The location for XTEAEncrypt must lay on a 32-bit boundary.
+            #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
+                // special case: The data can be big, are compacted and behind them is space. So we can encrypt them in space
+                dat = buf; // That is also for the framing afterwards.
+                size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+                memset(((uint8_t *)dat)+len, 0, len8 -len); // clear padding space
+                len = len8;
+                XTEAEncrypt( (uint32_t *)dat, len8>>2 );
+            #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
 
-            // Let space in front for framing, fee 4 bytes behind do a 32-bit align backwards.
-            // uint32_t * loc = (uint32_t *)(((unsigned)dst + TRICE_DATA_OFFSET - 4) & ~3); 
-            // The computing above does not work, because, when several Trices, this "free" location
-            // drifts into the unprocessed Trice data. So we create a buffer.
-            // Not on the stack, because small stacks could be a problem here.
-            static uint32_t loc[TRICE_SINGLE_MAX_SIZE>>2];
+                // Let space in front for framing, fee 4 bytes behind do a 32-bit align backwards.
+                // uint32_t * loc = (uint32_t *)(((unsigned)dst + TRICE_DATA_OFFSET - 4) & ~3); 
+                // The computing above does not work, because, when several Trices, this "free" location
+                // drifts into the unprocessed Trice data. So we create a buffer.
+                // Not on the stack, because small stacks could be a problem here.
+                static uint32_t loc[TRICE_SINGLE_MAX_SIZE>>2];
 
-            // Because dst + TRICE_DATA_OFFSET could be the buf value itself, we need to move at least 4 bytes.
-            memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
-            dat = (const uint8_t *)loc; // That is also for the framing afterwards.
-            size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-            memset(((uint8_t*)loc)+len, 0, len8 -len); // clear padding space
-            len = len8;
-            XTEAEncrypt( loc, len8>>2 );
+                // Because dst + TRICE_DATA_OFFSET could be the buf value itself, we need to move at least 4 bytes.
+                memmove( loc, buf, len ); // We use not memcpy here, because dst and buf allowed to overlap.
+                dat = (const uint8_t *)loc; // That is also for the framing afterwards.
+                size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+                memset(((uint8_t*)loc)+len, 0, len8 -len); // clear padding space
+                len = len8;
+                XTEAEncrypt( loc, len8>>2 );
+            #endif // #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
         #endif // #ifdef XTEA_ENCRYPT_KEY
     }else{
         dat = buf;

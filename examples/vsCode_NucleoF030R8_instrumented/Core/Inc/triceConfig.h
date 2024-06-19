@@ -42,9 +42,10 @@ extern uint32_t ms32;
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
-//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
-//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
+//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended, in case of a lost package only one Trice can get lost).
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count, in case of a lost package several Trices can get lost).
+//! - When using encryption, the TRICE_MULTI_PACK_MODE (with TRICE_BUFFER == TRICE_DOUBLE_BUFFER) can significantly reduce the transmit byte count.
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 //! This is a helper to watch the ring buffer margins.
@@ -86,7 +87,7 @@ void WatchRingBufferMargins( void );
 //! With TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this amount of space is allocated once in front of each half buffer.
 //!  and should be at least 64.
 //! Thats because 
-#define TRICE_DATA_OFFSET 200 // must be a multiple of 4
+#define TRICE_DATA_OFFSET 32 // must be a multiple of 4
 #define TRICE_RING_BUFFER_DATA_OFFSET 32
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings, to detect the need of a ring buffer wrap or to protect against overflow.
