@@ -278,7 +278,6 @@ static size_t triceIDAndLen( uint32_t* pBuf, uint8_t** ppStart, int* triceID ){
 
 #endif // #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
 
-
 //! TriceEncode expects at buf trice netto data with netto length len.
 //! It fills dst with the next trice data, which are encoded and framed or not, according the selected switches.
 //! The areas of dst and buf are allowed to overlap.
