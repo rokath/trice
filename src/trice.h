@@ -151,6 +151,30 @@ extern "C" {
 #include "SEGGER_RTT.h"
 #endif 
 
+/*
+typedef enum {
+    direct_NoCryptNoPack,
+    direct_XteaNoPack,
+    direct_NoCryptCobsPack,
+    direct_XteaCobsPack,
+    direct_NoCryptTobsPack,
+    direct_XteaTobsPack,
+
+    defered_SingleNoCryptNoPack,
+    defered_SingleXteaNoPack,
+    defered_SingleNoCryptCobsPack,
+    defered_SingleXteaCobsPack,
+    defered_SingleNoCryptTobsPack,
+    defered_SingleXteaTobsPack,
+    
+    deferred_MultiNoCryptNoPack,
+    deferred_MultiXteaNoPack,
+    deferred_MultiNoCryptCobsPack,
+    deferred_MultiXteaCobsPack,
+    deferred_MultiNoCryptTobsPack,
+    deferred_MultiXteaTobsPack,
+} encode_t;
+*/
 // global function prototypes:
 
 void TriceCheck( int index ); // tests and examples

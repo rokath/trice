@@ -308,12 +308,12 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
                 // special case: The data can be big, are compacted and behind them is space. So we can encrypt them in space
                 dat = buf; // That is also for the framing afterwards.
                 size_t len8 = (len + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-                memset(((uint8_t *)dat)+len, 0, len8 -len); // clear padding space
+                memset(((uint8_t *)buf)+len, 0, len8 -len); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
                 len = len8;
                 XTEAEncrypt( (uint32_t *)dat, len8>>2 );
             #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
 
-                // Let space in front for framing, fee 4 bytes behind do a 32-bit align backwards.
+                // Let space in front for framing, free 4 bytes behind do a 32-bit align backwards.
                 // uint32_t * loc = (uint32_t *)(((unsigned)dst + TRICE_DATA_OFFSET - 4) & ~3); 
                 // The computing above does not work, because, when several Trices, this "free" location
                 // drifts into the unprocessed Trice data. So we create a buffer.
