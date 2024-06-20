@@ -44,8 +44,9 @@ extern volatile uint32_t * const LAR; // lock access register
 #define TRICE_BUFFER TRICE_STATIC_BUFFER
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
-//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
-//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
+//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended, in case of a lost package only one Trice can get lost).
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count, in case of a lost package several Trices can get lost).
+//! - When using encryption, the TRICE_MULTI_PACK_MODE (with TRICE_BUFFER == TRICE_DOUBLE_BUFFER) can significantly reduce the transmit byte count.
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
@@ -140,7 +141,7 @@ void WatchRingBufferMargins( void );
 #define TRICE_XTEA_DEFERRED_ENCRYPT 0
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
-//! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
+//! During development TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
 #define TRICE_DIAGNOSTICS 1
 
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32 and needs ((TRICE_DIRECT_OUTPUT == 1).

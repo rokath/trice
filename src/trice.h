@@ -319,15 +319,6 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif
 
-#ifndef TRICE_DEFERRED_TRANSFER_MODE
-#warning configuration: TRICE_DEFERRED_TRANSFER_MODE is not defined, setting it to TRICE_SINGLE_PACK_MODE.
-//! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
-//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
-//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
-
-#endif
-
 #ifndef TRICE_COMMAND_SIZE_MAX
 
 //! TRICE_COMMAND_SIZE_MAX is the length limit for command strings to target.

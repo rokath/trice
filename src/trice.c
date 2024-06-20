@@ -9,12 +9,16 @@
 
 // check configuration:
 
-#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DATA_OFFSET < 64)
-#warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
+#ifndef TRICE_DEFERRED_TRANSFER_MODE
+#error configuration: TRICE_DEFERRED_TRANSFER_MODE is not defined. Add "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" to your triceConfig.h.
 #endif
 
 #if (TRICE_DEFERRED_TRANSFER_MODE != TRICE_SINGLE_PACK_MODE) && (TRICE_DEFERRED_TRANSFER_MODE != TRICE_MULTI_PACK_MODE)
-#error configuration: check TRICE_DEFERRED_TRANSFER_MODE value
+#error configuration: Check TRICE_DEFERRED_TRANSFER_MODE value.
+#endif
+
+#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DATA_OFFSET < 64)
+#warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
 #endif
 
 #if ( (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1) ) && !defined(XTEA_ENCRYPT_KEY)

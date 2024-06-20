@@ -171,9 +171,9 @@ LIBDIR =
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 pre-build:
-	@echo "PRE ...";
-	@trice insert -src ../../src -src ./ -src ../exampleData;
-	@echo "PRE ... done";
+	@echo "PRE ..."
+	@trice insert -src ../../src -src ./ -src ../exampleData
+	@echo "PRE ... done"
 	@make -j8 all
 
 post-build:

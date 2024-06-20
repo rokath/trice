@@ -2,7 +2,7 @@
 # Build path
 CLANG_BUILD = build.clang
 
-VERSION = -17 # When a default version is used, this should be empty.
+VERSION = # -17 # When a default version is used, this should be empty.
 
 CLANG_CC = clang$(VERSION)
 CLANG_AS = clang$(VERSION) -x assembler-with-cpp

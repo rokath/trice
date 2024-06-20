@@ -1,6 +1,7 @@
 
 # LLVM for ARM needs to be first in path
 export PATH := C:\bin\ArmClang\bin:C:\bin\ArmGNUToolchain\bin:$(PATH)
+# ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
 export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
 
 MAKEFILE = Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
@@ -131,16 +132,16 @@ include flags.mak
 all: pre-build main-build
 
 pre-build:
-	echo PRE ...
-	trice insert -src ../../src -src ./ -src ../exampleData
-	echo PRE ... done
-	echo -e
+	@echo "PRE ..."
+	@trice insert -src ../../src -src ./ -src ../exampleData
+	@echo "PRE ... done"
+	@make -j8 all
 
 post-build:
-	echo POST ...
-	trice clean -src ../../src -src ./ -src ../exampleData
-	echo POST ... done
-	echo -e
+	@echo POST ...
+	@trice clean -src ../../src -src ./ -src ../exampleData
+	@echo POST ... done
+	@#echo -e
 
 main-build: clang
 
@@ -167,7 +168,7 @@ log:
 include gcc1.mak
 include clang1.mak
 
-clean:
+clean: post-build
 	@-rm -fR $(GCC_BUILD) $(CLANG_BUILD)
 	
 version:
