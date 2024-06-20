@@ -209,12 +209,27 @@ static int TriceSingleDeferredOut(uint32_t* addr){
     size_t Length; // This is the trice netto length (without padding bytes).
     int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
     
-    // Behind the trice brutto length (with padding bytes), 4 bytes can be used as scratch pad when XTEA is active. 
+    // Behind the trice brutto length (with padding bytes), 4 bytes needed as scratch pad when XTEA is active. 
     // This is ok, when behind triceRingBufferLimit are at least 4 bytes unused space.
     // After TriceIDAndBuffer pStart has a 2 bytes offset, what is an alignmet issue for encryption.
     // That gets corrected inside TriceDeferredEncode.
     // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
-    size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+
+    #if   (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+    #else
+        #error configuration: TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE for ring buffer not implemented yet
+    #endif
 
     TriceNonBlockingDeferredWrite8( triceID, pEnc, encLen );
     return wordCount;
