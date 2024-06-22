@@ -1624,16 +1624,16 @@ void TriceLogDiagnosticValues( void ){
     }
 
     if(TriceDynBufTruncateCount != 0){
-        trice( iD(4820), "err: TriceDynBufTruncateCount = %u\a\n", TriceDynBufTruncateCount );
+        trice( iD(3686), "err: TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount );
     }
     
 #ifdef TRICE_PROTECT
 
     if(TriceDirectOverflowCount != 0){
-        trice( iD(1647), "err: TriceDirectOverflowCount = %u\a\n", TriceDirectOverflowCount );
+        trice( iD(5543), "err: TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount );
     }
     if(TriceDeferredOverflowCount != 0){
-        trice( iD(5255), "err: TriceDeferredOverflowCount = %u\a\n", TriceDeferredOverflowCount );
+        trice( iD(7185), "err: TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount );
     }
 
 #endif

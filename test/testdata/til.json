@@ -2291,6 +2291,10 @@
 		"Type": "trice16",
 		"Strg": "msg:value=%d, %d, %d\\n"
 	},
+	"3686": {
+		"Type": "trice",
+		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
+	},
 	"3691": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
@@ -3875,6 +3879,10 @@
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
 	},
+	"5543": {
+		"Type": "trice",
+		"Strg": "err: TriceDirectOverflowCount = %u\\n"
+	},
 	"5548": {
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2  %d %d\\n"
@@ -5162,6 +5170,10 @@
 	"7182": {
 		"Type": "trice",
 		"Strg": "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\\n"
+	},
+	"7185": {
+		"Type": "trice",
+		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
 	},
 	"7194": {
 		"Type": "TRICE",

@@ -179,7 +179,9 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     while(tLen){
         const uint8_t * triceNettoStart;
         size_t triceNettoLen; // This is the trice netto length (without padding bytes).
-        uint8_t * tmp = nxt - 4;
+        #if (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE )
+            uint8_t * crypt = nxt - 4;
+        #endif
         triceID = TriceNext( &nxt, &tLen, &triceNettoStart, &triceNettoLen );
         if( triceID <= 0 ){ // on data error
             TriceErrorCount++;
@@ -192,11 +194,11 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
             #if   (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 
                 #if 1
-                    memmove(tmp, triceNettoStart, triceNettoLen );
+                    memmove(crypt, triceNettoStart, triceNettoLen );
                     size_t len8 = (triceNettoLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-                    memset(((uint8_t *)tmp)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
-                    XTEAEncrypt( (uint32_t *)tmp, len8>>2 );
-                    encLen += (size_t)TCOBSEncode(enc, tmp, len8 ); // encLen is re-used here
+                    memset(((uint8_t *)crypt)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
+                    XTEAEncrypt( (uint32_t *)crypt, len8>>2 );
+                    encLen += (size_t)TCOBSEncode(enc, crypt, len8 ); // encLen is re-used here
                     enc[encLen++] = 0; // Add zero as package delimiter.
                 #else
                     encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
@@ -205,11 +207,11 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
             #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 
                 #if 1
-                    memmove(tmp, triceNettoStart, triceNettoLen );
+                    memmove(crypt, triceNettoStart, triceNettoLen );
                     size_t len8 = (triceNettoLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-                    memset(((uint8_t *)tmp)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
-                    XTEAEncrypt( (uint32_t *)tmp, len8>>2 );
-                    encLen += (size_t)COBSEncode(enc, tmp, len8 ); // encLen is re-used here
+                    memset(((uint8_t *)crypt)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
+                    XTEAEncrypt( (uint32_t *)crypt, len8>>2 );
+                    encLen += (size_t)COBSEncode(enc, crypt, len8 ); // encLen is re-used here
                     enc[encLen++] = 0; // Add zero as package delimiter.
                 #else
                     encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
@@ -219,10 +221,10 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
 
                 #warning configuration: The Trice tool does not support encryted data without COBS or TCOBS framing.
                 #if 1
-                    memmove(tmp, triceNettoStart, triceNettoLen );
+                    memmove(enc, triceNettoStart, triceNettoLen );
                     size_t len8 = (triceNettoLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-                    memset(((uint8_t *)tmp)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
-                    XTEAEncrypt( (uint32_t *)tmp, len8>>2 );
+                    memset(((uint8_t *)enc)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
+                    XTEAEncrypt( (uint32_t *)enc, len8>>2 );
                     encLen += len8; // encLen is re-used here
                 #else
                     encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
