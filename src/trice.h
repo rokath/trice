@@ -213,7 +213,7 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
 
 // global variables:
 
-extern uint32_t* const triceSingleBufferStartWritePosition;
+extern uint32_t * const triceSingleBufferStartWritePosition;
 extern unsigned SingleTricesRingCount;
 extern unsigned SingleTricesRingCountMax;
 extern char triceCommandBuffer[];
@@ -228,8 +228,8 @@ extern unsigned TriceErrorCount;
 extern unsigned TriceDynBufTruncateCount;
 extern unsigned TriceDirectOverflowCount;
 extern unsigned TriceDeferredOverflowCount;
-extern uint32_t* const TriceRingBufferStart;
-extern uint32_t* const triceRingBufferLimit;
+extern uint32_t * const TriceRingBufferStart;
+extern uint32_t * const triceRingBufferLimit;
 extern unsigned TriceSingleMaxWordCount;
 extern unsigned TriceRingBufferDepthMax;
 extern unsigned TriceHalfBufferDepthMax;
@@ -238,7 +238,7 @@ extern uint16_t TriceRingBufferDepth;
 extern int TriceDataOffsetDepthMax;
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-extern uint32_t* TriceBufferWritePosition;
+extern uint32_t * TriceBufferWritePosition;
 #endif
 
 // defaults part 2:
@@ -508,7 +508,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             /* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */ \
             /* This implementation is a bit different than a ring buffer is usually implemented. */ \
             TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
-            TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+            /*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */ \
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
@@ -523,7 +523,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             /* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */ \
             /* This implementation is a bit different than a ring buffer is usually implemented. */ \
             TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
-            TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+            /*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */ \
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
@@ -540,7 +540,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         TRICE_ENTER_CRITICAL_SECTION { \
         if( TriceEnoughSpace() ){ \
             TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
-            TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+            /*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */ \
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
@@ -551,7 +551,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         TRICE_ENTER_CRITICAL_SECTION { \
         { \
             TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE>>2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
-            TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* space for in buffer encoding */ \
+            /*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */ \
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 

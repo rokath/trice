@@ -2,6 +2,8 @@
 //! \author Thomas.Hoehenleitner [at] seerose.net
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
+#include "cobs.h"
+#include "tcobs.h"
 
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 
@@ -184,30 +186,87 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         }
         #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
             uint8_t * dst = enc+encLen;
-              //encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+          //encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
 
             #if   (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-                encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+                #if 1
+                    memmove(dst, triceNettoStart, triceNettoLen );
+                    size_t len8 = (triceNettoLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+                    memset(((uint8_t *)dat)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
+                    XTEAEncrypt( (uint32_t *)dat, len8>>2 );
+                    encLen += (size_t)TCOBSEncode(enc, dat, len8 ); // encLen is re-used here
+                    enc[encLen++] = 0; // Add zero as package delimiter.
+                #else
+                    encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+                #endif
             #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-                encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+
+                #if 1
+                    memmove(dst, triceNettoStart, triceNettoLen );
+                    size_t len8 = (triceNettoLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+                    memset(((uint8_t *)dat)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
+                    XTEAEncrypt( (uint32_t *)dat, len8>>2 );
+                    encLen += (size_t)COBSEncode(enc, dat, len8 ); // encLen is re-used here
+                    enc[encLen++] = 0; // Add zero as package delimiter.
+                #else
+                    encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+                #endif
+
             #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-                encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+
+                #if 1
+                    // !!! The Trice tool does not support encryted data without COBS or TCOBS framing !!!
+                    memmove(dst, triceNettoStart, triceNettoLen );
+                    size_t len8 = (triceNettoLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+                    memset(((uint8_t *)dat)+triceNettoLen, 0, len8 - triceNettoLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
+                    XTEAEncrypt( (uint32_t *)dat, len8>>2 );
+                    encLen += len8; // encLen is re-used here
+                #else
+                    encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+                #endif
+
             #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-                encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+
+                #if 1
+                    size_t len = (size_t)TCOBSEncode(dst, triceNettoStart, triceNettoLen );
+                    dst[len++] = 0; // Add zero as package delimiter.
+                    encLen += len; 
+                #else
+                    encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+                #endif
+
             #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-                encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+
+                #if 1
+                    size_t len = (size_t)COBSEncode(dst, triceNettoStart, triceNettoLen );
+                    dst[len++] = 0; // Add zero as package delimiter.
+                    encLen += len; 
+                #else
+                    encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+                #endif
+
             #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-                encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+
+                #if 1
+                    memmove(dst, triceNettoStart, triceNettoLen );
+                    encLen += triceNettoLen;
+                #else
+                    encLen += TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
+                #endif
+
             #else
                 #error configuration: 
             #endif
 
             // When several Trices in the double buffer, with each encoding the new dst drifts a bit closer towards triceNettoStart.
-            // With COBS these are 
+
         #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
-            uint8_t * tmp = dat + encLen; // intermediate destination
+
+            // pack data
+            uint8_t * tmp = dat + encLen;
             memmove(tmp, triceNettoStart, triceNettoLen ); // This action removes all padding bytes of the trices, compacting their sequence this way
             encLen += triceNettoLen;
+
         #endif // #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
     }
     #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
@@ -216,17 +275,62 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         // encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
 
         #if   (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-            encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+
+            #if 1
+                #pragma message("configuration: XTEA with TCOBS is not remommended. Encrypted data are more effective framed with COBS.")
+                // special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
+                size_t len8 = (encLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+                memset(((uint8_t *)dat)+encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
+                XTEAEncrypt( (uint32_t *)dat, len8>>2 );
+                encLen = (size_t)TCOBSEncode(enc, dat, len8 ); // encLen is re-used here
+                enc[encLen++] = 0; // Add zero as package delimiter.
+            #else
+                encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+            #endif
+
         #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-            encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+
+            #if 1
+                // special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
+                size_t len8 = (encLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+                memset(((uint8_t *)dat)+encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting. 
+                XTEAEncrypt( (uint32_t *)dat, len8>>2 );
+                encLen = (size_t)COBSEncode(enc, dat, len8 ); // encLen is re-used here
+                enc[encLen++] = 0; // Add zero as package delimiter.
+            #else
+                encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+            #endif
+
         #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
+
             encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+
         #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-            encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+
+            #if 1
+                encLen = (size_t)TCOBSEncode( enc, dat, encLen );
+                enc[encLen++] = 0; // Add zero as package delimiter.
+            #else
+                encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+            #endif
+
         #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-            encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+
+            #if 1
+                encLen = (size_t)COBSEncode( enc, dat, encLen );
+                enc[encLen++] = 0; // Add zero as package delimiter.
+            #else
+                encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+            #endif
+
         #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-            encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+
+            #if 1
+                enc = dat;
+            #else
+                encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
+            #endif
+
         #else
             #error configuration: 
         #endif

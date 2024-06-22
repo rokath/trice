@@ -2,6 +2,8 @@
 //! \author Thomas.Hoehenleitner [at] seerose.net
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
+#include "cobs.h"
+#include "tcobs.h"
 
 //lint -e715 Info 715: Symbol 'pFmt' (line 854, file ..\..\..\src\trice.h) not referenced
 //lint -e528 Warning 528: Symbol 'Trice0(unsigned short, const char *)'  not referenced
@@ -13,7 +15,7 @@
 #define TRICE_RING_BUFFER_DATA_OFFSET 16
 #endif
 
-static int TriceSingleDeferredOut(uint32_t* addr);
+static int TriceSingleDeferredOut( uint32_t * addr );
 
 #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
 
@@ -30,9 +32,12 @@ static int TriceSingleDeferredOut(uint32_t* addr);
 #endif
 
 //! TriceRingBuffer is a kind of heap for trice messages. It needs to be initialized with 0.
-uint32_t TriceRingBufferMargined[TRICE_RINGBUFFER_LOWER_MARGIN + (TRICE_DEFERRED_BUFFER_SIZE>>2) + TRICE_RINGBUFFER_UPPER_MARGIN] = {0};
+uint32_t TriceRingBuffer[ TRICE_RINGBUFFER_LOWER_MARGIN \
+                        + (TRICE_RING_BUFFER_DATA_OFFSET>>2) \
+                        + (TRICE_DEFERRED_BUFFER_SIZE>>2) \
+                        + TRICE_RINGBUFFER_UPPER_MARGIN] = {0};
 
-uint32_t* const TriceRingBufferStart = TriceRingBufferMargined + TRICE_RINGBUFFER_LOWER_MARGIN;
+uint32_t* const TriceRingBufferStart = TriceRingBuffer + TRICE_RINGBUFFER_LOWER_MARGIN + (TRICE_RING_BUFFER_DATA_OFFSET>>2);
 
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
 //! With encryption it can happen that 4 bytes following triceRingBufferLimit are used as scratch pad.
@@ -52,7 +57,8 @@ uint32_t* TriceBufferWritePosition = TriceRingBufferStart;
 //! This is first the TRICE_RING_BUFFER_DATA_OFFSET byte space followed by the trice data.
 //! Initally this value is set to TriceRingBufferStart minus TRICE_RING_BUFFER_DATA_OFFSET byte space
 //! to get a correct value for the very first call of triceNextRingBufferRead
-uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart - (TRICE_RING_BUFFER_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
+//uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart - (TRICE_RING_BUFFER_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
+uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart;
 //ARM5 #pragma  pop
 
 #if TRICE_DIAGNOSTICS == 1
@@ -79,7 +85,8 @@ int TriceEnoughSpace( void ){
     // If afterwards the Trice BufferWritePosition is less TRICE_SINGLE_MAX_SIZE away from the buffer end, it is reset to the buffer start.
     // That means, there are max TRICE_SINGLE_MAX_SIZE-4 bytes wasted in the worst case. So the needed safety space is 2*TRICE_SINGLE_MAX_SIZE-4.
     // The TriceRingBufferReadPosition jumps in the same way as the TriceBufferWritePosition. It wraps according the same rules.
-    const int neededSafetySpace32 = (TRICE_SINGLE_MAX_SIZE>>1)-1; // (TRICE_SINGLE_MAX_SIZE>>2) + (TRICE_SINGLE_MAX_SIZE>>2) - 1
+    const int neededSafetySpace32 = (TRICE_RING_BUFFER_DATA_OFFSET>>2) + (TRICE_SINGLE_MAX_SIZE>>1)-1; // (TRICE_SINGLE_MAX_SIZE>>2) + (TRICE_SINGLE_MAX_SIZE>>2) - 1
+    // Becaus a Trice can have size TRICE_SINGLE_MAX_SIZE, in that case, after writing it, we still need TRICE_RING_BUFFER_DATA_OFFSET for the framing.
     int depth32 = TriceBufferWritePosition - TriceRingBufferReadPosition; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( depth32 < 0 ){ // After a TriceBufferWritePosition reset the difference is negative and needs correction to get the correct value.
         depth32 += (TRICE_DEFERRED_BUFFER_SIZE>>2);
@@ -107,7 +114,7 @@ uint16_t TriceRingBufferDepth = 0;
 //! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
 //! \retval is the address of the next trice data buffer.
 static uint32_t* triceNextRingBufferRead( int lastWordCount ){
-    TriceRingBufferReadPosition += (TRICE_RING_BUFFER_DATA_OFFSET>>2) + lastWordCount;
+    TriceRingBufferReadPosition += /*(TRICE_RING_BUFFER_DATA_OFFSET>>2) +*/ lastWordCount;
     if( (TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE>>2)) > triceRingBufferLimit ){
         TriceRingBufferReadPosition = TriceRingBufferStart;
     }
@@ -144,10 +151,10 @@ void TriceTransfer( void ){
 //! TriceIDAndBuffer evaluates a trice message and returns the ID for routing.
 //! \param pData is where the trice message starts.
 //! \param pWordCount is filled with the word count the trice data occupy from pData.
-//! \param ppStart is filled with the trice netto data start. That is maybe a 2 bytes offset from pData.
-//! \param pLength is filled with the netto trice length (without padding bytes), 0 on error.
+//! \param ppTriceNettoStart is filled with the trice netto data start. That is maybe a 2 bytes offset from pData.
+//! \param pTriceNettoLength is filled with the netto trice length (without padding bytes), 0 on error.
 //! \retval is the triceID, a positive value on success or error information.
-static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint8_t** ppStart, size_t* pLength ){
+static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint8_t** ppTriceNettoStart, size_t* pTriceNettoLength ){
     uint16_t TID = TRICE_TTOHS( *(uint16_t*)pData ); // type and id
     int triceID = 0x3FFF & TID;
     int triceType = TID >> 14; // 2 bits
@@ -178,8 +185,8 @@ static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint
             // fallthrugh
         case TRICE_TYPE_X0:
             TriceErrorCount++;
-            *ppStart = pStart;
-            *pLength = 0;
+            *ppTriceNettoStart = pStart;
+            *pTriceNettoLength = 0;
             return -__LINE__; // extended trices not supported (yet)
     }
     // S16 case example:            triceSize  len   t-0-3   t-o
@@ -189,49 +196,102 @@ static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint
     // 80id 80id 1616 03cc dd dd dd      12     9      7     10
     // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
     *pWordCount = (len + offset + 3) >> 2;
-    *ppStart = pStart;
-    *pLength = len;
+    *ppTriceNettoStart = pStart;
+    *pTriceNettoLength = len;
     return triceID;
 }
 
 //! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_RING_BUFFER_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
-//! \param addr points to TRICE_RING_BUFFER_DATA_OFFSET bytes usable space, followed by the begin of a single trice.
+//! \param addr points to the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
 //! The returned value is typically (TRICE_RING_BUFFER_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_RING_BUFFER_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
 //! Return values <= 0 signal an error.
-static int TriceSingleDeferredOut(uint32_t* addr){
-    uint32_t* pData = addr + (TRICE_RING_BUFFER_DATA_OFFSET>>2);
-    uint8_t* pEnc = (uint8_t*)addr;
-    
+//! The data at addr are getting destoyed, because buffer is used as scratch pad.
+static int TriceSingleDeferredOut( uint32_t * addr){
+
+    uint8_t* enc = ((uint8_t*)addr) - TRICE_RING_BUFFER_DATA_OFFSET; // TRICE_RING_BUFFER_DATA_OFFSET bytes are usable in front of addr.
     int wordCount;
-    uint8_t* pStart;
-    size_t Length; // This is the trice netto length (without padding bytes).
-    int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
+    uint8_t* pTriceNettoStart;
+    size_t triceNettoLength; // without padding bytes
+    int triceID = TriceIDAndBuffer( addr, &wordCount, &pTriceNettoStart, &triceNettoLength );
     
     // Behind the trice brutto length (with padding bytes), 4 bytes needed as scratch pad when XTEA is active. 
     // This is ok, when behind triceRingBufferLimit are at least 4 bytes unused space.
-    // After TriceIDAndBuffer pStart has a 2 bytes offset, what is an alignmet issue for encryption.
+    // After TriceIDAndBuffer pTriceNettoStart has a 2 bytes offset, what is an alignmet issue for encryption.
     // That gets corrected inside TriceDeferredEncode.
     // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
 
+
+    // We can let TRICE_RING_BUFFER_DATA_OFFSET only in front of the ringbuffer and pack the Trices without offset space.
+    // And if we allow as max depth only ring buffer size minus TRICE_RING_BUFFER_DATA_OFFSET, we can use space in front of each Trice.
+
     #if   (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+
+        #if 1
+            // comment: The following 2 steps could be done in an incremental way within one singe loop.
+            uint8_t * tmp = ((uint8_t*)addr) - 4;
+            memmove(tmp, pTriceNettoStart, triceNettoLength );
+            size_t len8 = (triceNettoLength + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+            memset(tmp+triceNettoLength, 0, len8 - triceNettoLength); // clear padding space
+            XTEAEncrypt( (uint32_t *)tmp, len8>>2 );
+            size_t encLen = (size_t)TCOBSEncode(enc, tmp, len8 ); // encLen is re-used here
+            enc[encLen++] = 0; // Add zero as package delimiter.
+        #else
+            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+        #endif
+
     #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+
+        #if 0
+            // comment: The following 2 steps could be done in an incremental way within one singe loop.
+            uint8_t * tmp = ((uint8_t*)addr) - 4;
+            memmove(tmp, pTriceNettoStart, triceNettoLength );
+            size_t len8 = (triceNettoLength + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
+            memset(tmp+triceNettoLength, 0, len8 - triceNettoLength); // clear padding space
+            XTEAEncrypt( (uint32_t *)tmp, len8>>2 );
+            size_t encLen = (size_t)COBSEncode(enc, tmp, len8 ); // encLen is re-used here
+            enc[encLen++] = 0; // Add zero as package delimiter.
+        #else
+            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+        #endif
+
     #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+
+        #warning configuration: The Trice tool does not support encryption without COBS (or TCOBS) framing.
+        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength);
+
     #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+
+        #if 1
+            size_t len = (size_t)TCOBSEncode( enc, pTriceNettoStart, triceNettoLength );
+            enc[len++] = 0; // Add zero as package delimiter.
+            size_t encLen = len; 
+        #else
+            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+        #endif
+
     #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+        #if 1
+            size_t len = (size_t)COBSEncode( enc, pTriceNettoStart, triceNettoLength );
+            enc[len++] = 0; // Add zero as package delimiter.
+            size_t encLen = len; 
+        #else
+            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+        #endif
+
     #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, pEnc, pStart, Length);
+        #if 1
+            enc = pTriceNettoStart;
+            size_t encLen = triceNettoLength;
+        #else
+            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+        #endif
     #else
         #error configuration: TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE for ring buffer not implemented yet
     #endif
 
-    TriceNonBlockingDeferredWrite8( triceID, pEnc, encLen );
+    TriceNonBlockingDeferredWrite8( triceID, enc, encLen );
     return wordCount;
 }
 
@@ -239,7 +299,7 @@ static int TriceSingleDeferredOut(uint32_t* addr){
 
 void TriceInitRingBufferMargins( void ){
     for( int i = 0; i < TRICE_RINGBUFFER_LOWER_MARGIN; i++ ){
-        TriceRingBufferMargined[i] = TRICE_RINGBUFFER_MARGIN_FILL_VALUE;
+        TriceRingBuffer[i] = TRICE_RINGBUFFER_MARGIN_FILL_VALUE;
     }
     for( int i = 0; i < TRICE_RINGBUFFER_UPPER_MARGIN; i++ ){
          *(triceRingBufferLimit + i) = TRICE_RINGBUFFER_MARGIN_FILL_VALUE;
@@ -248,7 +308,7 @@ void TriceInitRingBufferMargins( void ){
 
 void WatchRingBufferMargins( void ){
     for( int i = 0; i < TRICE_RINGBUFFER_LOWER_MARGIN; i++ ){
-        if( TriceRingBufferMargined[i] != TRICE_RINGBUFFER_MARGIN_FILL_VALUE ){
+        if( TriceRingBuffer[i] != TRICE_RINGBUFFER_MARGIN_FILL_VALUE ){
             for(;;);
         }
     }

@@ -9,18 +9,13 @@
 extern "C" {
 #endif
 
-#include "stm32f0xx_ll_system.h"
-
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
-#define TriceStamp16() 0x1616 //(SysTick->VAL) // Counts from 31999 -> 0 in each ms.
-
-// ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
-extern uint32_t ms32;
+#define TriceStamp16() (0x1616) //(SysTick->VAL) 
 
 //! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int32_t TriceStamp32( void );` has significant speed impact.
-#define TriceStamp32() 0x32323232 // ms32
+#define TriceStamp32() (0x32323232) //Us32()
 
 //! The TRICE_PROTECT switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
 //! The trice library works well, when less data are produced in the average than transmitable and when in the double buffer case the TriceTransfer
@@ -42,10 +37,9 @@ extern uint32_t ms32;
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
-//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended, in case of a lost package only one Trice can get lost).
-//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count, in case of a lost package several Trices can get lost).
-//! - When using encryption, the TRICE_MULTI_PACK_MODE (with TRICE_BUFFER == TRICE_DOUBLE_BUFFER) can significantly reduce the transmit byte count.
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
+//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 //! This is a helper to watch the ring buffer margins.
@@ -59,7 +53,7 @@ void WatchRingBufferMargins( void );
 //! Setting TRICE_BUFFER to TRICE_STACK_BUFFER or TRICE_STATIC_BUFFER demands TRICE_DIRECT_OUTPUT == 1, no deferred output at all.
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_TCOBS output.
-#define TRICE_DIRECT_OUTPUT 1
+#define TRICE_DIRECT_OUTPUT 0
 
 //! TRICE_DEFERRED_OUTPUT == 0: no deferred output
 //! TRICE_DEFERRED_OUTPUT == 1: with deferred output, usually UART output and/or auxiliary output
@@ -85,10 +79,8 @@ void WatchRingBufferMargins( void );
 //! - When using XTEA, this value should incorporate additinal 4 bytes, because of the 64-bit encryption units.
 //! With TRICE_BUFFER == TRICE_RING_BUFFER, this amount of space is allocated in front of each single trice!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //! With TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this amount of space is allocated once in front of each half buffer.
-//!  and should be at least 64.
-//! Thats because 
-#define TRICE_DATA_OFFSET 32 // must be a multiple of 4
-#define TRICE_RING_BUFFER_DATA_OFFSET 32
+#define TRICE_DATA_OFFSET 64 // must be a multiple of 4
+#define TRICE_RING_BUFFER_DATA_OFFSET 16
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings, to detect the need of a ring buffer wrap or to protect against overflow.
 //! - Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
@@ -96,8 +88,7 @@ void WatchRingBufferMargins( void );
 //!   stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
-//! - When NOT using dynamic string (or buffer) transfer, bigger values than 104 make no sense here and just spoiling RAM.
-//! - When USING dynamic string (or buffer) transfer, this value limits the max length of a trice. 2^15-1=32787 is the max possible value if you have enough RAM.
+//! - When not using dynamic string (or buffer) transfer, bigger values than 104 make no sense here and just spoiling RAM.
 #define TRICE_SINGLE_MAX_SIZE 160 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
@@ -105,7 +96,7 @@ void WatchRingBufferMargins( void );
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 4720// must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 2048 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding-
 //#define TRICE_MCU_IS_BIG_ENDIAN 
@@ -127,7 +118,7 @@ void WatchRingBufferMargins( void );
 //! XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and paste it here.
-//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT
@@ -136,10 +127,10 @@ void WatchRingBufferMargins( void );
 #define TRICE_XTEA_DIRECT_ENCRYPT 0
 
 //! TRICE_XTEA_DEFERRED_ENCRYPT enables encryption for deferred output. (experimental)
-#define TRICE_XTEA_DEFERRED_ENCRYPT 0
+#define TRICE_XTEA_DEFERRED_ENCRYPT 1
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
-//! During development TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
+//! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
 #define TRICE_DIAGNOSTICS 1
 
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32 and needs ((TRICE_DIRECT_OUTPUT == 1).
@@ -147,7 +138,7 @@ void WatchRingBufferMargins( void );
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
 
 //! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
@@ -161,18 +152,18 @@ void WatchRingBufferMargins( void );
 #define TRICE_DEFERRED_AUXILIARY 0
 
 //! Enable and set UARTA for deferred serial output.
-#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 //#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
 //#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
 
 //! CGO interface (for testing the target code with Go only, do not enable)
-//#define TRICE_CGO 
-//#define TRICE_CYCLE_COUNTER 0
+#define TRICE_CGO 
+#define TRICE_CYCLE_COUNTER 0
 
 // Compiler Adaption:
 
 //! USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1 includes SEGGER_RTT header files even SEGGER_RTT is not used.
-#define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 1
+#define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 0
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
 //! If trices are used only outside critical sections or interrupts,
@@ -181,7 +172,7 @@ void WatchRingBufferMargins( void );
 //! #define TRICE_ENTER_CRITICAL_SECTION { 
 //! #define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 //! #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
-#define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { 
+#define TRICE_ENTER_CRITICAL_SECTION {  
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! If trices are used only outside critical sections or interrupts,
@@ -190,16 +181,16 @@ void WatchRingBufferMargins( void );
 //! #define TRICE_LEAVE_CRITICAL_SECTION } 
 //! #define TRICE_LEAVE_CRITICAL_SECTION } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 //! #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
-#define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } 
+#define TRICE_LEAVE_CRITICAL_SECTION }  
 
 #define TRICE_INLINE static inline //! used for trice code
 
 // hardware interface:
 
-#include "main.h" // hardware specific definitions
+//#include "main.h" // hardware specific definitions
 
 TRICE_INLINE void ToggleOpticalFeedbackLED( void ){
-    LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    //LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 }
 
 #ifdef TRICE_UARTA

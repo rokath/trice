@@ -41,12 +41,15 @@ void TriceCheck(int n) {
     char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     #endif // #ifdef TRICE_CGO
 
-    switch( n ){
-        static int i;
+    unsigned anchorLine = __LINE__ + 5;
+    switch( n ){ 
         default:
+        break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
+        break; case __LINE__: for( int i = 0; i < 20; i++ ){ dynString(i); }
 
-        break; case __LINE__: trice16( iD(3454), "att: line %u\n", __LINE__ );
-        break; case __LINE__: for( ; i < 20; i++ ){ dynString(i); }
+      //break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: sig:  1:wr:0
+      //break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: sig:  2:wr:01
+        break; case __LINE__: dynString(__LINE__ - anchorLine);
         break; case __LINE__: dynString(__LINE__ - 50);
         break; case __LINE__: dynString(__LINE__ - 50);
         break; case __LINE__: dynString(__LINE__ - 50);

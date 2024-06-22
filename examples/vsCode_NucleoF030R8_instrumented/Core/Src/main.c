@@ -110,8 +110,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-        #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-
         static uint32_t lastMs = 0;
         if( lastMs != ms32 ){ // each ms
             lastMs = ms32;
@@ -134,20 +132,22 @@ int main(void)
                 TriceCheck( i ); // this generates trice data
             }
 
-            static uint32_t msTransfer = 0;
-            msTransfer++;
-            if(msTransfer >= 10 ){
-                msTransfer = 0;
-                // Serve deferred trice transfer every few ms. With an RTOS put this in a separate task.
-                TriceTransfer(); // serve deferred output
-            }
+            #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
+
+                static uint32_t msTransfer = 0;
+                msTransfer++;
+                if(msTransfer >= 10 ){
+                    msTransfer = 0;
+                    // Serve deferred trice transfer every few ms or if TRICE_BUFFER is getting filled. With an RTOS put this in a separate task.
+                    TriceTransfer(); // serve deferred output
+                }
+                #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
+                    WatchRingBufferMargins();
+                #endif
+
+            #endif // #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
         }
         
-        #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
-        WatchRingBufferMargins();
-        #endif
-
-        #endif // #if ( TRICE_BUFFER == TRICE_RING_BUFFER) || ( TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 
     /* USER CODE END WHILE */
 

@@ -9,6 +9,14 @@
 
 // check configuration:
 
+#if (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && !defined( TRICE_CGO )
+    #pragma message("configuration: XTEA with TCOBS is possible but not remommended. Encrypted data are more effective framed with COBS.")
+#endif
+
+#if (TRICE_XTEA_DIRECT_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && !defined( TRICE_CGO )
+    #pragma message("configuration: XTEA with TCOBS is possible but not remommended. Encrypted data are more effective framed with COBS.")
+#endif
+
 #ifndef TRICE_DEFERRED_TRANSFER_MODE
 #error configuration: TRICE_DEFERRED_TRANSFER_MODE is not defined. Add "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" to your triceConfig.h.
 #endif
@@ -29,16 +37,24 @@
 #warning configuration: TRICE_XTEA_DIRECT_ENCRYPT and TRICE_XTEA_DEFERRED_ENCRYPT are 0, so no need for a defined XTEA_ENCRYPT_KEY.
 #endif
 
+#if (TRICE_XTEA_DIRECT_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+#warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
+#endif
+
+#if (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
+#warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
+#endif
+
 #if (TRICE_DIRECT_OUTPUT == 0) && (TRICE_DEFERRED_OUTPUT == 0)
 #error configuration: need at east one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DDEFERRED_OUTPUT == 0)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_RING_BUFFER)
-#error configuration: (TRICE_BUFFER == TRICE_RING_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1)
+#error configuration: (TRICE_BUFFER == TRICE_RING_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1) or consider (TRICE_BUFFER == TRICE_STACK_BUFFER) or (TRICE_BUFFER == TRICE_STATIC_BUFFER)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-#error configuration: (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1)
+#error configuration: (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1) or consider (TRICE_BUFFER == TRICE_STACK_BUFFER) or (TRICE_BUFFER == TRICE_STATIC_BUFFER)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_BUFFER == TRICE_STACK_BUFFER)
@@ -298,7 +314,7 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
 #endif
 
     size_t encLen;
-    const uint8_t * dat;
+    const uint8_t * dat = buf;
     if( encrypt ){
         #ifdef XTEA_ENCRYPT_KEY
             // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
@@ -332,8 +348,6 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
                 XTEAEncrypt( loc, len8>>2 );
             #endif // #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
         #endif // #ifdef XTEA_ENCRYPT_KEY
-    }else{
-        dat = buf;
     }
     switch( framing ){
         case TRICE_FRAMING_TCOBS:
@@ -510,10 +524,9 @@ void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount ){
 
     #elif (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 0) && (TRICE_BUFFER != TRICE_RING_BUFFER) && (TRICE_BUFFER != TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
     // direct-only mode without routing & framing
-        unsigned wc;
         unsigned bc;
         #if TRICE_XTEA_DIRECT_ENCRYPT
-            wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
+            unsigned wc = ((wordCount + 1) & ~1); // only multiple of 8 can be encrypted 
             XTEAEncrypt( triceStart, wc ); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
             bc = wc<<2;
         #else
