@@ -5,38 +5,75 @@
 #include <stdlib.h>
 #include "trice.h"
 
-#if TRICE_DIRECT_AUXILIARY == 1
+#if TRICE_DIRECT_AUXILIARY8 == 1
 
-//! UserNonBlockingDirectWriteAuxiliaryFn can get a user function address for writing to an auxiliary interface.
-WriteAuxiliaryFn_t UserNonBlockingDirectWriteAuxiliaryFn = (void*)0;
+//! UserNonBlockingDirectWrite8AuxiliaryFn can get a user function address for writing to an auxiliary interface.
+Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn = (void*)0;
 
-//! TriceNonBlockingDirectWriteAuxiliary writes to a user defined interface.
-void TriceNonBlockingDirectWriteAuxiliary( const uint8_t * enc, size_t encLen ){
+//! TriceNonBlockingDirectWrite8Auxiliary writes to a user defined interface.
+void TriceNonBlockingDirectWrite8Auxiliary( const uint8_t * enc, size_t encLen ){
     #if defined(TRICE_CGO) // automated tests
         TriceWriteDeviceCgo( enc, encLen );
     #else
-        if( UserNonBlockingDirectWriteAuxiliaryFn != (void*)0 ){
-            UserNonBlockingDirectWriteAuxiliaryFn( enc, encLen );
+        if( UserNonBlockingDirectWrite8AuxiliaryFn != (void*)0 ){
+            UserNonBlockingDirectWrite8AuxiliaryFn( enc, encLen );
         }
     #endif
 }
 
-#endif // #if TRICE_DIRECT_AUXILIARY == 1
+#endif // #if TRICE_DIRECT_AUXILIARY8 == 1
 
-#if TRICE_DEFERRED_AUXILIARY == 1
+#if TRICE_DEFERRED_AUXILIARY8 == 1
 
-//! UserNonBlockingDeferredWriteAuxiliaryFn can get a user function address for writing to an auxiliary interface.
-WriteAuxiliaryFn_t UserNonBlockingDeferredWriteAuxiliaryFn = (void*)0;
+//! UserNonBlockingDeferredWrite8AuxiliaryFn can get a user function address for writing to an auxiliary interface.
+Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDeferredWrite8Auxiliary writes to a user defined interface.
 void TriceNonBlockingDeferredWrite8Auxiliary( const uint8_t * enc, size_t encLen ){
     #if defined(TRICE_CGO) // automated tests
         TriceWriteDeviceCgo( enc, encLen );
     #else
-        if( UserNonBlockingDeferredWriteAuxiliaryFn != (void*)0 ){
-            UserNonBlockingDeferredWriteAuxiliaryFn( enc, encLen );
+        if( UserNonBlockingDeferredWrite8AuxiliaryFn != (void*)0 ){
+            UserNonBlockingDeferredWrite8AuxiliaryFn( enc, encLen );
         }
     #endif
 }
 
-#endif // #if TRICE_DEFERRED_AUXILIARY == 1
+#endif // #if TRICE_DEFERRED_AUXILIARY8 == 1
+
+
+#if TRICE_DIRECT_AUXILIARY32 == 1
+
+//! UserNonBlockingDirectWrite32AuxiliaryFn can get a user function address for writing to an auxiliary interface.
+Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn = (void*)0;
+
+//! TriceNonBlockingDirectWrite32Auxiliary writes to a user defined interface.
+void TriceNonBlockingDirectWrite32Auxiliary( const uint32_t * enc, unsigned count ){
+    #if defined(TRICE_CGO) // automated tests
+        TriceWriteDeviceCgo( enc, count<<2 );
+    #else
+        if( UserNonBlockingDirectWrite32AuxiliaryFn != (void*)0 ){
+            UserNonBlockingDirectWrite32AuxiliaryFn( enc, count );
+        }
+    #endif
+}
+
+#endif // #if TRICE_DIRECT_AUXILIARY32 == 1
+
+#if TRICE_DEFERRED_AUXILIARY32 == 1
+
+//! UserNonBlockingDeferredWrite32AuxiliaryFn can get a user function address for writing to an auxiliary interface.
+Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn = (void*)0;
+
+//! TriceNonBlockingDeferredWrite32Auxiliary writes to a user defined interface.
+void TriceNonBlockingDeferredWrite32Auxiliary( const uint32_t * enc, unsigned count ){
+    #if defined(TRICE_CGO) // automated tests
+        TriceWriteDeviceCgo( enc, count<<2 );
+    #else
+        if( UserNonBlockingDeferredWrite32AuxiliaryFn != (void*)0 ){
+            UserNonBlockingDeferredWrite32AuxiliaryFn( enc, count );
+        }
+    #endif
+}
+
+#endif // #if TRICE_DEFERRED_AUXILIARY32 == 1

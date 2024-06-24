@@ -119,7 +119,7 @@ void WatchRingBufferMargins( void );
 #define TRICE_XTEA_DEFERRED_ENCRYPT 0
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
-//! During developmemt TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
+//! During development TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
 #define TRICE_DIAGNOSTICS 1
 
 //! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32 and needs ((TRICE_DIRECT_OUTPUT == 1).
@@ -134,11 +134,18 @@ void WatchRingBufferMargins( void );
 //! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
 #define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
 
-//! TRICE_DIRECT_AUXILIARY enables a user defined optionally routed direct trice write. (experimental)
-#define TRICE_DIRECT_AUXILIARY 1
+//! TRICE_DIRECT_AUXILIARY8 enables a user defined direct trice 8bit char write. (experimental)
+#define TRICE_DIRECT_AUXILIARY8 1
 
-//! TRICE_DEFERRED_AUXILIARY enables a user defined optionally routed deferred trice write. (experimental)
-#define TRICE_DEFERRED_AUXILIARY 0
+//! TRICE_DIRECT_AUXILIARY32 enables a user defined direct trice 32bit word write. (experimental)
+#define TRICE_DIRECT_AUXILIARY32 0
+
+//! TRICE_DEFERRED_AUXILIARY8 enables a user defined deferred trice 8bit char write. (experimental)
+#define TRICE_DEFERRED_AUXILIARY8 0
+
+//! TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice 32bit word write. (experimental)
+#define TRICE_DEFERRED_AUXILIARY32 0
+
 
 //! Enable and set UARTA for deferred serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA

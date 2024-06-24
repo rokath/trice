@@ -5703,6 +5703,10 @@
 		"Type": "TRICE",
 		"Strg": "RD:read         message, SysTick is %6u\\n"
 	},
+	"2806": {
+		"Type": "trice",
+		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
+	},
 	"2807": {
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
@@ -19619,6 +19623,10 @@
 		"Type": "TRICE",
 		"Strg": "WRITE:black+u:yellow+h\\n"
 	},
+	"7329": {
+		"Type": "trice",
+		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
+	},
 	"7331": {
 		"Type": "TRICE",
 		"Strg": "WARNING:11+i:red\\n"
@@ -20534,6 +20542,10 @@
 	"7624": {
 		"Type": "Trice64",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"7625": {
+		"Type": "trice",
+		"Strg": "err: TriceDirectOverflowCount = %u\\n"
 	},
 	"7628": {
 		"Type": "TRICE64_1",

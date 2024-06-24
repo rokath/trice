@@ -180,8 +180,10 @@ typedef enum {
 void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
 void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount );
-void TriceNonBlockingDirectWriteAuxiliary( const uint8_t * enc, size_t encLen );
+void TriceNonBlockingDirectWrite8Auxiliary( const uint8_t * enc, size_t encLen );
 void TriceNonBlockingDeferredWrite8Auxiliary( const uint8_t * enc, size_t encLen );
+void TriceNonBlockingDirectWrite32Auxiliary( const uint32_t * enc, unsigned count );
+void TriceNonBlockingDeferredWrite32Auxiliary( const uint32_t * enc, unsigned count );
 void TriceInit( void );
 void TriceLogDiagnosticValues( void );
 void TriceLogSeggerDiagnostics( void );
@@ -243,18 +245,20 @@ extern uint32_t * TriceBufferWritePosition;
 
 // defaults part 2:
 
-#ifndef TRICE_DIRECT_AUXILIARY
-
-//! TRICE_DIRECT_AUXILIARY enables a user defined optionally routed direct trice write.
-#define TRICE_DIRECT_AUXILIARY 0
-
+#ifndef TRICE_DIRECT_AUXILIARY8
+#define TRICE_DIRECT_AUXILIARY8 0 //!< TRICE_DIRECT_AUXILIARY8 enables a user defined direct trice write.
 #endif
 
-#ifndef TRICE_DEFERRED_AUXILIARY
+#ifndef TRICE_DEFERRED_AUXILIARY8
+#define TRICE_DEFERRED_AUXILIARY8 0 //!< TRICE_DEFERRED_AUXILIARY8 enables a user defined deferred trice write.
+#endif
 
-//! TRICE_DEFERRED_AUXILIARY enables a user defined optionally routed deferred trice write.
-#define TRICE_DEFERRED_AUXILIARY 0
+#ifndef TRICE_DIRECT_AUXILIARY32
+#define TRICE_DIRECT_AUXILIARY32 0 //!< TRICE_DIRECT_AUXILIARY32 enables a user defineddirect trice write.
+#endif
 
+#ifndef TRICE_DEFERRED_AUXILIARY32
+#define TRICE_DEFERRED_AUXILIARY32 0 //!< TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice write.
 #endif
 
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
@@ -657,7 +661,9 @@ unsigned TriceOutDepthUartB( void );
 ///////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
-#define TRICE_XTEA_DIRECT_ENCRYPT 0 // todo: set 1 and test code
+#ifndef TRICE_XTEA_DIRECT_ENCRYPT
+#define TRICE_XTEA_DIRECT_ENCRYPT 0
+#endif
 
 #ifndef TRICE_XTEA_DEFERRED_ENCRYPT
 #define TRICE_XTEA_DEFERRED_ENCRYPT 0
@@ -916,9 +922,13 @@ void TRiceAssertFalse( int idN, char* msg, int flag );
 
 #endif // #else // #ifdef TRICE_CLEAN
 
-typedef void (*WriteAuxiliaryFn_t)( const uint8_t * enc, size_t encLen );
-extern WriteAuxiliaryFn_t UserNonBlockingDirectWriteAuxiliaryFn;
-extern WriteAuxiliaryFn_t UserNonBlockingDeferredWriteAuxiliaryFn;
+typedef void (*Write8AuxiliaryFn_t)( const uint8_t * enc, size_t encLen );
+extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;
+extern Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn;
+
+typedef void (*Write32AuxiliaryFn_t)( const uint32_t * enc, unsigned count );
+extern Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn;
+extern Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn;
 
 #ifdef __cplusplus
 }
