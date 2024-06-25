@@ -312,8 +312,18 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
 
             #if 1
-                encLen = (size_t)TCOBSEncode( enc, dat, encLen );
-                enc[encLen++] = 0; // Add zero as package delimiter.
+                size_t eLen = TCOBSEncode( enc, dat, encLen );
+                enc[eLen++] = 0; // Add zero as package delimiter.
+                #if TRICE_DIAGNOSTICS
+                    // before: space = enc[TRICE_DATA_OFFSET], data = dat[encLen]
+                    // after:  date  = enc[eLen], (dat [encLen])
+                    // Mostly eLen < encLen, but it could be eLen = encLen + 1 + (encLen>>5) in worst case.
+                    // dat - enc = TRICE_DATA_OFFSET
+                    // if eLen > enclen, then TriceDataDepth = eLen - encLen
+                    int triceDataOffsetDepth = eLen - encLen; // usually negative
+                    TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
+                #endif
+                encLen = eLen;
             #else
                 encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
             #endif

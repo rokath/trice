@@ -11,8 +11,8 @@
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 
-#ifndef TRICE_RING_BUFFER_DATA_OFFSET
-#define TRICE_RING_BUFFER_DATA_OFFSET 16
+#ifndef TRICE_DATA_OFFSET
+#define TRICE_DATA_OFFSET 16
 #endif
 
 static int TriceSingleDeferredOut( uint32_t * addr );
@@ -33,11 +33,11 @@ static int TriceSingleDeferredOut( uint32_t * addr );
 
 //! TriceRingBuffer is a kind of heap for trice messages. It needs to be initialized with 0.
 uint32_t TriceRingBuffer[ TRICE_RINGBUFFER_LOWER_MARGIN \
-                        + (TRICE_RING_BUFFER_DATA_OFFSET>>2) \
+                        + (TRICE_DATA_OFFSET>>2) \
                         + (TRICE_DEFERRED_BUFFER_SIZE>>2) \
                         + TRICE_RINGBUFFER_UPPER_MARGIN] = {0};
 
-uint32_t* const TriceRingBufferStart = TriceRingBuffer + TRICE_RINGBUFFER_LOWER_MARGIN + (TRICE_RING_BUFFER_DATA_OFFSET>>2);
+uint32_t* const TriceRingBufferStart = TriceRingBuffer + TRICE_RINGBUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET>>2);
 
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
 //! With encryption it can happen that 4 bytes following triceRingBufferLimit are used as scratch pad.
@@ -54,10 +54,10 @@ uint32_t* TriceBufferWritePosition = TriceRingBufferStart;
 //ARM5 #pragma push
 //ARM5 #pragma diag_suppress=170 //warning:  #170-D: pointer points outside of underlying object
 //! TriceRingBufferReadPosition points to a valid trice message when singleTricesRingCount > 0.
-//! This is first the TRICE_RING_BUFFER_DATA_OFFSET byte space followed by the trice data.
-//! Initally this value is set to TriceRingBufferStart minus TRICE_RING_BUFFER_DATA_OFFSET byte space
+//! This is first the TRICE_DATA_OFFSET byte space followed by the trice data.
+//! Initally this value is set to TriceRingBufferStart minus TRICE_DATA_OFFSET byte space
 //! to get a correct value for the very first call of triceNextRingBufferRead
-//uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart - (TRICE_RING_BUFFER_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
+//uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart - (TRICE_DATA_OFFSET>>2); //lint !e428 Warning 428: negative subscript (-4) in operator 'ptr-int'
 uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart;
 //ARM5 #pragma  pop
 
@@ -85,8 +85,8 @@ int TriceEnoughSpace( void ){
     // If afterwards the Trice BufferWritePosition is less TRICE_SINGLE_MAX_SIZE away from the buffer end, it is reset to the buffer start.
     // That means, there are max TRICE_SINGLE_MAX_SIZE-4 bytes wasted in the worst case. So the needed safety space is 2*TRICE_SINGLE_MAX_SIZE-4.
     // The TriceRingBufferReadPosition jumps in the same way as the TriceBufferWritePosition. It wraps according the same rules.
-    const int neededSafetySpace32 = (TRICE_RING_BUFFER_DATA_OFFSET>>2) + (TRICE_SINGLE_MAX_SIZE>>1)-1; // (TRICE_SINGLE_MAX_SIZE>>2) + (TRICE_SINGLE_MAX_SIZE>>2) - 1
-    // Becaus a Trice can have size TRICE_SINGLE_MAX_SIZE, in that case, after writing it, we still need TRICE_RING_BUFFER_DATA_OFFSET for the framing.
+    const int neededSafetySpace32 = (TRICE_DATA_OFFSET>>2) + (TRICE_SINGLE_MAX_SIZE>>1)-1; // (TRICE_SINGLE_MAX_SIZE>>2) + (TRICE_SINGLE_MAX_SIZE>>2) - 1
+    // Becaus a Trice can have size TRICE_SINGLE_MAX_SIZE, in that case, after writing it, we still need TRICE_DATA_OFFSET for the framing.
     int depth32 = TriceBufferWritePosition - TriceRingBufferReadPosition; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( depth32 < 0 ){ // After a TriceBufferWritePosition reset the difference is negative and needs correction to get the correct value.
         depth32 += (TRICE_DEFERRED_BUFFER_SIZE>>2);
@@ -108,13 +108,13 @@ int TriceEnoughSpace( void ){
 uint16_t TriceRingBufferDepth = 0;
 #endif
 
-//! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_RING_BUFFER_DATA_OFFSET from this address.
+//! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET from this address.
 //! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fullfilled.
 //! \param lastWordCount is the u32 count of the last read trice including padding bytes.
 //! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
 //! \retval is the address of the next trice data buffer.
 static uint32_t* triceNextRingBufferRead( int lastWordCount ){
-    TriceRingBufferReadPosition += /*(TRICE_RING_BUFFER_DATA_OFFSET>>2) +*/ lastWordCount;
+    TriceRingBufferReadPosition += /*(TRICE_DATA_OFFSET>>2) +*/ lastWordCount;
     if( (TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE>>2)) > triceRingBufferLimit ){
         TriceRingBufferReadPosition = TriceRingBufferStart;
     }
@@ -201,16 +201,16 @@ static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint
     return triceID;
 }
 
-//! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_RING_BUFFER_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
+//! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
 //! \param addr points to the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
-//! The returned value is typically (TRICE_RING_BUFFER_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_RING_BUFFER_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
+//! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
 //! Return values <= 0 signal an error.
 //! The data at addr are getting destoyed, because buffer is used as scratch pad.
 static int TriceSingleDeferredOut( uint32_t * addr){
 
-    uint8_t* enc = ((uint8_t*)addr) - TRICE_RING_BUFFER_DATA_OFFSET; // TRICE_RING_BUFFER_DATA_OFFSET bytes are usable in front of addr.
+    uint8_t* enc = ((uint8_t*)addr) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of addr.
     int wordCount;
     uint8_t* pTriceNettoStart;
     size_t triceNettoLength; // without padding bytes
@@ -223,8 +223,8 @@ static int TriceSingleDeferredOut( uint32_t * addr){
     // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
 
 
-    // We can let TRICE_RING_BUFFER_DATA_OFFSET only in front of the ringbuffer and pack the Trices without offset space.
-    // And if we allow as max depth only ring buffer size minus TRICE_RING_BUFFER_DATA_OFFSET, we can use space in front of each Trice.
+    // We can let TRICE_DATA_OFFSET only in front of the ringbuffer and pack the Trices without offset space.
+    // And if we allow as max depth only ring buffer size minus TRICE_DATA_OFFSET, we can use space in front of each Trice.
 
     #if   (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 

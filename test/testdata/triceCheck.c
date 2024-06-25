@@ -1610,7 +1610,7 @@ void TriceLogDiagnosticValues( void ){
     }
 #endif // #ifdef SEGGER_RTT
 
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
         TRice16( iD(1696), "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
@@ -1619,7 +1619,7 @@ void TriceLogDiagnosticValues( void ){
     
     if( TriceDataOffsetDepthMax < 0 || TriceDataOffsetDepthMax >= TRICE_DATA_OFFSET ){
         TRice16( iD(2423), "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
-    }else if( TriceDataOffsetDepthMax != 0 ){
+    }else /*if( TriceDataOffsetDepthMax != 0 )*/{
         TRice16( iD(3528), "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
     }
 
