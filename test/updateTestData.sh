@@ -42,14 +42,23 @@ ringBuffer_cobs/
 ringBuffer_tcobs/
 ringBuffer_tcobs_AND_rtt8_nopf/
 ringBuffer_tcobs_AND_rtt32_nopf/
+
+ringBuffer_tcobs_AND_rtt8_cobs/
+ringBuffer_tcobs_AND_rtt32_cobs/
+
 ringBuffer_xtea_cobs/
 ringBuffer_xtea_tcobs/
+
 stackBuffer_aux8_nopf/
 stackBuffer_rtt32_nopf/
 stackBuffer_rtt8_nopf/
+
 staticBuffer_aux8_nopf/
 staticBuffer_rtt32_nopf/
 staticBuffer_rtt8_nopf/
+
+staticBuffer_rtt8_nopf/
+staticBuffer_rtt32_tcobs/
 "
 for d in $CGOTESTDIRS
 do
