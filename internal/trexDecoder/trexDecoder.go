@@ -470,8 +470,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			padding := (int(p.ParamSpace) + 3) & ^3
 			if padding <= len(p.B) {
 				p.B = p.B[padding:]
-			} else {
-				n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes"))
+				//  } else { // example: wrn: cannot discard padding bytes 2 4 [136 136]"
+				//  	n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes", p.ParamSpace, padding, p.B))
 			}
 		}
 	}
