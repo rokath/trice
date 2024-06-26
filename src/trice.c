@@ -9,6 +9,10 @@
 
 // check configuration:
 
+#ifndef TRICE_DATA_OFFSET
+#error configuration
+#endif
+
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_AUXILIARY32 == 1)
     #error configuration: Only one bit width for direct output is supported.
 #endif
@@ -41,7 +45,7 @@
 #error configuration: Check TRICE_DEFERRED_TRANSFER_MODE value.
 #endif
 
-#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DATA_OFFSET < 64)
+#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DATA_OFFSET < 64) && (TRICE_CONFIG_WARNINGS == 1)
 #warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
 #endif
 

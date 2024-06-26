@@ -113,6 +113,10 @@ extern "C" {
 
 // defaults part 1:
 
+#ifndef TRICE_CONFIG_WARNINGS
+#define TRICE_CONFIG_WARNINGS 1
+#endif
+
 #if ( (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) ) && !defined(TRICE_DEFERRED_OUTPUT)
 #define TRICE_DEFERRED_OUTPUT 1
 #endif

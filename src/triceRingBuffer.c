@@ -11,10 +11,6 @@
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 
-#ifndef TRICE_DATA_OFFSET
-#define TRICE_DATA_OFFSET 16
-#endif
-
 static int TriceSingleDeferredOut( uint32_t * addr );
 
 #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
