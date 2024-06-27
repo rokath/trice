@@ -94,10 +94,10 @@ void TriceTransfer( void ){
 //! \todo: use this function only when MULTI
 //! \param buf points to 32-bit aligned trice messages and is filled with the advanced buf.
 //! \param pSize contains the total size of all following trices including padding bytes to 32-bit alignments and gets the by next trice reduced value.
-//! \param pStart points to the netto start of the next trice.
-//! \param pLen contains the nettlo length of the first trice.
+//! \param pStart points to the net start of the next trice.
+//! \param pLen contains the net length of the first trice.
 //! \retval is the trice ID on success or negative on error.
-//! The trices inside the double buffer start 32-bit aligned with maybe 1-3 padding bytes inbetween.
+//! The trices inside the double buffer start 32-bit aligned with maybe 1-3 padding bytes in-between.
 //! \li |    ... |    trice   | trice | ... |  trice |
 //! \li before:  ^- buf
 //! \li before:  <-------------- pSize -------------->

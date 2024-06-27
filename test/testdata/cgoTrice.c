@@ -31,6 +31,6 @@ void CgoClearTriceBuffer( void  ){
 //! TriceWriteDeviceCgo copies buf with len into triceBuffer.
 //! This function is called from the trice runtime inside TriceWriteDevice().
 void TriceWriteDeviceCgo( const void * buf, unsigned len ){
-    memcpy(cgoTriceBuffer, buf, len);
-    cgoTriceBufferDepth = len;
+    memcpy(cgoTriceBuffer + cgoTriceBufferDepth, buf, len);
+    cgoTriceBufferDepth += len;
 }

@@ -84,7 +84,7 @@ void WatchRingBufferMargins( void );
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 2048 // must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 4096 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding-
 //#define TRICE_MCU_IS_BIG_ENDIAN 

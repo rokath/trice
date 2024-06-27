@@ -34,12 +34,12 @@ extern "C" {
 //!   This is the fastest execution option for TRICE macros but needs more RAM. Used for deferred output and optional additional direct output.
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+#define TRICE_BUFFER TRICE_RING_BUFFER
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
 //! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
 //! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
 //! This is a helper to watch the ring buffer margins.
@@ -54,7 +54,7 @@ void WatchRingBufferMargins( void );
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
 //! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
-#define TRICE_DIRECT_OUTPUT 0
+#define TRICE_DIRECT_OUTPUT 1
 
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
 //! Enable this only, if you want only a specific ID ranges for direct Trice output.
@@ -84,7 +84,7 @@ void WatchRingBufferMargins( void );
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 2048 // must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 4096 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding-
 //#define TRICE_MCU_IS_BIG_ENDIAN 
@@ -95,27 +95,27 @@ void WatchRingBufferMargins( void );
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
 //! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice date with Python or an other language.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
-#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_NONE
+#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 //! XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and paste it here.
-//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT
 
 //! TRICE_XTEA_DIRECT_ENCRYPT enables encryption for direct output. (experimental)
-#define TRICE_XTEA_DIRECT_ENCRYPT 0
+#define TRICE_XTEA_DIRECT_ENCRYPT 1
 
 //! TRICE_XTEA_DEFERRED_ENCRYPT enables encryption for deferred output. (experimental)
-#define TRICE_XTEA_DEFERRED_ENCRYPT 0
+#define TRICE_XTEA_DEFERRED_ENCRYPT 1
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 //! During development TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
@@ -126,7 +126,7 @@ void WatchRingBufferMargins( void );
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1
 
 //! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.

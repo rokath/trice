@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_CONFIG_WARNINGS 1
+
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
 #define TriceStamp16() (0x1616) //(SysTick->VAL) 
@@ -25,7 +27,7 @@ extern "C" {
 //! But that can happen only to parts of trices. The ring buffer read out function relies on consistent data. If it gets data garbage, wrong values
 //! for the trice lengths are possible and buffer overruns not avoidable. When enabling TRICE_PROTECT, new trices are only written into the deferred buffer,
 //! if there is enough space. That guaranties data consistency. Because a suppressed trice cannot cause a cycle error, there is TriceOverflowCount as diagnostic value. 
-#define TRICE_PROTECT
+#define TRICE_PROTECT 1
 
 //!  TRICE_BUFFER selects, where the TRICE macros accumulate the trice data during a single TRICE execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
@@ -37,8 +39,10 @@ extern "C" {
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
-//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended).
-//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count).
+//! - TRICE_SINGLE_PACK_MODE packs each Trice message separately and adds a 0-delimiter byte. This reduces the transmit byte count. In case of a lost package only one Trice can get lost.
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte. This reduces the transmit byte count. In case of a lost package several Trices can get lost.
+//! - When using encryption, the TRICE_MULTI_PACK_MODE can significantly reduce the transmit byte count, because in TRICE_SINGLE_PACK_MODE each Trice message gets extended 
+//! with 1 to 7 padding bytes beore encryption.
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
@@ -49,17 +53,28 @@ void WatchRingBufferMargins( void );
 #endif
 
 //! TRICE_DIRECT_OUTPUT == 0: only deferred output, usually UART output only
-//! TRICE_DIRECT_OUTPUT == 1: with direct output, usually RTT
+//! TRICE_DIRECT_OUTPUT == 1: with direct output, SEGGER_RTT output and/or TRICE_DIRECT_AUXILIARY8 output
 //! Setting TRICE_BUFFER to TRICE_STACK_BUFFER or TRICE_STATIC_BUFFER demands TRICE_DIRECT_OUTPUT == 1, no deferred output at all.
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be switched on here.
-//! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_COBS output.
-//! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DIRECT_OUTPUT == 1.
+//! For example it is possible to have direct 32-bit wise RTT TRICE_FRAMING_NONE output and deferred UART TRICE_FRAMING_TCOBS output.
 #define TRICE_DIRECT_OUTPUT 1
+
+//! TRICE_DEFERRED_OUTPUT == 0: no deferred output
+//! TRICE_DEFERRED_OUTPUT == 1: with deferred output, usually UART output and/or auxiliary output
+//! Setting TRICE_BUFFER to TRICE_RING_BUFFER or TRICE_DOUBLE_BUFFER demands TRICE_DEFERRED_OUTPUT == 1.
+//! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DEFERRED_OUTPUT == 0.
+//! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be on.
+#define TRICE_DEFERRED_OUTPUT 0
 
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
 //! Enable this only, if you want only a specific ID ranges for direct Trice output.
 //! If you use different direct output channels, you can change this only for all together.
-//#define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 1
+#define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 0 // (experimental)
+
+//! TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DEFERRED_OUTPUT is 1.
+//! Enable this only, if you want only a specific ID ranges for direct Trice output.
+//! If you use different direct output channels, you can change this only for all together.
+#define TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING 0 // (experimental)
 
 //! TRICE_DATA_OFFSET is the space in front of single trice data for in-buffer (T)COBS encoding.
 //! - When using real big buffers, 16 may be not enough.
@@ -76,7 +91,8 @@ void WatchRingBufferMargins( void );
 //!   stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
-//! - When not using dynamic string (or buffer) transfer, bigger values than 104 make no sense here and just spoiling RAM.
+//! - When NOT using dynamic string (or buffer) transfer, bigger values than 104 make no sense here and just spoiling RAM.
+//! - When USING dynamic string (or buffer) transfer, this value limits the max length of a trice. 2^15-1=32787 is the max possible value if you have enough RAM.
 #define TRICE_SINGLE_MAX_SIZE 400 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
@@ -84,7 +100,7 @@ void WatchRingBufferMargins( void );
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 2048 // must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 4096 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding-
 //#define TRICE_MCU_IS_BIG_ENDIAN 
@@ -95,27 +111,27 @@ void WatchRingBufferMargins( void );
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
 //! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice date with Python or an other language.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
-#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
+#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_NONE
 
 //! XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and paste it here.
-#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 //! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice capable node to read XTEA encrypted messages.
 //#define XTEA_DECRYPT
 
 //! TRICE_XTEA_DIRECT_ENCRYPT enables encryption for direct output. (experimental)
-#define TRICE_XTEA_DIRECT_ENCRYPT 1
+#define TRICE_XTEA_DIRECT_ENCRYPT 0
 
 //! TRICE_XTEA_DEFERRED_ENCRYPT enables encryption for deferred output. (experimental)
-#define TRICE_XTEA_DEFERRED_ENCRYPT 1
+#define TRICE_XTEA_DEFERRED_ENCRYPT 0
 
 //! With TRICE_DIAGNOSTICS == 0, additional trice diagnostics code is removed. 
 //! During development TRICE_DIAGNOSTICS == 1 helps to optimize the trice buffer sizes.
@@ -126,7 +142,7 @@ void WatchRingBufferMargins( void );
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1
+#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
 
 //! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
