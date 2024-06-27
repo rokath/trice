@@ -91,7 +91,7 @@ void WatchRingBufferMargins( void );
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
 //! - When NOT using dynamic string (or buffer) transfer, bigger values than 104 make no sense here and just spoiling RAM.
 //! - When USING dynamic string (or buffer) transfer, this value limits the max length of a trice. 2^15-1=32787 is the max possible value if you have enough RAM.
-#define TRICE_SINGLE_MAX_SIZE 160 // must be a multiple of 4
+#define TRICE_SINGLE_MAX_SIZE 400 // must be a multiple of 4
 
 //! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
 //! When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
