@@ -799,6 +799,10 @@
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4O -\u003e %4O %4O %4O %4O\\n"
 	},
+	"2218": {
+		"Type": "trice",
+		"Strg": "err: TriceDirectOverflowCount = %u\\n"
+	},
 	"2232": {
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
@@ -1590,6 +1594,10 @@
 	"3433": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d\\n"
+	},
+	"3436": {
+		"Type": "trice",
+		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
 	},
 	"3439": {
 		"Type": "TRICE8_8",
@@ -2734,6 +2742,10 @@
 	"5483": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n"
+	},
+	"5485": {
+		"Type": "trice",
+		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
 	},
 	"5492": {
 		"Type": "TRICE",

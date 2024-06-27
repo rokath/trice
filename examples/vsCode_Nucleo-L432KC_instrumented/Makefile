@@ -135,7 +135,7 @@ pre-build:
 	@echo "PRE ..."
 	@trice insert -src ../../src -src ./ -src ../exampleData
 	@echo "PRE ... done"
-	@make -j8 all
+	@#make -j8 all
 
 post-build:
 	@echo POST ...
