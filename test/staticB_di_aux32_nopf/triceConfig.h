@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define TRICE_CONFIG_WARNINGS 0
+#define TRICE_CONFIG_WARNINGS 1
 
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
@@ -117,7 +117,7 @@ void WatchRingBufferMargins( void );
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice date with Python or an other language.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
-#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_NONE
+#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_TCOBS
 
 //! XTEA_ENCRYPT_KEY, when defined, enables XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".

@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_CONFIG_WARNINGS 1
+
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
 #define TriceStamp16() (0x1616) //(SysTick->VAL) 
@@ -25,7 +27,7 @@ extern "C" {
 //! But that can happen only to parts of trices. The ring buffer read out function relies on consistent data. If it gets data garbage, wrong values
 //! for the trice lengths are possible and buffer overruns not avoidable. When enabling TRICE_PROTECT, new trices are only written into the deferred buffer,
 //! if there is enough space. That guaranties data consistency. Because a suppressed trice cannot cause a cycle error, there is TriceOverflowCount as diagnostic value. 
-#define TRICE_PROTECT
+#define TRICE_PROTECT 1
 
 //!  TRICE_BUFFER selects, where the TRICE macros accumulate the trice data during a single TRICE execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
