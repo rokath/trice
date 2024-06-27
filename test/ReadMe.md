@@ -2,6 +2,8 @@
 
 The main aim of these tests is to automatic compile and run the target code in many different compiler switch variants avoiding manual testing this way.
 
+For the user it could be helpful to start with a `triceConfig.h`file from here and to adapt the Trice tool command line from the matching `cgo_test.go`.
+
 ## How to run the tests
 
 - In `trice` folder execute `go clean -cache && go test ./...`. Cleaning the **Go** cache is recommended, because the CGO tests somehow keep pre-compiled files and when editing, this can led to confusing results.
@@ -28,7 +30,7 @@ The individual tests collect the expected results (`//exp: result`) together wit
 
 The whole process is relatively slow because of the often passed Go - C barrier, but allows automated tests in many different configuration variants.
 
-The `testdata\cgoPackage.go` file contains a variable `testLines = 20`, which limits the amount of performed trices for each test case. Changing this value will heavily influence the test duration.
+The `testdata\cgoPackage.go` file contains a variable `testLines = 20`, which limits the amount of performed trices for each test case. Changing this value will heavily influence the test duration. The value `-1` is reserved for testing all test lines.
 
 ## How to add new test cases
 
@@ -43,7 +45,7 @@ Each `tf` is a **Go** package, which is not part of any **Go** application. They
 
 The test specific target code configuration is inside `tf/trice.Config.h` and the appropriate Trice tool CLI switches are in `tf/cgo_test.go`.
 
-When running `go test ./test/tf` a Trice tool test executable is build, using the Trice tool packages and the `tf` package `cgot`, and the function `TestLogs` is executed. Its internal closure `triceLog` contains the Trice tool CLI switches and is passed to the `ccgot` package function `triceLogTest` together with the number of testLines and the trice mode (`directTransfer` or `deferrerdTransfer`).
+When running `go test ./test/tf`, a Trice tool test executable is build, using the Trice tool packages and the `tf` package `cgot`, and the function `TestLogs` is executed. Its internal closure `triceLog` contains the Trice tool CLI switches and is passed to the `ccgot` package function `triceLogTest` together with the number of testLines and the trice mode (`directTransfer` or `deferrerdTransfer`).
 
 During the test, the file `triceCheck.c` is scanned for lines like
 
@@ -51,7 +53,7 @@ During the test, the file `triceCheck.c` is scanned for lines like
 reak; case __LINE__: TRice( iD(3537), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
 ```
 
-Some C-code lines contain Trice statements and comments starting with `//exp: ` followed by the expected Trice tool output for that specific line. The **Go** testfunction collects these outputs in a slice together with the line numbers. Then for each found line number the execution of the **Go** function `func triceCheck(n int)` takes part, which in turn calls the CGO compiled C-function `TriceCheck(n)`. The now activated Trice C-code writes the generated trice bytes in a between **C** and **Go** shared buffer using the C-functoion `TriceWriteDeviceCgo`. After returning from the **Go** function `func triceCheck(n int)` and optionally calling `TriceTransfer` in deferred mode the Trice tool `triceLog()` function converts the Trice buffer bytes to the log string and compares the result with the expected data.
+Some C-code lines contain Trice statements and comments starting with `//exp: ` followed by the expected Trice tool output for that specific line. The **Go** testfunction collects these outputs in a slice together with the line numbers. Then for each found line number the execution of the **Go** function `func triceCheck(n int)` takes part, which in turn calls the CGO compiled C-function `TriceCheck(n)`. The now activated Trice C-code writes the generated trice bytes in a between **C** and **Go** shared buffer using the C-function `TriceWriteDeviceCgo`. After returning from the **Go** function `func triceCheck(n int)` and optionally calling `TriceTransfer` in deferred mode the Trice tool `triceLog()` function converts the Trice buffer bytes to the log string and compares the result with the expected data. The between **Go** and **C** shared buffer limits the executed Trices per line to one, because they use the same buffer from the beginning. This could be done better with an increment to allow several trices in one single line.
 
 Because each test runs a different configuration, all possible combinations are testable.
 
@@ -59,20 +61,21 @@ Because each test runs a different configuration, all possible combinations are 
 
 ### Folder Naming Convention
 
-| Folder Name Part | Meaning                                                                                                   |
-|:----------------:|-----------------------------------------------------------------------------------------------------------|
-|    `testdata`    | This is no test folder. It contains data common to all tests.                                             |
-|      `_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.                      |
-| `staticBuffer_`  | direct mode                                                                                               |
-|  `stackBuffer_`  | direct mode                                                                                               |
-|  `ringBuffer_`   | deferred mode                                                                                             |
-| `doubleBuffer_`  | deferred mode                                                                                             |
-|     `_rtt8_`     | (simulated) SEGGER_RTT byte transfer                                                                      |
-|    `_rtt32_`     | (simulated) SEGGER_RTT word transfer                                                                      |
-|     `_AND_`      | deferred and direct mode together                                                                         |
-|     `_xtea_`     | with encryption, otherwise without encryption                                                             |
-|     `_tcobs`     | TCOBS package framing                                                                                     |
-|     `_cobs`      | COBS package framing                                                                                      |
-|     `_nopf`      | no package framing                                                                                        |
-|    `_multi_`     | Usually each Trice is handled separately. In multi mode groups of available Trices are frameded together. |
-
+| Folder Name Part | Meaning                                                                                                 |
+|:----------------:|---------------------------------------------------------------------------------------------------------|
+|    `testdata`    | This is no test folder. It contains data common to all tests.                                           |
+|      `_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.                    |
+|      `_di_`      | direct mode                                                                                             |
+|      `_de_`      | deferred mode                                                                                           |
+|    `staticB_`    | static buffer, direct mode only possible                                                                |
+|    `stackB_`     | static buffer, direct mode only possible                                                                |
+|     `ringB_`     | ring buffer                                                                                             |
+|     `dblB_`      | double buffer                                                                                           |
+|     `_rtt8_`     | (simulated) SEGGER_RTT byte transfer                                                                    |
+|    `_rtt32_`     | (simulated) SEGGER_RTT word transfer                                                                    |
+|       `__`       | direct and deferred mode together                                                                       |
+|     `_xtea_`     | with encryption, otherwise without encryption                                                           |
+|     `_tcobs`     | TCOBS package framing                                                                                   |
+|     `_cobs`      | COBS package framing                                                                                    |
+|     `_nopf`      | no package framing                                                                                      |
+|    `_multi_`     | Usually each Trice is handled separately. In multi mode groups of available Trices are framed together. |

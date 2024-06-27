@@ -2311,6 +2311,10 @@
 		"Type": "trice16",
 		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
+	"3706": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
 	"3710": {
 		"Type": "trice8",
 		"Strg": "no value"
@@ -2814,6 +2818,10 @@
 	"4362": {
 		"Type": "TRICE32_5",
 		"Strg": "tst:TRICE32_5  %d %d %d %d %d\\n"
+	},
+	"4365": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
 	},
 	"4367": {
 		"Type": "TRICE_S",
@@ -3526,6 +3534,10 @@
 	"5173": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d\\n"
+	},
+	"5186": {
+		"Type": "TRice",
+		"Strg": "Hello "
 	},
 	"5192": {
 		"Type": "TRICE",

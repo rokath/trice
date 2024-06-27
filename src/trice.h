@@ -113,6 +113,10 @@ extern "C" {
 
 // defaults part 1:
 
+#ifndef TRICE_CONFIG_WARNINGS
+#define TRICE_CONFIG_WARNINGS 1
+#endif
+
 #if ( (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) ) && !defined(TRICE_DEFERRED_OUTPUT)
 #define TRICE_DEFERRED_OUTPUT 1
 #endif
@@ -189,7 +193,7 @@ void TriceLogDiagnosticValues( void );
 void TriceLogSeggerDiagnostics( void );
 void TriceNonBlockingDeferredWrite8( int ticeID, const uint8_t * enc, size_t encLen );
 void TriceTransfer( void );
-void TriceWriteDeviceCgo( const uint8_t * buf, unsigned len ); // only needed for testing C-sources from Go
+void TriceWriteDeviceCgo( const void * buf, unsigned len ); // only needed for testing C-sources from Go
 size_t triceDataLen( const uint8_t * p );
 
 //int TriceIDAndBuffer( const uint32_t * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );

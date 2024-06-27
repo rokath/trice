@@ -9,6 +9,10 @@
 
 // check configuration:
 
+#ifndef TRICE_DATA_OFFSET
+#error configuration
+#endif
+
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_AUXILIARY32 == 1)
     #error configuration: Only one bit width for direct output is supported.
 #endif
@@ -41,7 +45,7 @@
 #error configuration: Check TRICE_DEFERRED_TRANSFER_MODE value.
 #endif
 
-#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DATA_OFFSET < 64)
+#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DATA_OFFSET < 64) && (TRICE_CONFIG_WARNINGS == 1)
 #warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
 #endif
 
@@ -163,6 +167,14 @@
 
 #if TRICE_DEFERRED_BUFFER_SIZE & 3
 #error All size values must be a multiple of 4!
+#endif
+
+#if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
+    #warning configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING is experimental
+#endif
+
+#if (TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1)
+    #warning configuration: TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING is experimental
 #endif
 
 //  #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)  && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
@@ -441,7 +453,7 @@ static void triceSeggerRTTDiagnostics( void ){
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) {
     #if defined(TRICE_CGO) // automated tests
-        TriceWriteDeviceCgo( (uint8_t*)pData, NumW<<2 );
+        TriceWriteDeviceCgo( pData, NumW<<2 );
     #else // #if defined(TRICE_CGO)
         unsigned NumWordsAtOnce;
         unsigned WrOff;
@@ -488,7 +500,9 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
 //! directXEncode32 transforms buf to enc and adds a 0-delimiter and padding zeroes to the next uint32 boundary.
 //! \retval count of enc values 
 static unsigned directXEncode32( uint32_t * enc, const void * buf, unsigned count ){
- 
+
+    //memset(enc, 0, TRICE_BUFFER_SIZE); // todo: why is this needed?
+
     #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
         size_t lenX = COBSEncode(enc, buf, count<<2 );
     #elif (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
@@ -496,34 +510,44 @@ static unsigned directXEncode32( uint32_t * enc, const void * buf, unsigned coun
     #else
         #error configuration
     #endif
-    size_t len4 = (lenX + 1 + 3) & ~3;
-    memset( enc+lenX, 0, len4 - lenX );
+    size_t len4 = (lenX + 3 + 1) & ~3; // size with padding and with packet 0-delimiter
+    int zeroesCount = len4 - lenX;
+    memset( ((uint8_t*)enc)+lenX, 0, zeroesCount );
     return len4>>2;
 }
 #endif // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) ||  (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
-static void TriceDirectWrite32( const uint32_t * buf, unsigned count ){ // todo:aux
-        #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
-                unsigned space = TRICE_BUFFER;
-            #else
+static void TriceDirectWrite32( const uint32_t * buf, unsigned count ){
+
+    #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
+        #if defined(TRICE_CGO) // automated tests
+            TriceWriteDeviceCgo( buf, count<<2 );
+        #else // #if defined(TRICE_CGO) 
+
+            #ifdef TRICE_PROTECT
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
                 #if TRICE_DIAGNOSTICS == 1
                     // todo
                 #endif
-            #endif
-            if( space >= count<<2 ){
+                if( space >= count<<2 ){
+                    SEGGER_Write_RTT0_NoCheck32( buf, count );
+                }else{
+                    TriceDirectOverflowCount++;
+                }
+            #else // #ifdef TRICE_PROTECT
                 SEGGER_Write_RTT0_NoCheck32( buf, count );
-            }else{
-                TriceDirectOverflowCount++;
-            }
-        #else // #ifdef TRICE_PROTECT
-            SEGGER_Write_RTT0_NoCheck32( buf, count );
-        #endif // #else // #ifdef TRICE_PROTECT
-        #if TRICE_DIRECT_AUXILIARY32
-            TriceNonBlockingDirectWrite32Auxiliary( enc, encLen );
-        #endif
+            #endif // #else // #ifdef TRICE_PROTECT
 
+        #endif // #else // #if defined(TRICE_CGO)   
+    #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
+
+    #if TRICE_DIRECT_AUXILIARY32
+        #if defined(TRICE_CGO) // automated tests
+            TriceWriteDeviceCgo( buf, count<<2 );
+        #else
+            TriceNonBlockingDirectWrite32Auxiliary( buf, count );
+        #endif
+    #endif // #if TRICE_DIRECT_AUXILIARY32
 }
 
 #endif // #if TRICE_DIRECT32
@@ -635,11 +659,12 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
                 wordCount &= ~1; // only multiple of 8 can be encrypted 
                 XTEAEncrypt( triceStart, wordCount ); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
             #endif
+
             #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
                 uint32_t * enc = triceStart;
                 unsigned count = wordCount;
             #else
-                static uint32_t enc[TRICE_BUFFER_SIZE>>2]; // stack buffer!
+                static uint32_t enc[TRICE_BUFFER_SIZE>>2]; // static buffer!
                 unsigned count = directXEncode32( enc, triceStart, wordCount );
             #endif
             TriceDirectWrite32( enc, count );
@@ -987,7 +1012,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         //  #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 
         //  #if defined(TRICE_CGO) // automated tests
-        //      TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
+        //      TriceWriteDeviceCgo( triceStart, wordCount<<2 );
         //  #else // #if defined(TRICE_CGO)
         //      #ifdef TRICE_PROTECT
         //          #ifdef TRICE_CGO

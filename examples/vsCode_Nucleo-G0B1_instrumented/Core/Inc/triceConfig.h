@@ -7,7 +7,9 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif   
+#endif
+
+#define TRICE_CONFIG_WARNINGS 1
 
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
@@ -25,7 +27,7 @@ extern "C" {
 //! But that can happen only to parts of trices. The ring buffer read out function relies on consistent data. If it gets data garbage, wrong values
 //! for the trice lengths are possible and buffer overruns not avoidable. When enabling TRICE_PROTECT, new trices are only written into the deferred buffer,
 //! if there is enough space. That guaranties data consistency. Because a suppressed trice cannot cause a cycle error, there is TriceOverflowCount as diagnostic value. 
-#define TRICE_PROTECT
+#define TRICE_PROTECT 1
 
 //!  TRICE_BUFFER selects, where the TRICE macros accumulate the trice data during a single TRICE execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
@@ -37,9 +39,10 @@ extern "C" {
 #define TRICE_BUFFER TRICE_STATIC_BUFFER
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
-//! - TRICE_SINGLE_PACK_MODE: Each package is followed by a 0-delimiter byte (recommended, in case of a lost package only one Trice can get lost).
-//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte (reduces transmit byte count, in case of a lost package several Trices can get lost).
-//! - When using encryption, the TRICE_MULTI_PACK_MODE (with TRICE_BUFFER == TRICE_DOUBLE_BUFFER) can significantly reduce the transmit byte count.
+//! - TRICE_SINGLE_PACK_MODE packs each Trice message separately and adds a 0-delimiter byte. This reduces the transmit byte count. In case of a lost package only one Trice can get lost.
+//! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte. This reduces the transmit byte count. In case of a lost package several Trices can get lost.
+//! - When using encryption, the TRICE_MULTI_PACK_MODE can significantly reduce the transmit byte count, because in TRICE_SINGLE_PACK_MODE each Trice message gets extended 
+//! with 1 to 7 padding bytes beore encryption.
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
@@ -80,8 +83,6 @@ void WatchRingBufferMargins( void );
 //! - When using XTEA, this value should incorporate additinal 4 bytes, because of the 64-bit encryption units.
 //! With TRICE_BUFFER == TRICE_RING_BUFFER, this amount of space is allocated in front of each single trice!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //! With TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this amount of space is allocated once in front of each half buffer.
-//!  and should be at least 64.
-//! Thats because 
 #define TRICE_DATA_OFFSET 32 // must be a multiple of 4
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings, to detect the need of a ring buffer wrap or to protect against overflow.
@@ -99,7 +100,7 @@ void WatchRingBufferMargins( void );
 //! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
 //! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers. 
 //! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer. 
-#define TRICE_DEFERRED_BUFFER_SIZE 0x200 // must be a multiple of 4
+#define TRICE_DEFERRED_BUFFER_SIZE 2048 // must be a multiple of 4
 
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding-
 //#define TRICE_MCU_IS_BIG_ENDIAN 
@@ -110,7 +111,7 @@ void WatchRingBufferMargins( void );
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. TRICE_FRAMING_NONE is needed for fast RTT (32-bit access), recommended.
 //! - With TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 or TRICE_SEGGER_RTT_8BIT_WRITE_DIRECT_WITHOUT_FRAMING == 1,
 //!   the RTT data arrive unframed ignoring the TRICE_DIRECT_OUT_FRAMING setting here.
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
+#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS
 
 //! TRICE_DEFERRED_OUT_FRAMING defines the framing method of the binary trice data stream for deferred output. Options: 
 //! - TRICE_FRAMING_TCOBS: Recommended for UART transfer and trice tool visualization.

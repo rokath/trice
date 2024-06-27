@@ -1,0 +1,38 @@
+{
+	"2665": {
+		"File": "main.c",
+		"Line": 104
+	},
+	"4241": {
+		"File": "main.c",
+		"Line": 99
+	},
+	"4412": {
+		"File": "stm32f0xx_it.c",
+		"Line": 172
+	},
+	"5522": {
+		"File": "main.c",
+		"Line": 106
+	},
+	"6062": {
+		"File": "main.c",
+		"Line": 105
+	},
+	"6512": {
+		"File": "main.c",
+		"Line": 103
+	},
+	"7005": {
+		"File": "main.c",
+		"Line": 102
+	},
+	"7388": {
+		"File": "stm32f0xx_it.c",
+		"Line": 166
+	},
+	"7962": {
+		"File": "main.c",
+		"Line": 101
+	}
+}

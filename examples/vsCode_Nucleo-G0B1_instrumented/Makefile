@@ -66,6 +66,9 @@ Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
 
+#Core/Src/sysmem.c 
+#Core/Src/syscalls.c
+
 C_SOURCES += \
 ../../src/cobsDecode.c \
 ../../src/cobsEncode.c \
@@ -82,7 +85,8 @@ C_SOURCES += \
 ../../src/triceRingBuffer.c \
 ../../src/triceStackBuffer.c \
 ../../src/triceStaticBuffer.c \
-../../src/xtea.c 
+../../src/xtea.c \
+../exampleData/triceCheck.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -137,7 +141,7 @@ pre-build:
 	@echo "PRE ..."
 	@trice insert -src ../../src -src ./ -src ../exampleData
 	@echo "PRE ... done"
-	@make -j8 all
+	@#make -j8 all
 
 post-build:
 	@echo POST ...
