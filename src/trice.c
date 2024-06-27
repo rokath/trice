@@ -89,7 +89,7 @@
 #warning configuration: TRICE_CGO needs TRICE_CYCLE_COUNTER == 0 for successful tests
 #endif
 
-#if (TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_AUXILIARY8 == 0) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 0) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 0)
+#if (TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_AUXILIARY8 == 0) && (TRICE_DIRECT_AUXILIARY32 == 0) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 0) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 0)
 #error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel
 #endif
 
@@ -1126,7 +1126,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1
 
-#if TRICE_DEFERRED_OUTPUT
+#if TRICE_DEFERRED_OUTPUT == 1
 
 // TriceNonBlockingDeferredWrite8 routes trice data to output channels.
 void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t encLen ){
@@ -1170,7 +1170,7 @@ void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t en
     #endif //  #else // #if defined(TRICE_CGO) // automated tests
 } //lint !e715 Info 715: Symbol 'triceID' not referenced
 
-#endif // #if TRICE_DEFERRED_OUTPUT
+#endif // #if TRICE_DEFERRED_OUTPUT == 1
 
 #if defined( TRICE_UARTA ) // deferred out to UART
 

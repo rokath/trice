@@ -57,14 +57,6 @@ var (
 	testLines = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 )
 
-type triceMode int
-
-const (
-	directTransfer triceMode = iota
-	deferredTransfer
-	combinedTransfer // todo!
-)
-
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
 func init() {
 	_, filename, _, _ := runtime.Caller(0) // filename is the test executable inside the package dir like cgo_stackBuffer_noCycle_tcobs
@@ -153,7 +145,7 @@ type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 // copied into all specific test packages and compiled there together with the
 // triceConfig.h, which holds the test package specific target code configuration.
 // limit is the count of executed test lines starting from the beginning. -1 ist for all.
-func triceLogTest(t *testing.T, triceLog logF, limit int, mode triceMode) {
+func triceLogTest(t *testing.T, triceLog logF, limit int) {
 
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	//mmFSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -171,15 +163,16 @@ func triceLogTest(t *testing.T, triceLog logF, limit int, mode triceMode) {
 		if limit >= 0 && count >= limit {
 			return
 		}
+		//if r.line == 55 || r.line == 58 {
 		fmt.Println(i, r)
 
 		// target activity
 		triceCheck(r.line)
-		if mode == deferredTransfer {
-			triceTransfer()
-		}
+
+		triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+
 		length := triceOutDepth()
-		bin := out[:length] // bin contains the binary trice data of trice message i
+		bin := out[:length] // bin contains the binary trice data of trice message i in r.line
 
 		buf := fmt.Sprint(bin)
 		buffer := buf[1 : len(buf)-1]
@@ -188,6 +181,7 @@ func triceLogTest(t *testing.T, triceLog logF, limit int, mode triceMode) {
 		triceClearOutBuffer()
 
 		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+		//}
 	}
 }
 

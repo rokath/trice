@@ -40,20 +40,20 @@ ringB_de_tcobs/
 ringB_de_xtea_cobs/
 ringB_de_xtea_tcobs/
 ringB_di_rtt32_cobs__de_tcobs/
-ringB_di_rtt32_nopf___de_tcobs/
-ringB_di_rtt32_nopf___de_xtea_cobs/
+ringB_di_rtt32_nopf__de_tcobs/
+ringB_di_rtt32_nopf__de_xtea_cobs/
 ringB_di_rtt32_tobs__de_tcobs/
 ringB_di_rtt8_cobs__de_tcobs/
 ringB_di_rtt8_nopf__de_tcobs/
 stackB_di_aux8_nopf/
 stackB_di_rtt32_nopf/
 stackB_di_rtt8_nopf/
+staticB_di_aux32_nopf/
 staticB_di_aux8_nopf/
 staticB_di_rtt32_nopf/
 staticB_di_rtt32_tcobs/
 staticB_di_rtt8_nopf/
 staticB_di_rtt8_tcobs/
-
 "
 for d in $CGOTESTDIRS
 do

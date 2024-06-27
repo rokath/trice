@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define TRICE_CONFIG_WARNINGS 1
+#define TRICE_CONFIG_WARNINGS 0
 
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
@@ -36,7 +36,7 @@ extern "C" {
 //!   This is the fastest execution option for TRICE macros but needs more RAM. Used for deferred output and optional additional direct output.
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is a fast but not the fastest execution option for TRICE macros but needs less RAM. Used for deferred output and optional additional direct output.
-#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_BUFFER TRICE_STACK_BUFFER
 
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options: 
 //! - TRICE_SINGLE_PACK_MODE packs each Trice message separately and adds a 0-delimiter byte. This reduces the transmit byte count. In case of a lost package only one Trice can get lost.
@@ -150,7 +150,7 @@ void WatchRingBufferMargins( void );
 #define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
 
 //! TRICE_DIRECT_AUXILIARY8 enables a user defined direct trice 8bit char write. (experimental)
-#define TRICE_DIRECT_AUXILIARY8 0
+#define TRICE_DIRECT_AUXILIARY8 1
 
 //! TRICE_DIRECT_AUXILIARY32 enables a user defined direct trice 32bit word write. (experimental)
 #define TRICE_DIRECT_AUXILIARY32 0

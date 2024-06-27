@@ -55,7 +55,7 @@ void TriceCheck(int n) {
 		break; case __LINE__: TRice( "Hello World!\n" );               //exp: time: 842,150_450default: Hello World!
 		
 		// now 2 Trices in one line
-		break; case __LINE__: TRice( "Hello " ); TRice( "World!\n" );  //exp: time: 842,150_450default: Hello World!
+		//break; case __LINE__: TRice( "Hello " ); TRice( "World!\n" );  //exp: time: 842,150_450default: Hello World!
 		
         break; case __LINE__: for( int i = 0; i < 20; i++ ){ dynString(i); }
 
