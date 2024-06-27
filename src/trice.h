@@ -193,7 +193,7 @@ void TriceLogDiagnosticValues( void );
 void TriceLogSeggerDiagnostics( void );
 void TriceNonBlockingDeferredWrite8( int ticeID, const uint8_t * enc, size_t encLen );
 void TriceTransfer( void );
-void TriceWriteDeviceCgo( const uint8_t * buf, unsigned len ); // only needed for testing C-sources from Go
+void TriceWriteDeviceCgo( const void * buf, unsigned len ); // only needed for testing C-sources from Go
 size_t triceDataLen( const uint8_t * p );
 
 //int TriceIDAndBuffer( const uint32_t * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
