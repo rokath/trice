@@ -5239,6 +5239,10 @@
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d\\n"
 	},
+	"2644": {
+		"Type": "TRice",
+		"Strg": "Hello "
+	},
 	"2647": {
 		"Type": "TRICE",
 		"Strg": "message:green+h:black\\n"
@@ -15207,6 +15211,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d\\n"
 	},
+	"5798": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
 	"5799": {
 		"Type": "TRICE32",
 		"Strg": "tim: post TriceEncryption SysTick=%d\\n"
@@ -22050,6 +22058,10 @@
 	"7937": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d\\n"
+	},
+	"7938": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
 	},
 	"7939": {
 		"Type": "TRICE8_1",

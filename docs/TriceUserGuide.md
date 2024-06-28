@@ -1397,8 +1397,8 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 
 - To interpret a decoded package, it´s endianness needs to be known.
 - For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
-- On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
-- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
+- On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined as 1 and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
+- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed to be defined as 1. This increases the critical trice storage time and target code amount.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1424,7 +1424,7 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
   | `TRICE( Id(n), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
   | `TRICE( ID(n), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
 
-It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a µs or ms tick count but any values are allowed.
+It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp32`. Normally they return a µs or ms tick count but any values are allowed.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

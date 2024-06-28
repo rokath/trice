@@ -216,14 +216,14 @@ void USART2_IRQHandler(void)
 
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int16_t TriceStamp16( void );` has significant speed impact.
-#define TriceStamp16() (SysTick->VAL) // Counts from 31999 -> 0 in each ms. 
+#define TriceStamp16 (SysTick->VAL) // Counts from 31999 -> 0 in each ms. 
 
 // ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
 extern uint32_t ms32;
 
 //! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! The user has to provide this function. Defining a macro here, instead if providing `int32_t TriceStamp32( void );` has significant speed impact.
-#define TriceStamp32() ms32 
+#define TriceStamp32 ms32 
 ```
 
 - Run `trice s` to determine the relevant comport.

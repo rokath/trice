@@ -5,12 +5,10 @@
 #include "xtea.h"
 #include "trice.h"
 
+#if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
+
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;
-
-#ifndef XTEA_ENCRYPT_KEY
-#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
-#endif
 
 //! 128 bit static key
 static const uint32_t k[4] = XTEA_ENCRYPT_KEY; 
@@ -51,7 +49,7 @@ static void encipher( uint32_t v[2] ) {
     v[0] = v0; v[1] = v1;
 }
 
-#ifdef XTEA_DECRYPT
+#if XTEA_DECRYPT == 1
 //! decipher reverses encipher action.
 //! Code taken and adapted from xtea\block.go
 //!\param v 64 bits of data in v[0] and v[1] are decoded in place
@@ -74,7 +72,7 @@ void XTEADecrypt( uint32_t* p, unsigned count ){
         decipher( &p[i]); // byte swapping is done inside receiver according to endianness.
     }
 }
-#endif // #ifdef XTEA_DECRYPT
+#endif // #if XTEA_DECRYPT == 1
 
 //! XTEAEncrypt converts to xtea cipher.
 //! \param p pointer to 8 byte buffer.
@@ -85,3 +83,5 @@ void XTEAEncrypt( uint32_t* p, unsigned count ){
         encipher( &p[i] ); // byte swap is done inside receiver
     }
 }
+
+#endif // #if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)

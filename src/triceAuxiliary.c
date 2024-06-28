@@ -12,7 +12,7 @@ Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDirectWrite8Auxiliary writes to a user defined interface.
 void TriceNonBlockingDirectWrite8Auxiliary( const uint8_t * enc, size_t encLen ){
-    #if defined(TRICE_CGO) // automated tests
+    #if TRICE_CGO == 1 // automated tests
         TriceWriteDeviceCgo( enc, encLen );
     #else
         if( UserNonBlockingDirectWrite8AuxiliaryFn != (void*)0 ){
@@ -30,7 +30,7 @@ Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDeferredWrite8Auxiliary writes to a user defined interface.
 void TriceNonBlockingDeferredWrite8Auxiliary( const uint8_t * enc, size_t encLen ){
-    #if defined(TRICE_CGO) // automated tests
+    #if TRICE_CGO == 1 // automated tests
         TriceWriteDeviceCgo( enc, encLen );
     #else
         if( UserNonBlockingDeferredWrite8AuxiliaryFn != (void*)0 ){
@@ -49,7 +49,7 @@ Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDirectWrite32Auxiliary writes to a user defined interface.
 void TriceNonBlockingDirectWrite32Auxiliary( const uint32_t * enc, unsigned count ){
-    #if defined(TRICE_CGO) // automated tests
+    #if TRICE_CGO == 1 // automated tests
         TriceWriteDeviceCgo( enc, count<<2 );
     #else
         if( UserNonBlockingDirectWrite32AuxiliaryFn != (void*)0 ){
@@ -67,7 +67,7 @@ Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDeferredWrite32Auxiliary writes to a user defined interface.
 void TriceNonBlockingDeferredWrite32Auxiliary( const uint32_t * enc, unsigned count ){
-    #if defined(TRICE_CGO) // automated tests
+    #if TRICE_CGO == 1 // automated tests
         TriceWriteDeviceCgo( enc, count<<2 );
     #else
         if( UserNonBlockingDeferredWrite32AuxiliaryFn != (void*)0 ){

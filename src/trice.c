@@ -49,14 +49,6 @@
 #warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
 #endif
 
-#if ( (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1) ) && !defined(XTEA_ENCRYPT_KEY)
-#error configuration: TRICE_XTEA_DIRECT_ENCRYPT and TRICE_XTEA_DEFERRED_ENCRYPT need a defined XTEA_ENCRYPT_KEY.
-#endif
-
-#if ( (TRICE_XTEA_DIRECT_ENCRYPT == 0) && (TRICE_XTEA_DEFERRED_ENCRYPT == 0) ) && defined(XTEA_ENCRYPT_KEY)
-#warning configuration: TRICE_XTEA_DIRECT_ENCRYPT and TRICE_XTEA_DEFERRED_ENCRYPT are 0, so no need for a defined XTEA_ENCRYPT_KEY.
-#endif
-
 #if (TRICE_XTEA_DIRECT_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 #warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
 #endif
@@ -85,8 +77,8 @@
 #error configuration: (TRICE_BUFFER == TRICE_STATIC_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 0)
 #endif
 
-#if defined (TRICE_CGO) && (TRICE_CYCLE_COUNTER == 1)
-#warning configuration: TRICE_CGO needs TRICE_CYCLE_COUNTER == 0 for successful tests
+#if (TRICE_CGO == 1) && (TRICE_CYCLE_COUNTER == 1) && (TRICE_CONFIG_WARNINGS == 1)
+#warning configuration: TRICE_CGO == 1 needs TRICE_CYCLE_COUNTER == 0 for successful tests.
 #endif
 
 #if (TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_AUXILIARY8 == 0) && (TRICE_DIRECT_AUXILIARY32 == 0) && (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 0) && (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 0)
@@ -253,12 +245,12 @@ void TriceInit( void ){
     #ifdef SEGGER_RTT
         // This is just to force the INIT() call inside SEGGER_RTT.c what allows to use
         // SEGGER_RTT_WriteNoLock or SEGGER_Write_RTT0_NoCheck32 instead of SEGGER_RTT_Write.
-        #ifndef TRICE_CGO
+        #if TRICE_CGO == 0
             SEGGER_RTT_Write(0, 0, 0 ); //lint !e534
         #endif
     #endif
 
-    #ifdef XTEA_ENCRYPT_KEY
+    #if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
         XTEAInitTable();
     #endif
 }
@@ -344,7 +336,7 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
     size_t encLen;
     const uint8_t * dat = buf;
     if( encrypt ){
-        #ifdef XTEA_ENCRYPT_KEY
+        #if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
             // Only multiple of 8 encryptable, but trice data are 32-bit aligned.
             // A 64-bit trice data aligning would waste RAM and costs a bit time during trice generation.
             // We need additional 4 bytes after each trice for the XTEA encryption.
@@ -375,7 +367,7 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
                 len = len8;
                 XTEAEncrypt( loc, len8>>2 );
             #endif // #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-        #endif // #ifdef XTEA_ENCRYPT_KEY
+        #endif // #if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
     }
     switch( framing ){
         case TRICE_FRAMING_TCOBS:
@@ -399,7 +391,7 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
 unsigned RTT0_writeDepthMax = 0; //!< RTT0_writeDepthMax is usable for diagnostics.
 
 static void triceSeggerRTTDiagnostics( void ){
-    #ifdef TRICE_CGO
+    #if TRICE_CGO == 1
         unsigned space = TRICE_BUFFER;
     #else
         unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
@@ -452,9 +444,9 @@ static void triceSeggerRTTDiagnostics( void ){
 #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
 static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) {
-    #if defined(TRICE_CGO) // automated tests
+    #if TRICE_CGO == 1 // automated tests
         TriceWriteDeviceCgo( pData, NumW<<2 );
-    #else // #if defined(TRICE_CGO)
+    #else // #if TRICE_CGO == 1
         unsigned NumWordsAtOnce;
         unsigned WrOff;
         unsigned RemW;
@@ -492,7 +484,7 @@ static void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) 
         #if TRICE_DIAGNOSTICS == 1
             triceSeggerRTTDiagnostics();
         #endif
-    #endif // #else // #if defined(TRICE_CGO)
+    #endif // #else // #if TRICE_CGO == 1
 }
 #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 
@@ -520,9 +512,9 @@ static unsigned directXEncode32( uint32_t * enc, const void * buf, unsigned coun
 static void TriceDirectWrite32( const uint32_t * buf, unsigned count ){
 
     #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
-        #if defined(TRICE_CGO) // automated tests
+        #if TRICE_CGO == 1 // automated tests
             TriceWriteDeviceCgo( buf, count<<2 );
-        #else // #if defined(TRICE_CGO) 
+        #else // #if TRICE_CGO == 1
 
             #ifdef TRICE_PROTECT
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
@@ -538,11 +530,11 @@ static void TriceDirectWrite32( const uint32_t * buf, unsigned count ){
                 SEGGER_Write_RTT0_NoCheck32( buf, count );
             #endif // #else // #ifdef TRICE_PROTECT
 
-        #endif // #else // #if defined(TRICE_CGO)   
+        #endif // #else // #if TRICE_CGO == 1  
     #endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1
 
     #if TRICE_DIRECT_AUXILIARY32
-        #if defined(TRICE_CGO) // automated tests
+        #if TRICE_CGO == 1 // automated tests
             TriceWriteDeviceCgo( buf, count<<2 );
         #else
             TriceNonBlockingDirectWrite32Auxiliary( buf, count );
@@ -575,14 +567,14 @@ static size_t directXEncode8( void * enc, const void * buf, unsigned len ){
 //  #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
 //  
 //  static void TriceWriteDeviceRtt0( const uint8_t * enc, size_t encLen ){
-//      #if defined(TRICE_CGO) // automated tests
+//      #if TRICE_CGO == 1 // automated tests
 //          TriceWriteDeviceCgo( enc, encLen );
-//      #else // #if defined(TRICE_CGO)
+//      #else // #if TRICE_CGO == 1
 //          SEGGER_RTT_WriteNoLock(0, enc, encLen );
 //          #if TRICE_DIAGNOSTICS == 1
 //              triceSeggerRTTDiagnostics(); // todo: maybe not needed
 //          #endif
-//      #endif // else // #if defined(TRICE_CGO)
+//      #endif // else // #if TRICE_CGO == 1
 //  }
 //  
 //  #endif // #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
@@ -591,7 +583,7 @@ static void TriceDirectWrite8( const uint8_t * enc, size_t encLen ){
 
 /*
    #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
+            #if TRICE_CGO == 1
                 unsigned space = TRICE_BUFFER;
             #else
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
@@ -608,7 +600,7 @@ static void TriceDirectWrite8( const uint8_t * enc, size_t encLen ){
 
 
     #if TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1
-        #if defined(TRICE_CGO) // automated tests
+        #if TRICE_CGO == 1// automated tests
             TriceWriteDeviceCgo( enc, encLen );
         #else
             SEGGER_RTT_WriteNoLock(0, enc, encLen );
@@ -618,7 +610,7 @@ static void TriceDirectWrite8( const uint8_t * enc, size_t encLen ){
         #endif
     #endif
     #if TRICE_DIRECT_AUXILIARY8
-        #if defined(TRICE_CGO) // automated tests
+        #if TRICE_CGO == 1 // automated tests
             TriceWriteDeviceCgo( enc, encLen );
         #else
             TriceNonBlockingDirectWrite8Auxiliary( enc, encLen );
@@ -797,7 +789,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
             bc = wordCount<<2;
         #endif
         #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
+            #if TRICE_CGO == 1
                 unsigned space = TRICE_BUFFER;
             #else
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
@@ -815,7 +807,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         #elif (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1)  && (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 0) && ((TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
     // In this twin mode (direct and deferred output) for runtime efficiency, for direct output no encryption is allowed and only package framing NONE is possible (for now).
         #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
+            #if TRICE_CGO == 1
                 unsigned space = TRICE_BUFFER;
             #else
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
@@ -873,7 +865,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         size_t len = COBSEncode(tmp, crypt, len8 );
         tmp[len++] = 0;
         #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
+            #if TRICE_CGO == 1
                 unsigned space = TRICE_BUFFER;
             #else
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);  // todo: auxioliary output
@@ -900,7 +892,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         size_t len = TCOBSEncode(tmp, crypt, len8 );
         tmp[len++] = 0;
         #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
+            #ifTRICE_CGO == 1
                 unsigned space = TRICE_BUFFER;
             #else
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);  // todo: auxioliary output
@@ -922,7 +914,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         size_t len = COBSEncode(tmp, triceStart, bc );
         tmp[len++] = 0;
         #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
+            #if TRICE_CGO == 1
                 unsigned space = TRICE_BUFFER;
             #else
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);  // todo: auxioliary output
@@ -944,7 +936,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         size_t len = TCOBSEncode(tmp, triceStart, bc );
         tmp[len++] = 0;
         #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
+            #if TRICE_CGO == 1
                 unsigned space = TRICE_BUFFER;
             #else
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);  // todo: auxioliary output
@@ -963,7 +955,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
     // In this twin mode (direct and deferred output) for runtime efficiency, for direct output no encryption is allowed and only package framing NONE is possible (for now).
         unsigned bc = wordCount<<2;
         #ifdef TRICE_PROTECT
-            #ifdef TRICE_CGO
+            #if TRICE_CGO == 1
                 unsigned space = TRICE_BUFFER;
             #else
                 unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
@@ -1011,11 +1003,11 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         //      wc = encLen>>2;
         //  #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 
-        //  #if defined(TRICE_CGO) // automated tests
+        //  #if TRICE_CGO == 1 // automated tests
         //      TriceWriteDeviceCgo( triceStart, wordCount<<2 );
-        //  #else // #if defined(TRICE_CGO)
+        //  #else // #if TRICE_CGO == 1
         //      #ifdef TRICE_PROTECT
-        //          #ifdef TRICE_CGO
+        //          #if TRICE_CGO == 1
         //              unsigned space = TRICE_BUFFER;
         //          #else
         //              unsigned space = SEGGER_RTT_GetAvailWriteSpace (0);
@@ -1028,7 +1020,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
         //      #else // #ifdef TRICE_PROTECT
         //          SEGGER_Write_RTT0_NoCheck32( dat, wc );
         //      #endif // #else // #ifdef TRICE_PROTECT
-        //  #endif // #else // #if defined(TRICE_CGO)
+        //  #endif // #else // #if TRICE_CGO == 1
         //  return;
     //#endif // #if TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 // fast SEGGER RTT
     //  #elif TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1 // normal SEGGER RTT /////////////////////////////////////////////////////////////
@@ -1059,7 +1051,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
     //          bc = encLen;
     //      #endif // #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 //  
-    //      #if defined(TRICE_CGO) // automated tests
+    //      #if TRICE_CGO == 1 // automated tests
     //          TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
     //      #else
     //          TriceWriteDeviceRtt0( dat, bc );
@@ -1074,14 +1066,14 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
                 return;
             #endif
 
-            #if defined(TRICE_CGO)
+            #if TRICE_CGO == 1
                 TriceWriteDeviceCgo( (uint8_t*)triceStart, wordCount<<2 );
             #endif
         #else // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) 
             #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1) \
                 && (    (TRICE_DIRECT_AUXILIARY8 == 1) \
                     || ((TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) && (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)) \
-                    || defined( TRICE_CGO ) )
+                    || (TRICE_CGO == 1) )
 
                 uint8_t* triceStart2;
                 int triceID;
@@ -1111,7 +1103,7 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
                     { TriceWriteDeviceRtt0( enc, encLen ); }
                 #endif
                 
-                #ifdef TRICE_CGO
+                #if TRICE_CGO == 1
                     TriceWriteDeviceCgo( enc, encLen );
                 #endif
 
@@ -1131,9 +1123,9 @@ void TriceNonBlockingDirectWrite( uint32_t * triceStart, unsigned wordCount ){
 // TriceNonBlockingDeferredWrite8 routes trice data to output channels.
 void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t encLen ){
     
-    #if defined(TRICE_CGO) // automated tests
+    #if TRICE_CGO == 1 // automated tests
         TriceWriteDeviceCgo( enc, encLen );
-    #else // #if defined(TRICE_CGO) // automated tests
+    #else // #if TRICE_CGO == 1// automated tests
         #if defined( TRICE_UARTA )
             #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
             if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
@@ -1152,7 +1144,7 @@ void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t en
             #endif
             { TriceNonBlockingDeferredWrite8Auxiliary( enc, encLen ); }
         #endif
-        #ifdef TRICE_CGO
+        #if TRICE_CGO == 1
             
         #endif
         #if (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
@@ -1167,7 +1159,7 @@ void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t en
         //      #endif
         //      TriceWriteDeviceModbus( enc, encLen );
         //  #endif
-    #endif //  #else // #if defined(TRICE_CGO) // automated tests
+    #endif //  #else // #if TRICE_CGO == 1// automated tests
 } //lint !e715 Info 715: Symbol 'triceID' not referenced
 
 #endif // #if TRICE_DEFERRED_OUTPUT == 1
@@ -1293,7 +1285,7 @@ unsigned TriceOutDepth( void ){
         d = TriceOutDepthUartB();
         depth = d > depth ? d : depth;
     #endif
-    #ifdef TRICE_CGO
+    #if TRICE_CGO == 1
         d = TriceOutDepthCGO();
         depth = d > depth ? d : depth;
     #endif

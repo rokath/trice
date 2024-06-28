@@ -37,9 +37,9 @@ void TriceCheck(int n) {
     char* sABCDE = "abcde 12345";
     uint32_t lenABCDE = strlen(sABCDE);
 
-    #ifdef TRICE_CGO
+    #if TRICE_CGO == 1
     char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    #endif // #ifdef TRICE_CGO
+    #endif // #if TRICE_CGO == 1
 
     unsigned anchorLine = __LINE__ + 18;
 	
@@ -594,7 +594,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
         break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
-#ifdef TRICE_CGO
+#if TRICE_CGO == 1
 
         break; case __LINE__: TRICE  ( ID(0), "rd:%E (%%E)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556E+08 (%E)
         break; case __LINE__: TRICE  ( ID(0), "rd:%F (%%F)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555584.000000 (%F)
@@ -1533,7 +1533,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE_N( ID(0), "msg:%s\n", A, 128 );
         break; case __LINE__: TRICE_N( ID(0), "msg:%s\n", A, 129 );
 
-    #endif // #ifdef TRICE_CGO
+    #endif // #if TRICE_CGO == 1
     }
 }
 

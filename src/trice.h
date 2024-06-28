@@ -110,40 +110,15 @@ extern "C" {
 //#include <stdint.h> //lint !e537
 #include <string.h>
 #include "triceConfig.h"
+#include "triceDefaultConfig.h"
 
 // defaults part 1:
 
-#ifndef TRICE_CONFIG_WARNINGS
-#define TRICE_CONFIG_WARNINGS 1
+#if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
+void TriceInitRingBufferMargins( void );
+void WatchRingBufferMargins( void );
 #endif
 
-#if ( (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) ) && !defined(TRICE_DEFERRED_OUTPUT)
-#define TRICE_DEFERRED_OUTPUT 1
-#endif
-
-#ifndef TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
-//! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
-//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
-//! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
-#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
-#endif
-
-#ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE
-//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
-//! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
-//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
-//! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
-//! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
-#endif
-
-#ifndef TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE
-//! TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
-//! Than the RTT trice packages are can be framed according to the set TRICE_DIRECT_OUT_FRAMING.
-//! Not useable with TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE or TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
-//! Switch this on, if you wish deferred Segger RTT output.
-#define TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE 0
-#endif
 
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
@@ -155,30 +130,6 @@ extern "C" {
 #include "SEGGER_RTT.h"
 #endif 
 
-/*
-typedef enum {
-    direct_NoCryptNoPack,
-    direct_XteaNoPack,
-    direct_NoCryptCobsPack,
-    direct_XteaCobsPack,
-    direct_NoCryptTobsPack,
-    direct_XteaTobsPack,
-
-    defered_SingleNoCryptNoPack,
-    defered_SingleXteaNoPack,
-    defered_SingleNoCryptCobsPack,
-    defered_SingleXteaCobsPack,
-    defered_SingleNoCryptTobsPack,
-    defered_SingleXteaTobsPack,
-    
-    deferred_MultiNoCryptNoPack,
-    deferred_MultiXteaNoPack,
-    deferred_MultiNoCryptCobsPack,
-    deferred_MultiXteaCobsPack,
-    deferred_MultiNoCryptTobsPack,
-    deferred_MultiXteaTobsPack,
-} encode_t;
-*/
 // global function prototypes:
 
 void TriceCheck( int index ); // tests and examples
@@ -318,15 +269,6 @@ extern uint32_t * TriceBufferWritePosition;
 
 #endif
 
-#ifndef TRICE_CYCLE_COUNTER
-//#warning configuration: TRICE_CYCLE_COUNTER is not defined, setting it to 1.
-//! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message.
-//! If 0, do not add cycle counter. The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool. The cycle conter byte ist statically 0xC0.
-//! If 1, add an 8-bit cycle counter. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool. The cycle conter byte changes (reccommended).
-#define TRICE_CYCLE_COUNTER 1 
-
-#endif
-
 #ifndef TRICE_COMMAND_SIZE_MAX
 
 //! TRICE_COMMAND_SIZE_MAX is the length limit for command strings to target.
@@ -350,16 +292,7 @@ extern uint32_t * TriceBufferWritePosition;
 #include "trice64.h"
 
 
-//! TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN can be defined on little endian MCUs if the trice data are needed in network order,
-//! or on big endian MCUs if the trice data are needed in little endian order. You should avoid using this macro because
-//! it increases the trice storage time and the needed code amount. 
-//! This is not completely implemented and needs automatic tests as well.
-//! The main to implement:
-//! - implement compiler agnostic access macros (byte swapping)
-//! - The TriceIDAndBuffer function and it relatives need to use access macros. 
-//#define TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
-
-#ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 // https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
 //#include <byteswap.h>
 
@@ -400,7 +333,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
     //! TRICE_TTOHS reorders short values from trice transfer order into host order. 
     #define TRICE_TTOHS(x) Reverse16(x) // __bswap_16((x))) // TRICE_SWAPINT16(x)
 
-#else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
     //! TRICE_HTOTS reorders short values from hos // t order into trice transfer order.
     #define TRICE_HTOTS(x) (x)
@@ -411,7 +344,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
     //! TRICE_TTOHS reorders short values from trice transfer order into host order.  
     #define TRICE_TTOHS(x) (x)
 
-#endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
 #if TRICE_DIAGNOSTICS == 1
 
@@ -599,8 +532,8 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 #define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = TRICE_HTOTL(x); }while(0); //! PUT copies a 32 bit x into the TRICE buffer.
 #endif
 
-#if ( defined( TRICE_MCU_IS_BIG_ENDIAN ) &&  defined( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN ) ) \
-  ||(!defined( TRICE_MCU_IS_BIG_ENDIAN ) && !defined( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN ) )
+#if (( TRICE_MCU_IS_BIG_ENDIAN == 1 ) && ( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1) ) \
+  ||(( TRICE_MCU_IS_BIG_ENDIAN == 0 ) && ( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0) )
 
     #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)(x) ); TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); // little endian
 
@@ -665,19 +598,11 @@ unsigned TriceOutDepthUartB( void );
 ///////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
-#ifndef TRICE_XTEA_DIRECT_ENCRYPT
-#define TRICE_XTEA_DIRECT_ENCRYPT 0
-#endif
-
-#ifndef TRICE_XTEA_DEFERRED_ENCRYPT
-#define TRICE_XTEA_DEFERRED_ENCRYPT 0
-#endif
-
-#ifdef XTEA_ENCRYPT_KEY
+#if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
     void XTEAEncrypt( uint32_t* p, unsigned count );
     void XTEADecrypt( uint32_t* p, unsigned count );
     void XTEAInitTable(void);
-#endif // #ifdef XTEA_ENCRYPT_KEY
+#endif
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -832,12 +757,12 @@ static inline uint64_t aDouble( double x ){
 //! ID writes 14-bit id with 11 as 2 most significant bits, followed by a 32-bit stamp.
 //! 11iiiiiiI TT | TT (NC) | ...
 //! C000 = 1100 0000 0000 0000
-#define ID(n) do { uint32_t ts = TriceStamp32(); TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); } while(0)
+#define ID(n) do { uint32_t ts = TriceStamp32; TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); } while(0)
 
 //! Id writes 14-bit id with 10 as 2 most significant bits two times, followed by a 16-bit stamp.
 //! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
 //! 8000 = 1000 0000 0000 0000
-#define Id(n) do { uint16_t ts = TriceStamp16(); TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); } while(0)
+#define Id(n) do { uint16_t ts = TriceStamp16; TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); } while(0)
 
 //! id writes 14-bit id with 01 as 2 most significant bits, followed by no stamp.
 //! 01iiiiiiI (NC) | ...
@@ -882,7 +807,7 @@ TRICE_INLINE void trice0( uint16_t tid, const char * pFmt ){ trice32m_0( tid ); 
 
 #endif // #else // #ifdef TRICE_CLEAN
 
-#ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
 #define TRICE_BYTE3(v)((uint8_t)(v))
 #define TRICE_BYTE2(v)(0x0000FF00 &  ((uint32_t)(v)<< 8))
@@ -892,7 +817,7 @@ TRICE_INLINE void trice0( uint16_t tid, const char * pFmt ){ trice32m_0( tid ); 
 #define TRICE_SHORT1( v ) (uint16_t)(v)
 #define TRICE_SHORT0( v ) ((uint32_t)(v)<<16) 
 
-#else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
 #define TRICE_BYTE0(v)((uint8_t)(v))
 #define TRICE_BYTE1(v)(0x0000FF00 &  ((uint32_t)(v)<< 8))
@@ -902,7 +827,7 @@ TRICE_INLINE void trice0( uint16_t tid, const char * pFmt ){ trice32m_0( tid ); 
 #define TRICE_SHORT0( v ) (uint16_t)(v)
 #define TRICE_SHORT1( v ) ((uint32_t)(v)<<16) 
 
-#endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
 #ifdef TRICE_CLEAN
 
