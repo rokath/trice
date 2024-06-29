@@ -46,7 +46,7 @@ ringB_di_nopf_aux8/
 ringB_di_nopf_rtt32__de_tcobs/
 ringB_di_nopf_rtt32__de_xtea_cobs/
 ringB_di_nopf_rtt8__de_tcobs/
-ringB_di_tobs_rtt32__de_tcobs/
+ringB_di_tcobs_rtt32__de_tcobs/
 stackB_di_nopf_aux8/
 stackB_di_nopf_rtt32/
 stackB_di_nopf_rtt8/

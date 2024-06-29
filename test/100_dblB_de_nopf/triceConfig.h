@@ -9,6 +9,7 @@
 extern "C" {
 #endif
 
+#define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_NONE
 
 #define TRICE_CGO 1
