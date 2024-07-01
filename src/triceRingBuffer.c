@@ -13,7 +13,7 @@
 
 static int TriceSingleDeferredOut( uint32_t * addr );
 
-#ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
+#if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
 
 #define TRICE_RINGBUFFER_LOWER_MARGIN 8 //!< 32-bit units just for debugging > 0
 #define TRICE_RINGBUFFER_UPPER_MARGIN 8 //!< 32-bit units just for debugging > 0
@@ -68,7 +68,7 @@ unsigned TriceRingBufferDepthMax = 0;
 
 #endif // #if TRICE_DIAGNOSTICS == 1
 
-#ifdef TRICE_PROTECT
+#if TRICE_PROTECT == 1
 
 //! TriceEnoughSpace checks, if enough bytes available for the next trice.
 //! \retval 0, when not enough space
@@ -98,7 +98,7 @@ int TriceEnoughSpace( void ){
     } 
 }
 
-#endif // #ifdef TRICE_PROTECT
+#endif // #if TRICE_PROTECT == 1
 
 #if TRICE_DIAGNOSTICS == 1
 uint16_t TriceRingBufferDepth = 0;
@@ -291,7 +291,7 @@ static int TriceSingleDeferredOut( uint32_t * addr){
     return wordCount;
 }
 
-#ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
+#if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
 
 void TriceInitRingBufferMargins( void ){
     for( int i = 0; i < TRICE_RINGBUFFER_LOWER_MARGIN; i++ ){
@@ -316,6 +316,6 @@ void WatchRingBufferMargins( void ){
     }
 }
 
-#endif // #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
+#endif // #if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER

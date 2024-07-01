@@ -54,7 +54,7 @@ extern "C" {
 //lint -efunc( 666, aFloat, aDouble )
 //lint -esym( 666, aFloat, aDouble )
 
-#ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
+#if TRICE_OFF == 1 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
 
 #define TRICE_ENTER
 #define TRICE_LEAVE
@@ -64,7 +64,7 @@ extern "C" {
 #define TRICE_S( id, p, s )    // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
 #define TRICE_N( id, p, s, n ) // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
 
-#endif // #ifdef TRICE_OFF
+#endif // #if TRICE_OFF == 1
 
 // helper macros (the numbers are 32-bit random values)
 
@@ -107,18 +107,17 @@ extern "C" {
 //! This is extendable until a 32767 bytes payload.
 #define TRICE_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
 
-//#include <stdint.h> //lint !e537
+#include <stdint.h>
 #include <string.h>
 #include "triceConfig.h"
 #include "triceDefaultConfig.h"
 
-// defaults part 1:
+// defaults
 
 #if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
 void TriceInitRingBufferMargins( void );
 void WatchRingBufferMargins( void );
 #endif
-
 
 #if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
  || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
@@ -134,6 +133,8 @@ void WatchRingBufferMargins( void );
 
 void TriceCheck( int index ); // tests and examples
 void TriceDiagnostics( int index );
+void TriceNonBlockingWriteUartA( const void * buf, size_t nByte );
+void TriceNonBlockingWriteUartB( const void * buf, size_t nByte );
 void TriceNonBlockingDirectWrite( uint32_t* triceStart, unsigned wordCount );
 void TriceNonBlockingDirectWrite8Auxiliary( const uint8_t * enc, size_t encLen );
 void TriceNonBlockingDeferredWrite8Auxiliary( const uint8_t * enc, size_t encLen );
@@ -198,99 +199,22 @@ extern int TriceDataOffsetDepthMax;
 extern uint32_t * TriceBufferWritePosition;
 #endif
 
-// defaults part 2:
-
-#ifndef TRICE_DIRECT_AUXILIARY8
-#define TRICE_DIRECT_AUXILIARY8 0 //!< TRICE_DIRECT_AUXILIARY8 enables a user defined direct trice write.
-#endif
-
-#ifndef TRICE_DEFERRED_AUXILIARY8
-#define TRICE_DEFERRED_AUXILIARY8 0 //!< TRICE_DEFERRED_AUXILIARY8 enables a user defined deferred trice write.
-#endif
-
-#ifndef TRICE_DIRECT_AUXILIARY32
-#define TRICE_DIRECT_AUXILIARY32 0 //!< TRICE_DIRECT_AUXILIARY32 enables a user defineddirect trice write.
-#endif
-
-#ifndef TRICE_DEFERRED_AUXILIARY32
-#define TRICE_DEFERRED_AUXILIARY32 0 //!< TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice write.
-#endif
-
-#ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
-
-//! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
-//! The called output function usually is executed inside an interrupt and should therefore be non-blocking and fast.
-#define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 0
-
-#endif
-
-#ifndef TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING
-
-//! TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
-//! The called output function should be non-blocking. 
-#define TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING 0
-
-#endif
-
-#ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS
-
-//! TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS == 1 is a special case for RTT32 encryption and framing. (experimental)
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_XTEA_AND_COBS 0
-
-#endif
-
-
 //! TRICE_BUFFER_SIZE is
 //! - the additional needed stack space when TRICE_BUFFER == TRICE_STACK_BUFFER
 //! - the statically allocated buffer size when TRICE_BUFFER == TRICE_STATIC_BUFFER
 //! - the value before Ringbuffer wraps, when TRICE_BUFFER == TRICE_RING_BUFFER 
 #define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
 
-#ifndef TRICE_DEFAULT_PARAMETER_BIT_WIDTH
-
-//! TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the default parameter bit width for TRICE macros not specifying the parameter bit width: 8, 16, 32 or 64.
-//! If for example the majority of your values is 16 bit, it makes sense to set this value to 16 to use TRICE for them and to use TRICE32 explicitely for 32-bit values.
-//! The trice tool CLI switch "-defaultTRICEBitwidth" needs to be set to the same bit width, default is 32.
-#define TRICE_DEFAULT_PARAMETER_BIT_WIDTH 32
-
-#endif
-
-#ifndef TRICE_B
-
-//! TRICE_B is a shortcut for TRICE8_B, TRICE16_B, TRICE32_B or TRICE64_B usable in your project.
-#define TRICE_B  TRICE8_B
-
-#endif
-
-#ifndef TRICE_F
-
-//! TRICE_F is a shortcut for TRICE8_F, TRICE16_F, TRICE32_F or TRICE64_F usable in your project.
-#define TRICE_F  TRICE8_F
-
-#endif
-
-#ifndef TRICE_COMMAND_SIZE_MAX
-
-//! TRICE_COMMAND_SIZE_MAX is the length limit for command strings to target.
-#define TRICE_COMMAND_SIZE_MAX 8
-
-#endif
-
 #if TRICE_CYCLE_COUNTER == 1
-
-#define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
-
+    #define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
 #else // #if TRICE_CYCLE_COUNTER == 1
-
-#define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
-
+    #define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
 #include "trice8.h"
 #include "trice16.h"
 #include "trice32.h"
 #include "trice64.h"
-
 
 #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 // https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
@@ -394,7 +318,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
-    #ifdef TRICE_PROTECT
+    #if TRICE_PROTECT == 1
     
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -402,7 +326,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         if( TriceEnoughSpace() ){ \
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
-    #else //  #ifdef TRICE_PROTECT
+    #else //  #if TRICE_PROTECT == 1
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -410,13 +334,13 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         { \
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
-    #endif // #else //  #ifdef TRICE_PROTECT
+    #endif // #else //  #if TRICE_PROTECT == 1
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
-    #ifdef TRICE_PROTECT
+    #if TRICE_PROTECT == 1
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -424,7 +348,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         if( TriceEnoughSpace() ){ \
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
 
-    #else //  #ifdef TRICE_PROTECT
+    #else //  #if TRICE_PROTECT == 1
         
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -432,13 +356,13 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
         { \
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
 
-    #endif // #else //  #ifdef TRICE_PROTECT
+    #endif // #else //  #if TRICE_PROTECT == 1
 
 #endif // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 1)
 
-    #ifdef TRICE_PROTECT
+    #if TRICE_PROTECT == 1
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -453,7 +377,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-    #else //  #ifdef TRICE_PROTECT
+    #else //  #if TRICE_PROTECT == 1
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -468,13 +392,13 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition; \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-    #endif // #else //  #ifdef TRICE_PROTECT
+    #endif // #else //  #if TRICE_PROTECT == 1
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 1)
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
 
-    #ifdef TRICE_PROTECT
+    #if TRICE_PROTECT == 1
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -485,7 +409,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-    #else //  #ifdef TRICE_PROTECT
+    #else //  #if TRICE_PROTECT == 1
 
         //! TRICE_ENTER is the start of TRICE macro.
         #define TRICE_ENTER \
@@ -496,7 +420,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
             TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
-    #endif // #else //  #ifdef TRICE_PROTECT
+    #endif // #else //  #if TRICE_PROTECT == 1
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 
@@ -576,7 +500,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 // UART interface
 //
 
-#if defined( TRICE_UARTA ) // deferred out to UARTA
+#if ( TRICE_DEFERRED_UARTA == 1 ) // deferred out to UARTA
 void TriceBlockingWriteUartA( const uint8_t * buf, unsigned len );
 uint8_t TriceNextUint8UartA( void );
 void triceServeTransmitUartA(void);
@@ -584,7 +508,7 @@ void triceTriggerTransmitUartA(void);
 unsigned TriceOutDepthUartA( void );
 #endif
 
-#if defined( TRICE_UARTB ) // deferred out to UARTB
+#if ( TRICE_DEFERRED_UARTB == 1) // deferred out to UARTB
 void TriceBlockingWriteUartB( const uint8_t * buf, unsigned len );
 uint8_t TriceNextUint8UartB( void );
 void triceServeTransmitUartB(void);
@@ -742,7 +666,7 @@ static inline uint64_t aDouble( double x ){
 
 #endif
 
-#ifdef TRICE_MCU_IS_BIG_ENDIAN
+#if TRICE_MCU_IS_BIG_ENDIAN == 1
 
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT1616( ts ) TRICE_PUT16( ts >> 16 ); TRICE_PUT16( ts ); 

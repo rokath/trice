@@ -71,10 +71,11 @@ C_SOURCES += \
 ../../src/tcobsv1Decode.c \
 ../../src/tcobsv1Encode.c \
 ../../src/trice.c \
+../../src/trice8.c \
 ../../src/trice16.c \
 ../../src/trice32.c \
 ../../src/trice64.c \
-../../src/trice8.c \
+../../src/triceUart.c \
 ../../src/triceAuxiliary.c \
 ../../src/triceDoubleBuffer.c \
 ../../src/triceRingBuffer.c \

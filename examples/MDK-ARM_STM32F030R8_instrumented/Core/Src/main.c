@@ -23,7 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-//#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
 /* USER CODE END Includes */

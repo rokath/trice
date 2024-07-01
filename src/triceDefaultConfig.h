@@ -9,6 +9,80 @@
 extern "C" {
 #endif
 
+#ifndef TRICE_UARTA_MIN_ID
+#define TRICE_UARTA_MIN_ID 0
+#endif
+
+#ifndef TRICE_UARTA_MAX_ID
+#define TRICE_UARTA_MAX_ID 0
+#endif
+
+#ifndef TRICE_UARTB_MIN_ID
+#define TRICE_UARTB_MIN_ID 0
+#endif
+
+#ifndef TRICE_UARTB_MAX_ID
+#define TRICE_UARTB_MAX_ID 0
+#endif
+
+#ifndef TRICE_DEFERRED_UARTA
+#define TRICE_DEFERRED_UARTA 0 //!< TRICE_DEFERRED_UARTA enables a user defined deferred trice write over TRICE_UARTA.
+#endif
+
+#ifndef TRICE_DEFERRED_UARTB
+#define TRICE_DEFERRED_UARTB 0 //!< TRICE_DEFERRED_UARTB enables a user defined deferred trice write over TRICE_UARTB.
+#endif
+
+#ifndef TRICE_DIRECT_AUXILIARY8
+#define TRICE_DIRECT_AUXILIARY8 0 //!< TRICE_DIRECT_AUXILIARY8 enables a user defined direct trice write.
+#endif
+
+#ifndef TRICE_DEFERRED_AUXILIARY8
+#define TRICE_DEFERRED_AUXILIARY8 0 //!< TRICE_DEFERRED_AUXILIARY8 enables a user defined deferred trice write.
+#endif
+
+#ifndef TRICE_DIRECT_AUXILIARY32
+#define TRICE_DIRECT_AUXILIARY32 0 //!< TRICE_DIRECT_AUXILIARY32 enables a user defineddirect trice write.
+#endif
+
+#ifndef TRICE_DEFERRED_AUXILIARY32
+#define TRICE_DEFERRED_AUXILIARY32 0 //!< TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice write.
+#endif
+
+#ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
+//! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
+//! The called output function usually is executed inside an interrupt and should therefore be non-blocking and fast.
+#define TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING 0
+#endif
+
+#ifndef TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING
+//! TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
+//! The called output function should be non-blocking. 
+#define TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING 0
+#endif
+
+#ifndef TRICE_B
+//! TRICE_B is a shortcut for TRICE8_B, TRICE16_B, TRICE32_B or TRICE64_B usable in your project.
+#define TRICE_B  TRICE8_B
+#endif
+
+#ifndef TRICE_F
+//! TRICE_F is a shortcut for TRICE8_F, TRICE16_F, TRICE32_F or TRICE64_F usable in your project.
+#define TRICE_F  TRICE8_F
+#endif
+
+#ifndef TRICE_COMMAND_SIZE_MAX
+//! TRICE_COMMAND_SIZE_MAX is the length limit for command strings to target.
+#define TRICE_COMMAND_SIZE_MAX 8
+#endif
+
+#ifndef TRICE_DEFAULT_PARAMETER_BIT_WIDTH
+//! TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the default parameter bit width for TRICE macros not specifying the parameter bit width: 8, 16, 32 or 64.
+//! If for example the majority of your values is 16 bit, it makes sense to set this value to 16 to use TRICE for them and to use TRICE32 explicitely for 32-bit values.
+//! The trice tool CLI switch "-defaultTRICEBitwidth" needs to be set to the same bit width, default is 32.
+#define TRICE_DEFAULT_PARAMETER_BIT_WIDTH 32
+#endif
+
 #ifndef TRICE_CONFIG_WARNINGS
 #define TRICE_CONFIG_WARNINGS 1 //!< TRICE_CONFIG_WARNINGS == 0 can suppress some unwanted configuration warnings. Set to 0 only if you know what you are doing.
 #endif

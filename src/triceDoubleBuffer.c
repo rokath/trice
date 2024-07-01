@@ -53,7 +53,7 @@ static size_t triceDepth( const uint32_t * tb ){
     return depth - TRICE_DATA_OFFSET;
 }
 
-#ifdef TRICE_PROTECT
+#if TRICE_PROTECT == 1
 
 //! TriceEnoughSpace checks, if at least TRICE_SINGLE_MAX_SIZE bytes available for the next trice.
 //! \retval 0, when not enough space
@@ -76,7 +76,7 @@ int TriceEnoughSpace( void ){
     } 
 }
 
-#endif // #ifdef TRICE_PROTECT
+#endif // #if TRICE_PROTECT == 1
 
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
 //! It is the resposibility of the app to call this function once every 10-100 milliseconds.
@@ -168,7 +168,7 @@ static int TriceNext( uint8_t** buf, size_t* pSize, const uint8_t ** pStart, siz
 static void TriceOut( uint32_t* tb, size_t tLen ){
     uint8_t * enc = (uint8_t*)tb; // later encoded data starting address
     uint8_t * dat = enc + TRICE_DATA_OFFSET; // start of      32-bit aligned trices
-    uint8_t * nxt = enc + TRICE_DATA_OFFSET; // start of next 32-bit aligned trices
+    uint8_t * nxt = dat;                     // start of next 32-bit aligned trices
     size_t encLen = 0;
     int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
     #if TRICE_DIAGNOSTICS == 1

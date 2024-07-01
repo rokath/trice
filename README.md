@@ -206,7 +206,7 @@ trice32( Id(12345), "Verbose: bla bla")
 These can be understood as tags too. But only one tag per *trice* right now.
 Look into [lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) for options or extensions.
 
-Also you can at compile time disable *trice* code generation on file level with `#define TRICE_OFF` before including `trice.h`.
+Also you can at compile time disable *trice* code generation on file level with `#define TRICE_OFF 1` before including `trice.h`.
 
 Because [one *trice* consists typically only of 4 to 8 bytes](./docs/TriceEncodings.md#flex-encoding) there is usually no need to dynamically switch trices on and off inside the embedded device. This can be done on the display side inside the **trice** tool with the command line switches `-ban` or `-pick`. For example `-pick err,wrn` disables all output despite error and warning messages.
 Switching trices on and off inside the target increases the overhead and demands some kind of command interface.

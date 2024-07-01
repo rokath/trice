@@ -120,6 +120,20 @@ void TIM17_FDCAN_IT1_IRQHandler(void)
   /* USER CODE END TIM17_FDCAN_IT1_IRQn 1 */
 }
 
+/**
+  * @brief This function handles USART2 + LPUART2 Interrupt.
+  */
+void USART2_LPUART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_LPUART2_IRQn 0 */
+
+  /* USER CODE END USART2_LPUART2_IRQn 0 */
+
+  /* USER CODE BEGIN USART2_LPUART2_IRQn 1 */
+
+  /* USER CODE END USART2_LPUART2_IRQn 1 */
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */

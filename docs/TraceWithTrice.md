@@ -159,10 +159,10 @@ If a target side log level control is needed, a **trice** tool extension could e
 
 ###  5.8. <a name='CompiletimeenabledisableTRICEmacrosonfilelevel'></a>Compile time enable/disable `TRICE` macros on file level 
 
-After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceConfiguration.md#target-side-trice-on-off). Write a `#define TRICE_OFF` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
+After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceConfiguration.md#target-side-trice-on-off). Write a `#define TRICE_OFF 1` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
 
 ```C
-//#define TRICE_OFF // enable this line to disable trice code generation in this file object
+#define TRICE_OFF 0 // Set this value to 1 to disable trice code generation in this file object.
 #include "trice.h"
 ```
 

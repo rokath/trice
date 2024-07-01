@@ -41,7 +41,6 @@ void TriceNonBlockingDeferredWrite8Auxiliary( const uint8_t * enc, size_t encLen
 
 #endif // #if TRICE_DEFERRED_AUXILIARY8 == 1
 
-
 #if TRICE_DIRECT_AUXILIARY32 == 1
 
 //! UserNonBlockingDirectWrite32AuxiliaryFn can get a user function address for writing to an auxiliary interface.

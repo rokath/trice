@@ -464,16 +464,16 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			p.B = p.B[:0] // discard all
 		}
 	} else {
-		//  if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
-		p.B = p.B[p.ParamSpace:] // drop param info
-		//  } else { // no package framing
-		//  	padding := p.ParamSpace + 3) & ^3
-		//  	if padding <= len(p.B) {
-		//  		p.B = p.B[padding:]
-		//  	} else {
-		//  		n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes", ))
-		//  	}
-		//  }
+		if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
+			p.B = p.B[p.ParamSpace:] // drop param info
+		} else { // no package framing
+			padding := (p.ParamSpace + 3) & ^3
+			if padding <= len(p.B) {
+				p.B = p.B[padding:]
+			} else {
+				// n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes", ))
+			}
+		}
 	}
 	return
 }

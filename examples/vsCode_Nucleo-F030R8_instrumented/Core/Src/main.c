@@ -66,7 +66,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  TriceInit();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -91,10 +91,10 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
-#ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
-    TriceInitRingBufferMargins();
-#endif
-    TriceInit();
+    #if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
+        TriceInitRingBufferMargins();
+    #endif
+    
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
     trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
 
@@ -141,7 +141,7 @@ int main(void)
                     // Serve deferred trice transfer every few ms or if TRICE_BUFFER is getting filled. With an RTOS put this in a separate task.
                     TriceTransfer(); // serve deferred output
                 }
-                #ifdef TRICE_RINGBUFFER_OVERFLOW_WATCH
+                #if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
                     WatchRingBufferMargins();
                 #endif
 

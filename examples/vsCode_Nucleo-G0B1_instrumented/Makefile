@@ -81,6 +81,7 @@ C_SOURCES += \
 ../../src/trice64.c \
 ../../src/trice8.c \
 ../../src/triceAuxiliary.c \
+../../src/triceUart.c \
 ../../src/triceDoubleBuffer.c \
 ../../src/triceRingBuffer.c \
 ../../src/triceStackBuffer.c \
