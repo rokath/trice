@@ -55,7 +55,7 @@ import (
 
 var (
 	triceDir  string // triceDir holds the trice directory path.
-	testLines = 9  // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	testLines = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory

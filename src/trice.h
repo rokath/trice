@@ -119,9 +119,9 @@ void TriceInitRingBufferMargins( void );
 void WatchRingBufferMargins( void );
 #endif
 
-#if (TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE == 1) \
- || (TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1) \
- || (TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1)
+#if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) \
+ || (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) \
+ || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 #define SEGGER_RTT
 #endif 
 
@@ -522,7 +522,7 @@ unsigned TriceOutDepthUartB( void );
 ///////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
-#if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
+#if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
     void XTEAEncrypt( uint32_t* p, unsigned count );
     void XTEADecrypt( uint32_t* p, unsigned count );
     void XTEAInitTable(void);

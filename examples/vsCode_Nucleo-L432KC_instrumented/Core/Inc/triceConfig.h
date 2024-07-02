@@ -20,7 +20,7 @@ extern volatile uint32_t * const LAR; // lock access register
 #define TriceStamp32 ((*DWT_CYCCNT)>>6) // 64 MHz -> 1 µs
 #define TRICE_BUFFER TRICE_STATIC_BUFFER
 #define TRICE_DIRECT_OUTPUT 1
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1
+#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 #define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 1
 #define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { 
