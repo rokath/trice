@@ -9,20 +9,12 @@
 extern "C" {
 #endif
 
-<<<<<<< HEAD:testDEBUG/stackB_di_xtea_cobs_rtt8/triceConfig.h
 #define TRICE_BUFFER TRICE_STACK_BUFFER
-=======
-#define TRICE_BUFFER TRICE_STATIC_BUFFER
->>>>>>> 4bf561d68559f07e37757d39c2c3c7b11ebdbb02:testERR/staticB_di_xtea_cobs_rtt32/triceConfig.h
 
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_XTEA_ENCRYPT 1
 #define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS
-<<<<<<< HEAD:testDEBUG/stackB_di_xtea_cobs_rtt8/triceConfig.h
 #define TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE 1
-=======
-#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
->>>>>>> 4bf561d68559f07e37757d39c2c3c7b11ebdbb02:testERR/staticB_di_xtea_cobs_rtt32/triceConfig.h
 
 #define TRICE_CGO 1
 #define TRICE_CYCLE_COUNTER 0

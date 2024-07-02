@@ -276,6 +276,43 @@ static int TriceSingleDeferredOut( uint32_t * addr){
             size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
         #endif
 
+//  3 missing bytes
+//  OK:
+//  COBS: 15 67 dd 32 32 32 32 e2 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
+//  ->TRICE: 67 dd 32 32 32 32 e2 0c 41 41 41 41 41 41 41 41 41 41 41 41
+//  Jul  2 22:44:07.492208  com4:          triceCheck.c   306  842,150_450 1648 len=12: AAAAAAAAAAAA
+//  Input(08 d8 d9 32 32 32 32 e3 01 00)
+//  COBS: 08 d8 d9 32 32 32 32 e3 01 00
+//  ->TRICE: d8 d9 32 32 32 32 e3 00
+//  Jul  2 22:44:07.690763  com4:          triceCheck.c   308  842,150_450 19d8 Runtime generated strings
+//  Input(0a 63 c6 32 32 32 32 e4 04 0c 01 01 01 00)
+//  COBS: 0a 63 c6 32 32 32 32 e4 04 0c 01 01 01 00
+//  ->TRICE: 63 c6 32 32 32 32 e4 04 0c 00 00 00
+//  Input(15 23 d5 32 32 32 32 e5 0c 41 41 41 41 41 41 41 41 41 41 41 41 00)
+//  COBS: 15 23 d5 32 32 32 32 e5 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
+//  ->TRICE: 23 d5 32 32 32 32 e5 0c 41 41 41 41 41 41 41 41 41 41 41 41
+//  Jul  2 22:44:08.987837  com4:          triceCheck.c   321  842,150_450 0663 len=12: AAAAAAAAAAAA
+//  
+//  ERR:
+//  COBS: 15 67 dd 32 32 32 32 a8 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
+//  ->TRICE: 67 dd 32 32 32 32 a8 0c 41 41 41 41 41 41 41 41 41 41 41 41
+//  Jul  2 22:44:40.599625  com4:          triceCheck.c   306  842,150_450 1648 len=12: AAAAAAAAAAAA
+//  miss:(               32 32 a9)
+//  Input(08 d8 d9 32 32          01 00)
+//  COBS: 08 d8 d9 32 32          01 00
+//  inconsistent COBS buffer: 00000000  08 d8 d9 32 32 01                                 |...22.|
+//  
+//  ->TRICE:
+//  Input(0a 63 c6 32 32 32 32 aa 04 0c 01 01 01 00)
+//  COBS: 0a 63 c6 32 32 32 32 aa 04 0c 01 01 01 00
+//  ->TRICE: 63 c6 32 32 32 32 aa 04 0c 00 00 00
+//  Jul  2 22:44:42.095527  com4:          triceCheck.c   321  842,150_450 0663 CYCLE:170!=169 #1 binary buffer:00000000  0c 00 00 00                                       |....|
+//  Input(15 23 d5 32 32 32 32 ab 0c 41 41 41 41 41 41 41 41 41 41 41 41 00)
+//  COBS: 15 23 d5 32 32 32 32 ab 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
+//  ->TRICE: 23 d5 32 32 32 32 ab 0c 41 41 41 41 41 41 41 41 41 41 41 41
+//  Jul  2 22:44:42.095527  com4: len=12: AAAAAAAAAAAA
+
+
     #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
         #if 1
             enc = pTriceNettoStart;

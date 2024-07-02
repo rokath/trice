@@ -14,11 +14,6 @@ trice insert -i ./testdata/til.json -li ./testdata/li.json -liPathIsRelative -ID
 CGOTESTDIRS="
 ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
 ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua/
-<<<<<<< HEAD
-=======
-stackB_di_xtea_cobs_rtt8/
-staticB_di_xtea_cobs_rtt32/
->>>>>>> 4bf561d68559f07e37757d39c2c3c7b11ebdbb02
 "
 for d in $CGOTESTDIRS
 do
