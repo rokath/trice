@@ -20,8 +20,8 @@ extern "C" {
 #define TriceStamp32 Us32()
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DIRECT_OUTPUT 1
-#define TRICE_XTEA_DEFERRED_ENCRYPT 1
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 1
+#define TRICE_DEFERRED_XTEA_ENCRYPT 1
+#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 //! Enable and set UARTA for deferred serial output.
 #define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA

@@ -37,9 +37,9 @@ uint32_t* const TriceRingBufferStart = TriceRingBuffer + TRICE_RINGBUFFER_LOWER_
 
 //! triceBufferWriteLimit is the first address behind TriceRingBuffer. 
 //! With encryption it can happen that 4 bytes following triceRingBufferLimit are used as scratch pad.
-//! We use the value of TRICE_XTEA_DEFERRED_ENCRYPT (0 or 1) here to respect that
+//! We use the value of TRICE_DEFERRED_XTEA_ENCRYPT (0 or 1) here to respect that
 //! See also comment inside TriceSingleDeferredOut.
-uint32_t* const triceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE>>2) - TRICE_XTEA_DEFERRED_ENCRYPT;
+uint32_t* const triceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE>>2) - TRICE_DEFERRED_XTEA_ENCRYPT;
 
 //! SingleTricesRingCount holds the readable trices count inside TriceRingBuffer.
 unsigned SingleTricesRingCount = 0;
@@ -165,13 +165,13 @@ static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint
         case TRICE_TYPE_S2: // S2 = 16-bit stamp
             len = 6 + triceDataLen(pStart + 6); // tyId ts16
             offset = 2;
-            #if TRICE_XTEA_DEFERRED_ENCRYPT
+            #if TRICE_DEFERRED_XTEA_ENCRYPT
                 // move trice to start at a uint32_t alingment border
                 memmove(pStart, pStart+2, len ); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
-            #else // #if TRICE_XTEA_DEFERRED_ENCRYPT
+            #else // #if TRICE_DEFERRED_XTEA_ENCRYPT
                 // Like for UART transfer no uint32_t alignment is needed.
                 pStart += 2; // see Id(n) macro definition        
-            #endif // #else // #if TRICE_XTEA_DEFERRED_ENCRYPT
+            #endif // #else // #if TRICE_DEFERRED_XTEA_ENCRYPT
             break;
         case TRICE_TYPE_S4: // S4 = 32-bit stamp
             offset = 0;
@@ -222,7 +222,7 @@ static int TriceSingleDeferredOut( uint32_t * addr){
     // We can let TRICE_DATA_OFFSET only in front of the ringbuffer and pack the Trices without offset space.
     // And if we allow as max depth only ring buffer size minus TRICE_DATA_OFFSET, we can use space in front of each Trice.
 
-    #if   (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+    #if   (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 
         #if 1
             // comment: The following 2 steps could be done in an incremental way within one singe loop.
@@ -234,10 +234,10 @@ static int TriceSingleDeferredOut( uint32_t * addr){
             size_t encLen = (size_t)TCOBSEncode(enc, tmp, len8 ); // encLen is re-used here
             enc[encLen++] = 0; // Add zero as package delimiter.
         #else
-            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+            size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
         #endif
 
-    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+    #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 
         #if 0
             // comment: The following 2 steps could be done in an incremental way within one singe loop.
@@ -249,39 +249,39 @@ static int TriceSingleDeferredOut( uint32_t * addr){
             size_t encLen = (size_t)COBSEncode(enc, tmp, len8 ); // encLen is re-used here
             enc[encLen++] = 0; // Add zero as package delimiter.
         #else
-            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+            size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
         #endif
 
-    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+    #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 
         #warning configuration: The Trice tool does not support encryption without COBS (or TCOBS) framing.
-        size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength);
+        size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength);
 
-    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+    #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 
         #if 1
             size_t len = (size_t)TCOBSEncode( enc, pTriceNettoStart, triceNettoLength );
             enc[len++] = 0; // Add zero as package delimiter.
             size_t encLen = len; 
         #else
-            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+            size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
         #endif
 
-    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+    #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
         #if 1
             size_t len = (size_t)COBSEncode( enc, pTriceNettoStart, triceNettoLength );
             enc[len++] = 0; // Add zero as package delimiter.
             size_t encLen = len; 
         #else
-            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+            size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
         #endif
 
-    #elif (TRICE_XTEA_DEFERRED_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+    #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
         #if 1
             enc = pTriceNettoStart;
             size_t encLen = triceNettoLength;
         #else
-            size_t encLen = TriceEncode( TRICE_XTEA_DEFERRED_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
+            size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
         #endif
     #else
         #error configuration: TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE for ring buffer not implemented yet

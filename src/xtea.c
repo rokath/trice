@@ -5,7 +5,7 @@
 #include "xtea.h"
 #include "trice.h"
 
-#if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
+#if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;
@@ -84,4 +84,4 @@ void XTEAEncrypt( uint32_t* p, unsigned count ){
     }
 }
 
-#endif // #if (TRICE_XTEA_DIRECT_ENCRYPT == 1) || (TRICE_XTEA_DEFERRED_ENCRYPT == 1)
+#endif // #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)

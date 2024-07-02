@@ -1476,7 +1476,7 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
   | `10iiiiiiI 10iiiiiiI TT NC ...`    |           2            | First 16bit are doubled. Info over `-d16` trice switch. | `u16 u16 u16 u16 [uW] ... [uW]` |
   | _________ `11iiiiiiI TT TT NC ...` |           3            | >= 4-byte message, *Trice* format with 32-bit stamp     | ___ `u16 u32 u16 [uW] ... [uW]` |
 
-- The stamp selector `2` encoding has 2 possibilities. When using `TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
+- The stamp selector `2` encoding has 2 possibilities. When using `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
 - Default endianness is little endian as most MCUs use little endianness. Otherwise the `-triceEndianness=bigEndian` CLI switch is needed.
 - The receiving tool evaluates firstly the 2 stamp bits and follows some rules:
     - 0: reserved -> ignore the whole package (discard) or treat it as user data.

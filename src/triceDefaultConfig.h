@@ -185,7 +185,7 @@ extern "C" {
 #ifndef TRICE_SINGLE_MAX_SIZE
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings, to detect the need of a ring buffer wrap or to protect against overflow.
 //! - Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
-//! - In direct mode, and also when you enabled TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE, this plus TRICE_DATA_OFFSET is the max allocation size on the target 
+//! - In direct mode, and also when you enabled TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE, this plus TRICE_DATA_OFFSET is the max allocation size on the target 
 //!   stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
 //! - When short of RAM and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
 //! - You should then also disable all then forbidden trices to avoid mistakes. Example: `#define ENABLE_TRice32fn_3 0` and so on at the end of this file.
@@ -247,14 +247,14 @@ extern "C" {
 #define XTEA_DECRYPT 0
 #endif
 
-#ifndef TRICE_XTEA_DIRECT_ENCRYPT
-//! TRICE_XTEA_DIRECT_ENCRYPT enables encryption for direct output. (experimental)
-#define TRICE_XTEA_DIRECT_ENCRYPT 0
+#ifndef TRICE_DIRECT_XTEA_ENCRYPT
+//! TRICE_DIRECT_XTEA_ENCRYPT enables encryption for direct output. (experimental)
+#define TRICE_DIRECT_XTEA_ENCRYPT 0
 #endif
 
-#ifndef TRICE_XTEA_DEFERRED_ENCRYPT
-//! TRICE_XTEA_DEFERRED_ENCRYPT enables encryption for deferred output. (experimental)
-#define TRICE_XTEA_DEFERRED_ENCRYPT 0
+#ifndef TRICE_DEFERRED_XTEA_ENCRYPT
+//! TRICE_DEFERRED_XTEA_ENCRYPT enables encryption for deferred output. (experimental)
+#define TRICE_DEFERRED_XTEA_ENCRYPT 0
 #endif
 
 #ifndef TRICE_DIAGNOSTICS
@@ -263,28 +263,28 @@ extern "C" {
 #define TRICE_DIAGNOSTICS 1
 #endif
 
-#ifndef TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
-//! TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
+#ifndef TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE
+//! TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE==1 uses standard RTT transfer by using function SEGGER_RTT_WriteNoLock and needs ((TRICE_DIRECT_OUTPUT == 1).
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //! - Not that fast as with TRICE_SEGGER_RTT_32BIT_WRITE == 1 but still fast and uses pure SEGGER functionality only.
-#define TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE 0
+#define TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE 0
 #endif
 
-#ifndef TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE
-//! TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
+#ifndef TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE
+//! TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
 //!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or with RTT with framing, simply set this value to 0. 
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
-#define TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE 0
+#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 0
 #endif
 
-#ifndef TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE
-//! TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
+#ifndef TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE
+//! TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1 enables channel number 0 for SeggerRTT usage. Only channel 0 works right now for some reason.
 //! Than the RTT trice packages are can be framed according to the set TRICE_DIRECT_OUT_FRAMING.
-//! Not useable with TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE or TRICE_SEGGER_RTT_8BIT_DIRECT_WRITE
+//! Not useable with TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE or TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE
 //! Switch this on, if you wish deferred Segger RTT output.
-#define TRICE_SEGGER_RTT_8BIT_DEFERRED_WRITE 0
+#define TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE 0
 #endif
 
 #ifndef TRICE_DIRECT_AUXILIARY8

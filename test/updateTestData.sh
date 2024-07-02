@@ -42,9 +42,11 @@ ringB_di_nopf_rtt32__de_xtea_cobs_ua/
 ringB_di_nopf_rtt8__de_tcobs_ua/
 ringB_di_tcobs_rtt32__de_tcobs_ua/
 stackB_di_nopf_aux8/
+stackB_di_nopf_aux32/
 stackB_di_nopf_rtt32/
 stackB_di_nopf_rtt8/
 staticB_di_nopf_aux8/
+staticB_di_nopf_aux32/
 staticB_di_nopf_rtt32/
 staticB_di_nopf_rtt8/
 staticB_di_tcobs_rtt32/

@@ -232,7 +232,7 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( iD(2065), "att: line %u\n", __LINE__ );
 
 //      break; case __LINE__: 
-//  #if TRICE_XTEA_DEFERRED_ENCRYPT
+//  #if TRICE_DEFERRED_XTEA_ENCRYPT
 //          TRICE0 ( Id(4428), "--------------------------------------------------\n" );
 //          {
 //              uint32_t by[8] = {1,2,3,4,5,6};
