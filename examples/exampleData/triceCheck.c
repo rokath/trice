@@ -41,8 +41,10 @@ void TriceCheck(int n) {
     char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     #endif // #if TRICE_CGO == 1
 
-    unsigned anchorLine = __LINE__ + 18;
+    unsigned anchorLine = __LINE__ + 20;
 	
+
+
     switch( n ){ 
         default:
         break; case __LINE__: trice16( "att: line %u\n", __LINE__ );

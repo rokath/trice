@@ -470,7 +470,11 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 #ifndef TRICE_PUTBUFFER
 
 //! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
-#define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0)
+#define TRICE_PUTBUFFER( buf, len ) do{ \
+    memcpy( TriceBufferWritePosition, buf, len ); \
+    unsigned len4 = ((unsigned)len + 3) & ~3; \
+    memset((uint8_t *)TriceBufferWritePosition + len, 0, len4 - len ); /*clear padding space*/ \
+    TriceBufferWritePosition += len4>>2; }while(0)
 
 #endif
 

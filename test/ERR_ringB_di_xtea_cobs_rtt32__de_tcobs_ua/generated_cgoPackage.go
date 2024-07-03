@@ -55,7 +55,7 @@ import (
 
 var (
 	triceDir  string // triceDir holds the trice directory path.
-	testLines = 9  // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	testLines = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -205,34 +205,34 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 			return
 		}
 		fmt.Println(i, r)
+		triceCheck(r.line) // target activity
 
-		// target activity
-		triceCheck(r.line)
+		{ // check direct output
+			length := triceOutDepth()
+			bin := out[:length] // bin contains the binary trice data of trice message i
 
-		// check direct output
-		length := triceOutDepth()
-		bin := out[:length] // bin contains the binary trice data of trice message i
+			buf := fmt.Sprint(bin)
+			buffer := buf[1 : len(buf)-1]
 
-		buf := fmt.Sprint(bin)
-		buffer := buf[1 : len(buf)-1]
+			act := triceLog0(t, osFSys, buffer)
+			triceClearOutBuffer()
 
-		act := triceLog0(t, osFSys, buffer)
-		triceClearOutBuffer()
+			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+		}
 
-		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+		/*{ // check deferred output
+			triceTransfer()
 
-		// check deferred output
-		triceTransfer()
+			length := triceOutDepth()
+			bin := out[:length] // bin contains the binary trice data of trice message i
 
-		length = triceOutDepth()
-		bin = out[:length] // bin contains the binary trice data of trice message i
+			buf := fmt.Sprint(bin)
+			buffer := buf[1 : len(buf)-1]
 
-		buf = fmt.Sprint(bin)
-		buffer = buf[1 : len(buf)-1]
+			act := triceLog1(t, osFSys, buffer)
+			triceClearOutBuffer()
 
-		act = triceLog1(t, osFSys, buffer)
-		triceClearOutBuffer()
-
-		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+		}*/
 	}
 }

@@ -104,6 +104,7 @@ int main(void)
     Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
     trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
     trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -125,7 +126,7 @@ int main(void)
             msCheck++;
             if(msCheck >= 100 ){
                 msCheck = 0; 
-                static uint32_t i = 0;
+                static uint32_t i = 50;
                 if( i++ > 330 ){
                     i = 0;
                 }
