@@ -220,7 +220,7 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
 		}
 
-		/*{ // check deferred output
+		{ // check deferred output
 			triceTransfer()
 
 			length := triceOutDepth()
@@ -233,6 +233,6 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 			triceClearOutBuffer()
 
 			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
-		}*/
+		}
 	}
 }

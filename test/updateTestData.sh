@@ -12,7 +12,7 @@ trice insert -i ./testdata/til.json -li ./testdata/li.json -liPathIsRelative -ID
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
 CGOTESTDIRS="
-ERR_ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
+ERROR_ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
 dblB_de_cobs_ua/
 dblB_de_multi_cobs_ua/
 dblB_de_multi_nopf_ua/
