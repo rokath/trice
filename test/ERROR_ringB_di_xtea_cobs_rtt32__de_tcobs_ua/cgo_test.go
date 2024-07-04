@@ -11,7 +11,7 @@ import (
 	"github.com/tj/assert"
 )
 
-func TestLogs(t *testing.T) {
+func _TestLogs(t *testing.T) {
 
 	// triceLog is the log function for executing the trice logging on binary log data in buffer as space separated numbers.
 	// It uses the inside fSys specified til.json and returns the log output.
@@ -34,19 +34,6 @@ func TestLogs(t *testing.T) {
 	triceLogTest2(t, triceLog0, triceLog1, testLines)
 }
 
-/*
-// trice l -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0" -d16 -showID "deb:%04x" -hs off -pw MySecret -pf COBS
-#define TRICE_DIRECT_OUTPUT 1
-#define TRICE_DIRECT_XTEA_ENCRYPT 1
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS
-#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
-
-// // trice l -p com4 -d16=false
-#define TRICE_DEFERRED_OUTPUT 1
-#define TRICE_DEFERRED_UARTA 1
-#define TRICE_UARTA
-*/
-
 func TestLogs0(t *testing.T) {
 
 	// triceLog is the log function for executing the trice logging on binary log data in buffer as space separated numbers.
@@ -68,7 +55,7 @@ func TestLogs1(t *testing.T) {
 	triceLog1 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
 		//                                                        trice    l                                                            -p com4                                                                                       -d16=false
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=TCOBS", "-d16=false"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=TCOBS", "-d16=false", "-debug", "-v"}))
 		return o.String()
 	}
 

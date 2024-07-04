@@ -41,6 +41,7 @@ import "C"
 
 import (
 	"bufio"
+	"encoding/hex"
 	"fmt"
 	"path"
 	"runtime"
@@ -177,6 +178,9 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 
 		buf := fmt.Sprint(bin)
 		buffer := buf[1 : len(buf)-1]
+		fmt.Println(hex.Dump(bin))
+		fmt.Println(buf)
+		fmt.Println(buffer)
 
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()

@@ -193,7 +193,7 @@ func (p *trexDec) nextPackage() {
 		n, e := tcobs.Decode(p.B, frame) // if index is 0, an empty buffer is decoded
 		// from merging: p.IBuf = p.IBuf[index+1:]        // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
-			//fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1])                 // show also terminating 0
+			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
 			//  inconsistent TCOBSv1 buffer: [
 			//    83 69 71 71 69 82 32 74 45 76 105 110 107 32 86 55 46 56 54 101 32 45 32 82 101 97 108 32 116 105 109 101 32 116 101 114 109 105 110 97 108 32 111 117 116 112 117 116 13 10
 			//    74 45 76 105 110 107 32 83 84 76 105 110 107 32 86 50 49 32 99 111 109 112 105 108 101 100 32 65 117 103 32 49 50 32 50 48 49 57 32 49 48 58 50 57 58 50 48 32 86 49 46 48 44 32 83 78 61 55 55 53 51 53 49 49 50 57 13 10
