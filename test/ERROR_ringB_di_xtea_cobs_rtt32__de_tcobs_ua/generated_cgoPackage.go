@@ -41,7 +41,6 @@ import "C"
 
 import (
 	"bufio"
-	"encoding/hex"
 	"fmt"
 	"path"
 	"runtime"
@@ -165,7 +164,7 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 		if limit >= 0 && count >= limit {
 			return
 		}
-
+		//if r.line == 55 || r.line == 58 {
 		fmt.Println(i, r)
 
 		// target activity
@@ -178,16 +177,12 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 
 		buf := fmt.Sprint(bin)
 		buffer := buf[1 : len(buf)-1]
-		fmt.Println(hex.Dump(bin))
-		fmt.Println(buf)
-		fmt.Println(buffer)
 
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()
 
 		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
-
-		//assert.Fail(t, "STOP")
+		//}
 	}
 }
 
