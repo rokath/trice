@@ -638,7 +638,7 @@ static inline uint64_t aDouble( double x ){
 // todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
 //
 #define TRICE_N( tid, pFmt, buf, n) do { \
-    uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head(2) + max timestamp size(4) + count(2) */ \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
         /*TRICE32( id( 5150), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit );*/ \

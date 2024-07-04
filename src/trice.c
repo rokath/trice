@@ -30,11 +30,11 @@
 #endif
 
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && ( TRICE_WARNINGS == 1 )
-    #pragma message("configuration: XTEA with TCOBS is possible but not remommended. Encrypted data are more effective framed with COBS.")
+    #pragma message("configuration: XTEA with TCOBS is possible but not recommended. Encrypted data are more effective framed with COBS.")
 #endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && ( TRICE_WARNINGS == 1 )
-    #pragma message("configuration: XTEA with TCOBS is possible but not remommended. Encrypted data are more effective framed with COBS.")
+    #pragma message("configuration: XTEA with TCOBS is possible but not recommended. Encrypted data are more effective framed with COBS.")
 #endif
 
 #ifndef TRICE_DEFERRED_TRANSFER_MODE
@@ -61,8 +61,12 @@
     #warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
 #endif
 
+#if (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_CONFIG_WARNINGS == 1)
+    #warning configuration: (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) is depreciated and not fully tested. Will probably not run error free.
+#endif
+
 #if (TRICE_DIRECT_OUTPUT == 0) && (TRICE_DEFERRED_OUTPUT == 0)
-    #error configuration: need at east one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DDEFERRED_OUTPUT == 0)
+    #error configuration: need at east one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DEFERRED_OUTPUT == 0)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_RING_BUFFER)

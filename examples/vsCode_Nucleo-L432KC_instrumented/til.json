@@ -1231,6 +1231,10 @@
 		"Type": "Trice64",
 		"Strg": "value=%d\\n"
 	},
+	"1327": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"1328": {
 		"Type": "TRICE32_3",
 		"Strg": "rd:TRICE32_3 %d, %d, %d\\n"
@@ -5703,6 +5707,10 @@
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d\\n"
 	},
+	"2514": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"2515": {
 		"Type": "TRice8",
 		"Strg": "no value"
@@ -6394,6 +6402,10 @@
 	"2698": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %g (%%g), aDouble(y)\\n"
+	},
+	"2700": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"2701": {
 		"Type": "trice32",
@@ -12370,6 +12382,10 @@
 	"4312": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"4313": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
 	},
 	"4314": {
 		"Type": "TRICE",
@@ -20983,6 +20999,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\\n"
 	},
+	"6626": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"6627": {
 		"Type": "TRICE",
 		"Strg": "signal:118+i\\n"
@@ -21098,6 +21118,10 @@
 	"6657": {
 		"Type": "Trice8",
 		"Strg": "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\\n"
+	},
+	"6658": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"6659": {
 		"Type": "TRICE16_6",
@@ -22122,6 +22146,10 @@
 	"6937": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %F (%%F), aDouble(y)\\n"
+	},
+	"6938": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"6939": {
 		"Type": "TRICE64_12",

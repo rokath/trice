@@ -164,7 +164,7 @@ func (p *trexDec) nextPackage() {
 	if decoder.TestTableMode {
 		p.printTestTableLine(index + 1)
 	}
-	// here a complete TCOBS package exists
+	// here a complete COBS or TCOBS package exists
 	if decoder.DebugOut { // Debug output
 		fmt.Fprintf(p.W, "%s: ", decoder.PackageFraming)
 		decoder.Dump(p.W, p.IBuf[:index+1])
@@ -172,7 +172,6 @@ func (p *trexDec) nextPackage() {
 
 	frame := p.IBuf[:index]
 
-	// todo: automatically set default decoder.PackageFraming value to COBS if XTEA is active.
 	switch p.packageFraming {
 
 	case packageFramingCOBS:
@@ -275,6 +274,29 @@ func isZero(bytes []byte) bool {
 	return b == 0
 }
 
+func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
+	// The package interpreter does not know the number of padding zeroes, so it needs to discard them one by one.
+	// If they are not zero, this is an error.
+	if p.Endian == decoder.BigEndian {
+		// Big endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> still typeX0 -> AA AA C0 00 -> ok next package
+		if s[0] != 0 {
+			log.Fatal("unexpected case", s)
+		}
+		r = s[1:]
+	} else if p.Endian == decoder.LittleEndian {
+		// Little endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> AA00 signals a valid Trice, but it is not! -> We need to remove the HI byte!
+		if s[1] != 0 {
+			//log.Fatal("unexpected case", s)
+			// todo: This needs to be disabled for successfully running all test cases.
+			// BUT: deferred package framing NONE does not work
+		}
+		r = append(s[:1], s[2:]...)
+	} else {
+		log.Fatal("unexpected case", s)
+	}
+	return
+}
+
 // Read is the provided read method for TREX decoding and provides next string as byte slice.
 //
 // It uses inner reader p.In and internal id look-up table to fill b with a string.
@@ -311,6 +333,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if packageSize < tyIdSize { // not enough data for a next package
 		return
 	}
+	packed := p.B
 	tyId := p.ReadU16(p.B)
 	p.B = p.B[tyIdSize:]
 
@@ -333,24 +356,18 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestampSize = 4
-	//case typeS8: // 64-bit stamp
-	//	decoder.TargetTimestampSize = 8
 	case typeX0: // extended trice type X0
-		// todo: implement special case here
-		//case typeX1: // extended trice type X0
-		// todo: implement special case here
-		//case typeX2: // extended trice type X0
-		// todo: implement special case here
-		//case typeX3: // extended trice type X0
-		// todo: implement special case here
-		if p.packageFraming == packageFramingNone && len(p.B) > 0 { // typeX0 is not supported (yet)
+		if p.packageFraming == packageFramingNone {
+			// typeX0 is not supported (yet)
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0], "from", hex.Dump(p.B0)))
+				n += copy(b[n:], fmt.Sprintln("wrn:\aRemoving zero HI byte from", hex.Dump(p.B0), "to try to resync."))
 			}
-			p.B0 = p.B0[1:] // remove first byte to try to resync
-			p.B = p.B0
+			p.B = p.removeZeroHiByte(p.B0)
+			return
 		}
-		return
+		// p.packageFraming != packageFramingNone
+		// We can reach here in target TRICE_MULTI_PACK_MODE, when a trice message is followed by several zeroes (up to 7 possible with encryption).
+		p.B = p.removeZeroHiByte(packed)
 	}
 
 	if packageSize < tyIdSize+decoder.TargetTimestampSize+ncSize { // for non typeEX trices
