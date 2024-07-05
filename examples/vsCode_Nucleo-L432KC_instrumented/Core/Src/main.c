@@ -83,14 +83,14 @@ int main(void)
 
     TriceInit();
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-    trice( iD(3077), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+    trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
 
-    TRice( iD(6911), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( iD(5582), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(7253), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(1274), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(3130), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(4454), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
 
   /* USER CODE END 1 */
 

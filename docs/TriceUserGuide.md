@@ -1171,9 +1171,9 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 
 ###  11.1. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
-- If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: : ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG)
-- Hint from @escherstair: With `-D TRICE_OFF` as compiler option, the trice code diappears completely from the binary.
-- No runtime On-Off switch is implemented for  several reasons:
+- If your code works well after checking, you can add `#define TRICE_OFF 1` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: : ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG)
+- Hint from @escherstair: With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
+- No runtime On-Off switch is implemented for several reasons:
   - Would need a control channel to the target.
   - Would add little performance and code overhead.
   - Would sligtly change target timing (testing).
@@ -1381,7 +1381,7 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 - *Trice* messages are framed binary data, if framing is not disabled.
 - Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data reduction) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all. 
   - Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tool `-packageFraming` switch accordingly.
-- For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`. This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
+- For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_DEFERRED_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`. This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1397,8 +1397,8 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 
 - To interpret a decoded package, it´s endianness needs to be known.
 - For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
-- On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
-- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
+- On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined as 1 and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
+- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed to be defined as 1. This increases the critical trice storage time and target code amount.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1424,7 +1424,7 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
   | `TRICE( Id(n), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
   | `TRICE( ID(n), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
 
-It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a µs or ms tick count but any values are allowed.
+It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp32`. Normally they return a µs or ms tick count but any values are allowed.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1476,7 +1476,7 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
   | `10iiiiiiI 10iiiiiiI TT NC ...`    |           2            | First 16bit are doubled. Info over `-d16` trice switch. | `u16 u16 u16 u16 [uW] ... [uW]` |
   | _________ `11iiiiiiI TT TT NC ...` |           3            | >= 4-byte message, *Trice* format with 32-bit stamp     | ___ `u16 u32 u16 [uW] ... [uW]` |
 
-- The stamp selector `2` encoding has 2 possibilities. When using `TRICE_SEGGER_RTT_32BIT_DIRECT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
+- The stamp selector `2` encoding has 2 possibilities. When using `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
 - Default endianness is little endian as most MCUs use little endianness. Otherwise the `-triceEndianness=bigEndian` CLI switch is needed.
 - The receiving tool evaluates firstly the 2 stamp bits and follows some rules:
     - 0: reserved -> ignore the whole package (discard) or treat it as user data.

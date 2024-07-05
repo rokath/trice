@@ -37,7 +37,7 @@ The following numbers are measured with a legacy encoding, showing that the inst
 
 * The core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM when buffer size is 64 bytes.
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
-* trices are removable without code changes by defining `TRICE_OFF` on file or project level.
+* trices are removable without code changes with `#define TRICE_OFF 1` before `incude "trice.h"` on file level or generally on project level.
 
 ##  3. <a name='Memoryneedsexampleprojects'></a>Memory needs (example projects)
 

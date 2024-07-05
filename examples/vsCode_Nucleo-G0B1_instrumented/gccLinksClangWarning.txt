@@ -1,2 +1,10 @@
-/usr/lib/gcc/arm-none-eabi/12.2.1/../../../arm-none-eabi/bin/ld: warning: /usr/lib/gcc/arm-none-eabi/12.2.1/thumb/v6-m/nofp/crtn.o: missing .note.GNU-stack section implies executable stack
-/usr/lib/gcc/arm-none-eabi/12.2.1/../../../arm-none-eabi/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/bin/ld.exe: C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libc_nano.a(libc_a-closer.o): in function `_close_r':
+closer.c:(.text._close_r+0xc): warning: _close is not implemented and will always fail
+C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/bin/ld.exe: C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libc_nano.a(libc_a-lseekr.o): in function `_lseek_r':
+lseekr.c:(.text._lseek_r+0x10): warning: _lseek is not implemented and will always fail
+C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/bin/ld.exe: C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libc_nano.a(libc_a-readr.o): in function `_read_r':
+readr.c:(.text._read_r+0x10): warning: _read is not implemented and will always fail
+C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/bin/ld.exe: C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp\libc_nano.a(libc_a-writer.o): in function `_write_r':
+writer.c:(.text._write_r+0x10): warning: _write is not implemented and will always fail
+C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/thumb/v6-m/nofp/crtn.o: missing .note.GNU-stack section implies executable stack
+C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/bin/ld.exe: NOTE: This behaviour is deprecated and will be removed in a future version of the linker

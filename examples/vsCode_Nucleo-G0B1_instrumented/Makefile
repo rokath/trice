@@ -1,11 +1,11 @@
 
 
 # Put ARM Clang first in path temporary to avoid compiler variants issues.
-#export PATH := C:\bin\ArmClang\bin:$(PATH)
+export PATH := C:\bin\ArmClang\bin:C:\bin\ArmGNUToolchain\bin:$(PATH)
 
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
-#export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
-export C_INCLUDE_PATH := /usr/include/newlib/
+export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
+#export C_INCLUDE_PATH := /usr/include/newlib/
 
 MAKEFILE = Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
 VERBOSE = # -v
@@ -66,6 +66,9 @@ Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
 
+#Core/Src/sysmem.c 
+#Core/Src/syscalls.c
+
 C_SOURCES += \
 ../../src/cobsDecode.c \
 ../../src/cobsEncode.c \
@@ -78,11 +81,13 @@ C_SOURCES += \
 ../../src/trice64.c \
 ../../src/trice8.c \
 ../../src/triceAuxiliary.c \
+../../src/triceUart.c \
 ../../src/triceDoubleBuffer.c \
 ../../src/triceRingBuffer.c \
 ../../src/triceStackBuffer.c \
 ../../src/triceStaticBuffer.c \
-../../src/xtea.c 
+../../src/xtea.c \
+../exampleData/triceCheck.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -134,15 +139,15 @@ include flags.mak
 all: pre-build main-build
 
 pre-build:
-	@#echo PRE ...
+	@echo "PRE ..."
 	@trice insert -src ../../src -src ./ -src ../exampleData
-	@#echo PRE ... done
-	@#echo -e
+	@echo "PRE ... done"
+	@#make -j8 all
 
 post-build:
-	@#echo POST ...
+	@echo POST ...
 	@trice clean -src ../../src -src ./ -src ../exampleData
-	@#echo POST ... done
+	@echo POST ... done
 	@#echo -e
 
 main-build: clang
@@ -170,7 +175,7 @@ log:
 include gcc1.mak
 include clang1.mak
 
-clean:
+clean: post-build
 	@-rm -fR $(GCC_BUILD) $(CLANG_BUILD)
 	
 version:

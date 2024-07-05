@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"path/filepath"
 	"strings"
@@ -71,6 +72,9 @@ func (ilu TriceIDLookUp) newRandomID(w io.Writer, min, max TriceID) (id TriceID)
 	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(ilu)))
 	wrnLimit := interval >> 3 // 12.5%
 	msg.InfoOnTrue(freeIDs < wrnLimit, "WARNING: Less than 12.5% IDs free!")
+	if interval <= 0 {
+		log.Fatal(w, "No ID space left:", min, max)
+	}
 	id = min + TriceID(rand.Intn(interval))
 	if len(ilu) == 0 {
 		return

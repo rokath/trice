@@ -6,6 +6,7 @@ package trexDecoder
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -163,7 +164,7 @@ func (p *trexDec) nextPackage() {
 	if decoder.TestTableMode {
 		p.printTestTableLine(index + 1)
 	}
-	// here a complete TCOBS package exists
+	// here a complete COBS or TCOBS package exists
 	if decoder.DebugOut { // Debug output
 		fmt.Fprintf(p.W, "%s: ", decoder.PackageFraming)
 		decoder.Dump(p.W, p.IBuf[:index+1])
@@ -171,7 +172,6 @@ func (p *trexDec) nextPackage() {
 
 	frame := p.IBuf[:index]
 
-	// todo: automatically set default decoder.PackageFraming value to COBS if XTEA is active.
 	switch p.packageFraming {
 
 	case packageFramingCOBS:
@@ -180,7 +180,8 @@ func (p *trexDec) nextPackage() {
 		p.IBuf = p.IBuf[index+1:]       // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
 			if decoder.Verbose {
-				fmt.Println("inconsistent COBS buffer:\a", frame) // show also terminating 0
+				//fmt.Println("inconsistent COBS buffer:\a", frame) // show also terminating 0
+				fmt.Println("inconsistent COBS buffer:\a", hex.Dump(frame)) // show also terminating 0
 			}
 		}
 		p.B = p.B[:n]
@@ -191,7 +192,7 @@ func (p *trexDec) nextPackage() {
 		n, e := tcobs.Decode(p.B, frame) // if index is 0, an empty buffer is decoded
 		// from merging: p.IBuf = p.IBuf[index+1:]        // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
-			//fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1])                 // show also terminating 0
+			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
 			//  inconsistent TCOBSv1 buffer: [
 			//    83 69 71 71 69 82 32 74 45 76 105 110 107 32 86 55 46 56 54 101 32 45 32 82 101 97 108 32 116 105 109 101 32 116 101 114 109 105 110 97 108 32 111 117 116 112 117 116 13 10
 			//    74 45 76 105 110 107 32 83 84 76 105 110 107 32 86 50 49 32 99 111 109 112 105 108 101 100 32 65 117 103 32 49 50 32 50 48 49 57 32 49 48 58 50 57 58 50 48 32 86 49 46 48 44 32 83 78 61 55 55 53 51 53 49 49 50 57 13 10
@@ -227,7 +228,7 @@ func (p *trexDec) nextPackage() {
 				goto repeat
 			}
 			if decoder.Verbose {
-				fmt.Println(e, "inconsistent TCOBSv1 buffer:\a", frame) // show also terminating 0
+				fmt.Println(e, "inconsistent TCOBSv1 buffer:\a", hex.Dump(frame)) // show also terminating 0
 			}
 			e = nil
 			p.B = p.B[:0]
@@ -273,6 +274,29 @@ func isZero(bytes []byte) bool {
 	return b == 0
 }
 
+func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
+	// The package interpreter does not know the number of padding zeroes, so it needs to discard them one by one.
+	// If they are not zero, this is an error.
+	if p.Endian == decoder.BigEndian {
+		// Big endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> still typeX0 -> AA AA C0 00 -> ok next package
+		if s[0] != 0 {
+			log.Fatal("unexpected case", s)
+		}
+		r = s[1:]
+	} else if p.Endian == decoder.LittleEndian {
+		// Little endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> AA00 signals a valid Trice, but it is not! -> We need to remove the HI byte!
+		if s[1] != 0 {
+			//log.Fatal("unexpected case", s)
+			// todo: This needs to be disabled for successfully running all test cases.
+			// BUT: deferred package framing NONE does not work
+		}
+		r = append(s[:1], s[2:]...)
+	} else {
+		log.Fatal("unexpected case", s)
+	}
+	return
+}
+
 // Read is the provided read method for TREX decoding and provides next string as byte slice.
 //
 // It uses inner reader p.In and internal id look-up table to fill b with a string.
@@ -297,7 +321,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 		if len(p.B) == 1 { // last decoded package exhausted
 			if decoder.Verbose {
-				fmt.Println("inconsistent data, discarding single byte", p.B[0])
+				fmt.Println("inconsistent data, discarding last single byte", p.B[0], "from", hex.Dump(p.B))
 			}
 			p.B = p.B[:0]
 		}
@@ -309,6 +333,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if packageSize < tyIdSize { // not enough data for a next package
 		return
 	}
+	packed := p.B
 	tyId := p.ReadU16(p.B)
 	p.B = p.B[tyIdSize:]
 
@@ -331,24 +356,18 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestampSize = 4
-	//case typeS8: // 64-bit stamp
-	//	decoder.TargetTimestampSize = 8
 	case typeX0: // extended trice type X0
-		// todo: implement special case here
-		//case typeX1: // extended trice type X0
-		// todo: implement special case here
-		//case typeX2: // extended trice type X0
-		// todo: implement special case here
-		//case typeX3: // extended trice type X0
-		// todo: implement special case here
-		if p.packageFraming == packageFramingNone && len(p.B) > 0 { // typeX0 is not supported (yet)
+		if p.packageFraming == packageFramingNone {
+			// typeX0 is not supported (yet)
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+				n += copy(b[n:], fmt.Sprintln("wrn:\aRemoving zero HI byte from", hex.Dump(p.B0), "to try to resync."))
 			}
-			p.B0 = p.B0[1:] // remove first byte to try to resync
-			p.B = p.B0
+			p.B = p.removeZeroHiByte(p.B0)
+			return
 		}
-		return
+		// p.packageFraming != packageFramingNone
+		// We can reach here in target TRICE_MULTI_PACK_MODE, when a trice message is followed by several zeroes (up to 7 possible with encryption).
+		p.B = p.removeZeroHiByte(packed)
 	}
 
 	if packageSize < tyIdSize+decoder.TargetTimestampSize+ncSize { // for non typeEX trices
@@ -390,15 +409,15 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from", hex.Dump(p.B0)))
 			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 			return
 		}
 		if decoder.Verbose {
-			n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
-			n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
+			n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package:", hex.Dump(p.B)))
+			n += copy(b[n:], fmt.Sprintln("tyIdSize=", tyIdSize, "tsSize=", decoder.TargetTimestampSize, "ncSize=", ncSize, "ParamSpae=", p.ParamSpace))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		}
 		p.B = p.B[len(p.B):] // discard buffer
@@ -424,7 +443,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	if cycle != 0xc0 { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
-			n += copy(b[n:], fmt.Sprintln("CYCLE:\a", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
+			n += copy(b[n:], fmt.Sprint("CYCLE:", cycle, "!=", p.cycle, " #", emitter.ColorChannelEvents("CYCLE")+1, "\a binary buffer:", hex.Dump((p.B))))
 			p.cycle = cycle // adjust cycle
 		}
 		decoder.InitialCycle = false
@@ -434,16 +453,17 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	var ok bool
 	p.LutMutex.RLock()
 	p.Trice, ok = p.Lut[triceID]
+	// p.Trice.Strg += `\n` // this would add a newline to each single Trice message
 	p.LutMutex.RUnlock()
 	if !ok {
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding byte", p.B0[0]))
+				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from", hex.Dump(p.B0)))
 			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 		} else {
-			n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", triceID, "- ignoring trice ending with", p.B))
+			n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", triceID, "- ignoring trice ending with", hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
@@ -454,12 +474,12 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if len(p.B) < p.ParamSpace {
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+				n += copy(b[n:], fmt.Sprintln("wrn:discarding first byte", p.B0[0], "from", hex.Dump(p.B0)))
 			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 		} else {
-			n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage"))
+			n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage", hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
@@ -467,11 +487,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
 			p.B = p.B[p.ParamSpace:] // drop param info
 		} else { // no package framing
-			padding := (int(p.ParamSpace) + 3) & ^3
+			padding := (p.ParamSpace + 3) & ^3
 			if padding <= len(p.B) {
 				p.B = p.B[padding:]
 			} else {
-				n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes"))
+				// n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes", ))
 			}
 		}
 	}
@@ -509,7 +529,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	for _, s := range cobsFunctionPtrList {                // walk through the list and try to find a match for execution
 		if s.triceType == ucTriceTypeReconstructed || s.triceType == ucTriceTypeReceived { // match list entry "TRICE..."
 			if len(p.B) < p.ParamSpace {
-				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package", p.B[:len(p.B)]))
+				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package", hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
@@ -520,7 +540,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 						goto ignoreSpecialCase
 					}
 				}
-				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package", p.B[:len(p.B)]))
+				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package", hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			ignoreSpecialCase:
@@ -551,7 +571,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 			return
 		}
 	}
-	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data", p.B[:p.ParamSpace]))
+	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data", hex.Dump(p.B[:p.ParamSpace])))
 	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 	return
 }

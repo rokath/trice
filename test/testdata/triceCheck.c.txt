@@ -1,9 +1,12 @@
 /*! \file triceCheck.c
 \brief trices for tool evaluation
 \author thomas.hoehenleitner [at] seerose.net
+EDIT ONLY as trice/test/testdata/triceCheck.c.txt an run trice/test/updateTestData.sh afterwards !!!
+EDIT ONLY as trice/test/testdata/triceCheck.c.txt an run trice/test/updateTestData.sh afterwards !!!
+EDIT ONLY as trice/test/testdata/triceCheck.c.txt an run trice/test/updateTestData.sh afterwards !!!
 *******************************************************************************/
 #include <float.h>
-//#define TRICE_OFF // enable this line to disable trice code generation in this file object
+#define TRICE_OFF 0 // Set this value to 1 to disable trice code generation in this file object.
 #include "trice.h"
 
 // Do **NOT** edit triceCheck.c!!!
@@ -15,6 +18,7 @@ static int32_t FloatToInt32( float f );
 static int64_t DoubleToInt64( double f );
 //static void exampleOfManualSerialization( void );
 static void exampleOfManualJSONencoding(void);
+static void dynString( int n );
 
 //! TriceCheck performs trice code sequence n. TriceCheck writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
@@ -33,19 +37,95 @@ void TriceCheck(int n) {
     char* sABCDE = "abcde 12345";
     uint32_t lenABCDE = strlen(sABCDE);
 
-    #ifdef TRICE_CGO
+    #if TRICE_CGO == 1
     char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    #endif // #ifdef TRICE_CGO
+    #endif // #if TRICE_CGO == 1
 
-    switch( n ){
+    unsigned anchorLine = __LINE__ + 20;
+	
+
+
+    switch( n ){ 
         default:
-
         break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
-
-        // normal use cases
+		
+		// normal use cases
         break; case __LINE__: TRice( "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
         break; case __LINE__: Trice( "info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
         break; case __LINE__: trice( "info:This is a message without values and without stamp.\n"  ); //exp: time:            default: info:This is a message without values and without stamp.
+
+		break; case __LINE__: TRice( "Hello World!\n" );               //exp: time: 842,150_450default: Hello World!
+		
+		// now 2 Trices in one line
+		//break; case __LINE__: TRice( "Hello " ); TRice( "World!\n" );  //exp: time: 842,150_450default: Hello World!
+		
+        break; case __LINE__: for( int i = 0; i < 20; i++ ){ dynString(i); }
+
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:01
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:012
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:01234
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:012345
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:01234567
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:012345678
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789a
+		break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789ab
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abc
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcd
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcde
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdef
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefg
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefgh
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghi
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghij
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijk
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijkl
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklm
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmn
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmno
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnop
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopq
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqr
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrs
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrst
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstu
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuv
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvw
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwx
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxy
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyz
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzA
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzAB
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABC
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCD
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDE
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEF
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFG
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGH
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHI
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJ
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJK
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNO
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQ
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQR
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRS
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTU
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUV
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVW
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.
+        break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,
 
         // special use cases
         break; case __LINE__: TRice64( "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time: 842,150_450default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 32-bit stamp.
@@ -146,7 +226,7 @@ void TriceCheck(int n) {
         //break; case __LINE__: TRICE( Id(0), "dbg:\a\aHi!\n" ); // sound!
         //break; case __LINE__: TRICE( Id(0), "dbg:\a\a\aHi!\n" ); // sound!
         //break; case __LINE__: TRICE( Id(0), "dbg:\\aHi!\n" );
-        break; case __LINE__: TRICE( Id(0), "err:An ERROR messgage with sound!\a\n" ); // sound!
+        //break; case __LINE__: TRICE( Id(0), "err:An ERROR messgage with sound!\a\n" ); // sound!
 
         break; case __LINE__: TRICE_S( ID(0), "sig:TRICE_S=%s\n", s );            //exp: time: 842,150_450default: sig:TRICE_S=AAAAAAAAAAAA
         break; case __LINE__: TRICE_N( ID(0), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time: 842,150_450default: sig:TRICE_N=AAAAAAAAAAAA
@@ -154,7 +234,7 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
 //      break; case __LINE__: 
-//  #ifdef XTEA_ENCRYPT_KEY
+//  #if TRICE_DEFERRED_XTEA_ENCRYPT
 //          TRICE0 ( Id(0), "--------------------------------------------------\n" );
 //          {
 //              uint32_t by[8] = {1,2,3,4,5,6};
@@ -323,7 +403,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
         break; case __LINE__: trice16( "att: line %u\n", __LINE__ );
 
-#ifdef TRICE_CGO
+#if TRICE_CGO == 1
 
         break; case __LINE__: TRICE  ( ID(0), "rd:%E (%%E)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556E+08 (%E)
         break; case __LINE__: TRICE  ( ID(0), "rd:%F (%%F)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555584.000000 (%F)
@@ -884,7 +964,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE( ID(0), "--------------------------------------------------\n");
         break; case __LINE__: TRICE( ID(0), "sig:This ASSERT error is just a demo and no real error:\n");
         break; case __LINE__: TRICE( ID(0), "--------------------------------------------------\n");
-        break; case __LINE__: TRICE( ID(0), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
+      //break; case __LINE__: TRICE( ID(0), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
         break; case __LINE__: TRICE( ID(0), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
         break; case __LINE__: TRICE( ID(0), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL);
         break; case __LINE__: TRICE( ID(0), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL);
@@ -1262,7 +1342,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE_N( ID(0), "msg:%s\n", A, 128 );
         break; case __LINE__: TRICE_N( ID(0), "msg:%s\n", A, 129 );
 
-    #endif // #ifdef TRICE_CGO
+    #endif // #if TRICE_CGO == 1
     }
 }
 
@@ -1296,7 +1376,7 @@ typedef struct{
     //float z; // it seems, that the compiler does not align this with -o3 & time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 } Point_t; //!< Point_t is small struct type.
 
-static int serializePoint( char* dst, Point_t const * src ){
+static int serializePoint( char* dst, const Point_t * src ){
     char * p = dst;
 
     SCOPY( x )
@@ -1306,7 +1386,7 @@ static int serializePoint( char* dst, Point_t const * src ){
     return p - dst;
 }
 
-static int deserializePoint( Point_t * const dst, char const * src ){
+static int deserializePoint( Point_t * const dst, const char * src ){
     char const * p = src;
 
     DCOPY( x )
@@ -1328,7 +1408,7 @@ typedef struct{
     uint64_t bitmask;
 } Tryout_t; //!<  Tryout_t is a struct example embedding an other struct.
 
-static int serializeTryout( char* dst, Tryout_t const * src ){
+static int serializeTryout( char* dst, const Tryout_t * src ){
     char * p = dst;
 
     SCOPY( z )
@@ -1344,7 +1424,7 @@ static int serializeTryout( char* dst, Tryout_t const * src ){
     return p - dst;
 }
 
-static int deserializeTryout( Tryout_t * const dst, char const * src ){
+static int deserializeTryout( Tryout_t * const dst, const char * src ){
     char const * p = src;
 
     DCOPY( z )
@@ -1427,76 +1507,80 @@ static void exampleOfManualJSONencoding(void){
     TRICE( Id(0), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
 }
 
+static void dynString( int n ) {
+    char * s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
+    const size_t l = strlen(s);
+    n = n < l ? n : l;
+    // trice( "sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
+    TRICE_N( id(0), "wr:%s\n", s, n );
+}        
+
 #if TRICE_DIAGNOSTICS == 1
 
-//! TriceLogDiagnosticValues shows the max used half buffer space. 
+//! TriceLogDiagnosticValues shows the max used buffer space. 
 void TriceLogDiagnosticValues( void ){
 
 #ifdef SEGGER_RTT
-    if( (RTT0_writeSpaceMin < 8) ){ // && (RTT0_bytesInBufferMax < BUFFER_SIZE_UP - 4) ){
-        trice( "ERROR:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
+    int RTT0_wrSpaceMin = BUFFER_SIZE_UP - RTT0_writeDepthMax;
+    if( (RTT0_wrSpaceMin < TRICE_BUFFER_SIZE) ){
+        trice( "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
     }else{
-        trice( "diag:RTT0_writeSpaceMin=%u, ", RTT0_writeSpaceMin );
+        trice( "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP );
     }
 #endif // #ifdef SEGGER_RTT
 
-#if TRICE_BUFFER == TRICE_STACK_BUFFER
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
+    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
-        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        TRice16( "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
     
+    if( TriceDataOffsetDepthMax < 0 || TriceDataOffsetDepthMax >= TRICE_DATA_OFFSET ){
+        TRice16( "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
+    }else if( TriceDataOffsetDepthMax != 0 ){
+        TRice16( "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
+    }
+
+    if(TriceDynBufTruncateCount != 0){
+        trice( "err: TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount );
+    }
+    
+#if TRICE_PROTECT == 1
+
+    if(TriceDirectOverflowCount != 0){
+        trice( "err: TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount );
+    }
+    if(TriceDeferredOverflowCount != 0){
+        trice( "err: TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount );
+    }
+
+#endif
+
     if(TriceErrorCount > 0){
         trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
     }
+
+#if TRICE_BUFFER == TRICE_STACK_BUFFER
 #endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER
 
 #if TRICE_BUFFER == TRICE_STATIC_BUFFER
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
-    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( "diag:triceSingleDepthMax =%4u of %d\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }else{
-        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }
-    if(TriceErrorCount > 0){
-        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
-    }
 #endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER
 	
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2);
-    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( "diag:triceSingleDepthMax =%4u of%4d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }else{
-        TRice16( "err:triceSingleDepthMax =%4u of%4d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }
     if( TriceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE/2 ){
         TRice16( "diag:TriceHalfBufferDepthMax =%4u of%5d\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }else{
         TRice16( "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE/2 );
     }
-    if(TriceErrorCount > 0){
-        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
-    }
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER
-    unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
-    if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( "diag:triceSingleDepthMax =%4u of %d, ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }else{
-        TRice16( "err:triceSingleDepthMax =%4u of %d (overflow!), ", triceSingleDepthMax, TRICE_BUFFER_SIZE );
-    }
-    trice16( "diag:SingleTricesRingCountMax = %u, ", SingleTricesRingCountMax );
+    //trice16( "diag:SingleTricesRingCountMax = %u, ", SingleTricesRingCountMax );
     if( TriceRingBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE ){
         trice16( "diag:triceRingBufferDepthMax =%4u of%5d\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
     }else{
         trice16( "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\n", TriceRingBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE );
-    }
-    if(TriceErrorCount > 0){
-        trice( "err: TriceErrorCount = %u\n", TriceErrorCount );
     }
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
 }

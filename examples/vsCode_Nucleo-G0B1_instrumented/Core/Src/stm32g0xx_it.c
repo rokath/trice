@@ -22,6 +22,7 @@
 #include "stm32g0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "trice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,8 +112,26 @@ void TIM17_FDCAN_IT1_IRQHandler(void)
   /* USER CODE END TIM17_FDCAN_IT1_IRQn 0 */
   HAL_TIM_IRQHandler(&htim17);
   /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
-
+  static int i = 0;
+  if( i++>5000 ){
+    TRice( "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i );
+    i = 0;
+  }
   /* USER CODE END TIM17_FDCAN_IT1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART2 + LPUART2 Interrupt.
+  */
+void USART2_LPUART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_LPUART2_IRQn 0 */
+
+  /* USER CODE END USART2_LPUART2_IRQn 0 */
+
+  /* USER CODE BEGIN USART2_LPUART2_IRQn 1 */
+
+  /* USER CODE END USART2_LPUART2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

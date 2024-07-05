@@ -43,6 +43,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 osThreadId defaultTaskHandle;
+osThreadId myTask02_DiagnoHandle;
 /* USER CODE BEGIN PV */
 int LoopCount = 0;
 
@@ -53,6 +54,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void const * argument);
+void StartTask02(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -69,8 +71,9 @@ void StartDefaultTask(void const * argument);
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
 
+  /* USER CODE BEGIN 1 */
+  TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -86,20 +89,18 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-    TriceInit();
     
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-    trice( iD(2428), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-G0B1RE   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
-
-    TRice( iD(2454), "w: Hello! 👋🙂\a\n" ); // with sound!
-    TRice8( iD(1073), "w: Hello! 👋🙂 %d\n", 1 );
-    Trice8( iD(1148), "w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
-    Trice8( iD(7436), "w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );
-    trice( iD(6731), "w: Hello! 👋🙂 %f (default rounded float)\n",                                          aFloat( 2.71828182845904523536 ) );
-    trice( iD(6457), "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
-    trice64( iD(3649), "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
-                                                                                    trice( iD(3860), "w: Hello! 👋🙂 2.71828182845904523536 (the full number as string)\n" ); 
-
+    trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈     NUCLEO-G0B1RE      🎈🎈🎈🎈\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n\n\n");
+    TRice( "w: Hello! 👋🙂\a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂\a\n" ); // with sound!
+    TRice8( "w: Hello! 👋🙂 %d\n", 1 );
+    Trice8( "w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
+    Trice8( "w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );
+    trice( "w: Hello! 👋🙂 %f (default rounded float)\n",                                          aFloat( 2.71828182845904523536 ) );
+    trice( "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
+    trice64( "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
+                                                                                    trice( "w: Hello! 👋🙂 2.71828182845904523536 (the full number as string)\n" );
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -127,8 +128,12 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of myTask02_Diagno */
+  osThreadDef(myTask02_Diagno, StartTask02, osPriorityIdle, 0, 256);
+  myTask02_DiagnoHandle = osThreadCreate(osThread(myTask02_Diagno), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -136,7 +141,9 @@ int main(void)
 
   /* Start scheduler */
   osKernelStart();
+
   /* We should never get here as control is now taken by the scheduler */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -223,6 +230,10 @@ static void MX_USART2_UART_Init(void)
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
   LL_GPIO_Init(USART2_RX_GPIO_Port, &GPIO_InitStruct);
 
+  /* USART2 interrupt Init */
+  NVIC_SetPriority(USART2_LPUART2_IRQn, 3);
+  NVIC_EnableIRQ(USART2_LPUART2_IRQn);
+
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
@@ -288,7 +299,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -301,12 +311,45 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+  TRice( "msg:StartDefaultTask\n" );
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    static int i = 50;
+    if( i++ > 330 ){
+      i = 50;
+    }
+    TriceCheck( i ); // this generates trice data
+  
+    osDelay(100);
   }
   /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_StartTask02 */
+/**
+* @brief Function implementing the myTask02_Diagno thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask02 */
+void StartTask02(void const * argument)
+{
+  /* USER CODE BEGIN StartTask02 */
+  TRice( "msg:StartTask02:Diagnostics\n" );
+  /* Infinite loop */
+  for(;;)
+  {
+    static int i = 0;
+    if( ++i >= 100 ){
+      i = 0;
+      void TriceLogDiagnosticValues( void );
+      TriceLogDiagnosticValues();
+    }
+    TriceTransfer();
+    osDelay(100);
+  }
+  /* USER CODE END StartTask02 */
 }
 
 /**
@@ -320,7 +363,7 @@ void StartDefaultTask(void const * argument)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
-
+  //TRice( "att:HAL_TIM_PeriodElapsedCallback\n");
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM17) {
     HAL_IncTick();
