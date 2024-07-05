@@ -164,7 +164,7 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 		if limit >= 0 && count >= limit {
 			return
 		}
-
+		//if r.line == 55 || r.line == 58 {
 		fmt.Println(i, r)
 
 		// target activity
@@ -182,6 +182,7 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 		triceClearOutBuffer()
 
 		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+		//}
 	}
 }
 
