@@ -62,7 +62,11 @@ Middlewares/Third_Party/FreeRTOS/Source/tasks.c \
 Middlewares/Third_Party/FreeRTOS/Source/timers.c \
 Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c \
 Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
-Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c  
+Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
+Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c.c \
+Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c_ex.c 
+# Core/Src/sysmem.c 
+# Core/Src/syscalls.c
 
 C_SOURCES += \
 ../../src/cobsDecode.c \
@@ -82,6 +86,8 @@ C_SOURCES += \
 ../../src/triceStackBuffer.c \
 ../../src/triceStaticBuffer.c \
 ../../src/xtea.c 
+
+C_SOURCES += ../exampleData/triceCheck.c
 
 # ASM sources
 ASM_SOURCES =  \

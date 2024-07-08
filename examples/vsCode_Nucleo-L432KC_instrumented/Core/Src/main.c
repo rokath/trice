@@ -1,4 +1,4 @@
-﻿/* USER CODE BEGIN Header */
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -73,6 +73,7 @@ volatile uint32_t * const LAR  = (uint32_t *) 0xE0001FB0;   // lock access regis
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
 *DEMCR = *DEMCR | 0x01000000;     // enable trace
@@ -148,7 +149,9 @@ int main(void)
 
   /* Start scheduler */
   osKernelStart();
+
   /* We should never get here as control is now taken by the scheduler */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -264,11 +267,15 @@ static void MX_USART2_UART_Init(void)
   GPIO_InitStruct.Alternate = LL_GPIO_AF_3;
   LL_GPIO_Init(VCP_RX_GPIO_Port, &GPIO_InitStruct);
 
+  /* USART2 interrupt Init */
+  NVIC_SetPriority(USART2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
+  NVIC_EnableIRQ(USART2_IRQn);
+
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
   USART_InitStruct.BaudRate = 115200;
-  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
+  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_9B;
   USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
   USART_InitStruct.Parity = LL_USART_PARITY_NONE;
   USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
@@ -328,10 +335,17 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+  trice( "StartDefaultTask\n");
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    static int i = 50;
+    if( i++ > 330 ){
+      i = 50;
+    }
+    TriceCheck( i ); // this generates trice data
+  
+    osDelay(100);
   }
   /* USER CODE END 5 */
 }
@@ -346,10 +360,18 @@ void StartDefaultTask(void const * argument)
 void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
+   trice( "StartTask02\n");
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    static int i = 0;
+    if( ++i >= 100 ){
+      i = 0;
+      void TriceLogDiagnosticValues( void );
+      TriceLogDiagnosticValues();
+    }
+    TriceTransfer();
+    osDelay(100);
   }
   /* USER CODE END StartTask02 */
 }

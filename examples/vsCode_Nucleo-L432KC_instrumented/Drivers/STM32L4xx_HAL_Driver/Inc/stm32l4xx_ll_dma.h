@@ -593,7 +593,7 @@ __STATIC_INLINE uint32_t LL_DMA_IsEnabledChannel(DMA_TypeDef *DMAx, uint32_t Cha
 {
   uint32_t dma_base_addr = (uint32_t)DMAx;
   return ((READ_BIT(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR,
-                  DMA_CCR_EN) == (DMA_CCR_EN)) ? 1UL : 0UL);
+                    DMA_CCR_EN) == (DMA_CCR_EN)) ? 1UL : 0UL);
 }
 
 /**
@@ -752,8 +752,8 @@ __STATIC_INLINE uint32_t LL_DMA_GetMode(DMA_TypeDef *DMAx, uint32_t Channel)
   */
 __STATIC_INLINE void LL_DMA_SetPeriphIncMode(DMA_TypeDef *DMAx, uint32_t Channel, uint32_t PeriphOrM2MSrcIncMode)
 {
-    uint32_t dma_base_addr = (uint32_t)DMAx;
-    MODIFY_REG(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR, DMA_CCR_PINC,
+  uint32_t dma_base_addr = (uint32_t)DMAx;
+  MODIFY_REG(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR, DMA_CCR_PINC,
              PeriphOrM2MSrcIncMode);
 }
 
@@ -848,7 +848,7 @@ __STATIC_INLINE uint32_t LL_DMA_GetMemoryIncMode(DMA_TypeDef *DMAx, uint32_t Cha
 __STATIC_INLINE void LL_DMA_SetPeriphSize(DMA_TypeDef *DMAx, uint32_t Channel, uint32_t PeriphOrM2MSrcDataSize)
 {
   uint32_t dma_base_addr = (uint32_t)DMAx;
-  MODIFY_REG(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR, DMA_CCR_PSIZE, 
+  MODIFY_REG(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR, DMA_CCR_PSIZE,
              PeriphOrM2MSrcDataSize);
 }
 
@@ -2225,7 +2225,7 @@ __STATIC_INLINE void LL_DMA_ClearFlag_TE7(DMA_TypeDef *DMAx)
   */
 __STATIC_INLINE void LL_DMA_EnableIT_TC(DMA_TypeDef *DMAx, uint32_t Channel)
 {
-  uint32_t dma_base_addr = (uint32_t)DMAx;    
+  uint32_t dma_base_addr = (uint32_t)DMAx;
   SET_BIT(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR, DMA_CCR_TCIE);
 }
 
@@ -2347,7 +2347,7 @@ __STATIC_INLINE uint32_t LL_DMA_IsEnabledIT_TC(DMA_TypeDef *DMAx, uint32_t Chann
 {
   uint32_t dma_base_addr = (uint32_t)DMAx;
   return ((READ_BIT(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR,
-                   DMA_CCR_TCIE) == (DMA_CCR_TCIE)) ? 1UL : 0UL);
+                    DMA_CCR_TCIE) == (DMA_CCR_TCIE)) ? 1UL : 0UL);
 }
 
 /**
@@ -2368,7 +2368,7 @@ __STATIC_INLINE uint32_t LL_DMA_IsEnabledIT_HT(DMA_TypeDef *DMAx, uint32_t Chann
 {
   uint32_t dma_base_addr = (uint32_t)DMAx;
   return ((READ_BIT(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR,
-                   DMA_CCR_HTIE) == (DMA_CCR_HTIE)) ? 1UL : 0UL);
+                    DMA_CCR_HTIE) == (DMA_CCR_HTIE)) ? 1UL : 0UL);
 }
 
 /**
@@ -2389,7 +2389,7 @@ __STATIC_INLINE uint32_t LL_DMA_IsEnabledIT_TE(DMA_TypeDef *DMAx, uint32_t Chann
 {
   uint32_t dma_base_addr = (uint32_t)DMAx;
   return ((READ_BIT(((DMA_Channel_TypeDef *)(dma_base_addr + CHANNEL_OFFSET_TAB[Channel]))->CCR,
-                   DMA_CCR_TEIE) == (DMA_CCR_TEIE)) ? 1UL : 0UL);
+                    DMA_CCR_TEIE) == (DMA_CCR_TEIE)) ? 1UL : 0UL);
 }
 
 /**
