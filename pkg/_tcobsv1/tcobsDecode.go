@@ -135,37 +135,7 @@ func repeatByte(offset int, in, orig []byte) byte {
 			return in[len(in)-1]
 		}
 	}
-	fmt.Println("UNEXPECTED decode error with:", orig)
+	fmt.Println("\aUNEXPECTED decode error with:", orig)
 	os.Exit(-1)
 	return 0
-
-	//   Nov 14 17:53:23.488185  com26:       stm32g0xx_it.c: 174           rx:USART1 rx: c2 71 7c 07 62 be 70 1c 7a 25 2a 00
-	//   Nov 14 17:53:23.517327  com26:               main.c: 166      7741 Executing reveived command ...
-	//   inconsistent TCOBSv1 buffer: [156 173 254 236 82 0]
-	//   panic: runtime error: index out of range [-2]
-	//
-	//   goroutine 1 [running]:
-	//   github.com/rokath/trice/pkg/tcobsv1.repeatByte(...)
-	//           C:/repos/trice/pkg/tcobsv1/tcobsDecode.go:127
-	//   github.com/rokath/trice/pkg/tcobsv1.Decode({0xc0003bc000, 0x10000, 0x10000}, {0xc00000e580, 0x9?, 0x10})
-	//           C:/repos/trice/pkg/tcobsv1/tcobsDecode.go:95 +0x552
-	//   github.com/rokath/trice/internal/trexDecoder.(*trexDec).nextPackage(0xc000194000)
-	//           C:/repos/trice/internal/trexDecoder/trexDecoder.go:114 +0x4db
-	//   github.com/rokath/trice/internal/trexDecoder.(*trexDec).Read(0xc000194000, {0xc0001ce000, 0x10000, 0x10000})
-	//           C:/repos/trice/internal/trexDecoder/trexDecoder.go:168 +0x55
-	//   github.com/rokath/trice/internal/translator.decodeAndComposeLoop({0xe068c0, 0xc00009c288}, 0xc0000cc1c0, {0xe07308, 0xc000194000}, 0xc00011dd18?, 0xaadda7?)
-	//           C:/repos/trice/internal/translator/translator.go:108 +0xc8
-	//   github.com/rokath/trice/internal/translator.Translate({0xe068c0?, 0xc00009c288}, 0xd7e100?, 0xc0000891a0, 0xc0000993b0, 0xc000089320, {0x24c698a4ad8?, 0xc0000864e0})
-	//           C:/repos/trice/internal/translator/translator.go:79 +0xa75
-	//   github.com/rokath/trice/internal/args.logLoop({0xe068c0?, 0xc00009c288})
-	//           C:/repos/trice/internal/args/handler.go:184 +0x7fe
-	//   github.com/rokath/trice/internal/args.Handler({0xc000070040, 0x4, 0x4})
-	//           C:/repos/trice/internal/args/handler.go:97 +0x254
-	//   main.doit({0xe06a20, 0xc00000a018})
-	//           C:/repos/trice/cmd/trice/main.go:41 +0x14c
-	//   main.main()
-	//           C:/repos/trice/cmd/trice/main.go:29 +0x27
-	//
-	//   ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (refactor)
-
 }

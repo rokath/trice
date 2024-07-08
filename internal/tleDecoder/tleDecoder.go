@@ -90,13 +90,13 @@ func (p *cobsDec) nextPackage() {
 	p.B = make([]byte, decoder.DefaultSize)
 	n, e := cobs.Decode(p.B, p.IBuf[:index])
 	if e != nil {
-		fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1])
+		fmt.Println("\ainconsistent COBS buffer:\n", p.IBuf[:index+1])
 	}
 	p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
 	p.B = p.B[:n]             // decoded trice COBS packages have a multiple of 4 len
 	if n&3 != 0 {
 		decoder.Dump(p.W, p.B)
-		fmt.Fprintln(p.W, "ERROR:Decoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
+		fmt.Fprintln(p.W, "ERROR:\aDecoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
 		n = 0
 		p.B = p.B[:0]
 		return
