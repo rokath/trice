@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
+#include "triceUart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -130,7 +131,11 @@ void USART2_LPUART2_IRQHandler(void)
   /* USER CODE END USART2_LPUART2_IRQn 0 */
 
   /* USER CODE BEGIN USART2_LPUART2_IRQn 1 */
-
+#if defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UARTA
+    if( LL_USART_IsActiveFlag_TXE(TRICE_UARTA) ){ // Transmit Data Register Empty Flag
+        triceServeTransmitUartA();
+    }
+#endif
   /* USER CODE END USART2_LPUART2_IRQn 1 */
 }
 

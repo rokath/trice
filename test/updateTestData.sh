@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
-cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
-cp ./testdata/triceCheck.c.txt ../examples/exampleData/triceCheck.c
 
 # create til.json && li.json if not existing
 touch ./testdata/til.json ./testdata/li.json
 
-#  insert IDs into source code
+#  insert IDs into source code and update *.json files
+trice insert -i ./testdata/til.json -li ./testdata/li.json -liPathIsRelative -IDMin 1000 -IDMax 7999
+
+cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
+
+#  insert IDs into source code - this should restore triceCheck.c.
 trice insert -i ./testdata/til.json -li ./testdata/li.json -liPathIsRelative -IDMin 1000 -IDMax 7999
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.

@@ -428,7 +428,7 @@
             ]
         },        
         {
-            "name": "insert -src ../exampleData",
+            "name": "insert -src ../test/testdata",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -442,7 +442,7 @@
                     "-locationInformation",
                     "${workspaceFolder}/examples/vsCode_Nucleo-L432KC_instrumented/li.json",
                     "-src",
-                    "${workspaceFolder}/examples/exampleData",
+                    "${workspaceFolder}/test/testdata",
                     "-v"
             ]
         }

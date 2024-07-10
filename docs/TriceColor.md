@@ -21,7 +21,7 @@
 
 ![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
 
-* [../examples/exampleData/triceCheck.c](../examples/exampleData/triceCheck.c) contains the code for this example.
+* [../test/testdata/triceCheck.c](../test/testdata/triceCheck.c) contains the code for this example.
 * The **trice** tool, if knowing `wrn:` as pattern, prepends the appropriate color code. It removes the sequence `wrn:`, if it is known and completely lower case.
 * The user can define any pattern with any color code to create colored output with the **trice** tool.
 * There is no channel enable switch inside the target code. It would need a back channel and add overhead.

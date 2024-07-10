@@ -68,7 +68,7 @@ C_SOURCES += \
 ../../src/triceStaticBuffer.c \
 ../../src/xtea.c 
 
-C_SOURCES += ../exampleData/triceCheck.c
+C_SOURCES += ../../test/testdata/triceCheck.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -172,15 +172,15 @@ LIBDIR =
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 pre-build:
-	@echo "PRE ..."
-	@trice insert -src ../../src -src ./ -src ../exampleData
-	@echo "PRE ... done"
-	@make -j8 all
+	@#echo "PRE ..."
+	@trice insert -src ../../src -src ./ -src ../../test/testdata
+	@#echo "PRE ... done"
+	@#make -j8 all
 
 post-build:
-	@echo POST ...
-	@trice clean -src ../../src -src ./ -src ../exampleData
-	@echo POST ... done
+	@#echo POST ...
+	@trice clean -src ../../src -src ./
+	@#echo POST ... done
 	@#echo -e
 
 # default action: build all
@@ -224,7 +224,7 @@ $(BUILD_DIR):
 # clean up
 #######################################
 clean: post-build
-	-rm -fR $(BUILD_DIR)
+	@rm -fR $(BUILD_DIR)
   
 #######################################
 # dependencies

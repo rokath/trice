@@ -123,7 +123,7 @@ git clone https://github.com/rokath/trice.git
     - The internal used parameter bit width is 32 bit, but you can use also `TRICE8`, `TRICE16`, `TRICE32`, `TRICE64`, 
     - 0 to 12 parameters possible (extendable).
   - No strings supported ("%s"). Use `TRICE_S` than.
-  - Many usage options inside `pkg/src/triceCheck.c` visible.
+  - Many usage options inside `test/testdata/triceCheck.c` visible.
 - Needs better tests and updated documentation.
 
 ## ATTENTION 3

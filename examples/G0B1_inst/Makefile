@@ -5,7 +5,6 @@ export PATH := C:\bin\ArmClang\bin:C:\bin\ArmGNUToolchain\bin:$(PATH)
 
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
 export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
-#export C_INCLUDE_PATH := /usr/include/newlib/
 
 MAKEFILE = Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
 VERBOSE = # -v
@@ -76,18 +75,19 @@ C_SOURCES += \
 ../../src/tcobsv1Decode.c \
 ../../src/tcobsv1Encode.c \
 ../../src/trice.c \
+../../src/trice8.c \
 ../../src/trice16.c \
 ../../src/trice32.c \
 ../../src/trice64.c \
-../../src/trice8.c \
-../../src/triceAuxiliary.c \
 ../../src/triceUart.c \
+../../src/triceAuxiliary.c \
 ../../src/triceDoubleBuffer.c \
 ../../src/triceRingBuffer.c \
 ../../src/triceStackBuffer.c \
 ../../src/triceStaticBuffer.c \
-../../src/xtea.c \
-../exampleData/triceCheck.c
+../../src/xtea.c 
+
+C_SOURCES += ../../test/testdata/triceCheck.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -139,15 +139,15 @@ include flags.mak
 all: pre-build main-build
 
 pre-build:
-	@echo "PRE ..."
-	@trice insert -src ../../src -src ./ -src ../exampleData
-	@echo "PRE ... done"
+	@#echo "PRE ..."
+	@trice insert -src ../../src -src ./ -src ../../test/testdata
+	@#echo "PRE ... done"
 	@#make -j8 all
 
 post-build:
-	@echo POST ...
-	@trice clean -src ../../src -src ./ -src ../exampleData
-	@echo POST ... done
+	@#echo POST ...
+	@trice clean -src ../../src -src ./
+	@#echo POST ... done
 	@#echo -e
 
 main-build: clang
@@ -176,7 +176,7 @@ include gcc1.mak
 include clang1.mak
 
 clean: post-build
-	@-rm -fR $(GCC_BUILD) $(CLANG_BUILD)
+	@rm -fR $(GCC_BUILD) $(CLANG_BUILD)
 	
 version:
 	@which arm-none-eabi-gcc

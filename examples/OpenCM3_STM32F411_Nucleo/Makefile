@@ -46,4 +46,4 @@ flash_irq_mode: irq_mode.elf
 
 
 clean:
-	rm -f *.elf til.json main.trice.c
+	@rm -f *.elf til.json main.trice.c

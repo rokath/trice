@@ -146,7 +146,7 @@ include gcc1.mak
 include clang1.mak
 
 clean:
-	@-rm -fR $(GCC_BUILD) $(CLANG_BUILD)
+	@rm -fR $(GCC_BUILD) $(CLANG_BUILD)
 	
 version:
 	@which arm-none-eabi-gcc

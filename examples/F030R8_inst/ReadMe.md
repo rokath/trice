@@ -111,14 +111,14 @@ C_INCLUDES += \
 
 ```mak
 pre-build:
-	@echo "PRE ..."; \
-	trice insert -src ../../src -src ./ -src ../exampleData; \
-	echo "PRE ... done"; \
-	make -j $(nproc) all
+	@echo "PRE ...";
+	@trice insert -src ../../src -src ./ -src ../../test/testdata;
+	@echo "PRE ... done";
+	@make -j $(nproc) all
 
 post-build:
 	@echo POST ...
-	@trice clean -src ../../src -src ./ -src ../exampleData
+	@trice clean -src ../../src -src ./
 	@echo POST ... done
 	@#echo -e
 
