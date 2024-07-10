@@ -189,10 +189,8 @@ extern unsigned TriceDeferredOverflowCount;
 extern uint32_t * const TriceRingBufferStart;
 extern uint32_t * const triceRingBufferLimit;
 extern unsigned TriceSingleMaxWordCount;
-extern unsigned TriceRingBufferDepthMax;
+extern int TriceRingBufferDepthMax;
 extern unsigned TriceHalfBufferDepthMax;
-extern uint16_t TriceHalfBufferDepth;
-extern uint16_t TriceRingBufferDepth;
 extern int TriceDataOffsetDepthMax;
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
@@ -506,7 +504,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value)
 
 #if ( TRICE_DEFERRED_UARTA == 1 ) // deferred out to UARTA
 void TriceBlockingWriteUartA( const uint8_t * buf, unsigned len );
-uint8_t TriceNextUint8UartA( void );
+//  uint8_t triceNextUint8UartA( void );
 void triceServeTransmitUartA(void);
 void triceTriggerTransmitUartA(void);
 unsigned TriceOutDepthUartA( void );
@@ -514,7 +512,7 @@ unsigned TriceOutDepthUartA( void );
 
 #if ( TRICE_DEFERRED_UARTB == 1) // deferred out to UARTB
 void TriceBlockingWriteUartB( const uint8_t * buf, unsigned len );
-uint8_t TriceNextUint8UartB( void );
+//  uint8_t triceNextUint8UartB( void );
 void triceServeTransmitUartB(void);
 void triceTriggerTransmitUartB(void);
 unsigned TriceOutDepthUartB( void );

@@ -25,38 +25,56 @@ void TriceNonBlockingWriteUartA( const void * buf, size_t nByte ){
     #if TRICE_CGO == 1 // automated tests
         TriceWriteDeviceCgo( buf, nByte );
     #else // #if TRICE_CGO == 1// automated tests
-        triceOutBufferUartA = buf;
+        TRICE_ENTER_CRITICAL_SECTION
+        #if 0
+            triceOutBufferUartA = buf;
+        #else
+            static uint8_t t[TRICE_BUFFER_SIZE];
+            memcpy( t, buf, nByte );
+            triceOutBufferUartA = t;
+        #endif
         triceOutIndexUartA = 0;
         triceOutCountUartA = nByte;
+        triceEnableTxEmptyInterruptUartA(); // triceTriggerTransmitUartA();
+        TRICE_LEAVE_CRITICAL_SECTION
     #endif // #else // #if TRICE_CGO == 1// automated tests
 }
 
 //! TriceOutDepthUartA returns the amount of bytes not written yet to UARTB.
 unsigned TriceOutDepthUartA( void ){
-    unsigned depth = triceOutCountUartA - triceOutIndexUartA;
+    unsigned depth;
+    TRICE_ENTER_CRITICAL_SECTION
+    depth = triceOutCountUartA - triceOutIndexUartA;
+    TRICE_LEAVE_CRITICAL_SECTION
     return depth;
 }
 
-//! TriceNextUint8UartA returns the next trice byte for transmission to TRICE_UARTA.
-uint8_t TriceNextUint8UartA( void ){
-    return triceOutBufferUartA[triceOutIndexUartA++];
+//! triceNextUint8UartA returns the next trice byte for transmission to TRICE_UARTA.
+TRICE_INLINE uint8_t triceNextUint8UartA( void ){
+    uint8_t c;
+    TRICE_ENTER_CRITICAL_SECTION
+    c = triceOutBufferUartA[triceOutIndexUartA++];
+    TRICE_LEAVE_CRITICAL_SECTION
+    return c;
 }
 
 //! triceServeTransmitUartA must be called cyclically to proceed ongoing write out.
 //! A good place is UARTA ISR.
 void triceServeTransmitUartA(void) {
-    triceTransmitData8UartA(TriceNextUint8UartA());
+    TRICE_ENTER_CRITICAL_SECTION
+    triceTransmitData8UartA(triceNextUint8UartA());
     if (0 == TriceOutDepthUartA()) { // no more bytes
         triceDisableTxEmptyInterruptUartA();
     }
+    TRICE_LEAVE_CRITICAL_SECTION
 }
 
-// triceTriggerTransmitUartA must be called cyclically to initialize write out.
-void triceTriggerTransmitUartA(void){
-    if( TriceOutDepthUartA() && triceTxDataRegisterEmptyUartA() ){
-        triceEnableTxEmptyInterruptUartA(); // next bytes
-    }
-}
+//  // triceTriggerTransmitUartA must be called cyclically to initialize write out.
+//  void triceTriggerTransmitUartA(void){
+//      if( TriceOutDepthUartA() && triceTxDataRegisterEmptyUartA() ){
+//          triceEnableTxEmptyInterruptUartA(); // next bytes
+//      }
+//  }
 
 #endif // #if TRICE_DEFERRED_UARTA == 1
 
@@ -83,6 +101,7 @@ void TriceNonBlockingWriteUartB( const void * buf, size_t nByte ){
         triceOutBufferUartB = buf;
         triceOutIndexUartB = 0;
         triceOutCountUartB = nByte;
+        triceTriggerTransmitUartB();
     #endif // #else // #if TRICE_CGO == 1// automated tests
 }
 
@@ -93,15 +112,15 @@ unsigned TriceOutDepthUartB( void ){
     return depth;
 }
 
-//! TriceNextUint8UartB returns the next trice byte for transmission to TRICE_UARTA.
-uint8_t TriceNextUint8UartB( void ){
+//! triceNextUint8UartB returns the next trice byte for transmission to TRICE_UARTA.
+TRICE_INLINE uint8_t triceNextUint8UartB( void ){
     return triceOutBufferUartB[triceOutIndexUartB++];
 }
 
 //! triceServeTransmitUartB must be called cyclically to proceed ongoing write out.
 //! A good place is UARTA ISR.
 void triceServeTransmitUartB(void) {
-    triceTransmitData8UartB(TriceNextUint8UartB());
+    triceTransmitData8UartB(triceNextUint8UartB());
     if (0 == TriceOutDepthUartB()) { // no more bytes
         triceDisableTxEmptyInterruptUartB();
     }

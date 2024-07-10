@@ -25,12 +25,8 @@ uint32_t* TriceBufferLastWritePosition;
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
 
 #if TRICE_DIAGNOSTICS == 1
-
-uint16_t TriceHalfBufferDepth = 0;
-
-//! TriceHalfBufferDepthMax is a diagnostics value usable to optimize buffer size.
-unsigned TriceHalfBufferDepthMax = 0; 
-
+    //! TriceHalfBufferDepthMax is a diagnostics value usable to optimize buffer size.
+    unsigned TriceHalfBufferDepthMax = 0; 
 #endif
 
 //! triceBufferSwap swaps the trice double buffer and returns the read buffer address.
@@ -49,8 +45,12 @@ static uint32_t* triceBufferSwap( void ){
 //! The trice data start at tb + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
 static size_t triceDepth( const uint32_t * tb ){
+    size_t result;
+    TRICE_ENTER_CRITICAL_SECTION
     size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
-    return depth - TRICE_DATA_OFFSET;
+    result = depth - TRICE_DATA_OFFSET;
+    TRICE_LEAVE_CRITICAL_SECTION
+    return result;
 }
 
 #if TRICE_PROTECT == 1
@@ -172,8 +172,8 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     size_t encLen = 0;
     int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
     #if TRICE_DIAGNOSTICS == 1
-        TriceHalfBufferDepth = tLen + TRICE_DATA_OFFSET;
-        TriceHalfBufferDepthMax = TriceHalfBufferDepth < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : TriceHalfBufferDepth;
+        unsigned depth = tLen + TRICE_DATA_OFFSET;
+        TriceHalfBufferDepthMax = depth < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : depth;
     #endif
     // do it
     while(tLen){
@@ -189,106 +189,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
         }
         #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
             uint8_t * dst = enc+encLen;
-
-// TRICE_SINGLE_PACK_MODE error example: 1 wrong byte && 6 missing bytes 
-//  Jul  2 15:45:35.197600  com4:          triceCheck.c    55  842,150_450 1189 Hello World!
-//  Input(04 48 5c 20 01 00 06 48 5c 21)
-//  COBS: 04 48 5c 20 01 00
-//  ->TRICE: 48 5c 20 00
-//  Jul  2 15:45:35.697577  com4:          triceCheck.c  1513              1c48
-//  Input(01 30 00)
-//  COBS: 06 48 5c 21 01 30 00
-//  ->TRICE: 48 5c 21 01 30
-//  Jul  2 15:45:35.697577  com4:          triceCheck.c  1513              1c48 0
-//  EXPT: 09 48 5c 22 02 30 31 19 04 00                  EXPT: 09 48 5c 23 03 30 31 32p32 00
-//  Input(07 48 5c 22?08 ~~ ~~ ~~ ~~ ~~                        ~~ 48 5c 23 03 30 31 32 00)
-//  COBS: 07 48 5c 22 08                                          48 5c 23 03 30 31 32 00
-//  ->TRICE: 48 5c 22 08 48 5c 00
-//  Jul  2 15:45:35.699733  com4:          triceCheck.c  1513              1c48 len(p.B) = 0 < p.ParamSpace =  8 - ignoring package []
-//  Jul  2 15:45:35.699733  com4: Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Format specifier? Password? til.json? Version?
-//  Jul  2 15:45:35.699733  com4: ERROR:ignoring data garbage
-//  Jul  2 15:45:35.699733  com4: Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Format specifier? Password? til.json? Version?
-//  Input(09 48 5c 24 04 30 31 32 33 00 0a 48)
-//  COBS: 09 48 5c 24 04 30 31 32 33 00
-//  ->TRICE: 48 5c 24 04 30 31 32 33
-//  Jul  2 15:45:35.700264  com4:          triceCheck.c  1513              1c48 CYCLE:36!=35 #2 wr:0123
-//  Input(5c 25 05 30)
-//  Input(31 32 33)
-//  Input(34 00 0b 48)
-//  COBS: 0a 48 5c 25 05 30 31 32 33 34 00
-//  ->TRICE: 48 5c 25 05 30 31 32 33 34
-//  Jul  2 15:45:35.701314  com4:          triceCheck.c  1513              1c48 01234
-
-// TRICE_SINGLE_PACK_MODE error example: 2 missing bytes
-// OK
-//  COBS: 0b fe c7 32 32 32 32 1d 10 41 04 01 0d 77 33 88 44 77 33 88 44 77 33 88 44 00
-//  ->TRICE: fe c7 32 32 32 32 1d 10 41 04 00 00 77 33 88 44 77 33 88 44 77 33 88 44
-//  Jul  2 21:35:18.816221  com4:          triceCheck.c   168  842,150_450 07fe TRICE32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111
-//  Input(19 79 d7 32 32 32 32 1e 10 77 33 88 44 77 33 88 44 77 33 88 44 77 33 88 44 00)
-//  COBS: 19 79 d7 32 32 32 32 1e 10 77 33 88 44 77 33 88 44 77 33 88 44 77 33 88 44 00
-//  ->TRICE: 79 d7 32 32 32 32 1e 10 77 33 88 44 77 33 88 44 77 33 88 44 77 33 88 44
-//  Jul  2 21:35:19.015587  com4:          triceCheck.c   170  842,150_450 1779 TRICE32 int 44883377, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111
-//  Input(0b 27 d8 32 32 32 32 1f 10 41 04 01 0d 77 33 88 44 77 33 88 44 77 33 88 44 00)
-//  COBS: 0b 27 d8 32 32 32 32 1f 10 41 04 01 0d 77 33 88 44 77 33 88 44 77 33 88 44 00
-//  ->TRICE: 27 d8 32 32 32 32 1f 10 41 04 00 00 77 33 88 44 77 33 88 44 77 33 88 44
-//  Jul  2 21:35:19.115178  com4:          triceCheck.c   171  842,150_450 1827 TRICE32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111
-//  
-// ERR
-//  COBS: 0b fe c7 32 32 32 32 5a 10 41 04 01 0d 77 33 88 44 77 33 88 44 77 33 88 44 00
-//  ->TRICE: fe c7 32 32 32 32 5a 10 41 04 00 00 77 33 88 44 77 33 88 44 77 33 88 44
-//  Jul  2 21:34:45.702625  com4:          triceCheck.c   168  842,150_450 07fe TRICE32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111
-//  miss:(19 79)
-//  Input(      d7 32 32 32 32 5b 10 77 33 88 44 77 33 88 44 77 33 88 44 77 33 88 44 00)
-//  COBS:       d7 32 32 32 32 5b 10 77 33 88 44 77 33 88 44 77 33 88 44 77 33 88 44 00
-//  inconsistent COBS buffer: 00000000  d7 32 32 32 32 5b 10 77  33 88 44 77 33 88 44 77  |.2222[.w3.Dw3.Dw|
-//  00000010  33 88 44 77 33 88 44                              |3.Dw3.D|
-//  
-//  ->TRICE:
-//  Input(0b 27 d8 32 32 32 32 5c 10 41 04 01 0d 77 33 88 44 77 33 88 44 77 33 88 44 00)
-//  COBS: 0b 27 d8 32 32 32 32 5c 10 41 04 01 0d 77 33 88 44 77 33 88 44 77 33 88 44 00
-//  ->TRICE: 27 d8 32 32 32 32 5c 10 41 04 00 00 77 33 88 44 77 33 88 44 77 33 88 44
-//  Jul  2 21:34:46.001592  com4:          triceCheck.c   171  842,150_450 1827 CYCLE:92!=91 #1 binary buffer:00000000  41 04 00 00 77 33 88 44  77 33 88 44 77 33 88 44  |A...w3.Dw3.Dw3.D|
-
-// TRICE_SINGLE_PACK_MODE error example: 3 missing bytes
-//  OK:
-//  COBS: 08 d1 d8 32 32 32 32 1d 01 00
-//  ->TRICE: d1 d8 32 32 32 32 1d 00
-//  Jul  2 21:43:15.201284  com4:          triceCheck.c   296  842,150_450 18d1 Runtime generated strings
-//  Input(0a 48 d6 32 32 32 32 1e 04 0c 01 01 01 00)
-//  COBS: 0a 48 d6 32 32 32 32 1e 04 0c 01 01 01 00
-//  ->TRICE: 48 d6 32 32 32 32 1e 04 0c 00 00 00
-//  Input(15 67 dd 32 32 32 32 1f 0c 41 41 41 41 41 41 41 41 41 41 41 41 00)
-//  COBS: 15 67 dd 32 32 32 32 1f 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
-//  ->TRICE: 67 dd 32 32 32 32 1f 0c 41 41 41 41 41 41 41 41 41 41 41 41
-//  Jul  2 21:43:16.199498  com4:          triceCheck.c   306  842,150_450 1648 len=12: AAAAAAAAAAAA
-//  Input(08 d8 d9 32 32 32 32 20 01 00)
-//  COBS: 08 d8 d9 32 32 32 32 20 01 00
-//  ->TRICE: d8 d9 32 32 32 32 20 00
-//  Jul  2 21:43:16.398593  com4:          triceCheck.c   308  842,150_450 19d8 Runtime generated strings
-//  
-//  ERR:
-//  COBS: 08 d1 d8 32 32 32 32 e0 01 00
-//  ->TRICE: d1 d8 32 32 32 32 e0 00
-//  Jul  2 21:43:48.329576  com4:          triceCheck.c   296  842,150_450 18d1 Runtime generated strings
-//  miss:(0a 48 d6)
-//  Input(         32 32 32 32 e1 04 0c 01 01 01 00)
-//  COBS:          32 32 32 32 e1 04 0c 01 01 01 00
-//  inconsistent COBS buffer: 00000000  32 32 32 32 e1 04 0c 01  01 01                    |2222......|
-//  
-//  ->TRICE:
-//  Input(15 67 dd 32 32 32 32 e2 0c 41 41 41 41 41 41 41 41 41 41 41 41 00)
-//  COBS: 15 67 dd 32 32 32 32 e2 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
-//  ->TRICE: 67 dd 32 32 32 32 e2 0c 41 41 41 41 41 41 41 41 41 41 41 41
-//  Jul  2 21:43:49.418257  com4:          triceCheck.c   307  842,150_450 1d67 CYCLE:226!=225 #2 binary buffer:00000000  41 41 41 41 41 41 41 41  41 41 41 41              |AAAAAAAAAAAA|
-//  Jul  2 21:43:49.418257  com4: AAAAAAAAAAAA
-//  Input(08 d8 d9 32 32 32 32 e3 01 00)
-//  COBS: 08 d8 d9 32 32 32 32 e3 01 00
-//  ->TRICE: d8 d9 32 32 32 32 e3 00
-//  Jul  2 21:43:49.516987  com4:          triceCheck.c   308  842,150_450 19d8 Runtime generated strings
-
-
-
-            #if   (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+            #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS )
 
                 #if 1
                     memmove(crypt, triceNettoStart, triceNettoLen );
@@ -301,7 +202,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
                     encLen += TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
                 #endif
 
-            #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+            #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)
 
                 #if 1
                     memmove(crypt, triceNettoStart, triceNettoLen );
@@ -314,9 +215,10 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
                     encLen += TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, dst, triceNettoStart, triceNettoLen );
                 #endif
 
-            #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-
-                #warning configuration: The Trice tool does not support encryted data without COBS or TCOBS framing.
+            #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  )
+                #if TRICE_CONFIG_WARNINGS == 1
+                    #warning configuration: The Trice tool does not support encryted data without COBS or TCOBS framing.
+                #endif
                 #if 1
                     memmove(enc, triceNettoStart, triceNettoLen );
                     size_t len8 = (triceNettoLen + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
@@ -368,31 +270,6 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
             uint8_t * packed = dat + encLen; // After the loop, the packed data start at dat.
             memmove( packed, triceNettoStart, triceNettoLen ); // This action removes all padding bytes of the trices, compacting their sequence this way
             encLen += triceNettoLen;
-
-// TRICE_MULTI_PACK_MODE error example: 4 missing bytes 
-//  Input(06 36 57 af 02 b8 01 00)
-//  COBS: 06 36 57 af 02 b8 01 00
-//  ->TRICE: 36 57 af 02 b8 00
-//  Jul  2 13:17:23.591503  com4:          triceCheck.c   184              1736  line 184
-//  Input( !15!08!c8!32 32 32 32 b0 0b 61 62 63 64 65 20 31 32 33 34 35 00 14 9a cd 32 32 32 32 b1 0b 61 62 63 64 65 20 31 32 33 34 35 00)
-//  COBS:               32 32 32 b0 0b 61 62 63 64 65 20 31 32 33 34 35 00
-//  ->TRICE: no result -> no output
-//  COBS: 14 9a cd 32 32 32 32 b1 0b 61 62 63 64 65 20 31 32 33 34 35 00
-//  ->TRICE: 9a cd 32 32 32 32 b1 0b 61 62 63 64 65 20 31 32 33 34 35
-//  Jul  2 13:17:23.897149  com4:          triceCheck.c   187  842,150_450 0d9a CYCLE:177!=176 #3 sig:With TRICE_N:abcde 12345
-
-// TRICE_MULTI_PACK_MODE error example: 4 missing bytes 
-//  COBS: 0b cb dc 32 32 32 32 04 10 17 01 01 01 01 01 01 02 02 01 01 01 01 01 01 01 00
-//  ->TRICE: cb dc 32 32 32 32 04 10 17 01 00 00 00 00 00 00 02 00 00 00 00 00 00 00
-//  Jul  2 14:10:32.434527  com4:          triceCheck.c   279  842,150_450 1ccb TRICE64_2 line 279,2
-//  Input(!07!a5!51!05 02 19 01 01 01 00)
-//  Input(             02 19 01 00)
-//  COBS:              02 19 01 00
-//  ->TRICE:              19 00
-//  Input(08 38 d8 32 32 32 32 06 01 00)
-//  COBS: 08 38 d8 32 32 32 32 06 01 00
-//  ->TRICE: 38 d8 32 32 32 32 06 00
-//  Jul  2 14:10:32.832065  com4:          triceCheck.c   283  842,150_450 1838 CYCLE:6!=5 #1 sig:Runtime generated strings
 
         #endif // #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
     }
@@ -477,7 +354,9 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     // into a single continuous buffer having 0-delimiters between them or not but at the ent is a 0-delimiter.
     //
     // output
+    TRICE_ENTER_CRITICAL_SECTION
     TriceNonBlockingDeferredWrite8( triceID, enc, encLen ); //lint !e771 Info 771: Symbol 'triceID' conceivably not initialized. Comment: tLen is always > 0.
+    TRICE_LEAVE_CRITICAL_SECTION
 }
 
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER

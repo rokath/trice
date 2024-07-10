@@ -64,7 +64,7 @@ uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart;
 // unsigned SingleTricesRingCountMax = 0;
 
 //! TriceRingBufferDepthMax holds the max occurred ring buffer depth.
-unsigned TriceRingBufferDepthMax = 0;
+int TriceRingBufferDepthMax = 0;
 
 #endif // #if TRICE_DIAGNOSTICS == 1
 
@@ -100,10 +100,6 @@ int TriceEnoughSpace( void ){
 
 #endif // #if TRICE_PROTECT == 1
 
-#if TRICE_DIAGNOSTICS == 1
-uint16_t TriceRingBufferDepth = 0;
-#endif
-
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET from this address.
 //! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fullfilled.
 //! \param lastWordCount is the u32 count of the last read trice including padding bytes.
@@ -120,8 +116,7 @@ static uint32_t* triceNextRingBufferRead( int lastWordCount ){
         if( depth < 0 ){
             depth += TRICE_DEFERRED_BUFFER_SIZE;
         }
-        TriceRingBufferDepth = (uint16_t)depth;
-        TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax; //lint !e574 !e737 Warning 574: Signed-unsigned mix with relational, Info 737: Loss of sign in promotion from int to unsigned int
+        TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax; 
     #endif // #if TRICE_DIAGNOSTICS == 1
     
     return TriceRingBufferReadPosition; //lint !e674 Warning 674: Returning address of auto through variable 'TriceRingBufferReadPosition'
@@ -197,7 +192,8 @@ static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint
     return triceID;
 }
 
-//! TriceSingleDeferredOut expects a single trice at addr with byte offset TRICE_DATA_OFFSET and returns the wordCount of this trice which includes 1-3 padding bytes.
+//! TriceSingleDeferredOut expects a single trice at addr and returns the wordCount of this trice which includes 1-3 padding bytes.
+//! The space from addr-TRICE_DATA_OFFSET to add is assumed to be usable as scratch pad.
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
 //! \param addr points to the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
@@ -205,57 +201,42 @@ static int TriceIDAndBuffer( const uint32_t * const pData, int* pWordCount, uint
 //! Return values <= 0 signal an error.
 //! The data at addr are getting destoyed, because buffer is used as scratch pad.
 static int TriceSingleDeferredOut( uint32_t * addr){
-
     uint8_t* enc = ((uint8_t*)addr) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of addr.
     int wordCount;
     uint8_t* pTriceNettoStart;
     size_t triceNettoLength; // without padding bytes
     int triceID = TriceIDAndBuffer( addr, &wordCount, &pTriceNettoStart, &triceNettoLength );
-    
-    // Behind the trice brutto length (with padding bytes), 4 bytes needed as scratch pad when XTEA is active. 
-    // This is ok, when behind triceRingBufferLimit are at least 4 bytes unused space.
-    // After TriceIDAndBuffer pTriceNettoStart has a 2 bytes offset, what is an alignmet issue for encryption.
-    // That gets corrected inside TriceDeferredEncode.
-    // todo: Put this correction into TriceIDAndBuffer to keep tcode cleaner.
-
-
     // We can let TRICE_DATA_OFFSET only in front of the ringbuffer and pack the Trices without offset space.
     // And if we allow as max depth only ring buffer size minus TRICE_DATA_OFFSET, we can use space in front of each Trice.
 
-    #if   (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+    #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+        #if TRICE_CONFIG_WARNINGS == 1
+            #warning configuration: The Trice tool does not support encryption without COBS (or TCOBS) framing.
+        #endif
+        size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength);
+
+    #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 
         #if 1
             // comment: The following 2 steps could be done in an incremental way within one singe loop.
+            // Behind the trice brutto length (with padding bytes), 4 bytes needed as scratch pad when XTEA is active. 
+            // After TriceIDAndBuffer pTriceNettoStart could have a 2 bytes offset.
             uint8_t * tmp = ((uint8_t*)addr) - 4;
-            memmove(tmp, pTriceNettoStart, triceNettoLength );
+            memmove(tmp, pTriceNettoStart, triceNettoLength);
             size_t len8 = (triceNettoLength + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
             memset(tmp+triceNettoLength, 0, len8 - triceNettoLength); // clear padding space
             XTEAEncrypt( (uint32_t *)tmp, len8>>2 );
-            size_t encLen = (size_t)TCOBSEncode(enc, tmp, len8 ); // encLen is re-used here
+            #if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
+                size_t encLen = (size_t)TCOBSEncode(enc, tmp, len8 );
+            #elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS
+                size_t encLen = (size_t)COBSEncode(enc, tmp, len8 );
+            #else
+                #error configuration
+            #endif
             enc[encLen++] = 0; // Add zero as package delimiter.
         #else
             size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
         #endif
-
-    #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-
-        #if 0
-            // comment: The following 2 steps could be done in an incremental way within one singe loop.
-            uint8_t * tmp = ((uint8_t*)addr) - 4;
-            memmove(tmp, pTriceNettoStart, triceNettoLength );
-            size_t len8 = (triceNettoLength + 7) & ~7; // Only multiple of 8 encryptable, so we adjust len.
-            memset(tmp+triceNettoLength, 0, len8 - triceNettoLength); // clear padding space
-            XTEAEncrypt( (uint32_t *)tmp, len8>>2 );
-            size_t encLen = (size_t)COBSEncode(enc, tmp, len8 ); // encLen is re-used here
-            enc[encLen++] = 0; // Add zero as package delimiter.
-        #else
-            size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
-        #endif
-
-    #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-
-        #warning configuration: The Trice tool does not support encryption without COBS (or TCOBS) framing.
-        size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength);
 
     #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 
@@ -275,43 +256,6 @@ static int TriceSingleDeferredOut( uint32_t * addr){
         #else
             size_t encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNettoStart, triceNettoLength );
         #endif
-
-//  3 missing bytes
-//  OK:
-//  COBS: 15 67 dd 32 32 32 32 e2 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
-//  ->TRICE: 67 dd 32 32 32 32 e2 0c 41 41 41 41 41 41 41 41 41 41 41 41
-//  Jul  2 22:44:07.492208  com4:          triceCheck.c   306  842,150_450 1648 len=12: AAAAAAAAAAAA
-//  Input(08 d8 d9 32 32 32 32 e3 01 00)
-//  COBS: 08 d8 d9 32 32 32 32 e3 01 00
-//  ->TRICE: d8 d9 32 32 32 32 e3 00
-//  Jul  2 22:44:07.690763  com4:          triceCheck.c   308  842,150_450 19d8 Runtime generated strings
-//  Input(0a 63 c6 32 32 32 32 e4 04 0c 01 01 01 00)
-//  COBS: 0a 63 c6 32 32 32 32 e4 04 0c 01 01 01 00
-//  ->TRICE: 63 c6 32 32 32 32 e4 04 0c 00 00 00
-//  Input(15 23 d5 32 32 32 32 e5 0c 41 41 41 41 41 41 41 41 41 41 41 41 00)
-//  COBS: 15 23 d5 32 32 32 32 e5 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
-//  ->TRICE: 23 d5 32 32 32 32 e5 0c 41 41 41 41 41 41 41 41 41 41 41 41
-//  Jul  2 22:44:08.987837  com4:          triceCheck.c   321  842,150_450 0663 len=12: AAAAAAAAAAAA
-//  
-//  ERR:
-//  COBS: 15 67 dd 32 32 32 32 a8 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
-//  ->TRICE: 67 dd 32 32 32 32 a8 0c 41 41 41 41 41 41 41 41 41 41 41 41
-//  Jul  2 22:44:40.599625  com4:          triceCheck.c   306  842,150_450 1648 len=12: AAAAAAAAAAAA
-//  miss:(               32 32 a9)
-//  Input(08 d8 d9 32 32          01 00)
-//  COBS: 08 d8 d9 32 32          01 00
-//  inconsistent COBS buffer: 00000000  08 d8 d9 32 32 01                                 |...22.|
-//  
-//  ->TRICE:
-//  Input(0a 63 c6 32 32 32 32 aa 04 0c 01 01 01 00)
-//  COBS: 0a 63 c6 32 32 32 32 aa 04 0c 01 01 01 00
-//  ->TRICE: 63 c6 32 32 32 32 aa 04 0c 00 00 00
-//  Jul  2 22:44:42.095527  com4:          triceCheck.c   321  842,150_450 0663 CYCLE:170!=169 #1 binary buffer:00000000  0c 00 00 00                                       |....|
-//  Input(15 23 d5 32 32 32 32 ab 0c 41 41 41 41 41 41 41 41 41 41 41 41 00)
-//  COBS: 15 23 d5 32 32 32 32 ab 0c 41 41 41 41 41 41 41 41 41 41 41 41 00
-//  ->TRICE: 23 d5 32 32 32 32 ab 0c 41 41 41 41 41 41 41 41 41 41 41 41
-//  Jul  2 22:44:42.095527  com4: len=12: AAAAAAAAAAAA
-
 
     #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
         #if 1

@@ -29,11 +29,11 @@
     #error configuration: TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE not implemented: (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
 #endif
 
-#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && ( TRICE_WARNINGS == 1 )
+#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && ( TRICE_CONFIG_WARNINGS == 1 )
     #pragma message("configuration: XTEA with TCOBS is possible but not recommended. Encrypted data are more effective framed with COBS.")
 #endif
 
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && ( TRICE_WARNINGS == 1 )
+#if (TRICE_DIRECT_XTEA_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && ( TRICE_CONFIG_WARNINGS == 1 )
     #pragma message("configuration: XTEA with TCOBS is possible but not recommended. Encrypted data are more effective framed with COBS.")
 #endif
 
@@ -734,6 +734,7 @@ void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t en
 //! TriceOutDepth returns the amount of bytes not written yet from the slowest device.
 unsigned TriceOutDepth( void ){
     unsigned d = 0, depth = 0;
+    TRICE_ENTER_CRITICAL_SECTION
     #ifdef SEGGER_RTT
         // When no RTT host is connected, the RTT buffer runs full.
         // If a RTT host is connected, it is assumed to be the fastest device.
@@ -751,6 +752,7 @@ unsigned TriceOutDepth( void ){
         d = TriceOutDepthCGO();
         depth = d > depth ? d : depth;
     #endif
+    TRICE_LEAVE_CRITICAL_SECTION
     return depth;
 }
 
