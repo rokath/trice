@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_CONFIG_WARNINGS 0
+
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_XTEA_ENCRYPT 1
 #define TRICE_DEFERRED_UARTA 1

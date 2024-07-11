@@ -6,7 +6,7 @@ export PATH := C:\bin\ArmClang\bin:$(PATH)
 export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
 
 # Build path
-CLANG_BUILD = build.clang
+CLANG_BUILD = out.clang
 
 CLANG_CC = clang
 CLANG_AS = clang -x assembler-with-cpp

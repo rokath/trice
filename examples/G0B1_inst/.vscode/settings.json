@@ -2,7 +2,7 @@
     "makefile.launchConfigurations": [
         {
             "cwd": "c:\\Users\\ms\\repos\\IRIS2\\G0B1",
-            "binaryPath": "c:\\Users\\ms\\repos\\IRIS2\\G0B1\\build.clang\\G0B1.elf",
+            "binaryPath": "c:\\Users\\ms\\repos\\IRIS2\\G0B1\\out.clang\\G0B1.elf",
             "binaryArgs": []
         }
     ],

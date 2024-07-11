@@ -13,7 +13,6 @@ extern "C" {
 
 // trice l -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0" -showID "deb:%04x" -hs off -pf none -d16=true
 #define TRICE_DIRECT_OUTPUT 1
-#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_NONE
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 // trice l -p com4 -d16=false -pw MySecret -pf COBS

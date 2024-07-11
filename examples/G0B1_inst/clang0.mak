@@ -1,6 +1,6 @@
 
 # Build path
-CLANG_BUILD = build.clang
+CLANG_BUILD = out.clang
 
 VERSION = # -17 # When a default version is used, this should be empty.
 

@@ -1,6 +1,6 @@
 
 # Build path
-GCC_BUILD = build.gcc
+GCC_BUILD = out.gcc
 
 GCC_CC = arm-none-eabi-gcc
 GCC_AS = arm-none-eabi-gcc -x assembler-with-cpp

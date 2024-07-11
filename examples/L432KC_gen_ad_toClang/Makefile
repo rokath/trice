@@ -187,7 +187,7 @@ $(BUILD_DIR):
 # clean up
 #######################################
 clean:
-	@-rm -fR $(BUILD_DIR) ./build.clang/
+	@-rm -fR $(BUILD_DIR) ./out.clang/
 
 include clang.mak # Run "make clang" to use the CLang compiler.
 

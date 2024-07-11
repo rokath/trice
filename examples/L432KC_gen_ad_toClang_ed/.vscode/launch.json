@@ -7,7 +7,7 @@
         {
             "name": "clang Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./build.clang/L432KC.elf",
+            "executable": "./out.clang/L432KC.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
@@ -20,7 +20,7 @@
         {
             "name": "gcc Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./build.gcc/L432KC.elf",
+            "executable": "./out.gcc/L432KC.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",

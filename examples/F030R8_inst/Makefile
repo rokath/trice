@@ -29,7 +29,7 @@ OPT = -Og
 # paths
 #######################################
 # Build path
-BUILD_DIR = build
+BUILD_DIR = out
 
 ######################################
 # source
@@ -171,20 +171,10 @@ LIBS = -lc -lm -lnosys
 LIBDIR = 
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
-pre-build:
-	@#echo "PRE ..."
-	@trice insert -src ../../src -src ./ -src ../../test/testdata
-	@#echo "PRE ... done"
-	@#make -j8 all
-
-post-build:
-	@#echo POST ...
-	@trice clean -src ../../src -src ./
-	@#echo POST ... done
-	@#echo -e
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+	@:
 
 #######################################
 # build the application
@@ -223,7 +213,7 @@ $(BUILD_DIR):
 #######################################
 # clean up
 #######################################
-clean: post-build
+clean:
 	@rm -fR $(BUILD_DIR)
   
 #######################################

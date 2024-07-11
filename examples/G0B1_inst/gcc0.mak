@@ -1,6 +1,6 @@
 
 # Build path
-GCC_BUILD = build.gcc
+GCC_BUILD = out.gcc
 
 GCC_CC = arm-none-eabi-gcc
 GCC_AS = arm-none-eabi-gcc -x assembler-with-cpp
@@ -10,4 +10,4 @@ GCC_HEX = $(GCC_CP) -O ihex
 GCC_BIN = $(GCC_CP) -O binary -S
 
 GCC_ONLY_FLAGS = #
- GCC_ONLY_FLAGS += -Wa,-a,-ad,-alms=$(GCC_BUILD)/$(notdir $(<:.c=.lst)) #
+GCC_ONLY_FLAGS += -Wa,-a,-ad,-alms=$(GCC_BUILD)/$(notdir $(<:.c=.lst)) #

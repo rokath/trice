@@ -33,3 +33,9 @@ dist/
 **/temp/
 
 *.exe
+
+examples/G0B1_gen/gccLinksClangWarning.txt
+examples/G0B1_inst/gccLinksClangWarning.txt
+examples/L432KC_gen_ad_toClang_ed/gccLinksClangWarning.txt
+examples/L432KC_gen_ad_toClang_ed_instr/gccLinksClangWarning.txt
+

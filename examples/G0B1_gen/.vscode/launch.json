@@ -7,7 +7,7 @@
         {
             "name": "clang Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./build.clang/G0B1.elf",
+            "executable": "./out.clang/G0B1.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
@@ -20,7 +20,7 @@
         {
             "name": "gcc Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./build.gcc/G0B1.elf",
+            "executable": "./out.gcc/G0B1.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",

@@ -25,7 +25,7 @@ do
     for i in $INSTRUMENTEDDIRS
     do
         if [ $i == $d ] ; then
-            cp ../../test/testdata/*.json .
+            ./clean.sh
         fi
     done
     make -j $(nproc --all) clean
@@ -36,8 +36,6 @@ do
     cd - > /dev/nul
 done
 
-if [ $failCount -eq 0 ] ; then
-  echo all ok
-else
+if ! [ $failCount -eq 0 ] ; then
   echo $failCount times FAIL 
 fi

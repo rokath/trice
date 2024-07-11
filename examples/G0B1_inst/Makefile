@@ -134,40 +134,17 @@ C_INCLUDES += \
 include flags.mak
 
 .PHONY: all gcc clean
-.SECONDARY: main-build
 
-all: pre-build main-build
-
-pre-build:
-	@#echo "PRE ..."
-	@trice insert -src ../../src -src ./ -src ../../test/testdata
-	@#echo "PRE ... done"
-	@#make -j8 all
-
-post-build:
-	@#echo POST ...
-	@trice clean -src ../../src -src ./
-	@#echo POST ... done
-	@#echo -e
-
-main-build: clang
+all: clang
 
 clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
-	@$(MAKE) --no-print-directory post-build
+	@:
 
 gcc:     $(GCC_BUILD)/$(TARGET).elf   $(GCC_BUILD)/$(TARGET).hex   $(GCC_BUILD)/$(TARGET).bin
-	@$(MAKE) --no-print-directory post-build
+	@:
 
 log:
 	trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -ts ms -d16
-	
-#all:      gcc clang
-#	@ls -l build/*.o
-#	@ls -l build/$(TARGET).*
-#	@ls -l $(GCC_OBJECTS) 
-#	@ls -l $(GCC_BUILD)/$(TARGET).*
-#	@ls -l $(CLANG_OBJECTS)
-#	@ls -l $(CLANG_BUILD)/$(TARGET).*
 
 #######################################
 # build the application
@@ -175,7 +152,7 @@ log:
 include gcc1.mak
 include clang1.mak
 
-clean: post-build
+clean:
 	@rm -fR $(GCC_BUILD) $(CLANG_BUILD)
 	
 version:
