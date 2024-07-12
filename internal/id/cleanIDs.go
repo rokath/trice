@@ -112,9 +112,9 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		// We do not simply replace the ID with 0. We check til.json, extend it if needed and we build a new li.json.
 		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
 		a.Mutex.Lock()                             // several files could contain the same t or idn.
-		tt, ok := idd.idToTrice[idn]               // check til.json.
+		tt, ok := IDData.idToTrice[idn]            // check til.json.
 		if !ok {                                   // idn is not inside til.json.
-			idd.idToTrice[idn] = t // Add idn.
+			IDData.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
 			if tt != t { // idn references to a different t.
 				fmt.Fprintln(w, "ID inside", path, "line", line, "refers to", t, "but is already used inside til.json for", tt)
@@ -122,7 +122,7 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 			}
 		}
 		if idn != 0 {
-			idd.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.
+			IDData.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.
 			if Verbose {
 				fmt.Fprintln(w, idn, path, line, "added to li")
 			}
@@ -136,7 +136,7 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 		offset += loc[6]
 	}
 	if Verbose {
-		fmt.Fprintln(w, len(idd.idToLocNew), "items inside li")
+		fmt.Fprintln(w, len(IDData.idToLocNew), "items inside li")
 	}
 	out = []byte(outs)
 	return

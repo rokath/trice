@@ -57,11 +57,11 @@ func triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.F
 	return err
 }
 
-// insertTriceIDs does the ID insertion task on in. insertTriceIDs uses internally local pointer idd because idd cannot be easily passed via parameters.
+// insertTriceIDs does the ID insertion task on in. insertTriceIDs uses internally local pointer IDData because IDData cannot be easily passed via parameters.
 // insertTriceIDs returns the result in out with modified==true when out != in.
 //
 // in is the read file liPath content and out is the file content which needs to be written.
-// a is used for mutex access to idd data. liPath is needed for location information.
+// a is used for mutex access to IDData. liPath is needed for location information.
 // insertTriceIDs is intended to be used in several Go routines (one for each file) for faster ID insertion.
 // Data usage:
 // - idd.idToTrice is the serialized til.json. It is extended with unknown and new IDs and written back to til.json finally.
@@ -132,14 +132,14 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 		// - trice( "foo", ... );           --> idn =   0, loc[3] == loc[4]
 		// - trice( iD(0), "foo, ... ")     --> idn =   0, loc[3] != loc[4]
 		// - trice( iD(111), "foo, ... ")   --> idn = 111, loc[3] != loc[4]
-		a.Mutex.Lock()                       // several files could contain the same t
-		if ids, ok := idd.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
+		a.Mutex.Lock()                          // several files could contain the same t
+		if ids, ok := IDData.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
 			var filenameMatch bool
 			if len(ids) == 1 { // Most common case: just one ID for t.
 				id := ids[0]
 				// Even there is only one singe ID inside ids, we cannot take it, if it is for a different file.
 				// ids could have been larger before and we would steel the id from a different file then.
-				li, ok := idd.idToLocRef[id] // Get location information.
+				li, ok := IDData.idToLocRef[id] // Get location information.
 				if LiPathIsRelative {
 					filenameMatch = filepath.ToSlash(li.File) == liPath
 				} else {
@@ -148,7 +148,7 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 				if ok && filenameMatch && (idn == 0 || idn == id) {
 					// id exists inside location information for this file and is usable.
 					idN = id
-					delete(idd.triceToId, t)
+					delete(IDData.triceToId, t)
 					goto idUsable
 				}
 				// If we arrive here, the location information does not match or idn != 0 and idn != id.
@@ -157,7 +157,7 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 				idCandidateIndex := math.MaxInt
 				idCandidateLine := math.MaxInt
 				for i, id := range ids { // It is also possible, that no id matches idn != 0.
-					li, ok := idd.idToLocRef[id] // Get location information.
+					li, ok := IDData.idToLocRef[id] // Get location information.
 					if LiPathIsRelative {
 						filenameMatch = filepath.ToSlash(li.File) == liPath
 					} else {
@@ -177,9 +177,9 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 					idN = ids[idCandidateIndex] // This gets into the source. No need to remove id from idd.idToLocRef.
 					ids = removeIndex(ids, idCandidateIndex)
 					if len(ids) == 0 {
-						delete(idd.triceToId, t)
+						delete(IDData.triceToId, t)
 					} else {
-						idd.triceToId[t] = ids
+						IDData.triceToId[t] = ids
 					}
 					goto idUsable
 					// The case idn != 0 and idn != id is possible, when idn was manually written into the code or code with IDs was merged.
@@ -190,19 +190,19 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 				}
 			}
 		} else if idn != 0 { // t is not known inside til.json and idn is not 0
-			if tt, ok := idd.idToTrice[idn]; ok { // idn in source is used in til.json differently
+			if tt, ok := IDData.idToTrice[idn]; ok { // idn in source is used in til.json differently
 				if t == tt {
 					fmt.Fprintln(w, "unexpected error!")
 				}
 				fmt.Fprintln(w, "ID found in", liPath, "and used for", t, "is used already in", FnJSON, "for", tt, "- assigning a new ID.")
 			} else { // idn in source is not used in til.json - add idn to til.json
-				idd.idToTrice[idn] = t
+				IDData.idToTrice[idn] = t
 				idN = idn
 			}
 		}
 		if idN == 0 { // create a new ID
-			idN = idd.newID()
-			idd.idToTrice[idN] = t // add ID to idd.idToTrice
+			idN = IDData.newID()
+			IDData.idToTrice[idN] = t // add ID to idd.idToTrice
 		}
 	idUsable:
 		a.Mutex.Unlock()
@@ -213,7 +213,7 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 			modified = true
 		}
 		a.Mutex.Lock()
-		idd.idToLocNew[idN] = TriceLI{liPath, line} // Add to new location information.
+		IDData.idToLocNew[idN] = TriceLI{liPath, line} // Add to new location information.
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information.
 		rest = rest[loc[6]:]

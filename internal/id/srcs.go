@@ -3,21 +3,21 @@
 
 package id
 
-// arrayFlag is a slice type for multi flag
-type arrayFlag []string
+// ArrayFlag is a slice type for multi flag
+type ArrayFlag []string
 
 var (
 	// Srcs gets multiple files or directories.
-	Srcs arrayFlag
+	Srcs ArrayFlag
 )
 
 // String method is the needed for interface satisfaction.
-func (i *arrayFlag) String() string {
+func (i *ArrayFlag) String() string {
 	return ""
 }
 
 // Set is a needed method for multi flags.
-func (i *arrayFlag) Set(value string) error {
+func (i *ArrayFlag) Set(value string) error {
 	*i = append(*i, value)
 	return nil
 }

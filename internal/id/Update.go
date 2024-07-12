@@ -422,8 +422,10 @@ func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu trice
 			if tfL, ok := ilu[id]; ok { // found
 				//tfL.Type = strings.ToUpper(tfL.Type)
 				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
-					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.") // todo: patID
-					id = -id                                                            // mark as invalid
+					if Verbose {
+						fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.") // todo: patID
+					}
+					id = -id // mark as invalid
 				}
 			}
 		}

@@ -123,7 +123,7 @@ func check(t *testing.T, text, expJSON string) {
 func checkList3(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap, expMap TriceIDLookUp) {
 	ilu := inMap
 	flu := ilu.reverseS()
-	Verbose = true
+	//Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false

@@ -23,7 +23,7 @@ func TestArrayFlag(t *testing.T) {
 
 	msg.OnErr(p.Set("ab"))
 	msg.OnErr(p.Set("xyz"))
-	af := arrayFlag([]string{"ab", "xyz"})
+	af := ArrayFlag([]string{"ab", "xyz"})
 	//assert.Equal(t, af, Srcs) // this succeeds as singe test but fails as package test for some reason.
 	assert.Equal(t, af.String(), Srcs.String())
 }
@@ -56,7 +56,9 @@ func TestConditionalFilePathOs(t *testing.T) {
 func fullFilePath2(fSys *afero.Afero, fn string) string {
 	xType := reflect.TypeOf(fSys)
 	xValue := reflect.ValueOf(fSys)
-	fmt.Println(xType, xValue) // Os: *afero.Afero &{0x85d228} // MemMap: *afero.Afero &{0xc00007bb60}
+	if Verbose {
+		fmt.Println(xType, xValue) // Os: *afero.Afero &{0x85d228} // MemMap: *afero.Afero &{0xc00007bb60}
+	}
 	if fn == "none" || fn == "off" {
 		return fn
 	}

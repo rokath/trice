@@ -27,7 +27,7 @@ type idData struct {
 }
 
 var (
-	idd idData
+	IDData idData
 )
 
 // newID returns a new, so far unused trice ID for usage.
@@ -51,9 +51,9 @@ func (p *idData) newID() (id TriceID) {
 	return
 }
 
-// preProcessing reads til.json and li.json and converts the data for processing.
+// PreProcessing reads til.json and li.json and converts the data for processing.
 // Also the ID space for new trice IDs is created.
-func (p *idData) preProcessing(w io.Writer, fSys *afero.Afero) {
+func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 
 	// get state
 	p.idToTrice = NewLut(w, fSys, FnJSON)
@@ -120,9 +120,9 @@ func cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) er
 	a.MatchingFileName = isSourceFile
 
 	// process
-	idd.preProcessing(w, fSys)
+	IDData.PreProcessing(w, fSys)
 	err := a.Walk(w, fSys)
-	idd.postProcessing(w, fSys)
-
+	IDData.postProcessing(w, fSys)
+	//
 	return err
 }
