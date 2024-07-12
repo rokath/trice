@@ -6,11 +6,6 @@ package id
 // ArrayFlag is a slice type for multi flag
 type ArrayFlag []string
 
-var (
-	// Srcs gets multiple files or directories.
-	Srcs ArrayFlag
-)
-
 // String method is the needed for interface satisfaction.
 func (i *ArrayFlag) String() string {
 	return ""

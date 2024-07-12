@@ -5,6 +5,7 @@
 package id
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"testing"
@@ -12,7 +13,17 @@ import (
 	"github.com/tj/assert"
 )
 
+func setupTest() func() {
+	fmt.Println("Setup code here.")
+
+	// tear down later
+	return func() {
+		fmt.Println("tear-down code here.")
+	}
+}
+
 func TestNewID(t *testing.T) {
+	defer setupTest()()
 	rand.Seed(0)
 	lut := make(TriceIDLookUp)
 	w := os.Stdout

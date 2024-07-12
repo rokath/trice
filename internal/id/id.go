@@ -11,32 +11,6 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-var (
-	// Verbose gives more information on output if set. The value is injected from main packages.
-	Verbose bool
-
-	// DryRun if set, inhibits real changes
-	DryRun bool
-
-	// FnJSON is the filename for the JSON formatted ID list.
-	FnJSON = "til.json"
-
-	// LIFnJSON is the filename for the JSON formatted location information list.
-	LIFnJSON string
-
-	// Min is the smallest allowed ID for normal trices.
-	Min = TriceID(1000)
-
-	// Max is the biggest allowed ID for normal trices.
-	Max = TriceID(7999)
-
-	// SearchMethod is the next ID search method.
-	SearchMethod = "random"
-
-	// LiPathIsRelative causes to store relative paths instead of base names only inside li.json.
-	LiPathIsRelative bool
-)
-
 // TriceID is the trice ID referencing to Fmt.
 type TriceID int
 

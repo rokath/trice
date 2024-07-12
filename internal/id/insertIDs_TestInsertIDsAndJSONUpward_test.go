@@ -15,6 +15,11 @@ import (
 	"github.com/tj/assert"
 )
 
+func TestMethod(t *testing.T) {
+	defer setupTest()()
+	fmt.Println("asserts, ensures, requires... here")
+}
+
 func TestInsertIDsAndJSONUpwardXXX(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -27,9 +32,10 @@ func TestInsertIDsAndJSONUpwardXXX(t *testing.T) {
 	id.LIFnJSON = t.Name() + "li.json"
 	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(``), 0777))
 
-	id.Min = 10 Diese Teile werden nicht richtig initialisiert!
-	id.Max = 20
+	//id.Min = 10 // Diese Teile werden nicht richtig initialisiert!
+	//id.Max = 20
 
+	// The PreProcessing is needed to have empty starting conditions
 	id.IDData.PreProcessing(os.Stdout, fSys)
 
 	fmt.Println(id.IDData)

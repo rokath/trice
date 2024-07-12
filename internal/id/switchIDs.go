@@ -26,10 +26,6 @@ type idData struct {
 	IDSpace        []TriceID       // IDSpace contains unused IDs.
 }
 
-var (
-	IDData idData
-)
-
 // newID returns a new, so far unused trice ID for usage.
 // The global variable SearchMethod controls the way a new ID is selected.
 func (p *idData) newID() (id TriceID) {

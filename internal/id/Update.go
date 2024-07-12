@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -68,31 +67,6 @@ const (
 	patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
 
 	//patIncludeTriceHeader = `#include\s*"trice\.h"`
-)
-
-var (
-	matchSourceFile          = regexp.MustCompile(patSourceFile)
-	matchNbTRICE             = regexp.MustCompile(patNbTRICE)
-	matchNbID                = regexp.MustCompile(patNbID)
-	matchNb                  = regexp.MustCompile(patNb)
-	matchTypNameTRICE        = regexp.MustCompile(patTypNameTRICE)
-	matchFmtString           = regexp.MustCompile(patFmtString)
-	matchNextFormatSpecifier = regexp.MustCompile(patNextFormatSpecifier)
-	matchFullAnyTrice        = regexp.MustCompile(patFullAnyTrice)
-	matchTriceNoLen          = regexp.MustCompile(patTriceNoLen)
-	matchIDInsideTrice       = regexp.MustCompile(patIDInsideTrice)
-	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
-	//matchNumber              = regexp.MustCompile(patNumber)
-	//matchIncludeTriceHeader  = regexp.MustCompile(patIncludeTriceHeader)
-
-	ExtendMacrosWithParamCount bool
-
-	// DefaultTriceBitWidth tells the bit width of TRICE macros having no bit width in their names, like TRICE32 or TRICE8.
-	//
-	// One target can use only one bith width for bare TRICE macros and the setting inside the target code must match DefaultTriceBitWidth.
-	DefaultTriceBitWidth = "32" // todo: create compiler switch for other options "8", "16", "32", "64"
-	DefaultStampSize     = 32
-	StampSizeId          string
 )
 
 // updateParamCountAndID0 stays in text as long as trice statements are found.
