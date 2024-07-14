@@ -47,16 +47,20 @@ func (p *idData) newID() (id TriceID) {
 	return
 }
 
-// PreProcessing reads til.json and li.json and converts the data for processing.
-// Also the ID space for new trice IDs is created.
-func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
-
-	// get state
+// GetIDStateFromJSONFiles reads til and li and fills p (IDData) with this information.
+func (p *idData) GetIDStateFromJSONFiles(w io.Writer, fSys *afero.Afero) {
 	p.idToTrice = NewLut(w, fSys, FnJSON)
 	p.triceToId = p.idToTrice.reverseS()
 	p.idInitialCount = len(p.idToTrice)
 	p.idToLocRef = NewLutLI(w, fSys, LIFnJSON) // for reference lookup
 	p.idToLocNew = make(TriceIDLookUpLI, 4000) // for new li.json
+}
+
+// PreProcessing reads til.json and li.json and converts the data for processing.
+// Also the ID space for new trice IDs is created.
+func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
+
+	p.GetIDStateFromJSONFiles(w, fSys)
 
 	// create IDSpace
 	p.IDSpace = make([]TriceID, 0, Max-Min+1)

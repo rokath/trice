@@ -33,7 +33,7 @@ do
         failCount=$((failCount + 1))
         echo FAIL: $d
     fi
-    cd - > /dev/nul
+    cd ..
 done
 
 if ! [ $failCount -eq 0 ] ; then

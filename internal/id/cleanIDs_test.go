@@ -15,7 +15,9 @@ import (
 )
 
 func TestClean(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
 	// create src file
 	sFn := t.Name() + "file.c"
@@ -23,23 +25,9 @@ func TestClean(t *testing.T) {
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
-	// create empty til.json
-	jFn := t.Name() + "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	liFn := t.Name() + "li.json"
-	assert.Nil(t, fSys.WriteFile(liFn, []byte(``), 0777))
-
-	// we need to make sure, idSrcs contains exactly the local test folder to not to interfere with other tests
-	var x id.ArrayFlag
-	x.Set("./")
-	id.Srcs = x
-
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean" /*"-src", "./",*/, "-til", jFn, "-li", liFn}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1  );`
@@ -51,7 +39,9 @@ func TestClean(t *testing.T) {
 }
 
 func TestZero(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
 	// create src file
 	sFn := t.Name() + "file.c"
@@ -59,23 +49,9 @@ func TestZero(t *testing.T) {
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
-	// create empty til.json
-	jFn := t.Name() + "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	liFn := t.Name() + "li.json"
-	assert.Nil(t, fSys.WriteFile(liFn, []byte(``), 0777))
-
-	// we need to make sure, idSrcs contains exactly the local test folder to not to interfere with other tests
-	var x id.ArrayFlag
-	x.Set("./")
-	id.Srcs = x
-
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "zero" /*"-src", "./",*/, "-til", jFn, "-li", liFn}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "zero", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: trice( iD(0), "msg:value=%d\n", -1  );`

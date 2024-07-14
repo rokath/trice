@@ -425,6 +425,10 @@ const (
 // An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Examples: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
 // If 'TRICE( Id(99) ,"bar");' is in ilu & flu, the invalid trice changes to 'TRICE( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
 // Or: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE( Id(13) ,"foo");'. Then ilu & flu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
+
+// It could also be, like `...TRICE( Id(0), "bla" );...` and the trice exists with a valid id lie 99 in til and ilu points to the same file.
+// In that case we want to re-use the id 99.
+
 // Otherwise, a new id is generated, text patched and ilu & flu are extended.
 // To work correctly, ilu & flu need to be in a refreshed state, means have all id:tf pairs from Srcs tree already inside.
 // text is returned afterwards and true if text was changed and *pListModified set true if s.th. was changed.

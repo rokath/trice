@@ -40,7 +40,10 @@ func TestBasePath(t *testing.T) { // Anti-Virus issue
 	}
 }
 
-func _TestRefresh(t *testing.T) {
+func TestRefresh(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer SetupTest(t, fSys)()
 
 	const (
 		CFile0 = `
@@ -79,16 +82,10 @@ func _TestRefresh(t *testing.T) {
 		`
 	)
 
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	fn := t.Name() + "file.c"
 	assert.Nil(t, fSys.WriteFile(fn, []byte(CFile0), 0777))
-	fnJSON := t.Name() + "til.json"
-	FnJSON = fnJSON
-	fh, e := fSys.Create(fnJSON)
-	assert.Nil(t, e)
-	assert.Nil(t, fh.Close())
 	SubCmdRefreshList(os.Stdout, fSys)
-	act, e := fSys.ReadFile(fnJSON)
+	act, e := fSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	exp := ``
 	assert.Equal(t, exp, string(act))

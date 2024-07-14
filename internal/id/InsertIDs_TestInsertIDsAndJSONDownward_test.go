@@ -4,18 +4,19 @@ package id_test
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
+	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
-func _TestInsertIDsAndJSONDownward(t *testing.T) {
+func TestInsertIDsAndJSONDownward(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
 	// create src files
 	src0 := `
@@ -25,17 +26,9 @@ func _TestInsertIDsAndJSONDownward(t *testing.T) {
 	fn0 := t.Name() + "file0.c"
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
 
-	// create empty til.json
-	tilFn := t.Name() + "til.json"
-	assert.Nil(t, fSys.WriteFile(tilFn, []byte(``), 0777))
-
-	// create empty li.json
-	liFn := t.Name() + "li.json"
-	assert.Nil(t, fSys.WriteFile(liFn, []byte(``), 0777))
-
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src", ".", "-til", tilFn, "-li", liFn, "-IDMin", "10", "-IDMax", "20", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src", ".", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "10", "-IDMax", "20", "-IDMethod", "downward"}))
 
 	// check source files
 	expSrc0 := `
@@ -44,7 +37,6 @@ func _TestInsertIDsAndJSONDownward(t *testing.T) {
 	`
 	actSrc0, e := fSys.ReadFile(fn0)
 	assert.Nil(t, e)
-	fmt.Println(string(actSrc0))
 	assert.Equal(t, expSrc0, string(actSrc0))
 
 	// check til.json
@@ -58,9 +50,8 @@ func _TestInsertIDsAndJSONDownward(t *testing.T) {
 		"Strg": "Lo!"
 	}
 }`
-	actJSON, e := fSys.ReadFile(tilFn)
+	actJSON, e := fSys.ReadFile(id.FnJSON)
 	assert.Nil(t, e)
-	fmt.Println(string(actJSON))
 	assert.Equal(t, expJSON, string(actJSON))
 
 	// check location information
@@ -74,9 +65,8 @@ func _TestInsertIDsAndJSONDownward(t *testing.T) {
 		"Line": 2
 	}
 }`
-	actLI, e := fSys.ReadFile(liFn)
+	actLI, e := fSys.ReadFile(id.LIFnJSON)
 	assert.Nil(t, e)
-	fmt.Println(string(actLI))
 	assert.Equal(t, expLI, string(actLI))
 
 }

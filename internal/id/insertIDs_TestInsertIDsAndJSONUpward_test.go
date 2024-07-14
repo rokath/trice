@@ -4,9 +4,7 @@ package id_test
 
 import (
 	"bytes"
-	"fmt"
 	"io"
-	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -15,31 +13,11 @@ import (
 	"github.com/tj/assert"
 )
 
-func TestMethod(t *testing.T) {
-	defer setupTest()()
-	fmt.Println("asserts, ensures, requires... here")
-}
-
-func TestInsertIDsAndJSONUpwardXXX(t *testing.T) {
+func TestInsertIDsAndJSONUpward(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
-	// create empty til.json
-	id.FnJSON = t.Name() + "til.json"
-	assert.Nil(t, fSys.WriteFile(id.FnJSON, []byte(``), 0777))
-
-	// create empty li.json
-	id.LIFnJSON = t.Name() + "li.json"
-	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(``), 0777))
-
-	//id.Min = 10 // Diese Teile werden nicht richtig initialisiert!
-	//id.Max = 20
-
-	// The PreProcessing is needed to have empty starting conditions
-	id.IDData.PreProcessing(os.Stdout, fSys)
-
-	fmt.Println(id.IDData)
-	assert.Fail(t, "view")
 	// create src files
 	src0 := `
 	TRice( "Hi!" );

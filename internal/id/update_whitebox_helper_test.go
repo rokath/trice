@@ -11,18 +11,6 @@ import (
 	"github.com/tj/assert"
 )
 
-func TestMain(m *testing.M) {
-	ExtendMacrosWithParamCount = true
-	i := m.Run()
-	if i != 0 {
-		os.Exit(i)
-	}
-	// The 2nd call is possible, but some tests are failing - needs investigation!
-	//
-	// ExtendMacrosWithParamCount = false
-	// os.Exit(m.Run())
-}
-
 type idCheck struct {
 	nbTRICE string
 	nbID    string
@@ -79,11 +67,11 @@ func checkList(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMetho
 // min, max is the ID pool for finding new IDs
 // ...
 func checkList2(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inJSON, expJSON string) {
+
 	ilu := make(TriceIDLookUp)
 	err := ilu.FromJSON([]byte(inJSON))
 	assert.Nil(t, err)
 	flu := ilu.reverseS()
-	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
@@ -123,14 +111,13 @@ func check(t *testing.T, text, expJSON string) {
 func checkList3(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap, expMap TriceIDLookUp) {
 	ilu := inMap
 	flu := ilu.reverseS()
-	//Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
 		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, ilu, flu, &listModified)
+		assert.Equal(t, x.exp, act)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
-		assert.Equal(t, x.exp, act)
 	}
 	ilu.AddFmtCount(os.Stdout)
 	eq := reflect.DeepEqual(ilu, expMap)
@@ -145,7 +132,6 @@ func checkList3(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMeth
 func checkList4(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap TriceIDLookUp) TriceIDLookUp {
 	ilu := inMap
 	flu := ilu.reverseS()
-	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false

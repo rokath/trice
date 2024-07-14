@@ -24,7 +24,7 @@ do
         failCount=$((failCount + 1))
         echo FAIL: $d
     fi
-    cd - > /dev/nul
+    cd ..
 done
 
 for d in $VSCODETARGETDIRS
@@ -35,7 +35,7 @@ do
         failCount=$((failCount + 1))
         echo FAIL: $d
     fi
-    cd - > /dev/nul
+    cd ..
 done
 
 

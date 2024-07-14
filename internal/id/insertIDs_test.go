@@ -9,12 +9,15 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
+	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
 func TestInsertKnownID(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
 	// create existing li.json file
 	exsLI := `{
@@ -31,7 +34,7 @@ func TestInsertKnownID(t *testing.T) {
 		"Line": 2
 	}
 }`
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(exsLI), 0777))
+	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(exsLI), 0777))
 
 	// create existing til.json file
 	exsTIL := `{
@@ -44,7 +47,7 @@ func TestInsertKnownID(t *testing.T) {
 		"Strg": "%x"
 	}
 }`
-	assert.Nil(t, fSys.WriteFile("til.json", []byte(exsTIL), 0777))
+	assert.Nil(t, fSys.WriteFile(id.FnJSON, []byte(exsTIL), 0777))
 
 	// create src file1
 	src1 := `
@@ -54,7 +57,7 @@ func TestInsertKnownID(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
@@ -66,15 +69,9 @@ func TestInsertKnownID(t *testing.T) {
 }
 
 func TestInsertExistingID_A(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+	defer id.SetupTest(t, fSys)()
 
 	// create src file1
 	sFn1 := "folder1/file1.c"
@@ -85,7 +82,7 @@ func TestInsertExistingID_A(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check untouched src file1
 	actSrc1, e := fSys.ReadFile(sFn1)
@@ -99,7 +96,7 @@ func TestInsertExistingID_A(t *testing.T) {
 		"Strg": "x"
 	}
 }`
-	actTil, e := fSys.ReadFile("til.json")
+	actTil, e := fSys.ReadFile(id.FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTil, string(actTil))
 
@@ -109,21 +106,15 @@ func TestInsertExistingID_A(t *testing.T) {
 		"Line": 2
 	}
 }`
-	actLi, e := fSys.ReadFile("li.json")
+	actLi, e := fSys.ReadFile(id.LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLi, string(actLi))
 }
 
 func TestInsertExistingID_B(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+	defer id.SetupTest(t, fSys)()
 
 	// create src file1
 	sFn1 := "folder1/file1.c"
@@ -134,7 +125,7 @@ func TestInsertExistingID_B(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-liPathIsRelative"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-liPathIsRelative", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check untouched src file1
 	actSrc1, e := fSys.ReadFile(sFn1)
@@ -148,7 +139,7 @@ func TestInsertExistingID_B(t *testing.T) {
 		"Strg": "x"
 	}
 }`
-	actTil, e := fSys.ReadFile("til.json")
+	actTil, e := fSys.ReadFile(id.FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTil, string(actTil))
 
@@ -158,21 +149,15 @@ func TestInsertExistingID_B(t *testing.T) {
 		"Line": 2
 	}
 }`
-	actLi, e := fSys.ReadFile("li.json")
+	actLi, e := fSys.ReadFile(id.LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLi, string(actLi))
 }
 
 func TestInsert99(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+	defer id.SetupTest(t, fSys)()
 
 	// create src file1
 	sFn1 := "file1.c"
@@ -192,7 +177,7 @@ func TestInsert99(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
@@ -213,15 +198,9 @@ func TestInsert99(t *testing.T) {
 }
 
 func TestInsert11(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+	defer id.SetupTest(t, fSys)()
 
 	// create src file1
 	sFn1 := "file1.c"
@@ -232,7 +211,7 @@ func TestInsert11(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
@@ -244,7 +223,9 @@ func TestInsert11(t *testing.T) {
 }
 
 func TestInsert2(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
 	// create src file
 	sFn := "file.c"
@@ -255,17 +236,9 @@ func TestInsert2(t *testing.T) {
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
-
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
 	expSrc := `
@@ -287,7 +260,7 @@ func TestInsert2(t *testing.T) {
 		"Line": 2
 	}
 }`
-	actLI, e := fSys.ReadFile("li.json")
+	actLI, e := fSys.ReadFile(id.LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLI, string(actLI))
 
@@ -302,13 +275,15 @@ func TestInsert2(t *testing.T) {
 		"Strg": "msg:value=%d\\n"
 	}
 }`
-	actTIL, e := fSys.ReadFile(jFn)
+	actTIL, e := fSys.ReadFile(id.FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
 func TestInsert1(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
 	// create src file
 	sFn := "file.c"
@@ -316,17 +291,9 @@ func TestInsert1(t *testing.T) {
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
-
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: TRice( iD(999), "msg:value=%d\n", -1  );`
@@ -341,7 +308,7 @@ func TestInsert1(t *testing.T) {
 		"Line": 1
 	}
 }`
-	actLI, e := fSys.ReadFile("li.json")
+	actLI, e := fSys.ReadFile(id.LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLI, string(actLI))
 
@@ -352,13 +319,15 @@ func TestInsert1(t *testing.T) {
 		"Strg": "msg:value=%d\\n"
 	}
 }`
-	actTIL, e := fSys.ReadFile(jFn)
+	actTIL, e := fSys.ReadFile(id.FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
 func TestInsert0(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
 	// create src file
 	sFn := "file.c"
@@ -366,17 +335,9 @@ func TestInsert0(t *testing.T) {
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
-
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: TRice( iD(999), "msg:value=%d\n", -1  );`
@@ -391,7 +352,7 @@ func TestInsert0(t *testing.T) {
 		"Line": 1
 	}
 }`
-	actLI, e := fSys.ReadFile("li.json")
+	actLI, e := fSys.ReadFile(id.LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLI, string(actLI))
 
@@ -402,21 +363,15 @@ func TestInsert0(t *testing.T) {
 		"Strg": "msg:value=%d\\n"
 	}
 }`
-	actTIL, e := fSys.ReadFile(jFn)
+	actTIL, e := fSys.ReadFile(id.FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
 func TestInsertWithTickInComment(t *testing.T) {
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	// create empty li.json
-	assert.Nil(t, fSys.WriteFile("li.json", []byte(``), 0777))
+	defer id.SetupTest(t, fSys)()
 
 	// create src file1
 	sFn1 := "file1.c"
@@ -437,7 +392,7 @@ func TestInsertWithTickInComment(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward"}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `

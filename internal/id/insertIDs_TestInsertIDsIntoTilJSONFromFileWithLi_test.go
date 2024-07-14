@@ -4,10 +4,12 @@ package id_test
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
+	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
@@ -15,16 +17,14 @@ import (
 // TestInsertIDsIntoTilJSONFromFileWithLi ...
 //
 // IDs 1200 & 1201 are exist, so they are expected to go into til.json.
-func ___TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
+func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
 
 	fn0 := t.Name() + "file0.c"
 	fn1 := t.Name() + "file1.c"
-	tilFn := t.Name() + "til.json"
-	liFn := t.Name() + "li.json"
 
-	// trice ID list
-	tilJSON := `{
-}`
 	// location information
 	liJSON := `{
 		"1200": {
@@ -41,22 +41,18 @@ func ___TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
 		{fn0, `TRice( iD(1200), "Hi!" );`, `TRice( iD(1200), "Hi!" );`},
 		{fn1, `TRice( iD(1201), "Lo!" );`, `TRice( iD(1201), "Lo!" );`},
 	}
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	// create src files
 	for _, k := range testSet {
 		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
 	}
 
-	// create til.json
-	assert.Nil(t, fSys.WriteFile(tilFn, []byte(tilJSON), 0777))
-
-	// create li.json
-	assert.Nil(t, fSys.WriteFile(liFn, []byte(liJSON), 0777))
+	// re-create li.json
+	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(liJSON), 0777))
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src", ".", "-til", tilFn, "-li", liFn}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src", ".", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check source files
 	for _, k := range testSet {
@@ -76,8 +72,12 @@ func ___TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
 		"Strg": "Lo!"
 	}
 }`
-	actTil, e := fSys.ReadFile(tilFn)
+	actTil, e := fSys.ReadFile(id.FnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expTil, string(actTil))
+	result := expTil == string(actTil)
+	if !result {
+		fmt.Println("ACTUAL TIL:", string(actTil))
+	}
+	assert.True(t, result)
 
 }
