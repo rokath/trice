@@ -182,12 +182,18 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 						IDData.triceToId[t] = ids
 					}
 					goto idUsable
+				} else {
 					// The case idn != 0 and idn != id is possible, when idn was manually written into the code or code with IDs was merged.
 					// It is not expected, that in such cases idn is found inside idd.idToLocRef. Example:
 					// TRice( iD(3), "foo" ) in file1.c && t{TRice, "foo"} gives []int{1,2}
 					// li.json could contain ID 3 for file1.c, but that must be for a different trice then.
+
+					idN = idn // IMPORTANT CHANGE!
 					// Therefore such idn are discarded by not copying them to idN.
+					IDData.idToTrice[idN] = t // add ID to idd.idToTrice
+
 				}
+
 			}
 		} else if idn != 0 { // t is not known inside til.json and idn is not 0
 			if tt, ok := IDData.idToTrice[idn]; ok { // idn in source is used in til.json differently

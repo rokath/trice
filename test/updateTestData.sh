@@ -6,13 +6,8 @@ cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
 rm ./testdata/til.json ./testdata/li.json
 touch ./testdata/til.json ./testdata/li.json
 
-
-
-# We use update instead of insert, because of issue #480.
-
-
 #  insert IDs into source code - this should restore triceCheck.c.
-trice update -i ./testdata/til.json -li ./testdata/li.json -liPathIsRelative -IDMin 12000 -IDMax 13499 -IDMethod upward
+trice insert -i ./testdata/til.json -li ./testdata/li.json -IDMin 12000 -IDMax 13499 -IDMethod upward
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.

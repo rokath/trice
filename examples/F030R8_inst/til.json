@@ -1,12 +1,4 @@
 {
-	"1009": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
-	},
-	"1091": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
-	},
 	"12000": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
@@ -4351,103 +4343,39 @@
 		"Type": "trice16",
 		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
-	"1634": {
+	"1564": {
 		"Type": "TRice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"2535": {
+	"2194": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
 	},
-	"2554": {
+	"2983": {
 		"Type": "Trice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"2851": {
-		"Type": "trice",
-		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	"3403": {
+		"Type": "TRice",
+		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"2915": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+	"3407": {
+		"Type": "Trice",
+		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"3606": {
+	"4200": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
-	"3708": {
+	"5338": {
 		"Type": "trice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"3935": {
-		"Type": "TRice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"4179": {
-		"Type": "trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"4669": {
+	"5857": {
 		"Type": "trice",
 		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
 	},
-	"4759": {
-		"Type": "trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"4966": {
-		"Type": "Trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"5101": {
-		"Type": "TRice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"6153": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
-	},
-	"6448": {
-		"Type": "Trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"6467": {
-		"Type": "trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"6810": {
-		"Type": "TRice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"6925": {
-		"Type": "Trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"7014": {
-		"Type": "Trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"7125": {
-		"Type": "Trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"7350": {
-		"Type": "trice",
-		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
-	},
-	"7357": {
-		"Type": "TRice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"7403": {
-		"Type": "TRice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"7588": {
-		"Type": "trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"7600": {
+	"6990": {
 		"Type": "trice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	}

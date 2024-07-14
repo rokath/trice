@@ -1,41 +1,12 @@
-#li.json
 
-# Binaries for programs and plugins
-#*.exe~
-#*.so
-#*.dylib
-# Test binary, build with `go test -c`
-#*.test
-# Output of the go coverage tool, specifically when used with LiteIDE
-#*.out
-#vendor
-#go.sum
-#.id
-#_tryout/*
-
-#internal/decoder/debug.test
-#.netrc
-#dist/**
-#*.uvoptx
-#*.__i
-#*._ia
-
-#test/MDK-ARM_STM32F030R8/temp/
-#test/testdata/temp/
-#test/vsCode_Nucleo-G0B1_instrumented/temp/
-#test/Nucleo-STM32L432LC_generated/build/
-#test/PSoC-Creator-4.2-Workspace/PSoC-Creator-4.2-Workspace.cywrk.ms
-#test/PSoC-Creator-4.2-Workspace/Software_Transmit_UART.cydsn/Software_Transmit_UART.cyfit
-#test/PSoC-Creator-4.2-Workspace/Software_Transmit_UART.cydsn/Software_Transmit_UART.rpt
-
-dist/
+# folders
+**/dist/
 **/build/
+**/out/
+**/out.gcc/
+**/out.clang/
+
 **/temp/
 
-*.exe
-
-examples/G0B1_gen/gccLinksClangWarning.txt
-examples/G0B1_inst/gccLinksClangWarning.txt
-examples/L432KC_gen_ad_toClang_ed/gccLinksClangWarning.txt
-examples/L432KC_gen_ad_toClang_ed_instr/gccLinksClangWarning.txt
-
+# files
+**/gccLinksClangWarning.txt
