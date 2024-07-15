@@ -1,8 +1,4 @@
 {
-	"1045": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
 	"12000": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
@@ -4347,132 +4343,48 @@
 		"Type": "trice16",
 		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
-	"1629": {
+	"1342": {
 		"Type": "TRice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"1959": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"2400": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"2417": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"2562": {
-		"Type": "trice",
-		"Strg": "StartDefaultTask\\n"
-	},
-	"2660": {
+	"2987": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
 	},
-	"2676": {
+	"3612": {
 		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
+		"Strg": "StartTask02\\n"
 	},
-	"2723": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
-	},
-	"3084": {
+	"3928": {
 		"Type": "trice",
 		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
 	},
-	"3131": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
-	},
-	"3495": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"3931": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"3964": {
-		"Type": "trice",
-		"Strg": "StartTask02\\n"
-	},
-	"3974": {
-		"Type": "trice",
-		"Strg": "StartTask02\\n"
-	},
-	"4034": {
+	"4252": {
 		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"4246": {
-		"Type": "trice",
+	"4650": {
+		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"4375": {
-		"Type": "trice",
-		"Strg": "StartTask02\\n"
-	},
-	"4460": {
+	"6871": {
 		"Type": "TRice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"4595": {
+	"7216": {
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"4904": {
-		"Type": "TRice",
+	"7546": {
+		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"4955": {
-		"Type": "trice",
-		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
-	},
-	"5397": {
+	"7852": {
 		"Type": "trice",
 		"Strg": "StartDefaultTask\\n"
 	},
-	"5623": {
-		"Type": "trice",
-		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
-	},
-	"5779": {
-		"Type": "trice",
-		"Strg": "StartDefaultTask\\n"
-	},
-	"5941": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"6186": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"6505": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
-	},
-	"7096": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"7400": {
+	"7914": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
-	},
-	"7734": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"7741": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
-	},
-	"7826": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	}
 }

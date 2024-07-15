@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"os"
 	"path/filepath"
@@ -94,7 +95,7 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 	var delta int      // offset change cause by ID statement insertion
 	var t TriceFmt     // t is the actual located trice.
 	line := 1          // line counts source code lines, these start with 1.
-	for {
+	for {              // file loop
 		idn = 0                 // clear here
 		idN = 0                 // clear here
 		loc := matchTrice(rest) // loc is the position of the next trice type (statement name with opening parenthesis followed by a format string).
@@ -118,9 +119,12 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 				nStrg := idS[nLoc[0]:nLoc[1]] // nStrg is the plain number string.
 				n, err := strconv.Atoi(nStrg)
 				if err == nil {
-					idn = TriceID(n) // idn is the assigned id inside source file.
-				} else { // unexpected
-					fmt.Fprintln(w, err, nStrg)                // report
+					idn = TriceID(n)
+					if Verbose {
+						fmt.Fprintln(w, "ID ", idn, " is the assigned id inside source file.")
+					}
+				} else {
+					fmt.Fprintln(w, "unexpected ", err, nStrg) // report
 					line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information.
 					rest = rest[loc[6]:]
 					offset += loc[6]
@@ -128,98 +132,120 @@ func insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []
 				}
 			}
 		}
-		// trice t (t.Type & t.Strg) is known now. idn holds the trice id found in the source. Example cases are:
+		if Verbose {
+			fmt.Fprintln(w, "Trice", t, "with ID", idn, "found in source file.")
+		}
+		// Example cases are:
 		// - trice( "foo", ... );           --> idn =   0, loc[3] == loc[4]
 		// - trice( iD(0), "foo, ... ")     --> idn =   0, loc[3] != loc[4]
 		// - trice( iD(111), "foo, ... ")   --> idn = 111, loc[3] != loc[4]
-		a.Mutex.Lock()                          // several files could contain the same t
-		if ids, ok := IDData.triceToId[t]; ok { // t has at least one unused ID, but it could be from a different file.
-			var filenameMatch bool
-			if len(ids) == 1 { // Most common case: just one ID for t.
-				id := ids[0]
-				// Even there is only one singe ID inside ids, we cannot take it, if it is for a different file.
-				// ids could have been larger before and we would steel the id from a different file then.
-				li, ok := IDData.idToLocRef[id] // Get location information.
-				if LiPathIsRelative {
-					filenameMatch = filepath.ToSlash(li.File) == liPath
-				} else {
-					filenameMatch = filepath.Base(li.File) == liPath
+		a.Mutex.Lock() // several files could contain the same t
+
+		// process t
+		ids := IDData.triceToId[t]
+		if Verbose {
+			fmt.Fprintln(w, "Trice ", t, " has", len(ids), "unused ID(s), but could be from different file(s). IDs=", ids, ".")
+		}
+		var filenameMatch bool
+		idCandidateIndex := math.MaxInt
+		idCandidateLine := math.MaxInt
+
+		// id slice ids loop
+		for i, id := range ids { // It is also possible, that no id matches idn != 0 or ids is nil.
+			if id == 0 {
+				log.Fatal("id == 0   : unexpected case")
+			}
+			if idn != 0 && id != idn {
+				if Verbose {
+					fmt.Fprintln(w, "ID", idn, "!=", id, "continue...")
 				}
-				if ok && filenameMatch && (idn == 0 || idn == id) {
-					// id exists inside location information for this file and is usable.
-					idN = id
-					delete(IDData.triceToId, t)
-					goto idUsable
+				continue
+			}
+			// id == idn or idn == 0 here
+			li, ok := IDData.idToLocRef[id] // Get location information.
+			if !ok {
+				if Verbose {
+					fmt.Fprintln(w, "ID", idn, "has no location infomation, so we simply use this ID.")
 				}
-				// If we arrive here, the location information does not match or idn != 0 and idn != id.
-				// In such case a new ID is needed.
-			} else { // Several IDs for t exist.
-				idCandidateIndex := math.MaxInt
-				idCandidateLine := math.MaxInt
-				for i, id := range ids { // It is also possible, that no id matches idn != 0.
-					li, ok := IDData.idToLocRef[id] // Get location information.
-					if LiPathIsRelative {
-						filenameMatch = filepath.ToSlash(li.File) == liPath
-					} else {
-						filenameMatch = filepath.Base(li.File) == liPath
+
+				if idn != 0 {
+					if Verbose {
+						fmt.Fprintln(w, "ID", idn, "is usable, so we simply use this ID and remove id from ids now.")
 					}
-					if ok && filenameMatch && (idn == 0 || idn == id) {
-						// id exists inside location information for this file and is usable, but it could occur
-						// in path several times. In such cases we take the ID with the smallest line number first,
-						// because we are reading from the beginning. Therefore we need to check that.
-						if li.Line < idCandidateLine {
-							idCandidateLine = li.Line
-							idCandidateIndex = i
-						}
-					}
-				}
-				if idCandidateIndex < math.MaxInt { // usable, so remove from unused list.
-					idN = ids[idCandidateIndex] // This gets into the source. No need to remove id from idd.idToLocRef.
-					ids = removeIndex(ids, idCandidateIndex)
+					idN = idn
+					// remove id from ids now
 					if len(ids) == 0 {
 						delete(IDData.triceToId, t)
 					} else {
 						IDData.triceToId[t] = ids
 					}
-					goto idUsable
+				}
+				break
+			}
+			if LiPathIsRelative {
+				filenameMatch = filepath.ToSlash(li.File) == liPath
+			} else {
+				filenameMatch = filepath.Base(li.File) == liPath
+			}
+			if !filenameMatch {
+				if Verbose {
+					fmt.Fprintln(w, "ID", id, "is from a different file: -> continue")
+				}
+				continue
+			}
+			// id is from the same file: use idn -> idUsable
+			// id exists inside location information for this file and is usable, but it could occur
+			// in file several times. In such cases we take the ID with the smallest line number first,
+			// because we are reading from the beginning. Therefore we need to check that.
+			if li.Line < idCandidateLine {
+				idCandidateLine = li.Line
+				idCandidateIndex = i
+			}
+			if idCandidateIndex < math.MaxInt {
+				if Verbose {
+					fmt.Fprintln(w, "ID", idn, "usable, so remove it from unused list.")
+				}
+				idN = ids[idCandidateIndex] // This gets into the source. No need to remove id from idd.idToLocRef.
+				ids = removeIndex(ids, idCandidateIndex)
+
+				// remove id from ids now
+				if len(ids) == 0 {
+					delete(IDData.triceToId, t)
 				} else {
-					// The case idn != 0 and idn != id is possible, when idn was manually written into the code or code with IDs was merged.
-					// It is not expected, that in such cases idn is found inside idd.idToLocRef. Example:
-					// TRice( iD(3), "foo" ) in file1.c && t{TRice, "foo"} gives []int{1,2}
-					// li.json could contain ID 3 for file1.c, but that must be for a different trice then.
-
-					idN = idn // IMPORTANT CHANGE!
-					// Therefore such idn are discarded by not copying them to idN.
-					IDData.idToTrice[idN] = t // add ID to idd.idToTrice
-
+					IDData.triceToId[t] = ids
 				}
-
-			}
-		} else if idn != 0 { // t is not known inside til.json and idn is not 0
-			if tt, ok := IDData.idToTrice[idn]; ok { // idn in source is used in til.json differently
-				if t == tt {
-					fmt.Fprintln(w, "unexpected error!")
-				}
-				fmt.Fprintln(w, "ID found in", liPath, "and used for", t, "is used already in", FnJSON, "for", tt, "- assigning a new ID.")
-			} else { // idn in source is not used in til.json - add idn to til.json
-				IDData.idToTrice[idn] = t
-				idN = idn
+				break
 			}
 		}
-		if idN == 0 { // create a new ID
+
+		// If no match was found inside ids we assign the ID found in source file.
+		if idN == 0 {
+			idN = idn // It is possible, that idn is 0, for example when `TRICE( id(0), "Hi!" );` is inside src.
+		}
+		if idN == 0 { // newID
 			idN = IDData.newID()
-			IDData.idToTrice[idN] = t // add ID to idd.idToTrice
+			//IDData.idToTrice[idN] = t // add ID to idd.idToTrice
+			if Verbose {
+				fmt.Fprintln(w, "Create a new ID ", idN, " for ", t)
+			}
 		}
-	idUsable:
+		//idUsable:
+		IDData.idToTrice[idN] = t // add ID to idd.idToTrice
 		a.Mutex.Unlock()
 		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
-		if idN != idn {                            // Need to change source.
+		if idN != idn {
+			if Verbose {
+				fmt.Fprintln(w, "Need to change source.", idn, " -> ", idN, " for ", t)
+			}
 			outs, delta = writeID(outs, offset, loc, t, idN)
 			offset += delta
 			modified = true
 		}
 		a.Mutex.Lock()
-		IDData.idToLocNew[idN] = TriceLI{liPath, line} // Add to new location information.
+		if Verbose {
+			fmt.Fprintln(w, "Add to new location information.")
+		}
+		IDData.idToLocNew[idN] = TriceLI{liPath, line}
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information.
 		rest = rest[loc[6]:]
