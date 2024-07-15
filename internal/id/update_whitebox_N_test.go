@@ -789,7 +789,7 @@ func TestVariadicInsertId0A(t *testing.T) {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // todo
 
-func _TestSingleParam(t *testing.T) {
+func _legacyUpdate_TestSingleParam(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	defer SetupTest(t, fSys)()

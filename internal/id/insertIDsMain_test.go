@@ -381,7 +381,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithDoubledIDinsideLi(t *testing
 //
 // IDs 1200 & 1201 are exist, so they are expected to be restored on the old position.
 // The IDs 100 & 101 are newly assigned.
-func _TestInsertIDsFromFilesIntoNonEmptyJSON(t *testing.T) {
+func TestInsertIDsFromFilesIntoNonEmptyJSON(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	defer id.SetupTest(t, fSys)()
@@ -491,15 +491,22 @@ func _TestInsertIDsFromFilesIntoNonEmptyJSON(t *testing.T) {
 	"1201": {
 		"Type": "TRice",
 		"Strg": "hi!"
+	},
+	"222": {
+		"Type": "TRice",
+		"Strg": "Hi!"
+	},
+	"223": {
+		"Type": "TRice",
+		"Strg": "Hi!"
 	}
 }`
-
 	actTilJSON, e := fSys.ReadFile(id.FnJSON)
 	assert.Nil(t, e)
 	resultTil := expTilJSON == string(actTilJSON)
 	if !resultTil {
 		fmt.Println("ACTUAL TIL:", string(actTilJSON))
-		fmt.Println("EXPECT TIL:", string(expTilJSON))
+		fmt.Println("EXPECT TIL:", expTilJSON)
 	}
 	assert.True(t, resultTil)
 
