@@ -108,7 +108,7 @@ func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) {
 
 // cmdSwitchTriceIDs performs action (triceIDCleaning or triceIDInsertion) between preProcessing and postProcessing.
 // This is done implicit by calling a.Walk for all source tree files, each in a separate Go routine.
-func cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) error {
+func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) error {
 	// initialize
 	a := new(ant.Admin)
 	a.Action = action
@@ -120,9 +120,8 @@ func cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) er
 	a.MatchingFileName = isSourceFile
 
 	// process
-	IDData.PreProcessing(w, fSys)
+	p.PreProcessing(w, fSys)
 	err := a.Walk(w, fSys)
-	IDData.postProcessing(w, fSys)
-	//
+	p.postProcessing(w, fSys)
 	return err
 }

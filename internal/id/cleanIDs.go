@@ -19,7 +19,7 @@ import (
 
 // SubCmdIdClean performs sub-command clean, zeroing or removing trice IDs from source tree.
 func SubCmdIdClean(w io.Writer, fSys *afero.Afero) error {
-	return cmdSwitchTriceIDs(w, fSys, triceIDCleaning)
+	return IDData.cmdSwitchTriceIDs(w, fSys, triceIDCleaning)
 }
 
 // triceIDCleaning reads file, processes it and writes it back, if needed.

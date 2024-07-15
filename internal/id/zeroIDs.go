@@ -19,7 +19,7 @@ import (
 
 // SubCmdIdZero performs sub-command zero, setting trice IDs in source tree to 0.
 func SubCmdIdZero(w io.Writer, fSys *afero.Afero) error {
-	return cmdSwitchTriceIDs(w, fSys, triceIDZeroing)
+	return IDData.cmdSwitchTriceIDs(w, fSys, triceIDZeroing)
 }
 
 // triceIDZeroing reads file, processes it and writes it back, if needed.
