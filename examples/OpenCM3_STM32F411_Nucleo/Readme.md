@@ -21,6 +21,6 @@ This folder is an exampe using STM's [STM32F411 Nucleo](https://www.st.com/en/ev
 ## Hint
 
 - This project is an older contribution and not maintained right now.
-- To use it, copy for example [../MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) and replace the compiler adaption and hardware specific parts from the [./triceConfig.h](./triceConfig.h) here.
+- To use it, copy for example [../F030R8_inst/Core/Inc/triceConfig.h](../MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) and replace the compiler adaption and hardware specific parts from the [./triceConfig.h](./triceConfig.h) here.
 - The trice instrumention code resides now in ../src/ instead of ../pkg/src/ and is divided into several files. This needs to be adapted too to activate this project again.
 - Pull requests are welcome.
