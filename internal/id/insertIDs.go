@@ -58,32 +58,31 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 	return err
 }
 
-// insertTriceIDs does the ID insertion task on in. insertTriceIDs uses internally local pointer IDData because IDData cannot be easily passed via parameters.
-// insertTriceIDs returns the result in out with modified==true when out != in.
+// insertTriceIDs does the ID insertion task on in and returns the result in out with modified==true when out != in.
 //
 // in is the read file liPath content and out is the file content which needs to be written.
 // a is used for mutex access to IDData. liPath is needed for location information.
 // insertTriceIDs is intended to be used in several Go routines (one for each file) for faster ID insertion.
 // Data usage:
-// - IDData.idToTrice is the serialized til.json. It is extended with unknown and new IDs and written back to til.json finally.
-// - IDData.triceToId is the initially reverted IDData.idToTrice. It is shrunk for each used ID amd used to find out if an ID is already fresh used.
-//   - When starting, IDData.triceToId holds all IDs from til.json and no ID is fresh used yet. If an ID is to be (fresh) used it is removed from IDData.triceToId.
-//   - If an ID is found in IDData.idToTrice but not found in IDData.triceToId anymore, it is already (fresh) used and not usable again.
-//   - If a new ID is generated, it is added to IDData.idToTrice only. This way it gets automatically used.
+// - p.idToTrice is the serialized til.json. It is extended with unknown and new IDs and written back to til.json finally.
+// - p.triceToId is the initially reverted p.idToTrice. It is shrunk for each used ID amd used to find out if an ID is already fresh used.
+//   - When starting, p.triceToId holds all IDs from til.json and no ID is fresh used yet. If an ID is to be (fresh) used it is removed from p.triceToId.
+//   - If an ID is found in p.idToTrice but not found in p.triceToId anymore, it is already (fresh) used and not usable again.
+//   - If a new ID is generated, it is added to p.idToTrice only. This way it gets automatically used.
 //
-// - IDData.idToLocRef is only for reference and not changed. It is the "old" location information.
-// - IDData.idToLocNew is new generated during insertTriceIDs execution and finally written back to li.json as "new" location information.
+// - p.idToLocRef is only for reference and not changed. It is the "old" location information.
+// - p.idToLocNew is new generated during insertTriceIDs execution and finally written back to li.json as "new" location information.
 // For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
 // insertTriceIDs parses the file content from the beginning for the next trice statement, deals with it and continues until the file content end.
 // When a trice statement was found, general cases are:
-// - idInSourceIsNonZero, id is inside IDData.idToTrice with matching trice and inside IDData.triceToId -> use ID (remove from IDData.triceToId)
+// - idInSourceIsNonZero, id is inside p.idToTrice with matching trice and inside p.triceToId -> use ID (remove from p.triceToId)
 //   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
 //
-// - idInSourceIsNonZero, id is inside IDData.idToTrice with matching trice and not in IDData.triceToId -> used ID! -> create new ID && invalidate ID in source
-// - idInSourceIsNonZero, id is inside IDData.idToTrice with different trice                            -> used ID! -> create new ID && invalidate ID in source
-// - idInSourceIsNonZero, id is not inside IDData.idToTrice (cannot be inside IDData.triceToId)         -> add ID to IDData.idToTrice
-// - idInSourceIsZero,    trice is not inside IDData.triceToId                                          -> create new ID & add ID to IDData.idToTrice
-// - idInSourceIsZero,    trice is is inside IDData.triceToId                                           -> unused ID -> use ID (remove from IDData.triceToId)
+// - idInSourceIsNonZero, id is inside p.idToTrice with matching trice and not in p.triceToId -> used ID! -> create new ID && invalidate ID in source
+// - idInSourceIsNonZero, id is inside p.idToTrice with different trice                       -> used ID! -> create new ID && invalidate ID in source
+// - idInSourceIsNonZero, id is not inside p.idToTrice (cannot be inside p.triceToId)         -> add ID to p.idToTrice
+// - idInSourceIsZero,    trice is not inside p.triceToId                                     -> create new ID & add ID to p.idToTrice
+// - idInSourceIsZero,    trice is is inside p.triceToId                                      -> unused ID -> use ID (remove from p.triceToId)
 //   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
 func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID    // idn is the last found id inside the source.
@@ -167,7 +166,6 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 				if Verbose {
 					fmt.Fprintln(w, "ID", idn, "has no location infomation, so we simply use this ID.")
 				}
-
 				if idn != 0 {
 					if Verbose {
 						fmt.Fprintln(w, "ID", idn, "is usable, so we simply use this ID and remove id from ids now.")
