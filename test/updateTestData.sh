@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
-
-# create til.json && li.json if not existing
 rm ./testdata/til.json ./testdata/li.json
 touch ./testdata/til.json ./testdata/li.json
 
