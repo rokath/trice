@@ -80,9 +80,10 @@ int TriceEnoughSpace( void ){
     // gives write space. During the trice write operation TriceBufferWritePosition gets incremented by max TRICE_SINGLE_MAX_SIZE bytes.
     // If afterwards the Trice BufferWritePosition is less TRICE_SINGLE_MAX_SIZE away from the buffer end, it is reset to the buffer start.
     // That means, there are max TRICE_SINGLE_MAX_SIZE-4 bytes wasted in the worst case. So the needed safety space is 2*TRICE_SINGLE_MAX_SIZE-4.
+    // So, even there is a only 4 bytes Trice, it cannot be written, when no full safety space is left, because we do not know its size in advance.
     // The TriceRingBufferReadPosition jumps in the same way as the TriceBufferWritePosition. It wraps according the same rules.
-    const int neededSafetySpace32 = (TRICE_DATA_OFFSET>>2) + (TRICE_SINGLE_MAX_SIZE>>1)-1; // (TRICE_SINGLE_MAX_SIZE>>2) + (TRICE_SINGLE_MAX_SIZE>>2) - 1
-    // Becaus a Trice can have size TRICE_SINGLE_MAX_SIZE, in that case, after writing it, we still need TRICE_DATA_OFFSET for the framing.
+    const int neededSafetySpace32 = (TRICE_DATA_OFFSET + ((2 * TRICE_SINGLE_MAX_SIZE) - 4)) >>2;
+    // Because a Trice can have size TRICE_SINGLE_MAX_SIZE, in that case, after writing it, we still need TRICE_DATA_OFFSET for the framing.
     int depth32 = TriceBufferWritePosition - TriceRingBufferReadPosition; //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( depth32 < 0 ){ // After a TriceBufferWritePosition reset the difference is negative and needs correction to get the correct value.
         depth32 += (TRICE_DEFERRED_BUFFER_SIZE>>2);
@@ -127,11 +128,10 @@ void TriceTransfer( void ){
     if( SingleTricesRingCount == 0 ){ // no data
         return;
     }
-    if( TriceOutDepth() ){ // last transmission not finished
-        return;
-    }
-    #if TRICE_DIAGNOSTICS == 1
-    // SingleTricesRingCountMax = (SingleTricesRingCount > SingleTricesRingCountMax) ? SingleTricesRingCount : SingleTricesRingCountMax;
+    #if TRICE_CGO == 0 // In automated tests we assume last transmission is finished, so we do not test depth to be able to test multiple Trices in deferred mode.
+        if( TriceOutDepth() ){ // last transmission not finished
+            return;
+        }
     #endif
     SingleTricesRingCount--;
     static int lastWordCount = 0;
