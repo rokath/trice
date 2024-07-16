@@ -68,6 +68,7 @@ Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
 #Core/Src/sysmem.c 
 #Core/Src/syscalls.c
 
+# trice lib
 C_SOURCES += \
 ../../src/cobsDecode.c \
 ../../src/cobsEncode.c \
@@ -87,7 +88,10 @@ C_SOURCES += \
 ../../src/triceStaticBuffer.c \
 ../../src/xtea.c 
 
-C_SOURCES += ../../test/testdata/triceCheck.c
+# examples
+C_SOURCES += \
+../../test/testdata/triceCheck.c \
+../exampleData/triceLogDiagnosticData.c
 
 # ASM sources
 ASM_SOURCES =  \

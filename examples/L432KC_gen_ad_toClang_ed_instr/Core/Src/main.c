@@ -56,7 +56,7 @@ void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
 
 /* USER CODE BEGIN PFP */
-
+void TriceLogDiagnosticValues( void );
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -367,7 +367,6 @@ void StartTask02(void const * argument)
     static int i = 0;
     if( ++i >= 100 ){
       i = 0;
-      void TriceLogDiagnosticValues( void );
       TriceLogDiagnosticValues();
     }
     TriceTransfer();

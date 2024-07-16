@@ -173,7 +173,6 @@ size_t TriceEncode( unsigned encrypt, unsigned framing, uint8_t* dst, const uint
 
 extern uint32_t * const triceSingleBufferStartWritePosition;
 extern unsigned SingleTricesRingCount;
-extern unsigned SingleTricesRingCountMax;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
 extern uint8_t TriceCycle;
