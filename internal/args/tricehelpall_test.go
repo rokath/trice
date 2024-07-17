@@ -565,7 +565,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|ID|iD](0).
-#	All in source code found IDs are added to til.json if not already there. Inside ti.json differently used IDs are 
+#	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
 #	reported and just zeroed inside the source files. The existing li.json is not used. A new li.json is generated in place. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
@@ -616,7 +616,7 @@ sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID](0). Remove all iD(n).
-#	All in source code found IDs are added to til.json if not already there. Inside ti.json differently used IDs are 
+#	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
 #	reported and just cleaned inside the source files. The existing li.json is not used. A new li.json is generated in place. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c

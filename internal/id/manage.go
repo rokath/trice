@@ -215,7 +215,7 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 
 // toFile writes lut into file fn as indented JSON and in verbose mode helpers for third party.
 func (ilu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
-	var fJSON, fC, fH, fCS afero.File
+	var fJSON afero.File
 	fJSON, err = fSys.Create(fn)
 	msg.FatalOnErr(err)
 	defer func() {
@@ -227,55 +227,57 @@ func (ilu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
 	msg.FatalOnErr(err)
 	_, err = fJSON.Write(b)
 	msg.FatalOnErr(err)
-
-	if Verbose { // generate helpers for third party
-		fnC := fn + ".c"
-		fC, err = fSys.Create(fnC)
-		msg.FatalOnErr(err)
-		fnH := fn + ".h"
-		fH, err = fSys.Create(fnH)
-		msg.FatalOnErr(err)
-		fnCS := fn + ".cs"
-		fCS, err = fSys.Create(fnCS)
-		msg.FatalOnErr(err)
-		defer func() {
-			err = fC.Close()
+	/*
+		var fC, fH, fCS afero.File
+		if Verbose { // generate helpers for third party
+			fnC := fn + ".c"
+			fC, err = fSys.Create(fnC)
 			msg.FatalOnErr(err)
-			err = fH.Close()
+			fnH := fn + ".h"
+			fH, err = fSys.Create(fnH)
 			msg.FatalOnErr(err)
-			err = fCS.Close()
+			fnCS := fn + ".cs"
+			fCS, err = fSys.Create(fnCS)
 			msg.FatalOnErr(err)
-		}()
+			defer func() {
+				err = fC.Close()
+				msg.FatalOnErr(err)
+				err = fH.Close()
+				msg.FatalOnErr(err)
+				err = fCS.Close()
+				msg.FatalOnErr(err)
+			}()
 
-		cs, e := ilu.toCSFmtList(fnC)
-		_, err = fCS.Write(cs)
-		msg.FatalOnErr(e)
+			cs, e := ilu.toCSFmtList(fnC)
+			_, err = fCS.Write(cs)
+			msg.FatalOnErr(e)
 
-		c, e := ilu.toCFmtList(fnC)
-		_, err = fC.Write(c)
-		msg.FatalOnErr(e)
+			c, e := ilu.toCFmtList(fnC)
+			_, err = fC.Write(c)
+			msg.FatalOnErr(e)
 
-		h := []byte(`//! \file ` + fnH + `
-//! ///////////////////////////////////////////////////////////////////////////
+			h := []byte(`//! \file ` + fnH + `
+		//! ///////////////////////////////////////////////////////////////////////////
 
-//! generated code - do not edit!
+		//! generated code - do not edit!
 
-#include <stdint.h>
+		#include <stdint.h>
 
-typedef struct{
-	char* formatString;
-	uint16_t id;
-	int16_t dataLength;
-	uint8_t bitWidth;
-} triceFormatStringList_t;
+		typedef struct{
+		char* formatString;
+		uint16_t id;
+		int16_t dataLength;
+		uint8_t bitWidth;
+		} triceFormatStringList_t;
 
-extern const triceFormatStringList_t triceFormatStringList[];
-extern const unsigned triceFormatStringListElements;
+		extern const triceFormatStringList_t triceFormatStringList[];
+		extern const unsigned triceFormatStringListElements;
 
-`)
-		_, e = fH.Write(h)
-		msg.FatalOnErr(e)
-	}
+		`)
+			_, e = fH.Write(h)
+			msg.FatalOnErr(e)
+		}
+	*/
 	return
 }
 

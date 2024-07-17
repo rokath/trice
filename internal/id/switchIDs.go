@@ -26,6 +26,28 @@ type idData struct {
 	IDSpace        []TriceID       // IDSpace contains unused IDs.
 }
 
+// IDIsPartOfIDSpace returns true if ID is existend inside IDSpace.
+func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
+	for _, i := range p.IDSpace {
+		if i == id {
+			return true
+		}
+	}
+	return false
+}
+
+// removeIDFromIDSpace checks, if p.IDSpace contains id and removes it, when found.
+// When p.IDSpace does not contain id, then no action is needed.
+// Example: When -IDMin=10, -IDMax=20 and id=99 found in source.
+func (p *idData) removeIDFromIDSpace(id TriceID) {
+	for index, i := range p.IDSpace {
+		if i == id {
+			p.IDSpace[index] = p.IDSpace[len(p.IDSpace)-1] // overwrite with last
+			p.IDSpace = p.IDSpace[:len(p.IDSpace)-1]       // remove last
+		}
+	}
+}
+
 // newID returns a new, so far unused trice ID for usage.
 // The global variable SearchMethod controls the way a new ID is selected.
 func (p *idData) newID() (id TriceID) {

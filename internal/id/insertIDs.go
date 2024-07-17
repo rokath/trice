@@ -58,6 +58,18 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 	return err
 }
 
+// removeIDFromSlice searches ids for id, removes its first occurance and returns the result.
+func removeIDFromSlice(ids []TriceID, id TriceID) []TriceID {
+	for index, iD := range ids {
+		if iD == id {
+			ids[index] = ids[len(ids)-1] // copy last element to index
+			ids = ids[:len(ids)-1]       // remove last element
+			return ids
+		}
+	}
+	return ids // unchanged, if id not found inside ids
+}
+
 // insertTriceIDs does the ID insertion task on in and returns the result in out with modified==true when out != in.
 //
 // in is the read file liPath content and out is the file content which needs to be written.
@@ -85,6 +97,9 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 // - idInSourceIsZero,    trice is is inside p.triceToId                                      -> unused ID -> use ID (remove from p.triceToId)
 //   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
 func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+
+	// w = os.Stdout - for debugging only
+
 	var idn TriceID    // idn is the last found id inside the source.
 	var idN TriceID    // idN is the to be written id into the source.
 	var idS string     // idS is the "iD(n)" statement, if found.
@@ -132,7 +147,7 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 			}
 		}
 		if Verbose {
-			fmt.Fprintln(w, "Trice", t, "with ID", idn, "found in source file.")
+			fmt.Fprintln(w, "Trice", t, "with ID", idn, "found in source file", liPath, ".")
 		}
 		// Example cases are:
 		// - trice( "foo", ... );           --> idn =   0, loc[3] == loc[4]
@@ -148,9 +163,8 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 		var filenameMatch bool
 		idCandidateIndex := math.MaxInt
 		idCandidateLine := math.MaxInt
-
 		// id slice ids loop
-		for i, id := range ids { // It is also possible, that no id matches idn != 0 or ids is nil.
+		for i, id := range ids { // It is possible, that idn == 0 or no id matches idn != 0 or ids is nil.
 			if id == 0 {
 				log.Fatal("id == 0   : unexpected case")
 			}
@@ -171,12 +185,8 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 						fmt.Fprintln(w, "ID", idn, "is usable, so we simply use this ID and remove id from ids now.")
 					}
 					idN = idn
-					// remove id from ids now
-					if len(ids) == 0 {
-						delete(p.triceToId, t)
-					} else {
-						p.triceToId[t] = ids
-					}
+					ids = removeIDFromSlice(ids, idN)
+					p.triceToId[t] = ids
 				}
 				break
 			}
@@ -200,12 +210,20 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 				idCandidateIndex = i
 			}
 			if idCandidateIndex < math.MaxInt {
+				if idn == 0 { // This is the src was cleaned before case.
+					if Verbose {
+						fmt.Fprintln(w, "Even ID", id, "is maybe not part of the IDSpace, we use it again.")
+					}
+					idN = id
+					ids = removeIDFromSlice(ids, idN)
+					p.triceToId[t] = ids
+					break
+				}
 				if Verbose {
 					fmt.Fprintln(w, "ID", idn, "usable, so remove it from unused list.")
 				}
 				idN = ids[idCandidateIndex] // This gets into the source. No need to remove id from p.idToLocRef.
 				ids = removeIndex(ids, idCandidateIndex)
-
 				// remove id from ids now
 				if len(ids) == 0 {
 					delete(p.triceToId, t)
@@ -215,7 +233,6 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 				break
 			}
 		}
-
 		// If no match was found inside ids we assign the ID found in source file.
 		if idN == 0 {
 			idN = idn // It is possible, that idn is 0, for example when `TRICE( id(0), "Hi!" );` is inside src.
@@ -225,14 +242,15 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 			if Verbose {
 				fmt.Fprintln(w, "Create a new ID ", idN, " for ", t)
 			}
+		} else {
+			p.removeIDFromIDSpace(TriceID(idN)) // When an ID was found in source file, it could be part of the IDSpace, so we need to remove it to avoid double usage.
 		}
-		//idUsable:
 		p.idToTrice[idN] = t // add ID to p.idToTrice
 		a.Mutex.Unlock()
 		line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information.
 		if idN != idn {
 			if Verbose {
-				fmt.Fprintln(w, "Need to change source.", idn, " -> ", idN, " for ", t)
+				fmt.Fprintln(w, "Need to change source.", idn, " -> ", idN, " for ", t, "in file", liPath)
 			}
 			outs, delta = writeID(outs, offset, loc, t, idN)
 			offset += delta
@@ -240,7 +258,7 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 		}
 		a.Mutex.Lock()
 		if Verbose {
-			fmt.Fprintln(w, "Add to new location information.")
+			fmt.Fprintln(w, "Add to new location information. ID:", idN, liPath, line)
 		}
 		p.idToLocNew[idN] = TriceLI{liPath, line}
 		a.Mutex.Unlock()

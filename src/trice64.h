@@ -4,19 +4,19 @@
 
 #define TRICE64(  tid, fmt, ...) TRICE_CONCAT2(TRICE64_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
-#ifdef TRICE_CLEAN
+#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define trice64( fmt, ...)
 #define Trice64( fmt, ...)
 #define TRice64( fmt, ...)
 
-#else // #ifdef TRICE_CLEAN
+#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define trice64(  tid, fmt, ...) TRICE_CONCAT2(trice64_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define Trice64(  tid, fmt, ...) TRICE_CONCAT2(Trice64_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define TRice64(  tid, fmt, ...) TRICE_CONCAT2(TRice64_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
-#endif // #else // #ifdef TRICE_CLEAN
+#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 //!TRICE64_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //! It is usable for showing n 64-bit values.
@@ -303,7 +303,7 @@
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#ifdef TRICE_CLEAN
+#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define trice64_0( fmt )                                                   //!< trice64_1 is a macro calling a function to reduce code size.
 #define trice64_1( fmt, v0 )                                               //!< trice64_1 is a macro calling a function to reduce code size.
@@ -319,7 +319,7 @@
 #define trice64_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 )      //!< trice64_11 is a macro calling a function to reduce code size.
 #define trice64_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice64_12 is a macro calling a function to reduce code size.
 
-#else // #ifdef TRICE_CLEAN
+#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define trice64_0( tid,  fmt ) trice64fn_0( tid ) //!< trice64_1 is a macro calling a function to reduce code size.
 #define trice64_1( tid,  fmt, v0 ) trice64fn_1( tid,  (uint64_t)(v0) ) //!< trice64_1 is a macro calling a function to reduce code size.
@@ -349,7 +349,7 @@ void trice64fn_10( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 void trice64fn_11( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
 
-#endif // #else // #ifdef TRICE_CLEAN
+#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define Trice64m_0( tid ) \
     TRICE_ENTER \
@@ -455,7 +455,7 @@ void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#ifdef TRICE_CLEAN
+#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define Trice64_0( fmt )                                                   //!< Trice64_1 is a macro calling a function to reduce code size.
 #define Trice64_1( fmt, v0 )                                               //!< Trice64_1 is a macro calling a function to reduce code size.
@@ -471,7 +471,7 @@ void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define Trice64_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 )      //!< Trice64_11 is a macro calling a function to reduce code size.
 #define Trice64_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice64_12 is a macro calling a function to reduce code size.
 
-#else // #ifdef TRICE_CLEAN
+#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define Trice64_0( tid,  fmt ) Trice64fn_0( tid ) //!< Trice64_0 is a macro calling a function to reduce code size.
 #define Trice64_1( tid,  fmt, v0 ) Trice64fn_1( tid,  (uint64_t)(v0) ) //!< Trice64_1 is a macro calling a function to reduce code size.
@@ -501,7 +501,7 @@ void Trice64fn_10( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 void Trice64fn_11( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
 
-#endif // #else // #ifdef TRICE_CLEAN
+#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 //! TRice64m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
@@ -612,7 +612,7 @@ void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#ifdef TRICE_CLEAN
+#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define TRice64_0( fmt )                                                   //!< TRice64_1 is a macro calling a function to reduce code size.
 #define TRice64_1( fmt, v0 )                                               //!< TRice64_1 is a macro calling a function to reduce code size.
@@ -628,7 +628,7 @@ void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define TRice64_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 )      //!< TRice64_11 is a macro calling a function to reduce code size.
 #define TRice64_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice64_12 is a macro calling a function to reduce code size.
 
-#else // #ifdef TRICE_CLEAN
+#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define TRice64_0( tid,  fmt ) TRice64fn_0( tid ) //!< TRice64_0 is a macro calling a function to reduce code size.
 #define TRice64_1( tid,  fmt, v0 ) TRice64fn_1( tid,  (uint64_t)(v0) ) //!< TRice64_1 is a macro calling a function to reduce code size.
@@ -658,7 +658,7 @@ void TRice64fn_10( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 void TRice64fn_11( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
 
-#endif // #else // #ifdef TRICE_CLEAN
+#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 ///////////////////////////////////////////////////////////////////////////////
 //

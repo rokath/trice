@@ -553,19 +553,19 @@ unsigned TriceOutDepthUartB( void );
 //! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of TRICE_COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
 #define TRICE( tid, fmt, ...) TRICE_CONCAT2(TRICE_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
-#ifdef TRICE_CLEAN
+#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define TRice( fmt, ...)
 #define Trice( fmt, ...)
 #define trice( fmt, ...)
 
-#else // #ifdef TRICE_CLEAN
+#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define TRice( tid, fmt, ...) TRICE_CONCAT2(TRice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define Trice( tid, fmt, ...) TRICE_CONCAT2(Trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define trice( tid, fmt, ...) TRICE_CONCAT2(trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
-#endif // #else // #ifdef TRICE_CLEAN
+#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -718,19 +718,19 @@ static inline uint64_t aDouble( double x ){
     TRICE_ENTER tid; TRICE_CNTC(0); \
     TRICE_LEAVE
 
-#ifdef TRICE_CLEAN
+#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 TRICE_INLINE void TRice0( const char * pFmt ){}
 TRICE_INLINE void Trice0( const char * pFmt ){}
 TRICE_INLINE void trice0( const char * pFmt ){}
 
-#else // #ifdef TRICE_CLEAN
+#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 TRICE_INLINE void TRice0( uint16_t tid, const char * pFmt ){ TRice32m_0( tid ); }
 TRICE_INLINE void Trice0( uint16_t tid, const char * pFmt ){ Trice32m_0( tid ); }
 TRICE_INLINE void trice0( uint16_t tid, const char * pFmt ){ trice32m_0( tid ); }
 
-#endif // #else // #ifdef TRICE_CLEAN
+#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
@@ -754,7 +754,7 @@ TRICE_INLINE void trice0( uint16_t tid, const char * pFmt ){ trice32m_0( tid ); 
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
-#ifdef TRICE_CLEAN
+#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){}
 TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){}
@@ -764,7 +764,7 @@ TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){}
 TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){}
 TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){}
 
-#else // #ifdef TRICE_CLEAN
+#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 void triceAssertTrue( int idN, char* msg, int flag );
 void TriceAssertTrue( int idN, char* msg, int flag );
@@ -774,7 +774,7 @@ void triceAssertFalse( int idN, char* msg, int flag );
 void TriceAssertFalse( int idN, char* msg, int flag );
 void TRiceAssertFalse( int idN, char* msg, int flag );
 
-#endif // #else // #ifdef TRICE_CLEAN
+#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 typedef void (*Write8AuxiliaryFn_t)( const uint8_t * enc, size_t encLen );
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;
