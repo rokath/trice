@@ -569,6 +569,7 @@ sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|
 #	reported and just zeroed inside the source files. The existing li.json is not used. A new li.json is generated in place. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
+#   In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -620,8 +621,11 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
 #	reported and just cleaned inside the source files. The existing li.json is not used. A new li.json is generated in place. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
-#	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs,
-#	EXPERIMENTAL! if macro TRICE_CLEAN is not defined before "#include "trice.h". For that a good idea is needed.
+#	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs.
+#	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressable.
+#   EXPERIMENTAL! The user needs then to set "#define TRICE_CLEAN 0" inside "triceConfig.h" after "trice insert" manually before compiling.
+#   EXPERIMENTAL! That could be automated, but right now not sure about maybe unwanted implications. So we do not touch it currently.
+#   In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice cleanSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
