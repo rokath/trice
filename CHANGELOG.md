@@ -1,7 +1,24 @@
-# Changelog
+<!-- vscode-markdown-toc -->
+- [1. v0.60.1 Twice Log Screen Shot](#1-v0601-twice-log-screen-shot)
+- [2. v0.56.0 Changes](#2-v0560-changes)
+  - [2.1. Legacy `TRICE*` macros](#21-legacy-trice-macros)
+  - [2.2. Function call macros `TRice`, `Trice` and `trice`](#22-function-call-macros-trice-trice-and-trice)
+  - [2.3. Common improvements](#23-common-improvements)
+  - [2.4. CLI changes](#24-cli-changes)
+  - [2.5. Changes under the hood](#25-changes-under-the-hood)
+- [3. v063. Changes](#3-v063-changes)
+- [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc --># Changelog
+
+
 
 date        | version | comment
-------------|--------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------|--------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 2020-02-11  |     0.1 | initial version
 2020-02-14  |     0.2 | SHORT_MEMORY switch added
 2020-02-18  |     0.3 | C macros renamed into TRICE
@@ -45,18 +62,19 @@ date        | version | comment
 2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.
 2023-SEP-10 |  0.62.2 | Fixes issue [#427](https://github.com/rokath/trice/issues/427). TCOBS decoder more robust against data garbage.
 2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.
-2024-Mar-17 |  0.63.0 | Issue [#436](https://github.com/rokath/trice/issues/436) done (faster now). Issue [#438](https://github.com/rokath/trice/issues/438) done (minor). Issue [#439](https://github.com/rokath/trice/issues/439) done (no more trice macros inside header files). Now unified `__restrict` keyword. `RESTRICT` keyword removed and `#include <stdint.h>` into all **triceConfig.h** files. Obsolete 'RESTRICT' code removed. Code cleanup, tests now ok with `-race`. **Added: `triceAssertTrue` and `triceAssertFalse`**. CLI switch `-d16` better documented. **`UserNonBlockingDirectWrite8AuxiliaryFn` and `UserNonBlockingDeferredWrite8AuxiliaryFn` invented for a cleaner auxiliary interface adaption**. Doc updated in `TriceUserGuide.md`, `TriceVsPrintfSimilaritiesAndDifferences.md`, `TriceTargetCode.md`, `TriceColor.md` and preface extended. Folder `examples` fixed. Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
+2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#3-v063-changes)
+2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
 
-## v0.60.1 Twice Log Screen Shot
+##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
 - Please look at the used command lines carefully, expecially the `-d16` switch
 
 ![x](./docs/ref/v0.60.1TwiceLog.png)
-## v0.56.0 Changes
+##  2. <a name='v0.56.0Changes'></a>v0.56.0 Changes
 
 This is a major release hopefully not breaking too much!
 
-### Legacy `TRICE*` macros
+###  2.1. <a name='LegacyTRICEmacros'></a>Legacy `TRICE*` macros
 
 * Using the `TRICE*` macros generally is not recommended anymore, but they are still supported.
 * `TRICE*` macros with an `Id(n)` inside are now with 16-bit stamps. To have 32-bit stamps use `ID(n)` instead and `id(n)` is for no stamps. The ID numbers can stay the same.
@@ -64,7 +82,7 @@ This is a major release hopefully not breaking too much!
 * The very little time advantage of code inlining will not count in most cases.
 * The `TRICE_*` macros, like `TRICE_S` are still needed.
 
-### Function call macros `TRice`, `Trice` and `trice`
+###  2.2. <a name='FunctioncallmacrosTRiceTriceandtrice'></a>Function call macros `TRice`, `Trice` and `trice`
 
 * `TRice*` macros insert a 32-bit stamp.
 * `Trice*` macros insert a 16-bit stamp.
@@ -77,7 +95,7 @@ This is a major release hopefully not breaking too much!
 * The `*64` macro extensions are usable for 64-bit values, like `double`.
 * See `test\testdata\triceCheck.c` for examples.
 
-### Common improvements
+###  2.3. <a name='Commonimprovements'></a>Common improvements
 
 - Target time stamps now better formatted, Default is `µs`, `ms` is selectable.
 - A new document TriceConfigProjectImageSizeOptimization.md was written.
@@ -87,7 +105,7 @@ This is a major release hopefully not breaking too much!
 - `triceConfig.h` was heavily restructured.
 - Target code split in several files now, but only `trice.c` needs to be added to the target project.
 
-### CLI changes
+###  2.4. <a name='CLIchanges'></a>CLI changes
 
 - `ts` ist now target stamp. Host stamps are switchable with `-hs`.
 - `-packageFraming` is new.
@@ -95,7 +113,8 @@ This is a major release hopefully not breaking too much!
 - `li off` is now possible.
 - `trice s` now shows if a port is used already.
 - `my/path/auto` now possible with log files.
-### Changes under the hood
+
+###  2.5. <a name='Changesunderthehood'></a>Changes under the hood
 
 * MemFs `afero.Afero` is used now, what is for better tests.
 * A `til.json.c|h` is generated when `trice u` is called with `-v` switch.
@@ -106,3 +125,76 @@ This is a major release hopefully not breaking too much!
 * `cobs` & `tcobs` now external packages.
 * False positive windows vet warning removed.
 * Endianness updated and tested.
+
+##  3. <a name='v063.Changes'></a>v063. Changes
+
+- Issue [#436](https://github.com/rokath/trice/issues/436) done (faster now).
+- Issue [#438](https://github.com/rokath/trice/issues/438) done (minor). 
+- Issue [#439](https://github.com/rokath/trice/issues/439) done (no more trice macros inside header files).
+- Now unified `__restrict` keyword. `RESTRICT` keyword removed and `#include <stdint.h>` into all **triceConfig.h** files. Obsolete 'RESTRICT' code removed.
+- Code cleanup, tests now ok with `-race`. **Added: `triceAssertTrue` and `triceAssertFalse`**.
+- CLI switch `-d16` better documented. 
+- **`UserNonBlockingDirectWrite8AuxiliaryFn` and `UserNonBlockingDeferredWrite8AuxiliaryFn` invented for a cleaner auxiliary interface adaption**.
+- Doc updated in `TriceUserGuide.md`, `TriceVsPrintfSimilaritiesAndDifferences.md`, `TriceTargetCode.md`, `TriceColor.md` and preface extended. 
+- Folder `examples` fixed. 
+- Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
+- Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
+
+##  4. <a name='v0.64.0Changesunsorted'></a>v0.64.0 Changes (unsorted)
+
+- additional configuration checks 
+- TriceNonBlockingDirectWrite re-coded 
+- auxiliary output 32bit support
+- example projects folder re-worked
+- According issue #456 inside trice.h some renaming to avoid name clashes with other libraries. Only ID, Id, id and iD stayed the same for user code readability and compability.
+- BuildInfo added to self-compiled Trice compiled binary.
+- CGO test dokumentation extended.
+- CYCLE error now with sound in Trice tool.
+- Chapter "Trice Limitations" re-worked.
+- FreeRTOS example added
+- Merge pull request #454 from hugobpontes/master
+- More checks for dynamic strings
+- More descriptive  error  messages when running out of IDs
+- Naming for TRICE_DEFERRED_TRANSFER_MODE improved
+- New test cases added
+- Now only one common TriceEncode Function. (Code clean-up)
+- Overflow checks successful
+- SEGGER_RTT_32BIT now also with framing possible
+- TRICE_CONFIG_WARNINGS switch added
+- TRICE_PROTECT test added
+- TRICE_PROTRCT switch added
+- TriceEnoughSpace() better commented for ring buffer.
+- TriceEnoughSpace() corrected and commented for ring buffer.
+- TriceOvewrflowCount added as diagnostics value
+- Undefine ID, Id, id, iD at the trice.h start to avoid name clashes just in case a previous header file used them (see issue #456)
+- Update README.md
+- Update TriceUserGuide.md
+- Update cgo_test.go
+- Update trice.c
+- Update triceConfig.h
+- triceDefaultConfig.h file added. 
+- additional configuration checks
+- additional id processing methods
+- additional test cases
+- automated tests now with all test lines
+- automatic tests extended and adapted
+- code cleanup, formatting, comments updated
+- cycle error message compacted
+- dead code removed
+- Test for double buffer multi packaging now ok with encryption
+- encryption code improved
+- test folder names adapted to pattern
+- example folder names unified
+- full build info displayed (only) with *trice version  -verbose*
+- improved id management and testing
+- "no package framing" fix
+- trice configuration switches added
+- triceAsssertTrue and triceAssertFalse are now covered by TRICE_CLEAN too.
+- triceDefaultConfig.h eases settings now
+- "simulated" UART 
+- Most config switches with 0 or 1 only (removed #ifdef) 
+- +triceUart.c (User provides triceUart.h)
+- better id procesing
+- compiler switches variants
+- improved id testing
+- triceDefaultConfig.h

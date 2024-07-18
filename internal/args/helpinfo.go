@@ -128,9 +128,9 @@ func cleanIDsInfo(w io.Writer) error {
 #	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
 #	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs.
 #	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressable.
-#   EXPERIMENTAL! The user needs then to set "#define TRICE_CLEAN 0" inside "triceConfig.h" after "trice insert" manually before compiling.
-#   EXPERIMENTAL! That could be automated, but right now not sure about maybe unwanted implications. So we do not touch it currently.
-#   In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"`)
+#	EXPERIMENTAL! The user needs then to set "#define TRICE_CLEAN 0" inside "triceConfig.h" after "trice insert" manually before compiling.
+#	EXPERIMENTAL! That could be automated, but right now not sure about maybe unwanted implications. So we do not touch it currently.
+#	In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"`)
 	fsScClean.SetOutput(w)
 	fsScClean.PrintDefaults()
 	return e
@@ -142,7 +142,7 @@ func zeroIDsInfo(w io.Writer) error {
 #	reported and just zeroed inside the source files. The existing li.json is not used. A new li.json is generated in place. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
-#   In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"`)
+#	In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"`)
 	fsScZero.SetOutput(w)
 	fsScZero.PrintDefaults()
 	return e
