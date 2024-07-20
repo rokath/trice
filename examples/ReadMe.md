@@ -9,18 +9,18 @@
 | Project Name | Description |
 | - | - |
 |||
-| [F030R8_gen](./F030R8_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030R8_inst](./examples/F030R8_inst) so see quickly the needed instrumentation steps you need for your own project. |
-| [F030R8_inst](./examples/F030R8_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+| [F030R8_gen](./F030R8_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030R8_inst](./F030R8_inst) so see quickly the needed instrumentation steps you need for your own project. |
+| [F030R8_inst](./F030R8_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030R8_gen](./F030R8_gen) to see quickly how to instrument your project. |
 |||
-| [G0B1_gen](./examples/G0B1_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
-| [G0B1_inst](./examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+| [G0B1_gen](./G0B1_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [G0B1_inst](./G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
 |||
-| [L432KC_gen](./examples/L432KC_gen) | This is a minimal STM32CubeMX generated Makefile project. |
-| [L432KC_gen_ad_toClang](./examples/L432KC_gen_ad_toClang) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
-| [L432KC_gen_ad_toClang_ed](./examples/L432KC_gen_ad_toClang_ed) | This is a minimal STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432KC_gen_ad_toClang_ed_instr](./examples/L432KC_gen_ad_toClang_ed_instr) project is then a next step performable. |
+| [L432KC_gen](./L432KC_gen) | This is a minimal STM32CubeMX generated Makefile project. |
+| [L432KC_gen_ad_toClang](./L432KC_gen_ad_toClang) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [L432KC_gen_ad_toClang_ed](./L432KC_gen_ad_toClang_ed) | This is a minimal STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432KC_gen_ad_toClang_ed_instr](./L432KC_gen_ad_toClang_ed_instr) project is then a next step performable. |
 | [L432KC_gen_ad_toClang_ed_instr](./L432KC_gen_ad_toClang_ed_instr) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
 |||
-| [OpenCM3_STM32F411_Nucleo](./examples/OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./examples/OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
+| [OpenCM3_STM32F411_Nucleo](./OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
 |||
 
 ## Important to know
@@ -35,7 +35,7 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
 
 ## Setup PC
 
-Setting up a PC is for for Linux mostly straightforward but Windows PCs are more problematic. The steps shown here are just one example.
+Setting up a PC is for Linux mostly straightforward but Windows PCs are more problematic. The steps shown here are just one example.
 
 - Create folder `repos` in your home directory.
   - Clone all repositories here.
@@ -51,6 +51,7 @@ Setting up a PC is for for Linux mostly straightforward but Windows PCs are more
 - Install Go if you wish to compile Go programs.
   - Install latest [TDM GCC](https://jmeubank.github.io/tdm-gcc/download/).
     - TDM GCC is needed only if you wish to use CGO as well.
+    - If you just want compile the Trice tool TDM GCC is not needed. But for performing all tests it is nessecary.
 - Setup J-Link if you use this debug probe as hardware or software (see below).
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
 - Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
@@ -58,7 +59,7 @@ Setting up a PC is for for Linux mostly straightforward but Windows PCs are more
 ### Setup Trice
 
 - from inside folder `repos` clone trice repo with `git clone https://github.com/rokath/trice.git`.
-- Run `go install ./...` from folder `repos/trice`.
+- Run `go install ./cmd/trice/...` from folder `repos/trice`.
 
 OR
 
@@ -206,6 +207,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
 - Download file [`./STM32G0B1.svd`](./STM32G0B1.svd) from https://www.st.com/resource/en/svd/stm32G0_svd.zip (example)
   - Alternatively copy it from `"C:\ST\STM32CubeIDE_1.13.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.productdb.debug_2.1.0.202306151215\resources\cmsis\STMicroelectronics_CMSIS_SVD\STM32G0B1.svd"` if you have the STM32CubeIDE installed.
   - Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
+- Installing the **Cortex Debug** extension allow you to debug the target code.
 
 ## Makefile with Clang too
 
