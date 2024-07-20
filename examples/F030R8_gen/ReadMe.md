@@ -1,6 +1,6 @@
-# Empty example vsCode_NucleoF030R8_generated
+# Example F030R8_gen
 
-This is a STMCubeMX generated project without TRICE instrumentation for easy compare with [../vsCode_NucleoF030R8_instrumented](../vsCode_NucleoF030R8_instrumented) to figure out the needed changes to set up trice.
+This is a STMCubeMX generated project without TRICE instrumentation for easy compare with [../F030R8_inst](../F030R8_inst) to figure out the needed changes to set up trice.
 
 ## Steps performed as potential guide
 
@@ -73,3 +73,8 @@ PS E:\repos\trice\examples\vsCode_NucleoF030R8_generated>
 - It is assumed, that you converted the OB ST-Link to an OB J-Link already. See *trice/docs/TRICEOverRTT.md#J-Linkoption* for details.
 
 - Press the Debug-Button or "CTRL+SHIFT+D" and start debugging.
+
+## Hint
+
+- During the code generation, the CubeMX tool did not copy `syscalls.c` and `sysmem.c` but added them to the Makefile. This seems to be a STM32CubeMX "feature".
+  - You do not need these files for the example project, but you can add them manually to avoid some warnings.
