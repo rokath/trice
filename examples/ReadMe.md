@@ -9,18 +9,18 @@
 | Project Name | Description |
 | - | - |
 |||
-| [F030R8_gen](./F030R8_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030R8_inst](./F030R8_inst) so see quickly the needed instrumentation steps you need for your own project. |
-| [F030R8_inst](./F030R8_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+| [F030R8_gen](./examples/F030R8_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030R8_inst](./examples/F030R8_inst) so see quickly the needed instrumentation steps you need for your own project. |
+| [F030R8_inst](./examples/F030R8_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
 |||
-| [G0B1_gen](./G0B1_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
-| [G0B1_inst](./G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+| [G0B1_gen](./examples/G0B1_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [G0B1_inst](./examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
 |||
-| [L432KC_gen](./L432KC_gen) | This is a minimal STM32CubeMX generated Makefile project. |
-| [L432KC_gen_ad_toClang](./L432KC_gen_ad_toClang) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
-| [L432KC_gen_ad_toClang_ed](./L432KC_gen_ad_toClang_ed) | This is a minimal STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432KC_gen_ad_toClang_ed_instr](./L432KC_gen_ad_toClang_ed_instr) project is then a next step performable. |
+| [L432KC_gen](./examples/L432KC_gen) | This is a minimal STM32CubeMX generated Makefile project. |
+| [L432KC_gen_ad_toClang](./examples/L432KC_gen_ad_toClang) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [L432KC_gen_ad_toClang_ed](./examples/L432KC_gen_ad_toClang_ed) | This is a minimal STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432KC_gen_ad_toClang_ed_instr](./examples/L432KC_gen_ad_toClang_ed_instr) project is then a next step performable. |
 | [L432KC_gen_ad_toClang_ed_instr](./L432KC_gen_ad_toClang_ed_instr) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
 |||
-| [OpenCM3_STM32F411_Nucleo](./OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
+| [OpenCM3_STM32F411_Nucleo](./examples/OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./examples/OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
 |||
 
 ## Important to know
