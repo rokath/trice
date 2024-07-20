@@ -6,7 +6,6 @@ export PATH := C:\bin\ArmClang\bin:$(PATH)
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
 export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
 
-
 MAKEFILE = Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
 VERBOSE = # -v
 
@@ -21,7 +20,6 @@ TARGET = G0B1
 ######################################
 # debug build?
 DEBUG = 1
-
 
 
 ######################################
@@ -111,33 +109,13 @@ include flags.mak
 .PHONY: all gcc clean
 .SECONDARY: main-build
 
-all: pre-build main-build
-
-pre-build:
-	@#echo PRE ...
-	@#echo PRE ... done
-	@#echo -e
-
-post-build:
-	@#echo POST ...
-	@#echo POST ... done
-	@#echo -e
-
-main-build: clang
+all: clang
 
 clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
-	@$(MAKE) --no-print-directory post-build
+	@:
 
 gcc:     $(GCC_BUILD)/$(TARGET).elf   $(GCC_BUILD)/$(TARGET).hex   $(GCC_BUILD)/$(TARGET).bin
-	@$(MAKE) --no-print-directory post-build
-
-#all:      gcc clang
-#	@ls -l build/*.o
-#	@ls -l build/$(TARGET).*
-#	@ls -l $(GCC_OBJECTS) 
-#	@ls -l $(GCC_BUILD)/$(TARGET).*
-#	@ls -l $(CLANG_OBJECTS)
-#	@ls -l $(CLANG_BUILD)/$(TARGET).*
+	@:
 
 #######################################
 # build the application
