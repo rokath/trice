@@ -14,11 +14,9 @@ All folders despite `testdata` are test folders and the name `tf` is used as a p
 
 To exclude a specific folder temporary, simply rename it to start with an underscore `_tf`.
 
-The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c.txt](./testdata/triceCheck.c.txt) is the master file for editing. After changing it, [./updateTestData.sh](./updateTestData.sh) needs to run. It copies [./testdata/triceCheck.c.txt](./testdata/triceCheck.c.txt) into [./testdata/triceCheck.c](./testdata/triceCheck.c) and runs `trice insert` on it, updating [./testdata/til.json](./testdata/til.json). It then distributes some file copies.
+The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](./testdata/triceCheck.c) is the master file for editing. After changing it, [./updateTestData.sh](./updateTestData.sh) needs to run. It runs `trice insert` updating [./testdata/til.json](./testdata/til.json).
 
 To be able to run `go test ./...` successfully without running the [./updateTestData.sh](./updateTestData.sh) script in advance, the script action results are checked in as well. That implies that [./testdata/triceCheck.c](./testdata/triceCheck.c) goes with IDs into the repo.
-
-> An alternative would be to copy [./testdata/triceCheck.c.txt](./testdata/triceCheck.c.txt) as `triceCheck.c` to all test folders (without IDs) and to use TestMain() in each test folder to insert and remove the IDs around the test, having individual `til.json` and `li.json` files as well. That would avoid checked-in IDs but increase the data and slow down the tests without any need.
 
 [./testdata/cgoPackage.go](./testdata/cgoPackage.go) is the common master for the `generated_cgoPackage.go` files and contains the common test code. 
 
@@ -32,16 +30,18 @@ The individual tests collect the expected results (`//exp: result`) together wit
 
 The whole process is relatively slow because of the often passed Go - C barrier, but allows automated tests in many different configuration variants.
 
-The `testdata\cgoPackage.go` file contains a variable `testLines = 20`, which limits the amount of performed trices for each test case. Changing this value will heavily influence the test duration. The value `-1` is reserved for testing all test lines.
+The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which limits the amount of performed trices for each test case to `n`. Changing this value will heavily influence the test duration. The value `-1` is reserved for testing all test lines.
 
 ## How to add new test cases
 
 - Choose a test folder similar to the intended test and copy it under a new descriptive name like `newTest`.
 - Extend file `testdata/updateTestData.sh` accordingly.
 - Edit files `newTest/triceConfig.h` and `newTest/cgo_test.go` in a matching way.
-- Run command `go test test/newTest`
+- Run command `go test test/newTest/...`
 
 ## Test Internals
+
+The `./trice/test/testdata/*.c` and `./trice/src/*.c` are compiled together with the actual cgot package into one singe Trice test binary. Calling its TestFunction(s) causes the activation of the Trice statement(s) inside *triceCheck.c*. The ususally into an embedded device compiled Trice code generates a few bytes according to the configuration into a buffer. These bytes are transmitted in real life over a (serial) port or RTT. In the test this buffer is then read out by the Trice tool handler function according to the used CLI switches and processed to a log string using the *til.json* file. This string in then compared to the expected string for the activated line.
 
 Each `tf` is a **Go** package, which is not part of any **Go** application. They all named `cgot` and are only used independently for testing different configurations. The `tf/generated_cgoPackage.go` file is identical in all `tf`. Its master is `testdata/cgoPackage.go`. After editing the master, running the command `./updateTestData.sh` copies the master to all `tf` and renames it to `generated_cgoPackage.go`.
 
@@ -63,25 +63,25 @@ Because each test runs a different configuration, all possible combinations are 
 
 ### Folder Naming Convention
 
-| Folder Name Part | Meaning                                                                                                 |
-|:----------------:|---------------------------------------------------------------------------------------------------------|
-|    `testdata`    | This is no test folder. It contains data common to all tests.                                           |
-|      `_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.                    |
-|      `_di_`      | direct mode                                                                                             |
-|      `_de_`      | deferred mode                                                                                           |
-|    `staticB_`    | static buffer, direct mode only possible                                                                |
-|    `stackB_`     | static buffer, direct mode only possible                                                                |
-|     `ringB_`     | ring buffer, deferred mode and optional parallel direct mode                     |
-|     `dblB_`      | double buffer, deferred mode and optional parallel direct mode                                                                                           |
-|     `_rtt8_`     | (simulated) SEGGER_RTT byte transfer                                                                    |
-|    `_rtt32_`     | (simulated) SEGGER_RTT word transfer                                                                    |
-|       `__`       | direct and deferred mode together                                                                       |
-|     `_xtea_`     | with encryption, otherwise without encryption                                                           |
-|     `_tcobs`     | TCOBS package framing                                                                                   |
-|     `_cobs`      | COBS package framing                                                                                    |
-|     `_nopf`      | no package framing                                                                                      |
-|    `_multi_`     | Usually each Trice is handled separately. In multi mode groups of available Trices are framed together. |
-| `_ua` | simulated UART A output (for deferred modes) |
+| Folder Name Part | Meaning                                                                                                  |
+|:----------------:|----------------------------------------------------------------------------------------------------------|
+|    `testdata`    | This is no test folder. It contains data common to all tests.                                            |
+|      `_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.                     |
+|      `_di_`      | direct mode                                                                                              |
+|      `_de_`      | deferred mode                                                                                            |
+|    `staticB_`    | static buffer, direct mode only possible                                                                 |
+|    `stackB_`     | stakkc buffer, direct mode only possible                                                                 |
+|     `ringB_`     | ring buffer, deferred mode and optional parallel direct mode                                             |
+|     `dblB_`      | double buffer, deferred mode and optional parallel direct mode                                           |
+|     `_rtt8_`     | (simulated) SEGGER_RTT byte transfer                                                                     |
+|    `_rtt32_`     | (simulated) SEGGER_RTT word transfer                                                                     |
+|       `__`       | direct and deferred mode together                                                                        |
+|     `_xtea_`     | with encryption, otherwise without encryption                                                            |
+|     `_tcobs`     | TCOBS package framing                                                                                    |
+|     `_cobs`      | COBS package framing                                                                                     |
+|     `_nopf`      | no package framing                                                                                       |
+|    `_multi_`     | Usually each Trice is handled separately. In multi mode, groups of available Trices are framed together. |
+|      `_ua`       | simulated UART A output (for deferred modes)                                                             |
 
 # Test Issues
 
