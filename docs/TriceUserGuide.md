@@ -43,7 +43,7 @@
   - [8. *Trice* command line examples](#8-trice-command-line-examples)
     - [8.1. Common information](#81-common-information)
     - [8.2. Further examples](#82-further-examples)
-      - [8.2.1. Automated pre-build update command example](#821-automated-pre-build-update-command-example)
+      - [8.2.1. Automated pre-build insert command example](#821-automated-pre-build-insert-command-example)
       - [8.2.2. Some Log examples](#822-some-log-examples)
       - [8.2.3. Logging over a display server](#823-logging-over-a-display-server)
       - [8.2.4. Logfile output](#824-logfile-output)
@@ -105,7 +105,7 @@
     - [21.2. Aims](#212-aims)
     - [21.3. Method](#213-method)
       - [21.3.1. `insert` Initialization](#2131-insert-initialization)
-    - [21.4. User Code Patching (`trice update`)](#214-user-code-patching-trice-update)
+    - [21.4. User Code Patching (`trice insert`)](#214-user-code-patching-trice-insert)
     - [21.5. User Code Patching Examples](#215-user-code-patching-examples)
     - [21.6. User Code Un-Patching](#216-user-code-un-patching)
     - [21.7. ID Usage Options](#217-id-usage-options)
@@ -167,7 +167,7 @@ int tryIt( void ){
 }
 ```
 
-You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`.
+You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Avoid stings, float and double numbers in the very first try - see [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for details.)
 
 - Create 2 empty files `til.json` and `li.json`.
 - Run `trice insert` and the trice code line changes to `trice( iD(1234), "Hello! 👋🙂\a\n" );`.
@@ -175,6 +175,8 @@ You can also edit any of your existing project files accordingly. Just replace a
 - Run `trice clean` and the trice code line changes back to `trice( "Hello! 👋🙂\a\n" );`.
 
 You can use `trice i|insert` as pre- and `trice c|clean` as post-compile step, to not spoil your source code with IDs. Or, use `trice i` in a post-checkout and `trice c` in a pre-check-in script to keep the repository clean. Using only `trice i` as pre-compile step is possible too, especially when the code is used just in a single project and you wish to have it as compiled.
+
+When using Trice in libraries for several projects, it may make sense to check-in the libraries with IDs and to use a dedicated ID space for them. See [../test/testdata/triceCheck.c](../test/testdata/triceCheck.c) as an example - especially when building several projects parallel.
 
 ###  2.4. <a name='UseIt'></a>Use It
 
@@ -197,10 +199,11 @@ You can use `trice i|insert` as pre- and `trice c|clean` as post-compile step, t
     - Hint: It is possible to add `trice c ...` or `trice z ...`  as a post-compile step, so that you can check in your project sources without IDs. That is supported in v0.61.0 and later. This allows to use library sources with trices in different projects and the source code is not spoiled with IDs.
 - `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
 - `trice` is compiler agnostic - it should work with any compiler. 
-- The ARM µVision MDK is free downloadable and free usable for STM M0/M0+ MCUs, like the [`./examples/MDK-ARM_STM32F030R8_instrumented`](../examples/MDK-ARM_STM32F030R8_instrumented) project.
-  - Even if you do not have such hardware, you can download ARM µVision MDK and compile the [`./examples/MDK-ARM_STM32F030R8instrumented`](../examples/MDK-ARM_STM32F030R8_instrumented) project just to get started.
-  - When adding or modifying `trice` macros inside [./examples/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
+- The vsCode is free downloadable and free usable, like the [`./examples/F030R8_inst`](../examples/F030R8_inst) project.
+  - Even if you do not have such hardware, you can download ARM µVision MDK and compile the [`./examples/F030R8`](../examples/F030R8) project just to get started.
+  - When adding or modifying `trice` macros inside [./examples/F030R8_inst/Core/Src/main.c](../examples/F030R8_inst/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
 - The test folder contains also vsCode Makefile projects as examples.
+- You can use Trice also inside header files but when running `trice insert` as pre- and `trice clean` as post-compile step, all files including these headers will be re-compiled every time, what may be too time consuming.
   
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -210,55 +213,27 @@ _Hint:_ The easiest way is to use SEGGER J-Link with RTT as output. Setting up U
 
 Compare folders of one of these folder groups:
 
-| Without Instrumentation                                                                   | With Trice Instrumentation                                                                      |
-|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| [`./examples/MDK-ARM_STM32F030R8_generated`](../examples/MDK-ARM_STM32F030R8_generated)   | [`./examples/MDK-ARM_STM32F030R8_instrumented`](../examples/MDK-ARM_STM32F030R8_instrumented)   |
-| [`./examples/vsCode_Nucleo-G0B1_generated`](../examples/vsCode_Nucleo-G0B1_generated)     | [`./examples/vsCode_Nucleo-G0B1_instrumented`](../examples/vsCode_Nucleo-G0B1_instrumented)     |
-| [`./examples/vsCode_Nucleo-L432KC_generated`](../examples/vsCode_Nucleo-L432KC_generated) | [`./examples/vsCode_Nucleo-L432KC_instrumented`](../examples/vsCode_Nucleo-L432KC_instrumented) |
+| Without Instrumentation                                                       | With Trice Instrumentation                                                                |
+|-------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| [`./examples/F030R8_gen`](../examples/F030R8_gen)                             | [`./examples/F030R8_inst`](../examples/F030R8_inst)                                       |
+| [`./examples/G0B1_gen`](../examples/G0B1_gen)                                 | [`./examples/G0B1_inst`](../examples/G0B1_inst)                                           |
+| [`./examples/L432KC_gen_ad_toClang_ed`](../examples/L432KC_gen_ad_toClang_ed) | [`./examples/L432KC_gen_ad_toClang_ed_instr`](../examples/L432KC_gen_ad_toClang_ed_instr) |
 
 This way you see in a quick way any needed adaptions for your target project to port trice to it.
 
-- Project [`./examples/Nucleo-STM32L432KC_generated`](../examples/Nucleo-STM32L432KC_generated) was first the result of a STM32CubeMX generation.
-- Then it was edited to make it comfortable usable with VS-Code. See the [ReadMe.md](../examples/ReadMe.md) there for details.
-- To compile also with CLang [`./examples/Nucleo-STM32L432KC_generated`](../examples/Nucleo-STM32L432KC_generated) was used to manually derive project [`./examples/vsCode_Nucleo-L432KC_generated`](../examples/vsCode_Nucleo-L432KC_generated) as starting point for the trice instrumentation.
-
-Main steps are:
-
-- Add all files [./src/\*.c](../src/) to your project. Some files are excluded automatically according to the [triceConfig.h](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) configuration. 
-  - Once you learned, what you need, you can remove unnecessary code.
-- Add [./src](../src) to your compiler library include path.
-- Copy file `triceConfig.h` from one of the instrumented projects to your embedded project and adapt it to your needs.
-  - Other `triceConfig.h` files are usable as well as starting point, but the above are usually the most actual ones.
-  - Inside the [./test/](../test/) subfolders some configuration variants are as test projects. Comparing these `triceConfig.h` files gives hints for the needed configuration settings.
-- Copy file `SEGGER_RTT_Conf.h` to your embedded project and adapt it to your needs, when using RTT. Usually the default is ok.
-  - You can exchange `SEGGER_RTT_Conf.h` and `./src/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
+The *Readme.md* files in the examples folder contain further helpful information.
 
 ####  2.5.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
 
-- Add the 2 hardware specific macros/functions to your project (example in [./examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) and [./examples/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Src/stm32f0xx_it.c) ).
+- Add the 2 hardware specific macros/functions to your project (example in [./examples/F030R8_inst/Core/Inc/triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) and [./examples/F030R8_inst/Core/Src/stm32f0xx_it.c](../examples/F030R8_inst/Core/Src/stm32f0xx_it.c) ).
   
-    ```c
-    ///////////////////////////////////////////////////////////////////////////////
-    // (time) stamp funktions, rewrite these hardware specific functions in your project.
-    // 
-    
-    // 16-bit us stamp, wraps after 10 milliseconds
-    uint16_t TriceStamp16( void ){
-        return 0x1616; // put your code here
-    }
-    
-    // 32-bit us stamp, wraps after 71,58 seconds
-    uint32_t TriceStamp32( void ){
-        return 0x32323232; // put your code here
-    }
-    
-    //
-    ///////////////////////////////////////////////////////////////////////////////
+    ```c   
+    //! ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
+    extern uint32_t ms32;
+    #define TriceStamp16 (SysTick->VAL) // Counts from 31999 -> 0 in each ms.
+    #define TriceStamp32  ms32
     ```
-
-- Counting the 16-bit part separately allows to avoid the `%` operator usage, which would imply a costly division.
-- Using different timestamp bit width parallel allows to reduce the transmitted data size.
-- Example showing host and target (time) stamps: one trice without, six with 16-bit and two with 32-bit in **hh:mm:ss,milliseconds**:
+- In this example the 32-bit timestamp is used for milliseconds and the 16.bit timestamp is used as clock counter what allos fine grained time measurements.
 
   ![x](./ref/0-16-32BitTimeStamps.jpg)
 
@@ -410,7 +385,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 You should be aware that these parameter strings go into the target and slow down the execution.
 
-- Excluded trices are seen by the trice update process.
+- Excluded trices are seen by the trice insert process.
   - Example: The following code will be patched and get an id as well:
 
     ```c
@@ -491,7 +466,7 @@ trice( "hi 4");
 ```
 
 - The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here.
-- Workaround: Use `trice update` in such a rare case but better avoid any unescaped singe double quote inside comments.
+- Workaround: Use `trice insert` in such a rare case but better avoid any unescaped singe double quote inside comments.
 
 (See also [issue #427](https://github.com/rokath/trice/issues/427))
 
@@ -567,7 +542,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 ##  4. <a name='Embeddedsystemcodeconfiguration'></a> Embedded system code configuration
 
-Check comments inside [triceConfig.h](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h).
+Check comments inside [triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h).
 
 <!--
 * Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
@@ -624,7 +599,7 @@ into
 TRICE( "%d Kelvin\n", k );
 ```
 
-This you could do automatically using a word processor. A `trice update` (run it later in the tool chain to keep everything automatically up-to-date) inserts the *Trice* IDs:
+This you could do automatically using a word processor. A `trice insert` (run it later in the tool chain to keep everything automatically up-to-date) inserts the *Trice* IDs:
 
 ```c
 TRICE( Id(12345), "%d Kelvin\n", k );
@@ -663,7 +638,7 @@ into a source file of your project. The `8` stands here for 8 bit values (`16`, 
 
 Side note: If you look in detail at the *Trice* code you will see that a `TRICE8( "%d", 1 )` takes the same amount of transfer data as `TRICE( "%d", 1 )` and is even a bit slower because of the internal masking. But using `TRICE8( "%d%d%d%d%d%d%d%d%d%d%d%d", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;` instead of `TRICE( "%d%d%d%d%d%d%d%d%d%d%d%d", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;` will reduce the transfer bytes by 24 bytes.
 
-When performing `trice update` the source (tree) is parsed and in result this line changes to
+When performing `trice insert` the source (tree) is parsed and in result this line changes to
 
 ```c
 TRICE8( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
@@ -673,7 +648,7 @@ or
 TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
 
-as you like where `12345` is an as ID generated 16-bit random (upward|downward also possible) number not used so far. The TRICE8`_3` means 3 parameters in this example and allows efficient code and a compile time check. Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line, to convert a `TRICE8` into a `TRICE8_3` in the above example. Legacy code with valid IDs is not modified (You can use sub-command `zeroSourceTreeIds` to go around that.)
+as you like where `12345` is an as ID generated 16-bit random (upward|downward also possible) number not used so far. The TRICE8`_3` means 3 parameters in this example and allows efficient code and a compile time check. Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the insert command line, to convert a `TRICE8` into a `TRICE8_3` in the above example. Legacy code with valid IDs is not modified (You can use sub-command `zeroSourceTreeIds` to go around that.)
 
 The total amount of data is currently limited to 12 parameters but this is easy to extend if needed.
 
@@ -712,7 +687,7 @@ The function call overhead is reasonable and the advantage is significant less c
 ##  5. <a name='tricetoolinloggingaction'></a>`trice` tool in logging action
 
 <!--
-Executing `trice update` at the root of your project source updates in case of changes, the *Trice* statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
+Executing `trice insert` at the root of your project source updates in case of changes, the *Trice* statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
 -->
 
 With `trice log -port COM12` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at the 115200 default baudrate.
@@ -742,7 +717,7 @@ Look at one of the appropriate test projects as example. In general:
 Next steps:
 
 - Add `#include "trice.h"` to your project files where to use TRICE macros and put `TRICE0( "msg:Hello world!\n" );` after your initialization code.
-- Run `trice u` at the root of your source code. Afterwards:
+- Run `trice i` at the root of your source code. Afterwards:
   - It should have changed into `TRICE0( Id(12345), "msg:Hello world!\n" );` as example. (The `12345` stays here for a 20-bit non-zero random number).
   - A file [til.json](https://github.com/rokath/trice/blob/master/til.json)  (**t**race **i**d **l**ist) should have been generated.
 - Set up timer and UART interrupt and main loop in the right way. Analyze the test example projects for advice.
@@ -785,8 +760,8 @@ Quick workaround:
 - Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the [til.json](https://github.com/rokath/trice/blob/master/til.json) file of your project.
 - If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE** statements. TRICE32 will do in most cases but for better performance take **TRICE8** or **TRICE16** where possible.
 - `printf(...)` statements containing string format specifier are quickly portable by using `TRICE_P(...)` but without the trice space and speed advantage. The TRICE_P() is intended only for the few dynamic strings in a ported  project.  Enable `TRICE_PRINTF_ADAPTER` increases the needed code size by a few KB.
-- It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole.
-  This way you cannot forget the update step, it performs automatically.
+- It could be helpful to add `trice i ...` as prebuild step into your toolchain for each file or for the project as a whole.
+  This way you cannot forget the insert step, it performs automatically.
 -->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -795,8 +770,8 @@ Quick workaround:
 
 - You can deliver your device with encrypted trices. This way only the service [wo]men is able to read the *Trices*.
 - Implemented is XTEA but this is exchangeable.
-- The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside [triceConfig.h](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h). You need to add `-password MySecret` as `trice log` switch and you're done.
-- Any password is usable instead of `MySecret`. Simply add once the `-show` switch and copy the displayed passphrase into the [triceConfig.h](../examples/MDK-ARM_STM32F030R8_instrumented/Core/Inc/triceConfig.h) file.
+- The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside [triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h). You need to add `-password MySecret` as `trice log` switch and you're done.
+- Any password is usable instead of `MySecret`. Simply add once the `-show` switch and copy the displayed passphrase into the [triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) file.
 - The encryption takes part **before** the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding.
 - TCOBS is not recommended after encryption, because it cannot compress effective arbitrary data.
 
@@ -832,7 +807,7 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -z`, ... .
   - With `-debug` you can see the [T]COBS packages and decoded *Trice* packages. ![./ref/DebugSwitchExample.PNG](./ref/DebugSwitchExample.PNG)
 
 <!--
-- `trice u` in the root of your project parses all source files for `TRICE` macros, adds automatically ID´s if needed and updates a file named **til.json** containing all ID´s with their format string information. To start simply generate an empty file named **til.json** in your project root. You can add `trice u` to your build process and need no further manual execution.
+- `trice i` in the root of your project parses all source files for `TRICE` macros, adds automatically ID´s if needed and updates a file named **til.json** containing all ID´s with their format string information. To start simply generate an empty file named **til.json** in your project root. You can add `trice i` to your build process and need no further manual execution.
 
 - `trice ds` starts a display server listening on default ip address *127.0.0.1:61487* or any specified value, so also on a remote device, lets say with ip address 192.168.1.200.
 - `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
@@ -840,9 +815,9 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -z`, ... .
 
 ###  8.2. <a name='Furtherexamples'></a>Further examples
 
-####  8.2.1. <a name='Automatedpre-buildupdatecommandexample'></a>Automated pre-build update command example
+####  8.2.1. <a name='Automatedpre-buildinsertcommandexample'></a>Automated pre-build insert command example
 
-- Scan directories `../src`, `../lib/src` and `./` to update the IDs there and extend list file `../../../til.json`
+- Scan directories `../src`, `../lib/src` and `./` to insert the IDs there and extend list file `../../../til.json`
 
 ```bash
 trice i -v -i ../../../til.json -src ../src -src ../lib/src -src ./
@@ -1045,7 +1020,7 @@ void trice0_test() {
 void trice0_test() {
     Trice0( iD(2740), "OK"); // ok, iD is added
     Trice( InvalidUse ); // no warning or error
-    Trice( "OK", Variable ); // id is not added / updated
+    Trice( "OK", Variable ); // id is not added / inserted
 }
 ```
 
@@ -1091,7 +1066,7 @@ Only the dynamic strings should be used as variables in TRICE_S macro.
 
 ####  9.3.2. <a name='Limitationgone:triceidoesnotrequireTRICEmacrosonasingleline'></a>Limitation gone: "trice i" does not require TRICE macros on a single line
 
-- The implemented parser supports `TRICE` macros over several source code lines now (v0.61.0 and later). This is valid for `trice i` and `trice c` but not for `trice u`.
+- The implemented parser supports `TRICE` macros over several source code lines now (v0.61.0 and later). This is valid for `trice i` and `trice c` but not for `trice i`.
 - It is possible to have several (complete) `TRICE` macros on one source code line.
 
 ##  10. <a name='Additionalhints'></a>Additional hints
@@ -1218,8 +1193,8 @@ _###  13.1. <a name='Folderinformation'></a>Folder information
 
 - Some folders are hardware specific implementations and some are Go packages. The Go packages can have all the same name, only the folder names are not equal.
 - In each Go package a different triceConfig.h is used, this way allowing to check all modes automatically, including encryption.
-- The file `./testdata/triceCheck.c.txt` is the master test pattern for all CGO tests and edited manually. It has the extension `.txt` to avoid accidentally modification by the `trice u` command.
-- After editing and before executing the tests, `./updateTestData.sh` needs to be executed. It copies into `./testdate/triceCheck.c`, and a `trice u -src triceCheck.c` is executed. Than the modified `./testdata/triceCheck.c` is compiled into the test executables in the `./cgo_*` folders.
+- The file `./testdata/triceCheck.c.txt` is the master test pattern for all CGO tests and edited manually. It has the extension `.txt` to avoid accidentally modification by the `trice i` command.
+- After editing and before executing the tests, `./updateTestData.sh` needs to be executed. It copies into `./testdate/triceCheck.c`, and a `trice i -src triceCheck.c` is executed. Than the modified `./testdata/triceCheck.c` is compiled into the test executables in the `./cgo_*` folders.
 - The file `./testdata/triceCheck.c` is copied into the memory filesystem and used there to extract the expected results (//exp: comments).
 - The fresh `./testdata/til.json` is used inside the memory filesystem during the tests.
 - They execute `cgo.TriceCheck(i)` this way activating the target code which writes into a buffer. The buffer is copied into a FILEBUFFER inside the memory file system and the trice tool is reading it.
@@ -1496,7 +1471,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ###  17.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
 - This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
-- The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. Use `trice u -v` for it. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
+- The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. Use `trice i -v` for it. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
 
 ###  17.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
@@ -1587,14 +1562,14 @@ When including legacy library code in several different projects, each with its 
 ```bash
 sub-command 'r|refresh': For updating ID list from source files but does not change the source files.
         "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
-        This command should be run on adding source files to the project before the first time "trice update" is called.
+        This command should be run on adding source files to the project before the first time "trice insert" is called.
         If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
-        Already used IDs are reported, so you have the chance to remove them from til.son and then do "trice u" again.
+        Already used IDs are reported, so you have the chance to remove them from til.son and then do "trice i" again.
         This way you can make sure to get the new sources unchanged in your list.
-        Already used IDs are replaced by new IDs during the next "trice update", so the old IDs in the list will survive.
-        If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to
+        Already used IDs are replaced by new IDs during the next "trice insert", so the old IDs in the list will survive.
+        If you do not refresh the list after adding source files and perform an "trice insert" new generated IDs could be equal to
         IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
-        Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
+        Using "trice i -IDMethod random" (default) makes the chance for such conflicts very low.
         The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
 ```
 
@@ -1656,8 +1631,8 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
   - That is possible after code edit, for example or code copied or modified.
   - One and only one position is used and relevant, all others are ignored. If no `til.json` exists on the expected location the user must provide one, at least an empty file.
 - The `li.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
-  - One and only one position is used and relevant, all others are ignored. If no `li.json` exists on the expected location trice update creates one there.
-- The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. <!-- To keep `trice u` short in execution. `trice refresh` could be run in such cases. -->
+  - One and only one position is used and relevant, all others are ignored. If no `li.json` exists on the expected location trice insert creates one there.
+- The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. <!-- To keep `trice i` short in execution. `trice refresh` could be run in such cases. -->
 
 ###  21.2. <a name='Aims'></a>Aims
 
@@ -1720,7 +1695,7 @@ type insertIDsData struct {
           - If no file matches do the same as when li is empty.
           - That means, after file renaming or code copying between files during trice z state, new IDs are generated for that parts.
             - That is only for same f with several IDs cases
-          - File changes during trice u state are ok, because STM is generated with the IDs inside the sources.
+          - File changes during trice i state are ok, because STM is generated with the IDs inside the sources.
 
 Until here the algorithm seem to be ok.
 
@@ -1744,7 +1719,7 @@ Until here the algorithm seem to be ok.
 - STM is not needed but maybe helpful during debugging.
 - STM than is usable to regenerate li.json and to extend til.json
   
-- If after `trice u` a `trice z` and a `trice u` again is executed, all IDs are expected to be at the same place again. If in between `trice u`, an optional `trice z`and a `trice u` src was edited, most IDs are expected to be at the same place again.
+- If after `trice i` a `trice z` and a `trice i` again is executed, all IDs are expected to be at the same place again. If in between `trice i`, an optional `trice z`and a `trice i` src was edited, most IDs are expected to be at the same place again.
 
 <!--
 _### Tests
@@ -1752,11 +1727,11 @@ _### Tests
 
 -->
 
-###  21.4. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
+###  21.4. <a name='UserCodePatchingtriceinsert'></a>User Code Patching (`trice insert`)
 
-- A *Trice* **ID** is inserted by `trice update` as shown in the table:
+- A *Trice* **ID** is inserted by `trice insert` as shown in the table:
 
-  | Unpatched User Code | After `trice update`          | Remark        |
+  | Unpatched User Code | After `trice insert`          | Remark        |
   |---------------------|-------------------------------|---------------|
   | `trice( "Hi!\n");`  | `trice( iD(12345), "Hi!\n");` | no stamps     |
   | `Trice( "Hi!\n");`  | `Trice( iD(12345), "Hi!\n");` | 16-bit stamps |
@@ -1764,7 +1739,7 @@ _### Tests
 
 - Legacy code is handled this way:
 
-  | Unpatched User Code       | After `trice update`          | Remark                                             |
+  | Unpatched User Code       | After `trice insert`          | Remark                                             |
   |---------------------------|-------------------------------|----------------------------------------------------|
   | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice i -defaultStampSize 0`      |
   | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice i -defaultStampSize 16` |
@@ -1773,14 +1748,14 @@ _### Tests
   | `TRICE( Id(0), "Hi!\n");` | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps                                      |
   | `TRICE( ID(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps                                      |
 
-- A pre-build step `trice update` generates the `Id(12345)` part. Examples:
-  - `trice u` in your project root expects a til.json file there and checks sources and **til.json** for changes to update.
-  - `trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./` is a typical case as automated pre-build step in your project settings telling **trice** to scan the project dir and two external directories. Even `trice u` is fast, it is generally quicker to search only relevant places.
+- A pre-build step `trice insert` generates the `Id(12345)` part. Examples:
+  - `trice i` in your project root expects a til.json file there and checks sources and **til.json** for changes to insert.
+  - `trice i -v -i ../../../til.json -src ../src -src ../lib/src -src ./` is a typical case as automated pre-build step in your project settings telling **trice** to scan the project dir and two external directories. Even `trice i` is fast, it is generally quicker to search only relevant places.
 
 ###  21.5. <a name='UserCodePatchingExamples'></a>User Code Patching Examples
 
 - A *Trice* **ID** is modified as shown in these cases:
-  - Previously updated (patched) user code copied to a different location:
+  - Previously inserted (patched) user code copied to a different location:
 
     ```C
     trice(iD(12345), "Hi!\n"); // copied
@@ -1798,7 +1773,7 @@ _### Tests
   
     - If the code is copied inside the same file, the first occurrence after the copy stays unchanged and the following are modified.
     - If the code is copied to other files only, the copies get new IDs.
-  - Previously updated (patched) user code copied and modified:
+  - Previously inserted (patched) user code copied and modified:
 
     ```C
     trice(iD(12345), "Ha!\n"); // copied and modified
@@ -1822,7 +1797,7 @@ _### Tests
   ```
 
   ```C
-  TRice( iD(12345), "Hi!" ); // manually changed stamp size and then "trice u" performed.
+  TRice( iD(12345), "Hi!" ); // manually changed stamp size and then "trice i" performed.
   ```
 
 ###  21.6. <a name='UserCodeUn-Patching'></a>User Code Un-Patching
@@ -1882,10 +1857,10 @@ _### Tests
 | 2022-DEC-11 | 0.12.0  | restructured                                                                                                 |
 | 2022-DEC-13 | 0.13.0  | unneeded text removed, some clarifications                                                                   |
 | 2023-JAN-14 | 0.14.0  | Formatting improved, [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start) added. |
-| 2023-JAN-14 | 0.15.0  | [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm) added                                    |
+| 2023-JAN-14 | 0.15.0  | [5.1. The `trice insert` algorithm](#51-the-trice-insert-algorithm) added                                    |
 | 2023-JAN-21 | 0.15.1  | Corrections                                                                                                  |
 | 2023-FEB-25 | 0.16.0  | Many parts reworked and restructured                                                                         |
-| 2023-JUN-10 | 0.17.0  | trice update algorithm refined                                                                               |
+| 2023-JUN-10 | 0.17.0  | trice insert algorithm refined                                                                               |
 | 2023-AUG-03 | 0.18.0  | update ---> insert                                                                                           |
 
 <p align="right">(<a href="#top">back to top</a>)</p></ol></details>
@@ -1914,7 +1889,7 @@ TRICE( ID(0), "...", ...); // a trice with a 32-bit stamp
 <!--
 
 
-- [x] New *Trice* macros are writable without the ID, so when `trice u` is executed, a CLI switch controls the ID type selection:
+- [x] New *Trice* macros are writable without the ID, so when `trice i` is executed, a CLI switch controls the ID type selection:
   - The update switch `-stamp 32` defaults new ID´s to `ID`.
   - The update switch `-stamp 16` defaults new ID´s to `Id`.
   - The update switch `-stamp 0`  defaults new ID´s to `id`.
@@ -1931,7 +1906,7 @@ TRICE( ID(0), "...", ...); // a trice with a 32-bit stamp
 - The [TREX (**TR**ice **EX**tendable) encoding](#TREXTriceextendableencoding) format is planned to be stable.
 The with name "COBS" branded [*Trice* v0.48.0 encoding](./TriceMessagesEncoding.md) is not optimal concerning the generated data amount:
 - See discussion [#253 Save trice COBS encoded data on target and view it later on PC](https://github.com/rokath/trice/discussions/253).
-- The location information is transmitted as 16 bit file ID plus 16 bit line number. It is possible to generate during `trice update` an additional file `li.json` containing the location information for each *Trice* ID avoiding the additional 4 bytes this way. But this could cause assignment issues, when the same *Trice* ID is used at different locations (see [https://github.com/rokath/trice/discussions/264](https://github.com/rokath/trice/discussions/264)). But it is possible to drop the option `trice u -sharedIDs`.
+- The location information is transmitted as 16 bit file ID plus 16 bit line number. It is possible to generate during `trice insert` an additional file `li.json` containing the location information for each *Trice* ID avoiding the additional 4 bytes this way. But this could cause assignment issues, when the same *Trice* ID is used at different locations (see [https://github.com/rokath/trice/discussions/264](https://github.com/rokath/trice/discussions/264)). But it is possible to drop the option `trice i -sharedIDs`.
 - The 32-bit "COBS" package descriptor is overkill for allowing user data and dropped in TREX.
 - The additional padding bytes to achieve 32 bit sizes are not needed and dropped in TREX. The user could add them by himself if really needed.
 - The 4 timestamp bytes in front of each *Trice* demand the "COBS" package descriptor. The timestamp should go inside the *Trice* message and be optionally smaller. That is done in TREX.
@@ -1982,7 +1957,7 @@ TRICE( X3, "...", ...); // an extended type 3 trice
   - `TRICE( Id(12345), "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( S2, "...", ...);`
   - `TRICE( ID(12345), "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( S4, "...", ...);`
   - `TRICE( iD(12345), "...", ...);` → `TRICE( iD(0), "...", ...);` → `TRICE( S8, "...", ...);`
-- The project specific `til.json` contains all IDs and during `trice u` the same IDs are used again for the same **trice** statement. For new or modified **trices** new IDs a chosen and `til.json` is extended as usual.
+- The project specific `til.json` contains all IDs and during `trice i` the same IDs are used again for the same **trice** statement. For new or modified **trices** new IDs a chosen and `til.json` is extended as usual.
 - Identical **trices** should have different IDs for the correctness of the location information. The switch `-sharedIDs` is obsolete and depreciated.
 - There is no guaranty each **trice** gets its old ID back, if for example 5 identical **trices** with different IDs exist, but the probability for an exact restore can made high using the previous `li.json` file. Proposed method:
   - When `trice -u` is executed, the previous `li.json` is read into an internal `li_1.map` and `li.json` is reset to be an empty file and that is red into `li.map`.
