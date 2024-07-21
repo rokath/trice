@@ -233,7 +233,8 @@ The *Readme.md* files in the examples folder contain further helpful information
     #define TriceStamp16 (SysTick->VAL) // Counts from 31999 -> 0 in each ms.
     #define TriceStamp32  ms32
     ```
-- In this example the 32-bit timestamp is used for milliseconds and the 16.bit timestamp is used as clock counter what allos fine grained time measurements.
+- In the code snippet above the 32-bit timestamp is used for milliseconds and the 16.bit timestamp is used as clock counter what allos fine grained time measurements.
+- In the screenshot below, the 16-bit timestamp is a parallel counter running between 0-9999 milliseconds, which allows to have 16-bit timestamps all the time and only every 10 seconds is a full 32-bit timestamp needed.
 
   ![x](./ref/0-16-32BitTimeStamps.jpg)
 
