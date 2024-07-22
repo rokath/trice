@@ -19,9 +19,11 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 - Create 2 empty files: `touch til.json li.json`inside [./](./)
 - Run `build.sh`. This should build all.
 - Add `#include "trice.h"` to *main.c* and to *stm32f0xx_it.c* and edit these files according to diff.
-- Add to `int main( void )`:
+- Add to `int main( void )` some `Trice( "..." );` messages.
 
 - Run `trice s` to determine the relevant comport.
 - You can have this output:
 
 ![x](./2024-07-22.png)
+
+- The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of lexx 5 µs.
