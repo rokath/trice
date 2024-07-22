@@ -8,7 +8,7 @@
 ## Setting Up
 
 ![x](./IMG_20240722.jpg)
-- See and adapt steps in [../G01B_gen/ReadMe.md](../G01B_gen/ReadMe.md).
+- See and adapt steps in [../G0B1_gen/ReadMe.md](../G0B1_gen/ReadMe.md).
 
 ## Instrumenting
 
