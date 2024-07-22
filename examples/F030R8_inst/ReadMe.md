@@ -12,9 +12,9 @@ This is a working example with parallel direct out over RTT and deferred encrypt
 
 - Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030R8_gen/](../F030R8_gen/).
 - Add *build.sh* and *clean.sh*.
-- Copy file *SEGGER_RTT_Conf.h* from *trice/third_party/segger.com/SEGGER_RTT_V760g.zip* to [F030R8_inst/Core/Inc/](F030R8_inst/Core/Inc/). Yu could also look for a newer version.
-- Copy and adapt a file *triceConfig.h* to [F030R8_inst/Core/inc/](F030R8_inst/Core/inc/). You can choose from an other example project or one of the test folders.
-- Create 2 empty files: `touch til.json li.json`inside [F030R8_inst/Core/](F030R8_inst/Core/)
+- Copy file *SEGGER_RTT_Conf.h* from *trice/third_party/segger.com/SEGGER_RTT_V760g.zip* to [./Core/Inc/](./Core/Inc/). Yu could also look for a newer version.
+- Copy and adapt a file *triceConfig.h* to [./Core/inc/](./Core/inc/). You can choose from an other example project or one of the test folders.
+- Create 2 empty files: `touch til.json li.json`inside [./](./)
 - Run `build.sh`. This should build all.
 - Add `#include "trice.h"` to *main.c* and to *stm32f0xx_it.c* and edit these files according to diff.
 - Add to `int main( void )`:
