@@ -2,8 +2,7 @@
 
 ## Description
 
-- This is a working example with deferred out in TCOBS framing over UART.
-- To see the logs type `trice log -p com1`.
+- This is a working example with direct out without framing over RTT and deferred out in TCOBS framing over UART.
 
 ## Setting Up
 
