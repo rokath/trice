@@ -26,4 +26,4 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 ![x](./2024-07-22.png)
 
-- The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of lexx 5 µs.
+- The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of less 5 µs.
