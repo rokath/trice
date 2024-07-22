@@ -7,7 +7,7 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./out/vsCode_NucleoF030R8_instrumented.elf",
+            "executable": "./out/F030R8.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",

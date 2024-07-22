@@ -1,5 +1,7 @@
 # Example F030R8_inst
 
+![x](./IMG_20240722.jpg)
+
 ## Description
 
 This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](./Core/Inc/triceConfig.h), you get also parallel direct out over RTT.
@@ -20,6 +22,6 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 - Add to `int main( void )`:
 
 - Run `trice s` to determine the relevant comport.
-- You can have 2 outputs:
-  - In a terminal run `trice l -p com5 -baud 1000000`.
-  - In a terminal run `trice l -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000" -d16 -pf none`
+- You can have this output:
+
+![x](./2024-07-22.png)
