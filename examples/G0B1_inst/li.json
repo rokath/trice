@@ -1,74 +1,78 @@
 {
-	"8000": {
+	"1452": {
 		"File": "main.c",
 		"Line": 79
 	},
-	"8001": {
-		"File": "main.c",
-		"Line": 81
-	},
-	"8002": {
-		"File": "main.c",
-		"Line": 80
-	},
-	"8003": {
-		"File": "main.c",
-		"Line": 83
-	},
-	"8004": {
-		"File": "main.c",
-		"Line": 82
-	},
-	"8005": {
-		"File": "main.c",
-		"Line": 85
-	},
-	"8006": {
-		"File": "main.c",
-		"Line": 84
-	},
-	"8007": {
-		"File": "main.c",
-		"Line": 86
-	},
-	"8008": {
-		"File": "main.c",
-		"Line": 87
-	},
-	"8009": {
-		"File": "main.c",
-		"Line": 88
-	},
-	"8010": {
-		"File": "main.c",
-		"Line": 89
-	},
-	"8011": {
-		"File": "main.c",
-		"Line": 90
-	},
-	"8012": {
-		"File": "main.c",
-		"Line": 91
-	},
-	"8013": {
-		"File": "main.c",
-		"Line": 92
-	},
-	"8014": {
-		"File": "stm32g0xx_it.c",
-		"Line": 118
-	},
-	"8015": {
-		"File": "main.c",
-		"Line": 319
-	},
-	"8016": {
+	"1688": {
 		"File": "main.c",
 		"Line": 344
 	},
-	"8017": {
+	"2004": {
 		"File": "main.c",
-		"Line": 370
+		"Line": 98
+	},
+	"2359": {
+		"File": "main.c",
+		"Line": 100
+	},
+	"2740": {
+		"File": "main.c",
+		"Line": 106
+	},
+	"2876": {
+		"File": "main.c",
+		"Line": 319
+	},
+	"3716": {
+		"File": "main.c",
+		"Line": 105
+	},
+	"4098": {
+		"File": "main.c",
+		"Line": 79
+	},
+	"4398": {
+		"File": "main.c",
+		"Line": 95
+	},
+	"5003": {
+		"File": "main.c",
+		"Line": 108
+	},
+	"5562": {
+		"File": "main.c",
+		"Line": 102
+	},
+	"5809": {
+		"File": "main.c",
+		"Line": 101
+	},
+	"6023": {
+		"File": "main.c",
+		"Line": 96
+	},
+	"6318": {
+		"File": "main.c",
+		"Line": 99
+	},
+	"6575": {
+		"File": "main.c",
+		"Line": 109
+	},
+	"6707": {
+		"File": "main.c",
+		"Line": 97
+	},
+	"7054": {
+		"File": "stm32g0xx_it.c",
+		"Line": 118
+	},
+	"7225": {
+		"File": "main.c",
+		"Line": 104
+	},
+	"7308": {
+		"File": "main.c",
+		"Line": 103
 	}
 }

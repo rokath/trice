@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
-rm ./testdata/til.json ./testdata/li.json
+# clean history
 touch ./testdata/til.json ./testdata/li.json
+trice clean -i ./testdata/til.json -li ./testdata/li.json
+rm ./testdata/til.json ./testdata/li.json
 
 #  insert IDs into source code - this should restore triceCheck.c.
-trice insert -i ./testdata/til.json -li ./testdata/li.json -IDMin 12000 -IDMax 13499 -IDMethod upward
+touch ./testdata/til.json ./testdata/li.json
+trice insert -i ./testdata/til.json -li ./testdata/li.json -IDMin 15000 -IDMax 16299 -IDMethod upward
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
