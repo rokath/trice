@@ -91,7 +91,7 @@ C_SOURCES += \
 # examples
 C_SOURCES += \
 ../../test/testdata/triceCheck.c \
-../exampleData/triceLogDiagnosticData.c
+../exampleData/triceLogDiagData.c
 
 # ASM sources
 ASM_SOURCES =  \
