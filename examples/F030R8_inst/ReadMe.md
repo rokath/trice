@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a working example with parallel direct out over RTT and deferred encrypted out over UART.
+This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](./Core/Inc/triceConfig.h), you get also parallel direct out over RTT.
 
 ## Setting Up
 
