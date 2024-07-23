@@ -68,7 +68,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
     TriceInit();
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-    trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+    trice( iD(5762), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
 
   /* USER CODE END 1 */
 
@@ -98,17 +98,17 @@ int main(void)
         TriceInitRingBufferMargins();
     #endif
     
-    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(5894), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(4613), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(1971), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( iD(2934), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( iD(3839), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(7135), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(6153), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(3326), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( iD(4614), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD(3153), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( iD(1798), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
     
   /* USER CODE END 2 */
 
@@ -122,17 +122,17 @@ int main(void)
 
             static uint32_t msDiag = 0;
             msDiag++;
-            if(msDiag >= 10000 ){
+            if(msDiag >= 300 ){
                 msDiag = 0;
                 TriceLogDiagnosticValues();
             }
 
             static uint32_t msCheck = 0;
             msCheck++;
-            if(msCheck >= 100 ){
+            if(msCheck >= 5 ){
                 msCheck = 0; 
-                static uint32_t i = 50;
-                if( i++ > 330 ){
+                static uint32_t i = 0;
+                if( i++ > 400 ){
                     i = 0;
                 }
                 TriceCheck( i ); // this generates trice data
@@ -142,10 +142,11 @@ int main(void)
 
                 static uint32_t msTransfer = 0;
                 msTransfer++;
-                if(msTransfer >= 10 ){
+                if(msTransfer >= 100 ){
                     msTransfer = 0;
                     // Serve deferred trice transfer every few ms or if TRICE_BUFFER is getting filled. With an RTOS put this in a separate task.
                     TriceTransfer(); // serve deferred output
+                    // For the ring buffer TriceTransfer transmits only one Trice per call, so doing that each ms is ok.
                 }
                 #if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
                     WatchRingBufferMargins();

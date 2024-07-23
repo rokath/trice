@@ -203,6 +203,19 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
                 XTEAEncrypt( (uint32_t *)crypt, len8>>2 );
                 encLen += (size_t)COBSEncode(dst, crypt, len8 ); // encLen is re-used here
                 dst[encLen++] = 0; // Add zero as package delimiter.
+                #if (TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1)
+                    int triceDataOffsetSpaceRemained = nxt - (dst+encLen); // begin of unprocessed data MINUS end of processed data 
+                #endif
+                #if (TRICE_PROTECT == 1)
+                    if( triceDataOffsetSpaceRemained < 0){
+                        TriceErrorCount++;
+                        return; // discard broken data 
+                    }
+                #endif
+                #if TRICE_DIAGNOSTICS == 1
+                    int triceDataOffsetDepth = TRICE_DATA_OFFSET - triceDataOffsetSpaceRemained;
+                    TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
+                #endif
             #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE  )
                 #if TRICE_CONFIG_WARNINGS == 1
                     #warning configuration: The Trice tool does not support encryted data without COBS or TCOBS framing.
