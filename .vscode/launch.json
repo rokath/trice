@@ -11,7 +11,7 @@
             "args": ["log",
                      "-p", "TCP4",
                      "-args", "localhost:19021",
-                     "-idlist", "${workspaceFolder}/test/testdata/til.json",
+                     "-idlist", "${workspaceFolder}/test/testdata/til.json"
             ]
         },
         {
