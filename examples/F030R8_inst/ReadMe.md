@@ -1,5 +1,7 @@
 # Example F030R8_inst
 
+![x](./IMG_20240722.jpg)
+
 ## Description
 
 This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](./Core/Inc/triceConfig.h), you get also parallel direct out over RTT.
@@ -17,9 +19,11 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 - Create 2 empty files: `touch til.json li.json`inside [./](./)
 - Run `build.sh`. This should build all.
 - Add `#include "trice.h"` to *main.c* and to *stm32f0xx_it.c* and edit these files according to diff.
-- Add to `int main( void )`:
+- Add to `int main( void )` some `Trice( "..." );` messages.
 
 - Run `trice s` to determine the relevant comport.
-- You can have 2 outputs:
-  - In a terminal run `trice l -p com5 -baud 1000000`.
-  - In a terminal run `trice l -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000" -d16 -pf none`
+- You can have this output:
+
+![x](./2024-07-22.png)
+
+- The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of less 5 µs.
