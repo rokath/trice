@@ -102,7 +102,7 @@ int TriceEnoughSpace( void ){
 #endif // #if TRICE_PROTECT == 1
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET from this address.
-//! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fullfilled.
+//! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fulfilled.
 //! \param lastWordCount is the u32 count of the last read trice including padding bytes.
 //! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
 //! \retval is the address of the next trice data buffer.
@@ -231,6 +231,16 @@ static int TriceSingleDeferredOut( uint32_t * addr){
             #error configuration
         #endif
         enc[encLen++] = 0; // Add zero as package delimiter.
+        #if TRICE_DIAGNOSTICS == 1
+            // enc                 addr  pTriceNettoStart           nextData
+            // ^-TRICE_DATA_OFFSET-^-0|2-^-triceNettoLength+(0...3)-^
+            // ^-encLen->firstNotModifiedAddress
+            uint8_t * nextData = (uint8_t *)(((unsigned)(pTriceNettoStart + triceNettoLength + 3))&~3);
+            uint8_t * firstNotModifiedAddress = enc + encLen;
+            int distance = nextData - firstNotModifiedAddress;
+            int triceDataOffsetDepth = TRICE_DATA_OFFSET - distance; // distance could get > TRICE_DATA_OFFSET, so TriceDataOffsetDepthMax stays unchanged then.
+            TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
+        #endif // #if TRICE_DIAGNOSTICS == 1
     #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
         size_t len = (size_t)TCOBSEncode( enc, pTriceNettoStart, triceNettoLength );
         enc[len++] = 0; // Add zero as package delimiter.
