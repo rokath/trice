@@ -31,6 +31,7 @@ static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
 
 //! triceBufferSwap swaps the trice double buffer and returns the read buffer address.
 static uint32_t* triceBufferSwap( void ){
+    todo: rethink this and describe
     TRICE_ENTER_CRITICAL_SECTION
     triceBufferWriteLimit = TriceBufferWritePosition; // keep end position
     triceSwap = !triceSwap; // exchange the 2 buffers
@@ -157,6 +158,11 @@ static int TriceNext( uint8_t** buf, size_t* pSize, const uint8_t ** pStart, siz
     return triceID;
 }
 
+            uint8_t * firstNotModifiedAddress;
+            int distance;
+            int triceDataOffsetDepth;
+
+
 //! TriceOut encodes trices and writes them in one step to the output.
 //! This function is called only, when the slowest deferred output device has finished its last buffer.
 //! At the half buffer start tb are TRICE_DATA_OFFSET bytes space followed by a number of trice messages which all contain
@@ -177,6 +183,12 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
     #endif
     // do it
     while(tLen){
+        #if TRICE_DIAGNOSTICS == 1
+            firstNotModifiedAddress = enc + encLen;
+            distance = nxt - firstNotModifiedAddress;
+            triceDataOffsetDepth = TRICE_DATA_OFFSET - distance; // distance can get > TRICE_DATA_OFFSET, but that is no problem.
+            TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
+        #endif // #if TRICE_DIAGNOSTICS == 1
         const uint8_t * triceNettoStart;
         size_t triceNettoLen; // This is the trice netto length (without padding bytes).
         #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE ) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
@@ -228,7 +240,7 @@ static void TriceOut( uint32_t* tb, size_t tLen ){
             #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
                 size_t len = (size_t)TCOBSEncode(dst, triceNettoStart, triceNettoLen );
                 dst[len++] = 0; // Add zero as package delimiter.
-                encLen += len; 
+                encLen += len;
             #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS  ) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
                 size_t len = (size_t)COBSEncode(dst, triceNettoStart, triceNettoLen );
                 dst[len++] = 0; // Add zero as package delimiter.

@@ -11,14 +11,20 @@ extern "C" {
 
 // hardware specific trice lib settings
 #include "main.h" 
-#define TriceStamp16  TIM17->CNT     // 0...999 µs
-#define TriceStamp32  HAL_GetTick()  // 0...2^32-1 ms
+#define TriceStamp16  0x1616 // TIM17->CNT     // 0...999 us
+#define TriceStamp32  0x32323232 // HAL_GetTick()  // 0...2^32-1 ms
 
-#define TRICE_BUFFER TRICE_RING_BUFFER
+//#define TRICE_BUFFER TRICE_RING_BUFFER
+
+#define TRICE_SINGLE_MAX_SIZE 16
+#define TRICE_DATA_OFFSET 16
+#define TRICE_DEFERRED_BUFFER_SIZE 256
+//#define TRICE_DEFERRED_XTEA_ENCRYPT 1
+#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 // trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -ts ms -d16
-#define TRICE_DIRECT_OUTPUT 1
-#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
+//#define TRICE_DIRECT_OUTPUT 1
+//#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 // trice log -p com1
 #define TRICE_DEFERRED_OUTPUT 1
