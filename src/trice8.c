@@ -6,7 +6,322 @@
 //lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
 //lint -e701  Info 701: Shift left of signed quantity (int)
 
-#if TRICE_8_BIT_SUPPORT
+#if TRICE_8_BIT_SUPPORT == 1
+
+// without stamp 8-bit values functions
+#ifndef ENABLE_trice8fn_0
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 0 * 1)+3)&~3
+        #define ENABLE_trice8fn_0 0 //!< Disables no-stamp 8-bit 0 values functions.
+    #else
+        #define ENABLE_trice8fn_0 1 //!< Enables  no-stamp 8-bit 0 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_1
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 1 * 1)+3)&~3
+        #define ENABLE_trice8fn_1 0 //!< Disables no-stamp 8-bit 1 values functions.
+    #else
+        #define ENABLE_trice8fn_1 1 //!< Enables  no-stamp 8-bit 1 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_2
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 2 * 1)+3)&~3
+        #define ENABLE_trice8fn_2 0 //!< Disables no-stamp 8-bit 2 values functions.
+    #else
+        #define ENABLE_trice8fn_2 1 //!< Enables  no-stamp 8-bit 2 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_3
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 3 * 1)+3)&~3
+        #define ENABLE_trice8fn_3 0 //!< Disables no-stamp 8-bit 3 values functions.
+    #else
+        #define ENABLE_trice8fn_3 1 //!< Enables  no-stamp 8-bit 3 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_4
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 4 * 1)+3)&~3
+        #define ENABLE_trice8fn_4 0 //!< Disables no-stamp 8-bit 4 values functions.
+    #else
+        #define ENABLE_trice8fn_4 1 //!< Enables  no-stamp 8-bit 4 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_5
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 5 * 1)+3)&~3
+        #define ENABLE_trice8fn_5 0 //!< Disables no-stamp 8-bit 5 values functions.
+    #else
+        #define ENABLE_trice8fn_5 1 //!< Enables  no-stamp 8-bit 5 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_6
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 6 * 1)+3)&~3
+        #define ENABLE_trice8fn_6 0 //!< Disables no-stamp 8-bit 6 values functions.
+    #else
+        #define ENABLE_trice8fn_6 1 //!< Enables  no-stamp 8-bit 6 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_7
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 7 * 1)+3)&~3
+        #define ENABLE_trice8fn_7 0 //!< Disables no-stamp 8-bit 7 values functions.
+    #else
+        #define ENABLE_trice8fn_7 1 //!< Enables  no-stamp 8-bit 7 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_8
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 8 * 1)+3)&~3
+        #define ENABLE_trice8fn_8 0 //!< Disables no-stamp 8-bit 8 values functions.
+    #else
+        #define ENABLE_trice8fn_8 1 //!< Enables  no-stamp 8-bit 8 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_9
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 9 * 1)+3)&~3
+        #define ENABLE_trice8fn_9 0 //!< Disables no-stamp 8-bit 9 values functions.
+    #else
+        #define ENABLE_trice8fn_9 1 //!< Enables  no-stamp 8-bit 9 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_10
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 10 * 1)+3)&~3
+        #define ENABLE_trice8fn_10 0 //!< Disables no-stamp 8-bit 10 values functions.
+    #else
+        #define ENABLE_trice8fn_10 1 //!< Enables  no-stamp 8-bit 10 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_11
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 11 * 1)+3)&~3
+        #define ENABLE_trice8fn_11 0 //!< Disables no-stamp 8-bit 11 values functions.
+    #else
+        #define ENABLE_trice8fn_11 1 //!< Enables  no-stamp 8-bit 11 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice8fn_12
+    #if TRICE_SINGLE_MAX_SIZE < ((0 + 4 + 12 * 1)+3)&~3
+        #define ENABLE_trice8fn_12 0 //!< Disables no-stamp 8-bit 12 values functions.
+    #else
+        #define ENABLE_trice8fn_12 1 //!< Enables  no-stamp 8-bit 12 values functions.
+    #endif
+#endif
+
+// with 16-bit-stamp 8-bit values functions (16-bit timestamps need 4 bytes for allocation reasons)
+#ifndef ENABLE_Trice8fn_0
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 0 * 1)+3)&~3
+        #define ENABLE_Trice8fn_11 0 //!< Disables 16-bit-stamp 8-bit 0 values functions.
+    #else
+        #define ENABLE_Trice8fn_11 1 //!< Enables  16-bit-stamp 8-bit 0 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_1
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 1 * 1)+3)&~3
+        #define ENABLE_Trice8fn_1 0 //!< Disables 16-bit-stamp 8-bit 1 values functions.
+    #else
+        #define ENABLE_Trice8fn_1 1 //!< Enables  16-bit-stamp 8-bit 1 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_2
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 2 * 1)+3)&~3
+        #define ENABLE_Trice8fn_2 0 //!< Disables 16-bit-stamp 8-bit 2 values functions.
+    #else
+        #define ENABLE_Trice8fn_2 1 //!< Enables  16-bit-stamp 8-bit 2 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_3
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 3 * 1)+3)&~3
+        #define ENABLE_Trice8fn_3 0 //!< Disables 16-bit-stamp 8-bit 3 values functions.
+    #else
+        #define ENABLE_Trice8fn_3 1 //!< Enables  16-bit-stamp 8-bit 3 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_4
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 4 * 1)+3)&~3
+        #define ENABLE_Trice8fn_4 0 //!< Disables 16-bit-stamp 8-bit 4 values functions.
+    #else
+        #define ENABLE_Trice8fn_4 1 //!< Enables  16-bit-stamp 8-bit 4 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_5
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 5 * 1)+3)&~3
+        #define ENABLE_Trice8fn_5 0 //!< Disables 16-bit-stamp 8-bit 5 values functions.
+    #else
+        #define ENABLE_Trice8fn_5 1 //!< Enables  16-bit-stamp 8-bit 5 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_6
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 6 * 1)+3)&~3
+        #define ENABLE_Trice8fn_6 0 //!< Disables 16-bit-stamp 8-bit 6 values functions.
+    #else
+        #define ENABLE_Trice8fn_6 1 //!< Enables  16-bit-stamp 8-bit 6 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_7
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 7 * 1)+3)&~3
+        #define ENABLE_Trice8fn_7 0 //!< Disables 16-bit-stamp 8-bit 7 values functions.
+    #else
+        #define ENABLE_Trice8fn_7 1 //!< Enables  16-bit-stamp 8-bit 7 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_8
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 8 * 1)+3)&~3
+        #define ENABLE_Trice8fn_8 0 //!< Disables 16-bit-stamp 8-bit 8 values functions.
+    #else
+        #define ENABLE_Trice8fn_8 1 //!< Enables  16-bit-stamp 8-bit 8 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_9
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 9 * 1)+3)&~3
+        #define ENABLE_Trice8fn_9 0 //!< Disables 16-bit-stamp 8-bit 9 values functions.
+    #else
+        #define ENABLE_Trice8fn_9 1 //!< Enables  16-bit-stamp 8-bit 9 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_10
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 10 * 1)+3)&~3
+        #define ENABLE_Trice8fn_10 0 //!< Disables 16-bit-stamp 8-bit 10 values functions.
+    #else
+        #define ENABLE_Trice8fn_10 1 //!< Enables  16-bit-stamp 8-bit 10 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_11
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 11 * 1)+3)&~3
+        #define ENABLE_Trice8fn_11 0 //!< Disables 16-bit-stamp 8-bit 11 values functions.
+    #else
+        #define ENABLE_Trice8fn_11 1 //!< Enables  16-bit-stamp 8-bit 11 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice8fn_12
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 12 * 1)+3)&~3
+        #define ENABLE_Trice8fn_12 0 //!< Disables 16-bit-stamp 8-bit 12 values functions.
+    #else
+        #define ENABLE_Trice8fn_12 1 //!< Enables  16-bit-stamp 8-bit 12 values functions.
+    #endif
+#endif
+
+// with 32-bit-stamp 8-bit values functions
+#ifndef ENABLE_TRice8fn_0
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 0 * 1)+3)&~3
+        #define ENABLE_TRice8fn_11 0 //!< Disables 32-bit-stamp 8-bit 0 values functions.
+    #else
+        #define ENABLE_TRice8fn_11 1 //!< Enables  32-bit-stamp 8-bit 0 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_1
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 1 * 1)+3)&~3
+        #define ENABLE_TRice8fn_1 0 //!< Disables 32-bit-stamp 8-bit 1 values functions.
+    #else
+        #define ENABLE_TRice8fn_1 1 //!< Enables  32-bit-stamp 8-bit 1 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_2
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 2 * 1)+3)&~3
+        #define ENABLE_TRice8fn_2 0 //!< Disables 32-bit-stamp 8-bit 2 values functions.
+    #else
+        #define ENABLE_TRice8fn_2 1 //!< Enables  32-bit-stamp 8-bit 2 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_3
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 3 * 1)+3)&~3
+        #define ENABLE_TRice8fn_3 0 //!< Disables 32-bit-stamp 8-bit 3 values functions.
+    #else
+        #define ENABLE_TRice8fn_3 1 //!< Enables  32-bit-stamp 8-bit 3 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_4
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 4 * 1)+3)&~3
+        #define ENABLE_TRice8fn_4 0 //!< Disables 32-bit-stamp 8-bit 4 values functions.
+    #else
+        #define ENABLE_TRice8fn_4 1 //!< Enables  32-bit-stamp 8-bit 4 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_5
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 5 * 1)+3)&~3
+        #define ENABLE_TRice8fn_5 0 //!< Disables 32-bit-stamp 8-bit 5 values functions.
+    #else
+        #define ENABLE_TRice8fn_5 1 //!< Enables  32-bit-stamp 8-bit 5 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_6
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 6 * 1)+3)&~3
+        #define ENABLE_TRice8fn_6 0 //!< Disables 32-bit-stamp 8-bit 6 values functions.
+    #else
+        #define ENABLE_TRice8fn_6 1 //!< Enables  32-bit-stamp 8-bit 6 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_7
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 7 * 1)+3)&~3
+        #define ENABLE_TRice8fn_7 0 //!< Disables 32-bit-stamp 8-bit 7 values functions.
+    #else
+        #define ENABLE_TRice8fn_7 1 //!< Enables  32-bit-stamp 8-bit 7 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_8
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 8 * 1)+3)&~3
+        #define ENABLE_TRice8fn_8 0 //!< Disables 32-bit-stamp 8-bit 8 values functions.
+    #else
+        #define ENABLE_TRice8fn_8 1 //!< Enables  32-bit-stamp 8-bit 8 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_9
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 9 * 1)+3)&~3
+        #define ENABLE_TRice8fn_9 0 //!< Disables 32-bit-stamp 8-bit 9 values functions.
+    #else
+        #define ENABLE_TRice8fn_9 1 //!< Enables  32-bit-stamp 8-bit 9 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_10
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 10 * 1)+3)&~3
+        #define ENABLE_TRice8fn_10 0 //!< Disables 32-bit-stamp 8-bit 10 values functions.
+    #else
+        #define ENABLE_TRice8fn_10 1 //!< Enables  32-bit-stamp 8-bit 10 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_11
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 11 * 1)+3)&~3
+        #define ENABLE_TRice8fn_11 0 //!< Disables 32-bit-stamp 8-bit 11 values functions.
+    #else
+        #define ENABLE_TRice8fn_11 1 //!< Enables  32-bit-stamp 8-bit 11 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice8fn_12
+    #if TRICE_SINGLE_MAX_SIZE < ((4 + 4 + 12 * 1)+3)&~3
+        #define ENABLE_TRice8fn_12 0 //!< Disables 32-bit-stamp 8-bit 12 values functions.
+    #else
+        #define ENABLE_TRice8fn_12 1 //!< Enables  32-bit-stamp 8-bit 12 values functions.
+    #endif
+#endif
 
 #if ENABLE_trice8fn_0 
 void trice8fn_0( uint16_t tid ){
@@ -242,4 +557,4 @@ void TRice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, 
 }
 #endif
 
-#endif // #if TRICE_8_BIT_SUPPORT
+#endif // #if TRICE_8_BIT_SUPPORT == 1
