@@ -235,7 +235,7 @@ static int TriceSingleDeferredOut( uint32_t * addr){
             // enc                 addr  pTriceNettoStart           nextData
             // ^-TRICE_DATA_OFFSET-^-0|2-^-triceNettoLength+(0...3)-^
             // ^-encLen->firstNotModifiedAddress
-            uint8_t * nextData = (uint8_t *)(((unsigned)(pTriceNettoStart + triceNettoLength + 3))&~3);
+            uint8_t * nextData = (uint8_t *)(((uintptr_t)(pTriceNettoStart + triceNettoLength + 3))&~3);
             uint8_t * firstNotModifiedAddress = enc + encLen;
             int distance = nextData - firstNotModifiedAddress;
             int triceDataOffsetDepth = TRICE_DATA_OFFSET - distance; // distance could get > TRICE_DATA_OFFSET, so TriceDataOffsetDepthMax stays unchanged then.
