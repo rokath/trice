@@ -22,36 +22,33 @@ void TriceLogDiagnosticValues( void ){
     }
 #endif // #ifdef SEGGER_RTT
 
+    if(TriceErrorCount > 0){
+        trice( iD(16309), "err: TriceErrorCount = %u\n", TriceErrorCount );
+    }
+    #if TRICE_PROTECT == 1
+        if(TriceDirectOverflowCount != 0){
+            trice( iD(16307), "err: TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount );
+        }
+        if(TriceDeferredOverflowCount != 0){
+            trice( iD(16308), "err: TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount );
+        }
+    #endif
+
     unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount<<2); //lint !e845 Info 845: The left argument to operator '<<' is certain to be 0 
     if( triceSingleDepthMax <= TRICE_BUFFER_SIZE ){
-        TRice16( iD(16302), "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        trice16( iD(16302), "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }else{
-        TRice16( iD(16303), "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
+        trice16( iD(16303), "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\n", triceSingleDepthMax, TRICE_BUFFER_SIZE );
     }
-    
+
     if( TriceDataOffsetDepthMax < 0 || TriceDataOffsetDepthMax >= TRICE_DATA_OFFSET ){
-        TRice16( iD(16304), "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
+        trice16( iD(16304), "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
     }else if( TriceDataOffsetDepthMax != 0 ){
-        TRice16( iD(16305), "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
+        trice16( iD(16305), "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
     }
 
     if(TriceDynBufTruncateCount != 0){
-        trice( iD(16306), "err: TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount );
-    }
-    
-#if TRICE_PROTECT == 1
-
-    if(TriceDirectOverflowCount != 0){
-        trice( iD(16307), "err: TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount );
-    }
-    if(TriceDeferredOverflowCount != 0){
-        trice( iD(16308), "err: TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount );
-    }
-
-#endif
-
-    if(TriceErrorCount > 0){
-        trice( iD(16309), "err: TriceErrorCount = %u\n", TriceErrorCount );
+        trice8( iD(16306), "err: TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount );
     }
 
 #if TRICE_BUFFER == TRICE_STACK_BUFFER
