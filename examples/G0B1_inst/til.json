@@ -1,8 +1,4 @@
 {
-	"1452": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 2.71828182845904523536 (the full number as string)\\n"
-	},
 	"15008": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
@@ -4279,61 +4275,61 @@
 		"Type": "TRICE_N",
 		"Strg": "wr:%s\\n"
 	},
-	"16370": {
-		"Type": "trice16",
-		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
-	},
-	"16371": {
-		"Type": "trice16",
-		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
-	},
-	"16372": {
-		"Type": "TRice16",
-		"Strg": "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
-	},
-	"16373": {
-		"Type": "TRice16",
-		"Strg": "diag:TriceHalfBufferDepthMax =%4u of%5d\\n"
-	},
-	"16374": {
+	"16300": {
 		"Type": "trice",
-		"Strg": "err: TriceErrorCount = %u\\n"
+		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
 	},
-	"16375": {
-		"Type": "trice",
-		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
-	},
-	"16376": {
-		"Type": "trice",
-		"Strg": "err: TriceDirectOverflowCount = %u\\n"
-	},
-	"16377": {
-		"Type": "trice",
-		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
-	},
-	"16378": {
-		"Type": "TRice16",
-		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16379": {
-		"Type": "TRice16",
-		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16380": {
-		"Type": "TRice16",
-		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
-	},
-	"16381": {
-		"Type": "TRice16",
-		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
-	},
-	"16382": {
+	"16301": {
 		"Type": "trice",
 		"Strg": "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
 	},
-	"16383": {
+	"16302": {
+		"Type": "TRice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
+	},
+	"16303": {
+		"Type": "TRice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
+	},
+	"16304": {
+		"Type": "TRice16",
+		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
+	},
+	"16305": {
+		"Type": "TRice16",
+		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
+	},
+	"16306": {
 		"Type": "trice",
-		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
+		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
+	},
+	"16307": {
+		"Type": "trice",
+		"Strg": "err: TriceDirectOverflowCount = %u\\n"
+	},
+	"16308": {
+		"Type": "trice",
+		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
+	},
+	"16309": {
+		"Type": "trice",
+		"Strg": "err: TriceErrorCount = %u\\n"
+	},
+	"16310": {
+		"Type": "TRice16",
+		"Strg": "diag:TriceHalfBufferDepthMax =%4u of%5d\\n"
+	},
+	"16311": {
+		"Type": "TRice16",
+		"Strg": "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
+	},
+	"16312": {
+		"Type": "trice16",
+		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
+	},
+	"16313": {
+		"Type": "trice16",
+		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
 	"1688": {
 		"Type": "TRice",
@@ -4369,7 +4365,7 @@
 	},
 	"5003": {
 		"Type": "Trice",
-		"Strg": "i=%d\\n"
+		"Strg": "i=%x%x\\n"
 	},
 	"5562": {
 		"Type": "Trice8",
@@ -4379,6 +4375,10 @@
 		"Type": "TRice8",
 		"Strg": "w: Hello! 👋🙂 %d\\n"
 	},
+	"5941": {
+		"Type": "TRice64_12",
+		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
+	},
 	"6023": {
 		"Type": "TRice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
@@ -4386,10 +4386,6 @@
 	"6318": {
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"6575": {
-		"Type": "TRice",
-		"Strg": "i=%d\\n"
 	},
 	"6707": {
 		"Type": "Trice",

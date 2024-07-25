@@ -114,7 +114,7 @@ void TIM17_FDCAN_IT1_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim17);
   /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
   static int i = 0;
-  if( i++>5000 ){
+  if( i++>25000 ){
     TRice( "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i );
     i = 0;
   }

@@ -6,7 +6,322 @@
 //lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
 //lint -e701  Info 701: Shift left of signed quantity (int)
 
-#if TRICE_32_BIT_SUPPORT
+#if TRICE_32_BIT_SUPPORT == 1
+
+// no-stamp 32-bit-values functions
+#ifndef ENABLE_trice32fn_0
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 0 * 4)+3)&~3)
+        #define ENABLE_trice32fn_0 0 //!< Disables no-stamp 32-bit 0 values functions.
+    #else
+        #define ENABLE_trice32fn_0 1 //!< Enables  no-stamp 32-bit 0 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_1
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 1 * 4)+3)&~3)
+        #define ENABLE_trice32fn_1 0 //!< Disables no-stamp 32-bit 1 values functions.
+    #else
+        #define ENABLE_trice32fn_1 1 //!< Enables  no-stamp 32-bit 1 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_2
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 2 * 4)+3)&~3)
+        #define ENABLE_trice32fn_2 0 //!< Disables no-stamp 32-bit 2 values functions.
+    #else
+        #define ENABLE_trice32fn_2 1 //!< Enables  no-stamp 32-bit 2 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_3
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 3 * 4)+3)&~3)
+        #define ENABLE_trice32fn_3 0 //!< Disables no-stamp 32-bit 3 values functions.
+    #else
+        #define ENABLE_trice32fn_3 1 //!< Enables  no-stamp 32-bit 3 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_4
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 4 * 4)+3)&~3)
+        #define ENABLE_trice32fn_4 0 //!< Disables no-stamp 32-bit 4 values functions.
+    #else
+        #define ENABLE_trice32fn_4 1 //!< Enables  no-stamp 32-bit 4 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_5
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 5 * 4)+3)&~3)
+        #define ENABLE_trice32fn_5 0 //!< Disables no-stamp 32-bit 5 values functions.
+    #else
+        #define ENABLE_trice32fn_5 1 //!< Enables  no-stamp 32-bit 5 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_6
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 6 * 4)+3)&~3)
+        #define ENABLE_trice32fn_6 0 //!< Disables no-stamp 32-bit 6 values functions.
+    #else
+        #define ENABLE_trice32fn_6 1 //!< Enables  no-stamp 32-bit 6 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_7
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 7 * 4)+3)&~3)
+        #define ENABLE_trice32fn_7 0 //!< Disables no-stamp 32-bit 7 values functions.
+    #else
+        #define ENABLE_trice32fn_7 1 //!< Enables  no-stamp 32-bit 7 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_8
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 8 * 4)+3)&~3)
+        #define ENABLE_trice32fn_8 0 //!< Disables no-stamp 32-bit 8 values functions.
+    #else
+        #define ENABLE_trice32fn_8 1 //!< Enables  no-stamp 32-bit 8 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_9
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 9 * 4)+3)&~3)
+        #define ENABLE_trice32fn_9 0 //!< Disables no-stamp 32-bit 9 values functions.
+    #else
+        #define ENABLE_trice32fn_9 1 //!< Enables  no-stamp 32-bit 9 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_10
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 10 * 4)+3)&~3)
+        #define ENABLE_trice32fn_10 0 //!< Disables no-stamp 32-bit 10 values functions.
+    #else
+        #define ENABLE_trice32fn_10 1 //!< Enables  no-stamp 32-bit 10 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_11
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 11 * 4)+3)&~3)
+        #define ENABLE_trice32fn_11 0 //!< Disables no-stamp 32-bit 11 values functions.
+    #else
+        #define ENABLE_trice32fn_11 1 //!< Enables  no-stamp 32-bit 11 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_trice32fn_12
+    #if TRICE_SINGLE_MAX_SIZE < (((0 + 4 + 12 * 4)+3)&~3)
+        #define ENABLE_trice32fn_12 0 //!< Disables no-stamp 32-bit 12 values functions.
+    #else
+        #define ENABLE_trice32fn_12 1 //!< Enables  no-stamp 32-bit 12 values functions.
+    #endif
+#endif
+
+// 16-bit-stamp 32-bit-values functions (16-bit-stamps need 4 bytes for allocation reasons)
+#ifndef ENABLE_Trice32fn_0
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 0 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_11 0 //!< Disables 16-bit-stamp 32-bit 0 values functions.
+    #else
+        #define ENABLE_Trice32fn_11 1 //!< Enables  16-bit-stamp 32-bit 0 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_1
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 1 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_1 0 //!< Disables 16-bit-stamp 32-bit 1 values functions.
+    #else
+        #define ENABLE_Trice32fn_1 1 //!< Enables  16-bit-stamp 32-bit 1 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_2
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 2 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_2 0 //!< Disables 16-bit-stamp 32-bit 2 values functions.
+    #else
+        #define ENABLE_Trice32fn_2 1 //!< Enables  16-bit-stamp 32-bit 2 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_3
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 3 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_3 0 //!< Disables 16-bit-stamp 32-bit 3 values functions.
+    #else
+        #define ENABLE_Trice32fn_3 1 //!< Enables  16-bit-stamp 32-bit 3 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_4
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 4 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_4 0 //!< Disables 16-bit-stamp 32-bit 4 values functions.
+    #else
+        #define ENABLE_Trice32fn_4 1 //!< Enables  16-bit-stamp 32-bit 4 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_5
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 5 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_5 0 //!< Disables 16-bit-stamp 32-bit 5 values functions.
+    #else
+        #define ENABLE_Trice32fn_5 1 //!< Enables  16-bit-stamp 32-bit 5 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_6
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 6 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_6 0 //!< Disables 16-bit-stamp 32-bit 6 values functions.
+    #else
+        #define ENABLE_Trice32fn_6 1 //!< Enables  16-bit-stamp 32-bit 6 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_7
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 7 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_7 0 //!< Disables 16-bit-stamp 32-bit 7 values functions.
+    #else
+        #define ENABLE_Trice32fn_7 1 //!< Enables  16-bit-stamp 32-bit 7 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_8
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 8 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_8 0 //!< Disables 16-bit-stamp 32-bit 8 values functions.
+    #else
+        #define ENABLE_Trice32fn_8 1 //!< Enables  16-bit-stamp 32-bit 8 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_9
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 9 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_9 0 //!< Disables 16-bit-stamp 32-bit 9 values functions.
+    #else
+        #define ENABLE_Trice32fn_9 1 //!< Enables  16-bit-stamp 32-bit 9 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_10
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 10 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_10 0 //!< Disables 16-bit-stamp 32-bit 10 values functions.
+    #else
+        #define ENABLE_Trice32fn_10 1 //!< Enables  16-bit-stamp 32-bit 10 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_11
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 11 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_11 0 //!< Disables 16-bit-stamp 32-bit 11 values functions.
+    #else
+        #define ENABLE_Trice32fn_11 1 //!< Enables  16-bit-stamp 32-bit 11 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_Trice32fn_12
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 12 * 4)+3)&~3)
+        #define ENABLE_Trice32fn_12 0 //!< Disables 16-bit-stamp 32-bit 12 values functions.
+    #else
+        #define ENABLE_Trice32fn_12 1 //!< Enables  16-bit-stamp 32-bit 12 values functions.
+    #endif
+#endif
+
+// with 32-bit-stamp 32-bit-values functions
+#ifndef ENABLE_TRice32fn_0
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 0 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_11 0 //!< Disables 32-bit-stamp 32-bit 0 values functions.
+    #else
+        #define ENABLE_TRice32fn_11 1 //!< Enables  32-bit-stamp 32-bit 0 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_1
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 1 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_1 0 //!< Disables 32-bit-stamp 32-bit 1 values functions.
+    #else
+        #define ENABLE_TRice32fn_1 1 //!< Enables  32-bit-stamp 32-bit 1 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_2
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 2 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_2 0 //!< Disables 32-bit-stamp 32-bit 2 values functions.
+    #else
+        #define ENABLE_TRice32fn_2 1 //!< Enables  32-bit-stamp 32-bit 2 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_3
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 3 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_3 0 //!< Disables 32-bit-stamp 32-bit 3 values functions.
+    #else
+        #define ENABLE_TRice32fn_3 1 //!< Enables  32-bit-stamp 32-bit 3 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_4
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 4 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_4 0 //!< Disables 32-bit-stamp 32-bit 4 values functions.
+    #else
+        #define ENABLE_TRice32fn_4 1 //!< Enables  32-bit-stamp 32-bit 4 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_5
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 5 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_5 0 //!< Disables 32-bit-stamp 32-bit 5 values functions.
+    #else
+        #define ENABLE_TRice32fn_5 1 //!< Enables  32-bit-stamp 32-bit 5 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_6
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 6 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_6 0 //!< Disables 32-bit-stamp 32-bit 6 values functions.
+    #else
+        #define ENABLE_TRice32fn_6 1 //!< Enables  32-bit-stamp 32-bit 6 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_7
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 7 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_7 0 //!< Disables 32-bit-stamp 32-bit 7 values functions.
+    #else
+        #define ENABLE_TRice32fn_7 1 //!< Enables  32-bit-stamp 32-bit 7 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_8
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 8 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_8 0 //!< Disables 32-bit-stamp 32-bit 8 values functions.
+    #else
+        #define ENABLE_TRice32fn_8 1 //!< Enables  32-bit-stamp 32-bit 8 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_9
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 9 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_9 0 //!< Disables 32-bit-stamp 32-bit 9 values functions.
+    #else
+        #define ENABLE_TRice32fn_9 1 //!< Enables  32-bit-stamp 32-bit 9 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_10
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 10 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_10 0 //!< Disables 32-bit-stamp 32-bit 10 values functions.
+    #else
+        #define ENABLE_TRice32fn_10 1 //!< Enables  32-bit-stamp 32-bit 10 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_11
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 11 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_11 0 //!< Disables 32-bit-stamp 32-bit 11 values functions.
+    #else
+        #define ENABLE_TRice32fn_11 1 //!< Enables  32-bit-stamp 32-bit 11 values functions.
+    #endif
+#endif
+
+#ifndef ENABLE_TRice32fn_12
+    #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 12 * 4)+3)&~3)
+        #define ENABLE_TRice32fn_12 0 //!< Disables 32-bit-stamp 32-bit 12 values functions.
+    #else
+        #define ENABLE_TRice32fn_12 1 //!< Enables  32-bit-stamp 32-bit 12 values functions.
+    #endif
+#endif
 
 #if ENABLE_trice32fn_0 
 void trice32fn_0( uint16_t tid ){
@@ -242,4 +557,4 @@ void TRice32fn_12( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t
 }
 #endif
 
-#endif // #if TRICE_32_BIT_SUPPORT
+#endif // #if TRICE_32_BIT_SUPPORT == 1

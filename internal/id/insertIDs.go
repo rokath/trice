@@ -235,7 +235,10 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 		}
 		// If no match was found inside ids we assign the ID found in source file.
 		if idN == 0 {
-			idN = idn // It is possible, that idn is 0, for example when `TRICE( id(0), "Hi!" );` is inside src.
+			_, used := p.idToTrice[idn]
+			if !used {
+				idN = idn // It is possible, that idn is 0, for example when `TRICE( id(0), "Hi!" );` is inside src.
+			}
 		}
 		if idN == 0 { // newID
 			idN = p.newID()

@@ -42,8 +42,12 @@ func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 func (p *idData) removeIDFromIDSpace(id TriceID) {
 	for index, i := range p.IDSpace {
 		if i == id {
-			p.IDSpace[index] = p.IDSpace[len(p.IDSpace)-1] // overwrite with last
-			p.IDSpace = p.IDSpace[:len(p.IDSpace)-1]       // remove last
+			if SearchMethod == "random" { // do not care about order inside IDSpace, so do it fast
+				p.IDSpace[index] = p.IDSpace[len(p.IDSpace)-1] // overwrite with last
+				p.IDSpace = p.IDSpace[:len(p.IDSpace)-1]       // remove last
+			} else { // keep order inside IDSpace, so do it costly
+				p.IDSpace = append(p.IDSpace[:index], p.IDSpace[index+1:]...)
+			}
 		}
 	}
 }

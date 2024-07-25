@@ -1,4 +1,4 @@
-/*! \file internalTrice8.h
+/*! \file Trice8.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 

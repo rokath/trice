@@ -7,7 +7,7 @@ trice clean -src ./exampleData
 # Insert fresh IDs
 rm til.json li.json # remove old stuff
 touch til.json li.json
-trice insert -src ./exampleData -IDMax 16383 -IDMethod downward
+trice insert -src ./exampleData -IDMin 16300 -IDMax 16379 -IDMethod upward
 rm til.json li.json # remove JSON files, because the IDs inside the ./example files now and we do not use thes JSON files at all
 
 VSCODETARGETDIRS="

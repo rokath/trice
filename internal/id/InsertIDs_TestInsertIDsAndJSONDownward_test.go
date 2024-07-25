@@ -1,6 +1,7 @@
-package id_test
+// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+// Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// The tests in this file cannot run concurrently!
+package id_test
 
 import (
 	"bytes"

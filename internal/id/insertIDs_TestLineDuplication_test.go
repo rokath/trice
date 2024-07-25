@@ -14,15 +14,15 @@ import (
 	"github.com/tj/assert"
 )
 
-func TestInsertIDsAndJSONUpward(t *testing.T) {
+func TestInsertLineDuplicates(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	defer id.SetupTest(t, fSys)()
 
 	// create src files
 	src0 := `
-	TRice( "Hi!" );
-	TRice( "Hi!" );
+	TRice( iD(10), "Hi!" );
+	TRice( iD(10), "Hi!" );
 	`
 	fn0 := t.Name() + "file0.c"
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
