@@ -55,31 +55,6 @@ static uint32_t * triceBufferSwap( void ){
     return &triceBuffer[!triceSwap][0]; //lint !e514
 }
 
-//  //! triceDepth returns the total trice byte count ready for transfer.
-//  //! The trice data start at tb + TRICE_DATA_OFFSET.
-//  //! The returned depth is without the TRICE_DATA_OFFSET offset.
-//  static size_t triceDepth( const uint32_t * tb ){
-//      size_t result;
-//      TRICE_ENTER_CRITICAL_SECTION
-//      size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
-//      result = depth - TRICE_DATA_OFFSET;
-//      TRICE_LEAVE_CRITICAL_SECTION
-//      return result;
-//  }
-
-//! triceCurrentHalfBufferDepth returns the total trice byte count ready for transfer.
-//! The trice data start at tb + TRICE_DATA_OFFSET.
-//! The returned depth is without the TRICE_DATA_OFFSET offset.
-static size_t triceCurrentHalfBufferDepth( void ){
-    size_t result;
-    TRICE_ENTER_CRITICAL_SECTION
-    const uint32_t * wriBuf = &triceBuffer[triceSwap][0];
-    size_t depth = (triceBufferWriteLimit - wriBuf)<<2; //lint !e701 // 32-bit write width 
-    result = depth - TRICE_DATA_OFFSET;
-    TRICE_LEAVE_CRITICAL_SECTION
-    return result;
-}
-
 #if TRICE_PROTECT == 1
 
 //! TriceEnoughSpace checks, if at least TRICE_SINGLE_MAX_SIZE bytes available for the next trice.
@@ -105,27 +80,56 @@ int TriceEnoughSpace( void ){
 
 #endif // #if TRICE_PROTECT == 1
 
-//  //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
-//  //! It is the resposibility of the app to call this function once every 10-100 milliseconds.
-//  void TriceTransfer( void ){
-//      if( 0 == TriceOutDepth() ){ // transmission done for slowest output channel, so a swap is possible
-//          uint32_t* tb = triceBufferSwap(); 
-//          size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
-//          if( tLen ){
-//              TriceOut( tb, tLen );
-//          }
-//      } // else: transmission not done yet
-//  }
+#if 1
+
+//! triceDepth returns the total trice byte count ready for transfer.
+//! The trice data start at tb + TRICE_DATA_OFFSET.
+//! The returned depth is without the TRICE_DATA_OFFSET offset.
+static size_t triceDepth( const uint32_t * tb ){
+    size_t result;
+    TRICE_ENTER_CRITICAL_SECTION
+    size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
+    result = depth - TRICE_DATA_OFFSET;
+    TRICE_LEAVE_CRITICAL_SECTION
+    return result;
+}
 
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
-//! It is the resposibility of the app to call this function once every 10-100 milliseconds.
+//! It is the responsibility of the app to call this function once every 10-100 milliseconds.
+void TriceTransfer( void ){
+    if( 0 == TriceOutDepth() ){ // transmission done for slowest output channel, so a swap is possible
+        uint32_t* tb = triceBufferSwap(); 
+        size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
+        if( tLen ){
+            TriceOut( tb, tLen );
+        }
+    } // else: transmission not done yet
+}
+
+#else
+
+//! triceCurrentHalfBufferDepth returns the total trice byte count ready for transfer.
+//! The trice data start at tb + TRICE_DATA_OFFSET.
+//! The returned depth is without the TRICE_DATA_OFFSET offset.
+static size_t triceCurrentHalfBufferDepth( void ){
+    size_t result;
+    TRICE_ENTER_CRITICAL_SECTION
+    const uint32_t * wriBuf = &triceBuffer[triceSwap][0];
+    size_t depth = (triceBufferWriteLimit - wriBuf)<<2; //lint !e701 // 32-bit write width 
+    result = depth - TRICE_DATA_OFFSET;
+    TRICE_LEAVE_CRITICAL_SECTION
+    return result;
+}
+
+//! TriceTransfer, if possible, swaps the double buffer and initiates a write.
+//! It is the responsibility of the app to call this function once every 10-100 milliseconds.
 void TriceTransfer( void ){
     if( 0 == TriceOutDepth() ){ // transmission done for slowest output channel, so a swap is possible.
         uint32_t * readBuf;
         size_t tLen;
         TRICE_ENTER_CRITICAL_SECTION
         tLen = triceCurrentHalfBufferDepth(); // tlen is always a multiple of 4.
-        if( tLen ){ // Some Trice data are avaliable.
+        if( tLen ){ // Some Trice data are available.
             readBuf = triceBufferSwap();
         }
         TRICE_LEAVE_CRITICAL_SECTION
@@ -134,6 +138,8 @@ void TriceTransfer( void ){
         }
     }
 }
+
+#endif
 
 //! TriceNext expects at *buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
 //! \todo: use this function only when MULTI
