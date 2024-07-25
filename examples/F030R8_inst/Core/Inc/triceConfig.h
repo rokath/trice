@@ -26,7 +26,7 @@ extern uint32_t ms32;
 // trice l -p com5 -pf cobs -pw MySecret -showID "d:%04x" -ts16 "time:     #%6d"
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_BUFFER_SIZE 64
-#define TRICE_DATA_OFFSET 8
+#define TRICE_DATA_OFFSET 16
 #define TRICE_SINGLE_MAX_SIZE 8
 //#define TRICE_DEFERRED_XTEA_ENCRYPT 1
 //#define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE

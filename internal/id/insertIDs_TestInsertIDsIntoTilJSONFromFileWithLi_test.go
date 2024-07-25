@@ -1,7 +1,5 @@
 package id_test
 
-// The tests in this file cannot run concurrently!
-
 import (
 	"bytes"
 	"fmt"
