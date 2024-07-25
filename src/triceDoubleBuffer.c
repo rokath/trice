@@ -15,10 +15,10 @@ static void TriceOut( uint32_t* tb, size_t tLen );
 //! ^-TRICE_DATA_OFFSET-^-restOf_TRICE_DEFERRED_BUFFER_SIZE-Limit
 static uint32_t triceBuffer[2][TRICE_DEFERRED_BUFFER_SIZE>>3] = {0}; 
 
-uint32_t * const triceWriteStartHalfBuffer0 = &triceBuffer[0][TRICE_DATA_OFFSET>>2];
-uint32_t * const triceWriteLimitHalfBuffer0 = &triceBuffer[0][TRICE_DEFERRED_BUFFER_SIZE>>3];
-uint32_t * const triceWriteStartHalfBuffer1 = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
-uint32_t * const triceWriteLimitHalfBuffer1 = &triceBuffer[1][TRICE_DEFERRED_BUFFER_SIZE>>3];
+static uint32_t * const triceWriteStartHalfBuffer0 = &triceBuffer[0][TRICE_DATA_OFFSET>>2];
+static uint32_t * const triceWriteLimitHalfBuffer0 = &triceBuffer[0][TRICE_DEFERRED_BUFFER_SIZE>>3];
+static uint32_t * const triceWriteStartHalfBuffer1 = &triceBuffer[1][TRICE_DATA_OFFSET>>2];
+static uint32_t * const triceWriteLimitHalfBuffer1 = &triceBuffer[1][TRICE_DEFERRED_BUFFER_SIZE>>3];
 
 //! triceActiveHalfBuffer is the index of the active write buffer. !triceActiveHalfBuffer is the active read buffer index.
 static int triceActiveHalfBuffer = 0;
@@ -31,7 +31,7 @@ uint32_t* TriceBufferWritePositionStart = triceWriteStartHalfBuffer0;
 
 #if TRICE_PROTECT == 1
 //! TriceBufferWritePositionLimit is the first not usable address of the current written half buffer.
-uint32_t* TriceBufferWritePositionLimit = triceWriteLimitHalfBuffer0;
+static uint32_t* TriceBufferWritePositionLimit = triceWriteLimitHalfBuffer0;
 
 //! TriceEnoughSpace checks, if at least TRICE_SINGLE_MAX_SIZE bytes available for the next trice.
 //! \retval 0, when not enough space
