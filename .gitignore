@@ -11,3 +11,5 @@
 # files
 **/gccLinksClangWarning.txt
 **/.mxproject
+
+internal/receiver/trices.raw

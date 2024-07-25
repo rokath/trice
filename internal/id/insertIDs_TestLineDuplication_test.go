@@ -1,6 +1,7 @@
-package id_test
+// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+// Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// The tests in this file cannot run concurrently!
+package id_test
 
 import (
 	"bytes"
@@ -20,8 +21,8 @@ func TestInsertLineDuplicates(t *testing.T) {
 
 	// create src files
 	src0 := `
-	TRice( "Hi!" );
-	TRice( "Hi!" );
+	TRice( iD(10), "Hi!" );
+	TRice( iD(10), "Hi!" );
 	`
 	fn0 := t.Name() + "file0.c"
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
