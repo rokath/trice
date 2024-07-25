@@ -29,7 +29,7 @@ void TriceNonBlockingWriteUartA( const void * buf, size_t nByte ){
         #if 0
             triceOutBufferUartA = buf;
         #else
-            static uint8_t t[TRICE_BUFFER_SIZE];
+            static uint8_t t[TRICE_DEFERRED_BUFFER_SIZE/2]; // todo: find a better solution to avoid RAM wasting
             memcpy( t, buf, nByte );
             triceOutBufferUartA = t;
         #endif
