@@ -1,4 +1,16 @@
 {
+	"1151": {
+		"Type": "trice8",
+		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
+	},
+	"1178": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"1432": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
+	},
 	"15008": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
@@ -206,6 +218,10 @@
 	"15059": {
 		"Type": "TRICE",
 		"Strg": "\\n"
+	},
+	"1506": {
+		"Type": "TRice",
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
 	},
 	"15060": {
 		"Type": "TRICE8_B",
@@ -4275,6 +4291,10 @@
 		"Type": "TRICE_N",
 		"Strg": "wr:%s\\n"
 	},
+	"1630": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
+	},
 	"16300": {
 		"Type": "trice",
 		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
@@ -4284,36 +4304,36 @@
 		"Strg": "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
 	},
 	"16302": {
-		"Type": "TRice16",
-		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
+		"Type": "trice",
+		"Strg": "err: TriceErrorCount = %u\\n"
 	},
 	"16303": {
-		"Type": "TRice16",
-		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
-	},
-	"16304": {
-		"Type": "TRice16",
-		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16305": {
-		"Type": "TRice16",
-		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16306": {
-		"Type": "trice",
-		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
-	},
-	"16307": {
 		"Type": "trice",
 		"Strg": "err: TriceDirectOverflowCount = %u\\n"
 	},
-	"16308": {
+	"16304": {
 		"Type": "trice",
 		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
 	},
+	"16305": {
+		"Type": "trice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
+	},
+	"16306": {
+		"Type": "trice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
+	},
+	"16307": {
+		"Type": "trice16",
+		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
+	"16308": {
+		"Type": "trice16",
+		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
 	"16309": {
-		"Type": "trice",
-		"Strg": "err: TriceErrorCount = %u\\n"
+		"Type": "trice8",
+		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
 	},
 	"16310": {
 		"Type": "TRice16",
@@ -4335,8 +4355,24 @@
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics\\n"
 	},
+	"1908": {
+		"Type": "trice",
+		"Strg": "err: TriceDirectOverflowCount = %u\\n"
+	},
 	"2004": {
 		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"2144": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"2295": {
+		"Type": "trice",
+		"Strg": "err: TriceErrorCount = %u\\n"
+	},
+	"2304": {
+		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"2359": {
@@ -4351,6 +4387,18 @@
 		"Type": "TRice",
 		"Strg": "msg:StartDefaultTask\\n"
 	},
+	"3335": {
+		"Type": "TRice8",
+		"Strg": "w: Hello! 👋🙂 %d\\n"
+	},
+	"3588": {
+		"Type": "trice16",
+		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
+	"3639": {
+		"Type": "trice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
+	},
 	"3716": {
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
@@ -4363,9 +4411,37 @@
 		"Type": "TRice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
+	"4480": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"4987": {
+		"Type": "trice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE))))\\n"
+	},
 	"5003": {
 		"Type": "Trice",
 		"Strg": "i=%x%x\\n"
+	},
+	"5095": {
+		"Type": "Trice",
+		"Strg": "i=%x%x\\n"
+	},
+	"5112": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"5449": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
+	},
+	"5483": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
+	},
+	"5548": {
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics\\n"
 	},
 	"5562": {
 		"Type": "Trice8",
@@ -4387,9 +4463,25 @@
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
+	"6413": {
+		"Type": "trice16",
+		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
 	"6707": {
 		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"6744": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %f (default rounded float)\\n"
+	},
+	"6999": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"7013": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"7054": {
 		"Type": "TRice",
@@ -4402,5 +4494,17 @@
 	"7308": {
 		"Type": "Trice8",
 		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
+	},
+	"7404": {
+		"Type": "TRice64_12",
+		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
+	},
+	"7679": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n\\n\\n"
+	},
+	"7801": {
+		"Type": "trice",
+		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
 	}
 }

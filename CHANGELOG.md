@@ -203,20 +203,20 @@ This is a major release hopefully not breaking too much!
 
 ##  5. <a name='v0.64.1changesunsorted'></a>v0.64.1 changes (unsorted)
 
-- b171458c (origin/debug, debug) Bugfix: Temp buffer was too small
-- 478bfa7d diagnostics re-ordered to get more secure output if buffers are very small
-- 3714af9f double buffer re-worked, tests ok
-- 43c327bc Minor ID management improvement
-- 7ac98469 remove unused commands from install with renaming
-- b2824c07 TRICE_DATA_OFFSET diagnostics added.
-- 0be73a55 TRICE_SINGLE_MAX_SIZE now disables Trice functions needing more space.
-- 2fa74111 Issue #476 solved
-- f6fdb28f Update ReadMe.md
-- 67fc2879 small encryption bugfix
-- 2bd02c25 Links corrected
-- 74b2449d examples doc improved
-- 1b3ae219 doc updated
-- ba18d165 smaller improvements
-- f714c213 duplicate information removed and referenced to origin
-- a2ec33fe hint added
-- 4df3bfa5 ReadMe.md added to some examples
+- `b171458c` (origin/debug, debug) Bugfix: Temp buffer was too small
+- `478bfa7d` diagnostics re-ordered to get more secure output if buffers are very small
+- `3714af9f` double buffer re-worked, tests ok
+- `43c327bc` Minor ID management improvement
+- `7ac98469` remove unused commands from install with renaming
+- `b2824c07` TRICE_DATA_OFFSET diagnostics added.
+- `0be73a55` TRICE_SINGLE_MAX_SIZE now disables Trice functions needing more space.
+- `2fa74111` Issue [#476](https://github.com/rokath/trice/issues/476) solved
+- `f6fdb28f` Update ReadMe.md
+- `67fc2879` small encryption bugfix
+- `2bd02c25` Links corrected
+- `74b2449d` examples doc improved
+- `1b3ae219` doc updated
+- `ba18d165` smaller improvements
+- `f714c213` duplicate information removed and referenced to origin
+- `a2ec33fe` hint added
+- `4df3bfa5` ReadMe.md added to some examples

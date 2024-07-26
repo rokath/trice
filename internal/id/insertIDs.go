@@ -233,7 +233,9 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 				break
 			}
 		}
-		// If no match was found inside ids we assign the ID found in source file.
+		if Verbose {
+			fmt.Println("If no match was found inside ids we assign the ID found in source file.")
+		}
 		if idN == 0 {
 			_, used := p.idToTrice[idn]
 			if !used {

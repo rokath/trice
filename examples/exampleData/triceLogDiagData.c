@@ -42,9 +42,9 @@ void TriceLogDiagnosticValues( void ){
     }
 
     if( TriceDataOffsetDepthMax < 0 || TriceDataOffsetDepthMax >= TRICE_DATA_OFFSET ){
-        trice16( iD(16307), "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
+        trice16( iD(16307), "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
     }else if( TriceDataOffsetDepthMax != 0 ){
-        trice16( iD(16308), "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
+        trice16( iD(16308), "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET );
     }
 
     if(TriceDynBufTruncateCount != 0){

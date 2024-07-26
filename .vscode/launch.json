@@ -445,6 +445,29 @@
                     "${workspaceFolder}/test/testdata",
                     "-v"
             ]
+        },
+        {
+            "name": "insert -src ../try",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["insert",
+                    "-IDMin",
+                    "10", 
+                    "-IDMax",
+                    "20",
+                    "-IDMethod",
+                    "upward",
+                    "-idlist",
+                    "${workspaceFolder}/try/til.json",
+                    "-locationInformation",
+                    "${workspaceFolder}/try/li.json",
+                    "-src",
+                    "${workspaceFolder}/try",
+                    "-v"
+            ]
         }
     ]
 }
