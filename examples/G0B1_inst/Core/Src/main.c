@@ -320,13 +320,13 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    static int i = 50;
-    if( i++ > 330 ){
-      i = 50;
+    static int i = 0;
+    if( i++ > 400 ){
+      i = 0;
     }
     TriceCheck( i ); // this generates trice data
   
-    osDelay(100);
+    osDelay(5);
   }
   /* USER CODE END 5 */
 }
@@ -347,7 +347,7 @@ void StartTask02(void const * argument)
   {
     TriceTransfer();
     static int i = 0;
-    if( ++i >= 3000 ){
+    if( ++i >= 30000 ){
       i = 0;
       TriceLogDiagnosticValues();
     }

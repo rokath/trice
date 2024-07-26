@@ -5,11 +5,11 @@
 	},
 	"2004": {
 		"File": "main.c",
-		"Line": 97
+		"Line": 98
 	},
 	"2359": {
 		"File": "main.c",
-		"Line": 100
+		"Line": 99
 	},
 	"2740": {
 		"File": "main.c",
@@ -53,11 +53,11 @@
 	},
 	"6318": {
 		"File": "main.c",
-		"Line": 99
+		"Line": 100
 	},
 	"6707": {
 		"File": "main.c",
-		"Line": 98
+		"Line": 97
 	},
 	"7054": {
 		"File": "stm32g0xx_it.c",
