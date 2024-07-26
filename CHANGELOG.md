@@ -204,7 +204,7 @@ This is a major release hopefully not breaking too much!
 ##  5. <a name='v0.64.1changesunsorted'></a>v0.64.1 changes (unsorted)
 
 - b171458c (origin/debug, debug) Bugfix: Temp buffer was too small
-- 478bfa7d diagnostics re-ordered to get more secure output is buffers are very small
+- 478bfa7d diagnostics re-ordered to get more secure output if buffers are very small
 - 3714af9f doble buffer re-worked, tests ok
 - 43c327bc Minor ID management improvement
 - 7ac98469 remove unused commands from install with renaming
