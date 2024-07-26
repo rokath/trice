@@ -1,13 +1,14 @@
 <!-- vscode-markdown-toc -->
-- [1. v0.60.1 Twice Log Screen Shot](#1-v0601-twice-log-screen-shot)
-- [2. v0.56.0 Changes](#2-v0560-changes)
-  - [2.1. Legacy `TRICE*` macros](#21-legacy-trice-macros)
-  - [2.2. Function call macros `TRice`, `Trice` and `trice`](#22-function-call-macros-trice-trice-and-trice)
-  - [2.3. Common improvements](#23-common-improvements)
-  - [2.4. CLI changes](#24-cli-changes)
-  - [2.5. Changes under the hood](#25-changes-under-the-hood)
-- [3. v063. Changes](#3-v063-changes)
-- [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
+* 1. [v0.60.1 Twice Log Screen Shot](#v0.60.1TwiceLogScreenShot)
+* 2. [v0.56.0 Changes](#v0.56.0Changes)
+	* 2.1. [Legacy `TRICE*` macros](#LegacyTRICEmacros)
+	* 2.2. [Function call macros `TRice`, `Trice` and `trice`](#FunctioncallmacrosTRiceTriceandtrice)
+	* 2.3. [Common improvements](#Commonimprovements)
+	* 2.4. [CLI changes](#CLIchanges)
+	* 2.5. [Changes under the hood](#Changesunderthehood)
+* 3. [v063. Changes](#v063.Changes)
+* 4. [v0.64.0 Changes (unsorted)](#v0.64.0Changesunsorted)
+* 5. [v0.64.1 changes (unsorted)](#v0.64.1changesunsorted)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -64,6 +65,7 @@ date        | version | comment
 2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.
 2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#3-v063-changes)
 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
+2024-JUL-26 |  0.64.1 | See [v0.64.1 changes (unsorted)](#v0.64.1changesunsorted)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -198,3 +200,23 @@ This is a major release hopefully not breaking too much!
 - compiler switches variants
 - improved id testing
 - triceDefaultConfig.h
+
+##  5. <a name='v0.64.1changesunsorted'></a>v0.64.1 changes (unsorted)
+
+- b171458c (origin/debug, debug) Bugfix: Temp buffer was too small
+- 478bfa7d diagnostics re-ordered to get more secure output is buffers are very small
+- 3714af9f doble buffer re-worked, tests ok
+- 43c327bc Minor ID management improvement
+- 7ac98469 remove unused commands from install with renaming
+- b2824c07 TRICE_DATA_OFFSET diagnostics added.
+- 0be73a55 TRICE_SINGLE_MAX_SIZE now disables Trice functions needing more space.
+- 2fa74111 Issue #476 solved
+- f6fdb28f Update ReadMe.md
+- 67fc2879 small encryption bugfix
+- 2bd02c25 Links corrected
+- 74b2449d examples doc improved
+- 1b3ae219 doc updated
+- ba18d165 smaller improvements
+- f714c213 duplicate information removed and referenced to origin
+- a2ec33fe hint added
+- 4df3bfa5 ReadMe.md added to some examples
