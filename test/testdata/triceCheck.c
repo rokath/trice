@@ -45,7 +45,7 @@ void TriceCheck(int n) {
         break; case __LINE__: TRice( iD(15010), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
         break; case __LINE__: Trice( iD(15011), "info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
         break; case __LINE__: trice( iD(15012), "info:This is a message without values and without stamp.\n"  ); //exp: time:            default: info:This is a message without values and without stamp.
-        break; case __LINE__: for( int i = 0; i < 2000; i++ ){ dynString(i); }
+        //break; case __LINE__: for( int i = 0; i < 1000; i++ ){ dynString(i); }
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:01

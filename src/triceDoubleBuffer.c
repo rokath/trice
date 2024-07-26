@@ -97,7 +97,6 @@ void TriceTransfer( void ){
     }
 }
 
-
 //! TriceNext expects at *buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
 //! \todo: use this function only when MULTI
 //! \param buf points to 32-bit aligned trice messages and is filled with the advanced buf.
