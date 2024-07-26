@@ -347,7 +347,7 @@ void StartTask02(void const * argument)
   {
     TriceTransfer();
     static int i = 0;
-    if( ++i >= 30000 ){
+    if( ++i >= 3000 ){
       i = 0;
       TriceLogDiagnosticValues();
     }

@@ -7,6 +7,10 @@
 		"Type": "TRice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
+	"1366": {
+		"Type": "TRice64_12",
+		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
+	},
 	"1432": {
 		"Type": "Trice8",
 		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
@@ -4355,6 +4359,10 @@
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics\\n"
 	},
+	"1902": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
+	},
 	"1908": {
 		"Type": "trice",
 		"Strg": "err: TriceDirectOverflowCount = %u\\n"
@@ -4362,6 +4370,10 @@
 	"2004": {
 		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"2050": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
 	},
 	"2144": {
 		"Type": "Trice",
@@ -4375,7 +4387,15 @@
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
+	"2319": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
+	},
 	"2359": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"2655": {
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
@@ -4399,6 +4419,10 @@
 		"Type": "trice16",
 		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
 	},
+	"3661": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"3716": {
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
@@ -4406,6 +4430,10 @@
 	"4098": {
 		"Type": "trice",
 		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n\\n\\n"
+	},
+	"4271": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"4398": {
 		"Type": "TRice",
@@ -4423,6 +4451,10 @@
 		"Type": "Trice",
 		"Strg": "i=%x%x\\n"
 	},
+	"5069": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"5095": {
 		"Type": "Trice",
 		"Strg": "i=%x%x\\n"
@@ -4434,6 +4466,10 @@
 	"5449": {
 		"Type": "trice64",
 		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
+	},
+	"5452": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"5483": {
 		"Type": "trice",
@@ -4454,6 +4490,10 @@
 	"5941": {
 		"Type": "TRice64_12",
 		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
+	},
+	"5994": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"6023": {
 		"Type": "TRice",

@@ -1,11 +1,7 @@
 {
-	"1178": {
+	"1366": {
 		"File": "main.c",
-		"Line": 95
-	},
-	"1432": {
-		"File": "main.c",
-		"Line": 102
+		"Line": 107
 	},
 	"1506": {
 		"File": "stm32g0xx_it.c",
@@ -15,11 +11,23 @@
 		"File": "main.c",
 		"Line": 103
 	},
+	"1902": {
+		"File": "main.c",
+		"Line": 105
+	},
+	"2050": {
+		"File": "main.c",
+		"Line": 102
+	},
 	"2144": {
 		"File": "main.c",
-		"Line": 98
+		"Line": 97
 	},
-	"2304": {
+	"2319": {
+		"File": "main.c",
+		"Line": 106
+	},
+	"2655": {
 		"File": "main.c",
 		"Line": 99
 	},
@@ -27,45 +35,37 @@
 		"File": "main.c",
 		"Line": 101
 	},
-	"4480": {
+	"3661": {
 		"File": "main.c",
 		"Line": 100
+	},
+	"4271": {
+		"File": "main.c",
+		"Line": 95
+	},
+	"5069": {
+		"File": "main.c",
+		"Line": 98
 	},
 	"5095": {
 		"File": "main.c",
 		"Line": 109
 	},
-	"5112": {
+	"5452": {
 		"File": "main.c",
-		"Line": 97
-	},
-	"5449": {
-		"File": "main.c",
-		"Line": 106
-	},
-	"5483": {
-		"File": "main.c",
-		"Line": 105
+		"Line": 96
 	},
 	"5548": {
 		"File": "main.c",
 		"Line": 344
 	},
-	"6744": {
-		"File": "main.c",
-		"Line": 104
-	},
-	"6999": {
-		"File": "main.c",
-		"Line": 96
-	},
-	"7013": {
+	"5994": {
 		"File": "main.c",
 		"Line": 319
 	},
-	"7404": {
+	"6744": {
 		"File": "main.c",
-		"Line": 107
+		"Line": 104
 	},
 	"7679": {
 		"File": "main.c",
