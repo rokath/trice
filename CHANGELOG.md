@@ -67,6 +67,7 @@ date        | version | comment
 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes (unsorted)](#v0.64.1changesunsorted)
 2024-JUL-26 |  0.64.2 | minor cleanups
+2024-JUL-27 |  0.64.3 | ID management improved for special cases
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
