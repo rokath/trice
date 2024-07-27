@@ -444,3 +444,85 @@ func TestChangeIDAfterStringModification2(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, expLI, string(actLI))
 }
+
+// TestAddIDToTilJSON tests to not change src file if not needed.
+func TestAddIDToTilJSON(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
+
+	// create src file
+	fn0 := t.Name() + "file0.c"
+	src0 := `
+	TRice( iD(88), "Hi!" );
+	`
+	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
+	// check src
+	actSrc0, e := fSys.ReadFile(fn0)
+	assert.Nil(t, e)
+	assert.Equal(t, src0, string(actSrc0))
+
+	// create til.json
+	tilJSON := `{
+	"10": {
+		"Type": "TRice",
+		"Strg": "Hi!"
+	}
+}`
+
+	assert.Nil(t, fSys.WriteFile(id.FnJSON, []byte(tilJSON), 0777))
+	// check til
+	actJSON, e := fSys.ReadFile(id.FnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, tilJSON, string(actJSON))
+
+	LI := `{
+	"10": {
+		"File": "` + fn0 + `",
+		"Line": 2
+	}
+}`
+	// check li
+	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(LI), 0777))
+	actLI, e := fSys.ReadFile(id.LIFnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, LI, string(actLI))
+
+	// action
+	var b bytes.Buffer
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src", "./", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "10", "-IDMax", "20", "-IDMethod", "upward"}))
+
+	// check source files
+	expSrc0 := `
+	TRice( iD(88), "Hi!" );
+	`
+	actSrc0, e = fSys.ReadFile(fn0)
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc0, string(actSrc0))
+
+	// check til.json
+	expJSON := `{
+	"10": {
+		"Type": "TRice",
+		"Strg": "Hi!"
+	},
+	"88": {
+		"Type": "TRice",
+		"Strg": "Hi!"
+	}
+}`
+	actJSON, e = fSys.ReadFile(id.FnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expJSON, string(actJSON))
+
+	// check location information
+	expLI := `{
+	"88": {
+		"File": "` + fn0 + `",
+		"Line": 2
+	}
+}`
+	actLI, e = fSys.ReadFile(id.LIFnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expLI, string(actLI))
+}
