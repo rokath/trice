@@ -163,6 +163,7 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 		var filenameMatch bool
 		idCandidateIndex := math.MaxInt
 		idCandidateLine := math.MaxInt
+	idsLoopEntry:
 		// id slice ids loop
 		for i, id := range ids { // It is possible, that idn == 0 or no id matches idn != 0 or ids is nil.
 			if id == 0 {
@@ -170,6 +171,9 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 			}
 			if idn != 0 && id != idn {
 				if Verbose {
+					// The idn value does not match. If idn exists not at all inside ids we will later add it to til.json. See func TestAddIDToTilJSON.
+					// In func TestGenerateNewIDIfUsedToTilJSON we face the issue, that idn is not found inside ids as well, because it is used for a different trice.
+					// But we could assign one of the existing id inside ids to idn. For that we use goto idsLoopEntry later.
 					fmt.Fprintln(w, "ID", idn, "!=", id, "continue...")
 				}
 				continue
@@ -237,9 +241,30 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 			fmt.Println("If no match was found inside ids we assign the ID found in source file.")
 		}
 		if idN == 0 {
-			_, used := p.idToTrice[idn]
+			tm, used := p.idToTrice[idn]
 			if !used {
 				idN = idn // It is possible, that idn is 0, for example when `TRICE( id(0), "Hi!" );` is inside src.
+			} else {
+				if tm != t {
+					if Verbose {
+						fmt.Fprintln(w, "ID", idn, "used in TIL with tm=", tm, " but in src it is used for t=", t, "Force changing the ID.")
+					}
+					if len(ids) > 0 { // At this point we could take an id from ids.
+						idn = 0 // Discard value found in src. (case ID in src already used differently)
+						goto idsLoopEntry
+					}
+				} else {
+					if Verbose {
+						fmt.Fprintln(w, "ID", idn, "used in TIL and in src for t=", tm)
+					}
+					if len(ids) > 0 {
+						if Verbose {
+							fmt.Fprintln(w, "ids=", ids, "so take an ID from there.")
+						}
+						idn = 0 // Discard value found in src. (case line duplication)
+						goto idsLoopEntry
+					}
+				}
 			}
 		}
 		if idN == 0 { // newID

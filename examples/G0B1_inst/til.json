@@ -1,19 +1,7 @@
 {
-	"1151": {
-		"Type": "trice8",
-		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
-	},
-	"1178": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"1366": {
-		"Type": "TRice64_12",
-		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
-	},
-	"1432": {
+	"1213": {
 		"Type": "Trice8",
-		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
+		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
 	},
 	"15008": {
 		"Type": "trice16",
@@ -222,10 +210,6 @@
 	"15059": {
 		"Type": "TRICE",
 		"Strg": "\\n"
-	},
-	"1506": {
-		"Type": "TRice",
-		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
 	},
 	"15060": {
 		"Type": "TRICE8_B",
@@ -3867,6 +3851,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %E (%%E), aDouble(y)\\n"
 	},
+	"1597": {
+		"Type": "TRice64_12",
+		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
+	},
 	"15970": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %F (%%F), aDouble(y)\\n"
@@ -4295,9 +4283,9 @@
 		"Type": "TRICE_N",
 		"Strg": "wr:%s\\n"
 	},
-	"1630": {
-		"Type": "Trice8",
-		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
+	"1610": {
+		"Type": "TRice8",
+		"Strg": "w: Hello! 👋🙂 %d\\n"
 	},
 	"16300": {
 		"Type": "trice",
@@ -4355,196 +4343,64 @@
 		"Type": "trice16",
 		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
-	"1688": {
+	"2329": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
+	},
+	"2414": {
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics\\n"
 	},
-	"1902": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
-	},
-	"1908": {
-		"Type": "trice",
-		"Strg": "err: TriceDirectOverflowCount = %u\\n"
-	},
-	"2004": {
+	"2761": {
 		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"2050": {
-		"Type": "Trice8",
-		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
-	},
-	"2144": {
+	"2971": {
 		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"2295": {
-		"Type": "trice",
-		"Strg": "err: TriceErrorCount = %u\\n"
-	},
-	"2304": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"2319": {
-		"Type": "trice64",
-		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
-	},
-	"2359": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"2655": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"2740": {
-		"Type": "trice64",
-		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
-	},
-	"2876": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
-	},
-	"3335": {
-		"Type": "TRice8",
-		"Strg": "w: Hello! 👋🙂 %d\\n"
-	},
-	"3588": {
-		"Type": "trice16",
-		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
-	},
-	"3639": {
-		"Type": "trice16",
-		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
-	},
-	"3661": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"3716": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
-	},
-	"4098": {
-		"Type": "trice",
-		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n\\n\\n"
-	},
-	"4271": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"4398": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"4480": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"4987": {
-		"Type": "trice16",
-		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE))))\\n"
-	},
-	"5003": {
-		"Type": "Trice",
-		"Strg": "i=%x%x\\n"
-	},
-	"5069": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"5095": {
-		"Type": "Trice",
-		"Strg": "i=%x%x\\n"
-	},
-	"5112": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"5449": {
-		"Type": "trice64",
-		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
-	},
-	"5452": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"5483": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
-	},
-	"5548": {
-		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics\\n"
-	},
-	"5562": {
-		"Type": "Trice8",
-		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
-	},
-	"5809": {
-		"Type": "TRice8",
-		"Strg": "w: Hello! 👋🙂 %d\\n"
-	},
-	"5941": {
-		"Type": "TRice64_12",
-		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
-	},
-	"5994": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
-	},
-	"6023": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"6318": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"6413": {
-		"Type": "trice16",
-		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
-	},
-	"6707": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"6744": {
+	"3337": {
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 %f (default rounded float)\\n"
 	},
-	"6999": {
+	"3802": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n\\n\\n"
+	},
+	"3958": {
 		"Type": "TRice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
-	"7013": {
+	"4233": {
+		"Type": "Trice",
+		"Strg": "i=%x%x\\n"
+	},
+	"4376": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
+	},
+	"5170": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"5991": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"6124": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"6363": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
+	},
+	"7473": {
 		"Type": "TRice",
 		"Strg": "msg:StartDefaultTask\\n"
 	},
-	"7054": {
+	"7637": {
 		"Type": "TRice",
 		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
-	},
-	"7225": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 %f (default rounded float)\\n"
-	},
-	"7308": {
-		"Type": "Trice8",
-		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
-	},
-	"7404": {
-		"Type": "TRice64_12",
-		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
-	},
-	"7679": {
-		"Type": "trice",
-		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n\\n\\n"
-	},
-	"7801": {
-		"Type": "trice",
-		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
 	}
 }

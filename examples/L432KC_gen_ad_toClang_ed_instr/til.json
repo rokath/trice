@@ -1,11 +1,11 @@
 {
-	"1099": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
 	"1108": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	},
+	"1300": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"15008": {
 		"Type": "trice16",
@@ -4313,11 +4313,11 @@
 	},
 	"16307": {
 		"Type": "trice16",
-		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
+		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
 	},
 	"16308": {
 		"Type": "trice16",
-		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
+		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
 	},
 	"16309": {
 		"Type": "trice8",
@@ -4339,96 +4339,40 @@
 		"Type": "trice16",
 		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
-	"16370": {
-		"Type": "trice16",
-		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
-	},
-	"16371": {
-		"Type": "trice16",
-		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
-	},
-	"16372": {
-		"Type": "TRice16",
-		"Strg": "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
-	},
-	"16373": {
-		"Type": "TRice16",
-		"Strg": "diag:TriceHalfBufferDepthMax =%4u of%5d\\n"
-	},
-	"16374": {
-		"Type": "trice",
-		"Strg": "err: TriceErrorCount = %u\\n"
-	},
-	"16375": {
-		"Type": "trice",
-		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
-	},
-	"16376": {
-		"Type": "trice",
-		"Strg": "err: TriceDirectOverflowCount = %u\\n"
-	},
-	"16377": {
-		"Type": "trice",
-		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
-	},
-	"16378": {
-		"Type": "TRice16",
-		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16379": {
-		"Type": "TRice16",
-		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16380": {
-		"Type": "TRice16",
-		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
-	},
-	"16381": {
-		"Type": "TRice16",
-		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
-	},
-	"16382": {
-		"Type": "trice",
-		"Strg": "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
-	},
-	"16383": {
-		"Type": "trice",
-		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
-	},
-	"2064": {
-		"Type": "trice",
-		"Strg": "StartDefaultTask\\n"
-	},
-	"2757": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"2913": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"2942": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"4326": {
+	"3073": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
-	"5422": {
+	"3946": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"4370": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"4444": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"6722": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"7274": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"7324": {
 		"Type": "trice",
 		"Strg": "StartTask02\\n"
 	},
-	"5637": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
-	},
-	"6973": {
+	"7842": {
 		"Type": "trice",
-		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+		"Strg": "StartDefaultTask\\n"
 	},
-	"7784": {
-		"Type": "trice",
+	"7981": {
+		"Type": "Trice",
 		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	}
 }

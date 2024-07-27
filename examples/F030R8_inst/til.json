@@ -1,4 +1,8 @@
 {
+	"1436": {
+		"Type": "Trice",
+		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
+	},
 	"15008": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
@@ -4284,36 +4288,36 @@
 		"Strg": "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
 	},
 	"16302": {
-		"Type": "TRice16",
-		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
+		"Type": "trice",
+		"Strg": "err: TriceErrorCount = %u\\n"
 	},
 	"16303": {
-		"Type": "TRice16",
-		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
-	},
-	"16304": {
-		"Type": "TRice16",
-		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16305": {
-		"Type": "TRice16",
-		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16306": {
-		"Type": "trice",
-		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
-	},
-	"16307": {
 		"Type": "trice",
 		"Strg": "err: TriceDirectOverflowCount = %u\\n"
 	},
-	"16308": {
+	"16304": {
 		"Type": "trice",
 		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
 	},
+	"16305": {
+		"Type": "trice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
+	},
+	"16306": {
+		"Type": "trice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
+	},
+	"16307": {
+		"Type": "trice16",
+		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
+	"16308": {
+		"Type": "trice16",
+		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
 	"16309": {
-		"Type": "trice",
-		"Strg": "err: TriceErrorCount = %u\\n"
+		"Type": "trice8",
+		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
 	},
 	"16310": {
 		"Type": "TRice16",
@@ -4331,116 +4335,56 @@
 		"Type": "trice16",
 		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
 	},
-	"16370": {
-		"Type": "trice16",
-		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
-	},
-	"16371": {
-		"Type": "trice16",
-		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
-	},
-	"16372": {
-		"Type": "TRice16",
-		"Strg": "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
-	},
-	"16373": {
-		"Type": "TRice16",
-		"Strg": "diag:TriceHalfBufferDepthMax =%4u of%5d\\n"
-	},
-	"16374": {
-		"Type": "trice",
-		"Strg": "err: TriceErrorCount = %u\\n"
-	},
-	"16375": {
-		"Type": "trice",
-		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
-	},
-	"16376": {
-		"Type": "trice",
-		"Strg": "err: TriceDirectOverflowCount = %u\\n"
-	},
-	"16377": {
-		"Type": "trice",
-		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
-	},
-	"16378": {
-		"Type": "TRice16",
-		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16379": {
-		"Type": "TRice16",
-		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET\\n"
-	},
-	"16380": {
-		"Type": "TRice16",
-		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
-	},
-	"16381": {
-		"Type": "TRice16",
-		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
-	},
-	"16382": {
-		"Type": "trice",
-		"Strg": "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
-	},
-	"16383": {
-		"Type": "trice",
-		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
-	},
-	"1798": {
-		"Type": "trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"1971": {
-		"Type": "Trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"2934": {
+	"2454": {
 		"Type": "TRice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"3153": {
-		"Type": "trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"3326": {
+	"3085": {
 		"Type": "Trice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"3839": {
-		"Type": "TRice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
-	},
-	"4613": {
+	"3139": {
 		"Type": "Trice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"4614": {
+	"3259": {
 		"Type": "Trice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"5239": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
-	},
-	"5762": {
+	"4097": {
 		"Type": "trice",
 		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
 	},
-	"5894": {
+	"5184": {
+		"Type": "TRice",
+		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
+	},
+	"5407": {
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+	},
+	"5599": {
 		"Type": "Trice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"6153": {
+	"6294": {
+		"Type": "trice",
+		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
+	},
+	"7338": {
 		"Type": "Trice",
 		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	},
-	"6504": {
+	"7758": {
+		"Type": "Trice",
+		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
+	},
+	"7962": {
+		"Type": "trice",
+		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
+	},
+	"7987": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
-	},
-	"7135": {
-		"Type": "Trice",
-		"Strg": "wrn: Hello! 👋🙂 \\a\\n"
 	}
 }
