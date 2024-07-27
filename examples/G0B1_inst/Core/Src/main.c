@@ -316,6 +316,7 @@ static void MX_GPIO_Init(void)
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+  TRICE_UNUSED(argument)
   TRice( "msg:StartDefaultTask\n" );
   /* Infinite loop */
   for(;;)
@@ -341,6 +342,7 @@ void StartDefaultTask(void const * argument)
 void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
+  TRICE_UNUSED(argument)
   TRice( "msg:StartTask02:Diagnostics\n" );
   /* Infinite loop */
   for(;;)

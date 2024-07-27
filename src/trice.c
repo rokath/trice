@@ -700,30 +700,40 @@ void TriceNonBlockingDeferredWrite8( int triceID, const uint8_t * enc, size_t en
     #if TRICE_DEFERRED_UARTA == 1
         #if (TRICE_UARTA_MIN_ID != 0) || (TRICE_UARTA_MAX_ID !=0)
             if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
+        #else
+            TRICE_UNUSED(triceID)
         #endif
         { TriceNonBlockingWriteUartA( enc, encLen ); }
     #endif
     #if TRICE_DEFERRED_UARTB == 1
         #if (TRICE_UARTB_MIN_ID !=0 ) && (TRICE_UARTB_MAX_ID != 0)
             if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) )
+        #else
+            TRICE_UNUSED(triceID)
         #endif
         { TriceNonBlockingWriteUartB( enc, encLen ); }
     #endif
     #if ( TRICE_DEFERRED_AUXILIARY8 == 1)
         #if defined(TRICE_DEFERRED_AUXILIARY8_MIN_ID) && defined(TRICE_DEFERRED_AUXILIARY8_MAX_ID)
         if( (TRICE_DEFERRED_AUXILIARY8_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_AUXILIARY8_MAX_ID) )
+        #else
+            TRICE_UNUSED(triceID)
         #endif
         { TriceNonBlockingDeferredWrite8Auxiliary( enc, encLen ); }
     #endif
     #if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
         #if defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID) && defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID)
             if( (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID) )
+        #else
+            TRICE_UNUSED(triceID)
         #endif
         { TriceWriteDeviceRtt0( enc, encLen ); }
     #endif
     //  #if TRICE_LOG_OVER_MODBUS_FUNC24_ALSO == 1
     //      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
     //      if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
+    //      #else
+    //          TRICE_UNUSED(triceID)
     //      #endif
     //      TriceWriteDeviceModbus( enc, encLen );
     //  #endif
@@ -767,36 +777,42 @@ unsigned TriceOutDepth( void ){
     TRICE_LEAVE
 
 void triceAssertTrue( int idN, char* msg, int flag ){
+    TRICE_UNUSED( msg )
     if( !flag ){
         TRICE_ASSERT( id( idN ) );
     }
 }
 
 void TriceAssertTrue( int idN, char* msg, int flag ){
+    TRICE_UNUSED( msg )
     if( !flag ){
          TRICE_ASSERT( Id( idN ) );
     }
 }
 
 void TRiceAssertTrue( int idN, char* msg, int flag ){
+    TRICE_UNUSED( msg )
     if( !flag ){
          TRICE_ASSERT( ID( idN ) );
     }
 }
 
 void triceAssertFalse( int idN, char* msg, int flag ){
+    TRICE_UNUSED( msg )
     if( flag ){
         TRICE_ASSERT( id( idN ) );
     }
 }
 
 void TriceAssertFalse( int idN, char* msg, int flag ){
+    TRICE_UNUSED( msg )
     if( flag ){
          TRICE_ASSERT( Id( idN ) );
     }
 }
 
 void TRiceAssertFalse( int idN, char* msg, int flag ){
+    TRICE_UNUSED( msg )
     if( flag ){
          TRICE_ASSERT( ID( idN ) );
     }

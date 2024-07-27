@@ -15,6 +15,9 @@ extern "C" {
 #undef iD // acoid name clashes in case iD was used by an other library
 
 
+#define TRICE_UNUSED(x) (void)(x); // https://stackoverflow.com/questions/3599160/how-can-i-suppress-unused-parameter-warnings-in-c
+
+
 //lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
 //lint -e629  Warning 629: static class for function '' is non standard
  
@@ -726,9 +729,9 @@ TRICE_INLINE void trice0( const char * pFmt ){}
 
 #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
-TRICE_INLINE void TRice0( uint16_t tid, const char * pFmt ){ TRice32m_0( tid ); }
-TRICE_INLINE void Trice0( uint16_t tid, const char * pFmt ){ Trice32m_0( tid ); }
-TRICE_INLINE void trice0( uint16_t tid, const char * pFmt ){ trice32m_0( tid ); }
+TRICE_INLINE void TRice0( uint16_t tid, const char * pFmt ){ TRice32m_0( tid ); TRICE_UNUSED(pFmt)}
+TRICE_INLINE void Trice0( uint16_t tid, const char * pFmt ){ Trice32m_0( tid ); TRICE_UNUSED(pFmt)}
+TRICE_INLINE void trice0( uint16_t tid, const char * pFmt ){ trice32m_0( tid ); TRICE_UNUSED(pFmt)}
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 

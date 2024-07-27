@@ -46,6 +46,7 @@ FLAGS = # common flags for compiler, assembler and linker
  C_FLAGS += -g #                     # -g includes debug information into the ELF.
 ### C_FLAGS += -g3 #                   # -g3 include, a couple extra goodies such as macro definitions used in your application.
 
+#C_FLAGS += -Wunused-parameter 
  C_FLAGS += -Wall #                 # -Wall enables a base set of warnings generally agreed upon as being useful and easy to fix.
 ### C_FLAGS += -Wextra                # -Wextra enables an additional set of flags not covered by -Wall
 #C_FLAGS += -Werror                # -Werror causes all enabled warnings to cause compilation errors. 
