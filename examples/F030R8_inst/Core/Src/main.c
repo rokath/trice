@@ -142,7 +142,7 @@ int main(void)
 
                 static uint32_t msTransfer = 0;
                 msTransfer++;
-                if(msTransfer >= 50 ){
+                if(msTransfer >= 1 ){
                     msTransfer = 0;
                     // Serve deferred trice transfer every few ms or if TRICE_BUFFER is getting filled. With an RTOS put this in a separate task.
                     // In TRICE_RING_BUFFER && TRICE_SINGLE_PACK_MODE TriceTransfer can transmit only 1 Trice per call, so call it every 1ms then.
