@@ -9,8 +9,8 @@
 | Project Name | Description |
 | - | - |
 |||
-| [F030R8_gen](./F030R8_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030R8_inst](./F030R8_inst) so see quickly the needed instrumentation steps you need for your own project. |
-| [F030R8_inst](./F030R8_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030R8_gen](./F030R8_gen) to see quickly how to instrument your project. |
+| [F030R8_gen](./F030R8_gen) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030R8_inst](./F030R8_inst) so see quickly the needed instrumentation steps you need for your own project. |
+| [F030R8_inst](./F030R8_inst) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030R8_gen](./F030R8_gen) to see quickly how to instrument your project. |
 |||
 | [G0B1_gen](./G0B1_gen) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
 | [G0B1_inst](./G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
