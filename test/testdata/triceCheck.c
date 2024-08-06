@@ -35,7 +35,8 @@ void TriceCheck(int n) {
     char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     #endif // #if TRICE_CGO == 1
 
-    unsigned anchorLine = __LINE__ + 11; // The offset value here must point to the first test line containing `anchorLine`.
+    unsigned anchorLine = __LINE__ + 20; // The offset value here must point to the first test line containing `anchorLine`.
+
     switch( n ){ 
         default:
         break; case __LINE__: trice16( iD(15008), "att: line %u\n", __LINE__ );
@@ -46,6 +47,14 @@ void TriceCheck(int n) {
         break; case __LINE__: Trice( iD(15011), "info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
         break; case __LINE__: trice( iD(15012), "info:This is a message without values and without stamp.\n"  ); //exp: time:            default: info:This is a message without values and without stamp.
         //break; case __LINE__: for( int i = 0; i < 1000; i++ ){ dynString(i); }
+
+
+
+
+
+
+
+
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:01
@@ -184,10 +193,62 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE( ID(15067), "\n" );
         break; case __LINE__: TRICE64_B( ID(15068), "  %016x", b64, sizeof(b64)/sizeof(int64_t) );             //exp: time: 842,150_450default:   0000000000000000  ffffffffffffffff  fffffffffffffffe  3344555566666666
         break; case __LINE__: TRICE( ID(15069), "\n" );
-        break; case __LINE__: TRICE8_F( ID(15070), "info:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );   //exp: time: 842,150_450default: info:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+        break; case __LINE__: TRICE8_F( ID(15070), "info:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time: 842,150_450default: info:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+        break; case __LINE__: TRice8F( iD(     0), "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time: 842,150_450default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+        break; case __LINE__: Trice8F( iD(     0), "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:       5_654default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+        break; case __LINE__: trice8F( iD(     0), "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:            default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
         break; case __LINE__: TRICE16_F( ID(15071), "info:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: info:FunctionNameX(0000)(ffff)(fffe)(3344) 
+        break; case __LINE__: TRice16F(  iD(    0), "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
+        break; case __LINE__: Trice16F(  iD(    0), "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:       5_654default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
+        break; case __LINE__: trice16F(  iD(    0), "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:            default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
         break; case __LINE__: TRICE32_F( ID(15072), "info:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default: info:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+        break; case __LINE__: TRice32F(  ID(    0), "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+        break; case __LINE__: Trice32F(  ID(    0), "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:       5_654default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+        break; case __LINE__: trice32F(  ID(    0), "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:            default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
         break; case __LINE__: TRICE64_F( ID(15073), "info:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: info:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+        break; case __LINE__: TRice64F(  ID(    0), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+        break; case __LINE__: Trice64F(  ID(    0), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:       5_654default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+        break; case __LINE__: trice64F(  ID(    0), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+
+        break; case __LINE__: triceS( iD(0), "msg:Hi %s!\n", "five" );                 //exp: time: 842,150_450default: msg:Hi five!
+        break; case __LINE__: TriceS( iD(0), "msg:Hi %s!\n", "five" );                 //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: TRiceS( iD(0), "msg:Hi %s!\n", "five" );                 //exp: time:            default: msg:Hi five!
+        break; case __LINE__: triceN( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time: 842,150_450default: msg:Hi five!
+        break; case __LINE__: TriceN( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: TRiceN( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:            default: msg:Hi five!
+
+        break; case __LINE__: trice8B( iD(0), "msg: %0x\n", b8,  sizeof(b8) /sizeof(int8_t) ); //exp: time: 842,150_450default: msg: 00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        break; case __LINE__: Trice8B( iD(0), "msg: %0x\n", b8,  sizeof(b8) /sizeof(int8_t) ); //exp: time:       5_654default: msg: 00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        break; case __LINE__: TRice8B( iD(0), "msg: %0x\n", b8,  sizeof(b8) /sizeof(int8_t) ); //exp: time:            default: msg: 00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+
+        break; case __LINE__: trice16B( iD(0), "msg: %0x\n", sizeof(b16) /sizeof(int16_t) ); //exp: time: 842,150_450default: msg: 0000 ffff fffe 3344
+        break; case __LINE__: Trice16B( iD(0), "msg: %0x\n", sizeof(b16) /sizeof(int16_t) ); //exp: time:       5_654default: msg: 0000 ffff fffe 3344
+        break; case __LINE__: TRice16B( iD(0), "msg: %0x\n", sizeof(b16) /sizeof(int16_t) ); //exp: time:            default: msg: 0000 ffff fffe 3344
+
+        break; case __LINE__: trice32B( iD(0), "msg: %0x\n", sizeof(b32) /sizeof(int32_t)  ); //exp: time: 842,150_450default: msg: 00000000 ffffffff fffffff 33445555
+        break; case __LINE__: Trice32B( iD(0), "msg: %0x\n", sizeof(b32) /sizeof(int32_t)  ); //exp: time:       5_654default: msg: 00000000 ffffffff fffffff 33445555
+        break; case __LINE__: TRice32B( iD(0), "msg: %0x\n", sizeof(b32) /sizeof(int32_t)  ); //exp: time:            default: msg: 00000000 ffffffff fffffff 33445555
+
+        break; case __LINE__: trice64B( iD(0), "msg: %0x\n", sizeof(b64) /sizeof(int64_t)  ); //exp: time: 842,150_450default: msg: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        break; case __LINE__: Trice64B( iD(0), "msg: %0x\n", sizeof(b64) /sizeof(int64_t)  ); //exp: time:       5_654default: msg: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        break; case __LINE__: TRice64B( iD(0), "msg: %0x\n", sizeof(b64) /sizeof(int64_t)  ); //exp: time:            default: msg: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+/*
+        break; case __LINE__: trice8F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time: 842,150_450default: msg:Hi five!
+        break; case __LINE__: Trice8F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: TRice8F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:            default: msg:Hi five!
+
+        break; case __LINE__: trice16F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time: 842,150_450default: msg:Hi five!
+        break; case __LINE__: Trice16F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: TRice16F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:            default: msg:Hi five!
+
+        break; case __LINE__: trice32F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time: 842,150_450default: msg:Hi five!
+        break; case __LINE__: Trice32F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: TRice32F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:            default: msg:Hi five!
+
+        break; case __LINE__: trice64F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time: 842,150_450default: msg:Hi five!
+        break; case __LINE__: Trice64F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: TRice64F( iD(0), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:            default: msg:Hi five!
+*/
         break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:       5_654default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
 
         break; case __LINE__: trice16( iD(15074), "att: line %u\n", __LINE__ );
