@@ -689,8 +689,21 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
+	before, after, found := strings.Cut(p.Trice.Strg, ":")
+	if found {
+		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
+	} else {
+		after = p.Trice.Strg
+	}
+
+	lastRune := string(after[len(after)-1:])
+	after = strings.TrimSuffix(after, `\n`)
+
 	for i := 0; i < len(s); i++ {
-		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, s[i]))
+		n += copy(b[n:], fmt.Sprintf(after, s[i]))
+	}
+	if lastRune == "\n" {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -701,9 +714,24 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-	for i := 0; i < len(s); i += 2 {
-		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint16(s[i:])))
+
+	before, after, found := strings.Cut(p.Trice.Strg, ":")
+	if found {
+		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
+	} else {
+		after = p.Trice.Strg
 	}
+
+	lastRune := string(after[len(after)-1:])
+	after = strings.TrimSuffix(after, `\n`)
+
+	for i := 0; i < len(s); i += 2 {
+		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint16(s[i:])))
+	}
+	if lastRune == "\n" {
+		n += copy(b[n:], fmt.Sprintln())
+	}
+
 	return
 }
 
@@ -713,8 +741,22 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
+
+	before, after, found := strings.Cut(p.Trice.Strg, ":")
+	if found {
+		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
+	} else {
+		after = p.Trice.Strg
+	}
+
+	lastRune := string(after[len(after)-1:])
+	after = strings.TrimSuffix(after, `\n`)
+
 	for i := 0; i < len(s); i += 4 {
-		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint32(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint32(s[i:])))
+	}
+	if lastRune == "\n" {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -725,8 +767,22 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
+
+	before, after, found := strings.Cut(p.Trice.Strg, ":")
+	if found {
+		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
+	} else {
+		after = p.Trice.Strg
+	}
+
+	lastRune := string(after[len(after)-1:])
+	after = strings.TrimSuffix(after, `\n`)
+
 	for i := 0; i < len(s); i += 8 {
-		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint64(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint64(s[i:])))
+	}
+	if lastRune == "\n" {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -741,7 +797,7 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
 	}
-	n += copy(b[n:], fmt.Sprintf("\n"))
+	n += copy(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -755,7 +811,7 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintf("\n"))
+	n += copy(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -769,7 +825,7 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintf("\n"))
+	n += copy(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -783,7 +839,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintf("\n"))
+	n += copy(b[n:], fmt.Sprintln())
 	return
 }
 
