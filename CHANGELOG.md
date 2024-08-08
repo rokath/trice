@@ -1,14 +1,15 @@
 <!-- vscode-markdown-toc -->
-* 1. [v0.60.1 Twice Log Screen Shot](#v0.60.1TwiceLogScreenShot)
-* 2. [v0.56.0 Changes](#v0.56.0Changes)
-	* 2.1. [Legacy `TRICE*` macros](#LegacyTRICEmacros)
-	* 2.2. [Function call macros `TRice`, `Trice` and `trice`](#FunctioncallmacrosTRiceTriceandtrice)
-	* 2.3. [Common improvements](#Commonimprovements)
-	* 2.4. [CLI changes](#CLIchanges)
-	* 2.5. [Changes under the hood](#Changesunderthehood)
-* 3. [v063. Changes](#v063.Changes)
-* 4. [v0.64.0 Changes (unsorted)](#v0.64.0Changesunsorted)
-* 5. [v0.64.1 changes (unsorted)](#v0.64.1changesunsorted)
+- [1. v0.60.1 Twice Log Screen Shot](#1-v0601-twice-log-screen-shot)
+- [2. v0.56.0 Changes](#2-v0560-changes)
+	- [2.1. Legacy `TRICE*` macros](#21-legacy-trice-macros)
+	- [2.2. Function call macros `TRice`, `Trice` and `trice`](#22-function-call-macros-trice-trice-and-trice)
+	- [2.3. Common improvements](#23-common-improvements)
+	- [2.4. CLI changes](#24-cli-changes)
+	- [2.5. Changes under the hood](#25-changes-under-the-hood)
+- [3. v063. Changes](#3-v063-changes)
+- [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
+- [5. v0.64.1 changes (unsorted)](#5-v0641-changes-unsorted)
+- [6. v0.65.0 Changes](#6-v0650-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -68,6 +69,7 @@ date        | version | comment
 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes (unsorted)](#v0.64.1changesunsorted)
 2024-JUL-26 |  0.64.2 | minor cleanups
 2024-JUL-27 |  0.64.3 | ID management improved for special cases
+2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#6-v0650-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -222,3 +224,9 @@ This is a major release hopefully not breaking too much!
 - `f714c213` duplicate information removed and referenced to origin
 - `a2ec33fe` hint added
 - `4df3bfa5` ReadMe.md added to some examples
+
+##  6. <a name='v0.65.0Changes'></a>v0.65.0 Changes
+
+- `5af9c2bb664e11e5e2663e56116d842719ca6f8d` Issue #431 solved
+- `430c6a4dde817bc39ec35d595341efbe069cf482` Issue #466 solved
+- You can now use `trice8B( "msg: %02x\n", buffer, len);` functions and the like. See [test/testdata/triceCheck.c](test/testdata/triceCheck.c) for examples.
