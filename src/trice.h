@@ -650,17 +650,59 @@ static inline uint64_t aDouble( double x ){
     TRICE_PUTBUFFER( buf, len_ ); \
     TRICE_LEAVE \
 } while(0)
+
+void triceN( int tid, char * fmt, int8_t * buf, uint32_t n);
+void TriceN( int tid, char * fmt, int8_t * buf, uint32_t n);
+void TRiceN( int tid, char * fmt, int8_t * buf, uint32_t n);
+
+void trice8B( int tid, char * fmt, int8_t * buf, uint32_t n);
+void Trice8B( int tid, char * fmt, int8_t * buf, uint32_t n);
+void TRice8B( int tid, char * fmt, int8_t * buf, uint32_t n);
+
+void trice16B( int tid, char * fmt, int16_t * buf, uint32_t n);
+void Trice16B( int tid, char * fmt, int16_t * buf, uint32_t n);
+void TRice16B( int tid, char * fmt, int16_t * buf, uint32_t n);
+
+void trice32B( int tid, char * fmt, int32_t * buf, uint32_t n);
+void Trice32B( int tid, char * fmt, int32_t * buf, uint32_t n);
+void TRice32B( int tid, char * fmt, int32_t * buf, uint32_t n);
+
+void trice64B( int tid, char * fmt, int64_t * buf, uint32_t n);
+void Trice64B( int tid, char * fmt, int64_t * buf, uint32_t n);
+void TRice64B( int tid, char * fmt, int64_t * buf, uint32_t n);
+
+void trice8F( int tid, char * fmt, int8_t * buf, uint32_t n);
+void Trice8F( int tid, char * fmt, int8_t * buf, uint32_t n);
+void TRice8F( int tid, char * fmt, int8_t * buf, uint32_t n);
+
+void trice16F( int tid, char * fmt, int16_t * buf, uint32_t n);
+void Trice16F( int tid, char * fmt, int16_t * buf, uint32_t n);
+void TRice16F( int tid, char * fmt, int16_t * buf, uint32_t n);
+
+void trice32F( int tid, char * fmt, int32_t * buf, uint32_t n);
+void Trice32F( int tid, char * fmt, int32_t * buf, uint32_t n);
+void TRice32F( int tid, char * fmt, int32_t * buf, uint32_t n);
+
+void trice64F( int tid, char * fmt, int64_t * buf, uint32_t n);
+void Trice64F( int tid, char * fmt, int64_t * buf, uint32_t n);
+void TRice64F( int tid, char * fmt, int64_t * buf, uint32_t n);
+
 #endif // #ifndef TRICE_N
 
 #ifndef TRICE_S
-//! TRICE_S writes id and dynString.
+//! TRICE_S writes id and runtimeGeneratedString.
 //! \param tid trice identifier
 //! \param pFmt formatstring for trice (ignored here but used by the trice tool)
-//! \param dynString 0-terminated runtime generated string
-#define TRICE_S( tid, pFmt, dynString) do { \
-    uint32_t ssiz = strlen( dynString ); \
-    TRICE_N( tid, pFmt, dynString, ssiz ); \
+//! \param runtimeGeneratedString 0-terminated runtime generated string
+#define TRICE_S( tid, pFmt, runtimeGeneratedString) do { \
+    uint32_t ssiz = strlen( runtimeGeneratedString ); \
+    TRICE_N( tid, pFmt, runtimeGeneratedString, ssiz ); \
 } while(0)
+
+void triceS( int tid, char * fmt, char * runtimeGeneratedString );
+void TriceS( int tid, char * fmt, char * runtimeGeneratedString );
+void TRiceS( int tid, char * fmt, char * runtimeGeneratedString );
+
 #endif // #ifndef TRICE_S
 
 #ifndef TRICE_PUT16

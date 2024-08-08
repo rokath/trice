@@ -819,3 +819,141 @@ void TRiceAssertFalse( int idN, char* msg, int flag ){
 }
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+
+#ifdef TRICE_N
+
+void triceN( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE_N( id(tid), pFmt, buf, n);
+}
+
+void TriceN( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE_N( Id(tid), pFmt, buf, n);
+}
+
+void TRiceN( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE_N( ID(tid), pFmt, buf, n);
+}
+
+
+void trice8B( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE8_B( id(tid), pFmt, buf, n);
+}
+
+void Trice8B( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE8_B( Id(tid), pFmt, buf, n);
+}
+
+void TRice8B( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE8_B( ID(tid), pFmt, buf, n);
+}
+
+
+void trice16B( int tid, char * fmt, int16_t * buf, uint32_t n){
+    TRICE16_B( id(tid), pFmt, buf, n);
+}
+
+void Trice16B( int tid, char * fmt, int16_t * buf, uint32_t n){
+    TRICE16_B( Id(tid), pFmt, buf, n);
+}
+
+void TRice16B( int tid, char * fmt, int16_t * buf, uint32_t n){
+    TRICE16_B( ID(tid), pFmt, buf, n);
+}
+
+
+void trice32B( int tid, char * fmt, int32_t * buf, uint32_t n){
+    TRICE32_B( id(tid), pFmt, buf, n);
+}
+
+void Trice32B( int tid, char * fmt, int32_t * buf, uint32_t n){
+    TRICE32_B( Id(tid), pFmt, buf, n);
+}
+
+void TRice32B( int tid, char * fmt, int32_t * buf, uint32_t n){
+    TRICE32_B( ID(tid), pFmt, buf, n);
+}
+
+
+void trice64B( int tid, char * fmt, int64_t * buf, uint32_t n){
+    TRICE64_B( id(tid), pFmt, buf, n);
+}
+
+void Trice64B( int tid, char * fmt, int64_t * buf, uint32_t n){
+    TRICE64_B( Id(tid), pFmt, buf, n);
+}
+
+void TRice64B( int tid, char * fmt, int64_t * buf, uint32_t n){
+    TRICE64_B( ID(tid), pFmt, buf, n);
+}
+
+
+void trice8F( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE8_F( id(tid), pFmt, buf, n);
+}
+
+void Trice8F( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE8_F( Id(tid), pFmt, buf, n);
+}
+
+void TRice8F( int tid, char * fmt, int8_t * buf, uint32_t n){
+    TRICE8_F( ID(tid), pFmt, buf, n);
+}
+
+
+void trice16F( int tid, char * fmt, int16_t * buf, uint32_t n){
+    TRICE16_F( id(tid), pFmt, buf, n);
+}
+
+void Trice16F( int tid, char * fmt, int16_t * buf, uint32_t n){
+    TRICE16_F( Id(tid), pFmt, buf, n);
+}
+
+void TRice16F( int tid, char * fmt, int16_t * buf, uint32_t n){
+    TRICE16_F( ID(tid), pFmt, buf, n);
+}
+
+
+void trice32F( int tid, char * fmt, int32_t * buf, uint32_t n){
+    TRICE32_F( id(tid), pFmt, buf, n);
+}
+
+void Trice32F( int tid, char * fmt, int32_t * buf, uint32_t n){
+    TRICE32_F( Id(tid), pFmt, buf, n);
+}
+
+void TRice32F( int tid, char * fmt, int32_t * buf, uint32_t n){
+    TRICE32_F( ID(tid), pFmt, buf, n);
+}
+
+
+void trice64F( int tid, char * fmt, int64_t * buf, uint32_t n){
+    TRICE64_F( id(tid), pFmt, buf, n);
+}
+
+void Trice64F( int tid, char * fmt, int64_t * buf, uint32_t n){
+    TRICE64_F( Id(tid), pFmt, buf, n);
+}
+
+void TRice64F( int tid, char * fmt, int64_t * buf, uint32_t n){
+    TRICE64_F( ID(tid), pFmt, buf, n);
+}
+
+
+
+#endif // #ifdef TRICE_N
+
+#ifdef TRICE_S
+
+void triceS( int tid, char * fmt, char * runtimeGeneratedString ){
+    TRICE_S( id(tid), pFmt, runtimeGeneratedString);
+}
+
+void TriceS( int tid, char * fmt, char * runtimeGeneratedString ){
+    TRICE_S( Id(tid), pFmt, runtimeGeneratedString);
+}
+
+void TRiceS( int tid, char * fmt, char * runtimeGeneratedString ){
+    TRICE_S( ID(tid), pFmt, runtimeGeneratedString);
+}
+
+#endif // #ifdef TRICE_N

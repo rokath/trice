@@ -89,11 +89,9 @@ func logInit() {
 	const defaultEncoding = "TREX"
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
 	//fsScLog.IntVar(&decoder.IDBits, "IDBits", 13, `Bits used for ID encoding. Legacy TREX projects need this value to be set to 14.`)
-	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TLE|TREX)'. Target device encoding must match. 
-		  TLE=TriceLegacyEncoding expects 0-delimited COBS byte sequences. Needs '#define TRICE_ENCODING TRICE_LEGACY_ENCODING' inside triceConfig.h. Use not for new projects.
+	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match. 
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
 		  CHAR prints the received bytes as characters.
-		  COBS = TLE (obsolete naming)
 		  DUMP prints the received bytes as hex code (see switch -dc too).
 `) // flag
 	fsScLog.StringVar(&translator.Encoding, "e", defaultEncoding, "Short for -encoding.") // short flag

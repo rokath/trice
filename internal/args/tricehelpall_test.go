@@ -168,11 +168,9 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -e string
     	Short for -encoding. (default "TREX")
   -encoding string
-    	The trice transmit data format type, options: '(CHAR|DUMP|TLE|TREX)'. Target device encoding must match. 
-    			  TLE=TriceLegacyEncoding expects 0-delimited COBS byte sequences. Needs '#define TRICE_ENCODING TRICE_LEGACY_ENCODING' inside triceConfig.h. Use not for new projects.
+    	The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match. 
     			  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
     			  CHAR prints the received bytes as characters.
-    			  COBS = TLE (obsolete naming)
     			  DUMP prints the received bytes as hex code (see switch -dc too).
     	 (default "TREX")
   -exec string

@@ -522,7 +522,17 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 				return
 			}
 			if p.ParamSpace != (s.bitWidth>>3)*s.paramCount {
-				specialCases := []string{"TRICE_S", "TRICE_N", "TRICE_B", "TRICE8_B", "TRICE16_B", "TRICE32_B", "TRICE64_B", "TRICE8_F", "TRICE16_F", "TRICE32_F", "TRICE64_F"}
+				specialCases := []string{
+					"TRICES", "TRICEN", "TRICEB", "TRICEF",
+					"TRICE8B", "TRICE16B", "TRICE32B", "TRICE64B",
+					"TRICE8F", "TRICE16F", "TRICE32F", "TRICE64F",
+					"TRICE8B_1", "TRICE16B_1", "TRICE32B_1", "TRICE64B_1",
+					"TRICE8F_1", "TRICE16F_1", "TRICE32F_1", "TRICE64F_1",
+
+					"TRICE_S", "TRICE_N", "TRICE_B", "TRICE_F",
+					"TRICE8_B", "TRICE16_B", "TRICE32_B", "TRICE64_B",
+					"TRICE8_F", "TRICE16_F", "TRICE32_F", "TRICE64_F",
+				}
 				for _, casus := range specialCases {
 					if s.triceType == casus {
 						goto ignoreSpecialCase
@@ -575,20 +585,6 @@ type triceTypeFn struct {
 
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
-	{"TRICE_S", (*trexDec).triceS, -1, 0, 0},     // do not remove from first position, see cobsFunctionPtrList[0].ParamSpace = ...
-	{"TRICE_N", (*trexDec).triceN, -1, 0, 0},     // do not remove from 2nd position, see cobsFunctionPtrList[1].ParamSpace = ...
-	{"TRICE_B", (*trexDec).trice8B, -1, 0, 0},    // do not remove from 3rd position, see cobsFunctionPtrList[2].ParamSpace = ...
-	{"TRICE8_B", (*trexDec).trice8B, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[3].ParamSpace = ...
-	{"TRICE16_B", (*trexDec).trice16B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[4].ParamSpace = ...
-	{"TRICE32_B", (*trexDec).trice32B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[5].ParamSpace = ...
-	{"TRICE64_B", (*trexDec).trice64B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[6].ParamSpace = ...
-
-	{"TRICE_F", (*trexDec).trice8F, -1, 0, 0},    // do not remove from 4th position, see cobsFunctionPtrList[7].ParamSpace = ...
-	{"TRICE8_F", (*trexDec).trice8F, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[8].ParamSpace = ...
-	{"TRICE16_F", (*trexDec).trice16F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[9].ParamSpace = ...
-	{"TRICE32_F", (*trexDec).trice32F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[10].ParamSpace = ...
-	{"TRICE64_F", (*trexDec).trice64F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[11].ParamSpace = ...
-
 	{"TRICE8_0", (*trexDec).trice0, 0, 0, 0},
 	{"TRICE16_0", (*trexDec).trice0, 0, 0, 0},
 	{"TRICE32_0", (*trexDec).trice0, 0, 0, 0},
@@ -642,6 +638,36 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE64_10", (*trexDec).unSignedOrSignedOut, 80, 64, 10},
 	{"TRICE64_11", (*trexDec).unSignedOrSignedOut, 88, 64, 11},
 	{"TRICE64_12", (*trexDec).unSignedOrSignedOut, 96, 64, 12},
+
+	{"TRICES", (*trexDec).triceS, -1, 0, 0},
+	{"TRICEN", (*trexDec).triceN, -1, 0, 0},
+
+	{"TRICEB", (*trexDec).trice8B, -1, 0, 0},
+	{"TRICE8B_1", (*trexDec).trice8B, -1, 0, 0},
+	{"TRICE16B_1", (*trexDec).trice16B, -1, 0, 0},
+	{"TRICE32B_1", (*trexDec).trice32B, -1, 0, 0},
+	{"TRICE64B_1", (*trexDec).trice64B, -1, 0, 0},
+
+	{"TRICEF", (*trexDec).trice8F, -1, 0, 0},
+	{"TRICE8F", (*trexDec).trice8F, -1, 0, 0},
+	{"TRICE16F", (*trexDec).trice16F, -1, 0, 0},
+	{"TRICE32F", (*trexDec).trice32F, -1, 0, 0},
+	{"TRICE64F", (*trexDec).trice64F, -1, 0, 0},
+
+	{"TRICE_S", (*trexDec).triceS, -1, 0, 0},
+	{"TRICE_N", (*trexDec).triceN, -1, 0, 0},
+
+	{"TRICE_B", (*trexDec).trice8B, -1, 0, 0},
+	{"TRICE8_B", (*trexDec).trice8B, -1, 0, 0},
+	{"TRICE16_B", (*trexDec).trice16B, -1, 0, 0},
+	{"TRICE32_B", (*trexDec).trice32B, -1, 0, 0},
+	{"TRICE64_B", (*trexDec).trice64B, -1, 0, 0},
+
+	{"TRICE_F", (*trexDec).trice8F, -1, 0, 0},
+	{"TRICE8_F", (*trexDec).trice8F, -1, 0, 0},
+	{"TRICE16_F", (*trexDec).trice16F, -1, 0, 0},
+	{"TRICE32_F", (*trexDec).trice32F, -1, 0, 0},
+	{"TRICE64_F", (*trexDec).trice64F, -1, 0, 0},
 }
 
 // triceN converts dynamic strings.
@@ -663,8 +689,21 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
+	before, after, found := strings.Cut(p.Trice.Strg, ":")
+	if found {
+		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
+	} else {
+		after = p.Trice.Strg
+	}
+
+	lastRune := string(after[len(after)-1:])
+	after = strings.TrimSuffix(after, `\n`)
+
 	for i := 0; i < len(s); i++ {
-		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, s[i]))
+		n += copy(b[n:], fmt.Sprintf(after, s[i]))
+	}
+	if lastRune == "\n" {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -675,9 +714,24 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-	for i := 0; i < len(s); i += 2 {
-		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint16(s[i:])))
+
+	before, after, found := strings.Cut(p.Trice.Strg, ":")
+	if found {
+		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
+	} else {
+		after = p.Trice.Strg
 	}
+
+	lastRune := string(after[len(after)-1:])
+	after = strings.TrimSuffix(after, `\n`)
+
+	for i := 0; i < len(s); i += 2 {
+		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint16(s[i:])))
+	}
+	if lastRune == "\n" {
+		n += copy(b[n:], fmt.Sprintln())
+	}
+
 	return
 }
 
@@ -687,8 +741,22 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
+
+	before, after, found := strings.Cut(p.Trice.Strg, ":")
+	if found {
+		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
+	} else {
+		after = p.Trice.Strg
+	}
+
+	lastRune := string(after[len(after)-1:])
+	after = strings.TrimSuffix(after, `\n`)
+
 	for i := 0; i < len(s); i += 4 {
-		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint32(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint32(s[i:])))
+	}
+	if lastRune == "\n" {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -699,8 +767,22 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
+
+	before, after, found := strings.Cut(p.Trice.Strg, ":")
+	if found {
+		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
+	} else {
+		after = p.Trice.Strg
+	}
+
+	lastRune := string(after[len(after)-1:])
+	after = strings.TrimSuffix(after, `\n`)
+
 	for i := 0; i < len(s); i += 8 {
-		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint64(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint64(s[i:])))
+	}
+	if lastRune == "\n" {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -715,7 +797,7 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
 	}
-	n += copy(b[n:], fmt.Sprintf("\n"))
+	n += copy(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -729,7 +811,7 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintf("\n"))
+	n += copy(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -743,7 +825,7 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintf("\n"))
+	n += copy(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -757,7 +839,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintf("\n"))
+	n += copy(b[n:], fmt.Sprintln())
 	return
 }
 
