@@ -651,41 +651,41 @@ static inline uint64_t aDouble( double x ){
     TRICE_LEAVE \
 } while(0)
 
-void triceN( int tid, char * fmt, char * buf, uint32_t n);
-void TriceN( int tid, char * fmt, char * buf, uint32_t n);
-void TRiceN( int tid, char * fmt, char * buf, uint32_t n);
+void triceN( int tid, char * fmt, int8_t * buf, uint32_t n);
+void TriceN( int tid, char * fmt, int8_t * buf, uint32_t n);
+void TRiceN( int tid, char * fmt, int8_t * buf, uint32_t n);
 
-void trice8B( int tid, char * fmt, char * buf, uint32_t n);
-void Trice8B( int tid, char * fmt, char * buf, uint32_t n);
-void TRice8B( int tid, char * fmt, char * buf, uint32_t n);
+void trice8B( int tid, char * fmt, int8_t * buf, uint32_t n);
+void Trice8B( int tid, char * fmt, int8_t * buf, uint32_t n);
+void TRice8B( int tid, char * fmt, int8_t * buf, uint32_t n);
 
-void trice16B( int tid, char * fmt, char * buf, uint32_t n);
-void Trice16B( int tid, char * fmt, char * buf, uint32_t n);
-void TRice16B( int tid, char * fmt, char * buf, uint32_t n);
+void trice16B( int tid, char * fmt, int16_t * buf, uint32_t n);
+void Trice16B( int tid, char * fmt, int16_t * buf, uint32_t n);
+void TRice16B( int tid, char * fmt, int16_t * buf, uint32_t n);
 
-void trice32B( int tid, char * fmt, char * buf, uint32_t n);
-void Trice32B( int tid, char * fmt, char * buf, uint32_t n);
-void TRice32B( int tid, char * fmt, char * buf, uint32_t n);
+void trice32B( int tid, char * fmt, int32_t * buf, uint32_t n);
+void Trice32B( int tid, char * fmt, int32_t * buf, uint32_t n);
+void TRice32B( int tid, char * fmt, int32_t * buf, uint32_t n);
 
-void trice64B( int tid, char * fmt, char * buf, uint32_t n);
-void Trice64B( int tid, char * fmt, char * buf, uint32_t n);
-void TRice64B( int tid, char * fmt, char * buf, uint32_t n);
+void trice64B( int tid, char * fmt, int64_t * buf, uint32_t n);
+void Trice64B( int tid, char * fmt, int64_t * buf, uint32_t n);
+void TRice64B( int tid, char * fmt, int64_t * buf, uint32_t n);
 
-void trice8F( int tid, char * fmt, char * buf, uint32_t n);
-void Trice8F( int tid, char * fmt, char * buf, uint32_t n);
-void TRice8F( int tid, char * fmt, char * buf, uint32_t n);
+void trice8F( int tid, char * fmt, int8_t * buf, uint32_t n);
+void Trice8F( int tid, char * fmt, int8_t * buf, uint32_t n);
+void TRice8F( int tid, char * fmt, int8_t * buf, uint32_t n);
 
-void trice16F( int tid, char * fmt, char * buf, uint32_t n);
-void Trice16F( int tid, char * fmt, char * buf, uint32_t n);
-void TRice16F( int tid, char * fmt, char * buf, uint32_t n);
+void trice16F( int tid, char * fmt, int16_t * buf, uint32_t n);
+void Trice16F( int tid, char * fmt, int16_t * buf, uint32_t n);
+void TRice16F( int tid, char * fmt, int16_t * buf, uint32_t n);
 
-void trice32F( int tid, char * fmt, char * buf, uint32_t n);
-void Trice32F( int tid, char * fmt, char * buf, uint32_t n);
-void TRice32F( int tid, char * fmt, char * buf, uint32_t n);
+void trice32F( int tid, char * fmt, int32_t * buf, uint32_t n);
+void Trice32F( int tid, char * fmt, int32_t * buf, uint32_t n);
+void TRice32F( int tid, char * fmt, int32_t * buf, uint32_t n);
 
-void trice64F( int tid, char * fmt, char * buf, uint32_t n);
-void Trice64F( int tid, char * fmt, char * buf, uint32_t n);
-void TRice64F( int tid, char * fmt, char * buf, uint32_t n);
+void trice64F( int tid, char * fmt, int64_t * buf, uint32_t n);
+void Trice64F( int tid, char * fmt, int64_t * buf, uint32_t n);
+void TRice64F( int tid, char * fmt, int64_t * buf, uint32_t n);
 
 #endif // #ifndef TRICE_N
 

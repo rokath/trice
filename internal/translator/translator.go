@@ -18,7 +18,6 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/tleDecoder"
 	"github.com/rokath/trice/internal/trexDecoder"
 	"github.com/rokath/trice/pkg/msg"
 )
@@ -56,12 +55,13 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 		log.Fatalf(fmt.Sprintln("unknown endianness ", TriceEndianness, "-accepting litteEndian or bigEndian."))
 	}
 	switch strings.ToUpper(Encoding) {
-	case "TLE", "COBS":
-		dec = tleDecoder.New(w, lut, m, li, rwc, endian)
-		//cobsVariantDecode = cobs.Decode
-		//  case "COBSFF":
-		//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
-		//  	cobsVariantDecode = cobsFFDecode
+	//case "TLE", "COBS":
+	//	dec = tleDecoder.New(w, lut, m, li, rwc, endian)
+
+	//cobsVariantDecode = cobs.Decode
+	//  case "COBSFF":
+	//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
+	//  	cobsVariantDecode = cobsFFDecode
 	case "TREX":
 		dec = trexDecoder.New(w, lut, m, li, rwc, endian)
 	case "CHAR":
