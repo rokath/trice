@@ -6,7 +6,6 @@ package do
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -94,7 +93,7 @@ func evaluateColorPalette(w io.Writer) {
 
 func tcpWriter() io.Writer {
 	if TCPOutAddr == "" {
-		return ioutil.Discard
+		return io.Discard
 	}
 	// The net.Listen() function makes the program a TCP server. This functions returns a Listener variable, which is a generic network listener for stream-oriented protocols.
 	fmt.Println("Listening on " + TCPOutAddr + "...")

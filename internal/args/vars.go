@@ -19,8 +19,8 @@ var (
 	// Date is the compilation time and injected from main package.
 	Date string
 
-	// verbose gives more information on output if set. This variable is copied into the appropriate packages.
-	verbose bool
+	// Verbose gives more information on output if set. This variable is copied into the appropriate packages.
+	Verbose bool
 
 	// fsScRefresh is flag set for sub command 'refresh' for updating ID list without touching the sources.
 	fsScRefresh *flag.FlagSet

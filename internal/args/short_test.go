@@ -5,7 +5,6 @@ package args
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -23,7 +22,7 @@ func TestMain(m *testing.M) {
 }
 
 func getTemporaryFileName(pattern string) string {
-	tempFileHandle, e := ioutil.TempFile(os.TempDir(), pattern) // opens for read and write
+	tempFileHandle, e := os.CreateTemp(os.TempDir(), pattern) // opens for read and write
 	msg.OnErr(e)
 	tempFileName := tempFileHandle.Name()
 	msg.OnErr(tempFileHandle.Close())
@@ -89,15 +88,15 @@ func TestScan(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
-	verbose = false
+	Verbose = false
 	v := []string{"", ""}
 	testVersion(t, v)
 
-	verbose = true
+	Verbose = true
 	v[0] = "https://github.com/rokath/trice\n"
 	v[1] = ""
 	testVersion(t, v)
-	verbose = false
+	Verbose = false
 }
 
 func testVersion(t *testing.T, v []string) {

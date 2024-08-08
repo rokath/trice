@@ -14,7 +14,11 @@ import (
 )
 
 func TestUpdate0(t *testing.T) { // Anti-Virus issue
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
+
+	//fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	// create src file
 	sFn := "file.c"

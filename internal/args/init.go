@@ -24,8 +24,8 @@ const (
 
 var (
 
-	// logfileName is the filename of the logfile. "off" inhibits logfile writing.
-	logfileName = "off"
+	// LogfileName is the filename of the logfile. "off" inhibits logfile writing.
+	LogfileName = "off"
 
 	colorInfo = `The format strings can start with a lower or upper case channel information.
 See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options: 
@@ -273,7 +273,7 @@ Change the filename with "-binaryLogfile myName.bin" or switch logging off with 
 }
 
 func flagLogfile(p *flag.FlagSet) {
-	p.StringVar(&logfileName, "logfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
+	p.StringVar(&LogfileName, "logfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
 "off": no logfile (same as "none")
 "none": no logfile (same as "off")
 "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
@@ -281,7 +281,7 @@ func flagLogfile(p *flag.FlagSet) {
 All trice output of the appropriate subcommands is appended per default into the logfile additionally to the normal output.
 Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
 `)
-	p.StringVar(&logfileName, "lf", "off", "Short for logfile")
+	p.StringVar(&LogfileName, "lf", "off", "Short for logfile")
 }
 
 func flagSrcs(p *flag.FlagSet) {
@@ -301,10 +301,10 @@ func flagDryRun(p *flag.FlagSet) {
 }
 
 func flagVerbosity(p *flag.FlagSet) {
-	p.BoolVar(&verbose, "verbose", false, `Gives more informal output if used. Can be helpful during setup.
+	p.BoolVar(&Verbose, "verbose", false, `Gives more informal output if used. Can be helpful during setup.
 For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
 `+boolInfo) // flag
-	p.BoolVar(&verbose, "v", false, "short for verbose") // flag
+	p.BoolVar(&Verbose, "v", false, "short for verbose") // flag
 }
 
 func flagIDList(p *flag.FlagSet) {

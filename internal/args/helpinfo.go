@@ -13,7 +13,7 @@ import (
 
 // scHelp is sub-command help. It prints usage to stdout.
 func scHelp(w io.Writer) error {
-	if verbose {
+	if Verbose {
 		fmt.Fprintf(w, "\n*** https://github.com/rokath/trice ***\n\n")
 		fmt.Fprintf(w, "If a non-multi parameter is used more than one times the last value wins.\n")
 	}

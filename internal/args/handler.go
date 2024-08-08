@@ -61,17 +61,17 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		return fmt.Errorf("unknown sub-command '%s'. try: '%s help|h'", subCmd, args[0])
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return scHelp(w)
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
-		if verbose {
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
+		if Verbose {
 			bi, ok := debug.ReadBuildInfo()
 			if !ok {
 				fmt.Println("buildInfo not ok")
@@ -82,19 +82,19 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		return scVersion(w)
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdReNewList(w, fSys)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdRefreshList(w, fSys)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdUpdate(w, fSys)
 	case "i", "insert":
 		msg.OnErr(fsScInsert.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdInsert(w, fSys)
 	//  case "zeroSourceTreeIds":
 	//  	msg.OnErr(fsScZero.Parse(subArgs))
@@ -103,11 +103,11 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	//  	return id.ScZeroMulti(w, fSys, fsScZero)
 	case "z", "zero", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdZero(w, fSys)
 	case "c", "clean", "cleanSourceTreeIds":
 		msg.OnErr(fsScClean.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdClean(w, fSys)
 	//  case "clear": // todo: remove
 	//  	msg.OnErr(fsScClean.Parse(subArgs))
@@ -115,11 +115,11 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	//  	return id.ScIdClean(w, fSys, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return emitter.ScShutdownRemoteDisplayServer(w, 0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		id.Logging = true
@@ -128,7 +128,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
 		decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")
 		decoder.ShowTargetStamp0Passed = isLogFlagPassed("ts0")
-		w = do.DistributeArgs(w, fSys, logfileName, verbose)
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		logLoop(w, fSys) // endless loop
 		return nil
 	}
@@ -192,7 +192,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	} else {
 		if _, err := fSys.Stat(id.LIFnJSON); errors.Is(err, os.ErrNotExist) {
 			if id.LIFnJSON != "off" && id.LIFnJSON != "none" && id.LIFnJSON != "no" {
-				if verbose {
+				if Verbose {
 					fmt.Fprintf(w, "path/to/ %s does not exist: li is nil\n", id.LIFnJSON)
 				}
 			}
@@ -210,7 +210,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	var counter int
 
 	for {
-		rwc, e := receiver.NewReadWriteCloser(w, fSys, verbose, receiver.Port, receiver.PortArguments)
+		rwc, e := receiver.NewReadWriteCloser(w, fSys, Verbose, receiver.Port, receiver.PortArguments)
 		if e != nil {
 			fmt.Fprintln(w, e)
 			if !interrupted {
@@ -238,7 +238,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 
 // scVersion is sub-command 'version'. It prints version information.
 func scVersion(w io.Writer) error {
-	if verbose {
+	if Verbose {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
 		//emitter.ShowAllColors()
 	}

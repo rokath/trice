@@ -16,6 +16,10 @@ import (
 
 // TestUpdateSet1 allows to test many test vectors by extending the testVector slice.
 func TestUpdateSet1(t *testing.T) { // Anti-Virus issue
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
+
 	type testVector struct {
 		srcSrc0, srcSrc1 string
 		expSrc0, expSrc1 string
@@ -36,7 +40,7 @@ func TestUpdateSet1(t *testing.T) { // Anti-Virus issue
 		},
 	}
 
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	//fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	for i := range set {
 		for k := range triceMacro {
@@ -71,6 +75,10 @@ func TestUpdateSet1(t *testing.T) { // Anti-Virus issue
 
 // TestUpdateSet allows to test many test vectors by extending the testVector slice.
 func TestUpdateSet0(t *testing.T) { // Anti-Virus issue
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
+
 	type testVector struct {
 		srcSrc string
 		expSrc string
@@ -102,8 +110,6 @@ func TestUpdateSet0(t *testing.T) { // Anti-Virus issue
 		},
 	}
 
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
 	for i := range set {
 		src := set[i].srcSrc
 		expSrc := set[i].expSrc
@@ -134,7 +140,9 @@ func TestUpdateSet0(t *testing.T) { // Anti-Virus issue
 }
 
 func TestUpdateLegacy0(t *testing.T) { // Anti-Virus issue
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
 
 	// create src file
 	sFn := "file.c"
@@ -191,8 +199,13 @@ func TestUpdateLegacy0(t *testing.T) { // Anti-Virus issue
 	assert.Equal(t, expLI, string(actLI))
 }
 
+// TestUpdateLegacy1 runs alone but not in combination of some other tests in this module.
+// This is probably an is2ue eith global vars.
 func _TestUpdateLegacy1(t *testing.T) { // Anti-Virus issue, runs alone but not as file test
+
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	setupTest(t, fSys)
+	defer setupTest(t, fSys)()
 
 	// create src file
 	sFn := "file.c"
