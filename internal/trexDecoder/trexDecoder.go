@@ -40,6 +40,7 @@ const (
 )
 
 var Doubled16BitID bool
+var AddNewlineToEachTriceMessage bool
 
 /*
 var (
@@ -441,7 +442,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	var ok bool
 	p.LutMutex.RLock()
 	p.Trice, ok = p.Lut[triceID]
-	// p.Trice.Strg += `\n` // this would add a newline to each single Trice message
+	if AddNewlineToEachTriceMessage {
+		p.Trice.Strg += `\n` // this adds a newline to each single Trice message
+	}
 	p.LutMutex.RUnlock()
 	if !ok {
 		if p.packageFraming == packageFramingNone {
