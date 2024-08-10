@@ -1,4 +1,5 @@
 <!-- vscode-markdown-toc -->
+
 - [1. v0.60.1 Twice Log Screen Shot](#1-v0601-twice-log-screen-shot)
 - [2. v0.56.0 Changes](#2-v0560-changes)
 	- [2.1. Legacy `TRICE*` macros](#21-legacy-trice-macros)
@@ -10,6 +11,7 @@
 - [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
 - [5. v0.64.1 changes (unsorted)](#5-v0641-changes-unsorted)
 - [6. v0.65.0 Changes](#6-v0650-changes)
+- [7. master branch changes](#7-master-branch-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -230,3 +232,10 @@ This is a major release hopefully not breaking too much!
 - `5af9c2bb664e11e5e2663e56116d842719ca6f8d` Issue #431 solved
 - `430c6a4dde817bc39ec35d595341efbe069cf482` Issue #466 solved
 - You can now use `trice8B( "msg: %02x\n", buffer, len);` functions and the like. See [test/testdata/triceCheck.c](test/testdata/triceCheck.c) for examples.
+
+##  7. <a name='masterbranchchanges'></a>master branch changes
+
+- issue #363 solved: Remove legacy "i" artifacts from code (example: updateParamCountAndID0) 
+- issue #478 solved: Add Trice tool CLI switch for automated \n after each trice message to avoid the need to write it all the time. 
+- function signature more universal
+- a folder renamed
