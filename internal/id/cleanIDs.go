@@ -117,7 +117,7 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 			IDData.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
 			if tt != t { // idn references to a different t.
-				fmt.Fprintln(w, "ID inside", path, "line", line, "refers to", t, "but is already used inside til.json for", tt)
+				fmt.Fprintln(w, "ID", idn, "inside", path, "line", line, "refers to", t, "but is used inside til.json for", tt, "- setting it to 0.")
 				idn = 0 // silently set it to 0
 			}
 		}

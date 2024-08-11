@@ -30,7 +30,7 @@ void TriceCheck(int n) {
     static int64_t b64[4] = { 0, -1, -2, 0x3344555566666666 };
     char* sABCDE = "abcde 12345";
     uint32_t lenABCDE = strlen(sABCDE);
-
+    char * five = "five";
     #if TRICE_CGO == 1
     char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     #endif // #if TRICE_CGO == 1
@@ -247,12 +247,12 @@ void TriceCheck(int n) {
         break; case __LINE__: TRice64F( iD(15115), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
         break; case __LINE__: Trice64F( iD(15116), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:       5_654default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
         break; case __LINE__: trice64F( iD(15117), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
-        break; case __LINE__: TRiceS( iD(15118), "msg:Hi %s!\n", "five" );                 //exp: time: 842,150_450default: msg:Hi five!
-        break; case __LINE__: TriceS( iD(15119), "msg:Hi %s!\n", "five" );                 //exp: time:       5_654default: msg:Hi five!
-        break; case __LINE__: triceS( iD(15120), "msg:Hi %s!\n", "five" );                 //exp: time:            default: msg:Hi five!
-        break; case __LINE__: TRiceN( iD(15121), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time: 842,150_450default: msg:Hi five!
-        break; case __LINE__: TriceN( iD(15122), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:       5_654default: msg:Hi five!
-        break; case __LINE__: triceN( iD(15123), "msg:Hi %s!\n", "five", strlen("five") ); //exp: time:            default: msg:Hi five!
+        break; case __LINE__: TRiceS( iD(15118), "msg:Hi %s!\n", five );                 //exp: time: 842,150_450default: msg:Hi five!
+        break; case __LINE__: TriceS( iD(15119), "msg:Hi %s!\n", five );                 //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: triceS( iD(15120), "msg:Hi %s!\n", five );                 //exp: time:            default: msg:Hi five!
+        break; case __LINE__: TRiceN( iD(15121), "msg:Hi %s!\n", five, strlen(five) ); //exp: time: 842,150_450default: msg:Hi five!
+        break; case __LINE__: TriceN( iD(15122), "msg:Hi %s!\n", five, strlen(five) ); //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: triceN( iD(15123), "msg:Hi %s!\n", five, strlen(five) ); //exp: time:            default: msg:Hi five!
 
         break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:       5_654default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
 

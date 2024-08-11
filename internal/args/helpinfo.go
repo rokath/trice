@@ -24,8 +24,7 @@ func scHelp(w io.Writer) error {
 		{allHelp || displayServerHelp, displayServerInfo},
 		{allHelp || helpHelp, helpInfo},
 		{allHelp || logHelp, logInfo},
-		{allHelp || refreshHelp, refreshInfo},
-		{allHelp || renewHelp, renewInfo},
+		{allHelp || addHelp, addInfo},
 		{allHelp || scanHelp, scanInfo},
 		{allHelp || shutdownHelp, shutdownInfo},
 		{allHelp || versionHelp, versionInfo},
@@ -107,8 +106,8 @@ func insertIDsInfo(w io.Writer) error {
 #	"trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and extend the JSON list.
 #	This command relies on existing til.json and li.json files. The li.json file is used as reference and generated new during insert.
 #	Without li.json the insert command assigns new IDs to all found trice macros, because it cannot assign files to them, and extends 
-#	the til.json file accordingly. That is for safety, because the insert command acts in multiple Go routines per file parallel. 
-#	If you lost the li.json file, you can run "trice clean|zero" first, to re-generate a new li.json and then execute "trice insert".
+#	the til.json file accordingly. That is for safety, because the insert command acts in multiple files in Go routines parallel. 
+#	If you lost the li.json file, you can run "trice add" first, to re-generate a new li.json and then execute "trice insert".
 #	With an empty til.json file, the insert command re-creates a new til.json (and a fresh li.json) from the source code.
 #	If the insert command finds an ID for a trice inside the sources, used already for an other trice inside til.json, it reports that
 #	and assigns a new ID into the source file, adding it to til.json as well.
@@ -161,32 +160,17 @@ func updateInfo(w io.Writer) error {
 	return e
 }
 
-func refreshInfo(w io.Writer) error {
-	_, e := fmt.Fprintln(w, `sub-command 'r|refresh': DEPRECIATED! Will be removed in the future.
-#	Use "trice z|zero" and "trice i|insert" instead.
-#	DEPRECIATED! For updating ID list from source files but does not change the source files.
-#	DEPRECIATED! "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
-#	DEPRECIATED! This command should be run on adding source files to the project before the first time "trice update" is called.
-#	DEPRECIATED! If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
-#	DEPRECIATED! Already used IDs are reported, so you have the chance to remove them from til.son and then do "trice u" again.
-#	DEPRECIATED! This way you can make sure to get the new sources unchanged in your list.
-#	DEPRECIATED! Already used IDs are replaced by new IDs during the next "trice update", so the old IDs in the list will survive.
-#	DEPRECIATED! If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to 
-#	DEPRECIATED! IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
-#	DEPRECIATED! Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
-#	DEPRECIATED! The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
-#	DEPRECIATED! Example: 'trice refresh': Update ID list from source tree.`)
-	fsScRefresh.SetOutput(w)
-	fsScRefresh.PrintDefaults()
-	return e
-}
-
-func renewInfo(w io.Writer) error {
-	_, e := fmt.Fprintln(w, `sub-command 'renew': DEPRECIATED! Will be removed in the future. 
-#	Use "trice z|zero" and "trice i|insert" instead (empty til.json manually first).
-#	DEPRECIATED! It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
-#	DEPRECIATED! Example: 'trice renew': Rebuild ID list from source tree, discard old IDs.`)
-	fsScRenew.SetOutput(w)
-	fsScRenew.PrintDefaults()
+func addInfo(w io.Writer) error {
+	_, e := fmt.Fprintln(w, `sub-command 'a|add': Use for adding library source files containing already trice IDs to your project.
+#	It extends the ID list from these source files but does not change the source files.
+#	Already used IDs are reported, so you have the chance to remove them from til.json and your project and then do "trice add" again.
+#	This way you can make sure to get the new sources unchanged in your list, even they contain trice IDs already.
+#	Afterwards the newly added library source files are treated as regular project files. If you do not edit them, they stay unchanged.
+#	If in one of your project files a trice from the library occurs again, like "trice( iD(123), "Hi!");" in a lib file and "trice( "Hi!");"
+#	in a project file, it will get a different ID in your project file because of the used location information.
+#	The "add" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
+#	Example: 'trice add': Update ID list from source tree.`)
+	fsScAdd.SetOutput(w)
+	fsScAdd.PrintDefaults()
 	return e
 }

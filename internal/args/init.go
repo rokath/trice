@@ -43,8 +43,7 @@ func init() {
 func FlagsInit() {
 	helpInit()
 	logInit()
-	refreshInit()
-	renewInit()
+	addInit()
 	updateInit()
 	zeroInit()
 	insertIDsInit()
@@ -64,9 +63,8 @@ func helpInit() {
 	fsScHelp.BoolVar(&helpHelp, "h", false, "Show h|help specific help.")
 	fsScHelp.BoolVar(&logHelp, "log", false, "Show l|log specific help.")
 	fsScHelp.BoolVar(&logHelp, "l", false, "Show l|log specific help.")
-	fsScHelp.BoolVar(&refreshHelp, "refresh", false, "Show r|refresh specific help.")
-	fsScHelp.BoolVar(&refreshHelp, "r", false, "Show r|refresh specific help.")
-	fsScHelp.BoolVar(&renewHelp, "renew", false, "Show renew specific help.")
+	fsScHelp.BoolVar(&addHelp, "add", false, "Show a|add specific help.")
+	fsScHelp.BoolVar(&addHelp, "a", false, "Show a|add specific help.")
 	fsScHelp.BoolVar(&scanHelp, "scan", false, "Show s|scan specific help.")
 	fsScHelp.BoolVar(&scanHelp, "s", false, "Show s|scan specific help.")
 	fsScHelp.BoolVar(&shutdownHelp, "shutdown", false, "Show sd|shutdown specific help.")
@@ -187,14 +185,9 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 	fsScLog.BoolVar(&trexDecoder.AddNewlineToEachTriceMessage, "addNL", false, `Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.`)
 }
 
-func refreshInit() {
-	fsScRefresh = flag.NewFlagSet("refresh", flag.ExitOnError) // sub-command
-	flagsRefreshAndUpdate(fsScRefresh)
-}
-
-func renewInit() {
-	fsScRenew = flag.NewFlagSet("renew", flag.ExitOnError) // sub-command
-	flagsRefreshAndUpdate(fsScRenew)
+func addInit() {
+	fsScAdd = flag.NewFlagSet("add", flag.ExitOnError) // sub-command
+	flagsRefreshAndUpdate(fsScAdd)
 }
 
 func updateInit() {
@@ -321,13 +314,12 @@ The specified JSON file is needed to display the ID coded trices during runtime 
 }
 
 func flagLIList(p *flag.FlagSet) {
-	p.StringVar(&id.LIFnJSON, "locationInformation", "li.json", `The trice location list file.
-The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
-It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+	p.StringVar(&id.LIFnJSON, "locationInformation", "li.json", `The trice location information file.
+The specified JSON file is needed to display the location information for each ID during runtime. 
+It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
 log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
 This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
-location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.
 `) // flag

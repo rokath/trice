@@ -80,14 +80,10 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 			}
 		}
 		return scVersion(w)
-	case "renew":
-		msg.OnErr(fsScRenew.Parse(subArgs))
+	case "a", "add":
+		msg.OnErr(fsScAdd.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		return id.SubCmdReNewList(w, fSys)
-	case "r", "refresh":
-		msg.OnErr(fsScRefresh.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		return id.SubCmdRefreshList(w, fSys)
+		return id.SubCmdAddToList(w, fSys)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)

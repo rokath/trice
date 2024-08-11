@@ -26,29 +26,28 @@ import (
 //  	return nil
 //  }
 
-// SubCmdReNewList renews the trice id list parsing the source tree without changing any source file.
-// It creates a new FnJSON and tries to add id:tf pairs from the source tree.
-// If equal tf are found with different ids they are all added.
-// If the same id is found with different tf only one is added. The others are reported as warning.
-// If any TRICE* is found without Id(n) or with Id(0), it is ignored.
-// SubCmdUpdate needs to know which IDs are used in the source tree, to reliably add new IDs.
-func SubCmdReNewList(w io.Writer, fSys *afero.Afero) (err error) {
-	lu := make(TriceIDLookUp)
-	lim := make(TriceIDLookUpLI, 4000)
-	msg.OnErr(updateList(w, fSys, lu, lim))
-	if LIFnJSON == "off" || LIFnJSON == "none" {
-		return nil
-	}
-	return lim.toFile(fSys, LIFnJSON)
-}
+//  renews the trice id list parsing the source tree without changing any source file.
+//   FnJSON and tries to add id:tf pairs from the source tree.
+//  found with different ids they are all added.
+//  s found with different tf only one is added. The others are reported as warning.
+//   found without Id(n) or with Id(0), it is ignored.
+//  ds to know which IDs are used in the source tree, to reliably add new IDs.
+//  t(w io.Writer, fSys *afero.Afero) (err error) {
+//  eIDLookUp)
+//  ceIDLookUpLI, 4000)
+//  eList(w, fSys, lu, lim))
+//  "off" || LIFnJSON == "none" {
+//
+//
+//  le(fSys, LIFnJSON)
+//
 
-// SubCmdRefreshList refreshes the trice id list parsing the source tree without changing any source file.
+// SubCmdAddToList etends the trice id list by parsing the source tree without changing any source file.
 // It only reads FnJSON and tries to add id:tf pairs from the source tree.
 // If equal tf are found with different ids they are all added.
 // If the same id is found with different tf only one is added. The others are reported as warning.
 // If any TRICE* is found without Id(n) or with Id(0), it is ignored.
-// SubCmdUpdate needs to know which IDs are used in the source tree, to reliably add new IDs.
-func SubCmdRefreshList(w io.Writer, fSys *afero.Afero) (err error) {
+func SubCmdAddToList(w io.Writer, fSys *afero.Afero) (err error) {
 	lu := NewLut(w, fSys, FnJSON)
 	lim := make(TriceIDLookUpLI, 4000)
 	msg.OnErr(updateList(w, fSys, lu, lim))
@@ -58,7 +57,7 @@ func SubCmdRefreshList(w io.Writer, fSys *afero.Afero) (err error) {
 	return lim.toFile(fSys, LIFnJSON)
 }
 
-func refreshListAdapter(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, _ *bool, lim TriceIDLookUpLI) {
+func addToListAdapter(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, _ *bool, lim TriceIDLookUpLI) {
 	refreshList(w, fSys, root, ilu, flu, lim)
 }
 
@@ -71,7 +70,7 @@ func updateList(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, lim TriceIDLo
 		lu0[k] = v
 	}
 	var listModified bool
-	walkSrcs(w, fSys, ilu, flu, &listModified, lim, refreshListAdapter)
+	walkSrcs(w, fSys, ilu, flu, &listModified, lim, addToListAdapter)
 
 	// listModified does not help here, because it indicates that some sources are updated and therefore the list needs an update too.
 	// But here we are only scanning the source tree, so if there would be some changes they are not relevant because sources are not changed here.

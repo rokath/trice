@@ -12,7 +12,7 @@ import (
 func TestHelpAll(t *testing.T) {
 	input := []string{"trice", "help", "-all"}
 	expect := `syntax: 'trice sub-command' [params]
-      sub-command 'ds|displayServer': Starts a display server. 
+sub-command 'ds|displayServer': Starts a display server. 
 #	Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues. 
 #	Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
 #	Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
@@ -48,6 +48,9 @@ sub-command 'h|help': For command line usage.
 #	Example 'trice h': Print short help.
 #	Example 'trice h -all': Print all help.
 #	Example 'trice h -log': Print log help.
+  -a	Show a|add specific help.
+  -add
+    	Show a|add specific help.
   -all
     	Show all help.
   -c	Show cleanSourceTreeIds specific help.
@@ -77,11 +80,6 @@ sub-command 'h|help': For command line usage.
     	All trice output of the appropriate subcommands is appended per default into the logfile additionally to the normal output.
     	Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
     	 (default "off")
-  -r	Show r|refresh specific help.
-  -refresh
-    	Show r|refresh specific help.
-  -renew
-    	Show renew specific help.
   -s	Show s|scan specific help.
   -scan
     	Show s|scan specific help.
@@ -108,6 +106,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
 #	Example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
 #	Example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
 #	Example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
+  -addNL
+    	Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.
   -args string
     	Use to pass port specific parameters. The "default" value depends on the used port:
     	port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
@@ -208,13 +208,12 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
     	The default is to use only the files basename.
   -locationInformation string
-    	The trice location list file.
-    	The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
-    	It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+    	The trice location information file.
+    	The specified JSON file is needed to display the location information for each ID during runtime. 
+    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
-    	location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -logLevel string
     	Level based log filtering. "off" suppresses everything. If equal to a channel specifier all with a bigger index inside emitter.ColorChannels is not shown. (default "all")
@@ -291,23 +290,18 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'r|refresh': DEPRECIATED! Will be removed in the future.
-#	Use "trice z|zero" and "trice i|insert" instead.
-#	DEPRECIATED! For updating ID list from source files but does not change the source files.
-#	DEPRECIATED! "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
-#	DEPRECIATED! This command should be run on adding source files to the project before the first time "trice update" is called.
-#	DEPRECIATED! If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
-#	DEPRECIATED! Already used IDs are reported, so you have the chance to remove them from til.son and then do "trice u" again.
-#	DEPRECIATED! This way you can make sure to get the new sources unchanged in your list.
-#	DEPRECIATED! Already used IDs are replaced by new IDs during the next "trice update", so the old IDs in the list will survive.
-#	DEPRECIATED! If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to 
-#	DEPRECIATED! IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
-#	DEPRECIATED! Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
-#	DEPRECIATED! The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
-#	DEPRECIATED! Example: 'trice refresh': Update ID list from source tree.
+sub-command 'a|add': Use for adding library source files containing already trice IDs to your project.
+#	It extends the ID list from these source files but does not change the source files.
+#	Already used IDs are reported, so you have the chance to remove them from til.json and your project and then do "trice add" again.
+#	This way you can make sure to get the new sources unchanged in your list, even they contain trice IDs already.
+#	Afterwards the newly added library source files are treated as regular project files. If you do not edit them, they stay unchanged.
+#	If in one of your project files a trice from the library occurs again, like "trice( iD(123), "Hi!");" in a lib file and "trice( "Hi!");"
+#	in a project file, it will get a different ID in your project file because of the used location information.
+#	The "add" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
+#	Example: 'trice add': Update ID list from source tree.
   -dry-run
     	No changes applied but output shows what would happen.
-    	"trice refresh -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+    	"trice add -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -i string
     	Short for '-idlist'.
@@ -326,70 +320,19 @@ sub-command 'r|refresh': DEPRECIATED! Will be removed in the future.
     	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
     	The default is to use only the files basename.
   -locationInformation string
-    	The trice location list file.
-    	The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
-    	It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+    	The trice location information file.
+    	The specified JSON file is needed to display the location information for each ID during runtime. 
+    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
-    	location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
     	Short for src.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice refresh -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
-    	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
-    	 (default "./")
-  -til string
-    	Short for '-idlist'.
-    	 (default "til.json")
-  -v	short for verbose
-  -verbose
-    	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'renew': DEPRECIATED! Will be removed in the future. 
-#	Use "trice z|zero" and "trice i|insert" instead (empty til.json manually first).
-#	DEPRECIATED! It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
-#	DEPRECIATED! Example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
-  -dry-run
-    	No changes applied but output shows what would happen.
-    	"trice renew -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -i string
-    	Short for '-idlist'.
-    	 (default "til.json")
-  -idList string
-    	Alternate for '-idlist'.
-    	 (default "til.json")
-  -idlist string
-    	The trice ID list file.
-    	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
-    	 (default "til.json")
-  -li string
-    	Short for '-locationInformation'.
-    	 (default "li.json")
-  -liPathIsRelative
-    	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
-    	The default is to use only the files basename.
-  -locationInformation string
-    	The trice location list file.
-    	The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
-    	It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
-    	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
-    	location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
-    	 (default "li.json")
-  -s value
-    	Short for src.
-  -src value
-    	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
-    	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice renew -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	Example: "trice add -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
     	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
@@ -469,13 +412,12 @@ sub-command 'u|update': DEPRECIATED! Will be removed in the future.
     	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
     	The default is to use only the files basename.
   -locationInformation string
-    	The trice location list file.
-    	The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
-    	It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+    	The trice location information file.
+    	The specified JSON file is needed to display the location information for each ID during runtime. 
+    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
-    	location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
     	Short for src.
@@ -498,8 +440,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
 #	"trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and extend the JSON list.
 #	This command relies on existing til.json and li.json files. The li.json file is used as reference and generated new during insert.
 #	Without li.json the insert command assigns new IDs to all found trice macros, because it cannot assign files to them, and extends 
-#	the til.json file accordingly. That is for safety, because the insert command acts in multiple Go routines per file parallel. 
-#	If you lost the li.json file, you can run "trice clean|zero" first, to re-generate a new li.json and then execute "trice insert".
+#	the til.json file accordingly. That is for safety, because the insert command acts in multiple files in Go routines parallel. 
+#	If you lost the li.json file, you can run "trice add" first, to re-generate a new li.json and then execute "trice insert".
 #	With an empty til.json file, the insert command re-creates a new til.json (and a fresh li.json) from the source code.
 #	If the insert command finds an ID for a trice inside the sources, used already for an other trice inside til.json, it reports that
 #	and assigns a new ID into the source file, adding it to til.json as well.
@@ -537,13 +479,12 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
     	The default is to use only the files basename.
   -locationInformation string
-    	The trice location list file.
-    	The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
-    	It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+    	The trice location information file.
+    	The specified JSON file is needed to display the location information for each ID during runtime. 
+    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
-    	location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
     	Short for src.
@@ -567,7 +508,7 @@ sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|
 #	reported and just zeroed inside the source files. The existing li.json is not used. A new li.json is generated in place. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
-#   In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"
+#	In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -589,13 +530,12 @@ sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|
     	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
     	The default is to use only the files basename.
   -locationInformation string
-    	The trice location list file.
-    	The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
-    	It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+    	The trice location information file.
+    	The specified JSON file is needed to display the location information for each ID during runtime. 
+    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
-    	location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
     	Short for src.
@@ -621,9 +561,9 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
 #	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
 #	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs.
 #	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressable.
-#   EXPERIMENTAL! The user needs then to set "#define TRICE_CLEAN 0" inside "triceConfig.h" after "trice insert" manually before compiling.
-#   EXPERIMENTAL! That could be automated, but right now not sure about maybe unwanted implications. So we do not touch it currently.
-#   In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"
+#	EXPERIMENTAL! The user needs then to set "#define TRICE_CLEAN 0" inside "triceConfig.h" after "trice insert" manually before compiling.
+#	EXPERIMENTAL! That could be automated, but right now not sure about maybe unwanted implications. So we do not touch it currently.
+#	In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice cleanSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -645,13 +585,12 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
     	The default is to use only the files basename.
   -locationInformation string
-    	The trice location list file.
-    	The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
-    	It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+    	The trice location information file.
+    	The specified JSON file is needed to display the location information for each ID during runtime. 
+    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct 
-    	location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
     	Short for src.

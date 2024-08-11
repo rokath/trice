@@ -22,11 +22,8 @@ var (
 	// Verbose gives more information on output if set. This variable is copied into the appropriate packages.
 	Verbose bool
 
-	// fsScRefresh is flag set for sub command 'refresh' for updating ID list without touching the sources.
-	fsScRefresh *flag.FlagSet
-
-	// fsScRenew is flag set for sub command 'renew' for re-newing ID list without touching the sources.
-	fsScRenew *flag.FlagSet
+	// fsScAdd is flag set for sub command 'add' for updating ID list without touching the sources.
+	fsScAdd *flag.FlagSet
 
 	// fsScUpdate is flag set for sub command 'update' for updating ID list.
 	fsScUpdate *flag.FlagSet
@@ -65,8 +62,7 @@ var (
 	displayServerHelp bool // flag for partial help
 	helpHelp          bool // flag for partial help
 	logHelp           bool // flag for partial help
-	refreshHelp       bool // flag for partial help
-	renewHelp         bool // flag for partial help
+	addHelp           bool // flag for partial help
 	scanHelp          bool // flag for partial help
 	shutdownHelp      bool // flag for partial help
 	updateHelp        bool // flag for partial help

@@ -84,7 +84,7 @@ func TestRefresh(t *testing.T) {
 
 	fn := t.Name() + "file.c"
 	assert.Nil(t, fSys.WriteFile(fn, []byte(CFile0), 0777))
-	SubCmdRefreshList(os.Stdout, fSys)
+	SubCmdAddToList(os.Stdout, fSys)
 	act, e := fSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	exp := ``
