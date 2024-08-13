@@ -38,6 +38,10 @@ func DistributeArgs(w io.Writer, fSys *afero.Afero, logfileName string, verbose 
 	translator.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 
+	if id.Min < 1 || id.Max < id.Min || id.Max > 16383 {
+		log.Fatalf("Invalid ID range: IDMin = %d, IDmax = %d. Requirements: 1 <= IDMin <= IDMax <= 16383.", id.Min, id.Max)
+	}
+
 	if id.DefaultStampSize == 32 {
 		id.StampSizeId = " ID(0),"
 	} else if id.DefaultStampSize == 16 {
