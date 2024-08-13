@@ -244,9 +244,18 @@ func (p *lineTransformerANSI) colorize(s string) (r string) {
 // It treats each sub string separately and a color reset code at the end.
 func (p *lineTransformerANSI) WriteLine(line []string) {
 	var colored bool
+	showLine := true
 	l := make([]string, 0, 10)
-	for _, s := range line {
+	for i, s := range line {
 		cs := p.colorize(s)
+		// The relevant channel information is probably the last string in the line slice befor the suffix.
+		// If we have `Trice( "msg:Hello");` and `Trice( att:World\n");` and `-logLevel att`, then
+		// the channel "att" is relevant because it contains the newline and "msg:Hello" is shown too.
+		// But a `Trice("msg:Hi!\n");` would be suppressed.
+		// For the applied CLI switch "-addNL" this needs more finetuning.
+		if i == len(line)-2 && len(cs) == 0 {
+			showLine = false
+		}
 		l = append(l, cs)
 		if cs != s {
 			colored = true
@@ -255,5 +264,7 @@ func (p *lineTransformerANSI) WriteLine(line []string) {
 	if (p.colorPalette == "default" || p.colorPalette == "color") && 1 < len(l) && colored {
 		l = append(l, ansi.Reset)
 	}
-	p.lw.WriteLine(l)
+	if showLine { // suppress empty lines when logLevel == "off"
+		p.lw.WriteLine(l)
+	}
 }
