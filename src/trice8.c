@@ -116,9 +116,9 @@
 // with 16-bit-stamp 8-bit values functions (16-bit timestamps need 4 bytes for allocation reasons)
 #ifndef ENABLE_Trice8fn_0
     #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 0 * 1)+3)&~3)
-        #define ENABLE_Trice8fn_11 0 //!< Disables 16-bit-stamp 8-bit 0 values functions.
+        #define ENABLE_Trice8fn_0 0 //!< Disables 16-bit-stamp 8-bit 0 values functions.
     #else
-        #define ENABLE_Trice8fn_11 1 //!< Enables  16-bit-stamp 8-bit 0 values functions.
+        #define ENABLE_Trice8fn_0 1 //!< Enables  16-bit-stamp 8-bit 0 values functions.
     #endif
 #endif
 
@@ -221,9 +221,9 @@
 // with 32-bit-stamp 8-bit values functions
 #ifndef ENABLE_TRice8fn_0
     #if TRICE_SINGLE_MAX_SIZE < (((4 + 4 + 0 * 1)+3)&~3)
-        #define ENABLE_TRice8fn_11 0 //!< Disables 32-bit-stamp 8-bit 0 values functions.
+        #define ENABLE_TRice8fn_0 0 //!< Disables 32-bit-stamp 8-bit 0 values functions.
     #else
-        #define ENABLE_TRice8fn_11 1 //!< Enables  32-bit-stamp 8-bit 0 values functions.
+        #define ENABLE_TRice8fn_0 1 //!< Enables  32-bit-stamp 8-bit 0 values functions.
     #endif
 #endif
 

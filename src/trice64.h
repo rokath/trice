@@ -353,7 +353,9 @@ void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 
 #define Trice64m_0( tid ) \
     TRICE_ENTER \
-    TRICE_PUT( (0<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
+    uint16_t ts = TriceStamp16; \
+    TRICE_PUT(0x80008000|(tid<<16)|tid); \
+    TRICE_PUT( (TRICE_CYCLE<<16) | ts ); \
     TRICE_LEAVE
 
 //! Trice64m_1 writes trice data as fast as possible in a buffer.
