@@ -192,16 +192,16 @@ func isChannel(ch string) bool {
 // Additionally, if global variable LogLevel is not the default "all", but found inside
 // ColorChannels, logs with higher index positions are suppressed.
 // As special case LogLevel == "off" does not output anything.
-func (p *lineTransformerANSI) colorize(s string) (r string) {
+func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 	if LogLevel == "off" {
-		return // do not log at all
+		return // do not log at all, return empty string
 	}
 	var logLev int       // numeric log level
 	var logThreshold int // numeric log threshold
 	r = s
 	sc := strings.SplitN(s, ":", 2)
 	if len(sc) < 2 { // no color separator (no log level)
-		return // do nothing, return unchanged string
+		return r, true // do nothing, return unchanged string
 	}
 	for i, cc := range colorChannels {
 		for _, c := range cc.channel {
@@ -217,26 +217,26 @@ func (p *lineTransformerANSI) colorize(s string) (r string) {
 
 	if LogLevel != "all" && logLev > logThreshold {
 		r = "" // suppress unwanted logs
-		return
+		return r, false
 	}
 
 	if p.colorPalette == "off" {
-		return // do nothing (despite event counting)
+		return r, true // do nothing (despite event counting)
 	}
 	if isChannel(sc[0]) && isLower(sc[0]) {
 		r = sc[1] // remove channel info
 	}
 	if p.colorPalette == "none" {
-		return
+		return r, true
 	}
 	for _, cs := range colorChannels {
 		for _, c := range cs.channel {
 			if c == sc[0] {
-				return cs.colorize(r)
+				return cs.colorize(r), true
 			}
 		}
 	}
-	return
+	return r, true
 }
 
 // WriteLine consumes a full line, translates it and writes it to the internal Linewriter.
@@ -247,13 +247,13 @@ func (p *lineTransformerANSI) WriteLine(line []string) {
 	showLine := true
 	l := make([]string, 0, 10)
 	for i, s := range line {
-		cs := p.colorize(s)
-		// The relevant channel information is probably the last string in the line slice befor the suffix.
+		cs, show := p.colorize(s)
+		// The relevant channel information is probably in the last string in the line slice before the suffix.
 		// If we have `Trice( "msg:Hello");` and `Trice( att:World\n");` and `-logLevel att`, then
 		// the channel "att" is relevant because it contains the newline and "msg:Hello" is shown too.
 		// But a `Trice("msg:Hi!\n");` would be suppressed.
 		// For the applied CLI switch "-addNL" this needs more finetuning.
-		if i == len(line)-2 && len(cs) == 0 {
+		if !show && i == len(line)-2 {
 			showLine = false
 		}
 		l = append(l, cs)

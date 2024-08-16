@@ -16,7 +16,7 @@ func Test1colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "none")
 	s := "abc:de"
-	c := p.colorize(s)
+	c, _ := p.colorize(s)
 	if c != s {
 		t.Fail()
 	}
@@ -26,7 +26,7 @@ func Test2colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "none")
 	s := "msg:de"
-	c := p.colorize(s)
+	c, _ := p.colorize(s)
 	assert.Equal(t, "de", c)
 }
 
@@ -34,14 +34,15 @@ func Test3colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "off")
 	s := "msg:de"
-	assert.Equal(t, s, p.colorize(s))
+	act, _ := p.colorize(s)
+	assert.Equal(t, s, act)
 }
 
 func _Test4colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "default")
 	s := "msg:de"
-	c := p.colorize(s)
+	c, _ := p.colorize(s)
 	act := []byte(c)
 	exp := []byte{27, 91, 57, 50, 59, 52, 48, 109, 100, 101, 27, 91, 48, 109}
 	fmt.Println("exp:", string(exp))
@@ -62,7 +63,7 @@ func _Test5colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "default")
 	s := "MESSAGE:de"
-	c := p.colorize(s)
+	c, _ := p.colorize(s)
 	b := []byte{27, 91, 57, 50, 59, 52, 48, 109, 77, 69, 83, 83, 65, 71, 69, 58, 100, 101, 27, 91, 48, 109}
 	assert.Equal(t, b, []byte(c))
 }

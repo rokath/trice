@@ -699,14 +699,13 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 		after = p.Trice.Strg
 	}
 
-	lastRune := string(after[len(after)-1:])
-	after = strings.TrimSuffix(after, `\n`)
+	noNewline := strings.TrimSuffix(after, `\n`)
 
 	for i := 0; i < len(s); i++ {
-		n += copy(b[n:], fmt.Sprintf(after, s[i]))
+		n += copy(b[n:], fmt.Sprintf(noNewline, s[i]))
 	}
-	if lastRune == "\n" {
-		n += copy(b[n:], fmt.Sprintln())
+	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
+		n += copy(b[n:], fmt.Sprintln()) // so add it finally
 	}
 	return
 }
@@ -725,14 +724,13 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 		after = p.Trice.Strg
 	}
 
-	lastRune := string(after[len(after)-1:])
-	after = strings.TrimSuffix(after, `\n`)
+	noNewline := strings.TrimSuffix(after, `\n`)
 
 	for i := 0; i < len(s); i += 2 {
-		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint16(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(noNewline, binary.LittleEndian.Uint16(s[i:])))
 	}
-	if lastRune == "\n" {
-		n += copy(b[n:], fmt.Sprintln())
+	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
+		n += copy(b[n:], fmt.Sprintln()) // so add it finally
 	}
 
 	return
@@ -752,14 +750,13 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 		after = p.Trice.Strg
 	}
 
-	lastRune := string(after[len(after)-1:])
-	after = strings.TrimSuffix(after, `\n`)
+	noNewline := strings.TrimSuffix(after, `\n`)
 
 	for i := 0; i < len(s); i += 4 {
-		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint32(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(noNewline, binary.LittleEndian.Uint32(s[i:])))
 	}
-	if lastRune == "\n" {
-		n += copy(b[n:], fmt.Sprintln())
+	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
+		n += copy(b[n:], fmt.Sprintln()) // so add it finally
 	}
 	return
 }
@@ -778,14 +775,13 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 		after = p.Trice.Strg
 	}
 
-	lastRune := string(after[len(after)-1:])
-	after = strings.TrimSuffix(after, `\n`)
+	noNewline := strings.TrimSuffix(after, `\n`)
 
 	for i := 0; i < len(s); i += 8 {
-		n += copy(b[n:], fmt.Sprintf(after, binary.LittleEndian.Uint64(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(noNewline, binary.LittleEndian.Uint64(s[i:])))
 	}
-	if lastRune == "\n" {
-		n += copy(b[n:], fmt.Sprintln())
+	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
+		n += copy(b[n:], fmt.Sprintln()) // so add it finally
 	}
 	return
 }
