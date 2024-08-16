@@ -148,7 +148,7 @@ port "ST-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
 port "TCP4": default="`, receiver.DefaultTCP4Args, `", use any IP:port endpoint like "127.0.0.1:19021"
 `)
 
-	execInfo := fmt.Sprint(`Use to pass an additional command line for port TCP4 (like gdbserver start).`)
+	execInfo := `Use to pass an additional command line for port TCP4 (like gdbserver start).`
 
 	fsScLog.StringVar(&receiver.PortArguments, "args", "default", argsInfo)
 	fsScLog.StringVar(&do.TCPOutAddr, "tcp", "", `TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".`)

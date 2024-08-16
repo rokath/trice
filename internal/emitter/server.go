@@ -56,7 +56,7 @@ func (p *DisplayServer) Shutdown(ts []int64, _ *int64) error {
 	timeStamp := ts[0]
 	p.Display.WriteLine([]string{""})
 	p.Display.WriteLine([]string{""})
-	if 1 == timeStamp { // for normal usage
+	if timeStamp == 1 { // for normal usage
 		p.Display.WriteLine([]string{"time:" + time.Now().String(), "dbg:displayServer shutdown"})
 	} else { // for testing
 		p.Display.WriteLine([]string{"dbg:displayServer shutdown"})
@@ -98,7 +98,7 @@ func ScDisplayServer(w io.Writer) error {
 	for {
 		conn, err = listener.Accept()
 		if nil != err {
-			if true == exit {
+			if exit {
 				return err
 			}
 			continue

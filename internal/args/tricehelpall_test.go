@@ -125,7 +125,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	 (default "default")
   -ban value
     	Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
-    	Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick".
+    	Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick". See also "-logLevel".
   -baud int
     	Set the serial port baudrate.
     	It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
@@ -216,7 +216,9 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -logLevel string
-    	Level based log filtering. "off" suppresses everything. If equal to a channel specifier all with a bigger index inside emitter.ColorChannels is not shown. (default "all")
+    	Level based log filtering. "off" suppresses everything. If equal to a channel specifier all with a bigger index inside emitter.ColorChannels the log not shown. 
+    	A typical use case is "-logLevel wrn". Attention this switch influences also location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix and suffix information. Set these channel information appropriate. 
+    	Logs without channel specifier are not suppressed. Using an invalid value like "x" suppresses all logs with a channel specifier. See also CLI switches -pick and -ban. (default "all")
   -logfile string
     	Append all output to logfile. Options are: 'off|none|filename|auto':
     	"off": no logfile (same as "none")
@@ -241,7 +243,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Short for '-packageFraming'. (default "TCOBSv1")
   -pick value
     	Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
-    	Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban".
+    	Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban". See also "-logLevel".
   -port string
     	receiver device: 'BUFFER|DUMP|FILE|FILEBUFFER|JLINK|STLINK|TCP4|serial name. 
     	The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 

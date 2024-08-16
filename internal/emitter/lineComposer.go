@@ -110,7 +110,7 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 			p.Line = append(p.Line, sx, p.suffix)
 			p.completeLine()
 			lineEndCount--
-		} else if 0 < len(p.Line) && 0 == lineEndCount { // extend line
+		} else if 0 < len(p.Line) && lineEndCount == 0 { // extend line
 			p.Line = append(p.Line, sx)
 		}
 	}
