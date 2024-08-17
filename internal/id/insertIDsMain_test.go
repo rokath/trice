@@ -96,9 +96,16 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithNoIDinsideLi(t *testing.T) {
 	"1444": {
 		"File": "` + fn0 + `",
 		"Line": 1
+	},
+	"222": {
+		"File": "` + fn0 + `",
+		"Line": 1
+	},
+	"223": {
+		"File": "` + fn1 + `",
+		"Line": 1
 	}
 }`
-
 	actLiJSON, e := fSys.ReadFile(id.LIFnJSON)
 	assert.Nil(t, e)
 	resultLI := expLiJSON == string(actLiJSON)
@@ -215,9 +222,16 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithSingleIDinsideLi(t *testing.
 	"1444": {
 		"File": "` + fn0 + `",
 		"Line": 1
+	},
+	"222": {
+		"File": "` + fn0 + `",
+		"Line": 1
+	},
+	"223": {
+		"File": "` + fn1 + `",
+		"Line": 1
 	}
 }`
-
 	actLiJSON, e := fSys.ReadFile(id.LIFnJSON)
 	assert.Nil(t, e)
 	resultLI := expLiJSON == string(actLiJSON)
@@ -333,6 +347,14 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithDoubledIDinsideLi(t *testing
 	},
 	"1444": {
 		"File": "` + fn0 + `",
+		"Line": 1
+	},
+	"222": {
+		"File": "` + fn0 + `",
+		"Line": 1
+	},
+	"223": {
+		"File": "` + fn1 + `",
 		"Line": 1
 	}
 }`
@@ -460,6 +482,14 @@ func TestInsertIDsFromFilesIntoNonEmptyJSON(t *testing.T) {
 		"Line": 1
 	},
 	"1201": {
+		"File": "` + fn1 + `",
+		"Line": 1
+	},
+	"222": {
+		"File": "` + fn0 + `",
+		"Line": 1
+	},
+	"223": {
 		"File": "` + fn1 + `",
 		"Line": 1
 	}

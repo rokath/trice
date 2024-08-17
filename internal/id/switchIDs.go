@@ -21,7 +21,7 @@ type idData struct {
 	idToTrice      TriceIDLookUp   // idToTrice is a trice ID lookup map and is generated from existing til.json file at the begin of SubCmdIdInsert. This map is only extended during SubCmdIdInsert and goes back into til.json afterwards.
 	triceToId      triceFmtLookUp  // triceToId is a trice fmt lookup map (reversed idToFmt for faster operation). Each fmt can have several trice IDs (slice). This map is only reduced during SubCmdIdInsert and goes _not_ back into til.json afterwards.
 	idToLocRef     TriceIDLookUpLI // idToLocRef is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
-	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocNew.
+	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
 	idInitialCount int             // idInitialCount is the initial used ID count.
 	IDSpace        []TriceID       // IDSpace contains unused IDs.
 }
@@ -125,10 +125,14 @@ func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) {
 
 	// li.json
 	if len(p.idToLocNew) > 0 { // Renew li.json only if there are some data.
-		msg.FatalInfoOnErr(p.idToLocNew.toFile(fSys, LIFnJSON), "could not write LIFnJSON")
+		// extend li.json
+		for k, v := range p.idToLocNew {
+			p.idToLocRef[k] = v
+		}
+		msg.FatalInfoOnErr(p.idToLocRef.toFile(fSys, LIFnJSON), "could not write LIFnJSON")
 	}
 	if Verbose {
-		fmt.Fprintln(w, len(p.idToLocNew), "ID's in source code and now in", LIFnJSON, "file.")
+		fmt.Fprintln(w, len(p.idToLocRef), "ID's in source code and now in", LIFnJSON, "file.")
 	}
 }
 

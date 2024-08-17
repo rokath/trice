@@ -83,7 +83,8 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	case "a", "add":
 		msg.OnErr(fsScAdd.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		return id.SubCmdAddToList(w, fSys)
+		return id.SubCmdIdAdd(w, fSys)
+		//return id.SubCmdAddToList(w, fSys)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)

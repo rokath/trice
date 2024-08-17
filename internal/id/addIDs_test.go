@@ -14,30 +14,7 @@ import (
 	"github.com/tj/assert"
 )
 
-func TestClean(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
-
-	// create src file
-	sFn := t.Name() + "file.c"
-	src := `break; case __LINE__: trice( iD(999), "msg:value=%d\n", -1  );`
-	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
-
-	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-til", id.FnJSON, "-li", id.LIFnJSON}))
-
-	// check modified src file
-	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1  );`
-
-	actSrc, e := fSys.ReadFile(sFn)
-	assert.Nil(t, e)
-
-	assert.Equal(t, expSrc, string(actSrc))
-}
-
-func TestCleanWithLIExtension(t *testing.T) {
+func TestAddWithLIExtension(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	defer id.SetupTest(t, fSys)()
@@ -62,11 +39,10 @@ func TestCleanWithLIExtension(t *testing.T) {
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "add", "-v", "-src", sFn, "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
-	// check modified src file
-	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1  );`
-
+	// check un-modified src file
+	expSrc := src
 	actSrc, e := fSys.ReadFile(sFn)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc, string(actSrc))
@@ -82,7 +58,7 @@ func TestCleanWithLIExtension(t *testing.T) {
 		"Line": 71
 	},
 	"999": {
-		"File": "TestCleanWithLIExtensionfile.c",
+		"File": "TestAddWithLIExtensionfile.c",
 		"Line": 1
 	}
 }`

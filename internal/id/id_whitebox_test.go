@@ -349,10 +349,15 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 	assert.Equal(t, expJSON, string(actJSON))
 
 	// check location information
+	// Even ID 11 is obsolete now, it stays avaliable inside li.json
 	expLI = `{
 	"10": {
 		"File": "` + fn0 + `",
 		"Line": 2
+	},
+	"11": {
+		"File": "` + fn0 + `",
+		"Line": 3
 	},
 	"12": {
 		"File": "` + fn0 + `",
@@ -435,6 +440,10 @@ func TestChangeIDAfterStringModification2(t *testing.T) {
 
 	// check location information
 	expLI := `{
+	"10": {
+		"File": "TestChangeIDAfterStringModification2file0.c",
+		"Line": 2
+	},
 	"11": {
 		"File": "` + fn0 + `",
 		"Line": 2
@@ -517,6 +526,10 @@ func TestAddIDToTilJSON(t *testing.T) {
 
 	// check location information
 	expLI := `{
+	"10": {
+		"File": "` + fn0 + `",
+		"Line": 2
+	},
 	"88": {
 		"File": "` + fn0 + `",
 		"Line": 2

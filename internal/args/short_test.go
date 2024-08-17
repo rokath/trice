@@ -8,18 +8,17 @@ import (
 	"os"
 	"testing"
 
-	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
-func TestMain(m *testing.M) {
-	id.FnJSON = getTemporaryFileName("til-*.JSON")
-	code := m.Run()
-	msg.OnErr(os.Remove(id.FnJSON))
-	os.Exit(code) // os.Exit() does not respect defer statements
-}
+//  func TestMain(m *testing.M) {
+//  	id.FnJSON = getTemporaryFileName("til-*.JSON")
+//  	code := m.Run()
+//  	msg.OnErr(os.Remove(id.FnJSON))
+//  	os.Exit(code) // os.Exit() does not respect defer statements
+//  }
 
 func getTemporaryFileName(pattern string) string {
 	tempFileHandle, e := os.CreateTemp(os.TempDir(), pattern) // opens for read and write

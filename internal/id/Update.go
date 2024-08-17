@@ -370,6 +370,9 @@ func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu trice
 	line := 1       // source code lines start with 1 for some reason
 	var li TriceLI
 	li.File = filepath.Base(fileName)
+	//  if Verbose {
+	//  	fmt.Fprintln(w, fileName)
+	//  }
 	for {
 		loc := matchNbTRICE.FindStringSubmatchIndex(subs) // find the next TRICE location in file
 		if nil == loc {

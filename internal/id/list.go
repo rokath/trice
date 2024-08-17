@@ -54,7 +54,12 @@ func SubCmdAddToList(w io.Writer, fSys *afero.Afero) (err error) {
 	if LIFnJSON == "off" || LIFnJSON == "none" {
 		return nil
 	}
-	return lim.toFile(fSys, LIFnJSON)
+	// We do not want simply overwrite the legacy LI file, we want to extend it.
+	li := NewLutLI(w, fSys, LIFnJSON) // Get legacy location information.
+	for k, v := range lim {
+		li[k] = v // Extend/modify li
+	}
+	return li.toFile(fSys, LIFnJSON)
 }
 
 func addToListAdapter(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, _ *bool, lim TriceIDLookUpLI) {
