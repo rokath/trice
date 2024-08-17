@@ -1,5 +1,4 @@
 <!-- vscode-markdown-toc -->
-
 - [1. v0.60.1 Twice Log Screen Shot](#1-v0601-twice-log-screen-shot)
 - [2. v0.56.0 Changes](#2-v0560-changes)
 	- [2.1. Legacy `TRICE*` macros](#21-legacy-trice-macros)
@@ -11,7 +10,9 @@
 - [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
 - [5. v0.64.1 changes (unsorted)](#5-v0641-changes-unsorted)
 - [6. v0.65.0 Changes](#6-v0650-changes)
-- [7. master branch changes](#7-master-branch-changes)
+- [7. v0.66.0 Changes](#7-v0660-changes)
+- [8. master branch changes](#8-master-branch-changes)
+
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -72,6 +73,8 @@ date        | version | comment
 2024-JUL-26 |  0.64.2 | minor cleanups
 2024-JUL-27 |  0.64.3 | ID management improved for special cases
 2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#6-v0650-changes)
+2024-AUG-08 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)
+2024-AUG-08 |  master | See [8. master branch changes](#8-master-branch-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -233,9 +236,20 @@ This is a major release hopefully not breaking too much!
 - `430c6a4dde817bc39ec35d595341efbe069cf482` Issue #466 solved
 - You can now use `trice8B( "msg: %02x\n", buffer, len);` functions and the like. See [test/testdata/triceCheck.c](test/testdata/triceCheck.c) for examples.
 
-##  7. <a name='masterbranchchanges'></a>master branch changes
+##  7. <a name='v0.66.0Changes'></a>v0.66.0 Changes
 
-- issue #363 solved: Remove legacy "i" artifacts from code (example: updateParamCountAndID0) 
-- issue #478 solved: Add Trice tool CLI switch for automated \n after each trice message to avoid the need to write it all the time. 
-- function signature more universal
-- a folder renamed
+- `3b607b44d6681e2d6aa60eea7eba24a939b81e4b` (HEAD -> master, origin/master, origin/devel, origin/HEAD, devel) wip
+- `5db46f255a669a4407af8a255af4413a548a18cf` issue #485 solved: li.json now extended instead of re-generated to keep legacy location information 
+- `d0bb82d35446c67ab4337cab033c5957d8c8571b` triceB ok AND logLevel ok
+- `97a3a2a33eb7f56f98626971ba5f844b2754fe93` small bugfix resulting from more test cases
+- `8a4d1c3bfa98ac240d0fda0d961b4a9c94b4f911` Issue #356 solved
+- `58351b3c338957053758f128bbf8837dcfc0f28e` Check added for valid ID range.
+- `a617c97317a08c34cb7e923cf6595a95eac67560` Legacy sub commands refresh and renew replace with sub command add.
+- `e87234851ea1e6dccf33c547657460953c5fd870` changelog update
+- `b28ab89295d2fa38f6ea0c935aa701ac82384ff6` issue #363 solved: Remove legacy "i" artifacts from code (example: updateParamCountAndID0) 
+- `fe82bc6e27c32504f3102705de7f82b8d764b20c` issue #478 solved: : Add Trice tool CLI switch for automated \n after each trice message to avoid the need to write it all the time. 
+- `832e4c1e438a3499b557bb778a91a56dc57edc34` function signature more universal
+- `d99e06341f871bc9b0e38686ea36f336bfb8a84f` folder renamed
+- `287239db4940c401b395ed9b9f7c91bc210ebc46` Testig slightly improved
+
+##  8. <a name='masterbranchchanges'></a>master branch changes
