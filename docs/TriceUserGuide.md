@@ -169,7 +169,7 @@ int tryIt( void ){
 }
 ```
 
-You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated stings, according to [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md). The file [./test/testdata/triceCheck.c](./test/testdata/triceCheck.c) shows many usage examples.
+You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated stings, according to [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md). The file [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) shows many usage examples.
 The uppercase `TRICE` macros are inlining the complete Trice code and the lowercase `trice` macros are function calls, so most probably you want use `trice` to keep the overall code size smaller.
 
 - Create 2 empty files `til.json` and `li.json` in your project root.
