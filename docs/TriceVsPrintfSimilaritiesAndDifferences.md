@@ -27,21 +27,21 @@
 
 ##  1. <a name='Printf-likefunctions'></a>Printf-like functions
 
- ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and many open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
+ ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and several open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
 The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls.
 
 
 ##  2. <a name='TriceIDs'></a>*Trice* IDs
 
-* Each *Trice* caries an [ID](./TriceUserGuide.md) as runtime replacement for the format string.
+* Each *Trice* caries a 14-bit nuber as ID as runtime replacement for the format string.
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the `trice` macro followed by the format string and optional values.
-* The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice i` and removing them as a post-compile step with `trice c`. 
-* The format string is **not** compiled into the target code. It goes together with the ID into a reference list file [til.json](../test/testdata/til.json)
+* The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`. 
+* The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../test/testdata/til.json) (example).
 
 ##  3. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
 
 * No need to explicit express the value bit width.
-* The default parameter width for the `trice` macro is 32 bit. It is adaptable for 8- or 16-bit MCUs:
+* The default parameter width for the `trice` macro is 32 bit. It is changeable to 8, 16 or 64-bit:
   * Adapt settings inside `triceConfig.h`: `TRICE_DEFAULT_PARAMETER_BIT_WIDTH`. It influences ![./ref/DefaultBitWidth.PNG](./ref/DefaultBitWidth.PNG)
   * Use `-defaultTRICEBitwidth` switch during logging when changing this value.
 * The macros `trice8`, `trice16`, `trice32`, `trice64` are usable too, to define the bit width explicit.
@@ -103,59 +103,66 @@ static inline uint64_t aDouble( double x ){
 }
 ```
 
-##  6. <a name='RuntimeGenerated0-terminatedStringsTransferwithTRICE_S'></a>Runtime Generated 0-terminated Strings Transfer with `TRICE_S`
+##  6. <a name='RuntimeGenerated0-terminatedStringsTransferwithTRICE_S'></a>Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`
 
-* The `%s` format specifier is not directly supported by the `TRICE` macro.
+* The `%s` format specifier is not directly supported by the `trice` macro.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
-* Strings created at runtime, need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32767 bytes each, if the configured *Trice* buffer size matches.
+* Strings created at runtime, need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32767 bytes each, if the configured *Trice* buffer size matches.
   * Example:
 
   ```c
    char s[] = "Hello again!";
-   TRICE_S( "A runtime string %20s\n", s;
+   triceS( "A runtime string %20s\n", s;
   ```
 
-##  7. <a name='RuntimeGeneratedcountedStringsTransferwithTRICE_N'></a>Runtime Generated counted Strings Transfer with `TRICE_N`
+##  7. <a name='RuntimeGeneratedcountedStringsTransferwithTRICE_N'></a>Runtime Generated counted Strings Transfer with  `triceN`, `TriceN`, `TRiceN`
 
-* It is also possible to transfer a buffer with length n using the `TRICE_N` macro.
-* This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `TRICE_N( Id(0), "msg: FLASH string is %s", addr, 16 );`
+* It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
+* This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );`
 
-##  8. <a name='RuntimeGeneratedBufferTransferwithTRICE_B'></a>Runtime Generated Buffer Transfer with `TRICE_B`
+##  8. <a name='RuntimeGeneratedBufferTransferwithTRICE_B'></a>Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`
 
-* A buffer is transmittable with `TRICE_B` and specifying just one format specifier, which is then repeated. Example:
+* A buffer is transmittable with `TRICE_B` (or `triceB`, `TriceB`, `TRiceB`) and specifying just one format specifier, which is then repeated. Example:
 
 ```code
-  s = "abcde 12345";
-  TRICE_S( Id(65209), "msg:With TRICE_S:%s\n", s );
+  s = "abcde 12345"; // assume this as runtime generated string
+  triceS( "msg:Show s with triceS: %s\n", s );
   len = strlen(s);
-  TRICE_N( Id(55770), "sig:With TRICE_N:%s\n", s, len );
-  TRICE32( Id(33585), "att:len=%u:With TRICE_B:\n", len);
-  TRICE_B( Id(59113), "  %02x", s, len );
-  TRICE( Id(40249), "\n" );
-  TRICE_B( Id(58119), "%4d", s, len );
-  TRICE( Id(65448), "\n" );
+  triceN( "sig:Show s with triceN:%s\n", s, len );
+  triceB( "dbg: %02x\n", s, len ); // Show s as colored code sequence in hex code.
+  triceB( "msg: %4d\n", s, len ); // Show s as colored code sequence in decimal code.
 ```
 
- This gives: ![./ref/TRICE_B.PNG](./ref/TRICE_B.PNG)
- Channel specifier within the `TRICE_B` format string are not supported.
+ This gives output similar to: ![./ref/TRICE_B.PNG](./ref/TRICE_B.PNG)
+ Channel specifier within the `TRICE_B` format string are supported in Trice versions >= v0.66.0.
 
  If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
-##  9. <a name='RemotefunctioncallsyntaxsupportwithTRICE_F'></a>Remote function call syntax support with `TRICE_F`
+##  9. <a name='RemotefunctioncallsyntaxsupportwithTRICE_F'></a>Remote function call syntax support with `TRICE_F`, `trice8F`, ...
 
-The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Example:
+The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Examples:
 
 ```code
-  TRICE8_F(  Id(51520), "info:FunctionNameW",  b8, count );
-  TRICE16_F( Id(57243), "sig:FunctionNameX", b16, count );
-  TRICE32_F( Id(34450), "diag:FunctionNameY", b32, count );
-  TRICE64_F( Id(37668), "notice:FunctionNameZ", b64, count );
+trice8F(   "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );   //exp: time:            default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+TRICE16_F( "info:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: info:FunctionNameX(0000)(ffff)(fffe)(3344) 
+TRice16F(  "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
+Trice16F(  "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:       5_654default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
+trice16F(  "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:            default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
+TRICE32_F( "info:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default: info:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+TRice32F(  "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+Trice32F(  "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:       5_654default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+trice32F(  "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:            default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+TRICE64_F( "info:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: info:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+TRice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+Trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:       5_654default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
 ```
 
-(needs further clarification)
+The Trice tool displays the parameter buffer in the shown manner. It is planned to code a FunctionPointerList Generator (See [issue #303](https://github.com/rokath/trice/issues/303), which generates mainly a function pointer list with associated IDs. This list can get part of the source code of a remote device. Then, when receiving a Trice message the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
 
 * Future extensions are possible:
-  * `TRICE_D( Id(0), "dump:32", addr, 160 );` -> The **trice** tool dumps in 32 byte rows.
+  * `triceD( "dump:32", addr, 160 );` -> The **trice** tool dumps in 32 byte rows.
+  * An appropriate syntax is needed.
 
 ##  10. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
 
@@ -170,39 +177,39 @@ The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string wi
 
 ###  10.2. <a name='OverviewTable'></a>Overview Table
 
-|Format Specifier Type                                           | C | Go| T | remark                                                                      |
-|-                                                               | - | - | - | -                                                                           |
-|  signed decimal integer                                        | d | d | d | Supported.                                                                  |
-|unsigned decimal integer                                        | u | - | u | The **trice** tool changes %u into %d and treats value as unsigned.         |
-|  signed decimal integer                                        | i | d | i | The **trice** tool changes %i into %d and treats value as signed.           |
-|  signed octal integer                                          | - | o | o | With `trice log -unsigned=false` value is treated as signed.                |
-|unsigned octal integer                                          | o | - | o | With `trice log` value is treated as unsigned.                              |
-|  signed octal integer with 0o prefix                           | - | O | O | With `trice log -unsigned=false` value is treated as signed.                |
-|unsigned octal integer with 0o prefix                           | - | - | O | With `trice log` value is treated as unsigned.                              |
-|  signed hexadecimal integer lowercase                          | - | x | x | With `trice log -unsigned=false` value is treated as signed.                |
-|unsigned hexadecimal integer lowercase                          | x | - | x | With `trice log` value is treated as unsigned.                              |
-|  signed hexadecimal integer uppercase                          | - | X | X | With `trice log -unsigned=false` value is treated as signed.                |
-|unsigned hexadecimal integer uppercase                          | X | - | X | With `trice log` value is treated as unsigned.                              |
-|  signed binary integer                                         | - | b | b | With `trice log -unsigned=false` value is treated as signed.                |
-|unsigned binary integer                                         | - | - | b | With `trice log` value is treated as unsigned.                              |
-|decimal floating point, lowercase                               | f | f | f | `aFloat(value)`\|`aDouble(value)`                                           |
-|decimal floating point, uppercase                               | - | F | F | `aFloat(value)`\|`aDouble(value)`                                           |
-|scientific notation (mantissa/exponent), lowercase              | e | e | e | `aFloat(value)`\|`aDouble(value)`                                           |
-|scientific notation (mantissa/exponent), uppercase              | E | E | E | `aFloat(value)`\|`aDouble(value)`                                           |
-|the shortest representation of %e or %f                         | g | g | g | `aFloat(value)`\|`aDouble(value)`                                           |
-|the shortest representation of %E or %F                         | G | G | G | `aFloat(value)`\|`aDouble(value)`                                           |
-|a character as byte                                             | c | - | c | Value can contain ASCII character.                                          |
-|a character represented by the corresponding Unicode code point | c | c | c | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format. |
-|a quoted character                                              | - | q | q | Supported.                                                                  |
-|Unicode escape sequence                                         | - | U | - | Not supported (yet) by *Trice*.                                             |
-|the word true or false                                          | - | t | t | Supported.                                                                  |
-|a string                                                        | s | s | s | Use `TRICE_S` macro with one and only one runtime generated string.         |
-|value in default format                                         | - | v | - | Not supported.                                                              |
-|Go-syntax representation of the value                           | - | #v| - | Not supported.                                                              |
-|a Go-syntax representation of the type of the value             | - | T | - | Not supported.                                                              |
-|pointer address                                                 | p | p | p | Supported.                                                                  |
-|a double %% prints a single %                                   | % | % | % | Supported.                                                                  |
-| nothing printed                                                | n | - | - | Not supported.                                                              |
+| Format Specifier Type                                           | C | Go | T | remark                                                                      |
+|-----------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------|
+| signed decimal integer                                          | d | d  | d | Supported.                                                                  |
+| unsigned decimal integer                                        | u | -  | u | The **trice** tool changes %u into %d and treats value as unsigned.         |
+| signed decimal integer                                          | i | d  | i | The **trice** tool changes %i into %d and treats value as signed.           |
+| signed octal integer                                            | - | o  | o | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned octal integer                                          | o | -  | o | With `trice log` value is treated as unsigned.                              |
+| signed octal integer with 0o prefix                             | - | O  | O | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned octal integer with 0o prefix                           | - | -  | O | With `trice log` value is treated as unsigned.                              |
+| signed hexadecimal integer lowercase                            | - | x  | x | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned hexadecimal integer lowercase                          | x | -  | x | With `trice log` value is treated as unsigned.                              |
+| signed hexadecimal integer uppercase                            | - | X  | X | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned hexadecimal integer uppercase                          | X | -  | X | With `trice log` value is treated as unsigned.                              |
+| signed binary integer                                           | - | b  | b | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned binary integer                                         | - | -  | b | With `trice log` value is treated as unsigned.                              |
+| decimal floating point, lowercase                               | f | f  | f | `aFloat(value)`\|`aDouble(value)`                                           |
+| decimal floating point, uppercase                               | - | F  | F | `aFloat(value)`\|`aDouble(value)`                                           |
+| scientific notation (mantissa/exponent), lowercase              | e | e  | e | `aFloat(value)`\|`aDouble(value)`                                           |
+| scientific notation (mantissa/exponent), uppercase              | E | E  | E | `aFloat(value)`\|`aDouble(value)`                                           |
+| the shortest representation of %e or %f                         | g | g  | g | `aFloat(value)`\|`aDouble(value)`                                           |
+| the shortest representation of %E or %F                         | G | G  | G | `aFloat(value)`\|`aDouble(value)`                                           |
+| a character as byte                                             | c | -  | c | Value can contain ASCII character.                                          |
+| a character represented by the corresponding Unicode code point | c | c  | c | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format. |
+| a quoted character                                              | - | q  | q | Supported.                                                                  |
+| the word true or false                                          | - | t  | t | Supported.                                                                  |
+| a string                                                        | s | s  | s | Use `TRICE_S` macro with one and only one runtime generated string.         |
+| pointer address                                                 | p | p  | p | Supported.                                                                  |
+| a double %% prints a single %                                   | % | %  | % | Supported.                                                                  |
+| Unicode escape sequence                                         | - | U  | - | **Not supported.**                                                          |
+| value in default format                                         | - | v  | - | **Not supported.**                                                          |
+| Go-syntax representation of the value                           | - | #v | - | **Not supported.**                                                          |
+| a Go-syntax representation of the type of the value             | - | T  | - | **Not supported.**                                                          |
+| nothing printed                                                 | n | -  | - | **Not supported.**                                                          |
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
 * [x] Look in [triceCheck.c](../test/testata/triceCheck.c) for exampe code producing this:
@@ -231,4 +238,4 @@ Once the [til.json](../til.json) list is done the user can translate it in any l
   * `%+'#012.12E`
   * `%e`
   * `%9.f`
-* Anyway tests are needed (Issue #211).
+
