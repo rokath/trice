@@ -73,8 +73,9 @@ date        | version | comment
 2024-JUL-26 |  0.64.2 | minor cleanups
 2024-JUL-27 |  0.64.3 | ID management improved for special cases
 2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#6-v0650-changes)
-2024-AUG-08 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)
-2024-AUG-08 |  master | See [8. master branch changes](#8-master-branch-changes)
+2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)
+2024-AUG-18 |  0.66.1 | Documetation and tests improved 
+2024-AUG-18 |  master | See [8. master branch changes](#8-master-branch-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
