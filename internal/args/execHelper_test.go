@@ -14,8 +14,8 @@ import (
 
 func execHelper(t *testing.T, input []string, expect string) {
 	var out bytes.Buffer
-	FlagsInit()                               // maybe needed for clearance of previous tests (global vars)
-	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
+	FlagsInit()                                   // maybe needed for clearance of previous tests (global vars)
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()} // fSys := &afero.Afero{Fs: afero.NewOsFs()},  osFs := os.DirFS(""),
 	err := Handler(&out, fSys, input)
 	if err != nil {
 		fmt.Fprint(&out, err)
