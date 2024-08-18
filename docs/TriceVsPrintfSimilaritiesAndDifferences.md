@@ -27,32 +27,33 @@
 
 ##  1. <a name='Printf-likefunctions'></a>Printf-like functions
 
- ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and time and many open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
-The *trice* calls are usable inside interrupts. 
+ ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and many open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
+The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls.
 
 
 ##  2. <a name='TriceIDs'></a>*Trice* IDs
 
 * Each *Trice* caries an [ID](./TriceUserGuide.md) as runtime replacement for the format string.
-* This ID is automatically generated (controllable) and the source code takes it as first parameter inside the `TRICE` macro after the optional target timestamp and context.
-* The format specifier string is **not** compiled into the target code. It goes together with the ID into a reference list file [til.json](../test/testdata/til.json)
+* This ID is automatically generated (controllable) and in the source code it is the first parameter inside the `trice` macro followed by the format string and optional values.
+* The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice i` and removing them as a post-compile step with `trice c`. 
+* The format string is **not** compiled into the target code. It goes together with the ID into a reference list file [til.json](../test/testdata/til.json)
 
 ##  3. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
 
 * No need to explicit express the value bit width.
-* The default parameter width for the `TRICE` macro is 32 bit. It is adaptable for 8- or 16-bit MCUs:
+* The default parameter width for the `trice` macro is 32 bit. It is adaptable for 8- or 16-bit MCUs:
   * Adapt settings inside `triceConfig.h`: `TRICE_DEFAULT_PARAMETER_BIT_WIDTH`. It influences ![./ref/DefaultBitWidth.PNG](./ref/DefaultBitWidth.PNG)
   * Use `-defaultTRICEBitwidth` switch during logging when changing this value.
-* The macros `TRICE8`, `TRICE16`, `TRICE32`, `TRICE64` are usable too, to define the bit width explicit.
-  * This leads for the smaller bit widths to a data packing and less needed space and bandwidth.
-* The fastest `TRICE` macro execution is, when MCU bit width matches the `TRICE`macro bit width.
+* The macros `trice8`, `trice16`, `trice32`, `trice64` are usable too, to define the bit width explicit.
+  * This leads for the smaller bit widths to less needed space and bandwidth. But when using the default package framing TCOBS, the influence is marginal because of the implicit compression.
+* The fastest `trice` macro execution is, when MCU bit width matches the `trice`macro bit width.
 
 ##  4. <a name='Manyvalueparameters'></a>Many value parameters
 
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
-  * `TRICE( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));`
-  * To support more than 12 values for each `TRICE` macro, the *Trice* code on target and host is straightforward extendable up to a total payload of 32767 bytes.
+  * `trice( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));`
+  * To support more than 12 values for each `trice` macro, the *Trice* code on target and host is straightforward extendable up to a total payload of 32767 bytes.
 * Each macro can be prolonged with the used parameter count, for example `TRICE8_3` or `TRICE_2` to improve compile time checks.
   * This length code extension can be done automatically using `trice u -addParamCount`.
 * There is no variadic values scanning during runtime. The C preprocessor does the work.
