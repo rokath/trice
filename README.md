@@ -70,7 +70,11 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 
 ## Support?
 
-Yes please - or simply :star: it. ☺ [Become a Sponsor](https://github.com/sponsors/rokath/)
+Yes please - or simply :star: it. ☺ 
+
+[Become a Sponsor with your Github Account](https://github.com/sponsors/rokath/)
+
+OR
 
 <p>
   <a href="https://www.paypal.me/rolfkarlthomas">
