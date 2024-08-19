@@ -72,6 +72,13 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 
 Yes please - or simply :star: it. ☺
 
+<p>
+  <a href="https://www.paypal.me/rolfkarlthomas">
+      <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="paypal">
+  </a>
+</p>
+
+
 Cloning the repo:
 
 ```b
@@ -246,10 +253,3 @@ The **trice** tool can also perform further tasks like JSON encoding with additi
 <iframe src="https://github.com/sponsors/rokath/card" title="Sponsor rokath" height="225" width="600" style="border: 0;"></iframe>
 
 -->
-
-<p>
-  <a href="https://www.paypal.me/rolfkarlthomas">
-      <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="paypal">
-  </a>
-</p>
-
