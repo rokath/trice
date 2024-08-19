@@ -255,11 +255,11 @@ The **trice** tool can also perform further tasks like JSON encoding with additi
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/C)
 
 
+<iframe src="https://github.com/sponsors/rokath/button" title="Sponsor rokath" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
 
 
 <iframe src="https://github.com/sponsors/rokath/card" title="Sponsor rokath" height="225" width="600" style="border: 0;"></iframe>
 
 -->
 
-<iframe src="https://github.com/sponsors/rokath/button" title="Sponsor rokath" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
 
