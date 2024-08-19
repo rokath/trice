@@ -242,8 +242,6 @@ The **trice** tool can also perform further tasks like JSON encoding with additi
 
 -->
 
-[Test](https://paypal.me/rolfkarlthomas)
-
 <p>
   <a href="https://www.paypal.me/rolfkarlthomas">
       <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="paypal">
