@@ -14,7 +14,7 @@
 [![test](https://github.com/shogo82148/actions-goveralls/workflows/test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=master)](https://coveralls.io/github/rokath/trice?branch=master)
 
-<iframe src="https://github.com/sponsors/rokath/button" title="Sponsor rokath" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+[![Sponsor rokath](https://github.com/sponsors/rokath/button)](https://github.com/sponsors/rokath)
 
 Log in (a) trice ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif)
 
