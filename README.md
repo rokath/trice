@@ -78,7 +78,7 @@ Yes please - or simply :star: it. ☺
 
 OR
 
-<a href="https://www.buymeacoffee.com/rokath" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" ></a>
+<a href="https://www.buymeacoffee.com/rokath" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="20" width="80"></a>
 
 OR
 
