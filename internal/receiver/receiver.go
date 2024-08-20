@@ -221,7 +221,7 @@ func (p *file) Close() error {
 // When port is "STLINK" args has the same format as for "JLINK"
 func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args string) (r io.ReadWriteCloser, err error) {
 	if Verbose {
-		if PortArguments == "default" {
+		if args == "default" {
 			fmt.Fprintln(w, "Assigning default arguments for port", port)
 		}
 	}
@@ -229,11 +229,11 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 	switch strings.ToUpper(port) {
 
 	case "JLINK", "STLINK", "J-LINK", "ST-LINK":
-		if PortArguments == "default" { // nothing assigned in args
-			PortArguments = DefaultLinkArgs
+		if args == "default" { // nothing assigned in args
+			args = DefaultLinkArgs
 		}
 		if Verbose {
-			fmt.Fprintln(w, "PortArguments=", PortArguments)
+			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		l := link.NewDevice(w, fSys, port, args)
 		if nil != l.Open() {
@@ -241,11 +241,11 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		}
 		r = l
 	case "TCP4":
-		if PortArguments == "default" { // nothing assigned in args
-			PortArguments = DefaultTCP4Args
+		if args == "default" { // nothing assigned in args
+			args = DefaultTCP4Args
 		}
 		if Verbose {
-			fmt.Fprintln(w, "PortArguments=", PortArguments)
+			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		if ExecCommand != "" {
 			fmt.Println("todo: execute ", ExecCommand)
@@ -253,19 +253,19 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		l := newTCP4Connection(args)
 		r = l
 	case "FILE", "FILEBUFFER":
-		if PortArguments == "default" { // nothing assigned in args
-			PortArguments = DefaultFileArgs
+		if args == "default" { // nothing assigned in args
+			args = DefaultFileArgs
 		}
 		if Verbose {
-			fmt.Fprintln(w, "PortArguments=", PortArguments)
+			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		r = newFileReader(fSys, args)
 	case "DUMP":
-		if PortArguments == "default" { // nothing assigned in args
-			PortArguments = DefaultDumpArgs
+		if args == "default" { // nothing assigned in args
+			args = DefaultDumpArgs
 		}
 		if Verbose {
-			fmt.Fprintln(w, "PortArguments=", PortArguments)
+			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		var rwc io.ReadWriteCloser
 		rwc = &buffer{} // Make the io.ReadWriteCloser actually do something.
@@ -273,11 +273,11 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		rwc.Write(buf)
 		r = rwc
 	case "BUFFER":
-		if PortArguments == "default" { // nothing assigned in args
-			PortArguments = DefaultBUFFERArgs
+		if args == "default" { // nothing assigned in args
+			args = DefaultBUFFERArgs
 		}
 		if Verbose {
-			fmt.Fprintln(w, "PortArguments=", PortArguments)
+			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		var rwc io.ReadWriteCloser
 		rwc = &buffer{} // Make the io.ReadWriteCloser actually do something.
@@ -286,12 +286,12 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		r = rwc
 		//r = ioutil.NopCloser(bytes.NewBuffer(buf))
 	default:
-		if PortArguments == "default" { // nothing assigned in args
-			PortArguments = DefaultCOMArgs
+		if args == "default" { // nothing assigned in args
+			args = DefaultCOMArgs
 		}
 		if verbose {
 			fmt.Println("Assuming", port, "is serial port.")
-			fmt.Fprintln(w, "PortArguments=", PortArguments)
+			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		var c com.COMport // interface type
 		//if args == "TARM" { // for comparing dynamic behavior
