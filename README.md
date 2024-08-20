@@ -70,6 +70,12 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 - Check the [docs](./docs) folder. No need to read all this stuff - it is just for help and reference.
 - Check issues and discussions including the closed items.
 
+## Debugging using VS-Code and Clang for a Trice-instrumented Project in Direct-Out Mode over SEGGER-RTT
+
+(See folder [./examples](./examples) for more details.)
+
+![x](./examples/Animation.gif)
+
 ## Support?
 
 Yes please - or simply :star: it. ☺ 
@@ -115,12 +121,6 @@ git clone https://github.com/rokath/trice.git
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
 - [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications
 - [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
-
-## Debugging using VS-Code and Clang for a Trice-instrumented Project in Direct-Out Mode over SEGGER-RTT
-
-(See folder [./examples](./examples) for more details.)
-
-![x](./examples/Animation.gif)
 
 <!--- B A C K U P
 
