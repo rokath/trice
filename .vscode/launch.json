@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "TCPJL",
+            "name": "TCP4",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -10,8 +10,9 @@
             "env": {},
             "args": ["log",
                      "-p", "TCP4",
-                     "-args", "localhost:19021",
-                     "-idlist", "${workspaceFolder}/test/testdata/til.json"
+//                  "-args", "localhost:19021",
+                     "-idlist", "${workspaceFolder}/examples/G0B1_inst/til.json",
+                     "-verbose"
             ]
         },
         {
@@ -75,23 +76,6 @@
                 "-key", "none"
             ]
         },              
-        {
-            "name": "-p TCP4",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                     "-port",
-                     "TCP4",
-                     "-args",
-                     "localhost:19021",
-                     "-verbose",
-                     "-idlist",
-                     "${workspaceFolder}/til.json"
-            ]
-        },
         {
             "name": "-p FILEBUFFER",
             "type": "go",
