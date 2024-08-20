@@ -69,13 +69,89 @@ The default SEGGER tools only suport RTT channel 0.
 * JLink.exe → `connect ⏎ ⏎ S ⏎` and keep it active.
   * You can control the target with `r[eset], g[o], h[alt]` and use other commands too.
   * ![./ref/JLink.exe.PNG](./ref/JLink.exe.PNG)
-* Start Git-Bash or s.th. similar: `trice l -p TCP4 -args localhost:19021`
+* Start in Git-Bash or s.th. similar: `trice l -p TCP4 -args localhost:19021`
 * You may need a **trice** tool restart after firmware reload.
+
+
+#### Setup TCP4 server providing the trace data
+
+This is just the SEGGER J-Link server here for demonstration, but if your target device has an TCP4 interface, you can replace this with your target server.
+
+```bash
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
+$ jlink
+SEGGER J-Link Commander V7.92g (Compiled Sep 27 2023 15:36:46)
+DLL version V7.92g, compiled Sep 27 2023 15:35:10
+
+Connecting to J-Link via USB...O.K.
+Firmware: J-Link STLink V21 compiled Aug 12 2019 10:29:20
+Hardware version: V1.00
+J-Link uptime (since boot): N/A (Not supported by this model)
+S/N: 770806762
+VTref=3.300V
+
+
+Type "connect" to establish a target connection, '?' for help
+J-Link>connect
+Please specify device / core. <Default>: STM32G0B1RE
+Type '?' for selection dialog
+Device>
+Please specify target interface:
+  J) JTAG (Default)
+  S) SWD
+  T) cJTAG
+TIF>s
+Specify target interface speed [kHz]. <Default>: 4000 kHz
+Speed>
+Device "STM32G0B1RE" selected.
+
+
+Connecting to target via SWD
+InitTarget() start
+SWD selected. Executing JTAG -> SWD switching sequence.
+DAP initialized successfully.
+InitTarget() end - Took 36.3ms
+Found SW-DP with ID 0x0BC11477
+DPv0 detected
+CoreSight SoC-400 or earlier
+Scanning AP map to find all available APs
+AP[1]: Stopped AP scan as end of AP map has been reached
+AP[0]: AHB-AP (IDR: 0x04770031)
+Iterating through AP map to find AHB-AP to use
+AP[0]: Core found
+AP[0]: AHB-AP ROM base: 0xF0000000
+CPUID register: 0x410CC601. Implementer code: 0x41 (ARM)
+Found Cortex-M0 r0p1, Little endian.
+FPUnit: 4 code (BP) slots and 0 literal slots
+CoreSight components:
+ROMTbl[0] @ F0000000
+[0][0]: E00FF000 CID B105100D PID 000BB4C0 ROM Table
+ROMTbl[1] @ E00FF000
+[1][0]: E000E000 CID B105E00D PID 000BB008 SCS
+[1][1]: E0001000 CID B105E00D PID 000BB00A DWT
+[1][2]: E0002000 CID B105E00D PID 000BB00B FPB
+Memory zones:
+  Zone: "Default" Description: Default access mode
+Cortex-M0 identified.
+J-Link>
+```
+
+Now the TCP4 server is running and you can start the Trice tool as TCP4 client, which connects to the TCP4 server to receive the binary log data:
+
+```bash
+$ trice l -p TCP4 -args="127.0.0.1:19021" -til ../examples/G0B1_inst/til.json -li ../examples/G0B1_inst/li.json -d16 -pf none
+```
+
+In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switches to decode the RTT data correctly.
+
+**This is just a demonstration and test for the `-port TCP4` usage possibility**. Using RTT with J-Link is more easy possible as shown in the next point.
 
 ###  2.2. <a name='StartusingJLinkLogger'></a>Start using JLinkLogger
 
-* Start Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0`
+* Start inside Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"`
   * Replace CLI details with your settings.
+  * For **G01B_inst**: `trice l -p JLINK -args "-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -d16 -pf none`
+  * You can add the `-verbose` CLI switch for more details.
 * You may **not** need a **trice** tool restart after firmware reload.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
