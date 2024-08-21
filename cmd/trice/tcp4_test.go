@@ -93,3 +93,119 @@ func TestTCP4Reception(t *testing.T) {
 	tst.EqualLines(t, expect, act)
 
 }
+
+func TestHEX(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
+
+	til := `{
+	"16201": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂\\n"
+	}
+}`
+
+	// create a minimalistic til.json
+	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
+	input := []string{"trice", "log", "-port", "HEX", "-args", "09 92 19 06 45 0b 10 56 3a,00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
+	expect := `Hello! 👋🙂
+`
+
+	var out bytes.Buffer
+	err := args.Handler(&out, fSys, input)
+	if err != nil {
+		fmt.Fprint(&out, err)
+	}
+	assert.Nil(t, err)
+
+	act := out.String()
+	tst.EqualLines(t, expect, act)
+}
+
+func TestDUMP(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
+
+	til := `{
+	"16201": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂\\n"
+	}
+}`
+
+	// create a minimalistic til.json
+	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
+	input := []string{"trice", "log", "-port", "DUMP", "-args", "09 92 19 06 45 0b 10 56 3a,00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
+	expect := `Hello! 👋🙂
+`
+
+	var out bytes.Buffer
+	err := args.Handler(&out, fSys, input)
+	if err != nil {
+		fmt.Fprint(&out, err)
+	}
+	assert.Nil(t, err)
+
+	act := out.String()
+	tst.EqualLines(t, expect, act)
+}
+
+func TestBUFFER(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
+
+	til := `{
+	"16201": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂\\n"
+	}
+}`
+
+	// create a minimalistic til.json
+	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
+	input := []string{"trice", "log", "-port", "BUFFER", "-args", "9 146 25 6 69 11 16 86 58 00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
+	expect := `Hello! 👋🙂
+`
+
+	var out bytes.Buffer
+	err := args.Handler(&out, fSys, input)
+	if err != nil {
+		fmt.Fprint(&out, err)
+	}
+	assert.Nil(t, err)
+
+	act := out.String()
+	tst.EqualLines(t, expect, act)
+}
+
+func TestDEC(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
+
+	til := `{
+	"16201": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂\\n"
+	}
+}`
+
+	// create a minimalistic til.json
+	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
+	input := []string{"trice", "log", "-port", "DEC", "-args", "9 146 25 6 69 11 16 86 58 00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
+	expect := `Hello! 👋🙂
+`
+
+	var out bytes.Buffer
+	err := args.Handler(&out, fSys, input)
+	if err != nil {
+		fmt.Fprint(&out, err)
+	}
+	assert.Nil(t, err)
+
+	act := out.String()
+	tst.EqualLines(t, expect, act)
+}

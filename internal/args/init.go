@@ -121,7 +121,7 @@ This timestamp switch generates the timestamps on the PC only (reception time), 
 	fsScLog.StringVar(&emitter.Prefix, "prefix", defaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
-	info := `receiver device: 'BUFFER|DUMP|FILE|FILEBUFFER|JLINK|STLINK|TCP4|serial name. 
+	info := `Case insensitive receiver device name: 'serial name|JLINK|STLINK|FILE|FILEBUFFER|TCP4|TCP4BUFFER|DEC|BUFFER|HEX|DUMP. 
 The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 
 Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
 `
@@ -138,14 +138,15 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 	For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.`
 
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
-port "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
-port "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
 port "COMn": default="`, receiver.DefaultCOMArgs, `", Unused option for a different driver. (For baud rate settings see -baud.)
-port "FILE": default="`, receiver.DefaultFileArgs, `", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice retries on EOF.
-port "FILEBUFFER": default="`, receiver.DefaultFileArgs, `", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice stops on EOF.
 port "J-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
 port "ST-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
-port "TCP4": default="`, receiver.DefaultTCP4Args, `", use any IP:port endpoint like "127.0.0.1:19021"
+port "FILE": default="`, receiver.DefaultFileArgs, `", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice retries on EOF.
+port "FILEBUFFER": default="`, receiver.DefaultFileArgs, `", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice stops on EOF.
+port "TCP4": default="`, receiver.DefaultTCP4Args, `", use any IP:port endpoint like "127.0.0.1:19021". This port is usable for reading, when the Trice logs go into a TCP server.
+port "TCP4BUFFER": default="`, receiver.DefaultTCP4Args, `". This port is used for "-port TCP4" testing, to shutdown the Trice tool automatically.
+port "DEC" or "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
+port "HEX" or "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
 `)
 
 	execInfo := `Use to pass an additional command line for port TCP4 (like gdbserver start).`

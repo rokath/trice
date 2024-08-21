@@ -110,18 +110,19 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.
   -args string
     	Use to pass port specific parameters. The "default" value depends on the used port:
-    	port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
-    	port "DUMP": default="", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
     	port "COMn": default="-baud 115200", Unused option for a different driver. (For baud rate settings see -baud.)
-    	port "FILE": default="trices.raw", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice retries on EOF.
-    	port "FILEBUFFER": default="trices.raw", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice stops on EOF.
     	port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000", 
     		The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
     		For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
     	port "ST-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000", 
     		The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
     		For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
-    	port "TCP4": default="localhost:17001", use any IP:port endpoint like "127.0.0.1:19021"
+    	port "FILE": default="trices.raw", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice retries on EOF.
+    	port "FILEBUFFER": default="trices.raw", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice stops on EOF.
+    	port "TCP4": default="localhost:17001", use any IP:port endpoint like "127.0.0.1:19021". This port is usable for reading, when the Trice logs go into a TCP server.
+    	port "TCP4BUFFER": default="localhost:17001". This port is used for "-port TCP4" testing, to shutdown the Trice tool automatically.
+    	port "DEC" or "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
+    	port "HEX" or "DUMP": default="", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
     	 (default "default")
   -ban value
     	Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
@@ -245,7 +246,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
     	Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban". See also "-logLevel".
   -port string
-    	receiver device: 'BUFFER|DUMP|FILE|FILEBUFFER|JLINK|STLINK|TCP4|serial name. 
+    	Case insensitive receiver device name: 'serial name|JLINK|STLINK|FILE|FILEBUFFER|TCP4|TCP4BUFFER|DEC|BUFFER|HEX|DUMP. 
     	The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 
     	Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
     	 (default "J-LINK")

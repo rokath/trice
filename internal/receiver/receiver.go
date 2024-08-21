@@ -260,7 +260,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		r = newFileReader(fSys, args)
-	case "DUMP":
+	case "DUMP", "HEX":
 		if args == "default" { // nothing assigned in args
 			args = DefaultDumpArgs
 		}
@@ -272,7 +272,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		buf, _ := scanHexDump(args)
 		rwc.Write(buf)
 		r = rwc
-	case "BUFFER":
+	case "BUFFER", "DEC":
 		if args == "default" { // nothing assigned in args
 			args = DefaultBUFFERArgs
 		}
@@ -284,7 +284,6 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		buf := scanBytes(args)
 		rwc.Write(buf)
 		r = rwc
-		//r = ioutil.NopCloser(bytes.NewBuffer(buf))
 	default:
 		if args == "default" { // nothing assigned in args
 			args = DefaultCOMArgs
