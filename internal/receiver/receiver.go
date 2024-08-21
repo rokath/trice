@@ -240,7 +240,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
 		}
 		r = l
-	case "TCP4":
+	case "TCP4", "TCP4BUFFER": // TCP4BUFFER is undocumented, because it is used just for tests.
 		if args == "default" { // nothing assigned in args
 			args = DefaultTCP4Args
 		}
