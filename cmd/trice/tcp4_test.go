@@ -6,7 +6,9 @@ import (
 	"bytes"
 	"fmt"
 	"net"
+	"os"
 	"testing"
+	"time"
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/rokath/trice/pkg/tst"
@@ -208,4 +210,53 @@ func TestDEC(t *testing.T) {
 
 	act := out.String()
 	tst.EqualLines(t, expect, act)
+}
+
+func TestHEXToTCP(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer setupTest(t, fSys)()
+
+	til := `{
+	"16201": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂\\n"
+	}
+}`
+
+	portNR := ":8081"
+
+	// create a minimalistic til.json
+	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
+	input := []string{"trice", "log", "-port", "HEX", "-args", "09 92 19 06 45 0b 10 56 3a,00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off", "-tcp", "localhost" + portNR}
+	exp := `  Hello! 👋🙂
+`
+	go func() { // listening for transmit
+		err := args.Handler(os.Stdout, fSys, input)
+		if err != nil {
+			fmt.Println(err)
+		}
+		assert.Nil(t, err)
+	}()
+
+	time.Sleep(500 * time.Millisecond)
+
+	conn, err := net.Dial("tcp", portNR)
+	if err != nil {
+		fmt.Println(err)
+	}
+	assert.Nil(t, err)
+
+	n, e := conn.Write([]byte{0})
+	assert.Nil(t, e)
+	assert.Equal(t, 1, n)
+
+	tmp := make([]byte, 500)
+	n, e = conn.Read(tmp)
+	assert.Nil(t, e)
+	assert.Equal(t, 18, n)
+	tmp = tmp[:n]
+
+	act := string(tmp)
+	tst.EqualLines(t, exp, act)
 }

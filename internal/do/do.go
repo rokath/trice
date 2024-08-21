@@ -24,12 +24,13 @@ import (
 
 var (
 	TCPOutAddr = ""
+	Verbose    bool
 )
 
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
 func DistributeArgs(w io.Writer, fSys *afero.Afero, logfileName string, verbose bool) io.Writer {
-
+	Verbose = verbose
 	id.Verbose = verbose
 	link.Verbose = verbose
 	decoder.Verbose = verbose
@@ -120,7 +121,9 @@ func tcpWriter() io.Writer {
 		fmt.Println("Error reading:", err.Error())
 	}
 	fmt.Println(string(buf[:reqLen]))
-	TCPConn.Write([]byte("Trice connected...\r\n"))
+	if Verbose {
+		TCPConn.Write([]byte("Trice connected...\r\n"))
+	}
 
 	//defer TCPConn.Close()
 	return TCPConn
