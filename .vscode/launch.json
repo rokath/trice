@@ -164,7 +164,29 @@
             ]
         },
         {
-            "name": "JLINK -args "-Device STM32L432KC -If SWD -Speed 4000 -RTTChannel 0" -pf none -d16 -til ../testdata/til.json",
+            "name": "JLINK -args STM32G0B1RE",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-p",
+                     "JLINK",
+                     "-args",
+                     "-Device STM32G0B1RE", //  -If SWD -Speed 4000 -RTTChannel 0",
+                     "-pf",
+                     "none",
+                     "-d16",
+                     "-s",
+                     "-idlist",
+                     "${workspaceFolder}/examples/G0B1_inst/til.json",
+                     "-li",
+                     "${workspaceFolder}/examples/G0B1_inst/li.json"
+            ]
+        },
+        {
+            "name": "JLINK -args ", // -Device STM32L432KC -If SWD -Speed 4000 -RTTChannel 0" -pf none -d16 -til ../testdata/til.json",
             "type": "go",
             "request": "launch",
             "mode": "auto",

@@ -64,8 +64,36 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 		fmt.Fprintln(w, "port:", port, "arguments:", arguments)
 		fmt.Fprintln(w, "LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
 	}
-	//p.arguments = arguments
+	var (
+		deviceIsSpecified, interfaceIsSpecified, rttchannelIsSpecified, speedIsSpecified bool
+	)
+
+	// Add missing values as default values
 	p.args = strings.Split(arguments, " ")
+	for _, a := range p.args {
+		if strings.ToLower(a) == "-if" {
+			interfaceIsSpecified = true
+		}
+		if strings.ToLower(a) == "-rttchannel" {
+			rttchannelIsSpecified = true
+		}
+		if strings.ToLower(a) == "-speed" {
+			speedIsSpecified = true
+		}
+	}
+	if !deviceIsSpecified {
+		p.args = append(p.args, "-Device", "STM32F030R8")
+	}
+	if !interfaceIsSpecified {
+		p.args = append(p.args, "-If", "SWD")
+	}
+	if !speedIsSpecified {
+		p.args = append(p.args, "-Speed", "4000")
+	}
+	if !rttchannelIsSpecified {
+		p.args = append(p.args, "-RTTChannel", "0")
+	}
+
 	// The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
 	for i := range p.args { // 0x20000000_0x1800 -> 0x20000000 0x1800
 		p.args[i] = strings.ReplaceAll(p.args[i], "_0x", " 0x")
