@@ -142,11 +142,7 @@ func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Pr
 	// initialize
 	a := new(ant.Admin)
 	a.Action = action
-	if len(Srcs) == 0 {
-		a.Trees = append(Srcs, "./") // default value
-	} else {
-		a.Trees = Srcs
-	}
+	a.Trees = Srcs
 	a.MatchingFileName = isSourceFile
 
 	// process
