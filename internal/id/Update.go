@@ -53,7 +53,7 @@ const (
 	patAnyTriceStart = patTypNameTRICE + `\s*\(`
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
-	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|t|u|x|X))`
+	patNextFormatSpecifier = `(?:^|[^%])(%[\ +\-0-9\.#]*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|s|t|u|U|x|X))`
 
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/vSvOEc/1
 	patTriceNoLen = `(?i)(\bTRICE(|8|16|32|64)\b)`
@@ -514,28 +514,27 @@ func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, 
 	}
 }
 
-/*
-// ScIdClean does removes all trice ID's in source tree.
-func ScIdClean(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
-	// todo: just a copy of ScZeroMulti right now.
-	if len(Srcs) == 0 {
-		Srcs = append(Srcs, "./") // default value
-	}
-	for i := range Srcs {
-		s := Srcs[i]
-		srcZ := s
-		if _, err := fSys.Stat(srcZ); err == nil { // path exists
-			zeroSourceTreeIds(w, fSys, srcZ, !DryRun)
-		} else if os.IsNotExist(err) { // path does *not* exist
-			fmt.Fprintln(w, s, " -> ", srcZ, "does not exist!")
-		} else {
-			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
-			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
-		}
-	}
-	return nil
-}
+//  // ScIdClean does removes all trice ID's in source tree.
+//  func ScIdClean(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
+//  	// todo: just a copy of ScZeroMulti right now.
+//  	if len(Srcs) == 0 {
+//  		Srcs = append(Srcs, "./") // default value
+//  	}
+//  	for i := range Srcs {
+//  		s := Srcs[i]
+//  		srcZ := s
+//  		if _, err := fSys.Stat(srcZ); err == nil { // path exists
+//  			zeroSourceTreeIds(w, fSys, srcZ, !DryRun)
+//  		} else if os.IsNotExist(err) { // path does *not* exist
+//  			fmt.Fprintln(w, s, " -> ", srcZ, "does not exist!")
+//  		} else {
+//  			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
+//  			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+//  			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+//  		}
+//  	}
+//  	return nil
+//  }
 
 //  // ScZeroMulti does replace all ID's in source tree with 0
 //  func ScZeroMulti(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
@@ -558,91 +557,90 @@ func ScIdClean(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
 //  	return nil
 //  }
 
-// zeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
-func zeroSourceTreeIds(w io.Writer, fSys *afero.Afero, srcRoot string, run bool) {
-	//err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(w, fSys, run))
-	err := fSys.Walk(srcRoot, visitZeroSourceTreeIds(w, fSys, run))
-	if err != nil {
-		panic(err)
-	}
-}
+//  // zeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
+//  func zeroSourceTreeIds(w io.Writer, fSys *afero.Afero, srcRoot string, run bool) {
+//  	//err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(w, fSys, run))
+//  	err := fSys.Walk(srcRoot, visitZeroSourceTreeIds(w, fSys, run))
+//  	if err != nil {
+//  		panic(err)
+//  	}
+//  }
 
-func visitZeroSourceTreeIds(w io.Writer, fSys *afero.Afero, run bool) filepath.WalkFunc {
-	// WalkFunc is the type of the function called for each file or directory
-	// visited by Walk. The path argument contains the argument to Walk as a
-	// prefix; that is, if Walk is called with "dir", which is a directory
-	// containing the file "a", the walk function will be called with argument
-	// "dir/a". The info argument is the os.FileInfo for the named path.
-	//
-	// If there was a problem walking to the file or directory named by path, the
-	// incoming error will describe the problem and the function can decide how
-	// to handle that error (and Walk will not descend into that directory). In the
-	// case of an error, the info argument will be nil. If an error is returned,
-	// processing stops. The sole exception is when the function returns the special
-	// value SkipDir. If the function returns SkipDir when invoked on a directory,
-	// Walk skips the directory's contents entirely. If the function returns SkipDir
-	// when invoked on a non-directory file, Walk skips the remaining files in the
-	// containing directory.
-	return func(path string, fi os.FileInfo, err error) error {
-		if fi.IsDir() || !isSourceFile(fi) || err != nil {
-			return err // forward any error and do nothing
-		}
-		if Verbose {
-			fmt.Fprintln(w, path)
-		}
-		read, err := fSys.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		s := string(read)
-		a, b := 0, len(s)
-		subs := s[a:b]
-		modified := false
+//  func visitZeroSourceTreeIds(w io.Writer, fSys *afero.Afero, run bool) filepath.WalkFunc {
+//  	// WalkFunc is the type of the function called for each file or directory
+//  	// visited by Walk. The path argument contains the argument to Walk as a
+//  	// prefix; that is, if Walk is called with "dir", which is a directory
+//  	// containing the file "a", the walk function will be called with argument
+//  	// "dir/a". The info argument is the os.FileInfo for the named path.
+//  	//
+//  	// If there was a problem walking to the file or directory named by path, the
+//  	// incoming error will describe the problem and the function can decide how
+//  	// to handle that error (and Walk will not descend into that directory). In the
+//  	// case of an error, the info argument will be nil. If an error is returned,
+//  	// processing stops. The sole exception is when the function returns the special
+//  	// value SkipDir. If the function returns SkipDir when invoked on a directory,
+//  	// Walk skips the directory's contents entirely. If the function returns SkipDir
+//  	// when invoked on a non-directory file, Walk skips the remaining files in the
+//  	// containing directory.
+//  	return func(path string, fi os.FileInfo, err error) error {
+//  		if fi.IsDir() || !isSourceFile(fi) || err != nil {
+//  			return err // forward any error and do nothing
+//  		}
+//  		if Verbose {
+//  			fmt.Fprintln(w, path)
+//  		}
+//  		read, err := fSys.ReadFile(path)
+//  		if err != nil {
+//  			return err
+//  		}
+//  		s := string(read)
+//  		a, b := 0, len(s)
+//  		subs := s[a:b]
+//  		modified := false
+//
+//  		for {
+//  			var found bool
+//  			found, modified, subs, s = zeroNextID(w, modified, subs, s)
+//  			if !found {
+//  				break
+//  			}
+//  		}
+//
+//  		if modified && run {
+//  			err = fSys.WriteFile(path, []byte(s), 0)
+//  		}
+//  		return err
+//  	}
+//  }
 
-		for {
-			var found bool
-			found, modified, subs, s = zeroNextID(w, modified, subs, s)
-			if !found {
-				break
-			}
-		}
-
-		if modified && run {
-			err = fSys.WriteFile(path, []byte(s), 0)
-		}
-		return err
-	}
-}
-
-// found flag is true if an ID was zeroed, others are updated input values. if an ID wsa zeroed
-// - modified gets true
-// - subs gets shorter
-// - s is updated
-func zeroNextID(w io.Writer, modifiedIn bool, subsIn, in string) (found bool, modifiedOut bool, subsOut string, out string) {
-	modifiedOut = modifiedIn
-	subsOut = subsIn
-	out = in
-	loc := matchNbTRICE.FindStringIndex(subsIn)
-	if nil == loc {
-		return
-	}
-	nbTRICE := subsIn[loc[0]:loc[1]]
-	nbID := matchNbID.FindString(nbTRICE)
-	if nbID == "" {
-		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE)) // todo: patID
-		return
-	}
-
-	zeroID := "Id(0)" // todo: patID
-	fmt.Fprintln(w, nbID, " -> ", zeroID)
-
-	zeroTRICE := strings.Replace(nbTRICE, nbID, zeroID, 1)
-	out = strings.Replace(out, nbTRICE, zeroTRICE, 1)
-	// 2^32 has 9 ciphers and shortest trice has 14 chars: TRICE0(Id(1),"");
-	// The replacement of n with 0 makes s shorter, so the next search should start like 10 chars earlier.
-	subsOut = subsIn[loc[1]-10:]
-	found = true
-	modifiedOut = true
-	return
-}
-*/
+//  // found flag is true if an ID was zeroed, others are updated input values. if an ID wsa zeroed
+//  // - modified gets true
+//  // - subs gets shorter
+//  // - s is updated
+//  func zeroNextID(w io.Writer, modifiedIn bool, subsIn, in string) (found bool, modifiedOut bool, subsOut string, out string) {
+//  	modifiedOut = modifiedIn
+//  	subsOut = subsIn
+//  	out = in
+//  	loc := matchNbTRICE.FindStringIndex(subsIn)
+//  	if nil == loc {
+//  		return
+//  	}
+//  	nbTRICE := subsIn[loc[0]:loc[1]]
+//  	nbID := matchNbID.FindString(nbTRICE)
+//  	if nbID == "" {
+//  		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE)) // todo: patID
+//  		return
+//  	}
+//
+//  	zeroID := "Id(0)" // todo: patID
+//  	fmt.Fprintln(w, nbID, " -> ", zeroID)
+//
+//  	zeroTRICE := strings.Replace(nbTRICE, nbID, zeroID, 1)
+//  	out = strings.Replace(out, nbTRICE, zeroTRICE, 1)
+//  	// 2^32 has 9 ciphers and shortest trice has 14 chars: TRICE0(Id(1),"");
+//  	// The replacement of n with 0 makes s shorter, so the next search should start like 10 chars earlier.
+//  	subsOut = subsIn[loc[1]-10:]
+//  	found = true
+//  	modifiedOut = true
+//  	return
+//  }
