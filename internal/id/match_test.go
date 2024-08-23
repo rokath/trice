@@ -13,6 +13,14 @@ func TestMatchTrice(t *testing.T) {
 	var testSet = []struct {
 		text, triceType, triceID, triceFmts string
 	}{
+		{`...TRice( "%d+%3d=\n%u", 
+		(3), 4, 
+		(3+4) ); ,...`, `TRice`, ``, `"%d+%3d=\n%u"`},
+		{`...TRice( "%d+%3d=%u", 
+		(3), 4, (3+4) ); ,...`, `TRice`, ``, `"%d+%3d=%u"`},
+		{`...TRice( "%d", 
+		(3+4) ); ,...`, `TRice`, ``, `"%d"`},
+		{`...TRice( "%d", (3+4) ); ,...`, `TRice`, ``, `"%d"`},
 		{`...TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
 		{`......TRice( iD(0), "a" ); ,...`, `TRice`, `iD(0)`, `"a"`}, // 6 11 12 13 18 20 23
 		{`."x"..TRice( iD(0), "a" ); ,...`, `TRice`, `iD(0)`, `"a"`}, // 6 11 12  0  0 20 23

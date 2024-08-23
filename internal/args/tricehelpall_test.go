@@ -332,6 +332,13 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	 (default "li.json")
   -s value
     	Short for src.
+  -skip
+    	short for skipAdditionalChecks
+  -skipAdditionalChecks
+    	No parameter count checks, when this flag is true.
+    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for skript speed-up, when not editing the souces.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
@@ -424,6 +431,13 @@ sub-command 'u|update': DEPRECIATED! Will be removed in the future.
     	 (default "li.json")
   -s value
     	Short for src.
+  -skip
+    	short for skipAdditionalChecks
+  -skipAdditionalChecks
+    	No parameter count checks, when this flag is true.
+    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for skript speed-up, when not editing the souces.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
@@ -491,6 +505,13 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	 (default "li.json")
   -s value
     	Short for src.
+  -skip
+    	short for skipAdditionalChecks
+  -skipAdditionalChecks
+    	No parameter count checks, when this flag is true.
+    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for skript speed-up, when not editing the souces.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
@@ -542,6 +563,13 @@ sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|
     	 (default "li.json")
   -s value
     	Short for src.
+  -skip
+    	short for skipAdditionalChecks
+  -skipAdditionalChecks
+    	No parameter count checks, when this flag is true.
+    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for skript speed-up, when not editing the souces.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
@@ -597,6 +625,13 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	 (default "li.json")
   -s value
     	Short for src.
+  -skip
+    	short for skipAdditionalChecks
+  -skipAdditionalChecks
+    	No parameter count checks, when this flag is true.
+    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for skript speed-up, when not editing the souces.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 

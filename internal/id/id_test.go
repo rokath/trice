@@ -12,6 +12,25 @@ import (
 	"github.com/tj/assert"
 )
 
+func TestFformatSpecifierCount(t *testing.T) {
+	type testVector struct {
+		fmt   string
+		count int
+	}
+
+	testTable := []testVector{
+		{"%%d", 0},
+		{"%d", 1},
+		{"%4u", 1},
+		{"some%4utext", 1},
+		{"some%4utext%9.3f %Gustaf", 3},
+	}
+	for _, item := range testTable {
+		act := formatSpecifierCount(item.fmt)
+		assert.Equal(t, item.count, act)
+	}
+}
+
 func TestNewID(t *testing.T) {
 	//defer SetupTest(t)()
 	rand.Seed(0)

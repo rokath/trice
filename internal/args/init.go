@@ -306,9 +306,9 @@ For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with mor
 }
 
 func flagSkipAdditionalChecks(p *flag.FlagSet) {
-	p.BoolVar(&id.SkipAdditionalChecks, "skipAdditionalChecks", false, `Do not perform parameter count checks.
-This reduses the processing time by a few percent but does not detect wrong parameter counts.
-Add ths flag for skript speed-up, when not editing the souces.
+	p.BoolVar(&id.SkipAdditionalChecks, "skipAdditionalChecks", false, `No parameter count checks, when this flag is true.
+This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+Add this flag for skript speed-up, when not editing the souces.
 `+boolInfo) // flag
 	p.BoolVar(&id.SkipAdditionalChecks, "skip", false, "short for skipAdditionalChecks") // flag
 }

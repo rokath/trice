@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -52,7 +53,7 @@ func TestInsertKnownID(t *testing.T) {
 
 	// create src file1
 	src1 := `
-	TRice( id(77),"%x" );
+	TRice( id(77),"%x", 123 );
 	`
 	assert.Nil(t, fSys.WriteFile("file1.c", []byte(src1), 0777))
 
@@ -62,7 +63,7 @@ func TestInsertKnownID(t *testing.T) {
 
 	// check modified src file1
 	expSrc1 := `
-	TRice( id(77),"%x" );
+	TRice( id(77),"%x", 123 );
 	`
 	actSrc1, e := fSys.ReadFile("file1.c")
 	assert.Nil(t, e)
@@ -574,7 +575,10 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 
 	testSet := []srcFile{
 		// fn: in:                                                 expected:
-		{fn0, `trice( "new" ); trice( "Lo!" );` /*             */, `trice( iD(18), "new" ); trice( iD(17), "Lo!" );`},
+		//{fn0, `trice( "new" ); trice( "Lo!" );` /*             */, `trice( iD(18), "new" ); trice( iD(17), "Lo!" );`},
+		//{fn0, `trice( "new %d", 1 ); trice( "Lo!" );` /*        */, `trice( iD(18), "new %d", 1 ); trice( iD(17), "Lo!" );`},
+		{fn0, `trice( "new %d", 1 ); /* ' */ trice( "Lo!" );` /*        */, `trice( iD(18), "new %d", 1 ); /* ' */ trice( iD(17), "Lo!" );`},
+		//{fn0, `trice( "new %d" ); trice( "Lo!" );` /*        */, `trice( iD(18), "new %d" ); trice( iD(17), "Lo!" );`},
 		{fn1, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`},
 	}
 	// create src files
@@ -643,7 +647,104 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 	},
 	"18": {
 		"Type": "trice",
-		"Strg": "new"
+		"Strg": "new %d"
+	},
+	"19": {
+		"Type": "trice",
+		"Strg": "old"
+	}
+}`
+	actTil, e := fSys.ReadFile(id.FnJSON)
+	assert.Nil(t, e)
+	result := expTil == string(actTil)
+	if !result {
+		fmt.Println("ACTUAL TIL:", string(actTil))
+		fmt.Println("EXPECT TIL:", expTil)
+	}
+	assert.True(t, result)
+}
+
+// TestInsertIDsForNewTrice2WithLI ...
+func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
+
+	fn0 := t.Name() + "file0.c"
+	fn1 := t.Name() + "file1.c"
+
+	testSet := []srcFile{
+		// fn: in:                                                 expected:
+		{fn0, `trice( "new %d", 1 ); /*'*/ trice( "Lo!" );` /* */, `trice( iD(18), "new %d", 1 ); /*'*/ trice( iD(17), "Lo!" );`},
+		{fn1, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`},
+	}
+	// create src files
+	for _, k := range testSet {
+		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
+	}
+
+	// When fn0 is processed first, how to know that ID 19 is used already in fn0 without location information? -> Create first if empty
+
+	// action
+	var b bytes.Buffer
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "clean", "-v", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+
+	// expected location information
+	expLIJSON := `{
+	"1200": {
+		"File": "` + fn1 + `",
+		"Line": 1
+	},
+	"19": {
+		"File": "` + fn1 + `",
+		"Line": 1
+	}
+}`
+	actLIJSONs, e := fSys.ReadFile(id.LIFnJSON)
+	assert.Nil(t, e)
+	actLIJSON := string(actLIJSONs)
+	assert.Equal(t, actLIJSON, expLIJSON)
+
+	expTil0 := `{
+	"1200": {
+		"Type": "trice",
+		"Strg": "Hi!"
+	},
+	"19": {
+		"Type": "trice",
+		"Strg": "old"
+	}
+}`
+	actTil0, e := fSys.ReadFile(id.FnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expTil0, string(actTil0))
+
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-v", "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+
+	// Do noit apply "-src=." here! It would set Srcs to be {".", "."} what results in a double parsing of the root folder causing the test to fail.
+	// This is, because we called "trice clean" before in this test.
+
+	// check source files
+	for _, k := range testSet {
+		actSrc, e := fSys.ReadFile(k.fn)
+		assert.Nil(t, e)
+		actS := string(actSrc)
+		assert.Equal(t, k.insertedIDs, actS)
+	}
+
+	// check til.json
+	expTil := `{
+	"1200": {
+		"Type": "trice",
+		"Strg": "Hi!"
+	},
+	"17": {
+		"Type": "trice",
+		"Strg": "Lo!"
+	},
+	"18": {
+		"Type": "trice",
+		"Strg": "new %d"
 	},
 	"19": {
 		"Type": "trice",
@@ -722,4 +823,102 @@ func TestInsertIDsForNewTrice1(t *testing.T) {
 		fmt.Println("EXPECT TIL:", expTil)
 	}
 	assert.True(t, result)
+}
+
+// TestInsertIDsForNewTrice2 ...
+func TestInsertIDsForNewTrice2(t *testing.T) {
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	defer id.SetupTest(t, fSys)()
+
+	fn0 := t.Name() + "file0.c"
+	fn1 := t.Name() + "file1.c"
+
+	testSet := []srcFile{
+		// fn: in:                                                   expected:
+		{fn0, `TRice( iD(1200), "Hi!" ); trice( iD(1201), "Lo!" );`, `TRice( iD(1200), "Hi!" ); trice( iD(1201), "Lo!" );`},
+		{fn1, // in
+			`	break; case __LINE__: triceS( "msg:With triceS:%s\n", sABCDE );
+				TRice( "hi %d", 5 );
+				// don` + "'" + `t forget
+				trice( "lo!" );
+				break; case __LINE__: triceS( "msg:With triceS:%s\n", sABCDE );
+				trice32( "msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );`,
+
+			// expected
+			`	break; case __LINE__: triceS( iD(1202), "msg:With triceS:%s\n", sABCDE );
+				TRice( iD(1203), "hi %d", 5 );
+				// don` + "'" + `t forget
+				trice( iD(1204), "lo!" );
+				break; case __LINE__: triceS( iD(1205), "msg:With triceS:%s\n", sABCDE );
+				trice32( iD(1206), "msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );`},
+	}
+
+	// create src files
+	for _, k := range testSet {
+		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
+	}
+
+	// action 0
+	assert.Nil(t, args.Handler(os.Stdout, fSys, []string{"trice", "add", "-src", ".", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+
+	// check til.json
+	expTil := `{
+	"1200": {
+		"Type": "TRice",
+		"Strg": "Hi!"
+	},
+	"1201": {
+		"Type": "trice",
+		"Strg": "Lo!"
+	}
+}`
+	actTil, e := fSys.ReadFile(id.FnJSON)
+	assert.Nil(t, e)
+	result := expTil == string(actTil)
+	if !result {
+		fmt.Println("ACTUAL TIL:", string(actTil))
+		fmt.Println("EXPECT TIL:", expTil)
+	}
+	assert.True(t, result)
+
+	// check li.json
+	expLI := `{
+	"1200": {
+		"File": "TestInsertIDsForNewTrice2file0.c",
+		"Line": 1
+	},
+	"1201": {
+		"File": "TestInsertIDsForNewTrice2file0.c",
+		"Line": 1
+	}
+}`
+	actLI, e := fSys.ReadFile(id.LIFnJSON)
+	assert.Nil(t, e)
+	result = expLI == string(actLI)
+	if !result {
+		fmt.Println("ACTUAL LI:", string(actLI))
+		fmt.Println("EXPECT LI:", expLI)
+	}
+	assert.True(t, result)
+
+	// action 1
+	e = args.Handler(os.Stdout, fSys, []string{"trice", "insert", "-src", ".", "-src", "./", "-IDMin=1200", "-IDMax=1299", "-IDMethod=upward", "-til", id.FnJSON, "-li", id.LIFnJSON})
+	assert.Nil(t, e)
+
+	// check source files
+	for _, k := range testSet {
+		actSrc, e := fSys.ReadFile(k.fn)
+		assert.Nil(t, e)
+		actS := string(actSrc)
+
+		assert.Equal(t, k.insertedIDs, actS)
+
+		r := actS == k.insertedIDs
+		if !r {
+			fmt.Println(" ACTUAL SRC:", actS)
+			fmt.Println(" EXPECT SRC:", k.insertedIDs)
+		}
+		assert.True(t, r)
+	}
 }
