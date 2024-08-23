@@ -4,11 +4,9 @@
 package main
 
 import (
-	"fmt"
 	"io"
-	"math/rand"
+	"log"
 	"os"
-	"time"
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
@@ -28,21 +26,22 @@ var (
 // main is the entry point.
 func main() {
 	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
-	doit(os.Stdout, fSys)
+	e := doit(os.Stdout, fSys)
+	if e != nil {
+		log.Fatal(e)
+	}
 }
 
 // doit is the action.
-func doit(w io.Writer, fSys *afero.Afero) {
+func doit(w io.Writer, fSys *afero.Afero) error {
 
 	// inject values
 	args.Version = version
 	args.Commit = commit
 	args.Date = date
 
-	rand.Seed(time.Now().UnixNano())
+	//rand.Seed(time.Now().UnixNano())
 
-	e := args.Handler(w, fSys, os.Args)
-	if e != nil {
-		fmt.Fprintln(w, error.Error(e))
-	}
+	return args.Handler(w, fSys, os.Args)
+
 }
