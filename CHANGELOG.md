@@ -11,8 +11,8 @@
 - [5. v0.64.1 changes (unsorted)](#5-v0641-changes-unsorted)
 - [6. v0.65.0 Changes](#6-v0650-changes)
 - [7. v0.66.0 Changes](#7-v0660-changes)
-- [8. master branch changes](#8-master-branch-changes)
-
+- [8. v0.67.0 Changes](#8-v0670-changes)
+- [9. master branch changes](#9-master-branch-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -74,8 +74,9 @@ date        | version | comment
 2024-JUL-27 |  0.64.3 | ID management improved for special cases
 2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#6-v0650-changes)
 2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)
-2024-AUG-18 |  0.66.1 | Documetation and tests improved 
-2024-AUG-18 |  master | See [8. master branch changes](#8-master-branch-changes)
+2024-AUG-18 |  0.66.1 | Documetation and tests improved
+2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)
+2024-AUG-23 |  master | See [9. master branch changes](#9-master-branch-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -253,4 +254,31 @@ This is a major release hopefully not breaking too much!
 - `d99e06341f871bc9b0e38686ea36f336bfb8a84f` folder renamed
 - `287239db4940c401b395ed9b9f7c91bc210ebc46` Testig slightly improved
 
-##  8. <a name='masterbranchchanges'></a>master branch changes
+##  8. <a name='v0.67.0Changes'></a>v0.67.0 Changes
+
+| hash       | comment                                                                            |
+|------------|------------------------------------------------------------------------------------|
+| `cec916e4` | ++ skipAdditionalChecks CLI flag                                                   |
+| `71076aae` | Additional verbosity logs                                                          |
+| `0e4c8c53` | ++ CompactSrcs, ++ evaluateTriceParameterCount, ++ matchBracketLiteral             |
+| `8cd8cba8` | patNextFormatSpecifier improved                                                    |
+| `5131533c` | Special cases handling extended                                                    |
+| `9ff5f5c1` | more compact error messages                                                        |
+| `b70088c3` | Srcs value processed on one place only                                             |
+| `80aa4773` | Optional CLI flag SkipAdditionalChecks added                                       |
+| `815f3a47` | id.CompactSrc added to avoid double file processing                                |
+| `bd59e4bd` | obsolete rand.Seed deactivated, args.Handler retval into main with log.Fatal there |
+| `a37ca3ca` | -port JLINK -args now extended if given only partially                             |
+| `1d46adc2` | "-tcp" switch test added                                                           |
+| `390d55e1` | New port aliases and some tests added                                              |
+| `f686f808` | Test for "trice -p TCP4" added.                                                    |
+| `c0ba68fb` | TCP4 default param bug fix                                                         |
+| `603a36fb` | TCP4 tests merged                                                                  |
+| `c444a081` | clean-up                                                                           |
+| `cff67738` | Issue #358 done                                                                    |
+| `5d1ede2b` | Update README.md                                                                   |
+| `7468ee0f` | Update FUNDING.yml                                                                 |
+| `c5ca8482` | Merge branch 'devel'                                                               |
+| `a33627dc` | founding                                                                           |
+
+##  9. <a name='masterbranchchanges'></a>master branch changes
