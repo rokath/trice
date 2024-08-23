@@ -3,7 +3,10 @@
 
 package id
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // matchTrice searches in s for the next trice statement. If not found loc is nil.
 // When found, s[loc[0]:loc[1]] is the typeName and at s[loc[2] is the opening parenthesis behind the typeName.
@@ -36,32 +39,41 @@ start:
 			return
 		}
 		for {
-			fmtLoc := matchFormatString(s)
+			fmtLoc := matchStringLiteral(s)
 			if fmtLoc == nil { // not found
 				return
 			}
 			// Check, if there is a closing parenthesis after the format string
 			clpIndex = strings.Index(s[fmtLoc[1]:], `)`)
-			if clpIndex == -1 { // no closing parenthesis found after format string
+			if clpIndex == -1 {
+				if Verbose {
+					fmt.Println("No closing parenthesis found after format string:", s)
+				}
 				return
 			}
 
-			if fmtLoc[1] < triceStartloc[1] { // formatString ends before typeName, continue with reduced string
+			if fmtLoc[1] < triceStartloc[1] {
 				cut := fmtLoc[1]
+				if Verbose {
+					fmt.Println("The formatString ends before typeName, continue with reduced string:", s, "-->", s[cut:], "and look for next format string")
+				}
 				s = s[cut:]
 				triceStartloc[0] -= cut
 				triceStartloc[1] -= cut
 				offset += cut
-				continue // look for next format string
+				continue
 			}
 
-			if fmtLoc[0] < triceStartloc[0] { // typeName is inside format string, start over with reduced string
+			if fmtLoc[0] < triceStartloc[0] { //
 				cut := fmtLoc[1]
+				if Verbose {
+					fmt.Println("The typeName is inside format string, start over with reduced string:", s, "-->", s[cut:], "and look for next trice start")
+				}
 				s = s[cut:]
 				triceStartloc[0] -= cut
 				triceStartloc[1] -= cut
 				offset += cut
-				goto start // look for next trice start
+				goto start
 			}
 
 			// formatString starts after typeName (normal case)
