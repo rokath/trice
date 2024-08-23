@@ -56,7 +56,7 @@ func (p *Admin) Walk(w io.Writer, fSys *afero.Afero) error {
 	p.wg.Wait()
 
 	if p.errorCount > 0 {
-		return errors.New(fmt.Sprint(p.errorCount, "walk errors"))
+		return errors.New(fmt.Sprint(p.errorCount, " walk errors"))
 	}
 	return nil
 }
@@ -91,7 +91,7 @@ func visit(w io.Writer, fSys *afero.Afero, jalan *Admin) filepath.WalkFunc {
 			defer jalan.wg.Done()
 			err := jalan.Action(w, fSys, path, fileInfo, jalan)
 			if err != nil {
-				fmt.Fprintln(w, "Action on", path, "returned", err)
+				fmt.Fprintln(w, path, err)
 				jalan.errorCount++
 			}
 		}()
