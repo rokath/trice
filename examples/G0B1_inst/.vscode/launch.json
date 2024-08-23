@@ -15,7 +15,7 @@
             "interface": "swd",
             "device": "STM32G0B1RE",
             "svdFile": "./STM32G0B1.svd",
-            "runToMain": true
+            "showDevDebugOutput": "raw"
         },
         {
             "name": "gcc Cortex Debug",
@@ -28,7 +28,7 @@
             "interface": "swd",
             "device": "STM32G0B1RE",
             "svdFile": "./STM32G0B1.svd",
-            "runToMain": true
+            "showDevDebugOutput": "raw"
         }
     ]
 }

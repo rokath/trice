@@ -15,7 +15,7 @@
             "interface": "swd",
             "device": "STM32L432KC",
             "svdFile": "./STM32L4x2.svd",
-            "runToMain": true
+            "showDevDebugOutput": "raw"
         },
         {
             "name": "gcc Cortex Debug",
