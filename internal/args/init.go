@@ -255,6 +255,7 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 	flagVerbosity(p)
 	flagIDList(p)
 	flagLIList(p)
+	flagSkipAdditionalChecks(p)
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {
@@ -302,6 +303,14 @@ func flagVerbosity(p *flag.FlagSet) {
 For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
 `+boolInfo) // flag
 	p.BoolVar(&Verbose, "v", false, "short for verbose") // flag
+}
+
+func flagSkipAdditionalChecks(p *flag.FlagSet) {
+	p.BoolVar(&id.SkipAdditionalChecks, "skipAdditionalChecks", false, `Do not perform parameter count checks.
+This reduses the processing time by a few percent but does not detect wrong parameter counts.
+Add ths flag for skript speed-up, when not editing the souces.
+`+boolInfo) // flag
+	p.BoolVar(&id.SkipAdditionalChecks, "skip", false, "short for skipAdditionalChecks") // flag
 }
 
 func flagIDList(p *flag.FlagSet) {
