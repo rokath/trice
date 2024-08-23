@@ -59,10 +59,6 @@
     - [9.2. Current Limitations](#92-current-limitations)
       - [9.2.1. String Concatenation Within TRICE Macros Not Possible](#921-string-concatenation-within-trice-macros-not-possible)
       - [9.2.2. Linited Trice Parser Capabilities](#922-linited-trice-parser-capabilities)
-      - [9.2.3. `TRICE_F` and it relatives are not covered by function calls](#923-trice_f-and-it-relatives-are-not-covered-by-function-calls)
-    - [9.3. Legacy Limitations](#93-legacy-limitations)
-      - [9.3.1. Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0](#931-dynamic-stringsbuffers-only-as-variable-inside-trice-macros-before-v0610)
-      - [9.3.2. Limitation gone: `trice insert` does not require TRICE macros on a single line](#932-limitation-gone-trice-insert-does-not-require-trice-macros-on-a-single-line)
   - [10. Additional hints](#10-additional-hints)
     - [10.1. Pre-built executables are available](#101-pre-built-executables-are-available)
     - [10.2. Configuration file `triceConfig.h`](#102-configuration-file-triceconfigh)
@@ -114,6 +110,7 @@
     - [21.10. Option 2: Cleaning in a Post-build process](#2110-option-2-cleaning-in-a-post-build-process)
     - [21.11. Option 3: Cleaning on Repository Check-In](#2111-option-3-cleaning-on-repository-check-in)
   - [22. Changelog](#22-changelog)
+
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -988,6 +985,8 @@ To implement this would need to build a trice preprocessor or to run the C prepr
 
 The Trice tool internal parser has only limited capabilities. In works well in most cases, but could led to problems in some cases. The compiler run will for sure end up with some error messages in the following examples, so the developer can fix the code.
 
+<!--
+
 The most likely case is code like that:
 
 ```C
@@ -1013,8 +1012,10 @@ void f0( void ){
 }
 
 ```
+ THIS SEEMS TO BE NO MORE A PROBLEM NOW.
+-->
 
-An other example, provided by @KammutierSpule, is this:
+An example, provided by @KammutierSpule, is this:
 
  - started from a empty li.json/til.json
 
@@ -1038,13 +1039,15 @@ void trice0_test() {
 
 As said, the compiler will complain about that in any case.
 
-####  9.2.3. <a name='TRICE_Sanditrelativesarenotcoveredbyfunctioncalls'></a>`TRICE_F` and it relatives are not covered by function calls
+<!-- ####  9.2.3. <a name='TRICE_Sanditrelativesarenotcoveredbyfunctioncalls'></a>`TRICE_F` and it relatives are not covered by function calls
 
 Instead of `TRICE( Id(0), "hi" );` you can also write `Trice( "hi" );`. The difference is that `TRICE` is a macro, inlining trice code. That is a tick faster in execution, but requires more flash memory, relevant when you use many `TRICE` statements instead of `Trice`, what is just a function call. This works for almost all common trices, but not yet for `TRICE_F` and the like. It is planned to implement this one day. `triceS`, `triceN`, and `triceB`-like Trice macros are implemented in Trice versions from v0.66.0.
 
-###  9.3. <a name='LegacyLimitations'></a>Legacy Limitations
+-->
 
-####  9.3.1. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacrosbeforev0.61.0'></a>Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0 
+<!-- ###  9.3. <a name='LegacyLimitations'></a>Legacy Limitations -->
+
+<!--####  9.3.1. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacrosbeforev0.61.0'></a>Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0 
 
 - No-Good Example before v0.61.0:
 
@@ -1076,10 +1079,14 @@ TRICE_S( "msg:This part of the string is known at compile time. This part is dyn
 All the string literals (i.e. compile-time known strings) should be put inside the format string.
 Only the dynamic strings should be used as variables in TRICE_S macro.
 
-####  9.3.2. <a name='Limitationgone:triceidoesnotrequireTRICEmacrosonasingleline'></a>Limitation gone: `trice insert` does not require TRICE macros on a single line
+-->
+
+<!--####  9.3.2. <a name='Limitationgone:triceidoesnotrequireTRICEmacrosonasingleline'></a>Limitation gone: `trice insert` does not require TRICE macros on a single line
 
 - The implemented parser supports `trice` macros over several source code lines now (v0.61.0 and later). This is valid for `trice i` and `trice c` but not for `trice i`.
 - It is possible to have several (complete) `trice` macros on one source code line.
+
+-->
 
 ##  10. <a name='Additionalhints'></a>Additional hints
 
