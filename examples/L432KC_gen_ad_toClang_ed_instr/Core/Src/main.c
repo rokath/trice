@@ -84,14 +84,14 @@ int main(void)
 
     TriceInit();
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-    trice( iD(16200), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+    trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
 
-    TRice( iD(16202), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( iD(16201), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(16204), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(16203), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(16205), "w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(16206), "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
 
   /* USER CODE END 1 */
 
@@ -336,7 +336,7 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   TRICE_UNUSED(argument)
-  trice( iD(16207), "StartDefaultTask\n");
+  trice( "StartDefaultTask\n");
   /* Infinite loop */
   for(;;)
   {
@@ -362,7 +362,7 @@ void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
   TRICE_UNUSED(argument)
-  trice( iD(16208), "StartTask02\n");
+  trice( "StartTask02\n");
   /* Infinite loop */
   for(;;)
   {

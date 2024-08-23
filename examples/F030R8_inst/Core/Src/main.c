@@ -68,7 +68,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
     TriceInit();
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-    trice( iD(16200), "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+    trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
 
   /* USER CODE END 1 */
 
@@ -98,17 +98,17 @@ int main(void)
         TriceInitRingBufferMargins();
     #endif
     
-    Trice( iD(16203), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(16208), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(16206), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( iD(16205), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice( iD(16204), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(16207), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(16209), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(16202), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice( iD(16201), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(16210), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    trice( iD(16211), "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    TRice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    Trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
+    trice( "wrn: Hello! 👋🙂 \a\n" ); // with sound!
     
   /* USER CODE END 2 */
 
