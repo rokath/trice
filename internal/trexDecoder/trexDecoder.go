@@ -527,25 +527,27 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 			if p.ParamSpace != (s.bitWidth>>3)*s.paramCount {
 				specialCases := []string{
 					"TRICES", "TRICEN", "TRICEB", "TRICEF",
+					"TRICES_1", "TRICEN_1", "TRICEB_1", "TRICEF_1",
 					"TRICE8B", "TRICE16B", "TRICE32B", "TRICE64B",
-					"TRICE8F", "TRICE16F", "TRICE32F", "TRICE64F",
 					"TRICE8B_1", "TRICE16B_1", "TRICE32B_1", "TRICE64B_1",
+					"TRICE8F", "TRICE16F", "TRICE32F", "TRICE64F",
 					"TRICE8F_1", "TRICE16F_1", "TRICE32F_1", "TRICE64F_1",
 
 					"TRICE_S", "TRICE_N", "TRICE_B", "TRICE_F",
 					"TRICE8_B", "TRICE16_B", "TRICE32_B", "TRICE64_B",
 					"TRICE8_F", "TRICE16_F", "TRICE32_F", "TRICE64_F",
 				}
+				tt := strings.ToUpper(s.triceType)
 				for _, casus := range specialCases {
-					if s.triceType == casus {
+					if tt == casus {
 						goto ignoreSpecialCase
 					}
 				}
 				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package", hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
-			ignoreSpecialCase:
 			}
+		ignoreSpecialCase:
 			ss := strings.Split(p.pFmt, `\n`)
 			if len(ss) >= 3 { // at least one "\n" before "\n" line end
 				if decoder.NewlineIndent == -1 { // auto sense
@@ -643,15 +645,19 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE64_12", (*trexDec).unSignedOrSignedOut, 96, 64, 12},
 
 	{"TRICES", (*trexDec).triceS, -1, 0, 0},
+	{"TRICES_1", (*trexDec).triceS, -1, 0, 0},
 	{"TRICEN", (*trexDec).triceN, -1, 0, 0},
+	{"TRICEN_1", (*trexDec).triceN, -1, 0, 0},
 
 	{"TRICEB", (*trexDec).trice8B, -1, 0, 0},
+	{"TRICEB_1", (*trexDec).trice8B, -1, 0, 0},
 	{"TRICE8B_1", (*trexDec).trice8B, -1, 0, 0},
 	{"TRICE16B_1", (*trexDec).trice16B, -1, 0, 0},
 	{"TRICE32B_1", (*trexDec).trice32B, -1, 0, 0},
 	{"TRICE64B_1", (*trexDec).trice64B, -1, 0, 0},
 
 	{"TRICEF", (*trexDec).trice8F, -1, 0, 0},
+	{"TRICEF_1", (*trexDec).trice8F, -1, 0, 0},
 	{"TRICE8F", (*trexDec).trice8F, -1, 0, 0},
 	{"TRICE16F", (*trexDec).trice16F, -1, 0, 0},
 	{"TRICE32F", (*trexDec).trice32F, -1, 0, 0},
