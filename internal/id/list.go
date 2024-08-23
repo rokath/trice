@@ -114,9 +114,6 @@ func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
 
 func walkSrcs(w io.Writer, fSys *afero.Afero /*******/, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI,
 	f func(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI)) {
-	if len(Srcs) == 0 { // Srcs is an array flag containing desired folders & files
-		Srcs = append(Srcs, "./") // default value
-	}
 	for i := range Srcs {
 		s := Srcs[i]
 		srcU := s
