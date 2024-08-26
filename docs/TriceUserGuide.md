@@ -72,7 +72,7 @@
     - [10.10. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#1010-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
     - [10.11. Cycle Counter](#1011-cycle-counter)
   - [11. Switching *Trice* ON and OFF](#11-switching-trice-on-and-off)
-    - [11.1. Target side *Trice* On-Off](#111-target-side-trice-on-off)
+    - [11.1. Target side compile-time  *Trice* On-Off](#111-target-side-compile-time--trice-on-off)
     - [11.2. Host side *Trice* On-Off](#112-host-side-trice-on-off)
   - [12. Framing](#12-framing)
   - [13. Optional XTEA Encryption](#13-optional-xtea-encryption)
@@ -1164,9 +1164,21 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 
 <div id="Target side *Trice* On-Off"></div>
 
-###  11.1. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
+###  11.1. <a name='TargetsideTriceOn-Off'></a>Target side compile-time  *Trice* On-Off
 
-- If your code works well after checking, you can add `#define TRICE_OFF 1` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: : ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG)
+- If your code works well after checking, you can add `#define TRICE_OFF 1` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: <!-- ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG) -->
+
+```C
+#define TRICE_OFF 1
+#include "trice.h"
+void fn(void) { 
+    trice( iD(123), "Hi"); // Will generate code only, when TRICE_OFF == 0.
+    trice( "Lo");          // Will generate code only, when TRICE_OFF == 0.
+}
+```
+
+With `#define TRICE_OFF 1` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
+
 - Hint from @escherstair: With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
 - No runtime On-Off switch is implemented for several reasons:
   - Would need a control channel to the target.
