@@ -529,7 +529,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|ID|iD](0).
 #	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
-#	reported and just zeroed inside the source files. The existing li.json is not used. A new li.json is generated in place. 
+#	reported and just zeroed inside the source files. The existing li.json is updated/extended. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
 #	In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"
@@ -587,13 +587,12 @@ sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID](0). Remove all iD(n).
 #	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
-#	reported and just cleaned inside the source files. The existing li.json is not used. A new li.json is generated in place. 
+#	reported and just cleaned inside the source files. The existing li.json is updated/extended. 
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
 #	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs.
 #	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressable.
-#	EXPERIMENTAL! The user needs then to set "#define TRICE_CLEAN 0" inside "triceConfig.h" after "trice insert" manually before compiling.
-#	EXPERIMENTAL! That could be automated, but right now not sure about maybe unwanted implications. So we do not touch it currently.
+#	EXPERIMENTAL! All files including trice.h are re-compiled then on the next compiler run, what could be time-consuming.
 #	In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"
   -dry-run
     	No changes applied but output shows what would happen.

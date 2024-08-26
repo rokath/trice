@@ -64,17 +64,29 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 		liPath = filepath.Base(path)
 	}
 
-	out, fileModified, err := p.insertTriceIDs(w, liPath, in, a)
+	out, modified, err := p.insertTriceIDs(w, liPath, in, a)
 	if err != nil {
 		return err
 	}
 
-	if fileModified && !DryRun {
+	if filepath.Base(path) == "triceConfig.h" {
+		outs := string(out)
+		x := strings.Index(outs, "#define TRICE_CLEAN 1")
+		if x != -1 { // found
+			outs := strings.Replace(outs, "#define TRICE_CLEAN 1", "#define TRICE_CLEAN 0", 1)
+			out = []byte(outs)
+			modified = true
+		}
+	}
+	if modified {
 		if Verbose {
 			fmt.Fprintln(w, "Changed: ", path)
 		}
-		err = fSys.WriteFile(path, out, fileInfo.Mode())
+		if !DryRun {
+			err = fSys.WriteFile(path, out, fileInfo.Mode())
+		}
 	}
+
 	return err
 }
 

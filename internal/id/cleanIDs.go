@@ -23,7 +23,7 @@ func SubCmdIdClean(w io.Writer, fSys *afero.Afero) error {
 }
 
 // triceIDCleaning reads file, processes it and writes it back, if needed.
-func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) (err error) {
 
 	in, err := fSys.ReadFile(path)
 	if err != nil {
@@ -46,12 +46,24 @@ func triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 		return err
 	}
 
-	if modified && !DryRun {
+	if filepath.Base(path) == "triceConfig.h" {
+		outs := string(out)
+		x := strings.Index(outs, "#define TRICE_CLEAN 0")
+		if x != -1 { // found
+			outs := strings.Replace(outs, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 1", 1)
+			out = []byte(outs)
+			modified = true
+		}
+	}
+	if modified {
 		if Verbose {
 			fmt.Fprintln(w, "Changed: ", path)
 		}
-		err = fSys.WriteFile(path, out, fileInfo.Mode())
+		if !DryRun {
+			err = fSys.WriteFile(path, out, fileInfo.Mode())
+		}
 	}
+
 	return err
 }
 

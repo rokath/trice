@@ -11,6 +11,8 @@ extern "C" {
 
 #include "stm32f0xx_ll_system.h"
 
+#define TRICE_CLEAN 1 // If found, this is an automatically modified value.
+
 //! ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
 extern uint32_t ms32;
 #define TriceStamp16 (SysTick->VAL) // Counts from 31999 -> 0 in each ms.
