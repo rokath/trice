@@ -12,15 +12,15 @@ extern "C" {
 
 #include <stddef.h>
 
-//! TCOBSEncode stuffs "length" bytes of data beginning at the location pointed to by "input" and writes the output to the 
+//! TCOBSEncode stuffs "length" bytes of data beginning at the location pointed to by "input" and writes the output to the
 //! location pointed to by "output". Returns the number of bytes written to "output" or a negative value in error case.
-//! A 0-delimiter is NOT added as last byte allowing concatenating TCOBS encoded buffers to one bigger buffer before the 
-//! 00-byte delimiting. Buffer overlapping is allowed, when input lays inside output with a sufficient offset. The offset 
-//! should be >= next large whole number of length/31. because in the worst case for each 31 bytes an additional sigil byte 
-//! is inserted. The provided output buffer size should be >= length + next large whole number of length/31. This is a 
+//! A 0-delimiter is NOT added as last byte allowing concatenating TCOBS encoded buffers to one bigger buffer before the
+//! 00-byte delimiting. Buffer overlapping is allowed, when input lays inside output with a sufficient offset. The offset
+//! should be >= next large whole number of length/31. because in the worst case for each 31 bytes an additional sigil byte
+//! is inserted. The provided output buffer size should be >= length + next large whole number of length/31. This is a
 //! responsibility of the caller and not checked for efficiency.
 //! If your compiler uses a pre-C99 C dialect and does not know The "__restrict" keyword, you can define it in the project settings.
-int TCOBSEncode( void * __restrict output, const void * __restrict input, size_t length);
+int TCOBSEncode(void *__restrict output, const void *__restrict input, size_t length);
 
 //! TCOBSDecode decodes data ending at the location pointed to by "input" backwards (starting with the last byte)
 //! and writes the output also backwards to the location pointed to by "output" with a maximum size of max.
@@ -30,7 +30,7 @@ int TCOBSEncode( void * __restrict output, const void * __restrict input, size_t
 //! Buffer overlapping is partially possible if output limit is _behind_ input limit with sufficient distance,
 //! but data can get much longer.
 //! If your compiler uses a pre-C99 C dialect and does not know The "__restrict" keyword, you can define it in the project settings.
-int TCOBSDecode( void * __restrict output, size_t max, const void * __restrict input, size_t length );
+int TCOBSDecode(void *__restrict output, size_t max, const void *__restrict input, size_t length);
 
 #define OUT_BUFFER_TOO_SMALL -1000000 //!< OUT_BUFFER_TOO_SMALL is TCOBSDecode return error code.
 #define INPUT_DATA_CORRUPTED -2000000 //!< INPUT_DATA_CORRUPTED is TCOBSDecode return error code.

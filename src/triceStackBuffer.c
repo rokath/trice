@@ -5,6 +5,6 @@
 
 #if TRICE_BUFFER == TRICE_STACK_BUFFER
 
-void TriceTransfer( void ){}
+void TriceTransfer(void) {}
 
 #endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER

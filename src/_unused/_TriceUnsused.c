@@ -54,13 +54,13 @@ static void singleTriceDirectOut( uint32_t* tb, size_t tLen ){
         if( triceID <= 0 ){ // on data error
             break;   // ignore following data
         }
-        #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
         encLen += TriceEncode( enc+encLen, triceStart, triceLen );
-        #endif
+#endif
     }
-    #if TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1
+#if TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1
     TriceWriteDeviceRtt0( enc, encLen );
-    #endif
+#endif
 }
 
 #if TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1
@@ -86,9 +86,9 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ){
         if( triceID <= 0 ){ // on data error
             break;   // ignore following data
         }
-        #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
         encLen += TriceEncode( enc+encLen, triceStart, triceLen );
-        #endif
+#endif
     }
     TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
 }

@@ -52,10 +52,9 @@ size_t TriceModbusOnlyFetch( int index, uint8_t* tBuf );
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
 #error
-#if TRICE_MODBUS_BUFFER_SIZE < 2*(TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET)
+#if TRICE_MODBUS_BUFFER_SIZE < 2 * (TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET)
 #error
 #endif
 
@@ -64,7 +63,7 @@ static uint32_t* triceModbusBufferWritePosition = triceModbusBufferHeap; //!< Tr
 static uint32_t* triceModbusBufferWriteLimit  =  &triceModbusBufferHeap[TRICE_MODBUS_BUFFER_SIZE>>2]; //!< triceModbusBufferWriteLimit is the triceBuffer written limit. 
 
 // TRICE_MODBUS_FIFO_MAX_DEPTH is the max possible count of values the triceFifo can hold.
-#define TRICE_MODBUS_FIFO_MAX_DEPTH (TRICE_MODBUS_FIFO_ELEMENTS-1)
+#define TRICE_MODBUS_FIFO_MAX_DEPTH (TRICE_MODBUS_FIFO_ELEMENTS - 1)
 
 //! triceModbusFifo holds up to TRICE_MODBUS_FIFO_MAX_DEPTH uint32_t* values.
 static uint32_t* triceModbusFifo[TRICE_MODBUS_FIFO_ELEMENTS];
@@ -169,7 +168,6 @@ void TriceNonBlockingWriteModbusBuffer( uint8_t const * buf, unsigned len ){
     TriceModbusFifoPush(dest);
     TriceModbusFifoPush(dest + ((len+3)>>2) );
 }
-
 
 #if TRICE_CYCLE_COUNTER == 0
 #error TRICE_CYCLE_COUNTER is needed for TRICE_LOG_OVER_MODBUS_FUNC24
