@@ -10,13 +10,13 @@
 #include <stdint.h>
 #include <string.h> // memcpy
 
-static int sigilAndOffset(uint8_t *sigil, uint8_t b);
-static uint8_t repeatByte(int offset, uint8_t *in, int len);
+static int sigilAndOffset(uint8_t* sigil, uint8_t b);
+static uint8_t repeatByte(int offset, uint8_t* in, int len);
 
-int TCOBSDecode(void *__restrict output, size_t max, const void *__restrict input, size_t length) {
-    uint8_t *in = (uint8_t *)input;
+int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict input, size_t length) {
+    uint8_t* in = (uint8_t*)input;
     int ilen = (int)length; // remaining input length
-    uint8_t *out = (uint8_t *)output;
+    uint8_t* out = (uint8_t*)output;
     int olen = 0; // output length
     while (ilen > 0) {
         uint8_t next = in[ilen - 1]; // get next sigil byte (starting from the end)
@@ -80,8 +80,8 @@ int TCOBSDecode(void *__restrict output, size_t max, const void *__restrict inpu
         }
 
     copyBytes: {
-        uint8_t *to = out + max - olen - offset; // to := len(d) - n - offset
-        uint8_t *from = in + ilen - offset;      // from := len(in) - offset // sigil byte is already removed
+        uint8_t* to = out + max - olen - offset; // to := len(d) - n - offset
+        uint8_t* from = in + ilen - offset;      // from := len(in) - offset // sigil byte is already removed
         if (to < out) {
             return OUT_BUFFER_TOO_SMALL - __LINE__;
         }
@@ -96,7 +96,7 @@ int TCOBSDecode(void *__restrict output, size_t max, const void *__restrict inpu
 
 // sigilAndOffset interprets b as sigil byte with offset, fills sigil and returns offset.
 // For details see TCOBSv1Specification.md.
-static int sigilAndOffset(uint8_t *sigil, uint8_t b) {
+static int sigilAndOffset(uint8_t* sigil, uint8_t b) {
     int offset;
     *sigil = b & 0xE0; // 0x11100000
     if (*sigil == 0) {
@@ -109,7 +109,7 @@ static int sigilAndOffset(uint8_t *sigil, uint8_t b) {
 }
 
 // repeatByte returns the value to repeat
-static uint8_t repeatByte(int offset, uint8_t *in, int len) {
+static uint8_t repeatByte(int offset, uint8_t* in, int len) {
     if (offset == 0) {      // left byte of Ri is a sigil byte (probably N)
         return in[len - 2]; // a buffer cannot start with Ri
     } else {

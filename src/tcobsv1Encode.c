@@ -71,17 +71,17 @@
         reptCount = 0;                            \
     }
 
-int TCOBSEncode(void *__restrict output, const void *__restrict input, size_t length) {
-    uint8_t *o = output; // write pointer
-    uint8_t *out = output;
-    uint8_t const *i = input;                         // read pointer
-    uint8_t const *limit = (uint8_t *)input + length; // read limit
-    uint8_t zeroCount = 0;                            // counts zero bytes 1-3 for Z1-Z3
-    uint8_t fullCount = 0;                            // counts 0xFF bytes 1-4 for FF and F2-F4
-    uint8_t reptCount = 0;                            // counts repeat bytes 1-4 for !00 and R2-R4,
-    uint8_t b_1 = 0;                                  // previous byte
-    uint8_t b = 0;                                    // current byte
-    uint8_t offset = 0;                               // link to next sigil or buffer start looking backwards
+int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t length) {
+    uint8_t* o = output; // write pointer
+    uint8_t* out = output;
+    uint8_t const* i = input;                        // read pointer
+    uint8_t const* limit = (uint8_t*)input + length; // read limit
+    uint8_t zeroCount = 0;                           // counts zero bytes 1-3 for Z1-Z3
+    uint8_t fullCount = 0;                           // counts 0xFF bytes 1-4 for FF and F2-F4
+    uint8_t reptCount = 0;                           // counts repeat bytes 1-4 for !00 and R2-R4,
+    uint8_t b_1 = 0;                                 // previous byte
+    uint8_t b = 0;                                   // current byte
+    uint8_t offset = 0;                              // link to next sigil or buffer start looking backwards
     // comment syntax:
     //     Sigil bytes chaining is done with offset and not shown explicitly.
     //     All left from comma is already written to o and if, only partially shown.

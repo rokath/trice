@@ -12,8 +12,8 @@ extern "C" {
 #include <stdint.h> //lint !e537 !e451  Warning 537: Repeated include file,  Warning 451: Header file repeatedly included but does not have a standard
 
 void XTEAInitTable(void);
-void XTEADecrypt(uint32_t *p, unsigned count);
-void XTEAEncrypt(uint32_t *p, unsigned count);
+void XTEADecrypt(uint32_t* p, unsigned count);
+void XTEAEncrypt(uint32_t* p, unsigned count);
 
 //! little endian! change byte order for big endian machines
 #define XTEA_KEY(b00, b01, b02, b03, \

@@ -131,20 +131,20 @@ void WatchRingBufferMargins(void);
 
 void TriceCheck(int index); // tests and examples
 void TriceDiagnostics(int index);
-void TriceNonBlockingWriteUartA(const void *buf, size_t nByte);
-void TriceNonBlockingWriteUartB(const void *buf, size_t nByte);
-void TriceNonBlockingDirectWrite(uint32_t *triceStart, unsigned wordCount);
-void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t *enc, size_t encLen);
-void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t *enc, size_t encLen);
-void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t *enc, unsigned count);
-void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t *enc, unsigned count);
+void TriceNonBlockingWriteUartA(const void* buf, size_t nByte);
+void TriceNonBlockingWriteUartB(const void* buf, size_t nByte);
+void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount);
+void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen);
+void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen);
+void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count);
+void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t* enc, unsigned count);
 void TriceInit(void);
 void TriceLogDiagnosticValues(void);
 void TriceLogSeggerDiagnostics(void);
-void TriceNonBlockingDeferredWrite8(int ticeID, const uint8_t *enc, size_t encLen);
+void TriceNonBlockingDeferredWrite8(int ticeID, const uint8_t* enc, size_t encLen);
 void TriceTransfer(void);
-void TriceWriteDeviceCgo(const void *buf, unsigned len); // only needed for testing C-sources from Go
-size_t triceDataLen(const uint8_t *p);
+void TriceWriteDeviceCgo(const void* buf, unsigned len); // only needed for testing C-sources from Go
+size_t triceDataLen(const uint8_t* p);
 
 // int TriceIDAndBuffer( const uint32_t * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
 // int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
@@ -158,7 +158,7 @@ unsigned TriceOutDepthCGO(void); // only needed for testing C-sources from Go
 size_t TriceDepth(void);
 size_t TriceDepthMax(void);
 // size_t TriceDeferredEncode( uint8_t* enc, const uint8_t * buf, size_t len );
-size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t *dst, const uint8_t *buf, size_t len);
+size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t* buf, size_t len);
 
 // global defines
 
@@ -169,7 +169,7 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t *dst, const uint8
 
 // global variables:
 
-extern uint32_t *const triceSingleBufferStartWritePosition;
+extern uint32_t* const triceSingleBufferStartWritePosition;
 extern unsigned SingleTricesRingCount;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
@@ -183,15 +183,15 @@ extern unsigned TriceErrorCount;
 extern unsigned TriceDynBufTruncateCount;
 extern unsigned TriceDirectOverflowCount;
 extern unsigned TriceDeferredOverflowCount;
-extern uint32_t *const TriceRingBufferStart;
-extern uint32_t *const triceRingBufferLimit;
+extern uint32_t* const TriceRingBufferStart;
+extern uint32_t* const triceRingBufferLimit;
 extern unsigned TriceSingleMaxWordCount;
 extern int TriceRingBufferDepthMax;
 extern unsigned TriceHalfBufferDepthMax;
 extern int TriceDataOffsetDepthMax;
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-extern uint32_t *TriceBufferWritePosition;
+extern uint32_t* TriceBufferWritePosition;
 #endif
 
 //! TRICE_BUFFER_SIZE is
@@ -266,7 +266,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
 #if TRICE_DIAGNOSTICS == 1
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
-    uint32_t *const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+    uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER                                                                        \
     do {                                                                                                       \
@@ -296,8 +296,8 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
     TRICE_ENTER_CRITICAL_SECTION {                                                                            \
         {                                                                                                     \
             uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE >> 2];                                               \
-            uint32_t *const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET >> 2]; \
-            uint32_t *TriceBufferWritePosition = triceSingleBufferStartWritePosition;
+            uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET >> 2]; \
+            uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 #endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER
 
@@ -307,7 +307,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
 #define TRICE_ENTER                \
     TRICE_ENTER_CRITICAL_SECTION { \
         {                          \
-            uint32_t *TriceBufferWritePosition = triceSingleBufferStartWritePosition;
+            uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 #endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER
 
@@ -319,7 +319,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
 #define TRICE_ENTER                \
     TRICE_ENTER_CRITICAL_SECTION { \
         if (TriceEnoughSpace()) {  \
-            uint32_t *const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+            uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
 #else //  #if TRICE_PROTECT == 1
 
@@ -327,7 +327,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
 #define TRICE_ENTER                \
     TRICE_ENTER_CRITICAL_SECTION { \
         {                          \
-            uint32_t *const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+            uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
 #endif // #else //  #if TRICE_PROTECT == 1
 
@@ -369,7 +369,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
             /* This implementation is a bit different than a ring buffer is usually implemented. */                                                                     \
             TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE >> 2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
             /*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */                                                                  \
-            uint32_t *const triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
+            uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 #else //  #if TRICE_PROTECT == 1
@@ -384,7 +384,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
             /* This implementation is a bit different than a ring buffer is usually implemented. */                                                                     \
             TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE >> 2)) <= triceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
             /*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */                                                                  \
-            uint32_t *const triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
+            uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
             SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 #endif // #else //  #if TRICE_PROTECT == 1
@@ -473,12 +473,12 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
 #ifndef TRICE_PUTBUFFER
 
 //! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
-#define TRICE_PUTBUFFER(buf, len)                                                                 \
-    do {                                                                                          \
-        memcpy(TriceBufferWritePosition, buf, len);                                               \
-        unsigned len4 = ((unsigned)len + 3) & ~3;                                                 \
-        memset((uint8_t *)TriceBufferWritePosition + len, 0, len4 - len); /*clear padding space*/ \
-        TriceBufferWritePosition += len4 >> 2;                                                    \
+#define TRICE_PUTBUFFER(buf, len)                                                                \
+    do {                                                                                         \
+        memcpy(TriceBufferWritePosition, buf, len);                                              \
+        unsigned len4 = ((unsigned)len + 3) & ~3;                                                \
+        memset((uint8_t*)TriceBufferWritePosition + len, 0, len4 - len); /*clear padding space*/ \
+        TriceBufferWritePosition += len4 >> 2;                                                   \
     } while (0)
 
 #endif
@@ -497,7 +497,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
     || defined(__ARM__)    /* TASKING VX ARM toolset C compiler */           \
     || defined(__CARM__)   /* TASKING VX ARM toolset C compiler */           \
     || defined(__CPARM__)  /* TASKING VX ARM toolset C++ compiler */
-#define SYSTICKVAL (*(volatile uint32_t *)0xE000E018UL)
+#define SYSTICKVAL (*(volatile uint32_t*)0xE000E018UL)
 #else
 // #error "unknown architecture"
 #define SYSTICKVAL 0
@@ -510,7 +510,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
 //
 
 #if (TRICE_DEFERRED_UARTA == 1) // deferred out to UARTA
-void TriceBlockingWriteUartA(const uint8_t *buf, unsigned len);
+void TriceBlockingWriteUartA(const uint8_t* buf, unsigned len);
 //  uint8_t triceNextUint8UartA( void );
 void triceServeTransmitUartA(void);
 void triceTriggerTransmitUartA(void);
@@ -518,7 +518,7 @@ unsigned TriceOutDepthUartA(void);
 #endif
 
 #if (TRICE_DEFERRED_UARTB == 1) // deferred out to UARTB
-void TriceBlockingWriteUartB(const uint8_t *buf, unsigned len);
+void TriceBlockingWriteUartB(const uint8_t* buf, unsigned len);
 //  uint8_t triceNextUint8UartB( void );
 void triceServeTransmitUartB(void);
 void triceTriggerTransmitUartB(void);
@@ -532,8 +532,8 @@ unsigned TriceOutDepthUartB(void);
 // Encryption
 //
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
-void XTEAEncrypt(uint32_t *p, unsigned count);
-void XTEADecrypt(uint32_t *p, unsigned count);
+void XTEAEncrypt(uint32_t* p, unsigned count);
+void XTEADecrypt(uint32_t* p, unsigned count);
 void XTEAInitTable(void);
 #endif
 //
@@ -661,41 +661,41 @@ static inline uint64_t aDouble(double x) {
         TRICE_LEAVE                                                                                                                  \
     } while (0)
 
-void triceN(int tid, char *fmt, void *buf, uint32_t n);
-void TriceN(int tid, char *fmt, void *buf, uint32_t n);
-void TRiceN(int tid, char *fmt, void *buf, uint32_t n);
+void triceN(int tid, char* fmt, void* buf, uint32_t n);
+void TriceN(int tid, char* fmt, void* buf, uint32_t n);
+void TRiceN(int tid, char* fmt, void* buf, uint32_t n);
 
-void trice8B(int tid, char *fmt, void *buf, uint32_t n);
-void Trice8B(int tid, char *fmt, void *buf, uint32_t n);
-void TRice8B(int tid, char *fmt, void *buf, uint32_t n);
+void trice8B(int tid, char* fmt, void* buf, uint32_t n);
+void Trice8B(int tid, char* fmt, void* buf, uint32_t n);
+void TRice8B(int tid, char* fmt, void* buf, uint32_t n);
 
-void trice16B(int tid, char *fmt, void *buf, uint32_t n);
-void Trice16B(int tid, char *fmt, void *buf, uint32_t n);
-void TRice16B(int tid, char *fmt, void *buf, uint32_t n);
+void trice16B(int tid, char* fmt, void* buf, uint32_t n);
+void Trice16B(int tid, char* fmt, void* buf, uint32_t n);
+void TRice16B(int tid, char* fmt, void* buf, uint32_t n);
 
-void trice32B(int tid, char *fmt, void *buf, uint32_t n);
-void Trice32B(int tid, char *fmt, void *buf, uint32_t n);
-void TRice32B(int tid, char *fmt, void *buf, uint32_t n);
+void trice32B(int tid, char* fmt, void* buf, uint32_t n);
+void Trice32B(int tid, char* fmt, void* buf, uint32_t n);
+void TRice32B(int tid, char* fmt, void* buf, uint32_t n);
 
-void trice64B(int tid, char *fmt, void *buf, uint32_t n);
-void Trice64B(int tid, char *fmt, void *buf, uint32_t n);
-void TRice64B(int tid, char *fmt, void *buf, uint32_t n);
+void trice64B(int tid, char* fmt, void* buf, uint32_t n);
+void Trice64B(int tid, char* fmt, void* buf, uint32_t n);
+void TRice64B(int tid, char* fmt, void* buf, uint32_t n);
 
-void trice8F(int tid, char *fmt, void *buf, uint32_t n);
-void Trice8F(int tid, char *fmt, void *buf, uint32_t n);
-void TRice8F(int tid, char *fmt, void *buf, uint32_t n);
+void trice8F(int tid, char* fmt, void* buf, uint32_t n);
+void Trice8F(int tid, char* fmt, void* buf, uint32_t n);
+void TRice8F(int tid, char* fmt, void* buf, uint32_t n);
 
-void trice16F(int tid, char *fmt, void *buf, uint32_t n);
-void Trice16F(int tid, char *fmt, void *buf, uint32_t n);
-void TRice16F(int tid, char *fmt, void *buf, uint32_t n);
+void trice16F(int tid, char* fmt, void* buf, uint32_t n);
+void Trice16F(int tid, char* fmt, void* buf, uint32_t n);
+void TRice16F(int tid, char* fmt, void* buf, uint32_t n);
 
-void trice32F(int tid, char *fmt, void *buf, uint32_t n);
-void Trice32F(int tid, char *fmt, void *buf, uint32_t n);
-void TRice32F(int tid, char *fmt, void *buf, uint32_t n);
+void trice32F(int tid, char* fmt, void* buf, uint32_t n);
+void Trice32F(int tid, char* fmt, void* buf, uint32_t n);
+void TRice32F(int tid, char* fmt, void* buf, uint32_t n);
 
-void trice64F(int tid, char *fmt, void *buf, uint32_t n);
-void Trice64F(int tid, char *fmt, void *buf, uint32_t n);
-void TRice64F(int tid, char *fmt, void *buf, uint32_t n);
+void trice64F(int tid, char* fmt, void* buf, uint32_t n);
+void Trice64F(int tid, char* fmt, void* buf, uint32_t n);
+void TRice64F(int tid, char* fmt, void* buf, uint32_t n);
 
 #endif // #ifndef TRICE_N
 
@@ -710,20 +710,20 @@ void TRice64F(int tid, char *fmt, void *buf, uint32_t n);
         TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz); \
     } while (0)
 
-void triceS(int tid, char *fmt, char *runtimeGeneratedString);
-void TriceS(int tid, char *fmt, char *runtimeGeneratedString);
-void TRiceS(int tid, char *fmt, char *runtimeGeneratedString);
+void triceS(int tid, char* fmt, char* runtimeGeneratedString);
+void TriceS(int tid, char* fmt, char* runtimeGeneratedString);
+void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 
 #endif // #ifndef TRICE_S
 
 #ifndef TRICE_PUT16
 
 //! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
-#define TRICE_PUT16(x)                                      \
-    do {                                                    \
-        uint16_t *p = (uint16_t *)TriceBufferWritePosition; \
-        *p++ = TRICE_HTOTS(x);                              \
-        TriceBufferWritePosition = (uint32_t *)p;           \
+#define TRICE_PUT16(x)                                     \
+    do {                                                   \
+        uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
+        *p++ = TRICE_HTOTS(x);                             \
+        TriceBufferWritePosition = (uint32_t*)p;           \
     } while (0)
 
 #endif
@@ -802,19 +802,19 @@ void TRiceS(int tid, char *fmt, char *runtimeGeneratedString);
 
 #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
-TRICE_INLINE void TRice0(const char *pFmt){TRICE_UNUSED(pFmt)} TRICE_INLINE void Trice0(const char *pFmt){TRICE_UNUSED(pFmt)} TRICE_INLINE void trice0(const char *pFmt){TRICE_UNUSED(pFmt)}
+TRICE_INLINE void TRice0(const char* pFmt){TRICE_UNUSED(pFmt)} TRICE_INLINE void Trice0(const char* pFmt){TRICE_UNUSED(pFmt)} TRICE_INLINE void trice0(const char* pFmt){TRICE_UNUSED(pFmt)}
 
 #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
-TRICE_INLINE void TRice0(uint16_t tid, const char *pFmt) {
+TRICE_INLINE void TRice0(uint16_t tid, const char* pFmt) {
     TRice32m_0(tid);
     TRICE_UNUSED(pFmt)
 }
-TRICE_INLINE void Trice0(uint16_t tid, const char *pFmt) {
+TRICE_INLINE void Trice0(uint16_t tid, const char* pFmt) {
     Trice32m_0(tid);
     TRICE_UNUSED(pFmt)
 }
-TRICE_INLINE void trice0(uint16_t tid, const char *pFmt) {
+TRICE_INLINE void trice0(uint16_t tid, const char* pFmt) {
     trice32m_0(tid);
     TRICE_UNUSED(pFmt)
 }
@@ -845,30 +845,31 @@ TRICE_INLINE void trice0(uint16_t tid, const char *pFmt) {
 
 #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
-TRICE_INLINE void triceAssertTrue(int idN, char *msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)} TRICE_INLINE void TriceAssertTrue(int idN, char *msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)} TRICE_INLINE void TRiceAssertTrue(int idN, char *msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
+TRICE_INLINE void triceAssertTrue(int idN, char* msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)} TRICE_INLINE void TriceAssertTrue(int idN, char* msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)} TRICE_INLINE void TRiceAssertTrue(int idN, char* msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
 
-TRICE_INLINE void triceAssertFalse(int idN, char *msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)} TRICE_INLINE void TriceAssertFalse(int idN, char *msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)} TRICE_INLINE void TRiceAssertFalse(int idN, char *msg, int flag) {
+TRICE_INLINE void triceAssertFalse(int idN, char* msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)} TRICE_INLINE void TriceAssertFalse(int idN, char* msg, int flag){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)} TRICE_INLINE void TRiceAssertFalse(int idN, char* msg, int flag) {
     TRICE_UNUSED(idN)
-    TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)
+    TRICE_UNUSED(msg)
+    TRICE_UNUSED(pFmt)
 }
 
 #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
-void triceAssertTrue(int idN, char *msg, int flag);
-void TriceAssertTrue(int idN, char *msg, int flag);
-void TRiceAssertTrue(int idN, char *msg, int flag);
+void triceAssertTrue(int idN, char* msg, int flag);
+void TriceAssertTrue(int idN, char* msg, int flag);
+void TRiceAssertTrue(int idN, char* msg, int flag);
 
-void triceAssertFalse(int idN, char *msg, int flag);
-void TriceAssertFalse(int idN, char *msg, int flag);
-void TRiceAssertFalse(int idN, char *msg, int flag);
+void triceAssertFalse(int idN, char* msg, int flag);
+void TriceAssertFalse(int idN, char* msg, int flag);
+void TRiceAssertFalse(int idN, char* msg, int flag);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
-typedef void (*Write8AuxiliaryFn_t)(const uint8_t *enc, size_t encLen);
+typedef void (*Write8AuxiliaryFn_t)(const uint8_t* enc, size_t encLen);
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;
 extern Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn;
 
-typedef void (*Write32AuxiliaryFn_t)(const uint32_t *enc, unsigned count);
+typedef void (*Write32AuxiliaryFn_t)(const uint32_t* enc, unsigned count);
 extern Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn;
 extern Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn;
 

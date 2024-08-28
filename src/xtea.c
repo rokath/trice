@@ -69,7 +69,7 @@ static void decipher(uint32_t v[2]) {
 //! XTEADecrypt re-converts from xtea cipher.
 //! \param p pointer to 8 byte buffer
 //! count is expected to be an even number.
-void XTEADecrypt(uint32_t *p, unsigned count) {
+void XTEADecrypt(uint32_t* p, unsigned count) {
     for (int i = 0; i < count; i += 2) {
         decipher(&p[i]); // byte swapping is done inside receiver according to endianness.
     }
@@ -79,7 +79,7 @@ void XTEADecrypt(uint32_t *p, unsigned count) {
 //! XTEAEncrypt converts to xtea cipher.
 //! \param p pointer to 8 byte buffer.
 //! count is expected to be an even number.
-void XTEAEncrypt(uint32_t *p, unsigned count) {
+void XTEAEncrypt(uint32_t* p, unsigned count) {
     unsigned i;
     for (i = 0; i < count; i += 2) {
         encipher(&p[i]); // byte swap is done inside receiver

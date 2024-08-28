@@ -7,7 +7,7 @@
 
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 
-static void TriceOut(uint32_t *tb, size_t tLen);
+static void TriceOut(uint32_t* tb, size_t tLen);
 
 //! triceBuffer is a double buffer for better write speed.
 //! halfBufferStart     writePosition
@@ -15,23 +15,23 @@ static void TriceOut(uint32_t *tb, size_t tLen);
 //! ^-TRICE_DATA_OFFSET-^-restOf_TRICE_DEFERRED_BUFFER_SIZE-Limit
 static uint32_t triceBuffer[2][TRICE_DEFERRED_BUFFER_SIZE >> 3] = {0};
 
-static uint32_t *const triceWriteStartHalfBuffer0 = &triceBuffer[0][TRICE_DATA_OFFSET >> 2];
-static uint32_t *const triceWriteLimitHalfBuffer0 = &triceBuffer[0][TRICE_DEFERRED_BUFFER_SIZE >> 3];
-static uint32_t *const triceWriteStartHalfBuffer1 = &triceBuffer[1][TRICE_DATA_OFFSET >> 2];
-static uint32_t *const triceWriteLimitHalfBuffer1 = &triceBuffer[1][TRICE_DEFERRED_BUFFER_SIZE >> 3];
+static uint32_t* const triceWriteStartHalfBuffer0 = &triceBuffer[0][TRICE_DATA_OFFSET >> 2];
+static uint32_t* const triceWriteLimitHalfBuffer0 = &triceBuffer[0][TRICE_DEFERRED_BUFFER_SIZE >> 3];
+static uint32_t* const triceWriteStartHalfBuffer1 = &triceBuffer[1][TRICE_DATA_OFFSET >> 2];
+static uint32_t* const triceWriteLimitHalfBuffer1 = &triceBuffer[1][TRICE_DEFERRED_BUFFER_SIZE >> 3];
 
 //! triceActiveHalfBuffer is the index of the active write buffer. !triceActiveHalfBuffer is the active read buffer index.
 static int triceActiveHalfBuffer = 0;
 
 //! TriceBufferWritePosition is the active write position and is used by TRICE_PUT macros.
-uint32_t *TriceBufferWritePosition = triceWriteStartHalfBuffer0;
+uint32_t* TriceBufferWritePosition = triceWriteStartHalfBuffer0;
 
 //! TriceBufferWritePositionStart is the begin of the active write buffer.
-uint32_t *TriceBufferWritePositionStart = triceWriteStartHalfBuffer0;
+uint32_t* TriceBufferWritePositionStart = triceWriteStartHalfBuffer0;
 
 #if TRICE_PROTECT == 1
 //! TriceBufferWritePositionLimit is the first not usable address of the current written half buffer.
-static uint32_t *TriceBufferWritePositionLimit = triceWriteLimitHalfBuffer0;
+static uint32_t* TriceBufferWritePositionLimit = triceWriteLimitHalfBuffer0;
 
 //! TriceEnoughSpace checks, if at least TRICE_SINGLE_MAX_SIZE bytes available for the next trice.
 //! \retval 0, when not enough space
@@ -53,7 +53,7 @@ int TriceEnoughSpace(void) {
 #endif // #if TRICE_PROTECT == 1
 
 //! triceBufferSwap swaps the trice double buffer and returns the read buffer address.
-static uint32_t *triceBufferSwap(void) {
+static uint32_t* triceBufferSwap(void) {
     if (triceActiveHalfBuffer == 0) {
         triceActiveHalfBuffer = 1;
         TriceBufferWritePositionStart = triceWriteStartHalfBuffer1;
@@ -82,7 +82,7 @@ unsigned TriceHalfBufferDepthMax = 0;
 //! It is the responsibility of the app to call this function once every 10-100 milliseconds.
 void TriceTransfer(void) {
     if (0 == TriceOutDepth()) { // transmission done for slowest output channel, so a swap is possible.
-        uint32_t *readBuf;
+        uint32_t* readBuf;
         size_t tLen32;
         TRICE_ENTER_CRITICAL_SECTION
         tLen32 = TriceBufferWritePosition - TriceBufferWritePositionStart;
@@ -112,8 +112,8 @@ void TriceTransfer(void) {
 //! \li after:                 <-------- pSize ------>
 //! \li after:     ^- pStart    (is input buf or input buf + 2)
 //! \li after:     <- pLen ->   (maybe 1-3 bytes shorter)
-static int TriceNext(uint8_t **buf, size_t *pSize, const uint8_t **pStart, size_t *pLen) {
-    uint16_t *pTID = (uint16_t *)*buf; // lint !e826, get TID address
+static int TriceNext(uint8_t** buf, size_t* pSize, const uint8_t** pStart, size_t* pLen) {
+    uint16_t* pTID = (uint16_t*)*buf;  // lint !e826, get TID address
     unsigned TID = TRICE_TTOHS(*pTID); // type and id
     int triceID = 0x3FFF & TID;
     int triceType = TID >> 14;
@@ -164,7 +164,7 @@ static int TriceNext(uint8_t **buf, size_t *pSize, const uint8_t **pStart, size_
     return triceID;
 }
 
-uint8_t *firstNotModifiedAddress;
+uint8_t* firstNotModifiedAddress;
 int distance;
 int triceDataOffsetDepth;
 
@@ -176,12 +176,12 @@ int triceDataOffsetDepth;
 //! are changed, when the trice length is not a multiple of 8, but only of 4. (XTEA can encrypt only multiple of 8 lenth packages.)
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at the tb start is for in-buffer encoding of the trice data.
 //! \param tLen is total length of several trice data. It is always a multiple of 4 because of 32-bit alignment and padding bytes.
-static void TriceOut(uint32_t *tb, size_t tLen) {
-    uint8_t *enc = (uint8_t *)tb;           // This is the later encoded data starting address.
-    uint8_t *dat = enc + TRICE_DATA_OFFSET; // Thid is the start of      32-bit aligned trices.
-    uint8_t *nxt = dat;                     // Thid is the start of next 32-bit aligned trices.
+static void TriceOut(uint32_t* tb, size_t tLen) {
+    uint8_t* enc = (uint8_t*)tb;            // This is the later encoded data starting address.
+    uint8_t* dat = enc + TRICE_DATA_OFFSET; // Thid is the start of      32-bit aligned trices.
+    uint8_t* nxt = dat;                     // Thid is the start of next 32-bit aligned trices.
     size_t encLen = 0;
-    uint8_t *dst = enc; // This value dst must not get > nxt to avoid overwrites.
+    uint8_t* dst = enc; // This value dst must not get > nxt to avoid overwrites.
     int triceID = 0;    // This assignment is only needed to silence compiler complains about being uninitialized.
 #if TRICE_DIAGNOSTICS == 1
     unsigned depth = tLen + TRICE_DATA_OFFSET;
@@ -195,10 +195,10 @@ static void TriceOut(uint32_t *tb, size_t tLen) {
         triceDataOffsetDepth = TRICE_DATA_OFFSET - distance; // distance can get > TRICE_DATA_OFFSET, but that is no problem.
         TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
 #endif // #if TRICE_DIAGNOSTICS == 1
-        const uint8_t *triceNettoStart;
+        const uint8_t* triceNettoStart;
         size_t triceNettoLen; // This is the trice netto length (without padding bytes).
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-        uint8_t *crypt = nxt - 4; // only 8-byte groups are encryptable
+        uint8_t* crypt = nxt - 4; // only 8-byte groups are encryptable
 #endif
         triceID = TriceNext(&nxt, &tLen, &triceNettoStart, &triceNettoLen);
         if (triceID <= 0) { // on data error
@@ -206,19 +206,19 @@ static void TriceOut(uint32_t *tb, size_t tLen) {
             break; // ignore following data
         }
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
-        uint8_t *dst = enc + encLen;
+        uint8_t* dst = enc + encLen;
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS)
         memmove(crypt, triceNettoStart, triceNettoLen);
         size_t len8 = (triceNettoLen + 7) & ~7;                   // Only multiple of 8 encryptable, so we adjust len.
         memset((crypt) + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
-        XTEAEncrypt((uint32_t *)crypt, len8 >> 2);
+        XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
         encLen += (size_t)TCOBSEncode(dst, crypt, len8); // encLen is re-used here
         dst[encLen++] = 0;                               // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)
         memmove(crypt, triceNettoStart, triceNettoLen);
         size_t len8 = (triceNettoLen + 7) & ~7;                   // Only multiple of 8 encryptable, so we adjust len.
         memset((crypt) + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
-        XTEAEncrypt((uint32_t *)crypt, len8 >> 2);
+        XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
         encLen += (size_t)COBSEncode(dst, crypt, len8); // encLen is re-used here
         dst[encLen++] = 0;                              // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
@@ -247,7 +247,7 @@ static void TriceOut(uint32_t *tb, size_t tLen) {
 #endif
 #elif TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
         // pack data
-        uint8_t *packed = dat + encLen;                  // After the loop, the packed data start at dat.
+        uint8_t* packed = dat + encLen;                  // After the loop, the packed data start at dat.
         memmove(packed, triceNettoStart, triceNettoLen); // This action removes all padding bytes of the trices, compacting their sequence this way
         encLen += triceNettoLen;
 #endif // #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
@@ -274,16 +274,16 @@ static void TriceOut(uint32_t *tb, size_t tLen) {
 // encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
     // special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
-    size_t len8 = (encLen + 7) & ~7;                     // Only multiple of 8 encryptable, so we adjust len.
-    memset(((uint8_t *)dat) + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
-    XTEAEncrypt((uint32_t *)dat, len8 >> 2);
+    size_t len8 = (encLen + 7) & ~7;                    // Only multiple of 8 encryptable, so we adjust len.
+    memset(((uint8_t*)dat) + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
+    XTEAEncrypt((uint32_t*)dat, len8 >> 2);
     size_t eLen = (size_t)TCOBSEncode(enc, dat, len8);                                          // encLen is re-used here
     enc[eLen++] = 0;                                                                            // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)  // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
     // special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
-    size_t len8 = (encLen + 7) & ~7;                     // Only multiple of 8 encryptable, so we adjust len.
-    memset(((uint8_t *)dat) + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
-    XTEAEncrypt((uint32_t *)dat, len8 >> 2);
+    size_t len8 = (encLen + 7) & ~7;                    // Only multiple of 8 encryptable, so we adjust len.
+    memset(((uint8_t*)dat) + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
+    XTEAEncrypt((uint32_t*)dat, len8 >> 2);
     size_t eLen = (size_t)COBSEncode(enc, dat, len8); // encLen is re-used here
     enc[eLen++] = 0;                                  // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)  // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
