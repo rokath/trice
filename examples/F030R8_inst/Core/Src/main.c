@@ -94,7 +94,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
-    #if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
+    #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
         TriceInitRingBufferMargins();
     #endif
     
@@ -151,7 +151,7 @@ int main(void)
                     TriceTransfer(); // serve deferred output
                     // For the ring buffer TriceTransfer transmits only one Trice per call, so doing that each ms is ok.
                 }
-                #if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
+                #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
                     WatchRingBufferMargins();
                 #endif
 

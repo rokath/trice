@@ -114,7 +114,7 @@ extern "C" {
 
 // defaults
 
-#if TRICE_RINGBUFFER_OVERFLOW_WATCH == 1
+#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 void TriceInitRingBufferMargins(void);
 void WatchRingBufferMargins(void);
 #endif

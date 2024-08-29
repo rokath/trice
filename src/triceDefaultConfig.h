@@ -132,10 +132,10 @@ extern "C" {
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 #endif
 
-#ifndef TRICE_RINGBUFFER_OVERFLOW_WATCH
-//! TRICE_RINGBUFFER_OVERFLOW_WATCH is used to investigate, if the ring buffer margins are really not touched.
+#ifndef TRICE_RING_BUFFER_OVERFLOW_WATCH
+//! TRICE_RING_BUFFER_OVERFLOW_WATCH is used to investigate, if the ring buffer margins are really not touched.
 //! This value usually can stay 0.
-#define TRICE_RINGBUFFER_OVERFLOW_WATCH 0
+#define TRICE_RING_BUFFER_OVERFLOW_WATCH 0
 #endif
 
 #ifndef TRICE_DIRECT_OUTPUT
