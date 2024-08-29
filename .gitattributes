@@ -10,6 +10,7 @@
 *.PNG binary
 *.jpg binary
 *.gif binary
+*.svg binary
 
 # Source: https://medium.com/@mbrehin/git-advanced-diff-odt-pdf-doc-xls-ppt-25afbf4f1105
 *.doc diff=doc
