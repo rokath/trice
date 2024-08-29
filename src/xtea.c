@@ -50,7 +50,7 @@ static void encipher(uint32_t v[2]) {
 	v[1] = v1;
 }
 
-#if XTEA_DECRYPT == 1
+	#if XTEA_DECRYPT == 1
 //! decipher reverses encipher action.
 //! Code taken and adapted from xtea\block.go
 //!\param v 64 bits of data in v[0] and v[1] are decoded in place
@@ -74,7 +74,7 @@ void XTEADecrypt(uint32_t* p, unsigned count) {
 		decipher(&p[i]); // byte swapping is done inside receiver according to endianness.
 	}
 }
-#endif // #if XTEA_DECRYPT == 1
+	#endif // #if XTEA_DECRYPT == 1
 
 //! XTEAEncrypt converts to xtea cipher.
 //! \param p pointer to 8 byte buffer.

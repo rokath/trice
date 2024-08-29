@@ -13,19 +13,19 @@
 
 static int TriceSingleDeferredOut(uint32_t* addr);
 
-#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+	#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
-#define TRICE_RING_BUFFER_LOWER_MARGIN 8 //!< 32-bit units just for debugging > 0
-#define TRICE_RING_BUFFER_UPPER_MARGIN 8 //!< 32-bit units just for debugging > 0
-#define TRICE_RING_BUFFER_MARGIN_FILL_VALUE 0xfee4deb
+		#define TRICE_RING_BUFFER_LOWER_MARGIN 8 //!< 32-bit units just for debugging > 0
+		#define TRICE_RING_BUFFER_UPPER_MARGIN 8 //!< 32-bit units just for debugging > 0
+		#define TRICE_RING_BUFFER_MARGIN_FILL_VALUE 0xfee4deb
 
-#else
+	#else
 
-#define TRICE_RING_BUFFER_LOWER_MARGIN 0 //!< 32-bit units just for debugging > 0
-#define TRICE_RING_BUFFER_UPPER_MARGIN 0 //!< 32-bit units just for debugging > 0
-#define TRICE_RING_BUFFER_FILL_VALUE 0
+		#define TRICE_RING_BUFFER_LOWER_MARGIN 0 //!< 32-bit units just for debugging > 0
+		#define TRICE_RING_BUFFER_UPPER_MARGIN 0 //!< 32-bit units just for debugging > 0
+		#define TRICE_RING_BUFFER_FILL_VALUE 0
 
-#endif
+	#endif
 
 //! TriceRingBuffer is a kind of heap for trice messages. It needs to be initialized with 0.
 uint32_t TriceRingBuffer[TRICE_RING_BUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET >> 2) + (TRICE_DEFERRED_BUFFER_SIZE >> 2) + TRICE_RING_BUFFER_UPPER_MARGIN] = {0};
@@ -54,7 +54,7 @@ uint32_t* TriceBufferWritePosition = TriceRingBufferStart;
 uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart;
 // ARM5 #pragma  pop
 
-#if TRICE_DIAGNOSTICS == 1
+	#if TRICE_DIAGNOSTICS == 1
 
 //! SingleTricesRingCountMax holds the max count of trices occurred inside the ring buffer.
 //! This value is only informal, because the length of the trice messages is not known.
@@ -63,9 +63,9 @@ uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart;
 //! TriceRingBufferDepthMax holds the max occurred ring buffer depth.
 int TriceRingBufferDepthMax = 0;
 
-#endif // #if TRICE_DIAGNOSTICS == 1
+	#endif // #if TRICE_DIAGNOSTICS == 1
 
-#if TRICE_PROTECT == 1
+	#if TRICE_PROTECT == 1
 
 //! TriceEnoughSpace checks, if enough bytes available for the next trice.
 //! \retval 0, when not enough space
@@ -89,14 +89,14 @@ int TriceEnoughSpace(void) {
 	if (depth32 + neededSafetySpace32 <= (TRICE_DEFERRED_BUFFER_SIZE >> 2)) {
 		return 1;
 	} else {
-#if TRICE_DIAGNOSTICS == 1
+		#if TRICE_DIAGNOSTICS == 1
 		TriceDeferredOverflowCount++;
-#endif
+		#endif
 		return 0;
 	}
 }
 
-#endif // #if TRICE_PROTECT == 1
+	#endif // #if TRICE_PROTECT == 1
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET from this address.
 //! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fulfilled.
@@ -109,13 +109,13 @@ static uint32_t* triceNextRingBufferRead(int lastWordCount) {
 		TriceRingBufferReadPosition = TriceRingBufferStart;
 	}
 
-#if TRICE_DIAGNOSTICS == 1
+	#if TRICE_DIAGNOSTICS == 1
 	int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition) << 2; // lint !e845 Info 845: The left argument to operator '<<' is certain to be 0
 	if (depth < 0) {
 		depth += TRICE_DEFERRED_BUFFER_SIZE;
 	}
 	TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax;
-#endif // #if TRICE_DIAGNOSTICS == 1
+	#endif // #if TRICE_DIAGNOSTICS == 1
 
 	return TriceRingBufferReadPosition; // lint !e674 Warning 674: Returning address of auto through variable 'TriceRingBufferReadPosition'
 }
@@ -125,11 +125,11 @@ void TriceTransfer(void) {
 	if (SingleTricesRingCount == 0) { // no data
 		return;
 	}
-#if TRICE_CGO == 0         // In automated tests we assume last transmission is finished, so we do not test depth to be able to test multiple Trices in deferred mode.
+	#if TRICE_CGO == 0     // In automated tests we assume last transmission is finished, so we do not test depth to be able to test multiple Trices in deferred mode.
 	if (TriceOutDepth()) { // last transmission not finished
 		return;
 	}
-#endif
+	#endif
 	TRICE_ENTER_CRITICAL_SECTION
 	SingleTricesRingCount--;
 	TRICE_LEAVE_CRITICAL_SECTION
@@ -159,13 +159,13 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 	case TRICE_TYPE_S2:                     // S2 = 16-bit stamp
 		len = 6 + triceDataLen(pStart + 6); // tyId ts16
 		offset = 2;
-#if TRICE_DEFERRED_XTEA_ENCRYPT
+	#if TRICE_DEFERRED_XTEA_ENCRYPT
 		// move trice to start at a uint32_t alignment border
 		memmove(pStart, pStart + 2, len); // https://stackoverflow.com/questions/1201319/what-is-the-difference-between-memmove-and-memcpy
-#else                                     // #if TRICE_DEFERRED_XTEA_ENCRYPT
+	#else                                 // #if TRICE_DEFERRED_XTEA_ENCRYPT
 		// Like for UART transfer no uint32_t alignment is needed.
 		pStart += 2; // see Id(n) macro definition
-#endif                                    // #else // #if TRICE_DEFERRED_XTEA_ENCRYPT
+	#endif                                // #else // #if TRICE_DEFERRED_XTEA_ENCRYPT
 		break;
 	case TRICE_TYPE_S4: // S4 = 32-bit stamp
 		offset = 0;
@@ -208,12 +208,12 @@ static int TriceSingleDeferredOut(uint32_t* addr) {
 	// We can let TRICE_DATA_OFFSET only in front of the ring buffer and pack the Trices without offset space.
 	// And if we allow as max depth only ring buffer size minus TRICE_DATA_OFFSET, we can use space in front of each Trice.
 
-#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-#if TRICE_CONFIG_WARNINGS == 1
-#warning configuration: The Trice tool does not support encryption without COBS (or TCOBS) framing.
-#endif
+	#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+		#if TRICE_CONFIG_WARNINGS == 1
+			#warning configuration: The Trice tool does not support encryption without COBS (or TCOBS) framing.
+		#endif
 	size_t encLen = TriceEncode(TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNetStart, triceNetLength);
-#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+	#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 	// comment: The following 2 steps could be done in an incremental way within one singe loop.
 	// Behind the trice brutto length (with padding bytes), 4 bytes needed as scratch pad when XTEA is active.
 	// After TriceIDAndBuffer pTriceNetStart could have a 2 bytes offset.
@@ -222,29 +222,29 @@ static int TriceSingleDeferredOut(uint32_t* addr) {
 	size_t len8 = (triceNetLength + 7) & ~7;                // Only multiple of 8 are possible to encrypt, so we adjust len.
 	memset(tmp + triceNetLength, 0, len8 - triceNetLength); // clear padding space
 	XTEAEncrypt((uint32_t*)tmp, len8 >> 2);
-#if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
+		#if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
 	size_t encLen = (size_t)TCOBSEncode(enc, tmp, len8);
-#elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS
+		#elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS
 	size_t encLen = (size_t)COBSEncode(enc, tmp, len8);
-#else
-#error configuration
-#endif
+		#else
+			#error configuration
+		#endif
 	enc[encLen++] = 0; // Add zero as package delimiter.
-#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+	#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 	size_t len = (size_t)TCOBSEncode(enc, pTriceNetStart, triceNetLength);
 	enc[len++] = 0; // Add zero as package delimiter.
 	size_t encLen = len;
-#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+	#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 	size_t len = (size_t)COBSEncode(enc, pTriceNetStart, triceNetLength);
 	enc[len++] = 0; // Add zero as package delimiter.
 	size_t encLen = len;
-#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+	#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
 	enc = pTriceNetStart;
 	size_t encLen = triceNetLength;
-#else
-#error configuration: TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE for ring buffer not implemented yet
-#endif
-#if TRICE_DIAGNOSTICS == 1
+	#else
+		#error configuration: TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE for ring buffer not implemented yet
+	#endif
+	#if TRICE_DIAGNOSTICS == 1
 	// enc                 addr  pTriceNetStart           nextData
 	// ^-TRICE_DATA_OFFSET-^-0|2-^-triceNetLength+(0...3)-^
 	// ^-encLen->firstNotModifiedAddress
@@ -253,12 +253,12 @@ static int TriceSingleDeferredOut(uint32_t* addr) {
 	int distance = nextData - firstNotModifiedAddress;
 	int triceDataOffsetDepth = TRICE_DATA_OFFSET - distance; // distance could get > TRICE_DATA_OFFSET, so TriceDataOffsetDepthMax stays unchanged then.
 	TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
-#endif // #if TRICE_DIAGNOSTICS == 1
+	#endif // #if TRICE_DIAGNOSTICS == 1
 	TriceNonBlockingDeferredWrite8(triceID, enc, encLen);
 	return wordCount;
 }
 
-#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+	#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
 void TriceInitRingBufferMargins(void) {
 	for (int i = 0; i < TRICE_RING_BUFFER_LOWER_MARGIN; i++) {
@@ -285,6 +285,6 @@ void WatchRingBufferMargins(void) {
 	}
 }
 
-#endif // #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+	#endif // #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
