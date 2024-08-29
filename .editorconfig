@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{c,h,cpp,hpp}]
+indent_style = space
+indent_size = 4
+
+[*.{go}]
+indent_style = tab
+
+#Script
+[*.{sh,bash}]
+indent_size = 2
+end_of_line = lf
+
+#Linker script
+[*.{ld}]
+indent_size = 2
+
+# Makefile
+[{Makefile,*.mk}]
+indent_style = tab
+
+[*.{md,markdown}]
+trim_trailing_whitespace = false # Double space used for newline
