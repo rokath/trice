@@ -10,171 +10,171 @@
 // check configuration:
 
 #ifndef TRICE_DATA_OFFSET
-#error configuration: Check triceDefaultConfig.h or add "#define TRICE_DATA_OFFSET 16" to your triceConfig.h.
+	#error configuration: Check triceDefaultConfig.h or add "#define TRICE_DATA_OFFSET 16" to your triceConfig.h.
 #endif
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) && (TRICE_DIRECT_AUXILIARY32 == 1)
-#error configuration: Only one bit width for direct output is supported.
+	#error configuration: Only one bit width for direct output is supported.
 #endif
 
 #if (TRICE_DIRECT_AUXILIARY8 == 1) && (TRICE_DIRECT_AUXILIARY32 == 1)
-#error configuration: Only one bit width for direct output is supported.
+	#error configuration: Only one bit width for direct output is supported.
 #endif
 
 #if (TRICE_DIRECT_AUXILIARY8 == 1) && (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1)
-#error configuration: Only one bit width for direct output is supported.
+	#error configuration: Only one bit width for direct output is supported.
 #endif
 
 #if (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) && (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
-#error configuration: TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE not implemented: (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
+	#error configuration: TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE not implemented: (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
 #endif
 
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS) && (TRICE_CONFIG_WARNINGS == 1)
-#pragma message("configuration: XTEA with TCOBS is possible but not recommended. Encrypted data are more effective framed with COBS.")
+	#pragma message("configuration: XTEA with TCOBS is possible but not recommended. Encrypted data are more effective framed with COBS.")
 #endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS) && (TRICE_CONFIG_WARNINGS == 1)
-#pragma message("configuration: XTEA with TCOBS is possible but not recommended. Encrypted data are more effective framed with COBS.")
+	#pragma message("configuration: XTEA with TCOBS is possible but not recommended. Encrypted data are more effective framed with COBS.")
 #endif
 
 #ifndef TRICE_DEFERRED_TRANSFER_MODE
-#error configuration: Check triceDefaultConfig.h or add "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" to your triceConfig.h.
+	#error configuration: Check triceDefaultConfig.h or add "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" to your triceConfig.h.
 #endif
 
 #if (TRICE_DEFERRED_TRANSFER_MODE != TRICE_SINGLE_PACK_MODE) && (TRICE_DEFERRED_TRANSFER_MODE != TRICE_MULTI_PACK_MODE)
-#error configuration: Check TRICE_DEFERRED_TRANSFER_MODE value.
+	#error configuration: Check TRICE_DEFERRED_TRANSFER_MODE value.
 #endif
 
 #if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DATA_OFFSET < 64) && (TRICE_CONFIG_WARNINGS == 1)
-#warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
+	#warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
 #endif
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-#error configuration: (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) not implemented for (TRICE_BUFFER == TRICE_RING_BUFFER)
+	#error configuration: (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) not implemented for (TRICE_BUFFER == TRICE_RING_BUFFER)
 #endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_CONFIG_WARNINGS == 1)
-#warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
+	#warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
 #endif
 
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_CONFIG_WARNINGS == 1)
-#warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
+	#warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
 #endif
 
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_CONFIG_WARNINGS == 1)
-#warning configuration: (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) is depreciated and not fully tested. Will probably not run error free.
+	#warning configuration: (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) is depreciated and not fully tested. Will probably not run error free.
 #endif
 
 #if (TRICE_DIRECT_OUTPUT == 0) && (TRICE_DEFERRED_OUTPUT == 0)
-#error configuration: need at east one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DEFERRED_OUTPUT == 0)
+	#error configuration: need at east one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DEFERRED_OUTPUT == 0)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_RING_BUFFER)
-#error configuration: (TRICE_BUFFER == TRICE_RING_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1) or consider (TRICE_BUFFER == TRICE_STACK_BUFFER) or (TRICE_BUFFER == TRICE_STATIC_BUFFER)
+	#error configuration: (TRICE_BUFFER == TRICE_RING_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1) or consider (TRICE_BUFFER == TRICE_STACK_BUFFER) or (TRICE_BUFFER == TRICE_STATIC_BUFFER)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-#error configuration: (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1) or consider (TRICE_BUFFER == TRICE_STACK_BUFFER) or (TRICE_BUFFER == TRICE_STATIC_BUFFER)
+	#error configuration: (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 1) or consider (TRICE_BUFFER == TRICE_STACK_BUFFER) or (TRICE_BUFFER == TRICE_STATIC_BUFFER)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_BUFFER == TRICE_STACK_BUFFER)
-#error configuration: (TRICE_BUFFER == TRICE_STACK_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 0)
+	#error configuration: (TRICE_BUFFER == TRICE_STACK_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 0)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_BUFFER == TRICE_STATIC_BUFFER)
-#error configuration: (TRICE_BUFFER == TRICE_STATIC_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 0)
+	#error configuration: (TRICE_BUFFER == TRICE_STATIC_BUFFER) needs (TRICE_DEFERRED_OUTPUT == 0)
 #endif
 
 #if (TRICE_CGO == 1) && (TRICE_CYCLE_COUNTER == 1) && (TRICE_CONFIG_WARNINGS == 1)
-#warning configuration: TRICE_CGO == 1 needs TRICE_CYCLE_COUNTER == 0 for successful tests.
+	#warning configuration: TRICE_CGO == 1 needs TRICE_CYCLE_COUNTER == 0 for successful tests.
 #endif
 
 #if (TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_AUXILIARY8 == 0) && (TRICE_DIRECT_AUXILIARY32 == 0) && (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 0) && (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 0)
-#error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel
+	#error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DEFERRED_OUTPUT == 0)
-#error configuration: TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DEFERRED_OUTPUT == 1
+	#error configuration: TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DEFERRED_OUTPUT == 1
 #endif
 
 #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DIRECT_OUTPUT == 1
+	#error configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) && (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1)
-#error configuration: only one RTT output channel is possible
+	#error configuration: only one RTT output channel is possible
 #endif
 
 #if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1) && (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1)
-#error configuration: only one RTT output channel is possible
+	#error configuration: only one RTT output channel is possible
 #endif
 
 #if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1) && (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1)
-#error configuration: only one RTT output channel is possible
+	#error configuration: only one RTT output channel is possible
 #endif
 
 #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE / 2 < TRICE_BUFFER_SIZE)
-#error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
+	#error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
 #endif
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE < TRICE_BUFFER_SIZE)
-#error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
+	#error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
 #endif
 
 #if (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
+	#error configuration: TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
+	#error configuration: TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
 #if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
-#error configuration: BUFFER_SIZE_UP too small
+	#error configuration: BUFFER_SIZE_UP too small
 #endif
 
 #if (TRICE_BUFFER == TRICE_STACK_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
+	#error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
 #if (TRICE_BUFFER == TRICE_STATIC_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
-#error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
+	#error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
-#error configuration: deferred output needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
+	#error configuration: deferred output needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
 #endif
 
 #if (TRICE_DEFERRED_UARTA == 1) && !defined(TRICE_UARTA)
-#error configuration: deferred TRICE_DEFERRED_UARTA == 1 needs a defined TRICE_UARTA.
+	#error configuration: deferred TRICE_DEFERRED_UARTA == 1 needs a defined TRICE_UARTA.
 #endif
 
 #if (TRICE_DEFERRED_UARTB == 1) && !defined(TRICE_UARTA)
-#error configuration: deferred TRICE_DEFERRED_UARTB == 1 needs a defined TRICE_UARTB.
+	#error configuration: deferred TRICE_DEFERRED_UARTB == 1 needs a defined TRICE_UARTB.
 #endif
 
 #if TRICE_DATA_OFFSET & 3
-#error All size values must be a multiple of 4!
+	#error All size values must be a multiple of 4!
 #endif
 
 #if TRICE_SINGLE_MAX_SIZE & 3
-#error All size values must be a multiple of 4!
+	#error All size values must be a multiple of 4!
 #endif
 
 #if TRICE_DEFERRED_BUFFER_SIZE & 3
-#error All size values must be a multiple of 4!
+	#error All size values must be a multiple of 4!
 #endif
 
 #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
-#warning configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING is experimental
+	#warning configuration: TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING is experimental
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1)
-#warning configuration: TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING is experimental
+	#warning configuration: TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING is experimental
 #endif
 
 #if (TRICE_DIRECT_AUXILIARY8 == 1) && (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1)
-#error configuration: (TRICE_DIRECT_AUXILIARY8 == 1) allows (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) but not (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1)
+	#error configuration: (TRICE_DIRECT_AUXILIARY8 == 1) allows (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) but not (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1)
 #endif
 
 // function prototypes:
@@ -221,12 +221,12 @@ unsigned TriceSingleMaxWordCount = 0;
 //! TriceDynBufTruncateCount couts how often a dynamic buffer was truncated because it was too long.
 unsigned TriceDynBufTruncateCount = 0;
 
-#if TRICE_PROTECT == 1
+	#if TRICE_PROTECT == 1
 
 unsigned TriceDirectOverflowCount = 0;
 unsigned TriceDeferredOverflowCount = 0;
 
-#endif
+	#endif
 
 #endif
 
@@ -327,20 +327,20 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8
 	const uint8_t* dat = buf;
 	if (encrypt) {
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
-// Only multiple of 8 encryptable, but trice data are 32-bit aligned.
-// A 64-bit trice data aligning would waste RAM and costs a bit time during trice generation.
-// We need additional 4 bytes after each trice for the XTEA encryption.
-// Also, the framing could make the trice message a bit longer.
-// Therefore we copy the trice data to a place, we can use.
-// The location for XTEAEncrypt must lay on a 32-bit boundary.
-#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
+	// Only multiple of 8 encryptable, but trice data are 32-bit aligned.
+	// A 64-bit trice data aligning would waste RAM and costs a bit time during trice generation.
+	// We need additional 4 bytes after each trice for the XTEA encryption.
+	// Also, the framing could make the trice message a bit longer.
+	// Therefore we copy the trice data to a place, we can use.
+	// The location for XTEAEncrypt must lay on a 32-bit boundary.
+	#if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
 		// special case: The data can be big, are compacted and behind them is space. So we can encrypt them in space
 		dat = buf;                                    // That is also for the framing afterwards.
 		size_t len8 = (len + 7) & ~7;                 // Only multiple of 8 encryptable, so we adjust len.
 		memset(((uint8_t*)buf) + len, 0, len8 - len); // clear padding space: ATTENTION! OK only for this compiler switch setting.
 		len = len8;
 		XTEAEncrypt((uint32_t*)dat, len8 >> 2);
-#else  // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
+	#else  // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
 
 		// Let space in front for framing, free 4 bytes behind do a 32-bit align backwards.
 		// uint32_t * loc = (uint32_t *)(((unsigned)dst + TRICE_DATA_OFFSET - 4) & ~3);
@@ -356,8 +356,8 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8
 		memset(((uint8_t*)loc) + len, 0, len8 - len); // clear padding space
 		len = len8;
 		XTEAEncrypt(loc, len8 >> 2);
-#endif // #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-#endif // #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
+	#endif // #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
+#endif     // #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 	}
 	switch (framing) {
 	case TRICE_FRAMING_TCOBS:
@@ -382,18 +382,18 @@ unsigned RTT0_writeDepthMax = 0; //!< RTT0_writeDepthMax is usable for diagnosti
 
 static void triceSeggerRTTDiagnostics(void) {
 	unsigned space;
-#if TRICE_CGO == 1 // automated tests
+	#if TRICE_CGO == 1 // automated tests
 	space = TRICE_BUFFER_SIZE;
-#else
+	#else
 	space = SEGGER_RTT_GetAvailWriteSpace(0);
-#endif
+	#endif
 	int writeDepth = BUFFER_SIZE_UP - space;
-#if (TRICE_PROTECT == 1)
+	#if (TRICE_PROTECT == 1)
 	if (writeDepth < 0) { // unexpected
 		for (;;)
 			;
 	}
-#endif
+	#endif
 	unsigned wd = (unsigned)writeDepth;
 	RTT0_writeDepthMax = wd > RTT0_writeDepthMax ? wd : RTT0_writeDepthMax;
 }
@@ -404,7 +404,7 @@ static void triceSeggerRTTDiagnostics(void) {
 #define TRICE_DIRECT8 ((TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_AUXILIARY8 == 1))
 
 #if TRICE_DIRECT32 && TRICE_DIRECT8
-#error configuration
+	#error configuration
 #endif
 
 #define TRICE_DIRECT32_ONLY TRICE_DIRECT32 && ((TRICE_BUFFER == TRICE_STACK_BUFFER) || (TRICE_BUFFER == TRICE_STATIC_BUFFER)) //!< direct only output
@@ -414,39 +414,39 @@ static void triceSeggerRTTDiagnostics(void) {
 #define TRICE_DIRECT8_ALSO TRICE_DIRECT8 && ((TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER))  //!< direct and deferred output
 
 #if TRICE_DIRECT32_ONLY && TRICE_DIRECT8_ONLY
-#error configuration
+	#error configuration
 #endif
 
 #if TRICE_DIRECT32_ALSO && TRICE_DIRECT8_ALSO
-#error configuration
+	#error configuration
 #endif
 
 #if TRICE_DIRECT32_ONLY && TRICE_DIRECT8_ALSO
-#error configuration
+	#error configuration
 #endif
 
 #if TRICE_DIRECT32_ALSO && TRICE_DIRECT8_ONLY
-#error configuration
+	#error configuration
 #endif
 
 #if TRICE_DIRECT32
 
-#if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
+	#if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
 //! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
 static void SEGGER_Write_RTT0_NoCheck32(const uint32_t* pData, unsigned NumW) {
-#if TRICE_CGO == 1 // automated tests
+		#if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(pData, NumW << 2);
-#else // #if TRICE_CGO == 1
+		#else // #if TRICE_CGO == 1
 	unsigned NumWordsAtOnce;
 	unsigned WrOff;
 	unsigned RemW;
-#if TRICE_PROTECT == 1
+			#if TRICE_PROTECT == 1
 	unsigned space = SEGGER_RTT_GetAvailWriteSpace(0);
 	if (space < NumW << 2) {
 		for (;;)
 			;
 	}
-#endif
+			#endif
 	// Get "to-host" ring buffer.
 	static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF); // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
 	WrOff = pRingUp0->WrOff;
@@ -472,111 +472,111 @@ static void SEGGER_Write_RTT0_NoCheck32(const uint32_t* pData, unsigned NumW) {
 		RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
 		pRingUp0->WrOff = (NumW - RemW) << 2;
 	}
-#if TRICE_DIAGNOSTICS == 1
+			#if TRICE_DIAGNOSTICS == 1
 	triceSeggerRTTDiagnostics();
-#endif
-#endif // #else // #if TRICE_CGO == 1
+			#endif
+		#endif // #else // #if TRICE_CGO == 1
 }
-#endif // #if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
+	#endif // #if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
 
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+	#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 //! directXEncode32 transforms buf to enc and adds a 0-delimiter and padding zeroes to the next uint32 boundary.
 //! \retval count of enc values
 static unsigned directXEncode32(uint32_t* enc, const void* buf, unsigned count) {
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
+		#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
 	size_t lenX = COBSEncode(enc, buf, count << 2);
-#elif (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+		#elif (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 	size_t lenX = TCOBSEncode(enc, buf, count << 2);
-#else
-#error configuration
-#endif
+		#else
+			#error configuration
+		#endif
 	size_t len4 = (lenX + 3 + 1) & ~3; // size with padding and with packet 0-delimiter
 	int zeroesCount = len4 - lenX;
 	memset(((uint8_t*)enc) + lenX, 0, zeroesCount);
 	return len4 >> 2;
 }
-#endif // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) ||  (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+	#endif // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) ||  (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
 static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 
-#if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
-#if TRICE_PROTECT == 1
-#if TRICE_CGO == 1               // automated tests
+	#if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
+		#if TRICE_PROTECT == 1
+			#if TRICE_CGO == 1   // automated tests
 	unsigned space = count << 2; // always enough space
-#else
+			#else
 	unsigned space = SEGGER_RTT_GetAvailWriteSpace(0);
-#endif
+			#endif
 	if (space >= count << 2) {
 		SEGGER_Write_RTT0_NoCheck32(buf, count);
 	} else {
 		TriceDirectOverflowCount++;
 	}
-#else  // #if TRICE_PROTECT == 1
+		#else  // #if TRICE_PROTECT == 1
 	SEGGER_Write_RTT0_NoCheck32(buf, count);
-#endif // #else // #if TRICE_PROTECT == 1
-#if TRICE_DIAGNOSTICS == 1
+		#endif // #else // #if TRICE_PROTECT == 1
+		#if TRICE_DIAGNOSTICS == 1
 	triceSeggerRTTDiagnostics(); // todo: maybe not needed
-#endif
-#endif // #if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
+		#endif
+	#endif // #if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
 
-#if TRICE_DIRECT_AUXILIARY32 == 1
+	#if TRICE_DIRECT_AUXILIARY32 == 1
 	TriceNonBlockingDirectWrite32Auxiliary(buf, count);
-#endif // #if TRICE_DIRECT_AUXILIARY32 == 1
+	#endif // #if TRICE_DIRECT_AUXILIARY32 == 1
 }
 
 #endif // #if TRICE_DIRECT32
 
 #if TRICE_DIRECT8
 
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+	#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
 //! directXEncode transforms buf to enc and adds a 0-delimiter and padding zeroes to the next uint32 boundary.
 static size_t directXEncode8(void* enc, const void* buf, unsigned len) {
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
+		#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
 	size_t lenX = COBSEncode(enc, buf, len);
-#elif (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+		#elif (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 	size_t lenX = TCOBSEncode(enc, buf, len);
-#else
-#error configuration
-#endif
+		#else
+			#error configuration
+		#endif
 	size_t len4 = (lenX + 1 + 3) & ~3;
 	memset(enc + lenX, 0, len4 - lenX);
 	return lenX + 1;
 }
 
-#endif // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) ||  (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+	#endif // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) ||  (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
-#if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
+	#if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
 static void TriceWriteDeviceRtt0(const uint8_t* enc, size_t encLen) {
-#if TRICE_CGO == 1 // automated tests
+		#if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(enc, encLen);
-#else // #if TRICE_CGO == 1
-#if TRICE_PROTECT == 1
+		#else // #if TRICE_CGO == 1
+			#if TRICE_PROTECT == 1
 	unsigned space = SEGGER_RTT_GetAvailWriteSpace(0);
 	if (encLen <= space) {
 		SEGGER_RTT_WriteNoLock(0, enc, encLen);
 	} else {
 		TriceDirectOverflowCount++;
 	}
-#else  // #if TRICE_PROTECT == 1
+			#else  // #if TRICE_PROTECT == 1
 	SEGGER_RTT_WriteNoLock(0, enc, encLen);
-#endif // #else // #if TRICE_PROTECT == 1
-#endif // #else // #if TRICE_CGO == 1
-#if TRICE_DIAGNOSTICS == 1
+			#endif // #else // #if TRICE_PROTECT == 1
+		#endif     // #else // #if TRICE_CGO == 1
+		#if TRICE_DIAGNOSTICS == 1
 	triceSeggerRTTDiagnostics(); // todo: maybe not needed
-#endif
+		#endif
 }
 
-#endif // #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
+	#endif // #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
 static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
-#if TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1
+	#if TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1
 	TriceWriteDeviceRtt0(enc, encLen);
-#endif
-#if TRICE_DIRECT_AUXILIARY8
+	#endif
+	#if TRICE_DIRECT_AUXILIARY8
 	TriceNonBlockingDirectWrite8Auxiliary(enc, encLen);
-#endif
+	#endif
 }
 
 #endif // #if TRICE_DIRECT8
@@ -604,89 +604,89 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 	// What happens here, is similar to TriceEncode but this is time critical code and we can do in-place encoding too.
 
-#if TRICE_DIRECT32_ONLY // Space at triceStart + wordCount is usable and we can destroy the data.
+	#if TRICE_DIRECT32_ONLY // Space at triceStart + wordCount is usable and we can destroy the data.
 
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
+		#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 	triceStart[wordCount++] = 0;        // clear padding space
 	wordCount &= ~1;                    // only multiple of 8 can be encrypted
 	XTEAEncrypt(triceStart, wordCount); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
-#endif
+		#endif
 
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+		#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 	uint32_t* enc = triceStart;
 	unsigned count = wordCount;
-#else
+		#else
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // static buffer!
 	unsigned count = directXEncode32(enc, triceStart, wordCount);
-#endif
+		#endif
 	TriceDirectWrite32(enc, count);
 	return;
 
-#elif TRICE_DIRECT8_ONLY // Space at triceStart + wordCount is usable and we can destroy the data.
+	#elif TRICE_DIRECT8_ONLY // Space at triceStart + wordCount is usable and we can destroy the data.
 
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
+		#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 	triceStart[wordCount++] = 0;        // clear padding space
 	wordCount &= ~1;                    // only multiple of 8 can be encrypted
 	XTEAEncrypt(triceStart, wordCount); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
-#endif
+		#endif
 
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+		#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 	uint8_t* enc = (uint8_t*)triceStart;
 	unsigned len = wordCount << 2;
-#else
+		#else
 	static uint8_t enc[TRICE_BUFFER_SIZE];                          // stack buffer!
 	unsigned len = directXEncode8(enc, triceStart, wordCount << 2); // Up to 3 trailing zeroes are packed as well here.
-#endif
+		#endif
 	TriceDirectWrite8(enc, len);
 	return;
 
-#elif TRICE_DIRECT32_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
+	#elif TRICE_DIRECT32_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
+		#if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer!
-#endif
+		#endif
 
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
+		#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 	uint32_t* dat = enc + (TRICE_DATA_OFFSET >> 2);
 	memcpy(dat, triceStart, wordCount << 2); // Trice data are 32-bit aligned.
 	dat[wordCount++] = 0;                    // clear padding space
 	wordCount &= ~1;                         // only multiple of 8 can be encrypted
 	XTEAEncrypt(dat, wordCount);             // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
-#else
+		#else
 	uint32_t* dat = triceStart;
-#endif
+		#endif
 
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+		#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 	TriceDirectWrite32(dat, wordCount);
-#else
+		#else
 	unsigned count = directXEncode32(enc, dat, wordCount); // Up to 3 trailing zeroes are packed as well here.
 	TriceDirectWrite32(enc, count);
-#endif
+		#endif
 	return;
 
-#elif TRICE_DIRECT8_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
+	#elif TRICE_DIRECT8_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer!
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
+		#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 	uint32_t* dat = enc + (TRICE_DATA_OFFSET >> 2);
 	memcpy(dat, triceStart, wordCount << 2); // Trice data are 32-bit aligned.
 	dat[wordCount++] = 0;                    // clear padding space
 	wordCount &= ~1;                         // only multiple of 8 can be encrypted
 	XTEAEncrypt(dat, wordCount);             // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
-#else
+		#else
 	uint32_t* dat = triceStart;
-#endif
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
+		#endif
+		#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 	TriceDirectWrite8((uint8_t*)dat, wordCount << 2);
-#else
+		#else
 	unsigned len = directXEncode8(enc, dat, wordCount << 2); // Up to 3 trailing zeroes are packed as well here.
 	TriceDirectWrite8((uint8_t*)enc, len);
-#endif
+		#endif
 	return;
 
-#else //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#error configuration
-#endif //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	#else //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		#error configuration
+	#endif //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 #endif // #if TRICE_DIRECT_OUTPUT == 1
@@ -695,46 +695,46 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 // TriceNonBlockingDeferredWrite8 routes trice data to output channels.
 void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encLen) {
-#if TRICE_DEFERRED_UARTA == 1
-#if (TRICE_UARTA_MIN_ID != 0) || (TRICE_UARTA_MAX_ID != 0)
+	#if TRICE_DEFERRED_UARTA == 1
+		#if (TRICE_UARTA_MIN_ID != 0) || (TRICE_UARTA_MAX_ID != 0)
 	if ((TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID))
-#else
+		#else
 	TRICE_UNUSED(triceID)
-#endif
+		#endif
 	{
 		TriceNonBlockingWriteUartA(enc, encLen);
 	}
-#endif
-#if TRICE_DEFERRED_UARTB == 1
-#if (TRICE_UARTB_MIN_ID != 0) && (TRICE_UARTB_MAX_ID != 0)
+	#endif
+	#if TRICE_DEFERRED_UARTB == 1
+		#if (TRICE_UARTB_MIN_ID != 0) && (TRICE_UARTB_MAX_ID != 0)
 	if ((TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID))
-#else
+		#else
 	TRICE_UNUSED(triceID)
-#endif
+		#endif
 	{
 		TriceNonBlockingWriteUartB(enc, encLen);
 	}
-#endif
-#if (TRICE_DEFERRED_AUXILIARY8 == 1)
-#if defined(TRICE_DEFERRED_AUXILIARY8_MIN_ID) && defined(TRICE_DEFERRED_AUXILIARY8_MAX_ID)
+	#endif
+	#if (TRICE_DEFERRED_AUXILIARY8 == 1)
+		#if defined(TRICE_DEFERRED_AUXILIARY8_MIN_ID) && defined(TRICE_DEFERRED_AUXILIARY8_MAX_ID)
 	if ((TRICE_DEFERRED_AUXILIARY8_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_AUXILIARY8_MAX_ID))
-#else
+		#else
 	TRICE_UNUSED(triceID)
-#endif
+		#endif
 	{
 		TriceNonBlockingDeferredWrite8Auxiliary(enc, encLen);
 	}
-#endif
-#if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
-#if defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID) && defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID)
+	#endif
+	#if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
+		#if defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID) && defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID)
 	if ((TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID))
-#else
+		#else
 	TRICE_UNUSED(triceID)
-#endif
+		#endif
 	{
 		TriceWriteDeviceRtt0(enc, encLen);
 	}
-#endif
+	#endif
 	//  #if TRICE_LOG_OVER_MODBUS_FUNC24_ALSO == 1
 	//      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
 	//      if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
@@ -775,13 +775,13 @@ unsigned TriceOutDepth(void) {
 #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
-//! TRICE_ASSERT writes trice data as fast as possible in a buffer.
-//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! This is a helper macro and should not be used in user code.
-#define TRICE_ASSERT(tid) \
-	TRICE_ENTER tid;      \
-	TRICE_CNTC(0);        \
-	TRICE_LEAVE
+    //! TRICE_ASSERT writes trice data as fast as possible in a buffer.
+    //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+    //! This is a helper macro and should not be used in user code.
+	#define TRICE_ASSERT(tid) \
+		TRICE_ENTER tid;      \
+		TRICE_CNTC(0);        \
+		TRICE_LEAVE
 
 void triceAssertTrue(int idN, char* msg, int flag) {
 	TRICE_UNUSED(msg)

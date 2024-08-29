@@ -86,100 +86,100 @@ Additional information:
  */
 
 #if SEGGER_RTT_CPU_CACHE_LINE_SIZE
-#ifdef SEGGER_RTT_CB_ALIGN
-#error "Custom SEGGER_RTT_CB_ALIGN() is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
-#endif
-#ifdef SEGGER_RTT_BUFFER_ALIGN
-#error "Custom SEGGER_RTT_BUFFER_ALIGN() is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
-#endif
-#ifdef SEGGER_RTT_PUT_CB_SECTION
-#error "Custom SEGGER_RTT_PUT_CB_SECTION() is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
-#endif
-#ifdef SEGGER_RTT_PUT_BUFFER_SECTION
-#error "Custom SEGGER_RTT_PUT_BUFFER_SECTION() is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
-#endif
-#ifdef SEGGER_RTT_BUFFER_ALIGNMENT
-#error "Custom SEGGER_RTT_BUFFER_ALIGNMENT is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
-#endif
-#ifdef SEGGER_RTT_ALIGNMENT
-#error "Custom SEGGER_RTT_ALIGNMENT is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
-#endif
+	#ifdef SEGGER_RTT_CB_ALIGN
+		#error "Custom SEGGER_RTT_CB_ALIGN() is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
+	#endif
+	#ifdef SEGGER_RTT_BUFFER_ALIGN
+		#error "Custom SEGGER_RTT_BUFFER_ALIGN() is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
+	#endif
+	#ifdef SEGGER_RTT_PUT_CB_SECTION
+		#error "Custom SEGGER_RTT_PUT_CB_SECTION() is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
+	#endif
+	#ifdef SEGGER_RTT_PUT_BUFFER_SECTION
+		#error "Custom SEGGER_RTT_PUT_BUFFER_SECTION() is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
+	#endif
+	#ifdef SEGGER_RTT_BUFFER_ALIGNMENT
+		#error "Custom SEGGER_RTT_BUFFER_ALIGNMENT is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
+	#endif
+	#ifdef SEGGER_RTT_ALIGNMENT
+		#error "Custom SEGGER_RTT_ALIGNMENT is not supported for SEGGER_RTT_CPU_CACHE_LINE_SIZE != 0"
+	#endif
 #endif
 
 #ifndef BUFFER_SIZE_UP
-#define BUFFER_SIZE_UP 1024 // Size of the buffer for terminal output of target, up to host
+	#define BUFFER_SIZE_UP 1024 // Size of the buffer for terminal output of target, up to host
 #endif
 
 #ifndef BUFFER_SIZE_DOWN
-#define BUFFER_SIZE_DOWN 16 // Size of the buffer for terminal input to target from host (Usually keyboard input)
+	#define BUFFER_SIZE_DOWN 16 // Size of the buffer for terminal input to target from host (Usually keyboard input)
 #endif
 
 #ifndef SEGGER_RTT_MAX_NUM_UP_BUFFERS
-#define SEGGER_RTT_MAX_NUM_UP_BUFFERS 2 // Number of up-buffers (T->H) available on this target
+	#define SEGGER_RTT_MAX_NUM_UP_BUFFERS 2 // Number of up-buffers (T->H) available on this target
 #endif
 
 #ifndef SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
-#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS 2 // Number of down-buffers (H->T) available on this target
+	#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS 2 // Number of down-buffers (H->T) available on this target
 #endif
 
 #ifndef SEGGER_RTT_BUFFER_SECTION
-#if defined(SEGGER_RTT_SECTION)
-#define SEGGER_RTT_BUFFER_SECTION SEGGER_RTT_SECTION
-#endif
+	#if defined(SEGGER_RTT_SECTION)
+		#define SEGGER_RTT_BUFFER_SECTION SEGGER_RTT_SECTION
+	#endif
 #endif
 
 #ifndef SEGGER_RTT_ALIGNMENT
-#define SEGGER_RTT_ALIGNMENT SEGGER_RTT_CPU_CACHE_LINE_SIZE
+	#define SEGGER_RTT_ALIGNMENT SEGGER_RTT_CPU_CACHE_LINE_SIZE
 #endif
 
 #ifndef SEGGER_RTT_BUFFER_ALIGNMENT
-#define SEGGER_RTT_BUFFER_ALIGNMENT SEGGER_RTT_CPU_CACHE_LINE_SIZE
+	#define SEGGER_RTT_BUFFER_ALIGNMENT SEGGER_RTT_CPU_CACHE_LINE_SIZE
 #endif
 
 #ifndef SEGGER_RTT_MODE_DEFAULT
-#define SEGGER_RTT_MODE_DEFAULT SEGGER_RTT_MODE_NO_BLOCK_SKIP
+	#define SEGGER_RTT_MODE_DEFAULT SEGGER_RTT_MODE_NO_BLOCK_SKIP
 #endif
 
 #ifndef SEGGER_RTT_LOCK
-#define SEGGER_RTT_LOCK()
+	#define SEGGER_RTT_LOCK()
 #endif
 
 #ifndef SEGGER_RTT_UNLOCK
-#define SEGGER_RTT_UNLOCK()
+	#define SEGGER_RTT_UNLOCK()
 #endif
 
 #ifndef STRLEN
-#define STRLEN(a) strlen((a))
+	#define STRLEN(a) strlen((a))
 #endif
 
 #ifndef STRCPY
-#define STRCPY(pDest, pSrc) strcpy((pDest), (pSrc))
+	#define STRCPY(pDest, pSrc) strcpy((pDest), (pSrc))
 #endif
 
 #ifndef SEGGER_RTT_MEMCPY_USE_BYTELOOP
-#define SEGGER_RTT_MEMCPY_USE_BYTELOOP 0
+	#define SEGGER_RTT_MEMCPY_USE_BYTELOOP 0
 #endif
 
 #ifndef SEGGER_RTT_MEMCPY
-#ifdef MEMCPY
-#define SEGGER_RTT_MEMCPY(pDest, pSrc, NumBytes) MEMCPY((pDest), (pSrc), (NumBytes))
-#else
-#define SEGGER_RTT_MEMCPY(pDest, pSrc, NumBytes) memcpy((pDest), (pSrc), (NumBytes))
-#endif
+	#ifdef MEMCPY
+		#define SEGGER_RTT_MEMCPY(pDest, pSrc, NumBytes) MEMCPY((pDest), (pSrc), (NumBytes))
+	#else
+		#define SEGGER_RTT_MEMCPY(pDest, pSrc, NumBytes) memcpy((pDest), (pSrc), (NumBytes))
+	#endif
 #endif
 
 #ifndef MIN
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+	#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifndef MAX
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+	#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 //
 // For some environments, NULL may not be defined until certain headers are included
 //
 #ifndef NULL
-#define NULL 0
+	#define NULL 0
 #endif
 
 /*********************************************************************
@@ -189,64 +189,64 @@ Additional information:
  **********************************************************************
  */
 #if (defined __ICCARM__) || (defined __ICCRX__)
-#define RTT_PRAGMA(P) _Pragma(#P)
+	#define RTT_PRAGMA(P) _Pragma(#P)
 #endif
 
 #if SEGGER_RTT_ALIGNMENT || SEGGER_RTT_BUFFER_ALIGNMENT
-#if ((defined __GNUC__) || (defined __clang__))
-#define SEGGER_RTT_ALIGN(Var, Alignment) Var __attribute__((aligned(Alignment)))
-#elif (defined __ICCARM__) || (defined __ICCRX__)
-#define PRAGMA(A) _Pragma(#A)
-#define SEGGER_RTT_ALIGN(Var, Alignment)   \
-	RTT_PRAGMA(data_alignment = Alignment) \
-	Var
-#elif (defined __CC_ARM)
-#define SEGGER_RTT_ALIGN(Var, Alignment) Var __attribute__((aligned(Alignment)))
+	#if ((defined __GNUC__) || (defined __clang__))
+		#define SEGGER_RTT_ALIGN(Var, Alignment) Var __attribute__((aligned(Alignment)))
+	#elif (defined __ICCARM__) || (defined __ICCRX__)
+		#define PRAGMA(A) _Pragma(#A)
+		#define SEGGER_RTT_ALIGN(Var, Alignment)   \
+			RTT_PRAGMA(data_alignment = Alignment) \
+			Var
+	#elif (defined __CC_ARM)
+		#define SEGGER_RTT_ALIGN(Var, Alignment) Var __attribute__((aligned(Alignment)))
+	#else
+		#error "Alignment not supported for this compiler."
+	#endif
 #else
-#error "Alignment not supported for this compiler."
-#endif
-#else
-#define SEGGER_RTT_ALIGN(Var, Alignment) Var
+	#define SEGGER_RTT_ALIGN(Var, Alignment) Var
 #endif
 
 #if defined(SEGGER_RTT_SECTION) || defined(SEGGER_RTT_BUFFER_SECTION)
-#if ((defined __GNUC__) || (defined __clang__))
-#define SEGGER_RTT_PUT_SECTION(Var, Section) __attribute__((section(Section))) Var
-#elif (defined __ICCARM__) || (defined __ICCRX__)
-#define SEGGER_RTT_PUT_SECTION(Var, Section) \
-	RTT_PRAGMA(location = Section)           \
-	Var
-#elif (defined __CC_ARM)
-#define SEGGER_RTT_PUT_SECTION(Var, Section) __attribute__((section(Section), zero_init)) Var
+	#if ((defined __GNUC__) || (defined __clang__))
+		#define SEGGER_RTT_PUT_SECTION(Var, Section) __attribute__((section(Section))) Var
+	#elif (defined __ICCARM__) || (defined __ICCRX__)
+		#define SEGGER_RTT_PUT_SECTION(Var, Section) \
+			RTT_PRAGMA(location = Section)           \
+			Var
+	#elif (defined __CC_ARM)
+		#define SEGGER_RTT_PUT_SECTION(Var, Section) __attribute__((section(Section), zero_init)) Var
+	#else
+		#error "Section placement not supported for this compiler."
+	#endif
 #else
-#error "Section placement not supported for this compiler."
-#endif
-#else
-#define SEGGER_RTT_PUT_SECTION(Var, Section) Var
+	#define SEGGER_RTT_PUT_SECTION(Var, Section) Var
 #endif
 
 #if SEGGER_RTT_ALIGNMENT
-#define SEGGER_RTT_CB_ALIGN(Var) SEGGER_RTT_ALIGN(Var, SEGGER_RTT_ALIGNMENT)
+	#define SEGGER_RTT_CB_ALIGN(Var) SEGGER_RTT_ALIGN(Var, SEGGER_RTT_ALIGNMENT)
 #else
-#define SEGGER_RTT_CB_ALIGN(Var) Var
+	#define SEGGER_RTT_CB_ALIGN(Var) Var
 #endif
 
 #if SEGGER_RTT_BUFFER_ALIGNMENT
-#define SEGGER_RTT_BUFFER_ALIGN(Var) SEGGER_RTT_ALIGN(Var, SEGGER_RTT_BUFFER_ALIGNMENT)
+	#define SEGGER_RTT_BUFFER_ALIGN(Var) SEGGER_RTT_ALIGN(Var, SEGGER_RTT_BUFFER_ALIGNMENT)
 #else
-#define SEGGER_RTT_BUFFER_ALIGN(Var) Var
+	#define SEGGER_RTT_BUFFER_ALIGN(Var) Var
 #endif
 
 #if defined(SEGGER_RTT_SECTION)
-#define SEGGER_RTT_PUT_CB_SECTION(Var) SEGGER_RTT_PUT_SECTION(Var, SEGGER_RTT_SECTION)
+	#define SEGGER_RTT_PUT_CB_SECTION(Var) SEGGER_RTT_PUT_SECTION(Var, SEGGER_RTT_SECTION)
 #else
-#define SEGGER_RTT_PUT_CB_SECTION(Var) Var
+	#define SEGGER_RTT_PUT_CB_SECTION(Var) Var
 #endif
 
 #if defined(SEGGER_RTT_BUFFER_SECTION)
-#define SEGGER_RTT_PUT_BUFFER_SECTION(Var) SEGGER_RTT_PUT_SECTION(Var, SEGGER_RTT_BUFFER_SECTION)
+	#define SEGGER_RTT_PUT_BUFFER_SECTION(Var) SEGGER_RTT_PUT_SECTION(Var, SEGGER_RTT_BUFFER_SECTION)
 #else
-#define SEGGER_RTT_PUT_BUFFER_SECTION(Var) Var
+	#define SEGGER_RTT_PUT_BUFFER_SECTION(Var) Var
 #endif
 
 /*********************************************************************
@@ -269,13 +269,13 @@ static unsigned char _aTerminalId[16] = {'0', '1', '2', '3', '4', '5', '6', '7',
 // RTT Control Block and allocate buffers for channel 0
 //
 #if SEGGER_RTT_CPU_CACHE_LINE_SIZE
-#if ((defined __GNUC__) || (defined __clang__))
+	#if ((defined __GNUC__) || (defined __clang__))
 SEGGER_RTT_CB _SEGGER_RTT __attribute__((aligned(SEGGER_RTT_CPU_CACHE_LINE_SIZE)));
 static char _acUpBuffer[SEGGER_RTT__ROUND_UP_2_CACHE_LINE_SIZE(BUFFER_SIZE_UP)] __attribute__((aligned(SEGGER_RTT_CPU_CACHE_LINE_SIZE)));
 static char _acDownBuffer[SEGGER_RTT__ROUND_UP_2_CACHE_LINE_SIZE(BUFFER_SIZE_DOWN)] __attribute__((aligned(SEGGER_RTT_CPU_CACHE_LINE_SIZE)));
-#else
-#error "Don't know how to place _SEGGER_RTT, _acUpBuffer, _acDownBuffer cache-line aligned"
-#endif
+	#else
+		#error "Don't know how to place _SEGGER_RTT, _acUpBuffer, _acDownBuffer cache-line aligned"
+	#endif
 #else
 SEGGER_RTT_PUT_CB_SECTION(SEGGER_RTT_CB_ALIGN(SEGGER_RTT_CB _SEGGER_RTT));
 SEGGER_RTT_PUT_BUFFER_SECTION(SEGGER_RTT_BUFFER_ALIGN(static char _acUpBuffer[BUFFER_SIZE_UP]));
