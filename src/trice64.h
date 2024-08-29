@@ -21,9 +21,9 @@
 //! TRICE64_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //!  It is usable for showing n 64-bit values.
 #define TRICE64_B(id, pFmt, buf, n)    \
-    do {                               \
-        TRICE_N(id, pFmt, buf, 8 * n); \
-    } while (0)
+	do {                               \
+		TRICE_N(id, pFmt, buf, 8 * n); \
+	} while (0)
 
 //! TRICE64_F expects inside pFmt just a string which is assumed to be a remote function name.
 //!  The trice tool displays the pFmt string followed by n times (64-bit value i).
@@ -35,300 +35,300 @@
 #define TRICE_PUT64_1(v0) TRICE_PUT64(v0);
 
 #define TRICE_PUT64_2(v0, v1) \
-    TRICE_PUT64(v0);          \
-    TRICE_PUT64(v1);
+	TRICE_PUT64(v0);          \
+	TRICE_PUT64(v1);
 
 #define TRICE_PUT64_3(v0, v1, v2) \
-    TRICE_PUT64(v0);              \
-    TRICE_PUT64(v1);              \
-    TRICE_PUT64(v2);
+	TRICE_PUT64(v0);              \
+	TRICE_PUT64(v1);              \
+	TRICE_PUT64(v2);
 
 #define TRICE_PUT64_4(v0, v1, v2, v3) \
-    TRICE_PUT64(v0);                  \
-    TRICE_PUT64(v1);                  \
-    TRICE_PUT64(v2);                  \
-    TRICE_PUT64(v3);
+	TRICE_PUT64(v0);                  \
+	TRICE_PUT64(v1);                  \
+	TRICE_PUT64(v2);                  \
+	TRICE_PUT64(v3);
 
 #define TRICE_PUT64_5(v0, v1, v2, v3, v4) \
-    TRICE_PUT64(v0);                      \
-    TRICE_PUT64(v1);                      \
-    TRICE_PUT64(v2);                      \
-    TRICE_PUT64(v3);                      \
-    TRICE_PUT64(v4);
+	TRICE_PUT64(v0);                      \
+	TRICE_PUT64(v1);                      \
+	TRICE_PUT64(v2);                      \
+	TRICE_PUT64(v3);                      \
+	TRICE_PUT64(v4);
 
 #define TRICE_PUT64_6(v0, v1, v2, v3, v4, v5) \
-    TRICE_PUT64(v0);                          \
-    TRICE_PUT64(v1);                          \
-    TRICE_PUT64(v2);                          \
-    TRICE_PUT64(v3);                          \
-    TRICE_PUT64(v4);                          \
-    TRICE_PUT64(v5);
+	TRICE_PUT64(v0);                          \
+	TRICE_PUT64(v1);                          \
+	TRICE_PUT64(v2);                          \
+	TRICE_PUT64(v3);                          \
+	TRICE_PUT64(v4);                          \
+	TRICE_PUT64(v5);
 
 #define TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6) \
-    TRICE_PUT64(v0);                              \
-    TRICE_PUT64(v1);                              \
-    TRICE_PUT64(v2);                              \
-    TRICE_PUT64(v3);                              \
-    TRICE_PUT64(v4);                              \
-    TRICE_PUT64(v5);                              \
-    TRICE_PUT64(v6);
+	TRICE_PUT64(v0);                              \
+	TRICE_PUT64(v1);                              \
+	TRICE_PUT64(v2);                              \
+	TRICE_PUT64(v3);                              \
+	TRICE_PUT64(v4);                              \
+	TRICE_PUT64(v5);                              \
+	TRICE_PUT64(v6);
 
 #define TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7) \
-    TRICE_PUT64(v0);                                  \
-    TRICE_PUT64(v1);                                  \
-    TRICE_PUT64(v2);                                  \
-    TRICE_PUT64(v3);                                  \
-    TRICE_PUT64(v4);                                  \
-    TRICE_PUT64(v5);                                  \
-    TRICE_PUT64(v6);                                  \
-    TRICE_PUT64(v7);
+	TRICE_PUT64(v0);                                  \
+	TRICE_PUT64(v1);                                  \
+	TRICE_PUT64(v2);                                  \
+	TRICE_PUT64(v3);                                  \
+	TRICE_PUT64(v4);                                  \
+	TRICE_PUT64(v5);                                  \
+	TRICE_PUT64(v6);                                  \
+	TRICE_PUT64(v7);
 
 #define TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8) \
-    TRICE_PUT64(v0);                                      \
-    TRICE_PUT64(v1);                                      \
-    TRICE_PUT64(v2);                                      \
-    TRICE_PUT64(v3);                                      \
-    TRICE_PUT64(v4);                                      \
-    TRICE_PUT64(v5);                                      \
-    TRICE_PUT64(v6);                                      \
-    TRICE_PUT64(v7);                                      \
-    TRICE_PUT64(v8);
+	TRICE_PUT64(v0);                                      \
+	TRICE_PUT64(v1);                                      \
+	TRICE_PUT64(v2);                                      \
+	TRICE_PUT64(v3);                                      \
+	TRICE_PUT64(v4);                                      \
+	TRICE_PUT64(v5);                                      \
+	TRICE_PUT64(v6);                                      \
+	TRICE_PUT64(v7);                                      \
+	TRICE_PUT64(v8);
 
 #define TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) \
-    TRICE_PUT64(v0);                                           \
-    TRICE_PUT64(v1);                                           \
-    TRICE_PUT64(v2);                                           \
-    TRICE_PUT64(v3);                                           \
-    TRICE_PUT64(v4);                                           \
-    TRICE_PUT64(v5);                                           \
-    TRICE_PUT64(v6);                                           \
-    TRICE_PUT64(v7);                                           \
-    TRICE_PUT64(v8);                                           \
-    TRICE_PUT64(v9);
+	TRICE_PUT64(v0);                                           \
+	TRICE_PUT64(v1);                                           \
+	TRICE_PUT64(v2);                                           \
+	TRICE_PUT64(v3);                                           \
+	TRICE_PUT64(v4);                                           \
+	TRICE_PUT64(v5);                                           \
+	TRICE_PUT64(v6);                                           \
+	TRICE_PUT64(v7);                                           \
+	TRICE_PUT64(v8);                                           \
+	TRICE_PUT64(v9);
 
 #define TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) \
-    TRICE_PUT64(v0);                                                \
-    TRICE_PUT64(v1);                                                \
-    TRICE_PUT64(v2);                                                \
-    TRICE_PUT64(v3);                                                \
-    TRICE_PUT64(v4);                                                \
-    TRICE_PUT64(v5);                                                \
-    TRICE_PUT64(v6);                                                \
-    TRICE_PUT64(v7);                                                \
-    TRICE_PUT64(v8);                                                \
-    TRICE_PUT64(v9);                                                \
-    TRICE_PUT64(v10);
+	TRICE_PUT64(v0);                                                \
+	TRICE_PUT64(v1);                                                \
+	TRICE_PUT64(v2);                                                \
+	TRICE_PUT64(v3);                                                \
+	TRICE_PUT64(v4);                                                \
+	TRICE_PUT64(v5);                                                \
+	TRICE_PUT64(v6);                                                \
+	TRICE_PUT64(v7);                                                \
+	TRICE_PUT64(v8);                                                \
+	TRICE_PUT64(v9);                                                \
+	TRICE_PUT64(v10);
 
 #define TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) \
-    TRICE_PUT64(v0);                                                     \
-    TRICE_PUT64(v1);                                                     \
-    TRICE_PUT64(v2);                                                     \
-    TRICE_PUT64(v3);                                                     \
-    TRICE_PUT64(v4);                                                     \
-    TRICE_PUT64(v5);                                                     \
-    TRICE_PUT64(v6);                                                     \
-    TRICE_PUT64(v7);                                                     \
-    TRICE_PUT64(v8);                                                     \
-    TRICE_PUT64(v9);                                                     \
-    TRICE_PUT64(v10);                                                    \
-    TRICE_PUT64(v11);
+	TRICE_PUT64(v0);                                                     \
+	TRICE_PUT64(v1);                                                     \
+	TRICE_PUT64(v2);                                                     \
+	TRICE_PUT64(v3);                                                     \
+	TRICE_PUT64(v4);                                                     \
+	TRICE_PUT64(v5);                                                     \
+	TRICE_PUT64(v6);                                                     \
+	TRICE_PUT64(v7);                                                     \
+	TRICE_PUT64(v8);                                                     \
+	TRICE_PUT64(v9);                                                     \
+	TRICE_PUT64(v10);                                                    \
+	TRICE_PUT64(v11);
 
 //! TRICE64_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRICE64_0(tid, pFmt) \
-    TRICE_ENTER tid;         \
-    TRICE_CNTC(0);           \
-    TRICE_LEAVE
+	TRICE_ENTER tid;         \
+	TRICE_CNTC(0);           \
+	TRICE_LEAVE
 
 //! TRICE64_1 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 64 bit value
 #define TRICE64_1(tid, pFmt, v0) \
-    TRICE_ENTER tid;             \
-    TRICE_CNTC(8);               \
-    TRICE_PUT64_1(v0)            \
-    TRICE_LEAVE
+	TRICE_ENTER tid;             \
+	TRICE_CNTC(8);               \
+	TRICE_PUT64_1(v0)            \
+	TRICE_LEAVE
 
 //! TRICE64_2 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v1 are 64 bit values
 #define TRICE64_2(id, pFmt, v0, v1) \
-    TRICE_ENTER id;                 \
-    TRICE_CNTC(16);                 \
-    TRICE_PUT64_2(v0, v1);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                 \
+	TRICE_CNTC(16);                 \
+	TRICE_PUT64_2(v0, v1);          \
+	TRICE_LEAVE
 
 //! TRICE64_3 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v2 are 64 bit values
 #define TRICE64_3(id, pFmt, v0, v1, v2) \
-    TRICE_ENTER id;                     \
-    TRICE_CNTC(24);                     \
-    TRICE_PUT64_3(v0, v1, v2);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                     \
+	TRICE_CNTC(24);                     \
+	TRICE_PUT64_3(v0, v1, v2);          \
+	TRICE_LEAVE
 
 //! TRICE64_4 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v3 are 64 bit values
 #define TRICE64_4(id, pFmt, v0, v1, v2, v3) \
-    TRICE_ENTER id;                         \
-    TRICE_CNTC(32);                         \
-    TRICE_PUT64_4(v0, v1, v2, v3);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                         \
+	TRICE_CNTC(32);                         \
+	TRICE_PUT64_4(v0, v1, v2, v3);          \
+	TRICE_LEAVE
 
 //! TRICE64_5 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v4 are 64 bit values
 #define TRICE64_5(id, pFmt, v0, v1, v2, v3, v4) \
-    TRICE_ENTER id;                             \
-    TRICE_CNTC(40);                             \
-    TRICE_PUT64_5(v0, v1, v2, v3, v4);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                             \
+	TRICE_CNTC(40);                             \
+	TRICE_PUT64_5(v0, v1, v2, v3, v4);          \
+	TRICE_LEAVE
 
 //! TRICE64_6 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v5 are 64 bit values
 #define TRICE64_6(id, pFmt, v0, v1, v2, v3, v4, v5) \
-    TRICE_ENTER id;                                 \
-    TRICE_CNTC(48);                                 \
-    TRICE_PUT64_6(v0, v1, v2, v3, v4, v5);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                                 \
+	TRICE_CNTC(48);                                 \
+	TRICE_PUT64_6(v0, v1, v2, v3, v4, v5);          \
+	TRICE_LEAVE
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v6 are 64 bit values
 #define TRICE64_7(id, pFmt, v0, v1, v2, v3, v4, v5, v6) \
-    TRICE_ENTER id;                                     \
-    TRICE_CNTC(56);                                     \
-    TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                                     \
+	TRICE_CNTC(56);                                     \
+	TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6);          \
+	TRICE_LEAVE
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 64 bit values
 #define TRICE64_8(id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7) \
-    TRICE_ENTER id;                                         \
-    TRICE_CNTC(64);                                         \
-    TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                                         \
+	TRICE_CNTC(64);                                         \
+	TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7);          \
+	TRICE_LEAVE
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 64 bit values
 #define TRICE64_9(id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) \
-    TRICE_ENTER id;                                             \
-    TRICE_CNTC(72);                                             \
-    TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                                             \
+	TRICE_CNTC(72);                                             \
+	TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8);          \
+	TRICE_LEAVE
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 64 bit values
 #define TRICE64_10(id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) \
-    TRICE_ENTER id;                                                  \
-    TRICE_CNTC(80);                                                  \
-    TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                                                  \
+	TRICE_CNTC(80);                                                  \
+	TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);          \
+	TRICE_LEAVE
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v7 are 64 bit values
 #define TRICE64_11(id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) \
-    TRICE_ENTER id;                                                       \
-    TRICE_CNTC(88);                                                       \
-    TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);          \
-    TRICE_LEAVE
+	TRICE_ENTER id;                                                       \
+	TRICE_CNTC(88);                                                       \
+	TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);          \
+	TRICE_LEAVE
 
 //! TRICE64_12 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v11 are 64 bit values
 #define TRICE64_12(id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) \
-    TRICE_ENTER id;                                                            \
-    TRICE_CNTC(96);                                                            \
-    TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)           \
-    TRICE_LEAVE
+	TRICE_ENTER id;                                                            \
+	TRICE_CNTC(96);                                                            \
+	TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)           \
+	TRICE_LEAVE
 
 //! trice64m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define trice64m_0(tid)                                              \
-    TRICE_ENTER                                                      \
-    TRICE_PUT((0 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_LEAVE
+	TRICE_ENTER                                                      \
+	TRICE_PUT((0 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_LEAVE
 
 //! trice64m_1 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 64 bit value
 #define trice64m_1(tid, v0)                                          \
-    TRICE_ENTER                                                      \
-    TRICE_PUT((8 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_1(v0)                                                \
-    TRICE_LEAVE
+	TRICE_ENTER                                                      \
+	TRICE_PUT((8 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_1(v0)                                                \
+	TRICE_LEAVE
 
 #define trice64m_2(tid, v0, v1)                                       \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((16 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_2(v0, v1);                                            \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((16 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_2(v0, v1);                                            \
+	TRICE_LEAVE
 
 #define trice64m_3(tid, v0, v1, v2)                                   \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((24 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_3(v0, v1, v2);                                        \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((24 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_3(v0, v1, v2);                                        \
+	TRICE_LEAVE
 
 #define trice64m_4(tid, v0, v1, v2, v3)                               \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((32 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_4(v0, v1, v2, v3);                                    \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((32 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_4(v0, v1, v2, v3);                                    \
+	TRICE_LEAVE
 
 #define trice64m_5(tid, v0, v1, v2, v3, v4)                           \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((40 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_5(v0, v1, v2, v3, v4);                                \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((40 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_5(v0, v1, v2, v3, v4);                                \
+	TRICE_LEAVE
 
 #define trice64m_6(tid, v0, v1, v2, v3, v4, v5)                       \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((48 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_6(v0, v1, v2, v3, v4, v5);                            \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((48 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_6(v0, v1, v2, v3, v4, v5);                            \
+	TRICE_LEAVE
 
 #define trice64m_7(tid, v0, v1, v2, v3, v4, v5, v6)                   \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((56 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6);                        \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((56 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6);                        \
+	TRICE_LEAVE
 
 #define trice64m_8(tid, v0, v1, v2, v3, v4, v5, v6, v7)               \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((64 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7);                    \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((64 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7);                    \
+	TRICE_LEAVE
 
 #define trice64m_9(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8)           \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((72 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8);                \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((72 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8);                \
+	TRICE_LEAVE
 
 #define trice64m_10(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)      \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((80 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);           \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((80 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);           \
+	TRICE_LEAVE
 
 #define trice64m_11(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) \
-    TRICE_ENTER                                                       \
-    TRICE_PUT((88 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
-    TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	TRICE_PUT((88 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid))); \
+	TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);      \
+	TRICE_LEAVE
 
 #define trice64m_12(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) \
-    TRICE_ENTER                                                            \
-    TRICE_PUT((96 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid)));      \
-    TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
-    TRICE_LEAVE
+	TRICE_ENTER                                                            \
+	TRICE_PUT((96 << 24) | ((TRICE_CYCLE) << 16) | (0x4000 | (tid)));      \
+	TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
+	TRICE_LEAVE
 
 #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
@@ -379,110 +379,110 @@ void trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 #define Trice64m_0(tid)                        \
-    TRICE_ENTER                                \
-    uint16_t ts = TriceStamp16;                \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid); \
-    TRICE_PUT((TRICE_CYCLE << 16) | ts);       \
-    TRICE_LEAVE
+	TRICE_ENTER                                \
+	uint16_t ts = TriceStamp16;                \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid); \
+	TRICE_PUT((TRICE_CYCLE << 16) | ts);       \
+	TRICE_LEAVE
 
 //! Trice64m_1 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 64 bit value
 #define Trice64m_1(tid, v0)                        \
-    TRICE_ENTER                                    \
-    uint16_t ts = TriceStamp16;                    \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);     \
-    TRICE_PUT(8 << 24 | (TRICE_CYCLE << 16) | ts); \
-    TRICE_PUT64_1(v0)                              \
-    TRICE_LEAVE
+	TRICE_ENTER                                    \
+	uint16_t ts = TriceStamp16;                    \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);     \
+	TRICE_PUT(8 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT64_1(v0)                              \
+	TRICE_LEAVE
 
 #define Trice64m_2(tid, v0, v1)                     \
-    TRICE_ENTER                                     \
-    uint16_t ts = TriceStamp16;                     \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
-    TRICE_PUT(16 << 24 | (TRICE_CYCLE << 16) | ts); \
-    TRICE_PUT64_2(v0, v1);                          \
-    TRICE_LEAVE
+	TRICE_ENTER                                     \
+	uint16_t ts = TriceStamp16;                     \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
+	TRICE_PUT(16 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT64_2(v0, v1);                          \
+	TRICE_LEAVE
 
 #define Trice64m_3(tid, v0, v1, v2)                 \
-    TRICE_ENTER                                     \
-    uint16_t ts = TriceStamp16;                     \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
-    TRICE_PUT(24 << 24 | (TRICE_CYCLE << 16) | ts); \
-    TRICE_PUT64_3(v0, v1, v2);                      \
-    TRICE_LEAVE
+	TRICE_ENTER                                     \
+	uint16_t ts = TriceStamp16;                     \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
+	TRICE_PUT(24 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT64_3(v0, v1, v2);                      \
+	TRICE_LEAVE
 
 #define Trice64m_4(tid, v0, v1, v2, v3)             \
-    TRICE_ENTER                                     \
-    uint16_t ts = TriceStamp16;                     \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
-    TRICE_PUT(32 << 24 | (TRICE_CYCLE << 16) | ts); \
-    TRICE_PUT64_4(v0, v1, v2, v3);                  \
-    TRICE_LEAVE
+	TRICE_ENTER                                     \
+	uint16_t ts = TriceStamp16;                     \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
+	TRICE_PUT(32 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT64_4(v0, v1, v2, v3);                  \
+	TRICE_LEAVE
 
 #define Trice64m_5(tid, v0, v1, v2, v3, v4)         \
-    TRICE_ENTER                                     \
-    uint16_t ts = TriceStamp16;                     \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
-    TRICE_PUT(40 << 24 | (TRICE_CYCLE << 16) | ts); \
-    TRICE_PUT64_5(v0, v1, v2, v3, v4);              \
-    TRICE_LEAVE
+	TRICE_ENTER                                     \
+	uint16_t ts = TriceStamp16;                     \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
+	TRICE_PUT(40 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT64_5(v0, v1, v2, v3, v4);              \
+	TRICE_LEAVE
 
 #define Trice64m_6(tid, v0, v1, v2, v3, v4, v5)     \
-    TRICE_ENTER                                     \
-    uint16_t ts = TriceStamp16;                     \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
-    TRICE_PUT(48 << 24 | (TRICE_CYCLE << 16) | ts); \
-    TRICE_PUT64_6(v0, v1, v2, v3, v4, v5);          \
-    TRICE_LEAVE
+	TRICE_ENTER                                     \
+	uint16_t ts = TriceStamp16;                     \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
+	TRICE_PUT(48 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT64_6(v0, v1, v2, v3, v4, v5);          \
+	TRICE_LEAVE
 
 #define Trice64m_7(tid, v0, v1, v2, v3, v4, v5, v6) \
-    TRICE_ENTER                                     \
-    uint16_t ts = TriceStamp16;                     \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
-    TRICE_PUT(56 << 24 | (TRICE_CYCLE << 16) | ts); \
-    TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                     \
+	uint16_t ts = TriceStamp16;                     \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);      \
+	TRICE_PUT(56 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6);      \
+	TRICE_LEAVE
 
 #define Trice64m_8(tid, v0, v1, v2, v3, v4, v5, v6, v7) \
-    TRICE_ENTER                                         \
-    uint16_t ts = TriceStamp16;                         \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);          \
-    TRICE_PUT(64 << 24 | (TRICE_CYCLE << 16) | ts);     \
-    TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                         \
+	uint16_t ts = TriceStamp16;                         \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);          \
+	TRICE_PUT(64 << 24 | (TRICE_CYCLE << 16) | ts);     \
+	TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7);      \
+	TRICE_LEAVE
 
 #define Trice64m_9(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8) \
-    TRICE_ENTER                                             \
-    uint16_t ts = TriceStamp16;                             \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);              \
-    TRICE_PUT(72 << 24 | (TRICE_CYCLE << 16) | ts);         \
-    TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint16_t ts = TriceStamp16;                             \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);              \
+	TRICE_PUT(72 << 24 | (TRICE_CYCLE << 16) | ts);         \
+	TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8);      \
+	TRICE_LEAVE
 
 #define Trice64m_10(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) \
-    TRICE_ENTER                                                  \
-    uint16_t ts = TriceStamp16;                                  \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);                   \
-    TRICE_PUT(80 << 24 | (TRICE_CYCLE << 16) | ts);              \
-    TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                                  \
+	uint16_t ts = TriceStamp16;                                  \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);                   \
+	TRICE_PUT(80 << 24 | (TRICE_CYCLE << 16) | ts);              \
+	TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);      \
+	TRICE_LEAVE
 
 #define Trice64m_11(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) \
-    TRICE_ENTER                                                       \
-    uint16_t ts = TriceStamp16;                                       \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);                        \
-    TRICE_PUT(88 << 24 | (TRICE_CYCLE << 16) | ts);                   \
-    TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	uint16_t ts = TriceStamp16;                                       \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);                        \
+	TRICE_PUT(88 << 24 | (TRICE_CYCLE << 16) | ts);                   \
+	TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);      \
+	TRICE_LEAVE
 
 #define Trice64m_12(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) \
-    TRICE_ENTER                                                            \
-    uint16_t ts = TriceStamp16;                                            \
-    TRICE_PUT(0x80008000 | (tid << 16) | tid);                             \
-    TRICE_PUT(96 << 24 | (TRICE_CYCLE << 16) | ts);                        \
-    TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
-    TRICE_LEAVE
+	TRICE_ENTER                                                            \
+	uint16_t ts = TriceStamp16;                                            \
+	TRICE_PUT(0x80008000 | (tid << 16) | tid);                             \
+	TRICE_PUT(96 << 24 | (TRICE_CYCLE << 16) | ts);                        \
+	TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
+	TRICE_LEAVE
 
 #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
@@ -535,110 +535,110 @@ void Trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 //! TRice64m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRice64m_0(tid)                                    \
-    TRICE_ENTER                                            \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);               \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                  \
-    TRICE_PUT(0 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_LEAVE
+	TRICE_ENTER                                            \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);               \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                  \
+	TRICE_PUT(0 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_LEAVE
 
 //! TRice64m_1 writes trice data as fast as possible in a buffer.
 //! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 64 bit value
 #define TRice64m_1(tid, v0)                                \
-    TRICE_ENTER                                            \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);               \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                  \
-    TRICE_PUT(8 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_1(v0)                                      \
-    TRICE_LEAVE
+	TRICE_ENTER                                            \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);               \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                  \
+	TRICE_PUT(8 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_1(v0)                                      \
+	TRICE_LEAVE
 
 #define TRice64m_2(tid, v0, v1)                             \
-    TRICE_ENTER                                             \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
-    TRICE_PUT(16 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_2(v0, v1);                                  \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
+	TRICE_PUT(16 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_2(v0, v1);                                  \
+	TRICE_LEAVE
 
 #define TRice64m_3(tid, v0, v1, v2)                         \
-    TRICE_ENTER                                             \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
-    TRICE_PUT(24 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_3(v0, v1, v2);                              \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
+	TRICE_PUT(24 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_3(v0, v1, v2);                              \
+	TRICE_LEAVE
 
 #define TRice64m_4(tid, v0, v1, v2, v3)                     \
-    TRICE_ENTER                                             \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
-    TRICE_PUT(32 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_4(v0, v1, v2, v3);                          \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
+	TRICE_PUT(32 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_4(v0, v1, v2, v3);                          \
+	TRICE_LEAVE
 
 #define TRice64m_5(tid, v0, v1, v2, v3, v4)                 \
-    TRICE_ENTER                                             \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
-    TRICE_PUT(40 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_5(v0, v1, v2, v3, v4);                      \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
+	TRICE_PUT(40 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_5(v0, v1, v2, v3, v4);                      \
+	TRICE_LEAVE
 
 #define TRice64m_6(tid, v0, v1, v2, v3, v4, v5)             \
-    TRICE_ENTER                                             \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
-    TRICE_PUT(48 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_6(v0, v1, v2, v3, v4, v5);                  \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
+	TRICE_PUT(48 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_6(v0, v1, v2, v3, v4, v5);                  \
+	TRICE_LEAVE
 
 #define TRice64m_7(tid, v0, v1, v2, v3, v4, v5, v6)         \
-    TRICE_ENTER                                             \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
-    TRICE_PUT(56 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6);              \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
+	TRICE_PUT(56 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_7(v0, v1, v2, v3, v4, v5, v6);              \
+	TRICE_LEAVE
 
 #define TRice64m_8(tid, v0, v1, v2, v3, v4, v5, v6, v7)     \
-    TRICE_ENTER                                             \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
-    TRICE_PUT(64 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7);          \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
+	TRICE_PUT(64 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_8(v0, v1, v2, v3, v4, v5, v6, v7);          \
+	TRICE_LEAVE
 
 #define TRice64m_9(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8) \
-    TRICE_ENTER                                             \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
-    TRICE_PUT(72 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
-    TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                             \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                   \
+	TRICE_PUT(72 << 24 | (TRICE_CYCLE << 16) | (ts >> 16)); \
+	TRICE_PUT64_9(v0, v1, v2, v3, v4, v5, v6, v7, v8);      \
+	TRICE_LEAVE
 
 #define TRice64m_10(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) \
-    TRICE_ENTER                                                  \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                     \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                        \
-    TRICE_PUT(80 << 24 | (TRICE_CYCLE << 16) | (ts >> 16));      \
-    TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                                  \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                     \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                        \
+	TRICE_PUT(80 << 24 | (TRICE_CYCLE << 16) | (ts >> 16));      \
+	TRICE_PUT64_10(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);      \
+	TRICE_LEAVE
 
 #define TRice64m_11(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) \
-    TRICE_ENTER                                                       \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                          \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                             \
-    TRICE_PUT(88 << 24 | (TRICE_CYCLE << 16) | (ts >> 16));           \
-    TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);      \
-    TRICE_LEAVE
+	TRICE_ENTER                                                       \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                          \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                             \
+	TRICE_PUT(88 << 24 | (TRICE_CYCLE << 16) | (ts >> 16));           \
+	TRICE_PUT64_11(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);      \
+	TRICE_LEAVE
 
 #define TRice64m_12(tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) \
-    TRICE_ENTER                                                            \
-    uint32_t ts = TRICE_HTOTL(TriceStamp32);                               \
-    TRICE_PUT((ts << 16) | 0xc000 | tid);                                  \
-    TRICE_PUT(96 << 24 | (TRICE_CYCLE << 16) | (ts >> 16));                \
-    TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
-    TRICE_LEAVE
+	TRICE_ENTER                                                            \
+	uint32_t ts = TRICE_HTOTL(TriceStamp32);                               \
+	TRICE_PUT((ts << 16) | 0xc000 | tid);                                  \
+	TRICE_PUT(96 << 24 | (TRICE_CYCLE << 16) | (ts >> 16));                \
+	TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
+	TRICE_LEAVE
 
 #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
