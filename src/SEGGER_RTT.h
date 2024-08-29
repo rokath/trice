@@ -302,12 +302,12 @@ Revision: $Rev: 24346 $
 // which is used as up-buffer (T->H)
 //
 typedef struct {
-    const char* sName;       // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
-    char* pBuffer;           // Pointer to start of buffer
-    unsigned SizeOfBuffer;   // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
-    unsigned WrOff;          // Position of next item to be written by either target.
-    volatile unsigned RdOff; // Position of next item to be read by host. Must be volatile since it may be modified by host.
-    unsigned Flags;          // Contains configuration flags
+	const char* sName;       // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
+	char* pBuffer;           // Pointer to start of buffer
+	unsigned SizeOfBuffer;   // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
+	unsigned WrOff;          // Position of next item to be written by either target.
+	volatile unsigned RdOff; // Position of next item to be read by host. Must be volatile since it may be modified by host.
+	unsigned Flags;          // Contains configuration flags
 } SEGGER_RTT_BUFFER_UP;
 
 //
@@ -315,12 +315,12 @@ typedef struct {
 // which is used as down-buffer (H->T)
 //
 typedef struct {
-    const char* sName;       // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
-    char* pBuffer;           // Pointer to start of buffer
-    unsigned SizeOfBuffer;   // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
-    volatile unsigned WrOff; // Position of next item to be written by host. Must be volatile since it may be modified by host.
-    unsigned RdOff;          // Position of next item to be read by target (down-buffer).
-    unsigned Flags;          // Contains configuration flags
+	const char* sName;       // Optional name. Standard names so far are: "Terminal", "SysView", "J-Scope_t4i4"
+	char* pBuffer;           // Pointer to start of buffer
+	unsigned SizeOfBuffer;   // Buffer size in bytes. Note that one byte is lost, as this implementation does not fill up the buffer in order to avoid the problem of being unable to distinguish between full and empty.
+	volatile unsigned WrOff; // Position of next item to be written by host. Must be volatile since it may be modified by host.
+	unsigned RdOff;          // Position of next item to be read by target (down-buffer).
+	unsigned Flags;          // Contains configuration flags
 } SEGGER_RTT_BUFFER_DOWN;
 
 //
@@ -329,13 +329,13 @@ typedef struct {
 //
 //
 typedef struct {
-    char acID[16];                                                 // Initialized to "SEGGER RTT"
-    int MaxNumUpBuffers;                                           // Initialized to SEGGER_RTT_MAX_NUM_UP_BUFFERS (type. 2)
-    int MaxNumDownBuffers;                                         // Initialized to SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (type. 2)
-    SEGGER_RTT_BUFFER_UP aUp[SEGGER_RTT_MAX_NUM_UP_BUFFERS];       // Up buffers, transferring information up from target via debug probe to host
-    SEGGER_RTT_BUFFER_DOWN aDown[SEGGER_RTT_MAX_NUM_DOWN_BUFFERS]; // Down buffers, transferring information down from host via debug probe to target
+	char acID[16];                                                 // Initialized to "SEGGER RTT"
+	int MaxNumUpBuffers;                                           // Initialized to SEGGER_RTT_MAX_NUM_UP_BUFFERS (type. 2)
+	int MaxNumDownBuffers;                                         // Initialized to SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (type. 2)
+	SEGGER_RTT_BUFFER_UP aUp[SEGGER_RTT_MAX_NUM_UP_BUFFERS];       // Up buffers, transferring information up from target via debug probe to host
+	SEGGER_RTT_BUFFER_DOWN aDown[SEGGER_RTT_MAX_NUM_DOWN_BUFFERS]; // Down buffers, transferring information down from host via debug probe to target
 #if SEGGER_RTT__CB_PADDING
-    unsigned char aDummy[SEGGER_RTT__CB_PADDING];
+	unsigned char aDummy[SEGGER_RTT__CB_PADDING];
 #endif
 } SEGGER_RTT_CB;
 
