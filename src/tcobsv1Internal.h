@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-#define N  0xA0 //!< sigil byte 0x101ooooo, offset 0-31
+#define N 0xA0  //!< sigil byte 0x101ooooo, offset 0-31
 #define Z1 0x20 //!< sigil byte 0x001ooooo, offset 0-31
 #define Z2 0x40 //!< sigil byte 0x010ooooo, offset 0-31
 #define Z3 0x60 //!< sigil byte 0x011ooooo, offset 0-31
