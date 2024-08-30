@@ -10,7 +10,9 @@
 *.PNG binary
 *.jpg binary
 *.gif binary
-*.svg binary # This is a text file format but because we don't want to see text diff on a file which is basically an image.
+
+# This is a text file format but because we don't want to see text diff on a file which is basically an image.
+*.svg binary
 *.SVG binary
 
 # Source: https://medium.com/@mbrehin/git-advanced-diff-odt-pdf-doc-xls-ppt-25afbf4f1105
