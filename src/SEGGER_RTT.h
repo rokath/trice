@@ -1,5 +1,3 @@
-
-// clang-format off
 /*********************************************************************
 *                    SEGGER Microcontroller GmbH                     *
 *                        The Embedded Experts                        *
@@ -51,16 +49,16 @@
 ---------------------------END-OF-HEADER------------------------------
 File    : SEGGER_RTT.h
 Purpose : Implementation of SEGGER real-time transfer which allows
-          real-time communication on targets which support debugger 
+          real-time communication on targets which support debugger
           memory accesses while the CPU is running.
 Revision: $Rev: 24346 $
 ----------------------------------------------------------------------
 */
 
 #ifndef SEGGER_RTT_H
-	#define SEGGER_RTT_H
+#define SEGGER_RTT_H
 
-	#include "SEGGER_RTT_Conf.h"
+#include "SEGGER_RTT_Conf.h"
 
 /*********************************************************************
 *
@@ -429,7 +427,7 @@ int SEGGER_RTT_vprintf(unsigned BufferIndex, const char * sFormat, va_list * pPa
   }
 #endif
 
-	#endif // ifndef(SEGGER_RTT_ASM)
+#endif // ifndef(SEGGER_RTT_ASM)
 
 /*********************************************************************
 *
