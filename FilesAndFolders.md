@@ -3,6 +3,7 @@
 | name                            | content                                          |
 |---------------------------------|--------------------------------------------------|
 | `.clang-format`                 | See below                                        |
+| `.clang-format-ignore`          | See below                                        |
 | `.editorconfig`                 | See below                                        |
 | `.code_snippets/`               |                                                  |
 | `.git/`                         | version control data base                        |
@@ -52,6 +53,7 @@
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
+Sazerac4 commented Aug 29, 2024:
 I have a code formatter when I make changes to my application but I would like to keep the style of the library when modifying.
 I couldn't find a code formatter, is there a tool used? If not, I propose this to provide one as an example by using clang-format.
 
@@ -85,6 +87,14 @@ With preprocessor indentation, the result is a bit strange in some cases. It's p
 Staying as close as possible to a default version (LLVM in this case) makes it easier to regenerate the style if necessary.
 
 See also: https://github.com/rokath/trice/pull/487#issuecomment-2318003072
+
+## `.clang-format-ignore`
+
+*Contributor: [Sazerac4](https://github.com/Sazerac4)*
+
+Sazerac4 commented Aug 30, 2024:
+I have added .clang-format-ignore to ignore formatting for specific files
+
 
 ## `.editorconfig`
 
