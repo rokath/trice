@@ -97,19 +97,24 @@ archives:
     # `README*` and `CHANGELOG*` (case-insensitive).
     files:
       - .vscode/*
-      - cmd
+      - .clang-format
+      - .clang-format-ignore
+      - .editorconfig
+      - .gitattributes
+      - .gitignore
+      - cmd/trice/*
       - docs/*
       - examples/*
-      - internal
-      - pkg
-      - src
+      - internal/*
+      - pkg/*
+      - src/*
       - test/*
       - third_party/*
       - AUTHORS.md
       - CHANGELOG.md
       - CODE_OF_CONDUCT.md
       - CONTRIBUTING.md
-      - FoldersAndFiles.md
+      - FilesAndFolders.md
       - go.mod
       - go.sum
       - GoInfos.txt
