@@ -12,7 +12,8 @@
 - [6. v0.65.0 Changes](#6-v0650-changes)
 - [7. v0.66.0 Changes](#7-v0660-changes)
 - [8. v0.67.0 Changes](#8-v0670-changes)
-- [9. master branch changes](#9-master-branch-changes)
+- [9. v0.68.0 Changes](#9-v0680-changes)
+- [19. master branch changes](#19-master-branch-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -76,7 +77,8 @@ date        | version | comment
 2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)
 2024-AUG-18 |  0.66.1 | Documetation and tests improved
 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)
-2024-AUG-23 |  master | See [9. master branch changes](#9-master-branch-changes)
+2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#9-v0680-changes)
+2024-AUG-23 |  master | See [10. master branch changes](#10-master-branch-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -281,4 +283,30 @@ This is a major release hopefully not breaking too much!
 | `c5ca8482` | Merge branch 'devel'                                                               |
 | `a33627dc` | founding                                                                           |
 
-##  9. <a name='masterbranchchanges'></a>master branch changes
+##  9. <a name='v0.68.0Changes'></a>v0.68.0 Changes
+
+| hash       | comment                                                                                                   |
+|------------|-----------------------------------------------------------------------------------------------------------|
+| `5746d892` | include files order changed back and locked now for *tcobsv1\*.c* to avoid compilation errors             |
+| `0b1258aa` | SEGGER files updated                                                                                      |
+| `5324f415` | updated with .clang-format-ignore info                                                                    |
+| `edee74ad` | Merge pull request #491 from Sazerac4/feat/upd_style_segger                                               |
+| `f0e41ede` | (github-desktop-Sazerac4/feat/upd_style_segger) Add .clang-format-ignore for SEGGER files                 |
+| `9625d073` | (github-desktop-Sazerac4/master, github-desktop-Sazerac4/HEAD) // clang-format off & on at 2 places added |
+| `4f22fa94` | Merge pull request #490 from Sazerac4/feat/update_style                                                   |
+| `34735bf9` | (github-desktop-Sazerac4/feat/update_style) preprocessor directives indentations                          |
+| `71d4a418` | A line starting with # serves as a comment in .gitattributes                                              |
+| `f70ddaf0` | use tabs instead of spaces for indentation                                                                |
+| `e8af2a78` | Files and Folders into one place                                                                          |
+| `4ba15703` | *.svg added to .gitattributes                                                                             |
+| `29c4047f` | devel merged into master                                                                                  |
+| `84fc77e1` | Merge pull request #487 from Sazerac4/feat/add_style                                                      |
+| `55b71eae` | (origin/devel, devel) SingleTricesRingCount--; into critical section and some formatting                  |
+| `580af89a` | Add .editorconfig file                                                                                    |
+| `0aafdf60` | (pullRequest487, pr/487) Change PointerAlignment to Left                                                  |
+| `63adada8` | Format code: - LLVM style - IndentWidth: 4 - ColumnLimit: 0                                               |
+| `272eb16d` | add clang-format default style from llvm for c source code                                                |
+| `db54a8dd` | add .gitattibutes to avoid problem in git diff with end of line                                           |
+| `653ec4a1` | Automatic TRICE_CLEAN modification added.                                                                 |
+
+##  19. <a name='masterbranchchanges'></a>master branch changes
