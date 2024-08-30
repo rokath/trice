@@ -2,12 +2,13 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 \details See ./TCOBSv1Specification.md.
 *******************************************************************************/
-
+// clang-format off
+#include <stdint.h>
+#include <stddef.h>
+#include "triceConfig.h"
 #include "tcobs.h"
 #include "tcobsv1Internal.h"
-#include "triceConfig.h"
-#include <stddef.h>
-#include <stdint.h>
+// clang-format on
 
 // lint -e801 Info 801: Use of goto is deprecated
 
