@@ -1,2 +1,4 @@
 src/SEGGER_RTT.c
 src/SEGGER_RTT.h
+src/trice.h
+src/trice.c
