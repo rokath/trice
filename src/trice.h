@@ -9,18 +9,16 @@
 extern "C" {
 #endif
 
-#undef ID // acoid name clashes in case ID was used by an other library
-#undef Id // acoid name clashes in case Id was used by an other library
-#undef id // acoid name clashes in case id was used by an other library
-#undef iD // acoid name clashes in case iD was used by an other library
+#undef ID //!< acoid name clashes in case ID was used by an other library
+#undef Id //!< acoid name clashes in case Id was used by an other library
+#undef id //!< acoid name clashes in case id was used by an other library
+#undef iD //!< acoid name clashes in case iD was used by an other library
 
-#define TRICE_UNUSED(x) (void)(x); // https://stackoverflow.com/questions/3599160/how-can-i-suppress-unused-parameter-warnings-in-c
+#define TRICE_UNUSED(x) (void)(x); //!< https://stackoverflow.com/questions/3599160/how-can-i-suppress-unused-parameter-warnings-in-c
 
 // lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
 // lint -e629  Warning 629: static class for function '' is non standard
-
 // lint -emacro( 701, TRICE* ) Info 701: Shift left of signed quantity (int)
-
 // lint -emacro( 123, TRICE* )
 // lint -emacro( 571, TRICE* )
 // lint -emacro( 572, TRICE* )
@@ -44,15 +42,13 @@ extern "C" {
 // lint -emacro( 830, TRICE* )
 // lint -emacro( 831, TRICE* )
 // lint -emacro( 835, TRICE* )
-
 // lint -emacro( 545, SCOPY, DCOPY )
-// lint -emacro( 732, SCOPY )
-// lint -emacro( 717, DCOPY, SCOPY )
-// lint -emacro( 732, DCOPY )
-
 // lint -ecall( 666, aFloat, aDouble )
 // lint -efunc( 666, aFloat, aDouble )
 // lint -esym( 666, aFloat, aDouble )
+// lint -emacro( 732, SCOPY )
+// lint -emacro( 717, DCOPY, SCOPY )
+// lint -emacro( 732, DCOPY )
 
 #if TRICE_OFF == 1 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
 
@@ -129,7 +125,7 @@ void WatchRingBufferMargins(void);
 
 // global function prototypes:
 
-void TriceCheck(int index); // tests and examples
+void TriceCheck(int index); //!< tests and examples
 void TriceDiagnostics(int index);
 void TriceNonBlockingWriteUartA(const void* buf, size_t nByte);
 void TriceNonBlockingWriteUartB(const void* buf, size_t nByte);
@@ -143,29 +139,22 @@ void TriceLogDiagnosticValues(void);
 void TriceLogSeggerDiagnostics(void);
 void TriceNonBlockingDeferredWrite8(int ticeID, const uint8_t* enc, size_t encLen);
 void TriceTransfer(void);
-void TriceWriteDeviceCgo(const void* buf, unsigned len); // only needed for testing C-sources from Go
 size_t triceDataLen(const uint8_t* p);
-
-// int TriceIDAndBuffer( const uint32_t * const pAddr, int* pWordCount, uint8_t** ppStart, size_t* pLength );
-// int TriceNext( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen );
 int TriceEnoughSpace(void);
-
 unsigned TriceOutDepth(void);
-unsigned TriceOutDepthCGO(void); // only needed for testing C-sources from Go
-
-// uint32_t Us32( void );
-
 size_t TriceDepth(void);
 size_t TriceDepthMax(void);
-// size_t TriceDeferredEncode( uint8_t* enc, const uint8_t * buf, size_t len );
 size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t* buf, size_t len);
+
+void TriceWriteDeviceCgo(const void* buf, unsigned len); //!< only needed for testing C-sources from Go
+unsigned TriceOutDepthCGO(void); //!< only needed for testing C-sources from Go
 
 // global defines
 
-#define TRICE_TYPE_X0 0 //!< TRICE_TYPE_X0 ist a unspecified trice (reserved)
-#define TRICE_TYPE_S0 1 //!< TRICE_TYPE_S0 ist a trice without stamp.
-#define TRICE_TYPE_S2 2 //!< TRICE_TYPE_S2 ist a trice with 16-bit stamp.
-#define TRICE_TYPE_S4 3 //!< TRICE_TYPE_S4 ist a trice with 32-bit stamp.
+#define TRICE_TYPE_X0 0 //!< TRICE_TYPE_X0 is an unspecified trice (reserved)
+#define TRICE_TYPE_S0 1 //!< TRICE_TYPE_S0 is a trice without stamp.
+#define TRICE_TYPE_S2 2 //!< TRICE_TYPE_S2 is a trice with 16-bit stamp.
+#define TRICE_TYPE_S4 3 //!< TRICE_TYPE_S4 is a trice with 32-bit stamp.
 
 // global variables:
 
@@ -422,6 +411,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
 #endif
 
 #ifndef TRICE_LEAVE
+
 	#if TRICE_DIRECT_OUTPUT == 1
 
 		//! TRICE_LEAVE is the end of TRICE macro. It is the same for all buffer variants.
@@ -445,6 +435,7 @@ TRICE_INLINE uint32_t Reverse32(uint32_t value) {
 			TRICE_LEAVE_CRITICAL_SECTION
 
 	#endif // #else  //#if TRICE_DIRECT_OUTPUT == 1
+
 #endif     // #ifndef TRICE_LEAVE
 
 // trice macros:
@@ -531,11 +522,13 @@ unsigned TriceOutDepthUartB(void);
 ///////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
+
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 void XTEAEncrypt(uint32_t* p, unsigned count);
 void XTEADecrypt(uint32_t* p, unsigned count);
 void XTEAInitTable(void);
 #endif
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -801,21 +794,25 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 	TRICE_LEAVE
 
 #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+
 // clang-format off
 TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 TRICE_INLINE void Trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 TRICE_INLINE void trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 // clang-format on
+
 #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 TRICE_INLINE void TRice0(uint16_t tid, const char* pFmt) {
 	TRice32m_0(tid);
 	TRICE_UNUSED(pFmt)
 }
+
 TRICE_INLINE void Trice0(uint16_t tid, const char* pFmt) {
 	Trice32m_0(tid);
 	TRICE_UNUSED(pFmt)
 }
+
 TRICE_INLINE void trice0(uint16_t tid, const char* pFmt) {
 	trice32m_0(tid);
 	TRICE_UNUSED(pFmt)
@@ -846,6 +843,7 @@ TRICE_INLINE void trice0(uint16_t tid, const char* pFmt) {
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
 #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+
 // clang-format off
 TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
 TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
@@ -855,6 +853,7 @@ TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(
 TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
 TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
 // clang-format on
+
 #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
 void triceAssertTrue(int idN, char* msg, int flag);
