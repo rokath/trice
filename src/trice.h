@@ -334,7 +334,7 @@ extern int TriceDataOffsetDepthMax;
 			#define TRICE_ENTER                \
 				TRICE_ENTER_CRITICAL_SECTION { \
 					if (TriceEnoughSpace()) {  \
-					TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
+						TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
 
 		#else //  #if TRICE_PROTECT == 1
 
@@ -500,7 +500,7 @@ extern int TriceDataOffsetDepthMax;
 
 #else
 
-	// #error "unknown architecture"
+	// #warning "unknown architecture"
 	#define SYSTICKVAL 0
 
 #endif
@@ -657,7 +657,6 @@ static inline uint64_t aDouble(double x) {
 			uint32_t limit = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
 			uint32_t len_ = n;                           /* n could be a constant */                                                     \
 			if (len_ > limit) {                                                                                                          \
-				/*TRICE32( id( 5150), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit );*/                                  \
 				TriceDynBufTruncateCount++;                                                                                              \
 				len_ = limit;                                                                                                            \
 			}                                                                                                                            \

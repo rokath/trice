@@ -305,19 +305,19 @@
 	#define trice8_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) trice8fn_11(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10))                      //!< trice8_1M ia macro calling a function to reduce code size, this way avoiding code inlining.
 	#define trice8_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) trice8fn_12(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11)) //!< trice8_12 ia macro calling a function to reduce code size, this way avoiding code inlining.
 
-void trice8fn_0(uint16_t tid);
-void trice8fn_1(uint16_t tid, uint8_t v0);
-void trice8fn_2(uint16_t tid, uint8_t v0, uint8_t v1);
-void trice8fn_3(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2);
-void trice8fn_4(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3);
-void trice8fn_5(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4);
-void trice8fn_6(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5);
-void trice8fn_7(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6);
-void trice8fn_8(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7);
-void trice8fn_9(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8);
-void trice8fn_10(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9);
-void trice8fn_11(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10);
-void trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11);
+	void trice8fn_0(uint16_t tid);
+	void trice8fn_1(uint16_t tid, uint8_t v0);
+	void trice8fn_2(uint16_t tid, uint8_t v0, uint8_t v1);
+	void trice8fn_3(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2);
+	void trice8fn_4(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3);
+	void trice8fn_5(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4);
+	void trice8fn_6(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5);
+	void trice8fn_7(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6);
+	void trice8fn_8(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7);
+	void trice8fn_9(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8);
+	void trice8fn_10(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9);
+	void trice8fn_11(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10);
+	void trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
@@ -463,19 +463,19 @@ void trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 	#define Trice8_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) Trice8fn_11(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10))                      //!< Trice8_11 ia macro calling a function to reduce code size, this way avoiding code inlining.
 	#define Trice8_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) Trice8fn_12(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11)) //!< Trice8_12 ia macro calling a function to reduce code size, this way avoiding code inlining.
 
-void Trice8fn_0(uint16_t tid);
-void Trice8fn_1(uint16_t tid, uint8_t v0);
-void Trice8fn_2(uint16_t tid, uint8_t v0, uint8_t v1);
-void Trice8fn_3(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2);
-void Trice8fn_4(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3);
-void Trice8fn_5(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4);
-void Trice8fn_6(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5);
-void Trice8fn_7(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6);
-void Trice8fn_8(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7);
-void Trice8fn_9(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8);
-void Trice8fn_10(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9);
-void Trice8fn_11(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10);
-void Trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11);
+	void Trice8fn_0(uint16_t tid);
+	void Trice8fn_1(uint16_t tid, uint8_t v0);
+	void Trice8fn_2(uint16_t tid, uint8_t v0, uint8_t v1);
+	void Trice8fn_3(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2);
+	void Trice8fn_4(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3);
+	void Trice8fn_5(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4);
+	void Trice8fn_6(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5);
+	void Trice8fn_7(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6);
+	void Trice8fn_8(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7);
+	void Trice8fn_9(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8);
+	void Trice8fn_10(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9);
+	void Trice8fn_11(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10);
+	void Trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
@@ -619,19 +619,19 @@ void Trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 	#define TRice8_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice8fn_11(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10))                      //!< TRice8_11 ia macro calling a function to reduce code size, this way avoiding code inlining.
 	#define TRice8_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice8fn_12(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11)) //!< TRice8_12 ia macro calling a function to reduce code size, this way avoiding code inlining.
 
-void TRice8fn_0(uint16_t tid);
-void TRice8fn_1(uint16_t tid, uint8_t v0);
-void TRice8fn_2(uint16_t tid, uint8_t v0, uint8_t v1);
-void TRice8fn_3(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2);
-void TRice8fn_4(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3);
-void TRice8fn_5(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4);
-void TRice8fn_6(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5);
-void TRice8fn_7(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6);
-void TRice8fn_8(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7);
-void TRice8fn_9(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8);
-void TRice8fn_10(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9);
-void TRice8fn_11(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10);
-void TRice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11);
+	void TRice8fn_0(uint16_t tid);
+	void TRice8fn_1(uint16_t tid, uint8_t v0);
+	void TRice8fn_2(uint16_t tid, uint8_t v0, uint8_t v1);
+	void TRice8fn_3(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2);
+	void TRice8fn_4(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3);
+	void TRice8fn_5(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4);
+	void TRice8fn_6(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5);
+	void TRice8fn_7(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6);
+	void TRice8fn_8(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7);
+	void TRice8fn_9(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8);
+	void TRice8fn_10(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9);
+	void TRice8fn_11(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10);
+	void TRice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 

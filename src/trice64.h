@@ -362,19 +362,19 @@
 	#define trice64_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) trice64fn_11(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10))                       //!< trice64_11 is a macro calling a function to reduce code size.
 	#define trice64_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) trice64fn_12(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11)) //!< trice64_12 is a macro calling a function to reduce code size.
 
-void trice64fn_0(uint16_t tid);
-void trice64fn_1(uint16_t tid, uint64_t v0);
-void trice64fn_2(uint16_t tid, uint64_t v0, uint64_t v1);
-void trice64fn_3(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2);
-void trice64fn_4(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3);
-void trice64fn_5(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4);
-void trice64fn_6(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5);
-void trice64fn_7(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6);
-void trice64fn_8(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7);
-void trice64fn_9(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8);
-void trice64fn_10(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9);
-void trice64fn_11(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10);
-void trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11);
+	void trice64fn_0(uint16_t tid);
+	void trice64fn_1(uint16_t tid, uint64_t v0);
+	void trice64fn_2(uint16_t tid, uint64_t v0, uint64_t v1);
+	void trice64fn_3(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2);
+	void trice64fn_4(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3);
+	void trice64fn_5(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4);
+	void trice64fn_6(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5);
+	void trice64fn_7(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6);
+	void trice64fn_8(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7);
+	void trice64fn_9(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8);
+	void trice64fn_10(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9);
+	void trice64fn_11(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10);
+	void trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
@@ -516,19 +516,19 @@ void trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 	#define Trice64_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) Trice64fn_11(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10))                       //!< Trice64_11 is a macro calling a function to reduce code size.
 	#define Trice64_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) Trice64fn_12(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11)) //!< Trice64_12 is a macro calling a function to reduce code size.
 
-void Trice64fn_0(uint16_t tid);
-void Trice64fn_1(uint16_t tid, uint64_t v0);
-void Trice64fn_2(uint16_t tid, uint64_t v0, uint64_t v1);
-void Trice64fn_3(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2);
-void Trice64fn_4(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3);
-void Trice64fn_5(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4);
-void Trice64fn_6(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5);
-void Trice64fn_7(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6);
-void Trice64fn_8(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7);
-void Trice64fn_9(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8);
-void Trice64fn_10(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9);
-void Trice64fn_11(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10);
-void Trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11);
+	void Trice64fn_0(uint16_t tid);
+	void Trice64fn_1(uint16_t tid, uint64_t v0);
+	void Trice64fn_2(uint16_t tid, uint64_t v0, uint64_t v1);
+	void Trice64fn_3(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2);
+	void Trice64fn_4(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3);
+	void Trice64fn_5(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4);
+	void Trice64fn_6(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5);
+	void Trice64fn_7(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6);
+	void Trice64fn_8(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7);
+	void Trice64fn_9(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8);
+	void Trice64fn_10(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9);
+	void Trice64fn_11(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10);
+	void Trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
@@ -672,19 +672,19 @@ void Trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 	#define TRice64_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice64fn_11(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10))                       //!< TRice64_11 is a macro calling a function to reduce code size.
 	#define TRice64_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice64fn_12(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11)) //!< TRice64_12 is a macro calling a function to reduce code size.
 
-void TRice64fn_0(uint16_t tid);
-void TRice64fn_1(uint16_t tid, uint64_t v0);
-void TRice64fn_2(uint16_t tid, uint64_t v0, uint64_t v1);
-void TRice64fn_3(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2);
-void TRice64fn_4(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3);
-void TRice64fn_5(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4);
-void TRice64fn_6(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5);
-void TRice64fn_7(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6);
-void TRice64fn_8(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7);
-void TRice64fn_9(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8);
-void TRice64fn_10(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9);
-void TRice64fn_11(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10);
-void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11);
+	void TRice64fn_0(uint16_t tid);
+	void TRice64fn_1(uint16_t tid, uint64_t v0);
+	void TRice64fn_2(uint16_t tid, uint64_t v0, uint64_t v1);
+	void TRice64fn_3(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2);
+	void TRice64fn_4(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3);
+	void TRice64fn_5(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4);
+	void TRice64fn_6(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5);
+	void TRice64fn_7(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6);
+	void TRice64fn_8(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7);
+	void TRice64fn_9(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8);
+	void TRice64fn_10(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9);
+	void TRice64fn_11(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10);
+	void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 

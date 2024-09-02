@@ -325,19 +325,19 @@
 	#define trice16_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) trice16fn_11(tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10))                       //!< trice16_11 is a macro calling a function to reduce code size.
 	#define trice16_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) trice16fn_12(tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11)) //!< trice16_12 is a macro calling a function to reduce code size.
 
-void trice16fn_0(uint16_t tid);
-void trice16fn_1(uint16_t tid, uint16_t v0);
-void trice16fn_2(uint16_t tid, uint16_t v0, uint16_t v1);
-void trice16fn_3(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2);
-void trice16fn_4(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3);
-void trice16fn_5(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4);
-void trice16fn_6(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5);
-void trice16fn_7(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6);
-void trice16fn_8(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7);
-void trice16fn_9(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8);
-void trice16fn_10(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9);
-void trice16fn_11(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10);
-void trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11);
+	void trice16fn_0(uint16_t tid);
+	void trice16fn_1(uint16_t tid, uint16_t v0);
+	void trice16fn_2(uint16_t tid, uint16_t v0, uint16_t v1);
+	void trice16fn_3(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2);
+	void trice16fn_4(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3);
+	void trice16fn_5(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4);
+	void trice16fn_6(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5);
+	void trice16fn_7(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6);
+	void trice16fn_8(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7);
+	void trice16fn_9(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8);
+	void trice16fn_10(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9);
+	void trice16fn_11(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10);
+	void trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
@@ -479,19 +479,19 @@ void trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t 
 	#define Trice16_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) Trice16fn_11(tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10))                       //!< Trice16_11 is a macro calling a function to reduce code size.
 	#define Trice16_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) Trice16fn_12(tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11)) //!< Trice16_12 is a macro calling a function to reduce code size.
 
-void Trice16fn_0(uint16_t tid);
-void Trice16fn_1(uint16_t tid, uint16_t v0);
-void Trice16fn_2(uint16_t tid, uint16_t v0, uint16_t v1);
-void Trice16fn_3(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2);
-void Trice16fn_4(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3);
-void Trice16fn_5(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4);
-void Trice16fn_6(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5);
-void Trice16fn_7(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6);
-void Trice16fn_8(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7);
-void Trice16fn_9(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8);
-void Trice16fn_10(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9);
-void Trice16fn_11(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10);
-void Trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11);
+	void Trice16fn_0(uint16_t tid);
+	void Trice16fn_1(uint16_t tid, uint16_t v0);
+	void Trice16fn_2(uint16_t tid, uint16_t v0, uint16_t v1);
+	void Trice16fn_3(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2);
+	void Trice16fn_4(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3);
+	void Trice16fn_5(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4);
+	void Trice16fn_6(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5);
+	void Trice16fn_7(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6);
+	void Trice16fn_8(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7);
+	void Trice16fn_9(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8);
+	void Trice16fn_10(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9);
+	void Trice16fn_11(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10);
+	void Trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
@@ -633,19 +633,19 @@ void Trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t 
 	#define TRice16_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice16fn_11(tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10))                       //!< TRice16_11 is a macro calling a function to reduce code size.
 	#define TRice16_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice16fn_12(tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11)) //!< TRice16_12 is a macro calling a function to reduce code size.
 
-void TRice16fn_0(uint16_t tid);
-void TRice16fn_1(uint16_t tid, uint16_t v0);
-void TRice16fn_2(uint16_t tid, uint16_t v0, uint16_t v1);
-void TRice16fn_3(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2);
-void TRice16fn_4(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3);
-void TRice16fn_5(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4);
-void TRice16fn_6(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5);
-void TRice16fn_7(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6);
-void TRice16fn_8(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7);
-void TRice16fn_9(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8);
-void TRice16fn_10(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9);
-void TRice16fn_11(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10);
-void TRice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11);
+	void TRice16fn_0(uint16_t tid);
+	void TRice16fn_1(uint16_t tid, uint16_t v0);
+	void TRice16fn_2(uint16_t tid, uint16_t v0, uint16_t v1);
+	void TRice16fn_3(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2);
+	void TRice16fn_4(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3);
+	void TRice16fn_5(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4);
+	void TRice16fn_6(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5);
+	void TRice16fn_7(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6);
+	void TRice16fn_8(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7);
+	void TRice16fn_9(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8);
+	void TRice16fn_10(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9);
+	void TRice16fn_11(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10);
+	void TRice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11);
 
 #endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
 
