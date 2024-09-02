@@ -187,7 +187,10 @@ extern int TriceDataOffsetDepthMax;
 //! - the additional needed stack space when TRICE_BUFFER == TRICE_STACK_BUFFER
 //! - the statically allocated buffer size when TRICE_BUFFER == TRICE_STATIC_BUFFER
 //! - the value before Ringbuffer wraps, when TRICE_BUFFER == TRICE_RING_BUFFER
-#define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
+//!
+//! The trice buffer needs 4 additional scratch bytes, when the longest possible
+//! trice gets formally the padding space cleared. 
+#define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE + 4)
 
 #if TRICE_CYCLE_COUNTER == 1
 	#define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
