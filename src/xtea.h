@@ -6,7 +6,7 @@
 #define TRICE_XTEA_H_
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 #include <stdint.h> //lint !e537 !e451  Warning 537: Repeated include file,  Warning 451: Header file repeatedly included but does not have a standard
@@ -28,7 +28,7 @@ void XTEAEncrypt(uint32_t* p, unsigned count);
 	}
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif // TRICE_XTEA_H_

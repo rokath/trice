@@ -7,7 +7,7 @@
 #define TCOBS_INTERNAL_H_
 
 #ifdef __cplusplus
-extern "C" {
+    extern "C" {
 #endif
 
 #define N 0xA0  //!< sigil byte 0x101ooooo, offset 0-31
@@ -22,7 +22,7 @@ extern "C" {
 #define R4 0x18 //!< sigil byte 0x00011ooo, offset 0-7
 
 #ifdef __cplusplus
-}
+    }
 #endif
 
 #endif // TCOBS_INTERNAL_H_

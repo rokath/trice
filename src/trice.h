@@ -6,7 +6,7 @@
 #define TRICE_H_
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 #undef ID //!< acoid name clashes in case ID was used by an other library
@@ -892,7 +892,7 @@ extern Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn;
 extern Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn;
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif // TRICE_H_

@@ -6,7 +6,7 @@
 #define TRICE_DEFAULT_CONFIG_H_
 
 #ifdef __cplusplus
-extern "C" {
+	extern "C" {
 #endif
 
 #ifndef TRICE_UARTA_MIN_ID
@@ -377,7 +377,7 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
-}
+	}
 #endif
 
 #endif /* TRICE_DEFAULT_CONFIG_H_ */
