@@ -58,7 +58,7 @@
       - [9.1.1. Limitation TRICE in TRICE not possible](#911-limitation-trice-in-trice-not-possible)
     - [9.2. Current Limitations](#92-current-limitations)
       - [9.2.1. String Concatenation Within TRICE Macros Not Possible](#921-string-concatenation-within-trice-macros-not-possible)
-      - [9.2.2. Linited Trice Parser Capabilities](#922-linited-trice-parser-capabilities)
+      - [9.2.2. Limited Trice Parser Capabilities](#922-limited-trice-parser-capabilities)
   - [10. Additional hints](#10-additional-hints)
     - [10.1. Pre-built executables are available](#101-pre-built-executables-are-available)
     - [10.2. Configuration file `triceConfig.h`](#102-configuration-file-triceconfigh)
@@ -970,7 +970,7 @@ void f0( void ){ TRICE( "msg:" ## "Hello\n" ); } // ERROR!
 To implement this would need to build a trice preprocessor or to run the C preprocessor first and to modify the preprocessor output with the trice tool. That would make things unneccessary complicate and fragile for now.
 
 
-####  9.2.2. <a name='LinitedTriceParserCapabilities'></a>Linited Trice Parser Capabilities
+####  9.2.2. <a name='LimitedTriceParserCapabilities'></a>Limited Trice Parser Capabilities
 
 The Trice tool internal parser has only limited capabilities. In works well in most cases, but could led to problems in some cases. The compiler run will for sure end up with some error messages in the following examples, so the developer can fix the code.
 
