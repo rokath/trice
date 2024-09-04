@@ -28,7 +28,7 @@ even inside **↯ interrupts** in less than 1 µs❗
   - **[Features](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
 - <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserGuide.md#2-get-started).
 - *Trice* consists of 2 parts:
-  1. **C** code `trice` macros generating tiny & super-fast embedded device real-time trace/log code
+  1. **C** code `trice` macros generating tiny & super-fast embedded device real-time trace/log code similar usable like `printf`.
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *Trice* packages, exchange the carried IDs with the format string and print out.
