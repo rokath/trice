@@ -169,15 +169,27 @@ extern const int TriceTypeS4;
 extern const int TriceTypeX0;
 extern unsigned RTT0_writeDepthMax;
 extern unsigned TriceErrorCount;
-extern unsigned TriceDynBufTruncateCount;
-extern unsigned TriceDirectOverflowCount;
-extern unsigned TriceDeferredOverflowCount;
+
 extern uint32_t* const TriceRingBufferStart;
 extern uint32_t* const triceRingBufferLimit;
-extern unsigned TriceSingleMaxWordCount;
 extern int TriceRingBufferDepthMax;
 extern unsigned TriceHalfBufferDepthMax;
+
+#if (TRICE_DIAGNOSTICS == 1)
 extern int TriceDataOffsetDepthMax;
+extern unsigned TriceSingleMaxWordCount;
+extern unsigned TriceDynBufTruncateCount;
+	#if TRICE_PROTECT == 1
+extern unsigned TriceDirectOverflowCount;
+extern unsigned TriceDeferredOverflowCount;
+	#endif
+	#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT() \
+		do {                                         \
+			TriceDynBufTruncateCount++;              \
+		} while (0)
+#else
+	#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT()
+#endif
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 	extern uint32_t* TriceBufferWritePosition;
@@ -658,7 +670,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 			uint32_t limit = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
 			uint32_t len_ = n;                           /* n could be a constant */                                                     \
 			if (len_ > limit) {                                                                                                          \
-				TriceDynBufTruncateCount++;                                                                                              \
+				TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                \
 				len_ = limit;                                                                                                            \
 			}                                                                                                                            \
 			TRICE_ENTER tid;                                                                                                             \
