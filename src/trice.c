@@ -455,7 +455,7 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8
 				unsigned NumWordsAtOnce;
 				unsigned WrOff;
 				unsigned RemW;
-				
+
 				#if TRICE_PROTECT == 1
 					unsigned space = SEGGER_RTT_GetAvailWriteSpace(0);
 					if (space < NumW << 2) {
@@ -543,7 +543,7 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 		#else  // #if TRICE_PROTECT == 1
 			SEGGER_Write_RTT0_NoCheck32(buf, count);
 		#endif // #else // #if TRICE_PROTECT == 1
-		
+
 		#if TRICE_DIAGNOSTICS == 1
 			triceSeggerRTTDiagnostics(); // todo: maybe not needed
 		#endif
@@ -703,13 +703,13 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 				unsigned count = directXEncode32(enc, dat, wordCount); // Up to 3 trailing zeroes are packed as well here.
 				TriceDirectWrite32(enc, count);
 			#endif
-		
+
 			return;
 
 		#elif TRICE_DIRECT8_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
 			static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer!
-			
+
 			#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 				uint32_t* dat = enc + (TRICE_DATA_OFFSET >> 2);
 				memcpy(dat, triceStart, wordCount << 2); // Trice data are 32-bit aligned.
@@ -726,7 +726,7 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 				unsigned len = directXEncode8(enc, dat, wordCount << 2); // Up to 3 trailing zeroes are packed as well here.
 				TriceDirectWrite8((uint8_t*)enc, len);
 			#endif
-		
+
 			return;
 
 		#else //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -885,111 +885,111 @@ unsigned TriceOutDepth(void) {
 #ifdef TRICE_N
 
 	void triceN(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE_N(id(tid), pFmt, buf, n);
+		TRICE_N(id(tid), fmt, buf, n);
 	}
 
 	void TriceN(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE_N(Id(tid), pFmt, buf, n);
+		TRICE_N(Id(tid), fmt, buf, n);
 	}
 
 	void TRiceN(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE_N(ID(tid), pFmt, buf, n);
+		TRICE_N(ID(tid), fmt, buf, n);
 	}
 
 	void trice8B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE8_B(id(tid), pFmt, buf, n);
+		TRICE8_B(id(tid), fmt, buf, n);
 	}
 
 	void Trice8B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE8_B(Id(tid), pFmt, buf, n);
+		TRICE8_B(Id(tid), fmt, buf, n);
 	}
 
 	void TRice8B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE8_B(ID(tid), pFmt, buf, n);
+		TRICE8_B(ID(tid), fmt, buf, n);
 	}
 
 	void trice16B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE16_B(id(tid), pFmt, buf, n);
+		TRICE16_B(id(tid), fmt, buf, n);
 	}
 
 	void Trice16B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE16_B(Id(tid), pFmt, buf, n);
+		TRICE16_B(Id(tid), fmt, buf, n);
 	}
 
 	void TRice16B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE16_B(ID(tid), pFmt, buf, n);
+		TRICE16_B(ID(tid), fmt, buf, n);
 	}
 
 	void trice32B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE32_B(id(tid), pFmt, buf, n);
+		TRICE32_B(id(tid), fmt, buf, n);
 	}
 
 	void Trice32B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE32_B(Id(tid), pFmt, buf, n);
+		TRICE32_B(Id(tid), fmt, buf, n);
 	}
 
 	void TRice32B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE32_B(ID(tid), pFmt, buf, n);
+		TRICE32_B(ID(tid), fmt, buf, n);
 	}
 
 	void trice64B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE64_B(id(tid), pFmt, buf, n);
+		TRICE64_B(id(tid), fmt, buf, n);
 	}
 
 	void Trice64B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE64_B(Id(tid), pFmt, buf, n);
+		TRICE64_B(Id(tid), fmt, buf, n);
 	}
 
 	void TRice64B(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE64_B(ID(tid), pFmt, buf, n);
+		TRICE64_B(ID(tid), fmt, buf, n);
 	}
 
 	void trice8F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE8_F(id(tid), pFmt, buf, n);
+		TRICE8_F(id(tid), fmt, buf, n);
 	}
 
 	void Trice8F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE8_F(Id(tid), pFmt, buf, n);
+		TRICE8_F(Id(tid), fmt, buf, n);
 	}
 
 	void TRice8F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE8_F(ID(tid), pFmt, buf, n);
+		TRICE8_F(ID(tid), fmt, buf, n);
 	}
 
 	void trice16F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE16_F(id(tid), pFmt, buf, n);
+		TRICE16_F(id(tid), fmt, buf, n);
 	}
 
 	void Trice16F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE16_F(Id(tid), pFmt, buf, n);
+		TRICE16_F(Id(tid), fmt, buf, n);
 	}
 
 	void TRice16F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE16_F(ID(tid), pFmt, buf, n);
+		TRICE16_F(ID(tid), fmt, buf, n);
 	}
 
 	void trice32F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE32_F(id(tid), pFmt, buf, n);
+		TRICE32_F(id(tid), fmt, buf, n);
 	}
 
 	void Trice32F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE32_F(Id(tid), pFmt, buf, n);
+		TRICE32_F(Id(tid), fmt, buf, n);
 	}
 
 	void TRice32F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE32_F(ID(tid), pFmt, buf, n);
+		TRICE32_F(ID(tid), fmt, buf, n);
 	}
 
 	void trice64F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE64_F(id(tid), pFmt, buf, n);
+		TRICE64_F(id(tid), fmt, buf, n);
 	}
 
 	void Trice64F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE64_F(Id(tid), pFmt, buf, n);
+		TRICE64_F(Id(tid), fmt, buf, n);
 	}
 
 	void TRice64F(int tid, char* fmt, void* buf, uint32_t n) {
-		TRICE64_F(ID(tid), pFmt, buf, n);
+		TRICE64_F(ID(tid), fmt, buf, n);
 	}
 
 #endif // #ifdef TRICE_N
@@ -997,15 +997,15 @@ unsigned TriceOutDepth(void) {
 #ifdef TRICE_S
 
 	void triceS(int tid, char* fmt, char* runtimeGeneratedString) {
-		TRICE_S(id(tid), pFmt, runtimeGeneratedString);
+		TRICE_S(id(tid), fmt, runtimeGeneratedString);
 	}
 
 	void TriceS(int tid, char* fmt, char* runtimeGeneratedString) {
-		TRICE_S(Id(tid), pFmt, runtimeGeneratedString);
+		TRICE_S(Id(tid), fmt, runtimeGeneratedString);
 	}
 
 	void TRiceS(int tid, char* fmt, char* runtimeGeneratedString) {
-		TRICE_S(ID(tid), pFmt, runtimeGeneratedString);
+		TRICE_S(ID(tid), fmt, runtimeGeneratedString);
 	}
 
 #endif // #ifdef TRICE_N

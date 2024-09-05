@@ -9,10 +9,10 @@
 	extern "C" {
 #endif
 
-#undef ID //!< acoid name clashes in case ID was used by an other library
-#undef Id //!< acoid name clashes in case Id was used by an other library
-#undef id //!< acoid name clashes in case id was used by an other library
-#undef iD //!< acoid name clashes in case iD was used by an other library
+#undef ID //!< avoid name clashes in case ID was used by an other library
+#undef Id //!< avoid name clashes in case Id was used by an other library
+#undef id //!< avoid name clashes in case id was used by an other library
+#undef iD //!< avoid name clashes in case iD was used by an other library
 
 #define TRICE_UNUSED(x) (void)(x); //!< https://stackoverflow.com/questions/3599160/how-can-i-suppress-unused-parameter-warnings-in-c
 
@@ -50,7 +50,7 @@
 // lint -emacro( 717, DCOPY, SCOPY )
 // lint -emacro( 732, DCOPY )
 
-#if TRICE_OFF == 1 || TRICE_CLEAN == 1 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
+#if (defined(TRICE_OFF) && TRICE_OFF == 1) || (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
 
 	#define TRICE_ENTER
 	#define TRICE_LEAVE
@@ -189,7 +189,7 @@ extern int TriceDataOffsetDepthMax;
 //! - the value before Ringbuffer wraps, when TRICE_BUFFER == TRICE_RING_BUFFER
 //!
 //! The trice buffer needs 4 additional scratch bytes, when the longest possible
-//! trice gets formally the padding space cleared. 
+//! trice gets formally the padding space cleared.
 #define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE + 4)
 
 #if TRICE_CYCLE_COUNTER == 1
@@ -654,6 +654,7 @@ static inline uint64_t aDouble(double x) {
 	//
 	#define TRICE_N(tid, pFmt, buf, n)                                                                                                   \
 		do {                                                                                                                             \
+			TRICE_UNUSED(pFmt);                                                                                                          \
 			uint32_t limit = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
 			uint32_t len_ = n;                           /* n could be a constant */                                                     \
 			if (len_ > limit) {                                                                                                          \
