@@ -163,10 +163,6 @@ extern unsigned SingleTricesRingCount;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
 extern uint8_t TriceCycle;
-extern const int TriceTypeS0;
-extern const int TriceTypeS2;
-extern const int TriceTypeS4;
-extern const int TriceTypeX0;
 extern unsigned RTT0_writeDepthMax;
 extern unsigned TriceErrorCount;
 
