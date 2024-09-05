@@ -14,6 +14,8 @@ static void exampleOfManualSerialization( void );
 static void exampleOfManualJSONencoding(void);
 static void dynString( int n );
 
+// clang-format off
+
 //! TriceCheck performs trice code sequence n. TriceCheck writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
@@ -2419,6 +2421,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
     }
 }
 
+// clang-format on
 
 static int32_t FloatToInt32( float f ){
     if( f >= 0 ){
