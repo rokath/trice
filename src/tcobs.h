@@ -7,7 +7,7 @@
 #define TCOBS_H_
 
 #ifdef __cplusplus
-	extern "C" {
+extern "C" {
 #endif
 
 #include <stddef.h>
@@ -36,7 +36,7 @@ int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict inpu
 #define INPUT_DATA_CORRUPTED -2000000 //!< INPUT_DATA_CORRUPTED is TCOBSDecode return error code.
 
 #ifdef __cplusplus
-	}
+}
 #endif
 
 #endif // TCOBS_H_
