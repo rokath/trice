@@ -144,7 +144,7 @@ extern "C" {
 // Optical feedback: Adapt to your device.
 //
 
-static inline void ToggleOpticalFeedbackLED( void ){
+TRICE_INLINE void ToggleOpticalFeedbackLED( void ){
 	// The only user controllable LED available on the
 	// Nucleo is LD2, on port A5. This is set up in main.c
 	gpio_toggle(GPIOA, GPIO5);

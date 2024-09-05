@@ -222,7 +222,7 @@ extern int TriceDataOffsetDepthMax;
 		(((uint32_t)(x) & 0xFF000000UL) >> 24))
 	*/
 
-	static inline uint16_t Reverse16(uint16_t value) {
+	TRICE_INLINE uint16_t Reverse16(uint16_t value) {
 		return (((value & 0x00FF) << 8) |
 				((value & 0xFF00) >> 8));
 	}
@@ -589,7 +589,7 @@ extern int TriceDataOffsetDepthMax;
 
 /* pre C99
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
-static inline uint32_t aFloat( float x ){
+TRICE_INLINE uint32_t aFloat( float x ){
     union {
         float f;
         uint32_t u;
@@ -600,7 +600,7 @@ static inline uint32_t aFloat( float x ){
 */
 
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
-static inline uint32_t aFloat(float f) {
+TRICE_INLINE uint32_t aFloat(float f) {
 	union {
 		float from;
 		uint32_t to;
@@ -609,7 +609,7 @@ static inline uint32_t aFloat(float f) {
 }
 
 // asFloat returns passed uint32_t value x bit pattern as float type.
-static inline float asFloat(uint32_t x) {
+TRICE_INLINE float asFloat(uint32_t x) {
 	union {
 		uint32_t from;
 		float to;
@@ -618,7 +618,7 @@ static inline float asFloat(uint32_t x) {
 }
 
 // aDouble returns passed double value x as bit pattern in a uint64_t type.
-static inline uint64_t aDouble(double x) {
+TRICE_INLINE uint64_t aDouble(double x) {
 	union {
 		double d;
 		uint64_t u;
