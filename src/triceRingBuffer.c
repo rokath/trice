@@ -9,7 +9,7 @@
 // lint -e528 Warning 528: Symbol 'Trice0(unsigned short, const char *)'  not referenced
 // lint -e438 Warning 438: Last value assigned to variable 'singleTricesRingCount' not used.
 
-#if TRICE_BUFFER == TRICE_RING_BUFFER
+#if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_OFF == 0
 
 static int TriceSingleDeferredOut(uint32_t* addr);
 
@@ -287,4 +287,4 @@ void WatchRingBufferMargins(void) {
 
 	#endif // #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
-#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
+#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_OFF == 0

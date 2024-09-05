@@ -7,7 +7,7 @@
 // lint -e701  Info 701: Shift left of signed quantity (int)
 // lint -e712  Info 712: Loss of precision (assignment) (unsigned long long to unsigned int)
 
-#if TRICE_64_BIT_SUPPORT == 1
+#if TRICE_64_BIT_SUPPORT == 1 && TRICE_OFF == 0
 
     // no-stamp 64-bit-values functions
 	#ifndef ENABLE_trice64fn_0
@@ -558,4 +558,4 @@
 		}
 	#endif
 
-#endif // #if TRICE_64_BIT_SUPPORT == 1
+#endif // #if TRICE_64_BIT_SUPPORT == 1 && TRICE_OFF == 0

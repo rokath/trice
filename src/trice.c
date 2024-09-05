@@ -7,6 +7,8 @@
 #include "tcobs.h"
 #include "xtea.h"
 
+#if TRICE_OFF == 0
+
 // check configuration:
 
 #ifndef TRICE_DATA_OFFSET
@@ -825,8 +827,8 @@ unsigned TriceOutDepth(void) {
 	return depth;
 }
 
-#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
-#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#if TRICE_OFF == 1 || TRICE_CLEAN == 1
+#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 	//! TRICE_ASSERT writes trice data as fast as possible in a buffer.
 	//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -878,7 +880,7 @@ unsigned TriceOutDepth(void) {
 		}
 	}
 
-#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 #ifdef TRICE_N
 
@@ -1007,3 +1009,5 @@ unsigned TriceOutDepth(void) {
 	}
 
 #endif // #ifdef TRICE_N
+
+#endif // #if TRICE_OFF == 0

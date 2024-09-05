@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#if TRICE_DIRECT_AUXILIARY8 == 1
+#if TRICE_DIRECT_AUXILIARY8 == 1 && TRICE_OFF == 0
 
 //! UserNonBlockingDirectWrite8AuxiliaryFn can get a user function address for writing to an auxiliary interface.
 Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn = (void*)0;
@@ -75,4 +75,4 @@ void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t* enc, unsigned coun
 	#endif
 }
 
-#endif // #if TRICE_DEFERRED_AUXILIARY32 == 1
+#endif // #if TRICE_DEFERRED_AUXILIARY32 == 1 && TRICE_OFF == 0

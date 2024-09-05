@@ -50,7 +50,7 @@
 // lint -emacro( 717, DCOPY, SCOPY )
 // lint -emacro( 732, DCOPY )
 
-#if TRICE_OFF == 1 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
+#if TRICE_OFF == 1 || TRICE_CLEAN == 1 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
 
 	#define TRICE_ENTER
 	#define TRICE_LEAVE
@@ -60,7 +60,7 @@
 	#define TRICE_S(id, p, s)    // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
 	#define TRICE_N(id, p, s, n) // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
 
-#endif // #if TRICE_OFF == 1
+#endif // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 // helper macros (the numbers are 32-bit random values)
 
@@ -570,19 +570,19 @@ extern int TriceDataOffsetDepthMax;
 //! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of TRICE_COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
 #define TRICE(tid, fmt, ...) TRICE_CONCAT2(TRICE_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
-#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 	#define TRice(fmt, ...)
 	#define Trice(fmt, ...)
 	#define trice(fmt, ...)
 
-#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 	#define TRice(tid, fmt, ...) TRICE_CONCAT2(TRice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 	#define Trice(tid, fmt, ...) TRICE_CONCAT2(Trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 	#define trice(tid, fmt, ...) TRICE_CONCAT2(trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
-#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -810,7 +810,7 @@ static inline uint64_t aDouble(double x) {
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 	// clang-format off
 	TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
@@ -818,7 +818,7 @@ static inline uint64_t aDouble(double x) {
 	TRICE_INLINE void trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 	// clang-format on
 
-#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 	TRICE_INLINE void TRice0(uint16_t tid, const char* pFmt) {
 		TRice32m_0(tid);
@@ -835,7 +835,7 @@ static inline uint64_t aDouble(double x) {
 		TRICE_UNUSED(pFmt)
 	}
 
-#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
@@ -859,7 +859,7 @@ static inline uint64_t aDouble(double x) {
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
-#if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 // clang-format off
 TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
@@ -871,7 +871,7 @@ TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(
 TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
 // clang-format on
 
-#else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 	void triceAssertTrue(int idN, char* msg, int flag);
 	void TriceAssertTrue(int idN, char* msg, int flag);
@@ -881,7 +881,7 @@ TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(
 	void TriceAssertFalse(int idN, char* msg, int flag);
 	void TRiceAssertFalse(int idN, char* msg, int flag);
 
-#endif // #else // #if defined(TRICE_CLEAN) && TRICE_CLEAN == 1
+#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 typedef void (*Write8AuxiliaryFn_t)(const uint8_t* enc, size_t encLen);
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;

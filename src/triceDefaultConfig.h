@@ -9,6 +9,14 @@
 	extern "C" {
 #endif
 
+#ifndef TRICE_CLEAN
+	#define TRICE_CLEAN 0
+#endif
+
+#ifndef TRICE_OFF
+	#define TRICE_OFF 0
+#endif
+
 #ifndef TRICE_UARTA_MIN_ID
 	#define TRICE_UARTA_MIN_ID 0 //!< TRICE_UARTA_MIN_ID, if > 0, is the smalles ID routed to UARTA.
 #endif

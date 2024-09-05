@@ -3,7 +3,7 @@
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
-#if TRICE_BUFFER == TRICE_STATIC_BUFFER
+#if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_OFF == 0
 
 //! triceSingleBuffer holds a single trice during direct trice macro execution.
 uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE >> 2];
@@ -13,4 +13,4 @@ uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_D
 
 void TriceTransfer(void) {}
 
-#endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER
+#endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_OFF == 0

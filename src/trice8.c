@@ -6,7 +6,7 @@
 // lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
 // lint -e701  Info 701: Shift left of signed quantity (int)
 
-#if TRICE_8_BIT_SUPPORT == 1
+#if TRICE_8_BIT_SUPPORT == 1 && TRICE_OFF == 0
 
     // without stamp 8-bit values functions
 	#ifndef ENABLE_trice8fn_0
@@ -557,4 +557,4 @@
 		}
 	#endif
 
-#endif // #if TRICE_8_BIT_SUPPORT == 1
+#endif // #if TRICE_8_BIT_SUPPORT == 1 && TRICE_OFF == 0

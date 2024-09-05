@@ -5,7 +5,7 @@
 #include "tcobs.h"
 #include "trice.h"
 
-#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
+#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
 
 static void TriceOut(uint32_t* tb, size_t tLen);
 
@@ -321,4 +321,4 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
+#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0

@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h> // memcpy
-#include "triceConfig.h"
 #include "tcobs.h"
 #include "tcobsv1Internal.h"
 // clang-format on
