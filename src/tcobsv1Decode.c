@@ -2,13 +2,12 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 \details See ./TCOBSv1Specification.md.
 *******************************************************************************/
-// clang-format off
+
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h> // memcpy
 #include "tcobs.h"
 #include "tcobsv1Internal.h"
-// clang-format on
 
 static int sigilAndOffset(uint8_t* sigil, uint8_t b);
 static uint8_t repeatByte(int offset, uint8_t* in, int len);

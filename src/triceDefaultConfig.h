@@ -6,7 +6,7 @@
 #define TRICE_DEFAULT_CONFIG_H_
 
 #ifdef __cplusplus
-	extern "C" {
+extern "C" {
 #endif
 
 #ifndef TRICE_CLEAN
@@ -221,8 +221,8 @@
 #ifndef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 	//! TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN can be defined to 1 on little endian MCUs if the trice data are needed in network order,
 	//! or on big endian MCUs if the trice data are needed in little endian order. You should avoid setting this to 1 because
-	//! it increases the trice storage time and the needed code amount. The default transfer order is little endian as most targets are 
-	//! little endian machines. If you change the transfer order to big endian here, you need to apply `-triceEndianness bigEndian` CLI switch. 
+	//! it increases the trice storage time and the needed code amount. The default transfer order is little endian as most targets are
+	//! little endian machines. If you change the transfer order to big endian here, you need to apply `-triceEndianness bigEndian` CLI switch.
 	//! when using the `trice log` command. This may be is not completely implemented and needs automatic tests as well.
 	//! The main to implement:
 	//! - implement compiler agnostic access macros (byte swapping)
@@ -256,12 +256,12 @@
 #ifndef XTEA_DECRYPT
 	//! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice reception capable node to read XTEA encrypted messages.
 	//! One possible application is, receiving trices, decoding them, finding an ID match in a (from triceF generated) function pointer list and executing the dedicated function.
-	//! This allows kind of RPC (without immediate return) also with encryption. 
+	//! This allows kind of RPC (without immediate return) also with encryption.
 	#define XTEA_DECRYPT 0
 #endif
 
 #ifndef TRICE_DIRECT_XTEA_ENCRYPT
-	//! TRICE_DIRECT_XTEA_ENCRYPT enables encryption for direct output. Encrypting direct output costs significant computing time in the time critical path!  
+	//! TRICE_DIRECT_XTEA_ENCRYPT enables encryption for direct output. Encrypting direct output costs significant computing time in the time critical path!
 	#define TRICE_DIRECT_XTEA_ENCRYPT 0
 #endif
 
@@ -390,7 +390,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
-	}
+}
 #endif
 
 #endif /* TRICE_DEFAULT_CONFIG_H_ */

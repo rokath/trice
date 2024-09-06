@@ -9,10 +9,10 @@
 	extern "C" {
 #endif
 
-#undef ID //!< acoid name clashes in case ID was used by an other library
-#undef Id //!< acoid name clashes in case Id was used by an other library
-#undef id //!< acoid name clashes in case id was used by an other library
-#undef iD //!< acoid name clashes in case iD was used by an other library
+#undef ID //!< avoid name clashes in case ID was used by an other library
+#undef Id //!< avoid name clashes in case Id was used by an other library
+#undef id //!< avoid name clashes in case id was used by an other library
+#undef iD //!< avoid name clashes in case iD was used by an other library
 
 #define TRICE_UNUSED(x) (void)(x); //!< https://stackoverflow.com/questions/3599160/how-can-i-suppress-unused-parameter-warnings-in-c
 
@@ -50,7 +50,7 @@
 // lint -emacro( 717, DCOPY, SCOPY )
 // lint -emacro( 732, DCOPY )
 
-#if TRICE_OFF == 1 || TRICE_CLEAN == 1 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
+#if (defined(TRICE_OFF) && TRICE_OFF == 1) || (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
 
 	#define TRICE_ENTER
 	#define TRICE_LEAVE
@@ -163,21 +163,29 @@ extern unsigned SingleTricesRingCount;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
 extern uint8_t TriceCycle;
-extern const int TriceTypeS0;
-extern const int TriceTypeS2;
-extern const int TriceTypeS4;
-extern const int TriceTypeX0;
 extern unsigned RTT0_writeDepthMax;
 extern unsigned TriceErrorCount;
-extern unsigned TriceDynBufTruncateCount;
-extern unsigned TriceDirectOverflowCount;
-extern unsigned TriceDeferredOverflowCount;
+
 extern uint32_t* const TriceRingBufferStart;
 extern uint32_t* const triceRingBufferLimit;
-extern unsigned TriceSingleMaxWordCount;
 extern int TriceRingBufferDepthMax;
 extern unsigned TriceHalfBufferDepthMax;
+
+#if (TRICE_DIAGNOSTICS == 1)
 extern int TriceDataOffsetDepthMax;
+extern unsigned TriceSingleMaxWordCount;
+extern unsigned TriceDynBufTruncateCount;
+	#if TRICE_PROTECT == 1
+extern unsigned TriceDirectOverflowCount;
+extern unsigned TriceDeferredOverflowCount;
+	#endif
+	#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT() \
+		do {                                         \
+			TriceDynBufTruncateCount++;              \
+		} while (0)
+#else
+	#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT()
+#endif
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 	extern uint32_t* TriceBufferWritePosition;
@@ -189,7 +197,7 @@ extern int TriceDataOffsetDepthMax;
 //! - the value before Ringbuffer wraps, when TRICE_BUFFER == TRICE_RING_BUFFER
 //!
 //! The trice buffer needs 4 additional scratch bytes, when the longest possible
-//! trice gets formally the padding space cleared. 
+//! trice gets formally the padding space cleared.
 #define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE + 4)
 
 #if TRICE_CYCLE_COUNTER == 1
@@ -222,7 +230,7 @@ extern int TriceDataOffsetDepthMax;
 		(((uint32_t)(x) & 0xFF000000UL) >> 24))
 	*/
 
-	static inline uint16_t Reverse16(uint16_t value) {
+	TRICE_INLINE uint16_t Reverse16(uint16_t value) {
 		return (((value & 0x00FF) << 8) |
 				((value & 0xFF00) >> 8));
 	}
@@ -589,7 +597,7 @@ extern int TriceDataOffsetDepthMax;
 
 /* pre C99
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
-static inline uint32_t aFloat( float x ){
+TRICE_INLINE uint32_t aFloat( float x ){
     union {
         float f;
         uint32_t u;
@@ -600,7 +608,7 @@ static inline uint32_t aFloat( float x ){
 */
 
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
-static inline uint32_t aFloat(float f) {
+TRICE_INLINE uint32_t aFloat(float f) {
 	union {
 		float from;
 		uint32_t to;
@@ -609,7 +617,7 @@ static inline uint32_t aFloat(float f) {
 }
 
 // asFloat returns passed uint32_t value x bit pattern as float type.
-static inline float asFloat(uint32_t x) {
+TRICE_INLINE float asFloat(uint32_t x) {
 	union {
 		uint32_t from;
 		float to;
@@ -618,7 +626,7 @@ static inline float asFloat(uint32_t x) {
 }
 
 // aDouble returns passed double value x as bit pattern in a uint64_t type.
-static inline uint64_t aDouble(double x) {
+TRICE_INLINE uint64_t aDouble(double x) {
 	union {
 		double d;
 		uint64_t u;
@@ -654,10 +662,11 @@ static inline uint64_t aDouble(double x) {
 	//
 	#define TRICE_N(tid, pFmt, buf, n)                                                                                                   \
 		do {                                                                                                                             \
+			TRICE_UNUSED(pFmt);                                                                                                          \
 			uint32_t limit = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
 			uint32_t len_ = n;                           /* n could be a constant */                                                     \
 			if (len_ > limit) {                                                                                                          \
-				TriceDynBufTruncateCount++;                                                                                              \
+				TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                \
 				len_ = limit;                                                                                                            \
 			}                                                                                                                            \
 			TRICE_ENTER tid;                                                                                                             \
