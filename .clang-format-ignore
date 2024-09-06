@@ -1,7 +1,5 @@
 src/SEGGER_RTT.c
 src/SEGGER_RTT.h
-src/trice.h
-src/trice.c
 src/trice8.h
 src/trice8.c
 src/trice16.h
