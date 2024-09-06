@@ -1,0 +1,6 @@
+#FIXME: used to test. Can be reworked to automatic labelling (fixes, features ,c , go , ...)
+# Add 'AnyChange' label to any changes within the entire repository
+AnyChange:
+- changed-files:
+  - any-glob-to-any-file: '**'
+
