@@ -60,7 +60,7 @@
 	#define TRICE_S(id, p, s)    // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
 	#define TRICE_N(id, p, s, n) // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
 
-#endif // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
+#endif // #if (defined(TRICE_OFF) && TRICE_OFF == 1) || (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) 
 
 // helper macros (the numbers are 32-bit random values)
 
