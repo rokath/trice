@@ -228,7 +228,7 @@ The target does not even "know" about that, because it gets only the *Trice* IDs
 
 ##  12. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
 
-Once the [til.json](../examples/F030R8_inst/li.json) list is done the user can translate it in any language and exchanging the list switches to another language.
+Once the [til.json](../examples/F030R8_inst/til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
 ##  13. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
 
