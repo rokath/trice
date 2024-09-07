@@ -120,7 +120,7 @@ static inline uint64_t aDouble( double x ){
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
 * This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );`
-* There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../examples/exampleData/triceCheck.c) for usage or see the following.
+* There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../test/testdata/triceCheck.c) for usage or see the following.
 
 ##  8. <a name='RuntimeGeneratedBufferTransferwithTRICE_B'></a>Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`
 
@@ -214,7 +214,7 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 | nothing printed                                                 | n | -  | - | **Not supported.**                                                          |
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
-* [x] Look in [triceCheck.c](../test/testata/triceCheck.c) for exampe code producing this:
+* [x] Look in [triceCheck.c](../test/testData/triceCheck.c) for exampe code producing this:
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
