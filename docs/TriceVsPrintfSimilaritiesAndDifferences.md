@@ -214,7 +214,7 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 | nothing printed                                                 | n | -  | - | **Not supported.**                                                          |
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
-* [x] Look in [triceCheck.c](../test/testData/triceCheck.c) for exampe code producing this:
+* [x] Look in [triceCheck.c](../test/testdata/triceCheck.c) for exampe code producing this:
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
