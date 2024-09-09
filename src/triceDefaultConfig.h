@@ -1,4 +1,4 @@
-/*! \file triceConfig.h
+/*! \file triceDefaultConfig.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -10,10 +10,17 @@ extern "C" {
 #endif
 
 #ifndef TRICE_CLEAN
+    // TRICE_CLEAN, when found in triceConfig.h is set to 0 with command "trice insert".
+    // and set to 1 with command "trice clean" to get rid of
+    // potential editor warnings in the trice clean state.
 	#define TRICE_CLEAN 0
 #endif
 
 #ifndef TRICE_OFF
+    // TRICE_OFF, when defined to 1 before including 
+    // trice.h disables trice code for the file.
+    // When defined in the project settings, it influences
+    // the whole trice code generation.
 	#define TRICE_OFF 0
 #endif
 
