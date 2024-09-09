@@ -1086,8 +1086,9 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
 
 - When setting up your first project you need a `triceConfig.h` file.
 - You should **not** use the `./test/cgo.../triceConfig.h` directly, because these are customized for internal tests with CGO. But you can use their settings as helper for a starting point.
-- Please choose one of the `./examples/*_instrumented/triceConfig.h` files as starting point.
+- Please choose one of the `./examples/*_inst/triceConfig.h` files as starting point.
 - Comparing them and understandig the differences helps quick starting.
+- The file [triceDefaultConfig.h](../src/triceDefaultConfig.h) contains all possible config keys with descriptions.
 
 ###  10.3. <a name='Settinguptheveryfirstconnection'></a>Setting up the very first connection
 
