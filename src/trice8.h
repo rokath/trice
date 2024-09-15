@@ -2,6 +2,22 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+
+	#define TRICE_BYTE3(v) ((uint8_t)(v))
+	#define TRICE_BYTE2(v) (0x0000FF00 & ((uint32_t)(v) << 8))
+	#define TRICE_BYTE1(v) (0x00FF0000 & ((uint32_t)(v) << 16))
+	#define TRICE_BYTE0(v) ((uint32_t)(v) << 24)
+
+#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+
+	#define TRICE_BYTE0(v) ((uint8_t)(v))
+	#define TRICE_BYTE1(v) (0x0000FF00 & ((uint32_t)(v) << 8))
+	#define TRICE_BYTE2(v) (0x00FF0000 & ((uint32_t)(v) << 16))
+	#define TRICE_BYTE3(v) ((uint32_t)(v) << 24)
+
+#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+
 #define TRICE8(tid, fmt, ...) TRICE_CONCAT2(TRICE8_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1

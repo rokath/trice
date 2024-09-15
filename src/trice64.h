@@ -2,6 +2,20 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0))
+
+	#define TRICE_PUT64(x)        \
+		TRICE_PUT((uint32_t)(x)); \
+		TRICE_PUT((uint32_t)((uint64_t)(x) >> 32)); // little endian
+
+#else
+
+	#define TRICE_PUT64(x)                          \
+		TRICE_PUT((uint32_t)((uint64_t)(x) >> 32)); \
+		TRICE_PUT((uint32_t)(x)); // big endian
+
+#endif
+
 #define TRICE64(tid, fmt, ...) TRICE_CONCAT2(TRICE64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
