@@ -6,7 +6,7 @@
 #define TRICE_H_
 
 #ifdef __cplusplus
-	extern "C" {
+extern "C" {
 #endif
 
 #undef ID //!< avoid name clashes in case ID was used by an other library
@@ -50,17 +50,6 @@
 // lint -emacro( 717, DCOPY, SCOPY )
 // lint -emacro( 732, DCOPY )
 
-#if (defined(TRICE_OFF) && TRICE_OFF == 1) || (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
-
-	#define TRICE_ENTER
-	#define TRICE_PUT(n)         // do{ ((void)(n)); }while(0)
-	#define TRICE_PUT16(n)       // do{ ((void)(n)); }while(0)
-	#define PUT_BUFFER(b, l)     // do{ ((void)(b)); ((void)(l)); }while(0)
-	#define TRICE_S(id, p, s)    // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
-	#define TRICE_N(id, p, s, n) // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
-
-#endif // #if (defined(TRICE_OFF) && TRICE_OFF == 1) || (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) 
-
 // helper macros (the numbers are 32-bit random values)
 
 //! TRICE_SINGLE_PACK_MODE is the recommended TRICE_DEFERRED_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte.
@@ -91,89 +80,165 @@
 //! TRICE_FRAMING_TCOBS is recommended for trice transfer over UART.
 #define TRICE_FRAMING_TCOBS 3745917584U
 
-//! TRICE_FRAMING_COBS is recommended for encryptede trices.
+//! TRICE_FRAMING_COBS is recommended for encrypted trices.
 #define TRICE_FRAMING_COBS 2953804234U
 
 //! TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
 #define TRICE_FRAMING_NONE 1431860787U
 
-//! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
-//! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
-//! This is extendable until a 32767 bytes payload.
-#define TRICE_COUNT(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, NAME, ...) NAME
+#if defined(TRICE_OFF) && TRICE_OFF == 1 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
+
+#define TRICE_ENTER
+#define TRICE_LEAVE
+#define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
+#define TRICE_HEADER_PUT(n)    // do{ ((void)(n)); }while(0)
+#define TRICE_PUT16(n)         // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16_1616(x, n) // do{ ((void)(x)); ((void)(n)); }while(0)
+#define PUT_BUFFER(b, l)       // do{ ((void)(b)); ((void)(l)); }while(0)
+#define TRICE_S(id, p, s)      // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
+#define TRICE_N(id, p, s, n)   // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
+
+#endif // #if (defined(TRICE_OFF) && TRICE_OFF == 1) || (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) 
 
 #include <stdint.h>
 #include <string.h>
 #include "triceConfig.h"
 #include "triceDefaultConfig.h"
 
+#if (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) // Do not generate trice code when defining TRICE_CLEAN to 1 inside "triceConfig.h".
+
+// When the user defines TRICE_CLEAN to 0 or 1 inside triceConfig.h, this value is set to 0 with "trice insert" and to 1 with "trice clean".
+// This gives the option to silence editor warnings in the "trice clean" state.
+
+#define TRICE_ENTER
+#define TRICE_LEAVE
+#define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
+#define TRICE_HEADER_PUT(n)    // do{ ((void)(n)); }while(0)
+#define TRICE_PUT16(n)         // do{ ((void)(n)); }while(0)
+#define TRICE_PUT16_1616(x, n) // do{ ((void)(x)); ((void)(n)); }while(0)
+#define PUT_BUFFER(b, l)       // do{ ((void)(b)); ((void)(l)); }while(0)
+#define TRICE_S(id, p, s)      // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
+#define TRICE_N(id, p, s, n)   // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
+
+#endif // #if (defined(TRICE_OFF) && TRICE_OFF == 1) || (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) 
+
 #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
-	// https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
-	// #include <byteswap.h>
+// https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
+// #include <byteswap.h>
+//
+//  // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+//  #define TRICE_SWAPINT16(x) ( \
+//  	(((uint16_t)(x) & 0x00FFU) << 8) | \
+//  	(((uint16_t)(x) & 0xFF00U) >> 8))
+// 
+//  //Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+//  #define TRICE_SWAPINT32(x) ( \
+//  	(((uint32_t)(x) & 0x000000FFUL) << 24) | \
+//  	(((uint32_t)(x) & 0x0000FF00UL) <<  8) | \
+//  	(((uint32_t)(x) & 0x00FF0000UL) >>  8) | \
+//  	(((uint32_t)(x) & 0xFF000000UL) >> 24))
 
-	/*
-	// Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
-	#define TRICE_SWAPINT16(x) ( \
-		(((uint16_t)(x) & 0x00FFU) << 8) | \
-		(((uint16_t)(x) & 0xFF00U) >> 8))
+//! TriceReverse16 swaps low byte and high byte of value and returns it.
+TRICE_INLINE uint16_t TriceReverse16(uint16_t value) {
+	return (((value & 0x00FF) << 8) |
+			((value & 0xFF00) >> 8));
+}
 
-	//Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
-	#define TRICE_SWAPINT32(x) ( \
-		(((uint32_t)(x) & 0x000000FFUL) << 24) | \
-		(((uint32_t)(x) & 0x0000FF00UL) << 8) | \
-		(((uint32_t)(x) & 0x00FF0000UL) >> 8) | \
-		(((uint32_t)(x) & 0xFF000000UL) >> 24))
-	*/
+//! TriceReverse32 converts byte order ov vakue and returns it.
+TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
+	return (((value & 0x000000FF) << 24) |
+			((value & 0x0000FF00) << 8) |
+			((value & 0x00FF0000) >> 8) |
+			((value & 0xFF000000) >> 24));
+}
 
-	TRICE_INLINE uint16_t Reverse16(uint16_t value) {
-		return (((value & 0x00FF) << 8) |
-				((value & 0xFF00) >> 8));
-	}
+#ifndef TRICE_HTOTS // Allow external re-definition of TRICE_HTOTS.
+#define TRICE_HTOTS(x) TriceReverse16(x) //!< TRICE_HTOTS reorders short values from host order into trice transfer order.
+#endif
 
-	TRICE_INLINE uint32_t Reverse32(uint32_t value) {
-		return (((value & 0x000000FF) << 24) |
-				((value & 0x0000FF00) << 8) |
-				((value & 0x00FF0000) >> 8) |
-				((value & 0xFF000000) >> 24));
-	}
+#ifndef TRICE_HTOTL // Allow external re-definition of TRICE_HTOTL.
+#define TRICE_HTOTL(x) TriceReverse32(x) //!< TRICE_HTOTL reorders long values from host order x into trice transfer order.
+#endif
 
-	//! TRICE_HTOTS reorders short values from host order into trice transfer order.
-	#define TRICE_HTOTS(x) Reverse16(x) // __bswap_16((x))) // TRICE_SWAPINT16(x)
-
-	//! TRICE_HTOTL reorders long values from host order x into trice transfer order.
-	#define TRICE_HTOTL(x) Reverse32(x) // __bswap_32((x))) // TRICE_SWAPINT32(x)
-
-	//! TRICE_TTOHS reorders short values from trice transfer order into host order.
-	#define TRICE_TTOHS(x) Reverse16(x) // __bswap_16((x))) // TRICE_SWAPINT16(x)
+#ifndef TRICE_TTOHS // Allow external re-definition of TRICE_TTOHS.
+#define TRICE_TTOHS(x) TriceReverse16(x) //! TRICE_TTOHS reorders short values from trice transfer order into host order.
+#endif
 
 #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
-	//! TRICE_HTOTS reorders short values from hos // t order into trice transfer order.
-	#define TRICE_HTOTS(x) (x)
+//! TRICE_HTOTS reorders short values from hos // t order into trice transfer order.
+#define TRICE_HTOTS(x) (x)
 
-	//! TRICE_HTOTL reorders long values from host order x into trice transfer order.
-	#define TRICE_HTOTL(x) (x)
+//! TRICE_HTOTL reorders long values from host order x into trice transfer order.
+#define TRICE_HTOTL(x) (x)
 
-	//! TRICE_TTOHS reorders short values from trice transfer order into host order.
-	#define TRICE_TTOHS(x) (x)
+//! TRICE_TTOHS reorders short values from trice transfer order into host order.
+#define TRICE_TTOHS(x) (x)
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+
+#ifndef TRICE_PUT16_1616
+
+#if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1))
+
+//! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
+#define TRICE_PUT16_1616(x, ts) /* big endian */           \
+	do {                                                   \
+		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
+		*p++ = TRICE_HTOTS(x);                             \
+		*p++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
+		*p++ = TRICE_HTOTS(ts);         /* lo */           \
+		TriceBufferWritePosition = (uint32_t*)p;           \
+	} while (0)
+
+#else // #if TRICE_MCU_IS_BIG_ENDIAN == 1
+
+//! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
+#define TRICE_PUT16_1616(x, ts) /* little endian */        \
+	do {                                                   \
+		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
+		*p++ = TRICE_HTOTS(x);                             \
+		*p++ = TRICE_HTOTS(ts);         /* lo */           \
+		*p++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
+		TriceBufferWritePosition = (uint32_t*)p;           \
+	} while (0)
+
+#endif // #else // #if TRICE_MCU_IS_BIG_ENDIAN == 1
+
+#endif // #ifndef TRICE_PUT16_1616
+
+#ifndef TRICE_PUT16
+
+//! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
+#define TRICE_PUT16(x)                                     \
+	do {                                                   \
+		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
+		*p++ = TRICE_HTOTS(x);                             \
+		TriceBufferWritePosition = (uint32_t*)p;           \
+	} while (0)
+
+#endif // #ifndef TRICE_PUT16
 
 // defaults
 
 #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
-	void TriceInitRingBufferMargins(void);
-	void WatchRingBufferMargins(void);
+
+void TriceInitRingBufferMargins(void);
+void WatchRingBufferMargins(void);
+
 #endif
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
-	#define SEGGER_RTT
+
+#define SEGGER_RTT
+
 #endif
 
 #if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
-	#include "SEGGER_RTT.h"
+
+#include "SEGGER_RTT.h"
+
 #endif
 
 // global function prototypes:
@@ -199,8 +264,8 @@ size_t TriceDepth(void);
 size_t TriceDepthMax(void);
 size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t* buf, size_t len);
 
-void TriceWriteDeviceCgo(const void* buf, unsigned len); //!< only needed for testing C-sources from Go
-unsigned TriceOutDepthCGO(void); //!< only needed for testing C-sources from Go
+void TriceWriteDeviceCgo(const void* buf, unsigned len); //!< TriceWriteDeviceCgo is only needed for testing C-sources from Go.
+unsigned TriceOutDepthCGO(void); //!< TriceOutDepthCGO is only needed for testing C-sources from Go.
 
 // global defines
 
@@ -219,29 +284,43 @@ extern uint8_t TriceCycle;
 extern unsigned RTT0_writeDepthMax;
 extern unsigned TriceErrorCount;
 
+#if (TRICE_BUFFER == TRICE_RING_BUFFER)
+
 extern uint32_t* const TriceRingBufferStart;
 extern uint32_t* const triceRingBufferLimit;
 extern int TriceRingBufferDepthMax;
 extern unsigned TriceHalfBufferDepthMax;
 
+#endif // #if (TRICE_BUFFER == TRICE_RING_BUFFER) 
+
 #if (TRICE_DIAGNOSTICS == 1)
+
 extern int TriceDataOffsetDepthMax;
 extern unsigned TriceSingleMaxWordCount;
 extern unsigned TriceDynBufTruncateCount;
-	#if TRICE_PROTECT == 1
+
+#if TRICE_PROTECT == 1
+
 extern unsigned TriceDirectOverflowCount;
 extern unsigned TriceDeferredOverflowCount;
-	#endif
-	#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT() \
-		do {                                         \
-			TriceDynBufTruncateCount++;              \
-		} while (0)
-#else
-	#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT()
-#endif
+
+#endif // #if TRICE_PROTECT == 1
+
+#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT() \
+	do {                                         \
+		TriceDynBufTruncateCount++;              \
+	} while (0)
+
+#else // #if (TRICE_DIAGNOSTICS == 1)
+
+#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT()
+
+#endif // #else // #if (TRICE_DIAGNOSTICS == 1)
 
 #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
-	extern uint32_t* TriceBufferWritePosition;
+
+extern uint32_t* TriceBufferWritePosition;
+
 #endif
 
 //! TRICE_BUFFER_SIZE is
@@ -254,10 +333,14 @@ extern unsigned TriceDeferredOverflowCount;
 #define TRICE_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE + 4)
 
 #if TRICE_CYCLE_COUNTER == 1
-	#define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
-#else                                // #if TRICE_CYCLE_COUNTER == 1
-	#define TRICE_CYCLE 0xC0         //! TRICE_CYCLE is no trice cycle counter, just a static value.
-#endif                               // #else // #if TRICE_CYCLE_COUNTER == 1
+
+#define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
+
+#else // #if TRICE_CYCLE_COUNTER == 1
+
+#define TRICE_CYCLE 0xC0         //! TRICE_CYCLE is no trice cycle counter, just a static value.
+
+#endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
 #include "trice16.h"
 #include "trice32.h"
@@ -266,27 +349,29 @@ extern unsigned TriceDeferredOverflowCount;
 
 #if TRICE_DIAGNOSTICS == 1
 
-	#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
-		uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
+	uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
-	#define TRICE_DIAGNOSTICS_SINGLE_BUFFER                                                                        \
-		do {                                                                                                       \
-			unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition;                   \
-			TriceSingleMaxWordCount = (wordCount < TriceSingleMaxWordCount) ? TriceSingleMaxWordCount : wordCount; \
-		} while (0);
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER                                                                        \
+	do {                                                                                                       \
+		unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition;                   \
+		TriceSingleMaxWordCount = (wordCount < TriceSingleMaxWordCount) ? TriceSingleMaxWordCount : wordCount; \
+	} while (0);
 
-	#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT                                                        \
-		do {                                                                                                       \
-			TriceSingleMaxWordCount = (wordCount < TriceSingleMaxWordCount) ? TriceSingleMaxWordCount : wordCount; \
-		} while (0);
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORD_COUNT                                                       \
+	do {                                                                                                       \
+		TriceSingleMaxWordCount = (wordCount < TriceSingleMaxWordCount) ? TriceSingleMaxWordCount : wordCount; \
+	} while (0);
 
 #else // #if TRICE_DIAGNOSTICS == 1
 
-	#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
-	#define TRICE_DIAGNOSTICS_SINGLE_BUFFER
-	#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER
+#define TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORD_COUNT
 
 #endif // #else // #if TRICE_DIAGNOSTICS == 1
+
+// clang-format off
 
 #ifndef TRICE_ENTER
 
@@ -420,7 +505,7 @@ extern unsigned TriceDeferredOverflowCount;
 
 	#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && (TRICE_DIRECT_OUTPUT == 0)
 
-#endif
+#endif // #ifndef TRICE_ENTER
 
 #ifndef TRICE_LEAVE
 
@@ -431,7 +516,7 @@ extern unsigned TriceDeferredOverflowCount;
 			/* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
 			/* The last written uint32_t trice value can contain 1 to 3 padding bytes. */                            \
 			unsigned wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition;                     \
-			TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORDCOUNT                                                          \
+			TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORD_COUNT                                                         \
 			TriceNonBlockingDirectWrite(triceSingleBufferStartWritePosition, wordCount);                             \
 			}                                                                                                        \
 			}                                                                                                        \
@@ -448,23 +533,31 @@ extern unsigned TriceDeferredOverflowCount;
 
 	#endif // #else  //#if TRICE_DIRECT_OUTPUT == 1
 
-#endif     // #ifndef TRICE_LEAVE
-
-// trice macros:
+#endif // #ifndef TRICE_LEAVE
 
 #ifndef TRICE_PUT
 
 	#define TRICE_PUT(x)                                  \
 		do {                                              \
 			*TriceBufferWritePosition++ = TRICE_HTOTL(x); \
-		} while (0); //! PUT copies a 32 bit x into the TRICE buffer.
+		} while (0); //!< PUT copies a 32 bit x into the TRICE buffer.
 
 #endif
 
-#ifndef TRICE_PUTBUFFER
+#ifndef TRICE_HEADER_PUT
 
-	//! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
-	#define TRICE_PUTBUFFER(buf, len)                                                                \
+//! TRICE_HEADER_PUT writes x as 32-bit value into the Trice buffer without changing the endianness.
+#define TRICE_HEADER_PUT(x)                                  \
+	do {                                              \
+		*TriceBufferWritePosition++ = x; \
+	} while (0); 
+
+#endif
+
+#ifndef TRICE_PUT_BUFFER
+
+	//! TRICE_PUT_BUFFER copies a buffer into the TRICE buffer.
+	#define TRICE_PUT_BUFFER(buf, len)                                                               \
 		do {                                                                                         \
 			memcpy(TriceBufferWritePosition, buf, len);                                              \
 			unsigned len4 = ((unsigned)len + 3) & ~3;                                                \
@@ -473,6 +566,8 @@ extern unsigned TriceDeferredOverflowCount;
 		} while (0)
 
 #endif
+
+// clang-format on
 
 ///////////////////////////////////////////////////////////////////////////////
 // trice time measurement (STM32 only?)
@@ -490,12 +585,12 @@ extern unsigned TriceDeferredOverflowCount;
     || defined(__CARM__)   /* TASKING VX ARM toolset C compiler */           \
     || defined(__CPARM__)  /* TASKING VX ARM toolset C++ compiler */
 
-	#define SYSTICKVAL (*(volatile uint32_t*)0xE000E018UL)
+#define SYSTICKVAL (*(volatile uint32_t*)0xE000E018UL)
 
 #else
 
-	// #warning "unknown architecture"
-	#define SYSTICKVAL 0
+// #warning "unknown architecture"
+#define SYSTICKVAL 0
 
 #endif
 
@@ -508,19 +603,19 @@ extern unsigned TriceDeferredOverflowCount;
 
 #if (TRICE_DEFERRED_UARTA == 1) // deferred out to UARTA
 
-	void TriceBlockingWriteUartA(const uint8_t* buf, unsigned len);
-	void triceServeTransmitUartA(void);
-	void triceTriggerTransmitUartA(void);
-	unsigned TriceOutDepthUartA(void);
+void TriceBlockingWriteUartA(const uint8_t* buf, unsigned len);
+void triceServeTransmitUartA(void);
+void triceTriggerTransmitUartA(void);
+unsigned TriceOutDepthUartA(void);
 
 #endif
 
 #if (TRICE_DEFERRED_UARTB == 1) // deferred out to UARTB
 
-	void TriceBlockingWriteUartB(const uint8_t* buf, unsigned len);
-	void triceServeTransmitUartB(void);
-	void triceTriggerTransmitUartB(void);
-	unsigned TriceOutDepthUartB(void);
+void TriceBlockingWriteUartB(const uint8_t* buf, unsigned len);
+void triceServeTransmitUartB(void);
+void triceTriggerTransmitUartB(void);
+unsigned TriceOutDepthUartB(void);
 
 #endif
 
@@ -533,16 +628,18 @@ extern unsigned TriceDeferredOverflowCount;
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 
-	void XTEAEncrypt(uint32_t* p, unsigned count);
-	void XTEADecrypt(uint32_t* p, unsigned count);
-	void XTEAInitTable(void);
+void XTEAEncrypt(uint32_t* p, unsigned count);
+void XTEADecrypt(uint32_t* p, unsigned count);
+void XTEAInitTable(void);
 
 #endif
 
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-//! TRICE_NTH_ARGUMENT just evaluates to the 15th argument. It is extendable.
+//! TRICE_NTH_ARGUMENT just evaluates to the 15th argument. It is extendable until a 32767 bytes payload.
+//! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
+//! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
 #define TRICE_NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14
 
 //! TRICE_COUNT_ARGUMENTS builds upon TRICE_NTH_ARGUMENT. The more arguments that are passed to TRICE_COUNT_ARGUMENTS,
@@ -566,32 +663,31 @@ extern unsigned TriceDeferredOverflowCount;
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-	#define TRice(fmt, ...)
-	#define Trice(fmt, ...)
-	#define trice(fmt, ...)
+#define TRice(fmt, ...)
+#define Trice(fmt, ...)
+#define trice(fmt, ...)
 
 #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-	#define TRice(tid, fmt, ...) TRICE_CONCAT2(TRice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-	#define Trice(tid, fmt, ...) TRICE_CONCAT2(Trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-	#define trice(tid, fmt, ...) TRICE_CONCAT2(trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice(tid, fmt, ...) TRICE_CONCAT2(TRice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice(tid, fmt, ...) TRICE_CONCAT2(Trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice(tid, fmt, ...) TRICE_CONCAT2(trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-/* pre C99
-// aFloat returns passed float value x as bit pattern in a uint32_t type.
-TRICE_INLINE uint32_t aFloat( float x ){
-    union {
-        float f;
-        uint32_t u;
-    } t;
-    t.f = x;
-    return t.u;
-}
-*/
+// pre C99
+//  // aFloat returns passed float value x as bit pattern in a uint32_t type.
+//  TRICE_INLINE uint32_t aFloat( float x ){
+//      union {
+//          float f;
+//          uint32_t u;
+//      } t;
+//      t.f = x;
+//      return t.u;
+//  }
 
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
 TRICE_INLINE uint32_t aFloat(float f) {
@@ -599,15 +695,6 @@ TRICE_INLINE uint32_t aFloat(float f) {
 		float from;
 		uint32_t to;
 	} pun = {.from = f};
-	return pun.to;
-}
-
-// asFloat returns passed uint32_t value x bit pattern as float type.
-TRICE_INLINE float asFloat(uint32_t x) {
-	union {
-		uint32_t from;
-		float to;
-	} pun = {.from = x};
 	return pun.to;
 }
 
@@ -620,6 +707,15 @@ TRICE_INLINE uint64_t aDouble(double x) {
 	t.d = x;
 	return t.u;
 }
+
+//  // asFloat returns passed uint32_t value x bit pattern as float type.
+//  TRICE_INLINE float asFloat(uint32_t x) {
+//  	union {
+//  		uint32_t from;
+//  		float to;
+//  	} pun = {.from = x};
+//  	return pun.to;
+//  }
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -661,7 +757,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 			} else {                                                                                                                     \
 				TRICE_LCNT(len_);                                                                                                        \
 			}                                                                                                                            \
-			TRICE_PUTBUFFER(buf, len_);                                                                                                  \
+			TRICE_PUT_BUFFER(buf, len_);                                                                                                 \
 			TRICE_LEAVE                                                                                                                  \
 		} while (0)
 
@@ -707,7 +803,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 
 	//! TRICE_S writes id and runtimeGeneratedString.
 	//! \param tid trice identifier
-	//! \param pFmt formatstring for trice (ignored here but used by the trice tool)
+	//! \param pFmt format string for trice (ignored here but used by the trice tool)
 	//! \param runtimeGeneratedString 0-terminated runtime generated string
 	#define TRICE_S(tid, pFmt, runtimeGeneratedString)        \
 		do {                                                  \
@@ -721,60 +817,13 @@ TRICE_INLINE uint64_t aDouble(double x) {
 
 #endif // #ifndef TRICE_S
 
-#ifndef TRICE_PUT16
-
-	//! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
-	#define TRICE_PUT16(x)                                     \
-		do {                                                   \
-			uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-			*p++ = TRICE_HTOTS(x);                             \
-			TriceBufferWritePosition = (uint32_t*)p;           \
-		} while (0)
-
-#endif
-
-#if TRICE_MCU_IS_BIG_ENDIAN == 1
-/*
-	//! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-	#define TRICE_PUT1616(ts)  \
-		TRICE_PUT16(ts >> 16); \
-		TRICE_PUT16(ts);
-*/
-	//! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-	#define TRICE_PUT1616(ts)                                  \
-		do {                                                   \
-			uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-			*p++ = TRICE_HTOTS((ts) >> 16);                    \
-			*p++ = TRICE_HTOTS(ts);                            \
-			TriceBufferWritePosition = (uint32_t*)p;           \
-		} while (0)
-
-#else
-/*
-	//! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-	#define TRICE_PUT1616(ts) \
-		TRICE_PUT16(ts);      \
-		TRICE_PUT16(((ts) >> 16));
-*/
-	//! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-	#define TRICE_PUT1616(ts)                                  \
-		do {                                                   \
-			uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-			*p++ = TRICE_HTOTS(ts);                            \
-			*p++ = TRICE_HTOTS((ts) >> 16);                    \
-			TriceBufferWritePosition = (uint32_t*)p;           \
-		} while (0)
-
-#endif
-
 //! ID writes 14-bit id with 11 as 2 most significant bits, followed by a 32-bit stamp.
 //! 11iiiiiiI TT | TT (NC) | ...
 //! C000 = 1100 0000 0000 0000
 #define ID(n)                        \
 	do {                             \
 		uint32_t ts = TriceStamp32;  \
-		TRICE_PUT16((0xC000 | (n))); \
-		TRICE_PUT1616(ts);           \
+		TRICE_PUT16_1616((0xC000 | (n)), ts); \
 	} while (0)
 
 //! Id writes 14-bit id with 10 as 2 most significant bits two times, followed by a 16-bit stamp.
@@ -875,7 +924,7 @@ extern Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn;
 extern Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn;
 
 #ifdef __cplusplus
-	}
+}
 #endif
 
 #endif // TRICE_H_
