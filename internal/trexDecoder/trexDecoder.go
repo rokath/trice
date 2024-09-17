@@ -405,7 +405,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			return
 		}
 		if decoder.Verbose {
-			n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package:", hex.Dump(p.B)))
+			n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package:"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln("tyIdSize=", tyIdSize, "tsSize=", decoder.TargetTimestampSize, "ncSize=", ncSize, "ParamSpae=", p.ParamSpace))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		}
@@ -520,7 +521,8 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	for _, s := range cobsFunctionPtrList {                // walk through the list and try to find a match for execution
 		if s.triceType == ucTriceTypeReconstructed || s.triceType == ucTriceTypeReceived { // match list entry "TRICE..."
 			if len(p.B) < p.ParamSpace {
-				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package", hex.Dump(p.B[:len(p.B)])))
+				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package"))
+				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
@@ -543,7 +545,8 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 						goto ignoreSpecialCase
 					}
 				}
-				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package", hex.Dump(p.B[:len(p.B)])))
+				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package"))
+				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
