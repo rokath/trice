@@ -198,9 +198,9 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 #define TRICE_PUT16_1616(x, ts) /* little endian */        \
 	do {                                                   \
 		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-		*p++ = TRICE_HTOTS(x);                             \
-		*p++ = TRICE_HTOTS(ts);         /* lo */           \
-		*p++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
+		*p++ = x;                                          \
+		*p++ = ts;         /* lo */                        \
+		*p++ = (ts) >> 16; /* hi */                        \
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
@@ -547,8 +547,8 @@ extern uint32_t* TriceBufferWritePosition;
 #ifndef TRICE_HEADER_PUT
 
 //! TRICE_HEADER_PUT writes x as 32-bit value into the Trice buffer without changing the endianness.
-#define TRICE_HEADER_PUT(x)                                  \
-	do {                                              \
+#define TRICE_HEADER_PUT(x)              \
+	do {                                 \
 		*TriceBufferWritePosition++ = x; \
 	} while (0); 
 
