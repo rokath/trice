@@ -463,33 +463,35 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16( iD(14270), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE( ID(14271), "sig:Runtime generated strings\n" );
-        break; case __LINE__: {
-                                  s = "AAAAAAAAAAAA";
-                                  TRICE32( ID(14272), "dbg:len=%u:", strlen(s) );
-                                  TRICE_S( ID(14273), "sig:%s\n", s );
-                              }
-        break; case __LINE__: {
-                s = "\
+        break; case __LINE__: 
+        {
+            char* s0 = "AAAAAAAAAAAA";
+            TRICE32( ID(14272), "dbg:len=%u:", strlen(s0) );
+            TRICE_S( ID(14273), "sig:%s\n", s0 );
+        }
+        break; case __LINE__: 
+        {
+            char* s1 = "\
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBCCCCCCCC\
 ";
-                          }
-        break; case __LINE__: TRICE32( ID(14274), "dbg:len=%u:", strlen(s) );
-        break; case __LINE__: TRICE_S( ID(14275), "sig:%s\n", s );
-        break; case __LINE__: TRICE( ID(14276), "sig:Runtime generated strings\n" );
-        break; case __LINE__: {
-            s = "\
+                TRICE32( ID(14274), "dbg:len=%u:", strlen(s1) );
+                TRICE_S( ID(14275), "sig:%s\n", s1 );
+            }
+        break; case __LINE__: 
+        {
+            char* s2 = "\
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
 DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
 EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
 ";
-                          }
-        break; case __LINE__: TRICE32( ID(14277), "dbg:len=%u: ", strlen(s) );
-        break; case __LINE__: TRICE_S( ID(14278), "sig:%s\n", s );
-        break; case __LINE__: TRICE( ID(14279), "sig:Runtime generated strings\n" );
-        break; case __LINE__: {
-            s = "\
+            TRICE32( ID(14277), "dbg:len=%u: ", strlen(s2) );
+            TRICE_S( ID(14278), "sig:%s\n", s2 );
+        }
+        break; case __LINE__: 
+        {
+            char* s3 = "\
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
@@ -499,12 +501,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
 ";
-                          }
-        break; case __LINE__: TRICE32( ID(14280), "dbg:len=%u: ", strlen(s) );
-        break; case __LINE__: TRICE_S( ID(14281), "sig:%s\n", s );
-        break; case __LINE__: TRICE( ID(14282), "sig:Runtime generated strings\n" );
-        break; case __LINE__: {
-            s = "\
+            TRICE32( ID(14280), "dbg:len=%u: ", strlen(s3) );
+            TRICE_S( ID(14281), "sig:%s\n", s3 );
+        }
+        break; case __LINE__:
+        {
+            char* s4 = "\
+0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
@@ -521,12 +524,12 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
 EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
 ";
-                          }
-        break; case __LINE__: TRICE32( ID(14283), "dbg:len=%u: ", strlen(s) );
-        break; case __LINE__: TRICE_S( ID(14284), "sig:%s\n", s );
+            TRICE32( ID(14283), "dbg:len=%u: ", strlen(s4) );
+            TRICE_S( ID(14284), "sig:%s\n", s4 );
+        }
 
 
-#if TRICE_CGO == 1
+#if 1 //TRICE_CGO == 1
 
         break; case __LINE__: TRICE  ( ID(14285), "rd:%E (%%E)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556E+08 (%E)
         break; case __LINE__: TRICE  ( ID(14286), "rd:%F (%%F)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555584.000000 (%F)
@@ -1337,15 +1340,6 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRice_11( iD(15030), "rd:TRice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRice_12( iD(15031), "rd:TRice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
-
-
-
-
-
-
-
-
-
         break; case __LINE__: trice( iD(15032), "sig:TRICE8 with 1 to 12 values\n" );
 
         break; case __LINE__: TRICE8( id(15033), "rd:TRICE8 %d\n", -1 );                                                                                            //exp: time:            default: rd:TRICE8 -1     
@@ -1969,8 +1963,6 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRice64_10( iD(15621), "rd:TRice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRice64_11( iD(15622), "rd:TRice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRice32_12( iD(15623), "rd:TRice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-
-
 
         break; case __LINE__: TRICE( ID(15624), "sig:Colors and ticks\n" );
         break; case __LINE__: TRICE( ID(15625), "--------------------------------------------------\n");
