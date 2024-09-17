@@ -111,6 +111,7 @@ git clone https://github.com/rokath/trice.git
 - [elog](https://github.com/martinribelotta/elog) (Embedded logger with minimal footprint and memory usage)
 - [J-Link System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/) (SEGGER)
 - [Logging with symbols - The Embedonomicon](https://docs.rust-embedded.org/embedonomicon/logging.html)
+- [MCUViewer](https://github.com/klonyyy/MCUViewer)
 - [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding)
 - [Metal Serial Library](https://github.com/metal-ci/test/tree/master/doc/metal.serial.md)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
