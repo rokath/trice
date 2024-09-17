@@ -529,7 +529,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         }
 
 
-#if 1 //TRICE_CGO == 1
+#if TRICE_CGO == 1
 
         break; case __LINE__: TRICE  ( ID(14285), "rd:%E (%%E)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556E+08 (%E)
         break; case __LINE__: TRICE  ( ID(14286), "rd:%F (%%F)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555584.000000 (%F)
