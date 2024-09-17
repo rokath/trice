@@ -8,11 +8,11 @@
 
 // The strings behind "//exp:" are the expected result for each line (-color=none)
 
-static int32_t FloatToInt32( float f );
-static int64_t DoubleToInt64( double f );
-static void exampleOfManualSerialization( void );
+static int32_t FloatToInt32(float f);
+static int64_t DoubleToInt64(double f);
+static void exampleOfManualSerialization(void);
 static void exampleOfManualJSONencoding(void);
-static void dynString( int n );
+static void dynString(int n);
 
 // clang-format off
 
@@ -2415,169 +2415,183 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 // clang-format on
 
-static int32_t FloatToInt32( float f ){
-    if( f >= 0 ){
-        return (int32_t)f;
-    }
-    return -(int32_t)-f;
+static int32_t FloatToInt32(float f) {
+	if (f >= 0) {
+		return (int32_t)f;
+	}
+	return -(int32_t)-f;
 }
 
-static int64_t DoubleToInt64( double f ){
-    if( f >= 0 ){
-        return (int64_t)f;
-    }
-    return -(int64_t)-f;
+static int64_t DoubleToInt64(double f) {
+	if (f >= 0) {
+		return (int64_t)f;
+	}
+	return -(int64_t)-f;
 }
 
 //! SCOPY is a helper macro for struct serialization.
-#define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( ID(16050), "rd:sizeof(%8s)", n ); TRICE( ID(16051), " = %d\n", size);}while(0);
+#define SCOPY(element)                           \
+	do {                                         \
+		char* n = #element;                      \
+		int size = sizeof(src->element);         \
+		memcpy(p, &(src->element), size);        \
+		p += size;                               \
+		TRICE_S(ID(16050), "rd:sizeof(%8s)", n); \
+		TRICE(ID(16051), " = %d\n", size);       \
+	} while (0);
 
-    //! DCOPY is a helper macro for struct deserialization.
-#define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( ID(16052), "rd:sizeof(%8s)", n ); TRICE( ID(16053), " = %d\n", size);}while(0);
+//! DCOPY is a helper macro for struct deserialization.
+#define DCOPY(element)                           \
+	do {                                         \
+		char* n = #element;                      \
+		int size = sizeof(dst->element);         \
+		memcpy(&(dst->element), p, size);        \
+		p += size;                               \
+		TRICE_S(ID(16052), "rd:sizeof(%8s)", n); \
+		TRICE(ID(16053), " = %d\n", size);       \
+	} while (0);
 
-
-typedef struct{
-    float x;
-    float y;
-    uint8_t rgb[3];
-    //float z; // it seems, that the compiler does not align this with -o3 & time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+typedef struct {
+	float x;
+	float y;
+	uint8_t rgb[3];
+	// float z; // it seems, that the compiler does not align this with -o3 & time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 } Point_t; //!< Point_t is small struct type.
 
-static int serializePoint( char* dst, const Point_t * src ){
-    char * p = dst;
+static int serializePoint(char* dst, const Point_t* src) {
+	char* p = dst;
 
-    SCOPY( x )
-    SCOPY( y )
-    SCOPY( rgb )
+	SCOPY(x)
+	SCOPY(y)
+	SCOPY(rgb)
 
-    return p - dst;
+	return p - dst;
 }
 
-static int deserializePoint( Point_t * const dst, const char * src ){
-    char const * p = src;
+static int deserializePoint(Point_t* const dst, const char* src) {
+	char const* p = src;
 
-    DCOPY( x )
-    DCOPY( y )
-    DCOPY( rgb )
-    
-    return p - src;
+	DCOPY(x)
+	DCOPY(y)
+	DCOPY(rgb)
+
+	return p - src;
 }
 
-typedef struct{
-    float z;
-    uint16_t u;
-      int8_t s;
-    char* addr;
-    uint32_t x;
-     int32_t y;
-    char names[3][5];
-    Point_t point[2];
-    uint64_t bitmask;
+typedef struct {
+	float z;
+	uint16_t u;
+	int8_t s;
+	char* addr;
+	uint32_t x;
+	int32_t y;
+	char names[3][5];
+	Point_t point[2];
+	uint64_t bitmask;
 } Tryout_t; //!<  Tryout_t is a struct example embedding an other struct.
 
-static int serializeTryout( char* dst, const Tryout_t * src ){
-    char * p = dst;
+static int serializeTryout(char* dst, const Tryout_t* src) {
+	char* p = dst;
 
-    SCOPY( z )
-    SCOPY( u )
-    SCOPY( s )
-    SCOPY( addr )
-    SCOPY( x )
-    SCOPY( y )
-    SCOPY( names )
-    p += serializePoint( p, src->point );
-    SCOPY( bitmask )  
+	SCOPY(z)
+	SCOPY(u)
+	SCOPY(s)
+	SCOPY(addr)
+	SCOPY(x)
+	SCOPY(y)
+	SCOPY(names)
+	p += serializePoint(p, src->point);
+	SCOPY(bitmask)
 
-    return p - dst;
+	return p - dst;
 }
 
-static int deserializeTryout( Tryout_t * const dst, const char * src ){
-    char const * p = src;
+static int deserializeTryout(Tryout_t* const dst, const char* src) {
+	char const* p = src;
 
-    DCOPY( z )
-    DCOPY( u )
-    DCOPY( s )
-    DCOPY( addr )
-    DCOPY( x )
-    DCOPY( y )
-    DCOPY( names )
-    p += deserializePoint( dst->point, p );
-    DCOPY( bitmask )  
+	DCOPY(z)
+	DCOPY(u)
+	DCOPY(s)
+	DCOPY(addr)
+	DCOPY(x)
+	DCOPY(y)
+	DCOPY(names)
+	p += deserializePoint(dst->point, p);
+	DCOPY(bitmask)
 
-    return p - src;
+	return p - src;
 }
 
-static void exampleOfManualSerialization( void ){
-    Tryout_t tx; // struct to transfer 
-    Tryout_t rx; // "received" struct
-    static char dst[100]; // serialized data
-    char* src; // "copy" - assume, data transferred now
-    int len; // serialized byte count
+static void exampleOfManualSerialization(void) {
+	Tryout_t tx;          // struct to transfer
+	Tryout_t rx;          // "received" struct
+	static char dst[100]; // serialized data
+	char* src;            // "copy" - assume, data transferred now
+	int len;              // serialized byte count
 
-    /////////////////////////////////////////////////////////
-    // fill tx with data
-    tx.z = (float)123.456;
-    tx.u = 44444;
-    tx.addr="Haus";
-    tx.s = -2;
-    tx.x = 0xaa55bb77;
-    tx.y = -1000000;
+	/////////////////////////////////////////////////////////
+	// fill tx with data
+	tx.z = (float)123.456;
+	tx.u = 44444;
+	tx.addr = "Haus";
+	tx.s = -2;
+	tx.x = 0xaa55bb77;
+	tx.y = -1000000;
 
-    memcpy( tx.names[0], "aaa", strlen( "aaa" ) ); 
-    memcpy( tx.names[1], "bbbb", strlen( "bbbb" ) ); 
-    memcpy( tx.names[2], "ccccc", strlen( "ccccc" ) ); 
+	memcpy(tx.names[0], "aaa", strlen("aaa"));
+	memcpy(tx.names[1], "bbbb", strlen("bbbb"));
+	memcpy(tx.names[2], "ccccc", strlen("ccccc"));
 
-    tx.point[0].x = 2.22;
-    tx.point[0].y = -3.33;
-    tx.point[0].rgb[0] = 0x44;
-    tx.point[0].rgb[0] = 0x66;
-    tx.point[0].rgb[0] = 0x88;
-    
-    tx.point[1].x = -66.66;
-    tx.point[1].y = +5.5555;
-    tx.point[1].rgb[0] = 0xee;
-    tx.point[1].rgb[0] = 0xaa;
-    tx.point[1].rgb[0] = 0xbb;
+	tx.point[0].x = 2.22;
+	tx.point[0].y = -3.33;
+	tx.point[0].rgb[0] = 0x44;
+	tx.point[0].rgb[0] = 0x66;
+	tx.point[0].rgb[0] = 0x88;
 
-    tx.bitmask = 0xAAAA55550000FFFF;
-    //
-    ////////////////////////////////////////////////////////
+	tx.point[1].x = -66.66;
+	tx.point[1].y = +5.5555;
+	tx.point[1].rgb[0] = 0xee;
+	tx.point[1].rgb[0] = 0xaa;
+	tx.point[1].rgb[0] = 0xbb;
 
-    len = serializeTryout( dst, &tx );
-    TRICE ( Id(16054), "inf: Tryout tx struct:" );
-    TRICE8_B( Id(16055), " %02x ", &tx, sizeof(tx) );
-    TRICE( Id(16056), "\n" );
+	tx.bitmask = 0xAAAA55550000FFFF;
+	//
+	////////////////////////////////////////////////////////
 
-    TRICE ( Id(16057), "inf: Tryout buffer:" );
-    TRICE8_B( Id(16058), " %02x ", dst, len ); //lint !e670
-    TRICE( Id(16059), "\n" );
+	len = serializeTryout(dst, &tx);
+	TRICE(Id(16054), "inf: Tryout tx struct:");
+	TRICE8_B(Id(16055), " %02x ", &tx, sizeof(tx));
+	TRICE(Id(16056), "\n");
 
-    src = dst; // "data transfer"
+	TRICE(Id(16057), "inf: Tryout buffer:");
+	TRICE8_B(Id(16058), " %02x ", dst, len); // lint !e670
+	TRICE(Id(16059), "\n");
 
-    len = deserializeTryout( &rx, src );
-    TRICE ( Id(16060), "inf: Tryout rx struct:" );
-    TRICE8_B( Id(16061), " %02x ", &rx, sizeof(rx) );
-    TRICE( Id(16062), "\n" );
+	src = dst; // "data transfer"
 
-    TRICE( Id(16063), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len );
-    TRICE8_F( Id(16064), "info:TryoutStructFunction", &tx, sizeof(tx) );
-    TRICE8_F( Id(16065), "info:TryoutBufferFunction", dst, len ); //lint !e670
+	len = deserializeTryout(&rx, src);
+	TRICE(Id(16060), "inf: Tryout rx struct:");
+	TRICE8_B(Id(16061), " %02x ", &rx, sizeof(rx));
+	TRICE(Id(16062), "\n");
+
+	TRICE(Id(16063), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
+	TRICE8_F(Id(16064), "info:TryoutStructFunction", &tx, sizeof(tx));
+	TRICE8_F(Id(16065), "info:TryoutBufferFunction", dst, len); // lint !e670
 }
 
-
-static void exampleOfManualJSONencoding(void){
-    typedef  struct {
-    int Apple, Birn;
-    float Fish;
-    } Ex_t;
-    Ex_t Ex = { -1, 2, (float)2.781 };
-    TRICE( Id(16066), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
+static void exampleOfManualJSONencoding(void) {
+	typedef struct {
+		int Apple, Birn;
+		float Fish;
+	} Ex_t;
+	Ex_t Ex = {-1, 2, (float)2.781};
+	TRICE(Id(16066), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
 }
 
-static void dynString( int n ) {
-    char * s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
-    const size_t l = strlen(s);
-    n = n < l ? n : l;
-    // trice( iD(16067), "sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
-    TRICE_N( id(16068), "wr:%s\n", s, n );
-}        
+static void dynString(int n) {
+	char* s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
+	const size_t l = strlen(s);
+	n = n < l ? n : l;
+	// trice( iD(16067), "sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
+	TRICE_N(id(16068), "wr:%s\n", s, n);
+}

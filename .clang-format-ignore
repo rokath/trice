@@ -1,2 +1,3 @@
 src/SEGGER_RTT.c
 src/SEGGER_RTT.h
+test/*/SEGGER_RTT_Conf.h
