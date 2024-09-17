@@ -12,13 +12,13 @@ Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDirectWrite8Auxiliary writes to a user defined interface.
 void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen) {
-	#if TRICE_CGO == 1 // automated tests
+#if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(enc, encLen);
-	#else
+#else
 	if (UserNonBlockingDirectWrite8AuxiliaryFn != (void*)0) {
 		UserNonBlockingDirectWrite8AuxiliaryFn(enc, encLen);
 	}
-	#endif
+#endif
 }
 
 #endif // #if TRICE_DIRECT_AUXILIARY8 == 1
@@ -30,13 +30,13 @@ Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDeferredWrite8Auxiliary writes to a user defined interface.
 void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen) {
-	#if TRICE_CGO == 1 // automated tests
+#if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(enc, encLen);
-	#else
+#else
 	if (UserNonBlockingDeferredWrite8AuxiliaryFn != (void*)0) {
 		UserNonBlockingDeferredWrite8AuxiliaryFn(enc, encLen);
 	}
-	#endif
+#endif
 }
 
 #endif // #if TRICE_DEFERRED_AUXILIARY8 == 1
@@ -48,13 +48,13 @@ Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDirectWrite32Auxiliary writes to a user defined interface.
 void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count) {
-	#if TRICE_CGO == 1 // automated tests
+#if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(enc, count << 2);
-	#else
+#else
 	if (UserNonBlockingDirectWrite32AuxiliaryFn != (void*)0) {
 		UserNonBlockingDirectWrite32AuxiliaryFn(enc, count);
 	}
-	#endif
+#endif
 }
 
 #endif // #if TRICE_DIRECT_AUXILIARY32 == 1
@@ -66,13 +66,13 @@ Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn = (void*)0;
 
 //! TriceNonBlockingDeferredWrite32Auxiliary writes to a user defined interface.
 void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t* enc, unsigned count) {
-	#if TRICE_CGO == 1 // automated tests
+#if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(enc, count << 2);
-	#else
+#else
 	if (UserNonBlockingDeferredWrite32AuxiliaryFn != (void*)0) {
 		UserNonBlockingDeferredWrite32AuxiliaryFn(enc, count);
 	}
-	#endif
+#endif
 }
 
 #endif // #if TRICE_DEFERRED_AUXILIARY32 == 1 && TRICE_OFF == 0

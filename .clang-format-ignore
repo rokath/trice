@@ -1,10 +1,10 @@
 src/SEGGER_RTT.c
 src/SEGGER_RTT.h
-src/trice8.h
-src/trice8.c
-src/trice16.h
-src/trice16.c
-src/trice32.h
-src/trice32.c
-src/trice64.h
-src/trice64.c
+# src/trice8.h
+# src/trice8.c
+# src/trice16.h
+# src/trice16.c
+# src/trice32.h
+# src/trice32.c
+# src/trice64.h
+# src/trice64.c
