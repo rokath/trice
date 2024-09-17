@@ -53,7 +53,6 @@
 #if (defined(TRICE_OFF) && TRICE_OFF == 1) || (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
 
 	#define TRICE_ENTER
-	#define TRICE_LEAVE
 	#define TRICE_PUT(n)         // do{ ((void)(n)); }while(0)
 	#define TRICE_PUT16(n)       // do{ ((void)(n)); }while(0)
 	#define PUT_BUFFER(b, l)     // do{ ((void)(b)); ((void)(l)); }while(0)
@@ -102,6 +101,7 @@
 //! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
 //! This is extendable until a 32767 bytes payload.
 #define TRICE_COUNT(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, NAME, ...) NAME
+#define TRICE_PUT16_1616(x, n) // do{ ((void)(x)); ((void)(n)); }while(0)
 
 #include <stdint.h>
 #include <string.h>
