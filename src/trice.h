@@ -549,6 +549,8 @@ extern uint32_t* TriceBufferWritePosition;
 #ifndef TRICE_HEADER_PUT
 
 //! TRICE_HEADER_PUT writes x as 32-bit value into the Trice buffer without changing the endianness.
+//! This macro does not use internally TRICE_HTOTL and therefore it is usable without speed loss, when TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1.
+//! In that case the byte order needs to be provided by the written code.
 #define TRICE_HEADER_PUT(x)              \
 	do {                                 \
 		*TriceBufferWritePosition++ = x; \
