@@ -130,15 +130,15 @@ extern "C" {
 
  // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
  #define TRICE_SWAPINT16(x) ( \
- 	(((uint16_t)(x) & 0x00FFU) << 8) | \
- 	(((uint16_t)(x) & 0xFF00U) >> 8))
+    (((uint16_t)(x) & 0x00FFU) << 8) | \
+    (((uint16_t)(x) & 0xFF00U) >> 8))
 
  //Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
  #define TRICE_SWAPINT32(x) ( \
- 	(((uint32_t)(x) & 0x000000FFUL) << 24) | \
- 	(((uint32_t)(x) & 0x0000FF00UL) <<  8) | \
- 	(((uint32_t)(x) & 0x00FF0000UL) >>  8) | \
- 	(((uint32_t)(x) & 0xFF000000UL) >> 24))
+    (((uint32_t)(x) & 0x000000FFUL) << 24) | \
+    (((uint32_t)(x) & 0x0000FF00UL) <<  8) | \
+    (((uint32_t)(x) & 0x00FF0000UL) >>  8) | \
+    (((uint32_t)(x) & 0xFF000000UL) >> 24))
 */
 
 //! TriceReverse16 swaps low byte and high byte of value and returns it.

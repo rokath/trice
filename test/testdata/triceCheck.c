@@ -2436,8 +2436,8 @@ static int64_t DoubleToInt64(double f) {
 		int size = sizeof(src->element);         \
 		memcpy(p, &(src->element), size);        \
 		p += size;                               \
-		TRICE_S( ID(16053), "rd:sizeof(%8s)", n); \
-		TRICE( ID(16054), " = %d\n", size);       \
+		TRICE_S(ID(16053), "rd:sizeof(%8s)", n); \
+		TRICE(ID(16054), " = %d\n", size);       \
 	} while (0);
 
 //! DCOPY is a helper macro for struct deserialization.
@@ -2447,8 +2447,8 @@ static int64_t DoubleToInt64(double f) {
 		int size = sizeof(dst->element);         \
 		memcpy(&(dst->element), p, size);        \
 		p += size;                               \
-		TRICE_S( ID(16055), "rd:sizeof(%8s)", n); \
-		TRICE( ID(16056), " = %d\n", size);       \
+		TRICE_S(ID(16055), "rd:sizeof(%8s)", n); \
+		TRICE(ID(16056), " = %d\n", size);       \
 	} while (0);
 
 typedef struct {
@@ -2559,24 +2559,24 @@ static void exampleOfManualSerialization(void) {
 	////////////////////////////////////////////////////////
 
 	len = serializeTryout(dst, &tx);
-	TRICE( Id(16057), "inf: Tryout tx struct:");
-	TRICE8_B( Id(16064), " %02x ", &tx, sizeof(tx));
-	TRICE( Id(16059), "\n");
+	TRICE(Id(16057), "inf: Tryout tx struct:");
+	TRICE8_B(Id(16064), " %02x ", &tx, sizeof(tx));
+	TRICE(Id(16059), "\n");
 
-	TRICE( Id(16060), "inf: Tryout buffer:");
-	TRICE8_B( Id(16058), " %02x ", dst, len); // lint !e670
-	TRICE( Id(16062), "\n");
+	TRICE(Id(16060), "inf: Tryout buffer:");
+	TRICE8_B(Id(16058), " %02x ", dst, len); // lint !e670
+	TRICE(Id(16062), "\n");
 
 	src = dst; // "data transfer"
 
 	len = deserializeTryout(&rx, src);
-	TRICE( Id(16063), "inf: Tryout rx struct:");
-	TRICE8_B( Id(16061), " %02x ", &rx, sizeof(rx));
-	TRICE( Id(16065), "\n");
+	TRICE(Id(16063), "inf: Tryout rx struct:");
+	TRICE8_B(Id(16061), " %02x ", &rx, sizeof(rx));
+	TRICE(Id(16065), "\n");
 
-	TRICE( Id(16066), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
-	TRICE8_F( Id(16067), "info:TryoutStructFunction", &tx, sizeof(tx));
-	TRICE8_F( Id(16068), "info:TryoutBufferFunction", dst, len); // lint !e670
+	TRICE(Id(16066), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
+	TRICE8_F(Id(16067), "info:TryoutStructFunction", &tx, sizeof(tx));
+	TRICE8_F(Id(16068), "info:TryoutBufferFunction", dst, len); // lint !e670
 }
 
 static void exampleOfManualJSONencoding(void) {
@@ -2585,7 +2585,7 @@ static void exampleOfManualJSONencoding(void) {
 		float Fish;
 	} Ex_t;
 	Ex_t Ex = {-1, 2, (float)2.781};
-	TRICE( Id(16069), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
+	TRICE(Id(16069), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
 }
 
 static void dynString(int n) {
@@ -2593,5 +2593,5 @@ static void dynString(int n) {
 	const size_t l = strlen(s);
 	n = n < l ? n : l;
 	// trice( iD(16070), "sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
-	TRICE_N( id(16071), "wr:%s\n", s, n);
+	TRICE_N(id(16071), "wr:%s\n", s, n);
 }
