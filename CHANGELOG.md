@@ -320,6 +320,11 @@ Used git log command: `git log --pretty=oneline --abbrev-commit`
 
 hash       | comment
 -----------|-------------------------------------------------------------------------------------------------------------------------------------------
+`2486b5f5` | (HEAD -> master, origin/master, origin/HEAD) clang-format run
+`7eb0f831` | IDs regenerated
+`18b28063` | bash script updateExampleData.sh safer
+`9fd84ae8` | Avoid multi-line comment
+`3a5fde0f` | v0.69.0 infos added to CHANGELOG.md
 `59a37670` | (HEAD -> master, origin/master, origin/HEAD) refactor -> devel -> master merge
 `fe74f99b` | (origin/devel, devel) clang-format.sh added and applied
 `856ead46` | MCU Viewer link added
