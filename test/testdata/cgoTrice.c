@@ -12,25 +12,25 @@ uint8_t* cgoTriceBuffer;
 unsigned cgoTriceBufferDepth = 0;
 
 // TriceOutDepthCGO provides access to the output buffer depth
-unsigned TriceOutDepthCGO( void ){
-    return cgoTriceBufferDepth;
+unsigned TriceOutDepthCGO(void) {
+	return cgoTriceBufferDepth;
 }
 
-// CgoSetTriceBuffer sets the internal cgoTriceBuffer pointer to buf. 
+// CgoSetTriceBuffer sets the internal cgoTriceBuffer pointer to buf.
 // This function is called from Go for test setup.
-void CgoSetTriceBuffer( uint8_t* buf  ){
-    cgoTriceBuffer = buf;
+void CgoSetTriceBuffer(uint8_t* buf) {
+	cgoTriceBuffer = buf;
 }
 
-// CgoClearTriceBuffer sets the internal cgoTriceBuffer cgoTriceBufferDepth to 0. 
+// CgoClearTriceBuffer sets the internal cgoTriceBuffer cgoTriceBufferDepth to 0.
 // This function is called from Go for next test setup.
-void CgoClearTriceBuffer( void  ){
-    cgoTriceBufferDepth = 0;
+void CgoClearTriceBuffer(void) {
+	cgoTriceBufferDepth = 0;
 }
 
 //! TriceWriteDeviceCgo copies buf with len into triceBuffer.
 //! This function is called from the trice runtime inside TriceWriteDevice().
-void TriceWriteDeviceCgo( const void * buf, unsigned len ){
-    memcpy(cgoTriceBuffer + cgoTriceBufferDepth, buf, len);
-    cgoTriceBufferDepth += len;
+void TriceWriteDeviceCgo(const void* buf, unsigned len) {
+	memcpy(cgoTriceBuffer + cgoTriceBufferDepth, buf, len);
+	cgoTriceBufferDepth += len;
 }

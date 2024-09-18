@@ -49,10 +49,11 @@
       - [8.2.4. Logfile output](#824-logfile-output)
       - [8.2.5. Binary Logfile](#825-binary-logfile)
       - [8.2.6. TCP output](#826-tcp-output)
-      - [8.2.7. Set all IDs in a directory tree to 0](#827-set-all-ids-in-a-directory-tree-to-0)
-      - [8.2.8. Stimulate target with a user command over UART](#828-stimulate-target-with-a-user-command-over-uart)
-      - [8.2.9. Explpore and modify channels and their colors](#829-explpore-and-modify-channels-and-their-colors)
-      - [8.2.10. Location Information](#8210-location-information)
+      - [8.2.7. TCP input](#827-tcp-input)
+      - [8.2.8. Set all IDs in a directory tree to 0](#828-set-all-ids-in-a-directory-tree-to-0)
+      - [8.2.9. Stimulate target with a user command over UART](#829-stimulate-target-with-a-user-command-over-uart)
+      - [8.2.10. Explpore and modify channels and their colors](#8210-explpore-and-modify-channels-and-their-colors)
+      - [8.2.11. Location Information](#8211-location-information)
   - [9. Limitations](#9-limitations)
     - [9.1. Permanent Limitations](#91-permanent-limitations)
       - [9.1.1. Limitation TRICE in TRICE not possible](#911-limitation-trice-in-trice-not-possible)
@@ -904,7 +905,15 @@ This additionally sends **trice** output to a 3rd party TCP listener, for exampl
 ![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
 ![./ref/Putty.PNG](./ref/Putty.PNG)
 
-####  8.2.7. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
+####  8.2.7. <a name='TCPinput'></a>TCP input
+
+```bash
+trice l -p TCP4 -args "192.168.2.3:45678"
+```
+
+This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
+
+####  8.2.8. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
 
 ```bash
 trice zero -src ./ 
@@ -916,17 +925,17 @@ trice zero -src ./
   - From v0.61.0 is possible to restore the IDs after a `trice c|z` during the next `trice i` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice c|z` as a post compilation step. 
 - Calling `trice i` afterwards will assign the same IDs.
 
-####  8.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
+####  8.2.9. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
 
 Sometimes it is handy to stimulate the target during development. For that a 2nd screen is helpful what is possible using the display server option:
 
 ![./ref/UARTCommandAnimation.gif](./ref/UARTCommandAnimation.gif)
 
-####  8.2.9. <a name='Explporeandmodifychannelsandtheircolors'></a>Explpore and modify channels and their colors
+####  8.2.10. <a name='Explporeandmodifychannelsandtheircolors'></a>Explpore and modify channels and their colors
 
 See file [./TriceColor.md](./TriceColor.md)
 
-####  8.2.10. <a name='LocationInformation'></a>Location Information
+####  8.2.11. <a name='LocationInformation'></a>Location Information
 
 When running  `trice insert`, a file `li.json` is created, what you can control with the `-li|locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves as an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuild with each compilation, when `trice i` is a prebuild step. When `trice clean` is used, the file `li.json` should go into the version management too to secure that identical trices get the same ID back.
 
@@ -1154,7 +1163,7 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 
 <div id="Target side *Trice* On-Off"></div>
 
-###  11.1. <a name='TargetsideTriceOn-Off'></a>Target side compile-time  *Trice* On-Off
+###  11.1. <a name='Targetsidecompile-timeTriceOn-Off'></a>Target side compile-time  *Trice* On-Off
 
 - If your code works well after checking, you can add `#define TRICE_OFF 1` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: <!-- ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG) -->
 
@@ -1885,6 +1894,7 @@ _### Tests
 | 2023-JUN-10 | 0.17.0  | trice insert algorithm refined                                                                               |
 | 2023-AUG-03 | 0.18.0  | update ---> insert                                                                                           |
 | 2024-AUG-18 | 0.19.0  | Mainly updates to current Trice version v0.66.0                                                              |
+| 2024-SEP-17 | 0.20.0  | TCP4 input hint added                                                                                        |
 
 <p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 
