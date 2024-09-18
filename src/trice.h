@@ -124,20 +124,22 @@ extern "C" {
 
 #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
 
+/*
 // https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
-// #include <byteswap.h>
-//
-//  // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
-//  #define TRICE_SWAPINT16(x) ( \
-//  	(((uint16_t)(x) & 0x00FFU) << 8) | \
-//  	(((uint16_t)(x) & 0xFF00U) >> 8))
-//
-//  //Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
-//  #define TRICE_SWAPINT32(x) ( \
-//  	(((uint32_t)(x) & 0x000000FFUL) << 24) | \
-//  	(((uint32_t)(x) & 0x0000FF00UL) <<  8) | \
-//  	(((uint32_t)(x) & 0x00FF0000UL) >>  8) | \
-//  	(((uint32_t)(x) & 0xFF000000UL) >> 24))
+#include <byteswap.h>
+
+ // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+ #define TRICE_SWAPINT16(x) ( \
+ 	(((uint16_t)(x) & 0x00FFU) << 8) | \
+ 	(((uint16_t)(x) & 0xFF00U) >> 8))
+
+ //Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+ #define TRICE_SWAPINT32(x) ( \
+ 	(((uint32_t)(x) & 0x000000FFUL) << 24) | \
+ 	(((uint32_t)(x) & 0x0000FF00UL) <<  8) | \
+ 	(((uint32_t)(x) & 0x00FF0000UL) >>  8) | \
+ 	(((uint32_t)(x) & 0xFF000000UL) >> 24))
+*/
 
 //! TriceReverse16 swaps low byte and high byte of value and returns it.
 TRICE_INLINE uint16_t TriceReverse16(uint16_t value) {
@@ -289,7 +291,6 @@ extern unsigned TriceErrorCount;
 extern uint32_t* const TriceRingBufferStart;
 extern uint32_t* const triceRingBufferLimit;
 extern int TriceRingBufferDepthMax;
-extern unsigned TriceHalfBufferDepthMax;
 
 #endif // #if (TRICE_BUFFER == TRICE_RING_BUFFER)
 
@@ -298,6 +299,7 @@ extern unsigned TriceHalfBufferDepthMax;
 extern int TriceDataOffsetDepthMax;
 extern unsigned TriceSingleMaxWordCount;
 extern unsigned TriceDynBufTruncateCount;
+extern unsigned TriceHalfBufferDepthMax;
 
 #if TRICE_PROTECT == 1
 
