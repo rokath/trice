@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-# Clear all IDs inside ./example date
+# Clear all IDs inside ./example data
+rm -f til.json li.json # remove old stuff
 touch til.json li.json # make sure we have json files for "trice clean"
 trice clean -src ./exampleData
 

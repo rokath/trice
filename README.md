@@ -28,7 +28,7 @@ even inside **↯ interrupts** in less than 1 µs❗
   - **[Features](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
 - <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserGuide.md#2-get-started).
 - *Trice* consists of 2 parts:
-  1. **C** code `TRICE` macros generating tiny & super-fast embedded device real-time trace/log code
+  1. **C** code `trice` macros, similar usable like `printf`, generating tiny & super-fast embedded device real-time trace/log code.
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *Trice* packages, exchange the carried IDs with the format string and print out.
@@ -111,6 +111,7 @@ git clone https://github.com/rokath/trice.git
 - [elog](https://github.com/martinribelotta/elog) (Embedded logger with minimal footprint and memory usage)
 - [J-Link System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/) (SEGGER)
 - [Logging with symbols - The Embedonomicon](https://docs.rust-embedded.org/embedonomicon/logging.html)
+- [MCUViewer](https://github.com/klonyyy/MCUViewer)
 - [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding)
 - [Metal Serial Library](https://github.com/metal-ci/test/tree/master/doc/metal.serial.md)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)

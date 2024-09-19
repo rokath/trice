@@ -33,7 +33,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 
 ##  2. <a name='TriceIDs'></a>*Trice* IDs
 
-* Each *Trice* caries a 14-bit nuber as ID as runtime replacement for the format string.
+* Each *Trice* caries a 14-bit nuber ID as replacement for the format string.
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the `trice` macro followed by the format string and optional values.
 * The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`. 
 * The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../test/testdata/til.json) (example).
@@ -53,9 +53,10 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
   * `trice( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));`
-  * To support more than 12 values for each `trice` macro, the *Trice* code on target and host is straightforward extendable up to a total payload of 32767 bytes.
-* Each macro can be prolonged with the used parameter count, for example `TRICE8_3` or `TRICE_2` to improve compile time checks.
+  * To support more than 12 values for each `trice` macro, the *Trice* code on target and host is straightforward extendable up to a total payload of 32764 bytes.
+* Each macro can be prolonged with the used parameter count, for example `TRICE8_3` or `TRICE_2` to intense compile time checks.
   * This length code extension can be done automatically using `trice u -addParamCount`.
+* The _Trice_ tool compares the number of given format specifiers with the written parameters in a precimpile step to minimize the risk of runtime errors.
 * There is no variadic values scanning during runtime. The C preprocessor does the work.
 
 ##  5. <a name='floatanddoublevalues'></a>`float` and `double` values
@@ -67,7 +68,7 @@ These types are mixable with integer types but need to be covered by converter f
   
   ```c
    float x = 7.2;
-   TRICE32( "%f", aFloat(x));
+   trice( "%f", aFloat(x));
   ```
 
 * *double* types use the `aDouble()` function and need a value bit width of 64, to secure correct data transfer.
@@ -75,7 +76,7 @@ These types are mixable with integer types but need to be covered by converter f
 
   ```c
    double y = 7.2;
-   TRICE64( "float %f and double %f", aFloat(x), aDouble(y));
+   trice64( "float %f and double %f", aFloat(x), aDouble(y));
   ```
 
 * Both functions are simple and fast:
@@ -105,9 +106,9 @@ static inline uint64_t aDouble( double x ){
 
 ##  6. <a name='RuntimeGenerated0-terminatedStringsTransferwithTRICE_S'></a>Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`
 
-* The `%s` format specifier is not directly supported by the `trice` macro.
+* The `%s` format specifier is supported by the `trice` macro too but needs specific treatment.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
-* Strings created at runtime, need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32767 bytes each, if the configured *Trice* buffer size matches.
+* Strings created at runtime, need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32764 bytes each, if the configured *Trice* buffer size matches.
   * Example:
 
   ```c
@@ -119,6 +120,7 @@ static inline uint64_t aDouble( double x ){
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
 * This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );`
+* There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../test/testdata/triceCheck.c) for usage or see the following.
 
 ##  8. <a name='RuntimeGeneratedBufferTransferwithTRICE_B'></a>Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`
 
@@ -158,7 +160,7 @@ Trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: tim
 trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
 ```
 
-The Trice tool displays the parameter buffer in the shown manner. It is planned to code a FunctionPointerList Generator (See [issue #303](https://github.com/rokath/trice/issues/303), which generates mainly a function pointer list with associated IDs. This list can get part of the source code of a remote device. Then, when receiving a Trice message the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
+The Trice tool displays the parameter buffer in the shown manner. It is planned to code a FunctionPointerList Generator (See [issue #303](https://github.com/rokath/trice/issues/303), which generates mainly a function pointer list with associated IDs. This list can get part of the source code of a remote device. Then, when receiving a Trice message, the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
 
 * Future extensions are possible:
   * `triceD( "dump:32", addr, 160 );` -> The **trice** tool dumps in 32 byte rows.
@@ -202,7 +204,7 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 | a character represented by the corresponding Unicode code point | c | c  | c | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format. |
 | a quoted character                                              | - | q  | q | Supported.                                                                  |
 | the word true or false                                          | - | t  | t | Supported.                                                                  |
-| a string                                                        | s | s  | s | Use `TRICE_S` macro with one and only one runtime generated string.         |
+| a string                                                        | s | s  | s | Use `triceS` macro with one and only one runtime generated string.         |
 | pointer address                                                 | p | p  | p | Supported.                                                                  |
 | a double %% prints a single %                                   | % | %  | % | Supported.                                                                  |
 | Unicode escape sequence                                         | - | U  | - | **Not supported.**                                                          |
@@ -212,7 +214,7 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 | nothing printed                                                 | n | -  | - | **Not supported.**                                                          |
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
-* [x] Look in [triceCheck.c](../test/testata/triceCheck.c) for exampe code producing this:
+* [x] Look in [triceCheck.c](../test/testdata/triceCheck.c) for exampe code producing this:
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
@@ -226,7 +228,7 @@ The target does not even "know" about that, because it gets only the *Trice* IDs
 
 ##  12. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
 
-Once the [til.json](../til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
+Once the [til.json](../examples/F030R8_inst/til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
 ##  13. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
 

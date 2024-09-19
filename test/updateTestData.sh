@@ -15,6 +15,7 @@ trice insert -src ./                      -i ./testdata/til.json -li ./testdata/
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
 CGOTESTDIRS="
+    be_dblB_de_tcobs_ua/
     _ERROR_dblB_di_cobs_rtt32__de_xtea_cobs_ua/
     _ERROR_ringB_di_cobs_rtt32__de_xtea_cobs_ua/
     _ERROR_ringB_di_xtea_cobs_rtt32__de_cobs_ua/

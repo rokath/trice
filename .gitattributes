@@ -1,0 +1,23 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Consider theses extensions as binary
+*.bin binary
+*.a binary
+*.7z binary
+*.zip binary
+*.png binary
+*.PNG binary
+*.jpg binary
+*.gif binary
+
+# This is a text file format but because we don't want to see text diff on a file which is basically an image.
+*.svg binary
+*.SVG binary
+
+# Source: https://medium.com/@mbrehin/git-advanced-diff-odt-pdf-doc-xls-ppt-25afbf4f1105
+*.doc diff=doc
+*.xls diff=xls
+*.ppt diff=ppt
+*.odt diff=odt
+*.pdf diff=pdf

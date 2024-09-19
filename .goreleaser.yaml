@@ -1,3 +1,5 @@
+version: 2
+
 # This is an example .goreleaser.yaml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
 before:
@@ -58,6 +60,8 @@ builds:
       - CGO_ENABLED=0
 archives:
   - 
+    #rlcp: true
+
     #- format: tar.gz
     # this name template makes the OS and Arch compatible with the results of uname.
     #name_template: >-
@@ -97,19 +101,24 @@ archives:
     # `README*` and `CHANGELOG*` (case-insensitive).
     files:
       - .vscode/*
-      - cmd
+      - .clang-format
+      - .clang-format-ignore
+      - .editorconfig
+      - .gitattributes
+      - .gitignore
+      - cmd/trice/*
       - docs/*
       - examples/*
-      - internal
-      - pkg
-      - src
+      - internal/*
+      - pkg/*
+      - src/*
       - test/*
       - third_party/*
       - AUTHORS.md
       - CHANGELOG.md
       - CODE_OF_CONDUCT.md
       - CONTRIBUTING.md
-      - FoldersAndFiles.md
+      - FilesAndFolders.md
       - go.mod
       - go.sum
       - GoInfos.txt

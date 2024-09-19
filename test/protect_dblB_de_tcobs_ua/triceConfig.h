@@ -9,12 +9,12 @@
 extern "C" {
 #endif
 
-//#define TRICE_PROTECT 1
+// #define TRICE_PROTECT 1
 
 #define TRICE_DEFERRED_BUFFER_SIZE 512
 
-//#define TRICE_DATA_OFFSET 4
-//#define TRICE_SINGLE_MAX_SIZE 104
+// #define TRICE_DATA_OFFSET 4
+// #define TRICE_SINGLE_MAX_SIZE 104
 
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_UARTA 1

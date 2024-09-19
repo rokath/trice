@@ -18,20 +18,18 @@ extern "C" {
 // Local (to this demo) time keeping functions
 #include "time.h"
 
-
 #define TRICE_UART USART2 //!< Enable and set UART for serial output.
 // The alternative, TRICE_RTT_CHANNEL is not available with OpenCM3
-//#define TRICE_RTT_CHANNEL 0
+// #define TRICE_RTT_CHANNEL 0
 
 // Timestamping function to be provided by user. In this demo from time.h
 #define TRICE_TIMESTAMP wallclock_ms() // todo: replace with TRICE_TREX_ENCODING stuff
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
-//#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
-//#define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
+// #define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+// #define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
 
-//#define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices. (Untested!)
-
+// #define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices. (Untested!)
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -50,17 +48,21 @@ extern "C" {
 //! RTT needs additional tools installed - see RTT documentation.
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
-#if TRICE_MODE == 0 // must not use TRICE_ENCRYPT!
+#if TRICE_MODE == 0                     // must not use TRICE_ENCRYPT!
 #define TRICE_STACK_BUFFER_MAX_SIZE 128 //!< This  minus TRICE_DATA_OFFSET the max allowed single trice size. Usually ~40 is enough.
 #ifndef TRICE_ENTER
-#define TRICE_ENTER { /*! Start of TRICE macro */ \
-    uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
-    uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
+#define TRICE_ENTER                                                                          \
+	{                                                  /*! Start of TRICE macro */           \
+		uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE >> 2]; /* Check TriceDepthMax at runtime. */ \
+		uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET >> 2);
 #endif
 #ifndef TRICE_LEAVE
-#define TRICE_LEAVE { /*! End of TRICE macro */ \
-    unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
-    TriceOut( co, tLen ); } }
+#define TRICE_LEAVE                                                                 \
+	{ /*! End of TRICE macro */                                                     \
+		unsigned tLen = ((TriceBufferWritePosition - co) << 2) - TRICE_DATA_OFFSET; \
+		TriceOut(co, tLen);                                                         \
+	}                                                                               \
+	}
 #endif
 #endif // #if TRICE_MODE == 0
 
@@ -75,19 +77,18 @@ extern "C" {
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #endif
 #define TRICE_HALF_BUFFER_SIZE 1000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 100 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
-#endif // #if TRICE_MODE == 200
-
+#define TRICE_SINGLE_MAX_SIZE 100   //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#endif                              // #if TRICE_MODE == 200
 
 //! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Fastest TRICE macro execution.
 //! Command line similar to: `trice log -p COM1 -baud 115200`
 #if TRICE_MODE == 201
-#define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter, The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
-#define TRICE_ENTER //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit faster. Inside interrupts TRICE macros forbidden.
-#define TRICE_LEAVE //! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_CYCLE_COUNTER 0       //! Do not add cycle counter, The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
+#define TRICE_ENTER                 //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit faster. Inside interrupts TRICE macros forbidden.
+#define TRICE_LEAVE                 //! TRICE_LEAVE is the end of TRICE macro.
 #define TRICE_HALF_BUFFER_SIZE 2000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
-#endif // #if TRICE_MODE == 201
+#define TRICE_SINGLE_MAX_SIZE 800   //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#endif                              // #if TRICE_MODE == 201
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,21 +98,26 @@ extern "C" {
 //
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(0), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#define TRICE_BUFFER_INFO                                                              \
+	do {                                                                               \
+		TRICE32(Id(0), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE); \
+	} while (0)
 #else
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(0), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+#define TRICE_BUFFER_INFO                                                                                 \
+	do {                                                                                                  \
+		TRICE32(Id(0), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET); \
+	} while (0)
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
-#define TRICE_HEADLINE \
-    TRICE0( Id(0), "s:                                          \n" ); \
-    TRICE8( Id(0), "s:     NUCLEO-F411RE     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id(0), "s:                                          \n" ); \
-    TRICE0( Id(0), "s:     " ); \
-    TRICE_BUFFER_INFO; \
-    TRICE0( Id(0), "s:     \n" ); \
-    TRICE0( Id(0), "s:                                          \n");
-
+#define TRICE_HEADLINE                                                           \
+	TRICE0(Id(0), "s:                                          \n");             \
+	TRICE8(Id(0), "s:     NUCLEO-F411RE     TRICE_MODE %3u     \n", TRICE_MODE); \
+	TRICE0(Id(0), "s:                                          \n");             \
+	TRICE0(Id(0), "s:     ");                                                    \
+	TRICE_BUFFER_INFO;                                                           \
+	TRICE0(Id(0), "s:     \n");                                                  \
+	TRICE0(Id(0), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -120,18 +126,24 @@ extern "C" {
 // Compiler Adaption
 //
 
-#if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
+#if defined(__GNUC__) /* gnu compiler ###################################### */
 
 #define TRICE_INLINE static inline //! used for trice code
 
-#define ALIGN4                                  //!< align to 4 byte boundary preamble
-#define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
+#define ALIGN4                                 //!< align to 4 byte boundary preamble
+#define ALIGN4_END __attribute__((aligned(4))) //!< align to 4 byte boundary post declaration
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
-#define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); {
+#define TRICE_ENTER_CRITICAL_SECTION               \
+	{                                              \
+		uint32_t old_mask = cm_mask_interrupts(1); \
+		{
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
-#define TRICE_LEAVE_CRITICAL_SECTION } cm_mask_interrupts(old_mask); }
+#define TRICE_LEAVE_CRITICAL_SECTION \
+	}                                \
+	cm_mask_interrupts(old_mask);    \
+	}
 
 #else
 #error unknown compliler
@@ -144,7 +156,7 @@ extern "C" {
 // Optical feedback: Adapt to your device.
 //
 
-static inline void ToggleOpticalFeedbackLED( void ){
+TRICE_INLINE void ToggleOpticalFeedbackLED(void) {
 	// The only user controllable LED available on the
 	// Nucleo is LD2, on port A5. This is set up in main.c
 	gpio_toggle(GPIOA, GPIO5);
@@ -190,21 +202,19 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 #endif // #ifdef TRICE_UART
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // Default TRICE macro bitwidth: 32 (optionally adapt to MCU bit width)
 //
 
-#define TRICE_1  TRICE32_1  //!< Default parameter bit width for 1  parameter count TRICE is 32, change for a different value.
-#define TRICE_2  TRICE32_2  //!< Default parameter bit width for 2  parameter count TRICE is 32, change for a different value.
-#define TRICE_3  TRICE32_3  //!< Default parameter bit width for 3  parameter count TRICE is 32, change for a different value.
-#define TRICE_4  TRICE32_4  //!< Default parameter bit width for 4  parameter count TRICE is 32, change for a different value.
-#define TRICE_5  TRICE32_5  //!< Default parameter bit width for 5  parameter count TRICE is 32, change for a different value.
-#define TRICE_6  TRICE32_6  //!< Default parameter bit width for 6  parameter count TRICE is 32, change for a different value.
-#define TRICE_7  TRICE32_7  //!< Default parameter bit width for 7  parameter count TRICE is 32, change for a different value.
-#define TRICE_8  TRICE32_8  //!< Default parameter bit width for 8  parameter count TRICE is 32, change for a different value.
-#define TRICE_9  TRICE32_9  //!< Default parameter bit width for 9  parameter count TRICE is 32, change for a different value.
+#define TRICE_1 TRICE32_1   //!< Default parameter bit width for 1  parameter count TRICE is 32, change for a different value.
+#define TRICE_2 TRICE32_2   //!< Default parameter bit width for 2  parameter count TRICE is 32, change for a different value.
+#define TRICE_3 TRICE32_3   //!< Default parameter bit width for 3  parameter count TRICE is 32, change for a different value.
+#define TRICE_4 TRICE32_4   //!< Default parameter bit width for 4  parameter count TRICE is 32, change for a different value.
+#define TRICE_5 TRICE32_5   //!< Default parameter bit width for 5  parameter count TRICE is 32, change for a different value.
+#define TRICE_6 TRICE32_6   //!< Default parameter bit width for 6  parameter count TRICE is 32, change for a different value.
+#define TRICE_7 TRICE32_7   //!< Default parameter bit width for 7  parameter count TRICE is 32, change for a different value.
+#define TRICE_8 TRICE32_8   //!< Default parameter bit width for 8  parameter count TRICE is 32, change for a different value.
+#define TRICE_9 TRICE32_9   //!< Default parameter bit width for 9  parameter count TRICE is 32, change for a different value.
 #define TRICE_10 TRICE32_10 //!< Default parameter bit width for 10 parameter count TRICE is 32, change for a different value.
 #define TRICE_11 TRICE32_11 //!< Default parameter bit width for 11 parameter count TRICE is 32, change for a different value.
 #define TRICE_12 TRICE32_12 //!< Default parameter bit width for 12 parameter count TRICE is 32, change for a different value.
@@ -217,4 +227,3 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 #endif
 
 #endif /* TRICE_CONFIG_H_ */
-

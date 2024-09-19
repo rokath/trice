@@ -12,7 +12,9 @@
 - [6. v0.65.0 Changes](#6-v0650-changes)
 - [7. v0.66.0 Changes](#7-v0660-changes)
 - [8. v0.67.0 Changes](#8-v0670-changes)
-- [9. master branch changes](#9-master-branch-changes)
+- [9. v0.68.0 Changes](#9-v0680-changes)
+- [10. v0.69.0 Changes](#10-v0690-changes)
+- [11. master branch changes](#11-master-branch-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -76,7 +78,9 @@ date        | version | comment
 2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)
 2024-AUG-18 |  0.66.1 | Documetation and tests improved
 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)
-2024-AUG-23 |  master | See [9. master branch changes](#9-master-branch-changes)
+2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#9-v0680-changes)
+2024-AUG-23 |  master | See [10. v0.69.0 Changes](#9-v0690-changes)
+2024-AUG-23 |  master | See [11. master branch changes](#10-master-branch-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -281,4 +285,169 @@ This is a major release hopefully not breaking too much!
 | `c5ca8482` | Merge branch 'devel'                                                               |
 | `a33627dc` | founding                                                                           |
 
-##  9. <a name='masterbranchchanges'></a>master branch changes
+##  9. <a name='v0.68.0Changes'></a>v0.68.0 Changes
+
+| hash       | comment                                                                                                   |
+|------------|-----------------------------------------------------------------------------------------------------------|
+| `5746d892` | include files order changed back and locked now for *tcobsv1\*.c* to avoid compilation errors             |
+| `0b1258aa` | SEGGER files updated                                                                                      |
+| `5324f415` | updated with .clang-format-ignore info                                                                    |
+| `edee74ad` | Merge pull request #491 from Sazerac4/feat/upd_style_segger                                               |
+| `f0e41ede` | (github-desktop-Sazerac4/feat/upd_style_segger) Add .clang-format-ignore for SEGGER files                 |
+| `9625d073` | (github-desktop-Sazerac4/master, github-desktop-Sazerac4/HEAD) // clang-format off & on at 2 places added |
+| `4f22fa94` | Merge pull request #490 from Sazerac4/feat/update_style                                                   |
+| `34735bf9` | (github-desktop-Sazerac4/feat/update_style) preprocessor directives indentations                          |
+| `71d4a418` | A line starting with # serves as a comment in .gitattributes                                              |
+| `f70ddaf0` | use tabs instead of spaces for indentation                                                                |
+| `e8af2a78` | Files and Folders into one place                                                                          |
+| `4ba15703` | *.svg added to .gitattributes                                                                             |
+| `29c4047f` | devel merged into master                                                                                  |
+| `84fc77e1` | Merge pull request #487 from Sazerac4/feat/add_style                                                      |
+| `55b71eae` | (origin/devel, devel) SingleTricesRingCount--; into critical section and some formatting                  |
+| `580af89a` | Add .editorconfig file                                                                                    |
+| `0aafdf60` | (pullRequest487, pr/487) Change PointerAlignment to Left                                                  |
+| `63adada8` | Format code: - LLVM style - IndentWidth: 4 - ColumnLimit: 0                                               |
+| `272eb16d` | add clang-format default style from llvm for c source code                                                |
+| `db54a8dd` | add .gitattibutes to avoid problem in git diff with end of line                                           |
+| `653ec4a1` | Automatic TRICE_CLEAN modification added.                                                                 |
+
+##  10. <a name='v0.69.0Changes'></a>v0.69.0 Changes
+
+- Big-endian MCUs should now be usable with the complete Trice macro set (automatic test added).
+- Trice code auto-formatted with `clang-format.sh`. (Special thanks to @Sazerac)
+
+Used git log command: `git log --pretty=oneline --abbrev-commit`
+
+hash       | comment
+-----------|-------------------------------------------------------------------------------------------------------------------------------------------
+`2486b5f5` | (HEAD -> master, origin/master, origin/HEAD) clang-format run
+`7eb0f831` | IDs regenerated
+`18b28063` | bash script updateExampleData.sh safer
+`9fd84ae8` | Avoid multi-line comment
+`3a5fde0f` | v0.69.0 infos added to CHANGELOG.md
+`59a37670` | (HEAD -> master, origin/master, origin/HEAD) refactor -> devel -> master merge
+`fe74f99b` | (origin/devel, devel) clang-format.sh added and applied
+`856ead46` | MCU Viewer link added
+`83faced9` | (origin/refactor, refactor) code auto-formatted with `clang-format -i ./src/trice*.* ./test/*/*.h ./test/*/*.c ./examples/*/triceConfig.h`
+`8bd838e7` | TRICE_HTOTS partially removed (where not needed)
+`33cbf8e1` | Only SEGGER_RTT.* files remain unformatted.
+`02d8394e` | TCP4 input hint added
+`d248c3f7` | changed to: IndentPPDirectives: None and formatted with clang-format
+`765f883e` | small edits
+`65330574` | bigEndian test added
+`fcab7f87` | typo correction
+`46594d3d` | formatting a bit improved
+`d5068d4d` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1 parts added/corrected
+`297e94c1` | TRICE_PUT16_1616 invented for better speed
+`d89bf5b7` | More accurate handling of TRICE_OFF and TRICE_CLEAN
+`a9074897` | Trice tool log.Fatal replaced with fmt.Println to not abort on log data errors
+`76fc0844` | Trice tool error output better formatted
+`68c11e91` | updateTestData.sh executed
+`aa260c1b` | Linux execute mode enabled
+`df3c2bf7` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN code refactored
+`b233614b` | Update triceDefaultConfig.h
+`c2456425` | Update TriceUserGuide.md
+`44a86a0c` | (github-desktop-Sazerac4/master, github-desktop-Sazerac4/HEAD) Update TriceVsPrintfSimilaritiesAndDifferences.md
+`2f08a633` | Update TriceVsPrintfSimilaritiesAndDifferences.md
+`e57064c2` | trice.h & trice.c removed from filter
+`af07feea` | 1 comment adapted
+`bb27fd03` | Merge pull request #495 from Sazerac4/fixes/tests_lib
+`fc7fba02` | (github-desktop-Sazerac4/fixes/tests_lib) try add labeler.yml file
+`dc2480c4` | Remove unused extern variable
+`a94e58a2` | TRICE_DIAGNOSTICS==0 fixes
+`4c0717bb` | Add missing TRICE_INLINE
+`7f600914` | - Fix unused "pFmt" variable use - Fix trice function don't pass fmt to macros ( -Wunused ) - Fix undef preprocessor ( -Wundef )
+`944c4982` | clang-format: don't sort include
+`85ae6d65` | clang-format off/on added for TriceCheck
+`72bd7449` | #493 fix (hopefully, untested)
+`9a7a2eeb` | Update TraceWithTrice.md
+`b6fe0a31` | Update README.md
+`bfb430d0` | Typo correction
+`8bb96662` | edit error corrected
+`95ea617f` | comments updated
+`00771e2e` | indentiation adapted
+`f8fcc07c` | c++ frame added
+`05982811` | indentiation manually adapted and .clang-format-ignore extended
+`651aac37` | TRICE_BUFFER_SIZE now with 4 additional scratch bytes
+`afd0da98` | indentiation manually changed for readability
+`771754fd` | formatting and comments changed slightly
+`5b4b40d8` | Update README.md
+`b6e68494` | (tag: v0.68.0) rlcp added to .goreleaser.yaml
+
+- Test results (`be_dblB_de_tcobs_ua` is the "big-endian" test using `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1` setting and `trice log ...   -triceEndianness bigEndian`):
+
+```bash
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
+$ go clean -cache && time go test ./...
+?       github.com/rokath/trice/internal/do     [no test files]
+?       github.com/rokath/trice/internal/translator     [no test files]
+?       github.com/rokath/trice/pkg/ant [no test files]
+ok      github.com/rokath/trice/cmd/trice       1.456s
+ok      github.com/rokath/trice/internal/args   0.380s
+ok      github.com/rokath/trice/internal/charDecoder    0.296s
+ok      github.com/rokath/trice/internal/com    16.145s
+ok      github.com/rokath/trice/internal/decoder        0.216s [no tests to run]
+ok      github.com/rokath/trice/internal/dumpDecoder    0.265s
+ok      github.com/rokath/trice/internal/emitter        0.276s
+ok      github.com/rokath/trice/internal/id     0.488s
+ok      github.com/rokath/trice/internal/keybcmd        0.324s
+ok      github.com/rokath/trice/internal/link   0.276s
+ok      github.com/rokath/trice/internal/receiver       0.311s
+ok      github.com/rokath/trice/internal/trexDecoder    0.454s
+ok      github.com/rokath/trice/pkg/cipher      0.372s
+ok      github.com/rokath/trice/pkg/endian      0.318s
+ok      github.com/rokath/trice/pkg/msg 0.330s
+ok      github.com/rokath/trice/pkg/tst 0.511s
+ok      github.com/rokath/trice/test/be_dblB_de_tcobs_ua        181.798s
+ok      github.com/rokath/trice/test/dblB_de_cobs_ua    181.500s
+ok      github.com/rokath/trice/test/dblB_de_multi_cobs_ua      181.854s
+ok      github.com/rokath/trice/test/dblB_de_multi_nopf_ua      181.942s
+ok      github.com/rokath/trice/test/dblB_de_multi_tcobs_ua     181.803s
+ok      github.com/rokath/trice/test/dblB_de_multi_xtea_cobs_ua 181.545s
+ok      github.com/rokath/trice/test/dblB_de_multi_xtea_tcobs_ua        181.492s
+ok      github.com/rokath/trice/test/dblB_de_nopf_ua    181.424s
+ok      github.com/rokath/trice/test/dblB_de_tcobs_ua   181.532s
+ok      github.com/rokath/trice/test/dblB_de_xtea_cobs_ua       181.414s
+ok      github.com/rokath/trice/test/dblB_de_xtea_tcobs_ua      182.096s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_cobs_ua     369.640s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_multi_cobs_ua       368.721s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_multi_tcobs_ua      369.936s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_tcobs_ua    368.893s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_xtea_cobs_ua        369.048s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt8__de_cobs_ua      365.871s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt8__de_multi_cobs_ua        365.722s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt8__de_multi_tcobs_ua       365.961s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt8__de_tcobs_ua     365.561s
+ok      github.com/rokath/trice/test/protect_dblB_de_tcobs_ua   0.529s
+ok      github.com/rokath/trice/test/ringB_de_cobs_ua   183.393s
+ok      github.com/rokath/trice/test/ringB_de_nopf_ua   183.600s
+ok      github.com/rokath/trice/test/ringB_de_tcobs_ua  183.679s
+ok      github.com/rokath/trice/test/ringB_de_xtea_cobs_ua      183.259s
+ok      github.com/rokath/trice/test/ringB_de_xtea_tcobs_ua     183.558s
+ok      github.com/rokath/trice/test/ringB_di_cobs_rtt32__de_tcobs_ua   365.939s
+ok      github.com/rokath/trice/test/ringB_di_cobs_rtt8__de_tcobs_ua    366.267s
+ok      github.com/rokath/trice/test/ringB_di_nopf_rtt32__de_tcobs_ua   365.590s
+ok      github.com/rokath/trice/test/ringB_di_nopf_rtt32__de_xtea_cobs_ua       365.096s
+ok      github.com/rokath/trice/test/ringB_di_nopf_rtt8__de_tcobs_ua    365.035s
+ok      github.com/rokath/trice/test/ringB_di_tcobs_rtt32__de_tcobs_ua  365.350s
+ok      github.com/rokath/trice/test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua  365.447s
+ok      github.com/rokath/trice/test/ringB_protect_de_tcobs_ua  0.513s
+ok      github.com/rokath/trice/test/stackB_di_nopf_aux32       183.045s
+ok      github.com/rokath/trice/test/stackB_di_nopf_aux8        182.956s
+ok      github.com/rokath/trice/test/stackB_di_nopf_rtt32       183.280s
+ok      github.com/rokath/trice/test/stackB_di_nopf_rtt8        183.130s
+ok      github.com/rokath/trice/test/stackB_di_xtea_cobs_rtt8   183.119s
+ok      github.com/rokath/trice/test/staticB_di_nopf_aux32      181.814s
+ok      github.com/rokath/trice/test/staticB_di_nopf_aux8       181.779s
+ok      github.com/rokath/trice/test/staticB_di_nopf_rtt32      181.849s
+ok      github.com/rokath/trice/test/staticB_di_nopf_rtt8       181.717s
+ok      github.com/rokath/trice/test/staticB_di_tcobs_rtt32     181.645s
+ok      github.com/rokath/trice/test/staticB_di_tcobs_rtt8      181.081s
+ok      github.com/rokath/trice/test/staticB_di_xtea_cobs_rtt32 180.932s
+
+real    16m1.486s
+user    0m0.000s
+sys     0m0.000s
+```
+
+##  11. <a name='masterbranchchanges'></a>master branch changes
