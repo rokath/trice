@@ -91,7 +91,7 @@ extern "C" {
 #define TRICE_ENTER
 #define TRICE_LEAVE
 #define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
-#define TRICE_HEADER_PUT(n)    // do{ ((void)(n)); }while(0)
+#define TRICE_PUT_HEADER(n)    // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16(n)         // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16_1616(x, n) // do{ ((void)(x)); ((void)(n)); }while(0)
 #define PUT_BUFFER(b, l)       // do{ ((void)(b)); ((void)(l)); }while(0)
@@ -113,7 +113,7 @@ extern "C" {
 #define TRICE_ENTER
 #define TRICE_LEAVE
 #define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
-#define TRICE_HEADER_PUT(n)    // do{ ((void)(n)); }while(0)
+#define TRICE_PUT_HEADER(n)    // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16(n)         // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16_1616(x, n) // do{ ((void)(x)); ((void)(n)); }while(0)
 #define PUT_BUFFER(b, l)       // do{ ((void)(b)); ((void)(l)); }while(0)
@@ -546,12 +546,12 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif
 
-#ifndef TRICE_HEADER_PUT
+#ifndef TRICE_PUT_HEADER
 
-//! TRICE_HEADER_PUT writes x as 32-bit value into the Trice buffer without changing the endianness.
+//! TRICE_PUT_HEADER writes x as 32-bit value into the Trice buffer without changing the endianness.
 //! This macro does not use internally TRICE_HTOTL and therefore it is usable without speed loss, when TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1.
 //! In that case the byte order needs to be provided by the written code.
-#define TRICE_HEADER_PUT(x)              \
+#define TRICE_PUT_HEADER(x)              \
 	do {                                 \
 		*TriceBufferWritePosition++ = x; \
 	} while (0); 
