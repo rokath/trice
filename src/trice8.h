@@ -293,6 +293,11 @@
 
 #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
 
+#define t_id  TRICE_HTOTS((0x4000 | (tid))) //!< t_id is tid with no ts bit set.
+// #define t_idl    (0x00ff & t_id)  //!< t_idl is t_id  lo part.
+// #define t_idh_8l (0xff00 & t_id)  //!< t_idh_8l is t_id hi part 8 bit left shifted.
+
+
 //! trice8m_0 writes trice data as fast as possible in a buffer.
 //! This macro is used internally and not intended for user applications.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -307,7 +312,7 @@
 //! \param v0 a 8 bit bit value
 #define trice8m_1(tid, v0)                                                 \
 	TRICE_ENTER                                                            \
-	TRICE_PUT((1 << 8) | ((TRICE_CYCLE) << 0) | ((0x4000 | (tid)) << 16)); \
+	TRICE_PUT_HEADER((1 << 24) | ((TRICE_CYCLE) << 16) | (t_id << 0));     \
 	TRICE_PUT8_1(v0)                                                       \
 	TRICE_LEAVE
 
