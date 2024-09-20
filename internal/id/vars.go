@@ -35,4 +35,6 @@ var (
 
 	DefaultStampSize = 32
 	StampSizeId      string
+
+	SpaceBetweenTriceOpeningBraceAndIDName = false
 )
