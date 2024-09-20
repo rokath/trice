@@ -4,10 +4,10 @@
 // Needed safety space is TRICE_DATA_OFFSET + (2*TRICE_SINGLE_MAX_SIZE)-4) = 208
 // TRICE_DEFERRED_BUFFER_SIZE == 324
 char* TargetActivity(void) {                                                                                                                  // -4 bytes TRICE_DATA_OFFSET = 320 bytes space
-	TRice( iD(16204), "Hello ");                                                                                                               // -8 bytes = 312 bytes space
-	TRice( iD(16205), "World!\n");                                                                                                             // -8 bytes = 304 bytes space
-	TRice64( iD(16206), "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12); // -104 bytes = 200 bytes space
+	TRice(iD(16204), "Hello ");                                                                                                               // -8 bytes = 312 bytes space
+	TRice(iD(16205), "World!\n");                                                                                                             // -8 bytes = 304 bytes space
+	TRice64(iD(16206), "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12); // -104 bytes = 200 bytes space
 	// so the next Trice does not fit
-	trice( iD(16207), "Hello again\n"); // -4 bytes -> no fit!
+	trice(iD(16207), "Hello again\n"); // -4 bytes -> no fit!
 	return " 842,150_450 Hello World!\n 842,150_450 Twelve 64-bit values: -1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12";
 }
