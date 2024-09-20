@@ -53,7 +53,7 @@ func TestInsertKnownID(t *testing.T) {
 
 	// create src file1
 	src1 := `
-	TRice( id(77),"%x", 123 );
+	TRice(id(77),"%x", 123 );
 	`
 	assert.Nil(t, fSys.WriteFile("file1.c", []byte(src1), 0777))
 
@@ -63,7 +63,7 @@ func TestInsertKnownID(t *testing.T) {
 
 	// check modified src file1
 	expSrc1 := `
-	TRice( id(77),"%x", 123 );
+	TRice(id(77),"%x", 123 );
 	`
 	actSrc1, e := fSys.ReadFile("file1.c")
 	assert.Nil(t, e)
@@ -78,7 +78,7 @@ func TestInsertExistingID_A(t *testing.T) {
 	// create src file1
 	sFn1 := "folder1/file1.c"
 	src1 := `
-	TRice( id(77),"x" );
+	TRice(id(77),"x" );
 	`
 	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
 
@@ -121,7 +121,7 @@ func TestInsertExistingID_B(t *testing.T) {
 	// create src file1
 	sFn1 := "folder1/file1.c"
 	src1 := `
-	TRice( id(77),"x" );
+	TRice(id(77),"x" );
 	`
 	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
 
@@ -165,15 +165,15 @@ func TestInsert99(t *testing.T) {
 	sFn1 := "file1.c"
 	src1 := `
 	TRice("x" ); 
+	TRice("x" );
 	TRice( "x" );
-	TRice(  "x" );
+	TRice(id(0),"x" );
 	TRice(id(0),"x" );
 	TRice( id(0),"x" );
-	TRice(  id(0),"x" );
 	TRice(id(0), "x" );
-	TRice(   id(0),    "x" );
-	TRICE( "%x", 1)
-	TRICE(   Id(0)  , "%x", 1)
+	TRice(  id(0),    "x" );
+	TRICE("%x", 1)
+	TRICE(  Id(0)  , "%x", 1)
 	`
 	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
 
@@ -183,16 +183,16 @@ func TestInsert99(t *testing.T) {
 
 	// check modified src file1
 	expSrc1 := `
-	TRice( iD(999), "x" ); 
-	TRice( iD(998), "x" );
-	TRice( iD(997), "x" );
-	TRice( iD(996), "x" );
-	TRice( iD(995), "x" );
-	TRice( iD(994), "x" );
-	TRice( iD(993), "x" );
-	TRice( iD(992), "x" );
-	TRICE( ID(991), "%x", 1)
-	TRICE( Id(990), "%x", 1)
+	TRice(iD(999), "x" ); 
+	TRice(iD(998), "x" );
+	TRice(iD(997), "x" );
+	TRice(iD(996), "x" );
+	TRice(iD(995), "x" );
+	TRice(iD(994), "x" );
+	TRice(iD(993), "x" );
+	TRice(iD(992), "x" );
+	TRICE(ID(991), "%x", 1)
+	TRICE(Id(990), "%x", 1)
 	`
 	actSrc1, e := fSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -207,7 +207,7 @@ func TestInsert11(t *testing.T) {
 	// create src file1
 	sFn1 := "file1.c"
 	src1 := `
-	TRice(    id(0), "x" );TRice( id(0)   , "x" );
+	TRice(   id(0), "x" );TRice(id(0)   , "x" );
 	`
 	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
 
@@ -217,7 +217,7 @@ func TestInsert11(t *testing.T) {
 
 	// check modified src file1
 	expSrc1 := `
-	TRice( iD(999), "x" );TRice( iD(998), "x" );
+	TRice(iD(999), "x" );TRice(iD(998), "x" );
 	`
 	actSrc1, e := fSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -232,8 +232,8 @@ func TestInsert2(t *testing.T) {
 	// create src file
 	sFn := "file.c"
 	src := `
-	break; case __LINE__: TRice(   iD(0), "msg:value=%d\n", -1  );
-	break; case __LINE__: TRice( "msg:value=%d\n", -1  );
+	break; case __LINE__: TRice(  iD(0), "msg:value=%d\n", -1  );
+	break; case __LINE__: TRice("msg:value=%d\n", -1  );
 	`
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
@@ -244,8 +244,8 @@ func TestInsert2(t *testing.T) {
 
 	// check modified src file
 	expSrc := `
-	break; case __LINE__: TRice( iD(999), "msg:value=%d\n", -1  );
-	break; case __LINE__: TRice( iD(998), "msg:value=%d\n", -1  );
+	break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );
+	break; case __LINE__: TRice(iD(998), "msg:value=%d\n", -1  );
 	`
 	actSrc, e := fSys.ReadFile(sFn)
 	assert.Nil(t, e)
@@ -289,7 +289,7 @@ func TestInsert1(t *testing.T) {
 
 	// create src file
 	sFn := "file.c"
-	src := `break; case __LINE__: TRice( iD(0), "msg:value=%d\n", -1  );`
+	src := `break; case __LINE__: TRice(iD(0), "msg:value=%d\n", -1  );`
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
@@ -298,7 +298,7 @@ func TestInsert1(t *testing.T) {
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
-	expSrc := `break; case __LINE__: TRice( iD(999), "msg:value=%d\n", -1  );`
+	expSrc := `break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );`
 	actSrc, e := fSys.ReadFile(sFn)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc, string(actSrc))
@@ -333,7 +333,7 @@ func TestInsert0(t *testing.T) {
 
 	// create src file
 	sFn := "file.c"
-	src := `break; case __LINE__: TRice( "msg:value=%d\n", -1  );`
+	src := `break; case __LINE__: TRice("msg:value=%d\n", -1  );`
 
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
@@ -342,7 +342,7 @@ func TestInsert0(t *testing.T) {
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
-	expSrc := `break; case __LINE__: TRice( iD(999), "msg:value=%d\n", -1  );`
+	expSrc := `break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );`
 	actSrc, e := fSys.ReadFile(sFn)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc, string(actSrc))
@@ -380,15 +380,15 @@ func TestInsertWithTickInComment(t *testing.T) {
 	src1 := `
 	//""'
 	//"
-	TRice( "x" );
+	TRice("x" );
 	//"
-	TRice( "x" );
-	triceAssertTrue( "x", flag );
-	TriceAssertTrue( "x", flag );
-	TRiceAssertTrue( "x", flag );
-	triceAssertFalse( "x", flag );
-	TriceAssertFalse( "x", flag );
-	TRiceAssertFalse( "x", flag );
+	TRice("x" );
+	triceAssertTrue("x", flag );
+	TriceAssertTrue("x", flag );
+	TRiceAssertTrue("x", flag );
+	triceAssertFalse("x", flag );
+	TriceAssertFalse("x", flag );
+	TRiceAssertFalse("x", flag );
 	`
 	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
 
@@ -400,15 +400,15 @@ func TestInsertWithTickInComment(t *testing.T) {
 	expSrc1 := `
 	//""'
 	//"
-	TRice( "x" );
+	TRice("x" );
 	//"
-	TRice( iD(999), "x" );
-	triceAssertTrue( iD(998), "x", flag );
-	TriceAssertTrue( iD(997), "x", flag );
-	TRiceAssertTrue( iD(996), "x", flag );
-	triceAssertFalse( iD(995), "x", flag );
-	TriceAssertFalse( iD(994), "x", flag );
-	TRiceAssertFalse( iD(993), "x", flag );
+	TRice(iD(999), "x" );
+	triceAssertTrue(iD(998), "x", flag );
+	TriceAssertTrue(iD(997), "x", flag );
+	TRiceAssertTrue(iD(996), "x", flag );
+	triceAssertFalse(iD(995), "x", flag );
+	TriceAssertFalse(iD(994), "x", flag );
+	TRiceAssertFalse(iD(993), "x", flag );
 	`
 	actSrc1, e := fSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -439,8 +439,8 @@ func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
 	}`
 	testSet := []srcFile{
 		// fn:       existing IDs:                unchanged IDs:
-		{fn0, `TRice( iD(1200), "Hi!" );`, `TRice( iD(1200), "Hi!" );`},
-		{fn1, `TRice( iD(1201), "Lo!" );`, `TRice( iD(1201), "Lo!" );`},
+		{fn0, `TRice(iD(1200), "Hi!" );`, `TRice(iD(1200), "Hi!" );`},
+		{fn1, `TRice(iD(1201), "Lo!" );`, `TRice(iD(1201), "Lo!" );`},
 	}
 
 	// create src files
@@ -494,8 +494,8 @@ func TestInsertIDsForNewTrice2WithLI(t *testing.T) {
 
 	testSet := []srcFile{
 		// fn: in:                                                 expected:
-		{fn0, `trice( "new" ); trice( "Lo!" );` /*             */, `trice( iD(18), "new" ); trice( iD(17), "Lo!" );`},
-		{fn1, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`},
+		{fn0, `trice("new" ); trice("Lo!" );` /*           */, `trice(iD(18), "new" ); trice(iD(17), "Lo!" );`},
+		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files
 	for _, k := range testSet {
@@ -574,12 +574,12 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 	fn1 := t.Name() + "file1.c"
 
 	testSet := []srcFile{
-		// fn: in:                                                 expected:
-		//{fn0, `trice( "new" ); trice( "Lo!" );` /*             */, `trice( iD(18), "new" ); trice( iD(17), "Lo!" );`},
-		//{fn0, `trice( "new %d", 1 ); trice( "Lo!" );` /*        */, `trice( iD(18), "new %d", 1 ); trice( iD(17), "Lo!" );`},
-		{fn0, `trice( "new %d", 1 ); /* ' */ trice( "Lo!" );` /*        */, `trice( iD(18), "new %d", 1 ); /* ' */ trice( iD(17), "Lo!" );`},
-		//{fn0, `trice( "new %d" ); trice( "Lo!" );` /*        */, `trice( iD(18), "new %d" ); trice( iD(17), "Lo!" );`},
-		{fn1, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`},
+		// fn: in:                                              expected:
+		//{fn0, `trice("new" ); trice("Lo!" );` /*       */, `trice(iD(18), "new" ); trice(iD(17), "Lo!" );`},
+		//{fn0, `trice("new %d", 1 ); trice("Lo!" );` /* */, `trice(iD(18), "new %d", 1 ); trice(iD(17), "Lo!" );`},
+		{fn0, `trice("new %d", 1 ); /* ' */ trice("Lo!" );`, `trice(iD(18), "new %d", 1 ); /* ' */ trice(iD(17), "Lo!" );`},
+		//{fn0, `trice("new %d" ); trice("Lo!" );` /*    */, `trice(iD(18), "new %d" ); trice(iD(17), "Lo!" );`},
+		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files
 	for _, k := range testSet {
@@ -675,8 +675,8 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 
 	testSet := []srcFile{
 		// fn: in:                                                 expected:
-		{fn0, `trice( "new %d", 1 ); /*'*/ trice( "Lo!" );` /* */, `trice( iD(18), "new %d", 1 ); /*'*/ trice( iD(17), "Lo!" );`},
-		{fn1, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`, `trice( iD(1200), "Hi!" ); trice( iD(19), "old" );`},
+		{fn0, `trice("new %d", 1 ); /*'*/ trice("Lo!" );` /**/, `trice(iD(18), "new %d", 1 ); /*'*/ trice(iD(17), "Lo!" );`},
+		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files
 	for _, k := range testSet {
@@ -775,8 +775,8 @@ func TestInsertIDsForNewTrice1(t *testing.T) {
 	liJSON := `{
 }`
 	testSet := []srcFile{
-		// fn: in:                                                 expected:
-		{fn0, `TRice( iD(1200), "Hi!" ); trice( "new" );`, `TRice( iD(1200), "Hi!" ); trice( iD(1201), "new" );`},
+		// fn: in:                                         expected:
+		{fn0, `TRice(iD(1200), "Hi!" ); trice("new" );`, `TRice(iD(1200), "Hi!" ); trice(iD(1201), "new" );`},
 	}
 
 	// create src files
@@ -836,22 +836,22 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 
 	testSet := []srcFile{
 		// fn: in:                                                   expected:
-		{fn0, `TRice( iD(1200), "Hi!" ); trice( iD(1201), "Lo!" );`, `TRice( iD(1200), "Hi!" ); trice( iD(1201), "Lo!" );`},
+		{fn0, `TRice(iD(1200), "Hi!" ); trice(iD(1201), "Lo!" );`, `TRice(iD(1200), "Hi!" ); trice(iD(1201), "Lo!" );`},
 		{fn1, // in
-			`	break; case __LINE__: triceS( "msg:With triceS:%s\n", sABCDE );
-				TRice( "hi %d", 5 );
+			`	break; case __LINE__: triceS("msg:With triceS:%s\n", sABCDE );
+				TRice("hi %d", 5 );
 				// don` + "'" + `t forget
-				trice( "lo!" );
-				break; case __LINE__: triceS( "msg:With triceS:%s\n", sABCDE );
-				trice32( "msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );`,
+				trice("lo!" );
+				break; case __LINE__: triceS("msg:With triceS:%s\n", sABCDE );
+				trice32("msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );`,
 
 			// expected
-			`	break; case __LINE__: triceS( iD(1202), "msg:With triceS:%s\n", sABCDE );
-				TRice( iD(1203), "hi %d", 5 );
+			`	break; case __LINE__: triceS(iD(1202), "msg:With triceS:%s\n", sABCDE );
+				TRice(iD(1203), "hi %d", 5 );
 				// don` + "'" + `t forget
-				trice( iD(1204), "lo!" );
-				break; case __LINE__: triceS( iD(1205), "msg:With triceS:%s\n", sABCDE );
-				trice32( iD(1206), "msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );`},
+				trice(iD(1204), "lo!" );
+				break; case __LINE__: triceS(iD(1205), "msg:With triceS:%s\n", sABCDE );
+				trice32(iD(1206), "msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );`},
 	}
 
 	// create src files

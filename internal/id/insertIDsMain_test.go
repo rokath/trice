@@ -34,7 +34,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithNoIDinsideLi(t *testing.T) {
 
 	testSet := []srcFile{
 		// fn: start:                                                insertedIDs:
-		{fn0, `TRice( iD(1444), "Hi!" ); TRice( iD(122), "Lo!" );`, `TRice( iD(1444), "Hi!" ); TRice( iD(122), "Lo!" );`},
+		{fn0, `TRice(iD(1444), "Hi!" ); TRice(iD(122), "Lo!" );`, `TRice(iD(1444), "Hi!" ); TRice(iD(122), "Lo!" );`},
 	}
 
 	// create src file
@@ -160,7 +160,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithSingleIDinsideLi(t *testing.
 
 	testSet := []srcFile{
 		// fn: start:                                                insertedIDs:
-		{fn0, `TRice( iD(1444), "Hi!" ); TRice( iD(122), "Lo!" );`, `TRice( iD(1444), "Hi!" ); TRice( iD(122), "Lo!" );`},
+		{fn0, `TRice(iD(1444), "Hi!" ); TRice(iD(122), "Lo!" );`, `TRice(iD(1444), "Hi!" ); TRice(iD(122), "Lo!" );`},
 	}
 
 	// create src file
@@ -286,7 +286,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithDoubledIDinsideLi(t *testing
 
 	testSet := []srcFile{
 		// fn: start:                                                insertedIDs:
-		{fn0, `TRice( iD(1444), "Hi!" ); TRice( iD(122), "Lo!" );`, `TRice( iD(1444), "Hi!" ); TRice( iD(122), "Lo!" );`},
+		{fn0, `TRice(iD(1444), "Hi!" ); TRice(iD(122), "Lo!" );`, `TRice(iD(1444), "Hi!" ); TRice(iD(122), "Lo!" );`},
 	}
 
 	// create src file
@@ -413,8 +413,8 @@ func TestInsertIDsFromFilesIntoNonEmptyJSON(t *testing.T) {
 
 	testSet := []srcFile{
 		// fn: start:                                                insertedIDs:
-		{fn0, `TRice( iD(1200), "Hi!" ); TRice( iD(101), "Lo!" );`, `TRice( iD(1200), "Hi!" ); TRice( iD(101), "Lo!" );`},
-		{fn1, `TRice( iD(1201), "hi!" ); TRice( iD(100), "lo!" );`, `TRice( iD(1201), "hi!" ); TRice( iD(100), "lo!" );`},
+		{fn0, `TRice(iD(1200), "Hi!" ); TRice(iD(101), "Lo!" );`, `TRice(iD(1200), "Hi!" ); TRice(iD(101), "Lo!" );`},
+		{fn1, `TRice(iD(1201), "hi!" ); TRice(iD(100), "lo!" );`, `TRice(iD(1201), "hi!" ); TRice(iD(100), "lo!" );`},
 	}
 
 	// create src files
@@ -556,8 +556,8 @@ func TestInsertIDsFromFilesInEmptyJSON(t *testing.T) {
 
 	testSet := []srcFile{
 		// fn: start:                                                insertedIDs:
-		{fn0, `TRice( iD(1200), "Hi!" ); TRice( iD(101), "Lo!" );`, `TRice( iD(1200), "Hi!" ); TRice( iD(101), "Lo!" );`},
-		{fn1, `TRice( iD(1201), "hi!" ); TRice( iD(100), "lo!" );`, `TRice( iD(1201), "hi!" ); TRice( iD(100), "lo!" );`},
+		{fn0, `TRice(iD(1200), "Hi!" ); TRice(iD(101), "Lo!" );`, `TRice(iD(1200), "Hi!" ); TRice(iD(101), "Lo!" );`},
+		{fn1, `TRice(iD(1201), "hi!" ); TRice(iD(100), "lo!" );`, `TRice(iD(1201), "hi!" ); TRice(iD(100), "lo!" );`},
 	}
 
 	// create src files
@@ -676,13 +676,13 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 }`
 	testSet := []srcFile{
 		// fn: clean:                             insertedIDs:
-		{fn0, `TRice( "Hi!" ); TRice( "Hi!" );`, `TRice( iD(1200), "Hi!" ); TRice( iD(101), "Hi!" );`},
-		{fn1, `TRice( "Hi!" ); TRice( "Hi!" );`, `TRice( iD(1201), "Hi!" ); TRice( iD(100), "Hi!" );`},
+		{fn0, `TRice("Hi!" ); TRice("Hi!" );`, `TRice(iD(1200), "Hi!" ); TRice(iD(101), "Hi!" );`},
+		{fn1, `TRice("Hi!" ); TRice("Hi!" );`, `TRice(iD(1201), "Hi!" ); TRice(iD(100), "Hi!" );`},
 	}
 
 	alternativeResultSet := []string{
-		`TRice( iD(1200), "Hi!" ); TRice( iD(100), "Hi!" );`,
-		`TRice( iD(1201), "Hi!" ); TRice( iD(101), "Hi!" );`,
+		`TRice(iD(1200), "Hi!" ); TRice(iD(100), "Hi!" );`,
+		`TRice(iD(1201), "Hi!" ); TRice(iD(101), "Hi!" );`,
 	}
 
 	// create src files
@@ -723,8 +723,8 @@ func TestInsertIDsIntoCleanFilesWithEmptyTilJSON(t *testing.T) {
 	fn1 := t.Name() + "_file1.c"
 
 	testSet := []srcFile{
-		{fn0, `TRice( "Hi!" );`, `TRice( iD(1001), "Hi!" );`},
-		{fn1, `TRice( "Hi!" );`, `TRice( iD(1000), "Hi!" );`},
+		{fn0, `TRice("Hi!" );`, `TRice(iD(1001), "Hi!" );`},
+		{fn1, `TRice("Hi!" );`, `TRice(iD(1000), "Hi!" );`},
 	}
 
 	// create src files
