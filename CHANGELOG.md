@@ -451,3 +451,16 @@ sys     0m0.000s
 ```
 
 ##  11. <a name='masterbranchchanges'></a>master branch changes
+
+Used git log command: `git log --pretty=oneline --abbrev-commit` and less importand lines removed
+
+hash       | comment
+-----------|----------------------------------------------------------------------------------------------------
+`2252b09d` | (HEAD -> master, origin/master, origin/HEAD) TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated
+`1f4ef31a` | spacing CLI switch added to `trice insert`
+`43c0d0ab` | tests adapted for SpaceBetweenTriceOpeningBraceAndIDName=false (default)
+`66d032d3` | SpaceBetweenTriceOpeningBraceAndIDName code added
+`4880fb29` | SpaceBetweenTriceOpeningBraceAndIDName removed
+`f7691e36` | ./updateTestData.sh run result
+`30cf050e` | Trice Cache Specification Draft added
+`3c1b3aba` | (tag: v0.69.0) .goreleaser.yaml adapted to goreleaser version 2
