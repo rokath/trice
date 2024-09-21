@@ -79,8 +79,8 @@ date        | version | comment
 2024-AUG-18 |  0.66.1 | Documetation and tests improved
 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)
 2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#9-v0680-changes)
-2024-AUG-23 |  master | See [10. v0.69.0 Changes](#9-v0690-changes)
-2024-AUG-23 |  master | See [11. master branch changes](#10-master-branch-changes)
+2024-AUG-23 |  master | See [10. v0.69.0 Changes](#10-v0690-changes)
+2024-AUG-23 |  master | See [11. master branch changes](#11-master-branch-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
