@@ -248,7 +248,7 @@
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)            \
 	TRICE_LEAVE
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 //! trice32m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -332,7 +332,7 @@
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 //! trice32m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -416,7 +416,7 @@
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)        \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
@@ -466,7 +466,7 @@ void trice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 #define Trice32m_0(tid)                            \
 	TRICE_ENTER                                    \
@@ -574,7 +574,7 @@ void trice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 #define Trice32m_0(tid)                                  \
 	TRICE_ENTER                                          \
@@ -682,7 +682,7 @@ void trice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
@@ -732,7 +732,7 @@ void Trice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 #define TRice32m_0(tid)                                    \
 	TRICE_ENTER                                            \
@@ -840,7 +840,7 @@ void Trice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 #define TRice32m_0(tid)                                    \
 	TRICE_ENTER                                            \
@@ -948,7 +948,7 @@ void Trice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 

@@ -2,17 +2,17 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#if TRICE_REVERSE == 1
 
 #define TRICE_SHORT1(v) (uint16_t)(v)
 #define TRICE_SHORT0(v) ((uint32_t)(v) << 16)
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#else // #if TRICE_REVERSE == 1
 
 #define TRICE_SHORT0(v) (uint16_t)(v)
 #define TRICE_SHORT1(v) ((uint32_t)(v) << 16)
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#endif // #else // #if TRICE_REVERSE == 1
 
 #define TRICE16(tid, fmt, ...) TRICE_CONCAT2(TRICE16_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
@@ -223,7 +223,7 @@
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)           \
 	TRICE_LEAVE
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 //! trice16m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -307,7 +307,7 @@
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 //! trice16m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -391,7 +391,7 @@
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)        \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
@@ -441,7 +441,7 @@ void trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t 
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 #define Trice16m_0(tid)                            \
 	TRICE_ENTER                                    \
@@ -549,7 +549,7 @@ void trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t 
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 #define Trice16m_0(tid)                                  \
 	TRICE_ENTER                                          \
@@ -657,7 +657,7 @@ void trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t 
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
@@ -707,7 +707,7 @@ void Trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t 
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 #define TRice16m_0(tid)                                    \
 	TRICE_ENTER                                            \
@@ -815,7 +815,7 @@ void Trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t 
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 #define TRice16m_0(tid)                                    \
 	TRICE_ENTER                                            \
@@ -923,7 +923,7 @@ void Trice16fn_12(uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t 
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 

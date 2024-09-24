@@ -2,21 +2,21 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#if TRICE_REVERSE == 1
 
 #define TRICE_BYTE3(v) ((uint8_t)(v))
 #define TRICE_BYTE2(v) (0x0000FF00 & ((uint32_t)(v) << 8))
 #define TRICE_BYTE1(v) (0x00FF0000 & ((uint32_t)(v) << 16))
 #define TRICE_BYTE0(v) ((uint32_t)(v) << 24)
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#else // #if TRICE_REVERSE == 1
 
 #define TRICE_BYTE0(v) ((uint8_t)(v))
 #define TRICE_BYTE1(v) (0x0000FF00 & ((uint32_t)(v) << 8))
 #define TRICE_BYTE2(v) (0x00FF0000 & ((uint32_t)(v) << 16))
 #define TRICE_BYTE3(v) ((uint32_t)(v) << 24)
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#endif // #else // #if TRICE_REVERSE == 1
 
 #define TRICE8(tid, fmt, ...) TRICE_CONCAT2(TRICE8_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
@@ -205,7 +205,7 @@
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)            \
 	TRICE_LEAVE
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 //! trice8m_0 writes trice data as fast as possible in a buffer.
 //! This macro is used internally and not intended for user applications.
@@ -291,7 +291,7 @@
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 #define t_id  TRICE_HTOTS((0x4000 | (tid))) //!< t_id is tid with no ts bit set.
 // #define t_idl    (0x00ff & t_id)  //!< t_idl is t_id  lo part.
@@ -304,6 +304,7 @@
 #define trice8m_0(tid)                                                     \
 	TRICE_ENTER                                                            \
 	TRICE_PUT((0 << 8) | ((TRICE_CYCLE) << 0) | ((0x4000 | (tid)) << 16)); \
+	/*           b1                     b0              b2b3  */ \
 	TRICE_LEAVE
 
 //! trice8m_1 writes trice data as fast as possible in a buffer.
@@ -312,7 +313,8 @@
 //! \param v0 a 8 bit bit value
 #define trice8m_1(tid, v0)                                                 \
 	TRICE_ENTER                                                            \
-	TRICE_PUT_HEADER((1 << 24) | ((TRICE_CYCLE) << 16) | (t_id << 0));     \
+    TRICE_PUT((1 << 8) | ((TRICE_CYCLE) << 0) | ((0x4000 | (tid)) << 16)); \
+  /*TRICE_PUT_AS_IS((1 << 24) | ((TRICE_CYCLE) << 16) | (t_id << 0));*/    \
 	TRICE_PUT8_1(v0)                                                       \
 	TRICE_LEAVE
 
@@ -382,7 +384,7 @@
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)         \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
@@ -432,7 +434,7 @@ void trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 //! Trice8m_0 writes trice data as fast as possible in a buffer.
 //! This macro is used internally and not intended for user applications.
@@ -544,7 +546,7 @@ void trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 //! Trice8m_0 writes trice data as fast as possible in a buffer.
 //! This macro is used internally and not intended for user applications.
@@ -656,7 +658,7 @@ void trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
@@ -706,7 +708,7 @@ void Trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#if TRICE_REVERSE == 0
 
 //! TRice8m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
@@ -816,7 +818,7 @@ void Trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#else // #if TRICE_REVERSE == 0
 
 //! TRice8m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
@@ -926,7 +928,7 @@ void Trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0
+#endif // #else // #if TRICE_REVERSE == 0
 
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
