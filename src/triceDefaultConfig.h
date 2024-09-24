@@ -229,11 +229,9 @@ extern "C" {
 //! TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN can be defined to 1 on little endian MCUs if the trice data are needed in network order,
 //! or on big endian MCUs if the trice data are needed in little endian order. You should avoid setting this to 1 because
 //! it increases the trice storage time and the needed code amount. The default transfer order is little endian as most targets are
-//! little endian machines. If you change the transfer order to big endian here, you need to apply `-triceEndianness bigEndian` CLI switch.
-//! when using the `trice log` command. This may be is not completely implemented and needs automatic tests as well.
-//! The main to implement:
-//! - implement compiler agnostic access macros (byte swapping)
-//! - The TriceIDAndBuffer function and it relatives need to use access macros.
+//! little endian machines. Do not change this value for big endian MCUs, you better apply the `-triceEndianness bigEndian` CLI switch
+//! when using the `trice log` command then. Please consider also the TRICE_MCU_IS_BIG_ENDIAN compiler switch for big endian MCUs.
+//! This switch is mainly intended to be used for automated tests.
 #define TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN 0
 #endif
 

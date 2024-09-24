@@ -442,19 +442,23 @@ restart:
 
 // writeID inserts id into s according to loc information and returns the result together with the changed len.
 func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result string, delta int) {
+	gap := ""
+	if SpaceBetweenTriceOpeningBraceAndIDName {
+		gap = " "
+	}
 	var idName string
 	if t.Type[2] == 'i' { // lower case letter
-		idName = " iD("
+		idName = gap + "iD("
 	} else {
 		if loc[3] != loc[4] {
-			idName = " " + s[offset+loc[3]:offset+loc[3]+2] + "("
+			idName = gap + s[offset+loc[3]:offset+loc[3]+2] + "("
 		} else {
 			if DefaultStampSize == 32 {
-				idName = " ID("
+				idName = gap + "ID("
 			} else if DefaultStampSize == 16 {
-				idName = " Id("
+				idName = gap + "Id("
 			} else {
-				idName = " id("
+				idName = gap + "id("
 			}
 		}
 	}

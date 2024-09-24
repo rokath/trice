@@ -79,8 +79,8 @@ date        | version | comment
 2024-AUG-18 |  0.66.1 | Documetation and tests improved
 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)
 2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#9-v0680-changes)
-2024-AUG-23 |  master | See [10. v0.69.0 Changes](#9-v0690-changes)
-2024-AUG-23 |  master | See [11. master branch changes](#10-master-branch-changes)
+2024-AUG-23 |  master | See [10. v0.69.0 Changes](#10-v0690-changes)
+2024-AUG-23 |  master | See [11. master branch changes](#11-master-branch-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -451,3 +451,16 @@ sys     0m0.000s
 ```
 
 ##  11. <a name='masterbranchchanges'></a>master branch changes
+
+Used git log command: `git log --pretty=oneline --abbrev-commit` and less importand lines removed
+
+hash       | comment
+-----------|----------------------------------------------------------------------------------------------------
+`2252b09d` | (HEAD -> master, origin/master, origin/HEAD) TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated
+`1f4ef31a` | spacing CLI switch added to `trice insert`
+`43c0d0ab` | tests adapted for SpaceBetweenTriceOpeningBraceAndIDName=false (default)
+`66d032d3` | SpaceBetweenTriceOpeningBraceAndIDName code added
+`4880fb29` | SpaceBetweenTriceOpeningBraceAndIDName removed
+`f7691e36` | ./updateTestData.sh run result
+`30cf050e` | Trice Cache Specification Draft added
+`3c1b3aba` | (tag: v0.69.0) .goreleaser.yaml adapted to goreleaser version 2

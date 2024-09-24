@@ -205,6 +205,7 @@ func updateInit() {
 	// false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
 	// true:  TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already. Use with care: The location information for only one location is displayed but it can be a wrong one.
 	// Hint: If you have equal TriceIDs with equal TriceFmt's after some copy and paste simply replace these TriceIDs with 0 to force new and different TriceIDs. ('trice h -z' shows how to automate)`)
+	fsScUpdate.BoolVar(&id.SpaceBetweenTriceOpeningBraceAndIDName, "spacing", false, "Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.")
 }
 
 func insertIDsInit() {

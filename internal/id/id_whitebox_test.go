@@ -34,8 +34,8 @@ func TestInsertIDsAndJSONDownward(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice( iD(20), "Lo!" );
-	TRice( iD(19), "Hi!" );
+	TRice(iD(20), "Lo!" );
+	TRice(iD(19), "Hi!" );
 	`
 	actSrc0, e := fSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -91,8 +91,8 @@ func TestInsertIDsAndJSONUpward(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice( iD(10), "Hi!" );
-	TRice( iD(11), "Hi!" );
+	TRice(iD(10), "Hi!" );
+	TRice(iD(11), "Hi!" );
 	`
 	actSrc0, e := fSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -139,8 +139,8 @@ func TestInsertIDsIntoTilJSONFromFileWithEmptyLi(t *testing.T) {
 
 	testSet := []srcFile{
 		// fn:       existing IDs:                unchanged IDs:
-		{fn0, `TRice( iD(1200), "Hi!" );`, `TRice( iD(1200), "Hi!" );`},
-		{fn1, `TRice( iD(1201), "Lo!" );`, `TRice( iD(1201), "Lo!" );`},
+		{fn0, `TRice(iD(1200), "Hi!" );`, `TRice(iD(1200), "Hi!" );`},
+		{fn1, `TRice(iD(1201), "Lo!" );`, `TRice(iD(1201), "Lo!" );`},
 	}
 
 	// create src files
@@ -182,8 +182,8 @@ func TestInsertLineDuplicates(t *testing.T) {
 
 	// create src files
 	src0 := `
-	TRice( iD(10), "Hi!" );
-	TRice( iD(10), "Hi!" );
+	TRice(iD(10), "Hi!" );
+	TRice(iD(10), "Hi!" );
 	`
 	fn0 := t.Name() + "file0.c"
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
@@ -194,8 +194,8 @@ func TestInsertLineDuplicates(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice( iD(10), "Hi!" );
-	TRice( iD(11), "Hi!" );
+	TRice(iD(10), "Hi!" );
+	TRice(iD(11), "Hi!" );
 	`
 	actSrc0, e := fSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -239,8 +239,8 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 
 	// create src files
 	src0 := `
-	TRice( iD(10), "Hi!" );
-	TRice( iD(10), "Hi!" );
+	TRice(iD(10), "Hi!" );
+	TRice(iD(10), "Hi!" );
 	`
 	fn0 := t.Name() + "file0.c"
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
@@ -251,8 +251,8 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice( iD(10), "Hi!" );
-	TRice( iD(11), "Hi!" );
+	TRice(iD(10), "Hi!" );
+	TRice(iD(11), "Hi!" );
 	`
 	actSrc0, e := fSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -306,8 +306,8 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 
 	// modify src file
 	src0 = `
-	TRice( iD(10), "Hi!" );
-	TRice( iD(11), "Lo!" );
+	TRice(iD(10), "Hi!" );
+	TRice(iD(11), "Lo!" );
 	`
 	assert.Equal(t, fn0, t.Name()+"file0.c")
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
@@ -322,8 +322,8 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 
 	// check source files
 	expSrc0 = `
-	TRice( iD(10), "Hi!" );
-	TRice( iD(12), "Lo!" );
+	TRice(iD(10), "Hi!" );
+	TRice(iD(12), "Lo!" );
 	`
 	actSrc0, e = fSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -377,7 +377,7 @@ func TestChangeIDAfterStringModification2(t *testing.T) {
 	// create src file
 	fn0 := t.Name() + "file0.c"
 	src0 := `
-	TRice( iD(10), "Lo!" );
+	TRice(iD(10), "Lo!" );
 	`
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
 	// check src
@@ -417,7 +417,7 @@ func TestChangeIDAfterStringModification2(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice( iD(11), "Lo!" );
+	TRice(iD(11), "Lo!" );
 	`
 	actSrc0, e = fSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -463,7 +463,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 	// create src file
 	fn0 := t.Name() + "file0.c"
 	src0 := `
-	TRice( iD(88), "Hi!" );
+	TRice(iD(88), "Hi!" );
 	`
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
 	// check src
@@ -503,7 +503,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice( iD(88), "Hi!" );
+	TRice(iD(88), "Hi!" );
 	`
 	actSrc0, e = fSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -549,7 +549,7 @@ func TestGenerateNewIDIfUsedToTilJSON(t *testing.T) {
 	// create src file
 	fn0 := t.Name() + "file0.c"
 	src0 := `
-	TRice( iD(88), "Hi!" );
+	TRice(iD(88), "Hi!" );
 	`
 	assert.Nil(t, fSys.WriteFile(fn0, []byte(src0), 0777))
 	// check src
@@ -593,7 +593,7 @@ func TestGenerateNewIDIfUsedToTilJSON(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice( iD(10), "Hi!" );
+	TRice(iD(10), "Hi!" );
 	`
 	actSrc0, e = fSys.ReadFile(fn0)
 	assert.Nil(t, e)
