@@ -387,10 +387,23 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
+#if TRICE_REVERSE == 1
+
+#define idL            ((uint8_t)(tid)   << 8) //!< idL is the no-stamp tid low byte moved to the high position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+#define idH ((0xff00 & (0x4000 | (tid))) >> 8) //!< idH is the no-stamp tid high byte moved to the low position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+
+#define IdL            ((uint8_t)(tid)   << 8) //!< IdL is the 16-bit-stamp tid low byte moved to the high position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+#define IdH ((0xff00 & (0x8000 | (tid))) >> 8) //!< IdH is the 16-bit-stamp tid high byte moved to the low position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+
+#define IDL            ((uint8_t)(tid)   << 8) //!< IDL is the 32-bit-stamp tid low byte moved to the high position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+#define IDH ((0xff00 & (0xc000 | (tid))) >> 8) //!< IDH is the 32-bit-stamp tid high byte moved to the low position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+
+#endif // #if TRICE_REVERSE == 1
+
+#include "trice8.h"
 #include "trice16.h"
 #include "trice32.h"
 #include "trice64.h"
-#include "trice8.h"
 
 #if TRICE_DIAGNOSTICS == 1
 
