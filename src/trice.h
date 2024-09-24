@@ -379,11 +379,11 @@ extern uint32_t* TriceBufferWritePosition;
 
 #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
+#define TRICE_CYCLE TriceCycle++ //!< TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
 
 #else // #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
+#define TRICE_CYCLE 0xC0 //!< TRICE_CYCLE is no trice cycle counter, just a static value.
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
