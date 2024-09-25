@@ -398,6 +398,14 @@ extern uint32_t* TriceBufferWritePosition;
 #define IDL            ((uint8_t)(tid)   << 8) //!< IDL is the 32-bit-stamp tid low byte moved to the high position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
 #define IDH ((0xff00 & (0xc000 | (tid))) >> 8) //!< IDH is the 32-bit-stamp tid high byte moved to the low position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
 
+#define tsL ((0x00ff & ts) << 8)
+#define tsH ((0xff00 & ts) >> 8)
+
+#define tsHH ((0xFF000000 & ts) >>  8)
+#define tsHL ((0x00FF0000 & ts) <<  8)
+#define tsLH ((0x0000FF00 & ts) >>  8)
+#define tsLL ((0x000000FF & ts) <<  8)
+
 #endif // #if TRICE_REVERSE == 1
 
 #include "trice8.h"
