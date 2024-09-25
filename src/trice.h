@@ -91,6 +91,7 @@ extern "C" {
 #define TRICE_ENTER
 #define TRICE_LEAVE
 #define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
+#define TRICE_PUT_AS_IS(n)     // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16(n)         // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16_1616(x, n) // do{ ((void)(x)); ((void)(n)); }while(0)
 #define PUT_BUFFER(b, l)       // do{ ((void)(b)); ((void)(l)); }while(0)
@@ -112,6 +113,7 @@ extern "C" {
 #define TRICE_ENTER
 #define TRICE_LEAVE
 #define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
+#define TRICE_PUT_AS_IS(n)     // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16(n)         // do{ ((void)(n)); }while(0)
 #define TRICE_PUT16_1616(x, n) // do{ ((void)(x)); ((void)(n)); }while(0)
 #define PUT_BUFFER(b, l)       // do{ ((void)(b)); ((void)(l)); }while(0)
@@ -120,24 +122,73 @@ extern "C" {
 
 #endif // #if (defined(TRICE_CLEAN) && TRICE_CLEAN == 1)
 
-#if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1))
+#define TRICE_REVERSE 1
+#else
+#define TRICE_REVERSE 0
+#endif
 
-/*
+#if TRICE_REVERSE == 1
+
+#ifndef TRICE_USE_BYTE_SWAP_HEADER
+#define TRICE_USE_BYTE_SWAP_HEADER 0
+#endif
+
+#ifndef TRICE_USE_BYTE_SWAP_MACROS
+#define TRICE_USE_BYTE_SWAP_MACROS 0
+#endif
+
+#ifndef TRICE_USE_BYTE_SWAP_INLINE
+#define TRICE_USE_BYTE_SWAP_INLINE 1
+#endif
+
+#if (TRICE_USE_BYTE_SWAP_HEADER + TRICE_USE_BYTE_SWAP_MACROS + TRICE_USE_BYTE_SWAP_INLINE) > 1
+#error "Need max one of them defined: TRICE_USE_BYTE_SWAP_HEADER, TRICE_USE_BYTE_SWAP_MACROS, TRICE_USE_BYTE_SWAP_INLINE"
+#endif
+
+#if ((TRICE_USE_BYTE_SWAP_HEADER + TRICE_USE_BYTE_SWAP_MACROS + TRICE_USE_BYTE_SWAP_INLINE) == 0) && !defined(TRICE_HTOTS)
+#error "Need one of them defined: TRICE_USE_BYTE_SWAP_HEADER, TRICE_USE_BYTE_SWAP_MACROS, TRICE_USE_BYTE_SWAP_INLINE, TRICE_HTOTS"
+#endif
+
+#if ((TRICE_USE_BYTE_SWAP_HEADER + TRICE_USE_BYTE_SWAP_MACROS + TRICE_USE_BYTE_SWAP_INLINE) == 0) && !defined(TRICE_HTOTL)
+#error "Need one of them defined: TRICE_USE_BYTE_SWAP_HEADER, TRICE_USE_BYTE_SWAP_MACROS, TRICE_USE_BYTE_SWAP_INLINE, TRICE_HTOTL"
+#endif
+
+#if ((TRICE_USE_BYTE_SWAP_HEADER + TRICE_USE_BYTE_SWAP_MACROS + TRICE_USE_BYTE_SWAP_INLINE) == 0) && !defined(TRICE_TTOHS)
+#error "Need one of them defined: TRICE_USE_BYTE_SWAP_HEADER, TRICE_USE_BYTE_SWAP_MACROS, TRICE_USE_BYTE_SWAP_INLINE, TRICE_TTOHS"
+#endif
+
+#if TRICE_USE_BYTE_SWAP_HEADER == 1
 // https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
 #include <byteswap.h>
 
- // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
- #define TRICE_SWAPINT16(x) ( \
-    (((uint16_t)(x) & 0x00FFU) << 8) | \
-    (((uint16_t)(x) & 0xFF00U) >> 8))
+#define TRICE_HTOTS(x) __bswap16(x) //!< TRICE_HTOTS reorders short values from host order into trice transfer order.
+#define TRICE_HTOTL(x) __bswap32(x) //!< TRICE_HTOTL reorders long values from host order x into trice transfer order.
+#define TRICE_TTOHS(x) __bswap16(x) //!< TRICE_TTOHS reorders short values from trice transfer order into host order.
 
- //Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
- #define TRICE_SWAPINT32(x) ( \
-    (((uint32_t)(x) & 0x000000FFUL) << 24) | \
-    (((uint32_t)(x) & 0x0000FF00UL) <<  8) | \
-    (((uint32_t)(x) & 0x00FF0000UL) >>  8) | \
-    (((uint32_t)(x) & 0xFF000000UL) >> 24))
-*/
+#endif // #if TRICE_USE_BYTE_SWAP_HEADER == 1
+
+#if TRICE_USE_BYTE_SWAP_MACROS == 1
+
+// Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+#define TRICE_SWAPINT16(x) (           \
+	(((uint16_t)(x) & 0x00FFU) << 8) | \
+	(((uint16_t)(x) & 0xFF00U) >> 8))
+
+// Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+#define TRICE_SWAPINT32(x) (                 \
+	(((uint32_t)(x) & 0x000000FFUL) << 24) | \
+	(((uint32_t)(x) & 0x0000FF00UL) << 8) |  \
+	(((uint32_t)(x) & 0x00FF0000UL) >> 8) |  \
+	(((uint32_t)(x) & 0xFF000000UL) >> 24))
+
+#define TRICE_HTOTS(x) TRICE_SWAPINT16(x) //!< TRICE_HTOTS reorders short values from host order into trice transfer order.
+#define TRICE_HTOTL(x) TRICE_SWAPINT32(x) //!< TRICE_HTOTL reorders long values from host order x into trice transfer order.
+#define TRICE_TTOHS(x) TRICE_SWAPINT16(x) //!< TRICE_TTOHS reorders short values from trice transfer order into host order.
+
+#endif // #if TRICE_USE_BYTE_SWAP_MACROS == 1
+
+#if TRICE_USE_BYTE_SWAP_INLINE == 1
 
 //! TriceReverse16 swaps low byte and high byte of value and returns it.
 TRICE_INLINE uint16_t TriceReverse16(uint16_t value) {
@@ -153,19 +204,13 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 	        ((value & 0xFF000000) >> 24));
 }
 
-#ifndef TRICE_HTOTS                      // Allow external re-definition of TRICE_HTOTS.
 #define TRICE_HTOTS(x) TriceReverse16(x) //!< TRICE_HTOTS reorders short values from host order into trice transfer order.
-#endif
-
-#ifndef TRICE_HTOTL                      // Allow external re-definition of TRICE_HTOTL.
 #define TRICE_HTOTL(x) TriceReverse32(x) //!< TRICE_HTOTL reorders long values from host order x into trice transfer order.
-#endif
+#define TRICE_TTOHS(x) TriceReverse16(x) //!< TRICE_TTOHS reorders short values from trice transfer order into host order.
 
-#ifndef TRICE_TTOHS                      // Allow external re-definition of TRICE_TTOHS.
-#define TRICE_TTOHS(x) TriceReverse16(x) //! TRICE_TTOHS reorders short values from trice transfer order into host order.
-#endif
+#endif // #if TRICE_USE_BYTE_SWAP_INLINE == 1
 
-#else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#else // #if TRICE_REVERSE == 1
 
 //! TRICE_HTOTS reorders short values from hos // t order into trice transfer order.
 #define TRICE_HTOTS(x) (x)
@@ -176,11 +221,11 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 //! TRICE_TTOHS reorders short values from trice transfer order into host order.
 #define TRICE_TTOHS(x) (x)
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1
+#endif // #else // #if TRICE_REVERSE == 1
 
 #ifndef TRICE_PUT16_1616
 
-#if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1))
+#if TRICE_REVERSE == 1
 
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT16_1616(x, ts) /* big endian */           \
@@ -192,7 +237,7 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
-#else                           // #if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1))
+#else                           // #if TRICE_REVERSE == 1
 
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT16_1616(x, ts) /* little endian */        \
@@ -204,7 +249,7 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
-#endif // #else // #if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1))
+#endif // #else // #else // #if TRICE_REVERSE == 1
 
 #endif // #ifndef TRICE_PUT16_1616
 
@@ -334,18 +379,39 @@ extern uint32_t* TriceBufferWritePosition;
 
 #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE TriceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
+#define TRICE_CYCLE TriceCycle++ //!< TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
 
 #else // #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
+#define TRICE_CYCLE 0xC0 //!< TRICE_CYCLE is no trice cycle counter, just a static value.
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
+#if TRICE_REVERSE == 1
+
+#define idL ((uint8_t)(tid) << 8)              //!< idL is the no-stamp tid low byte moved to the high position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+#define idH ((0xff00 & (0x4000 | (tid))) >> 8) //!< idH is the no-stamp tid high byte moved to the low position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+
+#define IdL ((uint8_t)(tid) << 8)              //!< IdL is the 16-bit-stamp tid low byte moved to the high position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+#define IdH ((0xff00 & (0x8000 | (tid))) >> 8) //!< IdH is the 16-bit-stamp tid high byte moved to the low position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+
+#define IDL ((uint8_t)(tid) << 8)              //!< IDL is the 32-bit-stamp tid low byte moved to the high position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+#define IDH ((0xff00 & (0xc000 | (tid))) >> 8) //!< IDH is the 32-bit-stamp tid high byte moved to the low position to be used in TRICE_PUT_AS_IS, when TRICE_REVERSE == 1.
+
+#define tsL ((0x00ff & ts) << 8)
+#define tsH ((0xff00 & ts) >> 8)
+
+#define tsHH ((0xFF000000 & ts) >> 8)
+#define tsHL ((0x00FF0000 & ts) << 8)
+#define tsLH ((0x0000FF00 & ts) >> 8)
+#define tsLL ((0x000000FF & ts) << 8)
+
+#endif // #if TRICE_REVERSE == 1
+
+#include "trice8.h"
 #include "trice16.h"
 #include "trice32.h"
 #include "trice64.h"
-#include "trice8.h"
 
 #if TRICE_DIAGNOSTICS == 1
 
@@ -541,6 +607,18 @@ extern uint32_t* TriceBufferWritePosition;
 		do {                                              \
 			*TriceBufferWritePosition++ = TRICE_HTOTL(x); \
 		} while (0); //!< PUT copies a 32 bit x into the TRICE buffer.
+
+#endif
+
+#ifndef TRICE_PUT_AS_IS
+
+//! TRICE_PUT_AS_IS writes x as 32-bit value into the Trice buffer without changing the endianness.
+//! This macro does not use internally TRICE_HTOTL and therefore it is usable without speed loss, when TRICE_REVERSE == 1.
+//! In that case the byte order needs to be provided by the written code.
+#define TRICE_PUT_AS_IS(x)              \
+	do {                                 \
+		*TriceBufferWritePosition++ = x; \
+	} while (0); 
 
 #endif
 

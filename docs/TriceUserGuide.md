@@ -23,14 +23,15 @@
     - [2.3. Try it](#23-try-it)
     - [2.4. Use It](#24-use-it)
     - [2.5. Port it](#25-port-it)
-      - [2.5.1. Target Trice Stamps](#251-target-trice-stamps)
-      - [2.5.2. Trice Checks](#252-trice-checks)
-      - [2.5.3. Communication Ports](#253-communication-ports)
-      - [2.5.4. Target Code Overview](#254-target-code-overview)
-      - [2.5.5. User Code Adaption](#255-user-code-adaption)
-      - [2.5.6. Limitations](#256-limitations)
-      - [2.5.7. Trice (Time) Stamps](#257-trice-time-stamps)
-      - [2.5.8. Trice Parameter Bit Widths](#258-trice-parameter-bit-widths)
+      - [2.5.1. Target Macros](#251-target-macros)
+      - [2.5.2. Target Trice Stamps](#252-target-trice-stamps)
+      - [2.5.3. Trice Checks](#253-trice-checks)
+      - [2.5.4. Communication Ports](#254-communication-ports)
+      - [2.5.5. Target Code Overview](#255-target-code-overview)
+      - [2.5.6. User Code Adaption](#256-user-code-adaption)
+      - [2.5.7. Limitations](#257-limitations)
+      - [2.5.8. Trice (Time) Stamps](#258-trice-time-stamps)
+      - [2.5.9. Trice Parameter Bit Widths](#259-trice-parameter-bit-widths)
     - [2.6. Avoid it](#26-avoid-it)
       - [2.6.1. Parser Limitation](#261-parser-limitation)
       - [2.6.2. No _trice_ macros in header files](#262-no-trice-macros-in-header-files)
@@ -214,7 +215,46 @@ This way you see in a quick way any needed adaptions for your target project to 
 
 The *Readme.md* files in the examples folder contain further helpful information.
 
-####  2.5.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
+####  2.5.1. <a name='TargetMacros'></a>Target Macros
+
+The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`**, which you can mostly use as a `printf` replacement in legacy code. See [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
+
+The macros 
+
+- `trice8`, `trice16`, `trice32`, `trice64` 
+- `Trice8`, `Trice16`, `Trice32`, `Trice64` 
+- `TRice8`, `TRice16`, `TRice32`, `TRice64`
+
+are always usable and the number 8, 16, 32, 64 specifies the parameter width, which is equal for all values within one macro. They are partially disabled, when the value TRICE_SINGLE_MAX_SIZE is defined to be smaller than 104. For example with TRICE_SINGLE_MAX_SIZE == 8, `TRice32` can have no parameter value (4 byte Trice header, 4 byte stamp) and `trice8` can have up to 4 parameter values (4 byte Trice header, 4 byte values) That's mainly to get compiler errors rather than runtime errors. 
+
+More examples:
+
+Trice     | Header | Stamp | max. Values  | Trice Size
+----------|--------|-------|--------------|-----------
+`trice8`  | 4      | 0     | 0 \*1 byte   | 4
+...       | ...    | ...   | ...          | ...
+`trice8`  | 4      | 0     | 12 \*1 byte  | 16
+`Trice8`  | 4      | 2     | 0 \*1 byte   | 6
+...       | ...    | ...   | ...          | ...
+`Trice8`  | 4      | 2     | 12 \*1 byte  | 18
+`TRice8`  | 4      | 4     | 0  \*1 byte  | 8
+...       | ...    | ...   | ...          | ...
+`TRice8`  | 4      | 4     | 12 \*1 byte  | 20
+`trice16` | 4      | 0     | 2  \*2 byte  | 8
+`Trice16` | 4      | 2     | 1  \*2 byte  | 8
+`trice32` | 4      | 0     | 1  \*4 byte  | 8
+`Trice32` | 4      | 2     | 1  \*4 byte  | 10
+`TRice32` | 4      | 4     | 2  \*4 byte  | 16
+`trice64` | 4      | 0     | 1  \*8 byte  | 12
+`TRice64` | 4      | 4     | 1  \*8 byte  | 16
+...       | ...    | ...   | ...          | ...
+`TRice64` | 4      | 4     | 12  \*8 byte | 104
+
+The value TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the parameter bit with for the macros `trice`, `Trice`, `TRice` (without number). It can make sense to set this value to 16 on smaller machines.
+
+The full uppercase macro `TRICE` is a Trice macro only using inline code. Because the main design aim was speed, this was the original design. Then it became clear, that several hundred of `TRICE` macros increase the needed code amount too much and that it is better to have just a function call instead of having inline macros. If speed matters use `TRICE(id(0)`, `TRICE(Id(0)`, `TRICE(ID(0)` else use `trice(iD(0)`, `Trice(iD(0)`, `TRice(iD(0)` or mix usage as you like. The lower case macros internally use `TRICE` like code but each is only a function call and therefore needs less space.
+
+####  2.5.2. <a name='TargetTriceStamps'></a>Target Trice Stamps
 
 - Add the 2 hardware specific macros/functions to your project (example in [./examples/F030R8_inst/Core/Inc/triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) and [./examples/F030R8_inst/Core/Src/stm32f0xx_it.c](../examples/F030R8_inst/Core/Src/stm32f0xx_it.c) ) if you wish to have your Trice messages stamped, most probably timestamped. The time base is in your hands and is allowed to be different for the 16-bit and 32-bit stamps. Example:
   
@@ -234,7 +274,7 @@ The *Readme.md* files in the examples folder contain further helpful information
 
 _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bit timestamp as systick counter to measure short execution times.
 
-####  2.5.2. <a name='TriceChecks'></a>Trice Checks
+####  2.5.3. <a name='TriceChecks'></a>Trice Checks
 
 - Optionally copy parts of [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   - Do not inlucde this file directly, because it could get changed when `updateTestData.sh` is executed inside the `./test` folder.
@@ -252,7 +292,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 - Look into [./TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for options.
 - Read [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md) if needed.
 
-####  2.5.3. <a name='CommunicationPorts'></a>Communication Ports
+####  2.5.4. <a name='CommunicationPorts'></a>Communication Ports
 
 - For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [./TriceOverRTT.md](./TriceOverRTT.md) for more info.
   - If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. But you cannot use it in the field usually.
@@ -263,7 +303,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 - An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality. 
 - See also [./TriceOverOneWire.md](./TriceOverOneWire.md).
 
-####  2.5.4. <a name='TargetCodeOverview'></a>Target Code Overview
+####  2.5.5. <a name='TargetCodeOverview'></a>Target Code Overview
 
 - `./src`: **User Interface**
 
@@ -307,7 +347,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-####  2.5.5. <a name='UserCodeAdaption'></a>User Code Adaption
+####  2.5.6. <a name='UserCodeAdaption'></a>User Code Adaption
 
 - Replace all strings `puts` with the string `trice`, when the string follows immediately. For runtime generated strings see `triceS`.
 - Replace all strings `printf` with the string `trice`, when the format string follows immediately.
@@ -347,7 +387,7 @@ The Trice macros are designed for maximal execution speed and therefore we have 
 
 - Add `#include trice.h` to all user files using trice.
 
-####  2.5.6. <a name='Limitations'></a>Limitations
+####  2.5.7. <a name='Limitations'></a>Limitations
 
 - The maximum parameter count per trice is 12.
 - Each trice must fit into a single line in trice versions before v0.61.0.
@@ -403,7 +443,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 - See also [2.6. Avoid it](#26-avoid-it).
 
-####  2.5.7. <a name='TriceTimeStamps'></a>Trice (Time) Stamps
+####  2.5.8. <a name='TriceTimeStamps'></a>Trice (Time) Stamps
 
 - Trice messages can have no or 16-bit or 32-bit (time) stamps.
   - recommended (function calling) syntax:
@@ -424,7 +464,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 <div id="Trice Parameter Bit Widths"></div>
 
-####  2.5.8. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
+####  2.5.9. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
 
 - The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside `triceConfig.h` to change that.
 - If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
@@ -1402,9 +1442,10 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 ##  14. <a name='Endianness'></a>Endianness
 
 - To interpret a decoded package, it´s endianness needs to be known.
-- For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
+- For efficiency binary trice data are normally stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
 - On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined as 1 and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
 - If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed to be defined as 1. This increases the critical trice storage time and target code amount.
+- De facto `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is used to test the Trice CLI switch `-triceEndianness bigEndian` automatically.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1895,6 +1936,7 @@ _### Tests
 | 2023-AUG-03 | 0.18.0  | update ---> insert                                                                                           |
 | 2024-AUG-18 | 0.19.0  | Mainly updates to current Trice version v0.66.0                                                              |
 | 2024-SEP-17 | 0.20.0  | TCP4 input hint added                                                                                        |
+| 2024-SEP-25 | 0.21.0  | Chapter "Target Macros" added                                                                                |
 
 <p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 

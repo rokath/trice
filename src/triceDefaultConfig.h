@@ -104,14 +104,14 @@ extern "C" {
 
 #ifndef TriceStamp16
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE and `Trice` macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
-//! The user has to provide this value. Defining a macro here, instead if providing a fuction has significant speed impact.
-#define TriceStamp16 0x1616
+//! The user has to provide this value. Defining a macro here, instead of providing a function has significant speed impact.
+#define TriceStamp16 0xbe16
 #endif
 
 #ifndef TriceStamp32
 //! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE and `TRice` macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
-//! The user has to provide this function. Defining a macro here, instead a function if providing has significant speed impact.
-#define TriceStamp32 0x32323232
+//! The user has to provide this value. Defining a macro here, instead of providing a function has significant speed impact.
+#define TriceStamp32 0xfeed3322
 #endif
 
 #ifndef TRICE_PROTECT

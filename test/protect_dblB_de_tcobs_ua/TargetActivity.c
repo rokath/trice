@@ -8,5 +8,5 @@ char* TargetActivity(void) {                                                    
 	TRice64(iD(16202), "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12); // -104 bytes = 68 bytes space
 	// so the next Trice does not fit
 	trice(iD(16203), "Hello again\n"); // -4 bytes -> no fit!
-	return " 842,150_450 Hello World!\n 842,150_450 Twelve 64-bit values: -1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12";
+	return "feed3322 Hello World!\nfeed3322 Twelve 64-bit values: -1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12";
 }

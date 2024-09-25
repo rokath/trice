@@ -12,6 +12,7 @@
         "CFLAGS",
         "COBSR",
         "flto",
+        "gopls",
         "NUCLEO",
         "Strg",
         "tcobs",
@@ -19,5 +20,24 @@
     ],
     "C_Cpp.errorSquiggles": "Disabled",
     "cmake.configureOnOpen": false,
-    "C_Cpp.dimInactiveRegions": false
+    "C_Cpp.dimInactiveRegions": false,
+    "editor.codeActionsOnSave": {
+
+    }
+    "gopls": {
+        "build.directoryFilters": [
+            "-.code_snippets",
+            "-.git",
+            "-.github",
+            "-.idea",
+            "-cmd",
+            "-dist",
+            "-docs",
+            "-examples",
+            "-src",
+            "-super-linter.report",
+            "-test",
+            "-third_party"
+        ]
+    }
 }

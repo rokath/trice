@@ -257,7 +257,7 @@ void TriceInit(void) {
 //! - *da =                     01iiiiiiI NC ... | id(n): Just write 01iiiiiiI as 16-bit operation.
 //! - *da = 00xxxxxxX extended trices are not used yet, unspecified length >= 2
 //! - This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
-//! - With framing, user 1-byte messages allowed and ignored by the trice tool.
+//! - With framing, user 0,1,2,3-byte messages allowed and ignored by the trice tool.
 size_t triceDataLen(const uint8_t* p) {
 	uint16_t nc = TRICE_TTOHS(*(uint16_t*)p); // lint !e826
 	size_t n = nc >> 8;
