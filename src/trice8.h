@@ -90,6 +90,10 @@
 	TRICE_PUT(TRICE_BYTE3(v7) | TRICE_BYTE2(v6) | TRICE_BYTE1(v5) | TRICE_BYTE0(v4)); \
 	TRICE_PUT(TRICE_BYTE3(v11) | TRICE_BYTE2(v10) | TRICE_BYTE1(v9) | TRICE_BYTE0(v8));
 
+// The following `TRICE` macro definitions uses the C preprocess to concatenate the code behind the sub-macros.
+// The sequence `tid` in this context is executable code `id(n)`, `Id(n)` or `ID(n)` defined in trice.h.
+// This works only with tid=`id(n)`, `Id(n)`, `ID(n)`.
+
 //! TRICE8_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRICE8_0(tid, pFmt) \
