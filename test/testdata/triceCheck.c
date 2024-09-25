@@ -43,10 +43,10 @@ void TriceCheck(int n) {
         default:
         break; case __LINE__: trice16(iD(14000), "att: line %u\n", __LINE__ );
         // Lines ending with a comment starting with `//exp:` are executed during trhe automatic Go tests.
-        break; case __LINE__: TRice(iD(14001), "Hello World!\n" );                                              //exp: time: 842,150_450default: Hello World!		
+        break; case __LINE__: TRice(iD(14001), "Hello World!\n" );                                              //exp: time:feed3322default: Hello World!		
         // normal use cases
-        break; case __LINE__: TRice(iD(14002), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
-        break; case __LINE__: Trice(iD(14003), "info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
+        break; case __LINE__: TRice(iD(14002), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time:feed3322default: info:This is a message without values and a 32-bit stamp.
+        break; case __LINE__: Trice(iD(14003), "info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:    be16default: info:This is a message without values and a 16-bit stamp.
         break; case __LINE__: trice(iD(14004), "info:This is a message without values and without stamp.\n"  ); //exp: time:            default: info:This is a message without values and without stamp.
         break; case __LINE__: for( int i = 126; i < 130; i++ ){ dynString(i); }
 
@@ -241,23 +241,23 @@ void TriceCheck(int n) {
         break; case __LINE__: trice64_2(iD(14092), "rd:trice64_2 %d,%d\n", -1, 2 );                                   //exp: time:            default: rd:trice64_2 -1,2
 
         // special use cases
-        break; case __LINE__: TRice64(iD(14093), "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time: 842,150_450default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 32-bit stamp.
-        break; case __LINE__: Trice64(iD(14094), "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:       5_654default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 16-bit stamp.
+        break; case __LINE__: TRice64(iD(14093), "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:feed3322default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 32-bit stamp.
+        break; case __LINE__: Trice64(iD(14094), "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:    be16default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and a 16-bit stamp.
         break; case __LINE__: trice64(iD(14095), "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 0, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:            default: info:12 64-bit values -3, 18446744073709551612, fffffffffffffffb, FFFFFFFFFFFFFFFA, false, -7.123457e+00, -7.123457, -7.123456789, -7.123457E+00, -7.123457, -7.123456789, 0xb1111111111111111111111111111111111111111111111111111111111111000 and without stamp.
-        break; case __LINE__: TRice32(iD(14096), "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
-        break; case __LINE__: Trice32(iD(14097), "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
+        break; case __LINE__: TRice32(iD(14096), "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:feed3322default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
+        break; case __LINE__: Trice32(iD(14097), "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:    be16default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
         break; case __LINE__: trice32(iD(14098), "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12 32-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
-        break; case __LINE__: TRice16(iD(14099), "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
-        break; case __LINE__: Trice16(iD(14100), "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
+        break; case __LINE__: TRice16(iD(14099), "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:feed3322default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
+        break; case __LINE__: Trice16(iD(14100), "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:    be16default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
         break; case __LINE__: trice16(iD(14101), "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12 16-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
-        break; case __LINE__: TRice8 (iD(14102), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time: 842,150_450default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
-        break; case __LINE__: Trice8 (iD(14103), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:       5_654default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
+        break; case __LINE__: TRice8 (iD(14102), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:feed3322default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 32-bit stamp.
+        break; case __LINE__: Trice8 (iD(14103), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:    be16default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and a 16-bit stamp.
         break; case __LINE__: trice8 (iD(14104), "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\n" , -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );                //exp: time:            default: info:12  8-bit values -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 and without stamp.
 
         break; case __LINE__: trice16(iD(14105), "att: line %u\n", __LINE__ );
 
-        break; case __LINE__: TRice16(iD(14106), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time: 842,150_450default: att: 0x8888 == 8888h
-        break; case __LINE__: Trice16(iD(14107), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:       5_654default: att: 0x8888 == 8888h
+        break; case __LINE__: TRice16(iD(14106), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:feed3322default: att: 0x8888 == 8888h
+        break; case __LINE__: Trice16(iD(14107), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:    be16default: att: 0x8888 == 8888h
         break; case __LINE__: trice16(iD(14108), "att: 0x8888 == %04xh\n", 0x8888 ); //exp: time:            default: att: 0x8888 == 8888h
 
 
@@ -267,47 +267,47 @@ void TriceCheck(int n) {
         break; case __LINE__: trice8   (iD(14111), "value=%x\n", 0x88 );             //exp: time:            default: value=88
 
         break; case __LINE__: trice(iD(14112), "att:mixed int & float & double & bits\n" );
-        break; case __LINE__: TRice32(iD(14113), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",       FloatToInt32(x),   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time: 842,150_450default: rd:TRice32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
-        break; case __LINE__: TRice32(iD(14114), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",          (int32_t)(x),   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time: 842,150_450default: rd:TRice32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
-        break; case __LINE__: TRice32(iD(14115), "rd:TRice32 int %x, float %f (%%f), %08x, %032b\n",            0x44883377,   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time: 842,150_450default: rd:TRice32 int 44883377, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
-        break; case __LINE__: TRice32(iD(14116), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",                     x,   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time: 842,150_450default: rd:TRice32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
-        break; case __LINE__: TRice32(iD(14117), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",      FloatToInt32(-x),  aFloat(-x),  aFloat(-x),  aFloat(-x) ); //exp: time: 842,150_450default: rd:TRice32 int -1089, float -1089.608276 (%f), c4883377, 11000100100010000011001101110111                                       
-        break; case __LINE__: TRice32(iD(14118), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",         (int32_t)(-x),  aFloat(-x),  aFloat(-x),  aFloat(-x) ); //exp: time: 842,150_450default: rd:TRice32 int -1089, float -1089.608276 (%f), c4883377, 11000100100010000011001101110111                                       
-        break; case __LINE__: TRice32(iD(14119), "rd:TRice32 int %X, float %f (%%f), %08x, %032b\n",           -0x44883377,  aFloat(-x),  aFloat(-x),  aFloat(-x) ); //exp: time: 842,150_450default: rd:TRice32 int BB77CC89, float -1089.608276 (%f), c4883377, 11000100100010000011001101110111                                        
-        break; case __LINE__: TRice64(iD(14120), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",    DoubleToInt64(y),  aDouble(y),  aDouble(y),  aDouble(y) ); //exp: time: 842,150_450default: rd:TRice64 int 518, double 518.054749 (%f), 4080307020601050, 0100000010000000001100000111000000100000011000000001000001010000   
-        break; case __LINE__: TRice64(iD(14121), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",        (int64_t)(y),  aDouble(y),  aDouble(y),  aDouble(y) ); //exp: time: 842,150_450default: rd:TRice64 int 518, double 518.054749 (%f), 4080307020601050, 0100000010000000001100000111000000100000011000000001000001010000   
-        break; case __LINE__: TRice64(iD(14122), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",                   y,  aDouble(y),  aDouble(y),  aDouble(y) ); //exp: time: 842,150_450default: rd:TRice64 int 518, double 518.054749 (%f), 4080307020601050, 0100000010000000001100000111000000100000011000000001000001010000   
-        break; case __LINE__: TRice64(iD(14123), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",   DoubleToInt64(-y), aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time: 842,150_450default: rd:TRice64 int -518, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000
-        break; case __LINE__: TRice64(iD(14124), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",       (int64_t)(-y), aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time: 842,150_450default: rd:TRice64 int -518, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000
-        break; case __LINE__: TRice64(iD(14125), "rd:TRice64 int %X, double %f (%%f), %016x, %064b\n", -0x4080307020601050, aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time: 842,150_450default: rd:TRice64 int BF7FCF8FDF9FEFB0, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000 
+        break; case __LINE__: TRice32(iD(14113), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",       FloatToInt32(x),   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time:feed3322default: rd:TRice32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
+        break; case __LINE__: TRice32(iD(14114), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",          (int32_t)(x),   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time:feed3322default: rd:TRice32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
+        break; case __LINE__: TRice32(iD(14115), "rd:TRice32 int %x, float %f (%%f), %08x, %032b\n",            0x44883377,   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time:feed3322default: rd:TRice32 int 44883377, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
+        break; case __LINE__: TRice32(iD(14116), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",                     x,   aFloat(x),   aFloat(x),   aFloat(x) ); //exp: time:feed3322default: rd:TRice32 int 1089, float 1089.608276 (%f), 44883377, 01000100100010000011001101110111                                         
+        break; case __LINE__: TRice32(iD(14117), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",      FloatToInt32(-x),  aFloat(-x),  aFloat(-x),  aFloat(-x) ); //exp: time:feed3322default: rd:TRice32 int -1089, float -1089.608276 (%f), c4883377, 11000100100010000011001101110111                                       
+        break; case __LINE__: TRice32(iD(14118), "rd:TRice32 int %d, float %f (%%f), %08x, %032b\n",         (int32_t)(-x),  aFloat(-x),  aFloat(-x),  aFloat(-x) ); //exp: time:feed3322default: rd:TRice32 int -1089, float -1089.608276 (%f), c4883377, 11000100100010000011001101110111                                       
+        break; case __LINE__: TRice32(iD(14119), "rd:TRice32 int %X, float %f (%%f), %08x, %032b\n",           -0x44883377,  aFloat(-x),  aFloat(-x),  aFloat(-x) ); //exp: time:feed3322default: rd:TRice32 int BB77CC89, float -1089.608276 (%f), c4883377, 11000100100010000011001101110111                                        
+        break; case __LINE__: TRice64(iD(14120), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",    DoubleToInt64(y),  aDouble(y),  aDouble(y),  aDouble(y) ); //exp: time:feed3322default: rd:TRice64 int 518, double 518.054749 (%f), 4080307020601050, 0100000010000000001100000111000000100000011000000001000001010000   
+        break; case __LINE__: TRice64(iD(14121), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",        (int64_t)(y),  aDouble(y),  aDouble(y),  aDouble(y) ); //exp: time:feed3322default: rd:TRice64 int 518, double 518.054749 (%f), 4080307020601050, 0100000010000000001100000111000000100000011000000001000001010000   
+        break; case __LINE__: TRice64(iD(14122), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",                   y,  aDouble(y),  aDouble(y),  aDouble(y) ); //exp: time:feed3322default: rd:TRice64 int 518, double 518.054749 (%f), 4080307020601050, 0100000010000000001100000111000000100000011000000001000001010000   
+        break; case __LINE__: TRice64(iD(14123), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",   DoubleToInt64(-y), aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time:feed3322default: rd:TRice64 int -518, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000
+        break; case __LINE__: TRice64(iD(14124), "rd:TRice64 int %d, double %f (%%f), %016x, %064b\n",       (int64_t)(-y), aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time:feed3322default: rd:TRice64 int -518, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000
+        break; case __LINE__: TRice64(iD(14125), "rd:TRice64 int %X, double %f (%%f), %016x, %064b\n", -0x4080307020601050, aDouble(-y), aDouble(-y), aDouble(-y) ); //exp: time:feed3322default: rd:TRice64 int BF7FCF8FDF9FEFB0, double -518.054749 (%f), c080307020601050, 1100000010000000001100000111000000100000011000000001000001010000 
 
         break; case __LINE__: trice16(iD(14126), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: triceS(iD(14127), "msg:With triceS:%s\n", sABCDE );               //exp: time:            default: msg:With triceS:abcde 12345
         break; case __LINE__: triceN(iD(14128), "sig:With triceN:%s\n", sABCDE, lenABCDE );     //exp: time:            default: sig:With triceN:abcde 12345
-        break; case __LINE__: TriceS(iD(14129), "msg:With TriceS:%s\n", sABCDE );               //exp: time:       5_654default: msg:With TriceS:abcde 12345
-        break; case __LINE__: TriceN(iD(14130), "sig:With TriceN:%s\n", sABCDE, lenABCDE );     //exp: time:       5_654default: sig:With TriceN:abcde 12345
-        break; case __LINE__: TRiceS(iD(14131), "msg:With TRiceS:%s\n", sABCDE );               //exp: time: 842,150_450default: msg:With TRiceS:abcde 12345
-        break; case __LINE__: TRiceN(iD(14132), "sig:With TRiceN:%s\n", sABCDE, lenABCDE );     //exp: time: 842,150_450default: sig:With TRiceN:abcde 12345
+        break; case __LINE__: TriceS(iD(14129), "msg:With TriceS:%s\n", sABCDE );               //exp: time:    be16default: msg:With TriceS:abcde 12345
+        break; case __LINE__: TriceN(iD(14130), "sig:With TriceN:%s\n", sABCDE, lenABCDE );     //exp: time:    be16default: sig:With TriceN:abcde 12345
+        break; case __LINE__: TRiceS(iD(14131), "msg:With TRiceS:%s\n", sABCDE );               //exp: time:feed3322default: msg:With TRiceS:abcde 12345
+        break; case __LINE__: TRiceN(iD(14132), "sig:With TRiceN:%s\n", sABCDE, lenABCDE );     //exp: time:feed3322default: sig:With TRiceN:abcde 12345
 
         break; case __LINE__: TRICE_S(id(14133), "msg:With TRICE_S:%s\n", sABCDE );             //exp: time:            default: msg:With TRICE_S:abcde 12345
         break; case __LINE__: TRICE_N(id(14134), "sig:With TRICE_N:%s\n", sABCDE, lenABCDE );   //exp: time:            default: sig:With TRICE_N:abcde 12345
-        break; case __LINE__: TRICE_S(Id(14135), "msg:With TRICE_S:%s\n", sABCDE );             //exp: time:       5_654default: msg:With TRICE_S:abcde 12345
-        break; case __LINE__: TRICE_N(Id(14136), "sig:With TRICE_N:%s\n", sABCDE, lenABCDE );   //exp: time:       5_654default: sig:With TRICE_N:abcde 12345
-        break; case __LINE__: TRICE_S(ID(14137), "msg:With TRICE_S:%s\n", sABCDE );             //exp: time: 842,150_450default: msg:With TRICE_S:abcde 12345
-        break; case __LINE__: TRICE_N(ID(14138), "sig:With TRICE_N:%s\n", sABCDE, lenABCDE );   //exp: time: 842,150_450default: sig:With TRICE_N:abcde 12345
+        break; case __LINE__: TRICE_S(Id(14135), "msg:With TRICE_S:%s\n", sABCDE );             //exp: time:    be16default: msg:With TRICE_S:abcde 12345
+        break; case __LINE__: TRICE_N(Id(14136), "sig:With TRICE_N:%s\n", sABCDE, lenABCDE );   //exp: time:    be16default: sig:With TRICE_N:abcde 12345
+        break; case __LINE__: TRICE_S(ID(14137), "msg:With TRICE_S:%s\n", sABCDE );             //exp: time:feed3322default: msg:With TRICE_S:abcde 12345
+        break; case __LINE__: TRICE_N(ID(14138), "sig:With TRICE_N:%s\n", sABCDE, lenABCDE );   //exp: time:feed3322default: sig:With TRICE_N:abcde 12345
 
-        break; case __LINE__: TRICE8_B(ID(14139), "  %02x", sABCDE, lenABCDE );                 //exp: time: 842,150_450default:   61  62  63  64  65  20  31  32  33  34  35
+        break; case __LINE__: TRICE8_B(ID(14139), "  %02x", sABCDE, lenABCDE );                 //exp: time:feed3322default:   61  62  63  64  65  20  31  32  33  34  35
         break; case __LINE__: trice(iD(14140), "\n" );
-        break; case __LINE__: TRICE8_B(ID(14141), "BUF: %02x\n", sABCDE, lenABCDE );            //exp: time: 842,150_450default: BUF: 61 62 63 64 65 20 31 32 33 34 35
-        break; case __LINE__: TRICE8_B(ID(14142), "%4d", sABCDE, lenABCDE );                    //exp: time: 842,150_450default:   97  98  99 100 101  32  49  50  51  52  53
+        break; case __LINE__: TRICE8_B(ID(14141), "BUF: %02x\n", sABCDE, lenABCDE );            //exp: time:feed3322default: BUF: 61 62 63 64 65 20 31 32 33 34 35
+        break; case __LINE__: TRICE8_B(ID(14142), "%4d", sABCDE, lenABCDE );                    //exp: time:feed3322default:   97  98  99 100 101  32  49  50  51  52  53
         break; case __LINE__: trice(iD(14143), "\n" );
-        break; case __LINE__: TRICE8_B(ID(14144), "  %02x", b8, sizeof(b8)/sizeof(int8_t) );    //exp: time: 842,150_450default:   00  ff  fe  33  04  05  06  07  08  09  0a  0b  00  ff  fe  33  04  05  06  07  08  09  0a  0b
+        break; case __LINE__: TRICE8_B(ID(14144), "  %02x", b8, sizeof(b8)/sizeof(int8_t) );    //exp: time:feed3322default:   00  ff  fe  33  04  05  06  07  08  09  0a  0b  00  ff  fe  33  04  05  06  07  08  09  0a  0b
         break; case __LINE__: trice(iD(14145), "\n" );
 
-        break; case __LINE__: TRice8B(iD(14146), " %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time: 842,150_450default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        break; case __LINE__: TRice8B(iD(14146), " %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:feed3322default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
         break; case __LINE__: trice(iD(14147), "\n" );
-        break; case __LINE__: Trice8B(iD(14148), " %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:       5_654default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        break; case __LINE__: Trice8B(iD(14148), " %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:    be16default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
         break; case __LINE__: trice(iD(14149), "\n" );
         break; case __LINE__: trice8B(iD(14150), " %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:            default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
         break; case __LINE__: trice(iD(14151), "\n" );
@@ -317,77 +317,77 @@ void TriceCheck(int n) {
         break; case __LINE__: trice(iD(14154), "\n" );
         break; case __LINE__: trice8B(iD(14155), " %02x\n", b8,  sizeof(b8) /sizeof(int8_t) );      //exp: time:            default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
 
-        break; case __LINE__: TRICE16_B(ID(14156), "  %04x", b16, sizeof(b16)/sizeof(int16_t) ); //exp: time: 842,150_450default:   0000  ffff  fffe  3344
+        break; case __LINE__: TRICE16_B(ID(14156), "  %04x", b16, sizeof(b16)/sizeof(int16_t) ); //exp: time:feed3322default:   0000  ffff  fffe  3344
         break; case __LINE__: trice(iD(14157), "\n" );
-        break; case __LINE__: TRice16B(iD(14158), " %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time: 842,150_450default:  0000 ffff fffe 3344
+        break; case __LINE__: TRice16B(iD(14158), " %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:feed3322default:  0000 ffff fffe 3344
         break; case __LINE__: trice(iD(14159), "\n" );
-        break; case __LINE__: Trice16B(iD(14160), " %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:       5_654default:  0000 ffff fffe 3344
+        break; case __LINE__: Trice16B(iD(14160), " %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:    be16default:  0000 ffff fffe 3344
         break; case __LINE__: trice(iD(14161), "\n" );
         break; case __LINE__: trice16B(iD(14162), " %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:            default:  0000 ffff fffe 3344
         break; case __LINE__: trice(iD(14163), "\n" );
         break; case __LINE__: trice16B(iD(14164), "msg: %04x\n", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:            default: msg: 0000 ffff fffe 3344
 
-        break; case __LINE__: TRICE32_B(ID(14165), " %08x", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default:  00000000 ffffffff fffffffe 33445555
+        break; case __LINE__: TRICE32_B(ID(14165), " %08x", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:feed3322default:  00000000 ffffffff fffffffe 33445555
         break; case __LINE__: trice(iD(14166), "\n" );
-        break; case __LINE__: TRice32B(iD(14167), " %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time: 842,150_450default:  00000000 ffffffff fffffffe 33445555
+        break; case __LINE__: TRice32B(iD(14167), " %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:feed3322default:  00000000 ffffffff fffffffe 33445555
         break; case __LINE__: trice(iD(14168), "\n" );
-        break; case __LINE__: Trice32B(iD(14169), " %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:       5_654default:  00000000 ffffffff fffffffe 33445555
+        break; case __LINE__: Trice32B(iD(14169), " %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:    be16default:  00000000 ffffffff fffffffe 33445555
         break; case __LINE__: trice(iD(14170), "\n" );
         break; case __LINE__: trice32B(iD(14171), " %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:            default:  00000000 ffffffff fffffffe 33445555
         break; case __LINE__: trice(iD(14172), "\n" );
         break; case __LINE__: trice32B(iD(14173), "att: %08x\n", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:            default: att: 00000000 ffffffff fffffffe 33445555
 
-        break; case __LINE__: TRICE64_B(ID(14174), " %016x", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        break; case __LINE__: TRICE64_B(ID(14174), " %016x", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:feed3322default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
         break; case __LINE__: trice(iD(14175), "\n" );
-        break; case __LINE__: TRice64B(iD(14176), " %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time: 842,150_450default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        break; case __LINE__: TRice64B(iD(14176), " %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:feed3322default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
         break; case __LINE__: trice(iD(14177), "\n" );
-        break; case __LINE__: Trice64B(iD(14178), " %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:       5_654default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        break; case __LINE__: Trice64B(iD(14178), " %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:    be16default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
         break; case __LINE__: trice(iD(14179), "\n" );
         break; case __LINE__: trice64B(iD(14180), " %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:            default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
         break; case __LINE__: trice(iD(14181), "\n" );
         break; case __LINE__: trice64B(iD(14182), "SIG: %016x\n", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:            default: SIG: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
 
-        break; case __LINE__: TRICE8_F(ID(14183), "info:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );   //exp: time: 842,150_450default: info:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
-        break; case __LINE__: TRice8F(iD(14184), "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time: 842,150_450default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
-        break; case __LINE__: Trice8F(iD(14185), "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:       5_654default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+        break; case __LINE__: TRICE8_F(ID(14183), "info:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );   //exp: time:feed3322default: info:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+        break; case __LINE__: TRice8F(iD(14184), "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:feed3322default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+        break; case __LINE__: Trice8F(iD(14185), "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:    be16default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
         break; case __LINE__: trice8F(iD(14186), "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:            default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
-        break; case __LINE__: TRICE16_F(ID(14187), "info:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: info:FunctionNameX(0000)(ffff)(fffe)(3344) 
-        break; case __LINE__: TRice16F(iD(14188), "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
-        break; case __LINE__: Trice16F(iD(14189), "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:       5_654default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
+        break; case __LINE__: TRICE16_F(ID(14187), "info:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:feed3322default: info:FunctionNameX(0000)(ffff)(fffe)(3344) 
+        break; case __LINE__: TRice16F(iD(14188), "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:feed3322default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
+        break; case __LINE__: Trice16F(iD(14189), "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:    be16default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
         break; case __LINE__: trice16F(iD(14190), "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:            default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
-        break; case __LINE__: TRICE32_F(ID(14191), "info:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default: info:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
-        break; case __LINE__: TRice32F(iD(14192), "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
-        break; case __LINE__: Trice32F(iD(14193), "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:       5_654default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+        break; case __LINE__: TRICE32_F(ID(14191), "info:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:feed3322default: info:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+        break; case __LINE__: TRice32F(iD(14192), "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:feed3322default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
+        break; case __LINE__: Trice32F(iD(14193), "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:    be16default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
         break; case __LINE__: trice32F(iD(14194), "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:            default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
-        break; case __LINE__: TRICE64_F(ID(14195), "info:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: info:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
-        break; case __LINE__: TRice64F(iD(14196), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
-        break; case __LINE__: Trice64F(iD(14197), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:       5_654default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+        break; case __LINE__: TRICE64_F(ID(14195), "info:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:feed3322default: info:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+        break; case __LINE__: TRice64F(iD(14196), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:feed3322default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
+        break; case __LINE__: Trice64F(iD(14197), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:    be16default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
         break; case __LINE__: trice64F(iD(14198), "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
-        break; case __LINE__: TRiceS(iD(14199), "msg:Hi %s!\n", five );                 //exp: time: 842,150_450default: msg:Hi five!
-        break; case __LINE__: TriceS(iD(14200), "msg:Hi %s!\n", five );                 //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: TRiceS(iD(14199), "msg:Hi %s!\n", five );                 //exp: time:feed3322default: msg:Hi five!
+        break; case __LINE__: TriceS(iD(14200), "msg:Hi %s!\n", five );                 //exp: time:    be16default: msg:Hi five!
         break; case __LINE__: triceS(iD(14201), "msg:Hi %s!\n", five );                 //exp: time:            default: msg:Hi five!
-        break; case __LINE__: TRiceN(iD(14202), "msg:Hi %s!\n", five, strlen(five) );   //exp: time: 842,150_450default: msg:Hi five!
-        break; case __LINE__: TriceN(iD(14203), "msg:Hi %s!\n", five, strlen(five) );   //exp: time:       5_654default: msg:Hi five!
+        break; case __LINE__: TRiceN(iD(14202), "msg:Hi %s!\n", five, strlen(five) );   //exp: time:feed3322default: msg:Hi five!
+        break; case __LINE__: TriceN(iD(14203), "msg:Hi %s!\n", five, strlen(five) );   //exp: time:    be16default: msg:Hi five!
         break; case __LINE__: triceN(iD(14204), "msg:Hi %s!\n", five, strlen(five) );   //exp: time:            default: msg:Hi five!
 
         break; case __LINE__: TRICE_S(id(14205), "sig:TRICE_S=%s\n", s );            //exp: time:            default: sig:TRICE_S=AAAAAAAAAAAA
         break; case __LINE__: TRICE_N(id(14206), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time:            default: sig:TRICE_N=AAAAAAAAAAAA
-        break; case __LINE__: TRICE_S(Id(14207), "sig:TRICE_S=%s\n", s );            //exp: time:       5_654default: sig:TRICE_S=AAAAAAAAAAAA
-        break; case __LINE__: TRICE_N(Id(14208), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time:       5_654default: sig:TRICE_N=AAAAAAAAAAAA
-        break; case __LINE__: TRICE_S(ID(14209), "sig:TRICE_S=%s\n", s );            //exp: time: 842,150_450default: sig:TRICE_S=AAAAAAAAAAAA
-        break; case __LINE__: TRICE_N(ID(14210), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time: 842,150_450default: sig:TRICE_N=AAAAAAAAAAAA
+        break; case __LINE__: TRICE_S(Id(14207), "sig:TRICE_S=%s\n", s );            //exp: time:    be16default: sig:TRICE_S=AAAAAAAAAAAA
+        break; case __LINE__: TRICE_N(Id(14208), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time:    be16default: sig:TRICE_N=AAAAAAAAAAAA
+        break; case __LINE__: TRICE_S(ID(14209), "sig:TRICE_S=%s\n", s );            //exp: time:feed3322default: sig:TRICE_S=AAAAAAAAAAAA
+        break; case __LINE__: TRICE_N(ID(14210), "sig:TRICE_N=%s\n", s, strlen(s) ); //exp: time:feed3322default: sig:TRICE_N=AAAAAAAAAAAA
         break; case __LINE__: triceS(iD(14211), "sig:triceS=%s\n", s );              //exp: time:            default: sig:triceS=AAAAAAAAAAAA
         break; case __LINE__: triceN(iD(14212), "sig:triceN=%s\n", s, strlen(s) );   //exp: time:            default: sig:triceN=AAAAAAAAAAAA
-        break; case __LINE__: TriceS(iD(14213), "sig:TriceS=%s\n", s );              //exp: time:       5_654default: sig:TriceS=AAAAAAAAAAAA
-        break; case __LINE__: TriceN(iD(14214), "sig:TriceN=%s\n", s, strlen(s) );   //exp: time:       5_654default: sig:TriceN=AAAAAAAAAAAA
-        break; case __LINE__: TRiceS(iD(14215), "sig:TRiceS=%s\n", s );              //exp: time: 842,150_450default: sig:TRiceS=AAAAAAAAAAAA
-        break; case __LINE__: TRiceN(iD(14216), "sig:TRiceN=%s\n", s, strlen(s) );   //exp: time: 842,150_450default: sig:TRiceN=AAAAAAAAAAAA
+        break; case __LINE__: TriceS(iD(14213), "sig:TriceS=%s\n", s );              //exp: time:    be16default: sig:TriceS=AAAAAAAAAAAA
+        break; case __LINE__: TriceN(iD(14214), "sig:TriceN=%s\n", s, strlen(s) );   //exp: time:    be16default: sig:TriceN=AAAAAAAAAAAA
+        break; case __LINE__: TRiceS(iD(14215), "sig:TRiceS=%s\n", s );              //exp: time:feed3322default: sig:TRiceS=AAAAAAAAAAAA
+        break; case __LINE__: TRiceN(iD(14216), "sig:TRiceN=%s\n", s, strlen(s) );   //exp: time:feed3322default: sig:TRiceN=AAAAAAAAAAAA
 
         break; case __LINE__: trice16(iD(14217), "att: line %u\n", __LINE__ );
 
-        break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:       5_654default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
-        break; case __LINE__: TRICE(Id(14218), "MSG:1/11 = %g\n", aFloat( 1.0/11 ) ); //exp: time:       5_654default: MSG:1/11 = 0.09090909
-        break; case __LINE__: { //exp: time: 842,150_450default: msg:x = 5.934 = 5.934, 5.934
+        break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
+        break; case __LINE__: TRICE(Id(14218), "MSG:1/11 = %g\n", aFloat( 1.0/11 ) ); //exp: time:    be16default: MSG:1/11 = 0.09090909
+        break; case __LINE__: { //exp: time:feed3322default: msg:x = 5.934 = 5.934, 5.934
                               float a = (float)5.934;
                               float b = a + ((a > 0) ? 0.0005f : -0.0005f);
                               int c = (int)b;
@@ -399,65 +399,65 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16(iD(14220), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRice(iD(14221), "sig:Integer (indent, base, sign) - see https://yourbasic.org/golang/fmt-printf-reference-cheat-sheet/\n" );
-        break; case __LINE__: TRice(iD(14222), "rd: 15 	%d 	Base 10\n", 15 );                                        //exp: time: 842,150_450default: rd: 15 	15 	Base 10                                   
-        break; case __LINE__: TRice(iD(14223), "rd: +15 	%+d 	Always show sign\n", 15 );                           //exp: time: 842,150_450default: rd: +15 	+15 	Always show sign                          
-        break; case __LINE__: TRice(iD(14224), "rd:   15	%4d 	Pad with spaces (width 4, right justified)\n", 15 ); //exp: time: 842,150_450default: rd:   15	  15 	Pad with spaces (width 4, right justified)
-        break; case __LINE__: TRice(iD(14225), "rd:    15	%-4d	Pad with spaces (width 4, left justified)\n", 15 );  //exp: time: 842,150_450default: rd:    15	15  	Pad with spaces (width 4, left justified) 
-        break; case __LINE__: TRice(iD(14226), "rd: 0015	%04d	Pad with zeroes (width 4)\n", 15 );                  //exp: time: 842,150_450default: rd: 0015	0015	Pad with zeroes (width 4)                 
-        break; case __LINE__: TRice(iD(14227), "rd: 1111 	%b 	Base 2\n", 15 );                                         //exp: time: 842,150_450default: rd: 1111 	1111 	Base 2                                    
-        break; case __LINE__: TRice(iD(14228), "rd: 17 	%o 	Base 8\n", 15 );                                         //exp: time: 842,150_450default: rd: 17 	17 	Base 8                                    
-        break; case __LINE__: TRice(iD(14229), "rd: f 	%x 	Base 16, lowercase\n", 15 );                                 //exp: time: 842,150_450default: rd: f 	f 	Base 16, lowercase                        
-        break; case __LINE__: TRice(iD(14230), "rd: F 	%X 	Base 16, uppercase\n", 15 );                                 //exp: time: 842,150_450default: rd: F 	F 	Base 16, uppercase                        
-        break; case __LINE__: TRice(iD(14231), "rd: 0xf 	%#x 	Base 16, with leading 0x\n", 15 );                   //exp: time: 842,150_450default: rd: 0xf 	0xf 	Base 16, with leading 0x                  
+        break; case __LINE__: TRice(iD(14222), "rd: 15 	%d 	Base 10\n", 15 );                                        //exp: time:feed3322default: rd: 15 	15 	Base 10                                   
+        break; case __LINE__: TRice(iD(14223), "rd: +15 	%+d 	Always show sign\n", 15 );                           //exp: time:feed3322default: rd: +15 	+15 	Always show sign                          
+        break; case __LINE__: TRice(iD(14224), "rd:   15	%4d 	Pad with spaces (width 4, right justified)\n", 15 ); //exp: time:feed3322default: rd:   15	  15 	Pad with spaces (width 4, right justified)
+        break; case __LINE__: TRice(iD(14225), "rd:    15	%-4d	Pad with spaces (width 4, left justified)\n", 15 );  //exp: time:feed3322default: rd:    15	15  	Pad with spaces (width 4, left justified) 
+        break; case __LINE__: TRice(iD(14226), "rd: 0015	%04d	Pad with zeroes (width 4)\n", 15 );                  //exp: time:feed3322default: rd: 0015	0015	Pad with zeroes (width 4)                 
+        break; case __LINE__: TRice(iD(14227), "rd: 1111 	%b 	Base 2\n", 15 );                                         //exp: time:feed3322default: rd: 1111 	1111 	Base 2                                    
+        break; case __LINE__: TRice(iD(14228), "rd: 17 	%o 	Base 8\n", 15 );                                         //exp: time:feed3322default: rd: 17 	17 	Base 8                                    
+        break; case __LINE__: TRice(iD(14229), "rd: f 	%x 	Base 16, lowercase\n", 15 );                                 //exp: time:feed3322default: rd: f 	f 	Base 16, lowercase                        
+        break; case __LINE__: TRice(iD(14230), "rd: F 	%X 	Base 16, uppercase\n", 15 );                                 //exp: time:feed3322default: rd: F 	F 	Base 16, uppercase                        
+        break; case __LINE__: TRice(iD(14231), "rd: 0xf 	%#x 	Base 16, with leading 0x\n", 15 );                   //exp: time:feed3322default: rd: 0xf 	0xf 	Base 16, with leading 0x                  
 
         break; case __LINE__: trice16(iD(14232), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE(ID(14233), "sig:Character (quoted, Unicode)\n" );
-        break; case __LINE__: TRICE(ID(14234), "rd: A 	%c 	Character\n", 'A' );                                     //exp: time: 842,150_450default: rd: A 	A 	Character
-        break; case __LINE__: TRICE(ID(14235), "rd: 'A' 	%q 	Quoted character\n", 'A' );                          //exp: time: 842,150_450default: rd: 'A' 	'A' 	Quoted character
+        break; case __LINE__: TRICE(ID(14234), "rd: A 	%c 	Character\n", 'A' );                                     //exp: time:feed3322default: rd: A 	A 	Character
+        break; case __LINE__: TRICE(ID(14235), "rd: 'A' 	%q 	Quoted character\n", 'A' );                          //exp: time:feed3322default: rd: 'A' 	'A' 	Quoted character
     //  break; case __LINE__: TRICE(ID(14236), "rd: U+0041 	%U 	Unicode\n", 'A' );                        // todo: detect %U to avoid message triceType = TRICE0 ParamSpace = 4 not matching with bitWidth  0 and paramCount 0 - ignoring package
     //  break; case __LINE__: TRICE(ID(14237), "rd: U+0041 'A' 	%#U 	Unicode with character\n", 'A' ); // todo: detect %#U to avoid message triceType = TRICE0 ParamSpace = 4 not matching with bitWidth  0 and paramCount 0 - ignoring package
 
         break; case __LINE__: TRICE(ID(14238), "sig:Boolean (true/false)\n" );
-        break; case __LINE__: TRICE(ID(14239), "rd:Use %%t to format a boolean as true (%t) or false (%t).\n", 1, 0 ); //exp: time: 842,150_450default: rd:Use %t to format a boolean as true (true) or false (false).
+        break; case __LINE__: TRICE(ID(14239), "rd:Use %%t to format a boolean as true (%t) or false (%t).\n", 1, 0 ); //exp: time:feed3322default: rd:Use %t to format a boolean as true (true) or false (false).
 
         break; case __LINE__: TRICE(ID(14240), "sig:Pointer (hex)\n" );
-        break; case __LINE__: TRICE8 (ID(14241), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x84 );               //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (84)              
-        break; case __LINE__: TRICE16(ID(14242), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x1234 );             //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (1234)            
-        break; case __LINE__: TRICE32(ID(14243), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd );         //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (aabbccdd)        
-        break; case __LINE__: TRICE64(ID(14244), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x1122334455667788 ); //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (1122334455667788)
-        break; case __LINE__: TRICE  (ID(14245), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd);          //exp: time: 842,150_450default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (aabbccdd)        
+        break; case __LINE__: TRICE8 (ID(14241), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x84 );               //exp: time:feed3322default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (84)              
+        break; case __LINE__: TRICE16(ID(14242), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x1234 );             //exp: time:feed3322default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (1234)            
+        break; case __LINE__: TRICE32(ID(14243), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd );         //exp: time:feed3322default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (aabbccdd)        
+        break; case __LINE__: TRICE64(ID(14244), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x1122334455667788 ); //exp: time:feed3322default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (1122334455667788)
+        break; case __LINE__: TRICE  (ID(14245), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd);          //exp: time:feed3322default: rd:Use %p to format a pointer in base 16 notation with leading 0x. (aabbccdd)        
 
         break; case __LINE__: trice16(iD(14246), "att: line %u\n", __LINE__ );
 
         break; case __LINE__: TRICE(ID(14247), "sig:Float (indent, precision, scientific notation)\n" );
-        break; case __LINE__: TRICE(ID(14248), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aFloat(123.456) );                       //exp: time: 842,150_450default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
-        break; case __LINE__: TRICE(ID(14249), "rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aFloat(123.456) );                    //exp: time: 842,150_450default: rd: 123.456000		123.456001 	%f Decimal point, no exponent
-        break; case __LINE__: TRICE(ID(14250), "rd: 123.46			%.2f		%%.2f Default width, precision 2\n", aFloat(123.456) );          //exp: time: 842,150_450default: rd: 123.46			123.46		%.2f Default width, precision 2
-        break; case __LINE__: TRICE(ID(14251), "rd: ␣␣123.46		%8.2f	%%8.2f Width 8, precision 2\n", aFloat(123.456) );                    //exp: time: 842,150_450default: rd: ␣␣123.46		  123.46	%8.2f Width 8, precision 2
-        break; case __LINE__: TRICE(ID(14252), "rd: 123.456		%g		%%g Exponent as needed, necessary digits only\n", aFloat(123.456) ); //exp: time: 842,150_450default: rd: 123.456		123.456		%g Exponent as needed, necessary digits only
+        break; case __LINE__: TRICE(ID(14248), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aFloat(123.456) );                       //exp: time:feed3322default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
+        break; case __LINE__: TRICE(ID(14249), "rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aFloat(123.456) );                    //exp: time:feed3322default: rd: 123.456000		123.456001 	%f Decimal point, no exponent
+        break; case __LINE__: TRICE(ID(14250), "rd: 123.46			%.2f		%%.2f Default width, precision 2\n", aFloat(123.456) );          //exp: time:feed3322default: rd: 123.46			123.46		%.2f Default width, precision 2
+        break; case __LINE__: TRICE(ID(14251), "rd: ␣␣123.46		%8.2f	%%8.2f Width 8, precision 2\n", aFloat(123.456) );                    //exp: time:feed3322default: rd: ␣␣123.46		  123.46	%8.2f Width 8, precision 2
+        break; case __LINE__: TRICE(ID(14252), "rd: 123.456		%g		%%g Exponent as needed, necessary digits only\n", aFloat(123.456) ); //exp: time:feed3322default: rd: 123.456		123.456		%g Exponent as needed, necessary digits only
 
         break; case __LINE__: TRICE(ID(14253), "sig:Double (indent, precision, scientific notation)\n" );
-        break; case __LINE__: TRICE64(ID(14254), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aDouble(123.456) );                       //exp: time: 842,150_450default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
-        break; case __LINE__: TRICE64(ID(14255), "rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aDouble(123.456) );                //exp: time: 842,150_450default: rd: 123.456000		123.456000 	%f Decimal point, no exponent
-        break; case __LINE__: TRICE64(ID(14256), "rd: 123.46			%.2f    	%%.2f Default width, precision 2\n", aDouble(123.456) );      //exp: time: 842,150_450default: rd: 123.46			123.46    	%.2f Default width, precision 2
-        break; case __LINE__: TRICE64(ID(14257), "rd: ␣␣123.46		%8.2f 	%%8.2f Width 8, precision 2\n", aDouble(123.456) );                    //exp: time: 842,150_450default: rd: ␣␣123.46		  123.46 	%8.2f Width 8, precision 2
-        break; case __LINE__: TRICE64(ID(14258), "rd: 123.456		%g		%%g Exponent as needed, necessary digits only\n", aDouble(123.456) ); //exp: time: 842,150_450default: rd: 123.456		123.456		%g Exponent as needed, necessary digits only
+        break; case __LINE__: TRICE64(ID(14254), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aDouble(123.456) );                       //exp: time:feed3322default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
+        break; case __LINE__: TRICE64(ID(14255), "rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aDouble(123.456) );                //exp: time:feed3322default: rd: 123.456000		123.456000 	%f Decimal point, no exponent
+        break; case __LINE__: TRICE64(ID(14256), "rd: 123.46			%.2f    	%%.2f Default width, precision 2\n", aDouble(123.456) );      //exp: time:feed3322default: rd: 123.46			123.46    	%.2f Default width, precision 2
+        break; case __LINE__: TRICE64(ID(14257), "rd: ␣␣123.46		%8.2f 	%%8.2f Width 8, precision 2\n", aDouble(123.456) );                    //exp: time:feed3322default: rd: ␣␣123.46		  123.46 	%8.2f Width 8, precision 2
+        break; case __LINE__: TRICE64(ID(14258), "rd: 123.456		%g		%%g Exponent as needed, necessary digits only\n", aDouble(123.456) ); //exp: time:feed3322default: rd: 123.456		123.456		%g Exponent as needed, necessary digits only
 
         break; case __LINE__: TRICE(ID(14259), "sig:String or byte slice (quote, indent, hex)\n" );
-        break; case __LINE__: s = "café"; TRICE_S(ID(14260), "rd: café 			%s		Plain string\n", s );           //exp: time: 842,150_450default: rd: café 			café		Plain string
-        break; case __LINE__: s = "café"; TRICE_S(ID(14261), "rd: ␣␣café 		%6s 		Width 6, right justify\n", s );  //exp: time: 842,150_450default: rd: ␣␣café 		  café 		Width 6, right justify
-        break; case __LINE__: s = "café"; TRICE_S(ID(14262), "rd: café␣␣ 		%-6s 		Width 6, left justify\n", s );   //exp: time: 842,150_450default: rd: café␣␣ 		café   		Width 6, left justify
-        break; case __LINE__: s = "café"; TRICE_S(ID(14263), "rd: \"café\" 		%q		Quoted string\n", s );          //exp: time: 842,150_450default: rd: \"café\" 		"café"		Quoted string
-        break; case __LINE__: s = "café"; TRICE_S(ID(14264), "rd: 636166c3a9 		%x	Hex dump of byte values\n", s );    //exp: time: 842,150_450default: rd: 636166c3a9 		636166c3a9	Hex dump of byte values 
-        break; case __LINE__: s = "café"; TRICE_S(ID(14265), "rd: 63 61 66 c3 a9 	% x	Hex dump with spaces\n", s );       //exp: time: 842,150_450default: rd: 63 61 66 c3 a9 	63 61 66 c3 a9	Hex dump with spaces
+        break; case __LINE__: s = "café"; TRICE_S(ID(14260), "rd: café 			%s		Plain string\n", s );           //exp: time:feed3322default: rd: café 			café		Plain string
+        break; case __LINE__: s = "café"; TRICE_S(ID(14261), "rd: ␣␣café 		%6s 		Width 6, right justify\n", s );  //exp: time:feed3322default: rd: ␣␣café 		  café 		Width 6, right justify
+        break; case __LINE__: s = "café"; TRICE_S(ID(14262), "rd: café␣␣ 		%-6s 		Width 6, left justify\n", s );   //exp: time:feed3322default: rd: café␣␣ 		café   		Width 6, left justify
+        break; case __LINE__: s = "café"; TRICE_S(ID(14263), "rd: \"café\" 		%q		Quoted string\n", s );          //exp: time:feed3322default: rd: \"café\" 		"café"		Quoted string
+        break; case __LINE__: s = "café"; TRICE_S(ID(14264), "rd: 636166c3a9 		%x	Hex dump of byte values\n", s );    //exp: time:feed3322default: rd: 636166c3a9 		636166c3a9	Hex dump of byte values 
+        break; case __LINE__: s = "café"; TRICE_S(ID(14265), "rd: 63 61 66 c3 a9 	% x	Hex dump with spaces\n", s );       //exp: time:feed3322default: rd: 63 61 66 c3 a9 	63 61 66 c3 a9	Hex dump with spaces
 
         break; case __LINE__: trice16(iD(14266), "att: line %u\n", __LINE__ );
         break; case __LINE__: exampleOfManualSerialization(); // ATTENTION: This occupies ~1024 bytes in one half buffer when double buffer ist used!
 
         // This was a CGO compiler issue:
-        break; case __LINE__: TRice(iD(14267), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
-        break; case __LINE__: Trice(iD(14268), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:       5_654default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
+        break; case __LINE__: TRice(iD(14267), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:feed3322default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
+        break; case __LINE__: Trice(iD(14268), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:    be16default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
         break; case __LINE__: trice(iD(14269), "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
 
         break; case __LINE__: trice16(iD(14270), "att: line %u\n", __LINE__ );
@@ -531,317 +531,317 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 #if TRICE_CGO == 1
 
-        break; case __LINE__: TRICE  (ID(14282), "rd:%E (%%E)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556E+08 (%E)
-        break; case __LINE__: TRICE  (ID(14283), "rd:%F (%%F)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555584.000000 (%F)
-        break; case __LINE__: TRICE  (ID(14284), "rd:%G (%%G)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556E+08 (%G)
-        break; case __LINE__: TRICE64(ID(14285), "rd:%E (%%E)\n", aDouble(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556E+08 (%E)
-        break; case __LINE__: TRICE64(ID(14286), "rd:%F (%%F)\n", aDouble(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555555.555556 (%F)
-        break; case __LINE__: TRICE64(ID(14287), "rd:%G (%%G)\n", aDouble(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555555555555556E+08 (%G)
+        break; case __LINE__: TRICE  (ID(14282), "rd:%E (%%E)\n",  aFloat(-555555555.5555555555) ); //exp: time:feed3322default: rd:-5.555556E+08 (%E)
+        break; case __LINE__: TRICE  (ID(14283), "rd:%F (%%F)\n",  aFloat(-555555555.5555555555) ); //exp: time:feed3322default: rd:-555555584.000000 (%F)
+        break; case __LINE__: TRICE  (ID(14284), "rd:%G (%%G)\n",  aFloat(-555555555.5555555555) ); //exp: time:feed3322default: rd:-5.555556E+08 (%G)
+        break; case __LINE__: TRICE64(ID(14285), "rd:%E (%%E)\n", aDouble(-555555555.5555555555) ); //exp: time:feed3322default: rd:-5.555556E+08 (%E)
+        break; case __LINE__: TRICE64(ID(14286), "rd:%F (%%F)\n", aDouble(-555555555.5555555555) ); //exp: time:feed3322default: rd:-555555555.555556 (%F)
+        break; case __LINE__: TRICE64(ID(14287), "rd:%G (%%G)\n", aDouble(-555555555.5555555555) ); //exp: time:feed3322default: rd:-5.555555555555556E+08 (%G)
         
-        break; case __LINE__: TRICE  (ID(14288), "rd:%e (%%e)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556e+08 (%e)
-        break; case __LINE__: TRICE  (ID(14289), "rd:%f (%%f)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555584.000000 (%f)
-        break; case __LINE__: TRICE  (ID(14290), "rd:%g (%%g)\n",  aFloat(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556e+08 (%g)
-        break; case __LINE__: TRICE64(ID(14291), "rd:%e (%%e)\n", aDouble(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555556e+08 (%e)
-        break; case __LINE__: TRICE64(ID(14292), "rd:%f (%%f)\n", aDouble(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-555555555.555556 (%f)
-        break; case __LINE__: TRICE64(ID(14293), "rd:%g (%%g)\n", aDouble(-555555555.5555555555) ); //exp: time: 842,150_450default: rd:-5.555555555555556e+08 (%g)
+        break; case __LINE__: TRICE  (ID(14288), "rd:%e (%%e)\n",  aFloat(-555555555.5555555555) ); //exp: time:feed3322default: rd:-5.555556e+08 (%e)
+        break; case __LINE__: TRICE  (ID(14289), "rd:%f (%%f)\n",  aFloat(-555555555.5555555555) ); //exp: time:feed3322default: rd:-555555584.000000 (%f)
+        break; case __LINE__: TRICE  (ID(14290), "rd:%g (%%g)\n",  aFloat(-555555555.5555555555) ); //exp: time:feed3322default: rd:-5.555556e+08 (%g)
+        break; case __LINE__: TRICE64(ID(14291), "rd:%e (%%e)\n", aDouble(-555555555.5555555555) ); //exp: time:feed3322default: rd:-5.555556e+08 (%e)
+        break; case __LINE__: TRICE64(ID(14292), "rd:%f (%%f)\n", aDouble(-555555555.5555555555) ); //exp: time:feed3322default: rd:-555555555.555556 (%f)
+        break; case __LINE__: TRICE64(ID(14293), "rd:%g (%%g)\n", aDouble(-555555555.5555555555) ); //exp: time:feed3322default: rd:-5.555555555555556e+08 (%g)
 
-        break; case __LINE__: TRICE32(ID(14294), "msg:%u (%%u)\n", -1 ); //exp: time: 842,150_450default: msg:4294967295 (%u)
-        break; case __LINE__: TRICE32(ID(14295), "msg:%b (%%b)\n", -1 ); //exp: time: 842,150_450default: msg:11111111111111111111111111111111 (%b)
-        break; case __LINE__: TRICE32(ID(14296), "msg:%o (%%o)\n", -1 ); //exp: time: 842,150_450default: msg:37777777777 (%o)
-        break; case __LINE__: TRICE32(ID(14297), "msg:%O (%%O)\n", -1 ); //exp: time: 842,150_450default: msg:0o37777777777 (%O)
-        break; case __LINE__: TRICE32(ID(14298), "msg:%X (%%X)\n", -1 ); //exp: time: 842,150_450default: msg:FFFFFFFF (%X)
-        break; case __LINE__: TRICE32(ID(14299), "msg:%x (%%x)\n", -1 ); //exp: time: 842,150_450default: msg:ffffffff (%x)
-        break; case __LINE__: TRICE32(ID(14300), "msg:%d (%%d)\n", -1 ); //exp: time: 842,150_450default: msg:-1 (%d)
-        break; case __LINE__: TRICE64(ID(14301), "msg:%u (%%u)\n", -1 ); //exp: time: 842,150_450default: msg:18446744073709551615 (%u)
-        break; case __LINE__: TRICE64(ID(14302), "msg:%b (%%b)\n", -1 ); //exp: time: 842,150_450default: msg:1111111111111111111111111111111111111111111111111111111111111111 (%b)
-        break; case __LINE__: TRICE64(ID(14303), "msg:%o (%%o)\n", -1 ); //exp: time: 842,150_450default: msg:1777777777777777777777 (%o)
-        break; case __LINE__: TRICE64(ID(14304), "msg:%O (%%O)\n", -1 ); //exp: time: 842,150_450default: msg:0o1777777777777777777777 (%O)
-        break; case __LINE__: TRICE64(ID(14305), "msg:%X (%%X)\n", -1 ); //exp: time: 842,150_450default: msg:FFFFFFFFFFFFFFFF (%X)
-        break; case __LINE__: TRICE64(ID(14306), "msg:%x (%%x)\n", -1 ); //exp: time: 842,150_450default: msg:ffffffffffffffff (%x)
+        break; case __LINE__: TRICE32(ID(14294), "msg:%u (%%u)\n", -1 ); //exp: time:feed3322default: msg:4294967295 (%u)
+        break; case __LINE__: TRICE32(ID(14295), "msg:%b (%%b)\n", -1 ); //exp: time:feed3322default: msg:11111111111111111111111111111111 (%b)
+        break; case __LINE__: TRICE32(ID(14296), "msg:%o (%%o)\n", -1 ); //exp: time:feed3322default: msg:37777777777 (%o)
+        break; case __LINE__: TRICE32(ID(14297), "msg:%O (%%O)\n", -1 ); //exp: time:feed3322default: msg:0o37777777777 (%O)
+        break; case __LINE__: TRICE32(ID(14298), "msg:%X (%%X)\n", -1 ); //exp: time:feed3322default: msg:FFFFFFFF (%X)
+        break; case __LINE__: TRICE32(ID(14299), "msg:%x (%%x)\n", -1 ); //exp: time:feed3322default: msg:ffffffff (%x)
+        break; case __LINE__: TRICE32(ID(14300), "msg:%d (%%d)\n", -1 ); //exp: time:feed3322default: msg:-1 (%d)
+        break; case __LINE__: TRICE64(ID(14301), "msg:%u (%%u)\n", -1 ); //exp: time:feed3322default: msg:18446744073709551615 (%u)
+        break; case __LINE__: TRICE64(ID(14302), "msg:%b (%%b)\n", -1 ); //exp: time:feed3322default: msg:1111111111111111111111111111111111111111111111111111111111111111 (%b)
+        break; case __LINE__: TRICE64(ID(14303), "msg:%o (%%o)\n", -1 ); //exp: time:feed3322default: msg:1777777777777777777777 (%o)
+        break; case __LINE__: TRICE64(ID(14304), "msg:%O (%%O)\n", -1 ); //exp: time:feed3322default: msg:0o1777777777777777777777 (%O)
+        break; case __LINE__: TRICE64(ID(14305), "msg:%X (%%X)\n", -1 ); //exp: time:feed3322default: msg:FFFFFFFFFFFFFFFF (%X)
+        break; case __LINE__: TRICE64(ID(14306), "msg:%x (%%x)\n", -1 ); //exp: time:feed3322default: msg:ffffffffffffffff (%x)
 
-    /**/break; case __LINE__: TRice        (iD(14307), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-    /**/break; case __LINE__: Trice        (iD(14308), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+    /**/break; case __LINE__: TRice        (iD(14307), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+    /**/break; case __LINE__: Trice        (iD(14308), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
     /**/break; case __LINE__: trice        (iD(14309), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice8       (iD(14310), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice8       (iD(14311), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice8       (iD(14310), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice8       (iD(14311), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice8       (iD(14312), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice16      (iD(14313), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice16      (iD(14314), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice16      (iD(14313), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice16      (iD(14314), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice16      (iD(14315), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice32      (iD(14316), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice32      (iD(14317), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice32      (iD(14316), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice32      (iD(14317), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice32      (iD(14318), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice64      (iD(14319), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice64      (iD(14320), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice64      (iD(14319), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice64      (iD(14320), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice64      (iD(14321), "value=%d\n", -2  ); //exp: time:            default: value=-2
         
-        break; case __LINE__: TRice_1      (iD(14322), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice_1      (iD(14323), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice_1      (iD(14322), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice_1      (iD(14323), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice_1      (iD(14324), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice8_1     (iD(14325), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice8_1     (iD(14326), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice8_1     (iD(14325), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice8_1     (iD(14326), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice8_1     (iD(14327), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice16_1    (iD(14328), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice16_1    (iD(14329), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice16_1    (iD(14328), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice16_1    (iD(14329), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice16_1    (iD(14330), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice32_1    (iD(14331), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice32_1    (iD(14332), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice32_1    (iD(14331), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice32_1    (iD(14332), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice32_1    (iD(14333), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: TRice64_1    (iD(14334), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: Trice64_1    (iD(14335), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: TRice64_1    (iD(14334), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: Trice64_1    (iD(14335), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
         break; case __LINE__: trice64_1    (iD(14336), "value=%d\n", -2  ); //exp: time:            default: value=-2
         
-        break; case __LINE__: TRice        (iD(14337), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice        (iD(14338), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice        (iD(14337), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice        (iD(14338), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice        (iD(14339), "no value" ); //exp: time:            default: no value
-        break; case __LINE__: TRice8       (iD(14340), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice8       (iD(14341), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice8       (iD(14340), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice8       (iD(14341), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice8       (iD(14342), "no value" ); //exp: time:            default: no value
-        break; case __LINE__: TRice16      (iD(14343), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice16      (iD(14344), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice16      (iD(14343), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice16      (iD(14344), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice16      (iD(14345), "no value" ); //exp: time:            default: no value
-        break; case __LINE__: TRice32      (iD(14346), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice32      (iD(14347), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice32      (iD(14346), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice32      (iD(14347), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice32      (iD(14348), "no value" ); //exp: time:            default: no value
-        break; case __LINE__: TRice64      (iD(14349), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice64      (iD(14350), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice64      (iD(14349), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice64      (iD(14350), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice64      (iD(14351), "no value" ); //exp: time:            default: no value
     
-        break; case __LINE__: TRice_0      (iD(14352), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice_0      (iD(14353), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice_0      (iD(14352), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice_0      (iD(14353), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice_0      (iD(14354), "no value" ); //exp: time:            default: no value
-        break; case __LINE__: TRice8_0     (iD(14355), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice8_0     (iD(14356), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice8_0     (iD(14355), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice8_0     (iD(14356), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice8_0     (iD(14357), "no value" ); //exp: time:            default: no value
-        break; case __LINE__: TRice16_0    (iD(14358), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice16_0    (iD(14359), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice16_0    (iD(14358), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice16_0    (iD(14359), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice16_0    (iD(14360), "no value" ); //exp: time:            default: no value
-        break; case __LINE__: TRice32_0    (iD(14361), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice32_0    (iD(14362), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice32_0    (iD(14361), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice32_0    (iD(14362), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice32_0    (iD(14363), "no value" ); //exp: time:            default: no value
-        break; case __LINE__: TRice64_0    (iD(14364), "no value" ); //exp: time: 842,150_450default: no value
-        break; case __LINE__: Trice64_0    (iD(14365), "no value" ); //exp: time:       5_654default: no value
+        break; case __LINE__: TRice64_0    (iD(14364), "no value" ); //exp: time:feed3322default: no value
+        break; case __LINE__: Trice64_0    (iD(14365), "no value" ); //exp: time:    be16default: no value
         break; case __LINE__: trice64_0    (iD(14366), "no value" ); //exp: time:            default: no value
 
-        break; case __LINE__: TRice(iD(14367), "info:This is a message with one value %d and a 32-bit stamp.\n", -2  ); //exp: time: 842,150_450default: info:This is a message with one value -2 and a 32-bit stamp.
-        break; case __LINE__: Trice(iD(14368), "info:This is a message with one value %d and a 16-bit stamp.\n", -2  ); //exp: time:       5_654default: info:This is a message with one value -2 and a 16-bit stamp.
+        break; case __LINE__: TRice(iD(14367), "info:This is a message with one value %d and a 32-bit stamp.\n", -2  ); //exp: time:feed3322default: info:This is a message with one value -2 and a 32-bit stamp.
+        break; case __LINE__: Trice(iD(14368), "info:This is a message with one value %d and a 16-bit stamp.\n", -2  ); //exp: time:    be16default: info:This is a message with one value -2 and a 16-bit stamp.
         break; case __LINE__: trice(iD(14369), "info:This is a message with one value %d and without stamp.\n" , -2  ); //exp: time:            default: info:This is a message with one value -2 and without stamp.
 
-        break; case __LINE__: TRICE(ID(14370), "info:This is a message without values and a 32-bit stamp.\n" );        //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
-        break; case __LINE__: TRICE(Id(14371), "info:This is a message without values and a 16-bit stamp.\n" );        //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
+        break; case __LINE__: TRICE(ID(14370), "info:This is a message without values and a 32-bit stamp.\n" );        //exp: time:feed3322default: info:This is a message without values and a 32-bit stamp.
+        break; case __LINE__: TRICE(Id(14371), "info:This is a message without values and a 16-bit stamp.\n" );        //exp: time:    be16default: info:This is a message without values and a 16-bit stamp.
         break; case __LINE__: TRICE(id(14372), "info:This is a message without values and without stamp.\n"  );        //exp: time:            default: info:This is a message without values and without stamp.
 
-        break; case __LINE__: TRICE(ID(14373), "info:This is a message with one value %d and a 32-bit stamp.\n", -2  ); //exp: time: 842,150_450default: info:This is a message with one value -2 and a 32-bit stamp.
-        break; case __LINE__: TRICE(Id(14374), "info:This is a message with one value %d and a 16-bit stamp.\n", -2  ); //exp: time:       5_654default: info:This is a message with one value -2 and a 16-bit stamp.
+        break; case __LINE__: TRICE(ID(14373), "info:This is a message with one value %d and a 32-bit stamp.\n", -2  ); //exp: time:feed3322default: info:This is a message with one value -2 and a 32-bit stamp.
+        break; case __LINE__: TRICE(Id(14374), "info:This is a message with one value %d and a 16-bit stamp.\n", -2  ); //exp: time:    be16default: info:This is a message with one value -2 and a 16-bit stamp.
         break; case __LINE__: TRICE(id(14375), "info:This is a message with one value %d and without stamp.\n" , -2  ); //exp: time:            default: info:This is a message with one value -2 and without stamp.
 
-        break; case __LINE__: TRICE(ID(14376), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );   //exp: time: 842,150_450default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
-        break; case __LINE__: TRICE(Id(14377), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );   //exp: time:       5_654default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
+        break; case __LINE__: TRICE(ID(14376), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );   //exp: time:feed3322default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
+        break; case __LINE__: TRICE(Id(14377), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );   //exp: time:    be16default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
         break; case __LINE__: TRICE(id(14378), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );   //exp: time:            default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
 
-        break; case __LINE__: TRICE32(ID(14379), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time: 842,150_450default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
-        break; case __LINE__: TRICE32(Id(14380), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:       5_654default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
+        break; case __LINE__: TRICE32(ID(14379), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:feed3322default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
+        break; case __LINE__: TRICE32(Id(14380), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:    be16default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
         break; case __LINE__: TRICE32(id(14381), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:            default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
 
         break; case __LINE__: TRICE8   (id(14382), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: TRICE8_1 (id(14383), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: TRICE8   (Id(14384), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRICE8_1 (Id(14385), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRICE8   (ID(14386), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRICE8_1 (ID(14387), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: TRICE8   (Id(14384), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRICE8_1 (Id(14385), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRICE8   (ID(14386), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
+        break; case __LINE__: TRICE8_1 (ID(14387), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
         break; case __LINE__: trice8   (iD(14388), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: trice8_1 (iD(14389), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: Trice8   (iD(14390), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: Trice8_1 (iD(14391), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRice8   (iD(14392), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRice8_1 (iD(14393), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: Trice8   (iD(14390), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: Trice8_1 (iD(14391), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRice8   (iD(14392), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
+        break; case __LINE__: TRice8_1 (iD(14393), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
 
         break; case __LINE__: TRICE16  (id(14394), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: TRICE16_1(id(14395), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: TRICE16  (Id(14396), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRICE16_1(Id(14397), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRICE16  (ID(14398), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRICE16_1(ID(14399), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: TRICE16  (Id(14396), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRICE16_1(Id(14397), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRICE16  (ID(14398), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
+        break; case __LINE__: TRICE16_1(ID(14399), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
         break; case __LINE__: trice16  (iD(14400), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: trice16_1(iD(14401), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: Trice16  (iD(14402), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: Trice16_1(iD(14403), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRice16  (iD(14404), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRice16_1(iD(14405), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: Trice16  (iD(14402), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: Trice16_1(iD(14403), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRice16  (iD(14404), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
+        break; case __LINE__: TRice16_1(iD(14405), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
 
         break; case __LINE__: TRICE32  (id(14406), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: TRICE32_1(id(14407), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: TRICE32  (Id(14408), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRICE32_1(Id(14409), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRICE32  (ID(14410), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRICE32_1(ID(14411), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: TRICE32  (Id(14408), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRICE32_1(Id(14409), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRICE32  (ID(14410), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
+        break; case __LINE__: TRICE32_1(ID(14411), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
         break; case __LINE__: trice32  (iD(14412), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: trice32_1(iD(14413), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: Trice32  (iD(14414), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: Trice32_1(iD(14415), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRice32  (iD(14416), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRice32_1(iD(14417), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: Trice32  (iD(14414), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: Trice32_1(iD(14415), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRice32  (iD(14416), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
+        break; case __LINE__: TRice32_1(iD(14417), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
 
         break; case __LINE__: TRICE64  (id(14418), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: TRICE64_1(id(14419), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: TRICE64  (Id(14420), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRICE64_1(Id(14421), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRICE64  (ID(14422), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRICE64_1(ID(14423), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: TRICE64  (Id(14420), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRICE64_1(Id(14421), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRICE64  (ID(14422), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
+        break; case __LINE__: TRICE64_1(ID(14423), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
         break; case __LINE__: trice64  (iD(14424), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
         break; case __LINE__: trice64_1(iD(14425), "msg:value=%u\n", 200 ); //exp: time:            default: msg:value=200
-        break; case __LINE__: Trice64  (iD(14426), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: Trice64_1(iD(14427), "msg:value=%u\n", 200 ); //exp: time:       5_654default: msg:value=200
-        break; case __LINE__: TRice64  (iD(14428), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
-        break; case __LINE__: TRice64_1(iD(14429), "msg:value=%u\n", 200 ); //exp: time: 842,150_450default: msg:value=200
+        break; case __LINE__: Trice64  (iD(14426), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: Trice64_1(iD(14427), "msg:value=%u\n", 200 ); //exp: time:    be16default: msg:value=200
+        break; case __LINE__: TRice64  (iD(14428), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
+        break; case __LINE__: TRice64_1(iD(14429), "msg:value=%u\n", 200 ); //exp: time:feed3322default: msg:value=200
 
         // mixed 16-bit and 32-bit timestamp 
 
-        break; case __LINE__: TRice8(iD(14430), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice8(iD(14431), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: TRice8(iD(14430), "msg:value=%d\n", -1 );                                                                                            //exp: time:feed3322default: msg:value=-1
+        break; case __LINE__: Trice8(iD(14431), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: msg:value=-1, -2
         break; case __LINE__: trice8(iD(14432), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice8(iD(14433), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice8(iD(14434), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: TRice8(iD(14433), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice8(iD(14434), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5
         break; case __LINE__: trice8(iD(14435), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice8(iD(14436), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice8(iD(14437), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: TRice8(iD(14436), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice8(iD(14437), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
         break; case __LINE__: trice8(iD(14438), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice8(iD(14439), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice8(iD(14440), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: TRice8(iD(14439), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice8(iD(14440), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
         break; case __LINE__: trice8(iD(14441), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice16(iD(14442), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice16(iD(14443), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: TRice16(iD(14442), "msg:value=%d\n", -1 );                                                                                            //exp: time:feed3322default: msg:value=-1
+        break; case __LINE__: Trice16(iD(14443), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: msg:value=-1, -2
         break; case __LINE__: trice16(iD(14444), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice16(iD(14445), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice16(iD(14446), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: TRice16(iD(14445), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice16(iD(14446), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5
         break; case __LINE__: trice16(iD(14447), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice16(iD(14448), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice16(iD(14449), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: TRice16(iD(14448), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice16(iD(14449), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
         break; case __LINE__: trice16(iD(14450), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice16(iD(14451), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice16(iD(14452), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: TRice16(iD(14451), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice16(iD(14452), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
         break; case __LINE__: trice16(iD(14453), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice32(iD(14454), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice32(iD(14455), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: TRice32(iD(14454), "msg:value=%d\n", -1 );                                                                                            //exp: time:feed3322default: msg:value=-1
+        break; case __LINE__: Trice32(iD(14455), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: msg:value=-1, -2
         break; case __LINE__: trice32(iD(14456), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice32(iD(14457), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice32(iD(14458), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: TRice32(iD(14457), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice32(iD(14458), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5
         break; case __LINE__: trice32(iD(14459), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice32(iD(14460), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice32(iD(14461), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: TRice32(iD(14460), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice32(iD(14461), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
         break; case __LINE__: trice32(iD(14462), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice32(iD(14463), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice32(iD(14464), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: TRice32(iD(14463), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice32(iD(14464), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
         break; case __LINE__: trice32(iD(14465), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice64(iD(14466), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice64(iD(14467), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: TRice64(iD(14466), "msg:value=%d\n", -1 );                                                                                            //exp: time:feed3322default: msg:value=-1
+        break; case __LINE__: Trice64(iD(14467), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: msg:value=-1, -2
         break; case __LINE__: trice64(iD(14468), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice64(iD(14469), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice64(iD(14470), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: TRice64(iD(14469), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice64(iD(14470), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5
         break; case __LINE__: trice64(iD(14471), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice64(iD(14472), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice64(iD(14473), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: TRice64(iD(14472), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice64(iD(14473), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
         break; case __LINE__: trice64(iD(14474), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice64(iD(14475), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice64(iD(14476), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: TRice64(iD(14475), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice64(iD(14476), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
         break; case __LINE__: trice64(iD(14477), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice8_1 (iD(14478), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice8_2 (iD(14479), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: TRice8_1 (iD(14478), "msg:value=%d\n", -1 );                                                                                            //exp: time:feed3322default: msg:value=-1
+        break; case __LINE__: Trice8_2 (iD(14479), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: msg:value=-1, -2
         break; case __LINE__: trice8_3 (iD(14480), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice8_4 (iD(14481), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice8_5 (iD(14482), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: TRice8_4 (iD(14481), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice8_5 (iD(14482), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5
         break; case __LINE__: trice8_6 (iD(14483), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice8_7 (iD(14484), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice8_8 (iD(14485), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: TRice8_7 (iD(14484), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice8_8 (iD(14485), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
         break; case __LINE__: trice8_9 (iD(14486), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice8_10(iD(14487), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice8_11(iD(14488), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: TRice8_10(iD(14487), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice8_11(iD(14488), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
         break; case __LINE__: trice8_12(iD(14489), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice16_1 (iD(14490), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice16_2 (iD(14491), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: TRice16_1 (iD(14490), "msg:value=%d\n", -1 );                                                                                            //exp: time:feed3322default: msg:value=-1
+        break; case __LINE__: Trice16_2 (iD(14491), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: msg:value=-1, -2
         break; case __LINE__: trice16_3 (iD(14492), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice16_4 (iD(14493), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice16_5 (iD(14494), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: TRice16_4 (iD(14493), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice16_5 (iD(14494), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5
         break; case __LINE__: trice16_6 (iD(14495), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice16_7 (iD(14496), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice16_8 (iD(14497), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: TRice16_7 (iD(14496), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice16_8 (iD(14497), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
         break; case __LINE__: trice16_9 (iD(14498), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice16_10(iD(14499), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice16_11(iD(14500), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: TRice16_10(iD(14499), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice16_11(iD(14500), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
         break; case __LINE__: trice16_12(iD(14501), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice32_1 (iD(14502), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice32_2 (iD(14503), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: TRice32_1 (iD(14502), "msg:value=%d\n", -1 );                                                                                            //exp: time:feed3322default: msg:value=-1
+        break; case __LINE__: Trice32_2 (iD(14503), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: msg:value=-1, -2
         break; case __LINE__: trice32_3 (iD(14504), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice32_4 (iD(14505), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice32_5 (iD(14506), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: TRice32_4 (iD(14505), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice32_5 (iD(14506), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5
         break; case __LINE__: trice32_6 (iD(14507), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice32_7 (iD(14508), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice32_8 (iD(14509), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: TRice32_7 (iD(14508), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice32_8 (iD(14509), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
         break; case __LINE__: trice32_9 (iD(14510), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice32_10(iD(14511), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice32_11(iD(14512), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: TRice32_10(iD(14511), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice32_11(iD(14512), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
         break; case __LINE__: trice32_12(iD(14513), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
-        break; case __LINE__: TRice64_1 (iD(14514), "msg:value=%d\n", -1 );                                                                                            //exp: time: 842,150_450default: msg:value=-1
-        break; case __LINE__: Trice64_2 (iD(14515), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: msg:value=-1, -2
+        break; case __LINE__: TRice64_1 (iD(14514), "msg:value=%d\n", -1 );                                                                                            //exp: time:feed3322default: msg:value=-1
+        break; case __LINE__: Trice64_2 (iD(14515), "msg:value=%d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: msg:value=-1, -2
         break; case __LINE__: trice64_3 (iD(14516), "msg:value=%d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: msg:value=-1, -2, -3
-        break; case __LINE__: TRice64_4 (iD(14517), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4
-        break; case __LINE__: Trice64_5 (iD(14518), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5
+        break; case __LINE__: TRice64_4 (iD(14517), "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: msg:value=-1, -2, -3, -4
+        break; case __LINE__: Trice64_5 (iD(14518), "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5
         break; case __LINE__: trice64_6 (iD(14519), "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6
-        break; case __LINE__: TRice64_7 (iD(14520), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7
-        break; case __LINE__: Trice64_8 (iD(14521), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
+        break; case __LINE__: TRice64_7 (iD(14520), "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );                                            //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7
+        break; case __LINE__: Trice64_8 (iD(14521), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8 
         break; case __LINE__: trice64_9 (iD(14522), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9
-        break; case __LINE__: TRice64_10(iD(14523), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time: 842,150_450default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
-        break; case __LINE__: Trice64_11(iD(14524), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
+        break; case __LINE__: TRice64_10(iD(14523), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );                   //exp: time:feed3322default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10
+        break; case __LINE__: Trice64_11(iD(14524), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11
         break; case __LINE__: trice64_12(iD(14525), "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: msg:value=-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
         // use cases for 8-bit data
         break; case __LINE__: trice8     (iD(14526), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice8     (iD(14527), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice8     (iD(14528), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice8     (iD(14527), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRice8     (iD(14528), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
         break; case __LINE__: trice8_1   (iD(14529), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice8_1   (iD(14530), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice8_1   (iD(14531), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice8_1   (iD(14530), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRice8_1   (iD(14531), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
 
         // use cases for 16-bit data
         break; case __LINE__: trice16    (iD(14532), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice16    (iD(14533), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice16    (iD(14534), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice16    (iD(14533), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRice16    (iD(14534), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
         break; case __LINE__: trice16_1  (iD(14535), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice16_1  (iD(14536), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice16_1  (iD(14537), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice16_1  (iD(14536), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRice16_1  (iD(14537), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
 
         // use cases for 32-bit data
         break; case __LINE__: trice32    (iD(14538), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice32    (iD(14539), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice32    (iD(14540), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice32    (iD(14539), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRice32    (iD(14540), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
         break; case __LINE__: trice32_1  (iD(14541), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice32_1  (iD(14542), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice32_1  (iD(14543), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice32_1  (iD(14542), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRice32_1  (iD(14543), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
 
         // use cases for 64-bit data
         break; case __LINE__: trice64    (iD(14544), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice64    (iD(14545), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice64    (iD(14546), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice64    (iD(14545), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRice64    (iD(14546), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
         break; case __LINE__: trice64_1  (iD(14547), "value=%d\n", -2  ); //exp: time:            default: value=-2
-        break; case __LINE__: Trice64_1  (iD(14548), "value=%d\n", -2  ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRice64_1  (iD(14549), "value=%d\n", -2  ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: Trice64_1  (iD(14548), "value=%d\n", -2  ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRice64_1  (iD(14549), "value=%d\n", -2  ); //exp: time:feed3322default: value=-2
 
         // legacy use cases
-        break; case __LINE__: TRICE      (ID(14550), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: TRICE      (ID(14550), "value=%d\n", -2 ); //exp: time:feed3322default: value=-2
         break; case __LINE__: TRICE      (id(14551), "value=%d\n", -2 ); //exp: time:            default: value=-2
-        break; case __LINE__: TRICE      (Id(14552), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRICE      (ID(14553), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: TRICE      (Id(14552), "value=%d\n", -2 ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRICE      (ID(14553), "value=%d\n", -2 ); //exp: time:feed3322default: value=-2
 
         // default stamp
-        break; case __LINE__: TRICE8     (ID(14554), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: TRICE8_1   (ID(14555), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: TRICE8     (ID(14554), "value=%d\n", -2 ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: TRICE8_1   (ID(14555), "value=%d\n", -2 ); //exp: time:feed3322default: value=-2
 
         // no stamp
         break; case __LINE__: trice8     (iD(14556), "value=%d\n", -2 ); //exp: time:            default: value=-2
@@ -850,16 +850,16 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE8_1   (id(14559), "value=%d\n", -2 ); //exp: time:            default: value=-2
 
         // 16-bit stamp:
-        break; case __LINE__: Trice8     (iD(14560), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: Trice8_1   (iD(14561), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRICE8     (Id(14562), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
-        break; case __LINE__: TRICE8_1   (Id(14563), "value=%d\n", -2 ); //exp: time:       5_654default: value=-2
+        break; case __LINE__: Trice8     (iD(14560), "value=%d\n", -2 ); //exp: time:    be16default: value=-2
+        break; case __LINE__: Trice8_1   (iD(14561), "value=%d\n", -2 ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRICE8     (Id(14562), "value=%d\n", -2 ); //exp: time:    be16default: value=-2
+        break; case __LINE__: TRICE8_1   (Id(14563), "value=%d\n", -2 ); //exp: time:    be16default: value=-2
 
         // 32-bit stamp:
-        break; case __LINE__: TRice8     (iD(14564), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: TRice8_1   (iD(14565), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: TRICE8     (ID(14566), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
-        break; case __LINE__: TRICE8_1   (ID(14567), "value=%d\n", -2 ); //exp: time: 842,150_450default: value=-2
+        break; case __LINE__: TRice8     (iD(14564), "value=%d\n", -2 ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: TRice8_1   (iD(14565), "value=%d\n", -2 ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: TRICE8     (ID(14566), "value=%d\n", -2 ); //exp: time:feed3322default: value=-2
+        break; case __LINE__: TRICE8_1   (ID(14567), "value=%d\n", -2 ); //exp: time:feed3322default: value=-2
 
         // channels
         break; case __LINE__: TRICE(id(14568), "FATAL:magenta+b:red\n" );           //exp: time:            default: FATAL:magenta+b:red
@@ -968,217 +968,217 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice(iD(14670), "cycle:blue+i:default+h\n" );        //exp: time:            default: cycle:blue+i:default+h
         break; case __LINE__: trice(iD(14671), "verbose:blue:default\n" );          //exp: time:            default: verbose:blue:default
 
-        break; case __LINE__: TRICE(Id(14672), "FATAL:magenta+b:red\n" );           //exp: time:       5_654default: FATAL:magenta+b:red
-        break; case __LINE__: TRICE(Id(14673), "CRITICAL:red+i:default+h\n" );      //exp: time:       5_654default: CRITICAL:red+i:default+h
-        break; case __LINE__: TRICE(Id(14674), "EMERGENCY:red+i:blue\n" );          //exp: time:       5_654default: EMERGENCY:red+i:blue
-        break; case __LINE__: TRICE(Id(14675), "ERROR:11:red\n" );                  //exp: time:       5_654default: ERROR:11:red
-        break; case __LINE__: TRICE(Id(14676), "WARNING:11+i:red\n" );              //exp: time:       5_654default: WARNING:11+i:red
-        break; case __LINE__: TRICE(Id(14677), "ATTENTION:11:green\n" );            //exp: time:       5_654default: ATTENTION:11:green
-        break; case __LINE__: TRICE(Id(14678), "INFO:cyan+b:default+h\n" );         //exp: time:       5_654default: INFO:cyan+b:default+h
-        break; case __LINE__: TRICE(Id(14679), "DEBUG:130+i\n" );                   //exp: time:       5_654default: DEBUG:130+i
-        break; case __LINE__: TRICE(Id(14680), "TRACE:default+i:default+h\n" );     //exp: time:       5_654default: TRACE:default+i:default+h
-        break; case __LINE__: TRICE(Id(14681), "TIME:blue+i:blue+h\n" );            //exp: time:       5_654default: TIME:blue+i:blue+h
-        break; case __LINE__: TRICE(Id(14682), "MESSAGE:green+h:black\n" );         //exp: time:       5_654default: MESSAGE:green+h:black
-        break; case __LINE__: TRICE(Id(14683), "READ:black+i:yellow+h\n" );         //exp: time:       5_654default: READ:black+i:yellow+h
-        break; case __LINE__: TRICE(Id(14684), "WRITE:black+u:yellow+h\n" );        //exp: time:       5_654default: WRITE:black+u:yellow+h
-        break; case __LINE__: TRICE(Id(14685), "RECEIVE:black+h:black\n" );         //exp: time:       5_654default: RECEIVE:black+h:black
-        break; case __LINE__: TRICE(Id(14686), "TRANSMIT:black:black+h\n" );        //exp: time:       5_654default: TRANSMIT:black:black+h
-        break; case __LINE__: TRICE(Id(14687), "DIAG:yellow+i:default+h\n" );       //exp: time:       5_654default: DIAG:yellow+i:default+h
-        break; case __LINE__: TRICE(Id(14688), "INTERRUPT:magenta+i:default+h\n" ); //exp: time:       5_654default: INTERRUPT:magenta+i:default+h
-        break; case __LINE__: TRICE(Id(14689), "SIGNAL:118+i\n" );                  //exp: time:       5_654default: SIGNAL:118+i
-        break; case __LINE__: TRICE(Id(14690), "TEST:yellow+h:black\n" );           //exp: time:       5_654default: TEST:yellow+h:black
-        break; case __LINE__: TRICE(Id(14691), "DEFAULT:off\n" );                   //exp: time:       5_654default: DEFAULT:off
-        break; case __LINE__: TRICE(Id(14692), "NOTICE:blue:white+h\n" );           //exp: time:       5_654default: NOTICE:blue:white+h
-        break; case __LINE__: TRICE(Id(14693), "ALERT:magenta:magenta+h\n" );       //exp: time:       5_654default: ALERT:magenta:magenta+h
-        break; case __LINE__: TRICE(Id(14694), "ASSERT:yellow+i:blue\n" );          //exp: time:       5_654default: ASSERT:yellow+i:blue
-        break; case __LINE__: TRICE(Id(14695), "ALARM:red+i:white+h\n" );           //exp: time:       5_654default: ALARM:red+i:white+h
-        break; case __LINE__: TRICE(Id(14696), "CYCLE:blue+i:default+h\n" );        //exp: time:       5_654default: CYCLE:blue+i:default+h
-        break; case __LINE__: TRICE(Id(14697), "VERBOSE:blue:default\n" );          //exp: time:       5_654default: VERBOSE:blue:default
-        break; case __LINE__: TRICE(Id(14698), "fatal:magenta+b:red\n" );           //exp: time:       5_654default: fatal:magenta+b:red
-        break; case __LINE__: TRICE(Id(14699), "critical:red+i:default+h\n" );      //exp: time:       5_654default: critical:red+i:default+h
-        break; case __LINE__: TRICE(Id(14700), "emergency:red+i:blue\n" );          //exp: time:       5_654default: emergency:red+i:blue
-        break; case __LINE__: TRICE(Id(14701), "error:11:red\n" );                  //exp: time:       5_654default: error:11:red
-        break; case __LINE__: TRICE(Id(14702), "warning:11+i:red\n" );              //exp: time:       5_654default: warning:11+i:red
-        break; case __LINE__: TRICE(Id(14703), "attention:11:green\n" );            //exp: time:       5_654default: attention:11:green
-        break; case __LINE__: TRICE(Id(14704), "info:cyan+b:default+h\n" );         //exp: time:       5_654default: info:cyan+b:default+h
-        break; case __LINE__: TRICE(Id(14705), "debug:130+i\n" );                   //exp: time:       5_654default: debug:130+i
-        break; case __LINE__: TRICE(Id(14706), "trace:default+i:default+h\n" );     //exp: time:       5_654default: trace:default+i:default+h
-        break; case __LINE__: TRICE(Id(14707), "time:blue+i:blue+h\n" );            //exp: time:       5_654default: time:blue+i:blue+h
-        break; case __LINE__: TRICE(Id(14708), "message:green+h:black\n" );         //exp: time:       5_654default: message:green+h:black
-        break; case __LINE__: TRICE(Id(14709), "read:black+i:yellow+h\n" );         //exp: time:       5_654default: read:black+i:yellow+h
-        break; case __LINE__: TRICE(Id(14710), "write:black+u:yellow+h\n" );        //exp: time:       5_654default: write:black+u:yellow+h
-        break; case __LINE__: TRICE(Id(14711), "receive:black+h:black\n" );         //exp: time:       5_654default: receive:black+h:black
-        break; case __LINE__: TRICE(Id(14712), "transmit:black:black+h\n" );        //exp: time:       5_654default: transmit:black:black+h
-        break; case __LINE__: TRICE(Id(14713), "diag:yellow+i:default+h\n" );       //exp: time:       5_654default: diag:yellow+i:default+h
-        break; case __LINE__: TRICE(Id(14714), "interrupt:magenta+i:default+h\n" ); //exp: time:       5_654default: interrupt:magenta+i:default+h
-        break; case __LINE__: TRICE(Id(14715), "signal:118+i\n" );                  //exp: time:       5_654default: signal:118+i
-        break; case __LINE__: TRICE(Id(14716), "test:yellow+h:black\n" );           //exp: time:       5_654default: test:yellow+h:black
-        break; case __LINE__: TRICE(Id(14717), "default:off\n" );                   //exp: time:       5_654default: default:off
-        break; case __LINE__: TRICE(Id(14718), "notice:blue:white+h\n" );           //exp: time:       5_654default: notice:blue:white+h
-        break; case __LINE__: TRICE(Id(14719), "alert:magenta:magenta+h\n" );       //exp: time:       5_654default: alert:magenta:magenta+h
-        break; case __LINE__: TRICE(Id(14720), "assert:yellow+i:blue\n" );          //exp: time:       5_654default: assert:yellow+i:blue
-        break; case __LINE__: TRICE(Id(14721), "alarm:red+i:white+h\n" );           //exp: time:       5_654default: alarm:red+i:white+h
-        break; case __LINE__: TRICE(Id(14722), "cycle:blue+i:default+h\n" );        //exp: time:       5_654default: cycle:blue+i:default+h
-        break; case __LINE__: TRICE(Id(14723), "verbose:blue:default\n" );          //exp: time:       5_654default: verbose:blue:default
+        break; case __LINE__: TRICE(Id(14672), "FATAL:magenta+b:red\n" );           //exp: time:    be16default: FATAL:magenta+b:red
+        break; case __LINE__: TRICE(Id(14673), "CRITICAL:red+i:default+h\n" );      //exp: time:    be16default: CRITICAL:red+i:default+h
+        break; case __LINE__: TRICE(Id(14674), "EMERGENCY:red+i:blue\n" );          //exp: time:    be16default: EMERGENCY:red+i:blue
+        break; case __LINE__: TRICE(Id(14675), "ERROR:11:red\n" );                  //exp: time:    be16default: ERROR:11:red
+        break; case __LINE__: TRICE(Id(14676), "WARNING:11+i:red\n" );              //exp: time:    be16default: WARNING:11+i:red
+        break; case __LINE__: TRICE(Id(14677), "ATTENTION:11:green\n" );            //exp: time:    be16default: ATTENTION:11:green
+        break; case __LINE__: TRICE(Id(14678), "INFO:cyan+b:default+h\n" );         //exp: time:    be16default: INFO:cyan+b:default+h
+        break; case __LINE__: TRICE(Id(14679), "DEBUG:130+i\n" );                   //exp: time:    be16default: DEBUG:130+i
+        break; case __LINE__: TRICE(Id(14680), "TRACE:default+i:default+h\n" );     //exp: time:    be16default: TRACE:default+i:default+h
+        break; case __LINE__: TRICE(Id(14681), "TIME:blue+i:blue+h\n" );            //exp: time:    be16default: TIME:blue+i:blue+h
+        break; case __LINE__: TRICE(Id(14682), "MESSAGE:green+h:black\n" );         //exp: time:    be16default: MESSAGE:green+h:black
+        break; case __LINE__: TRICE(Id(14683), "READ:black+i:yellow+h\n" );         //exp: time:    be16default: READ:black+i:yellow+h
+        break; case __LINE__: TRICE(Id(14684), "WRITE:black+u:yellow+h\n" );        //exp: time:    be16default: WRITE:black+u:yellow+h
+        break; case __LINE__: TRICE(Id(14685), "RECEIVE:black+h:black\n" );         //exp: time:    be16default: RECEIVE:black+h:black
+        break; case __LINE__: TRICE(Id(14686), "TRANSMIT:black:black+h\n" );        //exp: time:    be16default: TRANSMIT:black:black+h
+        break; case __LINE__: TRICE(Id(14687), "DIAG:yellow+i:default+h\n" );       //exp: time:    be16default: DIAG:yellow+i:default+h
+        break; case __LINE__: TRICE(Id(14688), "INTERRUPT:magenta+i:default+h\n" ); //exp: time:    be16default: INTERRUPT:magenta+i:default+h
+        break; case __LINE__: TRICE(Id(14689), "SIGNAL:118+i\n" );                  //exp: time:    be16default: SIGNAL:118+i
+        break; case __LINE__: TRICE(Id(14690), "TEST:yellow+h:black\n" );           //exp: time:    be16default: TEST:yellow+h:black
+        break; case __LINE__: TRICE(Id(14691), "DEFAULT:off\n" );                   //exp: time:    be16default: DEFAULT:off
+        break; case __LINE__: TRICE(Id(14692), "NOTICE:blue:white+h\n" );           //exp: time:    be16default: NOTICE:blue:white+h
+        break; case __LINE__: TRICE(Id(14693), "ALERT:magenta:magenta+h\n" );       //exp: time:    be16default: ALERT:magenta:magenta+h
+        break; case __LINE__: TRICE(Id(14694), "ASSERT:yellow+i:blue\n" );          //exp: time:    be16default: ASSERT:yellow+i:blue
+        break; case __LINE__: TRICE(Id(14695), "ALARM:red+i:white+h\n" );           //exp: time:    be16default: ALARM:red+i:white+h
+        break; case __LINE__: TRICE(Id(14696), "CYCLE:blue+i:default+h\n" );        //exp: time:    be16default: CYCLE:blue+i:default+h
+        break; case __LINE__: TRICE(Id(14697), "VERBOSE:blue:default\n" );          //exp: time:    be16default: VERBOSE:blue:default
+        break; case __LINE__: TRICE(Id(14698), "fatal:magenta+b:red\n" );           //exp: time:    be16default: fatal:magenta+b:red
+        break; case __LINE__: TRICE(Id(14699), "critical:red+i:default+h\n" );      //exp: time:    be16default: critical:red+i:default+h
+        break; case __LINE__: TRICE(Id(14700), "emergency:red+i:blue\n" );          //exp: time:    be16default: emergency:red+i:blue
+        break; case __LINE__: TRICE(Id(14701), "error:11:red\n" );                  //exp: time:    be16default: error:11:red
+        break; case __LINE__: TRICE(Id(14702), "warning:11+i:red\n" );              //exp: time:    be16default: warning:11+i:red
+        break; case __LINE__: TRICE(Id(14703), "attention:11:green\n" );            //exp: time:    be16default: attention:11:green
+        break; case __LINE__: TRICE(Id(14704), "info:cyan+b:default+h\n" );         //exp: time:    be16default: info:cyan+b:default+h
+        break; case __LINE__: TRICE(Id(14705), "debug:130+i\n" );                   //exp: time:    be16default: debug:130+i
+        break; case __LINE__: TRICE(Id(14706), "trace:default+i:default+h\n" );     //exp: time:    be16default: trace:default+i:default+h
+        break; case __LINE__: TRICE(Id(14707), "time:blue+i:blue+h\n" );            //exp: time:    be16default: time:blue+i:blue+h
+        break; case __LINE__: TRICE(Id(14708), "message:green+h:black\n" );         //exp: time:    be16default: message:green+h:black
+        break; case __LINE__: TRICE(Id(14709), "read:black+i:yellow+h\n" );         //exp: time:    be16default: read:black+i:yellow+h
+        break; case __LINE__: TRICE(Id(14710), "write:black+u:yellow+h\n" );        //exp: time:    be16default: write:black+u:yellow+h
+        break; case __LINE__: TRICE(Id(14711), "receive:black+h:black\n" );         //exp: time:    be16default: receive:black+h:black
+        break; case __LINE__: TRICE(Id(14712), "transmit:black:black+h\n" );        //exp: time:    be16default: transmit:black:black+h
+        break; case __LINE__: TRICE(Id(14713), "diag:yellow+i:default+h\n" );       //exp: time:    be16default: diag:yellow+i:default+h
+        break; case __LINE__: TRICE(Id(14714), "interrupt:magenta+i:default+h\n" ); //exp: time:    be16default: interrupt:magenta+i:default+h
+        break; case __LINE__: TRICE(Id(14715), "signal:118+i\n" );                  //exp: time:    be16default: signal:118+i
+        break; case __LINE__: TRICE(Id(14716), "test:yellow+h:black\n" );           //exp: time:    be16default: test:yellow+h:black
+        break; case __LINE__: TRICE(Id(14717), "default:off\n" );                   //exp: time:    be16default: default:off
+        break; case __LINE__: TRICE(Id(14718), "notice:blue:white+h\n" );           //exp: time:    be16default: notice:blue:white+h
+        break; case __LINE__: TRICE(Id(14719), "alert:magenta:magenta+h\n" );       //exp: time:    be16default: alert:magenta:magenta+h
+        break; case __LINE__: TRICE(Id(14720), "assert:yellow+i:blue\n" );          //exp: time:    be16default: assert:yellow+i:blue
+        break; case __LINE__: TRICE(Id(14721), "alarm:red+i:white+h\n" );           //exp: time:    be16default: alarm:red+i:white+h
+        break; case __LINE__: TRICE(Id(14722), "cycle:blue+i:default+h\n" );        //exp: time:    be16default: cycle:blue+i:default+h
+        break; case __LINE__: TRICE(Id(14723), "verbose:blue:default\n" );          //exp: time:    be16default: verbose:blue:default
 
-        break; case __LINE__: Trice(iD(14724), "FATAL:magenta+b:red\n" );           //exp: time:       5_654default: FATAL:magenta+b:red
-        break; case __LINE__: Trice(iD(14725), "CRITICAL:red+i:default+h\n" );      //exp: time:       5_654default: CRITICAL:red+i:default+h
-        break; case __LINE__: Trice(iD(14726), "EMERGENCY:red+i:blue\n" );          //exp: time:       5_654default: EMERGENCY:red+i:blue
-        break; case __LINE__: Trice(iD(14727), "ERROR:11:red\n" );                  //exp: time:       5_654default: ERROR:11:red
-        break; case __LINE__: Trice(iD(14728), "WARNING:11+i:red\n" );              //exp: time:       5_654default: WARNING:11+i:red
-        break; case __LINE__: Trice(iD(14729), "ATTENTION:11:green\n" );            //exp: time:       5_654default: ATTENTION:11:green
-        break; case __LINE__: Trice(iD(14730), "INFO:cyan+b:default+h\n" );         //exp: time:       5_654default: INFO:cyan+b:default+h
-        break; case __LINE__: Trice(iD(14731), "DEBUG:130+i\n" );                   //exp: time:       5_654default: DEBUG:130+i
-        break; case __LINE__: Trice(iD(14732), "TRACE:default+i:default+h\n" );     //exp: time:       5_654default: TRACE:default+i:default+h
-        break; case __LINE__: Trice(iD(14733), "TIME:blue+i:blue+h\n" );            //exp: time:       5_654default: TIME:blue+i:blue+h
-        break; case __LINE__: Trice(iD(14734), "MESSAGE:green+h:black\n" );         //exp: time:       5_654default: MESSAGE:green+h:black
-        break; case __LINE__: Trice(iD(14735), "READ:black+i:yellow+h\n" );         //exp: time:       5_654default: READ:black+i:yellow+h
-        break; case __LINE__: Trice(iD(14736), "WRITE:black+u:yellow+h\n" );        //exp: time:       5_654default: WRITE:black+u:yellow+h
-        break; case __LINE__: Trice(iD(14737), "RECEIVE:black+h:black\n" );         //exp: time:       5_654default: RECEIVE:black+h:black
-        break; case __LINE__: Trice(iD(14738), "TRANSMIT:black:black+h\n" );        //exp: time:       5_654default: TRANSMIT:black:black+h
-        break; case __LINE__: Trice(iD(14739), "DIAG:yellow+i:default+h\n" );       //exp: time:       5_654default: DIAG:yellow+i:default+h
-        break; case __LINE__: Trice(iD(14740), "INTERRUPT:magenta+i:default+h\n" ); //exp: time:       5_654default: INTERRUPT:magenta+i:default+h
-        break; case __LINE__: Trice(iD(14741), "SIGNAL:118+i\n" );                  //exp: time:       5_654default: SIGNAL:118+i
-        break; case __LINE__: Trice(iD(14742), "TEST:yellow+h:black\n" );           //exp: time:       5_654default: TEST:yellow+h:black
-        break; case __LINE__: Trice(iD(14743), "DEFAULT:off\n" );                   //exp: time:       5_654default: DEFAULT:off
-        break; case __LINE__: Trice(iD(14744), "NOTICE:blue:white+h\n" );           //exp: time:       5_654default: NOTICE:blue:white+h
-        break; case __LINE__: Trice(iD(14745), "ALERT:magenta:magenta+h\n" );       //exp: time:       5_654default: ALERT:magenta:magenta+h
-        break; case __LINE__: Trice(iD(14746), "ASSERT:yellow+i:blue\n" );          //exp: time:       5_654default: ASSERT:yellow+i:blue
-        break; case __LINE__: Trice(iD(14747), "ALARM:red+i:white+h\n" );           //exp: time:       5_654default: ALARM:red+i:white+h
-        break; case __LINE__: Trice(iD(14748), "CYCLE:blue+i:default+h\n" );        //exp: time:       5_654default: CYCLE:blue+i:default+h
-        break; case __LINE__: Trice(iD(14749), "VERBOSE:blue:default\n" );          //exp: time:       5_654default: VERBOSE:blue:default
-        break; case __LINE__: Trice(iD(14750), "fatal:magenta+b:red\n" );           //exp: time:       5_654default: fatal:magenta+b:red
-        break; case __LINE__: Trice(iD(14751), "critical:red+i:default+h\n" );      //exp: time:       5_654default: critical:red+i:default+h
-        break; case __LINE__: Trice(iD(14752), "emergency:red+i:blue\n" );          //exp: time:       5_654default: emergency:red+i:blue
-        break; case __LINE__: Trice(iD(14753), "error:11:red\n" );                  //exp: time:       5_654default: error:11:red
-        break; case __LINE__: Trice(iD(14754), "warning:11+i:red\n" );              //exp: time:       5_654default: warning:11+i:red
-        break; case __LINE__: Trice(iD(14755), "attention:11:green\n" );            //exp: time:       5_654default: attention:11:green
-        break; case __LINE__: Trice(iD(14756), "info:cyan+b:default+h\n" );         //exp: time:       5_654default: info:cyan+b:default+h
-        break; case __LINE__: Trice(iD(14757), "debug:130+i\n" );                   //exp: time:       5_654default: debug:130+i
-        break; case __LINE__: Trice(iD(14758), "trace:default+i:default+h\n" );     //exp: time:       5_654default: trace:default+i:default+h
-        break; case __LINE__: Trice(iD(14759), "time:blue+i:blue+h\n" );            //exp: time:       5_654default: time:blue+i:blue+h
-        break; case __LINE__: Trice(iD(14760), "message:green+h:black\n" );         //exp: time:       5_654default: message:green+h:black
-        break; case __LINE__: Trice(iD(14761), "read:black+i:yellow+h\n" );         //exp: time:       5_654default: read:black+i:yellow+h
-        break; case __LINE__: Trice(iD(14762), "write:black+u:yellow+h\n" );        //exp: time:       5_654default: write:black+u:yellow+h
-        break; case __LINE__: Trice(iD(14763), "receive:black+h:black\n" );         //exp: time:       5_654default: receive:black+h:black
-        break; case __LINE__: Trice(iD(14764), "transmit:black:black+h\n" );        //exp: time:       5_654default: transmit:black:black+h
-        break; case __LINE__: Trice(iD(14765), "diag:yellow+i:default+h\n" );       //exp: time:       5_654default: diag:yellow+i:default+h
-        break; case __LINE__: Trice(iD(14766), "interrupt:magenta+i:default+h\n" ); //exp: time:       5_654default: interrupt:magenta+i:default+h
-        break; case __LINE__: Trice(iD(14767), "signal:118+i\n" );                  //exp: time:       5_654default: signal:118+i
-        break; case __LINE__: Trice(iD(14768), "test:yellow+h:black\n" );           //exp: time:       5_654default: test:yellow+h:black
-        break; case __LINE__: Trice(iD(14769), "default:off\n" );                   //exp: time:       5_654default: default:off
-        break; case __LINE__: Trice(iD(14770), "notice:blue:white+h\n" );           //exp: time:       5_654default: notice:blue:white+h
-        break; case __LINE__: Trice(iD(14771), "alert:magenta:magenta+h\n" );       //exp: time:       5_654default: alert:magenta:magenta+h
-        break; case __LINE__: Trice(iD(14772), "assert:yellow+i:blue\n" );          //exp: time:       5_654default: assert:yellow+i:blue
-        break; case __LINE__: Trice(iD(14773), "alarm:red+i:white+h\n" );           //exp: time:       5_654default: alarm:red+i:white+h
-        break; case __LINE__: Trice(iD(14774), "cycle:blue+i:default+h\n" );        //exp: time:       5_654default: cycle:blue+i:default+h
-        break; case __LINE__: Trice(iD(14775), "verbose:blue:default\n" );          //exp: time:       5_654default: verbose:blue:default
+        break; case __LINE__: Trice(iD(14724), "FATAL:magenta+b:red\n" );           //exp: time:    be16default: FATAL:magenta+b:red
+        break; case __LINE__: Trice(iD(14725), "CRITICAL:red+i:default+h\n" );      //exp: time:    be16default: CRITICAL:red+i:default+h
+        break; case __LINE__: Trice(iD(14726), "EMERGENCY:red+i:blue\n" );          //exp: time:    be16default: EMERGENCY:red+i:blue
+        break; case __LINE__: Trice(iD(14727), "ERROR:11:red\n" );                  //exp: time:    be16default: ERROR:11:red
+        break; case __LINE__: Trice(iD(14728), "WARNING:11+i:red\n" );              //exp: time:    be16default: WARNING:11+i:red
+        break; case __LINE__: Trice(iD(14729), "ATTENTION:11:green\n" );            //exp: time:    be16default: ATTENTION:11:green
+        break; case __LINE__: Trice(iD(14730), "INFO:cyan+b:default+h\n" );         //exp: time:    be16default: INFO:cyan+b:default+h
+        break; case __LINE__: Trice(iD(14731), "DEBUG:130+i\n" );                   //exp: time:    be16default: DEBUG:130+i
+        break; case __LINE__: Trice(iD(14732), "TRACE:default+i:default+h\n" );     //exp: time:    be16default: TRACE:default+i:default+h
+        break; case __LINE__: Trice(iD(14733), "TIME:blue+i:blue+h\n" );            //exp: time:    be16default: TIME:blue+i:blue+h
+        break; case __LINE__: Trice(iD(14734), "MESSAGE:green+h:black\n" );         //exp: time:    be16default: MESSAGE:green+h:black
+        break; case __LINE__: Trice(iD(14735), "READ:black+i:yellow+h\n" );         //exp: time:    be16default: READ:black+i:yellow+h
+        break; case __LINE__: Trice(iD(14736), "WRITE:black+u:yellow+h\n" );        //exp: time:    be16default: WRITE:black+u:yellow+h
+        break; case __LINE__: Trice(iD(14737), "RECEIVE:black+h:black\n" );         //exp: time:    be16default: RECEIVE:black+h:black
+        break; case __LINE__: Trice(iD(14738), "TRANSMIT:black:black+h\n" );        //exp: time:    be16default: TRANSMIT:black:black+h
+        break; case __LINE__: Trice(iD(14739), "DIAG:yellow+i:default+h\n" );       //exp: time:    be16default: DIAG:yellow+i:default+h
+        break; case __LINE__: Trice(iD(14740), "INTERRUPT:magenta+i:default+h\n" ); //exp: time:    be16default: INTERRUPT:magenta+i:default+h
+        break; case __LINE__: Trice(iD(14741), "SIGNAL:118+i\n" );                  //exp: time:    be16default: SIGNAL:118+i
+        break; case __LINE__: Trice(iD(14742), "TEST:yellow+h:black\n" );           //exp: time:    be16default: TEST:yellow+h:black
+        break; case __LINE__: Trice(iD(14743), "DEFAULT:off\n" );                   //exp: time:    be16default: DEFAULT:off
+        break; case __LINE__: Trice(iD(14744), "NOTICE:blue:white+h\n" );           //exp: time:    be16default: NOTICE:blue:white+h
+        break; case __LINE__: Trice(iD(14745), "ALERT:magenta:magenta+h\n" );       //exp: time:    be16default: ALERT:magenta:magenta+h
+        break; case __LINE__: Trice(iD(14746), "ASSERT:yellow+i:blue\n" );          //exp: time:    be16default: ASSERT:yellow+i:blue
+        break; case __LINE__: Trice(iD(14747), "ALARM:red+i:white+h\n" );           //exp: time:    be16default: ALARM:red+i:white+h
+        break; case __LINE__: Trice(iD(14748), "CYCLE:blue+i:default+h\n" );        //exp: time:    be16default: CYCLE:blue+i:default+h
+        break; case __LINE__: Trice(iD(14749), "VERBOSE:blue:default\n" );          //exp: time:    be16default: VERBOSE:blue:default
+        break; case __LINE__: Trice(iD(14750), "fatal:magenta+b:red\n" );           //exp: time:    be16default: fatal:magenta+b:red
+        break; case __LINE__: Trice(iD(14751), "critical:red+i:default+h\n" );      //exp: time:    be16default: critical:red+i:default+h
+        break; case __LINE__: Trice(iD(14752), "emergency:red+i:blue\n" );          //exp: time:    be16default: emergency:red+i:blue
+        break; case __LINE__: Trice(iD(14753), "error:11:red\n" );                  //exp: time:    be16default: error:11:red
+        break; case __LINE__: Trice(iD(14754), "warning:11+i:red\n" );              //exp: time:    be16default: warning:11+i:red
+        break; case __LINE__: Trice(iD(14755), "attention:11:green\n" );            //exp: time:    be16default: attention:11:green
+        break; case __LINE__: Trice(iD(14756), "info:cyan+b:default+h\n" );         //exp: time:    be16default: info:cyan+b:default+h
+        break; case __LINE__: Trice(iD(14757), "debug:130+i\n" );                   //exp: time:    be16default: debug:130+i
+        break; case __LINE__: Trice(iD(14758), "trace:default+i:default+h\n" );     //exp: time:    be16default: trace:default+i:default+h
+        break; case __LINE__: Trice(iD(14759), "time:blue+i:blue+h\n" );            //exp: time:    be16default: time:blue+i:blue+h
+        break; case __LINE__: Trice(iD(14760), "message:green+h:black\n" );         //exp: time:    be16default: message:green+h:black
+        break; case __LINE__: Trice(iD(14761), "read:black+i:yellow+h\n" );         //exp: time:    be16default: read:black+i:yellow+h
+        break; case __LINE__: Trice(iD(14762), "write:black+u:yellow+h\n" );        //exp: time:    be16default: write:black+u:yellow+h
+        break; case __LINE__: Trice(iD(14763), "receive:black+h:black\n" );         //exp: time:    be16default: receive:black+h:black
+        break; case __LINE__: Trice(iD(14764), "transmit:black:black+h\n" );        //exp: time:    be16default: transmit:black:black+h
+        break; case __LINE__: Trice(iD(14765), "diag:yellow+i:default+h\n" );       //exp: time:    be16default: diag:yellow+i:default+h
+        break; case __LINE__: Trice(iD(14766), "interrupt:magenta+i:default+h\n" ); //exp: time:    be16default: interrupt:magenta+i:default+h
+        break; case __LINE__: Trice(iD(14767), "signal:118+i\n" );                  //exp: time:    be16default: signal:118+i
+        break; case __LINE__: Trice(iD(14768), "test:yellow+h:black\n" );           //exp: time:    be16default: test:yellow+h:black
+        break; case __LINE__: Trice(iD(14769), "default:off\n" );                   //exp: time:    be16default: default:off
+        break; case __LINE__: Trice(iD(14770), "notice:blue:white+h\n" );           //exp: time:    be16default: notice:blue:white+h
+        break; case __LINE__: Trice(iD(14771), "alert:magenta:magenta+h\n" );       //exp: time:    be16default: alert:magenta:magenta+h
+        break; case __LINE__: Trice(iD(14772), "assert:yellow+i:blue\n" );          //exp: time:    be16default: assert:yellow+i:blue
+        break; case __LINE__: Trice(iD(14773), "alarm:red+i:white+h\n" );           //exp: time:    be16default: alarm:red+i:white+h
+        break; case __LINE__: Trice(iD(14774), "cycle:blue+i:default+h\n" );        //exp: time:    be16default: cycle:blue+i:default+h
+        break; case __LINE__: Trice(iD(14775), "verbose:blue:default\n" );          //exp: time:    be16default: verbose:blue:default
 
-        break; case __LINE__: TRICE(ID(14776), "FATAL:magenta+b:red\n" );           //exp: time: 842,150_450default: FATAL:magenta+b:red
-        break; case __LINE__: TRICE(ID(14777), "CRITICAL:red+i:default+h\n" );      //exp: time: 842,150_450default: CRITICAL:red+i:default+h
-        break; case __LINE__: TRICE(ID(14778), "EMERGENCY:red+i:blue\n" );          //exp: time: 842,150_450default: EMERGENCY:red+i:blue
-        break; case __LINE__: TRICE(ID(14779), "ERROR:11:red\n" );                  //exp: time: 842,150_450default: ERROR:11:red
-        break; case __LINE__: TRICE(ID(14780), "WARNING:11+i:red\n" );              //exp: time: 842,150_450default: WARNING:11+i:red
-        break; case __LINE__: TRICE(ID(14781), "ATTENTION:11:green\n" );            //exp: time: 842,150_450default: ATTENTION:11:green
-        break; case __LINE__: TRICE(ID(14782), "INFO:cyan+b:default+h\n" );         //exp: time: 842,150_450default: INFO:cyan+b:default+h
-        break; case __LINE__: TRICE(ID(14783), "DEBUG:130+i\n" );                   //exp: time: 842,150_450default: DEBUG:130+i
-        break; case __LINE__: TRICE(ID(14784), "TRACE:default+i:default+h\n" );     //exp: time: 842,150_450default: TRACE:default+i:default+h
-        break; case __LINE__: TRICE(ID(14785), "TIME:blue+i:blue+h\n" );            //exp: time: 842,150_450default: TIME:blue+i:blue+h
-        break; case __LINE__: TRICE(ID(14786), "MESSAGE:green+h:black\n" );         //exp: time: 842,150_450default: MESSAGE:green+h:black
-        break; case __LINE__: TRICE(ID(14787), "READ:black+i:yellow+h\n" );         //exp: time: 842,150_450default: READ:black+i:yellow+h
-        break; case __LINE__: TRICE(ID(14788), "WRITE:black+u:yellow+h\n" );        //exp: time: 842,150_450default: WRITE:black+u:yellow+h
-        break; case __LINE__: TRICE(ID(14789), "RECEIVE:black+h:black\n" );         //exp: time: 842,150_450default: RECEIVE:black+h:black
-        break; case __LINE__: TRICE(ID(14790), "TRANSMIT:black:black+h\n" );        //exp: time: 842,150_450default: TRANSMIT:black:black+h
-        break; case __LINE__: TRICE(ID(14791), "DIAG:yellow+i:default+h\n" );       //exp: time: 842,150_450default: DIAG:yellow+i:default+h
-        break; case __LINE__: TRICE(ID(14792), "INTERRUPT:magenta+i:default+h\n" ); //exp: time: 842,150_450default: INTERRUPT:magenta+i:default+h
-        break; case __LINE__: TRICE(ID(14793), "SIGNAL:118+i\n" );                  //exp: time: 842,150_450default: SIGNAL:118+i
-        break; case __LINE__: TRICE(ID(14794), "TEST:yellow+h:black\n" );           //exp: time: 842,150_450default: TEST:yellow+h:black
-        break; case __LINE__: TRICE(ID(14795), "DEFAULT:off\n" );                   //exp: time: 842,150_450default: DEFAULT:off
-        break; case __LINE__: TRICE(ID(14796), "NOTICE:blue:white+h\n" );           //exp: time: 842,150_450default: NOTICE:blue:white+h
-        break; case __LINE__: TRICE(ID(14797), "ALERT:magenta:magenta+h\n" );       //exp: time: 842,150_450default: ALERT:magenta:magenta+h
-        break; case __LINE__: TRICE(ID(14798), "ASSERT:yellow+i:blue\n" );          //exp: time: 842,150_450default: ASSERT:yellow+i:blue
-        break; case __LINE__: TRICE(ID(14799), "ALARM:red+i:white+h\n" );           //exp: time: 842,150_450default: ALARM:red+i:white+h
-        break; case __LINE__: TRICE(ID(14800), "CYCLE:blue+i:default+h\n" );        //exp: time: 842,150_450default: CYCLE:blue+i:default+h
-        break; case __LINE__: TRICE(ID(14801), "VERBOSE:blue:default\n" );          //exp: time: 842,150_450default: VERBOSE:blue:default
-        break; case __LINE__: TRICE(ID(14802), "fatal:magenta+b:red\n" );           //exp: time: 842,150_450default: fatal:magenta+b:red
-        break; case __LINE__: TRICE(ID(14803), "critical:red+i:default+h\n" );      //exp: time: 842,150_450default: critical:red+i:default+h
-        break; case __LINE__: TRICE(ID(14804), "emergency:red+i:blue\n" );          //exp: time: 842,150_450default: emergency:red+i:blue
-        break; case __LINE__: TRICE(ID(14805), "error:11:red\n" );                  //exp: time: 842,150_450default: error:11:red
-        break; case __LINE__: TRICE(ID(14806), "warning:11+i:red\n" );              //exp: time: 842,150_450default: warning:11+i:red
-        break; case __LINE__: TRICE(ID(14807), "attention:11:green\n" );            //exp: time: 842,150_450default: attention:11:green
-        break; case __LINE__: TRICE(ID(14808), "info:cyan+b:default+h\n" );         //exp: time: 842,150_450default: info:cyan+b:default+h
-        break; case __LINE__: TRICE(ID(14809), "debug:130+i\n" );                   //exp: time: 842,150_450default: debug:130+i
-        break; case __LINE__: TRICE(ID(14810), "trace:default+i:default+h\n" );     //exp: time: 842,150_450default: trace:default+i:default+h
-        break; case __LINE__: TRICE(ID(14811), "time:blue+i:blue+h\n" );            //exp: time: 842,150_450default: time:blue+i:blue+h
-        break; case __LINE__: TRICE(ID(14812), "message:green+h:black\n" );         //exp: time: 842,150_450default: message:green+h:black
-        break; case __LINE__: TRICE(ID(14813), "read:black+i:yellow+h\n" );         //exp: time: 842,150_450default: read:black+i:yellow+h
-        break; case __LINE__: TRICE(ID(14814), "write:black+u:yellow+h\n" );        //exp: time: 842,150_450default: write:black+u:yellow+h
-        break; case __LINE__: TRICE(ID(14815), "receive:black+h:black\n" );         //exp: time: 842,150_450default: receive:black+h:black
-        break; case __LINE__: TRICE(ID(14816), "transmit:black:black+h\n" );        //exp: time: 842,150_450default: transmit:black:black+h
-        break; case __LINE__: TRICE(ID(14817), "diag:yellow+i:default+h\n" );       //exp: time: 842,150_450default: diag:yellow+i:default+h
-        break; case __LINE__: TRICE(ID(14818), "interrupt:magenta+i:default+h\n" ); //exp: time: 842,150_450default: interrupt:magenta+i:default+h
-        break; case __LINE__: TRICE(ID(14819), "signal:118+i\n" );                  //exp: time: 842,150_450default: signal:118+i
-        break; case __LINE__: TRICE(ID(14820), "test:yellow+h:black\n" );           //exp: time: 842,150_450default: test:yellow+h:black
-        break; case __LINE__: TRICE(ID(14821), "default:off\n" );                   //exp: time: 842,150_450default: default:off
-        break; case __LINE__: TRICE(ID(14822), "notice:blue:white+h\n" );           //exp: time: 842,150_450default: notice:blue:white+h
-        break; case __LINE__: TRICE(ID(14823), "alert:magenta:magenta+h\n" );       //exp: time: 842,150_450default: alert:magenta:magenta+h
-        break; case __LINE__: TRICE(ID(14824), "assert:yellow+i:blue\n" );          //exp: time: 842,150_450default: assert:yellow+i:blue
-        break; case __LINE__: TRICE(ID(14825), "alarm:red+i:white+h\n" );           //exp: time: 842,150_450default: alarm:red+i:white+h
-        break; case __LINE__: TRICE(ID(14826), "cycle:blue+i:default+h\n" );        //exp: time: 842,150_450default: cycle:blue+i:default+h
-        break; case __LINE__: TRICE(ID(14827), "verbose:blue:default\n" );          //exp: time: 842,150_450default: verbose:blue:default
+        break; case __LINE__: TRICE(ID(14776), "FATAL:magenta+b:red\n" );           //exp: time:feed3322default: FATAL:magenta+b:red
+        break; case __LINE__: TRICE(ID(14777), "CRITICAL:red+i:default+h\n" );      //exp: time:feed3322default: CRITICAL:red+i:default+h
+        break; case __LINE__: TRICE(ID(14778), "EMERGENCY:red+i:blue\n" );          //exp: time:feed3322default: EMERGENCY:red+i:blue
+        break; case __LINE__: TRICE(ID(14779), "ERROR:11:red\n" );                  //exp: time:feed3322default: ERROR:11:red
+        break; case __LINE__: TRICE(ID(14780), "WARNING:11+i:red\n" );              //exp: time:feed3322default: WARNING:11+i:red
+        break; case __LINE__: TRICE(ID(14781), "ATTENTION:11:green\n" );            //exp: time:feed3322default: ATTENTION:11:green
+        break; case __LINE__: TRICE(ID(14782), "INFO:cyan+b:default+h\n" );         //exp: time:feed3322default: INFO:cyan+b:default+h
+        break; case __LINE__: TRICE(ID(14783), "DEBUG:130+i\n" );                   //exp: time:feed3322default: DEBUG:130+i
+        break; case __LINE__: TRICE(ID(14784), "TRACE:default+i:default+h\n" );     //exp: time:feed3322default: TRACE:default+i:default+h
+        break; case __LINE__: TRICE(ID(14785), "TIME:blue+i:blue+h\n" );            //exp: time:feed3322default: TIME:blue+i:blue+h
+        break; case __LINE__: TRICE(ID(14786), "MESSAGE:green+h:black\n" );         //exp: time:feed3322default: MESSAGE:green+h:black
+        break; case __LINE__: TRICE(ID(14787), "READ:black+i:yellow+h\n" );         //exp: time:feed3322default: READ:black+i:yellow+h
+        break; case __LINE__: TRICE(ID(14788), "WRITE:black+u:yellow+h\n" );        //exp: time:feed3322default: WRITE:black+u:yellow+h
+        break; case __LINE__: TRICE(ID(14789), "RECEIVE:black+h:black\n" );         //exp: time:feed3322default: RECEIVE:black+h:black
+        break; case __LINE__: TRICE(ID(14790), "TRANSMIT:black:black+h\n" );        //exp: time:feed3322default: TRANSMIT:black:black+h
+        break; case __LINE__: TRICE(ID(14791), "DIAG:yellow+i:default+h\n" );       //exp: time:feed3322default: DIAG:yellow+i:default+h
+        break; case __LINE__: TRICE(ID(14792), "INTERRUPT:magenta+i:default+h\n" ); //exp: time:feed3322default: INTERRUPT:magenta+i:default+h
+        break; case __LINE__: TRICE(ID(14793), "SIGNAL:118+i\n" );                  //exp: time:feed3322default: SIGNAL:118+i
+        break; case __LINE__: TRICE(ID(14794), "TEST:yellow+h:black\n" );           //exp: time:feed3322default: TEST:yellow+h:black
+        break; case __LINE__: TRICE(ID(14795), "DEFAULT:off\n" );                   //exp: time:feed3322default: DEFAULT:off
+        break; case __LINE__: TRICE(ID(14796), "NOTICE:blue:white+h\n" );           //exp: time:feed3322default: NOTICE:blue:white+h
+        break; case __LINE__: TRICE(ID(14797), "ALERT:magenta:magenta+h\n" );       //exp: time:feed3322default: ALERT:magenta:magenta+h
+        break; case __LINE__: TRICE(ID(14798), "ASSERT:yellow+i:blue\n" );          //exp: time:feed3322default: ASSERT:yellow+i:blue
+        break; case __LINE__: TRICE(ID(14799), "ALARM:red+i:white+h\n" );           //exp: time:feed3322default: ALARM:red+i:white+h
+        break; case __LINE__: TRICE(ID(14800), "CYCLE:blue+i:default+h\n" );        //exp: time:feed3322default: CYCLE:blue+i:default+h
+        break; case __LINE__: TRICE(ID(14801), "VERBOSE:blue:default\n" );          //exp: time:feed3322default: VERBOSE:blue:default
+        break; case __LINE__: TRICE(ID(14802), "fatal:magenta+b:red\n" );           //exp: time:feed3322default: fatal:magenta+b:red
+        break; case __LINE__: TRICE(ID(14803), "critical:red+i:default+h\n" );      //exp: time:feed3322default: critical:red+i:default+h
+        break; case __LINE__: TRICE(ID(14804), "emergency:red+i:blue\n" );          //exp: time:feed3322default: emergency:red+i:blue
+        break; case __LINE__: TRICE(ID(14805), "error:11:red\n" );                  //exp: time:feed3322default: error:11:red
+        break; case __LINE__: TRICE(ID(14806), "warning:11+i:red\n" );              //exp: time:feed3322default: warning:11+i:red
+        break; case __LINE__: TRICE(ID(14807), "attention:11:green\n" );            //exp: time:feed3322default: attention:11:green
+        break; case __LINE__: TRICE(ID(14808), "info:cyan+b:default+h\n" );         //exp: time:feed3322default: info:cyan+b:default+h
+        break; case __LINE__: TRICE(ID(14809), "debug:130+i\n" );                   //exp: time:feed3322default: debug:130+i
+        break; case __LINE__: TRICE(ID(14810), "trace:default+i:default+h\n" );     //exp: time:feed3322default: trace:default+i:default+h
+        break; case __LINE__: TRICE(ID(14811), "time:blue+i:blue+h\n" );            //exp: time:feed3322default: time:blue+i:blue+h
+        break; case __LINE__: TRICE(ID(14812), "message:green+h:black\n" );         //exp: time:feed3322default: message:green+h:black
+        break; case __LINE__: TRICE(ID(14813), "read:black+i:yellow+h\n" );         //exp: time:feed3322default: read:black+i:yellow+h
+        break; case __LINE__: TRICE(ID(14814), "write:black+u:yellow+h\n" );        //exp: time:feed3322default: write:black+u:yellow+h
+        break; case __LINE__: TRICE(ID(14815), "receive:black+h:black\n" );         //exp: time:feed3322default: receive:black+h:black
+        break; case __LINE__: TRICE(ID(14816), "transmit:black:black+h\n" );        //exp: time:feed3322default: transmit:black:black+h
+        break; case __LINE__: TRICE(ID(14817), "diag:yellow+i:default+h\n" );       //exp: time:feed3322default: diag:yellow+i:default+h
+        break; case __LINE__: TRICE(ID(14818), "interrupt:magenta+i:default+h\n" ); //exp: time:feed3322default: interrupt:magenta+i:default+h
+        break; case __LINE__: TRICE(ID(14819), "signal:118+i\n" );                  //exp: time:feed3322default: signal:118+i
+        break; case __LINE__: TRICE(ID(14820), "test:yellow+h:black\n" );           //exp: time:feed3322default: test:yellow+h:black
+        break; case __LINE__: TRICE(ID(14821), "default:off\n" );                   //exp: time:feed3322default: default:off
+        break; case __LINE__: TRICE(ID(14822), "notice:blue:white+h\n" );           //exp: time:feed3322default: notice:blue:white+h
+        break; case __LINE__: TRICE(ID(14823), "alert:magenta:magenta+h\n" );       //exp: time:feed3322default: alert:magenta:magenta+h
+        break; case __LINE__: TRICE(ID(14824), "assert:yellow+i:blue\n" );          //exp: time:feed3322default: assert:yellow+i:blue
+        break; case __LINE__: TRICE(ID(14825), "alarm:red+i:white+h\n" );           //exp: time:feed3322default: alarm:red+i:white+h
+        break; case __LINE__: TRICE(ID(14826), "cycle:blue+i:default+h\n" );        //exp: time:feed3322default: cycle:blue+i:default+h
+        break; case __LINE__: TRICE(ID(14827), "verbose:blue:default\n" );          //exp: time:feed3322default: verbose:blue:default
         
-        break; case __LINE__: TRice(iD(14828), "FATAL:magenta+b:red\n" );           //exp: time: 842,150_450default: FATAL:magenta+b:red
-        break; case __LINE__: TRice(iD(14829), "CRITICAL:red+i:default+h\n" );      //exp: time: 842,150_450default: CRITICAL:red+i:default+h
-        break; case __LINE__: TRice(iD(14830), "EMERGENCY:red+i:blue\n" );          //exp: time: 842,150_450default: EMERGENCY:red+i:blue
-        break; case __LINE__: TRice(iD(14831), "ERROR:11:red\n" );                  //exp: time: 842,150_450default: ERROR:11:red
-        break; case __LINE__: TRice(iD(14832), "WARNING:11+i:red\n" );              //exp: time: 842,150_450default: WARNING:11+i:red
-        break; case __LINE__: TRice(iD(14833), "ATTENTION:11:green\n" );            //exp: time: 842,150_450default: ATTENTION:11:green
-        break; case __LINE__: TRice(iD(14834), "INFO:cyan+b:default+h\n" );         //exp: time: 842,150_450default: INFO:cyan+b:default+h
-        break; case __LINE__: TRice(iD(14835), "DEBUG:130+i\n" );                   //exp: time: 842,150_450default: DEBUG:130+i
-        break; case __LINE__: TRice(iD(14836), "TRACE:default+i:default+h\n" );     //exp: time: 842,150_450default: TRACE:default+i:default+h
-        break; case __LINE__: TRice(iD(14837), "TIME:blue+i:blue+h\n" );            //exp: time: 842,150_450default: TIME:blue+i:blue+h
-        break; case __LINE__: TRice(iD(14838), "MESSAGE:green+h:black\n" );         //exp: time: 842,150_450default: MESSAGE:green+h:black
-        break; case __LINE__: TRice(iD(14839), "READ:black+i:yellow+h\n" );         //exp: time: 842,150_450default: READ:black+i:yellow+h
-        break; case __LINE__: TRice(iD(14840), "WRITE:black+u:yellow+h\n" );        //exp: time: 842,150_450default: WRITE:black+u:yellow+h
-        break; case __LINE__: TRice(iD(14841), "RECEIVE:black+h:black\n" );         //exp: time: 842,150_450default: RECEIVE:black+h:black
-        break; case __LINE__: TRice(iD(14842), "TRANSMIT:black:black+h\n" );        //exp: time: 842,150_450default: TRANSMIT:black:black+h
-        break; case __LINE__: TRice(iD(14843), "DIAG:yellow+i:default+h\n" );       //exp: time: 842,150_450default: DIAG:yellow+i:default+h
-        break; case __LINE__: TRice(iD(14844), "INTERRUPT:magenta+i:default+h\n" ); //exp: time: 842,150_450default: INTERRUPT:magenta+i:default+h
-        break; case __LINE__: TRice(iD(14845), "SIGNAL:118+i\n" );                  //exp: time: 842,150_450default: SIGNAL:118+i
-        break; case __LINE__: TRice(iD(14846), "TEST:yellow+h:black\n" );           //exp: time: 842,150_450default: TEST:yellow+h:black
-        break; case __LINE__: TRice(iD(14847), "DEFAULT:off\n" );                   //exp: time: 842,150_450default: DEFAULT:off
-        break; case __LINE__: TRice(iD(14848), "NOTICE:blue:white+h\n" );           //exp: time: 842,150_450default: NOTICE:blue:white+h
-        break; case __LINE__: TRice(iD(14849), "ALERT:magenta:magenta+h\n" );       //exp: time: 842,150_450default: ALERT:magenta:magenta+h
-        break; case __LINE__: TRice(iD(14850), "ASSERT:yellow+i:blue\n" );          //exp: time: 842,150_450default: ASSERT:yellow+i:blue
-        break; case __LINE__: TRice(iD(14851), "ALARM:red+i:white+h\n" );           //exp: time: 842,150_450default: ALARM:red+i:white+h
-        break; case __LINE__: TRice(iD(14852), "CYCLE:blue+i:default+h\n" );        //exp: time: 842,150_450default: CYCLE:blue+i:default+h
-        break; case __LINE__: TRice(iD(14853), "VERBOSE:blue:default\n" );          //exp: time: 842,150_450default: VERBOSE:blue:default
-        break; case __LINE__: TRice(iD(14854), "fatal:magenta+b:red\n" );           //exp: time: 842,150_450default: fatal:magenta+b:red
-        break; case __LINE__: TRice(iD(14855), "critical:red+i:default+h\n" );      //exp: time: 842,150_450default: critical:red+i:default+h
-        break; case __LINE__: TRice(iD(14856), "emergency:red+i:blue\n" );          //exp: time: 842,150_450default: emergency:red+i:blue
-        break; case __LINE__: TRice(iD(14857), "error:11:red\n" );                  //exp: time: 842,150_450default: error:11:red
-        break; case __LINE__: TRice(iD(14858), "warning:11+i:red\n" );              //exp: time: 842,150_450default: warning:11+i:red
-        break; case __LINE__: TRice(iD(14859), "attention:11:green\n" );            //exp: time: 842,150_450default: attention:11:green
-        break; case __LINE__: TRice(iD(14860), "info:cyan+b:default+h\n" );         //exp: time: 842,150_450default: info:cyan+b:default+h
-        break; case __LINE__: TRice(iD(14861), "debug:130+i\n" );                   //exp: time: 842,150_450default: debug:130+i
-        break; case __LINE__: TRice(iD(14862), "trace:default+i:default+h\n" );     //exp: time: 842,150_450default: trace:default+i:default+h
-        break; case __LINE__: TRice(iD(14863), "time:blue+i:blue+h\n" );            //exp: time: 842,150_450default: time:blue+i:blue+h
-        break; case __LINE__: TRice(iD(14864), "message:green+h:black\n" );         //exp: time: 842,150_450default: message:green+h:black
-        break; case __LINE__: TRice(iD(14865), "read:black+i:yellow+h\n" );         //exp: time: 842,150_450default: read:black+i:yellow+h
-        break; case __LINE__: TRice(iD(14866), "write:black+u:yellow+h\n" );        //exp: time: 842,150_450default: write:black+u:yellow+h
-        break; case __LINE__: TRice(iD(14867), "receive:black+h:black\n" );         //exp: time: 842,150_450default: receive:black+h:black
-        break; case __LINE__: TRice(iD(14868), "transmit:black:black+h\n" );        //exp: time: 842,150_450default: transmit:black:black+h
-        break; case __LINE__: TRice(iD(14869), "diag:yellow+i:default+h\n" );       //exp: time: 842,150_450default: diag:yellow+i:default+h
-        break; case __LINE__: TRice(iD(14870), "interrupt:magenta+i:default+h\n" ); //exp: time: 842,150_450default: interrupt:magenta+i:default+h
-        break; case __LINE__: TRice(iD(14871), "signal:118+i\n" );                  //exp: time: 842,150_450default: signal:118+i
-        break; case __LINE__: TRice(iD(14872), "test:yellow+h:black\n" );           //exp: time: 842,150_450default: test:yellow+h:black
-        break; case __LINE__: TRice(iD(14873), "default:off\n" );                   //exp: time: 842,150_450default: default:off
-        break; case __LINE__: TRice(iD(14874), "notice:blue:white+h\n" );           //exp: time: 842,150_450default: notice:blue:white+h
-        break; case __LINE__: TRice(iD(14875), "alert:magenta:magenta+h\n" );       //exp: time: 842,150_450default: alert:magenta:magenta+h
-        break; case __LINE__: TRice(iD(14876), "assert:yellow+i:blue\n" );          //exp: time: 842,150_450default: assert:yellow+i:blue
-        break; case __LINE__: TRice(iD(14877), "alarm:red+i:white+h\n" );           //exp: time: 842,150_450default: alarm:red+i:white+h
-        break; case __LINE__: TRice(iD(14878), "cycle:blue+i:default+h\n" );        //exp: time: 842,150_450default: cycle:blue+i:default+h
-        break; case __LINE__: TRice(iD(14879), "verbose:blue:default\n" );          //exp: time: 842,150_450default: verbose:blue:default
+        break; case __LINE__: TRice(iD(14828), "FATAL:magenta+b:red\n" );           //exp: time:feed3322default: FATAL:magenta+b:red
+        break; case __LINE__: TRice(iD(14829), "CRITICAL:red+i:default+h\n" );      //exp: time:feed3322default: CRITICAL:red+i:default+h
+        break; case __LINE__: TRice(iD(14830), "EMERGENCY:red+i:blue\n" );          //exp: time:feed3322default: EMERGENCY:red+i:blue
+        break; case __LINE__: TRice(iD(14831), "ERROR:11:red\n" );                  //exp: time:feed3322default: ERROR:11:red
+        break; case __LINE__: TRice(iD(14832), "WARNING:11+i:red\n" );              //exp: time:feed3322default: WARNING:11+i:red
+        break; case __LINE__: TRice(iD(14833), "ATTENTION:11:green\n" );            //exp: time:feed3322default: ATTENTION:11:green
+        break; case __LINE__: TRice(iD(14834), "INFO:cyan+b:default+h\n" );         //exp: time:feed3322default: INFO:cyan+b:default+h
+        break; case __LINE__: TRice(iD(14835), "DEBUG:130+i\n" );                   //exp: time:feed3322default: DEBUG:130+i
+        break; case __LINE__: TRice(iD(14836), "TRACE:default+i:default+h\n" );     //exp: time:feed3322default: TRACE:default+i:default+h
+        break; case __LINE__: TRice(iD(14837), "TIME:blue+i:blue+h\n" );            //exp: time:feed3322default: TIME:blue+i:blue+h
+        break; case __LINE__: TRice(iD(14838), "MESSAGE:green+h:black\n" );         //exp: time:feed3322default: MESSAGE:green+h:black
+        break; case __LINE__: TRice(iD(14839), "READ:black+i:yellow+h\n" );         //exp: time:feed3322default: READ:black+i:yellow+h
+        break; case __LINE__: TRice(iD(14840), "WRITE:black+u:yellow+h\n" );        //exp: time:feed3322default: WRITE:black+u:yellow+h
+        break; case __LINE__: TRice(iD(14841), "RECEIVE:black+h:black\n" );         //exp: time:feed3322default: RECEIVE:black+h:black
+        break; case __LINE__: TRice(iD(14842), "TRANSMIT:black:black+h\n" );        //exp: time:feed3322default: TRANSMIT:black:black+h
+        break; case __LINE__: TRice(iD(14843), "DIAG:yellow+i:default+h\n" );       //exp: time:feed3322default: DIAG:yellow+i:default+h
+        break; case __LINE__: TRice(iD(14844), "INTERRUPT:magenta+i:default+h\n" ); //exp: time:feed3322default: INTERRUPT:magenta+i:default+h
+        break; case __LINE__: TRice(iD(14845), "SIGNAL:118+i\n" );                  //exp: time:feed3322default: SIGNAL:118+i
+        break; case __LINE__: TRice(iD(14846), "TEST:yellow+h:black\n" );           //exp: time:feed3322default: TEST:yellow+h:black
+        break; case __LINE__: TRice(iD(14847), "DEFAULT:off\n" );                   //exp: time:feed3322default: DEFAULT:off
+        break; case __LINE__: TRice(iD(14848), "NOTICE:blue:white+h\n" );           //exp: time:feed3322default: NOTICE:blue:white+h
+        break; case __LINE__: TRice(iD(14849), "ALERT:magenta:magenta+h\n" );       //exp: time:feed3322default: ALERT:magenta:magenta+h
+        break; case __LINE__: TRice(iD(14850), "ASSERT:yellow+i:blue\n" );          //exp: time:feed3322default: ASSERT:yellow+i:blue
+        break; case __LINE__: TRice(iD(14851), "ALARM:red+i:white+h\n" );           //exp: time:feed3322default: ALARM:red+i:white+h
+        break; case __LINE__: TRice(iD(14852), "CYCLE:blue+i:default+h\n" );        //exp: time:feed3322default: CYCLE:blue+i:default+h
+        break; case __LINE__: TRice(iD(14853), "VERBOSE:blue:default\n" );          //exp: time:feed3322default: VERBOSE:blue:default
+        break; case __LINE__: TRice(iD(14854), "fatal:magenta+b:red\n" );           //exp: time:feed3322default: fatal:magenta+b:red
+        break; case __LINE__: TRice(iD(14855), "critical:red+i:default+h\n" );      //exp: time:feed3322default: critical:red+i:default+h
+        break; case __LINE__: TRice(iD(14856), "emergency:red+i:blue\n" );          //exp: time:feed3322default: emergency:red+i:blue
+        break; case __LINE__: TRice(iD(14857), "error:11:red\n" );                  //exp: time:feed3322default: error:11:red
+        break; case __LINE__: TRice(iD(14858), "warning:11+i:red\n" );              //exp: time:feed3322default: warning:11+i:red
+        break; case __LINE__: TRice(iD(14859), "attention:11:green\n" );            //exp: time:feed3322default: attention:11:green
+        break; case __LINE__: TRice(iD(14860), "info:cyan+b:default+h\n" );         //exp: time:feed3322default: info:cyan+b:default+h
+        break; case __LINE__: TRice(iD(14861), "debug:130+i\n" );                   //exp: time:feed3322default: debug:130+i
+        break; case __LINE__: TRice(iD(14862), "trace:default+i:default+h\n" );     //exp: time:feed3322default: trace:default+i:default+h
+        break; case __LINE__: TRice(iD(14863), "time:blue+i:blue+h\n" );            //exp: time:feed3322default: time:blue+i:blue+h
+        break; case __LINE__: TRice(iD(14864), "message:green+h:black\n" );         //exp: time:feed3322default: message:green+h:black
+        break; case __LINE__: TRice(iD(14865), "read:black+i:yellow+h\n" );         //exp: time:feed3322default: read:black+i:yellow+h
+        break; case __LINE__: TRice(iD(14866), "write:black+u:yellow+h\n" );        //exp: time:feed3322default: write:black+u:yellow+h
+        break; case __LINE__: TRice(iD(14867), "receive:black+h:black\n" );         //exp: time:feed3322default: receive:black+h:black
+        break; case __LINE__: TRice(iD(14868), "transmit:black:black+h\n" );        //exp: time:feed3322default: transmit:black:black+h
+        break; case __LINE__: TRice(iD(14869), "diag:yellow+i:default+h\n" );       //exp: time:feed3322default: diag:yellow+i:default+h
+        break; case __LINE__: TRice(iD(14870), "interrupt:magenta+i:default+h\n" ); //exp: time:feed3322default: interrupt:magenta+i:default+h
+        break; case __LINE__: TRice(iD(14871), "signal:118+i\n" );                  //exp: time:feed3322default: signal:118+i
+        break; case __LINE__: TRice(iD(14872), "test:yellow+h:black\n" );           //exp: time:feed3322default: test:yellow+h:black
+        break; case __LINE__: TRice(iD(14873), "default:off\n" );                   //exp: time:feed3322default: default:off
+        break; case __LINE__: TRice(iD(14874), "notice:blue:white+h\n" );           //exp: time:feed3322default: notice:blue:white+h
+        break; case __LINE__: TRice(iD(14875), "alert:magenta:magenta+h\n" );       //exp: time:feed3322default: alert:magenta:magenta+h
+        break; case __LINE__: TRice(iD(14876), "assert:yellow+i:blue\n" );          //exp: time:feed3322default: assert:yellow+i:blue
+        break; case __LINE__: TRice(iD(14877), "alarm:red+i:white+h\n" );           //exp: time:feed3322default: alarm:red+i:white+h
+        break; case __LINE__: TRice(iD(14878), "cycle:blue+i:default+h\n" );        //exp: time:feed3322default: cycle:blue+i:default+h
+        break; case __LINE__: TRice(iD(14879), "verbose:blue:default\n" );          //exp: time:feed3322default: verbose:blue:default
 
    
    
@@ -1198,30 +1198,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE(id(14891), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE(id(14892), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE(id(14893), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE(Id(14894), "rd:TRICE %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE -1     
-        break; case __LINE__: TRICE(Id(14895), "rd:TRICE %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE -1, -2 
-        break; case __LINE__: TRICE(Id(14896), "rd:TRICE %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE -1, -2, -3       
-        break; case __LINE__: TRICE(Id(14897), "rd:TRICE %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4      
-        break; case __LINE__: TRICE(Id(14898), "rd:TRICE %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE(Id(14899), "rd:TRICE %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE(Id(14900), "rd:TRICE %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE(Id(14901), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE(Id(14902), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE(Id(14903), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE(Id(14904), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE(Id(14905), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE(ID(14906), "rd:TRICE %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE -1     
-        break; case __LINE__: TRICE(ID(14907), "rd:TRICE %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE -1, -2 
-        break; case __LINE__: TRICE(ID(14908), "rd:TRICE %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE -1, -2, -3       
-        break; case __LINE__: TRICE(ID(14909), "rd:TRICE %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4      
-        break; case __LINE__: TRICE(ID(14910), "rd:TRICE %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE(ID(14911), "rd:TRICE %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE(ID(14912), "rd:TRICE %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE(ID(14913), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE(ID(14914), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE(ID(14915), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE(ID(14916), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE(ID(14917), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE(Id(14894), "rd:TRICE %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE -1     
+        break; case __LINE__: TRICE(Id(14895), "rd:TRICE %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE -1, -2 
+        break; case __LINE__: TRICE(Id(14896), "rd:TRICE %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE -1, -2, -3       
+        break; case __LINE__: TRICE(Id(14897), "rd:TRICE %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE -1, -2, -3, -4      
+        break; case __LINE__: TRICE(Id(14898), "rd:TRICE %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE(Id(14899), "rd:TRICE %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE(Id(14900), "rd:TRICE %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE(Id(14901), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE(Id(14902), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE(Id(14903), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE(Id(14904), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE(Id(14905), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE(ID(14906), "rd:TRICE %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE -1     
+        break; case __LINE__: TRICE(ID(14907), "rd:TRICE %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE -1, -2 
+        break; case __LINE__: TRICE(ID(14908), "rd:TRICE %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE -1, -2, -3       
+        break; case __LINE__: TRICE(ID(14909), "rd:TRICE %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4      
+        break; case __LINE__: TRICE(ID(14910), "rd:TRICE %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE(ID(14911), "rd:TRICE %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE(ID(14912), "rd:TRICE %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE(ID(14913), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE(ID(14914), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE(ID(14915), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE(ID(14916), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE(ID(14917), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice(iD(14918), "sig:TRICE_n with 1 to 12 values\n" );
 
@@ -1237,30 +1237,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE_10(id(14928), "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE_11(id(14929), "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE_12(id(14930), "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE_1 (Id(14931), "rd:TRICE_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE_1  -1     
-        break; case __LINE__: TRICE_2 (Id(14932), "rd:TRICE_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE_2  -1, -2 
-        break; case __LINE__: TRICE_3 (Id(14933), "rd:TRICE_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE_3  -1, -2, -3       
-        break; case __LINE__: TRICE_4 (Id(14934), "rd:TRICE_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE_5 (Id(14935), "rd:TRICE_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE_6 (Id(14936), "rd:TRICE_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE_7 (Id(14937), "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE_8 (Id(14938), "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE_9 (Id(14939), "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE_10(Id(14940), "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE_11(Id(14941), "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE_12(Id(14942), "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE_1 (ID(14943), "rd:TRICE_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE_1  -1     
-        break; case __LINE__: TRICE_2 (ID(14944), "rd:TRICE_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE_2  -1, -2 
-        break; case __LINE__: TRICE_3 (ID(14945), "rd:TRICE_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE_3  -1, -2, -3       
-        break; case __LINE__: TRICE_4 (ID(14946), "rd:TRICE_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE_5 (ID(14947), "rd:TRICE_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE_6 (ID(14948), "rd:TRICE_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE_7 (ID(14949), "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE_8 (ID(14950), "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE_9 (ID(14951), "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE_10(ID(14952), "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE_11(ID(14953), "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE_12(ID(14954), "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE_1 (Id(14931), "rd:TRICE_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE_1  -1     
+        break; case __LINE__: TRICE_2 (Id(14932), "rd:TRICE_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE_2  -1, -2 
+        break; case __LINE__: TRICE_3 (Id(14933), "rd:TRICE_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE_3  -1, -2, -3       
+        break; case __LINE__: TRICE_4 (Id(14934), "rd:TRICE_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE_5 (Id(14935), "rd:TRICE_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE_6 (Id(14936), "rd:TRICE_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE_7 (Id(14937), "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE_8 (Id(14938), "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE_9 (Id(14939), "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE_10(Id(14940), "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE_11(Id(14941), "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE_12(Id(14942), "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE_1 (ID(14943), "rd:TRICE_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE_1  -1     
+        break; case __LINE__: TRICE_2 (ID(14944), "rd:TRICE_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE_2  -1, -2 
+        break; case __LINE__: TRICE_3 (ID(14945), "rd:TRICE_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE_3  -1, -2, -3       
+        break; case __LINE__: TRICE_4 (ID(14946), "rd:TRICE_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE_5 (ID(14947), "rd:TRICE_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE_6 (ID(14948), "rd:TRICE_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE_7 (ID(14949), "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE_8 (ID(14950), "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE_9 (ID(14951), "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE_10(ID(14952), "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE_11(ID(14953), "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE_12(ID(14954), "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice(iD(14955), "sig:trice with 1 to 12 values\n" );
         
@@ -1276,30 +1276,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice(iD(14965), "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice(iD(14966), "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice(iD(14967), "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice(iD(14968), "rd:Trice %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice -1     
-        break; case __LINE__: Trice(iD(14969), "rd:Trice %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice -1, -2 
-        break; case __LINE__: Trice(iD(14970), "rd:Trice %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice -1, -2, -3       
-        break; case __LINE__: Trice(iD(14971), "rd:Trice %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice -1, -2, -3, -4      
-        break; case __LINE__: Trice(iD(14972), "rd:Trice %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice(iD(14973), "rd:Trice %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice(iD(14974), "rd:Trice %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice(iD(14975), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice(iD(14976), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice(iD(14977), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice(iD(14978), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice(iD(14979), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice(iD(14980), "rd:TRice %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice -1     
-        break; case __LINE__: TRice(iD(14981), "rd:TRice %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice -1, -2 
-        break; case __LINE__: TRice(iD(14982), "rd:TRice %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice -1, -2, -3       
-        break; case __LINE__: TRice(iD(14983), "rd:TRice %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4      
-        break; case __LINE__: TRice(iD(14984), "rd:TRice %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice(iD(14985), "rd:TRice %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice(iD(14986), "rd:TRice %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice(iD(14987), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice(iD(14988), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice(iD(14989), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice(iD(14990), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice(iD(14991), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice(iD(14968), "rd:Trice %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice -1     
+        break; case __LINE__: Trice(iD(14969), "rd:Trice %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice -1, -2 
+        break; case __LINE__: Trice(iD(14970), "rd:Trice %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice -1, -2, -3       
+        break; case __LINE__: Trice(iD(14971), "rd:Trice %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice -1, -2, -3, -4      
+        break; case __LINE__: Trice(iD(14972), "rd:Trice %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice(iD(14973), "rd:Trice %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice(iD(14974), "rd:Trice %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice(iD(14975), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice(iD(14976), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice(iD(14977), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice(iD(14978), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice(iD(14979), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice(iD(14980), "rd:TRice %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice -1     
+        break; case __LINE__: TRice(iD(14981), "rd:TRice %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice -1, -2 
+        break; case __LINE__: TRice(iD(14982), "rd:TRice %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice -1, -2, -3       
+        break; case __LINE__: TRice(iD(14983), "rd:TRice %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice -1, -2, -3, -4      
+        break; case __LINE__: TRice(iD(14984), "rd:TRice %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice(iD(14985), "rd:TRice %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice(iD(14986), "rd:TRice %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice(iD(14987), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice(iD(14988), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice(iD(14989), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice(iD(14990), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice(iD(14991), "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: TRICE(ID(14992), "sig:trice_n with 1 to 12 values\n" );
 
@@ -1315,30 +1315,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice_10(iD(15002), "rd:trice_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice_11(iD(15003), "rd:trice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice_12(iD(15004), "rd:trice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice_1 (iD(15005), "rd:Trice_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice_1  -1     
-        break; case __LINE__: Trice_2 (iD(15006), "rd:Trice_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice_2  -1, -2 
-        break; case __LINE__: Trice_3 (iD(15007), "rd:Trice_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice_3  -1, -2, -3       
-        break; case __LINE__: Trice_4 (iD(15008), "rd:Trice_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice_4  -1, -2, -3, -4      
-        break; case __LINE__: Trice_5 (iD(15009), "rd:Trice_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice_6 (iD(15010), "rd:Trice_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice_7 (iD(15011), "rd:Trice_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice_8 (iD(15012), "rd:Trice_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice_9 (iD(15013), "rd:Trice_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice_10(iD(15014), "rd:Trice_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice_11(iD(15015), "rd:Trice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice_12(iD(15016), "rd:Trice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice_1 (iD(15017), "rd:TRice_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice_1  -1     
-        break; case __LINE__: TRice_2 (iD(15018), "rd:TRice_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice_2  -1, -2 
-        break; case __LINE__: TRice_3 (iD(15019), "rd:TRice_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice_3  -1, -2, -3       
-        break; case __LINE__: TRice_4 (iD(15020), "rd:TRice_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice_4  -1, -2, -3, -4      
-        break; case __LINE__: TRice_5 (iD(15021), "rd:TRice_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice_6 (iD(15022), "rd:TRice_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice_7 (iD(15023), "rd:TRice_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice_8 (iD(15024), "rd:TRice_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice_9 (iD(15025), "rd:TRice_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice_10(iD(15026), "rd:TRice_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice_11(iD(15027), "rd:TRice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice_12(iD(15028), "rd:TRice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice_1 (iD(15005), "rd:Trice_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice_1  -1     
+        break; case __LINE__: Trice_2 (iD(15006), "rd:Trice_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice_2  -1, -2 
+        break; case __LINE__: Trice_3 (iD(15007), "rd:Trice_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice_3  -1, -2, -3       
+        break; case __LINE__: Trice_4 (iD(15008), "rd:Trice_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice_4  -1, -2, -3, -4      
+        break; case __LINE__: Trice_5 (iD(15009), "rd:Trice_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice_6 (iD(15010), "rd:Trice_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice_7 (iD(15011), "rd:Trice_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice_8 (iD(15012), "rd:Trice_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice_9 (iD(15013), "rd:Trice_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice_10(iD(15014), "rd:Trice_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice_11(iD(15015), "rd:Trice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice_12(iD(15016), "rd:Trice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice_1 (iD(15017), "rd:TRice_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice_1  -1     
+        break; case __LINE__: TRice_2 (iD(15018), "rd:TRice_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice_2  -1, -2 
+        break; case __LINE__: TRice_3 (iD(15019), "rd:TRice_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice_3  -1, -2, -3       
+        break; case __LINE__: TRice_4 (iD(15020), "rd:TRice_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice_4  -1, -2, -3, -4      
+        break; case __LINE__: TRice_5 (iD(15021), "rd:TRice_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice_6 (iD(15022), "rd:TRice_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice_7 (iD(15023), "rd:TRice_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice_8 (iD(15024), "rd:TRice_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice_9 (iD(15025), "rd:TRice_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice_10(iD(15026), "rd:TRice_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice_11(iD(15027), "rd:TRice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice_12(iD(15028), "rd:TRice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice(iD(15029), "sig:TRICE8 with 1 to 12 values\n" );
 
@@ -1354,30 +1354,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE8(id(15039), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE8(id(15040), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE8(id(15041), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE8(Id(15042), "rd:TRICE8 %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE8 -1     
-        break; case __LINE__: TRICE8(Id(15043), "rd:TRICE8 %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE8 -1, -2 
-        break; case __LINE__: TRICE8(Id(15044), "rd:TRICE8 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE8 -1, -2, -3       
-        break; case __LINE__: TRICE8(Id(15045), "rd:TRICE8 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4      
-        break; case __LINE__: TRICE8(Id(15046), "rd:TRICE8 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE8(Id(15047), "rd:TRICE8 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE8(Id(15048), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE8(Id(15049), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE8(Id(15050), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE8(Id(15051), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE8(Id(15052), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE8(Id(15053), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE8(ID(15054), "rd:TRICE8 %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE8 -1     
-        break; case __LINE__: TRICE8(ID(15055), "rd:TRICE8 %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE8 -1, -2 
-        break; case __LINE__: TRICE8(ID(15056), "rd:TRICE8 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3       
-        break; case __LINE__: TRICE8(ID(15057), "rd:TRICE8 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4      
-        break; case __LINE__: TRICE8(ID(15058), "rd:TRICE8 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE8(ID(15059), "rd:TRICE8 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE8(ID(15060), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE8(ID(15061), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE8(ID(15062), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE8(ID(15063), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE8(ID(15064), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE8(ID(15065), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE8(Id(15042), "rd:TRICE8 %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE8 -1     
+        break; case __LINE__: TRICE8(Id(15043), "rd:TRICE8 %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE8 -1, -2 
+        break; case __LINE__: TRICE8(Id(15044), "rd:TRICE8 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE8 -1, -2, -3       
+        break; case __LINE__: TRICE8(Id(15045), "rd:TRICE8 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4      
+        break; case __LINE__: TRICE8(Id(15046), "rd:TRICE8 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE8(Id(15047), "rd:TRICE8 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE8(Id(15048), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE8(Id(15049), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE8(Id(15050), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE8(Id(15051), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE8(Id(15052), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE8(Id(15053), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE8(ID(15054), "rd:TRICE8 %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE8 -1     
+        break; case __LINE__: TRICE8(ID(15055), "rd:TRICE8 %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE8 -1, -2 
+        break; case __LINE__: TRICE8(ID(15056), "rd:TRICE8 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE8 -1, -2, -3       
+        break; case __LINE__: TRICE8(ID(15057), "rd:TRICE8 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4      
+        break; case __LINE__: TRICE8(ID(15058), "rd:TRICE8 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE8(ID(15059), "rd:TRICE8 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE8(ID(15060), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE8(ID(15061), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE8(ID(15062), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE8(ID(15063), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE8(ID(15064), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE8(ID(15065), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice(iD(15066), "sig:TRICE8_n with 1 to 12 values\n" );
 
@@ -1393,30 +1393,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE8_10(id(15076), "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE8_11(id(15077), "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE8_12(id(15078), "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE8_1 (Id(15079), "rd:TRICE8_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE8_1  -1     
-        break; case __LINE__: TRICE8_2 (Id(15080), "rd:TRICE8_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE8_2  -1, -2 
-        break; case __LINE__: TRICE8_3 (Id(15081), "rd:TRICE8_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE8_3  -1, -2, -3       
-        break; case __LINE__: TRICE8_4 (Id(15082), "rd:TRICE8_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE8_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE8_5 (Id(15083), "rd:TRICE8_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE8_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE8_6 (Id(15084), "rd:TRICE8_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE8_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE8_7 (Id(15085), "rd:TRICE8_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE8_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE8_8 (Id(15086), "rd:TRICE8_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE8_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE8_9 (Id(15087), "rd:TRICE8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE8_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE8_10(Id(15088), "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE8_11(Id(15089), "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE8_12(Id(15090), "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE8_1 (ID(15091), "rd:TRICE8_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE8_1  -1     
-        break; case __LINE__: TRICE8_2 (ID(15092), "rd:TRICE8_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE8_2  -1, -2 
-        break; case __LINE__: TRICE8_3 (ID(15093), "rd:TRICE8_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE8_3  -1, -2, -3       
-        break; case __LINE__: TRICE8_4 (ID(15094), "rd:TRICE8_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE8_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE8_5 (ID(15095), "rd:TRICE8_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE8_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE8_6 (ID(15096), "rd:TRICE8_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE8_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE8_7 (ID(15097), "rd:TRICE8_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE8_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE8_8 (ID(15098), "rd:TRICE8_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE8_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE8_9 (ID(15099), "rd:TRICE8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE8_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE8_10(ID(15100), "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE8_11(ID(15101), "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE8_12(ID(15102), "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE8_1 (Id(15079), "rd:TRICE8_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE8_1  -1     
+        break; case __LINE__: TRICE8_2 (Id(15080), "rd:TRICE8_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE8_2  -1, -2 
+        break; case __LINE__: TRICE8_3 (Id(15081), "rd:TRICE8_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE8_3  -1, -2, -3       
+        break; case __LINE__: TRICE8_4 (Id(15082), "rd:TRICE8_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE8_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE8_5 (Id(15083), "rd:TRICE8_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE8_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE8_6 (Id(15084), "rd:TRICE8_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE8_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE8_7 (Id(15085), "rd:TRICE8_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE8_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE8_8 (Id(15086), "rd:TRICE8_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE8_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE8_9 (Id(15087), "rd:TRICE8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE8_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE8_10(Id(15088), "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE8_11(Id(15089), "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE8_12(Id(15090), "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE8_1 (ID(15091), "rd:TRICE8_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE8_1  -1     
+        break; case __LINE__: TRICE8_2 (ID(15092), "rd:TRICE8_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE8_2  -1, -2 
+        break; case __LINE__: TRICE8_3 (ID(15093), "rd:TRICE8_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE8_3  -1, -2, -3       
+        break; case __LINE__: TRICE8_4 (ID(15094), "rd:TRICE8_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE8_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE8_5 (ID(15095), "rd:TRICE8_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE8_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE8_6 (ID(15096), "rd:TRICE8_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE8_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE8_7 (ID(15097), "rd:TRICE8_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE8_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE8_8 (ID(15098), "rd:TRICE8_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE8_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE8_9 (ID(15099), "rd:TRICE8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE8_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE8_10(ID(15100), "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE8_11(ID(15101), "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE8_12(ID(15102), "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice(iD(15103), "sig:trice8 with 1 to 12 values\n" );
         
@@ -1432,30 +1432,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice8(iD(15113), "rd:trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice8(iD(15114), "rd:trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice8(iD(15115), "rd:trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice8(iD(15116), "rd:Trice8 %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice8 -1     
-        break; case __LINE__: Trice8(iD(15117), "rd:Trice8 %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice8 -1, -2 
-        break; case __LINE__: Trice8(iD(15118), "rd:Trice8 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice8 -1, -2, -3       
-        break; case __LINE__: Trice8(iD(15119), "rd:Trice8 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4      
-        break; case __LINE__: Trice8(iD(15120), "rd:Trice8 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice8(iD(15121), "rd:Trice8 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice8(iD(15122), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice8(iD(15123), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice8(iD(15124), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice8(iD(15125), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice8(iD(15126), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice8(iD(15127), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice8(iD(15128), "rd:TRice8 %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice8 -1     
-        break; case __LINE__: TRice8(iD(15129), "rd:TRice8 %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice8 -1, -2 
-        break; case __LINE__: TRice8(iD(15130), "rd:TRice8 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3       
-        break; case __LINE__: TRice8(iD(15131), "rd:TRice8 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4      
-        break; case __LINE__: TRice8(iD(15132), "rd:TRice8 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice8(iD(15133), "rd:TRice8 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice8(iD(15134), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice8(iD(15135), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice8(iD(15136), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice8(iD(15137), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice8(iD(15138), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice8(iD(15139), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice8(iD(15116), "rd:Trice8 %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice8 -1     
+        break; case __LINE__: Trice8(iD(15117), "rd:Trice8 %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice8 -1, -2 
+        break; case __LINE__: Trice8(iD(15118), "rd:Trice8 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice8 -1, -2, -3       
+        break; case __LINE__: Trice8(iD(15119), "rd:Trice8 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4      
+        break; case __LINE__: Trice8(iD(15120), "rd:Trice8 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice8(iD(15121), "rd:Trice8 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice8(iD(15122), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice8(iD(15123), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice8(iD(15124), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice8(iD(15125), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice8(iD(15126), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice8(iD(15127), "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice8(iD(15128), "rd:TRice8 %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice8 -1     
+        break; case __LINE__: TRice8(iD(15129), "rd:TRice8 %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice8 -1, -2 
+        break; case __LINE__: TRice8(iD(15130), "rd:TRice8 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice8 -1, -2, -3       
+        break; case __LINE__: TRice8(iD(15131), "rd:TRice8 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4      
+        break; case __LINE__: TRice8(iD(15132), "rd:TRice8 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice8(iD(15133), "rd:TRice8 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice8(iD(15134), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice8(iD(15135), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice8(iD(15136), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice8(iD(15137), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice8(iD(15138), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice8(iD(15139), "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice8 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: TRICE(ID(15140), "sig:trice8_n with 1 to 12 values\n" );
 
@@ -1471,30 +1471,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice8_10(iD(15150), "rd:trice8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice8_11(iD(15151), "rd:trice8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice8_12(iD(15152), "rd:trice8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice8_1 (iD(15153), "rd:Trice8_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice8_1  -1     
-        break; case __LINE__: Trice8_2 (iD(15154), "rd:Trice8_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice8_2  -1, -2 
-        break; case __LINE__: Trice8_3 (iD(15155), "rd:Trice8_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice8_3  -1, -2, -3       
-        break; case __LINE__: Trice8_4 (iD(15156), "rd:Trice8_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice8_4  -1, -2, -3, -4      
-        break; case __LINE__: Trice8_5 (iD(15157), "rd:Trice8_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice8_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice8_6 (iD(15158), "rd:Trice8_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice8_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice8_7 (iD(15159), "rd:Trice8_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice8_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice8_8 (iD(15160), "rd:Trice8_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice8_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice8_9 (iD(15161), "rd:Trice8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice8_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice8_10(iD(15162), "rd:Trice8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice8_11(iD(15163), "rd:Trice8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice8_12(iD(15164), "rd:Trice8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice8_1 (iD(15165), "rd:TRice8_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice8_1  -1     
-        break; case __LINE__: TRice8_2 (iD(15166), "rd:TRice8_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice8_2  -1, -2 
-        break; case __LINE__: TRice8_3 (iD(15167), "rd:TRice8_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice8_3  -1, -2, -3       
-        break; case __LINE__: TRice8_4 (iD(15168), "rd:TRice8_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice8_4  -1, -2, -3, -4      
-        break; case __LINE__: TRice8_5 (iD(15169), "rd:TRice8_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice8_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice8_6 (iD(15170), "rd:TRice8_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice8_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice8_7 (iD(15171), "rd:TRice8_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice8_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice8_8 (iD(15172), "rd:TRice8_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice8_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice8_9 (iD(15173), "rd:TRice8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice8_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice8_10(iD(15174), "rd:TRice8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice8_11(iD(15175), "rd:TRice8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice8_12(iD(15176), "rd:TRice8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice8_1 (iD(15153), "rd:Trice8_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice8_1  -1     
+        break; case __LINE__: Trice8_2 (iD(15154), "rd:Trice8_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice8_2  -1, -2 
+        break; case __LINE__: Trice8_3 (iD(15155), "rd:Trice8_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice8_3  -1, -2, -3       
+        break; case __LINE__: Trice8_4 (iD(15156), "rd:Trice8_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice8_4  -1, -2, -3, -4      
+        break; case __LINE__: Trice8_5 (iD(15157), "rd:Trice8_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice8_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice8_6 (iD(15158), "rd:Trice8_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice8_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice8_7 (iD(15159), "rd:Trice8_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice8_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice8_8 (iD(15160), "rd:Trice8_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice8_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice8_9 (iD(15161), "rd:Trice8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice8_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice8_10(iD(15162), "rd:Trice8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice8_11(iD(15163), "rd:Trice8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice8_12(iD(15164), "rd:Trice8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice8_1 (iD(15165), "rd:TRice8_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice8_1  -1     
+        break; case __LINE__: TRice8_2 (iD(15166), "rd:TRice8_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice8_2  -1, -2 
+        break; case __LINE__: TRice8_3 (iD(15167), "rd:TRice8_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice8_3  -1, -2, -3       
+        break; case __LINE__: TRice8_4 (iD(15168), "rd:TRice8_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice8_4  -1, -2, -3, -4      
+        break; case __LINE__: TRice8_5 (iD(15169), "rd:TRice8_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice8_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice8_6 (iD(15170), "rd:TRice8_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice8_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice8_7 (iD(15171), "rd:TRice8_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice8_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice8_8 (iD(15172), "rd:TRice8_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice8_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice8_9 (iD(15173), "rd:TRice8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice8_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice8_10(iD(15174), "rd:TRice8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice8_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice8_11(iD(15175), "rd:TRice8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice8_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice8_12(iD(15176), "rd:TRice8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice8_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice(iD(15177), "sig:TRICE16 with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1510,30 +1510,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE16(id(15187), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE16(id(15188), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE16(id(15189), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE16(Id(15190), "rd:TRICE16 %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE16 -1     
-        break; case __LINE__: TRICE16(Id(15191), "rd:TRICE16 %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE16 -1, -2 
-        break; case __LINE__: TRICE16(Id(15192), "rd:TRICE16 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE16 -1, -2, -3       
-        break; case __LINE__: TRICE16(Id(15193), "rd:TRICE16 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4      
-        break; case __LINE__: TRICE16(Id(15194), "rd:TRICE16 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE16(Id(15195), "rd:TRICE16 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE16(Id(15196), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE16(Id(15197), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE16(Id(15198), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE16(Id(15199), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE16(Id(15200), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE16(Id(15201), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE16(ID(15202), "rd:TRICE16 %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE16 -1     
-        break; case __LINE__: TRICE16(ID(15203), "rd:TRICE16 %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE16 -1, -2 
-        break; case __LINE__: TRICE16(ID(15204), "rd:TRICE16 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3       
-        break; case __LINE__: TRICE16(ID(15205), "rd:TRICE16 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4      
-        break; case __LINE__: TRICE16(ID(15206), "rd:TRICE16 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE16(ID(15207), "rd:TRICE16 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE16(ID(15208), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE16(ID(15209), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE16(ID(15210), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE16(ID(15211), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE16(ID(15212), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE16(ID(15213), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE16(Id(15190), "rd:TRICE16 %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE16 -1     
+        break; case __LINE__: TRICE16(Id(15191), "rd:TRICE16 %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE16 -1, -2 
+        break; case __LINE__: TRICE16(Id(15192), "rd:TRICE16 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE16 -1, -2, -3       
+        break; case __LINE__: TRICE16(Id(15193), "rd:TRICE16 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4      
+        break; case __LINE__: TRICE16(Id(15194), "rd:TRICE16 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE16(Id(15195), "rd:TRICE16 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE16(Id(15196), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE16(Id(15197), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE16(Id(15198), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE16(Id(15199), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE16(Id(15200), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE16(Id(15201), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE16(ID(15202), "rd:TRICE16 %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE16 -1     
+        break; case __LINE__: TRICE16(ID(15203), "rd:TRICE16 %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE16 -1, -2 
+        break; case __LINE__: TRICE16(ID(15204), "rd:TRICE16 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE16 -1, -2, -3       
+        break; case __LINE__: TRICE16(ID(15205), "rd:TRICE16 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4      
+        break; case __LINE__: TRICE16(ID(15206), "rd:TRICE16 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE16(ID(15207), "rd:TRICE16 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE16(ID(15208), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE16(ID(15209), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE16(ID(15210), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE16(ID(15211), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE16(ID(15212), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE16(ID(15213), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice     (iD(15214), "sig:TRICE16_n with 1 to 12 values (line %d)\n", __LINE__ );
         
@@ -1549,30 +1549,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE16_10(id(15224), "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE16_11(id(15225), "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE16_12(id(15226), "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE16_1 (Id(15227), "rd:TRICE16_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE16_1  -1     
-        break; case __LINE__: TRICE16_2 (Id(15228), "rd:TRICE16_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE16_2  -1, -2 
-        break; case __LINE__: TRICE16_3 (Id(15229), "rd:TRICE16_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE16_3  -1, -2, -3       
-        break; case __LINE__: TRICE16_4 (Id(15230), "rd:TRICE16_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE16_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE16_5 (Id(15231), "rd:TRICE16_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE16_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE16_6 (Id(15232), "rd:TRICE16_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE16_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE16_7 (Id(15233), "rd:TRICE16_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE16_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE16_8 (Id(15234), "rd:TRICE16_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE16_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE16_9 (Id(15235), "rd:TRICE16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE16_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE16_10(Id(15236), "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE16_11(Id(15237), "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE16_12(Id(15238), "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE16_1 (ID(15239), "rd:TRICE16_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE16_1  -1     
-        break; case __LINE__: TRICE16_2 (ID(15240), "rd:TRICE16_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE16_2  -1, -2 
-        break; case __LINE__: TRICE16_3 (ID(15241), "rd:TRICE16_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE16_3  -1, -2, -3       
-        break; case __LINE__: TRICE16_4 (ID(15242), "rd:TRICE16_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE16_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE16_5 (ID(15243), "rd:TRICE16_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE16_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE16_6 (ID(15244), "rd:TRICE16_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE16_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE16_7 (ID(15245), "rd:TRICE16_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE16_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE16_8 (ID(15246), "rd:TRICE16_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE16_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE16_9 (ID(15247), "rd:TRICE16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE16_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE16_10(ID(15248), "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE16_11(ID(15249), "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE16_12(ID(15250), "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE16_1 (Id(15227), "rd:TRICE16_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE16_1  -1     
+        break; case __LINE__: TRICE16_2 (Id(15228), "rd:TRICE16_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE16_2  -1, -2 
+        break; case __LINE__: TRICE16_3 (Id(15229), "rd:TRICE16_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE16_3  -1, -2, -3       
+        break; case __LINE__: TRICE16_4 (Id(15230), "rd:TRICE16_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE16_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE16_5 (Id(15231), "rd:TRICE16_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE16_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE16_6 (Id(15232), "rd:TRICE16_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE16_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE16_7 (Id(15233), "rd:TRICE16_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE16_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE16_8 (Id(15234), "rd:TRICE16_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE16_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE16_9 (Id(15235), "rd:TRICE16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE16_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE16_10(Id(15236), "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE16_11(Id(15237), "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE16_12(Id(15238), "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE16_1 (ID(15239), "rd:TRICE16_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE16_1  -1     
+        break; case __LINE__: TRICE16_2 (ID(15240), "rd:TRICE16_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE16_2  -1, -2 
+        break; case __LINE__: TRICE16_3 (ID(15241), "rd:TRICE16_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE16_3  -1, -2, -3       
+        break; case __LINE__: TRICE16_4 (ID(15242), "rd:TRICE16_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE16_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE16_5 (ID(15243), "rd:TRICE16_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE16_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE16_6 (ID(15244), "rd:TRICE16_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE16_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE16_7 (ID(15245), "rd:TRICE16_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE16_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE16_8 (ID(15246), "rd:TRICE16_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE16_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE16_9 (ID(15247), "rd:TRICE16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE16_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE16_10(ID(15248), "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE16_11(ID(15249), "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE16_12(ID(15250), "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice(iD(15251), "sig:trice16 with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1588,30 +1588,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice16(iD(15261), "rd:trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice16(iD(15262), "rd:trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice16(iD(15263), "rd:trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice16(iD(15264), "rd:Trice16 %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice16 -1     
-        break; case __LINE__: Trice16(iD(15265), "rd:Trice16 %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice16 -1, -2 
-        break; case __LINE__: Trice16(iD(15266), "rd:Trice16 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice16 -1, -2, -3       
-        break; case __LINE__: Trice16(iD(15267), "rd:Trice16 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4      
-        break; case __LINE__: Trice16(iD(15268), "rd:Trice16 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice16(iD(15269), "rd:Trice16 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice16(iD(15270), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice16(iD(15271), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice16(iD(15272), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice16(iD(15273), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice16(iD(15274), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice16(iD(15275), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice16(iD(15276), "rd:TRice16 %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice16 -1     
-        break; case __LINE__: TRice16(iD(15277), "rd:TRice16 %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice16 -1, -2 
-        break; case __LINE__: TRice16(iD(15278), "rd:TRice16 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3       
-        break; case __LINE__: TRice16(iD(15279), "rd:TRice16 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4      
-        break; case __LINE__: TRice16(iD(15280), "rd:TRice16 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice16(iD(15281), "rd:TRice16 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice16(iD(15282), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice16(iD(15283), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice16(iD(15284), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice16(iD(15285), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice16(iD(15286), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice16(iD(15287), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice16(iD(15264), "rd:Trice16 %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice16 -1     
+        break; case __LINE__: Trice16(iD(15265), "rd:Trice16 %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice16 -1, -2 
+        break; case __LINE__: Trice16(iD(15266), "rd:Trice16 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice16 -1, -2, -3       
+        break; case __LINE__: Trice16(iD(15267), "rd:Trice16 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4      
+        break; case __LINE__: Trice16(iD(15268), "rd:Trice16 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice16(iD(15269), "rd:Trice16 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice16(iD(15270), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice16(iD(15271), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice16(iD(15272), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice16(iD(15273), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice16(iD(15274), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice16(iD(15275), "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice16(iD(15276), "rd:TRice16 %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice16 -1     
+        break; case __LINE__: TRice16(iD(15277), "rd:TRice16 %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice16 -1, -2 
+        break; case __LINE__: TRice16(iD(15278), "rd:TRice16 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice16 -1, -2, -3       
+        break; case __LINE__: TRice16(iD(15279), "rd:TRice16 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4      
+        break; case __LINE__: TRice16(iD(15280), "rd:TRice16 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice16(iD(15281), "rd:TRice16 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice16(iD(15282), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice16(iD(15283), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice16(iD(15284), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice16(iD(15285), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice16(iD(15286), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice16(iD(15287), "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice16 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice     (iD(15288), "sig:trice16_n with 1 to 12 values (line %d)\n", __LINE__ );
         
@@ -1627,30 +1627,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice16_10(iD(15298), "rd:trice16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice16_11(iD(15299), "rd:trice16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice16_12(iD(15300), "rd:trice16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice16_1 (iD(15301), "rd:Trice16_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice16_1  -1     
-        break; case __LINE__: Trice16_2 (iD(15302), "rd:Trice16_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice16_2  -1, -2 
-        break; case __LINE__: Trice16_3 (iD(15303), "rd:Trice16_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice16_3  -1, -2, -3       
-        break; case __LINE__: Trice16_4 (iD(15304), "rd:Trice16_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice16_4  -1, -2, -3, -4      
-        break; case __LINE__: Trice16_5 (iD(15305), "rd:Trice16_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice16_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice16_6 (iD(15306), "rd:Trice16_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice16_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice16_7 (iD(15307), "rd:Trice16_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice16_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice16_8 (iD(15308), "rd:Trice16_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice16_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice16_9 (iD(15309), "rd:Trice16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice16_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice16_10(iD(15310), "rd:Trice16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice16_11(iD(15311), "rd:Trice16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice16_12(iD(15312), "rd:Trice16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice16_1 (iD(15313), "rd:TRice16_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice16_1  -1     
-        break; case __LINE__: TRice16_2 (iD(15314), "rd:TRice16_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice16_2  -1, -2 
-        break; case __LINE__: TRice16_3 (iD(15315), "rd:TRice16_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice16_3  -1, -2, -3       
-        break; case __LINE__: TRice16_4 (iD(15316), "rd:TRice16_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice16_4  -1, -2, -3, -4      
-        break; case __LINE__: TRice16_5 (iD(15317), "rd:TRice16_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice16_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice16_6 (iD(15318), "rd:TRice16_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice16_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice16_7 (iD(15319), "rd:TRice16_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice16_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice16_8 (iD(15320), "rd:TRice16_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice16_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice16_9 (iD(15321), "rd:TRice16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice16_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice16_10(iD(15322), "rd:TRice16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice16_11(iD(15323), "rd:TRice16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice16_12(iD(15324), "rd:TRice16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice16_1 (iD(15301), "rd:Trice16_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice16_1  -1     
+        break; case __LINE__: Trice16_2 (iD(15302), "rd:Trice16_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice16_2  -1, -2 
+        break; case __LINE__: Trice16_3 (iD(15303), "rd:Trice16_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice16_3  -1, -2, -3       
+        break; case __LINE__: Trice16_4 (iD(15304), "rd:Trice16_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice16_4  -1, -2, -3, -4      
+        break; case __LINE__: Trice16_5 (iD(15305), "rd:Trice16_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice16_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice16_6 (iD(15306), "rd:Trice16_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice16_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice16_7 (iD(15307), "rd:Trice16_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice16_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice16_8 (iD(15308), "rd:Trice16_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice16_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice16_9 (iD(15309), "rd:Trice16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice16_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice16_10(iD(15310), "rd:Trice16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice16_11(iD(15311), "rd:Trice16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice16_12(iD(15312), "rd:Trice16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice16_1 (iD(15313), "rd:TRice16_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice16_1  -1     
+        break; case __LINE__: TRice16_2 (iD(15314), "rd:TRice16_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice16_2  -1, -2 
+        break; case __LINE__: TRice16_3 (iD(15315), "rd:TRice16_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice16_3  -1, -2, -3       
+        break; case __LINE__: TRice16_4 (iD(15316), "rd:TRice16_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice16_4  -1, -2, -3, -4      
+        break; case __LINE__: TRice16_5 (iD(15317), "rd:TRice16_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice16_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice16_6 (iD(15318), "rd:TRice16_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice16_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice16_7 (iD(15319), "rd:TRice16_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice16_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice16_8 (iD(15320), "rd:TRice16_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice16_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice16_9 (iD(15321), "rd:TRice16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice16_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice16_10(iD(15322), "rd:TRice16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice16_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice16_11(iD(15323), "rd:TRice16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice16_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice16_12(iD(15324), "rd:TRice16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice16_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice  (iD(15325), "sig:TRICE32 with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1666,30 +1666,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE32(id(15335), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE32(id(15336), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE32(id(15337), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE32(Id(15338), "rd:TRICE32 %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE32 -1     
-        break; case __LINE__: TRICE32(Id(15339), "rd:TRICE32 %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE32 -1, -2 
-        break; case __LINE__: TRICE32(Id(15340), "rd:TRICE32 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE32 -1, -2, -3       
-        break; case __LINE__: TRICE32(Id(15341), "rd:TRICE32 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4      
-        break; case __LINE__: TRICE32(Id(15342), "rd:TRICE32 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE32(Id(15343), "rd:TRICE32 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE32(Id(15344), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE32(Id(15345), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE32(Id(15346), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE32(Id(15347), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE32(Id(15348), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE32(Id(15349), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE32(ID(15350), "rd:TRICE32 %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE32 -1     
-        break; case __LINE__: TRICE32(ID(15351), "rd:TRICE32 %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE32 -1, -2 
-        break; case __LINE__: TRICE32(ID(15352), "rd:TRICE32 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3       
-        break; case __LINE__: TRICE32(ID(15353), "rd:TRICE32 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4      
-        break; case __LINE__: TRICE32(ID(15354), "rd:TRICE32 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE32(ID(15355), "rd:TRICE32 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE32(ID(15356), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE32(ID(15357), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE32(ID(15358), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE32(ID(15359), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE32(ID(15360), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE32(ID(15361), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE32(Id(15338), "rd:TRICE32 %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE32 -1     
+        break; case __LINE__: TRICE32(Id(15339), "rd:TRICE32 %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE32 -1, -2 
+        break; case __LINE__: TRICE32(Id(15340), "rd:TRICE32 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE32 -1, -2, -3       
+        break; case __LINE__: TRICE32(Id(15341), "rd:TRICE32 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4      
+        break; case __LINE__: TRICE32(Id(15342), "rd:TRICE32 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE32(Id(15343), "rd:TRICE32 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE32(Id(15344), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE32(Id(15345), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE32(Id(15346), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE32(Id(15347), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE32(Id(15348), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE32(Id(15349), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE32(ID(15350), "rd:TRICE32 %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE32 -1     
+        break; case __LINE__: TRICE32(ID(15351), "rd:TRICE32 %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE32 -1, -2 
+        break; case __LINE__: TRICE32(ID(15352), "rd:TRICE32 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE32 -1, -2, -3       
+        break; case __LINE__: TRICE32(ID(15353), "rd:TRICE32 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4      
+        break; case __LINE__: TRICE32(ID(15354), "rd:TRICE32 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE32(ID(15355), "rd:TRICE32 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE32(ID(15356), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE32(ID(15357), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE32(ID(15358), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE32(ID(15359), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE32(ID(15360), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE32(ID(15361), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice     (iD(15362), "signal:TRICE32_n with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1705,30 +1705,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE32_10(id(15372), "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE32_11(id(15373), "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE32_12(id(15374), "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE32_1 (Id(15375), "rd:TRICE32_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE32_1  -1     
-        break; case __LINE__: TRICE32_2 (Id(15376), "rd:TRICE32_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE32_2  -1, -2 
-        break; case __LINE__: TRICE32_3 (Id(15377), "rd:TRICE32_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE32_3  -1, -2, -3       
-        break; case __LINE__: TRICE32_4 (Id(15378), "rd:TRICE32_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE32_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE32_5 (Id(15379), "rd:TRICE32_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE32_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE32_6 (Id(15380), "rd:TRICE32_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE32_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE32_7 (Id(15381), "rd:TRICE32_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE32_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE32_8 (Id(15382), "rd:TRICE32_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE32_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE32_9 (Id(15383), "rd:TRICE32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE32_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE32_10(Id(15384), "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE32_11(Id(15385), "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE32_12(Id(15386), "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE32_1 (ID(15387), "rd:TRICE32_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE32_1  -1     
-        break; case __LINE__: TRICE32_2 (ID(15388), "rd:TRICE32_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE32_2  -1, -2 
-        break; case __LINE__: TRICE32_3 (ID(15389), "rd:TRICE32_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE32_3  -1, -2, -3       
-        break; case __LINE__: TRICE32_4 (ID(15390), "rd:TRICE32_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE32_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE32_5 (ID(15391), "rd:TRICE32_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE32_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE32_6 (ID(15392), "rd:TRICE32_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE32_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE32_7 (ID(15393), "rd:TRICE32_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE32_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE32_8 (ID(15394), "rd:TRICE32_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE32_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE32_9 (ID(15395), "rd:TRICE32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE32_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE32_10(ID(15396), "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE32_11(ID(15397), "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE32_12(ID(15398), "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE32_1 (Id(15375), "rd:TRICE32_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE32_1  -1     
+        break; case __LINE__: TRICE32_2 (Id(15376), "rd:TRICE32_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE32_2  -1, -2 
+        break; case __LINE__: TRICE32_3 (Id(15377), "rd:TRICE32_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE32_3  -1, -2, -3       
+        break; case __LINE__: TRICE32_4 (Id(15378), "rd:TRICE32_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE32_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE32_5 (Id(15379), "rd:TRICE32_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE32_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE32_6 (Id(15380), "rd:TRICE32_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE32_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE32_7 (Id(15381), "rd:TRICE32_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE32_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE32_8 (Id(15382), "rd:TRICE32_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE32_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE32_9 (Id(15383), "rd:TRICE32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE32_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE32_10(Id(15384), "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE32_11(Id(15385), "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE32_12(Id(15386), "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE32_1 (ID(15387), "rd:TRICE32_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE32_1  -1     
+        break; case __LINE__: TRICE32_2 (ID(15388), "rd:TRICE32_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE32_2  -1, -2 
+        break; case __LINE__: TRICE32_3 (ID(15389), "rd:TRICE32_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE32_3  -1, -2, -3       
+        break; case __LINE__: TRICE32_4 (ID(15390), "rd:TRICE32_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE32_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE32_5 (ID(15391), "rd:TRICE32_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE32_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE32_6 (ID(15392), "rd:TRICE32_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE32_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE32_7 (ID(15393), "rd:TRICE32_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE32_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE32_8 (ID(15394), "rd:TRICE32_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE32_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE32_9 (ID(15395), "rd:TRICE32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE32_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE32_10(ID(15396), "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE32_11(ID(15397), "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE32_12(ID(15398), "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice  (iD(15399), "sig:trice32 with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1744,30 +1744,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice32(iD(15409), "rd:trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice32(iD(15410), "rd:trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice32(iD(15411), "rd:trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice32(iD(15412), "rd:Trice32 %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice32 -1     
-        break; case __LINE__: Trice32(iD(15413), "rd:Trice32 %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice32 -1, -2 
-        break; case __LINE__: Trice32(iD(15414), "rd:Trice32 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice32 -1, -2, -3       
-        break; case __LINE__: Trice32(iD(15415), "rd:Trice32 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4      
-        break; case __LINE__: Trice32(iD(15416), "rd:Trice32 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice32(iD(15417), "rd:Trice32 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice32(iD(15418), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice32(iD(15419), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice32(iD(15420), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice32(iD(15421), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice32(iD(15422), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice32(iD(15423), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice32(iD(15424), "rd:TRice32 %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice32 -1     
-        break; case __LINE__: TRice32(iD(15425), "rd:TRice32 %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice32 -1, -2 
-        break; case __LINE__: TRice32(iD(15426), "rd:TRice32 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3       
-        break; case __LINE__: TRice32(iD(15427), "rd:TRice32 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4      
-        break; case __LINE__: TRice32(iD(15428), "rd:TRice32 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice32(iD(15429), "rd:TRice32 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice32(iD(15430), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice32(iD(15431), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice32(iD(15432), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice32(iD(15433), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice32(iD(15434), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice32(iD(15435), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice32(iD(15412), "rd:Trice32 %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice32 -1     
+        break; case __LINE__: Trice32(iD(15413), "rd:Trice32 %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice32 -1, -2 
+        break; case __LINE__: Trice32(iD(15414), "rd:Trice32 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice32 -1, -2, -3       
+        break; case __LINE__: Trice32(iD(15415), "rd:Trice32 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4      
+        break; case __LINE__: Trice32(iD(15416), "rd:Trice32 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice32(iD(15417), "rd:Trice32 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice32(iD(15418), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice32(iD(15419), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice32(iD(15420), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice32(iD(15421), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice32(iD(15422), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice32(iD(15423), "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice32(iD(15424), "rd:TRice32 %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice32 -1     
+        break; case __LINE__: TRice32(iD(15425), "rd:TRice32 %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice32 -1, -2 
+        break; case __LINE__: TRice32(iD(15426), "rd:TRice32 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice32 -1, -2, -3       
+        break; case __LINE__: TRice32(iD(15427), "rd:TRice32 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4      
+        break; case __LINE__: TRice32(iD(15428), "rd:TRice32 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice32(iD(15429), "rd:TRice32 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice32(iD(15430), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice32(iD(15431), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice32(iD(15432), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice32(iD(15433), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice32(iD(15434), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice32(iD(15435), "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice32 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice     (iD(15436), "signal:trice32_n with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1783,30 +1783,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice32_10(iD(15446), "rd:trice32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice32_11(iD(15447), "rd:trice32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice32_12(iD(15448), "rd:trice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice32_1 (iD(15449), "rd:Trice32_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice32_1  -1     
-        break; case __LINE__: Trice32_2 (iD(15450), "rd:Trice32_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice32_2  -1, -2 
-        break; case __LINE__: Trice32_3 (iD(15451), "rd:Trice32_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice32_3  -1, -2, -3       
-        break; case __LINE__: Trice32_4 (iD(15452), "rd:Trice32_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice32_4  -1, -2, -3, -4      
-        break; case __LINE__: Trice32_5 (iD(15453), "rd:Trice32_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice32_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice32_6 (iD(15454), "rd:Trice32_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice32_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice32_7 (iD(15455), "rd:Trice32_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice32_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice32_8 (iD(15456), "rd:Trice32_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice32_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice32_9 (iD(15457), "rd:Trice32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice32_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice32_10(iD(15458), "rd:Trice32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice32_11(iD(15459), "rd:Trice32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice32_12(iD(15460), "rd:Trice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice32_1 (iD(15461), "rd:TRice32_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice32_1  -1     
-        break; case __LINE__: TRice32_2 (iD(15462), "rd:TRice32_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice32_2  -1, -2 
-        break; case __LINE__: TRice32_3 (iD(15463), "rd:TRice32_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice32_3  -1, -2, -3       
-        break; case __LINE__: TRice32_4 (iD(15464), "rd:TRice32_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice32_4  -1, -2, -3, -4      
-        break; case __LINE__: TRice32_5 (iD(15465), "rd:TRice32_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice32_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice32_6 (iD(15466), "rd:TRice32_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice32_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice32_7 (iD(15467), "rd:TRice32_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice32_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice32_8 (iD(15468), "rd:TRice32_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice32_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice32_9 (iD(15469), "rd:TRice32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice32_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice32_10(iD(15470), "rd:TRice32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice32_11(iD(15471), "rd:TRice32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice32_12(iD(15472), "rd:TRice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
+        break; case __LINE__: Trice32_1 (iD(15449), "rd:Trice32_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice32_1  -1     
+        break; case __LINE__: Trice32_2 (iD(15450), "rd:Trice32_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice32_2  -1, -2 
+        break; case __LINE__: Trice32_3 (iD(15451), "rd:Trice32_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice32_3  -1, -2, -3       
+        break; case __LINE__: Trice32_4 (iD(15452), "rd:Trice32_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice32_4  -1, -2, -3, -4      
+        break; case __LINE__: Trice32_5 (iD(15453), "rd:Trice32_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice32_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice32_6 (iD(15454), "rd:Trice32_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice32_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice32_7 (iD(15455), "rd:Trice32_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice32_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice32_8 (iD(15456), "rd:Trice32_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice32_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice32_9 (iD(15457), "rd:Trice32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice32_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice32_10(iD(15458), "rd:Trice32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice32_11(iD(15459), "rd:Trice32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice32_12(iD(15460), "rd:Trice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice32_1 (iD(15461), "rd:TRice32_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice32_1  -1     
+        break; case __LINE__: TRice32_2 (iD(15462), "rd:TRice32_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice32_2  -1, -2 
+        break; case __LINE__: TRice32_3 (iD(15463), "rd:TRice32_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice32_3  -1, -2, -3       
+        break; case __LINE__: TRice32_4 (iD(15464), "rd:TRice32_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice32_4  -1, -2, -3, -4      
+        break; case __LINE__: TRice32_5 (iD(15465), "rd:TRice32_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice32_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice32_6 (iD(15466), "rd:TRice32_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice32_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice32_7 (iD(15467), "rd:TRice32_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice32_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice32_8 (iD(15468), "rd:TRice32_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice32_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice32_9 (iD(15469), "rd:TRice32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice32_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice32_10(iD(15470), "rd:TRice32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice32_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice32_11(iD(15471), "rd:TRice32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice32_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice32_12(iD(15472), "rd:TRice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12
 
         break; case __LINE__: trice  (iD(15473), "sig:TRICE64 with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1822,30 +1822,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE64(id(15483), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE64(id(15484), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE64(id(15485), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE64(Id(15486), "rd:TRICE64 %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE64 -1     
-        break; case __LINE__: TRICE64(Id(15487), "rd:TRICE64 %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE64 -1, -2 
-        break; case __LINE__: TRICE64(Id(15488), "rd:TRICE64 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE64 -1, -2, -3       
-        break; case __LINE__: TRICE64(Id(15489), "rd:TRICE64 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4      
-        break; case __LINE__: TRICE64(Id(15490), "rd:TRICE64 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE64(Id(15491), "rd:TRICE64 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE64(Id(15492), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE64(Id(15493), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE64(Id(15494), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE64(Id(15495), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE64(Id(15496), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE64(Id(15497), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE64(ID(15498), "rd:TRICE64 %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE64 -1     
-        break; case __LINE__: TRICE64(ID(15499), "rd:TRICE64 %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE64 -1, -2 
-        break; case __LINE__: TRICE64(ID(15500), "rd:TRICE64 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3       
-        break; case __LINE__: TRICE64(ID(15501), "rd:TRICE64 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4      
-        break; case __LINE__: TRICE64(ID(15502), "rd:TRICE64 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE64(ID(15503), "rd:TRICE64 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE64(ID(15504), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE64(ID(15505), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE64(ID(15506), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE64(ID(15507), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE64(ID(15508), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE64(ID(15509), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE64(Id(15486), "rd:TRICE64 %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE64 -1     
+        break; case __LINE__: TRICE64(Id(15487), "rd:TRICE64 %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE64 -1, -2 
+        break; case __LINE__: TRICE64(Id(15488), "rd:TRICE64 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE64 -1, -2, -3       
+        break; case __LINE__: TRICE64(Id(15489), "rd:TRICE64 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4      
+        break; case __LINE__: TRICE64(Id(15490), "rd:TRICE64 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE64(Id(15491), "rd:TRICE64 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE64(Id(15492), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE64(Id(15493), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE64(Id(15494), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE64(Id(15495), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE64(Id(15496), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE64(Id(15497), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE64(ID(15498), "rd:TRICE64 %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE64 -1     
+        break; case __LINE__: TRICE64(ID(15499), "rd:TRICE64 %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE64 -1, -2 
+        break; case __LINE__: TRICE64(ID(15500), "rd:TRICE64 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE64 -1, -2, -3       
+        break; case __LINE__: TRICE64(ID(15501), "rd:TRICE64 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4      
+        break; case __LINE__: TRICE64(ID(15502), "rd:TRICE64 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE64(ID(15503), "rd:TRICE64 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE64(ID(15504), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE64(ID(15505), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE64(ID(15506), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE64(ID(15507), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE64(ID(15508), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE64(ID(15509), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice     (iD(15510), "signal:TRICE64_n with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1861,30 +1861,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE64_10(id(15520), "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:TRICE64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: TRICE64_11(id(15521), "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:TRICE64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRICE64_12(id(15522), "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:TRICE64_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE64_1 (Id(15523), "rd:TRICE64_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:TRICE64_1  -1     
-        break; case __LINE__: TRICE64_2 (Id(15524), "rd:TRICE64_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:TRICE64_2  -1, -2 
-        break; case __LINE__: TRICE64_3 (Id(15525), "rd:TRICE64_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:TRICE64_3  -1, -2, -3       
-        break; case __LINE__: TRICE64_4 (Id(15526), "rd:TRICE64_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:TRICE64_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE64_5 (Id(15527), "rd:TRICE64_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:TRICE64_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE64_6 (Id(15528), "rd:TRICE64_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:TRICE64_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE64_7 (Id(15529), "rd:TRICE64_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:TRICE64_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE64_8 (Id(15530), "rd:TRICE64_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:TRICE64_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE64_9 (Id(15531), "rd:TRICE64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:TRICE64_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE64_10(Id(15532), "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:TRICE64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE64_11(Id(15533), "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:TRICE64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE64_12(Id(15534), "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:TRICE64_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRICE64_1 (ID(15535), "rd:TRICE64_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE64_1  -1     
-        break; case __LINE__: TRICE64_2 (ID(15536), "rd:TRICE64_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE64_2  -1, -2 
-        break; case __LINE__: TRICE64_3 (ID(15537), "rd:TRICE64_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE64_3  -1, -2, -3       
-        break; case __LINE__: TRICE64_4 (ID(15538), "rd:TRICE64_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE64_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE64_5 (ID(15539), "rd:TRICE64_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE64_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE64_6 (ID(15540), "rd:TRICE64_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE64_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE64_7 (ID(15541), "rd:TRICE64_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE64_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE64_8 (ID(15542), "rd:TRICE64_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE64_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE64_9 (ID(15543), "rd:TRICE64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE64_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE64_10(ID(15544), "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE64_11(ID(15545), "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE64_12(ID(15546), "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE64_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE64_1 (Id(15523), "rd:TRICE64_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:TRICE64_1  -1     
+        break; case __LINE__: TRICE64_2 (Id(15524), "rd:TRICE64_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:TRICE64_2  -1, -2 
+        break; case __LINE__: TRICE64_3 (Id(15525), "rd:TRICE64_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:TRICE64_3  -1, -2, -3       
+        break; case __LINE__: TRICE64_4 (Id(15526), "rd:TRICE64_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:TRICE64_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE64_5 (Id(15527), "rd:TRICE64_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:TRICE64_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE64_6 (Id(15528), "rd:TRICE64_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:TRICE64_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE64_7 (Id(15529), "rd:TRICE64_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:TRICE64_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE64_8 (Id(15530), "rd:TRICE64_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:TRICE64_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE64_9 (Id(15531), "rd:TRICE64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:TRICE64_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE64_10(Id(15532), "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:TRICE64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE64_11(Id(15533), "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:TRICE64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE64_12(Id(15534), "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:TRICE64_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE64_1 (ID(15535), "rd:TRICE64_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE64_1  -1     
+        break; case __LINE__: TRICE64_2 (ID(15536), "rd:TRICE64_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE64_2  -1, -2 
+        break; case __LINE__: TRICE64_3 (ID(15537), "rd:TRICE64_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE64_3  -1, -2, -3       
+        break; case __LINE__: TRICE64_4 (ID(15538), "rd:TRICE64_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE64_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE64_5 (ID(15539), "rd:TRICE64_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE64_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE64_6 (ID(15540), "rd:TRICE64_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE64_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE64_7 (ID(15541), "rd:TRICE64_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE64_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE64_8 (ID(15542), "rd:TRICE64_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE64_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE64_9 (ID(15543), "rd:TRICE64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE64_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE64_10(ID(15544), "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE64_11(ID(15545), "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE64_12(ID(15546), "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE64_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice  (iD(15547), "sig:trice64 with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1900,30 +1900,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice64(iD(15557), "rd:trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice64(iD(15558), "rd:trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice64(iD(15559), "rd:trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice64(iD(15560), "rd:Trice64 %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice64 -1     
-        break; case __LINE__: Trice64(iD(15561), "rd:Trice64 %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice64 -1, -2 
-        break; case __LINE__: Trice64(iD(15562), "rd:Trice64 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice64 -1, -2, -3       
-        break; case __LINE__: Trice64(iD(15563), "rd:Trice64 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4      
-        break; case __LINE__: Trice64(iD(15564), "rd:Trice64 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice64(iD(15565), "rd:Trice64 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice64(iD(15566), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice64(iD(15567), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice64(iD(15568), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice64(iD(15569), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice64(iD(15570), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice64(iD(15571), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice64(iD(15572), "rd:TRice64 %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice64 -1     
-        break; case __LINE__: TRice64(iD(15573), "rd:TRice64 %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice64 -1, -2 
-        break; case __LINE__: TRice64(iD(15574), "rd:TRice64 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3       
-        break; case __LINE__: TRice64(iD(15575), "rd:TRice64 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4      
-        break; case __LINE__: TRice64(iD(15576), "rd:TRice64 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice64(iD(15577), "rd:TRice64 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice64(iD(15578), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice64(iD(15579), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice64(iD(15580), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice64(iD(15581), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice64(iD(15582), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice64(iD(15583), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice64(iD(15560), "rd:Trice64 %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice64 -1     
+        break; case __LINE__: Trice64(iD(15561), "rd:Trice64 %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice64 -1, -2 
+        break; case __LINE__: Trice64(iD(15562), "rd:Trice64 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice64 -1, -2, -3       
+        break; case __LINE__: Trice64(iD(15563), "rd:Trice64 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4      
+        break; case __LINE__: Trice64(iD(15564), "rd:Trice64 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice64(iD(15565), "rd:Trice64 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice64(iD(15566), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice64(iD(15567), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice64(iD(15568), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice64(iD(15569), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice64(iD(15570), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice64(iD(15571), "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice64(iD(15572), "rd:TRice64 %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice64 -1     
+        break; case __LINE__: TRice64(iD(15573), "rd:TRice64 %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice64 -1, -2 
+        break; case __LINE__: TRice64(iD(15574), "rd:TRice64 %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice64 -1, -2, -3       
+        break; case __LINE__: TRice64(iD(15575), "rd:TRice64 %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4      
+        break; case __LINE__: TRice64(iD(15576), "rd:TRice64 %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice64(iD(15577), "rd:TRice64 %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice64(iD(15578), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice64(iD(15579), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice64(iD(15580), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice64(iD(15581), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice64(iD(15582), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice64(iD(15583), "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice64 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: trice     (iD(15584), "signal:trice64_n with 1 to 12 values (line %d)\n", __LINE__ );
 
@@ -1939,30 +1939,30 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice64_10(iD(15594), "rd:trice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:            default: rd:trice64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
         break; case __LINE__: trice64_11(iD(15595), "rd:trice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:            default: rd:trice64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice64_12(iD(15596), "rd:trice64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice64_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: Trice64_1 (iD(15597), "rd:Trice64_1  %d\n", -1 );                                                                                            //exp: time:       5_654default: rd:Trice64_1  -1     
-        break; case __LINE__: Trice64_2 (iD(15598), "rd:Trice64_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:       5_654default: rd:Trice64_2  -1, -2 
-        break; case __LINE__: Trice64_3 (iD(15599), "rd:Trice64_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:       5_654default: rd:Trice64_3  -1, -2, -3       
-        break; case __LINE__: Trice64_4 (iD(15600), "rd:Trice64_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:       5_654default: rd:Trice64_4  -1, -2, -3, -4      
-        break; case __LINE__: Trice64_5 (iD(15601), "rd:Trice64_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:       5_654default: rd:Trice64_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: Trice64_6 (iD(15602), "rd:Trice64_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:       5_654default: rd:Trice64_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: Trice64_7 (iD(15603), "rd:Trice64_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:       5_654default: rd:Trice64_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: Trice64_8 (iD(15604), "rd:Trice64_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:       5_654default: rd:Trice64_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: Trice64_9 (iD(15605), "rd:Trice64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:       5_654default: rd:Trice64_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: Trice64_10(iD(15606), "rd:Trice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:       5_654default: rd:Trice64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: Trice64_11(iD(15607), "rd:Trice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:       5_654default: rd:Trice64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: Trice64_12(iD(15608), "rd:Trice64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:       5_654default: rd:Trice64_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
-        break; case __LINE__: TRice64_1 (iD(15609), "rd:TRice64_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRice64_1  -1     
-        break; case __LINE__: TRice64_2 (iD(15610), "rd:TRice64_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRice64_2  -1, -2 
-        break; case __LINE__: TRice64_3 (iD(15611), "rd:TRice64_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRice64_3  -1, -2, -3       
-        break; case __LINE__: TRice64_4 (iD(15612), "rd:TRice64_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRice64_4  -1, -2, -3, -4      
-        break; case __LINE__: TRice64_5 (iD(15613), "rd:TRice64_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRice64_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRice64_6 (iD(15614), "rd:TRice64_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRice64_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRice64_7 (iD(15615), "rd:TRice64_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRice64_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRice64_8 (iD(15616), "rd:TRice64_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRice64_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRice64_9 (iD(15617), "rd:TRice64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRice64_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRice64_10(iD(15618), "rd:TRice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRice64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRice64_11(iD(15619), "rd:TRice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRice64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRice32_12(iD(15620), "rd:TRice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: Trice64_1 (iD(15597), "rd:Trice64_1  %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice64_1  -1     
+        break; case __LINE__: Trice64_2 (iD(15598), "rd:Trice64_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice64_2  -1, -2 
+        break; case __LINE__: Trice64_3 (iD(15599), "rd:Trice64_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice64_3  -1, -2, -3       
+        break; case __LINE__: Trice64_4 (iD(15600), "rd:Trice64_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:    be16default: rd:Trice64_4  -1, -2, -3, -4      
+        break; case __LINE__: Trice64_5 (iD(15601), "rd:Trice64_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:    be16default: rd:Trice64_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: Trice64_6 (iD(15602), "rd:Trice64_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:    be16default: rd:Trice64_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: Trice64_7 (iD(15603), "rd:Trice64_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:    be16default: rd:Trice64_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: Trice64_8 (iD(15604), "rd:Trice64_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:    be16default: rd:Trice64_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: Trice64_9 (iD(15605), "rd:Trice64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:    be16default: rd:Trice64_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: Trice64_10(iD(15606), "rd:Trice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:    be16default: rd:Trice64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: Trice64_11(iD(15607), "rd:Trice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:    be16default: rd:Trice64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: Trice64_12(iD(15608), "rd:Trice64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice64_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRice64_1 (iD(15609), "rd:TRice64_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice64_1  -1     
+        break; case __LINE__: TRice64_2 (iD(15610), "rd:TRice64_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice64_2  -1, -2 
+        break; case __LINE__: TRice64_3 (iD(15611), "rd:TRice64_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice64_3  -1, -2, -3       
+        break; case __LINE__: TRice64_4 (iD(15612), "rd:TRice64_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRice64_4  -1, -2, -3, -4      
+        break; case __LINE__: TRice64_5 (iD(15613), "rd:TRice64_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRice64_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRice64_6 (iD(15614), "rd:TRice64_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRice64_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRice64_7 (iD(15615), "rd:TRice64_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRice64_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRice64_8 (iD(15616), "rd:TRice64_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRice64_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRice64_9 (iD(15617), "rd:TRice64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRice64_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRice64_10(iD(15618), "rd:TRice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRice64_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRice64_11(iD(15619), "rd:TRice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRice32_12(iD(15620), "rd:TRice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: TRICE(ID(15621), "sig:Colors and ticks\n" );
         break; case __LINE__: TRICE(ID(15622), "--------------------------------------------------\n");
@@ -2012,7 +2012,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE8_5(ID(15665), "tst:TRICE8_5 %02x %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5 );
         break; case __LINE__: TRICE8_6(ID(15666), "tst:TRICE8_6 %02x %02x %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6);
         break; case __LINE__: TRICE8_7(ID(15667), "tst:TRICE8_7 %02x %02x %02x %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7);
-        break; case __LINE__: TRICE8_8(ID(15668), "tst:TRICE8_8 %02X %02X %02X %02X %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8); //exp: time: 842,150_450default: tst:TRICE8_8 A1 A2 A3 A4 a5 a6 a7 a8
+        break; case __LINE__: TRICE8_8(ID(15668), "tst:TRICE8_8 %02X %02X %02X %02X %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8); //exp: time:feed3322default: tst:TRICE8_8 A1 A2 A3 A4 a5 a6 a7 a8
         break; case __LINE__: TRICE8_1(ID(15669), "tst:TRICE8_1 %d\n",                      -1);
         break; case __LINE__: TRICE8_2(ID(15670), "tst:TRICE8_2 %d %d\n",                   -1, -2);
         break; case __LINE__: TRICE8_3(ID(15671), "tst:TRICE8_3 %d %d %d\n",                -1, -2, -3);
@@ -2352,32 +2352,32 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
         break; case __LINE__: TRICE(ID(15998), "sig:TRICE with 1 to 12 values\n" );
 
-        break; case __LINE__: TRICE(ID(15999), "rd:TRICE %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE -1     
-        break; case __LINE__: TRICE(ID(16000), "rd:TRICE %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE -1, -2 
-        break; case __LINE__: TRICE(ID(16001), "rd:TRICE %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE -1, -2, -3       
-        break; case __LINE__: TRICE(ID(16002), "rd:TRICE %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4      
-        break; case __LINE__: TRICE(ID(16003), "rd:TRICE %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE(ID(16004), "rd:TRICE %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE(ID(16005), "rd:TRICE %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE(ID(16006), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE(ID(16007), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE(ID(16008), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE(ID(16009), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE(ID(16010), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE(ID(15999), "rd:TRICE %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE -1     
+        break; case __LINE__: TRICE(ID(16000), "rd:TRICE %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE -1, -2 
+        break; case __LINE__: TRICE(ID(16001), "rd:TRICE %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE -1, -2, -3       
+        break; case __LINE__: TRICE(ID(16002), "rd:TRICE %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4      
+        break; case __LINE__: TRICE(ID(16003), "rd:TRICE %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE(ID(16004), "rd:TRICE %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE(ID(16005), "rd:TRICE %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE(ID(16006), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE(ID(16007), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE(ID(16008), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE(ID(16009), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE(ID(16010), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: TRICE(ID(16011), "sig:TRICE_n with 1 to 12 values\n" );		
-        break; case __LINE__: TRICE(ID(16012), "rd:TRICE_1  %d\n", -1 );                                                                                            //exp: time: 842,150_450default: rd:TRICE_1  -1     
-        break; case __LINE__: TRICE(ID(16013), "rd:TRICE_2  %d, %d\n", -1, -2 );                                                                                    //exp: time: 842,150_450default: rd:TRICE_2  -1, -2 
-        break; case __LINE__: TRICE(ID(16014), "rd:TRICE_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time: 842,150_450default: rd:TRICE_3  -1, -2, -3       
-        break; case __LINE__: TRICE(ID(16015), "rd:TRICE_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time: 842,150_450default: rd:TRICE_4  -1, -2, -3, -4      
-        break; case __LINE__: TRICE(ID(16016), "rd:TRICE_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time: 842,150_450default: rd:TRICE_5  -1, -2, -3, -4, -5        
-        break; case __LINE__: TRICE(ID(16017), "rd:TRICE_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time: 842,150_450default: rd:TRICE_6  -1, -2, -3, -4, -5, -6        
-        break; case __LINE__: TRICE(ID(16018), "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time: 842,150_450default: rd:TRICE_7  -1, -2, -3, -4, -5, -6, -7      
-        break; case __LINE__: TRICE(ID(16019), "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time: 842,150_450default: rd:TRICE_8  -1, -2, -3, -4, -5, -6, -7, -8       
-        break; case __LINE__: TRICE(ID(16020), "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time: 842,150_450default: rd:TRICE_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
-        break; case __LINE__: TRICE(ID(16021), "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time: 842,150_450default: rd:TRICE_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
-        break; case __LINE__: TRICE(ID(16022), "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time: 842,150_450default: rd:TRICE_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
-        break; case __LINE__: TRICE(ID(16023), "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time: 842,150_450default: rd:TRICE_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
+        break; case __LINE__: TRICE(ID(16012), "rd:TRICE_1  %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRICE_1  -1     
+        break; case __LINE__: TRICE(ID(16013), "rd:TRICE_2  %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRICE_2  -1, -2 
+        break; case __LINE__: TRICE(ID(16014), "rd:TRICE_3  %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRICE_3  -1, -2, -3       
+        break; case __LINE__: TRICE(ID(16015), "rd:TRICE_4  %d, %d, %d, %d\n", -1, -2, -3, -4 );                                                                    //exp: time:feed3322default: rd:TRICE_4  -1, -2, -3, -4      
+        break; case __LINE__: TRICE(ID(16016), "rd:TRICE_5  %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );                                                            //exp: time:feed3322default: rd:TRICE_5  -1, -2, -3, -4, -5        
+        break; case __LINE__: TRICE(ID(16017), "rd:TRICE_6  %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );                                                    //exp: time:feed3322default: rd:TRICE_6  -1, -2, -3, -4, -5, -6        
+        break; case __LINE__: TRICE(ID(16018), "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7);                                             //exp: time:feed3322default: rd:TRICE_7  -1, -2, -3, -4, -5, -6, -7      
+        break; case __LINE__: TRICE(ID(16019), "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );                                    //exp: time:feed3322default: rd:TRICE_8  -1, -2, -3, -4, -5, -6, -7, -8       
+        break; case __LINE__: TRICE(ID(16020), "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );                            //exp: time:feed3322default: rd:TRICE_9  -1, -2, -3, -4, -5, -6, -7, -8, -9   
+        break; case __LINE__: TRICE(ID(16021), "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);                    //exp: time:feed3322default: rd:TRICE_10 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10    
+        break; case __LINE__: TRICE(ID(16022), "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRICE_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
+        break; case __LINE__: TRICE(ID(16023), "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRICE_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
 
         break; case __LINE__: TRICE  (ID(16024), "sig:TRICE16 with 1 to 12 pointer\n" );
