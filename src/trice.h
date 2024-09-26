@@ -162,9 +162,9 @@ extern "C" {
 // https://codereview.stackexchange.com/questions/151049/endianness-conversion-in-c
 #include <byteswap.h>
 
-#define TRICE_HTOTS(x) __bswap16(x) //!< TRICE_HTOTS reorders short values from host order into trice transfer order.
-#define TRICE_HTOTL(x) __bswap32(x) //!< TRICE_HTOTL reorders long values from host order x into trice transfer order.
-#define TRICE_TTOHS(x) __bswap16(x) //!< TRICE_TTOHS reorders short values from trice transfer order into host order.
+#define TRICE_HTOTS(x) __bswap_16(x) //!< TRICE_HTOTS reorders short values from host order into trice transfer order.
+#define TRICE_HTOTL(x) __bswap_32(x) //!< TRICE_HTOTL reorders long values from host order x into trice transfer order.
+#define TRICE_TTOHS(x) __bswap_16(x) //!< TRICE_TTOHS reorders short values from trice transfer order into host order.
 
 #endif // #if TRICE_USE_BYTE_SWAP_HEADER == 1
 
@@ -213,13 +213,13 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 #else // #if TRICE_REVERSE == 1
 
 //! TRICE_HTOTS reorders short values from hos // t order into trice transfer order.
-#define TRICE_HTOTS(x) (x)
+#define TRICE_HTOTS(x) ((uint16_t)(x))
 
 //! TRICE_HTOTL reorders long values from host order x into trice transfer order.
-#define TRICE_HTOTL(x) (x)
+#define TRICE_HTOTL(x) ((uint32_t)(x))
 
 //! TRICE_TTOHS reorders short values from trice transfer order into host order.
-#define TRICE_TTOHS(x) (x)
+#define TRICE_TTOHS(x) ((uint16_t)(x))
 
 #endif // #else // #if TRICE_REVERSE == 1
 
@@ -907,7 +907,7 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 #define Id(n)                                        \
 	do {                                             \
 		uint16_t ts = TriceStamp16;                  \
-		TRICE_PUT((0x80008000 | ((n) << 16) | (n))); \
+		TRICE_PUT_AS_IS(TRICE_HTOTL(0x80008000 | ((n) << 16) | (n))); \
 		TRICE_PUT16(ts);                             \
 	} while (0)
 
