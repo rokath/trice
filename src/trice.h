@@ -120,28 +120,6 @@ extern "C" {
 
 #endif
 
-#if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1))
-
-#define TRICE_REVERSE 1 //!< TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution. Try to avoid this.
-
-#include "TriceMcuReverse.h"
-
-#else
-
-#define TRICE_REVERSE 0 //!< TRICE_REVERSE == 0 uses no byte swapping inside the Trice macros resulting in less code and faster execution. Try to use this.
-
-#include "TriceMcuOrder.h"
-
-#endif
-
-//! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
-#define TRICE_PUT16(x)                                     \
-	do {                                                   \
-		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-		*p++ = TRICE_HTOTS(x);                             \
-		TriceBufferWritePosition = (uint32_t*)p;           \
-	} while (0)
-
 // global function prototypes:
 
 #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
@@ -259,6 +237,29 @@ extern uint32_t* TriceBufferWritePosition;
 #include "TriceOn.h"
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
+
+#if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1))
+
+#define TRICE_REVERSE 1 //!< TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution. Try to avoid this.
+
+#include "TriceMcuReverse.h"
+
+#else
+
+#define TRICE_REVERSE 0 //!< TRICE_REVERSE == 0 uses no byte swapping inside the Trice macros resulting in less code and faster execution. Try to use this.
+
+#include "TriceMcuOrder.h"
+
+#endif
+
+//! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
+#define TRICE_PUT16(x)                                     \
+	do {                                                   \
+		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
+		*p++ = TRICE_HTOTS(x);                             \
+		TriceBufferWritePosition = (uint32_t*)p;           \
+	} while (0)
+
 
 #include "trice8.h"
 #include "trice16.h"
