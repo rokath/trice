@@ -2,7 +2,6 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-
 #ifndef TRICE_USE_BYTE_SWAP_HEADER
 #define TRICE_USE_BYTE_SWAP_HEADER 0
 #endif
@@ -83,7 +82,23 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 
 #endif // #if TRICE_USE_BYTE_SWAP_INLINE == 1
 
-#if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
+#if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
+
+//! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
+#define TRICE_PUT16_1616(x, ts) /* little endian */        \
+	do {                                                   \
+		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
+		*p++ = TRICE_HTOTS(x);                             \
+		*p++ = TRICE_HTOTS(ts);         /* lo */           \
+		*p++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
+		TriceBufferWritePosition = (uint32_t*)p;           \
+	} while (0)
+
+#define TRICE_PUT64(x)                     \
+	TRICE_PUT(TRICE_HTOTL((uint32_t)(x))); \
+	TRICE_PUT(TRICE_HTOTL((uint32_t)((uint64_t)(x) >> 32))); // little endian
+
+#else                           // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
 
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT16_1616(x, ts) /* big endian */           \
@@ -95,33 +110,14 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
-#else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
+#define TRICE_PUT64(x)                           \
+	TRICE_PUT(TRICE_HTOTL((uint64_t)(x) >> 32)); \
+	TRICE_PUT(TRICE_HTOTL((uint32_t)(x))); // big endian
 
-//! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-#define TRICE_PUT16_1616(x, ts) /* little endian */           \
-	do {                                                   \
-		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-		*p++ = TRICE_HTOTS(x);                             \
-		*p++ = TRICE_HTOTS(ts);         /* lo */           \
-		*p++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
-		TriceBufferWritePosition = (uint32_t*)p;           \
-	} while (0)
+#endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
 
-#endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
-
-// #define idL ((uint8_t)(tid) << 8)              //!< idL is the no-stamp tid low byte moved to the high position to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-// #define idH ((0xff00 & (0x4000 | (tid))) >> 8) //!< idH is the no-stamp tid high byte moved to the low position to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-// #define idLH (idL|idH)                         //!< idLH is the no-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
 #define idLH TRICE_HTOTS(0x4000 | (tid)) //!< idLH is the no-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-
-// #define IdL ((uint8_t)(tid) << 8)              //!< IdL is the 16-bit-stamp tid low byte moved to the high position to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-// #define IdH ((0xff00 & (0x8000 | (tid))) >> 8) //!< IdH is the 16-bit-stamp tid high byte moved to the low position to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-// #define IdLH (IdL|IdH)                         //!< idLH is the 16-bit-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-#define IdLH TRICE_HTOTS(0x8000 | (tid)) //!< idLH is the 16-bit-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-
-// #define IDL ((uint8_t)(tid) << 8)              //!< IDL is the 32-bit-stamp tid low byte moved to the high position to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-// #define IDH ((0xff00 & (0xc000 | (tid))) >> 8) //!< IDH is the 32-bit-stamp tid high byte moved to the low position to be used in TRICE_PUT, when TRICE_REVERSE == 1.
-// #define IDLH (idL|idH)                         //!< idLH is the 32-bit-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
+#define IdLH TRICE_HTOTS(0x8000 | (tid)) //!< IdLH is the 16-bit-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
 #define IDLH TRICE_HTOTS(0xc000 | (tid)) //!< IDLH is the 32-bit-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
 
 #define tsL ((0x00ff & ts) << 8)

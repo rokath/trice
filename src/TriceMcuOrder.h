@@ -23,7 +23,11 @@
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
-#else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
+#define TRICE_PUT64(x)        \
+	TRICE_PUT((uint32_t)(x)); \
+	TRICE_PUT((uint32_t)((uint64_t)(x) >> 32)); // little endian
+
+#else                           // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
 
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT16_1616(x, ts) /* big endian */           \
@@ -35,4 +39,14 @@
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
+#define TRICE_PUT64(x)              \
+	TRICE_PUT((uint64_t)(x) >> 32); \
+	TRICE_PUT((uint32_t)(x)); // big endian
+
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
+
+#if TRICE_REVERSE == 0
+
+#else // #if TRICE_REVERSE == 0
+
+#endif // #else // #if TRICE_REVERSE == 0

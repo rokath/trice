@@ -86,7 +86,7 @@ extern "C" {
 //! TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
 #define TRICE_FRAMING_NONE 1431860787U
 
-#if defined(TRICE_OFF) && TRICE_OFF == 1 
+#if defined(TRICE_OFF) && TRICE_OFF == 1
 
 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
 // If defining TRICE_OFF to 1 in the project settings, all Trice code gets disabled.
@@ -96,7 +96,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <string.h>
-#include "triceConfig.h" // non-default settings
+#include "triceConfig.h"        // non-default settings
 #include "triceDefaultConfig.h" // default settings
 
 #if (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) // Do not generate trice code when defining TRICE_CLEAN to 1 inside "triceConfig.h".
@@ -238,17 +238,17 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1))
-
-#define TRICE_REVERSE 1 //!< TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution. Try to avoid this.
-
-#include "TriceMcuReverse.h"
-
-#else
+#if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
 #define TRICE_REVERSE 0 //!< TRICE_REVERSE == 0 uses no byte swapping inside the Trice macros resulting in less code and faster execution. Try to use this.
 
 #include "TriceMcuOrder.h"
+
+#else
+
+#define TRICE_REVERSE 1 //!< TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution. Try to avoid this.
+
+#include "TriceMcuReverse.h"
 
 #endif
 
@@ -260,7 +260,6 @@ extern uint32_t* TriceBufferWritePosition;
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
-
 #include "trice8.h"
 #include "trice16.h"
 #include "trice32.h"
@@ -269,10 +268,16 @@ extern uint32_t* TriceBufferWritePosition;
 #if TRICE_REVERSE == 0
 
 #include "Trice8McuOrder.h"
+#include "Trice16McuOrder.h"
+#include "Trice32McuOrder.h"
+#include "Trice64McuOrder.h"
 
 #else // #if TRICE_REVERSE == 0
 
 #include "Trice8McuReverse.h"
+#include "Trice16McuReverse.h"
+#include "Trice32McuReverse.h"
+#include "Trice64McuReverse.h"
 
 #endif // #else // #if TRICE_REVERSE == 0
 

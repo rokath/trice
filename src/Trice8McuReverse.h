@@ -2,18 +2,11 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-//! trice8m_0 writes trice data as fast as possible in a buffer.
-//! This macro is used internally and not intended for user applications.
-//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define trice8m_0(tid)                       \
 	TRICE_ENTER                              \
 	TRICE_PUT(((TRICE_CYCLE) << 24) | idLH); \
 	TRICE_LEAVE
 
-//! trice8m_1 writes trice data as fast as possible in a buffer.
-//! This macro is used internally and not intended for user applications.
-//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
 #define trice8m_1(tid, v0)                               \
 	TRICE_ENTER                                          \
 	TRICE_PUT(((TRICE_CYCLE) << 24) | (1 << 16) | idLH); \
@@ -86,9 +79,6 @@
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-//! Trice8m_0 writes trice data as fast as possible in a buffer.
-//! This macro is used internally and not intended for user applications.
-//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define Trice8m_0(tid)                          \
 	TRICE_ENTER                                 \
 	uint16_t ts = TriceStamp16;                 \
@@ -96,10 +86,6 @@
 	TRICE_PUT((TRICE_CYCLE << 24) | tsL | tsH); \
 	TRICE_LEAVE
 
-//! Trice8m_1 writes trice data as fast as possible in a buffer.
-//! This macro is used internally and not intended for user applications.
-//! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
 #define Trice8m_1(tid, v0)                                  \
 	TRICE_ENTER                                             \
 	uint16_t ts = TriceStamp16;                             \
@@ -196,8 +182,6 @@
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-//! TRice8m_0 writes trice data as fast as possible in a buffer.
-//! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRice8m_0(tid)                           \
 	TRICE_ENTER                                  \
 	uint32_t ts = TriceStamp32;                  \
@@ -205,9 +189,6 @@
 	TRICE_PUT((TRICE_CYCLE << 24) | tsLL | tsLH) \
 	TRICE_LEAVE
 
-//! TRice8m_1 writes a Trice header with 32-bit stamp and 8-bit trice data as fast as possible in a buffer.
-//! \param tid is a 14 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
 #define TRice8m_1(tid, v0)                                   \
 	TRICE_ENTER                                              \
 	uint32_t ts = TriceStamp32;                              \
