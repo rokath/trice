@@ -1442,10 +1442,10 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 ##  14. <a name='Endianness'></a>Endianness
 
 - To interpret a decoded package, it´s endianness needs to be known.
-- For efficiency binary trice data are normally stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
-- On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined as 1 and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
-- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed to be defined as 1. This increases the critical trice storage time and target code amount.
-- De facto `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is used to test the Trice CLI switch `-triceEndianness bigEndian` automatically.
+- For efficiency, binary trice data are normally stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
+- On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined as 1 and `TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN` should have the same value. The **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
+- If trice transmit data are needed to be not in MCU order for some reason, that increases the critical trice storage time and target code amount.
+- De facto different values for  `TRICE_MCU_IS_BIG_ENDIAN` and `TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN` aremainly used to test the Trice CLI switch `-triceEndianness bigEndian` automatically.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

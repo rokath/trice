@@ -221,18 +221,19 @@ extern "C" {
 #endif
 
 #ifndef TRICE_MCU_IS_BIG_ENDIAN
-//! TRICE_MCU_IS_BIG_ENDIAN needs to be 1 for TRICE64 macros on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding.
+//! TRICE_MCU_IS_BIG_ENDIAN needs to be 1 on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding. Please consider TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN setting.
 #define TRICE_MCU_IS_BIG_ENDIAN 0 // todo: Set this value automatically thru the used compiler.
 #endif
 
-#ifndef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
-//! TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN can be defined to 1 on little endian MCUs if the trice data are needed in network order,
-//! or on big endian MCUs if the trice data are needed in little endian order. You should avoid setting this to 1 because
-//! it increases the trice storage time and the needed code amount. The default transfer order is little endian as most targets are
-//! little endian machines. Do not change this value for big endian MCUs, you better apply the `-triceEndianness bigEndian` CLI switch
-//! when using the `trice log` command then. Please consider also the TRICE_MCU_IS_BIG_ENDIAN compiler switch for big endian MCUs.
-//! This switch is mainly intended to be used for automated tests.
-#define TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN 0
+#ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
+//! TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN should have the same value as TRICE_MCU_IS_BIG_ENDIAN to avoid additional byte swapping code.
+//! It can be defined to 1 on little endian MCUs if the trice data are needed in network order for some reason.
+//! But that adds byte swapping code. This switch is mainly intended to be used for automated tests.
+//! The default transfer order is little endian as most targets are little endian machines.
+//! On big endian MCUs this value should be set to 1 to avoid additional byte swapping code, which increases the trice storage time and the needed code amount.
+//! For TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1, you need to apply the `-triceEndianness bigEndian` CLI switch when using the `trice log` command then.
+//! Please consider also the TRICE_MCU_IS_BIG_ENDIAN compiler switch in this context.
+#define TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN TRICE_MCU_IS_BIG_ENDIAN
 #endif
 
 #ifndef TRICE_DIRECT_OUT_FRAMING

@@ -83,6 +83,8 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 
 #endif // #if TRICE_USE_BYTE_SWAP_INLINE == 1
 
+#if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
+
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT16_1616(x, ts) /* big endian */           \
 	do {                                                   \
@@ -93,6 +95,19 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
+#else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
+
+//! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
+#define TRICE_PUT16_1616(x, ts) /* little endian */           \
+	do {                                                   \
+		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
+		*p++ = TRICE_HTOTS(x);                             \
+		*p++ = TRICE_HTOTS(ts);         /* lo */           \
+		*p++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
+		TriceBufferWritePosition = (uint32_t*)p;           \
+	} while (0)
+
+#endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
 
 // #define idL ((uint8_t)(tid) << 8)              //!< idL is the no-stamp tid low byte moved to the high position to be used in TRICE_PUT, when TRICE_REVERSE == 1.
 // #define idH ((0xff00 & (0x4000 | (tid))) >> 8) //!< idH is the no-stamp tid high byte moved to the low position to be used in TRICE_PUT, when TRICE_REVERSE == 1.
