@@ -238,17 +238,17 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#if ((TRICE_MCU_IS_BIG_ENDIAN == 1) && (TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0)) || ((TRICE_MCU_IS_BIG_ENDIAN == 0) && (TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1))
-
-#define TRICE_REVERSE 1 //!< TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution. Try to avoid this.
-
-#include "TriceMcuReverse.h"
-
-#else
+#if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN 
 
 #define TRICE_REVERSE 0 //!< TRICE_REVERSE == 0 uses no byte swapping inside the Trice macros resulting in less code and faster execution. Try to use this.
 
 #include "TriceMcuOrder.h"
+
+#else
+
+#define TRICE_REVERSE 1 //!< TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution. Try to avoid this.
+
+#include "TriceMcuReverse.h"
 
 #endif
 
@@ -269,10 +269,16 @@ extern uint32_t* TriceBufferWritePosition;
 #if TRICE_REVERSE == 0
 
 #include "Trice8McuOrder.h"
+#include "Trice16McuOrder.h"
+#include "Trice32McuOrder.h"
+#include "Trice64McuOrder.h"
 
 #else // #if TRICE_REVERSE == 0
 
 #include "Trice8McuReverse.h"
+#include "Trice16McuReverse.h"
+#include "Trice32McuReverse.h"
+#include "Trice64McuReverse.h"
 
 #endif // #else // #if TRICE_REVERSE == 0
 
