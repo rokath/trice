@@ -99,11 +99,11 @@ extern "C" {
 // When the user defines TRICE_CLEAN to 0 or 1 inside triceConfig.h, this value is set to 0 with "trice insert" and to 1 with "trice clean".
 // This gives the option to silence editor warnings in the "trice clean" state.
 // To avoid a re-build on files including trice.h, the Trice cache will be helpful. See issue #488.
-#include "TriceOff.h"
+#include "triceOff.h"
 
 #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-#include "TriceOn.h"
+#include "triceOn.h"
 
 #endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
@@ -231,13 +231,13 @@ extern uint32_t* TriceBufferWritePosition;
 
 #define TRICE_REVERSE 0 //!< TRICE_REVERSE == 0 uses no byte swapping inside the Trice macros resulting in less code and faster execution. Try to use this.
 
-#include "TriceMcuOrder.h"
+#include "triceMcuOrder.h"
 
 #else
 
 #define TRICE_REVERSE 1 //!< TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution. Try to avoid this.
 
-#include "TriceMcuReverse.h"
+#include "triceMcuReverse.h"
 
 #endif
 
@@ -256,17 +256,17 @@ extern uint32_t* TriceBufferWritePosition;
 
 #if TRICE_REVERSE == 0
 
-#include "Trice8McuOrder.h"
-#include "Trice16McuOrder.h"
-#include "Trice32McuOrder.h"
-#include "Trice64McuOrder.h"
+#include "trice8McuOrder.h"
+#include "trice16McuOrder.h"
+#include "trice32McuOrder.h"
+#include "trice64McuOrder.h"
 
 #else // #if TRICE_REVERSE == 0
 
-#include "Trice8McuReverse.h"
-#include "Trice16McuReverse.h"
-#include "Trice32McuReverse.h"
-#include "Trice64McuReverse.h"
+#include "trice8McuReverse.h"
+#include "trice16McuReverse.h"
+#include "trice32McuReverse.h"
+#include "trice64McuReverse.h"
 
 #endif // #else // #if TRICE_REVERSE == 0
 

@@ -1,4 +1,4 @@
-/*! \file Trice16McuOrder.h
+/*! \file trice16McuOrder.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 

@@ -1,4 +1,4 @@
-/*! \file TriceOff.h
+/*! \file triceOff.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 

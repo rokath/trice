@@ -1,4 +1,4 @@
-/*! \file Trice8McuReverse.h
+/*! \file trice8McuReverse.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
