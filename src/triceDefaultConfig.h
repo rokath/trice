@@ -408,6 +408,45 @@ extern "C" {
 #define TRICE_64_BIT_SUPPORT 1
 #endif
 
+///////////////////////////////////////////////////////////////////////////////
+// Trice time measurement
+// The SYSTICKVAL is not needed by the Trice code. It is only used inside triceCheck.c as example value.
+// If your MCU is a not ARM Cortex-M one, simply define this value according your MCU, if you wish to use SYSTICKVAL.
+
+#ifndef SYSTICKVAL
+
+#if defined(__arm__)       /* Defined by GNU C and RealView */               \
+    || defined(__thumb__)  /* Defined by GNU C and RealView in Thumb mode */ \
+    || defined(_ARM)       /* Defined by ImageCraft C */                     \
+    || defined(_M_ARM)     /* Defined by Visual Studio */                    \
+    || defined(_M_ARMT)    /* Defined by Visual Studio in Thumb mode */      \
+    || defined(__arm)      /* Defined by Diab */                             \
+    || defined(__ICCARM__) /* IAR */                                         \
+    || defined(__CC_ARM)   /* ARM's (RealView) compiler */                   \
+    || defined(__ARM__)    /* TASKING VX ARM toolset C compiler */           \
+    || defined(__CARM__)   /* TASKING VX ARM toolset C compiler */           \
+    || defined(__CPARM__)  /* TASKING VX ARM toolset C++ compiler */
+
+//! ARM Cortex-M MCUs have this register. 
+//! \li See https://developer.arm.com/documentation/dui0552/a/cortex-m3-peripherals/system-timer--systick
+//! This is only 16- or 24-bit wide and usually resetted each ms. Consider using DWT_CYCCNT if your MCU supports this.
+//! When using a 24-bit SYSTICKVAL as 16-bit target timestamp, be aware, that, for example, with a 100 MHz system clock, the
+//! SYSTICKVAL runs from 99 999 999 to 0 and you see just the lower 16 bit as time stamp, what may be confusing. With a
+//! 64 MHz clock, everything is fine, because 63999 is still a 16-bit value. When using DWT_CYCCNT on MCU clocks > 65 MHz,
+//! displaying only the lower 2 bytes is ok, because this 32-bit counter runs circular without being resetted.
+#define SYSTICKVAL (*(volatile uint32_t*)0xE000E018UL)
+
+#else
+
+#define SYSTICKVAL 0
+
+#endif
+
+#endif // #ifndef SYSTICKVAL
+
+//
+///////////////////////////////////////////////////////////////////////////////
+
 #ifdef __cplusplus
 }
 #endif

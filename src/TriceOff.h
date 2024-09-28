@@ -11,6 +11,10 @@
 #define TRICE_S(id, p, s)      // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
 #define TRICE_N(id, p, s, n)   // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
 
+#define trice(fmt, ...)
+#define Trice(fmt, ...)
+#define TRice(fmt, ...)
+
 #define trice8(fmt, ...)
 #define Trice8(fmt, ...)
 #define TRice8(fmt, ...)

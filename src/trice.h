@@ -486,38 +486,6 @@ extern uint32_t* TriceBufferWritePosition;
 // clang-format on
 
 ///////////////////////////////////////////////////////////////////////////////
-// Trice time measurement
-// The SYSTICKVAL is not needed by the Trice code. It is only used inside triceCheck.c as example value.
-//
-
-#ifndef SYSTICKVAL
-
-#if defined(__arm__)       /* Defined by GNU C and RealView */               \
-    || defined(__thumb__)  /* Defined by GNU C and RealView in Thumb mode */ \
-    || defined(_ARM)       /* Defined by ImageCraft C */                     \
-    || defined(_M_ARM)     /* Defined by Visual Studio */                    \
-    || defined(_M_ARMT)    /* Defined by Visual Studio in Thumb mode */      \
-    || defined(__arm)      /* Defined by Diab */                             \
-    || defined(__ICCARM__) /* IAR */                                         \
-    || defined(__CC_ARM)   /* ARM's (RealView) compiler */                   \
-    || defined(__ARM__)    /* TASKING VX ARM toolset C compiler */           \
-    || defined(__CARM__)   /* TASKING VX ARM toolset C compiler */           \
-    || defined(__CPARM__)  /* TASKING VX ARM toolset C++ compiler */
-
-#define SYSTICKVAL (*(volatile uint32_t*)0xE000E018UL) // All ARM MCUs or STM32 only?
-
-#else
-
-#define SYSTICKVAL 0
-
-#endif
-
-#endif // #ifndef SYSTICKVAL
-
-//
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
 // UART interface
 //
 
@@ -580,23 +548,6 @@ void XTEAInitTable(void);
 
 //! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of TRICE_COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
 #define TRICE(tid, fmt, ...) TRICE_CONCAT2(TRICE_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-
-#if TRICE_OFF == 1 || TRICE_CLEAN == 1
-
-#define TRice(fmt, ...)
-#define Trice(fmt, ...)
-#define trice(fmt, ...)
-
-#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
-
-#define TRice(tid, fmt, ...) TRICE_CONCAT2(TRice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice(tid, fmt, ...) TRICE_CONCAT2(Trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define trice(tid, fmt, ...) TRICE_CONCAT2(trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-
-#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
-
-//
-///////////////////////////////////////////////////////////////////////////////
 
 // pre C99
 //  // aFloat returns passed float value x as bit pattern in a uint32_t type.
@@ -797,9 +748,9 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 // clang-format off
-	TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
-	TRICE_INLINE void Trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 	TRICE_INLINE void trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
+	TRICE_INLINE void Trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
+	TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 
 	TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
 	TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
@@ -812,8 +763,8 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 
 #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
-TRICE_INLINE void TRice0(uint16_t tid, const char* pFmt) {
-	TRice32m_0(tid);
+TRICE_INLINE void trice0(uint16_t tid, const char* pFmt) {
+	trice32m_0(tid);
 	TRICE_UNUSED(pFmt)
 }
 
@@ -822,8 +773,8 @@ TRICE_INLINE void Trice0(uint16_t tid, const char* pFmt) {
 	TRICE_UNUSED(pFmt)
 }
 
-TRICE_INLINE void trice0(uint16_t tid, const char* pFmt) {
-	trice32m_0(tid);
+TRICE_INLINE void TRice0(uint16_t tid, const char* pFmt) {
+	TRice32m_0(tid);
 	TRICE_UNUSED(pFmt)
 }
 
