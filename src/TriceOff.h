@@ -2,9 +2,6 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICEOFF
-#define TRICEOFF
-
 #define TRICE_ENTER
 #define TRICE_LEAVE
 #define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
@@ -197,5 +194,3 @@
 #define TRice64_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< TRice64_10 is a macro calling a function to reduce code size.
 #define TRice64_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< TRice64_11 is a macro calling a function to reduce code size.
 #define TRice64_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< TRice64_12 is a macro calling a function to reduce code size.
-
-#endif // #ifndef TRICEOFF

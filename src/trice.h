@@ -86,27 +86,26 @@ extern "C" {
 //! TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
 #define TRICE_FRAMING_NONE 1431860787U
 
-#if defined(TRICE_OFF) && TRICE_OFF == 1
-
-// Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
-// If defining TRICE_OFF to 1 in the project settings, all Trice code gets disabled.
-#include "TriceOff.h"
-
-#endif // #if defined(TRICE_OFF) && TRICE_OFF == 1
-
 #include <stdint.h>
 #include <string.h>
-#include "triceConfig.h"        // non-default settings
+#include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
 
-#if (defined(TRICE_CLEAN) && TRICE_CLEAN == 1) // Do not generate trice code when defining TRICE_CLEAN to 1 inside "triceConfig.h".
+// Do not generate trice code when defining TRICE_CLEAN to 1 inside "triceConfig.h".
+// It is possible to `#define TRICE_OFF 1` inside "triceConfig.h" or the project settings to disable all Trice code.
+// Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
+#if ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
 
 // When the user defines TRICE_CLEAN to 0 or 1 inside triceConfig.h, this value is set to 0 with "trice insert" and to 1 with "trice clean".
 // This gives the option to silence editor warnings in the "trice clean" state.
 // To avoid a re-build on files including trice.h, the Trice cache will be helpful. See issue #488.
 #include "TriceOff.h"
 
-#endif // #if (defined(TRICE_CLEAN) && TRICE_CLEAN == 1)
+#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
+
+#include "TriceOn.h"
+
+#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
@@ -227,16 +226,6 @@ extern uint32_t* TriceBufferWritePosition;
 #define TRICE_CYCLE 0xC0 //!< TRICE_CYCLE is no trice cycle counter, just a static value.
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
-
-#if TRICE_OFF == 1 || TRICE_CLEAN == 1 // It is possible to `#define TRICE_OFF 1` inside "triceConfig.h" to disable all Trice code.
-
-#include "TriceOff.h"
-
-#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
-
-#include "TriceOn.h"
-
-#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
@@ -497,8 +486,11 @@ extern uint32_t* TriceBufferWritePosition;
 // clang-format on
 
 ///////////////////////////////////////////////////////////////////////////////
-// trice time measurement (STM32 only?)
+// Trice time measurement
+// The SYSTICKVAL is not needed by the Trice code. It is only used inside triceCheck.c as example value.
 //
+
+#ifndef SYSTICKVAL
 
 #if defined(__arm__)       /* Defined by GNU C and RealView */               \
     || defined(__thumb__)  /* Defined by GNU C and RealView in Thumb mode */ \
@@ -512,14 +504,15 @@ extern uint32_t* TriceBufferWritePosition;
     || defined(__CARM__)   /* TASKING VX ARM toolset C compiler */           \
     || defined(__CPARM__)  /* TASKING VX ARM toolset C++ compiler */
 
-#define SYSTICKVAL (*(volatile uint32_t*)0xE000E018UL)
+#define SYSTICKVAL (*(volatile uint32_t*)0xE000E018UL) // All ARM MCUs or STM32 only?
 
 #else
 
-// #warning "unknown architecture"
 #define SYSTICKVAL 0
 
 #endif
+
+#endif // #ifndef SYSTICKVAL
 
 //
 ///////////////////////////////////////////////////////////////////////////////

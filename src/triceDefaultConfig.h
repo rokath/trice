@@ -198,31 +198,44 @@ extern "C" {
 #endif
 
 #ifndef TRICE_SINGLE_MAX_SIZE
-//! TRICE_SINGLE_MAX_SIZE is used to truncate long runtime generated strings, to detect the need of a ring buffer wrap or to protect against overflow.
-//! - Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
-//! - In direct mode, and also when you enabled TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE, this plus TRICE_DATA_OFFSET plus 4 is the max allocation size on the target
-//!   stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
-//! - When short of memory and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
-//! - When not using target timestamps and not more than one 32-bit or two 16-bit or four 8-bit values or using target timestamp without carried values, the TRICE_SINGLE_MAX_SIZE should be 8 bytes only.
-//! - With a value < 104 automatically all then forbidden trices are disabled to avoid mistakes. This also reduces the needed flash size and compile time depending on the used compiler.
-//! - Example: TRrice( "%d %d %d", 1, 2, 3)` would cause a compiler error with `#define TRICE_SINGLE_MAX_SIZE 16` then.
-//! - When NOT using dynamic string or buffer transfer, bigger values than 104 make no sense here and just spoiling RAM.
-//! - When USING dynamic string (or buffer) transfer, this value limits the max length of a trice. 2^15-4=32764 is the max possible value if you have enough RAM.
-#define TRICE_SINGLE_MAX_SIZE 104 // must be a multiple of 4
+//! TRICE_SINGLE_MAX_SIZE is used to truncate long runtime generated strings, to detect the need of a ring buffer wrap or to protect against overflow. 
+//! It must be a multiple of 4 and ist max valid value is 32764.
+//! \li Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
+//! \li In direct mode, and also when you enabled TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE, this plus TRICE_DATA_OFFSET plus 4 is the max allocation size on the target
+//! stack with TRICE_BUFFER == TRICE_STACK_BUFFER.
+//! \li When short of memory and, for example, max 2 32-bit values with a 32-bit stamp are used, the max trice size is 2 + 4 + 2 + 2*4 = 16 bytes.
+//! \li When not using target timestamps and not more than one 32-bit or two 16-bit or four 8-bit values or using target timestamp without carried values, the TRICE_SINGLE_MAX_SIZE should be 8 bytes only.
+//! \li With a value < 104 automatically all then forbidden trices are disabled to avoid mistakes. This also reduces the needed flash size and compile time depending on the used compiler.
+//! \li Example: TRrice( "%d %d %d", 1, 2, 3)` would cause a compiler error with `#define TRICE_SINGLE_MAX_SIZE 16` then.
+//! \li When NOT using dynamic string or buffer transfer, bigger values than 104 make no sense here and just spoiling RAM.
+//! \li When USING dynamic string (or buffer) transfer, this value limits the max length of a trice. 2^15-4=32764 is the max possible value if you have enough RAM.
+//! According to TRICE_SINGLE_MAX_SIZE the Trice functions are enabled/disabled automatically.
+//! To force that manually, the user can for example `#define ENABLE_trice32fn_12 0` or `#define ENABLE_trice32fn_12 1` for all variations. See trice8.c trice16.c, ... .
+#define TRICE_SINGLE_MAX_SIZE 104
+#endif
+
+#if TRICE_SINGLE_MAX_SIZE & 3
+#error "TRICE_SINGLE_MAX_SIZE is not a multiple of 4"
+#endif
+
+#if TRICE_SINGLE_MAX_SIZE > 32764
+#error "TRICE_SINGLE_MAX_SIZE is too big"
 #endif
 
 #ifndef TRICE_DEFERRED_BUFFER_SIZE
-//! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted.
-//! When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
-//! When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
-//! When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers.
-//! When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer.
-#define TRICE_DEFERRED_BUFFER_SIZE 1024 // must be a multiple of 4
+//! TRICE_DEFERRED_BUFFER_SIZE needs to be capable to hold trice bursts until they are transmitted and must be a multiple of 4.
+//! \li When TRICE_BUFFER == TRICE_STACK_BUFFER this value is not used.
+//! \li When TRICE_BUFFER == TRICE_STATIC_BUFFER this value is not used.
+//! \li When TRICE_BUFFER == TRICE_DOUBLE_BUFFER, this is the sum of both half buffers.
+//! \li When TRICE_BUFFER == TRICE_RING_BUFFER, this is the whole buffer.
+#define TRICE_DEFERRED_BUFFER_SIZE 1024
 #endif
 
 #ifndef TRICE_MCU_IS_BIG_ENDIAN
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be 1 on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding. Please consider TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN setting.
-#define TRICE_MCU_IS_BIG_ENDIAN 0 // todo: Set this value automatically thru the used compiler.
+//! This needs a compiler specific macro, so set this in your triceConfig.h, when using big endian MCUs.
+//! See also: https://stackoverflow.com/questions/2100331/macro-definition-to-determine-big-endian-or-little-endian-machine
+#define TRICE_MCU_IS_BIG_ENDIAN 0 
 #endif
 
 #ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
@@ -256,7 +269,8 @@ extern "C" {
 //! XTEA_ENCRYPT_KEY allows XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and use it in your trice.Config.h file.
-#define XTEA_ENCRYPT_KEY XTEA_KEY(ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54); //!< -password MySecret
+//! YOu can user `-password MySecret` as Trice tool CLI switch with the default key. 
+#define XTEA_ENCRYPT_KEY XTEA_KEY(ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54);
 #endif
 
 #ifndef XTEA_DECRYPT
@@ -349,10 +363,10 @@ extern "C" {
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
 //! If trices are used only outside critical sections or interrupts, you can leave this macro empty for more speed. Use only '{' in that case.
 //! Examples:
-//! - #define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { - does the job for many compilers.
-//! - #define TRICE_ENTER_CRITICAL_SECTION {
-//! - #define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
-//! - #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+//! \li #define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { - does the job for many compilers.
+//! \li #define TRICE_ENTER_CRITICAL_SECTION {
+//! \li #define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
+//! \li #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
 #define TRICE_ENTER_CRITICAL_SECTION {
 #endif
 
@@ -360,40 +374,39 @@ extern "C" {
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! If trices are used only outside critical sections or interrupts, you can leave this macro empty for more speed. Use only '}' in that case.
 //! Examples:
-//! - #define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } - does the job for many compilers.
-//! - #define TRICE_LEAVE_CRITICAL_SECTION }
-//! - #define TRICE_LEAVE_CRITICAL_SECTION } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
-//! - #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+//! \li #define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } - does the job for many compilers.
+//! \li #define TRICE_LEAVE_CRITICAL_SECTION }
+//! \li #define TRICE_LEAVE_CRITICAL_SECTION } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
+//! \li #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 #define TRICE_LEAVE_CRITICAL_SECTION }
 #endif
 
 #ifndef TRICE_INLINE
-#define TRICE_INLINE static inline //! TRICE_INLINE is used for inlining trice code.
+//! TRICE_INLINE is used for inlining trice code to be usable with any compiler. Define this value according to your compiler syntax.
+#define TRICE_INLINE static inline 
 #endif
 
 // code space optimization
 
 #ifndef TRICE_8_BIT_SUPPORT
-#define TRICE_8_BIT_SUPPORT 1 //!< TRICE_8_BIT_SUPPORT enables/disables all 8-bit Trice macros.
+//! TRICE_8_BIT_SUPPORT enables/disables all 8-bit Trice macros.
+#define TRICE_8_BIT_SUPPORT 1
 #endif
 
 #ifndef TRICE_16_BIT_SUPPORT
-#define TRICE_16_BIT_SUPPORT 1 //!< TRICE_16_BIT_SUPPORT enables/disables all 16-bit Trice macros.
+//! TRICE_16_BIT_SUPPORT enables/disables all 16-bit Trice macros.
+#define TRICE_16_BIT_SUPPORT 1
 #endif
 
 #ifndef TRICE_32_BIT_SUPPORT
-#define TRICE_32_BIT_SUPPORT 1 //!< TRICE_32_BIT_SUPPORT enables/disables all 32-bit Trice macros.
+//! TRICE_32_BIT_SUPPORT enables/disables all 32-bit Trice macros.
+#define TRICE_32_BIT_SUPPORT 1
 #endif
 
 #ifndef TRICE_64_BIT_SUPPORT
-#define TRICE_64_BIT_SUPPORT 1 //!< TRICE_64_BIT_SUPPORT enables/disables all 16-bit Trice macros.
+//! TRICE_32_BIT_SUPPORT enables/disables all 64-bit Trice macros.
+#define TRICE_64_BIT_SUPPORT 1
 #endif
-
-// According to TRICE_SINGLE_MAX_SIZE the Trice functions are enabled/disabled automatically.
-// To force that manually, the user can for example `#define ENABLE_trice32fn_12 0` or `#define ENABLE_trice32fn_12 1` for all variations. See trice8.c trice16.c, ... .
-
-//
-///////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
 }
