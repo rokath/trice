@@ -79,7 +79,7 @@
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
 
-#define Trice16m_0(tid)                            \
+#define Trice32m_0(tid)                            \
 	TRICE_ENTER                                    \
 	uint16_t ts = TriceStamp16;                    \
 	TRICE_PUT(0x80008000 | (tid << 16) | (tid));   \
