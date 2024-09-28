@@ -45,8 +45,3 @@
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
 
-#if TRICE_REVERSE == 0
-
-#else // #if TRICE_REVERSE == 0
-
-#endif // #else // #if TRICE_REVERSE == 0

@@ -228,7 +228,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
-#if TRICE_OFF == 1 || TRICE_CLEAN == 1
+#if TRICE_OFF == 1 || TRICE_CLEAN == 1 // It is possible to `#define TRICE_OFF 1` inside "triceConfig.h" to disable all Trice code.
 
 #include "TriceOff.h"
 
