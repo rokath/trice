@@ -92,11 +92,11 @@ extern "C" {
 #include "triceDefaultConfig.h" // default settings
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// The variadic macros need to be defined before "triceOff.h" could get included.
+// The variadic macros need to be defined before `#include "triceOff.h"`.
 // When TRICE OFF == 1, the  variadic macros cannot simply be defined as empty macros, because then unused parameter warnings pop up.
 //
 
-//! TRICE_NTH_ARGUMENT just evaluates to the 15th argument. It is extendable until a 32767 bytes payload.
+//! TRICE_NTH_ARGUMENT just evaluates to the 15th argument. It is extendable until a 32764 bytes payload.
 //! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
 //! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
 #define TRICE_NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14
@@ -106,7 +106,7 @@ extern "C" {
 //! Thus the macro evaluates to the number of arguments that are passed to the macro.
 //! If you set the C language to strict C (C90, C99, C11 or C17) the `##` operator doesn't remove the comma before it when `__VA_ARGS__` expands to nothing.
 //! In this case, the TRICE macro doesn't work with no parameters. You must then explicitly use TRICE0 instead of TRICE for a no parameter value TRICE.
-//! For more details see closed Issue #279. Special thanks @escherstair.
+//! For more details see closed Issue #279. Special thanks to [@escherstair](https://github.com/escherstair).
 //! If for example using CLANG 6.18 set C-language to gnu11, gnu99 or std to avoid the comma issue when no parameters are in a TRICE  macro.
 //! In case you have to set the C-Language to c11 or c99 you can use the TRICE0 macro directly instead of TRICE when no value parameters.
 #define TRICE_COUNT_ARGUMENTS(...) TRICE_NTH_ARGUMENT(dummy, ##__VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
@@ -292,19 +292,27 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
-#if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
-
-#define TRICE_REVERSE 0 //!< TRICE_REVERSE == 0 uses no byte swapping inside the Trice macros resulting in less code and faster execution. Try to use this.
-
-#include "triceMcuOrder.h"
-
-#else
-
-#define TRICE_REVERSE 1 //!< TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution. Try to avoid this.
-
-#include "triceMcuReverse.h"
-
-#endif
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// "Declare" endian dependent macros needed in trice8.h, trice16.h, trice32.h, trice64.h: 
+//
+#define TRICE_HTOTS(x) TRICE_HTOTS(x)
+#define TRICE_HTOTL(x) TRICE_HTOTL(x)
+#define TRICE_TTOHS(x) TRICE_TTOHS(x)
+#define TRICE_PUT16_1616(x, ts) TRICE_PUT16_1616(x, ts)
+#define TRICE_PUT64(x) TRICE_PUT64(x)
+#define TRICE_SWAPINT16(x) TRICE_SWAPINT16(x)
+#define TRICE_SWAPINT32(x) TRICE_SWAPINT32(x)
+#define idLH idLH 
+#define IdLH IdLH 
+#define IDLH IDLH 
+#define tsL  tsL 
+#define tsH  tsH 
+#define tsHH tsHH 
+#define tsHL tsHL 
+#define tsLH tsLH 
+#define tsLL tsLL
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
 #define TRICE_PUT16(x)                                     \
@@ -314,26 +322,54 @@ extern uint32_t* TriceBufferWritePosition;
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
 
+
 #include "trice8.h"
 #include "trice16.h"
 #include "trice32.h"
 #include "trice64.h"
 
-#if TRICE_REVERSE == 0
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Endian dependent macros and code:
+//
+#undef TRICE_HTOTS
+#undef TRICE_HTOTL
+#undef TRICE_TTOHS
+#undef TRICE_PUT16_1616
+#undef TRICE_PUT64
+#undef TRICE_SWAPINT16
+#undef TRICE_SWAPINT32
+#undef idLH 
+#undef IdLH 
+#undef IDLH 
+#undef tsL 
+#undef tsH 
+#undef tsHH 
+#undef tsHL 
+#undef tsLH 
+#undef tsLL
 
+#if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
+
+// TRICE_REVERSE == 0 uses no byte swapping inside the Trice macros resulting in less code and faster execution.
+#include "triceMcuOrder.h"
 #include "trice8McuOrder.h"
 #include "trice16McuOrder.h"
 #include "trice32McuOrder.h"
 #include "trice64McuOrder.h"
 
-#else // #if TRICE_REVERSE == 0
+#else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
+// TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution.
+#include "triceMcuReverse.h"
 #include "trice8McuReverse.h"
 #include "trice16McuReverse.h"
 #include "trice32McuReverse.h"
 #include "trice64McuReverse.h"
 
-#endif // #else // #if TRICE_REVERSE == 0
+#endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
+
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if TRICE_DIAGNOSTICS == 1
 
