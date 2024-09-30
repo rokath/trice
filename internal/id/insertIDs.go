@@ -18,6 +18,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/spf13/afero"
@@ -46,45 +47,91 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
 	return
 }
 
-// triceIDInsertion reads file, processes it and writes it back, if needed.
-func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) (e error) {
-	home, e := os.UserHomeDir()
-	if e != nil {
-		return e
+func copy(dst, src string) (int64, error) {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return 0, err
 	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	return nBytes, err
+}
+
+func checkIt(err error) {
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+// triceIDInsertion reads file, processes it and writes it back, if needed.
+func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) (err error) {
+	home, err := os.UserHomeDir()
+	checkIt(err)
 	cache := filepath.Join(home, ".trice/cache")
+	var insertedCachePath string
+	var cacheExists bool
 
-	if _, e = os.Stat(cache); e == nil {
-		// cache folder exists
-		fullPath, _ := filepath.Abs(path)
+	if _, err = os.Stat(cache); err == nil { // cache folder exists
+		cacheExists = true
+		fullPath, err := filepath.Abs(path)
+		checkIt(err)
+
 		before, after, _ := strings.Cut(fullPath, ":")
-		fullPath = before + after // remove colon (Windows)
-		cacheInsertedPath := filepath.Join(cache, "inserted", fullPath)
-		cacheCleanedPath := filepath.Join(cache, "cleaned", fullPath)
-		//if Verbose {
-		fmt.Println(cachePath, fileInfo.ModTime())
-		//}
+		fullPath = before + after // remove colon, if exists (Windows)
 
+		insertedCachePath = filepath.Join(cache, "inserted", fullPath)
 
-		WIP....
-
-
-		insertedInfo, eI := os.Lstat(cacheInsertedPath)
-		cleanedInfo, eC := os.Lstat(cacheCleanedPath)
-		if e != nil {
+		iCache, err := os.Lstat(insertedCachePath)
+		if err != nil {
+			if Verbose {
+				fmt.Fprintln(w, err, "no iCache file:", insertedCachePath)
+			}
 			goto insert
 		}
-		if fileInfo.ModTime(cacheInsertedPath) == fileInfo.ModTime() {
-
+		if fileInfo.ModTime() == iCache.ModTime() {
+			return nil // trice i File: File == iCache ? done (trice i was executed before)
 		}
 
+		cleanedCachePath := filepath.Join(cache, "cleaned", fullPath)
+		cCache, err := os.Lstat(cleanedCachePath)
+		if err != nil {
+			if Verbose {
+				fmt.Fprintln(w, err, "no cCache file:", cleanedCachePath)
+			}
+			goto insert
+		}
+		if fileInfo.ModTime() == cCache.ModTime() {
+			// trice i File: File == cCache ? iCache -> F (trice c was executed before)
+			_, err = copy(path, insertedCachePath)
+			checkIt(err)
+
+			iFile, err := os.Lstat(path)
+			checkIt(err)
+
+			err = os.Chtimes(path, time.Time{}, iFile.ModTime())
+			checkIt(err)
+
+		}
 	}
 insert:
 
 	in, err := fSys.ReadFile(path)
-	if err != nil {
-		return err
-	}
+	checkIt(err)
 
 	if Verbose {
 		fmt.Fprintln(w, path)
@@ -99,9 +146,7 @@ insert:
 	}
 
 	out, modified, err := p.insertTriceIDs(w, liPath, in, a)
-	if err != nil {
-		return err
-	}
+	checkIt(err)
 
 	if filepath.Base(path) == "triceConfig.h" {
 		outs := string(out)
@@ -118,10 +163,23 @@ insert:
 		}
 		if !DryRun {
 			err = fSys.WriteFile(path, out, fileInfo.Mode())
+			checkIt(err)
 		}
 	}
 
-	return err
+	if !cacheExists {
+		return nil
+	}
+	_, err = copy(insertedCachePath, path)
+	checkIt(err)
+
+	iFile, err := os.Lstat(path)
+	checkIt(err)
+
+	err = os.Chtimes(path, time.Time{}, iFile.ModTime())
+	checkIt(err)
+
+	return nil
 }
 
 // removeIDFromSlice searches ids for id, removes its first occurance and returns the result.

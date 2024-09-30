@@ -17,8 +17,28 @@ Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process
 - On any repeated or alternate `trice insert` and `trice clean`, we are done.
 - When a file in cleaned or inserted ID state was edited somehow, its IDs are inserted/cleaned and the cache is updated accordingly on `trice clean` or `trice insert`.
 
+## Trice Cache Logic
+
+- File: The src file to process.
+- iFile: The src file with fresh inserted IDs.
+- iCache: The iFile copied into the cache.
+- cFile: The cleaned src file (without IDs).
+- iCache: The cFile copied into the cache.
+- Comparing files is done only by comparing the modification times.
+
+```b
+trice i File: File == iCache ? done          (trice i was executed before)
+trice i File: File == cCache ? iCache -> F   (trice c was executed before)
+trice i File: else File -> iFile -> iCache   (file was edited)
+trice c File: File == cCache ? done          (trice c was executed before)
+trice c File: File == iCache ? cCache -> F   (trice i was executed before)
+trice c File: else File -> cFile -> cCache   (file was edited)
+```
+
+
+
 ## Remarks
 
-- The `.trice` folder should the Trice tool create automatically in the users home folder `$HOME`.
-- The `.trice` folder should go under revison control.
+- The `.trice/cache` folder should the Trice tool create automatically in the users home folder `$HOME`. For now the existence of this folder is user controlled.
+- The `.trice` folder should (not?) go under revison control.
 - A CLI switch should enable(default)/disable the Trice cache.
