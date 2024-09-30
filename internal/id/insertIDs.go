@@ -47,11 +47,45 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
 }
 
 // triceIDInsertion reads file, processes it and writes it back, if needed.
-func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) (e error) {
+	home, e := os.UserHomeDir()
+	if e != nil {
+		return e
+	}
+	cache := filepath.Join(home, ".trice/cache")
+
+	if _, e = os.Stat(cache); e == nil {
+		// cache folder exists
+		fullPath, _ := filepath.Abs(path)
+		before, after, _ := strings.Cut(fullPath, ":")
+		fullPath = before + after // remove colon (Windows)
+		cacheInsertedPath := filepath.Join(cache, "inserted", fullPath)
+		cacheCleanedPath := filepath.Join(cache, "cleaned", fullPath)
+		//if Verbose {
+		fmt.Println(cachePath, fileInfo.ModTime())
+		//}
+
+
+		WIP....
+
+
+		insertedInfo, eI := os.Lstat(cacheInsertedPath)
+		cleanedInfo, eC := os.Lstat(cacheCleanedPath)
+		if e != nil {
+			goto insert
+		}
+		if fileInfo.ModTime(cacheInsertedPath) == fileInfo.ModTime() {
+
+		}
+
+	}
+insert:
+
 	in, err := fSys.ReadFile(path)
 	if err != nil {
 		return err
 	}
+
 	if Verbose {
 		fmt.Fprintln(w, path)
 	}
