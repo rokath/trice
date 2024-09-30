@@ -191,11 +191,11 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
     - Hint: It is possible to add `trice clean ...` or `trice zero ...`  as a post-compile step, so that you can check in your project sources without IDs. That is supported in v0.61.0 and later. This allows to use library sources with trices in different projects and the source code is not spoiled with IDs.
 - The command `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
 - The command `trice` is compiler agnostic - it should work with any compiler. 
-- The vsCode is free downloadable and free usable, like shown in the [`./examples/F030R8_inst`](../examples/F030R8_inst) project.
-  - Even if you do not have such hardware, you can compile the [`./examples/F030R8`](../examples/F030R8) project just to get started.
+- The vsCode editor is free downloadable and free usable, like shown in the [`./examples/F030R8_inst`](../examples/F030R8_inst) project.
+  - Even if you do not have such hardware, you can compile the [`./examples/F030R8_inst`](../examples/F030R8_inst) project just to get started.
   - When adding or modifying `trice` macros inside [./examples/F030R8_inst/Core/Src/main.c](../examples/F030R8_inst/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
-- The test folder contains several vsCode Makefile projects and they are also usable as starting points for your configuration.
-- You can use Trice calls also inside header files but when running `trice insert` as pre- and `trice clean` as post-compile step, all files including these headers will be re-compiled every time, what may be too time consuming.
+- The examples and test subfolders contains several vsCode Makefile projects and they are also usable as starting points for your configuration.
+- You can use Trice calls also inside header files but when running `trice insert` as pre- and `trice clean` as post-compile step, all files including these headers will be re-compiled every time, what may be too time consuming. Hopefully this will be solved in the future. See [Issue #488](https://github.com/rokath/trice/issues/488) for more information.
   
 <p align="right">(<a href="#top">back to top</a>)</p>
 
