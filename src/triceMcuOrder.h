@@ -44,4 +44,3 @@
 	TRICE_PUT((uint32_t)(x)); // big endian
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
-

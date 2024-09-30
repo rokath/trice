@@ -2,199 +2,376 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+// global function prototypes: (not all always used)
+
+#define TriceInitRingBufferMargins()
+#define WatchRingBufferMargins()
+#define TriceDiagnostics(index) TRICE_UNUSED(index)
+#define TriceNonBlockingWriteUartA(buf, nByte) TRICE_UNUSED(buf) TRICE_UNUSED(nByte)
+#define TriceNonBlockingWriteUartB(buf, nByte) TRICE_UNUSED(buf) TRICE_UNUSED(nByte)
+#define TriceNonBlockingDirectWrite(triceStart, wordCount) TRICE_UNUSED(triceStart) TRICE_UNUSED(wordCount)
+#define TriceNonBlockingDirectWrite8Auxiliary(enc, encLen) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
+#define TriceNonBlockingDeferredWrite8Auxiliary(enc, encLen) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
+#define TriceNonBlockingDirectWrite32Auxiliary(enc, count) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
+#define TriceNonBlockingDeferredWrite32Auxiliary(enc, count) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
+#define TriceInit()
+#define TriceLogDiagnosticData()
+#define TriceLogSeggerDiagnostics()
+#define TriceNonBlockingDeferredWrite8(ticeID, enc, encLen) TRICE_UNUSED(ticeID) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
+#define TriceTransfer()
+#define triceDataLen(p)
+#define TriceEnoughSpace()
+#define TriceOutDepth()
+#define TriceDepth()
+#define TriceDepthMax()
+#define TriceEncode(encrypt, framing, dst, buf, len) TRICE_UNUSED(encrypt) TRICE_UNUSED(framing) TRICE_UNUSED(dst) TRICE_UNUSED(len)
+#define TriceWriteDeviceCgo(buf, len) TRICE_UNUSED(buf) TRICE_UNUSED(len) //!< TriceWriteDeviceCgo is only needed for testing C-sources from Go.
+
+#define TriceBlockingWriteUartA(buf, len) TRICE_UNUSED(buf) TRICE_UNUSED(len)
+#define triceServeTransmitUartA()
+#define triceTriggerTransmitUartA()
+#define TriceOutDepthUartA()
+
+#define TriceBlockingWriteUartB(buf, len) TRICE_UNUSED(buf) TRICE_UNUSED(len)
+#define triceServeTransmitUartB()
+#define triceTriggerTransmitUartB()
+#define TriceOutDepthUartB()
+
+#define XTEAEncrypt(p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define XTEADecrypt(p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define XTEAInitTable()
+
+#define TRICE_XTEA_H_ // do not include xtea.h
+#define COBS_H_       // do not include cobs.h
+#define TCOBS_H_      // do not include tcobs.h
+#define SEGGER_RTT_H  // do not include SEGGER_RTT.h
+
+// Trice functions and macros
+
 #define TRICE_ENTER
 #define TRICE_LEAVE
-#define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
-#define TRICE_PUT16(n)         // do{ ((void)(n)); }while(0)
-#define TRICE_PUT16_1616(x, n) // do{ ((void)(x)); ((void)(n)); }while(0)
-#define PUT_BUFFER(b, l)       // do{ ((void)(b)); ((void)(l)); }while(0)
-#define TRICE_S(id, p, s)      // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
-#define TRICE_N(id, p, s, n)   // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
+#define TRICE_PUT(n) TRICE_UNUSED(n)
+#define TRICE_PUT16(n) TRICE_UNUSED(n)
+#define TRICE_PUT16_1616(x, n)
+#define PUT_BUFFER(p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
-#define trice(fmt, ...)
-#define Trice(fmt, ...)
-#define TRice(fmt, ...)
+#define TRICE_S(iD, p, s) TRICE_UNUSED(p) TRICE_UNUSED(s)
+#define triceS(iD, p, s) TRICE_UNUSED(p) TRICE_UNUSED(s)
+#define TriceS(iD, p, s) TRICE_UNUSED(p) TRICE_UNUSED(s)
+#define TRiceS(iD, p, s) TRICE_UNUSED(p) TRICE_UNUSED(s)
 
-#define trice8(fmt, ...)
-#define Trice8(fmt, ...)
-#define TRice8(fmt, ...)
+#define TRICE_N(iD, p, s, n) TRICE_UNUSED(p) TRICE_UNUSED(s) TRICE_UNUSED(n)
+#define triceN(iD, p, s, n) TRICE_UNUSED(p) TRICE_UNUSED(s) TRICE_UNUSED(n)
+#define TriceN(iD, p, s, n) TRICE_UNUSED(p) TRICE_UNUSED(s) TRICE_UNUSED(n)
+#define TRiceN(iD, p, s, n) TRICE_UNUSED(p) TRICE_UNUSED(s) TRICE_UNUSED(n)
 
-#define trice8_0(fmt)                                                    //!< trice8_1 is a macro calling a function to reduce code size.
-#define trice8_1(fmt, v0)                                                //!< trice8_1 is a macro calling a function to reduce code size.
-#define trice8_2(fmt, v0, v1)                                            //!< trice8_2 is a macro calling a function to reduce code size.
-#define trice8_3(fmt, v0, v1, v2)                                        //!< trice8_3 is a macro calling a function to reduce code size.
-#define trice8_4(fmt, v0, v1, v2, v3)                                    //!< trice8_4 is a macro calling a function to reduce code size.
-#define trice8_5(fmt, v0, v1, v2, v3, v4)                                //!< trice8_5 is a macro calling a function to reduce code size.
-#define trice8_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< trice8_6 is a macro calling a function to reduce code size.
-#define trice8_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< trice8_7 is a macro calling a function to reduce code size.
-#define trice8_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< trice8_8 is a macro calling a function to reduce code size.
-#define trice8_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< trice8_9 is a macro calling a function to reduce code size.
-#define trice8_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< trice8_10 is a macro calling a function to reduce code size.
-#define trice8_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< trice8_11 is a macro calling a function to reduce code size.
-#define trice8_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< trice8_12 is a macro calling a function to reduce code size.
+// #define TRICE_B(iD, ...)
+#define triceB(iD, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TriceB(iD, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRiceB(iD, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
-#define Trice8_0(fmt)                                                    //!< Trice8_1 is a macro calling a function to reduce code size.
-#define Trice8_1(fmt, v0)                                                //!< Trice8_1 is a macro calling a function to reduce code size.
-#define Trice8_2(fmt, v0, v1)                                            //!< Trice8_2 is a macro calling a function to reduce code size.
-#define Trice8_3(fmt, v0, v1, v2)                                        //!< Trice8_3 is a macro calling a function to reduce code size.
-#define Trice8_4(fmt, v0, v1, v2, v3)                                    //!< Trice8_4 is a macro calling a function to reduce code size.
-#define Trice8_5(fmt, v0, v1, v2, v3, v4)                                //!< Trice8_5 is a macro calling a function to reduce code size.
-#define Trice8_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< Trice8_6 is a macro calling a function to reduce code size.
-#define Trice8_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< Trice8_7 is a macro calling a function to reduce code size.
-#define Trice8_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< Trice8_8 is a macro calling a function to reduce code size.
-#define Trice8_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< Trice8_9 is a macro calling a function to reduce code size.
-#define Trice8_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< Trice8_10 is a macro calling a function to reduce code size.
-#define Trice8_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< Trice8_11 is a macro calling a function to reduce code size.
-#define Trice8_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< Trice8_12 is a macro calling a function to reduce code size.
+// #define TRICE_F(iD, ...)
+#define triceF(iD, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TriceF(iD, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRiceF(iD, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
-#define TRice8_0(fmt)                                                    //!< TRice8_1 is a macro calling a function to reduce code size.
-#define TRice8_1(fmt, v0)                                                //!< TRice8_1 is a macro calling a function to reduce code size.
-#define TRice8_2(fmt, v0, v1)                                            //!< TRice8_2 is a macro calling a function to reduce code size.
-#define TRice8_3(fmt, v0, v1, v2)                                        //!< TRice8_3 is a macro calling a function to reduce code size.
-#define TRice8_4(fmt, v0, v1, v2, v3)                                    //!< TRice8_4 is a macro calling a function to reduce code size.
-#define TRice8_5(fmt, v0, v1, v2, v3, v4)                                //!< TRice8_5 is a macro calling a function to reduce code size.
-#define TRice8_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< TRice8_6 is a macro calling a function to reduce code size.
-#define TRice8_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< TRice8_7 is a macro calling a function to reduce code size.
-#define TRice8_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< TRice8_8 is a macro calling a function to reduce code size.
-#define TRice8_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< TRice8_9 is a macro calling a function to reduce code size.
-#define TRice8_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< TRice8_10 is a macro calling a function to reduce code size.
-#define TRice8_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< TRice8_11 is a macro calling a function to reduce code size.
-#define TRice8_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< TRice8_12 is a macro calling a function to reduce code size.
+#define TRICE_0(iD, fmt)
+#define TRICE_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRICE_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRICE_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRICE_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRICE_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRICE_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRICE_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRICE_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRICE_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRICE_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRICE_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRICE_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define trice_0(iD, fmt)
+#define trice_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define trice_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define trice_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define trice_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define trice_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define trice_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define trice_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define trice_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define trice_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define trice_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define trice_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define trice_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define Trice_0(iD, fmt)
+#define Trice_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define Trice_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define Trice_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define Trice_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define Trice_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define Trice_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define Trice_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define Trice_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define Trice_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define Trice_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define Trice_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define Trice_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define TRice_0(iD, fmt)
+#define TRice_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRice_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRice_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRice_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRice_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRice_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRice_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRice_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRice_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRice_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRice_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRice_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
 
-#define trice16(fmt, ...)
-#define Trice16(fmt, ...)
-#define TRice16(fmt, ...)
+#define TRICE8_B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define trice8B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define Trice8B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRice8B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRICE8_F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define trice8F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define Trice8F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRice8F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
-#define trice16_0(fmt)                                                    //!< trice16_1 is a macro calling a function to reduce code size.
-#define trice16_1(fmt, v0)                                                //!< trice16_1 is a macro calling a function to reduce code size.
-#define trice16_2(fmt, v0, v1)                                            //!< trice16_2 is a macro calling a function to reduce code size.
-#define trice16_3(fmt, v0, v1, v2)                                        //!< trice16_3 is a macro calling a function to reduce code size.
-#define trice16_4(fmt, v0, v1, v2, v3)                                    //!< trice16_4 is a macro calling a function to reduce code size.
-#define trice16_5(fmt, v0, v1, v2, v3, v4)                                //!< trice16_5 is a macro calling a function to reduce code size.
-#define trice16_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< trice16_6 is a macro calling a function to reduce code size.
-#define trice16_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< trice16_7 is a macro calling a function to reduce code size.
-#define trice16_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< trice16_8 is a macro calling a function to reduce code size.
-#define trice16_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< trice16_9 is a macro calling a function to reduce code size.
-#define trice16_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< trice16_10 is a macro calling a function to reduce code size.
-#define trice16_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< trice16_11 is a macro calling a function to reduce code size.
-#define trice16_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< trice16_12 is a macro calling a function to reduce code size.
+#define TRICE8_0(iD, fmt)
+#define TRICE8_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRICE8_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRICE8_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRICE8_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRICE8_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRICE8_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRICE8_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRICE8_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRICE8_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRICE8_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRICE8_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRICE8_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define trice8_0(iD, fmt)
+#define trice8_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define trice8_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define trice8_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define trice8_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define trice8_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define trice8_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define trice8_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define trice8_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define trice8_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define trice8_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define trice8_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define trice8_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define Trice8_0(iD, fmt)
+#define Trice8_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define Trice8_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define Trice8_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define Trice8_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define Trice8_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define Trice8_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define Trice8_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define Trice8_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define Trice8_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define Trice8_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define Trice8_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define Trice8_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define TRice8_0(iD, fmt)
+#define TRice8_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRice8_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRice8_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRice8_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRice8_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRice8_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRice8_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRice8_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRice8_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRice8_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRice8_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRice8_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
 
-#define Trice16_0(fmt)                                                    //!< Trice16_1 is a macro calling a function to reduce code size.
-#define Trice16_1(fmt, v0)                                                //!< Trice16_1 is a macro calling a function to reduce code size.
-#define Trice16_2(fmt, v0, v1)                                            //!< Trice16_2 is a macro calling a function to reduce code size.
-#define Trice16_3(fmt, v0, v1, v2)                                        //!< Trice16_3 is a macro calling a function to reduce code size.
-#define Trice16_4(fmt, v0, v1, v2, v3)                                    //!< Trice16_4 is a macro calling a function to reduce code size.
-#define Trice16_5(fmt, v0, v1, v2, v3, v4)                                //!< Trice16_5 is a macro calling a function to reduce code size.
-#define Trice16_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< Trice16_6 is a macro calling a function to reduce code size.
-#define Trice16_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< Trice16_7 is a macro calling a function to reduce code size.
-#define Trice16_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< Trice16_8 is a macro calling a function to reduce code size.
-#define Trice16_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< Trice16_9 is a macro calling a function to reduce code size.
-#define Trice16_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< Trice16_10 is a macro calling a function to reduce code size.
-#define Trice16_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< Trice16_11 is a macro calling a function to reduce code size.
-#define Trice16_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< Trice16_12 is a macro calling a function to reduce code size.
+#define TRICE16_B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define trice16B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define Trice16B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRice16B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRICE16_F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define trice16F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define Trice16F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRice16F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
-#define TRice16_0(fmt)                                                    //!< TRice16_1 is a macro calling a function to reduce code size.
-#define TRice16_1(fmt, v0)                                                //!< TRice16_1 is a macro calling a function to reduce code size.
-#define TRice16_2(fmt, v0, v1)                                            //!< TRice16_2 is a macro calling a function to reduce code size.
-#define TRice16_3(fmt, v0, v1, v2)                                        //!< TRice16_3 is a macro calling a function to reduce code size.
-#define TRice16_4(fmt, v0, v1, v2, v3)                                    //!< TRice16_4 is a macro calling a function to reduce code size.
-#define TRice16_5(fmt, v0, v1, v2, v3, v4)                                //!< TRice16_5 is a macro calling a function to reduce code size.
-#define TRice16_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< TRice16_6 is a macro calling a function to reduce code size.
-#define TRice16_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< TRice16_7 is a macro calling a function to reduce code size.
-#define TRice16_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< TRice16_8 is a macro calling a function to reduce code size.
-#define TRice16_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< TRice16_9 is a macro calling a function to reduce code size.
-#define TRice16_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< TRice16_10 is a macro calling a function to reduce code size.
-#define TRice16_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< TRice16_11 is a macro calling a function to reduce code size.
-#define TRice16_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< TRice16_12 is a macro calling a function to reduce code size.
+#define TRICE16_0(iD, fmt)
+#define TRICE16_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRICE16_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRICE16_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRICE16_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRICE16_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRICE16_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRICE16_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRICE16_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRICE16_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRICE16_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRICE16_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRICE16_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define trice16_0(iD, fmt)
+#define trice16_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define trice16_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define trice16_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define trice16_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define trice16_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define trice16_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define trice16_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define trice16_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define trice16_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define trice16_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define trice16_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define trice16_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define Trice16_0(iD, fmt)
+#define Trice16_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define Trice16_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define Trice16_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define Trice16_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define Trice16_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define Trice16_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define Trice16_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define Trice16_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define Trice16_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define Trice16_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define Trice16_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define Trice16_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define TRice16_0(iD, fmt)
+#define TRice16_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRice16_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRice16_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRice16_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRice16_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRice16_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRice16_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRice16_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRice16_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRice16_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRice16_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRice16_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
 
-#define trice32(fmt, ...)
-#define Trice32(fmt, ...)
-#define TRice32(fmt, ...)
+#define TRICE32_B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define trice32B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define Trice32B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRice32B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRICE32_F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define trice32F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define Trice32F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRice32F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
-#define trice32_0(fmt)                                                    //!< trice32_1 is a macro calling a function to reduce code size.
-#define trice32_1(fmt, v0)                                                //!< trice32_1 is a macro calling a function to reduce code size.
-#define trice32_2(fmt, v0, v1)                                            //!< trice32_2 is a macro calling a function to reduce code size.
-#define trice32_3(fmt, v0, v1, v2)                                        //!< trice32_3 is a macro calling a function to reduce code size.
-#define trice32_4(fmt, v0, v1, v2, v3)                                    //!< trice32_4 is a macro calling a function to reduce code size.
-#define trice32_5(fmt, v0, v1, v2, v3, v4)                                //!< trice32_5 is a macro calling a function to reduce code size.
-#define trice32_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< trice32_6 is a macro calling a function to reduce code size.
-#define trice32_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< trice32_7 is a macro calling a function to reduce code size.
-#define trice32_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< trice32_8 is a macro calling a function to reduce code size.
-#define trice32_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< trice32_9 is a macro calling a function to reduce code size.
-#define trice32_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< trice32_10 is a macro calling a function to reduce code size.
-#define trice32_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< trice32_11 is a macro calling a function to reduce code size.
-#define trice32_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< trice32_12 is a macro calling a function to reduce code size.
+#define TRICE32_0(iD, fmt)
+#define TRICE32_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRICE32_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRICE32_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRICE32_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRICE32_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRICE32_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRICE32_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRICE32_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRICE32_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRICE32_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRICE32_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRICE32_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define trice32_0(iD, fmt)
+#define trice32_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define trice32_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define trice32_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define trice32_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define trice32_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define trice32_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define trice32_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define trice32_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define trice32_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define trice32_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define trice32_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define trice32_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define Trice32_0(iD, fmt)
+#define Trice32_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define Trice32_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define Trice32_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define Trice32_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define Trice32_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define Trice32_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define Trice32_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define Trice32_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define Trice32_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define Trice32_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define Trice32_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define Trice32_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define TRice32_0(iD, fmt)
+#define TRice32_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRice32_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRice32_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRice32_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRice32_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRice32_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRice32_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRice32_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRice32_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRice32_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRice32_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRice32_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
 
-#define Trice32_0(fmt)                                                    //!< Trice32_1 is a macro calling a function to reduce code size.
-#define Trice32_1(fmt, v0)                                                //!< Trice32_1 is a macro calling a function to reduce code size.
-#define Trice32_2(fmt, v0, v1)                                            //!< Trice32_2 is a macro calling a function to reduce code size.
-#define Trice32_3(fmt, v0, v1, v2)                                        //!< Trice32_3 is a macro calling a function to reduce code size.
-#define Trice32_4(fmt, v0, v1, v2, v3)                                    //!< Trice32_4 is a macro calling a function to reduce code size.
-#define Trice32_5(fmt, v0, v1, v2, v3, v4)                                //!< Trice32_5 is a macro calling a function to reduce code size.
-#define Trice32_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< Trice32_6 is a macro calling a function to reduce code size.
-#define Trice32_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< Trice32_7 is a macro calling a function to reduce code size.
-#define Trice32_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< Trice32_8 is a macro calling a function to reduce code size.
-#define Trice32_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< Trice32_9 is a macro calling a function to reduce code size.
-#define Trice32_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< Trice32_10 is a macro calling a function to reduce code size.
-#define Trice32_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< Trice32_11 is a macro calling a function to reduce code size.
-#define Trice32_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< Trice32_12 is a macro calling a function to reduce code size.
+#define TRICE64_B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define trice64B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define Trice64B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRice64B(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRICE64_F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define trice64F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define Trice64F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRice64F(iD, fmt, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
-#define TRice32_0(fmt)                                                    //!< TRice32_1 is a macro calling a function to reduce code size.
-#define TRice32_1(fmt, v0)                                                //!< TRice32_1 is a macro calling a function to reduce code size.
-#define TRice32_2(fmt, v0, v1)                                            //!< TRice32_2 is a macro calling a function to reduce code size.
-#define TRice32_3(fmt, v0, v1, v2)                                        //!< TRice32_3 is a macro calling a function to reduce code size.
-#define TRice32_4(fmt, v0, v1, v2, v3)                                    //!< TRice32_4 is a macro calling a function to reduce code size.
-#define TRice32_5(fmt, v0, v1, v2, v3, v4)                                //!< TRice32_5 is a macro calling a function to reduce code size.
-#define TRice32_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< TRice32_6 is a macro calling a function to reduce code size.
-#define TRice32_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< TRice32_7 is a macro calling a function to reduce code size.
-#define TRice32_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< TRice32_8 is a macro calling a function to reduce code size.
-#define TRice32_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< TRice32_9 is a macro calling a function to reduce code size.
-#define TRice32_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< TRice32_10 is a macro calling a function to reduce code size.
-#define TRice32_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< TRice32_11 is a macro calling a function to reduce code size.
-#define TRice32_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< TRice32_12 is a macro calling a function to reduce code size.
-
-#define trice64(fmt, ...)
-#define Trice64(fmt, ...)
-#define TRice64(fmt, ...)
-
-#define trice64_0(fmt)                                                    //!< trice64_1 is a macro calling a function to reduce code size.
-#define trice64_1(fmt, v0)                                                //!< trice64_1 is a macro calling a function to reduce code size.
-#define trice64_2(fmt, v0, v1)                                            //!< trice64_2 is a macro calling a function to reduce code size.
-#define trice64_3(fmt, v0, v1, v2)                                        //!< trice64_3 is a macro calling a function to reduce code size.
-#define trice64_4(fmt, v0, v1, v2, v3)                                    //!< trice64_4 is a macro calling a function to reduce code size.
-#define trice64_5(fmt, v0, v1, v2, v3, v4)                                //!< trice64_5 is a macro calling a function to reduce code size.
-#define trice64_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< trice64_6 is a macro calling a function to reduce code size.
-#define trice64_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< trice64_7 is a macro calling a function to reduce code size.
-#define trice64_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< trice64_8 is a macro calling a function to reduce code size.
-#define trice64_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< trice64_9 is a macro calling a function to reduce code size.
-#define trice64_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< trice64_10 is a macro calling a function to reduce code size.
-#define trice64_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< trice64_11 is a macro calling a function to reduce code size.
-#define trice64_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< trice64_12 is a macro calling a function to reduce code size.
-
-#define Trice64_0(fmt)                                                    //!< Trice64_1 is a macro calling a function to reduce code size.
-#define Trice64_1(fmt, v0)                                                //!< Trice64_1 is a macro calling a function to reduce code size.
-#define Trice64_2(fmt, v0, v1)                                            //!< Trice64_2 is a macro calling a function to reduce code size.
-#define Trice64_3(fmt, v0, v1, v2)                                        //!< Trice64_3 is a macro calling a function to reduce code size.
-#define Trice64_4(fmt, v0, v1, v2, v3)                                    //!< Trice64_4 is a macro calling a function to reduce code size.
-#define Trice64_5(fmt, v0, v1, v2, v3, v4)                                //!< Trice64_5 is a macro calling a function to reduce code size.
-#define Trice64_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< Trice64_6 is a macro calling a function to reduce code size.
-#define Trice64_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< Trice64_7 is a macro calling a function to reduce code size.
-#define Trice64_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< Trice64_8 is a macro calling a function to reduce code size.
-#define Trice64_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< Trice64_9 is a macro calling a function to reduce code size.
-#define Trice64_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< Trice64_10 is a macro calling a function to reduce code size.
-#define Trice64_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< Trice64_11 is a macro calling a function to reduce code size.
-#define Trice64_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< Trice64_12 is a macro calling a function to reduce code size.
-
-#define TRice64_0(fmt)                                                    //!< TRice64_1 is a macro calling a function to reduce code size.
-#define TRice64_1(fmt, v0)                                                //!< TRice64_1 is a macro calling a function to reduce code size.
-#define TRice64_2(fmt, v0, v1)                                            //!< TRice64_2 is a macro calling a function to reduce code size.
-#define TRice64_3(fmt, v0, v1, v2)                                        //!< TRice64_3 is a macro calling a function to reduce code size.
-#define TRice64_4(fmt, v0, v1, v2, v3)                                    //!< TRice64_4 is a macro calling a function to reduce code size.
-#define TRice64_5(fmt, v0, v1, v2, v3, v4)                                //!< TRice64_5 is a macro calling a function to reduce code size.
-#define TRice64_6(fmt, v0, v1, v2, v3, v4, v5)                            //!< TRice64_6 is a macro calling a function to reduce code size.
-#define TRice64_7(fmt, v0, v1, v2, v3, v4, v5, v6)                        //!< TRice64_7 is a macro calling a function to reduce code size.
-#define TRice64_8(fmt, v0, v1, v2, v3, v4, v5, v6, v7)                    //!< TRice64_8 is a macro calling a function to reduce code size.
-#define TRice64_9(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8)                //!< TRice64_9 is a macro calling a function to reduce code size.
-#define TRice64_10(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9)           //!< TRice64_10 is a macro calling a function to reduce code size.
-#define TRice64_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10)      //!< TRice64_11 is a macro calling a function to reduce code size.
-#define TRice64_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) //!< TRice64_12 is a macro calling a function to reduce code size.
+#define TRICE64_0(iD, fmt)
+#define TRICE64_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRICE64_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRICE64_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRICE64_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRICE64_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRICE64_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRICE64_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRICE64_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRICE64_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRICE64_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRICE64_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRICE64_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define trice64_0(iD, fmt)
+#define trice64_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define trice64_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define trice64_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define trice64_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define trice64_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define trice64_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define trice64_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define trice64_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define trice64_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define trice64_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define trice64_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define trice64_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define Trice64_0(iD, fmt)
+#define Trice64_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define Trice64_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define Trice64_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define Trice64_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define Trice64_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define Trice64_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define Trice64_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define Trice64_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define Trice64_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define Trice64_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define Trice64_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define Trice64_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
+#define TRice64_0(iD, fmt)
+#define TRice64_1(iD, fmt, v0) TRICE_UNUSED(v0)
+#define TRice64_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
+#define TRice64_3(iD, fmt, v0, v1, v2) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2)
+#define TRice64_4(iD, fmt, v0, v1, v2, v3) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3)
+#define TRice64_5(iD, fmt, v0, v1, v2, v3, v4) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4)
+#define TRice64_6(iD, fmt, v0, v1, v2, v3, v4, v5) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5)
+#define TRice64_7(iD, fmt, v0, v1, v2, v3, v4, v5, v6) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6)
+#define TRice64_8(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7)
+#define TRice64_9(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8)
+#define TRice64_10(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9)
+#define TRice64_11(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
+#define TRice64_12(iD, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)

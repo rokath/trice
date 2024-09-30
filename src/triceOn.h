@@ -2,6 +2,49 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+// global function prototypes: (not all always used)
+
+void TriceInitRingBufferMargins(void);
+void WatchRingBufferMargins(void);
+void TriceCheck(int index); //!< tests and examples
+void TriceDiagnostics(int index);
+void TriceNonBlockingWriteUartA(const void* buf, size_t nByte);
+void TriceNonBlockingWriteUartB(const void* buf, size_t nByte);
+void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount);
+void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen);
+void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen);
+void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count);
+void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t* enc, unsigned count);
+void TriceInit(void);
+void TriceLogDiagnosticData(void);
+void TriceLogSeggerDiagnostics(void);
+void TriceNonBlockingDeferredWrite8(int ticeID, const uint8_t* enc, size_t encLen);
+void TriceTransfer(void);
+size_t triceDataLen(const uint8_t* p);
+int TriceEnoughSpace(void);
+unsigned TriceOutDepth(void);
+size_t TriceDepth(void);
+size_t TriceDepthMax(void);
+size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t* buf, size_t len);
+void TriceWriteDeviceCgo(const void* buf, unsigned len); //!< TriceWriteDeviceCgo is only needed for testing C-sources from Go.
+unsigned TriceOutDepthCGO(void);                         //!< TriceOutDepthCGO is only needed for testing C-sources from Go.
+
+void TriceBlockingWriteUartA(const uint8_t* buf, unsigned len);
+void triceServeTransmitUartA(void);
+void triceTriggerTransmitUartA(void);
+unsigned TriceOutDepthUartA(void);
+
+void TriceBlockingWriteUartB(const uint8_t* buf, unsigned len);
+void triceServeTransmitUartB(void);
+void triceTriggerTransmitUartB(void);
+unsigned TriceOutDepthUartB(void);
+
+void XTEAEncrypt(uint32_t* p, unsigned count);
+void XTEADecrypt(uint32_t* p, unsigned count);
+void XTEAInitTable(void);
+
+// Trice functions and macros
+
 void trice8fn_0(uint16_t tid);
 void trice8fn_1(uint16_t tid, uint8_t v0);
 void trice8fn_2(uint16_t tid, uint8_t v0, uint8_t v1);
@@ -170,14 +213,6 @@ void TRice64fn_10(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 void TRice64fn_11(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10);
 void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11);
 
-#define trice(tid, fmt, ...) TRICE_CONCAT2(trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice(tid, fmt, ...) TRICE_CONCAT2(Trice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRice(tid, fmt, ...) TRICE_CONCAT2(TRice_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-
-#define trice8(tid, fmt, ...) TRICE_CONCAT2(trice8_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice8(tid, fmt, ...) TRICE_CONCAT2(Trice8_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRice8(tid, fmt, ...) TRICE_CONCAT2(TRice8_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-
 #define trice8_0(tid, fmt) trice8fn_0(tid)                                                                                                                                                                                                                                           //!< trice8_0 is a macro calling a function to reduce code size, this way avoiding code inlining.
 #define trice8_1(tid, fmt, v0) trice8fn_1(tid, (uint8_t)(v0))                                                                                                                                                                                                                        //!< trice8_1 is a macro calling a function to reduce code size, this way avoiding code inlining.
 #define trice8_2(tid, fmt, v0, v1) trice8fn_2(tid, (uint8_t)(v0), (uint8_t)(v1))                                                                                                                                                                                                     //!< trice8_2 ia macro calling a function to reduce code size, this way avoiding code inlining.
@@ -219,10 +254,6 @@ void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 #define TRice8_10(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRice8fn_10(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9))                                           //!< TRice8_10 ia macro calling a function to reduce code size, this way avoiding code inlining.
 #define TRice8_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice8fn_11(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10))                      //!< TRice8_11 ia macro calling a function to reduce code size, this way avoiding code inlining.
 #define TRice8_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice8fn_12(tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11)) //!< TRice8_12 ia macro calling a function to reduce code size, this way avoiding code inlining.
-
-#define trice16(tid, fmt, ...) TRICE_CONCAT2(trice16_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice16(tid, fmt, ...) TRICE_CONCAT2(Trice16_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRice16(tid, fmt, ...) TRICE_CONCAT2(TRice16_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #define trice16_0(tid, fmt) trice16fn_0(tid)                                                                                                                                                                                                                                                       //!< trice16_0 is a macro calling a function to reduce code size.
 #define trice16_1(tid, fmt, v0) trice16fn_1(tid, (uint16_t)(v0))                                                                                                                                                                                                                                   //!< trice16_1 is a macro calling a function to reduce code size.
@@ -266,10 +297,6 @@ void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 #define TRice16_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice16fn_11(tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10))                       //!< TRice16_11 is a macro calling a function to reduce code size.
 #define TRice16_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice16fn_12(tid, (uint16_t)(v0), (uint16_t)(v1), (uint16_t)(v2), (uint16_t)(v3), (uint16_t)(v4), (uint16_t)(v5), (uint16_t)(v6), (uint16_t)(v7), (uint16_t)(v8), (uint16_t)(v9), (uint16_t)(v10), (uint16_t)(v11)) //!< TRice16_12 is a macro calling a function to reduce code size.
 
-#define trice32(tid, fmt, ...) TRICE_CONCAT2(trice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice32(tid, fmt, ...) TRICE_CONCAT2(Trice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRice32(tid, fmt, ...) TRICE_CONCAT2(TRice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-
 #define trice32_0(tid, fmt) trice32fn_0(tid)                                                                                                                                                                                                                                                       //!< trice32_0 is a macro calling a function to reduce code size.
 #define trice32_1(tid, fmt, v0) trice32fn_1(tid, (uint32_t)(v0))                                                                                                                                                                                                                                   //!< trice32_1 is a macro calling a function to reduce code size.
 #define trice32_2(tid, fmt, v0, v1) trice32fn_2(tid, (uint32_t)(v0), (uint32_t)(v1))                                                                                                                                                                                                               //!< trice32_2 is a macro calling a function to reduce code size.
@@ -311,10 +338,6 @@ void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 #define TRice32_10(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRice32fn_10(tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9))                                             //!< TRice32_10 is a macro calling a function to reduce code size.
 #define TRice32_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice32fn_11(tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10))                       //!< TRice32_11 is a macro calling a function to reduce code size.
 #define TRice32_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice32fn_12(tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10), (uint32_t)(v11)) //!< TRice32_12 is a macro calling a function to reduce code size.
-
-#define trice64(tid, fmt, ...) TRICE_CONCAT2(trice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice64(tid, fmt, ...) TRICE_CONCAT2(Trice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRice64(tid, fmt, ...) TRICE_CONCAT2(TRice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 #define trice64_0(tid, fmt) trice64fn_0(tid)                                                                                                                                                                                                                                                       //!< trice64_1 is a macro calling a function to reduce code size.
 #define trice64_1(tid, fmt, v0) trice64fn_1(tid, (uint64_t)(v0))                                                                                                                                                                                                                                   //!< trice64_1 is a macro calling a function to reduce code size.

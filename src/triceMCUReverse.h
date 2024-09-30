@@ -127,4 +127,3 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 #define tsHL ((0x00FF0000 & ts) << 8)
 #define tsLH ((0x0000FF00 & ts) >> 8)
 #define tsLL ((0x000000FF & ts) << 8)
-

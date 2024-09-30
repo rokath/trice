@@ -17,12 +17,16 @@ extern "C" {
 #endif
 
 #ifndef TRICE_OFF
-// TRICE_OFF, when defined to 1 before including
-// trice.h disables trice code for the file.
-// When defined in the project settings, it influences
-// the whole trice code generation.
+// TRICE_OFF, when defined to 1 earlier than including trice.h disables trice code for the file.
+// When defined in the project settings, it influences the whole trice code generation.
 #define TRICE_OFF 0
 #endif
+// #define TRICE_DO_EXPAND(VAL)  VAL ## 1
+// #define TRICE_EXPAND(VAL)     TRICE_DO_EXPAND(VAL) //!<  https://stackoverflow.com/questions/3781520/how-to-test-if-preprocessor-symbol-is-defined-but-has-no-value
+// #if (TRICE_EXPAND(TRICE_OFF) == 1)
+// #undef TRICE_OFF // TRICE_OFF was defined as empty string.
+// #define TRICE_OFF 1 // So the intension was probably this.
+// #endif
 
 #ifndef TRICE_UARTA_MIN_ID
 #define TRICE_UARTA_MIN_ID 0 //!< TRICE_UARTA_MIN_ID, if > 0, is the smalles ID routed to UARTA.
@@ -198,7 +202,7 @@ extern "C" {
 #endif
 
 #ifndef TRICE_SINGLE_MAX_SIZE
-//! TRICE_SINGLE_MAX_SIZE is used to truncate long runtime generated strings, to detect the need of a ring buffer wrap or to protect against overflow. 
+//! TRICE_SINGLE_MAX_SIZE is used to truncate long runtime generated strings, to detect the need of a ring buffer wrap or to protect against overflow.
 //! It must be a multiple of 4 and ist max valid value is 32764.
 //! \li Be careful with this value: When using 12 64-bit values with a 32-bit stamp the trice size is 2(id) + 4(stamp) + 2(count) + 12*8(values) = 104 bytes.
 //! \li In direct mode, and also when you enabled TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE, this plus TRICE_DATA_OFFSET plus 4 is the max allocation size on the target
@@ -235,7 +239,7 @@ extern "C" {
 //! TRICE_MCU_IS_BIG_ENDIAN needs to be 1 on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding. Please consider TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN setting.
 //! This needs a compiler specific macro, so set this in your triceConfig.h, when using big endian MCUs.
 //! See also: https://stackoverflow.com/questions/2100331/macro-definition-to-determine-big-endian-or-little-endian-machine
-#define TRICE_MCU_IS_BIG_ENDIAN 0 
+#define TRICE_MCU_IS_BIG_ENDIAN 0
 #endif
 
 #ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
@@ -269,7 +273,7 @@ extern "C" {
 //! XTEA_ENCRYPT_KEY allows XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and use it in your trice.Config.h file.
-//! YOu can user `-password MySecret` as Trice tool CLI switch with the default key. 
+//! YOu can user `-password MySecret` as Trice tool CLI switch with the default key.
 #define XTEA_ENCRYPT_KEY XTEA_KEY(ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54);
 #endif
 
@@ -383,7 +387,7 @@ extern "C" {
 
 #ifndef TRICE_INLINE
 //! TRICE_INLINE is used for inlining trice code to be usable with any compiler. Define this value according to your compiler syntax.
-#define TRICE_INLINE static inline 
+#define TRICE_INLINE static inline
 #endif
 
 // code space optimization
@@ -427,7 +431,7 @@ extern "C" {
     || defined(__CARM__)   /* TASKING VX ARM toolset C compiler */           \
     || defined(__CPARM__)  /* TASKING VX ARM toolset C++ compiler */
 
-//! ARM Cortex-M MCUs have this register. 
+//! ARM Cortex-M MCUs have this register.
 //! \li See https://developer.arm.com/documentation/dui0552/a/cortex-m3-peripherals/system-timer--systick
 //! This is only 16- or 24-bit wide and usually resetted each ms. Consider using DWT_CYCCNT if your MCU supports this.
 //! When using a 24-bit SYSTICKVAL as 16-bit target timestamp, be aware, that, for example, with a 100 MHz system clock, the

@@ -50,7 +50,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-void TriceLogDiagnosticValues( void );
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -124,7 +124,7 @@ int main(void)
             msDiag++;
             if(msDiag >= 3000 ){
                 msDiag = 0;
-                TriceLogDiagnosticValues();
+                TriceLogDiagnosticData();
             }
 
             static uint32_t msCheck = 0;

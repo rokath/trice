@@ -91,21 +91,119 @@ extern "C" {
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// The variadic macros need to be defined before "triceOff.h" could get included.
+// When TRICE OFF == 1, the  variadic macros cannot simply be defined as empty macros, because then unused parameter warnings pop up.
+//
+
+//! TRICE_NTH_ARGUMENT just evaluates to the 15th argument. It is extendable until a 32767 bytes payload.
+//! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
+//! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
+#define TRICE_NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14
+
+//! TRICE_COUNT_ARGUMENTS builds upon TRICE_NTH_ARGUMENT. The more arguments that are passed to TRICE_COUNT_ARGUMENTS,
+//! the more the »counting arguments« (12, 11, 10, 9, 8, 7…) are pushed to the right.
+//! Thus the macro evaluates to the number of arguments that are passed to the macro.
+//! If you set the C language to strict C (C90, C99, C11 or C17) the `##` operator doesn't remove the comma before it when `__VA_ARGS__` expands to nothing.
+//! In this case, the TRICE macro doesn't work with no parameters. You must then explicitly use TRICE0 instead of TRICE for a no parameter value TRICE.
+//! For more details see closed Issue #279. Special thanks @escherstair.
+//! If for example using CLANG 6.18 set C-language to gnu11, gnu99 or std to avoid the comma issue when no parameters are in a TRICE  macro.
+//! In case you have to set the C-Language to c11 or c99 you can use the TRICE0 macro directly instead of TRICE when no value parameters.
+#define TRICE_COUNT_ARGUMENTS(...) TRICE_NTH_ARGUMENT(dummy, ##__VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+
+//! TRICE_CONCAT concatenates the 2 arguments a and b (helper macro).
+#define TRICE_CONCAT(a, b) a##b
+
+//! TRICE_CONCAT2 concatenates the 2 arguments a and b (helper macro).
+#define TRICE_CONCAT2(a, b) TRICE_CONCAT(a, b)
+
+// clang-format off
+#define TRICE(  tid, fmt, ...) TRICE_CONCAT2(TRICE_,   TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice(  tid, fmt, ...) TRICE_CONCAT2(trice_,   TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice(  tid, fmt, ...) TRICE_CONCAT2(Trice_,   TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice(  tid, fmt, ...) TRICE_CONCAT2(TRice_,   TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRICE8( tid, fmt, ...) TRICE_CONCAT2(TRICE8_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice8( tid, fmt, ...) TRICE_CONCAT2(trice8_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice8( tid, fmt, ...) TRICE_CONCAT2(Trice8_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice8( tid, fmt, ...) TRICE_CONCAT2(TRice8_,  TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRICE16(tid, fmt, ...) TRICE_CONCAT2(TRICE16_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice16(tid, fmt, ...) TRICE_CONCAT2(trice16_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice16(tid, fmt, ...) TRICE_CONCAT2(Trice16_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice16(tid, fmt, ...) TRICE_CONCAT2(TRice16_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRICE32(tid, fmt, ...) TRICE_CONCAT2(TRICE32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice32(tid, fmt, ...) TRICE_CONCAT2(trice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice32(tid, fmt, ...) TRICE_CONCAT2(Trice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice32(tid, fmt, ...) TRICE_CONCAT2(TRice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRICE64(tid, fmt, ...) TRICE_CONCAT2(TRICE64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice64(tid, fmt, ...) TRICE_CONCAT2(trice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice64(tid, fmt, ...) TRICE_CONCAT2(Trice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice64(tid, fmt, ...) TRICE_CONCAT2(TRice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+// clang-format on
+
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// These converter functions need to be visible in the TRICE_OFF == 1 case to avoid compiler warnings then.
+//
+
+// pre C99
+//  // aFloat returns passed float value x as bit pattern in a uint32_t type.
+//  TRICE_INLINE uint32_t aFloat( float x ){
+//      union {
+//          float f;
+//          uint32_t u;
+//      } t;
+//      t.f = x;
+//      return t.u;
+//  }
+
+// aFloat returns passed float value x as bit pattern in a uint32_t type.
+TRICE_INLINE uint32_t aFloat(float f) {
+	union {
+		float from;
+		uint32_t to;
+	} pun = {.from = f};
+	return pun.to;
+}
+
+// aDouble returns passed double value x as bit pattern in a uint64_t type.
+TRICE_INLINE uint64_t aDouble(double x) {
+	union {
+		double d;
+		uint64_t u;
+	} t;
+	t.d = x;
+	return t.u;
+}
+
+// Just in case you are receiving Trice messages containing uint32_t values to be interpreted as float:
+//
+//  // asFloat returns passed uint32_t value x bit pattern as float type.
+//  TRICE_INLINE float asFloat(uint32_t x) {
+//  	union {
+//  		uint32_t from;
+//  		float to;
+//  	} pun = {.from = x};
+//  	return pun.to;
+//  }
+
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Do not generate trice code when defining TRICE_CLEAN to 1 inside "triceConfig.h".
 // It is possible to `#define TRICE_OFF 1` inside "triceConfig.h" or the project settings to disable all Trice code.
 // Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
-#if ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
+#if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
 
 // When the user defines TRICE_CLEAN to 0 or 1 inside triceConfig.h, this value is set to 0 with "trice insert" and to 1 with "trice clean".
 // This gives the option to silence editor warnings in the "trice clean" state.
 // To avoid a re-build on files including trice.h, the Trice cache will be helpful. See issue #488.
 #include "triceOff.h"
 
-#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
+#else // #if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
 
 #include "triceOn.h"
-
-#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
@@ -118,39 +216,6 @@ extern "C" {
 #include "SEGGER_RTT.h"
 
 #endif
-
-// global function prototypes:
-
-#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
-
-void TriceInitRingBufferMargins(void);
-void WatchRingBufferMargins(void);
-
-#endif
-
-void TriceCheck(int index); //!< tests and examples
-void TriceDiagnostics(int index);
-void TriceNonBlockingWriteUartA(const void* buf, size_t nByte);
-void TriceNonBlockingWriteUartB(const void* buf, size_t nByte);
-void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount);
-void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen);
-void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen);
-void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count);
-void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t* enc, unsigned count);
-void TriceInit(void);
-void TriceLogDiagnosticValues(void);
-void TriceLogSeggerDiagnostics(void);
-void TriceNonBlockingDeferredWrite8(int ticeID, const uint8_t* enc, size_t encLen);
-void TriceTransfer(void);
-size_t triceDataLen(const uint8_t* p);
-int TriceEnoughSpace(void);
-unsigned TriceOutDepth(void);
-size_t TriceDepth(void);
-size_t TriceDepthMax(void);
-size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t* buf, size_t len);
-
-void TriceWriteDeviceCgo(const void* buf, unsigned len); //!< TriceWriteDeviceCgo is only needed for testing C-sources from Go.
-unsigned TriceOutDepthCGO(void);                         //!< TriceOutDepthCGO is only needed for testing C-sources from Go.
 
 // global defines
 
@@ -486,111 +551,6 @@ extern uint32_t* TriceBufferWritePosition;
 // clang-format on
 
 ///////////////////////////////////////////////////////////////////////////////
-// UART interface
-//
-
-#if (TRICE_DEFERRED_UARTA == 1) // deferred out to UARTA
-
-void TriceBlockingWriteUartA(const uint8_t* buf, unsigned len);
-void triceServeTransmitUartA(void);
-void triceTriggerTransmitUartA(void);
-unsigned TriceOutDepthUartA(void);
-
-#endif
-
-#if (TRICE_DEFERRED_UARTB == 1) // deferred out to UARTB
-
-void TriceBlockingWriteUartB(const uint8_t* buf, unsigned len);
-void triceServeTransmitUartB(void);
-void triceTriggerTransmitUartB(void);
-unsigned TriceOutDepthUartB(void);
-
-#endif
-
-//
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
-// Encryption
-//
-
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
-
-void XTEAEncrypt(uint32_t* p, unsigned count);
-void XTEADecrypt(uint32_t* p, unsigned count);
-void XTEAInitTable(void);
-
-#endif
-
-//
-///////////////////////////////////////////////////////////////////////////////
-
-//! TRICE_NTH_ARGUMENT just evaluates to the 15th argument. It is extendable until a 32767 bytes payload.
-//! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
-//! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
-#define TRICE_NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14
-
-//! TRICE_COUNT_ARGUMENTS builds upon TRICE_NTH_ARGUMENT. The more arguments that are passed to TRICE_COUNT_ARGUMENTS,
-//! the more the »counting arguments« (12, 11, 10, 9, 8, 7…) are pushed to the right.
-//! Thus the macro evaluates to the number of arguments that are passed to the macro.
-//! If you set the C language to strict C (C90, C99, C11 or C17) the `##` operator doesn't remove the comma before it when `__VA_ARGS__` expands to nothing.
-//! In this case, the TRICE macro doesn't work with no parameters. You must then explicitly use TRICE0 instead of TRICE for a no parameter value TRICE.
-//! For more details see closed Issue #279. Special thanks @escherstair.
-//! If for example using CLANG 6.18 set C-language to gnu11, gnu99 or std to avoid the comma issue when no parameters are in a TRICE  macro.
-//! In case you have to set the C-Language to c11 or c99 you can use the TRICE0 macro directly instead of TRICE when no value parameters.
-#define TRICE_COUNT_ARGUMENTS(...) TRICE_NTH_ARGUMENT(dummy, ##__VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
-
-//! TRICE_CONCAT concatenates the 2 arguments a and b (helper macro).
-#define TRICE_CONCAT(a, b) a##b
-
-//! TRICE_CONCAT2 concatenates the 2 arguments a and b (helper macro).
-#define TRICE_CONCAT2(a, b) TRICE_CONCAT(a, b)
-
-//! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of TRICE_COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
-#define TRICE(tid, fmt, ...) TRICE_CONCAT2(TRICE_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-
-// pre C99
-//  // aFloat returns passed float value x as bit pattern in a uint32_t type.
-//  TRICE_INLINE uint32_t aFloat( float x ){
-//      union {
-//          float f;
-//          uint32_t u;
-//      } t;
-//      t.f = x;
-//      return t.u;
-//  }
-
-// aFloat returns passed float value x as bit pattern in a uint32_t type.
-TRICE_INLINE uint32_t aFloat(float f) {
-	union {
-		float from;
-		uint32_t to;
-	} pun = {.from = f};
-	return pun.to;
-}
-
-// aDouble returns passed double value x as bit pattern in a uint64_t type.
-TRICE_INLINE uint64_t aDouble(double x) {
-	union {
-		double d;
-		uint64_t u;
-	} t;
-	t.d = x;
-	return t.u;
-}
-
-// Just in case you are receiving Trice messages containing uint32_t values to be interpreted as float:
-//
-//  // asFloat returns passed uint32_t value x bit pattern as float type.
-//  TRICE_INLINE float asFloat(uint32_t x) {
-//  	union {
-//  		uint32_t from;
-//  		float to;
-//  	} pun = {.from = x};
-//  	return pun.to;
-//  }
-
-///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
 //
 
@@ -752,13 +712,13 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 	TRICE_INLINE void Trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 	TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 
-	TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
-	TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
-	TRICE_INLINE void TRiceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
+	TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+	TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+	TRICE_INLINE void TRiceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
 
-	TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
-	TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
-	TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(pFmt)}
+	TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+	TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+	TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
 // clang-format on
 
 #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
@@ -795,6 +755,8 @@ extern Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn;
 typedef void (*Write32AuxiliaryFn_t)(const uint32_t* enc, unsigned count);
 extern Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn;
 extern Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn;
+
+#endif // #else // #if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
 
 #ifdef __cplusplus
 }

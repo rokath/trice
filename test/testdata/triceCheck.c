@@ -3,7 +3,7 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include <float.h>
-#define TRICE_OFF 0 // Set this value to 1 to disable trice code generation in this file object.
+// #define TRICE_OFF 1 // This line, if enabled, deactivates Trice code generartion for this file.
 #include "trice.h"
 
 // The strings behind "//exp:" are the expected result for each line (-color=none)
@@ -393,7 +393,7 @@ void TriceCheck(int n) {
                               int c = (int)b;
                               int d = (int)(b * 1000) % 1000;
                               int e = (int)(1000 * (float)(a - c)); 
-                              TRICE(ID(14219), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); 
+                              TRice(iD(14219), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); 
                               }
 
         break; case __LINE__: trice16(iD(14220), "att: line %u\n", __LINE__ );
@@ -2585,7 +2585,7 @@ static void exampleOfManualJSONencoding(void) {
 		float Fish;
 	} Ex_t;
 	Ex_t Ex = {-1, 2, (float)2.781};
-	TRICE(Id(16066), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
+	Trice(iD(16066), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
 }
 
 static void dynString(int n) {

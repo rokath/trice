@@ -10,8 +10,8 @@ extern "C" {
 
 #if TRICE_DIAGNOSTICS == 1
 
-//! TriceLogDiagnosticValues shows the max used buffer space.
-void TriceLogDiagnosticValues(void) {
+//! TriceLogDiagnosticData shows the max used buffer space.
+void TriceLogDiagnosticData(void) {
 
 #ifdef SEGGER_RTT
 	int RTT0_wrSpaceMin = BUFFER_SIZE_UP - RTT0_writeDepthMax;

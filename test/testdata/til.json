@@ -876,7 +876,7 @@
 		"Strg": "MSG:1/11 = %g\\n"
 	},
 	"14219": {
-		"Type": "TRICE",
+		"Type": "TRice",
 		"Strg": "msg:x = %g = %d.%03d, %d.%03d\\n"
 	},
 	"14220": {
@@ -8264,7 +8264,7 @@
 		"Strg": "info:TryoutBufferFunction"
 	},
 	"16066": {
-		"Type": "TRICE",
+		"Type": "Trice",
 		"Strg": "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\\n"
 	},
 	"16067": {
