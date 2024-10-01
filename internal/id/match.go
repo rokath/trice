@@ -54,9 +54,9 @@ start:
 
 			if fmtLoc[1] < triceStartloc[1] {
 				cut := fmtLoc[1]
-				if Verbose {
-					fmt.Println("The formatString ends before typeName, continue with reduced string:", s, "-->", s[cut:], "and look for next format string")
-				}
+				//  if Verbose {
+				//  	fmt.Println("The formatString ends before typeName, continue with reduced string:", s, "-->", s[cut:], "and look for next format string")
+				//  }
 				s = s[cut:]
 				triceStartloc[0] -= cut
 				triceStartloc[1] -= cut
@@ -66,9 +66,9 @@ start:
 
 			if fmtLoc[0] < triceStartloc[0] { //
 				cut := fmtLoc[1]
-				if Verbose {
-					fmt.Println("The typeName is inside format string, start over with reduced string:", s, "-->", s[cut:], "and look for next trice start")
-				}
+				//  if Verbose {
+				//  	fmt.Println("The typeName is inside format string, start over with reduced string:", s, "-->", s[cut:], "and look for next trice start")
+				//  }
 				s = s[cut:]
 				triceStartloc[0] -= cut
 				triceStartloc[1] -= cut
