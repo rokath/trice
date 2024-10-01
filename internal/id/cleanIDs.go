@@ -62,7 +62,6 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 			msg.Tell(w, "trice c was executed before, nothing to do")
 			return msg.OnErrFv(w, p.err) // `trice c File`: File == cCache ? done
 		}
-		fmt.Println("fileInfo.ModTime() != cCache.ModTime()", fileInfo.ModTime(), cCache.ModTime())
 
 		// Construct insertedCachePath.
 		insertedCachePath := filepath.Join(cache, insertedCacheFolderName, fullPath)
@@ -76,15 +75,14 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 
 		// If path content equals insertedCachePath content, we can copy cleanedCachePath to path.
 		// We know here, that cleanedCachePath exists and path was not edited.
-		if fileInfo.ModTime() == iCache.ModTime() {
+		if fileInfo.ModTime() == iCache.ModTime() && fileExists(cleanedCachePath) {
 			// trice i File: File == iCache ? cCache -> F (trice c was executed before)
 
 			msg.Tell(w, "trice c was executed before, copy cCache into file")
 			p.copyFileWithMTime(path, cleanedCachePath)
 			return msg.OnErrFv(w, p.err) // That's it.
 		}
-		fmt.Println("fileInfo.ModTime() != cCache.ModTime()", fileInfo.ModTime(), cCache.ModTime())
-		msg.Tell(w, "File was edited, invalidate inserted cache")
+		msg.Tell(w, "File was edited, invalidate cache")
 		os.Remove(insertedCachePath)
 		os.Remove(cleanedCachePath)
 	}
@@ -124,15 +122,12 @@ clean:
 			modified = true
 		}
 	}
-	if modified {
+	if modified { // IDs cleaned
 		if Verbose {
 			fmt.Fprintln(w, "Changed: ", path)
 		}
 		if !DryRun {
 			err = fSys.WriteFile(path, out, fileInfo.Mode())
-			p.join(err)
-			msg.Tell(w, "restoring file mtime")
-			err = os.Chtimes(path, time.Time{}, fileInfo.ModTime())
 			p.join(err)
 		}
 	}
@@ -146,7 +141,7 @@ clean:
 
 	// The file could have been modified by the user but if IDs are not touched, modified is false.
 	// So we need to update the cache.
-	msg.Tell(w, "Copy (user) modified and with cleaned IDs file into the cache.")
+	msg.Tell(w, "Copy file into the cleaned-cache.")
 	err = os.MkdirAll(filepath.Dir(cleanedCachePath), os.ModeDir)
 	p.join(err)
 	p.copyFileWithMTime(cleanedCachePath, path)

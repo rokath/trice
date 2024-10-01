@@ -49,6 +49,19 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
 	return
 }
 
+// fileExists returns true, if path exits.
+func fileExists(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		return true // path exists
+	} else if errors.Is(err, os.ErrNotExist) {
+		return false // path does *not* exist
+	} else {
+		return false
+		// Schrodinger: file may or may not exist. See err for details.
+		// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+	}
+} // https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+
 // copyFileWithMTime copies file src into dst and sets dst mtime equal to src mtime.
 func (p *idData) copyFileWithMTime(dst, src string) {
 	source, err := os.Open(src)
@@ -118,8 +131,6 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 			return msg.OnErrFv(w, p.err) // `trice i File`: File == iCache ? done
 		}
 
-		fmt.Println("fileInfo.ModTime() != iCache.ModTime()", fileInfo.ModTime(), iCache.ModTime())
-
 		// Construct cleanedCachePath.
 		cleanedCachePath := filepath.Join(cache, cleanedCacheFolderName, fullPath)
 
@@ -132,7 +143,7 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 
 		// If path content equals cleanedCachePath content, we can copy insertedCachePath to path.
 		// We know here, that insertedCachePath exists and path was not edited.
-		if fileInfo.ModTime() == cCache.ModTime() {
+		if fileInfo.ModTime() == cCache.ModTime() && fileExists(insertedCachePath) {
 			// trice i File: File == cCache ? iCache -> F
 
 			msg.Tell(w, "trice c was executed before, copy iCache into file")
@@ -140,8 +151,7 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 			return msg.OnErrFv(w, p.err) // That's it.
 		}
 
-		fmt.Println("fileInfo.ModTime() != cCache.ModTime()", fileInfo.ModTime(), cCache.ModTime())
-		msg.Tell(w, "File was edited, invalidate inserted cache")
+		msg.Tell(w, "File was edited, invalidate cache")
 		os.Remove(insertedCachePath)
 		os.Remove(cleanedCachePath)
 	}
@@ -177,12 +187,9 @@ insert:
 			modified = true
 		}
 	}
-	if modified { // IDs modified
+	if modified { // IDs inserted
 		if !DryRun {
 			err = fSys.WriteFile(path, out, fileInfo.Mode())
-			p.join(err)
-			msg.Tell(w, "restoring file mtime")
-			err = os.Chtimes(path, time.Time{}, fileInfo.ModTime())
 			p.join(err)
 		}
 	}
@@ -196,7 +203,7 @@ insert:
 
 	// The file could have been modified by the user but if IDs are not touched, modified is false.
 	// So we need to update the cache.
-	msg.Tell(w, "Copy file into the cache.")
+	msg.Tell(w, "Copy file into the inserted-cache.")
 	err = os.MkdirAll(filepath.Dir(insertedCachePath), os.ModeDir)
 	p.join(err)
 	p.copyFileWithMTime(insertedCachePath, path)

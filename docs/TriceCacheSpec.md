@@ -19,6 +19,20 @@ Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process
 
 ## Trice Cache Logic
 
+When `~/.trice/cache` exists, we have these 3 files for example:
+- `~/.trice/cache/cleaned/E/repos/trice_endianness/examples/G0B1_inst/Core/Src/main.c` with mtime of IDs cleaned
+- `~/.trice/cache/inserted/E/repos/trice_endianness/examples/G0B1_inst/Core/Src/main.c` with mtime of IDs inserted
+- `/E/repos/trice_endianness/examples/G0B1_inst/Core/Src/main.c` with mtime of _IDs cleaned_ **OR** _IDs inserted_ **OR** last edit
+  - _IDs cleaned_:
+      - On command `trice c`, do nothing
+      - On command `trice i`, copy _inserted cache file_ into file 
+  - _IDs inserted_:
+      - On command `trice c`, copy _cleaned cache file_ into file
+      - On command `trice i`, do nothing 
+  - _last edit_:
+      - On command `trice c`, invalidate cache, process `trice c` and update _cleaned cache file_, file gets a new mtime, mtime of IDs cleaned. On a following command `trice i`, file mtime is IDs cleaned, BUT the chache is invalid, so process `trice i`.
+      - On command `trice i`, invalidate cache, process `trice i` and update _inserted cache file_, file gets a new mtime, mtime of IDs inserted. On a following command `trice c`, file mtime is IDs inserted, BUT the chache is invalid, so process `trice c`.
+
 - File: The src file to process.
 - iFile: The src file with fresh inserted IDs.
 - iCache: The iFile copied into the cache.
