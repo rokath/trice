@@ -15,6 +15,8 @@ import (
 	"sync"
 )
 
+var Verbose bool
+
 // Info prints info with location info.
 func Info(info string) {
 	pc, fn, line, ok := runtime.Caller(1)
@@ -28,6 +30,16 @@ func OnErrF(w io.Writer, err error) {
 	}
 	pc, fn, line, ok := runtime.Caller(1)
 	fmtFMessage(w, pc, fn, line, ok, err)
+}
+
+// OnErrFv prints info and a common error message with location info when err is not nil.
+func OnErrFv(w io.Writer, err error) error {
+	if nil == err {
+		return nil
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtFMessage(w, pc, fn, line, ok, err)
+	return err
 }
 
 // OnErr prints info and a common error message with location info when err is not nil.
@@ -210,4 +222,10 @@ func OsExitDisallow() (o OrigLogFatalf) {
 func OsExitAllow(o OrigLogFatalf) {
 	logFatalf = o
 	m.Unlock()
+}
+
+func Tell(w io.Writer, info string) {
+	if Verbose {
+		fmt.Fprintln(w, info)
+	}
 }
