@@ -15,12 +15,14 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/rokath/trice/pkg/ant"
+	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
 
@@ -47,98 +49,116 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
 	return
 }
 
-func copy(dst, src string) (int64, error) {
-	sourceFileStat, err := os.Stat(src)
-	if err != nil {
-		return 0, err
-	}
-
-	if !sourceFileStat.Mode().IsRegular() {
-		return 0, fmt.Errorf("%s is not a regular file", src)
-	}
-
+// copyFileWithMTime copies file src into dst and sets dst mtime equal to src mtime.
+func (p *idData) copyFileWithMTime(dst, src string) {
 	source, err := os.Open(src)
-	if err != nil {
-		return 0, err
-	}
+	p.join(err)
 	defer source.Close()
 
 	destination, err := os.Create(dst)
-	if err != nil {
-		return 0, err
-	}
+	p.join(err)
 	defer destination.Close()
-	nBytes, err := io.Copy(destination, source)
-	return nBytes, err
+
+	_, err = io.Copy(destination, source)
+	p.join(err)
+
+	// Copy src mtime.
+	sourceFileStat, err := os.Stat(src)
+	p.join(err)
+	err = os.Chtimes(dst, time.Time{}, sourceFileStat.ModTime())
+	p.join(err)
 }
 
-func checkIt(err error) {
+func (p *idData) join(err error) {
 	if err != nil {
-		log.Fatalln(err)
+		// notice that we're using 1, so it will actually log the where
+		// the error happened, 0 = this function, we don't want that.
+		pc, fn, line, _ := runtime.Caller(1)
+		loc := fmt.Errorf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, err)
+		p.err = errors.Join(p.err, loc, err)
 	}
 }
 
 // triceIDInsertion reads file, processes it and writes it back, if needed.
-func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) (err error) {
+func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+
+	///////////////////////////////////////////////////////////////////////////////
+	// cache stuff:
+	//
 	home, err := os.UserHomeDir()
-	checkIt(err)
+	p.join(err)
 	cache := filepath.Join(home, ".trice/cache")
 	var insertedCachePath string
 	var cacheExists bool
 
 	if _, err = os.Stat(cache); err == nil { // cache folder exists
+
+		// This cache code works in conjunction with the cache code in function triceIDCleaning.
 		cacheExists = true
 		fullPath, err := filepath.Abs(path)
-		checkIt(err)
+		p.join(err)
 
+		// remove first colon, if exists (Windows)
 		before, after, _ := strings.Cut(fullPath, ":")
-		fullPath = before + after // remove colon, if exists (Windows)
+		fullPath = before + after
 
-		insertedCachePath = filepath.Join(cache, "inserted", fullPath)
+		// construct insertedCachePath
+		insertedCachePath = filepath.Join(cache, insertedCacheFolderName, fullPath)
 
+		// If no insertedCachePath, execute insert operation
 		iCache, err := os.Lstat(insertedCachePath)
 		if err != nil {
-			if Verbose {
-				fmt.Fprintln(w, err, "no iCache file:", insertedCachePath)
-			}
+			msg.Tell(w, "no inserted Cache file")
 			goto insert
 		}
+
+		// If path content equals insertedCachePath content, we are done.
 		if fileInfo.ModTime() == iCache.ModTime() {
-			return nil // trice i File: File == iCache ? done (trice i was executed before)
+			msg.Tell(w, "trice i was executed before, nothing to do")
+			return msg.OnErrFv(w, p.err) // `trice i File`: File == iCache ? done
 		}
 
-		cleanedCachePath := filepath.Join(cache, "cleaned", fullPath)
+		fmt.Println("fileInfo.ModTime() != iCache.ModTime()", fileInfo.ModTime(), iCache.ModTime())
+
+		// Construct cleanedCachePath.
+		cleanedCachePath := filepath.Join(cache, cleanedCacheFolderName, fullPath)
+
+		// If no cleanedCachePath, execute insert operation.
 		cCache, err := os.Lstat(cleanedCachePath)
 		if err != nil {
-			if Verbose {
-				fmt.Fprintln(w, err, "no cCache file:", cleanedCachePath)
-			}
+			msg.Tell(w, "no cleaned Cache file")
 			goto insert
 		}
+
+		// If path content equals cleanedCachePath content, we can copy insertedCachePath to path.
+		// We know here, that insertedCachePath exists and path was not edited.
 		if fileInfo.ModTime() == cCache.ModTime() {
-			// trice i File: File == cCache ? iCache -> F (trice c was executed before)
-			_, err = copy(path, insertedCachePath)
-			checkIt(err)
+			// trice i File: File == cCache ? iCache -> F
 
-			iFile, err := os.Lstat(path)
-			checkIt(err)
-
-			err = os.Chtimes(path, time.Time{}, iFile.ModTime())
-			checkIt(err)
-
+			msg.Tell(w, "trice c was executed before, copy iCache into file")
+			p.copyFileWithMTime(path, insertedCachePath)
+			return msg.OnErrFv(w, p.err) // That's it.
 		}
+
+		fmt.Println("fileInfo.ModTime() != cCache.ModTime()", fileInfo.ModTime(), cCache.ModTime())
+		msg.Tell(w, "File was edited, invalidate inserted cache")
+		os.Remove(insertedCachePath)
+		os.Remove(cleanedCachePath)
 	}
+	//
+	///////////////////////////////////////////////////////////////////////////////
+
 insert:
 
-	in, err := fSys.ReadFile(path)
-	checkIt(err)
+	msg.Tell(w, "process inserting")
+	// The file has an mtime from last user edit and we keep this as reference.
+	// Inserting IDs takes part as an for the makefile invisible action.
 
-	if Verbose {
-		fmt.Fprintln(w, path)
-	}
+	in, err := fSys.ReadFile(path)
+	p.join(err)
+	msg.Tell(w, path)
 
 	var liPath string
-
 	if LiPathIsRelative {
 		liPath = filepath.ToSlash(path)
 	} else {
@@ -146,7 +166,7 @@ insert:
 	}
 
 	out, modified, err := p.insertTriceIDs(w, liPath, in, a)
-	checkIt(err)
+	p.join(err)
 
 	if filepath.Base(path) == "triceConfig.h" {
 		outs := string(out)
@@ -157,29 +177,33 @@ insert:
 			modified = true
 		}
 	}
-	if modified {
-		if Verbose {
-			fmt.Fprintln(w, "Changed: ", path)
-		}
+	if modified { // IDs modified
 		if !DryRun {
 			err = fSys.WriteFile(path, out, fileInfo.Mode())
-			checkIt(err)
+			p.join(err)
+			msg.Tell(w, "restoring file mtime")
+			err = os.Chtimes(path, time.Time{}, fileInfo.ModTime())
+			p.join(err)
 		}
 	}
 
+	///////////////////////////////////////////////////////////////////////////////
+	// cache stuff:
+	//
 	if !cacheExists {
-		return nil
+		return msg.OnErrFv(w, p.err)
 	}
-	_, err = copy(insertedCachePath, path)
-	checkIt(err)
 
-	iFile, err := os.Lstat(path)
-	checkIt(err)
+	// The file could have been modified by the user but if IDs are not touched, modified is false.
+	// So we need to update the cache.
+	msg.Tell(w, "Copy file into the cache.")
+	err = os.MkdirAll(filepath.Dir(insertedCachePath), os.ModeDir)
+	p.join(err)
+	p.copyFileWithMTime(insertedCachePath, path)
+	//
+	///////////////////////////////////////////////////////////////////////////////
 
-	err = os.Chtimes(path, time.Time{}, iFile.ModTime())
-	checkIt(err)
-
-	return nil
+	return msg.OnErrFv(w, p.err)
 }
 
 // removeIDFromSlice searches ids for id, removes its first occurance and returns the result.

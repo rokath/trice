@@ -438,22 +438,35 @@
             ]
         },        
         {
-            "name": "insert -src ../test/testdata",
+            "name": "trice i -src ./Core/Src/main.c",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["insert",
-                    "-IDMethod",
-                    "random",
                     "-idlist",
-                    "${workspaceFolder}/examples/vsCode_Nucleo-L432KC_instrumented/til.json",
+                    "${workspaceFolder}/examples/G0B1_inst/til.json",
                     "-locationInformation",
-                    "${workspaceFolder}/examples/vsCode_Nucleo-L432KC_instrumented/li.json",
+                    "${workspaceFolder}/examples/G0B1_inst/li.json",
                     "-src",
-                    "${workspaceFolder}/test/testdata",
-                    "-v"
+                    "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c"
+            ]
+        },
+        {
+            "name": "trice c -src ./Core/Src/main.c",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["clean",
+                    "-idlist",
+                    "${workspaceFolder}/examples/G0B1_inst/til.json",
+                    "-locationInformation",
+                    "${workspaceFolder}/examples/G0B1_inst/li.json",
+                    "-src",
+                    "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c"
             ]
         },
         {

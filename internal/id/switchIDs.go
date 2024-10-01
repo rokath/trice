@@ -24,6 +24,7 @@ type idData struct {
 	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
 	idInitialCount int             // idInitialCount is the initial used ID count.
 	IDSpace        []TriceID       // IDSpace contains unused IDs.
+	err            error
 }
 
 // IDIsPartOfIDSpace returns true if ID is existend inside IDSpace.

@@ -38,3 +38,8 @@ var (
 
 	SpaceBetweenTriceOpeningBraceAndIDName = false
 )
+
+const (
+	insertedCacheFolderName = "inserted"
+	cleanedCacheFolderName  = "cleaned"
+)
