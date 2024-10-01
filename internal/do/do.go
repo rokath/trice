@@ -31,7 +31,7 @@ var (
 // It must not be called before the appropriate arg parsing.
 func DistributeArgs(w io.Writer, fSys *afero.Afero, logfileName string, verbose bool) io.Writer {
 	Verbose = verbose
-	//id.Verbose = verbose
+	id.Verbose = verbose
 	msg.Verbose = verbose
 	link.Verbose = verbose
 	decoder.Verbose = verbose
