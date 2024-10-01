@@ -24,7 +24,7 @@ func TestRefreshIDListSingle1(t *testing.T) {
 		"Strg": "hi %2d, %13u, %64b\\n"
 	}
 }`
-	check(t, text, expJSON)
+	testRefreshIDs(t, text, expJSON)
 }
 
 // Only the first occurrence of a double used ID gets in the list.
@@ -46,7 +46,7 @@ func TestRefreshIDListSingle0(t *testing.T) {
 		"Strg": "hi %2d, %13u, %64b\\n"
 	}
 }`
-	check(t, text, expJSON)
+	testRefreshIDs(t, text, expJSON)
 }
 
 func TestRefreshIDListSingle1WithNewline1(t *testing.T) {
@@ -134,7 +134,7 @@ func TestRefreshIDListSingle2(t *testing.T) {
 		"Strg": "hi %2d, %13u, %64b\\n"
 	}
 }`
-	check(t, text, expJSON)
+	testRefreshIDs(t, text, expJSON)
 }
 
 func TestTriceFmtParse(t *testing.T) {

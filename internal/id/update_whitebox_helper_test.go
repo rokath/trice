@@ -93,7 +93,7 @@ func checkTil(t *testing.T, text string, exp TriceIDLookUp) {
 	assert.True(t, reflect.DeepEqual(ilu, exp))
 }
 
-func check(t *testing.T, text, expJSON string) {
+func testRefreshIDs(t *testing.T, text, expJSON string) {
 	ilu := make(TriceIDLookUp)
 	flu := ilu.reverseS()
 	lim := make(TriceIDLookUpLI)
