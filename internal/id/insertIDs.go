@@ -63,23 +63,30 @@ func fileExists(path string) bool {
 } // https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
 
 // copyFileWithMTime copies file src into dst and sets dst mtime equal to src mtime.
-func (p *idData) copyFileWithMTime(dst, src string) {
+func copyFileWithMTime(dst, src string) error {
 	source, err := os.Open(src)
-	p.join(err)
+	if err != nil {
+		return err
+	}
 	defer source.Close()
 
 	destination, err := os.Create(dst)
-	p.join(err)
+	if err != nil {
+		return err
+	}
 	defer destination.Close()
 
 	_, err = io.Copy(destination, source)
-	p.join(err)
+	if err != nil {
+		return err
+	}
 
 	// Copy src mtime.
 	sourceFileStat, err := os.Stat(src)
-	p.join(err)
-	err = os.Chtimes(dst, time.Time{}, sourceFileStat.ModTime())
-	p.join(err)
+	if err != nil {
+		return err
+	}
+	return os.Chtimes(dst, time.Time{}, sourceFileStat.ModTime())
 }
 
 func (p *idData) join(err error) {
@@ -98,62 +105,66 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 	///////////////////////////////////////////////////////////////////////////////
 	// cache stuff:
 	//
-	home, err := os.UserHomeDir()
-	p.join(err)
-	cache := filepath.Join(home, ".trice/cache")
-	var insertedCachePath string
 	var cacheExists bool
-
-	if _, err = os.Stat(cache); err == nil { // cache folder exists
-
-		// This cache code works in conjunction with the cache code in function triceIDCleaning.
-		cacheExists = true
-		fullPath, err := filepath.Abs(path)
+	var insertedCachePath string
+	if TriceCacheEnabled {
+		home, err := os.UserHomeDir()
 		p.join(err)
+		cache := filepath.Join(home, ".trice/cache")
+		var insertedCachePath string
 
-		// remove first colon, if exists (Windows)
-		before, after, _ := strings.Cut(fullPath, ":")
-		fullPath = before + after
+		if _, err = os.Stat(cache); err == nil { // cache folder exists
 
-		// construct insertedCachePath
-		insertedCachePath = filepath.Join(cache, insertedCacheFolderName, fullPath)
+			// This cache code works in conjunction with the cache code in function triceIDCleaning.
+			cacheExists = true
+			fullPath, err := filepath.Abs(path)
+			p.join(err)
 
-		// If no insertedCachePath, execute insert operation
-		iCache, err := os.Lstat(insertedCachePath)
-		if err != nil {
-			msg.Tell(w, "no inserted Cache file")
-			goto insert
+			// remove first colon, if exists (Windows)
+			before, after, _ := strings.Cut(fullPath, ":")
+			fullPath = before + after
+
+			// construct insertedCachePath
+			insertedCachePath = filepath.Join(cache, insertedCacheFolderName, fullPath)
+
+			// If no insertedCachePath, execute insert operation
+			iCache, err := os.Lstat(insertedCachePath)
+			if err != nil {
+				msg.Tell(w, "no inserted Cache file")
+				goto insert
+			}
+
+			// If path content equals insertedCachePath content, we are done.
+			if fileInfo.ModTime() == iCache.ModTime() {
+				msg.Tell(w, "trice i was executed before, nothing to do")
+				return msg.OnErrFv(w, p.err) // `trice i File`: File == iCache ? done
+			}
+
+			// Construct cleanedCachePath.
+			cleanedCachePath := filepath.Join(cache, cleanedCacheFolderName, fullPath)
+
+			// If no cleanedCachePath, execute insert operation.
+			cCache, err := os.Lstat(cleanedCachePath)
+			if err != nil {
+				msg.Tell(w, "no cleaned Cache file")
+				goto insert
+			}
+
+			// If path content equals cleanedCachePath content, we can copy insertedCachePath to path.
+			// We know here, that insertedCachePath exists and path was not edited.
+			if fileInfo.ModTime() == cCache.ModTime() && fileExists(insertedCachePath) {
+				// trice i File: File == cCache ? iCache -> F
+
+				msg.Tell(w, "trice c was executed before, copy iCache into file")
+				err = copyFileWithMTime(path, insertedCachePath)
+				p.join(err)
+				return msg.OnErrFv(w, p.err) // That's it.
+			}
+
+			msg.Tell(w, "File was edited, invalidate cache")
+			os.Remove(insertedCachePath)
+			os.Remove(cleanedCachePath)
 		}
-
-		// If path content equals insertedCachePath content, we are done.
-		if fileInfo.ModTime() == iCache.ModTime() {
-			msg.Tell(w, "trice i was executed before, nothing to do")
-			return msg.OnErrFv(w, p.err) // `trice i File`: File == iCache ? done
-		}
-
-		// Construct cleanedCachePath.
-		cleanedCachePath := filepath.Join(cache, cleanedCacheFolderName, fullPath)
-
-		// If no cleanedCachePath, execute insert operation.
-		cCache, err := os.Lstat(cleanedCachePath)
-		if err != nil {
-			msg.Tell(w, "no cleaned Cache file")
-			goto insert
-		}
-
-		// If path content equals cleanedCachePath content, we can copy insertedCachePath to path.
-		// We know here, that insertedCachePath exists and path was not edited.
-		if fileInfo.ModTime() == cCache.ModTime() && fileExists(insertedCachePath) {
-			// trice i File: File == cCache ? iCache -> F
-
-			msg.Tell(w, "trice c was executed before, copy iCache into file")
-			p.copyFileWithMTime(path, insertedCachePath)
-			return msg.OnErrFv(w, p.err) // That's it.
-		}
-
-		msg.Tell(w, "File was edited, invalidate cache")
-		os.Remove(insertedCachePath)
-		os.Remove(cleanedCachePath)
 	}
 	//
 	///////////////////////////////////////////////////////////////////////////////
@@ -197,16 +208,19 @@ insert:
 	///////////////////////////////////////////////////////////////////////////////
 	// cache stuff:
 	//
-	if !cacheExists {
-		return msg.OnErrFv(w, p.err)
-	}
+	if TriceCacheEnabled {
+		if !cacheExists {
+			return msg.OnErrFv(w, p.err)
+		}
 
-	// The file could have been modified by the user but if IDs are not touched, modified is false.
-	// So we need to update the cache.
-	msg.Tell(w, "Copy file into the inserted-cache.")
-	err = os.MkdirAll(filepath.Dir(insertedCachePath), os.ModeDir)
-	p.join(err)
-	p.copyFileWithMTime(insertedCachePath, path)
+		// The file could have been modified by the user but if IDs are not touched, modified is false.
+		// So we need to update the cache.
+		msg.Tell(w, "Copy file into the inserted-cache.")
+		err = os.MkdirAll(filepath.Dir(insertedCachePath), os.ModeDir)
+		p.join(err)
+		err = copyFileWithMTime(insertedCachePath, path)
+		p.join(err)
+	}
 	//
 	///////////////////////////////////////////////////////////////////////////////
 

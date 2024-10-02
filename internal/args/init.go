@@ -201,10 +201,6 @@ func updateInit() {
 	fsScUpdate.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScUpdate.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
-	// fsScUpdate.BoolVar(&id.SharedIDs, "sharedIDs", false, `ID policy:
-	// false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
-	// true:  TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already. Use with care: The location information for only one location is displayed but it can be a wrong one.
-	// Hint: If you have equal TriceIDs with equal TriceFmt's after some copy and paste simply replace these TriceIDs with 0 to force new and different TriceIDs. ('trice h -z' shows how to automate)`)
 	fsScUpdate.BoolVar(&id.SpaceBetweenTriceOpeningBraceAndIDName, "spacing", false, "Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.")
 }
 
@@ -216,6 +212,7 @@ func insertIDsInit() {
 	fsScInsert.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
 	fsScInsert.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
+	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert. The folder must exist.`)
 }
 
 func zeroInit() {
@@ -225,6 +222,7 @@ func zeroInit() {
 
 func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("cleanSourceTreeIds", flag.ContinueOnError)
+	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean. The folder must exist.`)
 	flagsRefreshAndUpdate(fsScClean)
 }
 
