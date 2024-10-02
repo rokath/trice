@@ -114,8 +114,8 @@ func insertIDsInfo(w io.Writer) error {
 #	The "insert" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice i -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json`)
-	fsScUpdate.SetOutput(w)
-	fsScUpdate.PrintDefaults()
+	fsScInsert.SetOutput(w)
+	fsScInsert.PrintDefaults()
 	return e
 }
 
