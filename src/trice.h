@@ -294,7 +294,7 @@ extern uint32_t* TriceBufferWritePosition;
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// "Declare" endian dependent macros needed in trice8.h, trice16.h, trice32.h, trice64.h: 
+// "Declare" endian dependent macros, needed in trice8.h, trice16.h, trice32.h, trice64.h: 
 //
 #define TRICE_HTOTS(x) TRICE_HTOTS(x)
 #define TRICE_HTOTL(x) TRICE_HTOTL(x)
