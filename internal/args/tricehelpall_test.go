@@ -53,9 +53,9 @@ sub-command 'h|help': For command line usage.
     	Show a|add specific help.
   -all
     	Show all help.
-  -c	Show cleanSourceTreeIds specific help.
-  -cleanSourceTreeIds
-    	Show cleanSourceTreeIds specific help.
+  -c	Show c|clean specific help.
+  -clean
+    	Show c|clean specific help.
   -displayserver
     	Show ds|displayserver specific help.
   -ds
@@ -330,8 +330,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	short for skipAdditionalChecks
   -skipAdditionalChecks
     	No parameter count checks, when this flag is true.
-    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
-    	Add this flag for skript speed-up, when not editing the souces.
+    	This reduces the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for script speed-up, when not editing the sources. Alternatively consider the -cache switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
@@ -436,8 +436,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	short for skipAdditionalChecks
   -skipAdditionalChecks
     	No parameter count checks, when this flag is true.
-    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
-    	Add this flag for skript speed-up, when not editing the souces.
+    	This reduces the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for script speed-up, when not editing the sources. Alternatively consider the -cache switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
@@ -467,7 +467,7 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.
   -dry-run
     	No changes applied but output shows what would happen.
-    	"trice cleanSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+    	"trice clean -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -i string
     	Short for '-idlist'.
@@ -499,13 +499,13 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	short for skipAdditionalChecks
   -skipAdditionalChecks
     	No parameter count checks, when this flag is true.
-    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
-    	Add this flag for skript speed-up, when not editing the souces.
+    	This reduces the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for script speed-up, when not editing the sources. Alternatively consider the -cache switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice cleanSourceTreeIds -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	Example: "trice clean -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
     	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")

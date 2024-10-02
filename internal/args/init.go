@@ -77,8 +77,8 @@ func helpInit() {
 	fsScHelp.BoolVar(&versionHelp, "ver", false, "Show ver|version specific help.")
 	//  fsScHelp.BoolVar(&zeroIDsHelp, "zeroSourceTreeIds", false, "Show zeroSourceTreeIds specific help.")
 	//  fsScHelp.BoolVar(&zeroIDsHelp, "z", false, "Show zeroSourceTreeIds specific help.")
-	fsScHelp.BoolVar(&cleanIDsHelp, "cleanSourceTreeIds", false, "Show cleanSourceTreeIds specific help.")
-	fsScHelp.BoolVar(&cleanIDsHelp, "c", false, "Show cleanSourceTreeIds specific help.")
+	fsScHelp.BoolVar(&cleanIDsHelp, "clean", false, "Show c|clean specific help.")
+	fsScHelp.BoolVar(&cleanIDsHelp, "c", false, "Show c|clean specific help.")
 	flagLogfile(fsScHelp)
 	flagVerbosity(fsScHelp)
 }
@@ -221,7 +221,7 @@ func insertIDsInit() {
 //  }
 
 func cleanIDsInit() {
-	fsScClean = flag.NewFlagSet("cleanSourceTreeIds", flag.ContinueOnError) // sub-command
+	fsScClean = flag.NewFlagSet("clean", flag.ContinueOnError) // sub-command
 	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.`)
 	flagsRefreshAndUpdate(fsScClean)
 }
@@ -306,8 +306,8 @@ For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with mor
 
 func flagSkipAdditionalChecks(p *flag.FlagSet) {
 	p.BoolVar(&id.SkipAdditionalChecks, "skipAdditionalChecks", false, `No parameter count checks, when this flag is true.
-This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
-Add this flag for skript speed-up, when not editing the souces.
+This reduces the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+Add this flag for script speed-up, when not editing the sources. Alternatively consider the -cache switch.
 `+boolInfo) // flag
 	p.BoolVar(&id.SkipAdditionalChecks, "skip", false, "short for skipAdditionalChecks") // flag
 }

@@ -106,7 +106,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	//  	id.CompactSrcs()
 	//  	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 	//  	return id.SubCmdIdZero(w, fSys)
-	case "c", "clean", "cleanSourceTreeIds":
+	case "c", "clean":
 		msg.OnErr(fsScClean.Parse(subArgs))
 		id.CompactSrcs()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
