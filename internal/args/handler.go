@@ -86,26 +86,26 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
 		//return id.SubCmdAddToList(w, fSys)
-	case "u", "update":
-		msg.OnErr(fsScUpdate.Parse(subArgs))
-		id.CompactSrcs()
-		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		return id.SubCmdUpdate(w, fSys)
+	//  case "u", "update":
+	//  	msg.OnErr(fsScUpdate.Parse(subArgs))
+	//  	id.CompactSrcs()
+	//  	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
+	//  	return id.SubCmdUpdate(w, fSys)
 	case "i", "insert":
 		msg.OnErr(fsScInsert.Parse(subArgs))
 		id.CompactSrcs()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdInsert(w, fSys)
-	//  case "zeroSourceTreeIds":
+	//  //  case "zeroSourceTreeIds":
+	//  //  	msg.OnErr(fsScZero.Parse(subArgs))
+	//  //  	w = do.DistributeArgs(w, fSys, logfileName, verbose)
+	//  //  	//  return id.ScZero(w, *pSrcZ, fsScZero)
+	//  //  	return id.ScZeroMulti(w, fSys, fsScZero)
+	//  case "z", "zero", "zeroSourceTreeIds":
 	//  	msg.OnErr(fsScZero.Parse(subArgs))
-	//  	w = do.DistributeArgs(w, fSys, logfileName, verbose)
-	//  	//  return id.ScZero(w, *pSrcZ, fsScZero)
-	//  	return id.ScZeroMulti(w, fSys, fsScZero)
-	case "z", "zero", "zeroSourceTreeIds":
-		msg.OnErr(fsScZero.Parse(subArgs))
-		id.CompactSrcs()
-		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		return id.SubCmdIdZero(w, fSys)
+	//  	id.CompactSrcs()
+	//  	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
+	//  	return id.SubCmdIdZero(w, fSys)
 	case "c", "clean", "cleanSourceTreeIds":
 		msg.OnErr(fsScClean.Parse(subArgs))
 		id.CompactSrcs()

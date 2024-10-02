@@ -44,8 +44,8 @@ func FlagsInit() {
 	helpInit()
 	logInit()
 	addInit()
-	updateInit()
-	zeroInit()
+	//  updateInit()
+	//  zeroInit()
 	insertIDsInit()
 	cleanIDsInit()
 	versionInit()
@@ -69,14 +69,14 @@ func helpInit() {
 	fsScHelp.BoolVar(&scanHelp, "s", false, "Show s|scan specific help.")
 	fsScHelp.BoolVar(&shutdownHelp, "shutdown", false, "Show sd|shutdown specific help.")
 	fsScHelp.BoolVar(&shutdownHelp, "sd", false, "Show sd|shutdown specific help.")
-	fsScHelp.BoolVar(&updateHelp, "update", false, "Show u|update specific help.")
-	fsScHelp.BoolVar(&updateHelp, "u", false, "Show u|update specific help.")
+	//  fsScHelp.BoolVar(&updateHelp, "update", false, "Show u|update specific help.")
+	//  fsScHelp.BoolVar(&updateHelp, "u", false, "Show u|update specific help.")
 	fsScHelp.BoolVar(&insertIDsHelp, "insert", false, "Show i|insert specific help.")
 	fsScHelp.BoolVar(&insertIDsHelp, "i", false, "Show i|insert specific help.")
 	fsScHelp.BoolVar(&versionHelp, "version", false, "Show ver|version specific help.")
 	fsScHelp.BoolVar(&versionHelp, "ver", false, "Show ver|version specific help.")
-	fsScHelp.BoolVar(&zeroIDsHelp, "zeroSourceTreeIds", false, "Show zeroSourceTreeIds specific help.")
-	fsScHelp.BoolVar(&zeroIDsHelp, "z", false, "Show zeroSourceTreeIds specific help.")
+	//  fsScHelp.BoolVar(&zeroIDsHelp, "zeroSourceTreeIds", false, "Show zeroSourceTreeIds specific help.")
+	//  fsScHelp.BoolVar(&zeroIDsHelp, "z", false, "Show zeroSourceTreeIds specific help.")
 	fsScHelp.BoolVar(&cleanIDsHelp, "cleanSourceTreeIds", false, "Show cleanSourceTreeIds specific help.")
 	fsScHelp.BoolVar(&cleanIDsHelp, "c", false, "Show cleanSourceTreeIds specific help.")
 	flagLogfile(fsScHelp)
@@ -193,16 +193,16 @@ func addInit() {
 	flagsRefreshAndUpdate(fsScAdd)
 }
 
-func updateInit() {
-	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // sub-command
-	flagsRefreshAndUpdate(fsScUpdate)
-	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
-	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
-	fsScUpdate.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
-	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
-	fsScUpdate.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
-	fsScUpdate.BoolVar(&id.SpaceBetweenTriceOpeningBraceAndIDName, "spacing", false, "Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.")
-}
+//  func updateInit() {
+//  	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // sub-command
+//  	flagsRefreshAndUpdate(fsScUpdate)
+//  	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
+//  	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
+//  	fsScUpdate.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
+//  	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
+//  	fsScUpdate.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
+//  	fsScUpdate.BoolVar(&id.SpaceBetweenTriceOpeningBraceAndIDName, "spacing", false, "Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.")
+//  }
 
 func insertIDsInit() {
 	fsScInsert = flag.NewFlagSet("insertSourceTreeIds", flag.ExitOnError) // sub-command
@@ -215,10 +215,10 @@ func insertIDsInit() {
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
 }
 
-func zeroInit() {
-	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError) // sub-command
-	flagsRefreshAndUpdate(fsScZero)
-}
+//  func zeroInit() {
+//  	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError) // sub-command
+//  	flagsRefreshAndUpdate(fsScZero)
+//  }
 
 func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("cleanSourceTreeIds", flag.ContinueOnError) // sub-command
@@ -327,7 +327,7 @@ The specified JSON file is needed to display the ID coded trices during runtime 
 func flagLIList(p *flag.FlagSet) {
 	p.StringVar(&id.LIFnJSON, "locationInformation", "li.json", `The trice location information file.
 The specified JSON file is needed to display the location information for each ID during runtime. 
-It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
+It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for 
 log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
 This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
 With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.

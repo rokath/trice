@@ -87,9 +87,6 @@ sub-command 'h|help': For command line usage.
     	Show sd|shutdown specific help.
   -shutdown
     	Show sd|shutdown specific help.
-  -u	Show u|update specific help.
-  -update
-    	Show u|update specific help.
   -v	short for verbose
   -ver
     	Show ver|version specific help.
@@ -99,9 +96,6 @@ sub-command 'h|help': For command line usage.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -version
     	Show ver|version specific help.
-  -z	Show zeroSourceTreeIds specific help.
-  -zeroSourceTreeIds
-    	Show zeroSourceTreeIds specific help.
 sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
 #	Example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
 #	Example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
@@ -211,7 +205,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime. 
-    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
+    	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
@@ -325,7 +319,7 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime. 
-    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
+    	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
@@ -384,77 +378,6 @@ sub-command 'ver|version': For displaying version information.
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'u|update': DEPRECIATED! Will be removed in the future.
-#	Use "trice i|insert" instead.
-#	DEPRECIATED! For updating ID list and source files.
-#	DEPRECIATED! "trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
-#	DEPRECIATED! The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
-#	DEPRECIATED! Example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json.
-#	Use command "insert" instead.
-  -IDMax value
-    	Upper end of ID range for normal trices. (default 7999)
-  -IDMethod string
-    	Search method for new ID's in range- Options are 'upward', 'downward' & 'random'. (default "random")
-  -IDMin value
-    	Lower end of ID range for normal trices. (default 1000)
-  -addParamCount
-    	Extend TRICE macro names with the parameter count _n to enable compile time checks.
-  -defaultStampSize int
-    	Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32. (default 32)
-  -dry-run
-    	No changes applied but output shows what would happen.
-    	"trice update -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -i string
-    	Short for '-idlist'.
-    	 (default "til.json")
-  -idList string
-    	Alternate for '-idlist'.
-    	 (default "til.json")
-  -idlist string
-    	The trice ID list file.
-    	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
-    	 (default "til.json")
-  -li string
-    	Short for '-locationInformation'.
-    	 (default "li.json")
-  -liPathIsRelative
-    	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
-    	The default is to use only the files basename.
-  -locationInformation string
-    	The trice location information file.
-    	The specified JSON file is needed to display the location information for each ID during runtime. 
-    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
-    	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
-    	 (default "li.json")
-  -s value
-    	Short for src.
-  -skip
-    	short for skipAdditionalChecks
-  -skipAdditionalChecks
-    	No parameter count checks, when this flag is true.
-    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
-    	Add this flag for skript speed-up, when not editing the souces.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -spacing
-    	Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.
-  -src value
-    	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
-    	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice update -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
-    	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
-    	 (default "./")
-  -til string
-    	Short for '-idlist'.
-    	 (default "til.json")
-  -v	short for verbose
-  -verbose
-    	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'i|insert': For updating til.json and inserting IDs into source files.
 #	"trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and extend the JSON list.
 #	This command relies on existing til.json and li.json files. The li.json file is used as reference and generated new during insert.
@@ -475,11 +398,13 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Lower end of ID range for normal trices. (default 1000)
   -addParamCount
     	Extend TRICE macro names with the parameter count _n to enable compile time checks.
+  -cache
+    	Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.
   -defaultStampSize int
     	Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32. (default 32)
   -dry-run
     	No changes applied but output shows what would happen.
-    	"trice update -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+    	"trice insertSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -i string
     	Short for '-idlist'.
@@ -500,67 +425,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime. 
-    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
-    	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
-    	 (default "li.json")
-  -s value
-    	Short for src.
-  -skip
-    	short for skipAdditionalChecks
-  -skipAdditionalChecks
-    	No parameter count checks, when this flag is true.
-    	This reduses the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
-    	Add this flag for skript speed-up, when not editing the souces.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -spacing
-    	Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.
-  -src value
-    	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
-    	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice update -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
-    	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
-    	 (default "./")
-  -til string
-    	Short for '-idlist'.
-    	 (default "til.json")
-  -v	short for verbose
-  -verbose
-    	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|ID|iD](0).
-#	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
-#	reported and just zeroed inside the source files. The existing li.json is updated/extended. 
-#	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
-#	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
-#	In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"
-  -dry-run
-    	No changes applied but output shows what would happen.
-    	"trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -i string
-    	Short for '-idlist'.
-    	 (default "til.json")
-  -idList string
-    	Alternate for '-idlist'.
-    	 (default "til.json")
-  -idlist string
-    	The trice ID list file.
-    	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
-    	 (default "til.json")
-  -li string
-    	Short for '-locationInformation'.
-    	 (default "li.json")
-  -liPathIsRelative
-    	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
-    	The default is to use only the files basename.
-  -locationInformation string
-    	The trice location information file.
-    	The specified JSON file is needed to display the location information for each ID during runtime. 
-    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
+    	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
@@ -577,7 +442,7 @@ sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice zeroSourceTreeIds -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	Example: "trice insertSourceTreeIds -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
     	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
@@ -595,9 +460,11 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
 #	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs.
-#	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressable.
+#	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressed.
 #	EXPERIMENTAL! All files including trice.h are re-compiled then on the next compiler run, what could be time-consuming.
 #	In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"
+  -cache
+    	Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice cleanSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -621,7 +488,7 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime. 
-    	It is regenerated on each add, clean, insert, update or zero trice run. When trice log finds a location information file, it is used for 
+    	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for 
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.

@@ -3,8 +3,17 @@
 
 package id
 
-// source tree management
+import (
+	"fmt"
+	"io"
+	"strconv"
+	"strings"
 
+	"github.com/rokath/trice/pkg/ant"
+)
+
+// source tree management
+/*
 import (
 	"fmt"
 	"io"
@@ -54,6 +63,7 @@ func triceIDZeroing(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fil
 	}
 	return err
 }
+*/
 
 // zeroTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.
 // If an ID is inside til.json referencing to a different trice, it is reported and set to 0 inside in.

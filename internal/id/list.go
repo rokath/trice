@@ -91,26 +91,26 @@ func updateList(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, lim TriceIDLo
 	return nil // SubCmdUpdate() // todo?
 }
 
-// SubCmdUpdate is sub-command update
-func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
-	lim := make(TriceIDLookUpLI, 4000)
-	ilu := NewLut(w, fSys, FnJSON)
-	flu := ilu.reverseS()
-	var listModified bool
-	o := len(ilu)
-	walkSrcs(w, fSys, ilu, flu, &listModified, lim, idsUpdate)
-	if Verbose {
-		fmt.Fprintln(w, len(ilu), "ID's in List", FnJSON, "listModified=", listModified)
-	}
-
-	if (len(ilu) != o || listModified) && !DryRun {
-		msg.FatalOnErr(ilu.toFile(fSys, FnJSON))
-	}
-	if LIFnJSON == "off" || LIFnJSON == "none" {
-		return nil
-	}
-	return lim.toFile(fSys, LIFnJSON)
-}
+//  // SubCmdUpdate is sub-command update
+//  func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
+//  	lim := make(TriceIDLookUpLI, 4000)
+//  	ilu := NewLut(w, fSys, FnJSON)
+//  	flu := ilu.reverseS()
+//  	var listModified bool
+//  	o := len(ilu)
+//  	walkSrcs(w, fSys, ilu, flu, &listModified, lim, idsUpdate)
+//  	if Verbose {
+//  		fmt.Fprintln(w, len(ilu), "ID's in List", FnJSON, "listModified=", listModified)
+//  	}
+//
+//  	if (len(ilu) != o || listModified) && !DryRun {
+//  		msg.FatalOnErr(ilu.toFile(fSys, FnJSON))
+//  	}
+//  	if LIFnJSON == "off" || LIFnJSON == "none" {
+//  		return nil
+//  	}
+//  	return lim.toFile(fSys, LIFnJSON)
+//  }
 
 func walkSrcs(w io.Writer, fSys *afero.Afero /*******/, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI,
 	f func(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI)) {

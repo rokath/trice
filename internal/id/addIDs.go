@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-// SubCmdIdZero performs sub-command zero, setting trice IDs in source tree to 0.
+// SubCmdIdAdd performs sub-command add, setting getting trice IDs from source tree to til.json.
 func SubCmdIdAdd(w io.Writer, fSys *afero.Afero) error {
 	return IDData.cmdSwitchTriceIDs(w, fSys, triceIDAdding)
 }
@@ -39,6 +39,6 @@ func triceIDAdding(w io.Writer, fSys *afero.Afero, path string, fileInfo os.File
 		liPath = filepath.Base(path)
 	}
 
-	_, _, err = zeroTriceIDs(w, liPath, in, a)
+	_, _, err = zeroTriceIDs(w, liPath, in, a) // just to get the IDs, no write back
 	return err
 }

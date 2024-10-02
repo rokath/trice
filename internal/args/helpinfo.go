@@ -28,9 +28,9 @@ func scHelp(w io.Writer) error {
 		{allHelp || scanHelp, scanInfo},
 		{allHelp || shutdownHelp, shutdownInfo},
 		{allHelp || versionHelp, versionInfo},
-		{allHelp || updateHelp, updateInfo},
+		//{allHelp || updateHelp, updateInfo},
 		{allHelp || insertIDsHelp, insertIDsInfo},
-		{allHelp || zeroIDsHelp, zeroIDsInfo},
+		//{allHelp || zeroIDsHelp, zeroIDsInfo},
 		{allHelp || cleanIDsHelp, cleanIDsInfo},
 	}
 	for _, z := range x {
@@ -126,7 +126,7 @@ func cleanIDsInfo(w io.Writer) error {
 #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
 #	Example: 'trice clean -src ../A -src B/x.c': Sets all TRICE IDs to 0, or removes them, in folder ../A. and file B/x.c
 #	EXPERIMENTAL! The command itself works reliable, but a sophisticated editor will detect inconsistencies with removed IDs.
-#	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressable.
+#	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressed.
 #	EXPERIMENTAL! All files including trice.h are re-compiled then on the next compiler run, what could be time-consuming.
 #	In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"`)
 	fsScClean.SetOutput(w)
@@ -134,30 +134,30 @@ func cleanIDsInfo(w io.Writer) error {
 	return e
 }
 
-func zeroIDsInfo(w io.Writer) error {
-	_, e := fmt.Fprintln(w, `sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|ID|iD](0).
-#	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
-#	reported and just zeroed inside the source files. The existing li.json is updated/extended. 
-#	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
-#	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
-#	In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"`)
-	fsScZero.SetOutput(w)
-	fsScZero.PrintDefaults()
-	return e
-}
+//  func zeroIDsInfo(w io.Writer) error {
+//  	_, e := fmt.Fprintln(w, `sub-command 'z|zero': Set all [id|Id|ID|iD](n) inside source tree dir to [id|Id|ID|iD](0).
+//  #	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are
+//  #	reported and just zeroed inside the source files. The existing li.json is updated/extended.
+//  #	The switch "-src" is optional (default is "./") and a multi-flag here. So you can use the "-src" flag several times.
+//  #	Example: 'trice zero -src ../A -src B/x.c': Sets all TRICE IDs to 0 in folder ../A. and file B/x.c
+//  #	In difference to "trice clean", Trice function calls keep the ID as zero IDs. Example: "TRice( iD(88), "hi);" -> "TRice( iD(0), "hi);"`)
+//  	fsScZero.SetOutput(w)
+//  	fsScZero.PrintDefaults()
+//  	return e
+//  }
 
-func updateInfo(w io.Writer) error {
-	_, e := fmt.Fprintln(w, `sub-command 'u|update': DEPRECIATED! Will be removed in the future.
-#	Use "trice i|insert" instead.
-#	DEPRECIATED! For updating ID list and source files.
-#	DEPRECIATED! "trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
-#	DEPRECIATED! The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
-#	DEPRECIATED! Example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json.
-#	Use command "insert" instead.`)
-	fsScUpdate.SetOutput(w)
-	fsScUpdate.PrintDefaults()
-	return e
-}
+//  func updateInfo(w io.Writer) error {
+//  	_, e := fmt.Fprintln(w, `sub-command 'u|update': DEPRECIATED! Will be removed in the future.
+//  #	Use "trice i|insert" instead.
+//  #	DEPRECIATED! For updating ID list and source files.
+//  #	DEPRECIATED! "trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
+//  #	DEPRECIATED! The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
+//  #	DEPRECIATED! Example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json.
+//  #	Use command "insert" instead.`)
+//  	fsScUpdate.SetOutput(w)
+//  	fsScUpdate.PrintDefaults()
+//  	return e
+//  }
 
 func addInfo(w io.Writer) error {
 	_, e := fmt.Fprintln(w, `sub-command 'a|add': Use for adding library source files containing already trice IDs to your project.

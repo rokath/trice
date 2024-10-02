@@ -26,7 +26,7 @@ var (
 	fsScAdd *flag.FlagSet
 
 	// fsScUpdate is flag set for sub command 'update' for updating ID list.
-	fsScUpdate *flag.FlagSet
+	//fsScUpdate *flag.FlagSet
 
 	// fsScInsert is flag set for sub command 'insert' for updating src tree and ID list.
 	fsScInsert *flag.FlagSet
@@ -50,7 +50,7 @@ var (
 	fsScSdSv *flag.FlagSet
 
 	// fsScZero is flag set for sub command 'zero' for clearing IDs in source tree.
-	fsScZero *flag.FlagSet
+	//fsScZero *flag.FlagSet
 
 	// fsScClean is flag set for sub command 'clean' for clearing IDs in source tree.
 	fsScClean *flag.FlagSet
@@ -65,9 +65,9 @@ var (
 	addHelp           bool // flag for partial help
 	scanHelp          bool // flag for partial help
 	shutdownHelp      bool // flag for partial help
-	updateHelp        bool // flag for partial help
-	insertIDsHelp     bool // flag for partial help
-	versionHelp       bool // flag for partial help
-	zeroIDsHelp       bool // flag for partial help
-	cleanIDsHelp      bool // flag for partial help
+	//updateHelp        bool // flag for partial help
+	insertIDsHelp bool // flag for partial help
+	versionHelp   bool // flag for partial help
+	//zeroIDsHelp       bool // flag for partial help
+	cleanIDsHelp bool // flag for partial help
 )
