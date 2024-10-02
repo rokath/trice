@@ -49,10 +49,9 @@ trice c File: File == iCache ? cCache -> F   (trice i was executed before)
 trice c File: else File -> cFile -> cCache   (file was edited)
 ```
 
-
-
 ## Remarks
 
 - The `.trice/cache` folder should the Trice tool create automatically in the users home folder `$HOME`. For now the existence of this folder is user controlled.
-- The `.trice` folder should (not?) go under revison control.
+- The `.trice` folder should (not?) go under revision control.
 - A CLI switch should enable(default)/disable the Trice cache.
+- What happens, if other pre-compile ode post-compile steps are modifying files as well?
