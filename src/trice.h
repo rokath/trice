@@ -191,9 +191,10 @@ TRICE_INLINE uint64_t aDouble(double x) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Do not generate trice code when defining TRICE_CLEAN to 1 inside "triceConfig.h".
-// It is possible to `#define TRICE_OFF 1` inside "triceConfig.h" or the project settings to disable all Trice code.
-// Do not generate trice code for files defining TRICE_OFF to 1 before including "trice.h".
+// Do not generate trice code 
+// - when defining TRICE_CLEAN to 1 inside "triceConfig.h" or
+// - when defining TRICE_OFF to 1 before including "trice.h".
+// It is possible to `#define TRICE_OFF 1` inside the project settings to disable all Trice code.
 #if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
 
 // When the user defines TRICE_CLEAN to 0 or 1 inside triceConfig.h, this value is set to 0 with "trice insert" and to 1 with "trice clean".
