@@ -212,7 +212,7 @@ func insertIDsInit() {
 	fsScInsert.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
 	fsScInsert.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
-	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert. The folder must exist.`)
+	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
 }
 
 func zeroInit() {
@@ -222,7 +222,7 @@ func zeroInit() {
 
 func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("cleanSourceTreeIds", flag.ContinueOnError)
-	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean. The folder must exist.`)
+	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.`)
 	flagsRefreshAndUpdate(fsScClean)
 }
 
