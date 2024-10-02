@@ -203,7 +203,9 @@ TRICE_INLINE uint64_t aDouble(double x) {
 #include "triceOff.h"
 
 #else // #if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
-
+/***************************************************************************************************/
+/**/
+/**/
 #include "triceOn.h"
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
@@ -792,7 +794,9 @@ extern Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn;
 typedef void (*Write32AuxiliaryFn_t)(const uint32_t* enc, unsigned count);
 extern Write32AuxiliaryFn_t UserNonBlockingDirectWrite32AuxiliaryFn;
 extern Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn;
-
+/**/
+/**/
+/***************************************************************************************************/
 #endif // #else // #if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
 
 #ifdef __cplusplus
