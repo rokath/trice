@@ -1,6 +1,6 @@
 # Trice Cache Specification Draft (Issue [#488](https://github.com/rokath/trice/issues/488))
 
-> Not implemented yet! Just ideas.
+> Experimental implementation!.
 
 ## Preface
 
@@ -19,35 +19,20 @@ Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process
 
 ## Trice Cache Logic
 
-When `~/.trice/cache` exists, we have these 3 files for example:
-- `~/.trice/cache/cleaned/E/repos/trice_endianness/examples/G0B1_inst/Core/Src/main.c` with mtime of IDs cleaned
-- `~/.trice/cache/inserted/E/repos/trice_endianness/examples/G0B1_inst/Core/Src/main.c` with mtime of IDs inserted
-- `/E/repos/trice_endianness/examples/G0B1_inst/Core/Src/main.c` with mtime of _IDs cleaned_ **OR** _IDs inserted_ **OR** last edit
+When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and `~/.trice/cache` exists, we have
+- optionally _cleaned cache file_   `~/.trice/cache/cleaned/path/file`  with mtime of IDs cleaned
+- optionally  _inserted cache file_ `~/.trice/cache/inserted/path/file` with mtime of IDs inserted
+- `path/file` with mtime of _IDs cleaned_ **OR** _IDs inserted_ **OR** _last edit_. When mtime of `path/file` is:
   - _IDs cleaned_:
-      - On command `trice c`, do nothing
-      - On command `trice i`, copy _inserted cache file_ into file 
+      - On command `trice c`, nothing to do
+      - On command `trice i`, copy, if existing, _inserted cache file_ into `path/file`. Otherwise process `trice i` and copy result into _inserted cache file_.
   - _IDs inserted_:
-      - On command `trice c`, copy _cleaned cache file_ into file
-      - On command `trice i`, do nothing 
+      - On command `trice c`, copy, if existing, _cleaned cache file_  into `path/file`. Otherwise process `trice c` and copy result into _cleaned cache file_. 
+      - On command `trice i`, nothing to do
   - _last edit_:
-      - On command `trice c`, invalidate cache, process `trice c` and update _cleaned cache file_, file gets a new mtime, mtime of IDs cleaned. On a following command `trice i`, file mtime is IDs cleaned, BUT the chache is invalid, so process `trice i`.
-      - On command `trice i`, invalidate cache, process `trice i` and update _inserted cache file_, file gets a new mtime, mtime of IDs inserted. On a following command `trice c`, file mtime is IDs inserted, BUT the chache is invalid, so process `trice c`.
+      - On command `trice c`, invalidate cache, process `trice c` and update _cleaned cache file_, file gets a new mtime, the mtime of IDs cleaned. On a following command `trice i`, file mtime is _IDs cleaned_, BUT the cache is invalid, so process `trice i` and update cache/inserted.
+      - On command `trice i`, invalidate cache, process `trice i` and update _inserted cache file_, file gets a new mtime, the mtime of IDs inserted. On a following command `trice c`, file mtime is _IDs inserted_, BUT the cache is invalid, so process `trice c` and update cache/cleaned.
 
-- File: The src file to process.
-- iFile: The src file with fresh inserted IDs.
-- iCache: The iFile copied into the cache.
-- cFile: The cleaned src file (without IDs).
-- iCache: The cFile copied into the cache.
-- Comparing files is done only by comparing the modification times.
-
-```b
-trice i File: File == iCache ? done          (trice i was executed before)
-trice i File: File == cCache ? iCache -> F   (trice c was executed before)
-trice i File: else File -> iFile -> iCache   (file was edited)
-trice c File: File == cCache ? done          (trice c was executed before)
-trice c File: File == iCache ? cCache -> F   (trice i was executed before)
-trice c File: else File -> cFile -> cCache   (file was edited)
-```
 
 ## Remarks
 

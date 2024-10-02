@@ -111,7 +111,6 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 		home, err := os.UserHomeDir()
 		p.join(err)
 		cache := filepath.Join(home, ".trice/cache")
-		var insertedCachePath string
 
 		if _, err = os.Stat(cache); err == nil { // cache folder exists
 

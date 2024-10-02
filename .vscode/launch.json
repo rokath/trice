@@ -369,19 +369,6 @@
             ]
         },
         {
-            "name": "zeroSourceTreeIds",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["zeroSourceTreeIds",
-                     "-src",
-                     "C:/repos/trice/srcTrice.C/tCopy.c",
-                     "-dry-run"
-            ]
-        },
-        {
             "name": "l -e DUMP",
             "type": "go",
             "request": "launch",
@@ -450,6 +437,7 @@
                     "${workspaceFolder}/examples/G0B1_inst/til.json",
                     "-locationInformation",
                     "${workspaceFolder}/examples/G0B1_inst/li.json",
+                    "-cache",
                     "-src",
                     "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c"
             ]
@@ -466,6 +454,7 @@
                     "${workspaceFolder}/examples/G0B1_inst/til.json",
                     "-locationInformation",
                     "${workspaceFolder}/examples/G0B1_inst/li.json",
+                    "-cache",
                     "-src",
                     "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c"
             ]
