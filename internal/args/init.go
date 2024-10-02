@@ -216,12 +216,12 @@ func insertIDsInit() {
 }
 
 func zeroInit() {
-	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)
+	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError) // sub-command
 	flagsRefreshAndUpdate(fsScZero)
 }
 
 func cleanIDsInit() {
-	fsScClean = flag.NewFlagSet("cleanSourceTreeIds", flag.ContinueOnError)
+	fsScClean = flag.NewFlagSet("cleanSourceTreeIds", flag.ContinueOnError) // sub-command
 	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.`)
 	flagsRefreshAndUpdate(fsScClean)
 }

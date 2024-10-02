@@ -364,7 +364,8 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
-            "args": ["help"
+            "args": ["help",
+                    "-i"
             ]
         },
         {
