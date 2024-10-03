@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/rokath/trice/pkg/msg"
@@ -24,8 +23,8 @@ func SubCmdIdClean(w io.Writer, fSys *afero.Afero) error {
 	return IDData.cmdSwitchTriceIDs(w, fSys, IDData.triceIDCleaning)
 }
 
-// procesTriceIDCleaning reads file, processes it and writes it back, if needed.
-func (p *idData) procesTriceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+// processTriceIDCleaning reads file, processes it and writes it back, if needed.
+func (p *idData) processTriceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
 	if p.err != nil {
 		return p.err
 	}
@@ -70,108 +69,6 @@ func (p *idData) procesTriceIDCleaning(w io.Writer, fSys *afero.Afero, path stri
 		}
 	}
 	return p.err
-}
-
-// triceIDCleaning reads file, processes it and writes it back, if needed and uses cache if possible.
-func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
-	if p.err != nil {
-		return p.err
-	}
-	///////////////////////////////////////////////////////////////////////////////
-	// cache stuff:
-	//
-	var err error
-	var cacheExists bool
-	var cleanedCachePath string
-	if TriceCacheEnabled {
-		home, err := os.UserHomeDir()
-		p.join(err)
-		cache := filepath.Join(home, ".trice/cache")
-
-		if _, err = os.Stat(cache); err == nil && p.err == nil { // cache && home folder exists
-			// This cache code works in conjunction with the cache code in function triceIDInsertion.
-
-			cacheExists = true
-			fullPath, err := filepath.Abs(path)
-			p.join(err)
-
-			// remove first colon, if exists (Windows)
-			before, after, _ := strings.Cut(fullPath, ":")
-			fullPath = before + after
-
-			// construct cleanedCachePath
-			cleanedCachePath = filepath.Join(cache, cleanedCacheFolderName, fullPath)
-
-			// If no cleanedCachePath, execute clean operation
-			cCache, err := os.Lstat(cleanedCachePath)
-			if err != nil {
-				msg.Tell(w, "no cleaned Cache file")
-				goto clean
-			}
-
-			// If path content equals cleanedCachePath content, we are done.
-			if fileInfo.ModTime() == cCache.ModTime() {
-				msg.Tell(w, "trice c was executed before, nothing to do")
-				return msg.OnErrFv(w, p.err) // `trice c File`: File == cCache ? done
-			}
-
-			// Construct insertedCachePath.
-			insertedCachePath := filepath.Join(cache, insertedCacheFolderName, fullPath)
-
-			// If no insertedCachePath, execute clean operation.
-			iCache, err := os.Lstat(insertedCachePath)
-			if err != nil {
-				msg.Tell(w, "no inserted Cache file")
-				goto clean
-			}
-
-			// If path content equals insertedCachePath content, we can copy cleanedCachePath to path.
-			// We know here, that cleanedCachePath exists and path was not edited.
-			if fileInfo.ModTime() == iCache.ModTime() && fileExists(cleanedCachePath) {
-				// trice i File: File == iCache ? cCache -> F (trice c was executed before)
-
-				msg.Tell(w, "trice c was executed before, copy cCache into file")
-				err = copyFileWithMTime(path, cleanedCachePath)
-				p.join(err)
-				return msg.OnErrFv(w, p.err) // That's it.
-			}
-			msg.Tell(w, "File was edited, invalidate cache")
-			os.Remove(insertedCachePath)
-			os.Remove(cleanedCachePath)
-		}
-	}
-	//
-	///////////////////////////////////////////////////////////////////////////////
-
-clean:
-
-	err = p.procesTriceIDCleaning(w, fSys, path, fileInfo, a)
-	p.join(err)
-
-	///////////////////////////////////////////////////////////////////////////////
-	// cache stuff:
-	//
-	if TriceCacheEnabled && cacheExists && p.err == nil {
-		// The file could have been modified by the user but if IDs are not touched, modified is false.
-		// So we need to update the cache.
-		msg.Tell(w, "Copy file into the cleaned-cache.")
-		err = os.MkdirAll(filepath.Dir(cleanedCachePath), os.ModeDir)
-		p.join(err)
-		err = copyFileWithMTime(cleanedCachePath, path)
-		p.join(err)
-
-		// Set cleanedCachePath mtime to (updated) path mtime.
-		iFile, err := os.Lstat(path)
-		p.join(err)
-		if p.err == nil {
-			err = os.Chtimes(cleanedCachePath, time.Time{}, iFile.ModTime())
-			p.join(err)
-		}
-	}
-	//
-	///////////////////////////////////////////////////////////////////////////////
-
-	return msg.OnErrFv(w, p.err)
 }
 
 // cleanTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.

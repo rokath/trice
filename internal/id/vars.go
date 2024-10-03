@@ -1,6 +1,10 @@
 package id
 
-import "regexp"
+import (
+	"log"
+	"os"
+	"regexp"
+)
 
 var (
 	Verbose                  bool            // Verbose gives more information on output if set. The value is injected from main packages.
@@ -46,9 +50,20 @@ var (
 
 	// TriceCacheEnabled needs to be true to use the Trice cache.
 	TriceCacheEnabled bool
+
+	// UserHomeDir needs to be changed for cache tests.
+	UserHomeDir string
 )
 
 const (
 	insertedCacheFolderName = "inserted"
 	cleanedCacheFolderName  = "cleaned"
 )
+
+func init() {
+	var err error
+	UserHomeDir, err = os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+}

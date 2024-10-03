@@ -50,8 +50,8 @@ func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
 }
 
 // fileExists returns true, if path exits.
-func fileExists(path string) bool {
-	if _, err := os.Stat(path); err == nil {
+func fileExists(fSys *afero.Afero, path string) bool {
+	if _, err := fSys.Stat(path); err == nil {
 		return true // path exists
 	} else if errors.Is(err, os.ErrNotExist) {
 		return false // path does *not* exist
@@ -63,14 +63,14 @@ func fileExists(path string) bool {
 } // https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
 
 // copyFileWithMTime copies file src into dst and sets dst mtime equal to src mtime.
-func copyFileWithMTime(dst, src string) error {
-	source, err := os.Open(src)
+func copyFileWithMTime(fSys *afero.Afero, dst, src string) error {
+	source, err := fSys.Open(src)
 	if err != nil {
 		return err
 	}
 	defer source.Close()
 
-	destination, err := os.Create(dst)
+	destination, err := fSys.Create(dst)
 	if err != nil {
 		return err
 	}
@@ -82,11 +82,11 @@ func copyFileWithMTime(dst, src string) error {
 	}
 
 	// Copy src mtime.
-	sourceFileStat, err := os.Stat(src)
+	sourceFileStat, err := fSys.Stat(src)
 	if err != nil {
 		return err
 	}
-	return os.Chtimes(dst, time.Time{}, sourceFileStat.ModTime())
+	return fSys.Chtimes(dst, time.Time{}, sourceFileStat.ModTime())
 }
 
 // join appends err to p.err, when err is not nil.
@@ -139,99 +139,6 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 		}
 	}
 	return p.err
-}
-
-// triceIDInsertion reads file, processes it and writes it back, if needed and uses cache if possible.
-func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
-	if p.err != nil {
-		return p.err
-	}
-	///////////////////////////////////////////////////////////////////////////////
-	// cache stuff:
-	//
-	var err error
-	var cacheExists bool
-	var insertedCachePath string
-	if TriceCacheEnabled {
-		home, err := os.UserHomeDir()
-		p.join(err)
-		cache := filepath.Join(home, ".trice/cache")
-
-		if _, err = os.Stat(cache); err == nil { // cache folder exists
-
-			// This cache code works in conjunction with the cache code in function triceIDCleaning.
-			cacheExists = true
-			fullPath, err := filepath.Abs(path)
-			p.join(err)
-
-			// remove first colon, if exists (Windows)
-			before, after, _ := strings.Cut(fullPath, ":")
-			fullPath = before + after
-
-			// construct insertedCachePath
-			insertedCachePath = filepath.Join(cache, insertedCacheFolderName, fullPath)
-
-			// If no insertedCachePath, execute insert operation
-			iCache, err := os.Lstat(insertedCachePath)
-			if err != nil {
-				msg.Tell(w, "no inserted Cache file")
-				goto insert
-			}
-
-			// If path content equals insertedCachePath content, we are done.
-			if fileInfo.ModTime() == iCache.ModTime() {
-				msg.Tell(w, "trice i was executed before, nothing to do")
-				return msg.OnErrFv(w, p.err) // `trice i File`: File == iCache ? done
-			}
-
-			// Construct cleanedCachePath.
-			cleanedCachePath := filepath.Join(cache, cleanedCacheFolderName, fullPath)
-
-			// If no cleanedCachePath, execute insert operation.
-			cCache, err := os.Lstat(cleanedCachePath)
-			if err != nil {
-				msg.Tell(w, "no cleaned Cache file")
-				goto insert
-			}
-
-			// If path content equals cleanedCachePath content, we can copy insertedCachePath to path.
-			// We know here, that insertedCachePath exists and path was not edited.
-			if fileInfo.ModTime() == cCache.ModTime() && fileExists(insertedCachePath) {
-				// trice i File: File == cCache ? iCache -> F
-
-				msg.Tell(w, "trice c was executed before, copy iCache into file")
-				err = copyFileWithMTime(path, insertedCachePath)
-				p.join(err)
-				return msg.OnErrFv(w, p.err) // That's it.
-			}
-
-			msg.Tell(w, "File was edited, invalidate cache")
-			os.Remove(insertedCachePath)
-			os.Remove(cleanedCachePath)
-		}
-	}
-	//
-	///////////////////////////////////////////////////////////////////////////////
-
-insert:
-	err = p.processTriceIDInsertion(w, fSys, path, fileInfo, a)
-
-	///////////////////////////////////////////////////////////////////////////////
-	// cache stuff:
-	//
-	if TriceCacheEnabled && cacheExists && err == nil && p.err == nil {
-		// The file could have been modified by the user but if IDs are not touched, modified is false.
-		// So we need to update the cache also when modifies is false.
-		msg.Tell(w, "Copy file into the inserted-cache.")
-		err = os.MkdirAll(filepath.Dir(insertedCachePath), os.ModeDir)
-		p.join(err)
-		err = copyFileWithMTime(insertedCachePath, path)
-		p.join(err)
-	}
-	//
-	///////////////////////////////////////////////////////////////////////////////
-
-	return msg.OnErrFv(w, p.err)
 }
 
 // removeIDFromSlice searches ids for id, removes its first occurance and returns the result.

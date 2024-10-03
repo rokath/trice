@@ -54,4 +54,7 @@ func ResetGlobalVars(t *testing.T) {
 	DefaultStampSize = 32
 	StampSizeId = " ID(0),"
 	TriceCacheEnabled = false
+	var err error
+	UserHomeDir, err = os.UserHomeDir()
+	assert.Nil(t, err)
 }
