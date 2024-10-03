@@ -53,4 +53,5 @@ func ResetGlobalVars(t *testing.T) {
 	DefaultTriceBitWidth = "32"
 	DefaultStampSize = 32
 	StampSizeId = " ID(0),"
+	TriceCacheEnabled = false
 }
