@@ -30,11 +30,7 @@ func TestArrayFlag(t *testing.T) {
 
 // TestConditionalFilePath checks if ConditionalFilePath works as expected.
 func TestConditionalFilePathAfero(t *testing.T) {
-	fSys := &afero.Afero{Fs: afero.NewOsFs()} //os.DirFS("")
-	//s := ConditionalFilePath2(fSys, "off")
-	//assert.Equal(t, "off", s)
-	//s = ConditionalFilePath2(fSys, "none")
-	//assert.Equal(t, "none", s)
+	fSys := &afero.Afero{Fs: afero.NewOsFs()}
 	s := fullFilePath2(fSys, "/tatue/tata")
 	b := filepath.Base(s)
 	assert.Equal(t, b, "tata")
@@ -43,10 +39,6 @@ func TestConditionalFilePathAfero(t *testing.T) {
 // TestConditionalFilePath checks if ConditionalFilePath works as expected.
 func TestConditionalFilePathOs(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	//s := ConditionalFilePath2(fSys, "off")
-	//assert.Equal(t, "off", s)
-	//s = ConditionalFilePath2(fSys, "none")
-	//assert.Equal(t, "none", s)
 	s := fullFilePath2(fSys, "/tatue/tata")
 	b := filepath.Base(s)
 	assert.Equal(t, b, "tata")
