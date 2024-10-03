@@ -24,12 +24,63 @@ func SubCmdIdClean(w io.Writer, fSys *afero.Afero) error {
 	return IDData.cmdSwitchTriceIDs(w, fSys, IDData.triceIDCleaning)
 }
 
-// triceIDCleaning reads file, processes it and writes it back, if needed.
-func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) (err error) {
+// procesTriceIDCleaning reads file, processes it and writes it back, if needed.
+func (p *idData) procesTriceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+	if p.err != nil {
+		return p.err
+	}
+	msg.Tell(w, "process cleaning")
+	in, err := fSys.ReadFile(path)
+	if err != nil {
+		return msg.OnErrFv(w, err)
+	}
+	if Verbose {
+		fmt.Fprintln(w, path)
+	}
 
+	var liPath string
+	if LiPathIsRelative {
+		liPath = filepath.ToSlash(path)
+	} else {
+		liPath = filepath.Base(path)
+	}
+
+	out, modified, err := cleanTriceIDs(w, liPath, in, a)
+	if err != nil {
+		return msg.OnErrFv(w, err)
+	}
+
+	if filepath.Base(path) == "triceConfig.h" {
+		outs := string(out)
+		x := strings.Index(outs, "#define TRICE_CLEAN 0")
+		if x != -1 { // found
+			outs := strings.Replace(outs, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 1", 1)
+			out = []byte(outs)
+			modified = true
+		}
+	}
+	if modified { // IDs cleaned
+		if Verbose {
+			_, err = fmt.Fprintln(w, "Changed: ", path)
+			p.join(err)
+		}
+		if !DryRun {
+			err = fSys.WriteFile(path, out, fileInfo.Mode())
+			p.join(err)
+		}
+	}
+	return p.err
+}
+
+// triceIDCleaning reads file, processes it and writes it back, if needed and uses cache if possible.
+func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+	if p.err != nil {
+		return p.err
+	}
 	///////////////////////////////////////////////////////////////////////////////
 	// cache stuff:
 	//
+	var err error
 	var cacheExists bool
 	var cleanedCachePath string
 	if TriceCacheEnabled {
@@ -37,9 +88,9 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 		p.join(err)
 		cache := filepath.Join(home, ".trice/cache")
 
-		if _, err = os.Stat(cache); err == nil { // cache folder exists
-
+		if _, err = os.Stat(cache); err == nil && p.err == nil { // cache && home folder exists
 			// This cache code works in conjunction with the cache code in function triceIDInsertion.
+
 			cacheExists = true
 			fullPath, err := filepath.Abs(path)
 			p.join(err)
@@ -94,55 +145,13 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 
 clean:
 
-	msg.Tell(w, "process cleaning")
-	in, err := fSys.ReadFile(path)
-	if err != nil {
-		return msg.OnErrFv(w, p.err)
-	}
-	if Verbose {
-		fmt.Fprintln(w, path)
-	}
-
-	var liPath string
-
-	if LiPathIsRelative {
-		liPath = filepath.ToSlash(path)
-	} else {
-		liPath = filepath.Base(path)
-	}
-
-	out, modified, err := cleanTriceIDs(w, liPath, in, a)
-	if err != nil {
-		return msg.OnErrFv(w, p.err)
-	}
-
-	if filepath.Base(path) == "triceConfig.h" {
-		outs := string(out)
-		x := strings.Index(outs, "#define TRICE_CLEAN 0")
-		if x != -1 { // found
-			outs := strings.Replace(outs, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 1", 1)
-			out = []byte(outs)
-			modified = true
-		}
-	}
-	if modified { // IDs cleaned
-		if Verbose {
-			fmt.Fprintln(w, "Changed: ", path)
-		}
-		if !DryRun {
-			err = fSys.WriteFile(path, out, fileInfo.Mode())
-			p.join(err)
-		}
-	}
+	err = p.procesTriceIDCleaning(w, fSys, path, fileInfo, a)
+	p.join(err)
 
 	///////////////////////////////////////////////////////////////////////////////
 	// cache stuff:
 	//
-	if TriceCacheEnabled {
-		if !cacheExists {
-			return msg.OnErrFv(w, p.err)
-		}
-
+	if TriceCacheEnabled && cacheExists && p.err == nil {
 		// The file could have been modified by the user but if IDs are not touched, modified is false.
 		// So we need to update the cache.
 		msg.Tell(w, "Copy file into the cleaned-cache.")

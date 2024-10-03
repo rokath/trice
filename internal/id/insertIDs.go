@@ -100,12 +100,56 @@ func (p *idData) join(err error) {
 	}
 }
 
-// triceIDInsertion reads file, processes it and writes it back, if needed.
-func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+// processTriceIDInsertion reads file, processes it and writes it back, if needed.
+func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+	if p.err != nil {
+		return p.err
+	}
+	msg.Tell(w, "process inserting")
+	// The file has an mtime from last user edit and we keep this as reference.
+	// Inserting IDs takes part as an for the makefile invisible action.
 
+	in, err := fSys.ReadFile(path)
+	p.join(err)
+	msg.Tell(w, path)
+
+	var liPath string
+	if LiPathIsRelative {
+		liPath = filepath.ToSlash(path)
+	} else {
+		liPath = filepath.Base(path)
+	}
+
+	out, modified, err := p.insertTriceIDs(w, liPath, in, a)
+	p.join(err)
+
+	if filepath.Base(path) == "triceConfig.h" && p.err == nil {
+		outs := string(out)
+		x := strings.Index(outs, "#define TRICE_CLEAN 1")
+		if x != -1 { // found
+			outs := strings.Replace(outs, "#define TRICE_CLEAN 1", "#define TRICE_CLEAN 0", 1)
+			out = []byte(outs)
+			modified = true
+		}
+	}
+	if modified { // IDs inserted
+		if !DryRun {
+			err = fSys.WriteFile(path, out, fileInfo.Mode())
+			p.join(err)
+		}
+	}
+	return p.err
+}
+
+// triceIDInsertion reads file, processes it and writes it back, if needed and uses cache if possible.
+func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
+	if p.err != nil {
+		return p.err
+	}
 	///////////////////////////////////////////////////////////////////////////////
 	// cache stuff:
 	//
+	var err error
 	var cacheExists bool
 	var insertedCachePath string
 	if TriceCacheEnabled {
@@ -170,51 +214,14 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 	///////////////////////////////////////////////////////////////////////////////
 
 insert:
-
-	msg.Tell(w, "process inserting")
-	// The file has an mtime from last user edit and we keep this as reference.
-	// Inserting IDs takes part as an for the makefile invisible action.
-
-	in, err := fSys.ReadFile(path)
-	p.join(err)
-	msg.Tell(w, path)
-
-	var liPath string
-	if LiPathIsRelative {
-		liPath = filepath.ToSlash(path)
-	} else {
-		liPath = filepath.Base(path)
-	}
-
-	out, modified, err := p.insertTriceIDs(w, liPath, in, a)
-	p.join(err)
-
-	if filepath.Base(path) == "triceConfig.h" {
-		outs := string(out)
-		x := strings.Index(outs, "#define TRICE_CLEAN 1")
-		if x != -1 { // found
-			outs := strings.Replace(outs, "#define TRICE_CLEAN 1", "#define TRICE_CLEAN 0", 1)
-			out = []byte(outs)
-			modified = true
-		}
-	}
-	if modified { // IDs inserted
-		if !DryRun {
-			err = fSys.WriteFile(path, out, fileInfo.Mode())
-			p.join(err)
-		}
-	}
+	err = p.processTriceIDInsertion(w, fSys, path, fileInfo, a)
 
 	///////////////////////////////////////////////////////////////////////////////
 	// cache stuff:
 	//
-	if TriceCacheEnabled {
-		if !cacheExists {
-			return msg.OnErrFv(w, p.err)
-		}
-
+	if TriceCacheEnabled && cacheExists && err == nil && p.err == nil {
 		// The file could have been modified by the user but if IDs are not touched, modified is false.
-		// So we need to update the cache.
+		// So we need to update the cache also when modifies is false.
 		msg.Tell(w, "Copy file into the inserted-cache.")
 		err = os.MkdirAll(filepath.Dir(insertedCachePath), os.ModeDir)
 		p.join(err)
