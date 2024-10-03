@@ -89,6 +89,7 @@ func copyFileWithMTime(dst, src string) error {
 	return os.Chtimes(dst, time.Time{}, sourceFileStat.ModTime())
 }
 
+// join appends err to p.err, when err is not nil.
 func (p *idData) join(err error) {
 	if err != nil {
 		// notice that we're using 1, so it will actually log the where
