@@ -35,8 +35,7 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 
 			// remove first colon, if exists (Windows)
 			before, after, _ := strings.Cut(fullPath, ":")
-			home, _ := os.UserHomeDir()
-			if UserHomeDir != home {
+			if UserHomeDir != os.UserHomeDir() {
 				before = "" // Throw away windows drive letter, when running tests with afero file system.
 			}
 			fullPath = before + after
