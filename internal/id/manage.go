@@ -12,7 +12,6 @@ import (
 	"io"
 	"log"
 	"math/rand"
-	"path/filepath"
 	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -321,6 +320,7 @@ func (lim TriceIDLookUpLI) toJSON() ([]byte, error) {
 	return json.MarshalIndent(lim, "", "\t")
 }
 
+/*
 // toCFmtList converts lim into C-source byte slice in human-readable form.
 func (ilu TriceIDLookUp) toCFmtList(fileName string) ([]byte, error) {
 	fileNameBody := fileNameWithoutSuffix(filepath.Base(fileName))
@@ -444,19 +444,19 @@ namespace TriceIDList;
 
     public class TilItem
     {
-        public TilItem(string strg, int bitWidth, int size) 
+        public TilItem(string strg, int bitWidth, int size)
         {
             Strg = strg;
             BitWidth = bitWidth;
             Size = size;
-        } 
+        }
 
         public string Strg { get; init; }
         public int BitWidth { get; init; }
         public int Size { get; init; }
     }
-    
-    public static class Til 
+
+    public static class Til
     {
         public static readonly Dictionary<int, TilItem> TilList= new Dictionary<int, TilItem>
         { // id, TilItem ( Strg, bitWidth, dataLength )
@@ -728,3 +728,4 @@ func distance(s string) string {
 		return "                                                                               "
 	}
 }
+*/

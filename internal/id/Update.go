@@ -23,7 +23,7 @@ const (
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
 	// patSourceFile is a regex pattern matching any source file for patching
-	patCFile = "(\\.c|\\.cc|\\.cpp)$"
+	//patCFile = "(\\.c|\\.cc|\\.cpp)$"
 
 	// patTrice matches any TRICE name variant  The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
 	patTypNameTRICE = `(?iU)(\b((TRICE((0|_0|AssertTrue|AssertFalse)|((8|16|32|64)*(_*[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/xuD9ar/1
@@ -47,7 +47,7 @@ const (
 	patNbTRICE = patTypNameTRICE + `\s*\(` + patID + `\(\s*.*[0-9]\s*\)\s*,\s*` + patFmtString + `\s*.*\)`
 
 	// https://regex101.com/r/hWMjhU/3 - match any kind of trice with or without len or ID
-	patFullAnyTrice = patTypNameTRICE + `\s*\(\s*(` + patID + `\((\s*\d+)\s*\)\s*,)?\s*` + patFmtString + `\s*.*\)`
+	//patFullAnyTrice = patTypNameTRICE + `\s*\(\s*(` + patID + `\((\s*\d+)\s*\)\s*,)?\s*` + patFmtString + `\s*.*\)`
 
 	// patAnyTriceStart finds a starting trice with opening '(': https://regex101.com/r/wPuT4M/1
 	patAnyTriceStart = patTypNameTRICE + `\s*\(`
@@ -56,7 +56,7 @@ const (
 	patNextFormatSpecifier = `(?:^|[^%])(%[\ +\-0-9\.#]*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|s|t|u|U|x|X))`
 
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/vSvOEc/1
-	patTriceNoLen = `(?i)(\bTRICE(|8|16|32|64)\b)`
+	//patTriceNoLen = `(?i)(\bTRICE(|8|16|32|64)\b)`
 
 	patID = `\s*\b(i|I)(d|D)\b\s*` // `\s*\b(I|i)d\b\s*`
 
@@ -65,7 +65,7 @@ const (
 	patNb = `\d+` // // `[0-9]*`
 
 	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
-	patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
+	//patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
 
 	//patIncludeTriceHeader = `#include\s*"trice\.h"`
 )
@@ -228,6 +228,7 @@ func visitRefresh(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFm
 	}
 }
 
+/*
 func isCFile(path string) bool {
 	s := strings.ToLower(path)
 	if strings.HasSuffix(s, patCFile) {
@@ -245,6 +246,7 @@ func isCFile(path string) bool {
 	}
 	return false
 }
+*/
 
 //  func visitUpdate(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
 //  	// WalkFunc is the type of the function called for each file or directory
