@@ -41,7 +41,8 @@ func (p *Admin) Walk(w io.Writer, fSys *afero.Afero) error {
 			p.wg.Add(1)
 			go func() {
 				defer p.wg.Done()
-				msg.FatalInfoOnErr(fSys.Walk(path, visit(w, fSys, p)), "failed to walk tree")
+				err := fSys.Walk(path, visit(w, fSys, p))
+				msg.FatalInfoOnErr(err, "failed to walk tree")
 			}()
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Fprintln(w, path, "does not exist!")

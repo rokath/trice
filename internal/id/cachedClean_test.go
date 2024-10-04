@@ -37,10 +37,10 @@ func TestCleanWithoutCacheFolder(t *testing.T) {
 	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, nil, 0777))
 
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-til", id.FnJSON, "-li", id.LIFnJSON, "-cache", "-src", sFnm}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFnm}))
 
 	// check modified src file
-	expSrc := `trice( "msg:value=%d\n", -1);`
+	expSrc := `trice("msg:value=%d\n", -1);`
 
 	actSrc, e := fSys.ReadFile(sFnm)
 	assert.Nil(t, e)
@@ -79,10 +79,10 @@ func TestCleanWithCacheFolder(t *testing.T) {
 	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, nil, 0777))
 
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-til", id.FnJSON, "-li", id.LIFnJSON, "-cache", "-src", sFnm}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFnm}))
 
 	// check modified src file
-	expSrc := `trice( "msg:value=%d\n", -1);`
+	expSrc := `trice("msg:value=%d\n", -1);`
 	actSrc, e := fSys.ReadFile(sFnm)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc, string(actSrc))
@@ -96,4 +96,3 @@ func TestCleanWithCacheFolder(t *testing.T) {
 	_, err = fSys.Stat(iCache)
 	assert.Error(t, err)
 }
-

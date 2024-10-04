@@ -1,4 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+// Copyright 2020 Thomas.Hoehenleitner [at] seerose.netid_test
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package id_test
@@ -21,7 +21,7 @@ func TestClean(t *testing.T) {
 
 	// create src file
 	sFn := t.Name() + "file.c"
-	src := `break; case __LINE__: trice( iD(999), "msg:value=%d\n", -1  );`
+	src := `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1  );`
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
@@ -29,7 +29,7 @@ func TestClean(t *testing.T) {
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
-	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1  );`
+	expSrc := `break; case __LINE__: trice("msg:value=%d\n", -1  );`
 
 	actSrc, e := fSys.ReadFile(sFn)
 	assert.Nil(t, e)
@@ -57,7 +57,7 @@ func TestCleanWithLIExtension(t *testing.T) {
 
 	// create src file
 	sFn := t.Name() + "file.c"
-	src := `break; case __LINE__: trice( iD(999), "msg:value=%d\n", -1  );`
+	src := `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1  );`
 	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
@@ -65,7 +65,7 @@ func TestCleanWithLIExtension(t *testing.T) {
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-til", id.FnJSON, "-li", id.LIFnJSON}))
 
 	// check modified src file
-	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1  );`
+	expSrc := `break; case __LINE__: trice("msg:value=%d\n", -1  );`
 
 	actSrc, e := fSys.ReadFile(sFn)
 	assert.Nil(t, e)

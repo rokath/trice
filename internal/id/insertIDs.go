@@ -494,7 +494,7 @@ restart:
 // writeID inserts id into s according to loc information and returns the result together with the changed len.
 func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result string, delta int) {
 	gap := ""
-	if SpaceBetweenTriceOpeningBraceAndIDName {
+	if SpaceAfterTriceOpeningBrace {
 		gap = " "
 	}
 	var idName string
@@ -528,10 +528,13 @@ func cleanID(s string, offset int, loc []int, t TriceFmt) (result string, delta 
 	if t.Type[2] == 'I' { // Upper case letter (s.th. like TRICE*...), we set id just to 0.
 		return writeID(s, offset, loc, t, 0)
 	}
-	first := s[:offset+loc[2]]    // first is the not touched s part before the replacement space.
-	idSiz := loc[5] - loc[2]      // idSiz is the size of the replaced ID space inside the source code.
-	last := s[offset+loc[5]:]     // last is the not touched s part after the replacement space.
-	idIns := " "                  // replacement string
+	first := s[:offset+loc[2]] // first is the not touched s part before the replacement space.
+	idSiz := loc[5] - loc[2]   // idSiz is the size of the replaced ID space inside the source code.
+	last := s[offset+loc[5]:]  // last is the not touched s part after the replacement space.
+	var idIns string           // replacement string
+	if SpaceAfterTriceOpeningBrace {
+		idIns = " "
+	}
 	result = first + idIns + last //
 	delta = len(idIns) - idSiz    // delta is the offset change.
 	return

@@ -27,7 +27,7 @@ func TestInsertWithoutCacheFolder(t *testing.T) {
 
 	// create src file
 	sFnm := proj + t.Name() + "_file.c"
-	src := `trice(iD(999), "msg:value=%d\n", -1);`
+	src := `trice("msg:value=%d\n", -1);`
 	assert.Nil(t, fSys.WriteFile(sFnm, []byte(src), 0777))
 
 	// create til.json and li.json
@@ -37,7 +37,7 @@ func TestInsertWithoutCacheFolder(t *testing.T) {
 	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, nil, 0777))
 
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-til", id.FnJSON, "-li", id.LIFnJSON /*"-IDMin=999", "IDMax=1000", */, "-cache", "-src", sFnm}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin=999", "-IDMax=999", "-src", sFnm}))
 
 	// check modified src file
 	expSrc := `trice(iD(999), "msg:value=%d\n", -1);`
@@ -69,7 +69,7 @@ func TestInsertWithCacheFolder(t *testing.T) {
 
 	// create src file
 	sFnm := proj + t.Name() + "_file.c"
-	src := `trice(iD(999), "msg:value=%d\n", -1);`
+	src := `trice("msg:value=%d\n", -1);`
 	assert.Nil(t, fSys.WriteFile(sFnm, []byte(src), 0777))
 
 	// create til.json and li.json
@@ -79,7 +79,7 @@ func TestInsertWithCacheFolder(t *testing.T) {
 	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, nil, 0777))
 
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-til", id.FnJSON, "-li", id.LIFnJSON /*"-IDMin=999", "IDMax=1999",*/, "-cache", "-src", sFnm}))
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", sFnm}))
 
 	// check modified src file
 	expSrc := `trice(iD(999), "msg:value=%d\n", -1);`

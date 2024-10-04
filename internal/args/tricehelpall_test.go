@@ -439,6 +439,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	This reduces the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
     	Add this flag for script speed-up, when not editing the sources. Alternatively consider the -cache switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -spacing
+    	Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
