@@ -23,7 +23,7 @@
     "C_Cpp.dimInactiveRegions": false,
     "editor.codeActionsOnSave": {
 
-    }
+    },
     "gopls": {
         "build.directoryFilters": [
             "-.code_snippets",
