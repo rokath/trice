@@ -235,13 +235,6 @@ extern "C" {
 #define TRICE_DEFERRED_BUFFER_SIZE 1024
 #endif
 
-#ifndef TRICE_MCU_IS_BIG_ENDIAN
-//! TRICE_MCU_IS_BIG_ENDIAN needs to be 1 on big endian MCUs for correct 64-bit values and 32-bit timestamp encoding. Please consider TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN setting.
-//! This needs a compiler specific macro, so set this in your triceConfig.h, when using big endian MCUs.
-//! See also: https://stackoverflow.com/questions/2100331/macro-definition-to-determine-big-endian-or-little-endian-machine
-#define TRICE_MCU_IS_BIG_ENDIAN 0
-#endif
-
 #ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
 //! TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN should have the same value as TRICE_MCU_IS_BIG_ENDIAN to avoid additional byte swapping code.
 //! It can be defined to 1 on little endian MCUs if the trice data are needed in network order for some reason.
