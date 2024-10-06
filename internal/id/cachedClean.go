@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/rokath/trice/pkg/msg"
@@ -26,9 +25,8 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 	if TriceCacheEnabled {
 		cache := filepath.Join(UserHomeDir, ".trice/cache")
 
-		if _, err = fSys.Stat(cache); err == nil { // cache && home folder exists
+		if _, err = fSys.Stat(cache); err == nil { // cache folder exists
 			// This cache code works in conjunction with the cache code in function triceIDInsertion.
-
 			cacheExists = true
 			fullPath, err := filepath.Abs(path)
 			p.join(err)
@@ -41,6 +39,8 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 			}
 			fullPath = before + after
 
+			// Construct insertedCachePath.
+			insertedCachePath := filepath.Join(cache, insertedCacheFolderName, fullPath)
 			// construct cleanedCachePath
 			cleanedCachePath = filepath.Join(cache, cleanedCacheFolderName, fullPath)
 
@@ -57,9 +57,6 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 				return msg.OnErrFv(w, p.err) // `trice c File`: File == cCache ? done
 			}
 
-			// Construct insertedCachePath.
-			insertedCachePath := filepath.Join(cache, insertedCacheFolderName, fullPath)
-
 			// If no insertedCachePath, execute clean operation.
 			iCache, err := fSys.Stat(insertedCachePath)
 			if err != nil {
@@ -73,7 +70,7 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 				// trice i File: File == iCache ? cCache -> F (trice c was executed before)
 
 				msg.Tell(w, "trice c was executed before, copy cCache into file")
-				err = copyFileWithMTime(fSys, path, cleanedCachePath)
+				err = CopyFileWithMTime(fSys, path, cleanedCachePath)
 				p.join(err)
 				return msg.OnErrFv(w, p.err) // That's it.
 			}
@@ -98,16 +95,8 @@ clean:
 		msg.Tell(w, "Copy file into the cleaned-cache.")
 		err = fSys.MkdirAll(filepath.Dir(cleanedCachePath), os.ModeDir)
 		p.join(err)
-		err = copyFileWithMTime(fSys, cleanedCachePath, path)
+		err = CopyFileWithMTime(fSys, cleanedCachePath, path)
 		p.join(err)
-
-		// Set cleanedCachePath mtime to (updated) path mtime.
-		cFile, err := fSys.Stat(path)
-		p.join(err)
-		if p.err == nil {
-			err = fSys.Chtimes(cleanedCachePath, time.Time{}, cFile.ModTime())
-			p.join(err)
-		}
 	}
 	//
 	///////////////////////////////////////////////////////////////////////////////

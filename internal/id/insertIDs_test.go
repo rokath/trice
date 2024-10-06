@@ -68,6 +68,11 @@ func TestInsertKnownID(t *testing.T) {
 	actSrc1, e := fSys.ReadFile("file1.c")
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc1, string(actSrc1))
+
+	// cleanup
+	fSys.Remove(id.FnJSON)
+	fSys.Remove(id.LIFnJSON)
+	fSys.RemoveAll(id.UserHomeDir)
 }
 
 func TestInsertExistingID_A(t *testing.T) {

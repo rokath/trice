@@ -62,8 +62,9 @@ func fileExists(fSys *afero.Afero, path string) bool {
 	}
 } // https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
 
-// copyFileWithMTime copies file src into dst and sets dst mtime equal to src mtime.
-func copyFileWithMTime(fSys *afero.Afero, dst, src string) error {
+// CopyFileWithMTime copies file src into dst and sets dst mtime equal to src mtime.
+func CopyFileWithMTime(fSys *afero.Afero, dst, src string) error {
+	srcMTime := MTime(fSys, src) // get mtime before opening src
 	source, err := fSys.Open(src)
 	if err != nil {
 		return err
@@ -74,19 +75,30 @@ func copyFileWithMTime(fSys *afero.Afero, dst, src string) error {
 	if err != nil {
 		return err
 	}
-	defer destination.Close()
+	// No defer destination.Close() here because of following func fSys.Chtimes().
 
 	_, err = io.Copy(destination, source)
 	if err != nil {
 		return err
 	}
 
-	// Copy src mtime.
-	sourceFileStat, err := fSys.Stat(src)
+	err = destination.Sync() // Sync here to ensure file is written. (Maybe not needed and/or not working)
 	if err != nil {
 		return err
 	}
-	return fSys.Chtimes(dst, time.Time{}, sourceFileStat.ModTime())
+
+	err = destination.Close() // Close here because of following func fSys.Chtimes().
+	if err != nil {
+		return err
+	}
+
+	return fSys.Chtimes(dst, time.Time{}, srcMTime) // Copy src mtime.
+}
+
+func MTime(fSys *afero.Afero, fName string) time.Time {
+	stat, err := fSys.Stat(fName)
+	msg.FatalOnErr(err)
+	return stat.ModTime()
 }
 
 // join appends err to p.err, when err is not nil.
