@@ -42,3 +42,40 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and `~/.trice/
 - The `~/.trice/cache` folder should **not** go under revision control.
 - A CLI switch `-cache` does enable/disable the Trice cache. Default is off.
 - The user should consider what happens, if other pre-compile ode post-compile steps are modifying files as well, before enabling the Trice cache. 
+
+## Tests
+
+Nr | Action   | cCache  | iCache  | ID state   | Edid state | Test function
+---|----------|---------|---------|------------|------------|--------------
+0  | 0:clean  | 0:inval | 0:inval | 0:cleaned  | 0:not      | T
+1  | 0:clean  | 0:inval | 0:inval | 0:cleaned  | 1:yes      | Test_1_00001_clean_on_invalid_cCache_invalid_iCache_cleaned_edited_file
+2  | 0:clean  | 0:inval | 0:inval | 1:inserted | 0:not      | T
+3  | 0:clean  | 0:inval | 0:inval | 1:inserted | 1:yes      | Test_3_00011_clean_on_inalid_cCache_invalid_iCache_inserted_edited_file
+4  | 0:clean  | 0:inval | 1:valid | 0:cleaned  | 0:not      | T
+5  | 0:clean  | 0:inval | 1:valid | 0:cleaned  | 1:yes      | 
+6  | 0:clean  | 0:inval | 1:valid | 1:inserted | 0:not      | T
+7  | 0:clean  | 0:inval | 1:valid | 1:inserted | 1:yes      | T
+8  | 0:clean  | 1:valid | 0:inval | 0:cleaned  | 0:not      | T
+9  | 0:clean  | 1:valid | 0:inval | 0:cleaned  | 1:yes      | T
+10 | 0:clean  | 1:valid | 0:inval | 1:inserted | 0:not      | T
+11 | 0:clean  | 1:valid | 0:inval | 1:inserted | 1:yes      | T
+12 | 0:clean  | 1:valid | 1:valid | 0:cleaned  | 0:not      | T
+13 | 0:clean  | 1:valid | 1:valid | 0:cleaned  | 1:yes      | T
+14 | 0:clean  | 1:valid | 1:valid | 1:inserted | 0:not      | T
+15 | 0:clean  | 1:valid | 1:valid | 1:inserted | 1:yes      | T
+16 | 1:insert | 0:inval | 0:inval | 0:cleaned  | 0:not      | 
+17 | 1:insert | 0:inval | 0:inval | 0:cleaned  | 1:yes      | Test_17_10001_insert_on_inalid_cCache_invalid_iCache_clean_edited_file
+18 | 1:insert | 0:inval | 0:inval | 1:inserted | 0:not      | T
+19 | 1:insert | 0:inval | 0:inval | 1:inserted | 1:yes      | Test_19_10011_insert_on_invalid_cCache_invalid_iCache_inserted_edited_file
+20 | 1:insert | 0:inval | 1:valid | 0:cleaned  | 0:not      | T
+21 | 1:insert | 0:inval | 1:valid | 0:cleaned  | 1:yes      | 
+22 | 1:insert | 0:inval | 1:valid | 1:inserted | 0:not      | T
+23 | 1:insert | 0:inval | 1:valid | 1:inserted | 1:yes      | 
+24 | 1:insert | 1:valid | 0:inval | 0:cleaned  | 0:not      | T
+25 | 1:insert | 1:valid | 0:inval | 0:cleaned  | 1:yes      | T
+26 | 1:insert | 1:valid | 0:inval | 1:inserted | 0:not      | T
+27 | 1:insert | 1:valid | 0:inval | 1:inserted | 1:yes      | T
+28 | 1:insert | 1:valid | 1:valid | 0:cleaned  | 0:not      | T
+29 | 1:insert | 1:valid | 1:valid | 0:cleaned  | 1:yes      | T
+30 | 1:insert | 1:valid | 1:valid | 1:inserted | 0:not      | T
+31 | 1:insert | 1:valid | 1:valid | 1:inserted | 1:yes      | T
