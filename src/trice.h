@@ -351,7 +351,6 @@ extern uint32_t* TriceBufferWritePosition;
 #undef tsLH
 #undef tsLL
 
-
 #if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)
 
 #if __STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__
@@ -376,7 +375,7 @@ extern uint32_t* TriceBufferWritePosition;
 #else
 
 #ifndef(TRICE_MCU_IS_BIG_ENDIAN)
-#error Byte order not supported or not detected, set TRICE_MCU_IS_BIG_ENDIAN to 0 or 1 in your triceConfig.h
+#error Bytes order not supported or not detected, set TRICE_MCU_IS_BIG_ENDIAN to 0 or 1 in your triceConfig.h file.
 #endif // TRICE_MCU_IS_BIG_ENDIAN
 
 #endif // __BYTE_ORDER__
