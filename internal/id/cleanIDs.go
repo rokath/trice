@@ -44,8 +44,9 @@ func (p *idData) processTriceIDCleaning(w io.Writer, fSys *afero.Afero, path str
 		liPath = filepath.Base(path)
 	}
 
-	out, modified, err := cleanTriceIDs(w, liPath, in, a)
-	if err != nil {
+	out, modified, err := p.cleanTriceIDs(w, liPath, in, a)
+	p.join(err)
+	if p.err != nil {
 		return msg.OnErrFv(w, err)
 	}
 
@@ -74,7 +75,7 @@ func (p *idData) processTriceIDCleaning(w io.Writer, fSys *afero.Afero, path str
 // cleanTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.
 // If an ID is inside til.json referencing to a different trice, it is set to 0 inside in.
 // All valid IDs are used to build a new li.json file.
-func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+func (p *idData) cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID    // idn is the last found id inside the source.
 	var idS string     // idS is the "iD(n)" statement, if found.
 	var ignore bool    // ignore gets true if a found trice statement is skipped.
@@ -84,6 +85,9 @@ func cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byt
 	var delta int      // offset change cause by ID statement insertion
 	var t TriceFmt     // t is the actual located trice.
 	line := 1          // line counts source code lines, these start with 1.
+	if p.err != nil {
+		return
+	}
 	for {
 		idn = 0                 // clear here
 		loc := matchTrice(rest) // loc is the position of the next trice type (statement name with opening parenthesis followed by a format string).

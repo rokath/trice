@@ -59,7 +59,36 @@ func Test_3_00011_clean_on_inalid_cCache_invalid_iCache_inserted_edited_file(t *
 	assertEqualMTimes(t, fSys, sFname, cCache)                         // check for correct updated cCache
 }
 
-func TestCleanOnCleanedFileWithValidCCache(t *testing.T) {
+func Test_8_01000_clean_on_valid_cCache_invalid_iCache_cleaned_not_edited_file(t *testing.T) {
+	defer setupCacheTest(t)()
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // create src file
+	sT0 := mTime(t, fSys, sFname)                                     // keep mtime
+	id.CopyFileWithMTime(fSys, cCache, sFname)                        // create valid cCache
+
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname}))
+
+	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check for not modified src file
+	assert.Equal(t, sT0, mTime(t, fSys, sFname))                       // check for untouched sFname
+	assertEqualMTimes(t, fSys, sFname, cCache)                         // check for correct cCache
+	assertFileNotExists(t, fSys, iCache)                               // check for not existing iCache
+}
+
+func Test_9_01001_clean_on_valid_cCache_invalid_iCache_cleaned_edited_file(t *testing.T) {
+	defer setupCacheTest(t)()
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // create src file
+	id.CopyFileWithMTime(fSys, cCache, sFname)                        // create valid cCache
+
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -2);`) // "edit" src file
+	sT1 := mTime(t, fSys, sFname)                                     // keep mtime
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname}))
+
+	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -2);`) // check for not modified src file
+	assert.Equal(t, sT1, mTime(t, fSys, sFname))                       // check for untouched sFname
+	assertEqualMTimes(t, fSys, sFname, cCache)                         // check for correct updated cCache
+	assertFileNotExists(t, fSys, iCache)                               // check for not existing iCache
+}
+
+func Test_9_01001_clean_on_valid_cCache_invalid_iCache_cleaned_edited_file____TestCleanOnCleanedFileWithValidCCache(t *testing.T) {
 	defer setupCacheTest(t)()
 	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // create src file
 	sFNameMTime := mTime(t, fSys, sFname)                             // keep mtime
