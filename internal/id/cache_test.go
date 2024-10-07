@@ -46,36 +46,37 @@ func _TestCacheLogic(t *testing.T) {
 		_, err = fSys.Stat(iCache)
 		assert.Error(t, err)
 
-		// status: valid iCache && invalid cCache here && file was edited before
 
-		// trice clean
-		assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname}))
+func _Test_CleanOn_valid_iCache_invalid_cCache_clean_file_edited(t *testing.T) {
 
-		// check src file
-		expSrc = `trice("msg:value=%d\n", -3);`
-		actSrc, e = fSys.ReadFile(sFname)
-		assert.Nil(t, e)
-		assert.Equal(t, expSrc, string(actSrc))
+	// trice clean
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname}))
 
-		// check for correct updated cCache
-		cCacheStat, err = fSys.Stat(cCache)
-		assert.Nil(t, err)
-		cCacheMTime_0 = cCacheStat.ModTime()
-		sFnameStat, err = fSys.Stat(sFname)
-		assert.Nil(t, err)
-		sFnameModTime_0 = sFnameStat.ModTime()
-		fmt.Println("cCacheMTime_0:", cCacheMTime_0)
-		fmt.Println("sFnameModTime_0:", sFnameModTime_0)
-		assert.True(t, cCacheMTime_0 == sFnameModTime_0)
+	// check src file
+	expSrc = `trice("msg:value=%d\n", -3);`
+	actSrc, e = fSys.ReadFile(sFname)
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc, string(actSrc))
 
-		// check for unchanged iCache
-		iCacheStat, err = fSys.Stat(iCache)
-		assert.Nil(t, err)
-		assert.True(t, iCacheMTime_0 == iCacheStat.ModTime())
+	// check for correct updated cCache
+	cCacheStat, err = fSys.Stat(cCache)
+	assert.Nil(t, err)
+	cCacheMTime_0 = cCacheStat.ModTime()
+	sFnameStat, err = fSys.Stat(sFname)
+	assert.Nil(t, err)
+	sFnameModTime_0 = sFnameStat.ModTime()
+	fmt.Println("cCacheMTime_0:", cCacheMTime_0)
+	fmt.Println("sFnameModTime_0:", sFnameModTime_0)
+	assert.True(t, cCacheMTime_0 == sFnameModTime_0)
 
-		// cleanup
-		fSys.Remove(id.FnJSON)
-		fSys.Remove(id.LIFnJSON)
-		fSys.RemoveAll(id.UserHomeDir)
+	// check for unchanged iCache
+	iCacheStat, err = fSys.Stat(iCache)
+	assert.Nil(t, err)
+	assert.True(t, iCacheMTime_0 == iCacheStat.ModTime())
+
+	// cleanup
+	fSys.Remove(id.FnJSON)
+	fSys.Remove(id.LIFnJSON)
+	fSys.RemoveAll(id.UserHomeDir)
 }
 */

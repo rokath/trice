@@ -13,78 +13,51 @@ import (
 // TestInsertOnCleanedWithoutCacheFolder checks if no cache folder is created automatically.
 func TestInsertOnCleanedWithoutCacheFolder(t *testing.T) {
 	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`)
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // cleaned, edit
 
-	fSys.RemoveAll(cache)
+	fSys.RemoveAll(cache) // no cache folder
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin=999", "-IDMax=999", "-src", sFname}))
 
-	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check modified src file
+	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check file content
 	assertFileNotExists(t, fSys, cCache)                                        // check for not existing cCache
 	assertFileNotExists(t, fSys, iCache)                                        // check for not existing iCache
-}
-
-// TestInsertOnCleanedWithCacheFolder checks if iCache is created and no cCache is crreated.
-func TestInsertOnCleanedWithCacheFolder(t *testing.T) {
-	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`)
-
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", sFname}))
-
-	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check modified src file
-	assertFileNotExists(t, fSys, cCache)                                        // check for not existing cCache
-	assertEqualMTimes(t, fSys, sFname, iCache)                                  // check for correct updated iCache
 }
 
 // TestInsertOnInsertedWithoutCacheFolder checks if no cache folder is created automatically.
 func TestInsertOnInsertedWithoutCacheFolder(t *testing.T) {
 	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`)
+	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted, edit
 
-	fSys.RemoveAll(cache)
+	fSys.RemoveAll(cache) // no cache folder
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin=999", "-IDMax=999", "-src", sFname}))
 
-	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check modified src file
+	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check file content
 	assertFileNotExists(t, fSys, cCache)                                        // check for not existing cCache
 	assertFileNotExists(t, fSys, iCache)                                        // check for not existing iCache
 }
 
-// TestInsertOnInsertedWithCacheFolder checks if iCache is created and no cCache is crreated.
-func TestInseredInsertWithCacheFolder(t *testing.T) {
+func Test_17_10001_insert_on_inalid_cCache_invalid_iCache_clean_edited_file(t *testing.T) {
 	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`)
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // cleaned, edit
 
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", sFname}))
 
-	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check modified src file
+	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check file content
 	assertFileNotExists(t, fSys, cCache)                                        // check for not existing cCache
 	assertEqualMTimes(t, fSys, sFname, iCache)                                  // check for correct updated iCache
 }
 
-func TestInsertOnCleanedFileWithButInvalidCache(t *testing.T) {
+func Test_19_10011_insert_on_invalid_cCache_invalid_iCache_inserted_edited_file(t *testing.T) {
 	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`)
+	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted, edit
+	sT0 := mTime(t, fSys, sFname)                                              // keep mtime
 
-	// status: invalid cCache && invalid iCache here && file edited
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", sFname})) // trice insert
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", sFname}))
 
-	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check modified src file
-	assertEqualMTimes(t, fSys, sFname, iCache)                                  // check for correct updated iCache
+	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check file content
+	assertMTime(t, fSys, sT0, sFname)                                           // check for untouched sFname
 	assertFileNotExists(t, fSys, cCache)                                        // check for not existing cCache
-}
-
-func TestInsertOnInsertedFileWithInvalidCache(t *testing.T) {
-	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // create src file
-	sMTime0 := mTime(t, fSys, sFname)                                 // keep mtime
-
-	// status: invalid cCache && invalid iCache here && file edited
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", sFname})) // trice insert
-
-	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`)
-	sMTime1 := mTime(t, fSys, sFname)
-	assert.Equal(t, sMTime0, sMTime1)          // check for untouched sFname
-	assertEqualMTimes(t, fSys, sFname, iCache)           // check for correct updated iCache
-	assertFileNotExists(t, fSys, cCache)                 // check for not existing cCache
+	assertEqualMTimes(t, fSys, sFname, iCache)                                  // check for correct updated iCache
 }
 
 func TestInsertOnInsertedFileWithValidCCache(t *testing.T) {

@@ -13,78 +13,50 @@ import (
 // TestCleanOnCleanedWithoutCacheFolder checks if no cache folder is created automatically.
 func TestCleanOnCleanedWithoutCacheFolder(t *testing.T) {
 	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`)
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // cleaned, edit
 
-	fSys.RemoveAll(cache)
+	fSys.RemoveAll(cache) // no cache folder
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname}))
 
-	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check modified src file
+	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check file content
 	assertFileNotExists(t, fSys, cCache)                               // check for not existing cCache
 	assertFileNotExists(t, fSys, iCache)                               // check for not existing iCache
-}
-
-// TestCleanOnCleanedWithCacheFolder checks if cCache is created and no iCache is crreated.
-func TestCleanOnCleanedWithCacheFolder(t *testing.T) {
-	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`)
-
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname}))
-
-	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check modified src file
-	assertFileNotExists(t, fSys, iCache)                               // check for not existing iCache
-	assertEqualMTimes(t, fSys, sFname, cCache)                         // check for correct updated cCache
 }
 
 // TestCleanOnInsertedWithoutCacheFolder checks if no cache folder is created automatically.
 func TestCleanOnInsertedWithoutCacheFolder(t *testing.T) {
 	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`)
+	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted, edit
 
-	fSys.RemoveAll(cache)
+	fSys.RemoveAll(cache)                                                                                                                         // no cache folder                                                                                                                        // no cache folder
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname})) // trice clean
 
-	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check modified src file
+	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check file content
 	assertFileNotExists(t, fSys, cCache)                               // check for not existing cCache
 	assertFileNotExists(t, fSys, iCache)                               // check for not existing iCache
 }
 
-// TestCleanOnInsertedWithCacheFolder checks if cCache is created and no iCache is crreated.
-func TestCleanOnInsertedWithCacheFolder(t *testing.T) {
+func Test_1_00001_clean_on_invalid_cCache_invalid_iCache_cleaned_edited_file(t *testing.T) {
 	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`)
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // cleaned, edit
+	sT0 := mTime(t, fSys, sFname)                                     // keep mtime
+
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname}))
+	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check file content
+	assertMTime(t, fSys, sT0, sFname)                                  // check for untouched sFname
+	assertEqualMTimes(t, fSys, sFname, cCache)                         // check for correct updated cCache
+	assertFileNotExists(t, fSys, iCache)                               // check for not existing iCache
+}
+
+func Test_3_00011_clean_on_inalid_cCache_invalid_iCache_inserted_edited_file(t *testing.T) {
+	defer setupCacheTest(t)()
+	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted, edit
 
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname}))
 
-	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check modified src file
+	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check file content
 	assertFileNotExists(t, fSys, iCache)                               // check for not existing iCache
 	assertEqualMTimes(t, fSys, sFname, cCache)                         // check for correct updated cCache
-}
-
-func TestCleanOnInsertedFileWithButInvalidCache(t *testing.T) {
-	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`)
-
-	// status: invalid iCache && invalid cCache here && file edited
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname})) // trice clean
-
-	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // check modified src file
-	assertEqualMTimes(t, fSys, sFname, cCache)                         // check for correct updated cCache
-	assertFileNotExists(t, fSys, iCache)                               // check for not existing iCache
-}
-
-func TestCleanOnCleanedFileWithInvalidCache(t *testing.T) {
-	defer setupCacheTest(t)()
-	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`) // create src file
-	sMTime0 := mTime(t, fSys, sFname)                                 // keep mtime
-
-	// status: invalid iCache && invalid cCache here && file edited
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "clean", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-src", sFname})) // trice clean
-
-	assertFileContent(t, fSys, sFname, `trice("msg:value=%d\n", -1);`)
-	sMTime1 := mTime(t, fSys, sFname)
-	assert.Equal(t, sMTime0, sMTime1)          // check for untouched sFname
-	assertEqualMTimes(t, fSys, sFname, cCache) // check for correct updated cCache
-	assertFileNotExists(t, fSys, iCache)       // check for not existing iCache
 }
 
 func TestCleanOnCleanedFileWithValidCCache(t *testing.T) {
