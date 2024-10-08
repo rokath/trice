@@ -76,7 +76,7 @@ int main(void)
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
     
     //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-  trice( "\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n\n\n" );
+  trice("\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n\n\n" );
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -92,21 +92,21 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-  TRice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-  Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-  Trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-  trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-  trice( "w: Hello! 👋🙂 \a\n" ); // with sound!
-  TRice8( "w: Hello! 👋🙂 %d\n", 1 );
-  Trice8( "w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
-  Trice8( "w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );
-  trice( "w: Hello! 👋🙂 %f (default rounded float)\n",                                          aFloat( 2.71828182845904523536 ) );
-  trice( "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
-  trice64( "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
-  TRice64_12( "%x %x %x %x %x %x %x %x %x %x %x %d\n", 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa);
+  TRice("w: Hello! 👋🙂 \a\n" ); // with sound!
+  TRice("w: Hello! 👋🙂 \a\n" ); // with sound!
+  Trice("w: Hello! 👋🙂 \a\n" ); // with sound!
+  Trice("w: Hello! 👋🙂 \a\n" ); // with sound!
+  trice("w: Hello! 👋🙂 \a\n" ); // with sound!
+  trice("w: Hello! 👋🙂 \a\n" ); // with sound!
+  TRice8("w: Hello! 👋🙂 %d\n", 1 );
+  Trice8("w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
+  Trice8("w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );
+  trice("w: Hello! 👋🙂 %f (default rounded float)\n",                                          aFloat( 2.71828182845904523536 ) );
+  trice("w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
+  trice64("w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
+  TRice64_12("%x %x %x %x %x %x %x %x %x %x %x %d\n", 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa);
   //  for( int i = 0; i < 100; i++ ){
-  //    Trice( "i=%x%x\n", 0x55555555, 0xaaaaaa00 + i );
+  //    Trice("i=%x%x\n", 0x55555555, 0xaaaaaa00 + i );
   //  }
   /* USER CODE END SysInit */
 
@@ -317,7 +317,7 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   TRICE_UNUSED(argument)
-  TRice( "msg:StartDefaultTask\n" );
+  TRice("msg:StartDefaultTask\n" );
   /* Infinite loop */
   for(;;)
   {
@@ -343,7 +343,7 @@ void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
   TRICE_UNUSED(argument)
-  TRice( "msg:StartTask02:Diagnostics\n" );
+  TRice("msg:StartTask02:Diagnostics\n" );
   /* Infinite loop */
   for(;;)
   {

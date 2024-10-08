@@ -1,8 +1,8 @@
 clang-format -i \
 ./src/*.c \
 ./src/*.h \
-./test/*/*.c \
-./test/*/*.h \
+./_test/*/*.c \
+./_test/*/*.h \
 ./examples/*/trice*.c \
 ./examples/*/trice*.h \
 
