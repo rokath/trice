@@ -191,7 +191,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Do not generate trice code 
+// Do not generate trice code
 // - when defining TRICE_CLEAN to 1 inside "triceConfig.h" or
 // - when defining TRICE_OFF to 1 before including "trice.h".
 // It is possible to `#define TRICE_OFF 1` inside the project settings to disable all Trice code.
@@ -297,7 +297,7 @@ extern uint32_t* TriceBufferWritePosition;
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// "Declare" endian dependent macros, needed in trice8.h, trice16.h, trice32.h, trice64.h: 
+// "Declare" endian dependent macros, needed in trice8.h, trice16.h, trice32.h, trice64.h:
 //
 #define TRICE_HTOTS(x) TRICE_HTOTS(x)
 #define TRICE_HTOTL(x) TRICE_HTOTL(x)
@@ -306,14 +306,14 @@ extern uint32_t* TriceBufferWritePosition;
 #define TRICE_PUT64(x) TRICE_PUT64(x)
 #define TRICE_SWAPINT16(x) TRICE_SWAPINT16(x)
 #define TRICE_SWAPINT32(x) TRICE_SWAPINT32(x)
-#define idLH idLH 
-#define IdLH IdLH 
-#define IDLH IDLH 
-#define tsL  tsL 
-#define tsH  tsH 
-#define tsHH tsHH 
-#define tsHL tsHL 
-#define tsLH tsLH 
+#define idLH idLH
+#define IdLH IdLH
+#define IDLH IDLH
+#define tsL tsL
+#define tsH tsH
+#define tsHH tsHH
+#define tsHL tsHL
+#define tsLH tsLH
 #define tsLL tsLL
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -325,7 +325,6 @@ extern uint32_t* TriceBufferWritePosition;
 		*p++ = TRICE_HTOTS(x);                             \
 		TriceBufferWritePosition = (uint32_t*)p;           \
 	} while (0)
-
 
 #include "trice8.h"
 #include "trice16.h"
@@ -342,15 +341,46 @@ extern uint32_t* TriceBufferWritePosition;
 #undef TRICE_PUT64
 #undef TRICE_SWAPINT16
 #undef TRICE_SWAPINT32
-#undef idLH 
-#undef IdLH 
-#undef IDLH 
-#undef tsL 
-#undef tsH 
-#undef tsHH 
-#undef tsHL 
-#undef tsLH 
+#undef idLH
+#undef IdLH
+#undef IDLH
+#undef tsL
+#undef tsH
+#undef tsHH
+#undef tsHL
+#undef tsLH
 #undef tsLL
+
+#if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)
+
+#if __STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__
+#define TRICE_MCU_IS_BIG_ENDIAN 0
+#else
+#define TRICE_MCU_IS_BIG_ENDIAN 1
+#endif // __STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__
+
+#else
+
+//! Try detect endianess by using compilers macros
+#if (defined(BYTE_ORDER) && defined(ORDER_LITTLE_ENDIAN) && BYTE_ORDER == ORDER_LITTLE_ENDIAN) ||         \
+    (defined(__BYTE_ORDER) && defined(__ORDER_LITTLE_ENDIAN) && __BYTE_ORDER == __ORDER_LITTLE_ENDIAN) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+#define TRICE_MCU_IS_BIG_ENDIAN 0
+
+#elif (defined(BYTE_ORDER) && defined(ORDER_BIG_ENDIAN) && BYTE_ORDER == ORDER_BIG_ENDIAN) ||       \
+    (defined(__BYTE_ORDER) && defined(__ORDER_BIG_ENDIAN) && __BYTE_ORDER == __ORDER_BIG_ENDIAN) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#define TRICE_MCU_IS_BIG_ENDIAN 1
+
+#else
+
+#ifndef(TRICE_MCU_IS_BIG_ENDIAN)
+#error Bytes order not supported or not detected, set TRICE_MCU_IS_BIG_ENDIAN to 0 or 1 in your triceConfig.h file.
+#endif // TRICE_MCU_IS_BIG_ENDIAN
+
+#endif // __BYTE_ORDER__
+
+#endif // __STDC_VERSION__
 
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
@@ -571,7 +601,7 @@ extern uint32_t* TriceBufferWritePosition;
 #define TRICE_PUT(x)              \
 	do {                                 \
 		*TriceBufferWritePosition++ = x; \
-	} while (0); 
+	} while (0);
 
 #endif
 

@@ -2,14 +2,13 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-//! TRICE_HTOTS reorders short values from hos // t order into trice transfer order.
-#define TRICE_HTOTS(x) ((uint16_t)(x))
+#if !defined(TRICE_HTOTS) && !defined(TRICE_HTOTL) && !defined(TRICE_TTOHS)
 
-//! TRICE_HTOTL reorders long values from host order x into trice transfer order.
-#define TRICE_HTOTL(x) ((uint32_t)(x))
+#define TRICE_HTOTS(x) ((uint16_t)(x)) //! TRICE_HTOTS reorders short values from host order into trice transfer order.
+#define TRICE_HTOTL(x) ((uint32_t)(x)) //! TRICE_HTOTL reorders long values from host order x into trice transfer order.
+#define TRICE_TTOHS(x) ((uint16_t)(x)) //! TRICE_TTOHS reorders short values from trice transfer order into host order.
 
-//! TRICE_TTOHS reorders short values from trice transfer order into host order.
-#define TRICE_TTOHS(x) ((uint16_t)(x))
+#endif //! defined(TRICE_HTOTS) && !defined(TRICE_HTOTL) && !defined(TRICE_TTOHS)
 
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
 
