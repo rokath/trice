@@ -353,6 +353,8 @@ extern uint32_t* TriceBufferWritePosition;
 
 #if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)
 
+// https://github.com/rokath/trice/pull/505
+
 #if __STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__
 #define TRICE_MCU_IS_BIG_ENDIAN 0
 #else
