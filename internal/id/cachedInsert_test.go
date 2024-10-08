@@ -202,6 +202,53 @@ func Test_29_11100_insert_on_valid_cCache_valid_iCache_cleaned_edited_file(t *te
 	assertFileNotExists(t, fSys, cCache)                                        // check for invalid cCache
 }
 
+func Test_30_11110_insert_on_valid_cCache_valid_iCache_inserted_not_edited_file(t *testing.T) {
+	defer setupCacheTest(t)()
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`)          // create cleaned file
+	id.CopyFileWithMTime(fSys, cCache, sFname)                                 // create valid cCache
+	time.Sleep(100 * time.Millisecond)                                         // This time is needed to sync to disc to ensure mtime of cCache and iCache are not equal.
+	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // create inserted file
+	id.CopyFileWithMTime(fSys, iCache, sFname)                                 // create valid iCache
+
+	id.CopyFileWithMTime(fSys, sFname, cCache) // create cleaned not edited file
+
+	cT0 := mTime(t, fSys, cCache) // keep mtime
+	iT0 := mTime(t, fSys, iCache) // keep mtime
+
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", sFname}))
+
+	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // check for modified src file
+	assert.Equal(t, iT0, mTime(t, fSys, iCache))                                // check for equal mtime with iCache
+	assertFileContent(t, fSys, cCache, `trice("msg:value=%d\n", -1);`)          // check for unchanged cCache
+	assert.Equal(t, cT0, mTime(t, fSys, cCache))                                // check for touched iCache
+	assertFileContent(t, fSys, iCache, `trice(iD(999), "msg:value=%d\n", -1);`) // check for unchanged iCache
+	assert.Equal(t, iT0, mTime(t, fSys, iCache))                                // check for touched iCache
+}
+
+func Test_31_11111_insert_on_valid_cCache_valid_iCache_inserted_edited_file(t *testing.T) {
+	defer setupCacheTest(t)()
+	assertFileCreate(t, fSys, sFname, `trice("msg:value=%d\n", -1);`)          // create cleaned file
+	id.CopyFileWithMTime(fSys, cCache, sFname)                                 // create valid cCache
+	time.Sleep(100 * time.Millisecond)                                         // This time is needed to sync to disc to ensure mtime of cCache and iCache are not equal.
+	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // create inserted file
+	id.CopyFileWithMTime(fSys, iCache, sFname)                                 // create valid iCache
+
+	time.Sleep(100 * time.Millisecond)                                         // This time is needed to sync to disc to ensure mtime of cCache and iCache are not equal.
+	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -2);`) // create inserted edited file
+	time.Sleep(100 * time.Millisecond)                                         // This time is needed to sync to disc to ensure mtime of cCache and iCache are not equal.
+
+	iT0 := mTime(t, fSys, iCache) // keep mtime
+
+	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-cache", "-til", id.FnJSON, "-li", id.LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", sFname}))
+
+	assertFileContent(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -2);`) // check for modified src file
+	assertFileContent(t, fSys, iCache, `trice(iD(999), "msg:value=%d\n", -2);`) // check for changed iCache
+	assert.NotEqual(t, iT0, mTime(t, fSys, iCache))                             // check for touched iCache
+	assertFileNotExists(t, fSys, cCache)                                        // check for invalid cCache
+}
+
+// Legacy tests
+
 func InsertOnInsertedFileWithValidCCache(t *testing.T) {
 	defer setupCacheTest(t)()
 	assertFileCreate(t, fSys, sFname, `trice(iD(999), "msg:value=%d\n", -1);`) // create src file
