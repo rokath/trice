@@ -1,5 +1,9 @@
 # Testing the Target `Trice` C-code
 
+## General info
+
+This folder is per default renames into `_test` to avoid vsCode slow down.
+
 The main aim of these tests is to automatic compile and run the target code in many different compiler switch variants avoiding manual testing this way.
 
 For the user it could be helpful to start with a `triceConfig.h`file from here and to adapt the Trice tool command line from the matching `cgo_test.go`.
