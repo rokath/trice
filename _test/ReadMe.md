@@ -2,7 +2,7 @@
 
 ## General info
 
-This folder is per default renames into `_test` to avoid vsCode slow down.
+This folder is per default renamed into `_test` to avoid vsCode slow down. To run the test temporary rename into `test`.
 
 The main aim of these tests is to automatic compile and run the target code in many different compiler switch variants avoiding manual testing this way.
 
