@@ -236,6 +236,8 @@ extern "C" {
 #endif
 
 #ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
+//! Long story short: Whith big endian target MCUs simply apply the `-triceEndianness bigEndian` CLI switch when using the `trice log` command.
+//! Long story long:
 //! TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN should have the same value as TRICE_MCU_IS_BIG_ENDIAN to avoid additional byte swapping code.
 //! It can be defined to 1 on little endian MCUs if the trice data are needed in network order for some reason.
 //! But that adds byte swapping code. This switch is mainly intended to be used for automated tests.
