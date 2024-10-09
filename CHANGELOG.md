@@ -14,8 +14,10 @@
 - [8. v0.67.0 Changes](#8-v0670-changes)
 - [9. v0.68.0 Changes](#9-v0680-changes)
 - [10. v0.69.0 Changes](#10-v0690-changes)
-- [11. master branch changes](#11-master-branch-changes)
-
+- [11. v0.70.0 Changes](#11-v0700-changes)
+	- [11.1. Overview](#111-overview)
+	- [11.2. Git Log](#112-git-log)
+- [12. master branch changes](#12-master-branch-changes)
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -450,17 +452,75 @@ user    0m0.000s
 sys     0m0.000s
 ```
 
-##  11. <a name='masterbranchchanges'></a>master branch changes
+##  11. <a name='v0.70.0Changes'></a>v0.70.0 Changes
+
+###  11.1. <a name='Overview'></a>Overview
+
+- Trice cache option added
+- Trice commands `trice update` and `trice zero` removed
+- Better handling target MCU of endianness - now mostly automatically detected (Special thanks to [Sazerac4](https://github.com/Sazerac4))
+- TRICE_OFF switch without warnings: unused parameter
+- Tests changed to hexadecimal stamps to see issues easier
+- spacing CLI switch added to `trice insert`
+- Target code test folder `test` renamed into `_test` to avoid vsCode slowdown. To execute these tests rename this folder temporary back and run `go test ./...`.
+
+###  11.2. <a name='GitLog'></a>Git Log
 
 Used git log command: `git log --pretty=oneline --abbrev-commit` and less importand lines removed
 
 hash       | comment
------------|----------------------------------------------------------------------------------------------------
-`2252b09d` | (HEAD -> master, origin/master, origin/HEAD) TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated
+-----------|-------------------------------------------------------------------
+`0242c1e3` | Trice cache info added.
+`087fffc3` | cache switch added, renamed test to _test incorporated to examples
+`ddeb703d` | Merge pull request #505 from Sazerac4/feat/update/endian
+`b600c039` | Update ReadMe.md rename info
+`377b7a1c` | test folder renamed into _test
+`a6b36b8e` | trice cache tests complete
+`c2c53481` | cache test overview table added
+`04cfbcaa` | \- Add missing control on user definition on HTOTS,HTOTL,HTOTS \- Correction on error message - Format: `find ./src  -name '*.c' -o  -name '*.h'| xargs clang-format-18 -style=file -i`
+`2ff9fa58` | Adds several resolutions around endianess -Add byte orders detection, remove default TRICE_MCU_IS_BIG_ENDIAN. User need to set it if not detected -Add Detection on <byteswap.h> libc include to use it -Remove full macros byteswap option, use always "TriceReverse" inline function (same effect) -Remove endianess configurations options -Add compilers buid-in when available to swap endianess (GCC and clang supported) -Add C23 endianess detection resolution
+`6788972f` | dead code (after removing command update) commented out
+`aa465ca5` | code refactored
+`c5eb2a54` | Update insertIDs.go
+`8e1a76e9` | Update TriceCacheSpec.md
+`35fece93` | trice commands `update` and `zero` removed.
+`7e2494bb` | Bugfix in helpinfo.go: update params where shown in insert params.
+`75010487` | Hint "EXPERIMENTAL!" to `-cache` switch
+`a8e91da3` | New CLI switch `-cache` for `trice i` and `trice c``
+`5b07e155` | Update comment in trice.h
+`4d99a760` | trice cache seams to work
+`7fa56068` | trice cache implementation wip
+`2fbcd79f` | msg.OnErrFv added
+`20a3a28e` | check renamed to testRefreshIDs
+`2b35d503` | trice cache wip
+`811ed1df` | endian dependent code now concentrated
+`39308c60` | TRICE_OFF switch without warnings: unused parameter
+`6aff69e4` | big endian test for XTEA example added.
+`6e1ebd10` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN renamed to TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
+`3ba3ecc4` | code reordered to reduce compiler switches
+`820920bb` | branch endianness merged
+`9db0b8fc` | clang-format.sh applied
+`8ea539d0` | All Trice header with TRICE_PUT_AS_IS, when TRICE_REVERSE==1
+`6a23710f` | Tests changed to hexadecimal stamps to see issues easier
+`487859b0` | "gopls": {"build.directoryFilters": added, but seems not to work
+`2f424d25` | Chapter Target Macros added
+`4d224741` | Explaining comment added
+`8dff6d79` | More usage of TRICE_PUT_AS_IS (wip)
+`754c0c3d` | Merge branch 'master' into endianness
+`b312601b` | Merge remote-tracking branch 'origin/endianness' into endianness
+`8aa486e5` | TRICE_REVERSE switch added
+`9d2d3167` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated
+`2f91e1d9` | TRICE_HEADER_PUT removed
+`0044f8f2` | trice8m_1 experimental rewritten
+`6d251413` | TRICE_HEADER_PUT renamed into TRICE_PUT_HEADER
+`2252b09d` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated
 `1f4ef31a` | spacing CLI switch added to `trice insert`
-`43c0d0ab` | tests adapted for SpaceAfterTriceOpeningBrace=false (default)
-`66d032d3` | SpaceAfterTriceOpeningBrace code added
-`4880fb29` | SpaceAfterTriceOpeningBrace removed
+`43c0d0ab` | tests adapted for SpaceBetweenTriceOpeningBraceAndIDName=false
+`66d032d3` | SpaceBetweenTriceOpeningBraceAndIDName code added
+`4880fb29` | SpaceBetweenTriceOpeningBraceAndIDName removed
 `f7691e36` | ./updateTestData.sh run result
 `30cf050e` | Trice Cache Specification Draft added
-`3c1b3aba` | (tag: v0.69.0) .goreleaser.yaml adapted to goreleaser version 2
+`3c1b3aba` | .goreleaser.yaml adapted to goreleaser version 2
+`751def35` | v0.69.0 infos and test results added to CHANGELOG.md
+
+##  12. <a name='masterbranchchanges'></a>master branch changes
