@@ -85,3 +85,26 @@ func TestJSONToLut(t *testing.T) {
 	act := fmt.Sprint(lut)
 	assert.Equal(t, exp, act)
 }
+
+const sampleLutJSON1 = `{
+	"15": {
+		"Type": "t11",
+		"Strg": "s11"
+	},
+	"15": {
+		"Type": "t12",
+		"Strg": "s12a"
+	}
+}`
+
+const sampleLutMap1 = "map[15:{t12 s12a}]"
+
+// TestJSONToLut checks if JSON to lut with IDs used twice works.
+func TestJSONWithDoubleIDToLut(t *testing.T) {
+	b := []byte(sampleLutJSON1)
+	exp := sampleLutMap1
+	lut := make(TriceIDLookUp)
+	assert.Nil(t, lut.FromJSON(b))
+	act := fmt.Sprint(lut)
+	assert.Equal(t, exp, act)
+}
