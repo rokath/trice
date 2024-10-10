@@ -24,6 +24,7 @@ type idData struct {
 	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
 	idInitialCount int             // idInitialCount is the initial used ID count.
 	IDSpace        []TriceID       // IDSpace contains unused IDs.
+	IDSpaceMulti   [][]TriceID     // IDSpace contains unused IDs.
 	err            error
 }
 
@@ -41,6 +42,10 @@ func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 // When p.IDSpace does not contain id, then no action is needed.
 // Example: When -IDMin=10, -IDMax=20 and id=99 found in source.
 func (p *idData) removeIDFromIDSpace(id TriceID) {
+	//  for _, idRange :=range p.IDSpaceMulti{
+	//  	for index, i := range idRange {
+	//  		// ...
+	//  }
 	for index, i := range p.IDSpace {
 		if i == id {
 			if SearchMethod == "random" { // do not care about order inside IDSpace, so do it fast

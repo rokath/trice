@@ -207,6 +207,7 @@ func addInit() {
 func insertIDsInit() {
 	fsScInsert = flag.NewFlagSet("insertSourceTreeIds", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScInsert)
+	flagIDPolicy(fsScInsert)
 	fsScInsert.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
 	fsScInsert.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
 	fsScInsert.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
@@ -290,6 +291,17 @@ source code files inside directory ./test and scan also file trice.h inside pkg/
 Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
  (default "./")`) // multi flag
 	p.Var(&id.Srcs, "s", "Short for src.") // multi flag
+}
+
+func flagIDPolicy(p *flag.FlagSet) {
+	p.Var(&id.IDPolicy, "IDPolicy", `This allows channel specific routing in the target code. 
+This switch has one parameter string and is a multi-flag switch. It can be used for each Trice channel. Example:
+Assign error channel Trice IDs in the range 10-99 and msg channel IDs in the range 100-199:
+"trice `+p.Name()+` -IDPolicy err:10,99 -IDPolicy msg:100,999" (overlapping ID ranges are forbidden)
+All other channels get IDs from the -IDMin, -IDMax range. The used -IDMethod is the same for all channels. 
+For example you can have all trice messages in direct mode over RTT but err & msg channel trices additionally
+in deferred mode over a serial port and, if you need, store all error Trice messages additionally in the Flash memory.
+You need to configure the target code accordingly. (default "")`) // multi flag
 }
 
 func flagDryRun(p *flag.FlagSet) {

@@ -295,6 +295,10 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 			}
 		}
 		if idN == 0 { // newID
+
+			// t.Strg contains the Trice channel infomation: string until the first colon matches a string in emitter.colorChannels.
+			// How to handle several IDSpace instances?
+
 			idN = p.newID()
 			if Verbose {
 				fmt.Fprintln(w, "Create a new ID ", idN, " for ", t)
