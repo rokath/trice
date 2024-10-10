@@ -458,11 +458,11 @@ sys     0m0.000s
 
 - Trice cache option added
 - Trice commands `trice update` and `trice zero` removed
-- Better handling target MCU of endianness - now mostly automatically detected (Special thanks to [Sazerac4](https://github.com/Sazerac4))
+- Better handling of target MCU endianness - now mostly automatically detected (Special thanks to [Sazerac4](https://github.com/Sazerac4))
 - TRICE_OFF switch without warnings: unused parameter
 - Tests changed to hexadecimal stamps to see issues easier
 - spacing CLI switch added to `trice insert`
-- Target code test folder `test` renamed into `_test` to avoid vsCode slowdown. To execute these tests rename this folder temporary back and run `go test ./...`.
+- Target code test folder `test` renamed into `_test` to avoid vsCode slowdown. To execute these tests rename this folder temporary back and run `go test ./test/...`.
 
 ###  11.2. <a name='GitLog'></a>Git Log
 
