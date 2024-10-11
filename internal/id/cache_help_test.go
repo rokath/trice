@@ -95,7 +95,7 @@ func assertEqualMTimes(t *testing.T, fSys *afero.Afero, fn0, fn1 string) {
 	assert.True(t, fn0Stat.ModTime() == fn1Stat.ModTime())
 }
 
-// assertEqualMTimes comparesfn0 and fn1 modification times to be equal.
+// assertNotEqualMTimes comparesfn0 and fn1 modification times to be equal.
 func assertNotEqualMTimes(t *testing.T, fSys *afero.Afero, fn0, fn1 string) {
 	fn0Stat, err := fSys.Stat(fn0)
 	assert.Nil(t, err)
