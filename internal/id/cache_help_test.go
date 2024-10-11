@@ -104,18 +104,21 @@ func assertNotEqualMTimes(t *testing.T, fSys *afero.Afero, fn0, fn1 string) {
 	assert.False(t, fn0Stat.ModTime() == fn1Stat.ModTime())
 }
 
+// assertFileContent assert fName existence and content.
 func assertFileContent(t *testing.T, fSys *afero.Afero, fName, exp string) {
 	act, e := fSys.ReadFile(fName)
 	assert.Nil(t, e)
 	assert.Equal(t, exp, string(act))
 }
 
+// mTime assert fName existence and returns the mTime.
 func mTime(t *testing.T, fSys *afero.Afero, fName string) time.Time {
 	stat, err := fSys.Stat(fName)
 	assert.Nil(t, err)
 	return stat.ModTime()
 }
 
+// assertFileCreate creates fName with content src.
 func assertFileCreate(t *testing.T, fSys *afero.Afero, fName, src string) {
 	assert.Nil(t, fSys.WriteFile(fName, []byte(src), 0777)) // create src file
 }
