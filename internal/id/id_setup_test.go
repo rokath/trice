@@ -16,7 +16,7 @@ import (
 func TestMain(m *testing.M) {
 	//log.Println("Do stuff BEFORE the id package tests!")
 	ExtendMacrosWithParamCount = true
-	exitVal := m.Run()
+	exitVal := m.Run() // Run all id tests sequentially.
 	//log.Println("Do stuff AFTER the id package tests!")
 
 	os.Exit(exitVal)
