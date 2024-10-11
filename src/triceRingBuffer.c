@@ -201,7 +201,7 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 //! The data at addr are getting destroyed, because buffer is used as scratch pad.
 static int TriceSingleDeferredOut(uint32_t* addr) {
 	uint8_t* enc = ((uint8_t*)addr) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of addr.
-	int wordCount;
+	int wordCount = 0;
 	uint8_t* pTriceNetStart;
 	size_t triceNetLength; // without padding bytes
 	int triceID = TriceIDAndBuffer(addr, &wordCount, &pTriceNetStart, &triceNetLength);

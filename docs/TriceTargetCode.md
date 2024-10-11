@@ -65,7 +65,7 @@ The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice l
       - triceDirectEncode
       - triceNonBlockingDirectWrite
 
-## Some Thoughs
+## Some Thoughts
 
 There have been 3 similar implementations for trice encode
 

@@ -627,7 +627,7 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 //! there is no gap between the Trices in double or ring buffer. Therefore, when enabling
 //! TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE together with a deferred mode, for efficiency the RTT output can only be unframed.
 //! The space behind the trice (at triceStart + wordCount) is usable because in direct mode this is writable.
-//! Also in combined modes (direct plus deferred) this is allowed, under certain cirumstances:
+//! Also in combined modes (direct plus deferred) this is allowed, under certain circumstances:
 //! - TRICE_DOUBLE_BUFFER: The current Trice could be the last one and could have filled the double buffer to the end. So additional 4 bytes at the end are needed as scratc pad.
 //! - TRICE_RING_BUFFER: The max depth is not allowed and at the end is 4 bytes space needed.
 void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
