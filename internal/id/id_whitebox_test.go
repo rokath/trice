@@ -16,9 +16,11 @@ import (
 )
 
 func TestInsertIDsAndJSONDownward(t *testing.T) {
+	//defer setupCacheTest(t)()
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	defer id.SetupTest(t, fSys)()
+	//id.ResetGlobalVars(t)
 
 	// create src files
 	src0 := `

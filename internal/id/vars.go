@@ -16,7 +16,7 @@ var (
 	SearchMethod             = "random"      // SearchMethod is the next ID search method.
 	LiPathIsRelative         bool            // LiPathIsRelative causes to store relative paths instead of base names only inside li.json.
 	Srcs                     ArrayFlag       // Srcs gets multiple files or directories.
-	IDPolicy                 ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
+	IDRange                  ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
 	IDData                   idData
 	matchSourceFile          = regexp.MustCompile(patSourceFile)
 	matchNbTRICE             = regexp.MustCompile(patNbTRICE)

@@ -49,7 +49,7 @@ func ResetGlobalVars(t *testing.T) {
 	SearchMethod = "random"
 	LiPathIsRelative = false
 	Srcs = nil
-	IDPolicy = nil
+	IDRange = nil
 	ExtendMacrosWithParamCount = false
 	DefaultTriceBitWidth = "32"
 	DefaultStampSize = 32

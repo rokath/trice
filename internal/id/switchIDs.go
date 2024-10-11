@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"strings"
 
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/rokath/trice/pkg/msg"
@@ -18,21 +19,31 @@ import (
 
 // idData holds the Id specific data.
 type idData struct {
-	idToTrice      TriceIDLookUp   // idToTrice is a trice ID lookup map and is generated from existing til.json file at the begin of SubCmdIdInsert. This map is only extended during SubCmdIdInsert and goes back into til.json afterwards.
-	triceToId      triceFmtLookUp  // triceToId is a trice fmt lookup map (reversed idToFmt for faster operation). Each fmt can have several trice IDs (slice). This map is only reduced during SubCmdIdInsert and goes _not_ back into til.json afterwards.
-	idToLocRef     TriceIDLookUpLI // idToLocRef is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
-	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
-	idInitialCount int             // idInitialCount is the initial used ID count.
-	IDSpace        []TriceID       // IDSpace contains unused IDs.
-	IDSpaceMulti   [][]TriceID     // IDSpace contains unused IDs.
+	idToTrice      TriceIDLookUp     // idToTrice is a trice ID lookup map and is generated from existing til.json file at the begin of SubCmdIdInsert. This map is only extended during SubCmdIdInsert and goes back into til.json afterwards.
+	triceToId      triceFmtLookUp    // triceToId is a trice fmt lookup map (reversed idToFmt for faster operation). Each fmt can have several trice IDs (slice). This map is only reduced during SubCmdIdInsert and goes _not_ back into til.json afterwards.
+	idToLocRef     TriceIDLookUpLI   // idToLocRef is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
+	idToLocNew     TriceIDLookUpLI   // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
+	idInitialCount int               // idInitialCount is the initial used ID count.
+	IDSpace        []triceTagIDSpace // IDSpace contains the tag specific unused IDs.
 	err            error
 }
 
-// IDIsPartOfIDSpace returns true if ID is existend inside IDSpace.
+// triceTagIDSpace is a Trice tag specific ID space, specified with the -IDTag CLI switch.
+// Example: "trice insert -IDTag err:10,99" specifies for the Trice tag "err" the ID space 10-99.
+type triceTagIDSpace struct {
+	tag     string    // tag is the Trice message tag like "err" in TRice("err:foo");.
+	Min     TriceID   // Min is the smallest allowed trice tag specific ID.
+	Max     TriceID   // Max is the biggest allowed trice tag specific ID.
+	idSpace []TriceID // idSpace is the to tag assigned ID space.
+}
+
+// IDIsPartOfIDSpace returns true if ID is existent inside p.IDSpace.
 func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
-	for _, i := range p.IDSpace {
-		if i == id {
-			return true
+	for _, s := range p.IDSpace {
+		for _, i := range s.idSpace {
+			if i == id {
+				return true
+			}
 		}
 	}
 	return false
@@ -42,41 +53,59 @@ func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 // When p.IDSpace does not contain id, then no action is needed.
 // Example: When -IDMin=10, -IDMax=20 and id=99 found in source.
 func (p *idData) removeIDFromIDSpace(id TriceID) {
-	//  for _, idRange :=range p.IDSpaceMulti{
-	//  	for index, i := range idRange {
-	//  		// ...
-	//  }
-	for index, i := range p.IDSpace {
-		if i == id {
-			if SearchMethod == "random" { // do not care about order inside IDSpace, so do it fast
-				p.IDSpace[index] = p.IDSpace[len(p.IDSpace)-1] // overwrite with last
-				p.IDSpace = p.IDSpace[:len(p.IDSpace)-1]       // remove last
-			} else { // keep order inside IDSpace, so do it costly
-				p.IDSpace = append(p.IDSpace[:index], p.IDSpace[index+1:]...)
+	for _, tag := range p.IDSpace {
+		for index, i := range tag.idSpace {
+			if i == id {
+				if SearchMethod == "random" { // do not care about order inside tag.idSpace, so do it fast
+					tag.idSpace[index] = tag.idSpace[len(tag.idSpace)-1] // overwrite with last
+					tag.idSpace = tag.idSpace[:len(tag.idSpace)-1]       // remove last
+				} else { // keep order inside tag.idSpace, so do it costly
+					tag.idSpace = append(tag.idSpace[:index], tag.idSpace[index+1:]...)
+				}
 			}
 		}
 	}
 }
 
+// triceTag returns the trice tag, if any, or an empty string.
+func triceTag(t TriceFmt) string { // t.Strg contains the Trice tag information: string until the first colon matches a string in emitter.colorChannels.
+	before, _, ok := strings.Cut(t.Strg, ":")
+	if !ok {
+		return ""
+	}
+	return before // todo: normalize?
+}
+
 // newID returns a new, so far unused trice ID for usage.
 // The global variable SearchMethod controls the way a new ID is selected.
-func (p *idData) newID() (id TriceID) {
-	if SearchMethod == "random" {
-		if len(p.IDSpace) <= 0 {
-			log.Fatal("Remaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)")
+func (p *idData) newID(t TriceFmt) (id TriceID) {
+	tag := triceTag(t)
+common:
+	for i, _ := range p.IDSpace {
+		//s := p.IDSpace[i] <-- Why does this not work? todo
+		if tag != p.IDSpace[i].tag {
+			continue
 		}
-		index := rand.Intn(len(p.IDSpace))
-		id = p.IDSpace[index]                          // use random
-		p.IDSpace[index] = p.IDSpace[len(p.IDSpace)-1] // overwrite with last
-		p.IDSpace = p.IDSpace[:len(p.IDSpace)-1]       // remove last
-	} else if SearchMethod == "upward" {
-		id = p.IDSpace[0]         // use first
-		p.IDSpace = p.IDSpace[1:] // remove first
-	} else {
-		id = p.IDSpace[len(p.IDSpace)-1]         // use last
-		p.IDSpace = p.IDSpace[:len(p.IDSpace)-1] // remove last
+		if SearchMethod == "random" {
+			if len(p.IDSpace[i].idSpace) <= 0 {
+				log.Fatal("Remaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)")
+			}
+			index := rand.Intn(len(p.IDSpace[i].idSpace))
+			id = p.IDSpace[i].idSpace[index]                                                // use random
+			p.IDSpace[i].idSpace[index] = p.IDSpace[i].idSpace[len(p.IDSpace[i].idSpace)-1] // overwrite with last
+			p.IDSpace[i].idSpace = p.IDSpace[i].idSpace[:len(p.IDSpace[i].idSpace)-1]       // remove last
+		} else if SearchMethod == "upward" {
+			id = p.IDSpace[i].idSpace[0]                    // use first
+			p.IDSpace[i].idSpace = p.IDSpace[i].idSpace[1:] // remove first
+		} else {
+			id = p.IDSpace[i].idSpace[len(p.IDSpace[i].idSpace)-1]                    // use last
+			p.IDSpace[i].idSpace = p.IDSpace[i].idSpace[:len(p.IDSpace[i].idSpace)-1] // remove last
+		}
+		return
 	}
-	return
+	fmt.Println(tag, " not handled")
+	tag = ""
+	goto common
 }
 
 // GetIDStateFromJSONFiles reads til and li and fills p (IDData) with this information.
@@ -94,27 +123,38 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 
 	p.GetIDStateFromJSONFiles(w, fSys)
 
-	// create IDSpace
-	p.IDSpace = make([]TriceID, 0, Max-Min+1)
-	for id := Min; id <= Max; id++ {
-		_, usedFmt := p.idToTrice[id]
-		_, usedLoc := p.idToLocRef[id]
-		if !usedFmt && !usedLoc {
-			p.IDSpace = append(p.IDSpace, id)
-		} else if Verbose {
-			if usedFmt && !usedLoc {
-				fmt.Fprintln(w, "ID", id, "used, but only inside til.json")
-			}
-			if !usedFmt && usedLoc {
-				fmt.Fprintln(w, "ID", id, "used, but only inside li.json")
-			}
-			if usedFmt && usedLoc {
-				fmt.Fprintln(w, "ID", id, "used inside til.json and li.json")
+	var common triceTagIDSpace
+
+	common.tag = ""
+	common.Min = Min
+	common.Max = Max
+
+	p.IDSpace = append(p.IDSpace, common)
+
+	for i, s := range p.IDSpace {
+		// create IDSpace
+		//s.idSpace = make([]TriceID, 0, s.Max-s.Min+1)
+		for id := s.Min; id <= s.Max; id++ {
+			_, usedFmt := p.idToTrice[id]
+			_, usedLoc := p.idToLocRef[id]
+			if !usedFmt && !usedLoc {
+				//s.idSpace = append(s.idSpace, id) <- does not work here!
+				p.IDSpace[i].idSpace = append(p.IDSpace[i].idSpace, id)
+			} else if Verbose {
+				if usedFmt && !usedLoc {
+					fmt.Fprintln(w, "ID", id, "used, but only inside til.json")
+				}
+				if !usedFmt && usedLoc {
+					fmt.Fprintln(w, "ID", id, "used, but only inside li.json")
+				}
+				if usedFmt && usedLoc {
+					fmt.Fprintln(w, "ID", id, "used inside til.json and li.json")
+				}
 			}
 		}
-	}
-	if Verbose {
-		fmt.Fprintln(w, Max-Min+1, "IDs total space,", len(p.IDSpace), "IDs usable")
+		if Verbose {
+			fmt.Fprintln(w, "trice tag", s.tag, "has", s.Max-s.Min+1, "IDs total space,", len(s.idSpace), "IDs usable")
+		}
 	}
 }
 
