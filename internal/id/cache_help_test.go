@@ -8,12 +8,6 @@ import (
 	"github.com/tj/assert"
 )
 
-//  // assertFileExists asserts, that fn does not exist
-//  func assertFileExists(t *testing.T, FSys *afero.Afero, fn string) {
-//  	_, err := FSys.Stat(fn)
-//  	assert.Nil(t, err)
-//  }
-
 // assertFileNotExists asserts, that fn does not exist
 func assertFileNotExists(t *testing.T, FSys *afero.Afero, fn string) {
 	_, err := FSys.Stat(fn)
