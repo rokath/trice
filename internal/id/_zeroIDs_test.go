@@ -5,34 +5,30 @@ package id_test
 
 import (
 	"bytes"
-	"io"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
-	"github.com/rokath/trice/internal/id"
-	"github.com/spf13/afero"
+	. "github.com/rokath/trice/internal/id"
 	"github.com/tj/assert"
 )
 
 func TestZeroIDs(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file
 	sFn := t.Name() + "file.c"
 	src := `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1  );`
 
-	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
 	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "zero", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "zero", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: trice(iD(0), "msg:value=%d\n", -1  );`
 
-	actSrc, e := fSys.ReadFile(sFn)
+	actSrc, e := FSys.ReadFile(sFn)
 	assert.Nil(t, e)
 
 	assert.Equal(t, expSrc, string(actSrc))

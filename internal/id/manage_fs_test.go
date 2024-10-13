@@ -17,11 +17,11 @@ import (
 func TestLutFileTransfer(t *testing.T) { // Anti-Virus issue
 	wr := sampleLut0()
 	exp := sampleLutMap0
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+
 	fn := "TestWriteLutToFile.JSON"
-	assert.Nil(t, wr.toFile(fSys, fn))
+	assert.Nil(t, wr.toFile(FSys, fn))
 	rd := make(TriceIDLookUp)
-	assert.Nil(t, rd.fromFile(fSys, fn))
+	assert.Nil(t, rd.fromFile(FSys, fn))
 	act := fmt.Sprint(rd)
 	assert.Equal(t, exp, act)
 }
@@ -41,9 +41,7 @@ func TestBasePath(t *testing.T) { // Anti-Virus issue
 }
 
 func TestRefresh(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	const (
 		CFile0 = `
@@ -83,9 +81,9 @@ func TestRefresh(t *testing.T) {
 	)
 
 	fn := t.Name() + "file.c"
-	assert.Nil(t, fSys.WriteFile(fn, []byte(CFile0), 0777))
-	SubCmdAddToList(os.Stdout, fSys)
-	act, e := fSys.ReadFile(FnJSON)
+	assert.Nil(t, FSys.WriteFile(fn, []byte(CFile0), 0777))
+	SubCmdAddToList(os.Stdout, FSys)
+	act, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	exp := ``
 	assert.Equal(t, exp, string(act))

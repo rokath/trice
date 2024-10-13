@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
@@ -253,9 +252,7 @@ func TestInsertSharedIDs0WithParamCount(t *testing.T) {
 
 // no more shared
 func TestInsertSharedIDs0ZeroParam1(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := testTable{
 		{`... TRICE0( "hi"); ...`, `... TRICE0( ID(   99), "hi"); ...`, true, true},
@@ -268,9 +265,7 @@ func TestInsertSharedIDs0ZeroParam1(t *testing.T) {
 
 // no more shared
 func TestInsertSharedIDs0ZeroParam2(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 0
 	StampSizeId = " id(0),"
@@ -286,9 +281,7 @@ func TestInsertSharedIDs0ZeroParam2(t *testing.T) {
 
 // no more shared
 func TestInsertSharedIDs0ZeroParam3(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -304,9 +297,7 @@ func TestInsertSharedIDs0ZeroParam3(t *testing.T) {
 
 // no more shared
 func TestInsertSharedIDs0ZeroParam3032(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -322,8 +313,7 @@ func TestInsertSharedIDs0ZeroParam3032(t *testing.T) {
 
 // no more shared
 func TestInsertSharedIDs0ZeroParam332(t *testing.T) {
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -338,9 +328,7 @@ func TestInsertSharedIDs0ZeroParam332(t *testing.T) {
 }
 
 func _legacyUpdate_TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -356,9 +344,7 @@ func _legacyUpdate_TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
 }
 
 func _legacyUpdate_TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -374,9 +360,7 @@ func _legacyUpdate_TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
 }
 
 func _legacyUpdate_TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -392,9 +376,7 @@ func _legacyUpdate_TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
 }
 
 func _legacyUpdate_TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -410,9 +392,7 @@ func _legacyUpdate_TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
 }
 
 func _legacyUpdate_TestTrice0(t *testing.T) { // wip
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -428,9 +408,7 @@ func _legacyUpdate_TestTrice0(t *testing.T) { // wip
 }
 
 func TestTrice1(t *testing.T) { // wip
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"

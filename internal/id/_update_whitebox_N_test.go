@@ -6,15 +6,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
 
 // A wrong parameter count should not be corrected! The compiler will complain and a decision should be made.
 func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{
@@ -30,9 +27,7 @@ func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 // A wrong parameter count should not be corrected! The compiler will complain and a decision should be made.
 // todo: emit a warning
 func TestDoNotCorrectWrongParamCountSingle2(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{
@@ -46,9 +41,7 @@ func TestDoNotCorrectWrongParamCountSingle2(t *testing.T) {
 }
 
 func TestInsertID0NoParam(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`... TRice ( "hi"); ...`, `... TRice ( iD(0), "hi"); ...`},
@@ -58,9 +51,7 @@ func TestInsertID0NoParam(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 func TestInsertParamCountAndIDNoParam(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`... TRice0 ( "hi"); ...`, `... TRice0 ( iD(0), "hi"); ...`},
@@ -71,9 +62,7 @@ func TestInsertParamCountAndIDNoParam(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDOneParamN1(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	StampSizeId = " Id(0),"
 	tt := []struct{ text, exp string }{
@@ -86,9 +75,7 @@ func TestInsertParamCountAndIDOneParamN1(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDOneParamB(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	StampSizeId = " Id(0),"
 	tt := []struct{ text, exp string }{
@@ -101,9 +88,7 @@ func TestInsertParamCountAndIDOneParamB(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDOneParamN0(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...  trice8 ( "hi %03u", 5); ...`, `...  trice8_1 ( iD(0), "hi %03u", 5); ...`},
@@ -127,9 +112,7 @@ func TestInsertParamCountAndIDOneParamN0(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDOneParamA(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...  trice8 ( "hi %03u", 5); ...`, `...  trice8 ( iD(0), "hi %03u", 5); ...`},
@@ -153,9 +136,7 @@ func TestInsertParamCountAndIDOneParamA(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDTwoParamNA(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d", 5, 7 ); ...`, `...   trice8_2 ( iD(0), "hi %03u %03d", 5, 7 ); ...`},
@@ -179,9 +160,7 @@ func TestInsertParamCountAndIDTwoParamNA(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDTwoParamA(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d", 5, 7 ); ...`, `...   trice8 ( iD(0), "hi %03u %03d", 5, 7 ); ...`},
@@ -205,9 +184,7 @@ func TestInsertParamCountAndIDTwoParamA(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDThreeParamNA(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...   trice8_3 ( iD(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
@@ -231,9 +208,7 @@ func TestInsertParamCountAndIDThreeParamNA(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDThreeParamA(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...   trice8 ( iD(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
@@ -257,9 +232,7 @@ func TestInsertParamCountAndIDThreeParamA(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDFourParamNA(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...   trice8_4 ( iD(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
@@ -283,9 +256,7 @@ func TestInsertParamCountAndIDFourParamNA(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDFourParamA(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...   trice8 ( iD(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
@@ -309,9 +280,7 @@ func TestInsertParamCountAndIDFourParamA(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDFiveParamN(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   trice8_5 ( iD(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
@@ -335,9 +304,7 @@ func TestInsertParamCountAndIDFiveParamN(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDFiveParam(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   trice8 ( iD(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
@@ -361,9 +328,7 @@ func TestInsertParamCountAndIDFiveParam(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDSixParamN(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   trice8_6 ( iD(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
@@ -387,9 +352,7 @@ func TestInsertParamCountAndIDSixParamN(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDSixParam(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   trice8 ( iD(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
@@ -413,9 +376,7 @@ func TestInsertParamCountAndIDSixParam(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDSevenParamN(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   trice8_7 ( iD(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
@@ -439,9 +400,7 @@ func TestInsertParamCountAndIDSevenParamN(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDSevenParam(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   trice8 ( iD(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
@@ -465,9 +424,7 @@ func TestInsertParamCountAndIDSevenParam(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDEightParamN(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   trice8_8 ( iD(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
@@ -495,9 +452,7 @@ func TestInsertParamCountAndIDEightParamN(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDEightParam(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   trice8 ( iD(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
@@ -525,9 +480,7 @@ func TestInsertParamCountAndIDEightParam(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDAll0A(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	DefaultStampSize = 16
 	StampSizeId = " Id(0),"
@@ -646,9 +599,7 @@ func TestInsertParamCountAndIDAll0A(t *testing.T) {
 }
 
 func TestInsertParamCountAndIDAll0B(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	StampSizeId = " Id(0),"
 	tt := []struct{ text, exp string }{
@@ -711,9 +662,7 @@ func TestInsertParamCountAndIDAll0B(t *testing.T) {
 }
 
 func TestOptionallyExtendLenAndInsertID0B(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	StampSizeId = " Id(0),"
 	tt := []struct{ text, exp string }{
@@ -741,9 +690,7 @@ func checkTestTable(t *testing.T, tt []struct{ text, exp string }, extend bool) 
 }
 
 func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	StampSizeId = " Id(0),"
 	tt := []struct{ text, exp string }{
@@ -770,9 +717,7 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 }
 
 func TestVariadicInsertId0A(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	StampSizeId = " Id(0),"
 	tt := []struct{ text, exp string }{
@@ -790,9 +735,7 @@ func TestVariadicInsertId0A(t *testing.T) {
 // todo
 
 func _legacyUpdate_TestSingleParam(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	tt := []struct{ text, exp string }{
 		{

@@ -30,24 +30,24 @@ func TestArrayFlag(t *testing.T) {
 
 // TestConditionalFilePath checks if ConditionalFilePath works as expected.
 func TestConditionalFilePathAfero(t *testing.T) {
-	fSys := &afero.Afero{Fs: afero.NewOsFs()}
-	s := fullFilePath2(fSys, "/tatue/tata")
+	FSys := &afero.Afero{Fs: afero.NewOsFs()}
+	s := fullFilePath2(FSys, "/tatue/tata")
 	b := filepath.Base(s)
 	assert.Equal(t, b, "tata")
 }
 
 // TestConditionalFilePath checks if ConditionalFilePath works as expected.
 func TestConditionalFilePathOs(t *testing.T) {
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	s := fullFilePath2(fSys, "/tatue/tata")
+
+	s := fullFilePath2(FSys, "/tatue/tata")
 	b := filepath.Base(s)
 	assert.Equal(t, b, "tata")
 }
 
 // fullFilePath2 returns absolute file path if fn is not "off" or "none".
-func fullFilePath2(fSys *afero.Afero, fn string) string {
-	xType := reflect.TypeOf(fSys)
-	xValue := reflect.ValueOf(fSys)
+func fullFilePath2(FSys *afero.Afero, fn string) string {
+	xType := reflect.TypeOf(FSys)
+	xValue := reflect.ValueOf(FSys)
 	if Verbose {
 		fmt.Println(xType, xValue) // Os: *afero.Afero &{0x85d228} // MemMap: *afero.Afero &{0xc00007bb60}
 	}
