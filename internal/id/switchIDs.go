@@ -39,8 +39,8 @@ type triceTagIDSpace struct {
 
 // IDIsPartOfIDSpace returns true if ID is existent inside p.IDSpace.
 func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
-	for _, s := range p.IDSpace {
-		for _, i := range s.idSpace {
+	for _, tag := range p.IDSpace {
+		for _, i := range tag.idSpace {
 			if i == id {
 				return true
 			}
@@ -54,13 +54,14 @@ func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 // Example: When -IDMin=10, -IDMax=20 and id=99 found in source.
 func (p *idData) removeIDFromIDSpace(id TriceID) {
 	for _, tag := range p.IDSpace {
-		for index, i := range tag.idSpace {
-			if i == id {
+		for idx, iD := range tag.idSpace {
+			if iD == id {
 				if SearchMethod == "random" { // do not care about order inside tag.idSpace, so do it fast
-					tag.idSpace[index] = tag.idSpace[len(tag.idSpace)-1] // overwrite with last
-					tag.idSpace = tag.idSpace[:len(tag.idSpace)-1]       // remove last
+					fmt.Println("tag.idSpace=", tag.idSpace, "idx=", idx, "iD=", iD)
+					tag.idSpace[idx] = tag.idSpace[len(tag.idSpace)-1] // overwrite with last
+					tag.idSpace = tag.idSpace[:len(tag.idSpace)-1]     // remove last
 				} else { // keep order inside tag.idSpace, so do it costly
-					tag.idSpace = append(tag.idSpace[:index], tag.idSpace[index+1:]...)
+					tag.idSpace = append(tag.idSpace[:idx], tag.idSpace[idx+1:]...)
 				}
 			}
 		}
@@ -103,7 +104,9 @@ common:
 		}
 		return
 	}
-	fmt.Println(tag, " not handled")
+	if Verbose {
+		fmt.Println("newID: Trice tag", tag, " not handled. Using common ID range for it.")
+	}
 	tag = ""
 	goto common
 }
@@ -131,14 +134,14 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 
 	p.IDSpace = append(p.IDSpace, common)
 
-	for i, s := range p.IDSpace {
+	for i, tag := range p.IDSpace {
 		// create IDSpace
-		//s.idSpace = make([]TriceID, 0, s.Max-s.Min+1)
-		for id := s.Min; id <= s.Max; id++ {
+		//tag.idSpace = make([]TriceID, 0, s.Max-s.Min+1)
+		for id := tag.Min; id <= tag.Max; id++ {
 			_, usedFmt := p.idToTrice[id]
 			_, usedLoc := p.idToLocRef[id]
 			if !usedFmt && !usedLoc {
-				//s.idSpace = append(s.idSpace, id) <- does not work here!
+				//tag.idSpace = append(tag.idSpace, id) <- does not work here!
 				p.IDSpace[i].idSpace = append(p.IDSpace[i].idSpace, id)
 			} else if Verbose {
 				if usedFmt && !usedLoc {
@@ -153,7 +156,7 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 			}
 		}
 		if Verbose {
-			fmt.Fprintln(w, "trice tag", s.tag, "has", s.Max-s.Min+1, "IDs total space,", len(s.idSpace), "IDs usable")
+			fmt.Fprintln(w, "trice tag", tag.tag, "has", tag.Max-tag.Min+1, "IDs total space,", len(tag.idSpace), "IDs usable")
 		}
 	}
 }

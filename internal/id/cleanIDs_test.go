@@ -20,7 +20,7 @@ func TestClean(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: trice("msg:value=%d\n", -1  );`
@@ -53,7 +53,7 @@ func TestCleanWithLIExtension(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: trice("msg:value=%d\n", -1  );`

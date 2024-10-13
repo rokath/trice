@@ -248,7 +248,7 @@ func Test_31_11111_insert_on_valid_cCache_valid_iCache_inserted_edited_file(t *t
 
 // Legacy tests
 
-func InsertOnInsertedFileWithValidCCache(t *testing.T) {
+func TestInsertOnInsertedFileWithValidCCache(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // create src file
 	sFNameMTime := mTime(t, FSys, SFName)                                      // keep mtime

@@ -589,6 +589,8 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, expTil0, string(actTil0))
 
+	// 2nd action
+	IDData.IDSpace = IDData.IDSpace[:0] // reset ID space
 	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-src", fn1, "-v", "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// Do noit apply "-src=." here! It would set Srcs to be {".", "."} what results in a double parsing of the root folder causing the test to fail.
@@ -684,6 +686,8 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 	assert.Nil(t, e)
 	assert.Equal(t, expTil0, string(actTil0))
 
+	// 2nd action
+	IDData.IDSpace = IDData.IDSpace[:0] // reset ID space
 	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-src", fn1, "-v", "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// Do noit apply "-src=." here! It would set Srcs to be {".", "."} what results in a double parsing of the root folder causing the test to fail.
@@ -862,7 +866,8 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 	}
 	assert.True(t, result)
 
-	// action 1
+	// action 1 (2nd action)
+	IDData.IDSpace = IDData.IDSpace[:0] // reset ID space
 	e = args.Handler(os.Stdout, FSys, []string{"trice", "insert", "-src", fn0, "-src", fn1, "-IDMin=1200", "-IDMax=1299", "-IDMethod=upward", "-til", FnJSON, "-li", LIFnJSON})
 	assert.Nil(t, e)
 

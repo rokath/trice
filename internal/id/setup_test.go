@@ -2,6 +2,7 @@ package id
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -37,6 +38,7 @@ func init() {
 func Setup(t *testing.T) func() {
 	// Setup code here ///////////////////
 	g.SetGlobalVars(t)
+	IDData.IDSpace = IDData.IDSpace[:0]
 
 	// set folders
 	UserHomeDir = Home                               // overwrite global variable for the id package tests
@@ -54,9 +56,11 @@ func Setup(t *testing.T) func() {
 	CCache = filepath.Join(Cache, "/cleaned", SFName)
 	ICache = filepath.Join(Cache, "/inserted", SFName)
 
+	fmt.Println(t.Name(), "...")
 	// tear down later //////////////////
 	return func() {
 		// tear-down code here
+		fmt.Println(t.Name(), "...done.")
 		b.Reset() // Clear output generated during the test.
 
 		// Remove without error check, because file or folder could not exist after a test.
