@@ -39,9 +39,9 @@ type triceTagIDSpace struct {
 
 // IDIsPartOfIDSpace returns true if ID is existent inside p.IDSpace.
 func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
-	for _, tag := range p.IDSpace {
-		for _, i := range tag.idSpace {
-			if i == id {
+	for _, tis := range p.IDSpace {
+		for _, iD := range tis.idSpace {
+			if iD == id {
 				return true
 			}
 		}
@@ -53,15 +53,15 @@ func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 // When p.IDSpace does not contain id, then no action is needed.
 // Example: When -IDMin=10, -IDMax=20 and id=99 found in source.
 func (p *idData) removeIDFromIDSpace(id TriceID) {
-	for _, tag := range p.IDSpace {
-		for idx, iD := range tag.idSpace {
+	for _, tis := range p.IDSpace {
+		for idx, iD := range tis.idSpace {
 			if iD == id {
 				if SearchMethod == "random" { // do not care about order inside tag.idSpace, so do it fast
-					fmt.Println("tag.idSpace=", tag.idSpace, "idx=", idx, "iD=", iD)
-					tag.idSpace[idx] = tag.idSpace[len(tag.idSpace)-1] // overwrite with last
-					tag.idSpace = tag.idSpace[:len(tag.idSpace)-1]     // remove last
+					fmt.Println("tag.idSpace=", tis.idSpace, "idx=", idx, "iD=", iD)
+					tis.idSpace[idx] = tis.idSpace[len(tis.idSpace)-1] // overwrite with last
+					tis.idSpace = tis.idSpace[:len(tis.idSpace)-1]     // remove last
 				} else { // keep order inside tag.idSpace, so do it costly
-					tag.idSpace = append(tag.idSpace[:idx], tag.idSpace[idx+1:]...)
+					tis.idSpace = append(tis.idSpace[:idx], tis.idSpace[idx+1:]...)
 				}
 			}
 		}
@@ -82,8 +82,8 @@ func triceTag(t TriceFmt) string { // t.Strg contains the Trice tag information:
 func (p *idData) newID(t TriceFmt) (id TriceID) {
 	tag := triceTag(t)
 common:
-	for i, _ := range p.IDSpace {
-		//s := p.IDSpace[i] <-- Why does this not work? todo
+	for i := range p.IDSpace {
+		// tis := p.IDSpace[i] <-- Why does this not work? todo
 		if tag != p.IDSpace[i].tag {
 			continue
 		}
@@ -134,14 +134,12 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 
 	p.IDSpace = append(p.IDSpace, common)
 
-	for i, tag := range p.IDSpace {
-		// create IDSpace
-		//tag.idSpace = make([]TriceID, 0, s.Max-s.Min+1)
-		for id := tag.Min; id <= tag.Max; id++ {
+	for i, tis := range p.IDSpace {
+		for id := tis.Min; id <= tis.Max; id++ {
 			_, usedFmt := p.idToTrice[id]
 			_, usedLoc := p.idToLocRef[id]
 			if !usedFmt && !usedLoc {
-				//tag.idSpace = append(tag.idSpace, id) <- does not work here!
+				//tis.idSpace = append(tis.idSpace, id) //<- does not work here! todo: why?
 				p.IDSpace[i].idSpace = append(p.IDSpace[i].idSpace, id)
 			} else if Verbose {
 				if usedFmt && !usedLoc {
@@ -156,7 +154,7 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 			}
 		}
 		if Verbose {
-			fmt.Fprintln(w, "trice tag", tag.tag, "has", tag.Max-tag.Min+1, "IDs total space,", len(tag.idSpace), "IDs usable")
+			fmt.Fprintln(w, "trice tag", tis.tag, "has", tis.Max-tis.Min+1, "IDs total space,", len(tis.idSpace), "IDs usable")
 		}
 	}
 }
