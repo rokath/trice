@@ -4,22 +4,17 @@
 package id_test
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
-	"github.com/rokath/trice/internal/id"
-	"github.com/spf13/afero"
+	. "github.com/rokath/trice/internal/id"
 	"github.com/tj/assert"
 )
 
 func TestInsertKnownID(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create existing li.json file
 	exsLI := `{
@@ -36,7 +31,7 @@ func TestInsertKnownID(t *testing.T) {
 		"Line": 2
 	}
 }`
-	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(exsLI), 0777))
+	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(exsLI), 0777))
 
 	// create existing til.json file
 	exsTIL := `{
@@ -49,50 +44,46 @@ func TestInsertKnownID(t *testing.T) {
 		"Strg": "%x"
 	}
 }`
-	assert.Nil(t, fSys.WriteFile(id.FnJSON, []byte(exsTIL), 0777))
+	assert.Nil(t, FSys.WriteFile(FnJSON, []byte(exsTIL), 0777))
 
 	// create src file1
 	src1 := `
 	TRice(id(77),"%x", 123 );
 	`
-	assert.Nil(t, fSys.WriteFile("file1.c", []byte(src1), 0777))
+	assert.Nil(t, FSys.WriteFile("file1.c", []byte(src1), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
 	TRice(id(77),"%x", 123 );
 	`
-	actSrc1, e := fSys.ReadFile("file1.c")
+	actSrc1, e := FSys.ReadFile("file1.c")
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc1, string(actSrc1))
 
 	// cleanup
-	fSys.Remove(id.FnJSON)
-	fSys.Remove(id.LIFnJSON)
-	fSys.RemoveAll(id.UserHomeDir)
+	FSys.Remove(FnJSON)
+	FSys.Remove(LIFnJSON)
+	FSys.RemoveAll(UserHomeDir)
 }
 
 func TestInsertExistingID_A(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file1
 	sFn1 := "folder1/file1.c"
 	src1 := `
 	TRice(id(77),"x" );
 	`
-	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "folder1/file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check untouched src file1
-	actSrc1, e := fSys.ReadFile(sFn1)
+	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
 	assert.Equal(t, src1, string(actSrc1))
 
@@ -103,7 +94,7 @@ func TestInsertExistingID_A(t *testing.T) {
 		"Strg": "x"
 	}
 }`
-	actTil, e := fSys.ReadFile(id.FnJSON)
+	actTil, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTil, string(actTil))
 
@@ -113,29 +104,27 @@ func TestInsertExistingID_A(t *testing.T) {
 		"Line": 2
 	}
 }`
-	actLi, e := fSys.ReadFile(id.LIFnJSON)
+	actLi, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLi, string(actLi))
 }
 
 func TestInsertExistingID_B(t *testing.T) {
 
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file1
 	sFn1 := "folder1/file1.c"
 	src1 := `
 	TRice(id(77),"x" );
 	`
-	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-liPathIsRelative", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "folder1/file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-liPathIsRelative", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check untouched src file1
-	actSrc1, e := fSys.ReadFile(sFn1)
+	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
 	assert.Equal(t, src1, string(actSrc1))
 
@@ -146,7 +135,7 @@ func TestInsertExistingID_B(t *testing.T) {
 		"Strg": "x"
 	}
 }`
-	actTil, e := fSys.ReadFile(id.FnJSON)
+	actTil, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTil, string(actTil))
 
@@ -156,15 +145,13 @@ func TestInsertExistingID_B(t *testing.T) {
 		"Line": 2
 	}
 }`
-	actLi, e := fSys.ReadFile(id.LIFnJSON)
+	actLi, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLi, string(actLi))
 }
 
 func TestInsert99(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file1
 	sFn1 := "file1.c"
@@ -180,11 +167,10 @@ func TestInsert99(t *testing.T) {
 	TRICE("%x", 1)
 	TRICE(  Id(0)  , "%x", 1)
 	`
-	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
@@ -199,40 +185,35 @@ func TestInsert99(t *testing.T) {
 	TRICE(ID(991), "%x", 1)
 	TRICE(Id(990), "%x", 1)
 	`
-	actSrc1, e := fSys.ReadFile(sFn1)
+	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
 func TestInsert11(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file1
 	sFn1 := "file1.c"
 	src1 := `
 	TRice(   id(0), "x" );TRice(id(0)   , "x" );
 	`
-	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
 	TRice(iD(999), "x" );TRice(iD(998), "x" );
 	`
-	actSrc1, e := fSys.ReadFile(sFn1)
+	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
 func TestInsert2(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file
 	sFn := "file.c"
@@ -241,18 +222,17 @@ func TestInsert2(t *testing.T) {
 	break; case __LINE__: TRice("msg:value=%d\n", -1  );
 	`
 
-	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file
 	expSrc := `
 	break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );
 	break; case __LINE__: TRice(iD(998), "msg:value=%d\n", -1  );
 	`
-	actSrc, e := fSys.ReadFile(sFn)
+	actSrc, e := FSys.ReadFile(sFn)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc, string(actSrc))
 
@@ -267,7 +247,7 @@ func TestInsert2(t *testing.T) {
 		"Line": 2
 	}
 }`
-	actLI, e := fSys.ReadFile(id.LIFnJSON)
+	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLI, string(actLI))
 
@@ -282,29 +262,26 @@ func TestInsert2(t *testing.T) {
 		"Strg": "msg:value=%d\\n"
 	}
 }`
-	actTIL, e := fSys.ReadFile(id.FnJSON)
+	actTIL, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
 func TestInsert1(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file
 	sFn := "file.c"
 	src := `break; case __LINE__: TRice(iD(0), "msg:value=%d\n", -1  );`
 
-	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );`
-	actSrc, e := fSys.ReadFile(sFn)
+	actSrc, e := FSys.ReadFile(sFn)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc, string(actSrc))
 
@@ -315,7 +292,7 @@ func TestInsert1(t *testing.T) {
 		"Line": 1
 	}
 }`
-	actLI, e := fSys.ReadFile(id.LIFnJSON)
+	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLI, string(actLI))
 
@@ -326,29 +303,26 @@ func TestInsert1(t *testing.T) {
 		"Strg": "msg:value=%d\\n"
 	}
 }`
-	actTIL, e := fSys.ReadFile(id.FnJSON)
+	actTIL, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
 func TestInsert0(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file
 	sFn := "file.c"
 	src := `break; case __LINE__: TRice("msg:value=%d\n", -1  );`
 
-	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file
 	expSrc := `break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );`
-	actSrc, e := fSys.ReadFile(sFn)
+	actSrc, e := FSys.ReadFile(sFn)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc, string(actSrc))
 
@@ -359,7 +333,7 @@ func TestInsert0(t *testing.T) {
 		"Line": 1
 	}
 }`
-	actLI, e := fSys.ReadFile(id.LIFnJSON)
+	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLI, string(actLI))
 
@@ -370,15 +344,13 @@ func TestInsert0(t *testing.T) {
 		"Strg": "msg:value=%d\\n"
 	}
 }`
-	actTIL, e := fSys.ReadFile(id.FnJSON)
+	actTIL, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
 func TestInsertWithTickInComment(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	// create src file1
 	sFn1 := "file1.c"
@@ -395,11 +367,10 @@ func TestInsertWithTickInComment(t *testing.T) {
 	TriceAssertFalse("x", flag );
 	TRiceAssertFalse("x", flag );
 	`
-	assert.Nil(t, fSys.WriteFile(sFn1, []byte(src1), 0777))
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "insert", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
@@ -415,7 +386,7 @@ func TestInsertWithTickInComment(t *testing.T) {
 	TriceAssertFalse(iD(994), "x", flag );
 	TRiceAssertFalse(iD(993), "x", flag );
 	`
-	actSrc1, e := fSys.ReadFile(sFn1)
+	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
@@ -424,9 +395,7 @@ func TestInsertWithTickInComment(t *testing.T) {
 //
 // IDs 1200 & 1201 are exist, so they are expected to go into til.json.
 func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	fn0 := t.Name() + "file0.c"
 	fn1 := t.Name() + "file1.c"
@@ -442,7 +411,7 @@ func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
 			"Line": 1
 		}
 	}`
-	testSet := []srcFile{
+	testSet := []SrcFile{
 		// fn:       existing IDs:                unchanged IDs:
 		{fn0, `TRice(iD(1200), "Hi!" );`, `TRice(iD(1200), "Hi!" );`},
 		{fn1, `TRice(iD(1201), "Lo!" );`, `TRice(iD(1201), "Lo!" );`},
@@ -450,21 +419,20 @@ func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
 
 	// create src files
 	for _, k := range testSet {
-		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
+		assert.Nil(t, FSys.WriteFile(k.Fn, []byte(k.Clean), 0777))
 	}
 
 	// re-create li.json
-	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(liJSON), 0777))
+	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(liJSON), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src", ".", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-src", fn1, "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check source files
 	for _, k := range testSet {
-		actSrc, e := fSys.ReadFile(k.fn)
+		actSrc, e := FSys.ReadFile(k.Fn)
 		assert.Nil(t, e)
-		assert.Equal(t, k.insertedIDs, string(actSrc))
+		assert.Equal(t, k.InsertedIDs, string(actSrc))
 	}
 
 	// check til.json
@@ -478,7 +446,7 @@ func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
 		"Strg": "Lo!"
 	}
 }`
-	actTil, e := fSys.ReadFile(id.FnJSON)
+	actTil, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	result := expTil == string(actTil)
 	if !result {
@@ -490,21 +458,19 @@ func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
 
 // TestInsertIDsForNewTrice2WithLI ...
 func TestInsertIDsForNewTrice2WithLI(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	fn0 := t.Name() + "file0.c"
 	fn1 := t.Name() + "file1.c"
 
-	testSet := []srcFile{
+	testSet := []SrcFile{
 		// fn: in:                                                 expected:
 		{fn0, `trice("new" ); trice("Lo!" );` /*           */, `trice(iD(18), "new" ); trice(iD(17), "Lo!" );`},
 		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files
 	for _, k := range testSet {
-		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
+		assert.Nil(t, FSys.WriteFile(k.Fn, []byte(k.Clean), 0777))
 	}
 
 	// location information
@@ -519,23 +485,22 @@ func TestInsertIDsForNewTrice2WithLI(t *testing.T) {
 	}
 }`
 	// re-create li.json
-	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(liJSON), 0777))
+	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(liJSON), 0777))
 
 	// When fn1 is processed first, how to know that ID 19 is used already without location information? -> Create first if empty
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src=.", "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-src", fn1, "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check source files
 	for i, k := range testSet {
-		actSrc, e := fSys.ReadFile(k.fn)
+		actSrc, e := FSys.ReadFile(k.Fn)
 		assert.Nil(t, e)
 		actS := string(actSrc)
-		r := k.insertedIDs == actS
+		r := k.InsertedIDs == actS
 		if !r {
 			fmt.Println(i, " ACTUAL SRC:", actS)
-			fmt.Println(i, " EXPECT SRC:", k.insertedIDs)
+			fmt.Println(i, " EXPECT SRC:", k.InsertedIDs)
 		}
 		assert.True(t, r)
 	}
@@ -559,7 +524,7 @@ func TestInsertIDsForNewTrice2WithLI(t *testing.T) {
 		"Strg": "old"
 	}
 }`
-	actTil, e := fSys.ReadFile(id.FnJSON)
+	actTil, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	result := expTil == string(actTil)
 	if !result {
@@ -571,14 +536,12 @@ func TestInsertIDsForNewTrice2WithLI(t *testing.T) {
 
 // TestInsertIDsForNewTrice2WithLI ...
 func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	fn0 := t.Name() + "file0.c"
 	fn1 := t.Name() + "file1.c"
 
-	testSet := []srcFile{
+	testSet := []SrcFile{
 		// fn: in:                                              expected:
 		//{fn0, `trice("new" ); trice("Lo!" );` /*       */, `trice(iD(18), "new" ); trice(iD(17), "Lo!" );`},
 		//{fn0, `trice("new %d", 1 ); trice("Lo!" );` /* */, `trice(iD(18), "new %d", 1 ); trice(iD(17), "Lo!" );`},
@@ -588,14 +551,13 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 	}
 	// create src files
 	for _, k := range testSet {
-		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
+		assert.Nil(t, FSys.WriteFile(k.Fn, []byte(k.Clean), 0777))
 	}
 
 	// When fn0 is processed first, how to know that ID 19 is used already in fn0 without location information? -> Create first if empty
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "clean", "-v", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "clean", "-src", fn0, "-src", fn1, "-v", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// expected location information
 	expLIJSON := `{
@@ -608,7 +570,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 		"Line": 1
 	}
 }`
-	actLIJSONs, e := fSys.ReadFile(id.LIFnJSON)
+	actLIJSONs, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	actLIJSON := string(actLIJSONs)
 	assert.Equal(t, actLIJSON, expLIJSON)
@@ -623,21 +585,21 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 		"Strg": "old"
 	}
 }`
-	actTil0, e := fSys.ReadFile(id.FnJSON)
+	actTil0, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTil0, string(actTil0))
 
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-v", "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-src", fn1, "-v", "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// Do noit apply "-src=." here! It would set Srcs to be {".", "."} what results in a double parsing of the root folder causing the test to fail.
 	// This is, because we called "trice clean" before in this test.
 
 	// check source files
 	for _, k := range testSet {
-		actSrc, e := fSys.ReadFile(k.fn)
+		actSrc, e := FSys.ReadFile(k.Fn)
 		assert.Nil(t, e)
 		actS := string(actSrc)
-		assert.Equal(t, k.insertedIDs, actS)
+		assert.Equal(t, k.InsertedIDs, actS)
 	}
 
 	// check til.json
@@ -659,7 +621,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 		"Strg": "old"
 	}
 }`
-	actTil, e := fSys.ReadFile(id.FnJSON)
+	actTil, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	result := expTil == string(actTil)
 	if !result {
@@ -672,27 +634,25 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 // TestInsertIDsForNewTrice2WithLI ...
 func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	fn0 := t.Name() + "file0.c"
 	fn1 := t.Name() + "file1.c"
 
-	testSet := []srcFile{
+	testSet := []SrcFile{
 		// fn: in:                                                 expected:
 		{fn0, `trice("new %d", 1 ); /*'*/ trice("Lo!" );` /**/, `trice(iD(18), "new %d", 1 ); /*'*/ trice(iD(17), "Lo!" );`},
 		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files
 	for _, k := range testSet {
-		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
+		assert.Nil(t, FSys.WriteFile(k.Fn, []byte(k.Clean), 0777))
 	}
 
 	// When fn0 is processed first, how to know that ID 19 is used already in fn0 without location information? -> Create first if empty
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "clean", "-v", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "clean", "-src", fn0, "-src", fn1, "-v", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// expected location information
 	expLIJSON := `{
@@ -705,7 +665,7 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 		"Line": 1
 	}
 }`
-	actLIJSONs, e := fSys.ReadFile(id.LIFnJSON)
+	actLIJSONs, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	actLIJSON := string(actLIJSONs)
 	assert.Equal(t, actLIJSON, expLIJSON)
@@ -720,21 +680,21 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 		"Strg": "old"
 	}
 }`
-	actTil0, e := fSys.ReadFile(id.FnJSON)
+	actTil0, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expTil0, string(actTil0))
 
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-v", "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-src", fn1, "-v", "-IDMin=10", "-IDMax=19", "-IDMethod=downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// Do noit apply "-src=." here! It would set Srcs to be {".", "."} what results in a double parsing of the root folder causing the test to fail.
 	// This is, because we called "trice clean" before in this test.
 
 	// check source files
 	for _, k := range testSet {
-		actSrc, e := fSys.ReadFile(k.fn)
+		actSrc, e := FSys.ReadFile(k.Fn)
 		assert.Nil(t, e)
 		actS := string(actSrc)
-		assert.Equal(t, k.insertedIDs, actS)
+		assert.Equal(t, k.InsertedIDs, actS)
 	}
 
 	// check til.json
@@ -756,7 +716,7 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 		"Strg": "old"
 	}
 }`
-	actTil, e := fSys.ReadFile(id.FnJSON)
+	actTil, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	result := expTil == string(actTil)
 	if !result {
@@ -770,41 +730,38 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 //
 // IDs 1200 & 1201 are exist, so they are expected to go into til.json.
 func TestInsertIDsForNewTrice1(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	fn0 := t.Name() + "file0.c"
 
 	// location information
 	liJSON := `{
 }`
-	testSet := []srcFile{
+	testSet := []SrcFile{
 		// fn: in:                                         expected:
 		{fn0, `TRice(iD(1200), "Hi!" ); trice("new" );`, `TRice(iD(1200), "Hi!" ); trice(iD(1201), "new" );`},
 	}
 
 	// create src files
 	for _, k := range testSet {
-		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
+		assert.Nil(t, FSys.WriteFile(k.Fn, []byte(k.Clean), 0777))
 	}
 
 	// re-create li.json
-	assert.Nil(t, fSys.WriteFile(id.LIFnJSON, []byte(liJSON), 0777))
+	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(liJSON), 0777))
 
 	// action
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"TRICE", "insert", "-src", ".", "-IDMin=1200", "-IDMax=1201", "-IDMethod=upward", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-IDMin=1200", "-IDMax=1201", "-IDMethod=upward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check source files
 	for _, k := range testSet {
-		actSrc, e := fSys.ReadFile(k.fn)
+		actSrc, e := FSys.ReadFile(k.Fn)
 		assert.Nil(t, e)
 		actS := string(actSrc)
-		r := actS == k.insertedIDs
+		r := actS == k.InsertedIDs
 		if !r {
 			fmt.Println(" ACTUAL SRC:", actS)
-			fmt.Println(" EXPECT SRC:", k.insertedIDs)
+			fmt.Println(" EXPECT SRC:", k.InsertedIDs)
 		}
 		assert.True(t, r)
 	}
@@ -820,7 +777,7 @@ func TestInsertIDsForNewTrice1(t *testing.T) {
 		"Strg": "new"
 	}
 }`
-	actTil, e := fSys.ReadFile(id.FnJSON)
+	actTil, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	result := expTil == string(actTil)
 	if !result {
@@ -832,14 +789,12 @@ func TestInsertIDsForNewTrice1(t *testing.T) {
 
 // TestInsertIDsForNewTrice2 ...
 func TestInsertIDsForNewTrice2(t *testing.T) {
-
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	defer id.SetupTest(t, fSys)()
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	fn0 := t.Name() + "file0.c"
 	fn1 := t.Name() + "file1.c"
 
-	testSet := []srcFile{
+	testSet := []SrcFile{
 		// fn: in:                                                   expected:
 		{fn0, `TRice(iD(1200), "Hi!" ); trice(iD(1201), "Lo!" );`, `TRice(iD(1200), "Hi!" ); trice(iD(1201), "Lo!" );`},
 		{fn1, // in
@@ -861,11 +816,11 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 
 	// create src files
 	for _, k := range testSet {
-		assert.Nil(t, fSys.WriteFile(k.fn, []byte(k.clean), 0777))
+		assert.Nil(t, FSys.WriteFile(k.Fn, []byte(k.Clean), 0777))
 	}
 
 	// action 0
-	assert.Nil(t, args.Handler(os.Stdout, fSys, []string{"trice", "add", "-src", ".", "-til", id.FnJSON, "-li", id.LIFnJSON}))
+	assert.Nil(t, args.Handler(os.Stdout, FSys, []string{"trice", "add", "-src", fn0, "-src", fn1, "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check til.json
 	expTil := `{
@@ -878,7 +833,7 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 		"Strg": "Lo!"
 	}
 }`
-	actTil, e := fSys.ReadFile(id.FnJSON)
+	actTil, e := FSys.ReadFile(FnJSON)
 	assert.Nil(t, e)
 	result := expTil == string(actTil)
 	if !result {
@@ -898,7 +853,7 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 		"Line": 1
 	}
 }`
-	actLI, e := fSys.ReadFile(id.LIFnJSON)
+	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	result = expLI == string(actLI)
 	if !result {
@@ -908,21 +863,21 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 	assert.True(t, result)
 
 	// action 1
-	e = args.Handler(os.Stdout, fSys, []string{"trice", "insert", "-src", ".", "-src", "./", "-IDMin=1200", "-IDMax=1299", "-IDMethod=upward", "-til", id.FnJSON, "-li", id.LIFnJSON})
+	e = args.Handler(os.Stdout, FSys, []string{"trice", "insert", "-src", fn0, "-src", fn1, "-IDMin=1200", "-IDMax=1299", "-IDMethod=upward", "-til", FnJSON, "-li", LIFnJSON})
 	assert.Nil(t, e)
 
 	// check source files
 	for _, k := range testSet {
-		actSrc, e := fSys.ReadFile(k.fn)
+		actSrc, e := FSys.ReadFile(k.Fn)
 		assert.Nil(t, e)
 		actS := string(actSrc)
 
-		assert.Equal(t, k.insertedIDs, actS)
+		assert.Equal(t, k.InsertedIDs, actS)
 
-		r := actS == k.insertedIDs
+		r := actS == k.InsertedIDs
 		if !r {
 			fmt.Println(" ACTUAL SRC:", actS)
-			fmt.Println(" EXPECT SRC:", k.insertedIDs)
+			fmt.Println(" EXPECT SRC:", k.InsertedIDs)
 		}
 		assert.True(t, r)
 	}
