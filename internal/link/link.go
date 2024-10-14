@@ -18,7 +18,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
@@ -109,11 +108,11 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 		}
 	} else {
 		// get a temporary file name in a writable folder temp
-		dir := filepath.Dir(id.FnJSON) // the id list folder is assumed to be writable and readable
+		//dir := filepath.Dir(id.FnJSON) // the id list folder is assumed to be writable and readable
 
 		// create temp folder if not exists
-		tempDir := filepath.Join(dir, "temp")
-		e := os.MkdirAll(tempDir, os.ModePerm)
+		tempDir := "./temp" // filepath.Join(dir, "temp")
+		e := fSys.MkdirAll(tempDir, os.ModePerm)
 		msg.OnErr(e)
 
 		// create a new file

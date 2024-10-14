@@ -84,7 +84,7 @@ func appendIfMissing(slice []string, i string) []string {
 func (i *channelArrayFlag) Set(value string) error {
 	ss := strings.Split(value, ":")
 	for _, s := range ss {
-		cv := channelVariants(s)
+		cv := tagVariants(s)
 		for _, c := range cv {
 			*i = appendIfMissing(*i, c)
 		}

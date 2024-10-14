@@ -22,6 +22,8 @@ import (
 	"github.com/spf13/afero"
 )
 
+var SkipAdditionalChecks bool
+
 // CompactSrcs adds local dir to Srcs if Srcs is empty and reduces variable Scrs to the minimum to address all intended folders.
 func CompactSrcs() {
 	if len(Srcs) == 0 { // Srcs is an array flag containing desired folders & files
@@ -33,8 +35,6 @@ func CompactSrcs() {
 	slices.Sort(Srcs)
 	Srcs = slices.Compact(Srcs)
 }
-
-var SkipAdditionalChecks bool
 
 // fileExists returns true, if path exits.
 func fileExists(fSys *afero.Afero, path string) bool {

@@ -10,8 +10,10 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"strconv"
 	"strings"
 
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
@@ -19,28 +21,28 @@ import (
 
 // idData holds the Id specific data.
 type idData struct {
-	idToTrice      TriceIDLookUp     // idToTrice is a trice ID lookup map and is generated from existing til.json file at the begin of SubCmdIdInsert. This map is only extended during SubCmdIdInsert and goes back into til.json afterwards.
-	triceToId      triceFmtLookUp    // triceToId is a trice fmt lookup map (reversed idToFmt for faster operation). Each fmt can have several trice IDs (slice). This map is only reduced during SubCmdIdInsert and goes _not_ back into til.json afterwards.
-	idToLocRef     TriceIDLookUpLI   // idToLocRef is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
-	idToLocNew     TriceIDLookUpLI   // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
-	idInitialCount int               // idInitialCount is the initial used ID count.
-	IDSpace        []triceTagIDSpace // IDSpace contains the tag specific unused IDs.
+	idToTrice      TriceIDLookUp   // idToTrice is a trice ID lookup map and is generated from existing til.json file at the begin of SubCmdIdInsert. This map is only extended during SubCmdIdInsert and goes back into til.json afterwards.
+	triceToId      triceFmtLookUp  // triceToId is a trice fmt lookup map (reversed idToFmt for faster operation). Each fmt can have several trice IDs (slice). This map is only reduced during SubCmdIdInsert and goes _not_ back into til.json afterwards.
+	idToLocRef     TriceIDLookUpLI // idToLocRef is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
+	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
+	idInitialCount int             // idInitialCount is the initial used ID count.
+	IDSpace        []TagIDSpace    // IDSpace contains the tag specific unused IDs.
 	err            error
 }
 
-// triceTagIDSpace is a Trice tag specific ID space, specified with the -IDTag CLI switch.
+// TagIDSpace is a Trice tag specific ID space, specified with the -IDTag CLI switch.
 // Example: "trice insert -IDTag err:10,99" specifies for the Trice tag "err" the ID space 10-99.
-type triceTagIDSpace struct {
-	tag     string    // tag is the Trice message tag like "err" in TRice("err:foo");.
-	Min     TriceID   // Min is the smallest allowed trice tag specific ID.
-	Max     TriceID   // Max is the biggest allowed trice tag specific ID.
-	idSpace []TriceID // idSpace is the to tag assigned ID space.
+type TagIDSpace struct {
+	tagName string    // TagName is the Trice message tag like "err" in TRice("err:foo");.
+	min     TriceID   // Min is the smallest allowed trice tag specific ID.
+	max     TriceID   // Max is the biggest allowed trice tag specific ID.
+	iDSpace []TriceID // idSpace is the to tag assigned ID space.
 }
 
 // IDIsPartOfIDSpace returns true if ID is existent inside p.IDSpace.
 func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 	for _, tis := range p.IDSpace {
-		for _, iD := range tis.idSpace {
+		for _, iD := range tis.iDSpace {
 			if iD == id {
 				return true
 			}
@@ -54,14 +56,14 @@ func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 // Example: When -IDMin=10, -IDMax=20 and id=99 found in source.
 func (p *idData) removeIDFromIDSpace(id TriceID) {
 	for _, tis := range p.IDSpace {
-		for idx, iD := range tis.idSpace {
+		for idx, iD := range tis.iDSpace {
 			if iD == id {
 				if SearchMethod == "random" { // do not care about order inside tag.idSpace, so do it fast
-					fmt.Println("tag.idSpace=", tis.idSpace, "idx=", idx, "iD=", iD)
-					tis.idSpace[idx] = tis.idSpace[len(tis.idSpace)-1] // overwrite with last
-					tis.idSpace = tis.idSpace[:len(tis.idSpace)-1]     // remove last
+					fmt.Println("tag.idSpace=", tis.iDSpace, "idx=", idx, "iD=", iD)
+					tis.iDSpace[idx] = tis.iDSpace[len(tis.iDSpace)-1] // overwrite with last
+					tis.iDSpace = tis.iDSpace[:len(tis.iDSpace)-1]     // remove last
 				} else { // keep order inside tag.idSpace, so do it costly
-					tis.idSpace = append(tis.idSpace[:idx], tis.idSpace[idx+1:]...)
+					tis.iDSpace = append(tis.iDSpace[:idx], tis.iDSpace[idx+1:]...)
 				}
 			}
 		}
@@ -69,7 +71,7 @@ func (p *idData) removeIDFromIDSpace(id TriceID) {
 }
 
 // triceTag returns the trice tag, if any, or an empty string.
-func triceTag(t TriceFmt) string { // t.Strg contains the Trice tag information: string until the first colon matches a string in emitter.colorChannels.
+func triceTag(t TriceFmt) string { // t.Strg contains the Trice tag information: string until the first colon matches a string in emitter.tags.
 	before, _, ok := strings.Cut(t.Strg, ":")
 	if !ok {
 		return ""
@@ -80,27 +82,28 @@ func triceTag(t TriceFmt) string { // t.Strg contains the Trice tag information:
 // newID returns a new, so far unused trice ID for usage.
 // The global variable SearchMethod controls the way a new ID is selected.
 func (p *idData) newID(t TriceFmt) (id TriceID) {
-	tag := triceTag(t)
+	name := triceTag(t)
+	tag, _ := emitter.FindTagName(name)
 common:
 	for i := range p.IDSpace {
 		// tis := p.IDSpace[i] <-- Why does this not work? todo
-		if tag != p.IDSpace[i].tag {
+		if tag != p.IDSpace[i].tagName {
 			continue
 		}
 		if SearchMethod == "random" {
-			if len(p.IDSpace[i].idSpace) <= 0 {
+			if len(p.IDSpace[i].iDSpace) <= 0 {
 				log.Fatal("Remaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)")
 			}
-			index := rand.Intn(len(p.IDSpace[i].idSpace))
-			id = p.IDSpace[i].idSpace[index]                                                // use random
-			p.IDSpace[i].idSpace[index] = p.IDSpace[i].idSpace[len(p.IDSpace[i].idSpace)-1] // overwrite with last
-			p.IDSpace[i].idSpace = p.IDSpace[i].idSpace[:len(p.IDSpace[i].idSpace)-1]       // remove last
+			index := rand.Intn(len(p.IDSpace[i].iDSpace))
+			id = p.IDSpace[i].iDSpace[index]                                                // use random
+			p.IDSpace[i].iDSpace[index] = p.IDSpace[i].iDSpace[len(p.IDSpace[i].iDSpace)-1] // overwrite with last
+			p.IDSpace[i].iDSpace = p.IDSpace[i].iDSpace[:len(p.IDSpace[i].iDSpace)-1]       // remove last
 		} else if SearchMethod == "upward" {
-			id = p.IDSpace[i].idSpace[0]                    // use first
-			p.IDSpace[i].idSpace = p.IDSpace[i].idSpace[1:] // remove first
+			id = p.IDSpace[i].iDSpace[0]                    // use first
+			p.IDSpace[i].iDSpace = p.IDSpace[i].iDSpace[1:] // remove first
 		} else {
-			id = p.IDSpace[i].idSpace[len(p.IDSpace[i].idSpace)-1]                    // use last
-			p.IDSpace[i].idSpace = p.IDSpace[i].idSpace[:len(p.IDSpace[i].idSpace)-1] // remove last
+			id = p.IDSpace[i].iDSpace[len(p.IDSpace[i].iDSpace)-1]                    // use last
+			p.IDSpace[i].iDSpace = p.IDSpace[i].iDSpace[:len(p.IDSpace[i].iDSpace)-1] // remove last
 		}
 		return
 	}
@@ -126,21 +129,21 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 
 	p.GetIDStateFromJSONFiles(w, fSys)
 
-	var common triceTagIDSpace
+	var common TagIDSpace
 
-	common.tag = ""
-	common.Min = Min
-	common.Max = Max
+	common.tagName = ""
+	common.min = Min
+	common.max = Max
 
 	p.IDSpace = append(p.IDSpace, common)
 
 	for i, tis := range p.IDSpace {
-		for id := tis.Min; id <= tis.Max; id++ {
+		for id := tis.min; id <= tis.max; id++ {
 			_, usedFmt := p.idToTrice[id]
 			_, usedLoc := p.idToLocRef[id]
 			if !usedFmt && !usedLoc {
 				//tis.idSpace = append(tis.idSpace, id) //<- does not work here! todo: why?
-				p.IDSpace[i].idSpace = append(p.IDSpace[i].idSpace, id)
+				p.IDSpace[i].iDSpace = append(p.IDSpace[i].iDSpace, id)
 			} else if Verbose {
 				if usedFmt && !usedLoc {
 					fmt.Fprintln(w, "ID", id, "used, but only inside til.json")
@@ -154,7 +157,7 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 			}
 		}
 		if Verbose {
-			fmt.Fprintln(w, "trice tag", tis.tag, "has", tis.Max-tis.Min+1, "IDs total space,", len(tis.idSpace), "IDs usable")
+			fmt.Fprintln(w, "trice tag", tis.tagName, "has", tis.max-tis.min+1, "IDs total space,", len(tis.iDSpace), "IDs usable")
 		}
 	}
 }
@@ -197,4 +200,85 @@ func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Pr
 	err := a.Walk(w, fSys)
 	p.postProcessing(w, fSys)
 	return err
+}
+
+// EvaluateIDRangeStrings reads the -IDRange strings and fills the IDData.IDSpace accordingly.
+// Each tag (like "err:") is allowed to occur only once, so a "e:" will fail after "err" was applied.
+// IDRanges are not allowed to overlap.
+func EvaluateIDRangeStrings() error {
+	var (
+		tis    *TagIDSpace
+		mi, ma int
+		err    error
+	)
+	// Interpret supplied IDRange string.
+	for _, x := range IDRange {
+		tis = new(TagIDSpace)
+		name, mima, found := strings.Cut(x, ":")
+		if !found {
+			continue
+		}
+		min, max, ok := strings.Cut(mima, ",")
+		if !ok {
+			goto returnErr
+		}
+		mi, err = strconv.Atoi(min)
+		if err != nil {
+			goto returnErr
+		}
+		tis.min = TriceID(mi)
+		ma, err = strconv.Atoi(max)
+		if err != nil {
+			goto returnErr
+		}
+		tis.max = TriceID(ma)
+		if mi > ma {
+			return fmt.Errorf("the with -IDRange applied ID range is inval Min(%d) > Max(%d)", mi, ma)
+		}
+		// Find tis.TagName.
+		for _, t := range emitter.Tags {
+			for _, tn := range t.Names {
+				if tn == name {
+					tis.tagName = t.Names[0] // take the first tag name as reference.
+					goto next
+				}
+			}
+		}
+		return fmt.Errorf("the with -IDRange applied name %s is unknown. Please check var Tags inside trice/internal/emitter/lineTransformerANSI.go for options", name)
+	next:
+		// Check for single name range assignment.
+		for _, ts := range IDData.IDSpace {
+			if ts.tagName == tis.tagName {
+				return fmt.Errorf("tagName %s has already an assigned ID range. Please check your command line", tis.tagName)
+			}
+		}
+		// Check for non overlapping ranges.
+		if !(Max < tis.min || tis.max < Min) {
+			return fmt.Errorf("overlapping ID ranges for %s (Min %d, Max %d) and default (Min %d, Max %d)", tis.tagName, tis.min, tis.max, Min, Max)
+		}
+		for _, ts := range IDData.IDSpace {
+			if ts.tagName == tis.tagName {
+				return fmt.Errorf("tagName %s has already an assigned ID range. Please check your command line", tis.tagName)
+			}
+			// ts.Min --- ts.Max --- tis.Min --- tis.Max <- non-overlapping: ts.Max < tis.Min
+			// tis.Min --- tis.Max --- ts.Min --- ts.Max <- non-overlapping: tis.Max < ts.Min
+			// ts.Min --- tis.Min --- tis.Max --- ts.Max <- !!! overlapping
+			// tis.Min --- ts.Min --- ts.Max --- tis.Max <- !!! overlapping
+			// tis.Min --- ts.Min --- tis.Max --- ts.Max <- !!! overlapping
+			// ts.Min --- tis.Min --- ts.Max --- tis.Max <- !!! overlapping
+			if !(ts.max < tis.min || tis.max < ts.min) {
+				return fmt.Errorf("overlapping ID ranges for %s (Min %d, Max %d) and %s (Min %d, Max %d)", tis.tagName, tis.min, tis.max, ts.tagName, ts.min, ts.max)
+			}
+		}
+		// Fill ID space.
+		for iD := tis.min; iD <= tis.max; iD++ {
+			tis.iDSpace = append(tis.iDSpace, iD)
+		}
+		IDData.IDSpace = append(IDData.IDSpace, *tis)
+		continue
+
+	returnErr:
+		return fmt.Errorf("invalid syntax in %s - expecting \"TagName:number,number\"", x)
+	}
+	return nil
 }

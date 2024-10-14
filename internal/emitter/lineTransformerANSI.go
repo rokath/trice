@@ -97,64 +97,77 @@ func isLower(s string) bool {
 	return true
 }
 
-type colorChannel struct {
-	events   int
-	channel  []string
-	colorize func(string) string
+type tag struct {
+	count    int                 // count counts each occurance of the trice tag.
+	Names    []string            // name contains all usable names fo a specific tag.
+	colorize func(string) string // colorize is the function called for each tag.
 }
 
-var colorChannels = []colorChannel{
+// Tags contains all usable trice Tags and their possible names.
+var Tags = []tag{
 	// log level
 	{0, []string{"Fatal", "fatal", "FATAL"}, colorizeFATAL},
-	{0, []string{"Critical", "critical", "CRITICAL", "crit", "Crit", "CRIT"}, colorizeCRITICAL},
-	{0, []string{"Emergency", "emergency", "EMERGENCY"}, colorizeEMERGENCY},
-	{0, []string{"Error", "e", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
-	{0, []string{"Warning", "w", "wrn", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
+	{0, []string{"crit", "Critical", "critical", "CRITICAL", "Crit", "CRIT"}, colorizeCRITICAL},
+	{0, []string{"em", "Emergency", "emergency", "EMERGENCY"}, colorizeEMERGENCY},
+	{0, []string{"e", "Error", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
+	{0, []string{"w", "wrn", "Warning", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
 	{0, []string{"att", "attention", "Attention", "ATT", "ATTENTION"}, colorizeATTENTION},
-	{0, []string{"Info", "i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
-	{0, []string{"Debug", "d", "db", "dbg", "deb", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
-	{0, []string{"Trace", "trace", "TRACE"}, colorizeTRACE},
+	{0, []string{"i", "inf", "info", "Info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
+	{0, []string{"d", "db", "Debug", "dbg", "deb", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
+	{0, []string{"tr", "Trace", "trace", "TRACE"}, colorizeTRACE},
 
 	// user modes
-	{0, []string{"Timestamp", "tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp"}, colorizeTIME},
+	{0, []string{"tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp", "Timestamp"}, colorizeTIME},
 	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE", "OK"}, colorizeMESSAGE},
 	{0, []string{"r", "rx", "rd", "read", "rd_", "RD", "RD_", "READ"}, colorizeREAD},
 	{0, []string{"w", "tx", "wr", "write", "wr_", "WR", "WR_", "WRITE"}, colorizeWRITE},
-	{0, []string{"receive", "rx", "RECEIVE", "Receive", "RX"}, colorizeRECEIVE},
-	{0, []string{"transmit", "tx", "TRANSMIT", "Transmit", "TX"}, colorizeTRANSMIT},
+	{0, []string{"rx", "receive", "RECEIVE", "Receive", "RX"}, colorizeRECEIVE},
+	{0, []string{"tx", "transmit", "TRANSMIT", "Transmit", "TX"}, colorizeTRANSMIT},
 	{0, []string{"dia", "diag", "Diag", "DIA", "DIAG"}, colorizeDIAG},
 	{0, []string{"int", "isr", "ISR", "INT", "interrupt", "Interrupt", "INTERRUPT"}, colorizeINTERRUPT},
 	{0, []string{"s", "sig", "signal", "S", "SIG", "SIGNAL"}, colorizeSIGNAL},
 	{0, []string{"t", "tst", "test", "T", "TST", "TEST"}, colorizeTEST},
 
-	{0, []string{"Default", "DEFAULT", "default"}, colorizeDEFAULT},
-	{0, []string{"Notice", "NOTICE", "notice", "Note", "note", "NOTE"}, colorizeNOTICE},
+	{0, []string{"def", "Default", "DEFAULT", "default"}, colorizeDEFAULT},
+	{0, []string{"note", "Notice", "NOTICE", "notice", "Note", "NOTE"}, colorizeNOTICE},
 	{0, []string{"Alert", "alert", "ALERT"}, colorizeALERT},
 	{0, []string{"Assert", "assert", "ASSERT"}, colorizeASSERT},
-	{0, []string{"Alarm", "alarm", "ALARM"}, colorizeALARM},
-	{0, []string{"cycle", "CYCLE"}, colorizeCYCLE},
-	{0, []string{"Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
+	{0, []string{"a", "Alarm", "alarm", "ALARM"}, colorizeALARM},
+	{0, []string{"cy", "cycle", "CYCLE"}, colorizeCYCLE},
+	{0, []string{"v", "Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
 }
 
-// ColorChannelEvents returns count of occurred channel events.
+func FindTagName(name string) (tagName string, err error) {
+	for _, t := range Tags {
+		for _, tn := range t.Names {
+			if tn == name {
+				tagName = t.Names[0] // take the first tag name as reference.
+				return
+			}
+		}
+	}
+	return "", fmt.Errorf("no tagName found for name %s", name)
+}
+
+// TagEvents returns count of occurred channel events.
 // If ch is unknown, the returned value is -1.
-func ColorChannelEvents(ch string) int {
-	for _, s := range colorChannels {
-		for _, c := range s.channel {
+func TagEvents(ch string) int {
+	for _, s := range Tags {
+		for _, c := range s.Names {
 			if c == ch {
-				return s.events
+				return s.count
 			}
 		}
 	}
 	return -1
 }
 
-// PrintColorChannelEvents shows the amount of occurred channel events.
-func PrintColorChannelEvents(w io.Writer) {
-	for _, s := range colorChannels {
-		if s.events != 0 {
-			fmt.Fprintf(w, "%6d times: ", s.events)
-			for _, c := range s.channel {
+// PrintTagEvents shows the amount of occurred channel events.
+func PrintTagEvents(w io.Writer) {
+	for _, s := range Tags {
+		if s.count != 0 {
+			fmt.Fprintf(w, "%6d times: ", s.count)
+			for _, c := range s.Names {
 				if ColorPalette != "off" && ColorPalette != "none" {
 					c = s.colorize(c)
 				}
@@ -165,22 +178,22 @@ func PrintColorChannelEvents(w io.Writer) {
 	}
 }
 
-// channelVariants returns all variants of ch as string slice.
+// tagVariants returns all variants of ch as string slice.
 // If ch is not inside ansiSel nil is returned.
-func channelVariants(ch string) []string {
-	for _, s := range colorChannels {
-		for _, c := range s.channel {
+func tagVariants(ch string) []string {
+	for _, s := range Tags {
+		for _, c := range s.Names {
 			if c == ch {
-				return s.channel
+				return s.Names
 			}
 		}
 	}
 	return nil
 }
 
-// isChannel returns true if ch is any ansiSel string.
-func isChannel(ch string) bool {
-	cv := channelVariants(ch)
+// isTag returns true if tag is any tag variant string.
+func isTag(tag string) bool {
+	cv := tagVariants(tag)
 	return cv != nil
 }
 
@@ -203,10 +216,10 @@ func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 	if len(sc) < 2 { // no color separator (no log level)
 		return r, true // do nothing, return unchanged string
 	}
-	for i, cc := range colorChannels {
-		for _, c := range cc.channel {
+	for i, cc := range Tags {
+		for _, c := range cc.Names {
 			if c == sc[0] {
-				colorChannels[i].events++ // count event
+				Tags[i].count++ // count event
 				logLev = i
 			}
 			if c == LogLevel {
@@ -223,14 +236,14 @@ func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 	if p.colorPalette == "off" {
 		return r, true // do nothing (despite event counting)
 	}
-	if isChannel(sc[0]) && isLower(sc[0]) {
+	if isTag(sc[0]) && isLower(sc[0]) {
 		r = sc[1] // remove channel info
 	}
 	if p.colorPalette == "none" {
 		return r, true
 	}
-	for _, cs := range colorChannels {
-		for _, c := range cs.channel {
+	for _, cs := range Tags {
+		for _, c := range cs.Names {
 			if c == sc[0] {
 				return cs.colorize(r), true
 			}

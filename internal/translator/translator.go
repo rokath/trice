@@ -91,7 +91,7 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 			if Verbose {
 				fmt.Fprintln(w, "####################################", sig, "####################################")
 			}
-			emitter.PrintColorChannelEvents(w)
+			emitter.PrintTagEvents(w)
 			msg.FatalOnErr(rc.Close())
 			os.Exit(0) // end
 		case <-ticker.C:

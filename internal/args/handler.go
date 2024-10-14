@@ -94,6 +94,10 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	case "i", "insert":
 		msg.OnErr(fsScInsert.Parse(subArgs))
 		id.CompactSrcs()
+		err := id.EvaluateIDRangeStrings()
+		if err != nil {
+			return err
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdInsert(w, fSys)
 	//  //  case "zeroSourceTreeIds":

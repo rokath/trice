@@ -205,9 +205,9 @@ func addInit() {
 //  }
 
 func insertIDsInit() {
-	fsScInsert = flag.NewFlagSet("insertSourceTreeIds", flag.ExitOnError) // sub-command
+	fsScInsert = flag.NewFlagSet("insert", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScInsert)
-	// todo: flagTriceIDRange(fsScInsert)
+	flagTriceIDRange(fsScInsert)
 	fsScInsert.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
 	fsScInsert.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
 	fsScInsert.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
@@ -246,7 +246,7 @@ func scanInit() {
 }
 
 func sdInit() {
-	fsScSdSv = flag.NewFlagSet("shutdownServer", flag.ExitOnError) // sub-command
+	fsScSdSv = flag.NewFlagSet("shutdown", flag.ExitOnError) // sub-command
 	flagIPAddress(fsScSdSv)
 }
 

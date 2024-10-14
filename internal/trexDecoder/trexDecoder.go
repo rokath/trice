@@ -435,7 +435,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	if cycle != 0xc0 { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
-			n += copy(b[n:], fmt.Sprint("CYCLE:\a", cycle, "!=", p.cycle, " # ", emitter.ColorChannelEvents("CYCLE")+1, " # "))
+			n += copy(b[n:], fmt.Sprint("CYCLE:\a", cycle, "!=", p.cycle, " # ", emitter.TagEvents("CYCLE")+1, " # "))
 			p.cycle = cycle // adjust cycle
 		}
 		decoder.InitialCycle = false

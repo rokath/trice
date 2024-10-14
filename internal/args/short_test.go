@@ -13,21 +13,6 @@ import (
 	"github.com/tj/assert"
 )
 
-//  func TestMain(m *testing.M) {
-//  	id.FnJSON = getTemporaryFileName("til-*.JSON")
-//  	code := m.Run()
-//  	msg.OnErr(os.Remove(id.FnJSON))
-//  	os.Exit(code) // os.Exit() does not respect defer statements
-//  }
-
-func getTemporaryFileName(pattern string) string {
-	tempFileHandle, e := os.CreateTemp(os.TempDir(), pattern) // opens for read and write
-	msg.OnErr(e)
-	tempFileName := tempFileHandle.Name()
-	msg.OnErr(tempFileHandle.Close())
-	return tempFileName
-}
-
 func TestHelp(t *testing.T) {
 	args := []string{"trice", "help"}
 	expect := `syntax: 'trice sub-command' [params]

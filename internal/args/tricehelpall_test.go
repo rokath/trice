@@ -396,6 +396,15 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Search method for new ID's in range- Options are 'upward', 'downward' & 'random'. (default "random")
   -IDMin value
     	Lower end of ID range for normal trices. (default 1000)
+  -IDRange value
+    	This allows channel specific routing in the target code. 
+    	This switch has one parameter string and is a multi-flag switch. It can be used for each Trice tag. Example:
+    	Assign error tag Trice IDs in the range 10-99 and msg tag IDs in the range 100-199:
+    	"trice insert -IDRange err:10,99 -IDRange msg:100,999" (overlapping ID ranges are forbidden)
+    	All other trice tags get IDs from the -IDMin, -IDMax range. The used -IDMethod is the same for all tags. 
+    	For example you can have all trice messages in direct mode over RTT but err & msg tagged trices additionally
+    	in deferred mode over a serial port and, if you need, store all error tagged Trice logs additionally in the Flash memory.
+    	You need to configure the target code accordingly. (default "")
   -addParamCount
     	Extend TRICE macro names with the parameter count _n to enable compile time checks.
   -cache
@@ -404,7 +413,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32. (default 32)
   -dry-run
     	No changes applied but output shows what would happen.
-    	"trice insertSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+    	"trice insert -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -i string
     	Short for '-idlist'.
@@ -444,7 +453,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice insertSourceTreeIds -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	Example: "trice insert -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
     	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
