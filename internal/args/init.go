@@ -294,7 +294,7 @@ Without the "-dry-run" switch it would create|extend a list file til.json in the
 }
 
 func flagTriceIDRange(p *flag.FlagSet) {
-	p.Var(&id.IDRange, "IDRange", `This allows channel specific routing in the target code. 
+	p.Var(&id.IDRange, "IDRange", `This allows tag specific routing in the target code. 
 This switch has one parameter string and is a multi-flag switch. It can be used for each Trice tag. Example:
 Assign error tag Trice IDs in the range 10-99 and msg tag IDs in the range 100-199:
 "trice `+p.Name()+` -IDRange err:10,99 -IDRange msg:100,999" (overlapping ID ranges are forbidden)

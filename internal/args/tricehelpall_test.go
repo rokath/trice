@@ -397,7 +397,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -IDMin value
     	Lower end of ID range for normal trices. (default 1000)
   -IDRange value
-    	This allows channel specific routing in the target code. 
+    	This allows tag specific routing in the target code. 
     	This switch has one parameter string and is a multi-flag switch. It can be used for each Trice tag. Example:
     	Assign error tag Trice IDs in the range 10-99 and msg tag IDs in the range 100-199:
     	"trice insert -IDRange err:10,99 -IDRange msg:100,999" (overlapping ID ranges are forbidden)
