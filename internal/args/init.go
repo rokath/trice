@@ -301,7 +301,8 @@ Assign error tag Trice IDs in the range 10-99 and msg tag IDs in the range 100-1
 All other trice tags get IDs from the -IDMin, -IDMax range. The used -IDMethod is the same for all tags. 
 For example you can have all trice messages in direct mode over RTT but err & msg tagged trices additionally
 in deferred mode over a serial port and, if you need, store all error tagged Trice logs additionally in the Flash memory.
-You need to configure the target code accordingly. (default "")`) // multi flag
+You need to configure the target code in your triceConfig.h accordingly (search trice code for MIN_ID): 
+Use "#define TRICE_UARTA_MIN_ID 10" and "#define TRICE_UARTA_MAX_ID 999" for example. (default "")`) // multi flag
 }
 
 func flagDryRun(p *flag.FlagSet) {

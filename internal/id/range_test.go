@@ -39,7 +39,7 @@ func TestRange1(t *testing.T) {
 
 	// create src file
 	sFn := t.Name() + "file.c"
-	src := `trice("msg:Hi\n"); ... trice("err:Alarm!\n"); ... trice("msg:Lo\n"); ... trice("dbg:foo\n");`
+	src := `trice("msg:Hi\n"); ... trice("err:Alarm!\n"); ... trice("msg:Lo\n"); ... trice("d:foo\n");`
 	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
@@ -48,7 +48,7 @@ func TestRange1(t *testing.T) {
 	fmt.Println(IDData.IDSpace)
 
 	// check modified src file
-	expSrc := `trice(iD(1000), "msg:Hi\n"); ... trice(iD(100), "err:Alarm!\n"); ... trice(iD(1001), "msg:Lo\n"); ... trice(iD(200), "dbg:foo\n");`
+	expSrc := `trice(iD(1000), "msg:Hi\n"); ... trice(iD(100), "err:Alarm!\n"); ... trice(iD(1001), "msg:Lo\n"); ... trice(iD(200), "d:foo\n");`
 
 	actSrc, e := FSys.ReadFile(sFn)
 	assert.Nil(t, e)
