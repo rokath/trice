@@ -42,12 +42,12 @@ func Test_0_1_0000X_clean_on_invalid_cCache_invalid_iCache_cleaned_file(t *testi
 
 	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-cache", "-til", FnJSON, "-li", LIFnJSON, "-src", SFName}))
 	assertFileContent(t, FSys, SFName, `trice("msg:value=%d\n", -1);`) // check file content
-	assertMTime(t, FSys, sT0, SFName)                                  // check for untouched sFname
-	assertEqualMTimes(t, FSys, SFName, CCache)                         // check for correct updated cCache
-	assertFileNotExists(t, FSys, ICache)                               // check for not existing iCache
+	assertMTime(t, FSys, sT0, SFName)                                  // check for untouched SFName
+	assertEqualMTimes(t, FSys, SFName, CCache)                         // check for correct updated CCache
+	assertFileNotExists(t, FSys, ICache)                               // check for not existing ICache
 }
 
-func Test_2_3_0001X_clean_on_inalid_cCache_invalid_iCache_inserted_X_file(t *testing.T) {
+func Test_2_3_0001X_clean_on_invalid_cCache_invalid_iCache_inserted_X_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted
 

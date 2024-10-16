@@ -4,7 +4,6 @@
 package id_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -43,9 +42,7 @@ func TestRange1(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-IDRange", "e:100,109", "-IDRange", "dbg:200,209", "-IDMax=1005", "-IDMethod", "upward", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
-
-	fmt.Println(IDData.IDSpace)
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-IDRange", "e:100,102", "-IDRange", "dbg:200,203", "-IDMax=1005", "-IDMethod", "upward", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file
 	expSrc := `trice(iD(1000), "msg:Hi\n"); ... trice(iD(100), "err:Alarm!\n"); ... trice(iD(1001), "msg:Lo\n"); ... trice(iD(200), "d:foo\n");`
