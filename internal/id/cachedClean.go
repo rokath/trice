@@ -33,12 +33,9 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 
 			// remove first colon, if exists (Windows)
 			before, after, _ := strings.Cut(fullPath, ":")
-			home, _ := os.UserHomeDir()
-			if UserHomeDir != home {
-				before = "" // Throw away windows drive letter, when running tests with afero file system.
-			}
-			fullPath = before + after
-
+			//if found && runtime.GOOS == "windows" && len(before) == 1 {
+			fullPath = before + after // Remove colon if there is one.
+			//}
 			// Construct insertedCachePath.
 			insertedCachePath := filepath.Join(cache, insertedCacheFolderName, fullPath)
 			// construct cleanedCachePath
