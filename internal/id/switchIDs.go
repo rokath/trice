@@ -26,13 +26,13 @@ type idData struct {
 	idToLocRef     TriceIDLookUpLI // idToLocRef is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
 	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
 	idInitialCount int             // idInitialCount is the initial used ID count.
-	IDSpace        []TagIDSpace    // IDSpace contains the tag specific unused IDs.
+	TagList        []TagEntry      // IDSpace contains the tag specific unused IDs.
 	err            error
 }
 
-// TagIDSpace is a Trice tag specific ID space, specified with the -IDTag CLI switch.
+// TagEntry is a Trice tag specific ID space, specified with the -IDTag CLI switch.
 // Example: "trice insert -IDTag err:10,99" specifies for the Trice tag "err" the ID space 10-99.
-type TagIDSpace struct {
+type TagEntry struct {
 	tagName string    // TagName is the Trice message tag like "err" in TRice("err:foo");.
 	min     TriceID   // Min is the smallest allowed trice tag specific ID.
 	max     TriceID   // Max is the biggest allowed trice tag specific ID.
@@ -41,8 +41,9 @@ type TagIDSpace struct {
 
 // IDIsPartOfIDSpace returns true if ID is existent inside p.IDSpace.
 func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
-	for _, tis := range p.IDSpace {
-		for _, iD := range tis.iDSpace {
+	for i := range p.TagList {
+		e := &(p.TagList[i]) // get list entry address
+		for _, iD := range e.iDSpace {
 			if iD == id {
 				return true
 			}
@@ -55,15 +56,16 @@ func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 // When p.IDSpace does not contain id, then no action is needed.
 // Example: When -IDMin=10, -IDMax=20 and id=99 found in source.
 func (p *idData) removeIDFromIDSpace(id TriceID) {
-	for _, tis := range p.IDSpace {
-		for idx, iD := range tis.iDSpace {
+	for i := range p.TagList {
+		e := &(p.TagList[i]) // get list entry address
+		for idx, iD := range e.iDSpace {
 			if iD == id {
 				if SearchMethod == "random" { // do not care about order inside tag.idSpace, so do it fast
-					fmt.Println("tag.idSpace=", tis.iDSpace, "idx=", idx, "iD=", iD)
-					tis.iDSpace[idx] = tis.iDSpace[len(tis.iDSpace)-1] // overwrite with last
-					tis.iDSpace = tis.iDSpace[:len(tis.iDSpace)-1]     // remove last
+					fmt.Println("tag.idSpace=", e.iDSpace, "idx=", idx, "iD=", iD)
+					e.iDSpace[idx] = e.iDSpace[len(e.iDSpace)-1] // overwrite with last
+					e.iDSpace = e.iDSpace[:len(e.iDSpace)-1]     // remove last
 				} else { // keep order inside tag.idSpace, so do it costly
-					tis.iDSpace = append(tis.iDSpace[:idx], tis.iDSpace[idx+1:]...)
+					e.iDSpace = append(e.iDSpace[:idx], e.iDSpace[idx+1:]...)
 				}
 			}
 		}
@@ -85,30 +87,30 @@ func (p *idData) newID(t TriceFmt) (id TriceID) {
 	name := triceTag(t)
 	tag, _ := emitter.FindTagName(name)
 common:
-	for i := range p.IDSpace {
-		// tis := p.IDSpace[i] <-- Why does this not work? todo
-		if tag != p.IDSpace[i].tagName {
+	for i := range p.TagList {
+		e := &(p.TagList[i]) // get list entry address
+		if tag != e.tagName {
 			continue
 		}
 		if SearchMethod == "random" {
-			if len(p.IDSpace[i].iDSpace) <= 0 {
+			if len(e.iDSpace) <= 0 {
 				log.Fatal("Remaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)")
 			}
-			index := rand.Intn(len(p.IDSpace[i].iDSpace))
-			id = p.IDSpace[i].iDSpace[index]                                                // use random
-			p.IDSpace[i].iDSpace[index] = p.IDSpace[i].iDSpace[len(p.IDSpace[i].iDSpace)-1] // overwrite with last
-			p.IDSpace[i].iDSpace = p.IDSpace[i].iDSpace[:len(p.IDSpace[i].iDSpace)-1]       // remove last
+			index := rand.Intn(len(e.iDSpace))
+			id = e.iDSpace[index]                          // use random
+			e.iDSpace[index] = e.iDSpace[len(e.iDSpace)-1] // overwrite with last
+			e.iDSpace = e.iDSpace[:len(e.iDSpace)-1]       // remove last
 		} else if SearchMethod == "upward" {
-			id = p.IDSpace[i].iDSpace[0]                    // use first
-			p.IDSpace[i].iDSpace = p.IDSpace[i].iDSpace[1:] // remove first
+			id = e.iDSpace[0]         // use first
+			e.iDSpace = e.iDSpace[1:] // remove first
 		} else {
-			id = p.IDSpace[i].iDSpace[len(p.IDSpace[i].iDSpace)-1]                    // use last
-			p.IDSpace[i].iDSpace = p.IDSpace[i].iDSpace[:len(p.IDSpace[i].iDSpace)-1] // remove last
+			id = e.iDSpace[len(e.iDSpace)-1]                    // use last
+			e.iDSpace = e.iDSpace[:len(p.TagList[i].iDSpace)-1] // remove last
 		}
 		return
 	}
 	if Verbose {
-		fmt.Println("newID: Trice tag", tag, " not handled. Using common ID range for it.")
+		fmt.Println("newID: Trice tag", tag, "not handled. Using common ID range for it.")
 	}
 	tag = ""
 	goto common
@@ -129,21 +131,21 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 
 	p.GetIDStateFromJSONFiles(w, fSys)
 
-	var common TagIDSpace
+	var common TagEntry
 
 	common.tagName = ""
 	common.min = Min
 	common.max = Max
 
-	p.IDSpace = append(p.IDSpace, common)
+	p.TagList = append(p.TagList, common)
 
-	for i, tis := range p.IDSpace {
-		for id := tis.min; id <= tis.max; id++ {
+	for i := range p.TagList {
+		e := &(p.TagList[i]) // get list entry address
+		for id := e.min; id <= e.max; id++ {
 			_, usedFmt := p.idToTrice[id]
 			_, usedLoc := p.idToLocRef[id]
 			if !usedFmt && !usedLoc {
-				//tis.idSpace = append(tis.idSpace, id) //<- does not work here! todo: why?
-				p.IDSpace[i].iDSpace = append(p.IDSpace[i].iDSpace, id)
+				e.iDSpace = append(e.iDSpace, id) // create ID space
 			} else if Verbose {
 				if usedFmt && !usedLoc {
 					fmt.Fprintln(w, "ID", id, "used, but only inside til.json")
@@ -157,7 +159,12 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 			}
 		}
 		if Verbose {
-			fmt.Fprintln(w, "trice tag", tis.tagName, "has", tis.max-tis.min+1, "IDs total space,", len(tis.iDSpace), "IDs usable")
+			cnt := e.max - e.min + 1
+			if len(e.tagName) > 0 {
+				fmt.Fprintln(w, "trice tag", e.tagName, "has", cnt, "IDs total space,", len(e.iDSpace), "IDs usable")
+			} else {
+				fmt.Fprintln(w, "common trice tags have", cnt, "IDs total space,", len(e.iDSpace), "IDs usable")
+			}
 		}
 	}
 }
@@ -207,13 +214,13 @@ func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Pr
 // IDRanges are not allowed to overlap.
 func EvaluateIDRangeStrings() error {
 	var (
-		tis    *TagIDSpace
+		tis    *TagEntry
 		mi, ma int
 		err    error
 	)
 	// Interpret supplied IDRange string.
 	for _, x := range IDRange {
-		tis = new(TagIDSpace)
+		tis = new(TagEntry)
 		name, mima, found := strings.Cut(x, ":")
 		if !found {
 			continue
@@ -247,8 +254,9 @@ func EvaluateIDRangeStrings() error {
 		return fmt.Errorf("the with -IDRange applied name %s is unknown. Please check var Tags inside trice/internal/emitter/lineTransformerANSI.go for options", name)
 	next:
 		// Check for single name range assignment.
-		for _, ts := range IDData.IDSpace {
-			if ts.tagName == tis.tagName {
+		for i := range IDData.TagList {
+			e := &(IDData.TagList[i]) // get list entry address
+			if e.tagName == tis.tagName {
 				return fmt.Errorf("tagName %s has already an assigned ID range. Please check your command line", tis.tagName)
 			}
 		}
@@ -256,25 +264,26 @@ func EvaluateIDRangeStrings() error {
 		if !(Max < tis.min || tis.max < Min) {
 			return fmt.Errorf("overlapping ID ranges for %s (Min %d, Max %d) and default (Min %d, Max %d)", tis.tagName, tis.min, tis.max, Min, Max)
 		}
-		for _, ts := range IDData.IDSpace {
-			if ts.tagName == tis.tagName {
+		for i := range IDData.TagList {
+			e := &(IDData.TagList[i]) // get list entry address
+			if e.tagName == tis.tagName {
 				return fmt.Errorf("tagName %s has already an assigned ID range. Please check your command line", tis.tagName)
 			}
-			// ts.Min --- ts.Max --- tis.Min --- tis.Max <- non-overlapping: ts.Max < tis.Min
-			// tis.Min --- tis.Max --- ts.Min --- ts.Max <- non-overlapping: tis.Max < ts.Min
-			// ts.Min --- tis.Min --- tis.Max --- ts.Max <- !!! overlapping
-			// tis.Min --- ts.Min --- ts.Max --- tis.Max <- !!! overlapping
-			// tis.Min --- ts.Min --- tis.Max --- ts.Max <- !!! overlapping
-			// ts.Min --- tis.Min --- ts.Max --- tis.Max <- !!! overlapping
-			if !(ts.max < tis.min || tis.max < ts.min) {
-				return fmt.Errorf("overlapping ID ranges for %s (Min %d, Max %d) and %s (Min %d, Max %d)", tis.tagName, tis.min, tis.max, ts.tagName, ts.min, ts.max)
+			// e.min --- e.max --- tis.Min --- tis.Max <- non-overlapping: e.max < tis.Min
+			// tis.Min --- tis.Max --- e.min --- e.max <- non-overlapping: tis.Max < e.min
+			// e.min --- tis.Min --- tis.Max --- e.max <- !!! overlapping
+			// tis.Min --- e.min --- e.max --- tis.Max <- !!! overlapping
+			// tis.Min --- e.min --- tis.Max --- e.max <- !!! overlapping
+			// e.min --- tis.Min --- e.max --- tis.Max <- !!! overlapping
+			if !(e.max < tis.min || tis.max < e.min) {
+				return fmt.Errorf("overlapping ID ranges for %s (Min %d, Max %d) and %s (Min %d, Max %d)", tis.tagName, tis.min, tis.max, e.tagName, e.min, e.max)
 			}
 		}
-		// Fill ID space.
-		for iD := tis.min; iD <= tis.max; iD++ {
-			tis.iDSpace = append(tis.iDSpace, iD)
-		}
-		IDData.IDSpace = append(IDData.IDSpace, *tis)
+		// // Fill ID space.
+		// for iD := tis.min; iD <= tis.max; iD++ {
+		// 	tis.iDSpace = append(tis.iDSpace, iD)
+		// }
+		IDData.TagList = append(IDData.TagList, *tis)
 		continue
 
 	returnErr:
