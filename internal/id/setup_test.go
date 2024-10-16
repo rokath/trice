@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -20,8 +21,8 @@ const (
 )
 
 var (
-	b      bytes.Buffer
-	W      = io.Writer(&b) // args.Handler io.Writer outout
+	B      bytes.Buffer
+	W      = io.Writer(&B) // args.Handler io.Writer output
 	FSys   *afero.Afero    // ram file system for the tests
 	SFName string          // source file name in test (changes with each test)
 	CCache string          // cleaned cache file name in test (changes with each test)
@@ -38,7 +39,7 @@ func init() {
 func Setup(t *testing.T) func() {
 	// Setup code here ///////////////////
 	g.SetGlobalVars(t)
-	IDData.IDSpace = IDData.IDSpace[:0]
+	IDData.TagList = IDData.TagList[:0]
 
 	// set folders
 	UserHomeDir = Home                               // overwrite global variable for the id package tests
@@ -52,16 +53,26 @@ func Setup(t *testing.T) func() {
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, nil, 0777))
 
 	// set file names
+	var driveLetter string
+	home, err := os.UserHomeDir()
+	assert.Nil(t, err)
+	before, _, found := strings.Cut(home, ":")
+	if found {
+		driveLetter = strings.ToLower(before) // windows
+	} else {
+		driveLetter = "" // unix
+	}
+
 	SFName = Proj + t.Name() + "_file.c"
-	CCache = filepath.Join(Cache, "/cleaned", SFName)
-	ICache = filepath.Join(Cache, "/inserted", SFName)
+	CCache = filepath.Join(Cache, "/cleaned", driveLetter, SFName)
+	ICache = filepath.Join(Cache, "/inserted", driveLetter, SFName)
 
 	fmt.Println(t.Name(), "...")
 	// tear down later //////////////////
 	return func() {
 		// tear-down code here
 		fmt.Println(t.Name(), "...done.")
-		b.Reset() // Clear output generated during the test.
+		B.Reset() // Clear output generated during the test.
 
 		// Remove without error check, because file or folder could not exist after a test.
 		FSys.Remove(FnJSON)
