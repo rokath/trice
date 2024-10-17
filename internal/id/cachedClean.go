@@ -32,10 +32,19 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 			fullPath, err := filepath.Abs(path)
 			p.join(err)
 
-			// remove first colon, if exists (Windows)
+			// The drive letter of filepath.Abs(path) could be e but of os.UserHomeDir() could be c.
+			// Remove first colon, if exists (Windows).
 			before, after, found := strings.Cut(fullPath, ":")
+
+			// Throw away drive letter, when testing on windows.
 			if found && runtime.GOOS == "windows" && len(before) == 1 {
-				before = strings.ToLower(before)
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return err
+				}
+				if home != UserHomeDir { // A test is running. (We modify UserHomeDir during tests.)
+					before = ""
+				}
 			}
 			fullPath = before + after // Remove colon if there is one.
 

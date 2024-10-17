@@ -32,17 +32,26 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 			fullPath, err := filepath.Abs(path)
 			p.join(err)
 
-			// remove first colon, if exists (Windows)
+			// The drive letter of filepath.Abs(path) could be e but of os.UserHomeDir() could be c.
+			// Remove first colon, if exists (Windows).
 			before, after, found := strings.Cut(fullPath, ":")
+
+			// Throw away drive letter, when testing on windows.
 			if found && runtime.GOOS == "windows" && len(before) == 1 {
-				before = strings.ToLower(before)
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return err
+				}
+				if home != UserHomeDir { // A test is running. (We modify UserHomeDir during tests.)
+					before = ""
+				}
 			}
 			fullPath = before + after // Remove colon if there is one.
 
-			// construct insertedCachePath
-			insertedCachePath = filepath.Join(cache, insertedCacheFolderName, fullPath)
-			// Construct cleanedCachePath.
-			cleanedCachePath := filepath.Join(cache, cleanedCacheFolderName, fullPath)
+			// Construct insertedCachePath.
+			insertedCachePath := filepath.Join(cache, insertedCacheFolderName, fullPath)
+			// construct cleanedCachePath
+			cleanedCachePath = filepath.Join(cache, cleanedCacheFolderName, fullPath)
 
 			// If no insertedCachePath, execute insert operation
 			iCache, err := fSys.Stat(insertedCachePath)
