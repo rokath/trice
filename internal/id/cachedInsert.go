@@ -51,7 +51,7 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 			// Construct insertedCachePath.
 			insertedCachePath := filepath.Join(cache, insertedCacheFolderName, fullPath)
 			// construct cleanedCachePath
-			cleanedCachePath = filepath.Join(cache, cleanedCacheFolderName, fullPath)
+			cleanedCachePath := filepath.Join(cache, cleanedCacheFolderName, fullPath)
 
 			// If no insertedCachePath, execute insert operation
 			iCache, err := fSys.Stat(insertedCachePath)
