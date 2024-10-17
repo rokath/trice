@@ -83,3 +83,5 @@ Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
   - Closing and opening the file again shows, that the Trice IDs are indeed cleaned.
   - If the file is edited then without refreshing the view, that means with the shown Trice IDs, this is no problem, because after saving the edited file, it gets processed anyway, so no data loss is possible.
   - An automatic view refresh (close & open) for the editor could help here. But how to do that in an universal way?
+- A workaround is, at least for vsCode, to first run `trice clean` in the build script.
+  - See `trice/examples/G0B1_inst/build.sh` for an implementation.
