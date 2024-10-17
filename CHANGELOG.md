@@ -1,3 +1,4 @@
+<!-- Generate TOC for markdown (Markdown TOC from Joffrey Kern) && delete && Markdown All in Once: Generate TOC -->
 <!-- vscode-markdown-toc -->
 - [1. v0.60.1 Twice Log Screen Shot](#1-v0601-twice-log-screen-shot)
 - [2. v0.56.0 Changes](#2-v0560-changes)
@@ -17,7 +18,11 @@
 - [11. v0.70.0 Changes](#11-v0700-changes)
 	- [11.1. Overview](#111-overview)
 	- [11.2. Git Log](#112-git-log)
-- [12. master branch changes](#12-master-branch-changes)
+- [12. v0.71.0 Changes](#12-v0710-changes)
+	- [12.1. Overview](#121-overview)
+	- [12.2. Git Log](#122-git-log)
+- [13. master branch changes](#13-master-branch-changes)
+
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -82,7 +87,9 @@ date        | version | comment
 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)
 2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#9-v0680-changes)
 2024-AUG-23 |  master | See [10. v0.69.0 Changes](#10-v0690-changes)
-2024-AUG-23 |  master | See [11. master branch changes](#11-master-branch-changes)
+2024-OCT-04 |  0.70.0 | See [11. v0.70.0 Changes](#11-v0700-changes)
+2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#11-v0700-changes)
+2024-OCT-17 |  master | See [13. master branch changes](#13-master-branch-changes)
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -97,11 +104,11 @@ This is a major release hopefully not breaking too much!
 
 * Using the `TRICE*` macros generally is not recommended anymore, but they are still supported.
 * `TRICE*` macros with an `Id(n)` inside are now with 16-bit stamps. To have 32-bit stamps use `ID(n)` instead and `id(n)` is for no stamps. The ID numbers can stay the same.
-* The `TRICE*` macros are inlining the trice code, what could lead to significant memory usage if you use these MACROs heavily.
 * The very little time advantage of code inlining will not count in most cases.
 * The `TRICE_*` macros, like `TRICE_S` are still needed.
 
 ###  2.2. <a name='FunctioncallmacrosTRiceTriceandtrice'></a>Function call macros `TRice`, `Trice` and `trice`
+* The `TRICE*` macros are inlining the trice code, what could lead to significant memory usage if you use these MACROs heavily.
 
 * `TRice*` macros insert a 32-bit stamp.
 * `Trice*` macros insert a 16-bit stamp.
@@ -523,4 +530,31 @@ hash       | comment
 `3c1b3aba` | .goreleaser.yaml adapted to goreleaser version 2
 `751def35` | v0.69.0 infos and test results added to CHANGELOG.md
 
-##  12. <a name='masterbranchchanges'></a>master branch changes
+##  12. <a name='v0.71.0Changes'></a>v0.71.0 Changes
+
+###  12.1. <a name='Overview-1'></a>Overview
+
+- A new CLI switch for `trice insert` is invented: `-IDRange`. See `trice help -insert` for details.
+
+###  12.2. <a name='GitLog-1'></a>Git Log
+
+Used git log command: `git log --pretty=oneline --abbrev-commit` and less importand lines removed
+
+hash       | comment
+-----------|-------------------------------------------------------------------
+`ac0f0834` | Windows drive letter issue for the tests fixed.
+`53c7080b` | IDRange code refactored.
+`31d33f72` | Path handling improved to work with linux, mac & windows.
+`1775726f` | cache path error corrected for linux/mac os
+`566d4363` | CLI switch -IDRange added, emitter "channels" renamed to "tags"
+`74760198` | master merged into IDPolicy
+`95c31262` | obsolete code removed from id package tests
+`f5311b09` | id package tests refactored
+`d8da99d9` | Update cache_help_test.go
+`d687b92d` | https://github.com/rokath/trice/issues/507 fixed
+`d27083cb` | Merge branch 'master' of https://github.com/rokath/trice
+`a911c36c` | array flag IDPolicy added (wip)
+`62eacd08` | Doubled used ID test added
+`85686181` | v0.70.0 changelog added
+
+##  13. <a name='masterbranchchanges'></a>master branch changes
