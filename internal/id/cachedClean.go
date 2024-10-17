@@ -48,9 +48,8 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 			}
 			fullPath = before + after // Remove colon if there is one.
 
-			// Construct insertedCachePath.
+			// Construct insertedCachePath and cleanedCachePath.
 			insertedCachePath := filepath.Join(cache, insertedCacheFolderName, fullPath)
-			// construct cleanedCachePath
 			cleanedCachePath = filepath.Join(cache, cleanedCacheFolderName, fullPath)
 
 			// If no cleanedCachePath, execute clean operation
