@@ -121,9 +121,10 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 	if p.err != nil {
 		return
 	}
-	for { // file loop
-		idn = 0                 // clear here
-		idN = 0                 // clear here
+	var fileIds TriceIDs // Here we collect all Trice IDs of a Trice in the current file.
+	for {                // file loop
+		idn = 0                 // clear here, idn gets a != 0 value, if the actual Trice has already an ID != 0.
+		idN = 0                 // clear here, idN gets assigned an ID for writing that value to the Trice.
 		loc := matchTrice(rest) // loc is the position of the next trice type (statement name with opening parenthesis followed by a format string).
 		if loc == nil {
 			break // done
@@ -174,20 +175,23 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 		a.Mutex.Lock() // several files could contain the same t
 
 		// process t
-		ids := p.triceToId[t]
+		ids := p.triceToId[t] // ids contains all ID´s of a Trice.
 		if Verbose {
 			fmt.Fprintln(w, "Trice ", t, " has", len(ids), "unused ID(s), but could be from different file(s). IDs=", ids, ".")
 		}
 		var filenameMatch bool
-		idCandidateIndex := math.MaxInt
+		idSmallestLineIndex := math.MaxInt
 		idCandidateLine := math.MaxInt
 	idsLoopEntry:
 		// id slice ids loop
-		for i, id := range ids { // It is possible, that idn == 0 or no id matches idn != 0 or ids is nil.
+		// ids could contain a bunch of ID´s, all fitting for the same Trice.
+		// We need first to filter out all ID´s of the actual file.
+		// Afterwards we take the ID with the smallest line number.
+		for _, id := range ids { // It is possible, that idn == 0 or no id matches idn != 0 or ids is nil.
 			if id == 0 {
-				log.Fatal("id == 0   : unexpected case")
+				log.Fatal("id == 0   : unexpected case") // ids should not contain a 0.
 			}
-			if idn != 0 && id != idn {
+			if idn != 0 && id != idn { // Trice has an ID, idn, but that is not the one we are processing right now.
 				if Verbose {
 					// The idn value does not match. If idn exists not at all inside ids we will later add it to til.json. See func TestAddIDToTilJSON.
 					// In func TestGenerateNewIDIfUsedToTilJSON we face the issue, that idn is not found inside ids as well, because it is used for a different trice.
@@ -224,37 +228,46 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 				continue
 			}
 			// id is from the same file: use idn -> idUsable
-			// id exists inside location information for this file and is usable, but it could occur
-			// in file several times. In such cases we take the ID with the smallest line number first,
+			// id exists inside location information for this file and is usable, but it could occur in file several times.
+
+			fileIds = append(fileIds, id)
+		}
+		for i, id := range fileIds { // It is possible, that idn == 0 or no id matches idn != 0 or ids is nil.
+			li := p.idToLocRef[id] // Get location information.
+
+			//In such cases we take the ID with the smallest line number first,
 			// because we are reading from the beginning. Therefore we need to check that.
 			if li.Line < idCandidateLine {
 				idCandidateLine = li.Line
-				idCandidateIndex = i
-			}
-			if idCandidateIndex < math.MaxInt {
-				if idn == 0 { // This is the src was cleaned before case.
-					if Verbose {
-						fmt.Fprintln(w, "Even ID", id, "is maybe not part of the IDSpace, we use it again.")
-					}
-					idN = id
-					ids = removeIDFromSlice(ids, idN)
-					p.triceToId[t] = ids
-					break
-				}
-				if Verbose {
-					fmt.Fprintln(w, "ID", idn, "usable, so remove it from unused list.")
-				}
-				idN = ids[idCandidateIndex] // This gets into the source. No need to remove id from p.idToLocRef.
-				ids = removeIndex(ids, idCandidateIndex)
-				// remove id from ids now
-				if len(ids) == 0 {
-					delete(p.triceToId, t)
-				} else {
-					p.triceToId[t] = ids
-				}
-				break
+				idSmallestLineIndex = i
 			}
 		}
+		if idSmallestLineIndex < math.MaxInt {
+			id := fileIds[idSmallestLineIndex]
+			if idn == 0 { // This is the src was cleaned before case.
+				if Verbose {
+					fmt.Fprintln(w, "Even ID", id, "is maybe not part of the IDSpace, we use it again.")
+				}
+				idN = id
+				ids = removeIDFromSlice(ids, idN)
+				p.triceToId[t] = ids
+				//break
+			}
+			if Verbose {
+				fmt.Fprintln(w, "ID", idn, "usable, so remove it from unused list.")
+			}
+			idN = id // ids[idSmallestLineIndex] // This gets into the source. No need to remove id from p.idToLocRef.
+			fileIds = removeIndex(fileIds, idSmallestLineIndex)
+
+			// remove id from ids now
+			if len(ids) == 0 {
+				delete(p.triceToId, t)
+			} else {
+				p.triceToId[t] = ids
+			}
+			//break
+		}
+
 		if Verbose {
 			fmt.Fprintln(w, "If no match was found inside ids we assign the ID found in source file.")
 		}
