@@ -39,8 +39,11 @@ const (
 	packageFramingTCOBSv2 //v2
 )
 
-var Doubled16BitID bool
-var AddNewlineToEachTriceMessage bool
+var (
+	Doubled16BitID               bool
+	AddNewlineToEachTriceMessage bool
+	SingleFraming                bool // SingleFraming demands, that each received package contains not more than a singe Trice message.
+)
 
 /*
 var (
@@ -397,7 +400,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
-	if p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
+	if !SingleFraming && p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
 				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from", hex.Dump(p.B0)))
