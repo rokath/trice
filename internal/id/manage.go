@@ -13,6 +13,7 @@ import (
 	"log"
 	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
@@ -138,6 +139,9 @@ func (ilu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
 // FromJSON converts JSON byte slice to ilu.
 func (ilu TriceIDLookUp) FromJSON(b []byte) (err error) {
 	if 0 < len(b) {
+		if Verbose {
+			fmt.Println("Updating ilu.")
+		}
 		err = json.Unmarshal(b, &ilu)
 	}
 	return
@@ -146,6 +150,9 @@ func (ilu TriceIDLookUp) FromJSON(b []byte) (err error) {
 // FromJSON converts JSON byte slice to li.
 func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 	if 0 < len(b) {
+		if Verbose {
+			fmt.Println("Updating li.")
+		}
 		err = json.Unmarshal(b, &li)
 	}
 	return
@@ -153,20 +160,13 @@ func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
 func (ilu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
+	time.Sleep(100 * time.Millisecond) // Wait for the (slow) file system.
 	b, e := fSys.ReadFile(fn)
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(e, s)
-
-	/*
-		fh, e := fSys.Open(fn)
-		s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
-		msg.FatalInfoOnErr(e, s)
-		b := make([]byte, 100000)
-		n, _ := fh.Read(b)
-		msg.FatalInfoOnTrue(n == 100000, "Internal file buffer too small")
-		b = b[:n]
-	*/
-
+	if Verbose {
+		fmt.Println("ilu.fromFile", fn, len(b))
+	}
 	return ilu.FromJSON(b)
 }
 
@@ -174,10 +174,15 @@ var Logging bool // Logging is true, when sub command log is active.
 
 // fromFile reads fSys file fn into lut.
 func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
-	//b, err := os.ReadFile(fn)
-	//fSys := os.DirFS("")
+	if Verbose {
+		fmt.Println("Give time for the (slow) file system.")
+	}
+	time.Sleep(100 * time.Millisecond)
 	b, err := fSys.ReadFile(fn)
 	if err == nil { // file found
+		if Verbose {
+			fmt.Println("li.fromFile", fn, len(b))
+		}
 		return li.FromJSON(b)
 	}
 	// no li.json
