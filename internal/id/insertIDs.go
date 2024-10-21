@@ -204,7 +204,7 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 			li, ok := p.idToLocRef[id] // Get location information.
 			if !ok {
 				if Verbose {
-					fmt.Fprintln(w, "ID", idn, "has no location infomation, so we simply use this ID.")
+					fmt.Fprintln(w, "ID", idn, "has no location information, so we simply use this ID.")
 				}
 				if idn != 0 {
 					if Verbose {
@@ -229,7 +229,6 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 			}
 			// id is from the same file: use idn -> idUsable
 			// id exists inside location information for this file and is usable, but it could occur in file several times.
-
 			fileIds = append(fileIds, id)
 		}
 		for i, id := range fileIds { // It is possible, that idn == 0 or no id matches idn != 0 or ids is nil.
@@ -244,20 +243,19 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 		}
 		if idSmallestLineIndex < math.MaxInt {
 			id := fileIds[idSmallestLineIndex]
-			if idn == 0 { // This is the src was cleaned before case.
+			if idn == 0 { // This is the "src was cleaned before" case.
 				if Verbose {
 					fmt.Fprintln(w, "Even ID", id, "is maybe not part of the IDSpace, we use it again.")
 				}
 				idN = id
 				ids = removeIDFromSlice(ids, idN)
 				p.triceToId[t] = ids
-				//break
 			}
 			if Verbose {
 				fmt.Fprintln(w, "ID", idn, "usable, so remove it from unused list.")
 			}
-			idN = id // ids[idSmallestLineIndex] // This gets into the source. No need to remove id from p.idToLocRef.
-			fileIds = removeIndex(fileIds, idSmallestLineIndex)
+			idN = id              // ids[idSmallestLineIndex] // This gets into the source. No need to remove id from p.idToLocRef.
+			fileIds = fileIds[:0] // discard fileIds values
 
 			// remove id from ids now
 			if len(ids) == 0 {
@@ -265,7 +263,6 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 			} else {
 				p.triceToId[t] = ids
 			}
-			//break
 		}
 
 		if Verbose {
