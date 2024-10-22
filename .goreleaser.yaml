@@ -100,30 +100,35 @@ archives:
     # Defaults are any files matching `LICENCE*`, `LICENSE*`,
     # `README*` and `CHANGELOG*` (case-insensitive).
     files:
-      - .vscode/*
       - .clang-format
       - .clang-format-ignore
       - .editorconfig
       - .gitattributes
       - .gitignore
+      - .goreleaser.yaml
+      - .travis.yml
+      - .vscode/*
+      - _config.yml
       - cmd/trice/*
       - docs/*
       - examples/*
       - internal/*
       - pkg/*
       - src/*
-      - test/*
       - third_party/*
+      - _test/*
       - AUTHORS.md
       - CHANGELOG.md
       - CODE_OF_CONDUCT.md
       - CONTRIBUTING.md
+      - LICENSE.md
+      - README.md
+      - GoInfos.txt
+      - clang-format.sh
       - FilesAndFolders.md
       - go.mod
       - go.sum
-      - GoInfos.txt
-      - LICENSE.md
-      - README.md
+      - super-linter.report/*
 checksum:
   # You can change the name of the checksums file.
   # Default is `{{ .ProjectName }}_{{ .Version }}_checksums.txt`.
