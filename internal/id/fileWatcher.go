@@ -43,13 +43,11 @@ func (lu TriceIDLookUp) FileWatcher(w io.Writer, fSys *afero.Afero, m *sync.RWMu
 				if Verbose {
 					fmt.Fprintln(w, "TIL EVENT:", event, ok, time.Now().UTC())
 				}
-
 				now = time.Now()
 				diff := now.Sub(last)
 				if diff > 5000*time.Millisecond {
-					if Verbose {
-						fmt.Fprintln(w, "Refreshing id.List.")
-					}
+					fmt.Fprintln(w, "Refreshing id.List.")
+					time.Sleep(100 * time.Millisecond) // When refreshing too fast, FnJSON seems to be empty.
 					m.Lock()
 					msg.FatalOnErr(lu.fromFile(fSys, FnJSON))
 					lu.AddFmtCount(w)
@@ -106,9 +104,8 @@ func (li TriceIDLookUpLI) FileWatcher(w io.Writer, fSys *afero.Afero) {
 				now = time.Now()
 				diff := now.Sub(last)
 				if diff > 5000*time.Millisecond {
-					if Verbose {
-						fmt.Fprintln(w, "Refreshing li list.")
-					}
+					fmt.Fprintln(w, "Refreshing li list.")
+					time.Sleep(100 * time.Millisecond) // When refreshing too fast, LIFnJSON seems to be empty.
 					msg.FatalOnErr(li.fromFile(fSys, LIFnJSON))
 					last = time.Now()
 				}
