@@ -476,7 +476,7 @@ sys     0m0.000s
 Used git log command: `git log --pretty=oneline --abbrev-commit` and less importand lines removed
 
 hash       | comment
------------|-------------------------------------------------------------------
+-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 `0242c1e3` | Trice cache info added.
 `087fffc3` | cache switch added, renamed test to _test incorporated to examples
 `ddeb703d` | Merge pull request #505 from Sazerac4/feat/update/endian
@@ -538,10 +538,10 @@ hash       | comment
 
 ###  12.2. <a name='GitLog-1'></a>Git Log
 
-Used git log command: `git log --pretty=oneline --abbrev-commit` and less importand lines removed
+Used git log command: `git log --pretty=oneline --abbrev-commit` and less important lines removed
 
-hash       | comment
------------|-------------------------------------------------------------------
+Hash       | Comment
+-----------|----------------------------------------------------------------
 `ac0f0834` | Windows drive letter issue for the tests fixed.
 `53c7080b` | IDRange code refactored.
 `31d33f72` | Path handling improved to work with linux, mac & windows.
@@ -558,3 +558,20 @@ hash       | comment
 `85686181` | v0.70.0 changelog added
 
 ##  13. <a name='masterbranchchanges'></a>master branch changes
+
+Used git log command: `git log --oneline` and less important lines removed
+
+Hash       | Comment
+-----------|------------------------------------------------------------------------------------------------------------
+`14d65fbc` | 100ms Sleep moved from "fromFile" to "FileWatcher"
+`bdc6e5fc` | master merged into devel
+`32bf83bf` | The tests in folder "_test" now executable with `cd _test && go test ./... && cd -`
+`25137cce` | Merge remote-tracking branch 'origin/devel' into devel
+`6f2bd38c` | goreleaser.yaml adapted
+`29c24261` | Update trexDecoder.go
+`bb0ac2f3` | wip #306
+`d7704c93` | fileWatcher enabled again, Verbose Logging extended, 100ms sleep added before re-reading til.json & li.json
+`89d9a97e` | Issue #508 solved
+`88cb164b` | Scripts adapted to better work with the Trice cache.
+`9b309925` | Trice cache "issue" chapter added
+`014ebdfc` | v0.71.0 ChangeLog added
