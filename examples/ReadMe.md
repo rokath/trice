@@ -87,6 +87,23 @@ OR
   - Extending the path variable at the beginning avoids accidentally usage of installed legacy compilers with the same name.
   - To use exactly `C:\bin\ArmGNUToolchain` as install location allows a more easy project collaboration.
 
+#### MacOS
+
+- In terminal `brew install arm-none-eabi-gcc`
+- Restart terminal
+- In teminal `arm-non-eabi-gcc --version` delivers `arm-none-eabi-gcc (GCC) 14.2.0`
+- In terminal `brew install arm-none-eabi-clang`
+- Restart terminal
+- In teminal `clang -target arm-none-eabi --version` delivers:
+    ```bash
+    Apple clang version 15.0.0 (clang-1500.3.9.4)
+    Target: arm-none-unknown-eabi
+    Thread model: posix
+    InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+    ```
+- In terminal `brew install arm-none-eabi-gdb`
+- In terminal `brew install --cask gcc-arm-embedded`
+
 #### Install ARM Clang (optional)
 
 With the ARM Clang you get quicker compilation runs and smaller images.

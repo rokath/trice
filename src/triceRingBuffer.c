@@ -11,7 +11,11 @@
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_OFF == 0
 
-static int TriceSingleDeferredOut(uint32_t* addr);
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+static void triceSingleDeferredOut(int* wordCount);
+#else
+static void triceMultiDeferredOut(int* triceCount, int* wordCount);
+#endif
 
 #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
@@ -27,18 +31,18 @@ static int TriceSingleDeferredOut(uint32_t* addr);
 
 #endif
 
-//! TriceRingBuffer is a kind of heap for trice messages. It needs to be initialized with 0.
-uint32_t TriceRingBuffer[TRICE_RING_BUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET >> 2) + (TRICE_DEFERRED_BUFFER_SIZE >> 2) + TRICE_RING_BUFFER_UPPER_MARGIN] = {0};
+//! triceRingBuffer is a kind of heap for trice messages. It needs to be initialized with 0.
+static uint32_t triceRingBuffer[TRICE_RING_BUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET >> 2) + (TRICE_DEFERRED_BUFFER_SIZE >> 2) + TRICE_RING_BUFFER_UPPER_MARGIN] = {0};
 
-uint32_t* const TriceRingBufferStart = TriceRingBuffer + TRICE_RING_BUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET >> 2);
+uint32_t* const TriceRingBufferStart = triceRingBuffer + TRICE_RING_BUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET >> 2);
 
-//! triceBufferWriteLimit is the first address behind TriceRingBuffer.
-//! With encryption it can happen that 4 bytes following triceRingBufferLimit are used as scratch pad.
+//! triceBufferWriteLimit is the first address behind triceRingBuffer.
+//! With encryption it can happen that 4 bytes following TriceRingBufferLimit are used as scratch pad.
 //! We use the value of TRICE_DEFERRED_XTEA_ENCRYPT (0 or 1) here to respect that
-//! See also comment inside TriceSingleDeferredOut.
-uint32_t* const triceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE >> 2) - TRICE_DEFERRED_XTEA_ENCRYPT;
+//! See also comment inside triceSingleDeferredOut.
+uint32_t* const TriceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE >> 2) - TRICE_DEFERRED_XTEA_ENCRYPT;
 
-//! SingleTricesRingCount holds the readable trices count inside TriceRingBuffer.
+//! SingleTricesRingCount holds the readable trices count inside triceRingBuffer.
 unsigned SingleTricesRingCount = 0;
 
 //! TriceBufferWritePosition is used by the TRICE_PUT macros.
@@ -102,7 +106,7 @@ int TriceEnoughSpace(void) {
 //! \param lastWordCount is the u32 count of the last read trice including padding bytes.
 TRICE_INLINE void triceIncrementRingBufferReadPosition(int wordCount){
 	TriceRingBufferReadPosition += wordCount;
-	if ((TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE >> 2)) > triceRingBufferLimit) {
+	if ((TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE >> 2)) > TriceRingBufferLimit) {
 		TriceRingBufferReadPosition = TriceRingBufferStart;
 	}
 }
@@ -120,58 +124,40 @@ TRICE_INLINE void triceRingBufferDiagnostics(void){
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 
-//! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET from this address.
-//! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fulfilled.
-//! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
-//! \retval is the address of the next trice data buffer.
-static uint32_t* triceNextRingBufferRead(void) {
-
-triceRingBufferDiagnostics();
-
-	return TriceRingBufferReadPosition; // lint !e674 Warning 674: Returning address of auto through variable 'TriceRingBufferReadPosition'
-}
-
 //! triceTransferSingleFraming transfers a single Trice from the Ring Buffer.
+//! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fulfilled.
 void triceTransferSingleFraming(void) {
-
 	TRICE_ENTER_CRITICAL_SECTION
 	SingleTricesRingCount--; // We decrement, even the Trice is not out yet.
 	TRICE_LEAVE_CRITICAL_SECTION
 
-	static int lastWordCount = 0;
+	static int lastWordCount = 0; // lastWordCount is needed to increment TriceRingBufferReadPosition accordingly after transfer is done.
+	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.
 	triceIncrementRingBufferReadPosition(lastWordCount);
-	uint32_t* addr = triceNextRingBufferRead(); 
-	lastWordCount = TriceSingleDeferredOut(addr);
+
+	// The trice data are starting at byte offset TRICE_DATA_OFFSET from TriceRingBufferReadPosition.
+	triceSingleDeferredOut(&lastWordCount);
 }
 
 #endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 
-
-// TriceMultiDeferredOut packs Trices until the Ring Buffer end and returns their count and total length in words.
-// These 2 values are used later, after the transmission is finished, for advancing.
-void TriceMultiDeferredOut( int* triceCount, int* wordCount){
-	// We can start at TriceRingBufferReadPosition and go to the RingBuffer end OR the TriceBufferWritePosition.
-
-	// todo ...
-
-	*triceCount = 0;
-	*wordCount = 0;
-}
-
 //! triceTransferMultiFraming transfers several, but not necessarily all, Trices from the Ring Buffer.
 void triceTransferMultiFraming(void) {
 	// The Ring Buffer can contain a fair amount of trices and we do not want them copy in a separate buffer for less RAM usage.
 	// Therefore we pack all Trices until the Ring Buffer end (where it wraps) together.
 	// We know here, that at least one Trice is inside the Ring Buffer.
-	static int wordCount = 0; // wordCount is the Ring Buffer space which is now free after the last transfer is finished.
 	static int triceCount = 0; // triceCount it the count of Trices from the last call.
 	TRICE_ENTER_CRITICAL_SECTION
-	// Also is known here, that the previous transmission is finished and we can advance.
+	// Is known here, that the previous transmission is finished and we can advance.
 	SingleTricesRingCount -= triceCount;
 	TRICE_LEAVE_CRITICAL_SECTION
+
+	static int wordCount = 0; // wordCount is the Ring Buffer space which is now free after the last transfer is finished.
+	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.
 	triceIncrementRingBufferReadPosition(wordCount)
+
 	TriceMultiDeferredOut(&triceCount, &wordCount);
 }
 
@@ -247,20 +233,21 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 	return triceID;
 }
 
-//! TriceSingleDeferredOut expects a single trice at addr and returns the wordCount of this trice which includes 1-3 padding bytes.
-//! The space from addr-TRICE_DATA_OFFSET to addr is assumed to be usable as scratch pad.
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+
+//! triceSingleDeferredOut expects a single trice at TriceRingBufferReadPosition and returns the wordCount of this trice which includes 1-3 padding bytes.
+//! The space from TriceRingBufferReadPosition-TRICE_DATA_OFFSET to TriceRingBufferReadPosition is assumed to be usable as scratch pad.
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
-//! \param addr points to the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
 //! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
 //! Return values <= 0 signal an error.
-//! The data at addr are getting destroyed, because buffer is used as scratch pad.
-static int TriceSingleDeferredOut(uint32_t* addr) {
-	uint8_t* enc = ((uint8_t*)addr) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of addr.
-	int wordCount = 0;
+//! TriceRingBufferReadPosition points to the begin of a single trice.
+//! The data at TriceRingBufferReadPosition are getting destroyed, because buffer is used as scratch pad.
+static void triceSingleDeferredOut(int* wordCount) {
+	uint8_t* enc = ((uint8_t*)TriceRingBufferReadPosition) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of TriceRingBufferReadPosition.
 	uint8_t* pTriceNetStart;
 	size_t triceNetLength; // without padding bytes
-	int triceID = TriceIDAndBuffer(addr, &wordCount, &pTriceNetStart, &triceNetLength);
+	int triceID = TriceIDAndBuffer(TriceRingBufferReadPosition, wordCount, &pTriceNetStart, &triceNetLength);
 	// We can let TRICE_DATA_OFFSET only in front of the ring buffer and pack the Trices without offset space.
 	// And if we allow as max depth only ring buffer size minus TRICE_DATA_OFFSET, we can use space in front of each Trice.
 
@@ -273,7 +260,7 @@ static int TriceSingleDeferredOut(uint32_t* addr) {
 	// comment: The following 2 steps could be done in an incremental way within one singe loop.
 	// Behind the trice brutto length (with padding bytes), 4 bytes needed as scratch pad when XTEA is active.
 	// After TriceIDAndBuffer pTriceNetStart could have a 2 bytes offset.
-	uint8_t* tmp = ((uint8_t*)addr) - 4;
+	uint8_t* tmp = ((uint8_t*)TriceRingBufferReadPosition) - 4;
 	memmove(tmp, pTriceNetStart, triceNetLength);
 	size_t len8 = (triceNetLength + 7) & ~7;                // Only multiple of 8 are possible to encrypt, so we adjust len.
 	memset(tmp + triceNetLength, 0, len8 - triceNetLength); // clear padding space
@@ -311,30 +298,46 @@ static int TriceSingleDeferredOut(uint32_t* addr) {
 	TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
 #endif // #if TRICE_DIAGNOSTICS == 1
 	TriceNonBlockingDeferredWrite8(triceID, enc, encLen);
-	return wordCount;
 }
+
+#endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
+
+// triceMultiDeferredOut packs Trices until the Ring Buffer end and returns their count and total length in words.
+// These 2 values are used later, after the transmission is finished, for advancing.
+static void triceMultiDeferredOut( int* triceCount, int* wordCount){
+	// We can start at TriceRingBufferReadPosition and go to the RingBuffer end OR the TriceBufferWritePosition.
+
+	// todo ...
+
+	*triceCount = 0;
+	*wordCount = 0;
+}
+
+#endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 
 #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
 void TriceInitRingBufferMargins(void) {
 	for (int i = 0; i < TRICE_RING_BUFFER_LOWER_MARGIN; i++) {
-		TriceRingBuffer[i] = TRICE_RING_BUFFER_MARGIN_FILL_VALUE;
+		triceRingBuffer[i] = TRICE_RING_BUFFER_MARGIN_FILL_VALUE;
 	}
 	for (int i = 0; i < TRICE_RING_BUFFER_UPPER_MARGIN; i++) {
-		*(triceRingBufferLimit + i) = TRICE_RING_BUFFER_MARGIN_FILL_VALUE;
+		*(TriceRingBufferLimit + i) = TRICE_RING_BUFFER_MARGIN_FILL_VALUE;
 	}
 }
 
 void WatchRingBufferMargins(void) {
 	for (int i = 0; i < TRICE_RING_BUFFER_LOWER_MARGIN; i++) {
-		if (TriceRingBuffer[i] != TRICE_RING_BUFFER_MARGIN_FILL_VALUE) {
+		if (triceRingBuffer[i] != TRICE_RING_BUFFER_MARGIN_FILL_VALUE) {
 			for (;;)
 				;
 		}
 	}
 
 	for (int i = 0; i < TRICE_RING_BUFFER_UPPER_MARGIN; i++) {
-		if (*(triceRingBufferLimit + i) != TRICE_RING_BUFFER_MARGIN_FILL_VALUE) {
+		if (*(TriceRingBufferLimit + i) != TRICE_RING_BUFFER_MARGIN_FILL_VALUE) {
 			for (;;)
 				;
 		}
