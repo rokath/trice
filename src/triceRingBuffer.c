@@ -107,6 +107,17 @@ TRICE_INLINE void triceIncrementRingBufferReadPosition(int wordCount){
 	}
 }
 
+// triceRingBufferDiagnostics computes and tracks TriceRingBufferDepthMax
+TRICE_INLINE void triceRingBufferDiagnostics(void){
+#if TRICE_DIAGNOSTICS == 1
+	int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition) << 2; // lint !e845 Info 845: The left argument to operator '<<' is certain to be 0
+	if (depth < 0) {
+		depth += TRICE_DEFERRED_BUFFER_SIZE;
+	}
+	TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax;
+#endif // #if TRICE_DIAGNOSTICS == 1
+}
+
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 
 //! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET from this address.
@@ -115,13 +126,7 @@ TRICE_INLINE void triceIncrementRingBufferReadPosition(int wordCount){
 //! \retval is the address of the next trice data buffer.
 static uint32_t* triceNextRingBufferRead(void) {
 
-#if TRICE_DIAGNOSTICS == 1
-	int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition) << 2; // lint !e845 Info 845: The left argument to operator '<<' is certain to be 0
-	if (depth < 0) {
-		depth += TRICE_DEFERRED_BUFFER_SIZE;
-	}
-	TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax;
-#endif // #if TRICE_DIAGNOSTICS == 1
+triceRingBufferDiagnostics();
 
 	return TriceRingBufferReadPosition; // lint !e674 Warning 674: Returning address of auto through variable 'TriceRingBufferReadPosition'
 }
@@ -243,7 +248,7 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 }
 
 //! TriceSingleDeferredOut expects a single trice at addr and returns the wordCount of this trice which includes 1-3 padding bytes.
-//! The space from addr-TRICE_DATA_OFFSET to add is assumed to be usable as scratch pad.
+//! The space from addr-TRICE_DATA_OFFSET to addr is assumed to be usable as scratch pad.
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
 //! \param addr points to the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
