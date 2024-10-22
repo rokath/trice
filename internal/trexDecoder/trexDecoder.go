@@ -400,7 +400,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
-	if !SingleFraming && p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
+	if p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
 				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from", hex.Dump(p.B0)))
@@ -417,7 +417,15 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 		p.B = p.B[len(p.B):] // discard buffer
 	}
-
+        if SingleFraming && p.TriceSize != packageSize {
+		if decoder.Verbose {
+			n += copy(b[n:], fmt.Sprintln("ERROR:\asingle framed package size", packageSize, "is !=", p.TriceSize, " - ignoring package:"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+			n += copy(b[n:], fmt.Sprintln("tyIdSize=", tyIdSize, "tsSize=", decoder.TargetTimestampSize, "ncSize=", ncSize, "ParamSpae=", p.ParamSpace))
+			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+			}
+		p.B = p.B[len(p.B):] // discard buffer
+	}
 	// cycle counter automatic & check
 	if cycle == 0xc0 && p.cycle != 0xc0 && decoder.InitialCycle { // with cycle counter and seems to be a target reset
 		n += copy(b[n:], fmt.Sprintln("warning:\a   Target Reset?   "))
