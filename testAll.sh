@@ -1,6 +1,12 @@
 #!/bin/sh
 date
-go test ./...
-cd _test
-time go test ./...
-cd -
+
+function f(){
+    go clean -cache
+    go test ./...
+    cd _test
+    go test ./...
+    cd -
+}
+
+time f
