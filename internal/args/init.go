@@ -158,6 +158,7 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	fsScLog.BoolVar(&emitter.DisplayRemote, "ds", false, "Short for '-displayserver'.")
 	fsScLog.BoolVar(&trexDecoder.Doubled16BitID, "doubled16BitID", false, `Tells, that 16-bit IDs are doubled. That switch is needed when un-routed direct output is used like (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1), but also with double buffer in (TRICE_DEFERRED_TRANSFER_MODE==TRICE_MULTI_PACK_MODE) and XTEA encryption. Read the user guide for more details.`)
 	fsScLog.BoolVar(&trexDecoder.Doubled16BitID, "d16", false, "Short for '-Doubled16BitID'.")
+	fsScLog.BoolVar(&trexDecoder.SingleFraming, "singleFraming", false, `singleFraming demands, that each received package contains not more than a singe Trice message. This is the case for all direct modes or if you "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" in your triceConfig.h file. Applying this switch makes sense with COBS and TCOBS framing to improve Trice tool error recognition in received binary data. Not usable together with encryption because of the padding bytes.`)
 
 	fsScLog.StringVar(&receiver.ExecCommand, "exec", "", execInfo)
 
