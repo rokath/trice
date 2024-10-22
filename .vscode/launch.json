@@ -67,7 +67,7 @@
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["log",
-                "-idlist", "${workspaceFolder}/test/til.json",
+                "-idlist", "${workspaceFolder}/_test/til.json",
                 "-source", "RND",
                 "-rndLimit", "10", 
                 "-rndMode", "ChaosMode",
@@ -158,9 +158,9 @@
                      "-pf",
                      "COBS",
                      "-idlist",
-                     "${workspaceFolder}/test/testdata/til.json",
+                     "${workspaceFolder}/_test/testdata/til.json",
                      "-li",
-                     "${workspaceFolder}/test/testdata/li.json"
+                     "${workspaceFolder}/_test/testdata/li.json"
             ]
         },
         {
@@ -202,9 +202,9 @@
                      "-d16",
                      "-s",
                      "-idlist",
-                     "${workspaceFolder}/test/testdata/til.json",
+                     "${workspaceFolder}/_test/testdata/til.json",
                      "-li",
-                     "${workspaceFolder}/test/testdata/li.json"
+                     "${workspaceFolder}/_test/testdata/li.json"
             ]
         },
         {
@@ -236,9 +236,9 @@
                      "-args",
                      "cb de 32 13 c0 0b 61 62 63 64 65 20 31 32 33 34 35 ad 00",
                      "-idlist",
-                     "${workspaceFolder}/test/testdata/til.json",
+                     "${workspaceFolder}/_test/testdata/til.json",
                      "-li",
-                     "${workspaceFolder}/test/testdata/li.json"
+                     "${workspaceFolder}/_test/testdata/li.json"
             ]
         },
         {
@@ -250,9 +250,9 @@
             "env": {},
             "args": ["log",
                     "-idlist",
-                    "${workspaceFolder}/test/testdata/til.json",
+                    "${workspaceFolder}/_test/testdata/til.json",
                     "-li",
-                    "${workspaceFolder}/test/testdata/li.json",
+                    "${workspaceFolder}/_test/testdata/li.json",
                     "-port",
                      "DUMP",
                      "-args",
@@ -291,9 +291,9 @@
             "env": {},
             "args": ["log",
                     "-idlist",
-                    "${workspaceFolder}/test/testdata/til.json",
+                    "${workspaceFolder}/_test/testdata/til.json",
                     "-li",
-                    "${workspaceFolder}/test/testdata/li.json",
+                    "${workspaceFolder}/_test/testdata/li.json",
                     "-port",
                      "COM6",
                      "-baud",
@@ -309,9 +309,9 @@
             "env": {},
             "args": ["log",
                     "-idlist",
-                    "${workspaceFolder}/test/testdata/til.json",
+                    "${workspaceFolder}/_test/testdata/til.json",
                     "-li",
-                    "${workspaceFolder}/test/testdata/li.json",
+                    "${workspaceFolder}/_test/testdata/li.json",
                     "-port",
                      "JLINK",
                      "-args",
@@ -412,9 +412,9 @@
             "env": {},
             "args": ["log",
                      "-idlist",
-                     "${workspaceFolder}/test/testdata/til.json",
+                     "${workspaceFolder}/_test/testdata/til.json",
                      "-locationInformation",
-                     "${workspaceFolder}/test/testdata/li.json",
+                     "${workspaceFolder}/_test/testdata/li.json",
                      "-p",
                      "com4",
                      "-baud",

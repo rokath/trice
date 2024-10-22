@@ -157,7 +157,7 @@ int tryIt( void ){
 }
 ```
 
-You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated stings, according to [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md). The file [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) shows many usage examples.
+You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated stings, according to [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md). The file [./_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) shows many usage examples.
 The uppercase `TRICE` macros are inlining the complete Trice code and the lowercase `trice` macros are function calls, so most probably you want use `trice` to keep the overall code size smaller.
 
 - Create 2 empty files `til.json` and `li.json` in your project root.
@@ -167,7 +167,7 @@ The uppercase `TRICE` macros are inlining the complete Trice code and the lowerc
 
 You can use `trice insert` as pre- and `trice clean` as post-compile step, to not spoil your source code with IDs. Or, use `trice insert` in a post-checkout and `trice clean` in a pre-check-in script to keep the repository clean. Using only `trice insert` as pre-compile step is possible too, especially when the code is used just in a single project and you wish to have it as compiled.
 
-When using Trice in libraries for several projects, it may make sense to check-in the libraries with IDs and to use a dedicated ID space for them. See [../test/testdata/triceCheck.c](../test/testdata/triceCheck.c) as an example - especially when building several projects parallel like shown in the examples folder.
+When using Trice in libraries for several projects, it may make sense to check-in the libraries with IDs and to use a dedicated ID space for them. See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) as an example - especially when building several projects parallel like shown in the examples folder.
 A quick setup is possible when using RTT as output channel. Otherwise you need to setup a serial port for Trice data transmission. Other output paths possible too using the auxilary interface.
 
 ###  2.4. <a name='UseIt'></a>Use It
@@ -276,7 +276,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 ####  2.5.3. <a name='TriceChecks'></a>Trice Checks
 
-- Optionally copy parts of [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) to your project if you wish to perform some checks.
+- Optionally copy parts of [./_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   - Do not inlucde this file directly, because it could get changed when `updateTestData.sh` is executed inside the `./test` folder.
   - The only-uppercase `TRICE*` macros include trice code sequences what can led to a significant code amount if you use plenty of them, whereas the lowercase macros `trice`, `Trice`, `TRice` and their relatives are just function calls and better suited to be used normally.
 - In your source files add line `#include "trice.h"` at the top.
@@ -584,13 +584,13 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 Check comments inside [./src/triceDefaultConfig.h](.src/triceDefaultConfig.h) and adapt your project configuration like shown in [triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) as example.
 
 <!--
-* Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
-* Modify [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) according your needs. Choose the *Trice* mode here:
+* Each project gets its own [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
+* Modify [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) according your needs. Choose the *Trice* mode here:
   - Immediate mode: Straight output inside `TRICE` macro at the cost of the time it takes.
     - With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function but no inside interrupts *Trices*!
     - Or use [SEGGER_RTT](./TriceOverRTT.md) allowing *Trices* also inside interrupts. An other big plus during new hardware setup is, no need to connect an additional wire. All information goes thru the debug probe. Internally only a `memcpy` transfers maybe 16 bytes to the SEGGER_RTT buffer and *Trice* does even not need a own buffer and no background task.
   - Deferred mode: Output outside `TRICE` macro, a background output some milliseconds later is needed at the cost of RAM buffer.
-    - Compare the **not** instrumented test project [./test/MDK-ARM_STM32F030R8_generated]([./test/MDK-ARM_STM32F030R8_generated) with the instrumented test project [./test/MDK-ARM_STM32F030R8]([./test/MDK-ARM_STM32F030R8) to see an implementation example.
+    - Compare the **not** instrumented test project [./_test/MDK-ARM_STM32F030R8_generated]([./_test/MDK-ARM_STM32F030R8_generated) with the instrumented test project [./_test/MDK-ARM_STM32F030R8]([./_test/MDK-ARM_STM32F030R8) to see an implementation example.
 * Recommendation:
   - [SEGGER_RTT](./TriceOverRTT.md) transfer: Immediate *Trice* mode.
   - None-[SEGGER_RTT](./TriceOverRTT.md) transfer (mostly UART):
@@ -598,7 +598,7 @@ Check comments inside [./src/triceDefaultConfig.h](.src/triceDefaultConfig.h) an
     - *Trice* usage:  Deferred mode which **allows to use** `TRICE` macros also inside interrupts.
     - In some cases, when logging a huge amount of data without timing constraints the immediate mode is a better choice.
 * If speed **and** log volume is needed, care must be taken to avoid *Trice* buffer overflow for example by time triggering.
-* Set options inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h):
+* Set options inside [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h):
   - Target timestamps time base
   - A cycle counter is per default active.
     - `#define TRICE_CYCLE_COUNTER 0` to deactivate it for a bit more speed (and less code).
@@ -735,7 +735,7 @@ The following capture output comes from an (old) example project inside [../exam
 
 ![life.gif](./ref/life.gif)
 
-See [../test/testdata/triceCheck.c](../test/testdata/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS, *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
+See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS, *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use the `-color off` switch for piping output in a file. More convenient is the `-lf auto` switch. 
 
@@ -761,8 +761,8 @@ Next steps:
   - A file [til.json](https://github.com/rokath/trice/blob/master/til.json)  (**t**race **i**d **l**ist) should have been generated.
 - Set up timer and UART interrupt and main loop in the right way. Analyze the test example projects for advice.
 - For help have a look at the differences between these 2 projects:
-  - `../test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64` - It is just the STM32 CubeMX generated code.
-  - `../test/MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64` - It is a copy of the above enhanced with trice check code.
+  - `../_test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64` - It is just the STM32 CubeMX generated code.
+  - `../_test/MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64` - It is a copy of the above enhanced with trice check code.
 
 - Add your compiler definitions to `trice/pkg/src/intern/triceConfigCompiler.h`
 - Make a copy of `trice/pkg/src/intern/triceUART_LL_STM32.h`, rename the copy appropriate an fill these 4 functions with the hardware specific code:
@@ -1134,7 +1134,7 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
 ###  10.2. <a name='ConfigurationfiletriceConfig.h'></a>Configuration file `triceConfig.h`
 
 - When setting up your first project you need a `triceConfig.h` file.
-- You should **not** use the `./test/cgo.../triceConfig.h` directly, because these are customized for internal tests with CGO. But you can use their settings as helper for a starting point.
+- You should **not** use the `./_test/cgo.../triceConfig.h` directly, because these are customized for internal tests with CGO. But you can use their settings as helper for a starting point.
 - Please choose one of the `./examples/*_inst/triceConfig.h` files as starting point.
 - Comparing them and understandig the differences helps quick starting.
 - The file [triceDefaultConfig.h](../src/triceDefaultConfig.h) contains all possible config keys with descriptions.
@@ -1155,7 +1155,7 @@ Gennerally it is recommended to enable `TRICE_PROTECT` during development and to
 
 ###  10.5. <a name='BufferMacros'></a>Buffer Macros
 
-(Examples in [../test/testdata/triceCheck.c](../test/testdata/triceCheck.c))
+(Examples in [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c))
 
 Macro Name                                      | Description
 ------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1260,7 +1260,7 @@ _##  13. <a name='Testing'></a>Testing
 
 _###  13.1. <a name='Folderinformation'></a>Folder information
 
-- The folders in [./test/](../test), despite `testdata`, are helper "projects" serving as examples and for testing the target C-code located in `./src/`.
+- The folders in [./_test/](../test), despite `testdata`, are helper "projects" serving as examples and for testing the target C-code located in `./src/`.
 
 - Some folders are hardware specific implementations and some are Go packages. The Go packages can have all the same name, only the folder names are not equal.
 - In each Go package a different triceConfig.h is used, this way allowing to check all modes automatically, including encryption.
@@ -1588,7 +1588,7 @@ _### New Method to get a random ID
 - If you change `trice( "msg:%d", 1);` to `TRice8( "msg:%d", 1);`, to get a 32-bit stamp, the associated **ID** remains unchanged. That is because the optional stamp is not a part of the *Trice* itself.
 - IDs stay constant and get only changed to solve conflicts.
 - To make sure, a single ID will not be changed, you could change it manually to a hexadecimal syntax.
-  - This lets the `trice insert` command ignore such `TRICE` macros and therefore a full [til.json](../test/testdata/til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
+  - This lets the `trice insert` command ignore such `TRICE` macros and therefore a full [til.json](../_test/testdata/til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
   - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice i|c|z` if no conflicts occur.
 - If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
 - If the same string appears again in the same file this ID is active again.

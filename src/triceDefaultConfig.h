@@ -340,7 +340,7 @@ extern "C" {
 #endif
 
 #ifndef TRICE_CGO
-//! CGO interface for testing the target code with Go only, do not enable normally. Usage examples can be found in the trice/test folder.
+//! CGO interface for testing the target code with Go only, do not enable normally. Usage examples can be found in the trice/_test folder.
 #define TRICE_CGO 0
 #endif
 

@@ -18,7 +18,7 @@ func TestLogs(t *testing.T) {
 	// Default CLI switch values are not working in combined mode, set them explicit!
 	triceLog0 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=NONE", "-d16", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/_test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=NONE", "-d16", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
 		return o.String()
 	}
 
@@ -27,7 +27,7 @@ func TestLogs(t *testing.T) {
 	// Default CLI switch values are not working in combined mode, set them explicit!
 	triceLog1 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=TCOBS", "-d16=false", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/_test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=TCOBS", "-d16=false", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
 		return o.String()
 	}
 

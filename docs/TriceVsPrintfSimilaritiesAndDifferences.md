@@ -36,7 +36,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * Each *Trice* caries a 14-bit nuber ID as replacement for the format string.
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the `trice` macro followed by the format string and optional values.
 * The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`. 
-* The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../test/testdata/til.json) (example).
+* The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../_test/testdata/til.json) (example).
 
 ##  3. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
 
@@ -120,7 +120,7 @@ static inline uint64_t aDouble( double x ){
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
 * This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );`
-* There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../test/testdata/triceCheck.c) for usage or see the following.
+* There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../_test/testdata/triceCheck.c) for usage or see the following.
 
 ##  8. <a name='RuntimeGeneratedBufferTransferwithTRICE_B'></a>Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`
 
@@ -214,7 +214,7 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 | nothing printed                                                 | n | -  | - | **Not supported.**                                                          |
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
-* [x] Look in [triceCheck.c](../test/testdata/triceCheck.c) for exampe code producing this:
+* [x] Look in [triceCheck.c](../_test/testdata/triceCheck.c) for exampe code producing this:
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
