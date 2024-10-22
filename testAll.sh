@@ -1,0 +1,6 @@
+#!/bin/sh
+date
+go test ./...
+cd _test
+time go test ./...
+cd -
