@@ -336,8 +336,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice add -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
+    	Example: "trice add -dry-run -v -src ./_test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	source code files inside directory ./_test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
   -til string
@@ -454,8 +454,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice insert -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
+    	Example: "trice insert -dry-run -v -src ./_test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	source code files inside directory ./_test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
   -til string
@@ -517,8 +517,8 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice clean -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
+    	Example: "trice clean -dry-run -v -src ./_test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	source code files inside directory ./_test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
   -til string

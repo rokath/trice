@@ -11,7 +11,7 @@
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![test](https://github.com/shogo82148/actions-goveralls/workflows/test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)
+[![test](https://github.com/shogo82148/actions-goveralls/workflows/_test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=master)](https://coveralls.io/github/rokath/trice?branch=master)
 
 <!-- [![Sponsor rokath](https://github.com/sponsors/rokath/button)](https://github.com/sponsors/rokath) -->
@@ -36,14 +36,14 @@ even inside **↯ interrupts** in less than 1 µs❗
 
 ## Possible Use Cases
 
-- Using *Trice* not only for **printf debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./test/testdata/til.json) is the key to read all output if your devices in the field for 10 or more years.
-  - Optionally add [til.json](./test/testdata/til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html). Or simply provide a download link.
+- Using *Trice* not only for **printf debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./_test/testdata/til.json) is the key to read all output if your devices in the field for 10 or more years.
+  - Optionally add [til.json](./_test/testdata/til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html). Or simply provide a download link.
 - You can see *Trice* also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
 - Storing *Trice* messages in [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) for later log analysis saves memory because a typical `TRICE` occupies only 4 bytes independently of the format string length plus optional values.
 - Also, it is possible to **encrypt** the *Trice* transfer packets to get a reasonable protection for many cases.
-  - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./test/testdata/til.json).
+  - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./_test/testdata/til.json).
   - [XTEA](https://en.m.wikipedia.org/wiki/XTEA) is implemented as one option.
-- You can even translate the [til.json](./test/testdata/til.json) file in **different languages**, so changing a language is just changing the [til.json](./test/testdata/til.json) file without touching the target binary.
+- You can even translate the [til.json](./_test/testdata/til.json) file in **different languages**, so changing a language is just changing the [til.json](./_test/testdata/til.json) file without touching the target binary.
 - With *Trice* it is easy to do **timing analysis** on distributed embedded systems. Host and target timestamps are supported.
 
 ## How it approximately works (UART example)
@@ -131,7 +131,7 @@ git clone https://github.com/rokath/trice.git
 - [Logging with symbols - The Embedonomicon](https://docs.rust-embedded.org/embedonomicon/logging.html)
 - [MCUViewer](https://github.com/klonyyy/MCUViewer)
 - [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding)
-- [Metal Serial Library](https://github.com/metal-ci/test/tree/master/doc/metal.serial.md)
+- [Metal Serial Library](https://github.com/metal-ci/_test/tree/master/doc/metal.serial.md)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [Percepio Tracealyzer](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)

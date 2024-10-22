@@ -18,7 +18,7 @@ func TestLogs(t *testing.T) {
 	triceLog0 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
 		//                                                        trice  -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"  -showID "deb:%04x"   -hs off                                            -pw MySecret    -pf COBS    -d16=true
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pw=MySecret", "-pf=COBS", "-d16=true", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/_test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pw=MySecret", "-pf=COBS", "-d16=true", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
 		return o.String()
 	}
 
@@ -27,7 +27,7 @@ func TestLogs(t *testing.T) {
 	triceLog1 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
 		//                                                        trice    l                                                            -p com4                                                                                       -d16=false
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=TCOBS", "-d16=false", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/_test/testdata/til.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=TCOBS", "-d16=false", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
 		return o.String()
 	}
 
