@@ -45,7 +45,7 @@
 
 *Trice* is an unusual software tracer-logger and consists of these parts to use:
 
-- [x] [trice.c](../pkg/src/trice.c) containing the [less that 1KB](./TriceSpace.md) runtime code using [triceConfig.h](../test/F030R8/Core/Inc/triceConfig.h) as setup.
+- [x] [trice.c](../pkg/src/trice.c) containing the [less that 1KB](./TriceSpace.md) runtime code using [triceConfig.h](../_test/F030R8/Core/Inc/triceConfig.h) as setup.
 - [x] [trice.h](../pkg/src/trice.h) containing a **C** language macro `TRICE`, generating [tiny code](./TriceSpeed.md) for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
   * [x] Example: `float x = 3.14159265/4; TRICE( Id(12345), "info:π/4 is %f with the bit pattern %032b\n", aFloat(x), x );`
 - [x] PC tool **trice**, executable on all [Go](https://golang.org) platforms:
@@ -166,7 +166,7 @@ After debugging code in a file, there is [no need to remove or comment out `TRIC
 
 ###  5.9. <a name='Targetandhosttimestamps'></a>Target and host timestamps 
 
-Enable target timestamps with a variable you want inside [triceConfig.h](../test/F030R8/Core/Inc/triceConfig.h). This adds a 32-bit value to each *Trice* sequence, which carries than the system clock, a millisecond second or an other event counter. The **trice** tool will automatically recognize and display them in a default mode you can control. If several `TRICE` macros form a single line, the **trice** tool only displays the target timestamp of the first `TRICE` macro.
+Enable target timestamps with a variable you want inside [triceConfig.h](../_test/F030R8/Core/Inc/triceConfig.h). This adds a 32-bit value to each *Trice* sequence, which carries than the system clock, a millisecond second or an other event counter. The **trice** tool will automatically recognize and display them in a default mode you can control. If several `TRICE` macros form a single line, the **trice** tool only displays the target timestamp of the first `TRICE` macro.
 
 Embedded devices often lack a real-time clock and some scenarios can last for weeks. Therefore the **trice** tool precedes each *Trice* line with a PC timestamp, if not disabled. This is the *Trice* reception time on the PC, what can be some milliseconds later than the target *Trice* event.
 
@@ -200,7 +200,7 @@ Using no framing, [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_
 
 The **trice** tool is expandable with several decoders. So it is possible to implement a minimal *Trice* encoding, if bandwidth matters heavily and control that with switches.
 
-When less RAM usage is more important the target double buffer is replaceable with a ring buffer. So the user will be able to decide at compile time about that. A ring buffer mode is selectable inside [triceConfig.h](../test/F030R8/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
+When less RAM usage is more important the target double buffer is replaceable with a ring buffer. So the user will be able to decide at compile time about that. A ring buffer mode is selectable inside [triceConfig.h](../_test/F030R8/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
 
 The **trice** tool supports [many command line switches](./TriceUserGuide.md#9-options-for-trice-tool).
 

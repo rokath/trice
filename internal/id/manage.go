@@ -159,7 +159,6 @@ func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
 func (ilu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
-	//time.Sleep(100 * time.Millisecond) // Wait for the (slow) file system.
 	b, e := fSys.ReadFile(fn)
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(e, s)
@@ -173,10 +172,6 @@ var Logging bool // Logging is true, when sub command log is active.
 
 // fromFile reads fSys file fn into lut.
 func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
-	if Verbose {
-		fmt.Println("Give time for the (slow) file system.")
-	}
-	//time.Sleep(100 * time.Millisecond)
 	b, err := fSys.ReadFile(fn)
 	if err == nil { // file found
 		if Verbose {

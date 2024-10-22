@@ -98,17 +98,17 @@ int TriceEnoughSpace(void) {
 
 #endif // #if TRICE_PROTECT == 1
 
-//! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET from this address.
-//! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fulfilled.
+// triceIncrementRingBufferReadPosition sets TriceRingBufferReadPosition forward by wordCount.
 //! \param lastWordCount is the u32 count of the last read trice including padding bytes.
-//! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
-//! \retval is the address of the next trice data buffer.
-static uint32_t* triceNextRingBufferRead(int lastWordCount) {
-	TriceRingBufferReadPosition += /*(TRICE_DATA_OFFSET>>2) +*/ lastWordCount;
+TRICE_INLINE void triceIncrementRingBufferReadPosition(int wordCount){
+	TriceRingBufferReadPosition += wordCount;
 	if ((TriceRingBufferReadPosition + (TRICE_BUFFER_SIZE >> 2)) > triceRingBufferLimit) {
 		TriceRingBufferReadPosition = TriceRingBufferStart;
 	}
+}
 
+// triceRingBufferDiagnostics computes and tracks TriceRingBufferDepthMax
+TRICE_INLINE void triceRingBufferDiagnostics(void){
 #if TRICE_DIAGNOSTICS == 1
 	int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition) << 2; // lint !e845 Info 845: The left argument to operator '<<' is certain to be 0
 	if (depth < 0) {
@@ -116,9 +116,66 @@ static uint32_t* triceNextRingBufferRead(int lastWordCount) {
 	}
 	TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax;
 #endif // #if TRICE_DIAGNOSTICS == 1
+}
+
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+
+//! triceNextRingBufferRead returns a single trice data buffer address. The trice data are starting at byte offset TRICE_DATA_OFFSET from this address.
+//! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fulfilled.
+//! The value lastWordCount is needed to increment TriceRingBufferReadPosition accordingly.
+//! \retval is the address of the next trice data buffer.
+static uint32_t* triceNextRingBufferRead(void) {
+
+triceRingBufferDiagnostics();
 
 	return TriceRingBufferReadPosition; // lint !e674 Warning 674: Returning address of auto through variable 'TriceRingBufferReadPosition'
 }
+
+//! triceTransferSingleFraming transfers a single Trice from the Ring Buffer.
+void triceTransferSingleFraming(void) {
+
+	TRICE_ENTER_CRITICAL_SECTION
+	SingleTricesRingCount--; // We decrement, even the Trice is not out yet.
+	TRICE_LEAVE_CRITICAL_SECTION
+
+	static int lastWordCount = 0;
+	triceIncrementRingBufferReadPosition(lastWordCount);
+	uint32_t* addr = triceNextRingBufferRead(); 
+	lastWordCount = TriceSingleDeferredOut(addr);
+}
+
+#endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
+
+
+// TriceMultiDeferredOut packs Trices until the Ring Buffer end and returns their count and total length in words.
+// These 2 values are used later, after the transmission is finished, for advancing.
+void TriceMultiDeferredOut( int* triceCount, int* wordCount){
+	// We can start at TriceRingBufferReadPosition and go to the RingBuffer end OR the TriceBufferWritePosition.
+
+	// todo ...
+
+	*triceCount = 0;
+	*wordCount = 0;
+}
+
+//! triceTransferMultiFraming transfers several, but not necessarily all, Trices from the Ring Buffer.
+void triceTransferMultiFraming(void) {
+	// The Ring Buffer can contain a fair amount of trices and we do not want them copy in a separate buffer for less RAM usage.
+	// Therefore we pack all Trices until the Ring Buffer end (where it wraps) together.
+	// We know here, that at least one Trice is inside the Ring Buffer.
+	static int wordCount = 0; // wordCount is the Ring Buffer space which is now free after the last transfer is finished.
+	static int triceCount = 0; // triceCount it the count of Trices from the last call.
+	TRICE_ENTER_CRITICAL_SECTION
+	// Also is known here, that the previous transmission is finished and we can advance.
+	SingleTricesRingCount -= triceCount;
+	TRICE_LEAVE_CRITICAL_SECTION
+	triceIncrementRingBufferReadPosition(wordCount)
+	TriceMultiDeferredOut(&triceCount, &wordCount);
+}
+
+#endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 
 //! TriceTransfer needs to be called cyclically to read out the Ring Buffer.
 void TriceTransfer(void) {
@@ -130,12 +187,11 @@ void TriceTransfer(void) {
 		return;
 	}
 #endif
-	TRICE_ENTER_CRITICAL_SECTION
-	SingleTricesRingCount--;
-	TRICE_LEAVE_CRITICAL_SECTION
-	static int lastWordCount = 0;
-	uint32_t* addr = triceNextRingBufferRead(lastWordCount);
-	lastWordCount = TriceSingleDeferredOut(addr);
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+	triceTransferSingleFraming();
+#else 
+	triceTransferMultiFraming();
+#endif
 }
 
 //! TriceIDAndBuffer evaluates a trice message and returns the ID for routing.
@@ -192,7 +248,7 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 }
 
 //! TriceSingleDeferredOut expects a single trice at addr and returns the wordCount of this trice which includes 1-3 padding bytes.
-//! The space from addr-TRICE_DATA_OFFSET to add is assumed to be usable as scratch pad.
+//! The space from addr-TRICE_DATA_OFFSET to addr is assumed to be usable as scratch pad.
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
 //! \param addr points to the begin of a single trice.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.

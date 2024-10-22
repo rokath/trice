@@ -223,8 +223,8 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 * Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
   * You may need to add `C:\Program Files\SEGGER\JLink` to the %PATH% variable.
 * Tested with [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html).
-* For example: Compile and flash `../test/MDK-ARM_STM32F030R8` project.
-  * Check in [../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) if `#define TRICE_RTT_CHANNEL 0` is set as output option.
+* For example: Compile and flash `../_test/MDK-ARM_STM32F030R8` project.
+  * Check in [../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) if `#define TRICE_RTT_CHANNEL 0` is set as output option.
 
 ####  4.2.1. <a name='JLink.exe'></a>JLink.exe
 
@@ -318,7 +318,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
   * No `TriceTransfer()` nor any interrupt is needed in the background
   * No UART or other output is needed
 * This is, because automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTD.gif](./ref/JLINK-DebugSession.gif)
-* Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer (direct *Trice* mode = `#define TRICE_MODE 0` inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h)).
+* Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer (direct *Trice* mode = `#define TRICE_MODE 0` inside [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h)).
 * Write the bytes per *Trice* directly (little time & some space overhead on target, but no changes on host side)
   
   ![triceBlockDiagramWithSeggerRTT.svg](./ref/triceBlockDiagramWithSeggerRTTD.svg)

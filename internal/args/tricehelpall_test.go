@@ -258,6 +258,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
     	Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -singleFraming
+    	singleFraming demands, that each received package contains not more than a singe Trice message. This is the case for all direct modes or if you "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" in your triceConfig.h file. Applying this switch makes sense with COBS and TCOBS framing to improve Trice tool error recognition in received binary data. Not usable together with encryption because of the padding bytes.
   -stopbits string
     	Serial port stopbit, options: 1.5, 2 (default "1")
   -suffix string
@@ -336,8 +338,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice add -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
+    	Example: "trice add -dry-run -v -src ./_test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	source code files inside directory ./_test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
   -til string
@@ -454,8 +456,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice insert -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
+    	Example: "trice insert -dry-run -v -src ./_test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	source code files inside directory ./_test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
   -til string
@@ -517,8 +519,8 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
     	This is a multi-flag switch. It can be used several times for directories and also for files. 
-    	Example: "trice clean -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
-    	source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
+    	Example: "trice clean -dry-run -v -src ./_test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+    	source code files inside directory ./_test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
   -til string
