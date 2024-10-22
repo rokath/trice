@@ -419,7 +419,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
         if SingleFraming && p.TriceSize != packageSize {
 		if decoder.Verbose {
-			n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is !=", p.TriceSize, " - ignoring package:"))
+			n += copy(b[n:], fmt.Sprintln("ERROR:\asingle framed package size", packageSize, "is !=", p.TriceSize, " - ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln("tyIdSize=", tyIdSize, "tsSize=", decoder.TargetTimestampSize, "ncSize=", ncSize, "ParamSpae=", p.ParamSpace))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
