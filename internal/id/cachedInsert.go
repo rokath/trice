@@ -101,7 +101,7 @@ insert:
 		// The file could have been modified by the user but if IDs are not touched, modified is false.
 		// So we need to update the cache also when modified is false.
 		msg.Tell(w, "Copy file into the inserted-cache.")
-		err = fSys.MkdirAll(filepath.Dir(insertedCachePath), os.ModeDir)
+		err = fSys.MkdirAll(filepath.Dir(insertedCachePath), 0o700)
 		p.join(err)
 		err = CopyFileWithMTime(fSys, insertedCachePath, path)
 		p.join(err)

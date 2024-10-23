@@ -112,7 +112,7 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 
 		// create temp folder if not exists
 		tempDir := "./temp" // filepath.Join(dir, "temp")
-		e := fSys.MkdirAll(tempDir, os.ModePerm)
+		e := fSys.MkdirAll(tempDir, 0o700)
 		msg.OnErr(e)
 
 		// create a new file

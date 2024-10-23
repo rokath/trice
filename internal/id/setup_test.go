@@ -41,9 +41,9 @@ func Setup(t *testing.T) func() {
 	IDData.TagList = IDData.TagList[:0]
 
 	// set folders
-	UserHomeDir = Home                               // overwrite global variable for the id package tests
-	msg.FatalOnErr(FSys.MkdirAll(Proj, os.ModeDir))  // create project folder
-	msg.FatalOnErr(FSys.MkdirAll(Cache, os.ModeDir)) // create cache (it could be deleted in some tests)
+	UserHomeDir = Home                          // overwrite global variable for the id package tests
+	msg.FatalOnErr(FSys.MkdirAll(Proj, 0o700))  // create project folder
+	msg.FatalOnErr(FSys.MkdirAll(Cache, 0o700)) // create cache (it could be deleted in some tests)
 
 	// create til.json and li.json
 	FnJSON = Proj + t.Name() + "_til.json"
