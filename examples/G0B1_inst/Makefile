@@ -148,7 +148,7 @@ include flags.mak
 
 .PHONY: all gcc clean
 
-all: clang
+all: gcc #clang
 
 clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
 	@:

@@ -150,15 +150,15 @@ void triceTransferMultiFraming(void) {
 	// We know here, that at least one Trice is inside the Ring Buffer.
 	static int triceCount = 0; // triceCount it the count of Trices from the last call.
 	TRICE_ENTER_CRITICAL_SECTION
-	// Is known here, that the previous transmission is finished and we can advance.
+	// It is known here, that the previous transmission is finished and we can advance.
 	SingleTricesRingCount -= triceCount;
 	TRICE_LEAVE_CRITICAL_SECTION
 
 	static int wordCount = 0; // wordCount is the Ring Buffer space which is now free after the last transfer is finished.
 	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.
-	triceIncrementRingBufferReadPosition(wordCount)
+	triceIncrementRingBufferReadPosition(wordCount);
 
-	TriceMultiDeferredOut(&triceCount, &wordCount);
+	triceMultiDeferredOut(&triceCount, &wordCount);
 }
 
 #endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
@@ -173,6 +173,11 @@ void TriceTransfer(void) {
 		return;
 	}
 #endif
+//	if (SingleTricesRingCount == 1) { // There is just one singe Trice message ready for transfer.
+//		triceTransferSingleFraming();
+//		return;
+//	}
+	// Several Trice messages ready for transfer.
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 	triceTransferSingleFraming();
 #else 
@@ -245,43 +250,43 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 //! The data at TriceRingBufferReadPosition are getting destroyed, because buffer is used as scratch pad.
 static void triceSingleDeferredOut(int* wordCount) {
 	uint8_t* enc = ((uint8_t*)TriceRingBufferReadPosition) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of TriceRingBufferReadPosition.
-	uint8_t* pTriceNetStart;
-	size_t triceNetLength; // without padding bytes
+	uint8_t* pTriceNetStart; // Trice starts here. That is maybe a 2 bytes offset from TriceRingBufferReadPosition.
+	size_t triceNetLength; // Trice length without padding bytes.
 	int triceID = TriceIDAndBuffer(TriceRingBufferReadPosition, wordCount, &pTriceNetStart, &triceNetLength);
 	// We can let TRICE_DATA_OFFSET only in front of the ring buffer and pack the Trices without offset space.
 	// And if we allow as max depth only ring buffer size minus TRICE_DATA_OFFSET, we can use space in front of each Trice.
 
-#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
 #if TRICE_CONFIG_WARNINGS == 1
 #warning configuration: The Trice tool does not support encryption without COBS (or TCOBS) framing.
 #endif
 	size_t encLen = TriceEncode(TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, pTriceNetStart, triceNetLength);
-#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 	// comment: The following 2 steps could be done in an incremental way within one singe loop.
 	// Behind the trice brutto length (with padding bytes), 4 bytes needed as scratch pad when XTEA is active.
 	// After TriceIDAndBuffer pTriceNetStart could have a 2 bytes offset.
 	uint8_t* tmp = ((uint8_t*)TriceRingBufferReadPosition) - 4;
-	memmove(tmp, pTriceNetStart, triceNetLength);
+	memmove(tmp, pTriceNetStart, triceNetLength); // Make 4 bytes space for scratch pad beind Trice message.
 	size_t len8 = (triceNetLength + 7) & ~7;                // Only multiple of 8 are possible to encrypt, so we adjust len.
 	memset(tmp + triceNetLength, 0, len8 - triceNetLength); // clear padding space
 	XTEAEncrypt((uint32_t*)tmp, len8 >> 2);
 #if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
 	size_t encLen = (size_t)TCOBSEncode(enc, tmp, len8);
 #elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS
-	size_t encLen = (size_t)COBSEncode(enc, tmp, len8);
+	size_t encLen = COBSEncode(enc, tmp, len8);
 #else
 #error configuration
 #endif
 	enc[encLen++] = 0; // Add zero as package delimiter.
-#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 	size_t len = (size_t)TCOBSEncode(enc, pTriceNetStart, triceNetLength);
 	enc[len++] = 0; // Add zero as package delimiter.
 	size_t encLen = len;
-#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)
 	size_t len = (size_t)COBSEncode(enc, pTriceNetStart, triceNetLength);
 	enc[len++] = 0; // Add zero as package delimiter.
 	size_t encLen = len;
-#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
 	enc = pTriceNetStart;
 	size_t encLen = triceNetLength;
 #else
@@ -306,13 +311,68 @@ static void triceSingleDeferredOut(int* wordCount) {
 
 // triceMultiDeferredOut packs Trices until the Ring Buffer end and returns their count and total length in words.
 // These 2 values are used later, after the transmission is finished, for advancing.
-static void triceMultiDeferredOut( int* triceCount, int* wordCount){
-	// We can start at TriceRingBufferReadPosition and go to the RingBuffer end OR the TriceBufferWritePosition.
-
-	// todo ...
-
+static void triceMultiDeferredOut( int* triceCount, int* multiWordCount){
+	// We can start at TriceRingBufferReadPosition and go to the RingBuffer end OR the TriceBufferWritePosition using SingleTricesRingCount.
+	uint8_t* enc = ((uint8_t*)TriceRingBufferReadPosition) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of TriceRingBufferReadPosition.
+//#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
+//#if TRICE_DATA_OFFSET < 4
+//#error Configuration
+//#endif
+//	uint8_t* tmp = enc + 4; 
+//#else
+	uint8_t* tmp = enc + 4;
+//#endif
+	uint8_t* nextEnc = tmp;
+	int multiLen = 0;
+	uint32_t* nextTriceRingBufferReadPosition = TriceRingBufferReadPosition;
 	*triceCount = 0;
-	*wordCount = 0;
+	*multiWordCount = 0;
+	do{
+		int wordCount = 0;
+		uint8_t* pTriceNetStart; // Trice starts here. 
+		size_t triceNetLength; // Trice length without padding bytes.
+		TriceIDAndBuffer(nextTriceRingBufferReadPosition, &wordCount, &pTriceNetStart, &triceNetLength);
+		memmove(nextEnc, pTriceNetStart, triceNetLength);
+		nextEnc += triceNetLength;
+		multiLen += triceNetLength;
+		*multiWordCount += wordCount;
+		(*triceCount)++;
+		nextTriceRingBufferReadPosition += wordCount;
+	} while ( *triceCount < SingleTricesRingCount && nextTriceRingBufferReadPosition + (TRICE_BUFFER_SIZE >> 2) <= TriceRingBufferLimit);
+	
+#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
+#if TRICE_CONFIG_WARNINGS == 1
+#warning configuration: The Trice tool does not support encryption without COBS (or TCOBS) framing.
+#endif
+	size_t encLen = TriceEncode(TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, enc, multiLen);
+#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
+	size_t len8 = (multiLen + 7) & ~7;        // Only multiple of 8 are possible to encrypt, so we adjust len.
+	memset(tmp + multiLen, 0, len8 - multiLen); // clear padding space
+	XTEAEncrypt((uint32_t*)tmp, len8 >> 2);
+#if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
+	size_t encLen = (size_t)TCOBSEncode(enc, tmp, len8);
+#elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS
+	size_t encLen = (size_t)COBSEncode(enc, tmp, len8);
+#else
+#error configuration
+#endif
+#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+	size_t len = (size_t)TCOBSEncode(enc, tmp, multiLen);
+	enc[len++] = 0; // Add zero as package delimiter.
+	size_t encLen = len;
+#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS) 
+	size_t len = (size_t)COBSEncode(enc, tmp, multiLen);
+	enc[len++] = 0; // Add zero as package delimiter.
+	size_t encLen = len;
+#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE) 
+	size_t encLen = multiLen;
+#else
+#error configuration: TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE for ring buffer not implemented yet
+#endif
+#if TRICE_DIAGNOSTICS == 1
+// todo ...
+#endif // #if TRICE_DIAGNOSTICS == 1
+	TriceNonBlockingDeferredWrite8(0, enc, encLen);
 }
 
 #endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
