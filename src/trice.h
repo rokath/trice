@@ -231,7 +231,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 // global variables:
 
 extern uint32_t* const triceSingleBufferStartWritePosition;
-extern unsigned SingleTricesRingCount;
+extern unsigned TricesCountRingBuffer;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
 extern uint8_t TriceCycle;
@@ -516,7 +516,7 @@ extern uint32_t* TriceBufferWritePosition;
 						TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE >> 2)) <= TriceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
 						/*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */                                                                  \
 						uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
-						SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+						TricesCountRingBuffer++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 		#else //  #if TRICE_PROTECT == 1
 
@@ -531,7 +531,7 @@ extern uint32_t* TriceBufferWritePosition;
 						TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE >> 2)) <= TriceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
 						/*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */                                                                  \
 						uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
-						SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+						TricesCountRingBuffer++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 		#endif // #else //  #if TRICE_PROTECT == 1
 
@@ -548,7 +548,7 @@ extern uint32_t* TriceBufferWritePosition;
 						TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE >> 2)) <= TriceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
 						/*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */                                                                  \
 						TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START                                                                                                                  \
-						SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+						TricesCountRingBuffer++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 		#else //  #if TRICE_PROTECT == 1
 
@@ -559,7 +559,7 @@ extern uint32_t* TriceBufferWritePosition;
 						TriceBufferWritePosition = (TriceBufferWritePosition + (TRICE_BUFFER_SIZE >> 2)) <= TriceRingBufferLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
 						/*TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2);*/ /* space for in buffer encoding */                                                                  \
 						TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START                                                                                                                  \
-						SingleTricesRingCount++; // Because TRICE macros are an atomic instruction normally, this can be done here.
+						TricesCountRingBuffer++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 		#endif // #else //  #if TRICE_PROTECT == 1
 

@@ -42,8 +42,8 @@ uint32_t* const TriceRingBufferStart = triceRingBuffer + TRICE_RING_BUFFER_LOWER
 //! See also comment inside triceSingleDeferredOut.
 uint32_t* const TriceRingBufferLimit = TriceRingBufferStart + (TRICE_DEFERRED_BUFFER_SIZE >> 2) - TRICE_DEFERRED_XTEA_ENCRYPT;
 
-//! SingleTricesRingCount holds the readable trices count inside triceRingBuffer.
-unsigned SingleTricesRingCount = 0;
+//! TricesCountRingBuffer holds the readable trices count inside triceRingBuffer.
+unsigned TricesCountRingBuffer = 0;
 
 //! TriceBufferWritePosition is used by the TRICE_PUT macros.
 uint32_t* TriceBufferWritePosition = TriceRingBufferStart;
@@ -60,9 +60,9 @@ uint32_t* TriceRingBufferReadPosition = TriceRingBufferStart;
 
 #if TRICE_DIAGNOSTICS == 1
 
-//! SingleTricesRingCountMax holds the max count of trices occurred inside the ring buffer.
+//! TricesCountRingBufferMax holds the max count of trices occurred inside the ring buffer.
 //! This value is only informal, because the length of the trice messages is not known.
-// unsigned SingleTricesRingCountMax = 0;
+// unsigned TricesCountRingBufferMax = 0;
 
 //! TriceRingBufferDepthMax holds the max occurred ring buffer depth.
 int TriceRingBufferDepthMax = 0;
@@ -125,10 +125,10 @@ TRICE_INLINE void triceRingBufferDiagnostics(void){
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 
 //! triceTransferSingleFraming transfers a single Trice from the Ring Buffer.
-//! Implicit assumed is, that the pre-condition "SingleTricesRingCount > 0" is fulfilled.
+//! Implicit assumed is, that the pre-condition "TricesCountRingBuffer > 0" is fulfilled.
 void triceTransferSingleFraming(void) {
 	TRICE_ENTER_CRITICAL_SECTION
-	SingleTricesRingCount--; // We decrement, even the Trice is not out yet.
+	TricesCountRingBuffer--; // We decrement, even the Trice is not out yet.
 	TRICE_LEAVE_CRITICAL_SECTION
 
 	static int lastWordCount = 0; // lastWordCount is needed to increment TriceRingBufferReadPosition accordingly after transfer is done.
@@ -151,14 +151,14 @@ void triceTransferMultiFraming(void) {
 	static int triceCount = 0; // triceCount it the count of Trices from the last call.
 	TRICE_ENTER_CRITICAL_SECTION
 	// It is known here, that the previous transmission is finished and we can advance.
-	SingleTricesRingCount -= triceCount;
+	TricesCountRingBuffer -= triceCount;
 	TRICE_LEAVE_CRITICAL_SECTION
 
 	static int multiWordCount = 0; // wordCount is the Ring Buffer space which is now free after the last transfer is finished.
 	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.
-	triceIncrementRingBufferReadPosition(wordCount);
+	triceIncrementRingBufferReadPosition(multiWordCount);
 
-	if(SingleTricesRingCount == 0){
+	if(TricesCountRingBuffer == 0){ // Could be 0 after last triceCount Trice transmit.
 		triceCount = 0;
 		multiWordCount = 0;
 		return;
@@ -171,7 +171,7 @@ void triceTransferMultiFraming(void) {
 
 //! TriceTransfer needs to be called cyclically to read out the Ring Buffer.
 void TriceTransfer(void) {
-	if (SingleTricesRingCount == 0) { // no data
+	if (TricesCountRingBuffer == 0) { // no data
 		return;
 	}
 #if TRICE_CGO == 0         // In automated tests we assume last transmission is finished, so we do not test depth to be able to test multiple Trices in deferred mode.
@@ -313,7 +313,7 @@ static void triceSingleDeferredOut(int* wordCount) {
 // triceMultiDeferredOut packs Trices until the Ring Buffer end and returns their count and total length in words.
 // These 2 values are used later, after the transmission is finished, for advancing.
 static void triceMultiDeferredOut( int* triceCount, int* multiWordCount){
-	// We can start at TriceRingBufferReadPosition and go to the RingBuffer end OR the TriceBufferWritePosition using SingleTricesRingCount.
+	// We can start at TriceRingBufferReadPosition and go to the RingBuffer end OR the TriceBufferWritePosition using TricesCountRingBuffer.
 	uint8_t* enc = ((uint8_t*)TriceRingBufferReadPosition) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of TriceRingBufferReadPosition.
 //#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 //#if TRICE_DATA_OFFSET < 4
@@ -339,7 +339,7 @@ static void triceMultiDeferredOut( int* triceCount, int* multiWordCount){
 		*multiWordCount += wordCount;
 		(*triceCount)++;
 		nextTriceRingBufferReadPosition += wordCount;
-	} while ( *triceCount < SingleTricesRingCount && nextTriceRingBufferReadPosition + (TRICE_BUFFER_SIZE >> 2) <= TriceRingBufferLimit);
+	} while ( *triceCount < TricesCountRingBuffer && nextTriceRingBufferReadPosition + (TRICE_BUFFER_SIZE >> 2) <= TriceRingBufferLimit);
 	
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
 #if TRICE_CONFIG_WARNINGS == 1

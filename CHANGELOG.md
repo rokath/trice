@@ -312,7 +312,7 @@ This is a major release hopefully not breaking too much!
 | `4ba15703` | *.svg added to .gitattributes                                                                             |
 | `29c4047f` | devel merged into master                                                                                  |
 | `84fc77e1` | Merge pull request #487 from Sazerac4/feat/add_style                                                      |
-| `55b71eae` | (origin/devel, devel) SingleTricesRingCount--; into critical section and some formatting                  |
+| `55b71eae` | (origin/devel, devel) TricesCountRingBuffer--; into critical section and some formatting                  |
 | `580af89a` | Add .editorconfig file                                                                                    |
 | `0aafdf60` | (pullRequest487, pr/487) Change PointerAlignment to Left                                                  |
 | `63adada8` | Format code: - LLVM style - IndentWidth: 4 - ColumnLimit: 0                                               |
