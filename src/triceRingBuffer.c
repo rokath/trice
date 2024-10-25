@@ -154,11 +154,17 @@ void triceTransferMultiFraming(void) {
 	SingleTricesRingCount -= triceCount;
 	TRICE_LEAVE_CRITICAL_SECTION
 
-	static int wordCount = 0; // wordCount is the Ring Buffer space which is now free after the last transfer is finished.
+	static int multiWordCount = 0; // wordCount is the Ring Buffer space which is now free after the last transfer is finished.
 	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.
 	triceIncrementRingBufferReadPosition(wordCount);
 
-	triceMultiDeferredOut(&triceCount, &wordCount);
+	if(SingleTricesRingCount == 0){
+		triceCount = 0;
+		multiWordCount = 0;
+		return;
+	}
+
+	triceMultiDeferredOut(&triceCount, &multiWordCount);
 }
 
 #endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
@@ -169,15 +175,10 @@ void TriceTransfer(void) {
 		return;
 	}
 #if TRICE_CGO == 0         // In automated tests we assume last transmission is finished, so we do not test depth to be able to test multiple Trices in deferred mode.
-	if (TriceOutDepth()) { // last transmission not finished
+	if (TriceOutDepth()) { // Last transmission not finished. todo: Write TriceOutDepth() as dummy for TRICE_CGO.
 		return;
 	}
 #endif
-//	if (SingleTricesRingCount == 1) { // There is just one singe Trice message ready for transfer.
-//		triceTransferSingleFraming();
-//		return;
-//	}
-	// Several Trice messages ready for transfer.
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 	triceTransferSingleFraming();
 #else 
