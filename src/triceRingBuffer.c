@@ -174,8 +174,8 @@ void TriceTransfer(void) {
 	if (TricesCountRingBuffer == 0) { // no data
 		return;
 	}
-#if TRICE_CGO == 0         // In automated tests we assume last transmission is finished, so we do not test depth to be able to test multiple Trices in deferred mode.
-	if (TriceOutDepth()) { // Last transmission not finished. todo: Write TriceOutDepth() as dummy for TRICE_CGO.
+#if TRICE_CGO == 0 // In automated tests we assume last transmission is finished, so we do not test depth to be able to test multiple Trices in deferred mode.
+	if (TriceOutDepth() > 0) { // Last transmission not finished. todo: Write TriceOutDepth() as dummy for TRICE_CGO.
 		return;
 	}
 #endif
