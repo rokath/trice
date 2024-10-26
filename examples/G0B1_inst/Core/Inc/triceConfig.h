@@ -11,8 +11,8 @@ extern "C" {
 
 // hardware specific trice lib settings
 #include "main.h" 
-#define TriceStamp16  TIM17->CNT     // 0...999 us
-#define TriceStamp32  HAL_GetTick()  // 0...2^32-1 ms
+#define TriceStamp16  0x1616 // TIM17->CNT     // 0...999 us
+#define TriceStamp32  0x32323232 // HAL_GetTick()  // 0...2^32-1 ms
 
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
@@ -26,8 +26,8 @@ extern "C" {
 // trice log -p com7 -pw MySecret -pf COBS
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
-#define TRICE_DEFERRED_XTEA_ENCRYPT 1
-#define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
+// #define TRICE_DEFERRED_XTEA_ENCRYPT 1
+// #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
 
