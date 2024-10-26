@@ -1,6 +1,6 @@
-# *Trice* Channels and Color
+# *Trice* Tags and Color
 
-> *Trice* is usable without channels and color similar to printf also.
+> *Trice* is usable without tags and color similar to printf also.
 <!-- vscode-markdown-toc -->
 * 1. [How to get](#Howtoget)
 	* 1.1. [Output options](#Outputoptions)
@@ -15,8 +15,8 @@
 
 ##  1. <a name='Howtoget'></a>How to get
 
-* Add a channel name as color descriptor in front of each `TRICE` format string like `"wrn:Peng!"`.
-* In file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) the colors are changeable and additional color channels definable.
+* Add a tag name as color descriptor in front of each `TRICE` format string like `"wrn:Peng!"`.
+* In file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) the colors are changeable and additional color tags definable.
 * It is possible to concatenate single colorized letters to get output like this:
 
 ![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
@@ -24,9 +24,9 @@
 * [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) contains the code for this example.
 * The **trice** tool, if knowing `wrn:` as pattern, prepends the appropriate color code. It removes the sequence `wrn:`, if it is known and completely lower case.
 * The user can define any pattern with any color code to create colored output with the **trice** tool.
-* There is no channel enable switch inside the target code. It would need a back channel and add overhead.
-  * A future extension could make that an option using channel specific ID range assignment. See also issue [#243](https://github.com/rokath/trice/issues/243).
-* The **trice** tool offers the 2 command line switches `-pick` and `-ban` to control channel visualization during runtime.  
+* There is no tag enable switch inside the target code. It would need a back channel and add overhead.
+  * An option using tag specific ID range assignment exists. See closed issue [#243](https://github.com/rokath/trice/issues/243).
+* The **trice** tool offers the 2 command line switches `-pick` and `-ban` to control tag visualization during runtime.  
 
 ###  1.1. <a name='Outputoptions'></a>Output options
 

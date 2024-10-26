@@ -21,7 +21,7 @@ Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process
 
 ## Trice Cache Logic
 
-When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and `~/.trice/cache` exists, we have
+When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder `~/.trice/cache` exists, we have
 - optionally a _cleaned cache file_   `~/.trice/cache/cleaned/fullpath/file`  with mtime of _IDs cleaned_
 - optionally an _inserted cache file_ `~/.trice/cache/inserted/fullpath/file` with mtime of _IDs inserted_
 - `fullpath/file` with mtime of _IDs cleaned_ **OR** _IDs inserted_ **OR** _last edit_. When mtime of `path/file` is:
@@ -41,10 +41,10 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and `~/.trice/
 
 > Should the `.trice/cache` be better located inside the project folder? What, if the user has several projects and several users on the same machine working on projects together? What about libraries containing trice code?
 
-- The `~/.trice/cache` folder should the Trice tool **not** create automatically in the users home folder `$HOME`. The existence of this folder is user controlled. The folder must exist. If several users work on the same project and some use the cache and some not - it is is possible this way.
+- The `~/.trice/cache` folder should the Trice tool **not** create automatically in the users home folder `$HOME`. The existence of this folder is user controlled. The folder must exist. If several users work on the same project and some use the cache and some not - it is is possible this way, even build scripts are shared.
 - The `~/.trice/cache` folder should **not** go under revision control.
 - A CLI switch `-cache` does enable/disable the Trice cache. Default is off.
-- The user should consider what happens, if other pre-compile ode post-compile steps are modifying files as well, before enabling the Trice cache. 
+- The user should consider what happens, if other pre-compile or post-compile steps are modifying files as well, before enabling the Trice cache. 
 
 ## Tests
 
