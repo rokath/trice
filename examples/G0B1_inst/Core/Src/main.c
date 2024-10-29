@@ -108,9 +108,9 @@ int main(void)
   trice("w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
   trice64("w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
   TRice64_12("%x %x %x %x %x %x %x %x %x %x %x %d\n", 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa);
-  //  for( int i = 0; i < 100; i++ ){
-  //    Trice("i=%x%x\n", 0x55555555, 0xaaaaaa00 + i );
-  //  }
+    for( int i = 0; i < 100; i++ ){
+      trice("i=%x %x\n", 0x44444400 + i, 0xaaaaaa00 + i );
+    }
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -351,12 +351,61 @@ void StartTask02(void const * argument)
   for(;;)
   {
     TriceTransfer();
+    osDelay(100);
     static int i = 0;
-    if( ++i >= 3000 ){
+    if( ++i >= 10 ){
       i = 0;
       TriceLogDiagnosticData();
     }
-    osDelay(1);
+    TriceTransfer();
+    osDelay(100);
+
+    int k = 0xa0;
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    TriceTransfer();
+    osDelay(100);
+    TriceTransfer();
+    osDelay(100);
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    TriceTransfer();
+    osDelay(100);
+    TriceTransfer();
+    osDelay(100);
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    TriceTransfer();
+    osDelay(200);
+    TriceTransfer();
+    osDelay(100);
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    TriceTransfer();
+    osDelay(100);
+    TriceTransfer();
+    osDelay(100);
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    TriceTransfer();
+    osDelay(100);
+    TriceTransfer();
+    osDelay(100);
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
+    TriceTransfer();
+    osDelay(100);
+    TriceTransfer();
+    osDelay(100);
   }
   /* USER CODE END StartTask02 */
 }

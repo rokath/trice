@@ -115,7 +115,7 @@ void TIM17_FDCAN_IT1_IRQHandler(void)
   /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
   static int i = 0;
   if( i++>25000 ){
-    TRice("isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i );
+    trice("isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i );
     i = 0;
   }
   /* USER CODE END TIM17_FDCAN_IT1_IRQn 1 */
