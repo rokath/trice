@@ -16,21 +16,21 @@ void TriceLogDiagnosticData(void) {
 #ifdef SEGGER_RTT
 	int RTT0_wrSpaceMin = BUFFER_SIZE_UP - RTT0_writeDepthMax;
 	if ((RTT0_wrSpaceMin < TRICE_BUFFER_SIZE)) {
-		trice(iD(16300), "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP);
+		trice16(iD(16300), "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP);
 	} else {
-		trice(iD(16301), "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP);
+		trice16(iD(16301), "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\n", RTT0_writeDepthMax, BUFFER_SIZE_UP);
 	}
 #endif // #ifdef SEGGER_RTT
 
 	if (TriceErrorCount > 0) {
-		trice(iD(16302), "err: TriceErrorCount = %u\n", TriceErrorCount);
+		trice16(iD(16302), "err: TriceErrorCount = %u\n", TriceErrorCount);
 	}
 #if TRICE_PROTECT == 1
 	if (TriceDirectOverflowCount != 0) {
-		trice(iD(16303), "err: TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount);
+		trice16(iD(16303), "err: TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount);
 	}
 	if (TriceDeferredOverflowCount != 0) {
-		trice(iD(16304), "err: TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount);
+		trice16(iD(16304), "err: TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount);
 	}
 #endif
 
@@ -48,7 +48,7 @@ void TriceLogDiagnosticData(void) {
 	}
 
 	if (TriceDynBufTruncateCount != 0) {
-		trice8(iD(16309), "err: TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount);
+		trice16(iD(16309), "err: TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount);
 	}
 
 #if TRICE_BUFFER == TRICE_STACK_BUFFER
@@ -59,9 +59,9 @@ void TriceLogDiagnosticData(void) {
 
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 	if (TriceHalfBufferDepthMax <= TRICE_DEFERRED_BUFFER_SIZE / 2) {
-		TRice16(iD(16310), "diag:TriceHalfBufferDepthMax =%4u of%5d\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE / 2);
+		trice16(iD(16310), "diag:TriceHalfBufferDepthMax =%4u of%5d\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE / 2);
 	} else {
-		TRice16(iD(16311), "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE / 2);
+		trice16(iD(16311), "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\n", TriceHalfBufferDepthMax, TRICE_DEFERRED_BUFFER_SIZE / 2);
 	}
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER
 
