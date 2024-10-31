@@ -144,11 +144,11 @@ extern "C" {
 
 #ifndef TRICE_DEFERRED_TRANSFER_MODE
 //! TRICE_DEFERRED_TRANSFER_MODE is the selected deferred trice transfer method. Options:
-//! - TRICE_SINGLE_PACK_MODE packs each Trice message separately and adds a 0-delimiter byte. This reduces the transmit byte count. In case of a lost package only one Trice can get lost.
+//! - TRICE_SINGLE_PACK_MODE packs each Trice message separately and adds a 0-delimiter byte. This increases the transmit byte count slightly. In case of a lost package only one Trice can get lost.
 //! - TRICE_MULTI_PACK_MODE packs several trice messages before adding a 0-delimiter byte. This reduces the transmit byte count. In case of a lost package several Trices can get lost.
 //! - When using encryption, the TRICE_MULTI_PACK_MODE can significantly reduce the transmit byte count, because in TRICE_SINGLE_PACK_MODE each Trice message gets extended
-//! with 1 to 7 padding bytes before encryption. TRICE_MULTI_PACK_MODE is implemented for TRICE_DOUBLE_BUFFER but not yet for TRICE_RING_BUFFER and not possible for TRICE_STACK_BUFFER and TRICE_STATIC_BUFFER.
-#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
+//! with 1 to 7 padding bytes before encryption. TRICE_MULTI_PACK_MODE is not possible for TRICE_STACK_BUFFER and TRICE_STATIC_BUFFER (direct mode).
+#define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
 #endif
 
 #ifndef TRICE_RING_BUFFER_OVERFLOW_WATCH
