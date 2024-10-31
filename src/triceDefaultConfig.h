@@ -235,6 +235,11 @@ extern "C" {
 #define TRICE_DEFERRED_BUFFER_SIZE 1024
 #endif
 
+#ifndef TRICE_RING_BUFFER_SIZE
+//! TRICE_RING_BUFFER_SIZE is the ring buffer net size. Together with TRICE_DATA_OFFSET it is the TRICE_DEFERRED_BUFFER_SIZE.
+#define TRICE_RING_BUFFER_SIZE (TRICE_DEFERRED_BUFFER_SIZE - TRICE_DATA_OFFSET)
+#endif
+
 #ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
 //! Long story short: Whith big endian target MCUs simply apply the `-triceEndianness bigEndian` CLI switch when using the `trice log` command.
 //! Long story long:
