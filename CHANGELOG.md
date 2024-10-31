@@ -21,7 +21,10 @@
 - [12. v0.71.0 Changes](#12-v0710-changes)
 	- [12.1. Overview](#121-overview)
 	- [12.2. Git Log](#122-git-log)
-- [13. master branch changes](#13-master-branch-changes)
+- [13. v0.72.0 Changes](#13-v0720-changes)
+	- [13.1. Overview](#131-overview)
+	- [13.2. Goit Log](#132-goit-log)
+- [14. master branch changes](#14-master-branch-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -557,12 +560,39 @@ Hash       | Comment
 `62eacd08` | Doubled used ID test added
 `85686181` | v0.70.0 changelog added
 
-##  13. <a name='masterbranchchanges'></a>master branch changes
+##  13. <a name='v0.72.0Changes'></a>v0.72.0 Changes
+
+###  13.1. <a name='Overview-1'></a>Overview
+
+- Trice cache folders now with correct permissions.
+- Trice deferred mode for ring buffer now also supports multi pack mode.
+- Multi pack mode now as default setting for deferred modes.
+
+###  13.2. <a name='GoitLog'></a>Goit Log
 
 Used git log command: `git log --oneline` and less important lines removed
 
 Hash       | Comment
 -----------|------------------------------------------------------------------------------------------------------------
+`2289bd9d` | TRICE_SINGLE_PACK_MODE set explicit
+`8330b41f` | MacOS adapted
+`198c179e` | TRICE_MULTI_PACK_MODE is now default config for deferred mode
+`8062bf42` | tmp buffer offset changed from 4 to TRICE_DATA_OFFSET/2
+`74d0a6ad` | double buffer code slightly refactored to avoid editor warnings
+`d13d18fd` | Default for TRICE_RING_BUFFER_SIZE added.
+`bb34d508` | Issue #506 done
+`bc41fc80` | Diagnostics data example refined
+`69ec730c` | ring buffer multi pack mode debug wip
+`34b78536` | minor corrections
+`bcb8786c` | ring buffer multi pack tests added
+`753d115f` | Additional config error warnings added
+`90219e45` | wip #506
+`12cdc6f0` | Cache MkdirAll permissions fixed
+`10f7901e` | macOS adaptions (wip)
+`732b36a4` | Merge remote-tracking branch 'origin/devel' into devel
+`b7c52eb6` | CLI switch "-singleFraming" deactivated in staticB_di_tcobs_rtt32 test
+`933b3310` | test script added
+`44f2b31b` | Optional CLI switch "-singleFraming" added.
 `14d65fbc` | 100ms Sleep moved from "fromFile" to "FileWatcher"
 `bdc6e5fc` | master merged into devel
 `32bf83bf` | The tests in folder "_test" now executable with `cd _test && go test ./... && cd -`
@@ -575,3 +605,5 @@ Hash       | Comment
 `88cb164b` | Scripts adapted to better work with the Trice cache.
 `9b309925` | Trice cache "issue" chapter added
 `014ebdfc` | v0.71.0 ChangeLog added
+
+##  14. <a name='masterbranchchanges'></a>master branch changes
