@@ -29,35 +29,68 @@ static void triceMultiDeferredOut(int* triceCount, int* wordCount);
 
 //! triceRingBuffer is a kind of heap for trice messages. It needs to be initialized with 0.
 //! Initial:
-//! |<-LM->|<----------------  triceRingBuffer  ----------------->|<-UM->|
-//! |<-LM->|<--TRICE_DATA_OFFSET-->|<-- TRICE_RING_BUFFER_SIZE -->|<-UM->|
-//!                                |                              ^--------- TriceRingBufferLimit
-//!                                ^---------------------------------------- TriceBufferWritePosition  
-//!                                ^---------------------------------------- TriceRingBufferReadPosition  
-//!                                ^---------------------------------------- TriceRingBufferStart  
+//! |<-LM->|<----------------  triceRingBuffer  ------------------------------------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|<---------------- TRICE_RING_BUFFER_SIZE -------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|<--        writable        -->|<-- TRICE_RING_BUFFER_MIN_SPACE32 -->|<-UM->|
+//!                                |                              |                                     ^--------- TriceRingBufferLimit
+//!                                |                              ^----------------------------------------------- TriceRingBufferProtectLimit  
+//!                                ^------------------------------------------------------------------------------ TriceBufferWritePosition  
+//!                                ^------------------------------------------------------------------------------ TriceRingBufferReadPosition  
+//!                                ^------------------------------------------------------------------------------ TriceRingBufferStart  
+//!
 //! After some writes:
-//! |<-LM->|<----------------  triceRingBuffer  ----------------->|<-UM->|
-//! |<-LM->|<--TRICE_DATA_OFFSET-->|<-T->|<-T->|<- unused area -->|<-UM->|
-//!                                |           |                  ^--------- TriceRingBufferLimit
-//!                                |           ^---------------------------- TriceBufferWritePosition  
-//!                                ^---------------------------------------- TriceRingBufferReadPosition  
-//!                                ^---------------------------------------- TriceRingBufferStart  
+//! |<-LM->|<----------------  triceRingBuffer  ------------------------------------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|<---------------- TRICE_RING_BUFFER_SIZE -------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|<-T->|<-T->|<--  writable  -->|<-- TRICE_RING_BUFFER_MIN_SPACE32 -->|<-UM->|
+//!                                |           |                  |                                     ^--------- TriceRingBufferLimit
+//!                                |           |                  ^----------------------------------------------- TriceRingBufferProtectLimit  
+//!                                |           ^------------------------------------------------------------------ TriceBufferWritePosition  
+//!                                ^------------------------------------------------------------------------------ TriceRingBufferReadPosition  
+//!                                ^------------------------------------------------------------------------------ TriceRingBufferStart  
+//!
 //! After some reads:
-//! |<-LM->|<----------------  triceRingBuffer  ----------------->|<-UM->|
-//! |<-LM->|<--TRICE_DATA_OFFSET-->|<-unused ->|<- unused area -->|<-UM->|
-//!                                |           |                  ^--------- TriceRingBufferLimit
-//!                                |           ^---------------------------- TriceBufferWritePosition  
-//!                                |           ^---------------------------- TriceRingBufferReadPosition  
-//!                                ^---------------------------------------- TriceRingBufferStart  
-static uint32_t triceRingBuffer[TRICE_RING_BUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET >> 2) + (TRICE_RING_BUFFER_SIZE >> 2) + TRICE_RING_BUFFER_UPPER_MARGIN] = {0};
+//! |<-LM->|<----------------  triceRingBuffer  ------------------------------------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|<---------------- TRICE_RING_BUFFER_SIZE -------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|<writable->|<--  writable  -->|<-- TRICE_RING_BUFFER_MIN_SPACE32 -->|<-UM->|
+//!                                |           |                  |                                     ^--------- TriceRingBufferLimit
+//!                                |           |                  ^----------------------------------------------- TriceRingBufferProtectLimit  
+//!                                |           ^------------------------------------------------------------------ TriceBufferWritePosition  
+//!                                |           ^-------------------------------------------------------------------TriceRingBufferReadPosition  
+//!                                ^------------------------------------------------------------------------------ TriceRingBufferStart  
+//!
+//! After some time:
+//! |<-LM->|<----------------  triceRingBuffer  ------------------------------------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|<---------------- TRICE_RING_BUFFER_SIZE -------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|                              |<-- TRICE_RING_BUFFER_MIN_SPACE32 -->|<-UM->|
+//!                                |                              |                                     ^--------- TriceRingBufferLimit
+//!                                |                              ^----------------------------------------------- TriceRingBufferProtectLimit
+//!                                |<-- writable -->|<-T->|<-T->|<-T->|<-------- not writable --------->|<-UM->|
+//!                                |                |                 ^------------------------------------------- TriceBufferWritePosition, no more TRICE_RING_BUFFER_MIN_SPACE32!
+//!                                |                ^------------------------------------------------------------- TriceRingBufferReadPosition
+//!                                ^------------------------------------------------------------------------------ TriceRingBufferStart
+//! With next Trice, TriceBufferWritePosition has to wrap firstly:
+//! |<-LM->|<----------------  triceRingBuffer  ------------------------------------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|<---------------- TRICE_RING_BUFFER_SIZE -------------------------->|<-UM->|
+//! |<-LM->|<--TRICE_DATA_OFFSET-->|                              |<-- TRICE_RING_BUFFER_MIN_SPACE32 -->|<-UM->|
+//!                                |                              |                                     ^--------- TriceRingBufferLimit
+//!                                |                              ^----------------------------------------------- TriceRingBufferProtectLimit
+//!                                |<-- writable -->|<-T->|<-T->|<-T->|<-------- not writable --------->|<-UM->|   When depth32(==writable) < TRICE_RING_BUFFER_MIN_SPACE32, no write is possible.
+//!                                |                ^------------------------------------------------------------- TriceRingBufferReadPosition
+//!                                ^------------------------------------------------------------------------------ TriceBufferWritePosition (wrapped)
+//!                                ^------------------------------------------------------------------------------ TriceRingBufferStart
+uint32_t triceRingBuffer[TRICE_RING_BUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET >> 2) + (TRICE_RING_BUFFER_SIZE >> 2) + TRICE_RING_BUFFER_UPPER_MARGIN] = {0};
+
+//! TRICE_RING_BUFFER_MIN_SPACE32 is the needed space before a new Trice is allowed to be written.
+//! The TRICE_DATA_OFFSET guaranties, that in front of TriceRingBufferReadPosition is always a scratch pad.
+#define TRICE_RING_BUFFER_MIN_SPACE32 ((TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET) >> 2)
 
 //! TRICE_RING_BUFFER_START is a helper definition to avoid warning "expression must have a constant value".
 #define TRICE_RING_BUFFER_START (triceRingBuffer + TRICE_RING_BUFFER_LOWER_MARGIN + (TRICE_DATA_OFFSET >> 2))
 
-//! TriceRingBufferStart is an inmutable pointer to the begin of the triceRingBuffer area.
+//! TriceRingBufferStart is an immutable pointer to the begin of the triceRingBuffer area.
 uint32_t* const TriceRingBufferStart = TRICE_RING_BUFFER_START;
 
-//! triceBufferWriteLimit is the first address behind triceRingBuffer area and inmutable.
+//! triceBufferWriteLimit is the first address behind triceRingBuffer area and immutable.
 //! With encryption it can happen that 4 bytes following TriceRingBufferLimit are used as scratch pad.
 //! We use the value of TRICE_DEFERRED_XTEA_ENCRYPT (0 or 1) here to respect that
 //! See also comment inside triceSingleDeferredOut.
@@ -68,10 +101,6 @@ unsigned TricesCountRingBuffer = 0;
 
 //! TriceBufferWritePosition is used by the TRICE_PUT macros.
 uint32_t* TriceBufferWritePosition = TRICE_RING_BUFFER_START;
-
-//! TRICE_RING_BUFFER_MIN_SPACE32 is the needed space before a new Trice is allowed to be written.
-//! The TRICE_DATA_OFFSET guaranties, that in front of TriceRingBufferReadPosition is always a scratch pad.
-#define TRICE_RING_BUFFER_MIN_SPACE32 ((TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET) >> 2)
 
 //! TriceRingBufferProtectLimit is the first address not allowed to be written to in any circumstances.
 //! If TriceBufferWritePosition >= TriceRingBufferProtectLimit, TriceBufferWritePosition needs to wrap.
@@ -117,7 +146,7 @@ int TriceEnoughSpace(void) {
 	}
 	// This fn is called before an intended trice data write ande therefore additional at least TRICE_SINGLE_MAX_SIZE>>2 32-bit words need to fit in the buffer.
 	// There must be left TRICE_DATA_OFFSET space behind the last Trice to be usable as scratch pad in front of TriceRingBufferReadPosition.
-	if (depth32 <= (TRICE_RING_BUFFER_SIZE - TRICE_RING_BUFFER_MIN_SPACE32 {
+	if (depth32 <= (TRICE_RING_BUFFER_SIZE>>2) - TRICE_RING_BUFFER_MIN_SPACE32) {
 		return 1;
 	} else {
 noSpace:
@@ -134,7 +163,7 @@ noSpace:
 //! \param lastWordCount is the u32 count of the last read trice including padding bytes.
 TRICE_INLINE void triceIncrementRingBufferReadPosition(int wordCount){
 	TriceRingBufferReadPosition += wordCount;
-	if (TriceRingBufferReadPosition > TriceRingBufferLimit - TRICE_RING_BUFFER_MIN_SPACE32) {
+	if (TriceRingBufferReadPosition > TriceRingBufferProtectLimit) {
 		TriceRingBufferReadPosition = TriceRingBufferStart;
 	}
 }
@@ -155,6 +184,12 @@ TRICE_INLINE void triceRingBufferDiagnostics(void){
 //! triceTransferSingleFraming transfers a single Trice from the Ring Buffer.
 //! Implicit assumed is, that the pre-condition "TricesCountRingBuffer > 0" is fulfilled.
 void triceTransferSingleFraming(void) {
+	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.
+
+	static int lastWordCount = 0; // lastWordCount is needed to increment TriceRingBufferReadPosition accordingly after transfer is done.
+	triceIncrementRingBufferReadPosition(lastWordCount);
+	lastWordCount = 0;
+
 	if (TricesCountRingBuffer == 0) { // no data
 		return;
 	}	
@@ -162,9 +197,6 @@ void triceTransferSingleFraming(void) {
 	TricesCountRingBuffer--; // We decrement, even the Trice is not out yet.
 	TRICE_LEAVE_CRITICAL_SECTION
 
-	static int lastWordCount = 0; // lastWordCount is needed to increment TriceRingBufferReadPosition accordingly after transfer is done.
-	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.
-	triceIncrementRingBufferReadPosition(lastWordCount);
 
 	// The trice data are starting at byte offset TRICE_DATA_OFFSET from TriceRingBufferReadPosition.
 	triceSingleDeferredOut(&lastWordCount);
@@ -177,6 +209,7 @@ void triceTransferSingleFraming(void) {
 //! triceTransferMultiFraming transfers several, but not necessarily all, Trices from the Ring Buffer.
 void triceTransferMultiFraming(void) {
 	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.
+
 	// The Ring Buffer can contain a fair amount of trices and we do not want them copy in a separate buffer for less RAM usage.
 	// Therefore we pack all Trices until the Ring Buffer end (where it wraps) together.
 	// We know here, that at least one Trice is inside the Ring Buffer.
