@@ -228,58 +228,6 @@ void triceTransferMultiFraming(void) {
 	return;
 }
 
-
-//! Initial:
-//! |<-------------  triceRingBuffer  ----------------------->|
-//! |<--TRICE_DATA_OFFSET-->|<--    Trices area    ---------->|
-//!                         |                                 ^-- TriceRingBufferLimit
-//!                         ^------------------------------------ TriceBufferWritePosition  
-//!                         ^------------------------------------ TriceRingBufferReadPosition  
-//!                         ^------------------------------------ TriceRingBufferStart  
-//! After some Trices:
-//! |<-------------  triceRingBuffer  ----------------------->|
-//! |<--TRICE_DATA_OFFSET-->|<--Trices-->|<--     area     -->|
-//!                         |            |                    ^-- TriceRingBufferLimit
-//!                         |            ^----------------------- TriceBufferWritePosition  
-//!                         ^------------------------------------ TriceRingBufferReadPosition  
-//!                         ^------------------------------------ TriceRingBufferStart  
-//! After some Trices:
-//! |<----------------  triceRingBuffer  -------------------->|
-//! |<--TRICE_DATA_OFFSET-->|<--    Trices    -->| area    -->|
-//!                         |                    |            ^-- TriceRingBufferLimit
-//!                         |                    ^--------------- TriceBufferWritePosition  
-//!                         ^------------------------------------ TriceRingBufferReadPosition  
-//!                         ^------------------------------------ TriceRingBufferStart  
-//! After TriceTransfer:
-//! |<----------------  triceRingBuffer  -------------------->|
-//! |<--TRICE_DATA_OFFSET-->|<--multiWordCount-->|<-- area -->|
-//! |<--encLen-->0    <--  TRICE_DATA_OFFSET  -->|            |
-//! |                       |                    |            ^-- TriceRingBufferLimit
-//! |                       |                    ^--------------- TriceBufferWritePosition  
-//! |                       ^------------------------------------ TriceRingBufferReadPosition (still old position)
-//! |                       ^------------------------------------ TriceRingBufferStart  
-//! ^------------------------------------------------------------ enc
-//! After 2nd TriceTransfer:
-//! |<----------------  triceRingBuffer  -------------------->|
-//! |<--                    TRICE_DATA_OFFSET -->|<-- area -->|
-//!                         |                    |            ^-- TriceRingBufferLimit
-//!                         |                    ^--------------- TriceBufferWritePosition  
-//!                         |                    ^--------------- TriceRingBufferReadPosition  
-//!                         ^------------------------------------ TriceRingBufferStart  
-//! After some Trices:
-//! |<-----------------  triceRingBuffer  ------------------->|
-//! |<--TRICE_DATA_OFFSET-->|<--Trices-->|<-- !EnoughSpace -->|
-//!                         |            |                    ^-- TriceRingBufferLimit
-//!                         |            ^----------------------- TriceBufferWritePosition  
-//!                         ^------------------------------------ TriceRingBufferReadPosition  
-//!                         ^------------------------------------ TriceRingBufferStart  
-//! |<-----------------  triceRingBuffer  ------------------->|
-//! |<--TRICE_DATA_OFFSET-->|<--    area                   -->|
-//!                         |                                 ^-- TriceRingBufferLimit
-//!                         ^------------------------------------ TriceBufferWritePosition  
-//!                         ^------------------------------------ TriceRingBufferReadPosition  
-//!                         ^------------------------------------ TriceRingBufferStart  
-
 #endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 
 //! TriceTransfer needs to be called cyclically to read out the Ring Buffer.

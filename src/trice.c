@@ -51,9 +51,6 @@
 #warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
 #endif
 
-#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-//#error configuration: (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) not implemented for (TRICE_BUFFER == TRICE_RING_BUFFER)
-#endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_CONFIG_WARNINGS == 1)
 #warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.

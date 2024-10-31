@@ -56,6 +56,13 @@ static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
 
+#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+
+void TriceInitRingBufferMargins(void);
+void WatchRingBufferMargins(void);
+
+#endif
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -77,7 +84,11 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
-    
+
+#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+  TriceInitRingBufferMargins();
+#endif
+
   //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
   trice("\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n\n\n" );
   /* USER CODE END 1 */
@@ -108,7 +119,7 @@ int main(void)
   trice("w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
   trice64("w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
   TRice64_12("%x %x %x %x %x %x %x %x %x %x %x %d\n", 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa);
-    for( int i = 0; i < 100; i++ ){
+    for( int i = 0; i < 10; i++ ){
       trice("i=%x %x\n", 0x44444400 + i, 0xaaaaaa00 + i );
     }
   /* USER CODE END SysInit */
@@ -330,7 +341,7 @@ void StartDefaultTask(void const * argument)
     }
     TriceCheck( i ); // this generates trice data
   
-    osDelay(5);
+    osDelay(100);
   }
   /* USER CODE END 5 */
 }
@@ -406,6 +417,13 @@ void StartTask02(void const * argument)
     osDelay(100);
     TriceTransfer();
     osDelay(100);
+
+#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+
+    WatchRingBufferMargins();
+
+#endif
+
   }
   /* USER CODE END StartTask02 */
 }
