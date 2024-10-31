@@ -384,7 +384,7 @@ static void triceMultiDeferredOut( int* triceCount, int* multiWordCount){
 
 	// We can start at TriceRingBufferReadPosition and go to the TriceRingBufferLimit OR go to the TriceBufferWritePosition using TricesCountRingBuffer.
 	uint8_t* enc = ((uint8_t*)TriceRingBufferReadPosition) - TRICE_DATA_OFFSET; // TRICE_DATA_OFFSET bytes are usable in front of TriceRingBufferReadPosition.
-	uint8_t* tmp = enc + 4; // todo
+	uint8_t* tmp = enc + TRICE_DATA_OFFSET/2; // todo
 	uint8_t* nextEnc = tmp;
 	int multiLen = 0;
 	uint32_t* nextTriceRingBufferReadPosition = TriceRingBufferReadPosition;
