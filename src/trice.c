@@ -51,7 +51,6 @@
 #warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
 #endif
 
-
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_CONFIG_WARNINGS == 1)
 #warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
 #endif
@@ -116,7 +115,7 @@
 #error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
 #endif
 
-#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE < TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE )
+#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE < TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
 #error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
 #endif
 
@@ -458,33 +457,33 @@ static void SEGGER_Write_RTT0_NoCheck32(const uint32_t* pData, unsigned NumW) {
 			;
 	}
 #endif
-    // Get "to-host" ring buffer.
+	// Get "to-host" ring buffer.
 	// Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
-    static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF); 
-    WrOff = pRingUp0->WrOff;
-    RemW = (pRingUp0->SizeOfBuffer - WrOff) >> 2;
-    volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); // lint !e826
-	
-    if (RemW > NumW) { // All data fits before wrap around
-        WrOff += NumW << 2;
-        while (NumW--) {
-            *pDstW++ = *pData++;
-        };
-        RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
-        pRingUp0->WrOff = WrOff;
-    } else { // We reach the end of the buffer, so need to wrap around
-        NumWordsAtOnce = RemW;
-        while (NumWordsAtOnce--) {
-            *pDstW++ = *pData++;
-        };
-        pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF); // lint !e826
-        NumWordsAtOnce = NumW - RemW;
-        while (NumWordsAtOnce--) {
-            *pDstW++ = *pData++;
-        };
-        RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
-        pRingUp0->WrOff = (NumW - RemW) << 2;
-    }
+	static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);
+	WrOff = pRingUp0->WrOff;
+	RemW = (pRingUp0->SizeOfBuffer - WrOff) >> 2;
+	volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); // lint !e826
+
+	if (RemW > NumW) { // All data fits before wrap around
+		WrOff += NumW << 2;
+		while (NumW--) {
+			*pDstW++ = *pData++;
+		};
+		RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+		pRingUp0->WrOff = WrOff;
+	} else { // We reach the end of the buffer, so need to wrap around
+		NumWordsAtOnce = RemW;
+		while (NumWordsAtOnce--) {
+			*pDstW++ = *pData++;
+		};
+		pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF); // lint !e826
+		NumWordsAtOnce = NumW - RemW;
+		while (NumWordsAtOnce--) {
+			*pDstW++ = *pData++;
+		};
+		RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+		pRingUp0->WrOff = (NumW - RemW) << 2;
+	}
 #if TRICE_DIAGNOSTICS == 1
 	triceSeggerRTTDiagnostics();
 #endif

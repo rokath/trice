@@ -189,7 +189,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 	uint8_t* dst = enc; // This value dst must not get > nxt to avoid overwrites.
 #endif
-	int triceID = 0;    // This assignment is only needed to silence compiler complains about being uninitialized.
+	int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
 #if TRICE_DIAGNOSTICS == 1
 	unsigned depth = tLen + TRICE_DATA_OFFSET;
 	TriceHalfBufferDepthMax = depth < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : depth;
