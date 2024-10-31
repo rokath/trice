@@ -26,7 +26,7 @@ void TriceNonBlockingWriteUartA(const void* buf, size_t nByte) {
 	TriceWriteDeviceCgo(buf, nByte);
 #else // #if TRICE_CGO == 1// automated tests
 	TRICE_ENTER_CRITICAL_SECTION
-#if 0
+#if 1
             triceOutBufferUartA = buf;
 #else
 	static uint8_t t[TRICE_DEFERRED_BUFFER_SIZE / 2]; // todo: find a better solution to avoid RAM wasting

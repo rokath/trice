@@ -1,3 +1,4 @@
+#if 0
 /*! \file triceCheck.c
 \brief trices for tool evaluation
 \author thomas.hoehenleitner [at] seerose.net
@@ -2595,3 +2596,5 @@ static void dynString(int n) {
 	// trice(iD(16067), "sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
 	TRICE_N(id(16068), "wr:%s\n", s, n);
 }
+
+#endif
