@@ -83,12 +83,13 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+#if !TRICE_OFF
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
 
 #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
   TriceInitRingBufferMargins();
 #endif
-
+#endif
   //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
   trice("\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n\n\n" );
   /* USER CODE END 1 */
@@ -335,12 +336,13 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+#if !TRICE_OFF
     static int i = 0;
     if( i++ > 400 ){
       i = 0;
     }
     TriceCheck( i ); // this generates trice data
-  
+#endif
     osDelay(5);
   }
   /* USER CODE END 5 */
@@ -361,6 +363,7 @@ void StartTask02(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+#if !TRICE_OFF
     TriceTransfer();
     osDelay(100);
     static int i = 0;
@@ -423,7 +426,7 @@ void StartTask02(void const * argument)
     WatchRingBufferMargins();
 
 #endif
-
+#endif // #if !TRICE_OFF
   }
   /* USER CODE END StartTask02 */
 }

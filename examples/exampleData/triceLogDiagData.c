@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-#if TRICE_DIAGNOSTICS == 1
+#if !TRICE_OFF && TRICE_DIAGNOSTICS == 1
 
 //! TriceLogDiagnosticData shows the max used buffer space.
 void TriceLogDiagnosticData(void) {
@@ -74,4 +74,4 @@ void TriceLogDiagnosticData(void) {
 #endif // #if TRICE_BUFFER == TRICE_RING_BUFFER
 }
 
-#endif // #if TRICE_DIAGNOSTICS == 1
+#endif // #if !TRICE_OFF && TRICE_DIAGNOSTICS == 1

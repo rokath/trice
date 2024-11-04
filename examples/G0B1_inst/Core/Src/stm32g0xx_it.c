@@ -113,11 +113,13 @@ void TIM17_FDCAN_IT1_IRQHandler(void)
   /* USER CODE END TIM17_FDCAN_IT1_IRQn 0 */
   HAL_TIM_IRQHandler(&htim17);
   /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
+#if !TRICE_OFF
   static int i = 0;
   if( i++>25000 ){
     trice("isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i );
     i = 0;
   }
+#endif
   /* USER CODE END TIM17_FDCAN_IT1_IRQn 1 */
 }
 
@@ -131,7 +133,7 @@ void USART2_LPUART2_IRQHandler(void)
   /* USER CODE END USART2_LPUART2_IRQn 0 */
 
   /* USER CODE BEGIN USART2_LPUART2_IRQn 1 */
-#if defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UARTA
+#if !TRICE_OFF && defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UARTA
     if( LL_USART_IsActiveFlag_TXE(TRICE_UARTA) ){ // Transmit Data Register Empty Flag
         triceServeTransmitUartA();
     }

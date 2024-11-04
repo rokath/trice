@@ -116,6 +116,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+  #if !TRICE_OFF
         static uint32_t lastMs = 0;
         if( lastMs != ms32 ){ // each ms
             lastMs = ms32;
@@ -162,6 +163,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+#endif // #if !TRICE_OFF
   }
   /* USER CODE END 3 */
 }
