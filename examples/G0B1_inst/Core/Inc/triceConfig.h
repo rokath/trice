@@ -14,6 +14,10 @@ extern "C" {
 #define TriceStamp16 TIM17->CNT     // 0...999 us
 #define TriceStamp32 HAL_GetTick()  // 0...2^32-1 ms
 
+#define TRICE_DIRECT_AUXILIARY32 1
+#define TRICE_DEFERRED_AUXILIARY8 1
+#define TRICE_DEFERRED_AUXILIARY32 1
+
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
 // trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -ts ms -d16

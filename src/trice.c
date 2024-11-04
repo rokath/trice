@@ -628,7 +628,7 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 	// The 16-bit stamped trices start with 2-times 16-bit ID for align and speed reasons.
-	// The trice tool knows and expects that when switch -packageFraming = NONE was applied.
+	// The trice tool knows and expects that, when switch -packageFraming = NONE was applied.
 	// The 2 additional transmit bytes are avoidable then but that would need a 2nd NONE option for the trice tool, what makes usage more confusing.
 	// That the TRICE_FRAMING_NONE does not remove the 2 additional bytes for 16-bit stamped trices has the
 	// main reason in the TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE option for the fast 32-bit transfer, what probably will be a common use case.
@@ -700,7 +700,9 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 #elif TRICE_DIRECT8_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
+#if TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer!
+#endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 	uint32_t* dat = enc + (TRICE_DATA_OFFSET >> 2);
@@ -831,9 +833,6 @@ unsigned TriceOutDepth(void) {
 	return depth;
 }
 
-#if TRICE_OFF == 1 || TRICE_CLEAN == 1
-#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
-
 //! TRICE_ASSERT writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! This is a helper macro and should not be used in user code.
@@ -883,8 +882,6 @@ void TRiceAssertFalse(int idN, char* msg, int flag) {
 		TRICE_ASSERT(ID(idN));
 	}
 }
-
-#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 #ifdef TRICE_N
 

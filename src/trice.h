@@ -783,24 +783,6 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-#if TRICE_OFF == 1 || TRICE_CLEAN == 1
-
-// clang-format off
-	TRICE_INLINE void trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
-	TRICE_INLINE void Trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
-	TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
-
-	TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-	TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-	TRICE_INLINE void TRiceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-
-	TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-	TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-	TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-// clang-format on
-
-#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
-
 TRICE_INLINE void trice0(uint16_t tid, const char* pFmt) {
 	trice32m_0(tid);
 	TRICE_UNUSED(pFmt)
@@ -823,8 +805,6 @@ void TRiceAssertTrue(int idN, char* msg, int flag);
 void triceAssertFalse(int idN, char* msg, int flag);
 void TriceAssertFalse(int idN, char* msg, int flag);
 void TRiceAssertFalse(int idN, char* msg, int flag);
-
-#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 typedef void (*Write8AuxiliaryFn_t)(const uint8_t* enc, size_t encLen);
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;

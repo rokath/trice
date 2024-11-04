@@ -75,6 +75,20 @@
 #define TriceF(iD, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 #define TRiceF(iD, p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
+// clang-format off
+TRICE_INLINE void trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
+TRICE_INLINE void Trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
+TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
+
+TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void TRiceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+
+TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+// clang-format on
+
 #define TRICE_0(iD, fmt)
 #define TRICE_1(iD, fmt, v0) TRICE_UNUSED(v0)
 #define TRICE_2(iD, fmt, v0, v1) TRICE_UNUSED(v0) TRICE_UNUSED(v1)
