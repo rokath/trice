@@ -60,7 +60,10 @@ void StartDefaultTask(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+__weak int _close(void) { return -1; }
+__weak int _lseek(void) { return -1; }
+__weak int _read (void) { return -1; }
+__weak int _write(void) { return -1; }
 /* USER CODE END 0 */
 
 /**
