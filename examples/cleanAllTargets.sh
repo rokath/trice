@@ -28,7 +28,8 @@ do
             ./clean.sh
         fi
     done
-    make -j $(nproc --all) clean
+    #make -j $(nproc --all) clean # Windows
+    make -j $(sysctl -n hw.ncpu) clean # MacOS
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
         echo FAIL: $d
