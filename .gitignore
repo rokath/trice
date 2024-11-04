@@ -13,3 +13,5 @@
 **/.mxproject
 
 internal/receiver/trices.raw
+
+.DS_Store
