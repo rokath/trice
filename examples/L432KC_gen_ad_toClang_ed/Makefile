@@ -122,7 +122,7 @@ post-build:
 	@#echo POST ... done
 	@#echo -e
 
-main-build: clang
+main-build: gcc # clang
 
 clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
 	@$(MAKE) --no-print-directory post-build
