@@ -2,7 +2,7 @@
 
 ## General info
 
-This folder is per default renamed into `_test` to avoid vsCode slow down.
+This folder is per default named to `_test` to avoid vsCode slow down.
 
 The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way.
 
@@ -10,8 +10,8 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 
 ## How to run the tests
 
-- In `trice` folder first execute `go clean -cache`. Cleaning the **Go** cache is recommended, because the CGO tests somehow keep pre-compiled files and when editing C-files, this can led to confusing results.
-- To run the tests `cd` into `_test` and execute `go test ./...`.
+- In `_trice` folder first execute `go clean -cache`. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can led to confusing results.
+- To run the tests `cd` into `_test` and execute `go test ./...` fom there.
 
 ## Tests Details
 
@@ -27,7 +27,7 @@ To be able to run `go test ./...` successfully without running the [./updateTest
 
 The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently.
 
-The `tf/triceConfig.h` files differ and correspondent to the `tf/cgo_test.go` files in the same folder. On test execution, the `./testdata/*.c` files are compiled into the trice test executable together with the trice sources `../src` using the `tf/triceConfig.h` file. 
+The `tf/triceConfig.h` files differ and correspondent to the `tf/cgo_test.go` files in the same folder. On test execution, the `./testdata/*.c` files are compiled into the trice test executable together with the trice sources `../src` using the `tf/triceConfig.h` file.
 
 The individual tests collect the expected results (`//exp: result`) together with the line numbers into a slice to execute the test loop on it. The `triceLogTest` function gets the `triceLog` function as parameter.
 
