@@ -167,7 +167,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 #CFLAGS += -Wunused-parameter
 
 #######################################
-# LDFLAGS
+# LFLAGS
 #######################################
 # link script
 LDSCRIPT = STM32F030R8Tx_FLASH.ld
@@ -175,7 +175,9 @@ LDSCRIPT = STM32F030R8Tx_FLASH.ld
 # libraries
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LFLAGS += -Wl,--no-warn-rwx-segments # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
+LFLAGS += -Wl,--no-warn-execstack    # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
 
 
 .PHONY: all gcc clean
@@ -208,7 +210,7 @@ $(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
 	$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CC) $(OBJECTS) $(LFLAGS) -o $@
 	$(SZ) $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)

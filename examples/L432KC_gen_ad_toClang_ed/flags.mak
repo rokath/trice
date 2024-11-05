@@ -94,23 +94,28 @@ LIB_DIR = #
 #LIB_DIR +="-LC:\\LLVM\\bin\\../lib/clang-runtimes\\arm-none-eabi\\lib" 
 #########LIB_DIR +="-LC:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\12.2 mpacbti-rel1\lib\gcc\arm-none-eabi\12.2.1" #
 
- LD_FLAGS += $(FLAGS) #
- LD_FLAGS += -T $(LDSCRIPT) #
- LD_FLAGS += $(LIBS) #
- LD_FLAGS += $(LIB_DIR) #
- LD_FLAGS += -nostdlib # -nostdlib is used to link your own libc implementation.
-#LD_FLAGS += -flto
-#LD_FLAGS += --library_type=microlib 
-#LD_FLAGS += --diag_suppress 170  
-#LD_FLAGS += --strict                         # generated witth STM32CubMX as ARM-MDK project and copied from there, but "clang: error: unsupported option '--strict'"
-#LD_FLAGS += --cpu Cortex-M0+                 # generated witth STM32CubMX as ARM-MDK project and copied from there, but "clang: error: unsupported option '--cpu'"
-#LD_FLAGS += -specs=nano.specs
-#LD_FLAGS += -Wl #
-#LD_FLAGS += -Wl,--no-warn-rwx-segments #     # https://stackoverflow.com/questions/73429929/gnu-linker-elf-has-a-load-segment-with-rwx-permissions-embedded-arm-project
-#LD_FLAGS += -Map=$(BUILD_DIR)/$(TARGET).map
-#LD_FLAGS += --cref 
-#LD_FLAGS += --gc-sections# --gc-sections drops unused sections. (https://interrupt.memfault.com/blog/best-and-worst-gcc-clang-compiler-flags#-ffunction-sections--fdata-sections----gc-sections)
-#LD_FLAGS += --print-gc-sections# --print-gc-sections prints diagnostic logs about the sections dropped. 
-#LD_FLAGS += -L$(ARM_CORTEXM_SYSROOT)/lib/$(ARM_CORTEXM_MULTI_DIR)
+ LFLAGS += $(FLAGS) #
+ LFLAGS += -T $(LDSCRIPT) #
+ LFLAGS += $(LIBS) #
+ LFLAGS += $(LIB_DIR) #
+ LFLAGS += -nostdlib # -nostdlib is used to link your own libc implementation.
+#LFLAGS += -flto
+#LFLAGS += --library_type=microlib 
+#LFLAGS += --diag_suppress 170  
+#LFLAGS += --strict                         # generated witth STM32CubMX as ARM-MDK project and copied from there, but "clang: error: unsupported option '--strict'"
+#LFLAGS += --cpu Cortex-M0+                 # generated witth STM32CubMX as ARM-MDK project and copied from there, but "clang: error: unsupported option '--cpu'"
+#LFLAGS += -specs=nano.specs
+#LFLAGS += -Wl #
+#LFLAGS += -Wl,--no-warn-rwx-segments #     # https://stackoverflow.com/questions/73429929/gnu-linker-elf-has-a-load-segment-with-rwx-permissions-embedded-arm-project
+#LFLAGS += -Map=$(BUILD_DIR)/$(TARGET).map
+#LFLAGS += --cref 
+#LFLAGS += --gc-sections# --gc-sections drops unused sections. (https://interrupt.memfault.com/blog/best-and-worst-gcc-clang-compiler-flags#-ffunction-sections--fdata-sections----gc-sections)
+#LFLAGS += --print-gc-sections# --print-gc-sections prints diagnostic logs about the sections dropped. 
+#LFLAGS += -L$(ARM_CORTEXM_SYSROOT)/lib/$(ARM_CORTEXM_MULTI_DIR)
 
-# LDFLAGS (https://clang.llvm.org/docs/CrossCompilation.html)
+# LFLAGS (https://clang.llvm.org/docs/CrossCompilation.html)
+
+
+LFLAGS += -Wl,--no-warn-rwx-segments # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
+LFLAGS += -Wl,--no-warn-execstack    # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
+
