@@ -64,7 +64,7 @@
 #endif
 
 #if (TRICE_DIRECT_OUTPUT == 0) && (TRICE_DEFERRED_OUTPUT == 0)
-#error configuration: need at east one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DEFERRED_OUTPUT == 0)
+#error configuration: need at least one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DEFERRED_OUTPUT == 0)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_RING_BUFFER)
@@ -87,8 +87,12 @@
 #warning configuration: TRICE_CGO == 1 needs TRICE_CYCLE_COUNTER == 0 for successful tests.
 #endif
 
-#if (TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_AUXILIARY8 == 0) && (TRICE_DIRECT_AUXILIARY32 == 0) && (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 0) && (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 0)
-#error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel
+#if (TRICE_DIRECT_OUTPUT == 1) \
+	&& (TRICE_DIRECT_AUXILIARY8 == 0) \
+	&& (TRICE_DIRECT_AUXILIARY32 == 0) \
+	&& (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 0) \
+	&& (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 0)
+#error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel, for example add "#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1" to your triceConfig.h
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DEFERRED_OUTPUT == 0)
@@ -140,7 +144,7 @@
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
-#error configuration: deferred output needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
+#error configuration: TRICE_DEFERRED_OUTPUT == 1 needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
 #endif
 
 #if (TRICE_DEFERRED_UARTA == 1) && !defined(TRICE_UARTA)
@@ -805,7 +809,10 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 
 //! TriceOutDepth returns the amount of bytes not written yet from the slowest device.
 unsigned TriceOutDepth(void) {
-	unsigned d = 0, depth = 0;
+	unsigned depth = 0;
+#if defined(SEGGER_RTT) || TRICE_DEFERRED_UARTA == 1 || TRICE_DEFERRED_UARTB == 1 || TRICE_CGO == 1
+	unsigned d = 0;
+#endif
 	TRICE_ENTER_CRITICAL_SECTION
 
 #ifdef SEGGER_RTT

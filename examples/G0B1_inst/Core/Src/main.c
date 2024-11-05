@@ -107,12 +107,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  TRice("w: Hello! 👋🙂 \a\n" ); // with sound!
-  TRice("w: Hello! 👋🙂 \a\n" ); // with sound!
-  Trice("w: Hello! 👋🙂 \a\n" ); // with sound!
-  Trice("w: Hello! 👋🙂 \a\n" ); // with sound!
-  trice("w: Hello! 👋🙂 \a\n" ); // with sound!
-  trice("w: Hello! 👋🙂 \a\n" ); // with sound!
+
   TRice8("w: Hello! 👋🙂 %d\n", 1 );
   Trice8("w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
   Trice8("w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );

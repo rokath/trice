@@ -2,14 +2,19 @@
 \brief trices for tool evaluation
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
+#if 1 // !TRICE_OFF - We do not exclude this file globally for TRICE_OFF == 1, to check if TRICE_OFF works well.
 #include <float.h>
-// #define TRICE_OFF 1 // This line, if enabled, deactivates Trice code generartion for this file.
 #include "trice.h"
 
 // The strings behind "//exp:" are the expected result for each line (-color=none)
 
+#if !TRICE_OFF
+
 static int32_t FloatToInt32(float f);
 static int64_t DoubleToInt64(double f);
+
+#endif
+
 static void exampleOfManualSerialization(void);
 static void exampleOfManualJSONencoding(void);
 static void dynString(int n);
@@ -23,20 +28,21 @@ static void dynString(int n);
 //! The ID values must be in file triceCheck.c, because it is compiled first and trice update runs later.
 // This function is also called from Go for tests.
 void TriceCheck(int n) {
-    char* s = "AAAAAAAAAAAA";
-    float  x = (float)1089.6082763671875; // 0x44883377
+    char* sABCDE = "abcde 12345";
+#if !TRICE_OFF
+    uint32_t lenABCDE = strlen(sABCDE);
+   float  x = (float)1089.6082763671875; // 0x44883377
     double y = 518.0547492508867; // 0x4080307020601050  
+    #if TRICE_CGO == 1
+    char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    #endif // #if TRICE_CGO == 1
+#endif // #if !TRICE_OFF
+    char* s = "AAAAAAAAAAAA";
+    char * five = "five";
     static int8_t b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
     static int16_t b16[] = { 0, -1, -2, 0x3344 };
     static int32_t b32[] = { 0, -1, -2, 0x33445555};
     static int64_t b64[4] = { 0, -1, -2, 0x3344555566666666 };
-    char* sABCDE = "abcde 12345";
-    uint32_t lenABCDE = strlen(sABCDE);
-    char * five = "five";
-    #if TRICE_CGO == 1
-    char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    #endif // #if TRICE_CGO == 1
-
     unsigned anchorLine = __LINE__ + 20; // The offset value here must point to the first test line containing `anchorLine`.
 
     switch( n ){ 
@@ -388,12 +394,14 @@ void TriceCheck(int n) {
         break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
         break; case __LINE__: TRICE(Id(14218), "MSG:1/11 = %g\n", aFloat( 1.0/11 ) ); //exp: time:    be16default: MSG:1/11 = 0.09090909
         break; case __LINE__: { //exp: time:feed3322default: msg:x = 5.934 = 5.934, 5.934
+#if !TRICE_OFF
                               float a = (float)5.934;
                               float b = a + ((a > 0) ? 0.0005f : -0.0005f);
                               int c = (int)b;
                               int d = (int)(b * 1000) % 1000;
                               int e = (int)(1000 * (float)(a - c)); 
                               TRice(iD(14219), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); 
+#endif                              
                               }
 
         break; case __LINE__: trice16(iD(14220), "att: line %u\n", __LINE__ );
@@ -465,20 +473,25 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE(ID(14271), "sig:Runtime generated strings\n" );
         break; case __LINE__: 
         {
+            #if !TRICE_OFF
             char* s0 = "AAAAAAAAAAAA";
+            #endif
             TRICE32(ID(14272), "dbg:len=%u:", strlen(s0) );
             TRICE_S(ID(14273), "sig:%s\n", s0 );
         }
         break; case __LINE__: 
         {
+            #if !TRICE_OFF
             char* s1 = "\
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBCCCCCCCC\
 ";
+#endif
                 TRICE32(ID(14274), "dbg:len=%u:", strlen(s1) );
                 TRICE_S(ID(14275), "sig:%s\n", s1 );
             }
         break; case __LINE__: 
         {
+            #if !TRICE_OFF
             char* s2 = "\
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
@@ -486,11 +499,13 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
 EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
 ";
+#endif
             TRICE32(ID(14276), "dbg:len=%u: ", strlen(s2) );
             TRICE_S(ID(14277), "sig:%s\n", s2 );
         }
         break; case __LINE__: 
         {
+            #if !TRICE_OFF
             char* s3 = "\
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
@@ -501,11 +516,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
 ";
+#endif
             TRICE32(ID(14278), "dbg:len=%u: ", strlen(s3) );
             TRICE_S(ID(14279), "sig:%s\n", s3 );
         }
         break; case __LINE__:
         {
+                        #if !TRICE_OFF
             char* s4 = "\
 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
@@ -524,6 +541,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
 EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
 ";
+#endif
             TRICE32(ID(14280), "dbg:len=%u: ", strlen(s4) );
             TRICE_S(ID(14281), "sig:%s\n", s4 );
         }
@@ -2414,13 +2432,109 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE16(ID(16054), "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
         break; case __LINE__: TRICE16(ID(16055), "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
 
+        break; case __LINE__: TRICE(ID(16056), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE(id(16057), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE(Id(16058), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE(ID(16059), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice(iD(16060), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice(iD(16061), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice(iD(16062), "w: Hello! 👋🙂 \a\n" ); // with sound!
 
+        break; case __LINE__: TRICE_0(ID(16063), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE_0(id(16064), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE_0(Id(16065), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE_0(ID(16066), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice_0(iD(16067), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice_0(iD(16068), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice_0(iD(16069), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE0(ID(16070), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE0(id(16071), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE0(Id(16072), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE0(ID(16073), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice0(iD(16074), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice0(iD(16075), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice0(iD(16076), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE_0(ID(16077), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE_0(id(16078), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE_0(Id(16079), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE_0(ID(16080), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice_0(iD(16081), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice_0(iD(16082), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice_0(iD(16083), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE8(ID(16084), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE8(id(16085), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE8(Id(16086), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE8(ID(16087), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice8(iD(16088), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice8(iD(16089), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice8(iD(16090), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE8_0(ID(16091), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE8_0(id(16092), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE8_0(Id(16093), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE8_0(ID(16094), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice8_0(iD(16095), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice8_0(iD(16096), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice8_0(iD(16097), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE16(ID(16098), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE16(id(16099), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE16(Id(16100), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE16(ID(16101), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice16(iD(16102), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice16(iD(16103), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice16(iD(16104), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE16_0(ID(16105), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE16_0(id(16106), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE16_0(Id(16107), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE16_0(ID(16108), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice16_0(iD(16109), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice16_0(iD(16110), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice16_0(iD(16111), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE32(ID(16112), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE32(id(16113), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE32(Id(16114), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE32(ID(16115), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice32(iD(16116), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice32(iD(16117), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice32(iD(16118), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE32_0(ID(16119), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE32_0(id(16120), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE32_0(Id(16121), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE32_0(ID(16122), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice32_0(iD(16123), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice32_0(iD(16124), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice32_0(iD(16125), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE64(ID(16126), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE64(id(16127), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE64(Id(16128), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE64(ID(16129), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice64(iD(16130), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice64(iD(16131), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice64(iD(16132), "w: Hello! 👋🙂 \a\n" ); // with sound!
+
+        break; case __LINE__: TRICE64_0(ID(16133), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE64_0(id(16134), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE64_0(Id(16135), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRICE64_0(ID(16136), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: trice64_0(iD(16137), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: Trice64_0(iD(16138), "w: Hello! 👋🙂 \a\n" ); // with sound!
+        break; case __LINE__: TRice64_0(iD(16139), "w: Hello! 👋🙂 \a\n" ); // with sound!
 
     #endif // #if TRICE_CGO == 1
     }
 }
 
 // clang-format on
+
+#if !TRICE_OFF
 
 static int32_t FloatToInt32(float f) {
 	if (f >= 0) {
@@ -2436,6 +2550,8 @@ static int64_t DoubleToInt64(double f) {
 	return -(int64_t)-f;
 }
 
+#endif
+
 //! SCOPY is a helper macro for struct serialization.
 #define SCOPY(element)                           \
 	do {                                         \
@@ -2443,8 +2559,8 @@ static int64_t DoubleToInt64(double f) {
 		int size = sizeof(src->element);         \
 		memcpy(p, &(src->element), size);        \
 		p += size;                               \
-		TRICE_S(ID(16056), "rd:sizeof(%8s)", n); \
-		TRICE(ID(16057), " = %d\n", size);       \
+		TRICE_S(ID(16140), "rd:sizeof(%8s)", n); \
+		TRICE(ID(16141), " = %d\n", size);       \
 	} while (0);
 
 //! DCOPY is a helper macro for struct deserialization.
@@ -2454,8 +2570,8 @@ static int64_t DoubleToInt64(double f) {
 		int size = sizeof(dst->element);         \
 		memcpy(&(dst->element), p, size);        \
 		p += size;                               \
-		TRICE_S(ID(16058), "rd:sizeof(%8s)", n); \
-		TRICE(ID(16059), " = %d\n", size);       \
+		TRICE_S(ID(16142), "rd:sizeof(%8s)", n); \
+		TRICE(ID(16143), " = %d\n", size);       \
 	} while (0);
 
 typedef struct {
@@ -2464,6 +2580,8 @@ typedef struct {
 	uint8_t rgb[3];
 	// float z; // it seems, that the compiler does not align this with -o3 & time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 } Point_t; //!< Point_t is small struct type.
+
+#if !TRICE_OFF
 
 static int serializePoint(char* dst, const Point_t* src) {
 	char* p = dst;
@@ -2485,6 +2603,8 @@ static int deserializePoint(Point_t* const dst, const char* src) {
 	return p - src;
 }
 
+#endif
+
 typedef struct {
 	float z;
 	uint16_t u;
@@ -2496,6 +2616,8 @@ typedef struct {
 	Point_t point[2];
 	uint64_t bitmask;
 } Tryout_t; //!<  Tryout_t is a struct example embedding an other struct.
+
+#if !TRICE_OFF
 
 static int serializeTryout(char* dst, const Tryout_t* src) {
 	char* p = dst;
@@ -2529,13 +2651,13 @@ static int deserializeTryout(Tryout_t* const dst, const char* src) {
 	return p - src;
 }
 
+#endif // #i !TRICE_OFF
+
 static void exampleOfManualSerialization(void) {
 	Tryout_t tx;          // struct to transfer
 	Tryout_t rx;          // "received" struct
 	static char dst[100]; // serialized data
-	char* src;            // "copy" - assume, data transferred now
-	int len;              // serialized byte count
-
+      
 	/////////////////////////////////////////////////////////
 	// fill tx with data
 	tx.z = (float)123.456;
@@ -2564,41 +2686,47 @@ static void exampleOfManualSerialization(void) {
 	tx.bitmask = 0xAAAA55550000FFFF;
 	//
 	////////////////////////////////////////////////////////
+#if !TRICE_OFF
+	int len = serializeTryout(dst, &tx); // serialized byte count
+#endif
+	TRICE(Id(16144), "inf: Tryout tx struct:");
+	TRICE8_B(Id(16145), " %02x ", &tx, sizeof(tx));
+	TRICE(Id(16146), "\n");
 
-	len = serializeTryout(dst, &tx);
-	TRICE(Id(16060), "inf: Tryout tx struct:");
-	TRICE8_B(Id(16061), " %02x ", &tx, sizeof(tx));
-	TRICE(Id(16062), "\n");
+	TRICE(Id(16147), "inf: Tryout buffer:");
+	TRICE8_B(Id(16148), " %02x ", dst, len); // lint !e670
+	TRICE(Id(16149), "\n");
 
-	TRICE(Id(16063), "inf: Tryout buffer:");
-	TRICE8_B(Id(16064), " %02x ", dst, len); // lint !e670
-	TRICE(Id(16065), "\n");
-
-	src = dst; // "data transfer"
-
+#if !TRICE_OFF
+	char* src = dst; // "copy" - assume, data transferred now ("data transfer")
 	len = deserializeTryout(&rx, src);
-	TRICE(Id(16066), "inf: Tryout rx struct:");
-	TRICE8_B(Id(16067), " %02x ", &rx, sizeof(rx));
-	TRICE(Id(16068), "\n");
+#endif
+	TRICE(Id(16150), "inf: Tryout rx struct:");
+	TRICE8_B(Id(16151), " %02x ", &rx, sizeof(rx));
+	TRICE(Id(16152), "\n");
 
-	TRICE(Id(16069), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
-	TRICE8_F(Id(16070), "info:TryoutStructFunction", &tx, sizeof(tx));
-	TRICE8_F(Id(16071), "info:TryoutBufferFunction", dst, len); // lint !e670
+	TRICE(Id(16153), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
+	TRICE8_F(Id(16154), "info:TryoutStructFunction", &tx, sizeof(tx));
+	TRICE8_F(Id(16155), "info:TryoutBufferFunction", dst, len); // lint !e670
 }
 
 static void exampleOfManualJSONencoding(void) {
+#if !TRICE_OFF
 	typedef struct {
 		int Apple, Birn;
 		float Fish;
 	} Ex_t;
 	Ex_t Ex = {-1, 2, (float)2.781};
-	Trice(iD(16072), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
+#endif
+	Trice(iD(16156), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
 }
 
 static void dynString(int n) {
 	char* s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
 	const size_t l = strlen(s);
 	n = n < l ? n : l;
-	// trice(iD(16073), "sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
-	TRICE_N(id(16074), "wr:%s\n", s, n);
+	// trice(iD(16157), "sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
+	TRICE_N(id(16158), "wr:%s\n", s, n);
 }
+
+#endif // #if !TRICE_OFF
