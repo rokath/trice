@@ -8224,78 +8224,414 @@
 		"Strg": "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
 	},
 	"16056": {
-		"Type": "TRICE_S",
-		"Strg": "rd:sizeof(%8s)"
+		"Type": "TRICE",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"16057": {
 		"Type": "TRICE",
-		"Strg": " = %d\\n"
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"16058": {
-		"Type": "TRICE_S",
-		"Strg": "rd:sizeof(%8s)"
+		"Type": "TRICE",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"16059": {
 		"Type": "TRICE",
-		"Strg": " = %d\\n"
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"16060": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16061": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16062": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16063": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16064": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16065": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16066": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16067": {
+		"Type": "trice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16068": {
+		"Type": "Trice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16069": {
+		"Type": "TRice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16070": {
+		"Type": "TRICE0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16071": {
+		"Type": "TRICE0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16072": {
+		"Type": "TRICE0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16073": {
+		"Type": "TRICE0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16074": {
+		"Type": "trice0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16075": {
+		"Type": "Trice0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16076": {
+		"Type": "TRice0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16077": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16078": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16079": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16080": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16081": {
+		"Type": "trice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16082": {
+		"Type": "Trice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16083": {
+		"Type": "TRice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16084": {
+		"Type": "TRICE8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16085": {
+		"Type": "TRICE8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16086": {
+		"Type": "TRICE8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16087": {
+		"Type": "TRICE8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16088": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16089": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16090": {
+		"Type": "TRice8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16091": {
+		"Type": "TRICE8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16092": {
+		"Type": "TRICE8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16093": {
+		"Type": "TRICE8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16094": {
+		"Type": "TRICE8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16095": {
+		"Type": "trice8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16096": {
+		"Type": "Trice8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16097": {
+		"Type": "TRice8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16098": {
+		"Type": "TRICE16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16099": {
+		"Type": "TRICE16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16100": {
+		"Type": "TRICE16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16101": {
+		"Type": "TRICE16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16102": {
+		"Type": "trice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16103": {
+		"Type": "Trice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16104": {
+		"Type": "TRice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16105": {
+		"Type": "TRICE16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16106": {
+		"Type": "TRICE16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16107": {
+		"Type": "TRICE16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16108": {
+		"Type": "TRICE16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16109": {
+		"Type": "trice16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16110": {
+		"Type": "Trice16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16111": {
+		"Type": "TRice16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16112": {
+		"Type": "TRICE32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16113": {
+		"Type": "TRICE32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16114": {
+		"Type": "TRICE32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16115": {
+		"Type": "TRICE32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16116": {
+		"Type": "trice32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16117": {
+		"Type": "Trice32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16118": {
+		"Type": "TRice32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16119": {
+		"Type": "TRICE32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16120": {
+		"Type": "TRICE32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16121": {
+		"Type": "TRICE32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16122": {
+		"Type": "TRICE32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16123": {
+		"Type": "trice32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16124": {
+		"Type": "Trice32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16125": {
+		"Type": "TRice32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16126": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16127": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16128": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16129": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16130": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16131": {
+		"Type": "Trice64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16132": {
+		"Type": "TRice64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16133": {
+		"Type": "TRICE64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16134": {
+		"Type": "TRICE64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16135": {
+		"Type": "TRICE64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16136": {
+		"Type": "TRICE64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16137": {
+		"Type": "trice64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16138": {
+		"Type": "Trice64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16139": {
+		"Type": "TRice64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"16140": {
+		"Type": "TRICE_S",
+		"Strg": "rd:sizeof(%8s)"
+	},
+	"16141": {
+		"Type": "TRICE",
+		"Strg": " = %d\\n"
+	},
+	"16142": {
+		"Type": "TRICE_S",
+		"Strg": "rd:sizeof(%8s)"
+	},
+	"16143": {
+		"Type": "TRICE",
+		"Strg": " = %d\\n"
+	},
+	"16144": {
 		"Type": "TRICE",
 		"Strg": "inf: Tryout tx struct:"
 	},
-	"16061": {
+	"16145": {
 		"Type": "TRICE8_B",
 		"Strg": " %02x "
 	},
-	"16062": {
+	"16146": {
 		"Type": "TRICE",
 		"Strg": "\\n"
 	},
-	"16063": {
+	"16147": {
 		"Type": "TRICE",
 		"Strg": "inf: Tryout buffer:"
 	},
-	"16064": {
+	"16148": {
 		"Type": "TRICE8_B",
 		"Strg": " %02x "
 	},
-	"16065": {
+	"16149": {
 		"Type": "TRICE",
 		"Strg": "\\n"
 	},
-	"16066": {
+	"16150": {
 		"Type": "TRICE",
 		"Strg": "inf: Tryout rx struct:"
 	},
-	"16067": {
+	"16151": {
 		"Type": "TRICE8_B",
 		"Strg": " %02x "
 	},
-	"16068": {
+	"16152": {
 		"Type": "TRICE",
 		"Strg": "\\n"
 	},
-	"16069": {
+	"16153": {
 		"Type": "TRICE",
 		"Strg": "inf:sizeOf(Trypout) = %d, buffer length = %d\\n"
 	},
-	"16070": {
+	"16154": {
 		"Type": "TRICE8_F",
 		"Strg": "info:TryoutStructFunction"
 	},
-	"16071": {
+	"16155": {
 		"Type": "TRICE8_F",
 		"Strg": "info:TryoutBufferFunction"
 	},
-	"16072": {
+	"16156": {
 		"Type": "Trice",
 		"Strg": "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\\n"
 	},
-	"16073": {
+	"16157": {
 		"Type": "trice",
 		"Strg": "sig:%3d:"
 	},
-	"16074": {
+	"16158": {
 		"Type": "TRICE_N",
 		"Strg": "wr:%s\\n"
 	},

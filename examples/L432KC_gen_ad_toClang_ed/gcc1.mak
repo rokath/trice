@@ -24,9 +24,7 @@ $(GCC_BUILD)/%.o: %.c $(MAKEFILE) | $(GCC_BUILD) pre-build
 
 # linker #
 $(GCC_BUILD)/$(TARGET).elf: $(GCC_OBJECTS) $(MAKEFILE)
-	@echo linking...
 	@$(GCC_CC) $(GCC_OBJECTS) $(MCU) $(GCC_LDFLAGS) $(VERBOSE) -o $@
-	@echo -e
 	@$(GCC_SZ) $@
 
 # hex
