@@ -131,7 +131,7 @@ extern "C" {
 #define TRICE_PROTECT 1
 #endif
 
-#ifndef TRICE_BUFFER
+#if !defined(TRICE_BUFFER) && !TRICE_OFF
 //!  TRICE_BUFFER selects, where the TRICE macros accumulate the trice data during a single TRICE execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
 //! - TRICE_STATIC_BUFFER: A single trice is stored in a separate static buffer, what makes sense for multi-tasking systems with direct output only.
@@ -139,7 +139,7 @@ extern "C" {
 //!   This is the fastest execution option for TRICE macros but needs more RAM. Used for deferred output and optional additional direct output.
 //! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
 //!   This is a fast but not the fastest execution option for TRICE macros and needs less RAM. Used for deferred output and optional additional direct output.
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+#error TRICE_BUFFER type not specified in triceConfig.h, please add "#define TRICE_BUFFER TRICE_RING_BUFFER" for example.
 #endif
 
 #ifndef TRICE_DEFERRED_TRANSFER_MODE
