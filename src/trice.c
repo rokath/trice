@@ -156,15 +156,19 @@
 #endif
 
 #if TRICE_DATA_OFFSET & 3
-#error All size values must be a multiple of 4!
+#error TRICE_DATA_OFFSET -all size values must be a multiple of 4!
+#endif
+
+#if TRICE_DATA_OFFSET < 8 && TRICE_BUFFER == TRICE_RING_BUFFER
+#warning TRICE_DATA_OFFSET should usually be at least 8 bytes, when TRICE_BUFFER == TRICE_RING_BUFFER.
 #endif
 
 #if TRICE_SINGLE_MAX_SIZE & 3
-#error All size values must be a multiple of 4!
+#error TRICE_SINGLE_MAX_SIZE - all size values must be a multiple of 4!
 #endif
 
 #if TRICE_DEFERRED_BUFFER_SIZE & 3
-#error All size values must be a multiple of 4!
+#error TRICE_DEFERRED_BUFFER_SIZE - all size values must be a multiple of 4!
 #endif
 
 #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
