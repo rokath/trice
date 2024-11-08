@@ -94,6 +94,15 @@ The Trice cache keeps copies of all to `trice i` or `trice c` passed files after
 
 For example an auto-formatter should get active **before** the `tice insert` command.
 
+## Wich mode to use?
+
+- For the development direct mode with SEGGER_RTT is recommended.
+- Most use cases are coverable in deferred mode with TRICE_BUFFER == TRICE_RING_BUFFER (less RAM needs) in TRICE_MULTI_PACK_MODE (less transfer data).
+
+## Project Status
+
+Trice is full usable and there are no known bugs (see [issues](). The documentation could get improved, for example by adding a quick start help. Additional features like remote procedure calls could be described and a separate tlog, maybe written in C, would allow logging on any platforms - not only **Go** supported ones.
+
 ## Support?
 
 Yes please - or simply :star: it. ☺ 
