@@ -1,4 +1,4 @@
-# ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
+8# ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
@@ -101,7 +101,7 @@ For example an auto-formatter should get active **before** the `tice insert` com
 
 ## Project Status
 
-Trice is full usable and there are no known bugs (see [issues](). The documentation could get improved, for example by adding a quick start help. Additional features like remote procedure calls could be described and a separate tlog, maybe written in C, would allow logging on any platforms - not only **Go** supported ones.
+Trice is full usable and there are no known bugs (see [issues](https://github.com/rokath/trice/issues). The documentation could get improved, for example by adding a quick start help. Additional features like remote procedure calls could be described and a separate tlog, maybe written in C, would allow logging on any platforms - not only **Go** supported ones.
 
 ## Support?
 
