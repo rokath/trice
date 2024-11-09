@@ -1,4 +1,4 @@
-# ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~ 
+# ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) $${\color{red}Trice}$$ <- $${\color{red}TR}$$~~ace~~ $${\color{red}I}$$~~d's~~ $${\color{red}C}$$   $${\color{red}E}$$~~mbedded~~ 
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
