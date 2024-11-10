@@ -126,7 +126,5 @@ func tcpWriter() io.Writer {
 		TCPConn.Write([]byte("Trice connected...\r\n"))
 	}
 
-	//defer TCPConn.Close()
 	return TCPConn
-
 }

@@ -51,25 +51,6 @@ func Setup(t *testing.T) func() {
 	LIFnJSON = Proj + t.Name() + "_li.json"
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, nil, 0777))
 
-	//  // set file names
-	//  var driveLetter string
-	//  home, err := os.UserHomeDir()
-	//
-	//  // The os.UserHomeDir() driveLetter could be c, but the project drive letter could be e!
-	//  // Just for the tests we could get rid of the drive letter at all.
-	//
-	//  assert.Nil(t, err)
-	//  before, _, found := strings.Cut(home, ":")
-	//  if found {
-	//  	driveLetter = strings.ToLower(before) // windows
-	//  } else {
-	//  	driveLetter = "" // unix
-	//  }
-	//
-	//  SFName = Proj + t.Name() + "_file.c"
-	//  CCache = filepath.Join(Cache, "/cleaned", driveLetter, SFName)
-	//  ICache = filepath.Join(Cache, "/inserted", driveLetter, SFName)
-
 	SFName = Proj + t.Name() + "_file.c"
 	CCache = filepath.Join(Cache, "/cleaned", SFName)
 	ICache = filepath.Join(Cache, "/inserted", SFName)

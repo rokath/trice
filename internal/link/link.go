@@ -34,7 +34,6 @@ type Device struct {
 	Exec string   // linkBinary is the RTT logger executable .
 	Lib  string   // linkDynLib is the RTT used dynamic library name.
 	args []string //  contains the command line parameters for JLinkRTTLogger
-	//arguments string   // needed only for error message
 
 	cmd               *exec.Cmd // link command handle
 	tempLogFileName   string
@@ -107,9 +106,6 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 			p.tempLogFileName = lastArg
 		}
 	} else {
-		// get a temporary file name in a writable folder temp
-		//dir := filepath.Dir(id.FnJSON) // the id list folder is assumed to be writable and readable
-
 		// create temp folder if not exists
 		tempDir := "./temp" // filepath.Join(dir, "temp")
 		e := fSys.MkdirAll(tempDir, 0o700)
@@ -155,8 +151,6 @@ func (p *Device) Close() error {
 	}
 	// CTRL-C sends SIGTERM also to the started command. It closes the temporary file and terminates itself.
 	// Todo: If trice is terminated not with CTRL-C kill automatically.
-	// p.Err = errors.Wrap(p.Err, p.cmd.Process.Kill().Error())
-	// p.Err = errors.Wrap(p.Err, p.tempLogFileHandle.Close().Error())
 	p.Err = errors.Wrap(p.Err, p.fSys.Remove(p.tempLogFileName).Error())
 	return p.Err
 }

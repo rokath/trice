@@ -16,14 +16,3 @@ func (i *ArrayFlag) Set(value string) error {
 	*i = append(*i, value)
 	return nil
 }
-
-//  // FullFilePath returns absolute file path if fn is not "off" or "none".
-//  func FullFilePath(fn string) string {
-//  	if fn == "none" || fn == "off" {
-//  		return fn
-//  	}
-//  	s, err := filepath.Abs(fn)
-//  	msg.InfoOnErr(err, fmt.Sprintf("failed to parse %s\n", fn))
-//  	return s
-//  }
-//

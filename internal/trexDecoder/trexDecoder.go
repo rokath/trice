@@ -25,13 +25,10 @@ import (
 const (
 	tyIdSize = 2 // tySize is what each trice message starts with: 2 bytes
 	ncSize   = 2 // countSize is what each regular trice message contains after an optional target timestamp
-	//headSize = tyIdSize + ncSize // headSize is what each regular trice message starts with: 2-bit msb + 14-bit ID + 16-bit nc
-
-	typeS0 = 1 // regular trice format without stamp     : 011iiiiiI NC ...
-	typeS2 = 2 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
-	typeS4 = 3 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
-	typeX0 = 0 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
-	//IDMask = 0x03FFF
+	typeS0   = 1 // regular trice format without stamp     : 011iiiiiI NC ...
+	typeS2   = 2 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
+	typeS4   = 3 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
+	typeX0   = 0 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
 
 	packageFramingNone = iota
 	packageFramingCOBS
@@ -44,42 +41,6 @@ var (
 	AddNewlineToEachTriceMessage bool
 	SingleFraming                bool // SingleFraming demands, that each received package contains not more than a singe Trice message.
 )
-
-/*
-var (
-	IDMask int
-	typeS0 int
-	typeS2 int
-	typeS4 int
-	typeS8 int
-	typeX0 int
-	typeX1 int
-	typeX2 int
-	typeX3 int
-)
-
-func init() {
-	if decoder.IDBits == 13 {
-		typeS0 = 3 // regular trice format without stamp     : 011iiiiiI NC ...
-		typeS2 = 5 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
-		typeS4 = 7 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
-		typeS8 = 1 // regular trice format with 64-bit stamp : 001iiiiiI TT TT TT TT NC ...
-		typeX0 = 0 // extended trice format or user data     : 000...... ...
-		typeX1 = 2 // extended trice format or user data     : 010...... ...
-		typeX2 = 4 // extended trice format or user data     : 100...... ...
-		typeX3 = 6 // extended trice format or user data     : 110...... ...
-		IDMask = 0x01FFF
-	} else if decoder.IDBits == 14 {
-		typeS0 = 1 // regular trice format without stamp     : 011iiiiiI NC ...
-		typeS2 = 2 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
-		typeS4 = 3 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
-		typeX0 = 0 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
-		IDMask = 0x03FFF
-	} else {
-		log.Fatal("TREX works with 14 (legacy) or 13 (actual) bits for ID encoding.")
-	}
-}
-*/
 
 // trexDec is the Decoding instance for trex encoded trices.
 type trexDec struct {
@@ -229,17 +190,6 @@ func (p *trexDec) nextPackage() {
 			p.B = p.B[len(p.B)-n:]    // buffer is filled from the end
 			p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any) // from merging:
 		}
-
-	//  case packageFramingTCOBSv2:
-	//  	n := tcobs.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-	//      p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
-	//  	if n < 0 {
-	//  		fmt.Println("\ainconsistent TCOBSv2 buffer:\n", p.IBuf[:index+1]) // show also terminating 0
-	//  		p.B = p.B[:0]
-	//  	} else {
-	//  		p.B = p.B[len(p.B)-n:]
-	//  	}
-
 	default:
 		log.Fatalln("unexpected execution path", p.packageFraming)
 	}
@@ -272,7 +222,6 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 	if p.Endian == decoder.BigEndian {
 		// Big endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> still typeX0 -> AA AA C0 00 -> ok next package
 		if s[0] != 0 {
-			//log.Fatal("unexpected case", s)
 			fmt.Println("unexpected case in line 273", s)
 		}
 		r = s[1:]
@@ -285,8 +234,7 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 		}
 		r = append(s[:1], s[2:]...)
 	} else {
-		//log.Fatal("unexpected case", s)
-		fmt.Println("unexpected case in line 286", s)
+		fmt.Println("unexpected case 927346193377", s)
 	}
 	return
 }
@@ -344,6 +292,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			if len(p.B) < 2 {
 				return // wait for more data
 			}
+
 			// Without encoding it needs to be done here.
 			// Also encrypted trice messages carry a double 16-bit ID.
 			p.B = p.B[tyIdSize:] // When target encoding is done, it removes the double 16-bit ID at the 16-bit timestamp trices.
@@ -359,7 +308,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			p.B = p.removeZeroHiByte(p.B0)
 			return
 		}
-		// p.packageFraming != packageFramingNone
 		// We can reach here in target TRICE_MULTI_PACK_MODE, when a trice message is followed by several zeroes (up to 7 possible with encryption).
 		p.B = p.removeZeroHiByte(packed)
 	}
@@ -375,8 +323,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestamp = uint64(p.ReadU16(p.B))
 	} else if triceType == typeS4 { // 32-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
-		//} else if triceType == typeS8 { // 64-bit stamp
-		//	decoder.TargetTimestamp = uint64(p.ReadU64(p.B))
 	} else {
 		log.Fatal("triceType ", triceType, " not implemented (hint: IDBits value?)")
 	}
@@ -513,6 +459,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertTrue")
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertFalse")
 	triceType := p.Trice.Type
+
 	// need to reconstruct full TRICE info, if not exist in type string
 	for _, name := range []string{"TRICE", "TRice", "Trice", "trice"} {
 		if strings.HasPrefix(p.Trice.Type, name+"_") { // when no bit width, insert it
@@ -880,8 +827,6 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	case 8:
 		for i, f := range p.u {
 			switch f {
-			//case decoder.PointerFormatSpecifier:
-			//	v[i] = unsafe.Pointer(uintptr(p.B[i]))
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
 				v[i] = p.B[i]
 			case decoder.SignedFormatSpecifier:
@@ -896,8 +841,6 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		for i, f := range p.u {
 			n := p.ReadU16(p.B[2*i:])
 			switch f {
-			//case decoder.PointerFormatSpecifier:
-			//	v[i] = unsafe.Pointer(uintptr(n))
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
 				v[i] = n
 			case decoder.SignedFormatSpecifier:
@@ -912,8 +855,6 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		for i, f := range p.u {
 			n := p.ReadU32(p.B[4*i:])
 			switch f {
-			//case decoder.PointerFormatSpecifier:
-			//	v[i] = unsafe.Pointer(uintptr(n))
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
 				v[i] = n
 			case decoder.SignedFormatSpecifier:
@@ -930,8 +871,6 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		for i, f := range p.u {
 			n := p.ReadU64(p.B[8*i:])
 			switch f {
-			//case decoder.PointerFormatSpecifier:
-			//	v[i] = unsafe.Pointer(uintptr(n))
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
 				v[i] = n
 			case decoder.SignedFormatSpecifier:

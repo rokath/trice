@@ -39,19 +39,6 @@ func TestNoArgs(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-//  func TestUpdate(t *testing.T) {
-//  	args := []string{"trice", "update", "-idList", "emptyFile"}
-//  	expect := ``
-//  	execHelper(t, args, expect)
-//  }
-//
-//  func TestUpdateV(t *testing.T) {
-//  	args := []string{"trice", "update", "-idList", "emptyFile", "-verbose"}
-//  	expect := `0 ID's in List emptyFile listModified= false
-//  	`
-//  	execHelper(t, args, expect)
-//  }
-
 func TestComX(t *testing.T) {
 	args := []string{"trice", "log", "-p", "COMX", "-idList", "emptyFile"}
 	expect := `can not open COMX

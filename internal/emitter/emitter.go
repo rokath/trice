@@ -18,7 +18,7 @@ var (
 	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
 
-	// HostStamp is used tor line timestamps.
+	// HostStamp is used for line timestamps.
 	// off = no timestamp
 	// none = no timestamp
 	// LOCmicro = local time with microseconds
@@ -46,9 +46,6 @@ var (
 
 	// DisplayRemote if set, sends trice lines over TCP.
 	DisplayRemote bool
-
-	// Autostart if set, starts an additional trice instance as displayserver.
-	// Autostart bool
 
 	// TestTableMode is set externally to avoid Prefix overwrite
 	TestTableMode bool
@@ -99,30 +96,9 @@ type LineWriter interface {
 	WriteLine([]string)
 }
 
-//  // baseName returns basic filename of program without extension
-//  func baseName() string {
-//  	a0 := os.Args[0]
-//  	b0 := filepath.Base(a0)
-//  	// e0 := filepath.Ext(a0)
-//  	// s := strings.TrimSuffix(b0, e0)
-//  	// b := strings.TrimSuffix(s, ".test") // for Example tests only
-//  	if runtime.GOOS == "windows" {
-//  		return "trice.exe"
-//  	}
-//  	return b0
-//  }
-
 // newLineWriter provides a lineWriter which can be a remote Display or the local console.
 func newLineWriter(w io.Writer) (lwD LineWriter) {
 	if DisplayRemote {
-		//var p *RemoteDisplay
-		//  var args []string
-		//  if true == Autostart {
-		//  	args = []string{"alacritty", "-e"}
-		//  	args = append(args, os.Args...)
-		//  } else {
-		//  	args = os.Args
-		//  }
 		p := newRemoteDisplay(w, os.Args)
 		msg.FatalOnErr(p.Err)
 		lwD = p

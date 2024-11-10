@@ -16,32 +16,6 @@ import (
 	"github.com/spf13/afero"
 )
 
-//  // _ScZero does replace all ID's in source tree with 0
-//  func _ScZero(w io.Writer, fSys *afero.Afero, SrcZ string, cmd *flag.FlagSet) error {
-//  	if SrcZ == "" {
-//  		cmd.PrintDefaults()
-//  		return errors.New("no source tree root specified")
-//  	}
-//  	zeroSourceTreeIds(w, fSys, SrcZ, !DryRun)
-//  	return nil
-//  }
-
-//  renews the trice id list parsing the source tree without changing any source file.
-//   FnJSON and tries to add id:tf pairs from the source tree.
-//  found with different ids they are all added.
-//  s found with different tf only one is added. The others are reported as warning.
-//   found without Id(n) or with Id(0), it is ignored.
-//  ds to know which IDs are used in the source tree, to reliably add new IDs.
-//  t(w io.Writer, fSys *afero.Afero) (err error) {
-//  eIDLookUp)
-//  ceIDLookUpLI, 4000)
-//  eList(w, fSys, lu, lim))
-//  "off" || LIFnJSON == "none" {
-//
-//
-//  le(fSys, LIFnJSON)
-//
-
 // SubCmdAddToList etends the trice id list by parsing the source tree without changing any source file.
 // It only reads FnJSON and tries to add id:tf pairs from the source tree.
 // If equal tf are found with different ids they are all added.
@@ -90,27 +64,6 @@ func updateList(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, lim TriceIDLo
 
 	return nil // SubCmdUpdate() // todo?
 }
-
-//  // SubCmdUpdate is sub-command update
-//  func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
-//  	lim := make(TriceIDLookUpLI, 4000)
-//  	ilu := NewLut(w, fSys, FnJSON)
-//  	flu := ilu.reverseS()
-//  	var listModified bool
-//  	o := len(ilu)
-//  	walkSrcs(w, fSys, ilu, flu, &listModified, lim, idsUpdate)
-//  	if Verbose {
-//  		fmt.Fprintln(w, len(ilu), "ID's in List", FnJSON, "listModified=", listModified)
-//  	}
-//
-//  	if (len(ilu) != o || listModified) && !DryRun {
-//  		msg.FatalOnErr(ilu.toFile(fSys, FnJSON))
-//  	}
-//  	if LIFnJSON == "off" || LIFnJSON == "none" {
-//  		return nil
-//  	}
-//  	return lim.toFile(fSys, LIFnJSON)
-//  }
 
 func walkSrcs(w io.Writer, fSys *afero.Afero /*******/, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI,
 	f func(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI)) {

@@ -92,7 +92,7 @@ sub-command 'h|help': For command line usage.
     	Show ver|version specific help.
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -version
     	Show ver|version specific help.
@@ -287,7 +287,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'a|add': Use for adding library source files containing already trice IDs to your project.
 #	It extends the ID list from these source files but does not change the source files.
@@ -348,7 +348,7 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 's|scan': Shows available serial ports)
 #	Example: 'trice s': Show COM ports.
@@ -378,7 +378,7 @@ sub-command 'ver|version': For displaying version information.
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'i|insert': For updating til.json and inserting IDs into source files.
 #	"trice insert" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and extend the JSON list.
@@ -466,7 +466,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID](0). Remove all iD(n).
 #	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
@@ -529,7 +529,7 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 `
 	id.FnJSON = "til.json"

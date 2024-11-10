@@ -543,10 +543,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 
 	testSet := []SrcFile{
 		// fn: in:                                              expected:
-		//{fn0, `trice("new" ); trice("Lo!" );` /*       */, `trice(iD(18), "new" ); trice(iD(17), "Lo!" );`},
-		//{fn0, `trice("new %d", 1 ); trice("Lo!" );` /* */, `trice(iD(18), "new %d", 1 ); trice(iD(17), "Lo!" );`},
 		{fn0, `trice("new %d", 1 ); /* ' */ trice("Lo!" );`, `trice(iD(18), "new %d", 1 ); /* ' */ trice(iD(17), "Lo!" );`},
-		//{fn0, `trice("new %d" ); trice("Lo!" );` /*    */, `trice(iD(18), "new %d" ); trice(iD(17), "Lo!" );`},
 		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files

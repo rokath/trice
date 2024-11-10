@@ -46,8 +46,6 @@ func newRemoteDisplay(w io.Writer, args []string) *remoteDisplay {
 		PtrRPC: nil,
 	}
 	p.w = w
-	//  if Autostart {
-	//  	p.startServer()
 	p.connect()
 	return p
 }
