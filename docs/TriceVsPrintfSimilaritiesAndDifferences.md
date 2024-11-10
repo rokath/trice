@@ -43,11 +43,12 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 
 * No need to explicit express the value bit width.
 * The default parameter width for the `trice` macro is 32 bit. It is changeable to 8, 16 or 64-bit:
-  * Adapt settings inside `triceConfig.h`: `TRICE_DEFAULT_PARAMETER_BIT_WIDTH`. It influences ![./ref/DefaultBitWidth.PNG](./ref/DefaultBitWidth.PNG)
+  * Adapt `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside `triceConfig.h`. It influences ![./ref/DefaultBitWidth.PNG](./ref/DefaultBitWidth.PNG)
   * Use `-defaultTRICEBitwidth` switch during logging when changing this value.
 * The macros `trice8`, `trice16`, `trice32`, `trice64` are usable too, to define the bit width explicit.
   * This leads for the smaller bit widths to less needed space and bandwidth. But when using the default package framing TCOBS, the influence is marginal because of the implicit compression.
 * The fastest `trice` macro execution is, when MCU bit width matches the `trice`macro bit width.
+* The implicit TCOBS compression compacts the binary Trice data during the framing.
 
 ##  4. <a name='Manyvalueparameters'></a>Many value parameters
 
