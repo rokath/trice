@@ -2,22 +2,22 @@
 
 | name                            | content                                          |
 |---------------------------------|--------------------------------------------------|
-| [./_test](../_test)             | automatic target code tests                      |
+| [./_test](./_test)              | automatic target code tests                      |
 | `.code_snippets/`               | unused code                                      |
 | `.github/`                      |                                                  |
 | `.idea/`                        | GoLand settings                                  |
 | `.vscode/`                      | vsCode settings                                  |
-| [./cmd/cui](../cmd/cui)         | (do not use) command user interface tryout code  |
-| [./cmd/stim](../cmd/stim)       | (do not use) target stimulation tool tryout code |
-| [./cmd/trice](../cmd/trice)     | `trice` tool command Go sources                  |
+| [./cmd/cui](./cmd/cui)          | (do not use) command user interface tryout code  |
+| [./cmd/stim](./cmd/stim)        | (do not use) target stimulation tool tryout code |
+| [./cmd/trice](./cmd/trice)      | `trice` tool command Go sources                  |
 | [./docs](./docs)                | documentation                                    |
-| [./examples](../examples)       | example target projects                          |
+| [./examples](./examples)        | example target projects                          |
 | `./examples/*_inst/temp/`       | project binary logfiles                          |
-| [./internal](../internal)       | `trice` tool internal Go packages                |
-| [./pkg](../pkg)                 | `trice` tool common Go packages                  |
-| [./src/](../src)                | C sources for trice instrumentation              |
+| [./internal](./internal)        | `trice` tool internal Go packages                |
+| [./pkg](./pkg)                  | `trice` tool common Go packages                  |
+| [./src/](./src)                 | C sources for trice instrumentation              |
 | `super-linter.report/`          |                                                  |
-| [./third_party](../third_party) | external components                              |
+| [./third_party](./third_party)  | external components                              |
 | `_config.yml`                   | unused                                           |
 | `.clang-format`                 | See below                                        |
 | `.clang-format-ignore`          | See below                                        |
