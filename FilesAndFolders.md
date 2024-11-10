@@ -2,52 +2,45 @@
 
 | name                            | content                                          |
 |---------------------------------|--------------------------------------------------|
-| `.clang-format`                 | See below                                        |
-| `.clang-format-ignore`          | See below                                        |
-| `.editorconfig`                 | See below                                        |
-| `.code_snippets/`               |                                                  |
-| `.git/`                         | version control data base                        |
+| [./_test](../_test)             | automatic target code tests                      |
+| `.code_snippets/`               | unused code                                      |
 | `.github/`                      |                                                  |
-| `.gitattributes`                | See below                                        |
-| `.gitignore`                    |                                                  |
-| `.goreleaser.yml`               |                                                  |
-| `.idea/`                        | GoLand                                           |
-| `.travis.yml`                   |                                                  |
-| `.vscode/`                      |                                                  |
-| `AUTHORS.md`                    |                                                  |
-| `CHANGELOG.md`                  |                                                  |
-| `CODE_OF_CONDUCT.md`            |                                                  |
-| `CONTRIBUTING.md`               |                                                  |
-| `FoldersAndFiles.md`            | this file                                        |
-| `GoInfos.txt`                   |                                                  |
-| `LICENSE.md`                    |                                                  |
-| `README.md`                     |                                                  |
-| `_config.yml`                   |                                                  |
-| `branchesInfo.md`               |                                                  |
-| `cmd/`                          |                                                  |
-| `coverage.out`                  |                                                  |
-| `dist/`                         | created by goreleaser                            |
-| `docs/`                         |                                                  |
-| `examples/`                     | real projects                                    |
-| `fmtcoverage.html`              |                                                  |
-| `go.mod`                        |                                                  |
-| `go.sum`                        |                                                  |
-| `internal/`                     | trice Go packages for internal usage only        |
-| `pkg/`                          | trice Go packages usagable externally            |
-| `src/`                          | trice target sources                             |
-| `super-linter.report/`          |                                                  |
-| `temp/`                         | project binary logfiles                          |
-| `third_party/`                  | tools                                            |
+| `.idea/`                        | GoLand settings                                  |
+| `.vscode/`                      | vsCode settings                                  |
 | [./cmd/cui](../cmd/cui)         | (do not use) command user interface tryout code  |
 | [./cmd/stim](../cmd/stim)       | (do not use) target stimulation tool tryout code |
 | [./cmd/trice](../cmd/trice)     | `trice` tool command Go sources                  |
 | [./docs](./docs)                | documentation                                    |
 | [./examples](../examples)       | example target projects                          |
+| `./examples/*_inst/temp/`       | project binary logfiles                          |
 | [./internal](../internal)       | `trice` tool internal Go packages                |
 | [./pkg](../pkg)                 | `trice` tool common Go packages                  |
 | [./src/](../src)                | C sources for trice instrumentation              |
-| [./test](../test)               | automatic target code tests                      |
+| `super-linter.report/`          |                                                  |
 | [./third_party](../third_party) | external components                              |
+| `_config.yml`                   | unused                                           |
+| `.clang-format`                 | See below                                        |
+| `.clang-format-ignore`          | See below                                        |
+| `.editorconfig`                 | See below                                        |
+| `.git/`                         | version control data base                        |
+| `.gitattributes`                | See below                                        |
+| `.gitignore`                    |                                                  |
+| `.goreleaser.yml`               | goreleaser configuration                         |
+| `.travis.yml`                   |                                                  |
+| `AUTHORS.md`                    | contributors                                     |
+| `CHANGELOG.md`                  |                                                  |
+| `CODE_OF_CONDUCT.md`            |                                                  |
+| `CONTRIBUTING.md`               |                                                  |
+| `FilesAndFolders.md`            | this file                                        |
+| `go.mod`                        |                                                  |
+| `go.sum`                        |                                                  |
+| `GoInfos.txt`                   |                                                  |
+| `LICENSE.md`                    |                                                  |
+| `README.md`                     |                                                  |
+| `branchesInfo.md`               |                                                  |
+| `coverage.out`                  |                                                  |
+| `dist/`                         | created by goreleaser                            |
+| `fmtcoverage.html`              |                                                  |
 
 ## `.clang-format`
 

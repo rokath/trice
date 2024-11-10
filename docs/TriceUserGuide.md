@@ -117,7 +117,7 @@
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc -->-><div id="top"></div>
+<!-- /vscode-markdown-toc --><div id="top"></div>
 
 <!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
@@ -165,9 +165,15 @@ The uppercase `TRICE` macros are inlining the complete Trice code and the lowerc
 - The 2 JSON files are now filled with information.
 - Run `trice clean` and the trice code line changes back to `trice( "Hello! 👋🙂\a\n" );`.
 
-You can use `trice insert` as pre- and `trice clean` as post-compile step, to not spoil your source code with IDs. Or, use `trice insert` in a post-checkout and `trice clean` in a pre-check-in script to keep the repository clean. Using only `trice insert` as pre-compile step is possible too, especially when the code is used just in a single project and you wish to have it as compiled.
+You can use `trice insert` as pre- and `trice clean` as post-compile step, to not spoil your source code with IDs.
 
-When using Trice in libraries for several projects, it may make sense to check-in the libraries with IDs and to use a dedicated ID space for them. See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) as an example - especially when building several projects parallel like shown in the examples folder.
+> **The optional Trice cache technique avoids un-edited file changes at all, what means no Trice releated build speed disadvantages.**   
+
+See [TriceCacheSpec.md](./TriceCacheSpec.md) for more details and [examples/G01B_inst/build.sh](./examples/G01B_inst/build.sh) as example.
+
+- Or, use `trice insert` in a post-checkout and `trice clean` in a pre-check-in script to keep just the repository clean of Trice IDs. Using only `trice insert` as pre-compile step is possible too, especially when the code is used just in a single project and you wish to have it as compiled.
+- When using Trice in libraries for several projects, it may make sense to check-in the libraries with IDs and to use a dedicated ID space for them. See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) as an example - especially when building several projects parallel like shown in the examples folder.
+
 A quick setup is possible when using RTT as output channel. Otherwise you need to setup a serial port for Trice data transmission. Other output paths possible too using the auxilary interface.
 
 ###  2.4. <a name='UseIt'></a>Use It
@@ -513,6 +519,7 @@ trice( "hi 4");
 - There is nothing wrong, when putting _trice_ macros into header files.
 - But: When you use `trice insert` as pre-build command and `trice clean` as post build command, those header files get touched on each build and therefore all source code files including them will be re-translated every time.
 - For efficiency avoid that.
+- ***With inventing the Trice cache this is of no relevance.***
 
 ####  2.6.3. <a name='No_trice_macrosinsideothermacros'></a>No _trice_ macros inside other macros
 
