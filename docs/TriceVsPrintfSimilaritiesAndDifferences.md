@@ -35,18 +35,20 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 
 * Each *Trice* caries a 14-bit nuber ID as replacement for the format string.
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the `trice` macro followed by the format string and optional values.
-* The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`. 
+* The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`.
+  * The Trice cache makes this invisible to the build system, allowing full translation speed.
 * The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../_test/testdata/til.json) (example).
 
 ##  3. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
 
 * No need to explicit express the value bit width.
 * The default parameter width for the `trice` macro is 32 bit. It is changeable to 8, 16 or 64-bit:
-  * Adapt settings inside `triceConfig.h`: `TRICE_DEFAULT_PARAMETER_BIT_WIDTH`. It influences ![./ref/DefaultBitWidth.PNG](./ref/DefaultBitWidth.PNG)
+  * Adapt `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside `triceConfig.h`. It influences ![./ref/DefaultBitWidth.PNG](./ref/DefaultBitWidth.PNG)
   * Use `-defaultTRICEBitwidth` switch during logging when changing this value.
 * The macros `trice8`, `trice16`, `trice32`, `trice64` are usable too, to define the bit width explicit.
   * This leads for the smaller bit widths to less needed space and bandwidth. But when using the default package framing TCOBS, the influence is marginal because of the implicit compression.
 * The fastest `trice` macro execution is, when MCU bit width matches the `trice`macro bit width.
+* The implicit TCOBS compression compacts the binary Trice data during the framing.
 
 ##  4. <a name='Manyvalueparameters'></a>Many value parameters
 
@@ -55,7 +57,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
   * `trice( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));`
   * To support more than 12 values for each `trice` macro, the *Trice* code on target and host is straightforward extendable up to a total payload of 32764 bytes.
 * Each macro can be prolonged with the used parameter count, for example `TRICE8_3` or `TRICE_2` to intense compile time checks.
-  * This length code extension can be done automatically using `trice u -addParamCount`.
+  * This length code extension can be done automatically using `trice u -addParamCount`. This is not needed anymore:
 * The _Trice_ tool compares the number of given format specifiers with the written parameters in a precimpile step to minimize the risk of runtime errors.
 * There is no variadic values scanning during runtime. The C preprocessor does the work.
 
@@ -108,7 +110,7 @@ static inline uint64_t aDouble( double x ){
 
 * The `%s` format specifier is supported by the `trice` macro too but needs specific treatment.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
-* Strings created at runtime, need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32764 bytes each, if the configured *Trice* buffer size matches.
+* Strings created at runtime, need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32764 bytes each, if the configured *Trice* buffer size is sufficient. 
   * Example:
 
   ```c
@@ -135,8 +137,9 @@ static inline uint64_t aDouble( double x ){
   triceB( "msg: %4d\n", s, len ); // Show s as colored code sequence in decimal code.
 ```
 
- This gives output similar to: ![./ref/TRICE_B.PNG](./ref/TRICE_B.PNG)
- Channel specifier within the `TRICE_B` format string are supported in Trice versions >= v0.66.0.
+  This gives output similar to: ![./ref/TRICE_B.PNG](./ref/TRICE_B.PNG)
+
+  Channel specifier within the `TRICE_B` format string are supported in Trice versions >= v0.66.0.
 
  If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
@@ -144,7 +147,7 @@ static inline uint64_t aDouble( double x ){
 
 The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Examples:
 
-```code
+```C
 trice8F(   "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );   //exp: time:            default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
 TRICE16_F( "info:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: info:FunctionNameX(0000)(ffff)(fffe)(3344) 
 TRice16F(  "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
