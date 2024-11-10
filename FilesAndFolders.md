@@ -7,8 +7,8 @@
 | `.github/`                      |                                                  |
 | `.idea/`                        | GoLand settings                                  |
 | `.vscode/`                      | vsCode settings                                  |
-| [./cmd/cui](./cmd/cui)          | (do not use) command user interface tryout code  |
-| [./cmd/stim](./cmd/stim)        | (do not use) target stimulation tool tryout code |
+| [./cmd/cui](./cmd/_cui)         | (do not use) command user interface tryout code  |
+| [./cmd/stim](./cmd/_stim)       | (do not use) target stimulation tool tryout code |
 | [./cmd/trice](./cmd/trice)      | `trice` tool command Go sources                  |
 | [./docs](./docs)                | documentation                                    |
 | [./examples](./examples)        | example target projects                          |
