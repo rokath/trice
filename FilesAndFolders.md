@@ -37,7 +37,7 @@
 | `GoInfos.txt`                   |                                                  |
 | `LICENSE.md`                    |                                                  |
 | `README.md`                     |                                                  |
-| `branchesInfo.md`               |                                                  |
+|                                 |                                                  |
 | `coverage.out`                  |                                                  |
 | `dist/`                         | created by goreleaser                            |
 | `fmtcoverage.html`              |                                                  |
