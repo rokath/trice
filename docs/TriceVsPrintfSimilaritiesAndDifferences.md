@@ -110,7 +110,7 @@ static inline uint64_t aDouble( double x ){
 
 * The `%s` format specifier is supported by the `trice` macro too but needs specific treatment.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
-* Strings created at runtime, need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32764 bytes each, if the configured *Trice* buffer size matches.
+* Strings created at runtime, need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32764 bytes each, if the configured *Trice* buffer size is sufficient. 
   * Example:
 
   ```c
@@ -137,8 +137,9 @@ static inline uint64_t aDouble( double x ){
   triceB( "msg: %4d\n", s, len ); // Show s as colored code sequence in decimal code.
 ```
 
- This gives output similar to: ![./ref/TRICE_B.PNG](./ref/TRICE_B.PNG)
- Channel specifier within the `TRICE_B` format string are supported in Trice versions >= v0.66.0.
+  This gives output similar to: ![./ref/TRICE_B.PNG](./ref/TRICE_B.PNG)
+
+  Channel specifier within the `TRICE_B` format string are supported in Trice versions >= v0.66.0.
 
  If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
@@ -146,7 +147,7 @@ static inline uint64_t aDouble( double x ){
 
 The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Examples:
 
-```code
+```C
 trice8F(   "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );   //exp: time:            default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
 TRICE16_F( "info:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: info:FunctionNameX(0000)(ffff)(fffe)(3344) 
 TRice16F(  "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: call:FunctionNameX(0000)(ffff)(fffe)(3344) 
