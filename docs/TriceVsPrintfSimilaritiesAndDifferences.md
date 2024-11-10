@@ -35,7 +35,8 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 
 * Each *Trice* caries a 14-bit nuber ID as replacement for the format string.
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the `trice` macro followed by the format string and optional values.
-* The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`. 
+* The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`.
+  * The Trice cache makes this invisible to the build system, allowing full translation speed.
 * The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../_test/testdata/til.json) (example).
 
 ##  3. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
