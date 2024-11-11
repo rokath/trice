@@ -381,7 +381,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 The Trice macros are designed for maximal execution speed and therefore we have to pay the price for their limited capabilities.
 
-- Optionally add channel specifiers to get color. Example:
+- Optionally add tags to get color. Example:
 
     ```c
     puts( "A message");
@@ -472,7 +472,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 ####  2.5.9. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
 
-- The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside `triceConfig.h` to change that.
+- The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside [src/triceDefaultConfig.h](../src/triceDefaultConfig.h) to change that.
 - If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
 
   ```C
