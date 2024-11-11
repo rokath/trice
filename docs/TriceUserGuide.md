@@ -395,7 +395,7 @@ The Trice macros are designed for maximal execution speed and therefore we have 
 
 ####  2.5.7. <a name='Limitations'></a>Limitations
 
-- The maximum parameter count per trice is 12.
+- The maximum parameter count per trice is 12, but buffer transfer alows up to 32764 bytes payload. See `triceB` and its relatives.
 - Each trice must fit into a single line in trice versions before v0.61.0.
   - Not ok before v0.61.0 but ok for later versions:
 
