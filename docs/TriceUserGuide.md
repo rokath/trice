@@ -207,7 +207,7 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
 
 ###  2.5. <a name='Portit'></a>Port it
 
-Trice shoeld be usable on any MCU with any compiler. On ARM MCUs the easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or additionally is also no big deal.
+Trice should be usable on any MCU with any compiler. On ARM MCUs the easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or additionally is also no big deal.
 
 Compare folders of one of these folder groups:
 
@@ -223,7 +223,7 @@ The *Readme.md* files in the examples folder contain further helpful information
 
 ####  2.5.1. <a name='TargetMacros'></a>Target Macros
 
-The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`**, which you can mostly use as a `printf` replacement in legacy code. See [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
+The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`** ( **`Trice`**, **`TRice`**), which you can mostly use as a `printf` replacement in legacy code. See [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
 
 The macros 
 
