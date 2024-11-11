@@ -157,7 +157,7 @@ int tryIt( void ){
 }
 ```
 
-You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated stings, according to [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md). The file [./_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) shows many usage examples.
+You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated stings, according to [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md). The file [_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) shows many usage examples.
 The uppercase `TRICE` macros are inlining the complete Trice code and the lowercase `trice` macros are function calls, so most probably you want use `trice` to keep the overall code size smaller.
 
 - Create 2 empty files `til.json` and `li.json` in your project root.
@@ -169,7 +169,7 @@ You can use `trice insert` as pre- and `trice clean` as post-compile step, to no
 
 > **The optional Trice cache technique avoids un-edited file changes at all, what means no Trice releated build speed disadvantages.**   
 
-See [TriceCacheSpec.md](./TriceCacheSpec.md) for more details and [examples/G01B_inst/build.sh](./examples/G01B_inst/build.sh) as example.
+See [TriceCacheSpec.md](./TriceCacheSpec.md) for more details and [examples/G01B_inst/build.sh](../examples/G01B_inst/build.sh) as example.
 
 - Or, use `trice insert` in a post-checkout and `trice clean` in a pre-check-in script to keep just the repository clean of Trice IDs. Using only `trice insert` as pre-compile step is possible too, especially when the code is used just in a single project and you wish to have it as compiled.
 - When using Trice in libraries for several projects, it may make sense to check-in the libraries with IDs and to use a dedicated ID space for them. See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) as an example - especially when building several projects parallel like shown in the examples folder.
