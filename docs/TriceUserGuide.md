@@ -223,7 +223,7 @@ The *Readme.md* files in the examples folder contain further helpful information
 
 ####  2.5.1. <a name='TargetMacros'></a>Target Macros
 
-The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`** ( **`Trice`**, **`TRice`**), which you can mostly use as a `printf` replacement in legacy code. See [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
+The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`** which you can mostly use as a `printf` replacement in legacy code. See [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
 
 The macros 
 
