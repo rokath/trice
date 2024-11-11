@@ -510,8 +510,7 @@ trice( "hi 3");
 trice( "hi 4");
 ```
 
-- The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here.
-- Workaround: Use legacy `trice update` in such a rare case but better avoid any unescaped singe double quote inside comments.
+- The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here, but the compiler will mark an error then.
 - See also [issue #427](https://github.com/rokath/trice/issues/427), [issue #465](https://github.com/rokath/trice/issues/465) and see also [Linited Trice Parser Capabilities](#922-linited-trice-parser-capabilities).
 
 ####  2.6.2. <a name='No_trice_macrosinheaderfiles'></a>No _trice_ macros in header files
