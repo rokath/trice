@@ -262,7 +262,7 @@ The full uppercase macro `TRICE` is a Trice macro only using inline code. Becaus
 
 ####  2.5.2. <a name='TargetTriceStamps'></a>Target Trice Stamps
 
-- Add the 2 hardware specific macros/functions to your project (example in [./examples/F030R8_inst/Core/Inc/triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) and [./examples/F030R8_inst/Core/Src/stm32f0xx_it.c](../examples/F030R8_inst/Core/Src/stm32f0xx_it.c) ) if you wish to have your Trice messages stamped, most probably timestamped. The time base is in your hands and is allowed to be different for the 16-bit and 32-bit stamps. Example:
+- If you wish to have your Trice messages stamped, most probably time stamped, add the 2 hardware specific macros/functions to your project (example in [./examples/F030R8_inst/Core/Inc/triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) and [./examples/F030R8_inst/Core/Src/stm32f0xx_it.c](../examples/F030R8_inst/Core/Src/stm32f0xx_it.c) ). The time base is in your hands and is allowed to be different for the 16-bit and 32-bit stamps. Example:
   
     ```c   
     //! ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
@@ -276,7 +276,7 @@ The full uppercase macro `TRICE` is a Trice macro only using inline code. Becaus
   ![x](./ref/0-16-32BitTimeStamps.jpg)
 
 - The trice tool `-ts*` CLI switches allow customization. With `-hs off` host time stamps are suppressed.
-- It is also possible to use the (time) stamp option not for timestamps but for any values, like addresses or a voltage or for different time bases.
+- It is also possible to use the stamp option not for time stamps but for any values, like addresses or a voltage or a random number.
 
 _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bit timestamp as systick counter to measure short execution times.
 
