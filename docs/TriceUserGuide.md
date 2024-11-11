@@ -201,7 +201,7 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
   - Even if you do not have such hardware, you can compile the [`examples/F030R8_inst`](../examples/F030R8_inst) project just to get started.
   - When adding or modifying `trice` macros inside [examples/F030R8_inst/Core/Src/main.c](../examples/F030R8_inst/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
 - The examples and test subfolders contains several vsCode Makefile projects and they are also usable as starting points for your configuration.
-- You can use Trice calls also inside header files but when running `trice insert` as pre- and `trice clean` as post-compile step, all files including these headers will be re-compiled every time, what may be too time consuming. Hopefully this will be solved in the future. See [Issue #488](https://github.com/rokath/trice/issues/488) for more information.
+- You can use Trice calls also inside header files but when running `trice insert` as pre- and `trice clean` as post-compile step, all files including these headers will be re-compiled every time, what may be too time consuming. Enable the Trice cache then. See [TriceCacheSpec.md](./TriceCacheSpec.md) for more information.
   
 <p align="right">(<a href="#top">back to top</a>)</p>
 
