@@ -5,7 +5,6 @@
 **/out/
 **/out.gcc/
 **/out.clang/
-**/.DS_Store/
 **/temp/
 
 # files
@@ -13,6 +12,4 @@
 **/.mxproject
 internal/receiver/trices.raw
 **/.DS_store
-
-
 
