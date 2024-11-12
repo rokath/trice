@@ -11,19 +11,19 @@ CLANG_OBJECTS += $(addprefix $(CLANG_BUILD)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
 # assembler
-$(CLANG_BUILD)/%.o: %.s $(MAKEFILE) | $(CLANG_BUILD)
+$(CLANG_BUILD)/%.o: %.s $(BUILDFILES) | $(CLANG_BUILD)
 	@echo $<
 	@$(CLANG_AS) $(VERBOSE) $(C_FLAGS) $(CLANG_ONLY_FLAGS) -c $< -o $@
 #	@echo -
 
 # compiler
-$(CLANG_BUILD)/%.o: %.c $(MAKEFILE) | $(CLANG_BUILD)
+$(CLANG_BUILD)/%.o: %.c $(BUILDFILES) | $(CLANG_BUILD)
 	@echo $<
 	@$(CLANG_CC) $(VERBOSE) $(C_FLAGS) $(C_DEFS) $(C_INCLUDES) $(CLANG_ONLY_FLAGS) -c $< -o $@
 #	@echo -e
 
 # linker # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
-$(CLANG_BUILD)/$(TARGET).elf: $(CLANG_OBJECTS) $(MAKEFILE)
+$(CLANG_BUILD)/$(TARGET).elf: $(CLANG_OBJECTS) $(BUILDFILES)
 	@echo linking...
 	@$(GCC_CC) $(CLANG_OBJECTS) $(MCU) $(CLANG_LDFLAGS) $(VERBOSE) -o $@ 2> gccLinksClangWarning.txt
 	@echo -e
