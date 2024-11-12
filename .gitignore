@@ -5,11 +5,11 @@
 **/out/
 **/out.gcc/
 **/out.clang/
-
 **/temp/
 
 # files
 **/gccLinksClangWarning.txt
 **/.mxproject
-
 internal/receiver/trices.raw
+**/.DS_store
+
