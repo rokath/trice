@@ -1,10 +1,6 @@
+# main.mak
 
-# LLVM for ARM needs to be first in path
-export PATH := C:\bin\ArmClang\bin:C:\bin\ArmGNUToolchain\bin:$(PATH)
-# ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
-export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
-
-MAKEFILE = Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
+BUILDFILES = build.sh OS_Darwin.mak OS_Linux.mak OS_Windows.mak main.mak mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
 VERBOSE = # -v
 
 ######################################
@@ -90,8 +86,8 @@ C_SOURCES += \
 
 # examples
 C_SOURCES += \
-../../_test/testdata/triceCheck.c \
-../exampleData/triceLogDiagData.c
+../exampleData/triceLogDiagData.c \
+../../_test/testdata/triceCheck.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -140,7 +136,7 @@ include flags.mak
 
 .PHONY: all gcc clean log version
 
-all: gcc # clang
+all: clang # gcc clang
 
 clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
 	@:
@@ -163,8 +159,8 @@ clean:
 version:
 	@which arm-none-eabi-gcc
 	@arm-none-eabi-gcc --version
-	@which clang
-	@clang --version
+	@which $(CLANG_CC)
+	@$(CLANG_CC) --version
  
 # openocdflashgcc: all
 # 	openocd -f interface/jlink.cfg -f target/stm32g0x.cfg -c "program $(GCC_BUILD)/$(TARGET).elf verify reset exit"

@@ -2,4 +2,5 @@
 
 todo
 
-include main.mak
+include Makefile
+

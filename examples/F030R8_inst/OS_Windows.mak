@@ -7,3 +7,4 @@ export PATH := C:\bin\ArmClang\bin:C:\bin\ArmGNUToolchain\bin:$(PATH)
 export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
 
 include Makefile
+

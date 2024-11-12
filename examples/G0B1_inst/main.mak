@@ -132,7 +132,7 @@ C_INCLUDES += \
 
 include flags.mak
 
-.PHONY: all gcc clean
+.PHONY: all gcc clean log version
 
 all: clang # gcc clang
 
