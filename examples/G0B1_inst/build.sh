@@ -9,9 +9,17 @@ trice add -src ../../_test/testdata -src ../exampleData # Make sure, these go un
 trice clean -src ./Core -cache # Run this first to trigger the used editor to show the Trice IDs cleaned state.
 trice insert -src ../../_test/testdata -src ../exampleData -src ./Core  -IDMin 16200 -IDMax 16383 -IDMethod upward -cache # Add project data.
 
-# Select here just the one line matching the operating system of your buils host.
- make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 clang -f OS_Windows.mak
+#make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 clang -f OS_Windows.mak
 #make -j $(sysctl -n hw.ncpu) TRICE_FLAGS=-D$ARG1 gcc   -f OS_Darwin.mak
 #make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1       -f OS_Linuxs.mak
+case "$OSTYPE" in
+  darwin*)  make -j $(sysctl -n hw.ncpu) TRICE_FLAGS=-D$ARG1 gcc   -f OS_Darwin.mak ;; 
+  linux*)   make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 gcc   -f OS_Linuxs.mak ;;
+  msys*)    make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 clang -f OS_Windows.mak ;;
+  cygwin*)  make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 clang -f OS_Windows.mak ;;
+  *)        echo "unknown: $OSTYPE" ;;
+  solaris*) echo "SOLARIS not implemented" ;;
+  bsd*)     echo "BSD not implemented" ;;
+esac
 
 trice clean -src ./Core -cache # Run this again to show the Trice IDs cleaned state.

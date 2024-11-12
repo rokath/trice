@@ -7,6 +7,17 @@ trice add -src ../../_test/testdata -src ../exampleData # Make sure, these go un
 # The folders  ../../_test/testdata  and ../exampleData are used by several projects and therefore not cleaned.
 trice clean -src ./Core -cache # Run this first to trigger the used editor to show the Trice IDs cleaned state.
 trice insert -src ../../_test/testdata -src ../exampleData -src ./Core  -IDMin 16200 -IDMax 16383 -IDMethod upward -cache # Add project data.
+
 #make -j $(nproc --all) TRICE_FLAGS=-D$ARG1 # Windows
-make -j $(sysctl -n hw.ncpu) TRICE_FLAGS=-D$ARG1 # MacOS
+#make -j $(sysctl -n hw.ncpu) TRICE_FLAGS=-D$ARG1 # MacOS
+case "$OSTYPE" in
+  darwin*)  make -j $(sysctl -n hw.ncpu) TRICE_FLAGS=-D$ARG1 gcc   -f OS_Darwin.mak ;; 
+  linux*)   make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 gcc   -f OS_Linuxs.mak ;;
+  msys*)    make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1       -f OS_Windows.mak ;;
+  cygwin*)  make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1       -f OS_Windows.mak ;;
+  *)        echo "unknown: $OSTYPE" ;;
+  solaris*) echo "SOLARIS not implemented" ;;
+  bsd*)     echo "BSD not implemented" ;;
+esac
+
 trice clean -src ./Core -cache # Run this again to show the Trice IDs cleaned state.

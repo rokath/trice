@@ -39,8 +39,19 @@ do
     cd $d
     echo --------------------------------------------------------------------------------------------------------
     echo $d
+
     #make -j $(nproc --all) # Windows
-    make -j $(sysctl -n hw.ncpu) # MacOS
+    #make -j $(sysctl -n hw.ncpu) # MacOS
+    case "$OSTYPE" in
+    darwin*)  make -j $(sysctl -n hw.ncpu) gcc   -f OS_Darwin.mak ;; 
+    linux*)   make -j $(nproc --all)       gcc   -f OS_Linuxs.mak ;;
+    msys*)    make -j $(nproc --all)       clang -f OS_Windows.mak ;;
+    cygwin*)  make -j $(nproc --all)       clang -f OS_Windows.mak ;;
+    *)        echo "unknown: $OSTYPE" ;;
+    solaris*) echo "SOLARIS not implemented" ;;
+    bsd*)     echo "BSD not implemented" ;;
+    esac
+
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
         echo FAIL: $d
