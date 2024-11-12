@@ -14,14 +14,6 @@ import (
 
 // doTableTest is the universal decoder test sequence.
 func doCHARableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool, teTa decoder.TestTable) {
-	//var (
-	//	// til is the trace id list content for test
-	//	idl = ``
-	//)
-	//lu := make(id.TriceIDLookUp) // empty
-	//luM := new(sync.RWMutex)
-	//assert.Nil(t, ilu.FromJSON([]byte(idl)))
-	//lu.AddFmtCount(os.Stdout)
 	buf := make([]byte, decoder.DefaultSize)
 	dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance
 	for _, x := range teTa {

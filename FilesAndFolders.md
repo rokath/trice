@@ -2,52 +2,45 @@
 
 | name                            | content                                          |
 |---------------------------------|--------------------------------------------------|
+| [./_test](./_test)              | automatic target code tests                      |
+| `.code_snippets/`               | unused code                                      |
+| `.github/`                      |                                                  |
+| `.idea/`                        | GoLand settings                                  |
+| `.vscode/`                      | vsCode settings                                  |
+| [./cmd/cui](./_cmd/_cui)        | (do not use) command user interface tryout code  |
+| [./cmd/_stim](./cmd/_stim)      | (do not use) target stimulation tool tryout code |
+| [./cmd/trice](./cmd/trice)      | `trice` tool command Go sources                  |
+| [./docs](./docs)                | documentation                                    |
+| [./examples](./examples)        | example target projects                          |
+| `./examples/*_inst/temp/`       | project binary logfiles                          |
+| [./internal](./internal)        | `trice` tool internal Go packages                |
+| [./pkg](./pkg)                  | `trice` tool common Go packages                  |
+| [./src/](./src)                 | C sources for trice instrumentation              |
+| `super-linter.report/`          |                                                  |
+| [./third_party](./third_party)  | external components                              |
+| `_config.yml`                   | unused                                           |
 | `.clang-format`                 | See below                                        |
 | `.clang-format-ignore`          | See below                                        |
 | `.editorconfig`                 | See below                                        |
-| `.code_snippets/`               |                                                  |
 | `.git/`                         | version control data base                        |
-| `.github/`                      |                                                  |
 | `.gitattributes`                | See below                                        |
 | `.gitignore`                    |                                                  |
-| `.goreleaser.yml`               |                                                  |
-| `.idea/`                        | GoLand                                           |
+| `.goreleaser.yml`               | goreleaser configuration                         |
 | `.travis.yml`                   |                                                  |
-| `.vscode/`                      |                                                  |
-| `AUTHORS.md`                    |                                                  |
+| `AUTHORS.md`                    | contributors                                     |
 | `CHANGELOG.md`                  |                                                  |
 | `CODE_OF_CONDUCT.md`            |                                                  |
 | `CONTRIBUTING.md`               |                                                  |
-| `FoldersAndFiles.md`            | this file                                        |
+| `FilesAndFolders.md`            | this file                                        |
+| `go.mod`                        |                                                  |
+| `go.sum`                        |                                                  |
 | `GoInfos.txt`                   |                                                  |
 | `LICENSE.md`                    |                                                  |
 | `README.md`                     |                                                  |
-| `_config.yml`                   |                                                  |
-| `branchesInfo.md`               |                                                  |
-| `cmd/`                          |                                                  |
+|                                 |                                                  |
 | `coverage.out`                  |                                                  |
 | `dist/`                         | created by goreleaser                            |
-| `docs/`                         |                                                  |
-| `examples/`                     | real projects                                    |
 | `fmtcoverage.html`              |                                                  |
-| `go.mod`                        |                                                  |
-| `go.sum`                        |                                                  |
-| `internal/`                     | trice Go packages for internal usage only        |
-| `pkg/`                          | trice Go packages usagable externally            |
-| `src/`                          | trice target sources                             |
-| `super-linter.report/`          |                                                  |
-| `temp/`                         | project binary logfiles                          |
-| `third_party/`                  | tools                                            |
-| [./cmd/cui](../cmd/cui)         | (do not use) command user interface tryout code  |
-| [./cmd/stim](../cmd/stim)       | (do not use) target stimulation tool tryout code |
-| [./cmd/trice](../cmd/trice)     | `trice` tool command Go sources                  |
-| [./docs](./docs)                | documentation                                    |
-| [./examples](../examples)       | example target projects                          |
-| [./internal](../internal)       | `trice` tool internal Go packages                |
-| [./pkg](../pkg)                 | `trice` tool common Go packages                  |
-| [./src/](../src)                | C sources for trice instrumentation              |
-| [./test](../test)               | automatic target code tests                      |
-| [./third_party](../third_party) | external components                              |
 
 ## `.clang-format`
 

@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_CLEAN 1
+
 #include <stdint.h>
 
 extern volatile uint32_t * const DWT_CONTROL;
@@ -16,8 +18,8 @@ extern volatile uint32_t * const DWT_CYCCNT ;
 extern volatile uint32_t * const DEMCR;
 extern volatile uint32_t * const LAR; // lock access register
 
-//#define TriceStamp16 (*DWT_CYCCNT) // 64 MHz wraps after >1ms 
-//#define TriceStamp32 ((*DWT_CYCCNT)>>6) // 64 MHz -> 1 µs
+#define TriceStamp16 (*DWT_CYCCNT) // 64 MHz wraps after >1ms 
+#define TriceStamp32 ((*DWT_CYCCNT)>>6) // 64 MHz -> 1 µs
 
 #define TRICE_BUFFER TRICE_RING_BUFFER
 

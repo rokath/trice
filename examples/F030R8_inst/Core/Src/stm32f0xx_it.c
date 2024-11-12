@@ -150,7 +150,7 @@ void SysTick_Handler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-#if defined( TRICE_UARTA ) // only needed. if backchannel is used
+#if !TRICE_OFF && defined( TRICE_UARTA ) // only needed. if backchannel is used
     if (LL_USART_IsActiveFlag_RXNE(TRICE_UARTA) ) { // Read Data Register Not Empty Flag 
 
         static char rxBuf[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
@@ -170,10 +170,10 @@ void USART2_IRQHandler(void)
         }
         return;
     }
-#endif // #if defined( TRICE_UARTA ) // only needed. if backchannel is used
+#endif // #if !TRICE_OFF && defined( TRICE_UARTA ) // only needed. if backchannel is used
     // If both flags active and only one was served, the IRQHandler gets activated again.
 
-#if defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UARTA
+#if !TRICE_OFF && defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UARTA
     if( LL_USART_IsActiveFlag_TXE(TRICE_UARTA) ){ // Transmit Data Register Empty Flag
         triceServeTransmitUartA();
         return;

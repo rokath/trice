@@ -44,8 +44,6 @@ func FlagsInit() {
 	helpInit()
 	logInit()
 	addInit()
-	//  updateInit()
-	//  zeroInit()
 	insertIDsInit()
 	cleanIDsInit()
 	versionInit()
@@ -69,14 +67,10 @@ func helpInit() {
 	fsScHelp.BoolVar(&scanHelp, "s", false, "Show s|scan specific help.")
 	fsScHelp.BoolVar(&shutdownHelp, "shutdown", false, "Show sd|shutdown specific help.")
 	fsScHelp.BoolVar(&shutdownHelp, "sd", false, "Show sd|shutdown specific help.")
-	//  fsScHelp.BoolVar(&updateHelp, "update", false, "Show u|update specific help.")
-	//  fsScHelp.BoolVar(&updateHelp, "u", false, "Show u|update specific help.")
 	fsScHelp.BoolVar(&insertIDsHelp, "insert", false, "Show i|insert specific help.")
 	fsScHelp.BoolVar(&insertIDsHelp, "i", false, "Show i|insert specific help.")
 	fsScHelp.BoolVar(&versionHelp, "version", false, "Show ver|version specific help.")
 	fsScHelp.BoolVar(&versionHelp, "ver", false, "Show ver|version specific help.")
-	//  fsScHelp.BoolVar(&zeroIDsHelp, "zeroSourceTreeIds", false, "Show zeroSourceTreeIds specific help.")
-	//  fsScHelp.BoolVar(&zeroIDsHelp, "z", false, "Show zeroSourceTreeIds specific help.")
 	fsScHelp.BoolVar(&cleanIDsHelp, "clean", false, "Show c|clean specific help.")
 	fsScHelp.BoolVar(&cleanIDsHelp, "c", false, "Show c|clean specific help.")
 	flagLogfile(fsScHelp)
@@ -86,7 +80,6 @@ func helpInit() {
 func logInit() {
 	const defaultEncoding = "TREX"
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
-	//fsScLog.IntVar(&decoder.IDBits, "IDBits", 13, `Bits used for ID encoding. Legacy TREX projects need this value to be set to 14.`)
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match. 
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
 		  CHAR prints the received bytes as characters.
@@ -162,14 +155,8 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 
 	fsScLog.StringVar(&receiver.ExecCommand, "exec", "", execInfo)
 
-	//  	fsScLog.BoolVar(&emitter.Autostart, "autostart", false, `Autostart displayserver @ ipa:ipp.
-	//  Works not perfect with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash.
-	//  Example: "trice l -port COM38 -displayserver -autostart" opens a separate display window automatically on the same PC.
-	//  `+boolInfo)
-
 	fsScLog.BoolVar(&decoder.Unsigned, "unsigned", true, "Hex, Octal and Bin values are printed as unsigned values.")
 	fsScLog.BoolVar(&decoder.Unsigned, "u", true, "Short for '-unsigned'.")
-	// fsScLog.BoolVar(&emitter.Autostart, "a", false, "Short for '-autostart'.")
 	fsScLog.BoolVar(&receiver.ShowInputBytes, "showInputBytes", false, `Show incoming bytes, what can be helpful during setup.
 `+boolInfo)
 	fsScLog.BoolVar(&receiver.ShowInputBytes, "s", false, "Short for '-showInputBytes'.")
@@ -194,17 +181,6 @@ func addInit() {
 	flagsRefreshAndUpdate(fsScAdd)
 }
 
-//  func updateInit() {
-//  	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // sub-command
-//  	flagsRefreshAndUpdate(fsScUpdate)
-//  	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
-//  	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
-//  	fsScUpdate.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
-//  	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
-//  	fsScUpdate.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
-//  	fsScUpdate.BoolVar(&id.SpaceAfterTriceOpeningBrace, "spacing", false, "Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.")
-//  }
-
 func insertIDsInit() {
 	fsScInsert = flag.NewFlagSet("insert", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScInsert)
@@ -217,11 +193,6 @@ func insertIDsInit() {
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
 	fsScInsert.BoolVar(&id.SpaceAfterTriceOpeningBrace, "spacing", false, "Add space between Trice opening brace and ID name. Use this if your default code auto-formatting is with space after opening brace.")
 }
-
-//  func zeroInit() {
-//  	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError) // sub-command
-//  	flagsRefreshAndUpdate(fsScZero)
-//  }
 
 func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("clean", flag.ContinueOnError) // sub-command
@@ -314,7 +285,7 @@ func flagDryRun(p *flag.FlagSet) {
 
 func flagVerbosity(p *flag.FlagSet) {
 	p.BoolVar(&Verbose, "verbose", false, `Gives more informal output if used. Can be helpful during setup.
-For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
 `+boolInfo) // flag
 	p.BoolVar(&Verbose, "v", false, "short for verbose") // flag
 }

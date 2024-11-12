@@ -38,13 +38,10 @@ const (
 	// Language C plus from language Go: %b, %F, %q
 	// Partial implemented: %hi, %hu, %ld, %li, %lf, %Lf, %Lu, %lli, %lld
 	// Not implemented: %s
-	//patNextFormatSpecifier = `(?:^|[^%])(%[0-9]*(-|c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b))`
-	//patNextFormatSpecifier = `%([+\-#'0-9\.0-9])*(c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b|t)` // assumes no `%%` inside string!
 	patNextFormatSpecifier = `%([+\-#'0-9\.0-9])*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|t|u|x|X)` // assumes no `%%` inside string!
 
 	// patNextFormatUSpecifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions!
-	//patNextFormatUSpecifier = `(?:%[0-9]*u)`
 	patNextFormatUSpecifier = `%[0-9]*u` // assumes no `%%` inside string!
 
 	// patNextFormatISpecifier is a regex to find next format i specifier in a string
@@ -53,7 +50,6 @@ const (
 
 	// patNextFormatXSpecifier is a regex to find next format x specifier in a string
 	// It does also match %%x positions!
-	// patNextFormatXSpecifier = `(?:%[0-9]*(l|o|O|x|X|b))`
 	patNextFormatXSpecifier = `%[0-9]*(l|o|O|x|X|b|p|t)` // assumes no `%%` inside string!
 
 	// patNextFormatFSpecifier is a regex to find next format f specifier in a string
@@ -70,10 +66,6 @@ const (
 
 	// hints is the help information in case of errors.
 	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Format specifier? Password? til.json? Version?"
-
-	// DefaultStamp32 = "ssss,ms_µs" // "tim:%4d,%03d_%03d "
-	//
-	// DefaultStamp16 = "ms_µs" // "tim:      %2d_%03d "
 
 	UnsignedFormatSpecifier = 0 // %u -> %d
 	SignedFormatSpecifier   = 1 //

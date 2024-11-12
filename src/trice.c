@@ -51,7 +51,6 @@
 #warning configuration: Because each Trice is encoded separately, several Trices can easy "eat" the TRICE_DATA_OFFSET, so make this value not too small.
 #endif
 
-
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE) && (TRICE_CONFIG_WARNINGS == 1)
 #warning configuration: The Trice tool needs COBS (or TCOBS) framing for encrypted data.
 #endif
@@ -65,7 +64,7 @@
 #endif
 
 #if (TRICE_DIRECT_OUTPUT == 0) && (TRICE_DEFERRED_OUTPUT == 0)
-#error configuration: need at east one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DEFERRED_OUTPUT == 0)
+#error configuration: need at least one output mode - (TRICE_DIRECT_OUTPUT == 1) and/or (TRICE_DEFERRED_OUTPUT == 0)
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 0) && (TRICE_BUFFER == TRICE_RING_BUFFER)
@@ -88,8 +87,12 @@
 #warning configuration: TRICE_CGO == 1 needs TRICE_CYCLE_COUNTER == 0 for successful tests.
 #endif
 
-#if (TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_AUXILIARY8 == 0) && (TRICE_DIRECT_AUXILIARY32 == 0) && (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 0) && (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 0)
-#error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel
+#if (TRICE_DIRECT_OUTPUT == 1) \
+	&& (TRICE_DIRECT_AUXILIARY8 == 0) \
+	&& (TRICE_DIRECT_AUXILIARY32 == 0) \
+	&& (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 0) \
+	&& (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 0)
+#error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel, for example add "#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1" to your triceConfig.h
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT_IS_WITH_ROUTING == 1) && (TRICE_DEFERRED_OUTPUT == 0)
@@ -116,7 +119,7 @@
 #error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
 #endif
 
-#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE < TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE )
+#if (TRICE_BUFFER == TRICE_RING_BUFFER) && (TRICE_DEFERRED_BUFFER_SIZE < TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)
 #error configuration: TRICE_DEFERRED_BUFFER_SIZE too small
 #endif
 
@@ -141,7 +144,7 @@
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
-#error configuration: deferred output needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
+#error configuration: TRICE_DEFERRED_OUTPUT == 1 needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
 #endif
 
 #if (TRICE_DEFERRED_UARTA == 1) && !defined(TRICE_UARTA)
@@ -153,15 +156,19 @@
 #endif
 
 #if TRICE_DATA_OFFSET & 3
-#error All size values must be a multiple of 4!
+#error TRICE_DATA_OFFSET -all size values must be a multiple of 4!
+#endif
+
+#if TRICE_DATA_OFFSET < 8 && TRICE_BUFFER == TRICE_RING_BUFFER
+#warning TRICE_DATA_OFFSET should usually be at least 8 bytes, when TRICE_BUFFER == TRICE_RING_BUFFER.
 #endif
 
 #if TRICE_SINGLE_MAX_SIZE & 3
-#error All size values must be a multiple of 4!
+#error TRICE_SINGLE_MAX_SIZE - all size values must be a multiple of 4!
 #endif
 
 #if TRICE_DEFERRED_BUFFER_SIZE & 3
-#error All size values must be a multiple of 4!
+#error TRICE_DEFERRED_BUFFER_SIZE - all size values must be a multiple of 4!
 #endif
 
 #if (TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1)
@@ -458,33 +465,33 @@ static void SEGGER_Write_RTT0_NoCheck32(const uint32_t* pData, unsigned NumW) {
 			;
 	}
 #endif
-    // Get "to-host" ring buffer.
+	// Get "to-host" ring buffer.
 	// Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
-    static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF); 
-    WrOff = pRingUp0->WrOff;
-    RemW = (pRingUp0->SizeOfBuffer - WrOff) >> 2;
-    volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); // lint !e826
-	
-    if (RemW > NumW) { // All data fits before wrap around
-        WrOff += NumW << 2;
-        while (NumW--) {
-            *pDstW++ = *pData++;
-        };
-        RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
-        pRingUp0->WrOff = WrOff;
-    } else { // We reach the end of the buffer, so need to wrap around
-        NumWordsAtOnce = RemW;
-        while (NumWordsAtOnce--) {
-            *pDstW++ = *pData++;
-        };
-        pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF); // lint !e826
-        NumWordsAtOnce = NumW - RemW;
-        while (NumWordsAtOnce--) {
-            *pDstW++ = *pData++;
-        };
-        RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
-        pRingUp0->WrOff = (NumW - RemW) << 2;
-    }
+	static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);
+	WrOff = pRingUp0->WrOff;
+	RemW = (pRingUp0->SizeOfBuffer - WrOff) >> 2;
+	volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); // lint !e826
+
+	if (RemW > NumW) { // All data fits before wrap around
+		WrOff += NumW << 2;
+		while (NumW--) {
+			*pDstW++ = *pData++;
+		};
+		RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+		pRingUp0->WrOff = WrOff;
+	} else { // We reach the end of the buffer, so need to wrap around
+		NumWordsAtOnce = RemW;
+		while (NumWordsAtOnce--) {
+			*pDstW++ = *pData++;
+		};
+		pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF); // lint !e826
+		NumWordsAtOnce = NumW - RemW;
+		while (NumWordsAtOnce--) {
+			*pDstW++ = *pData++;
+		};
+		RTT__DMB(); // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+		pRingUp0->WrOff = (NumW - RemW) << 2;
+	}
 #if TRICE_DIAGNOSTICS == 1
 	triceSeggerRTTDiagnostics();
 #endif
@@ -629,7 +636,7 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 	// The 16-bit stamped trices start with 2-times 16-bit ID for align and speed reasons.
-	// The trice tool knows and expects that when switch -packageFraming = NONE was applied.
+	// The trice tool knows and expects that, when switch -packageFraming = NONE was applied.
 	// The 2 additional transmit bytes are avoidable then but that would need a 2nd NONE option for the trice tool, what makes usage more confusing.
 	// That the TRICE_FRAMING_NONE does not remove the 2 additional bytes for 16-bit stamped trices has the
 	// main reason in the TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE option for the fast 32-bit transfer, what probably will be a common use case.
@@ -701,7 +708,9 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 #elif TRICE_DIRECT8_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
+#if TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer!
+#endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 	uint32_t* dat = enc + (TRICE_DATA_OFFSET >> 2);
@@ -804,7 +813,10 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 
 //! TriceOutDepth returns the amount of bytes not written yet from the slowest device.
 unsigned TriceOutDepth(void) {
-	unsigned d = 0, depth = 0;
+	unsigned depth = 0;
+#if defined(SEGGER_RTT) || TRICE_DEFERRED_UARTA == 1 || TRICE_DEFERRED_UARTB == 1 || TRICE_CGO == 1
+	unsigned d = 0;
+#endif
 	TRICE_ENTER_CRITICAL_SECTION
 
 #ifdef SEGGER_RTT
@@ -831,9 +843,6 @@ unsigned TriceOutDepth(void) {
 	TRICE_LEAVE_CRITICAL_SECTION
 	return depth;
 }
-
-#if TRICE_OFF == 1 || TRICE_CLEAN == 1
-#else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 //! TRICE_ASSERT writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -884,8 +893,6 @@ void TRiceAssertFalse(int idN, char* msg, int flag) {
 		TRICE_ASSERT(ID(idN));
 	}
 }
-
-#endif // #else // #if TRICE_OFF == 1 || TRICE_CLEAN == 1
 
 #ifdef TRICE_N
 

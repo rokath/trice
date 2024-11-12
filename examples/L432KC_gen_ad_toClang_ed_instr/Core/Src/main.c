@@ -45,7 +45,10 @@
 osThreadId defaultTaskHandle;
 osThreadId myTask02Handle;
 /* USER CODE BEGIN PV */
-
+__weak int _close(void) { return -1; }
+__weak int _lseek(void) { return -1; }
+__weak int _read (void) { return -1; }
+__weak int _write(void) { return -1; }
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -340,12 +343,13 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+#if !TRICE_OFF
     static int i = 50;
     if( i++ > 330 ){
       i = 50;
     }
     TriceCheck( i ); // this generates trice data
-  
+#endif
     osDelay(100);
   }
   /* USER CODE END 5 */
@@ -366,12 +370,14 @@ void StartTask02(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+#if !TRICE_OFF
     static int i = 0;
     if( ++i >= 100 ){
       i = 0;
       TriceLogDiagnosticData();
     }
     TriceTransfer();
+#endif
     osDelay(100);
   }
   /* USER CODE END StartTask02 */

@@ -24,7 +24,7 @@ func TestArrayFlag(t *testing.T) {
 	msg.OnErr(p.Set("ab"))
 	msg.OnErr(p.Set("xyz"))
 	af := ArrayFlag([]string{"ab", "xyz"})
-	//assert.Equal(t, af, Srcs) // this succeeds as singe test but fails as package test for some reason.
+	assert.Equal(t, af, Srcs)
 	assert.Equal(t, af.String(), Srcs.String())
 }
 
@@ -56,9 +56,7 @@ func fullFilePath2(FSys *afero.Afero, fn string) string {
 	}
 	var e error
 	var s string
-	//if xValue < &{0xc000000000} {
 	s, e = filepath.Abs(fn)
 	msg.InfoOnErr(e, fmt.Sprintf("failed to parse %s\n", fn))
-	//}
 	return s
 }

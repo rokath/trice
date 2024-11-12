@@ -1,4 +1,4 @@
-# ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
+# ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) $${\color{red}Trice}$$ <- $${\color{red}TR}$$~~ace~~ $${\color{red}I}$$~~d's~~ $${\color{red}C}$$   $${\color{red}E}$$~~mbedded~~ 
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
@@ -68,7 +68,7 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 - [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice)
 - [Trice User Guide](./docs/TriceUserGuide.md)
 - Check the [docs](./docs) folder. No need to read all this stuff - it is just for help and reference.
-- Check issues and discussions including the closed items.
+- Check [issues](https://github.com/rokath/trice/issues)  and [discussions](https://github.com/rokath/trice/discussions) including the closed items.
 
 ## Debugging using VS-Code and Clang for a Trice-instrumented Project in Direct-Out Mode over SEGGER-RTT
 
@@ -93,6 +93,19 @@ The Trice cache keeps copies of all to `trice i` or `trice c` passed files after
 > **<span style="color:red"> Special care is needed, when the build system modifies source files as well!</span>**
 
 For example an auto-formatter should get active **before** the `tice insert` command.
+
+## Wich mode to use?
+
+- For the development direct mode with SEGGER_RTT is recommended.
+- Most use cases are coverable in deferred mode with TRICE_BUFFER == TRICE_RING_BUFFER (less RAM needs) in TRICE_MULTI_PACK_MODE (less transfer data).
+
+## Project Status
+
+Trice is full usable and there are no known bugs (see [issues](https://github.com/rokath/trice/issues)).
+
+## Future 
+
+The documentation could get improved, for example by adding a quick start help. Additional features like remote procedure calls could be described and a separate tlog, maybe written in C, would allow logging on any platforms - not only **Go** supported ones.
 
 ## Support?
 

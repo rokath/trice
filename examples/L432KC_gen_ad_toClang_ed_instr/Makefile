@@ -114,7 +114,8 @@ AS_DEFS =
 C_DEFS =  \
 -DUSE_FULL_LL_DRIVER \
 -DSTM32L432xx \
--DUSE_HAL_DRIVER
+-DUSE_HAL_DRIVER \
+$(TRICE_FLAGS)
 
 
 # AS includes
@@ -139,7 +140,7 @@ include flags.mak
 
 .PHONY: all gcc clean log version
 
-all: clang
+all: gcc # clang
 
 clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
 	@:

@@ -19,6 +19,13 @@ failCount=0
 for d in $INSTRUMENTEDDIRS
 do
     cd $d
+    echo --------------------------------------------------------------------------------------------------------
+    echo $d with TRICE_OFF=1
+    ./clean.sh
+    ./build.sh TRICE_OFF=1
+    echo --------------------------------------------------------------------------------------------------------
+    echo $d with TRICE_OFF=0
+    ./clean.sh
     ./build.sh
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
@@ -30,7 +37,10 @@ done
 for d in $VSCODETARGETDIRS
 do
     cd $d
-    make -j $(nproc --all)
+    echo --------------------------------------------------------------------------------------------------------
+    echo $d
+    #make -j $(nproc --all) # Windows
+    make -j $(sysctl -n hw.ncpu) # MacOS
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
         echo FAIL: $d

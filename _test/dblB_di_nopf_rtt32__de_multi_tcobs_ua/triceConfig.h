@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 

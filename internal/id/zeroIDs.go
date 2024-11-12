@@ -12,59 +12,6 @@ import (
 	"github.com/rokath/trice/pkg/ant"
 )
 
-// source tree management
-/*
-import (
-	"fmt"
-	"io"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-
-	"github.com/rokath/trice/pkg/ant"
-	"github.com/spf13/afero"
-)
-
-// SubCmdIdZero performs sub-command zero, setting trice IDs in source tree to 0.
-func SubCmdIdZero(w io.Writer, fSys *afero.Afero) error {
-	return IDData.cmdSwitchTriceIDs(w, fSys, triceIDZeroing)
-}
-
-// triceIDZeroing reads file, processes it and writes it back, if needed.
-func triceIDZeroing(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
-
-	in, err := fSys.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	if Verbose {
-		fmt.Fprintln(w, path)
-	}
-
-	var liPath string
-
-	if LiPathIsRelative {
-		liPath = filepath.ToSlash(path)
-	} else {
-		liPath = filepath.Base(path)
-	}
-
-	out, modified, err := zeroTriceIDs(w, liPath, in, a)
-	if err != nil {
-		return err
-	}
-
-	if modified && !DryRun {
-		if Verbose {
-			fmt.Fprintln(w, "Changed: ", path)
-		}
-		err = fSys.WriteFile(path, out, fileInfo.Mode())
-	}
-	return err
-}
-*/
-
 // zeroTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.
 // If an ID is inside til.json referencing to a different trice, it is reported and set to 0 inside in.
 // All valid IDs are used to build a new li.json file.

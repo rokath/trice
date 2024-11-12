@@ -23,7 +23,6 @@ import (
 )
 
 var (
-
 	// Encoding describes the way the byte stream is coded.
 	Encoding string
 
@@ -55,13 +54,6 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 		log.Fatalf(fmt.Sprintln("unknown endianness ", TriceEndianness, "-accepting litteEndian or bigEndian."))
 	}
 	switch strings.ToUpper(Encoding) {
-	//case "TLE", "COBS":
-	//	dec = tleDecoder.New(w, lut, m, li, rwc, endian)
-
-	//cobsVariantDecode = cobs.Decode
-	//  case "COBSFF":
-	//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
-	//  	cobsVariantDecode = cobsFFDecode
 	case "TREX":
 		dec = trexDecoder.New(w, lut, m, li, rwc, endian)
 	case "CHAR":
@@ -188,19 +180,6 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
 			}
-
-			/////////////
-			// obsolete
-			//
-			// // If target location & enabled and line start, write target location.
-			// if logLineStart && decoder.TargetLocationExists && decoder.LocationInformationFormatString != "off" && decoder.LocationInformationFormatString != "none" {
-			// 	targetFileID := id.TriceID(decoder.TargetLocation >> 16)
-			// 	t := lut[targetFileID]
-			// 	targetFile := t.Strg
-			// 	s := fmt.Sprintf(decoder.LocationInformationFormatString, targetFile, 0xffff&decoder.TargetLocation)
-			// 	_, err := sw.Write([]byte(s))
-			// 	msg.OnErr(err)
-			// }
 
 			var s string
 			if logLineStart {

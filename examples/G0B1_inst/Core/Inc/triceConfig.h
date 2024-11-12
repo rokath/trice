@@ -1,7 +1,6 @@
 /*! \file triceConfig.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
-
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
 
@@ -9,22 +8,22 @@
 extern "C" {
 #endif
 
+#define TRICE_CLEAN 1
+
 // hardware specific trice lib settings
 #include "main.h" 
 #define TriceStamp16 TIM17->CNT     // 0...999 us
 #define TriceStamp32 HAL_GetTick()  // 0...2^32-1 ms
 
+#define TRICE_DIRECT_AUXILIARY32 1
+#define TRICE_DEFERRED_AUXILIARY8 1
+#define TRICE_DEFERRED_AUXILIARY32 1
+
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
-#define TRICE_DATA_OFFSET 16
-//#define TRICE_SINGLE_MAX_SIZE 8
-#define TRICE_RING_BUFFER_SIZE 512
-#define TRICE_DEFERRED_BUFFER_SIZE (TRICE_DATA_OFFSET + TRICE_RING_BUFFER_SIZE)
-#define TRICE_RING_BUFFER_OVERFLOW_WATCH 1
-
 // trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -ts ms -d16
-//#define TRICE_DIRECT_OUTPUT 1
-//#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
+#define TRICE_DIRECT_OUTPUT 1
+#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 // trice log -p com7 -pw MySecret -pf COBS
 #define TRICE_DEFERRED_OUTPUT 1

@@ -15,23 +15,28 @@ static void TriceOut(uint32_t* tb, size_t tLen);
 //! ^-TRICE_DATA_OFFSET-^-restOf_TRICE_DEFERRED_BUFFER_SIZE-Limit
 static uint32_t triceBuffer[2][TRICE_DEFERRED_BUFFER_SIZE >> 3] = {0};
 
-static uint32_t* const triceWriteStartHalfBuffer0 = &triceBuffer[0][TRICE_DATA_OFFSET >> 2];
-static uint32_t* const triceWriteLimitHalfBuffer0 = &triceBuffer[0][TRICE_DEFERRED_BUFFER_SIZE >> 3];
-static uint32_t* const triceWriteStartHalfBuffer1 = &triceBuffer[1][TRICE_DATA_OFFSET >> 2];
-static uint32_t* const triceWriteLimitHalfBuffer1 = &triceBuffer[1][TRICE_DEFERRED_BUFFER_SIZE >> 3];
+#define TRICE_WRITE_START_HALF_BUFFER_0 (&triceBuffer[0][TRICE_DATA_OFFSET >> 2])
+#define TRICE_WRITE_LIMIT_HALF_BUFFER_0 (&triceBuffer[0][TRICE_DEFERRED_BUFFER_SIZE >> 3])
+#define TRICE_WRITE_START_HALF_BUFFER_1 (&triceBuffer[1][TRICE_DATA_OFFSET >> 2])
+#define TRICE_WRITE_LIMIT_HALF_BUFFER_1 (&triceBuffer[1][TRICE_DEFERRED_BUFFER_SIZE >> 3])
+
+static uint32_t* const triceWriteStartHalfBuffer0 = TRICE_WRITE_START_HALF_BUFFER_0;
+static uint32_t* const triceWriteLimitHalfBuffer0 = TRICE_WRITE_LIMIT_HALF_BUFFER_0;
+static uint32_t* const triceWriteStartHalfBuffer1 = TRICE_WRITE_START_HALF_BUFFER_1;
+static uint32_t* const triceWriteLimitHalfBuffer1 = TRICE_WRITE_LIMIT_HALF_BUFFER_1;
 
 //! triceActiveHalfBuffer is the index of the active write buffer. !triceActiveHalfBuffer is the active read buffer index.
 static int triceActiveHalfBuffer = 0;
 
 //! TriceBufferWritePosition is the active write position and is used by TRICE_PUT macros.
-uint32_t* TriceBufferWritePosition = triceWriteStartHalfBuffer0;
+uint32_t* TriceBufferWritePosition = TRICE_WRITE_START_HALF_BUFFER_0; // triceWriteStartHalfBuffer0;
 
 //! TriceBufferWritePositionStart is the begin of the active write buffer.
-uint32_t* TriceBufferWritePositionStart = triceWriteStartHalfBuffer0;
+uint32_t* TriceBufferWritePositionStart = TRICE_WRITE_START_HALF_BUFFER_0; // triceWriteStartHalfBuffer0;
 
 #if TRICE_PROTECT == 1
 //! TriceBufferWritePositionLimit is the first not usable address of the current written half buffer.
-static uint32_t* TriceBufferWritePositionLimit = triceWriteLimitHalfBuffer0;
+static uint32_t* TriceBufferWritePositionLimit = TRICE_WRITE_LIMIT_HALF_BUFFER_0; // triceWriteLimitHalfBuffer0;
 
 //! TriceEnoughSpace checks, if at least TRICE_SINGLE_MAX_SIZE bytes available for the next trice.
 //! \retval 0, when not enough space
@@ -181,8 +186,10 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	uint8_t* dat = enc + TRICE_DATA_OFFSET; // Thid is the start of      32-bit aligned trices.
 	uint8_t* nxt = dat;                     // Thid is the start of next 32-bit aligned trices.
 	size_t encLen = 0;
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 	uint8_t* dst = enc; // This value dst must not get > nxt to avoid overwrites.
-	int triceID = 0;    // This assignment is only needed to silence compiler complains about being uninitialized.
+#endif
+	int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
 #if TRICE_DIAGNOSTICS == 1
 	unsigned depth = tLen + TRICE_DATA_OFFSET;
 	TriceHalfBufferDepthMax = depth < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : depth;

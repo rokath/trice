@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+
 #define TRICE_CONFIG_WARNINGS 0
 
 #define TRICE_DEFERRED_OUTPUT 1

@@ -21,8 +21,13 @@
 - [12. v0.71.0 Changes](#12-v0710-changes)
 	- [12.1. Overview](#121-overview)
 	- [12.2. Git Log](#122-git-log)
-- [13. master branch changes](#13-master-branch-changes)
-
+- [13. v0.72.0 Changes](#13-v0720-changes)
+	- [13.1. Overview](#131-overview)
+	- [13.2. Git Log](#132-git-log)
+- [14. v0.72.1 Changes](#14-v0721-changes)
+	- [14.1. Overview](#141-overview)
+	- [14.2. Git Log](#142-git-log)
+- [15. master branch changes](#15-master-branch-changes)
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -31,65 +36,65 @@
 
 
 
-date        | version | comment
-------------|--------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-2020-02-11  |     0.1 | initial version
-2020-02-14  |     0.2 | SHORT_MEMORY switch added
-2020-02-18  |     0.3 | C macros renamed into TRICE
-2020-02-20  |     0.4 | trice printf() adapter added
-2020-02-22  |     0.5 | support for auto param count
-2020-03-01  |     0.6 | encryption support, TRICE64_2 added
-2020-03-12  |     0.7 | `trice u -src dir1 -src file -src dir2` any now possible, -ts added, effective runtime strings
-2020-03-29  |     0.8 | auto-logfile, remoteDisplay added, check issues!
-2020-04-07  |   0.8.2 | display server supports many receiver-clients, no line mixes, code partially restructured, line prefix
-2020-04-22  |     0.9 | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default log filename with timestamp, remote displayServer shutdown possible
-2020-05-12  |   0.9.1 | `SeggerRTT` & `SeggerRTTD` added, docs extended, more test examples, TRICE16_1 critical section bugfix
-2020-06-29  |   0.9.2 | CLI slightly changed (no more 'r'), doc extended, added: Tests, Examples, JLINK, RND, SIM, FILE, TRICE_SYNC, TRICE_VARIANT, TRICE_ASSERT, now no semi-colon after `TRICE` is tolerated (macros), several `TRICE` in one code line are now ok
-...         |         |
-2022-FEB-11 |  0.48.0 | FILE & TCP4 input ports added
-2022-APR-27 |  0.49.1 | FILEBUFFER support added
-2022-APR-27 |  0.49.1 | Darwin binaries added
-2022-MAY-14 |  0.49.2 | Legacy comport Tarm driver code deactivated, TRICE_S usage clarification in [TriceUserGuide.md](./doc/TriceUserGuide.md), `\t` support inside format strings added, `TRICE` macro in one line demand added., FILEBUFFER issue fixed (workaround)
-2022-MAY-16 |  0.50.0 | Switch `-tcp` added allowing trice TCP output for reception with 3rd party tools.
-2022-MAY-17 |  0.51.0 | Switch `-binaryLogfile`added.
-2022-MAY-22 |  0.51.1 | Display server works again. Simple Shell added.
-2022-JUN-05 |  0.52.0 | UART Command option added (MDK-ARM_STM32F030R8 example), Colors extended.
-2022-JUN-14 |  0.53.0 | Macros added: TRICE_B, TRICE8_B, TRICE16_B, TRICE32_B, TRICE64_B, TRICE8_F, TRICE16_F, TRICE32_F, TRICE64_F.
-2022-JUL-06 |  0.54.0 | Location information file `li.json` now generated with `trice u`. This makes the 4 bytes location information inside the binary data obsolete and reduces the transmitted data. You should adapt your `triceConfig.h` - disable `TRICE_LOCATION` there.
-2022-JUL-07 |  0.54.1 | Test data adapted
-2022-AUG-25 |  0.55.1 | Switching to TREX (see ./doc/TriceV1.0Specification.md) as default encoding. Legacy projects need "trice log -enc TLE" now. In project specific `triceConfig.h` file switch between `TRICE_TREX_ENCODING` and `TRICE_LEGACY_ENCODING`. For TREX framing TCOBSv1 is active. As default the `Id(n)  sub-macro uses a 16-bit timestamp, so be careful changing legacy projects. See issue [#317](https://github.com/rokath/trice/issues/317).
-2023-FEB-19 |  0.56.0 | Many changes - see below
-2023-FEB-21 |  0.56.2 | TriceUserManual.md changed
-2023-FEB-21 |  0.56.3 | Target Modbus Code deactivated (anyway not usable yet)
-2023-MAR-05 |  0.56.4 | Maintenance release: all 3 modes work parallel over RTT0 and UARTA in MDK-ARM_STM32F030R8.
-2023-MAY-04 |  0.57.0 | Target code reworked. Now 4 buffer types: `STACK`,`STATIC` for direct mode only and `DOUBLE`, `RING` for deferred plus optional direct mode. A RTT 32-bit write function allows direct SEGGER_RTT output within less 100 MCU clocks (^=1.5µs@64MHz).
-2023-MAY-05 |  0.58.0 | Target files all now direct in src folder and need to be included all. Direct XTEA with RTT32 (experimental).
-2023-MAY-10 |  0.59.0 | Target code better structured. Automatic target tests working and now extendable with more configuration variants. Auxiliary support for direct and deferred. Common RTT Diagnostics for all RTT Modes as part of TRICE_DIAGNOSTICS.
-2023-MAY-14 |  0.60.0 | XTEA working with doubleBuffer in multi-pack mode and also with ringBuffer (safe-single mode). Tests for that added and also a test for twin mode (direct plus deferred output) is working. more target code tests
-2023-MAY-15 |  0.60.1 | Twice Log enabled in https://github.com/rokath/trice/tree/master/test/MDK-ARM_STM32F030R8_instrumented as `triceConfig.h` example.
-2023-MAY-16 |  0.60.2 | Target code linted.
-2023-JUN-09 |  0.60.3 | vsCode with Clang\|GCC examples added
-2023-JUL-24 |  0.61.0 | `trice insert` as new command is successor for `trice update`. With `trice zero` all IDs in source can be set to 0. A following `trice insert` will restore the IDs. Experimental `trice clean` command added. `trice update|renew|refresh` depreciated now and will be removed in the future.
-2023-JUL-24 |  0.61.1 | Fixed [#407](https://github.com/rokath/trice/issues/407)
-2023-JUL-24 |  0.61.2 | Fixed [#423](https://github.com/rokath/trice/issues/423)
-2023-AUG-06 |  0.62.0 | Examples moved from ./test to ./examples. ReadMe.md and scripts adapted. This includes the movement of TriceDiagnostics() to `triceCheck.c` because this is more a user specific and no library functionality.
-2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.
-2023-SEP-10 |  0.62.2 | Fixes issue [#427](https://github.com/rokath/trice/issues/427). TCOBS decoder more robust against data garbage.
-2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.
-2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#3-v063-changes)
-2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
-2024-JUL-26 |  0.64.1 | See [v0.64.1 changes (unsorted)](#v0.64.1changesunsorted)
-2024-JUL-26 |  0.64.2 | minor cleanups
-2024-JUL-27 |  0.64.3 | ID management improved for special cases
-2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#6-v0650-changes)
-2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)
-2024-AUG-18 |  0.66.1 | Documetation and tests improved
-2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)
-2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#9-v0680-changes)
-2024-AUG-23 |  master | See [10. v0.69.0 Changes](#10-v0690-changes)
-2024-OCT-04 |  0.70.0 | See [11. v0.70.0 Changes](#11-v0700-changes)
-2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#11-v0700-changes)
-2024-OCT-17 |  master | See [13. master branch changes](#13-master-branch-changes)
+| date        | version | comment                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------- | ------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2020-02-11  |     0.1 | initial version                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| 2020-02-14  |     0.2 | SHORT_MEMORY switch added                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 2020-02-18  |     0.3 | C macros renamed into TRICE                                                                                                                                                                                                                                                                                                                                                                                                                |
+| 2020-02-20  |     0.4 | trice printf() adapter added                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 2020-02-22  |     0.5 | support for auto param count                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 2020-03-01  |     0.6 | encryption support, TRICE64_2 added                                                                                                                                                                                                                                                                                                                                                                                                        |
+| 2020-03-12  |     0.7 | `trice u -src dir1 -src file -src dir2` any now possible, -ts added, effective runtime strings                                                                                                                                                                                                                                                                                                                                             |
+| 2020-03-29  |     0.8 | auto-logfile, remoteDisplay added, check issues!                                                                                                                                                                                                                                                                                                                                                                                           |
+| 2020-04-07  |   0.8.2 | display server supports many receiver-clients, no line mixes, code partially restructured, line prefix                                                                                                                                                                                                                                                                                                                                     |
+| 2020-04-22  |     0.9 | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default log filename with timestamp, remote displayServer shutdown possible                                                                                                                                                                                                |
+| 2020-05-12  |   0.9.1 | `SeggerRTT` & `SeggerRTTD` added, docs extended, more test examples, TRICE16_1 critical section bugfix                                                                                                                                                                                                                                                                                                                                     |
+| 2020-06-29  |   0.9.2 | CLI slightly changed (no more 'r'), doc extended, added: Tests, Examples, JLINK, RND, SIM, FILE, TRICE_SYNC, TRICE_VARIANT, TRICE_ASSERT, now no semi-colon after `TRICE` is tolerated (macros), several `TRICE` in one code line are now ok                                                                                                                                                                                               |
+| ...         |         |
+| 2022-FEB-11 |  0.48.0 | FILE & TCP4 input ports added                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 2022-APR-27 |  0.49.1 | FILEBUFFER support added                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 2022-APR-27 |  0.49.1 | Darwin binaries added                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 2022-MAY-14 |  0.49.2 | Legacy comport Tarm driver code deactivated, TRICE_S usage clarification in [TriceUserGuide.md](./doc/TriceUserGuide.md), `\t` support inside format strings added, `TRICE` macro in one line demand added., FILEBUFFER issue fixed (workaround)                                                                                                                                                                                           |
+| 2022-MAY-16 |  0.50.0 | Switch `-tcp` added allowing trice TCP output for reception with 3rd party tools.                                                                                                                                                                                                                                                                                                                                                          |
+| 2022-MAY-17 |  0.51.0 | Switch `-binaryLogfile`added.                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 2022-MAY-22 |  0.51.1 | Display server works again. Simple Shell added.                                                                                                                                                                                                                                                                                                                                                                                            |
+| 2022-JUN-05 |  0.52.0 | UART Command option added (MDK-ARM_STM32F030R8 example), Colors extended.                                                                                                                                                                                                                                                                                                                                                                  |
+| 2022-JUN-14 |  0.53.0 | Macros added: TRICE_B, TRICE8_B, TRICE16_B, TRICE32_B, TRICE64_B, TRICE8_F, TRICE16_F, TRICE32_F, TRICE64_F.                                                                                                                                                                                                                                                                                                                               |
+| 2022-JUL-06 |  0.54.0 | Location information file `li.json` now generated with `trice u`. This makes the 4 bytes location information inside the binary data obsolete and reduces the transmitted data. You should adapt your `triceConfig.h` - disable `TRICE_LOCATION` there.                                                                                                                                                                                    |
+| 2022-JUL-07 |  0.54.1 | Test data adapted                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 2022-AUG-25 |  0.55.1 | Switching to TREX (see ./doc/TriceV1.0Specification.md) as default encoding. Legacy projects need "trice log -enc TLE" now. In project specific `triceConfig.h` file switch between `TRICE_TREX_ENCODING` and `TRICE_LEGACY_ENCODING`. For TREX framing TCOBSv1 is active. As default the `Id(n)  sub-macro uses a 16-bit timestamp, so be careful changing legacy projects. See issue [#317](https://github.com/rokath/trice/issues/317). |
+| 2023-FEB-19 |  0.56.0 | Many changes - see below                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 2023-FEB-21 |  0.56.2 | TriceUserManual.md changed                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 2023-FEB-21 |  0.56.3 | Target Modbus Code deactivated (anyway not usable yet)                                                                                                                                                                                                                                                                                                                                                                                     |
+| 2023-MAR-05 |  0.56.4 | Maintenance release: all 3 modes work parallel over RTT0 and UARTA in MDK-ARM_STM32F030R8.                                                                                                                                                                                                                                                                                                                                                 |
+| 2023-MAY-04 |  0.57.0 | Target code reworked. Now 4 buffer types: `STACK`,`STATIC` for direct mode only and `DOUBLE`, `RING` for deferred plus optional direct mode. A RTT 32-bit write function allows direct SEGGER_RTT output within less 100 MCU clocks (^=1.5µs@64MHz).                                                                                                                                                                                       |
+| 2023-MAY-05 |  0.58.0 | Target files all now direct in src folder and need to be included all. Direct XTEA with RTT32 (experimental).                                                                                                                                                                                                                                                                                                                              |
+| 2023-MAY-10 |  0.59.0 | Target code better structured. Automatic target tests working and now extendable with more configuration variants. Auxiliary support for direct and deferred. Common RTT Diagnostics for all RTT Modes as part of TRICE_DIAGNOSTICS.                                                                                                                                                                                                       |
+| 2023-MAY-14 |  0.60.0 | XTEA working with doubleBuffer in multi-pack mode and also with ringBuffer (safe-single mode). Tests for that added and also a test for twin mode (direct plus deferred output) is working. more target code tests                                                                                                                                                                                                                         |
+| 2023-MAY-15 |  0.60.1 | Twice Log enabled in https://github.com/rokath/trice/tree/master/test/MDK-ARM_STM32F030R8_instrumented as `triceConfig.h` example.                                                                                                                                                                                                                                                                                                         |
+| 2023-MAY-16 |  0.60.2 | Target code linted.                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| 2023-JUN-09 |  0.60.3 | vsCode with Clang\|GCC examples added                                                                                                                                                                                                                                                                                                                                                                                                      |
+| 2023-JUL-24 |  0.61.0 | `trice insert` as new command is successor for `trice update`. With `trice zero` all IDs in source can be set to 0. A following `trice insert` will restore the IDs. Experimental `trice clean` command added. `trice update                                                                                                                                                                                                               | renew | refresh` depreciated now and will be removed in the future. |
+| 2023-JUL-24 |  0.61.1 | Fixed [#407](https://github.com/rokath/trice/issues/407)                                                                                                                                                                                                                                                                                                                                                                                   |
+| 2023-JUL-24 |  0.61.2 | Fixed [#423](https://github.com/rokath/trice/issues/423)                                                                                                                                                                                                                                                                                                                                                                                   |
+| 2023-AUG-06 |  0.62.0 | Examples moved from ./test to ./examples. ReadMe.md and scripts adapted. This includes the movement of TriceDiagnostics() to `triceCheck.c` because this is more a user specific and no library functionality.                                                                                                                                                                                                                             |
+| 2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.                                                                                                                                                                                                                                                                                                                                 |
+| 2023-SEP-10 |  0.62.2 | Fixes issue [#427](https://github.com/rokath/trice/issues/427). TCOBS decoder more robust against data garbage.                                                                                                                                                                                                                                                                                                                            |
+| 2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.                                                                                                                                                                                                                                                              |
+| 2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#3-v063-changes)                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)                                                                                                                                                                                                                                                                                                                                                                             |
+| 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes (unsorted)](#v0.64.1changesunsorted)                                                                                                                                                                                                                                                                                                                                                                                  |
+| 2024-JUL-26 |  0.64.2 | minor cleanups                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| 2024-JUL-27 |  0.64.3 | ID management improved for special cases                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#6-v0650-changes)                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 2024-AUG-18 |  0.66.1 | Documetation and tests improved                                                                                                                                                                                                                                                                                                                                                                                                            |
+| 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#9-v0680-changes)                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 2024-AUG-23 |  master | See [10. v0.69.0 Changes](#10-v0690-changes)                                                                                                                                                                                                                                                                                                                                                                                               |
+| 2024-OCT-04 |  0.70.0 | See [11. v0.70.0 Changes](#11-v0700-changes)                                                                                                                                                                                                                                                                                                                                                                                               |
+| 2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#11-v0700-changes)                                                                                                                                                                                                                                                                                                                                                                                               |
+| 2024-OCT-17 |  master | See [13. master branch changes](#13-master-branch-changes)                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -270,7 +275,7 @@ This is a major release hopefully not breaking too much!
 ##  8. <a name='v0.67.0Changes'></a>v0.67.0 Changes
 
 | hash       | comment                                                                            |
-|------------|------------------------------------------------------------------------------------|
+| ---------- | ---------------------------------------------------------------------------------- |
 | `cec916e4` | ++ skipAdditionalChecks CLI flag                                                   |
 | `71076aae` | Additional verbosity logs                                                          |
 | `0e4c8c53` | ++ CompactSrcs, ++ evaluateTriceParameterCount, ++ matchBracketLiteral             |
@@ -297,7 +302,7 @@ This is a major release hopefully not breaking too much!
 ##  9. <a name='v0.68.0Changes'></a>v0.68.0 Changes
 
 | hash       | comment                                                                                                   |
-|------------|-----------------------------------------------------------------------------------------------------------|
+| ---------- | --------------------------------------------------------------------------------------------------------- |
 | `5746d892` | include files order changed back and locked now for *tcobsv1\*.c* to avoid compilation errors             |
 | `0b1258aa` | SEGGER files updated                                                                                      |
 | `5324f415` | updated with .clang-format-ignore info                                                                    |
@@ -327,61 +332,61 @@ This is a major release hopefully not breaking too much!
 
 Used git log command: `git log --pretty=oneline --abbrev-commit`
 
-hash       | comment
------------|-------------------------------------------------------------------------------------------------------------------------------------------
-`2486b5f5` | (HEAD -> master, origin/master, origin/HEAD) clang-format run
-`7eb0f831` | IDs regenerated
-`18b28063` | bash script updateExampleData.sh safer
-`9fd84ae8` | Avoid multi-line comment
-`3a5fde0f` | v0.69.0 infos added to CHANGELOG.md
-`59a37670` | (HEAD -> master, origin/master, origin/HEAD) refactor -> devel -> master merge
-`fe74f99b` | (origin/devel, devel) clang-format.sh added and applied
-`856ead46` | MCU Viewer link added
-`83faced9` | (origin/refactor, refactor) code auto-formatted with `clang-format -i ./src/trice*.* ./test/*/*.h ./test/*/*.c ./examples/*/triceConfig.h`
-`8bd838e7` | TRICE_HTOTS partially removed (where not needed)
-`33cbf8e1` | Only SEGGER_RTT.* files remain unformatted.
-`02d8394e` | TCP4 input hint added
-`d248c3f7` | changed to: IndentPPDirectives: None and formatted with clang-format
-`765f883e` | small edits
-`65330574` | bigEndian test added
-`fcab7f87` | typo correction
-`46594d3d` | formatting a bit improved
-`d5068d4d` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1 parts added/corrected
-`297e94c1` | TRICE_PUT16_1616 invented for better speed
-`d89bf5b7` | More accurate handling of TRICE_OFF and TRICE_CLEAN
-`a9074897` | Trice tool log.Fatal replaced with fmt.Println to not abort on log data errors
-`76fc0844` | Trice tool error output better formatted
-`68c11e91` | updateTestData.sh executed
-`aa260c1b` | Linux execute mode enabled
-`df3c2bf7` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN code refactored
-`b233614b` | Update triceDefaultConfig.h
-`c2456425` | Update TriceUserGuide.md
-`44a86a0c` | (github-desktop-Sazerac4/master, github-desktop-Sazerac4/HEAD) Update TriceVsPrintfSimilaritiesAndDifferences.md
-`2f08a633` | Update TriceVsPrintfSimilaritiesAndDifferences.md
-`e57064c2` | trice.h & trice.c removed from filter
-`af07feea` | 1 comment adapted
-`bb27fd03` | Merge pull request #495 from Sazerac4/fixes/tests_lib
-`fc7fba02` | (github-desktop-Sazerac4/fixes/tests_lib) try add labeler.yml file
-`dc2480c4` | Remove unused extern variable
-`a94e58a2` | TRICE_DIAGNOSTICS==0 fixes
-`4c0717bb` | Add missing TRICE_INLINE
-`7f600914` | - Fix unused "pFmt" variable use - Fix trice function don't pass fmt to macros ( -Wunused ) - Fix undef preprocessor ( -Wundef )
-`944c4982` | clang-format: don't sort include
-`85ae6d65` | clang-format off/on added for TriceCheck
-`72bd7449` | #493 fix (hopefully, untested)
-`9a7a2eeb` | Update TraceWithTrice.md
-`b6fe0a31` | Update README.md
-`bfb430d0` | Typo correction
-`8bb96662` | edit error corrected
-`95ea617f` | comments updated
-`00771e2e` | indentiation adapted
-`f8fcc07c` | c++ frame added
-`05982811` | indentiation manually adapted and .clang-format-ignore extended
-`651aac37` | TRICE_BUFFER_SIZE now with 4 additional scratch bytes
-`afd0da98` | indentiation manually changed for readability
-`771754fd` | formatting and comments changed slightly
-`5b4b40d8` | Update README.md
-`b6e68494` | (tag: v0.68.0) rlcp added to .goreleaser.yaml
+| hash       | comment                                                                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `2486b5f5` | (HEAD -> master, origin/master, origin/HEAD) clang-format run                                                                              |
+| `7eb0f831` | IDs regenerated                                                                                                                            |
+| `18b28063` | bash script updateExampleData.sh safer                                                                                                     |
+| `9fd84ae8` | Avoid multi-line comment                                                                                                                   |
+| `3a5fde0f` | v0.69.0 infos added to CHANGELOG.md                                                                                                        |
+| `59a37670` | (HEAD -> master, origin/master, origin/HEAD) refactor -> devel -> master merge                                                             |
+| `fe74f99b` | (origin/devel, devel) clang-format.sh added and applied                                                                                    |
+| `856ead46` | MCU Viewer link added                                                                                                                      |
+| `83faced9` | (origin/refactor, refactor) code auto-formatted with `clang-format -i ./src/trice*.* ./test/*/*.h ./test/*/*.c ./examples/*/triceConfig.h` |
+| `8bd838e7` | TRICE_HTOTS partially removed (where not needed)                                                                                           |
+| `33cbf8e1` | Only SEGGER_RTT.* files remain unformatted.                                                                                                |
+| `02d8394e` | TCP4 input hint added                                                                                                                      |
+| `d248c3f7` | changed to: IndentPPDirectives: None and formatted with clang-format                                                                       |
+| `765f883e` | small edits                                                                                                                                |
+| `65330574` | bigEndian test added                                                                                                                       |
+| `fcab7f87` | typo correction                                                                                                                            |
+| `46594d3d` | formatting a bit improved                                                                                                                  |
+| `d5068d4d` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1 parts added/corrected                                                                          |
+| `297e94c1` | TRICE_PUT16_1616 invented for better speed                                                                                                 |
+| `d89bf5b7` | More accurate handling of TRICE_OFF and TRICE_CLEAN                                                                                        |
+| `a9074897` | Trice tool log.Fatal replaced with fmt.Println to not abort on log data errors                                                             |
+| `76fc0844` | Trice tool error output better formatted                                                                                                   |
+| `68c11e91` | updateTestData.sh executed                                                                                                                 |
+| `aa260c1b` | Linux execute mode enabled                                                                                                                 |
+| `df3c2bf7` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN code refactored                                                                                     |
+| `b233614b` | Update triceDefaultConfig.h                                                                                                                |
+| `c2456425` | Update TriceUserGuide.md                                                                                                                   |
+| `44a86a0c` | (github-desktop-Sazerac4/master, github-desktop-Sazerac4/HEAD) Update TriceVsPrintfSimilaritiesAndDifferences.md                           |
+| `2f08a633` | Update TriceVsPrintfSimilaritiesAndDifferences.md                                                                                          |
+| `e57064c2` | trice.h & trice.c removed from filter                                                                                                      |
+| `af07feea` | 1 comment adapted                                                                                                                          |
+| `bb27fd03` | Merge pull request #495 from Sazerac4/fixes/tests_lib                                                                                      |
+| `fc7fba02` | (github-desktop-Sazerac4/fixes/tests_lib) try add labeler.yml file                                                                         |
+| `dc2480c4` | Remove unused extern variable                                                                                                              |
+| `a94e58a2` | TRICE_DIAGNOSTICS==0 fixes                                                                                                                 |
+| `4c0717bb` | Add missing TRICE_INLINE                                                                                                                   |
+| `7f600914` | - Fix unused "pFmt" variable use - Fix trice function don't pass fmt to macros ( -Wunused ) - Fix undef preprocessor ( -Wundef )           |
+| `944c4982` | clang-format: don't sort include                                                                                                           |
+| `85ae6d65` | clang-format off/on added for TriceCheck                                                                                                   |
+| `72bd7449` | #493 fix (hopefully, untested)                                                                                                             |
+| `9a7a2eeb` | Update TraceWithTrice.md                                                                                                                   |
+| `b6fe0a31` | Update README.md                                                                                                                           |
+| `bfb430d0` | Typo correction                                                                                                                            |
+| `8bb96662` | edit error corrected                                                                                                                       |
+| `95ea617f` | comments updated                                                                                                                           |
+| `00771e2e` | indentiation adapted                                                                                                                       |
+| `f8fcc07c` | c++ frame added                                                                                                                            |
+| `05982811` | indentiation manually adapted and .clang-format-ignore extended                                                                            |
+| `651aac37` | TRICE_BUFFER_SIZE now with 4 additional scratch bytes                                                                                      |
+| `afd0da98` | indentiation manually changed for readability                                                                                              |
+| `771754fd` | formatting and comments changed slightly                                                                                                   |
+| `5b4b40d8` | Update README.md                                                                                                                           |
+| `b6e68494` | (tag: v0.68.0) rlcp added to .goreleaser.yaml                                                                                              |
 
 - Test results (`be_dblB_de_tcobs_ua` is the "big-endian" test using `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1` setting and `trice log ...   -triceEndianness bigEndian`):
 
@@ -475,60 +480,60 @@ sys     0m0.000s
 
 Used git log command: `git log --pretty=oneline --abbrev-commit` and less importand lines removed
 
-hash       | comment
------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-`0242c1e3` | Trice cache info added.
-`087fffc3` | cache switch added, renamed test to _test incorporated to examples
-`ddeb703d` | Merge pull request #505 from Sazerac4/feat/update/endian
-`b600c039` | Update ReadMe.md rename info
-`377b7a1c` | test folder renamed into _test
-`a6b36b8e` | trice cache tests complete
-`c2c53481` | cache test overview table added
-`04cfbcaa` | \- Add missing control on user definition on HTOTS,HTOTL,HTOTS \- Correction on error message - Format: `find ./src  -name '*.c' -o  -name '*.h'| xargs clang-format-18 -style=file -i`
-`2ff9fa58` | Adds several resolutions around endianess -Add byte orders detection, remove default TRICE_MCU_IS_BIG_ENDIAN. User need to set it if not detected -Add Detection on <byteswap.h> libc include to use it -Remove full macros byteswap option, use always "TriceReverse" inline function (same effect) -Remove endianess configurations options -Add compilers buid-in when available to swap endianess (GCC and clang supported) -Add C23 endianess detection resolution
-`6788972f` | dead code (after removing command update) commented out
-`aa465ca5` | code refactored
-`c5eb2a54` | Update insertIDs.go
-`8e1a76e9` | Update TriceCacheSpec.md
-`35fece93` | trice commands `update` and `zero` removed.
-`7e2494bb` | Bugfix in helpinfo.go: update params where shown in insert params.
-`75010487` | Hint "EXPERIMENTAL!" to `-cache` switch
-`a8e91da3` | New CLI switch `-cache` for `trice i` and `trice c``
-`5b07e155` | Update comment in trice.h
-`4d99a760` | trice cache seams to work
-`7fa56068` | trice cache implementation wip
-`2fbcd79f` | msg.OnErrFv added
-`20a3a28e` | check renamed to testRefreshIDs
-`2b35d503` | trice cache wip
-`811ed1df` | endian dependent code now concentrated
-`39308c60` | TRICE_OFF switch without warnings: unused parameter
-`6aff69e4` | big endian test for XTEA example added.
-`6e1ebd10` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN renamed to TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
-`3ba3ecc4` | code reordered to reduce compiler switches
-`820920bb` | branch endianness merged
-`9db0b8fc` | clang-format.sh applied
-`8ea539d0` | All Trice header with TRICE_PUT_AS_IS, when TRICE_REVERSE==1
-`6a23710f` | Tests changed to hexadecimal stamps to see issues easier
-`487859b0` | "gopls": {"build.directoryFilters": added, but seems not to work
-`2f424d25` | Chapter Target Macros added
-`4d224741` | Explaining comment added
-`8dff6d79` | More usage of TRICE_PUT_AS_IS (wip)
-`754c0c3d` | Merge branch 'master' into endianness
-`b312601b` | Merge remote-tracking branch 'origin/endianness' into endianness
-`8aa486e5` | TRICE_REVERSE switch added
-`9d2d3167` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated
-`2f91e1d9` | TRICE_HEADER_PUT removed
-`0044f8f2` | trice8m_1 experimental rewritten
-`6d251413` | TRICE_HEADER_PUT renamed into TRICE_PUT_HEADER
-`2252b09d` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated
-`1f4ef31a` | spacing CLI switch added to `trice insert`
-`43c0d0ab` | tests adapted for SpaceBetweenTriceOpeningBraceAndIDName=false
-`66d032d3` | SpaceBetweenTriceOpeningBraceAndIDName code added
-`4880fb29` | SpaceBetweenTriceOpeningBraceAndIDName removed
-`f7691e36` | ./updateTestData.sh run result
-`30cf050e` | Trice Cache Specification Draft added
-`3c1b3aba` | .goreleaser.yaml adapted to goreleaser version 2
-`751def35` | v0.69.0 infos and test results added to CHANGELOG.md
+| hash       | comment                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0242c1e3` | Trice cache info added.                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `087fffc3` | cache switch added, renamed test to _test incorporated to examples                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `ddeb703d` | Merge pull request #505 from Sazerac4/feat/update/endian                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `b600c039` | Update ReadMe.md rename info                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `377b7a1c` | test folder renamed into _test                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `a6b36b8e` | trice cache tests complete                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `c2c53481` | cache test overview table added                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `04cfbcaa` | \- Add missing control on user definition on HTOTS,HTOTL,HTOTS \- Correction on error message - Format: `find ./src  -name '*.c' -o  -name '*.h'                                                                                                                                                                                                                                                                                                                        | xargs clang-format-18 -style=file -i` |
+| `2ff9fa58` | Adds several resolutions around endianess -Add byte orders detection, remove default TRICE_MCU_IS_BIG_ENDIAN. User need to set it if not detected -Add Detection on <byteswap.h> libc include to use it -Remove full macros byteswap option, use always "TriceReverse" inline function (same effect) -Remove endianess configurations options -Add compilers buid-in when available to swap endianess (GCC and clang supported) -Add C23 endianess detection resolution |
+| `6788972f` | dead code (after removing command update) commented out                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `aa465ca5` | code refactored                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `c5eb2a54` | Update insertIDs.go                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `8e1a76e9` | Update TriceCacheSpec.md                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `35fece93` | trice commands `update` and `zero` removed.                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `7e2494bb` | Bugfix in helpinfo.go: update params where shown in insert params.                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `75010487` | Hint "EXPERIMENTAL!" to `-cache` switch                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `a8e91da3` | New CLI switch `-cache` for `trice i` and `trice c``                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `5b07e155` | Update comment in trice.h                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `4d99a760` | trice cache seams to work                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `7fa56068` | trice cache implementation wip                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `2fbcd79f` | msg.OnErrFv added                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `20a3a28e` | check renamed to testRefreshIDs                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `2b35d503` | trice cache wip                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `811ed1df` | endian dependent code now concentrated                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `39308c60` | TRICE_OFF switch without warnings: unused parameter                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `6aff69e4` | big endian test for XTEA example added.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `6e1ebd10` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN renamed to TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN                                                                                                                                                                                                                                                                                                                                                                                    |
+| `3ba3ecc4` | code reordered to reduce compiler switches                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `820920bb` | branch endianness merged                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `9db0b8fc` | clang-format.sh applied                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `8ea539d0` | All Trice header with TRICE_PUT_AS_IS, when TRICE_REVERSE==1                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `6a23710f` | Tests changed to hexadecimal stamps to see issues easier                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `487859b0` | "gopls": {"build.directoryFilters": added, but seems not to work                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `2f424d25` | Chapter Target Macros added                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `4d224741` | Explaining comment added                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `8dff6d79` | More usage of TRICE_PUT_AS_IS (wip)                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `754c0c3d` | Merge branch 'master' into endianness                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `b312601b` | Merge remote-tracking branch 'origin/endianness' into endianness                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `8aa486e5` | TRICE_REVERSE switch added                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `9d2d3167` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `2f91e1d9` | TRICE_HEADER_PUT removed                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `0044f8f2` | trice8m_1 experimental rewritten                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `6d251413` | TRICE_HEADER_PUT renamed into TRICE_PUT_HEADER                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `2252b09d` | TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN comment updated                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `1f4ef31a` | spacing CLI switch added to `trice insert`                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `43c0d0ab` | tests adapted for SpaceBetweenTriceOpeningBraceAndIDName=false                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `66d032d3` | SpaceBetweenTriceOpeningBraceAndIDName code added                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `4880fb29` | SpaceBetweenTriceOpeningBraceAndIDName removed                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `f7691e36` | ./updateTestData.sh run result                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `30cf050e` | Trice Cache Specification Draft added                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `3c1b3aba` | .goreleaser.yaml adapted to goreleaser version 2                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `751def35` | v0.69.0 infos and test results added to CHANGELOG.md                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ##  12. <a name='v0.71.0Changes'></a>v0.71.0 Changes
 
@@ -540,38 +545,91 @@ hash       | comment
 
 Used git log command: `git log --pretty=oneline --abbrev-commit` and less important lines removed
 
-Hash       | Comment
------------|----------------------------------------------------------------
-`ac0f0834` | Windows drive letter issue for the tests fixed.
-`53c7080b` | IDRange code refactored.
-`31d33f72` | Path handling improved to work with linux, mac & windows.
-`1775726f` | cache path error corrected for linux/mac os
-`566d4363` | CLI switch -IDRange added, emitter "channels" renamed to "tags"
-`74760198` | master merged into IDPolicy
-`95c31262` | obsolete code removed from id package tests
-`f5311b09` | id package tests refactored
-`d8da99d9` | Update cache_help_test.go
-`d687b92d` | https://github.com/rokath/trice/issues/507 fixed
-`d27083cb` | Merge branch 'master' of https://github.com/rokath/trice
-`a911c36c` | array flag IDPolicy added (wip)
-`62eacd08` | Doubled used ID test added
-`85686181` | v0.70.0 changelog added
+| Hash       | Comment                                                         |
+| ---------- | --------------------------------------------------------------- |
+| `ac0f0834` | Windows drive letter issue for the tests fixed.                 |
+| `53c7080b` | IDRange code refactored.                                        |
+| `31d33f72` | Path handling improved to work with linux, mac & windows.       |
+| `1775726f` | cache path error corrected for linux/mac os                     |
+| `566d4363` | CLI switch -IDRange added, emitter "channels" renamed to "tags" |
+| `74760198` | master merged into IDPolicy                                     |
+| `95c31262` | obsolete code removed from id package tests                     |
+| `f5311b09` | id package tests refactored                                     |
+| `d8da99d9` | Update cache_help_test.go                                       |
+| `d687b92d` | https://github.com/rokath/trice/issues/507 fixed                |
+| `d27083cb` | Merge branch 'master' of https://github.com/rokath/trice        |
+| `a911c36c` | array flag IDPolicy added (wip)                                 |
+| `62eacd08` | Doubled used ID test added                                      |
+| `85686181` | v0.70.0 changelog added                                         |
 
-##  13. <a name='masterbranchchanges'></a>master branch changes
+##  13. <a name='v0.72.0Changes'></a>v0.72.0 Changes
+
+###  13.1. <a name='Overview-1'></a>Overview
+
+- Trice cache folders now with correct permissions.
+- Trice deferred mode for ring buffer now also supports multi pack mode.
+- Multi pack mode now as default setting for deferred modes.
+
+###  13.2. <a name='GitLog-1'></a>Git Log
 
 Used git log command: `git log --oneline` and less important lines removed
 
-Hash       | Comment
------------|------------------------------------------------------------------------------------------------------------
-`14d65fbc` | 100ms Sleep moved from "fromFile" to "FileWatcher"
-`bdc6e5fc` | master merged into devel
-`32bf83bf` | The tests in folder "_test" now executable with `cd _test && go test ./... && cd -`
-`25137cce` | Merge remote-tracking branch 'origin/devel' into devel
-`6f2bd38c` | goreleaser.yaml adapted
-`29c24261` | Update trexDecoder.go
-`bb0ac2f3` | wip #306
-`d7704c93` | fileWatcher enabled again, Verbose Logging extended, 100ms sleep added before re-reading til.json & li.json
-`89d9a97e` | Issue #508 solved
-`88cb164b` | Scripts adapted to better work with the Trice cache.
-`9b309925` | Trice cache "issue" chapter added
-`014ebdfc` | v0.71.0 ChangeLog added
+| Hash       | Comment                                                                                                     |
+| ---------- | ----------------------------------------------------------------------------------------------------------- |
+| `2289bd9d` | TRICE_SINGLE_PACK_MODE set explicit                                                                         |
+| `8330b41f` | MacOS adapted                                                                                               |
+| `198c179e` | TRICE_MULTI_PACK_MODE is now default config for deferred mode                                               |
+| `8062bf42` | tmp buffer offset changed from 4 to TRICE_DATA_OFFSET/2                                                     |
+| `74d0a6ad` | double buffer code slightly refactored to avoid editor warnings                                             |
+| `d13d18fd` | Default for TRICE_RING_BUFFER_SIZE added.                                                                   |
+| `bb34d508` | Issue #506 done                                                                                             |
+| `bc41fc80` | Diagnostics data example refined                                                                            |
+| `69ec730c` | ring buffer multi pack mode debug wip                                                                       |
+| `34b78536` | minor corrections                                                                                           |
+| `bcb8786c` | ring buffer multi pack tests added                                                                          |
+| `753d115f` | Additional config error warnings added                                                                      |
+| `90219e45` | wip #506                                                                                                    |
+| `12cdc6f0` | Cache MkdirAll permissions fixed                                                                            |
+| `10f7901e` | macOS adaptions (wip)                                                                                       |
+| `732b36a4` | Merge remote-tracking branch 'origin/devel' into devel                                                      |
+| `b7c52eb6` | CLI switch "-singleFraming" deactivated in staticB_di_tcobs_rtt32 test                                      |
+| `933b3310` | test script added                                                                                           |
+| `44f2b31b` | Optional CLI switch "-singleFraming" added.                                                                 |
+| `14d65fbc` | 100ms Sleep moved from "fromFile" to "FileWatcher"                                                          |
+| `bdc6e5fc` | master merged into devel                                                                                    |
+| `32bf83bf` | The tests in folder "_test" now executable with `cd _test && go test ./... && cd -`                         |
+| `25137cce` | Merge remote-tracking branch 'origin/devel' into devel                                                      |
+| `6f2bd38c` | goreleaser.yaml adapted                                                                                     |
+| `29c24261` | Update trexDecoder.go                                                                                       |
+| `bb0ac2f3` | wip #306                                                                                                    |
+| `d7704c93` | fileWatcher enabled again, Verbose Logging extended, 100ms sleep added before re-reading til.json & li.json |
+| `89d9a97e` | Issue #508 solved                                                                                           |
+| `88cb164b` | Scripts adapted to better work with the Trice cache.                                                        |
+| `9b309925` | Trice cache "issue" chapter added                                                                           |
+| `014ebdfc` | v0.71.0 ChangeLog added                                                                                     |
+
+##  14. <a name='v0.72.1Changes'></a>v0.72.1 Changes
+
+###  14.1. <a name='Overview-1'></a>Overview
+
+- Issue #509 fixed (better `TRICE_OFF` handling)
+
+###  14.2. <a name='GitLog-1'></a>Git Log
+
+Used git log command: `git log --oneline` and less important lines removed
+
+| Hash       | Comment                                                            |
+| ---------- | ------------------------------------------------------------------ |
+| `46c95093` | Linker flags now all under $LFLAGS and warnings eliminated         |
+| `5f228e55` | Better TRICE_OFF handling (issue #509)                             |
+| `a415d3bc` | No more default TRICE_BUFFER, User needs to decide                 |
+| `241b7325` | testdata extended/updated                                          |
+| `f298632b` | Issue #509 fixed                                                   |
+| `75bffcfa` | CLI switch TRICE_OFF=1 added, MacOS support addded, gcc as default |
+| `c250d208` | TRICE_OFF used to exclude additional Trice code                    |
+| `f07d9571` | Option for MacOS added                                             |
+| `010f8edb` | ignore MacOS specific files                                        |
+| `fb734ff5` | Update ReadMe.md                                                   |
+
+
+##  15. <a name='masterbranchchanges'></a>master branch changes
