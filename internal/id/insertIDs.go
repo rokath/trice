@@ -62,7 +62,7 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 		}
 	}
 	if modified { // IDs inserted
-		if !DryRun {
+		if !DryRun && p.err == nil {
 			err = fSys.WriteFile(path, out, fileInfo.Mode())
 			p.join(err)
 		}
