@@ -12,5 +12,7 @@
 **/gccLinksClangWarning.txt
 **/.mxproject
 internal/receiver/trices.raw
+**/.DS_store
+
 
 
