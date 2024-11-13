@@ -8635,6 +8635,138 @@
 		"Type": "TRICE_N",
 		"Strg": "wr:%s\\n"
 	},
+	"16200": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n\\n\\n"
+	},
+	"16201": {
+		"Type": "TRice8",
+		"Strg": "w: Hello! 👋🙂 %d\\n"
+	},
+	"16202": {
+		"Type": "trice",
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+	},
+	"16203": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
+	},
+	"16204": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
+	},
+	"16205": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %f (default rounded float)\\n"
+	},
+	"16206": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
+	},
+	"16207": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
+	},
+	"16208": {
+		"Type": "TRice64_12",
+		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
+	},
+	"16209": {
+		"Type": "trice",
+		"Strg": "i=%x %x\\n"
+	},
+	"16210": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
+	},
+	"16211": {
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics\\n"
+	},
+	"16212": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16213": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16214": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16215": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16216": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16217": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16218": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16219": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16220": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16221": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16222": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16223": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16224": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16225": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16226": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16227": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16228": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16229": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16230": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16231": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
+	"16232": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 %4x\\n"
+	},
 	"16370": {
 		"Type": "trice16",
 		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"

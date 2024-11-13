@@ -2,15 +2,15 @@
 
 # Put ARM Clang first in path temporary to avoid compiler variants issues.
 # Windows
-#export PATH := C:\bin\ArmClang\bin:C:\bin\ArmGNUToolchain\bin:$(PATH)
+export PATH := C:\bin\ArmClang\bin:C:\bin\ArmGNUToolchain\bin:$(PATH)
 # MacOS
-export PATH := /usr/bin:/opt/homebrew/bin:$(PATH)
+#export PATH := /usr/bin:/opt/homebrew/bin:$(PATH)
 
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
 # Windows
-#export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
+export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
 # MacOS
-export C_INCLUDE_PATH := \
+#export C_INCLUDE_PATH := \
 /opt/homebrew/Cellar/arm-none-eabi-gcc/14.2.0/lib/gcc/arm-none-eabi/14.2.0/include:\
 /opt/homebrew/Cellar/arm-none-eabi-gcc/14.2.0/lib/gcc/arm-none-eabi/14.2.0/include-fixed
 
