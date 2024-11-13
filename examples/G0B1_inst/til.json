@@ -8655,6 +8655,50 @@
 		"Type": "TRICE_N",
 		"Strg": "wr:%s\\n"
 	},
+	"16200": {
+		"Type": "trice",
+		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n\\n\\n"
+	},
+	"16201": {
+		"Type": "TRice8",
+		"Strg": "w: Hello! 👋🙂 %d\\n"
+	},
+	"16202": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d\\a\\n"
+	},
+	"16203": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 %d %d %d\\a\\n"
+	},
+	"16204": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %f (default rounded float)\\n"
+	},
+	"16205": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\\n"
+	},
+	"16206": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\\n"
+	},
+	"16207": {
+		"Type": "TRice64_12",
+		"Strg": "%x %x %x %x %x %x %x %x %x %x %x %d\\n"
+	},
+	"16208": {
+		"Type": "trice",
+		"Strg": "i=%x %x\\n"
+	},
+	"16209": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
+	},
+	"16210": {
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics\\n"
+	},
 	"16370": {
 		"Type": "trice16",
 		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"

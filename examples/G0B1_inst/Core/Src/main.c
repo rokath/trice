@@ -114,8 +114,8 @@ int main(void)
   trice("w: Hello! 👋🙂 %f (default rounded float)\n",                                          aFloat( 2.71828182845904523536 ) );
   trice("w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
   trice64("w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
-  //TRice64_12("%x %x %x %x %x %x %x %x %x %x %x %d\n", 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa);
-    for( int i = 0; i < 10; i++ ){
+  TRice64_12("%x %x %x %x %x %x %x %x %x %x %x %d\n", 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa);
+    for( int i = 0; i < 100; i++ ){
       trice("i=%x %x\n", 0x44444400 + i, 0xaaaaaa00 + i );
     }
   /* USER CODE END SysInit */
@@ -331,7 +331,7 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-#if 0 // !TRICE_OFF
+#if !TRICE_OFF
     static int i = 0;
     if( i++ > 400 ){
       i = 0;
@@ -354,7 +354,7 @@ void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
   TRICE_UNUSED(argument)
-  trice("msg:StartTask02:Diagnostics\n" );
+  TRice("msg:StartTask02:Diagnostics\n" );
   /* Infinite loop */
   for(;;)
   {
