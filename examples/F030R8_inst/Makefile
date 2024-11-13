@@ -71,8 +71,9 @@ C_SOURCES += \
 
 # examples
 C_SOURCES += \
-../../_test/testdata/triceCheck.c \
-../exampleData/triceLogDiagData.c
+../exampleData/triceLogDiagData.c \
+../exampleData/triceExamples.c \
+../../_test/testdata/triceCheck.c
 
 # ASM sources
 ASM_SOURCES =  \

@@ -73,6 +73,8 @@ __weak int _close(void) { return -1; }
 __weak int _lseek(void) { return -1; }
 __weak int _read (void) { return -1; }
 __weak int _write(void) { return -1; }
+
+
 /* USER CODE END 0 */
 
 /**
@@ -85,13 +87,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
 #if !TRICE_OFF
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
-
-#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
-  TriceInitRingBufferMargins();
+  TriceHeadLine("  NUCLEO-G0B1RE   ");
 #endif
-#endif
-  //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-  trice("\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n\n\n" );
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -107,17 +104,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
-  TRice8("w: Hello! 👋🙂 %d\n", 1 );
-  Trice8("w: Hello! 👋🙂 %d %d\a\n", 1, 2 );
-  Trice8("w: Hello! 👋🙂 %d %d %d\a\n", 1, 2, 3 );
-  trice("w: Hello! 👋🙂 %f (default rounded float)\n",                                          aFloat( 2.71828182845904523536 ) );
-  trice("w: Hello! 👋🙂 %.20f (float with more ciphers but not increased precision)\n",         aFloat( 2.71828182845904523536 ) );
-  trice64("w: Hello! 👋🙂 %.20f (double with more but limited precision but it is limited)\n", aDouble( 2.71828182845904523536 ) ); 
-  TRice64_12("%x %x %x %x %x %x %x %x %x %x %x %d\n", 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa, 0x55555555aaaaaaaa);
-    for( int i = 0; i < 100; i++ ){
-      trice("i=%x %x\n", 0x44444400 + i, 0xaaaaaa00 + i );
-    }
+  SomeExampleTrices(100);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -338,7 +325,7 @@ void StartDefaultTask(void const * argument)
     }
     TriceCheck( i ); // this generates trice data
 #endif
-    osDelay(5);
+    osDelay(20);
   }
   /* USER CODE END 5 */
 }
@@ -354,29 +341,25 @@ void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
   TRICE_UNUSED(argument)
-  TRice("msg:StartTask02:Diagnostics\n" );
+  TRice("msg:StartTask02:Diagnostics and TriceTransfer\n" );
   /* Infinite loop */
   for(;;)
   {
 #if !TRICE_OFF
 
 #if TRICE_DIAGNOSTICS == 1
-
-    static int i = 0;
+    static int i = 100;
     if( ++i >= 100 ){
       i = 0;
       TriceLogDiagnosticData();
     }
-
 #endif // #if TRICE_DIAGNOSTICS == 1
 
     TriceTransfer();
     osDelay(100);
 
-#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
-
+#if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
     WatchRingBufferMargins();
-
 #endif // #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
 #endif // #if !TRICE_OFF

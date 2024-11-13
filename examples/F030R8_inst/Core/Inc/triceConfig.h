@@ -34,6 +34,9 @@ extern uint32_t ms32;
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 #define TRICE_DEFERRED_UARTA 1
 
+void TriceHeadLine(char* name);
+void SomeExampleTrices(int burstCount);
+
 #ifdef __cplusplus
 }
 #endif

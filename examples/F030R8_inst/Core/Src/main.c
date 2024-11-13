@@ -66,9 +66,11 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-    TriceInit();
-    //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-    trice("\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
+#if !TRICE_OFF
+  TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
+  TriceHeadLine("  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   ");
+#endif
+
 
   /* USER CODE END 1 */
 
@@ -94,22 +96,6 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
-    #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
-        TriceInitRingBufferMargins();
-    #endif
-    
-    Trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    trice("wrn: Hello! 👋🙂 \a\n" ); // with sound!
-    
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -130,13 +116,9 @@ int main(void)
 
             static uint32_t msCheck = 0;
             msCheck++;
-            if(msCheck >= 10 ){
+            if(msCheck >= 1000 ){
                 msCheck = 0; 
-                static uint32_t i = 0;
-                if( i++ > 400 ){
-                    i = 0;
-                }
-                TriceCheck( i ); // this generates trice data
+                SomeExampleTrices(100);
             }
 
             #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
