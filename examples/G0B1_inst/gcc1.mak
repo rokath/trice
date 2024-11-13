@@ -11,19 +11,19 @@ GCC_OBJECTS += $(addprefix $(GCC_BUILD)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
 # assembler
-$(GCC_BUILD)/%.o: %.s $(MAKEFILE) | $(GCC_BUILD)
+$(GCC_BUILD)/%.o: %.s $(BUILDFILES) | $(GCC_BUILD)
 	@echo $<
 	@$(GCC_AS) $(VERBOSE) $(C_FLAGS) -c $< -o $@
 #	@echo -e
 
 # compiler
-$(GCC_BUILD)/%.o: %.c $(MAKEFILE) | $(GCC_BUILD)
+$(GCC_BUILD)/%.o: %.c $(BUILDFILES) | $(GCC_BUILD)
 	@echo $<
 	@$(GCC_CC) $(VERBOSE) $(C_FLAGS) $(C_DEFS) $(C_INCLUDES) $(GCC_ONLY_FLAGS) -c $< -o $@
 #	@echo -e
 
 # linker #
-$(GCC_BUILD)/$(TARGET).elf: $(GCC_OBJECTS) $(MAKEFILE)
+$(GCC_BUILD)/$(TARGET).elf: $(GCC_OBJECTS) $(BUILDFILES)
 #	@echo linking...
 	@$(GCC_CC) $(GCC_OBJECTS) $(MCU) $(GCC_LDFLAGS) $(VERBOSE) -o $@
 	@$(GCC_SZ) $@

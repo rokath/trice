@@ -181,7 +181,8 @@ func (p *trexDec) nextPackage() {
 				goto repeat
 			}
 			if decoder.Verbose {
-				fmt.Println(e, "\ainconsistent TCOBSv1 buffer:\n", hex.Dump(frame)) // show also terminating 0
+				fmt.Println(e, "\ainconsistent TCOBSv1 buffer:")
+				fmt.Println(e, hex.Dump(frame)) // show also terminating 0
 			}
 			e = nil
 			p.B = p.B[:0]
@@ -263,7 +264,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 		if len(p.B) == 1 { // last decoded package exhausted
 			if decoder.Verbose {
-				fmt.Println("inconsistent data, discarding last single byte", p.B[0], "from", hex.Dump(p.B))
+				fmt.Println("Inconsistent data, discarding last single byte", p.B[0], "from:")
+				fmt.Println(hex.Dump(p.B))
 			}
 			p.B = p.B[:0]
 		}
@@ -303,7 +305,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if p.packageFraming == packageFramingNone {
 			// typeX0 is not supported (yet)
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\aRemoving zero HI byte from", hex.Dump(p.B0), "to try to resync."))
+				n += copy(b[n:], fmt.Sprintln("wrn:\aTo try to resync removing zero HI byte from:"))
+				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
 			}
 			p.B = p.removeZeroHiByte(p.B0)
 			return
@@ -349,7 +352,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from", hex.Dump(p.B0)))
+				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from:"))
+				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
 			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
@@ -393,8 +397,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	if cycle != 0xc0 { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
-			n += copy(b[n:], fmt.Sprint("CYCLE:\a", cycle, "!=", p.cycle, " # ", emitter.TagEvents("CYCLE")+1, " # "))
-			p.cycle = cycle // adjust cycle
+			n += copy(b[n:], fmt.Sprintln("CYCLE:\a", cycle, "!=", p.cycle, " (count=", emitter.TagEvents("CYCLE")+1, ")"))
+			n += copy(b[n:], "                                         ") // len of location information plus stamp: 41 spaces - see NewlineIndent below - todo: make it generic
+			p.cycle = cycle                                               // adjust cycle
 		}
 		decoder.InitialCycle = false
 		p.cycle++
@@ -410,12 +415,14 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if !ok {
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from", hex.Dump(p.B0)))
+				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from:"))
+				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
 			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 		} else {
-			n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", triceID, "- ignoring trice ending with", hex.Dump(p.B)))
+			n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", triceID, "- ignoring trice ending with:"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
@@ -426,12 +433,14 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if len(p.B) < p.ParamSpace {
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:discarding first byte", p.B0[0], "from", hex.Dump(p.B0)))
+				n += copy(b[n:], fmt.Sprintln("wrn:discarding first byte", p.B0[0], "from:"))
+				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
 			}
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 		} else {
-			n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage", hex.Dump(p.B)))
+			n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage:"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
@@ -482,7 +491,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	for _, s := range cobsFunctionPtrList {                // walk through the list and try to find a match for execution
 		if s.triceType == ucTriceTypeReconstructed || s.triceType == ucTriceTypeReceived { // match list entry "TRICE..."
 			if len(p.B) < p.ParamSpace {
-				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package"))
+				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package:"))
 				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
@@ -506,7 +515,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 						goto ignoreSpecialCase
 					}
 				}
-				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package"))
+				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package:"))
 				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
@@ -538,7 +547,8 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 			return
 		}
 	}
-	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data", hex.Dump(p.B[:p.ParamSpace])))
+	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data:"))
+	n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:p.ParamSpace])))
 	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 	return
 }

@@ -149,6 +149,7 @@ git clone https://github.com/rokath/trice.git
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [Percepio Tracealyzer](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
 - [Pigweed Trace Tokenized](https://pigweed.dev/pw_trace_tokenized/)
+- [Postform](https://github.com/Javier-varez/Postform) (Postponed formatting experiments with string interning in C++. Inspired by the defmt Rust crate )
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
 - [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications

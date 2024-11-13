@@ -25,14 +25,19 @@ void TriceLogDiagnosticData(void) {
 	if (TriceErrorCount > 0) {
 		trice16(iD(16381), "err: TriceErrorCount = %u\n", TriceErrorCount);
 	}
+
 #if TRICE_PROTECT == 1
+#if TRICE_DIRECT_OUTPUT == 1
 	if (TriceDirectOverflowCount != 0) {
 		trice16(iD(16380), "err: TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount);
 	}
+#endif // #if TRICE_DIRECT_OUTPUT == 1
+#if TRICE_DEFERRED_OUTPUT == 1
 	if (TriceDeferredOverflowCount != 0) {
 		trice16(iD(16379), "err: TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount);
 	}
-#endif
+#endif // #if TRICE_DEFERRED_OUTPUT == 1
+#endif // #if TRICE_PROTECT == 1
 
 	unsigned triceSingleDepthMax = TRICE_DATA_OFFSET + (TriceSingleMaxWordCount << 2); // lint !e845 Info 845: The left argument to operator '<<' is certain to be 0
 	if (triceSingleDepthMax <= TRICE_BUFFER_SIZE) {

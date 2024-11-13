@@ -68,6 +68,7 @@ FLAGS = # common flags for compiler, assembler and linker
 #C_FLAGS += -Wpadded               # -Wpadded warns if padding is added to a structure due to alignment requirements.
 ### C_FLAGS += -Wunused-parameter     # -Wunused-parameter will detect when a parameter passed to a function is never used in the function. 
 #C_FLAGS += -Wl,--no-warn-rwx-segments
+#C_FLAGS += -Wl,--no-warn-execstack # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
 
 #C_FLAGS += -mfloat-abi=hard       #
 #C_FLAGS += -mfpu=fpv4-sp-d16      #
@@ -116,3 +117,6 @@ LIB_DIR = #
 #LFLAGS += -L$(ARM_CORTEXM_SYSROOT)/lib/$(ARM_CORTEXM_MULTI_DIR)
 
 # LFLAGS (https://clang.llvm.org/docs/CrossCompilation.html)
+
+LFLAGS += -Wl,--no-warn-rwx-segments # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
+LFLAGS += -Wl,--no-warn-execstack    # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments

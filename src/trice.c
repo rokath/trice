@@ -200,7 +200,8 @@ static void SEGGER_Write_RTT0_NoCheck32(const uint32_t* pData, unsigned NumW);
 // global variables:
 
 //! TriceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
-//! That could happen, when the buffer wrapped before data are sent. The user app should check this diagnostic value.
+//! That could happen for example, when the buffer wrapped before data are sent (case TRICE_PROTECT==0).
+//! The user app should check this diagnostic value.
 unsigned TriceErrorCount = 0;
 
 //! triceCommand is the command receive buffer.
@@ -229,12 +230,17 @@ unsigned TriceDynBufTruncateCount = 0;
 
 #if TRICE_PROTECT == 1
 
+#if TRICE_DIRECT_OUTPUT == 1
 unsigned TriceDirectOverflowCount = 0;
+#endif
+
+#if TRICE_DEFERRED_OUTPUT == 1
 unsigned TriceDeferredOverflowCount = 0;
-
 #endif
 
-#endif
+#endif // #if TRICE_PROTECT == 1
+
+#endif // #if TRICE_DIAGNOSTICS == 1
 
 //! TriceInit needs to run before the first trice macro is executed.
 //! Not neseecary for all configurations.
@@ -309,7 +315,7 @@ static size_t triceIDAndLen(uint32_t* pBuf, uint8_t** ppStart, int* triceID) {
 
 #endif // #if TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1
 
-//! TriceEncode expects at buf trice netto data with netto length len.
+//! TriceEncode expects at buf trice net data with net length len.
 //! It fills dst with the next trice data, which are encoded and framed or not, according the selected switches.
 //! The areas of dst and buf are allowed to overlap.
 //! \param encrypt, when 0, then without encryption, when 1, then with XTEA encryption.
@@ -538,7 +544,9 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 	if (space >= count << 2) {
 		SEGGER_Write_RTT0_NoCheck32(buf, count);
 	} else {
+#if TRICE_DIAGNOSTICS == 1
 		TriceDirectOverflowCount++;
+#endif
 	}
 
 #else  // #if TRICE_PROTECT == 1

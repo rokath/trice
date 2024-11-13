@@ -359,60 +359,17 @@ void StartTask02(void const * argument)
   for(;;)
   {
 #if !TRICE_OFF
-    TriceTransfer();
-    osDelay(100);
+
+#if TRICE_DIAGNOSTICS == 1
+
     static int i = 0;
-    if( ++i >= 10 ){
+    if( ++i >= 100 ){
       i = 0;
       TriceLogDiagnosticData();
     }
-    TriceTransfer();
-    osDelay(100);
 
-    int k = 0xa0;
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    TriceTransfer();
-    osDelay(100);
-    TriceTransfer();
-    osDelay(100);
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    TriceTransfer();
-    osDelay(100);
-    TriceTransfer();
-    osDelay(100);
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    TriceTransfer();
-    osDelay(200);
-    TriceTransfer();
-    osDelay(100);
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    TriceTransfer();
-    osDelay(100);
-    TriceTransfer();
-    osDelay(100);
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    TriceTransfer();
-    osDelay(100);
-    TriceTransfer();
-    osDelay(100);
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    trice8("w: Hello! 👋🙂 %4x\n", k++ ); // with sound!
-    TriceTransfer();
-    osDelay(100);
+#endif // #if TRICE_DIAGNOSTICS == 1
+
     TriceTransfer();
     osDelay(100);
 
@@ -420,8 +377,10 @@ void StartTask02(void const * argument)
 
     WatchRingBufferMargins();
 
-#endif
+#endif // #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+
 #endif // #if !TRICE_OFF
+
   }
   /* USER CODE END StartTask02 */
 }

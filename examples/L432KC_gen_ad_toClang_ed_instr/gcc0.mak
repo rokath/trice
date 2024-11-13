@@ -10,4 +10,4 @@ GCC_HEX = $(GCC_CP) -O ihex
 GCC_BIN = $(GCC_CP) -O binary -S
 
 GCC_ONLY_FLAGS = #
- GCC_ONLY_FLAGS += -Wa,-a,-ad,-alms=$(GCC_BUILD)/$(notdir $(<:.c=.lst)) #
+GCC_ONLY_FLAGS += -Wa,-a,-ad,-alms=$(GCC_BUILD)/$(notdir $(<:.c=.lst)) #

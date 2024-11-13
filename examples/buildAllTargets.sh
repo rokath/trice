@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VSCODETARGETDIRS="
+NONINSTRUMENTEDDIRS="
     F030R8_gen/
     G0B1_gen/
     L432KC_gen/
@@ -19,13 +19,13 @@ failCount=0
 for d in $INSTRUMENTEDDIRS
 do
     cd $d
-    echo --------------------------------------------------------------------------------------------------------
-    echo $d with TRICE_OFF=1
-    ./clean.sh
-    ./build.sh TRICE_OFF=1
+    #echo --------------------------------------------------------------------------------------------------------
+    #echo $d with TRICE_OFF=1
+    #./clean.sh
+    #./build.sh TRICE_OFF=1
     echo --------------------------------------------------------------------------------------------------------
     echo $d with TRICE_OFF=0
-    ./clean.sh
+    #./clean.sh
     ./build.sh
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
@@ -34,20 +34,28 @@ do
     cd ..
 done
 
-for d in $VSCODETARGETDIRS
+for d in $NONINSTRUMENTEDDIRS
 do
     cd $d
     echo --------------------------------------------------------------------------------------------------------
     echo $d
-    #make -j $(nproc --all) # Windows
-    make -j $(sysctl -n hw.ncpu) # MacOS
+
+    case "$OSTYPE" in
+    darwin*)  make -j $(sysctl -n hw.ncpu)   ;; 
+    linux*)   make -j $(nproc --all)         ;;
+    msys*)    make -j $(nproc --all)         ;;
+    cygwin*)  make -j $(nproc --all)         ;;
+    *)        echo "unknown: $OSTYPE"        ;;
+    solaris*) echo "SOLARIS not implemented" ;;
+    bsd*)     echo "BSD not implemented"     ;;
+    esac
+
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
         echo FAIL: $d
     fi
     cd ..
 done
-
 
 if ! [ $failCount -eq 0 ] ; then
   echo $failCount times FAIL 
