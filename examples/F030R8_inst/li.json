@@ -8655,6 +8655,62 @@
 		"File": "triceCheck.c",
 		"Line": 2734
 	},
+	"16172": {
+		"File": "stm32f0xx_it.c",
+		"Line": 160
+	},
+	"16173": {
+		"File": "stm32f0xx_it.c",
+		"Line": 166
+	},
+	"16358": {
+		"File": "triceExamples.c",
+		"Line": 27
+	},
+	"16359": {
+		"File": "triceExamples.c",
+		"Line": 26
+	},
+	"16360": {
+		"File": "triceExamples.c",
+		"Line": 24
+	},
+	"16361": {
+		"File": "triceExamples.c",
+		"Line": 23
+	},
+	"16362": {
+		"File": "triceExamples.c",
+		"Line": 22
+	},
+	"16363": {
+		"File": "triceExamples.c",
+		"Line": 21
+	},
+	"16364": {
+		"File": "triceExamples.c",
+		"Line": 20
+	},
+	"16365": {
+		"File": "triceExamples.c",
+		"Line": 19
+	},
+	"16366": {
+		"File": "triceExamples.c",
+		"Line": 18
+	},
+	"16367": {
+		"File": "triceExamples.c",
+		"Line": 17
+	},
+	"16368": {
+		"File": "triceExamples.c",
+		"Line": 16
+	},
+	"16369": {
+		"File": "triceExamples.c",
+		"Line": 10
+	},
 	"16370": {
 		"File": "triceLogDiagData.c",
 		"Line": 77

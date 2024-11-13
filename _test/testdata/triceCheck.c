@@ -130,7 +130,7 @@ void TriceCheck(int n) {
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:            default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,
 
         break; case __LINE__: trice(iD(14005), "sig:trice without stamp and with 0 to 12 values (most common use cases)\n" );    
-        break; case __LINE__: trice(iD(14006), "rd:trice\n" );                                                                                                //exp: time:            default: rd:trice
+        break; case __LINE__: trice(iD(14006), "rd:trice\n" );                                                                                                   //exp: time:            default: rd:trice
         break; case __LINE__: trice(iD(14007), "rd:trice %d\n", -1 );                                                                                            //exp: time:            default: rd:trice -1     
         break; case __LINE__: trice(iD(14008), "rd:trice %d, %d\n", -1, -2 );                                                                                    //exp: time:            default: rd:trice -1, -2 
         break; case __LINE__: trice(iD(14009), "rd:trice %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:            default: rd:trice -1, -2, -3       
@@ -145,7 +145,7 @@ void TriceCheck(int n) {
         break; case __LINE__: trice(iD(14018), "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:            default: rd:trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: Trice(iD(14019), "sig:Trice with 16-bit stamp and with 0 to 12 values (common use cases)\n" );     
-        break; case __LINE__: Trice(iD(14020), "rd:Trice\n" );                                                                                                //exp: time:    be16default: rd:Trice
+        break; case __LINE__: Trice(iD(14020), "rd:Trice\n" );                                                                                                   //exp: time:    be16default: rd:Trice
         break; case __LINE__: Trice(iD(14021), "rd:Trice %d\n", -1 );                                                                                            //exp: time:    be16default: rd:Trice -1     
         break; case __LINE__: Trice(iD(14022), "rd:Trice %d, %d\n", -1, -2 );                                                                                    //exp: time:    be16default: rd:Trice -1, -2 
         break; case __LINE__: Trice(iD(14023), "rd:Trice %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:    be16default: rd:Trice -1, -2, -3       
@@ -160,7 +160,7 @@ void TriceCheck(int n) {
         break; case __LINE__: Trice(iD(14032), "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:    be16default: rd:Trice -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
         break; case __LINE__: TRice(iD(14033), "sig:TRice with 32-bit stamp and with 0 to 12 values (common use cases)\n" );
-        break; case __LINE__: TRice(iD(14034), "rd:TRice\n" );                                                                                                //exp: time:feed3322default: rd:trice
+        break; case __LINE__: TRice(iD(14034), "rd:TRice\n" );                                                                                                   //exp: time:feed3322default: rd:TRice
         break; case __LINE__: TRice(iD(14035), "rd:TRice %d\n", -1 );                                                                                            //exp: time:feed3322default: rd:TRice -1     
         break; case __LINE__: TRice(iD(14036), "rd:TRice %d, %d\n", -1, -2 );                                                                                    //exp: time:feed3322default: rd:TRice -1, -2 
         break; case __LINE__: TRice(iD(14037), "rd:TRice %d, %d, %d\n", -1, -2, -3 );                                                                            //exp: time:feed3322default: rd:TRice -1, -2, -3       

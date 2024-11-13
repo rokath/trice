@@ -8655,181 +8655,65 @@
 		"File": "triceCheck.c",
 		"Line": 2734
 	},
-	"16200": {
-		"File": "main.c",
-		"Line": 94
-	},
-	"16201": {
-		"File": "main.c",
-		"Line": 111
-	},
-	"16202": {
-		"File": "main.c",
-		"Line": 112
-	},
-	"16203": {
-		"File": "main.c",
-		"Line": 113
-	},
-	"16204": {
-		"File": "main.c",
-		"Line": 114
-	},
-	"16205": {
-		"File": "main.c",
-		"Line": 115
-	},
-	"16206": {
-		"File": "main.c",
-		"Line": 116
-	},
-	"16207": {
-		"File": "main.c",
-		"Line": 117
-	},
-	"16208": {
-		"File": "main.c",
-		"Line": 119
-	},
-	"16209": {
-		"File": "main.c",
-		"Line": 330
-	},
-	"16210": {
-		"File": "main.c",
-		"Line": 357
-	},
-	"16200": {
-		"File": "main.c",
-		"Line": 94
-	},
-	"16201": {
-		"File": "main.c",
-		"Line": 111
-	},
-	"16202": {
+	"16174": {
 		"File": "stm32g0xx_it.c",
 		"Line": 119
 	},
-	"16203": {
+	"16175": {
 		"File": "main.c",
-		"Line": 112
+		"Line": 317
 	},
-	"16204": {
+	"16176": {
 		"File": "main.c",
-		"Line": 113
+		"Line": 344
 	},
-	"16205": {
-		"File": "main.c",
-		"Line": 114
+	"16358": {
+		"File": "triceExamples.c",
+		"Line": 27
 	},
-	"16206": {
-		"File": "main.c",
-		"Line": 115
+	"16359": {
+		"File": "triceExamples.c",
+		"Line": 26
 	},
-	"16207": {
-		"File": "main.c",
-		"Line": 116
+	"16360": {
+		"File": "triceExamples.c",
+		"Line": 24
 	},
-	"16208": {
-		"File": "main.c",
-		"Line": 117
+	"16361": {
+		"File": "triceExamples.c",
+		"Line": 23
 	},
-	"16209": {
-		"File": "main.c",
-		"Line": 119
+	"16362": {
+		"File": "triceExamples.c",
+		"Line": 22
 	},
-	"16210": {
-		"File": "main.c",
-		"Line": 330
+	"16363": {
+		"File": "triceExamples.c",
+		"Line": 21
 	},
-	"16211": {
-		"File": "main.c",
-		"Line": 357
+	"16364": {
+		"File": "triceExamples.c",
+		"Line": 20
 	},
-	"16212": {
-		"File": "main.c",
-		"Line": 373
+	"16365": {
+		"File": "triceExamples.c",
+		"Line": 19
 	},
-	"16213": {
-		"File": "main.c",
-		"Line": 378
+	"16366": {
+		"File": "triceExamples.c",
+		"Line": 18
 	},
-	"16214": {
-		"File": "main.c",
-		"Line": 379
+	"16367": {
+		"File": "triceExamples.c",
+		"Line": 17
 	},
-	"16215": {
-		"File": "main.c",
-		"Line": 384
+	"16368": {
+		"File": "triceExamples.c",
+		"Line": 16
 	},
-	"16216": {
-		"File": "main.c",
-		"Line": 385
-	},
-	"16217": {
-		"File": "main.c",
-		"Line": 386
-	},
-	"16218": {
-		"File": "main.c",
-		"Line": 391
-	},
-	"16219": {
-		"File": "main.c",
-		"Line": 392
-	},
-	"16220": {
-		"File": "main.c",
-		"Line": 393
-	},
-	"16221": {
-		"File": "main.c",
-		"Line": 394
-	},
-	"16222": {
-		"File": "main.c",
-		"Line": 399
-	},
-	"16223": {
-		"File": "main.c",
-		"Line": 400
-	},
-	"16224": {
-		"File": "main.c",
-		"Line": 401
-	},
-	"16225": {
-		"File": "main.c",
-		"Line": 402
-	},
-	"16226": {
-		"File": "main.c",
-		"Line": 403
-	},
-	"16227": {
-		"File": "main.c",
-		"Line": 408
-	},
-	"16228": {
-		"File": "main.c",
-		"Line": 409
-	},
-	"16229": {
-		"File": "main.c",
-		"Line": 410
-	},
-	"16230": {
-		"File": "main.c",
-		"Line": 411
-	},
-	"16231": {
-		"File": "main.c",
-		"Line": 412
-	},
-	"16232": {
-		"File": "main.c",
-		"Line": 413
+	"16369": {
+		"File": "triceExamples.c",
+		"Line": 10
 	},
 	"16370": {
 		"File": "triceLogDiagData.c",
