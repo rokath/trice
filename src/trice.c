@@ -254,6 +254,10 @@ void TriceInit(void) {
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 	XTEAInitTable();
 #endif
+
+#if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+  TriceInitRingBufferMargins();
+#endif
 }
 
 //! triceDataLen returns encoded len.
