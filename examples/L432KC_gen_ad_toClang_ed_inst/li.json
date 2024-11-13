@@ -8655,49 +8655,69 @@
 		"File": "triceCheck.c",
 		"Line": 2734
 	},
-	"16200": {
-		"File": "main.c",
-		"Line": 90
-	},
-	"16201": {
-		"File": "main.c",
-		"Line": 92
-	},
-	"16202": {
-		"File": "main.c",
-		"Line": 93
-	},
-	"16203": {
-		"File": "main.c",
-		"Line": 94
-	},
-	"16204": {
-		"File": "main.c",
-		"Line": 95
-	},
-	"16205": {
-		"File": "main.c",
-		"Line": 96
-	},
-	"16206": {
-		"File": "main.c",
-		"Line": 97
-	},
-	"16207": {
+	"16177": {
 		"File": "stm32l4xx_it.c",
 		"Line": 200
 	},
-	"16208": {
+	"16178": {
+		"File": "main.c",
+		"Line": 334
+	},
+	"16179": {
 		"File": "stm32l4xx_it.c",
 		"Line": 206
 	},
-	"16209": {
+	"16180": {
 		"File": "main.c",
-		"Line": 342
+		"Line": 361
 	},
-	"16210": {
-		"File": "main.c",
-		"Line": 369
+	"16358": {
+		"File": "triceExamples.c",
+		"Line": 27
+	},
+	"16359": {
+		"File": "triceExamples.c",
+		"Line": 26
+	},
+	"16360": {
+		"File": "triceExamples.c",
+		"Line": 24
+	},
+	"16361": {
+		"File": "triceExamples.c",
+		"Line": 23
+	},
+	"16362": {
+		"File": "triceExamples.c",
+		"Line": 22
+	},
+	"16363": {
+		"File": "triceExamples.c",
+		"Line": 21
+	},
+	"16364": {
+		"File": "triceExamples.c",
+		"Line": 20
+	},
+	"16365": {
+		"File": "triceExamples.c",
+		"Line": 19
+	},
+	"16366": {
+		"File": "triceExamples.c",
+		"Line": 18
+	},
+	"16367": {
+		"File": "triceExamples.c",
+		"Line": 17
+	},
+	"16368": {
+		"File": "triceExamples.c",
+		"Line": 16
+	},
+	"16369": {
+		"File": "triceExamples.c",
+		"Line": 10
 	},
 	"16370": {
 		"File": "triceLogDiagData.c",

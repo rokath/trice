@@ -84,18 +84,10 @@ int main(void)
 *DWT_CYCCNT = 0;                  // clear DWT cycle counter
 *DWT_CONTROL = *DWT_CONTROL | 1;  // enable DWT cycle counter
 
-
-    TriceInit();
-    //! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-    trice("\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n");
-
-    TRice("w: Hello! 👋🙂 \a\n" ); // with sound!
-    TRice("w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice("w: Hello! 👋🙂 \a\n" ); // with sound!
-    Trice("w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice("w: Hello! 👋🙂 \a\n" ); // with sound!
-    trice("w: Hello! 👋🙂 \a\n" ); // with sound!
-
+#if !TRICE_OFF
+  TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
+  TriceHeadLine("  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   ");
+#endif
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -118,7 +110,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  SomeExampleTrices(100);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */

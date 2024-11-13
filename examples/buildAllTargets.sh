@@ -11,7 +11,7 @@ NONINSTRUMENTEDDIRS="
 INSTRUMENTEDDIRS="
     F030R8_inst/
     G0B1_inst/
-    L432KC_gen_ad_toClang_ed_instr/
+    L432KC_gen_ad_toClang_ed_inst/
 "
 
 failCount=0

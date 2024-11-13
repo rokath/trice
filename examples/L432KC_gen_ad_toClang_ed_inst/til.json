@@ -8655,49 +8655,69 @@
 		"Type": "TRICE_N",
 		"Strg": "wr:%s\\n"
 	},
-	"16200": {
-		"Type": "trice",
-		"Strg": "\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
-	},
-	"16201": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"16202": {
-		"Type": "TRice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"16203": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"16204": {
-		"Type": "Trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"16205": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"16206": {
-		"Type": "trice",
-		"Strg": "w: Hello! 👋🙂 \\a\\n"
-	},
-	"16207": {
+	"16177": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
-	"16208": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
-	},
-	"16209": {
+	"16178": {
 		"Type": "trice",
 		"Strg": "StartDefaultTask\\n"
 	},
-	"16210": {
+	"16179": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
+	"16180": {
 		"Type": "trice",
 		"Strg": "StartTask02\\n"
+	},
+	"16358": {
+		"Type": "TRice",
+		"Strg": "i=%x %x\\n"
+	},
+	"16359": {
+		"Type": "Trice",
+		"Strg": "i=%x %x\\n"
+	},
+	"16360": {
+		"Type": "trice",
+		"Strg": "info:%d times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:\\n"
+	},
+	"16361": {
+		"Type": "Trice16F",
+		"Strg": "att:ARemoteFunctionName"
+	},
+	"16362": {
+		"Type": "Trice32B",
+		"Strg": "msg:%08x  \\n"
+	},
+	"16363": {
+		"Type": "Trice8B",
+		"Strg": "msg:%02x \\n"
+	},
+	"16364": {
+		"Type": "Trice",
+		"Strg": "info:A Buffer:\\n"
+	},
+	"16365": {
+		"Type": "Trice",
+		"Strg": "msg:%f (default rounded float)\\n"
+	},
+	"16366": {
+		"Type": "Trice",
+		"Strg": "msg:%.20f (float  with more ciphers than precision)\\n"
+	},
+	"16367": {
+		"Type": "Trice64",
+		"Strg": "msg:%.20f (double with more ciphers than precision)\\n"
+	},
+	"16368": {
+		"Type": "TriceS",
+		"Strg": "rd:%s \u003c- float number as string\\n"
+	},
+	"16369": {
+		"Type": "TriceS",
+		"Strg": "w: Hello! 👋🙂\\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈%s🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
 	},
 	"16370": {
 		"Type": "trice16",

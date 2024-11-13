@@ -5,7 +5,7 @@ failCount=0
 INSTRUMENTEDDIRS="
     F030R8_inst/
     G0B1_inst/
-    L432KC_gen_ad_toClang_ed_instr/
+    L432KC_gen_ad_toClang_ed_inst/
 "
 
 NONINSTRUMENTEDDIRS="
@@ -19,7 +19,6 @@ NONINSTRUMENTEDDIRS="
 
 for d in $INSTRUMENTEDDIRS
 do
-    echo $d
     cd $d
     ./clean.sh
     cd ..
@@ -30,7 +29,6 @@ do
 done
 for d in $NONINSTRUMENTEDDIRS
 do
-    echo $d
     cd $d
     make clean
     if ! [ $? -eq 0 ] ; then

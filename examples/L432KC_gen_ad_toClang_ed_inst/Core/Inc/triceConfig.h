@@ -39,6 +39,9 @@ extern volatile uint32_t * const LAR; // lock access register
 //#define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { 
 //#define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } 
 
+void TriceHeadLine(char* name);
+void SomeExampleTrices(int burstCount);
+
 #ifdef __cplusplus
 }
 #endif
