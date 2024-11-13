@@ -8696,28 +8696,28 @@
 		"Strg": "rx:received command:%s\\n"
 	},
 	"16174": {
-		"Type": "trice",
-		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
-	},
-	"16175": {
 		"Type": "TRice",
 		"Strg": "msg:StartDefaultTask\\n"
 	},
-	"16176": {
+	"16175": {
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+	},
+	"16176": {
+		"Type": "trice",
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
 	},
 	"16177": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"16178": {
-		"Type": "trice",
-		"Strg": "StartDefaultTask\\n"
-	},
-	"16179": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
+	},
+	"16179": {
+		"Type": "trice",
+		"Strg": "StartDefaultTask\\n"
 	},
 	"16180": {
 		"Type": "trice",

@@ -8660,12 +8660,12 @@
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"16178": {
-		"Type": "trice",
-		"Strg": "StartDefaultTask\\n"
-	},
-	"16179": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
+	},
+	"16179": {
+		"Type": "trice",
+		"Strg": "StartDefaultTask\\n"
 	},
 	"16180": {
 		"Type": "trice",
