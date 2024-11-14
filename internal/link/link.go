@@ -188,7 +188,12 @@ func (p *Device) Open() error {
 		tries++
 		if p.Err == nil {
 			if Verbose {
-				fmt.Println(p.tempLogFileName, "successful opened after", tries, "milliseconds.")
+				fn, e := filepath.Abs(p.tempLogFileName)
+				if e == nil {
+					fmt.Println(fn, "successful opened after", tries, "ms. Trice is watching and reading from there.")
+				} else {
+					log.Fatal(p.tempLogFileName, e)
+				}
 			}
 			break // ok
 		}
@@ -198,9 +203,6 @@ func (p *Device) Open() error {
 	}
 
 	// p.watchLogfile() // todo: make it working well
-	if Verbose {
-		fmt.Fprintln(p.w, "trice is watching and reading from", p.tempLogFileName)
-	}
 	return nil
 }
 
