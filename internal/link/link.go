@@ -69,6 +69,9 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 	// Add missing values as default values
 	p.args = strings.Split(arguments, " ")
 	for _, a := range p.args {
+		if strings.ToLower(a) == "-device" {
+			deviceIsSpecified = true
+		}
 		if strings.ToLower(a) == "-if" {
 			interfaceIsSpecified = true
 		}
@@ -102,8 +105,9 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 
 	if lastArgExt == ".bin" {
 		if Verbose {
+			p.tempLogFileName, _ = filepath.Abs(lastArg)
 			fmt.Printf("An intermediate log file name \"%s\" is specified inside p.args, so use that.\n", lastArg)
-			p.tempLogFileName = lastArg
+			p.args[len(p.args)-1] = p.tempLogFileName
 		}
 	} else {
 		// create temp folder if not exists
@@ -117,7 +121,10 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 		p.tempLogFileName = fh.Name() // p.tempLogFileName is trice needed to know where to read from
 		msg.OnErr(fh.Close())
 
-		p.args = append(p.args, p.tempLogFileName) // p.tempLogFileName is passed here for JLinkRTTLogger
+		lfn, e := filepath.Abs(p.tempLogFileName)
+		msg.OnErr(e)
+
+		p.args = append(p.args, lfn) // p.tempLogFileName is passed here for JLinkRTTLogger
 	}
 	return p
 }
