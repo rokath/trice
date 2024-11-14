@@ -181,10 +181,21 @@ func (p *Device) Open() error {
 		}
 	}()
 
-	// todo: check if file exists in a loop for more speed
-	time.Sleep(1000 * time.Millisecond)                         // to be sure, log fie is created
-	p.tempLogFileHandle, p.Err = p.fSys.Open(p.tempLogFileName) // Open() opens a file with read only flag.
-	p.errorFatal()
+	for {
+		tries := 0
+		time.Sleep(1 * time.Millisecond)                            // Give some time for, log file creation.
+		p.tempLogFileHandle, p.Err = p.fSys.Open(p.tempLogFileName) // Open() opens a file with read only flag.
+		tries++
+		if p.Err == nil {
+			if Verbose {
+				fmt.Println(p.tempLogFileName, "successful opened after", tries, "milliseconds.")
+			}
+			break // ok
+		}
+		if tries > 3000 { // 3s max
+			log.Fatal(p.Err, p.tempLogFileName)
+		}
+	}
 
 	// p.watchLogfile() // todo: make it working well
 	if Verbose {
