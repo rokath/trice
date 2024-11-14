@@ -51,11 +51,11 @@
 This technique needs to be considered as experimental:
 
 * RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
-* Also ST-Link is usable for trice logs, but maybe not parallel with debugging.
+* Also ST-Link is usable for Trice logs, but maybe not parallel with debugging.
 * Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
-  * When using very high trice loads over RTT for a long time, sometimes an on-board J-Link (re-flashed ST-Link) could get internally into an inconsistent state (probably internal buffer overrun), what needs a power cycle then.
+  * When using very high Trice loads over RTT for a long time, sometimes an on-board J-Link (re-flashed ST-Link) could get internally into an inconsistent state (probably internal buffer overrun), what needs a power cycle then.
 * You could consider RTT over open-OCD as an alternative.
-* The default SEGGER up-buffer size is 1024 bytes, enough for most cases. If not, adapt it in your *SEGGER_RTT_Conf.h* file.
+* The default SEGGER up-buffer size is 1024 bytes, enough for most cases. If not, adapt it in your [SEGGER_RTT_Conf.h](../examples/F030R8_inst/Core/Inc/SEGGER_RTT_Conf.h) file.
 * Possible: Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([#446](https://github.com/rokath/trice/issues/446))
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -153,6 +153,9 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
   * For **G01B_inst**: `trice l -p JLINK -args "-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -d16 -pf none`
   * You can add the `-verbose` CLI switch for more details.
 * You may **not** need a **trice** tool restart after firmware reload.
+* For some reason the RTT technique does not work well with Darwin right now. The problem seems to be that the JLinkRTTLogger app cannot work correctly in the background. But there is a workaround:
+  * In one terminal run `JLinkRTTLogger -Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0 myLogFile.bin` 
+  * and in an other terminal execute `trice l -p FILE -args myLogFile.bin -pf none -d16`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -167,7 +170,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
     * Use [J-Link](https://www.segger.com/products/debug-probes/j-link/) or [J-Link OB (on-board)](https://www.segger.com/products/debug-probes/j-link/models/j-link-ob/).
       J-Link OB can be flashed to many ST Microelectronics evaluation boards (v2.0 link hardware) and for example is also usable with NXP and Atmel. For that you can also use a spare STM32 evaluation board (10 EUR) with jumper changes and breakout wires.
     * Use ST-Link with [gostlink](../third_party/goST/ReadMe.md).
-      It uses only one USB endpoint so debugging and trice output in parallel is not possible.
+      It uses only one USB endpoint so debugging and Trice output in parallel is not possible.
     * Use some other Debug-Probe with target memory access (support welcome)
   * RTT channel selection (on target and on host)
     * RECOMMENDED:
@@ -175,9 +178,9 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
         * It expects a target sending messages over RTT channel **0** (zero). Chapter 16.3.3 in [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf) refers to "Up-Channel 1" but this maybe is a typo and probably a 0 is mend. The `JLinkRTTLogger.exe` main advantage against other free available SEGGER tools is, that all bytes are transferred. Other SEGGER tools assume ASCII characters and use `FF 00` to `FF 0F` as a terminal switch command and filter that out causing *Trice* data disturbances.
         * It should be possible to start several instances on on different targets using `-SelectEmuBySN <SN>` inside the `-args` *Trice* CLI switch.
         * `JLinkRTTLogger` binaries for Linux & Darwin can be found at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
-      * `trice l -p STLINK` starts in background a `trice/third_party/goST/stRttLogger.exe` which connects to ST-Link and writes to a logfile which in turn is read by the trice tool. On exit the `stRttLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too but may not work).\
+      * `trice l -p STLINK` starts in background a `trice/third_party/goST/stRttLogger.exe` which connects to ST-Link and writes to a logfile which in turn is read by the Trice tool. On exit the `stRttLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too but may not work).\
       It is possible to start several instances on different channels as well as on different targets. The source code is in [https://github.com/bbnote/gostlink](https://github.com/bbnote/gostlink) and should work also at least under Linux.
-    * If you have the choice, prefer J-Link. It allows parallel debugging and trice output.
+    * If you have the choice, prefer J-Link. It allows parallel debugging and Trice output.
     * The full `-args` string is normally required and depends on the used device. Example: `trice l -args="-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`. The `-RTTSearchRanges` part is mostly optional.
     * Enter `trice h -log` and read info for `-args` switch:
 
@@ -258,7 +261,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
     ```b
     trice log -port TCP4 -args localhost:19021
     ```
-    * trice output is visible
+    * Trice output is visible
     * With `h`alt and `g`o inside the Jlink window the MCU can get haltes and released
     * It is possible in parallel to debug-step with a debugger (tested with ARM-MDK)
 * ![./ref/JLinkServer.PNG](./ref/JLinkServer.PNG)
@@ -286,6 +289,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
   * No need to restart the **trice** tool after changed firmware download.
 * **MINUS:**
   * Logs in a file, so the **trice** tool needs to read from that file.
+  * Maybe cannot write in a file as background process on Darwin.
 * The **trice** tool can watch the output file and display the *Trices*: `trice log -port JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"
 ![./ref/JlinkLoggerTrice.PNG](./ref/JlinkLoggerTrice.PNG)
 
@@ -299,12 +303,12 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 ###  4.4. <a name='JLinkRTTViewer.exe'></a>JLinkRTTViewer.exe
 
-* `JLinkRTTViewer.exe` is a GUI tool and connects via the SEGGER API to the target. It expects ASCII codes and is not used by the **trice** tool. The switching between the 16 possible terminals is done via `FF 00` ... `FF 0F`. These byte pairs can occur inside the trice data.
+* `JLinkRTTViewer.exe` is a GUI tool and connects via the SEGGER API to the target. It expects ASCII codes and is not used by the **trice** tool. The switching between the 16 possible terminals is done via `FF 00` ... `FF 0F`. These byte pairs can occur inside the Trice data.
 
 <!---
 
 * Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
-  * Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and displays them as data garbage.
+  * Unfortunately the JLinkRTTViewer "steals" from time to time some Trice data packages and displays them as data garbage.
   * Better use JLink.exe or the *Segger J-Link SDK* instead.
 
 -->
@@ -318,7 +322,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
   * No `TriceTransfer()` nor any interrupt is needed in the background
   * No UART or other output is needed
 * This is, because automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTD.gif](./ref/JLINK-DebugSession.gif)
-* Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer (direct *Trice* mode = `#define TRICE_MODE 0` inside [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h)).
+* Avoid Trice buffering inside target and write with TRICE macro directly into the RTT buffer (direct *Trice* mode = `#define TRICE_MODE 0` inside [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h)).
 * Write the bytes per *Trice* directly (little time & some space overhead on target, but no changes on host side)
   
   ![triceBlockDiagramWithSeggerRTT.svg](./ref/triceBlockDiagramWithSeggerRTTD.svg)
@@ -401,7 +405,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 - Observations:
   - When pressing the black reset button, you need to restart the **trice** tool.
-  - When restarting the trice tool, a target reset occurs.
+  - When restarting the Trice tool, a target reset occurs.
   - Other channel numbers than `0` seam not to work for some reason.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
