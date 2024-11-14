@@ -49,6 +49,13 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 	p.fSys = fSys
 	p.w = w
 	switch strings.ToUpper(port) {
+	case "OPENOCD", "OPEN-OCD", "OOCD", "OCD":
+		p.Exec = "openocd"
+		p.Lib = "libusb-1.0"
+		p.args[0] = "-f"
+		p.args[1] = "openocd.cfg"
+		p.tempLogFileName = ""
+		return p
 	case "JLINK", "J-LINK":
 		p.Exec = "JLinkRTTLogger"
 		p.Lib = "JLinkARM"
@@ -58,10 +65,12 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 	default:
 		log.Panic("Unknown port:", port)
 	}
+
 	if Verbose {
 		fmt.Fprintln(w, "port:", port, "arguments:", arguments)
-		fmt.Fprintln(w, "LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
+		fmt.Fprintln(w, "Executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
 	}
+
 	var (
 		deviceIsSpecified, interfaceIsSpecified, rttchannelIsSpecified, speedIsSpecified bool
 	)
@@ -116,9 +125,9 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 		msg.OnErr(e)
 
 		// create a new file
-		fh, e := os.CreateTemp(tempDir, "trice-*.bin") // opens for read and write
+		fh, e := os.CreateTemp(tempDir, "trice-*.bin") // Open for read and write.
 		msg.OnErr(e)
-		p.tempLogFileName = fh.Name() // p.tempLogFileName is trice needed to know where to read from
+		p.tempLogFileName = fh.Name() // p.tempLogFileName is needed to know where to read from.
 		msg.OnErr(fh.Close())
 
 		lfn, e := filepath.Abs(p.tempLogFileName)
@@ -188,24 +197,26 @@ func (p *Device) Open() error {
 		}
 	}()
 
-	for {
-		tries := 0
-		time.Sleep(1 * time.Millisecond)                            // Give some time for, log file creation.
-		p.tempLogFileHandle, p.Err = p.fSys.Open(p.tempLogFileName) // Open() opens a file with read only flag.
-		tries++
-		if p.Err == nil {
-			if Verbose {
-				fn, e := filepath.Abs(p.tempLogFileName)
-				if e == nil {
-					fmt.Println(fn, "successful opened after", tries, "ms. Trice is watching and reading from there.")
-				} else {
-					log.Fatal(p.tempLogFileName, e)
+	if p.tempLogFileName != "" {
+		for {
+			tries := 0
+			time.Sleep(1 * time.Millisecond)                            // Give some time for, log file creation.
+			p.tempLogFileHandle, p.Err = p.fSys.Open(p.tempLogFileName) // Open() opens a file with read only flag.
+			tries++
+			if p.Err == nil {
+				if Verbose {
+					fn, e := filepath.Abs(p.tempLogFileName)
+					if e == nil {
+						fmt.Println(fn, "successful opened after", tries, "ms. Trice is watching and reading from there.")
+					} else {
+						log.Fatal(p.tempLogFileName, e)
+					}
 				}
+				break // ok
 			}
-			break // ok
-		}
-		if tries > 3000 { // 3s max
-			log.Fatal(p.Err, p.tempLogFileName)
+			if tries > 3000 { // 3s max
+				log.Fatal(p.Err, p.tempLogFileName)
+			}
 		}
 	}
 

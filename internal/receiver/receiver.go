@@ -217,8 +217,9 @@ func (p *file) Close() error {
 // When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
 // When port is "DUMP", args is expected to be a space or comma separated hex print like "09 a1 fe"
 // When port is "BUFFER", args is expected to be a decimal byte sequence in the same format as for example coming from one of the other ports.
-// When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
-// When port is "STLINK" args has the same format as for "JLINK"
+// When port is "JLINK", args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
+// When port is "STLINK", args has the same format as for "JLINK"
+// When port is "OPENOCD", args is []string{"-f", "openocd.cfg"}
 func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args string) (r io.ReadWriteCloser, err error) {
 	if Verbose {
 		if args == "default" {
@@ -236,8 +237,14 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		l := link.NewDevice(w, fSys, port, args)
-		if nil != l.Open() {
+		if l.Open() != nil {
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
+		}
+		r = l
+	case "OPENOCD", "OPEN-OCD", "OOCD", "OCD":
+		l := link.NewDevice(w, fSys, port, args)
+		if l.Open() != nil {
+			err = fmt.Errorf("can not get openocd device %s with args %s", port, args)
 		}
 		r = l
 	case "TCP4", "TCP4BUFFER": // TCP4BUFFER is undocumented, because it is used just for tests.
