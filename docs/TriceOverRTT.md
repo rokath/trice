@@ -12,30 +12,34 @@
   <ol>
 
 <!-- vscode-markdown-toc -->
-* 1. [Preface](#Preface)
-* 2. [For the impatient (2 possibilities)](#Fortheimpatient2possibilities)
-	* 2.1. [Start JLink commander and connect over TCP](#StartJLinkcommanderandconnectoverTCP)
-	* 2.2. [Start using JLinkLogger](#StartusingJLinkLogger)
-* 3. [Segger Real Time Transfer (RTT)](#SeggerRealTimeTransferRTT)
-* 4. [J-Link option](#J-Linkoption)
-	* 4.1. [Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)](#ConvertaSTMNUCLEOorDISCOVERYonboardST-LinkvalidforST-Linkv2v2.1notforv3)
-		* 4.1.1. [First step (to do if some issues occur - otherwise you can skip it)](#Firststeptodoifsomeissuesoccur-otherwiseyoucanskipit)
-		* 4.1.2. [Second step](#Secondstep)
-	* 4.2. [Some SEGGER tools in short](#SomeSEGGERtoolsinshort)
-		* 4.2.1. [JLink.exe](#JLink.exe)
-		* 4.2.2. [JLinkRTTLogger.exe](#JLinkRTTLogger.exe)
-	* 4.3. [JLinkRTTClient.exe](#JLinkRTTClient.exe)
-	* 4.4. [JLinkRTTViewer.exe](#JLinkRTTViewer.exe)
-* 5. [Segger RTT](#SeggerRTT)
-* 6. [Segger J-Link SDK (~800 EUR) Option](#SeggerJ-LinkSDK800EUROption)
-* 7. [Additional Notes (leftovers)](#AdditionalNotesleftovers)
-* 8. [Further development](#Furtherdevelopment)
-* 9. [NUCLEO-F030R8 example](#NUCLEO-F030R8example)
-	* 9.1. [RTT with original on-board ST-LINK firmware](#RTTwithoriginalon-boardST-LINKfirmware)
-	* 9.2. [Change to J-LINK onboard firmware](#ChangetoJ-LINKonboardfirmware)
-	* 9.3. [RTT with J-LINK firmware on-board](#RTTwithJ-LINKfirmwareon-board)
-* 10. [Possible issues](#Possibleissues)
-* 11. [Links](#Links)
+
+- [*Trice* over RTT](#trice-over-rtt)
+  - [1. Preface](#1-preface)
+  - [2. For the impatient (2 possibilities)](#2-for-the-impatient-2-possibilities)
+    - [2.1. Start JLink commander and connect over TCP](#21-start-jlink-commander-and-connect-over-tcp)
+      - [2.1.1. Setup TCP4 server providing the trace data](#211-setup-tcp4-server-providing-the-trace-data)
+    - [2.2. Start using JLinkLogger](#22-start-using-jlinklogger)
+  - [3. Segger Real Time Transfer (RTT)](#3-segger-real-time-transfer-rtt)
+  - [4. J-Link option](#4-j-link-option)
+    - [4.1. Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 \& v2.1, not for v3)](#41-convert-a-stm-nucleo-or-discovery-onboard-st-link-valid-for-st-link-v2--v21-not-for-v3)
+      - [4.1.1. First step (to do if some issues occur - otherwise you can skip it)](#411-first-step-to-do-if-some-issues-occur---otherwise-you-can-skip-it)
+      - [4.1.2. Second step](#412-second-step)
+    - [4.2. Some SEGGER tools in short](#42-some-segger-tools-in-short)
+      - [4.2.1. JLink.exe](#421-jlinkexe)
+      - [4.2.2. JLinkRTTLogger.exe](#422-jlinkrttloggerexe)
+    - [4.3. JLinkRTTClient.exe](#43-jlinkrttclientexe)
+    - [4.4. JLinkRTTViewer.exe](#44-jlinkrttviewerexe)
+  - [5. Segger RTT](#5-segger-rtt)
+  - [6. Segger J-Link SDK (~800 EUR) Option](#6-segger-j-link-sdk-800-eur-option)
+  - [7. Additional Notes (leftovers)](#7-additional-notes-leftovers)
+  - [8. Further development](#8-further-development)
+  - [9. NUCLEO-F030R8 example](#9-nucleo-f030r8-example)
+    - [9.1. RTT with original on-board ST-LINK firmware](#91-rtt-with-original-on-board-st-link-firmware)
+    - [9.2. Change to J-LINK onboard firmware](#92-change-to-j-link-onboard-firmware)
+    - [9.3. RTT with J-LINK firmware on-board](#93-rtt-with-j-link-firmware-on-board)
+  - [10. Possible issues](#10-possible-issues)
+  - [11. openocd with Darwin](#11-openocd-with-darwin)
+  - [12. Links](#12-links)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -73,7 +77,7 @@ The default SEGGER tools only suport RTT channel 0.
 * You may need a **trice** tool restart after firmware reload.
 
 
-#### Setup TCP4 server providing the trace data
+####  2.1.1. <a name='SetupTCP4serverprovidingthetracedata'></a>Setup TCP4 server providing the trace data
 
 This is just the SEGGER J-Link server here for demonstration, but if your target device has an TCP4 interface, you can replace this with your target server.
 
@@ -419,17 +423,75 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  11. <a name='Links'></a>Links
+##  11. <a name='openocdwithDarwin'></a>openocd with Darwin
 
-* [https://www.codeinsideout.com/blog/stm32/j-link-rtt/](https://www.codeinsideout.com/blog/stm32/j-link-rtt/) (A good explanation of SEGGER J-Link Realtime Transfer - Fast Debug protocol: - only suitable for ASCII transfer)
-* [USB over WSL2?](https://twitter.com/beriberikix/status/1487127732190212102?s=20&t=NQVa27qvOqPi2uGz6pJNRA) (Maybe intersting for OpenOCD)
+The `openocd.cfg` file is taylored to the flashed on-board J-Link adapter.
 
-## openocd with Darwin
+**Terminal 1:**
 
 ```bash
 brew install open-ocd
+...
 cd ./trice/examples/G0B1_inst
 openocd -f openocd.cfg
+Open On-Chip Debugger 0.12.0
+Licensed under GNU GPL v2
+For bug reports, read
+	http://openocd.org/doc/doxygen/bugs.html
+srst_only separate srst_nogate srst_open_drain connect_deassert_srst
+
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+Info : J-Link STLink V21 compiled Aug 12 2019 10:29:20
+Info : Hardware version: 1.00
+Info : VTarget = 3.300 V
+Info : clock speed 2000 kHz
+Info : SWD DPIDR 0x0bc11477
+Info : [stm32g0x.cpu] Cortex-M0+ r0p1 processor detected
+Info : [stm32g0x.cpu] target has 4 breakpoints, 2 watchpoints
+Info : starting gdb server for stm32g0x.cpu on 3333
+Info : Listening on port 3333 for gdb connections
+Info : rtt: Searching for control block 'SEGGER RTT'
+Info : rtt: Control block found at 0x20001238
+Info : Listening on port 9090 for rtt connections
+Channels: up=1, down=0
+Up-channels:
+0: Terminal 1024 0
+Down-channels:
+
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
 ```
 
+**Terminal 2:**
 
+```bash
+ms@MacBook-Pro G0B1_inst % trice l -p TCP4 -args localhost:9090  -pf none -d16
+Nov 14 17:32:33.319451  TCP4:       triceExamples.c    10        0_000  Hello! 👋🙂
+Nov 14 17:32:33.319463  TCP4: 
+Nov 14 17:32:33.319463  TCP4:         ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        
+Nov 14 17:32:33.319463  TCP4:         🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈
+Nov 14 17:32:33.319463  TCP4:         🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        
+Nov 14 17:32:33.319463  TCP4: 
+Nov 14 17:32:33.319463  TCP4: 
+Nov 14 17:32:33.406455  TCP4:       triceExamples.c    16        0_037 2.71828182845904523536 <- float number as string
+Nov 14 17:32:33.505116  TCP4:       triceExamples.c    17        0_087 2.71828182845904509080 (double with more ciphers than precision)
+Nov 14 17:32:33.607518  TCP4:       triceExamples.c    18        0_117 2.71828174591064453125 (float  with more ciphers than precision)
+Nov 14 17:32:33.707851  TCP4:       triceExamples.c    19        0_146 2.718282 (default rounded float)
+Nov 14 17:32:33.807685  TCP4:       triceExamples.c    20        0_175 A Buffer:
+Nov 14 17:32:33.908202  TCP4:       triceExamples.c    21        0_204 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36 
+Nov 14 17:32:34.007148  TCP4:       triceExamples.c    22        0_254 31372e32  31383238  34383238  34303935  35333235  
+Nov 14 17:32:35.007949  TCP4:       triceExamples.c    23        0_301 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+Nov 14 17:32:35.112304  TCP4:       triceExamples.c    24              100 times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:
+Nov 14 17:32:35.307567  TCP4:       triceExamples.c    26        0_379 i=44444400 aaaaaa00
+Nov 14 17:32:35.408257  TCP4:       triceExamples.c    27    0,000_002 i=44444400 aaaaaa00
+Nov 14 17:32:35.509022  TCP4:       triceExamples.c    26        0_441 i=44444401 aaaaaa01
+Nov 14 17:32:35.609439  TCP4:       triceExamples.c    27    0,000_002 i=44444401 aaaaaa01
+Nov 14 17:32:35.710201  TCP4:       triceExamples.c    26        0_504 i=44444402 aaaaaa02
+...
+```
+
+##  12. <a name='Links'></a>Links
+
+* [https://www.codeinsideout.com/blog/stm32/j-link-rtt/](https://www.codeinsideout.com/blog/stm32/j-link-rtt/) (A good explanation of SEGGER J-Link Realtime Transfer - Fast Debug protocol: - only suitable for ASCII transfer)
+* [USB over WSL2?](https://twitter.com/beriberikix/status/1487127732190212102?s=20&t=NQVa27qvOqPi2uGz6pJNRA) (Maybe intersting for OpenOCD)
