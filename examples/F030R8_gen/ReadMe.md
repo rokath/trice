@@ -69,7 +69,7 @@ PS E:\repos\trice\examples\vsCode_NucleoF030R8_generated>
 ```
 
 - Download [STM32G030.svd](https://github.com/fullyautomated/st-svd/blob/main/STM32G030.svd) or get it from the STMCubeIDE installation folder if you want to install this Eclipse IDE as well, but IMHO you do not need it.
-- You may need to extract and install the STM32 USB drivers *"trice/third_party/st.com/en.stsw-link009_v2.0.2.zip"*. You can get them also from the STM site directly.
+- You may need to extract and install the STM32 USB drivers [../../third_party/st.com/en.stsw-link009_v2.0.2.zip](../../third_party/st.com/en.stsw-link009_v2.0.2.zip). You can get them also from the STM site directly.
 - It is assumed, that you converted the OB ST-Link to an OB J-Link already. See *trice/docs/TRICEOverRTT.md#J-Linkoption* for details.
 
 - Press the Debug-Button or "CTRL+SHIFT+D" and start debugging.
