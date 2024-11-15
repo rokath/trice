@@ -327,7 +327,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	} else if triceType == typeS4 { // 32-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
 	} else {
-		log.Fatal("triceType ", triceType, " not implemented (hint: IDBits value?)")
+		n += copy(b[n:], fmt.Sprintln("ERROR:\atriceType typeX0 not implemented (hint: IDBits value?)"))
+		return n, nil
 	}
 	p.B = p.B[decoder.TargetTimestampSize:]
 
@@ -397,7 +398,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	if cycle != 0xc0 { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
-			n += copy(b[n:], fmt.Sprintln("CYCLE:\a", cycle, "!=", p.cycle, " (count=", emitter.TagEvents("CYCLE")+1, ")"))
+			n += copy(b[n:], fmt.Sprintln("CYCLE_ERROR:\a", cycle, "!=", p.cycle, " (count=", emitter.TagEvents("CYCLE_ERROR")+1, ")"))
 			n += copy(b[n:], "                                         ") // len of location information plus stamp: 41 spaces - see NewlineIndent below - todo: make it generic
 			p.cycle = cycle                                               // adjust cycle
 		}
