@@ -1,4 +1,6 @@
-# ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) $${\color{red}Trice}$$ <- $${\color{red}TR}$$~~ace~~ $${\color{red}I}$$~~d's~~ $${\color{red}C}$$   $${\color{red}E}$$~~mbedded~~ 
+![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) 
+
+# 🅃🅁ace 🄸d's 🄲 🄴mbedded
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
@@ -156,6 +158,8 @@ git clone https://github.com/rokath/trice.git
 - [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 
 <!--- B A C K U P
+
+$${\color{red}Trice}$$ <- $${\color{red}TR}$$~~ace~~ $${\color{red}I}$$~~d's~~ $${\color{red}C}$$   $${\color{red}E}$$~~mbedded~~ 
 
 - [call stack logger function instrumentation](https://sii.pl/blog/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution/) (a way to trace programs flow of execution)
 
