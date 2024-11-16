@@ -38,7 +38,7 @@
     - [9.2. Change to J-LINK onboard firmware](#92-change-to-j-link-onboard-firmware)
     - [9.3. RTT with J-LINK firmware on-board](#93-rtt-with-j-link-firmware-on-board)
   - [10. Possible issues](#10-possible-issues)
-  - [11. openocd with Darwin](#11-openocd-with-darwin)
+  - [11. OpenOCD with Darwin](#11-openocd-with-darwin)
   - [12. Links](#12-links)
 
 <!-- vscode-markdown-toc-config
@@ -354,6 +354,8 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 ##  8. <a name='Furtherdevelopment'></a>Further development
 
+
+
 * Check OpenOCD!
   * Use OpenOCD and its built-in RTT feature. OpenOCD then starts a server on localhost:17001 where it dumps all RTT messages.
 * The GoST project offers a way bypassing JLINK. Used -port STLINK instead.
@@ -423,9 +425,11 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  11. <a name='openocdwithDarwin'></a>openocd with Darwin
+##  11. <a name='openocdwithDarwin'></a>OpenOCD with Darwin
 
-The `openocd.cfg` file is taylored to the flashed on-board J-Link adapter.
+- OpenOCD on MacOS works out of the box after installing it.
+- When using VS code with Cortex-Debug you cannot use OpenOCD at the same time.
+- The `openocd.cfg` file is taylored to the flashed on-board J-Link adapter.
 
 **Terminal 1:**
 
