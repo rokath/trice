@@ -17,3 +17,8 @@ Check for newer versions at [st.com](https://www.st.com).
 
 - STM32F4-Discovery_FW_V1.1.0 demo firmware
 
+## en.st-link-server-v2-1-1.zip
+
+- ST-LINK server software module
+
+Check on [https://www.st.com/en/development-tools/st-link-server.html](https://www.st.com/en/development-tools/st-link-server.html) for a newer version and details.

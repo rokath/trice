@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "clang Cortex Debug",
+            "name": "j clang Cortex Debug",
             "cwd": "${workspaceFolder}",
             "executable": "./out.clang/L432KC.elf",
             "request": "launch",
@@ -18,13 +18,39 @@
             "showDevDebugOutput": "raw"
         },
         {
-            "name": "gcc Cortex Debug",
+            "name": "j gcc Cortex Debug",
             "cwd": "${workspaceFolder}",
             "executable": "./out.gcc/L432KC.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
             "servertype": "jlink",
+            "interface": "swd",
+            "device": "STM32L432KC",
+            "svdFile": "./STM32L4x2.svd",
+            "runToMain": true
+        },
+        {
+            "name": "st clang Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "./out.clang/L432KC.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "stlink",
+            "interface": "swd",
+            "device": "STM32L432KC",
+            "svdFile": "./STM32L4x2.svd",
+            "showDevDebugOutput": "raw"
+        },
+        {
+            "name": "st gcc Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "./out.gcc/L432KC.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "stlink",
             "interface": "swd",
             "device": "STM32L432KC",
             "svdFile": "./STM32L4x2.svd",
