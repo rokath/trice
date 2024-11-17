@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_CLEAN 1
+
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 
 #define TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN 1

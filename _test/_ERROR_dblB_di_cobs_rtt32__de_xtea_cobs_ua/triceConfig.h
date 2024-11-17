@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_CLEAN 1
+
 // trice l -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0" -showID "deb:%04x" -hs off -pf cobs -d16=true
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS
