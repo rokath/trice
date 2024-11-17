@@ -127,7 +127,7 @@ func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
 			if index >= 0 {
 				var r results
 				r.line = i + 1 // 1st line number is 1 and not 0
-				r.exps = strings.TrimSpace(lineEnd[index+len(subStr) : len(lineEnd)])
+				r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
 				result = append(result, r)
 			}
 		}
