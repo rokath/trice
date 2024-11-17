@@ -8728,20 +8728,20 @@
 		"Strg": "wr:%s\\n"
 	},
 	"16195": {
-		"Type": "trice",
-		"Strg": "StartDefaultTask\\n"
-	},
-	"16196": {
-		"Type": "trice",
-		"Strg": "StartTask02\\n"
-	},
-	"16197": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
-	"16198": {
+	"16196": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
+	},
+	"16197": {
+		"Type": "trice",
+		"Strg": "StartDefaultTask\\n"
+	},
+	"16198": {
+		"Type": "trice",
+		"Strg": "StartTask02\\n"
 	},
 	"16358": {
 		"Type": "TRice",

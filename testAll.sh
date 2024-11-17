@@ -11,7 +11,7 @@ function f(){
     trice insert -til ./testdata/til.json -li ./testdata/li.json
     go test ./...
     trice clean  -til ./testdata/til.json -li ./testdata/li.json
-    cd -
+    cd - >/dev/null
 }
 
 time f

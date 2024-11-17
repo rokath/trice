@@ -12,7 +12,7 @@ trice insert -src ../../_test/testdata -src ../exampleData -src ./Core  -IDMin 1
 case "$OSTYPE" in
   darwin*)  make -j $(sysctl -n hw.ncpu) TRICE_FLAGS=-D$ARG1 gcc   -f OS_Darwin.mak ;; 
   linux*)   make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 gcc   -f OS_Linuxs.mak ;;
-  msys*)    make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 clang -f OS_Windows.mak ;;
+  msys*)    make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 gcc   -f OS_Windows.mak ;;
   cygwin*)  make -j $(nproc --all)       TRICE_FLAGS=-D$ARG1 clang -f OS_Windows.mak ;;
   *)        echo "unknown: $OSTYPE" ;;
   solaris*) echo "SOLARIS not implemented" ;;

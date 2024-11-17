@@ -215,6 +215,10 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 ####  4.1.1. <a name='Firststeptodoifsomeissuesoccur-otherwiseyoucanskipit'></a>First step (to do if some issues occur - otherwise you can skip it)
 
+[Video](https://www.youtube.com/watch?app=desktop&v=g2Kf6RbdrIs)
+
+See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/stlink)
+
 * Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html)
 * Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINKUtility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
 * Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP`. *The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.*

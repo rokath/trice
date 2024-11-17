@@ -27,8 +27,7 @@
             "servertype": "jlink",
             "interface": "swd",
             "device": "STM32L432KC",
-            "svdFile": "./STM32L4x2.svd",
-            "runToMain": true
+            "svdFile": "./STM32L4x2.svd"
         },
         {
             "name": "st clang Cortex Debug",
@@ -37,7 +36,7 @@
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
-            "servertype": "stlink",
+            "servertype": "stutil",
             "interface": "swd",
             "device": "STM32L432KC",
             "svdFile": "./STM32L4x2.svd",
@@ -50,11 +49,11 @@
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
-            "servertype": "stlink",
+            "servertype": "stutil",
             "interface": "swd",
             "device": "STM32L432KC",
-            "svdFile": "./STM32L4x2.svd",
-            "runToMain": true
+            "showDevDebugOutput": "raw",
+            "svdFile": "./STM32L4x2.svd"
         }
     ]
 }
