@@ -1,5 +1,5 @@
 JLinkGDBServer \
--device STM32F030R8 \
+-device STM32G0B1RE \
 -if SWD \
 -speed 4000 \
 -notimeout \
@@ -8,20 +8,12 @@ JLinkGDBServer \
 -noreset \
 -RTTTelnetPort 19021 \
 
-
-
 # JLinkGDBServer \
-# -device STM32F030R8 \
 # -endian little \
-# -if SWD \
-# -speed 4000 \
 # -nolocalhostonly \
 # -port 3333 \
 # -telnetport 2333 \
-# -noir \
-# -nohalt \
 # -notimeout \
-# -noreset \
 # -select USB \
 # -strict \
 # -RTTTelnetPort 4444 \

@@ -68,7 +68,7 @@ var (
 	colorizeTRACE     = ansi.ColorFunc("default+i:default+h")
 
 	// user mode colors
-	colorizeTIME      = ansi.ColorFunc("blue+i:blue+h")
+	colorizeTIME      = ansi.ColorFunc("blue+i:yellow+h")
 	colorizeMESSAGE   = ansi.ColorFunc("green+h:black")
 	colorizeREAD      = ansi.ColorFunc("black+i:yellow+h")
 	colorizeWRITE     = ansi.ColorFunc("black+u:yellow+h")
@@ -133,7 +133,7 @@ var Tags = []tag{
 	{0, []string{"Alert", "alert", "ALERT"}, colorizeALERT},
 	{0, []string{"Assert", "assert", "ASSERT"}, colorizeASSERT},
 	{0, []string{"a", "Alarm", "alarm", "ALARM"}, colorizeALARM},
-	{0, []string{"cy", "cycle", "CYCLE"}, colorizeCYCLE},
+	{0, []string{"CYCLE_ERROR"}, colorizeCYCLE}, // not for user code!
 	{0, []string{"v", "Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
 }
 
