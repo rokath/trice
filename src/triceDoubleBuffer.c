@@ -21,9 +21,11 @@ static uint32_t triceBuffer[2][TRICE_DEFERRED_BUFFER_SIZE >> 3] = {0};
 #define TRICE_WRITE_LIMIT_HALF_BUFFER_1 (&triceBuffer[1][TRICE_DEFERRED_BUFFER_SIZE >> 3])
 
 static uint32_t* const triceWriteStartHalfBuffer0 = TRICE_WRITE_START_HALF_BUFFER_0;
-static uint32_t* const triceWriteLimitHalfBuffer0 = TRICE_WRITE_LIMIT_HALF_BUFFER_0;
 static uint32_t* const triceWriteStartHalfBuffer1 = TRICE_WRITE_START_HALF_BUFFER_1;
+#if TRICE_PROTECT == 1
+static uint32_t* const triceWriteLimitHalfBuffer0 = TRICE_WRITE_LIMIT_HALF_BUFFER_0;
 static uint32_t* const triceWriteLimitHalfBuffer1 = TRICE_WRITE_LIMIT_HALF_BUFFER_1;
+#endif
 
 //! triceActiveHalfBuffer is the index of the active write buffer. !triceActiveHalfBuffer is the active read buffer index.
 static int triceActiveHalfBuffer = 0;
@@ -178,15 +180,15 @@ int triceDataOffsetDepth;
 //! At the half buffer start tb are TRICE_DATA_OFFSET bytes space followed by a number of trice messages which all contain
 //! 0-3 padding bytes and therefore have a length of a multiple of 4. There is no additional space between these trice messages.
 //! When XTEA enabled, only (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) is allowed, because the 4 bytes behind a trice messages
-//! are changed, when the trice length is not a multiple of 8, but only of 4. (XTEA can encrypt only multiple of 8 lenth packages.)
+//! are changed, when the trice length is not a multiple of 8, but only of 4. (XTEA can encrypt only multiple of 8 length packages.)
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at the tb start is for in-buffer encoding of the trice data.
 //! \param tLen is total length of several trice data. It is always a multiple of 4 because of 32-bit alignment and padding bytes.
 static void TriceOut(uint32_t* tb, size_t tLen) {
 	uint8_t* enc = (uint8_t*)tb;            // This is the later encoded data starting address.
-	uint8_t* dat = enc + TRICE_DATA_OFFSET; // Thid is the start of      32-bit aligned trices.
-	uint8_t* nxt = dat;                     // Thid is the start of next 32-bit aligned trices.
+	uint8_t* dat = enc + TRICE_DATA_OFFSET; // This is the start of      32-bit aligned trices.
+	uint8_t* nxt = dat;                     // This is the start of next 32-bit aligned trices.
 	size_t encLen = 0;
-#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
+#if 0 // /* (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) ||*/ (TRICE_DIAGNOSTICS == 1) //|| (TRICE_PROTECT == 1)
 	uint8_t* dst = enc; // This value dst must not get > nxt to avoid overwrites.
 #endif
 	int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
@@ -204,7 +206,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 #endif // #if TRICE_DIAGNOSTICS == 1
 		const uint8_t* triceNettoStart;
 		size_t triceNettoLen; // This is the trice netto length (without padding bytes).
-#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
+#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) // && ((TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1))
 		uint8_t* crypt = nxt - 4; // only 8-byte groups are encryptable
 #endif
 		triceID = TriceNext(&nxt, &tLen, &triceNettoStart, &triceNettoLen);
@@ -212,7 +214,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 			TriceErrorCount++;
 			break; // ignore following data
 		}
-#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) || (TRICE_DIAGNOSTICS == 1) || (TRICE_PROTECT == 1)
 		uint8_t* dst = enc + encLen;
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 		memmove(crypt, triceNettoStart, triceNettoLen);
@@ -259,8 +261,9 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		encLen += triceNettoLen;
 #endif // #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 
+#if (TRICE_DIAGNOSTICS == 1) || (TRICE_PROTECT == 1)
 		dst = enc + encLen; // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
-
+#endif
 #if (TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1)
 		int triceDataOffsetSpaceRemained = nxt - dst; // THe begin of unprocessed data MINUS next dst must not be negative.
 #endif
