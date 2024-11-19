@@ -54,6 +54,37 @@
             "device": "STM32L432KC",
             "showDevDebugOutput": "raw",
             "svdFile": "./STM32L4x2.svd"
+        },
+        {
+            "name": "j oOCD Cortex-Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "./out.gcc/L432KC.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "interface": "swd",
+            "device": "STM32L432KC",
+            "showDevDebugOutput": "raw",
+            "svdFile": "./STM32L4x2.svd",
+            "runToEntryPoint": "main",
+            "configFiles": [
+                "${workspaceFolder}/JLinkOpenOCD.cfg"
+            ],
+            "rttConfig": {
+                "enabled": true,
+                "address": "auto",
+                "clearSearch": false,
+                "polling_interval": 20,
+                "rtt_start_retry": 2000,
+                "decoders": [
+                    {
+                        "label": "RTT channel 0",
+                        "port": 0,
+                        "timestamp": true,
+                        "type": "console"
+                    }
+                ]
+            },
         }
     ]
 }
