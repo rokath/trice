@@ -8728,64 +8728,116 @@
 		"Strg": "wr:%s\\n"
 	},
 	"16195": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
-	},
-	"16196": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
-	},
-	"16197": {
 		"Type": "trice",
 		"Strg": "StartDefaultTask\\n"
 	},
-	"16198": {
+	"16196": {
 		"Type": "trice",
 		"Strg": "StartTask02\\n"
 	},
-	"16358": {
+	"16197": {
 		"Type": "TRice",
-		"Strg": "i=%x %x\\n"
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
-	"16359": {
+	"16198": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
+	"16345": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_PROTECT == %d, TRICE_DIAGNOSTICS == %d, XTEA == %d\\n"
+	},
+	"16346": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_MULTI_PACK_MODE, "
+	},
+	"16347": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_SINGLE_PACK_MODE, "
+	},
+	"16348": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_STATIC_BUFFER\\n"
+	},
+	"16349": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_STATIC_BUFFER\\n"
+	},
+	"16350": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_STATIC_BUFFER\\n"
+	},
+	"16351": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_STACK_BUFFER\\n"
+	},
+	"16352": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d, "
+	},
+	"16353": {
+		"Type": "triceS",
+		"Strg": "msg:%s\\n"
+	},
+	"16354": {
+		"Type": "trice",
+		"Strg": "msg:CONFIGURATION == %d: "
+	},
+	"16355": {
 		"Type": "Trice",
 		"Strg": "i=%x %x\\n"
 	},
-	"16360": {
+	"16356": {
 		"Type": "trice",
 		"Strg": "info:%d times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:\\n"
 	},
-	"16361": {
+	"16357": {
 		"Type": "Trice16F",
 		"Strg": "att:ARemoteFunctionName"
 	},
-	"16362": {
+	"16358": {
 		"Type": "Trice32B",
 		"Strg": "msg:%08x  \\n"
 	},
-	"16363": {
+	"16359": {
 		"Type": "Trice8B",
 		"Strg": "msg:%02x \\n"
 	},
-	"16364": {
+	"16360": {
 		"Type": "Trice",
 		"Strg": "info:A Buffer:\\n"
 	},
-	"16365": {
+	"16361": {
 		"Type": "Trice",
 		"Strg": "msg:%f (default rounded float)\\n"
 	},
-	"16366": {
+	"16362": {
 		"Type": "Trice",
 		"Strg": "msg:%.20f (float  with more ciphers than precision)\\n"
 	},
-	"16367": {
+	"16363": {
 		"Type": "Trice64",
 		"Strg": "msg:%.20f (double with more ciphers than precision)\\n"
 	},
-	"16368": {
+	"16364": {
 		"Type": "TriceS",
 		"Strg": "rd:%s \u003c- float number as string\\n"
+	},
+	"16365": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16366": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16367": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16368": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
 	},
 	"16369": {
 		"Type": "TriceS",

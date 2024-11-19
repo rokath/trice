@@ -8735,13 +8735,65 @@
 		"File": "stm32f0xx_it.c",
 		"Line": 166
 	},
-	"16358": {
+	"16345": {
+		"File": "triceExamples.c",
+		"Line": 53
+	},
+	"16346": {
+		"File": "triceExamples.c",
+		"Line": 51
+	},
+	"16347": {
+		"File": "triceExamples.c",
+		"Line": 49
+	},
+	"16348": {
+		"File": "triceExamples.c",
+		"Line": 46
+	},
+	"16349": {
+		"File": "triceExamples.c",
+		"Line": 44
+	},
+	"16350": {
+		"File": "triceExamples.c",
+		"Line": 42
+	},
+	"16351": {
+		"File": "triceExamples.c",
+		"Line": 40
+	},
+	"16352": {
+		"File": "triceExamples.c",
+		"Line": 38
+	},
+	"16353": {
+		"File": "triceExamples.c",
+		"Line": 37
+	},
+	"16354": {
+		"File": "triceExamples.c",
+		"Line": 36
+	},
+	"16355": {
+		"File": "triceExamples.c",
+		"Line": 30
+	},
+	"16356": {
+		"File": "triceExamples.c",
+		"Line": 28
+	},
+	"16357": {
 		"File": "triceExamples.c",
 		"Line": 27
 	},
-	"16359": {
+	"16358": {
 		"File": "triceExamples.c",
 		"Line": 26
+	},
+	"16359": {
+		"File": "triceExamples.c",
+		"Line": 25
 	},
 	"16360": {
 		"File": "triceExamples.c",
@@ -8765,19 +8817,19 @@
 	},
 	"16365": {
 		"File": "triceExamples.c",
-		"Line": 19
+		"Line": 18
 	},
 	"16366": {
 		"File": "triceExamples.c",
-		"Line": 18
+		"Line": 17
 	},
 	"16367": {
 		"File": "triceExamples.c",
-		"Line": 17
+		"Line": 16
 	},
 	"16368": {
 		"File": "triceExamples.c",
-		"Line": 16
+		"Line": 15
 	},
 	"16369": {
 		"File": "triceExamples.c",

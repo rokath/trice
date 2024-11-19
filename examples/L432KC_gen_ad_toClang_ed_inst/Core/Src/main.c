@@ -87,6 +87,8 @@ int main(void)
 #if !TRICE_OFF
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
   TriceHeadLine("  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   ");
+  LogTriceConfiguration();
+  SomeExampleTrices(10);
 #endif
   /* USER CODE END 1 */
 
@@ -110,7 +112,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  SomeExampleTrices(100);
+  SomeExampleTrices(0);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -366,7 +368,9 @@ void StartTask02(void const * argument)
     static int i = 0;
     if( ++i >= 10 ){
       i = 0;
+      #if TRICE_DIAGNOSTICS == 1
       TriceLogDiagnosticData();
+      #endif
     }
     TriceTransfer();
 #endif

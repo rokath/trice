@@ -96,4 +96,4 @@ cd ./examples
 ./cleanAllTargets.sh
 cd - > /dev/null
 
-trice clean  -i $TD/til.json -li $TD/li.json  -src $TD/..  ./examples 
+trice clean  -i $TD/til.json -li $TD/li.json  -src $TD/.. -src ./examples 
