@@ -8739,45 +8739,41 @@
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
 	},
-	"16345": {
-		"Type": "trice",
-		"Strg": "deb:TRICE_PROTECT == %d, TRICE_DIAGNOSTICS == %d, XTEA == %d\\n"
-	},
 	"16346": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_MULTI_PACK_MODE, "
+		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
 	},
 	"16347": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_SINGLE_PACK_MODE, "
+		"Strg": "deb:_CYCLE == %d, _PROTECT == %d, _DIAG == %d, XTEA == %d\\n"
 	},
 	"16348": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_RING_BUFFER\\n"
+		"Strg": "deb:TRICE_MULTI_PACK_MODE\\n"
 	},
 	"16349": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_DOUBLE_BUFFER\\n"
+		"Strg": "deb:TRICE_SINGLE_PACK_MODE\\n"
 	},
 	"16350": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_STATIC_BUFFER\\n"
+		"Strg": "deb:TRICE_RING_BUFFER, "
 	},
 	"16351": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_STACK_BUFFER\\n"
+		"Strg": "deb:TRICE_DOUBLE_BUFFER, "
 	},
 	"16352": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d, "
+		"Strg": "deb:TRICE_STATIC_BUFFER, "
 	},
 	"16353": {
-		"Type": "triceS",
-		"Strg": "msg:%s\\n"
+		"Type": "trice",
+		"Strg": "deb:TRICE_STACK_BUFFER, "
 	},
 	"16354": {
 		"Type": "trice",
-		"Strg": "msg:CONFIGURATION == %d: "
+		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d\\n"
 	},
 	"16355": {
 		"Type": "Trice",
@@ -8857,7 +8853,7 @@
 	},
 	"16374": {
 		"Type": "trice16",
-		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
+		"Strg": "wrn:TriceDynBufTruncateCount = %u\\n"
 	},
 	"16375": {
 		"Type": "trice16",
@@ -8877,15 +8873,15 @@
 	},
 	"16379": {
 		"Type": "trice16",
-		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
+		"Strg": "err:TriceDeferredOverflowCount = %u\\n"
 	},
 	"16380": {
 		"Type": "trice16",
-		"Strg": "err: TriceDirectOverflowCount = %u\\n"
+		"Strg": "err:TriceDirectOverflowCount = %u\\n"
 	},
 	"16381": {
 		"Type": "trice16",
-		"Strg": "err: TriceErrorCount = %u\\n"
+		"Strg": "err:TriceErrorCount = %u\\n"
 	},
 	"16382": {
 		"Type": "trice16",

@@ -31,24 +31,28 @@ void SomeExampleTrices(int burstCount){
     }
 }
 
+
+
 //! LogTriceConfiguration shows a few configuration settings.
 void LogTriceConfiguration( void ){
-    trice("msg:CONFIGURATION == %d: ", CONFIGURATION ); 
-    triceS("msg:%s\n", CONFIG_TEXT );
-    trice("deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d, ", TRICE_DIRECT_OUTPUT, TRICE_DEFERRED_OUTPUT);
+#ifdef LogConfigInfo
+    LogConfigInfo();
+#endif
+    trice("deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d\n", TRICE_DIRECT_OUTPUT, TRICE_DEFERRED_OUTPUT);
     #if TRICE_BUFFER == TRICE_STACK_BUFFER
-    trice("deb:TRICE_STACK_BUFFER\n");
+    trice("deb:TRICE_STACK_BUFFER, ");
     #elif TRICE_BUFFER == TRICE_STATIC_BUFFER
-    trice("deb:TRICE_STATIC_BUFFER\n");
+    trice("deb:TRICE_STATIC_BUFFER, ");
     #elif TRICE_BUFFER == TRICE_DOUBLE_BUFFER
-    trice("deb:TRICE_DOUBLE_BUFFER\n");
+    trice("deb:TRICE_DOUBLE_BUFFER, ");
     #elif TRICE_BUFFER == TRICE_RING_BUFFER
-    trice("deb:TRICE_RING_BUFFER\n");
+    trice("deb:TRICE_RING_BUFFER, ");
     #endif    
     #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
-    trice("deb:TRICE_SINGLE_PACK_MODE, ");
+    trice("deb:TRICE_SINGLE_PACK_MODE\n");
     #else
-    trice("deb:TRICE_MULTI_PACK_MODE, ");
+    trice("deb:TRICE_MULTI_PACK_MODE\n");
     #endif
-    trice("deb:TRICE_PROTECT == %d, TRICE_DIAGNOSTICS == %d, XTEA == %d\n", TRICE_PROTECT, TRICE_DIAGNOSTICS, TRICE_DEFERRED_XTEA_ENCRYPT );
+    trice("deb:_CYCLE == %d, _PROTECT == %d, _DIAG == %d, XTEA == %d\n", TRICE_CYCLE_COUNTER, TRICE_PROTECT, TRICE_DIAGNOSTICS, TRICE_DEFERRED_XTEA_ENCRYPT );
+    trice("d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\n", TRICE_SINGLE_MAX_SIZE, TRICE_BUFFER_SIZE, TRICE_DEFERRED_BUFFER_SIZE );
 }

@@ -8772,72 +8772,200 @@
 		"Strg": "rx:received command:%s\\n"
 	},
 	"16193": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
-	},
-	"16194": {
 		"Type": "trice",
 		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+	},
+	"16194": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"16195": {
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"16196": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"16197": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"16198": {
-		"Type": "trice",
-		"Strg": "StartDefaultTask\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"16199": {
 		"Type": "trice",
+		"Strg": "StartDefaultTask\\n"
+	},
+	"16200": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16201": {
+		"Type": "trice",
 		"Strg": "StartTask02\\n"
 	},
-	"16345": {
-		"Type": "trice",
-		"Strg": "deb:TRICE_PROTECT == %d, TRICE_DIAGNOSTICS == %d, XTEA == %d\\n"
+	"16202": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16203": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16204": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16205": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16206": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16207": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16208": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16209": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16210": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16211": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16212": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16213": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16214": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16215": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16216": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16217": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16218": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16219": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16220": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16221": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16222": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16223": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16224": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16225": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16226": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16227": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16228": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16229": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16230": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16231": {
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+	},
+	"16232": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"16346": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_MULTI_PACK_MODE, "
+		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
 	},
 	"16347": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_SINGLE_PACK_MODE, "
+		"Strg": "deb:_CYCLE == %d, _PROTECT == %d, _DIAG == %d, XTEA == %d\\n"
 	},
 	"16348": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_RING_BUFFER\\n"
+		"Strg": "deb:TRICE_MULTI_PACK_MODE\\n"
 	},
 	"16349": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_DOUBLE_BUFFER\\n"
+		"Strg": "deb:TRICE_SINGLE_PACK_MODE\\n"
 	},
 	"16350": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_STATIC_BUFFER\\n"
+		"Strg": "deb:TRICE_RING_BUFFER, "
 	},
 	"16351": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_STACK_BUFFER\\n"
+		"Strg": "deb:TRICE_DOUBLE_BUFFER, "
 	},
 	"16352": {
 		"Type": "trice",
-		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d, "
+		"Strg": "deb:TRICE_STATIC_BUFFER, "
 	},
 	"16353": {
-		"Type": "triceS",
-		"Strg": "msg:%s\\n"
+		"Type": "trice",
+		"Strg": "deb:TRICE_STACK_BUFFER, "
 	},
 	"16354": {
 		"Type": "trice",
-		"Strg": "msg:CONFIGURATION == %d: "
+		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d\\n"
 	},
 	"16355": {
 		"Type": "Trice",
@@ -8917,7 +9045,7 @@
 	},
 	"16374": {
 		"Type": "trice16",
-		"Strg": "err: TriceDynBufTruncateCount = %u\\n"
+		"Strg": "wrn:TriceDynBufTruncateCount = %u\\n"
 	},
 	"16375": {
 		"Type": "trice16",
@@ -8937,15 +9065,15 @@
 	},
 	"16379": {
 		"Type": "trice16",
-		"Strg": "err: TriceDeferredOverflowCount = %u\\n"
+		"Strg": "err:TriceDeferredOverflowCount = %u\\n"
 	},
 	"16380": {
 		"Type": "trice16",
-		"Strg": "err: TriceDirectOverflowCount = %u\\n"
+		"Strg": "err:TriceDirectOverflowCount = %u\\n"
 	},
 	"16381": {
 		"Type": "trice16",
-		"Strg": "err: TriceErrorCount = %u\\n"
+		"Strg": "err:TriceErrorCount = %u\\n"
 	},
 	"16382": {
 		"Type": "trice16",

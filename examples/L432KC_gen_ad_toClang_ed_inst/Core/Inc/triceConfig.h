@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_INLINE static inline
+
 //! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
 #define TRICE_CLEAN 1 // Do not define this at an other place! But you can delete this here.
 
@@ -41,26 +43,20 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { 
 #define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } 
 
-
 #if CONFIGURATION == 0 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
-#define TRICE_PROTECT 0
-#define TRICE_DIAGNOSTICS 0
-#define TRICE_CYCLE_COUNTER 0
-
+#define TRICE_PROTECT 1
+#define TRICE_DIAGNOSTICS 1
+#define TRICE_CYCLE_COUNTER 1
 #define TRICE_DEFERRED_OUTPUT 1
+//#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
+#define TRICE_DEFERRED_BUFFER_SIZE 4096
 
-#undef USE_SEGGER_RTT_LOCK_UNLOCK_MACROS
-#undef TRICE_ENTER_CRITICAL_SECTION
-#define TRICE_ENTER_CRITICAL_SECTION {
-#undef TRICE_LEAVE_CRITICAL_SECTION
-#define TRICE_LEAVE_CRITICAL_SECTION }
-
-#define TRICE_CHECK_MIN
+//#define TRICE_CHECK_MIN
 
 #elif CONFIGURATION == 1 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -70,7 +66,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 2 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -80,7 +76,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 3 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -90,7 +86,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 4 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -100,7 +96,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 5 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -110,7 +106,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 6 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -120,7 +116,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 7 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -130,7 +126,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 8 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -140,7 +136,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 8+1 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -150,7 +146,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 8+2 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -160,7 +156,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 8+3 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -170,7 +166,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 8+4 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -180,7 +176,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 8+5 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -190,7 +186,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 8+6 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -200,7 +196,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 8+7 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -210,7 +206,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 8+8 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -220,7 +216,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 16+1 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -228,7 +224,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #elif CONFIGURATION == 16+2 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -236,7 +232,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
 
 #elif CONFIGURATION == 16+3 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -244,7 +240,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #elif CONFIGURATION == 16+4 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -252,7 +248,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
 
 #elif CONFIGURATION == 16+5 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -260,7 +256,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #elif CONFIGURATION == 16+6 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -268,7 +264,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
 
 #elif CONFIGURATION == 16+7 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -276,7 +272,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #elif CONFIGURATION == 16+8 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -285,7 +281,7 @@ void SomeExampleTrices(int burstCount);
 
 
 #elif CONFIGURATION == 24+1 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -294,7 +290,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 24+2 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -303,7 +299,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 24+3 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -312,7 +308,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 24+4 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -321,7 +317,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 24+5 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -330,7 +326,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 24+6 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -339,7 +335,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 24+7 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -348,7 +344,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 24+8 //////////////////////////////////////////////////////////////
-#define CONFIG_TEXT "An example configuration\n"
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1

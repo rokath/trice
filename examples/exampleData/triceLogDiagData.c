@@ -23,18 +23,18 @@ void TriceLogDiagnosticData(void) {
 #endif // #ifdef SEGGER_RTT
 
 	if (TriceErrorCount > 0) {
-		trice16("err: TriceErrorCount = %u\n", TriceErrorCount);
+		trice16("err:TriceErrorCount = %u\n", TriceErrorCount);
 	}
 
 #if TRICE_PROTECT == 1
 #if TRICE_DIRECT_OUTPUT == 1
 	if (TriceDirectOverflowCount != 0) {
-		trice16("err: TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount);
+		trice16("err:TriceDirectOverflowCount = %u\n", TriceDirectOverflowCount);
 	}
 #endif // #if TRICE_DIRECT_OUTPUT == 1
 #if TRICE_DEFERRED_OUTPUT == 1
 	if (TriceDeferredOverflowCount != 0) {
-		trice16("err: TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount);
+		trice16("err:TriceDeferredOverflowCount = %u\n", TriceDeferredOverflowCount);
 	}
 #endif // #if TRICE_DEFERRED_OUTPUT == 1
 #endif // #if TRICE_PROTECT == 1
@@ -53,7 +53,7 @@ void TriceLogDiagnosticData(void) {
 	}
 
 	if (TriceDynBufTruncateCount != 0) {
-		trice16("err: TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount);
+		trice16("wrn:TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount);
 	}
 
 #if TRICE_BUFFER == TRICE_STACK_BUFFER
