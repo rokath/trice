@@ -41,9 +41,9 @@ void LogTriceConfiguration( void ){
     #elif TRICE_BUFFER == TRICE_STATIC_BUFFER
     trice("deb:TRICE_STATIC_BUFFER\n");
     #elif TRICE_BUFFER == TRICE_DOUBLE_BUFFER
-    trice("deb:TRICE_STATIC_BUFFER\n");
+    trice("deb:TRICE_DOUBLE_BUFFER\n");
     #elif TRICE_BUFFER == TRICE_RING_BUFFER
-    trice("deb:TRICE_STATIC_BUFFER\n");
+    trice("deb:TRICE_RING_BUFFER\n");
     #endif    
     #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
     trice("deb:TRICE_SINGLE_PACK_MODE, ");

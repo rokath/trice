@@ -8,6 +8,7 @@
 
 // The strings behind "//exp:" are the expected result for each line (-color=none)
 
+#ifndef TRICE_CHECK_MIN
 #if !TRICE_OFF
 
 static int32_t FloatToInt32(float f);
@@ -18,6 +19,7 @@ static int64_t DoubleToInt64(double f);
 static void exampleOfManualSerialization(void);
 static void exampleOfManualJSONencoding(void);
 static void dynString(int n);
+#endif // #ifndef TRICE_CHECK_MIN
 
 // clang-format off
 
@@ -28,6 +30,9 @@ static void dynString(int n);
 //! The ID values must be in file triceCheck.c, because it is compiled first and trice update runs later.
 // This function is also called from Go for tests.
 void TriceCheck(int n) {
+#ifdef TRICE_CHECK_MIN
+    TRice("\rTriceCheck %4d", n);
+#else // #ifdef TRICE_CHECK_MIN
     char* sABCDE = "abcde 12345";
 #if !TRICE_OFF
     uint32_t lenABCDE = strlen(sABCDE);
@@ -2554,9 +2559,12 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
     #endif // #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
     }
+#endif // #else // #ifdef TRICE_CHECK_MIN
 }
 
 // clang-format on
+
+#ifndef TRICE_CHECK_MIN
 
 #if !TRICE_OFF
 
@@ -2752,5 +2760,7 @@ static void dynString(int n) {
 	// trice("sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
 	TRICE_N(id(0), "wr:%s\n", s, n);
 }
+
+#endif // #ifndef TRICE_CHECK_MIN
 
 #endif // #if !TRICE_OFF

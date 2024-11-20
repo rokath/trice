@@ -206,7 +206,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 #endif // #if TRICE_DIAGNOSTICS == 1
 		const uint8_t* triceNettoStart;
 		size_t triceNettoLen; // This is the trice netto length (without padding bytes).
-#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) // && ((TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1))
+#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE) // && ((TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1))
 		uint8_t* crypt = nxt - 4; // only 8-byte groups are encryptable
 #endif
 		triceID = TriceNext(&nxt, &tLen, &triceNettoStart, &triceNettoLen);

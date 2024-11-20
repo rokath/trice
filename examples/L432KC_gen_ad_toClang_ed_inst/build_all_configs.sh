@@ -1,3 +1,3 @@
 #!/bin/bash
 
-time for i in {0..11}; do echo --- CONFIGURATION=$i ---; ./build.sh TRICE_OFF=0 CONFIGURATION=$i; ./clean.sh; done
+time for i in {0..36}; do echo; echo --- CONFIGURATION=$i ---; echo; ./clean.sh; ./build.sh CONFIGURATION=$i; done
