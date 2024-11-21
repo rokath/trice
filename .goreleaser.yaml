@@ -118,8 +118,8 @@ archives:
       - third_party/*
       - _test/*
       - GoInfos.txt
-      - *.sh
-      - *.md
+      - ./*.sh
+      - ./*.md
       - go.mod
       - go.sum
       - super-linter.report/*
