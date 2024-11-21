@@ -17,18 +17,18 @@
             "svdFile": "./STM32L4x2.svd",
             "showDevDebugOutput": "raw"
         },
-        {
-            "name": "j gcc Cortex Debug",
-            "cwd": "${workspaceFolder}",
-            "executable": "./out.gcc/L432KC.elf",
-            "request": "launch",
-            "type": "cortex-debug",
-            "runToEntryPoint": "main",
-            "servertype": "jlink",
-            "interface": "swd",
-            "device": "STM32L432KC",
-            "svdFile": "./STM32L4x2.svd"
-        },
+        //{
+        //    "name": "j gcc Cortex Debug",
+        //    "cwd": "${workspaceFolder}",
+        //    "executable": "./out.gcc/L432KC.elf",
+        //    "request": "launch",
+        //    "type": "cortex-debug",
+        //    "runToEntryPoint": "main",
+        //    "servertype": "jlink",
+        //    "interface": "swd",
+        //    "device": "STM32L432KC",
+        //    "svdFile": "./STM32L4x2.svd"
+        //},
         {
             "name": "st clang Cortex Debug",
             "cwd": "${workspaceFolder}",

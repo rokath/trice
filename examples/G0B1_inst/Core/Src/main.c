@@ -104,14 +104,14 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  SomeExampleTrices(100);
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+    SomeExampleTrices(3);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -356,7 +356,7 @@ void StartTask02(void const * argument)
 #endif // #if TRICE_DIAGNOSTICS == 1
 
     TriceTransfer();
-    osDelay(100);
+    osDelay(10);
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
     WatchRingBufferMargins();

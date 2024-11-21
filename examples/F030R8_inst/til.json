@@ -8739,81 +8739,97 @@
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
 	},
-	"16346": {
+	"16342": {
 		"Type": "trice",
 		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
 	},
-	"16347": {
+	"16343": {
 		"Type": "trice",
 		"Strg": "deb:_CYCLE == %d, _PROTECT == %d, _DIAG == %d, XTEA == %d\\n"
 	},
-	"16348": {
+	"16344": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_MULTI_PACK_MODE\\n"
 	},
-	"16349": {
+	"16345": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_SINGLE_PACK_MODE\\n"
 	},
-	"16350": {
+	"16346": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_RING_BUFFER, "
 	},
-	"16351": {
+	"16347": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_DOUBLE_BUFFER, "
 	},
-	"16352": {
+	"16348": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_STATIC_BUFFER, "
 	},
-	"16353": {
+	"16349": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_STACK_BUFFER, "
 	},
-	"16354": {
+	"16350": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d\\n"
 	},
-	"16355": {
+	"16351": {
 		"Type": "Trice",
 		"Strg": "i=%x %x\\n"
 	},
-	"16356": {
+	"16352": {
 		"Type": "trice",
 		"Strg": "info:%d times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:\\n"
 	},
-	"16357": {
+	"16353": {
 		"Type": "Trice16F",
 		"Strg": "att:ARemoteFunctionName"
 	},
-	"16358": {
+	"16354": {
 		"Type": "Trice32B",
 		"Strg": "msg:%08x  \\n"
 	},
-	"16359": {
+	"16355": {
 		"Type": "Trice8B",
 		"Strg": "msg:%02x \\n"
 	},
-	"16360": {
+	"16356": {
 		"Type": "Trice",
 		"Strg": "info:A Buffer:\\n"
 	},
-	"16361": {
+	"16357": {
 		"Type": "Trice",
 		"Strg": "msg:%f (default rounded float)\\n"
 	},
-	"16362": {
+	"16358": {
 		"Type": "Trice",
 		"Strg": "msg:%.20f (float  with more ciphers than precision)\\n"
 	},
-	"16363": {
+	"16359": {
 		"Type": "Trice64",
 		"Strg": "msg:%.20f (double with more ciphers than precision)\\n"
 	},
-	"16364": {
+	"16360": {
 		"Type": "TriceS",
 		"Strg": "rd:%s \u003c- float number as string\\n"
+	},
+	"16361": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16362": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16363": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16364": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
 	},
 	"16365": {
 		"Type": "TRICE",

@@ -8785,7 +8785,7 @@
 	},
 	"16196": {
 		"File": "triceConfig.h",
-		"Line": 47
+		"Line": 46
 	},
 	"16197": {
 		"File": "triceConfig.h",
@@ -8796,16 +8796,16 @@
 		"Line": 69
 	},
 	"16199": {
-		"File": "main.c",
-		"Line": 336
+		"File": "stm32l4xx_it.c",
+		"Line": 200
 	},
 	"16200": {
-		"File": "triceConfig.h",
-		"Line": 79
+		"File": "stm32l4xx_it.c",
+		"Line": 206
 	},
 	"16201": {
-		"File": "main.c",
-		"Line": 363
+		"File": "triceConfig.h",
+		"Line": 79
 	},
 	"16202": {
 		"File": "triceConfig.h",
@@ -8820,156 +8820,444 @@
 		"Line": 109
 	},
 	"16205": {
-		"File": "triceConfig.h",
-		"Line": 119
+		"File": "main.c",
+		"Line": 336
 	},
 	"16206": {
-		"File": "triceConfig.h",
-		"Line": 129
+		"File": "main.c",
+		"Line": 363
 	},
 	"16207": {
 		"File": "triceConfig.h",
-		"Line": 139
+		"Line": 119
 	},
 	"16208": {
 		"File": "triceConfig.h",
-		"Line": 149
+		"Line": 129
 	},
 	"16209": {
 		"File": "triceConfig.h",
-		"Line": 159
+		"Line": 139
 	},
 	"16210": {
 		"File": "triceConfig.h",
-		"Line": 169
+		"Line": 149
 	},
 	"16211": {
 		"File": "triceConfig.h",
-		"Line": 179
+		"Line": 159
 	},
 	"16212": {
 		"File": "triceConfig.h",
-		"Line": 189
+		"Line": 169
 	},
 	"16213": {
 		"File": "triceConfig.h",
-		"Line": 199
+		"Line": 179
 	},
 	"16214": {
 		"File": "triceConfig.h",
-		"Line": 209
+		"Line": 189
 	},
 	"16215": {
 		"File": "triceConfig.h",
-		"Line": 219
+		"Line": 199
 	},
 	"16216": {
 		"File": "triceConfig.h",
-		"Line": 227
+		"Line": 209
 	},
 	"16217": {
 		"File": "triceConfig.h",
-		"Line": 235
+		"Line": 219
 	},
 	"16218": {
 		"File": "triceConfig.h",
-		"Line": 243
+		"Line": 227
 	},
 	"16219": {
 		"File": "triceConfig.h",
-		"Line": 251
+		"Line": 235
 	},
 	"16220": {
 		"File": "triceConfig.h",
-		"Line": 259
+		"Line": 243
 	},
 	"16221": {
 		"File": "triceConfig.h",
-		"Line": 267
+		"Line": 251
 	},
 	"16222": {
 		"File": "triceConfig.h",
-		"Line": 275
+		"Line": 259
 	},
 	"16223": {
 		"File": "triceConfig.h",
-		"Line": 284
+		"Line": 267
 	},
 	"16224": {
 		"File": "triceConfig.h",
-		"Line": 293
+		"Line": 275
 	},
 	"16225": {
 		"File": "triceConfig.h",
-		"Line": 302
+		"Line": 283
 	},
 	"16226": {
 		"File": "triceConfig.h",
-		"Line": 311
+		"Line": 292
 	},
 	"16227": {
 		"File": "triceConfig.h",
-		"Line": 320
+		"Line": 301
 	},
 	"16228": {
 		"File": "triceConfig.h",
-		"Line": 329
+		"Line": 310
 	},
 	"16229": {
 		"File": "triceConfig.h",
-		"Line": 338
+		"Line": 319
 	},
 	"16230": {
 		"File": "triceConfig.h",
-		"Line": 347
+		"Line": 328
 	},
 	"16231": {
-		"File": "stm32l4xx_it.c",
-		"Line": 200
+		"File": "triceConfig.h",
+		"Line": 337
 	},
 	"16232": {
-		"File": "stm32l4xx_it.c",
-		"Line": 206
+		"File": "triceConfig.h",
+		"Line": 346
 	},
-	"16346": {
+	"16233": {
+		"File": "triceConfig.h",
+		"Line": 356
+	},
+	"16234": {
+		"File": "triceConfig.h",
+		"Line": 366
+	},
+	"16235": {
+		"File": "triceConfig.h",
+		"Line": 376
+	},
+	"16236": {
+		"File": "triceConfig.h",
+		"Line": 386
+	},
+	"16237": {
+		"File": "triceConfig.h",
+		"Line": 396
+	},
+	"16238": {
+		"File": "triceConfig.h",
+		"Line": 406
+	},
+	"16239": {
+		"File": "triceConfig.h",
+		"Line": 416
+	},
+	"16240": {
+		"File": "triceConfig.h",
+		"Line": 426
+	},
+	"16241": {
+		"File": "triceConfig.h",
+		"Line": 436
+	},
+	"16242": {
+		"File": "triceConfig.h",
+		"Line": 446
+	},
+	"16243": {
+		"File": "triceConfig.h",
+		"Line": 456
+	},
+	"16244": {
+		"File": "triceConfig.h",
+		"Line": 466
+	},
+	"16245": {
+		"File": "triceConfig.h",
+		"Line": 476
+	},
+	"16246": {
+		"File": "triceConfig.h",
+		"Line": 486
+	},
+	"16247": {
+		"File": "triceConfig.h",
+		"Line": 496
+	},
+	"16248": {
+		"File": "triceConfig.h",
+		"Line": 506
+	},
+	"16249": {
+		"File": "triceConfig.h",
+		"Line": 516
+	},
+	"16250": {
+		"File": "triceConfig.h",
+		"Line": 524
+	},
+	"16251": {
+		"File": "triceConfig.h",
+		"Line": 532
+	},
+	"16252": {
+		"File": "triceConfig.h",
+		"Line": 540
+	},
+	"16253": {
+		"File": "triceConfig.h",
+		"Line": 548
+	},
+	"16254": {
+		"File": "triceConfig.h",
+		"Line": 556
+	},
+	"16255": {
+		"File": "triceConfig.h",
+		"Line": 564
+	},
+	"16256": {
+		"File": "triceConfig.h",
+		"Line": 572
+	},
+	"16257": {
+		"File": "triceConfig.h",
+		"Line": 580
+	},
+	"16258": {
+		"File": "triceConfig.h",
+		"Line": 589
+	},
+	"16259": {
+		"File": "triceConfig.h",
+		"Line": 598
+	},
+	"16260": {
+		"File": "triceConfig.h",
+		"Line": 607
+	},
+	"16261": {
+		"File": "triceConfig.h",
+		"Line": 616
+	},
+	"16262": {
+		"File": "triceConfig.h",
+		"Line": 625
+	},
+	"16263": {
+		"File": "triceConfig.h",
+		"Line": 634
+	},
+	"16264": {
+		"File": "triceConfig.h",
+		"Line": 643
+	},
+	"16265": {
+		"File": "triceConfig.h",
+		"Line": 652
+	},
+	"16266": {
+		"File": "triceConfig.h",
+		"Line": 662
+	},
+	"16267": {
+		"File": "triceConfig.h",
+		"Line": 672
+	},
+	"16268": {
+		"File": "triceConfig.h",
+		"Line": 682
+	},
+	"16269": {
+		"File": "triceConfig.h",
+		"Line": 692
+	},
+	"16270": {
+		"File": "triceConfig.h",
+		"Line": 702
+	},
+	"16271": {
+		"File": "triceConfig.h",
+		"Line": 712
+	},
+	"16272": {
+		"File": "triceConfig.h",
+		"Line": 722
+	},
+	"16273": {
+		"File": "triceConfig.h",
+		"Line": 732
+	},
+	"16274": {
+		"File": "triceConfig.h",
+		"Line": 742
+	},
+	"16275": {
+		"File": "triceConfig.h",
+		"Line": 752
+	},
+	"16276": {
+		"File": "triceConfig.h",
+		"Line": 762
+	},
+	"16277": {
+		"File": "triceConfig.h",
+		"Line": 772
+	},
+	"16278": {
+		"File": "triceConfig.h",
+		"Line": 782
+	},
+	"16279": {
+		"File": "triceConfig.h",
+		"Line": 792
+	},
+	"16280": {
+		"File": "triceConfig.h",
+		"Line": 802
+	},
+	"16281": {
+		"File": "triceConfig.h",
+		"Line": 812
+	},
+	"16282": {
+		"File": "triceConfig.h",
+		"Line": 820
+	},
+	"16283": {
+		"File": "triceConfig.h",
+		"Line": 828
+	},
+	"16284": {
+		"File": "triceConfig.h",
+		"Line": 836
+	},
+	"16285": {
+		"File": "triceConfig.h",
+		"Line": 844
+	},
+	"16286": {
+		"File": "triceConfig.h",
+		"Line": 852
+	},
+	"16287": {
+		"File": "triceConfig.h",
+		"Line": 860
+	},
+	"16288": {
+		"File": "triceConfig.h",
+		"Line": 868
+	},
+	"16289": {
+		"File": "triceConfig.h",
+		"Line": 876
+	},
+	"16290": {
+		"File": "triceConfig.h",
+		"Line": 885
+	},
+	"16291": {
+		"File": "triceConfig.h",
+		"Line": 894
+	},
+	"16292": {
+		"File": "triceConfig.h",
+		"Line": 903
+	},
+	"16293": {
+		"File": "triceConfig.h",
+		"Line": 912
+	},
+	"16294": {
+		"File": "triceConfig.h",
+		"Line": 921
+	},
+	"16295": {
+		"File": "triceConfig.h",
+		"Line": 930
+	},
+	"16296": {
+		"File": "triceConfig.h",
+		"Line": 939
+	},
+	"16297": {
+		"File": "triceConfig.h",
+		"Line": 990
+	},
+	"16298": {
+		"File": "triceConfig.h",
+		"Line": 1000
+	},
+	"16299": {
+		"File": "triceConfig.h",
+		"Line": 1017
+	},
+	"16300": {
+		"File": "triceConfig.h",
+		"Line": 1026
+	},
+	"16342": {
 		"File": "triceExamples.c",
-		"Line": 57
+		"Line": 61
 	},
-	"16347": {
+	"16343": {
+		"File": "triceExamples.c",
+		"Line": 60
+	},
+	"16344": {
+		"File": "triceExamples.c",
+		"Line": 58
+	},
+	"16345": {
 		"File": "triceExamples.c",
 		"Line": 56
 	},
+	"16346": {
+		"File": "triceExamples.c",
+		"Line": 53
+	},
+	"16347": {
+		"File": "triceExamples.c",
+		"Line": 51
+	},
 	"16348": {
-		"File": "triceExamples.c",
-		"Line": 54
-	},
-	"16349": {
-		"File": "triceExamples.c",
-		"Line": 52
-	},
-	"16350": {
 		"File": "triceExamples.c",
 		"Line": 49
 	},
-	"16351": {
+	"16349": {
 		"File": "triceExamples.c",
 		"Line": 47
 	},
-	"16352": {
+	"16350": {
 		"File": "triceExamples.c",
 		"Line": 45
 	},
+	"16351": {
+		"File": "triceExamples.c",
+		"Line": 34
+	},
+	"16352": {
+		"File": "triceExamples.c",
+		"Line": 32
+	},
 	"16353": {
 		"File": "triceExamples.c",
-		"Line": 43
+		"Line": 31
 	},
 	"16354": {
 		"File": "triceExamples.c",
-		"Line": 41
+		"Line": 30
 	},
 	"16355": {
 		"File": "triceExamples.c",
-		"Line": 30
+		"Line": 29
 	},
 	"16356": {
 		"File": "triceExamples.c",
@@ -8993,19 +9281,19 @@
 	},
 	"16361": {
 		"File": "triceExamples.c",
-		"Line": 23
+		"Line": 22
 	},
 	"16362": {
 		"File": "triceExamples.c",
-		"Line": 22
+		"Line": 21
 	},
 	"16363": {
 		"File": "triceExamples.c",
-		"Line": 21
+		"Line": 20
 	},
 	"16364": {
 		"File": "triceExamples.c",
-		"Line": 20
+		"Line": 19
 	},
 	"16365": {
 		"File": "triceExamples.c",

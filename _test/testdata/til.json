@@ -8796,16 +8796,16 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"16199": {
-		"Type": "trice",
-		"Strg": "StartDefaultTask\\n"
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"16200": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"16201": {
-		"Type": "trice",
-		"Strg": "StartTask02\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"16202": {
 		"Type": "trice8",
@@ -8820,12 +8820,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"16205": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "trice",
+		"Strg": "StartDefaultTask\\n"
 	},
 	"16206": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "trice",
+		"Strg": "StartTask02\\n"
 	},
 	"16207": {
 		"Type": "trice8",
@@ -8924,88 +8924,376 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"16231": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"16232": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
-	"16346": {
+	"16233": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16234": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16235": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16236": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16237": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16238": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16239": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16240": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16241": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16242": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16243": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16244": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16245": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16246": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16247": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16248": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16249": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16250": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16251": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16252": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16253": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16254": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16255": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16256": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16257": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16258": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16259": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16260": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16261": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16262": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16263": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16264": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16265": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16266": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16267": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16268": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16269": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16270": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16271": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16272": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16273": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16274": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16275": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16276": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16277": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16278": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16279": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16280": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16281": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16282": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16283": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16284": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16285": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16286": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16287": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16288": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16289": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16290": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16291": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16292": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16293": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16294": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16295": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16296": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"16297": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\\n"
+	},
+	"16298": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\\n"
+	},
+	"16299": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An minimum configuration example.\\n"
+	},
+	"16300": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\\n"
+	},
+	"16342": {
 		"Type": "trice",
 		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
 	},
-	"16347": {
+	"16343": {
 		"Type": "trice",
 		"Strg": "deb:_CYCLE == %d, _PROTECT == %d, _DIAG == %d, XTEA == %d\\n"
 	},
-	"16348": {
+	"16344": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_MULTI_PACK_MODE\\n"
 	},
-	"16349": {
+	"16345": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_SINGLE_PACK_MODE\\n"
 	},
-	"16350": {
+	"16346": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_RING_BUFFER, "
 	},
-	"16351": {
+	"16347": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_DOUBLE_BUFFER, "
 	},
-	"16352": {
+	"16348": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_STATIC_BUFFER, "
 	},
-	"16353": {
+	"16349": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_STACK_BUFFER, "
 	},
-	"16354": {
+	"16350": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d\\n"
 	},
-	"16355": {
+	"16351": {
 		"Type": "Trice",
 		"Strg": "i=%x %x\\n"
 	},
-	"16356": {
+	"16352": {
 		"Type": "trice",
 		"Strg": "info:%d times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:\\n"
 	},
-	"16357": {
+	"16353": {
 		"Type": "Trice16F",
 		"Strg": "att:ARemoteFunctionName"
 	},
-	"16358": {
+	"16354": {
 		"Type": "Trice32B",
 		"Strg": "msg:%08x  \\n"
 	},
-	"16359": {
+	"16355": {
 		"Type": "Trice8B",
 		"Strg": "msg:%02x \\n"
 	},
-	"16360": {
+	"16356": {
 		"Type": "Trice",
 		"Strg": "info:A Buffer:\\n"
 	},
-	"16361": {
+	"16357": {
 		"Type": "Trice",
 		"Strg": "msg:%f (default rounded float)\\n"
 	},
-	"16362": {
+	"16358": {
 		"Type": "Trice",
 		"Strg": "msg:%.20f (float  with more ciphers than precision)\\n"
 	},
-	"16363": {
+	"16359": {
 		"Type": "Trice64",
 		"Strg": "msg:%.20f (double with more ciphers than precision)\\n"
 	},
-	"16364": {
+	"16360": {
 		"Type": "TriceS",
 		"Strg": "rd:%s \u003c- float number as string\\n"
+	},
+	"16361": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16362": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16363": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
+	},
+	"16364": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales \\n"
 	},
 	"16365": {
 		"Type": "TRICE",

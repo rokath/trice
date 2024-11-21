@@ -12,6 +12,10 @@ void TriceHeadLine(char* name){
 
 //! SomeExampleTrices generates a few Trice example logs and a burst of Trices.
 void SomeExampleTrices(int burstCount){
+    TRICE(ID(0), "att:🐁 Speedy Gonzales \n");
+    TRICE(ID(0), "att:🐁 Speedy Gonzales \n");
+    TRICE(ID(0), "att:🐁 Speedy Gonzales \n");
+    TRICE(ID(0), "att:🐁 Speedy Gonzales \n");
     TRICE(Id(0), "att:🐁 Speedy Gonzales \n");
     TRICE(Id(0), "att:🐁 Speedy Gonzales \n");
     TRICE(Id(0), "att:🐁 Speedy Gonzales \n");

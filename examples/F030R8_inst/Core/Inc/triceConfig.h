@@ -16,7 +16,7 @@ extern "C" {
 //! ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
 extern uint32_t ms32;
 #define TriceStamp16 (SysTick->VAL) // Counts from 31999 -> 0 in each ms.
-#define TriceStamp32 ms32
+#define TriceStamp32 (SysTick->VAL) // ms32
 #define TRICE_UARTA  USART2
 
 #define TRICE_BUFFER TRICE_RING_BUFFER

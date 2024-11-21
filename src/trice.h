@@ -191,7 +191,7 @@ extern unsigned TriceErrorCount;
 extern uint32_t* const TriceRingBufferStart;
 extern uint32_t* const TriceRingBufferLimit;
 
-#if TRICE_PROTECT == 1
+#if 1 // TRICE_PROTECT == 1
 
 extern uint32_t* const TriceRingBufferProtectLimit;
 

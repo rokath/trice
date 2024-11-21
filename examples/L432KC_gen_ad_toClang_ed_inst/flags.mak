@@ -38,13 +38,13 @@ FLAGS = # common flags for compiler, assembler and linker
 #C_FLAGS += -O1                    # -O1 means: 'optimize reasomable'.
 #C_FLAGS += -O2                    # -O2 means: 'optimize better'.
 #C_FLAGS += -O3                    # -O3 means: 'the target machine has effectively unlimited RAM and icache, spew all the assembly you want if it has any benefit'.
-#C_FLAGS += -Ofast                 # -Ofast optimizes for speed.
+C_FLAGS += -Ofast                 # -Ofast optimizes for speed.
 #C_FLAGS += -Oz                    # -Oz optimizes for size.
 ###C_FLAGS += -Os                    # -Os enables a good balance of flags which optimize for size as well as speed. 
- C_FLAGS += -Og#                   # -Og
+#C_FLAGS += -Og#                   # -Og
 
 #C_FLAGS += -g #                    # -g includes debug information into the ELF.
- C_FLAGS += -g3 #                   # -g3 include, a couple extra goodies such as macro definitions used in your application.
+#C_FLAGS += -g3 #                   # -g3 include, a couple extra goodies such as macro definitions used in your application.
 
 #C_FLAGS += -Wunused-parameter
 

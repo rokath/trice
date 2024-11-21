@@ -12,6 +12,51 @@
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layout.
 
+## Build
+
+Run `./build.sh` for configuration 0 or `./build.sh CONFIGURATION=34` for example.
+
+## Deferred Mode for max Speed
+
+The stamps are MCU clocks here, so `🐁 Speedy Gonzales` lasts 9 processor clocks here.
+
+```bash
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice_wt_devel/examples/L432KC_gen_ad_toClang_ed_inst (devel)
+$ trice l -p com8 -hs off -prefix off
+      triceExamples.c    10        0_272  Hello! 👋🙂
+
+        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+        🎈🎈🎈🎈  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   🎈🎈🎈🎈
+        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃
+
+
+        triceConfig.h   369              CONFIGURATION == 34 - UART, no cycle counter, no critical sections.
+      triceExamples.c    45              TRICE_DIRECT_OUTPUT == 0, TRICE_DEFERRED_OUTPUT == 1
+      triceExamples.c    51              TRICE_DOUBLE_BUFFER, TRICE_MULTI_PACK_MODE
+      triceExamples.c    60              _CYCLE == 0, _PROTECT == 0, _DIAG == 0, XTEA == 0
+      triceExamples.c    61              _SINGLE_MAX_SIZE=512, _BUFFER_SIZE=580, _DEFERRED_BUFFER_SIZE=4096
+      triceExamples.c    15    0,000_731 🐁 Speedy Gonzales
+      triceExamples.c    16    0,000_745 🐁 Speedy Gonzales
+      triceExamples.c    17    0,000_754 🐁 Speedy Gonzales
+      triceExamples.c    18    0,000_763 🐁 Speedy Gonzales
+      triceExamples.c    19    0,000_772 🐁 Speedy Gonzales
+      triceExamples.c    20    0,000_781 🐁 Speedy Gonzales
+      triceExamples.c    21    0,000_790 🐁 Speedy Gonzales
+      triceExamples.c    22    0,000_799 🐁 Speedy Gonzales
+      triceExamples.c    24        0_981 2.71828182845904523536 <- float number as string
+      triceExamples.c    25        1_230 2.71828182845904509080 (double with more ciphers than precision)
+      triceExamples.c    26        1_268 2.71828174591064453125 (float  with more ciphers than precision)
+      triceExamples.c    27        1_296 2.718282 (default rounded float)
+      triceExamples.c    28        1_310 A Buffer:
+      triceExamples.c    29        1_348 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
+      triceExamples.c    30        1_603 31372e32  31383238  34383238  34303935  35333235
+      triceExamples.c    31        1_799 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+      triceExamples.c    32              10 times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:
+      triceExamples.c    34        2_072 i=44444400 aaaaaa00
+      triceExamples.c    34        2_119 i=44444401 aaaaaa01
+      triceExamples.c    34        2_166 i=44444402 aaaaaa02
+```
+
 ## "Hardware" Changes
 
 - The used evaluation board is delivered with an on-board ST-Link software for debugging.

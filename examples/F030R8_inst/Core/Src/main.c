@@ -96,6 +96,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
+    SomeExampleTrices(3);
   /* USER CODE END 2 */
 
   /* Infinite loop */

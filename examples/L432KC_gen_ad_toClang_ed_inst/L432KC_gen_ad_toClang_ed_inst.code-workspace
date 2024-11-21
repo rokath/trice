@@ -16,6 +16,11 @@
 	"settings": {
 		"files.associations": {
 			"stdint.h": "c"
-		}
+		},
+		"cSpell.words": [
+			"enclen",
+			"JLINK",
+			"SEGGER"
+		]
 	}
 }
