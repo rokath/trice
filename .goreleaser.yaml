@@ -117,15 +117,9 @@ archives:
       - src/*
       - third_party/*
       - _test/*
-      - AUTHORS.md
-      - CHANGELOG.md
-      - CODE_OF_CONDUCT.md
-      - CONTRIBUTING.md
-      - LICENSE.md
-      - README.md
       - GoInfos.txt
-      - clang-format.sh
-      - FilesAndFolders.md
+      - *.sh
+      - *.md
       - go.mod
       - go.sum
       - super-linter.report/*
