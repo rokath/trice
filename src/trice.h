@@ -396,7 +396,7 @@ extern uint32_t* TriceBufferWritePosition;
 		#define TRICE_ENTER                                                                                           \
 			TRICE_ENTER_CRITICAL_SECTION {                                                                            \
 				{                                                                                                     \
-					uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE >> 2];                                               \
+					uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE >> 2]; /* no = {0} here for speed */                 \
 					uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET >> 2]; \
 					uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
