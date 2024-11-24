@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#if !TRICE_OFF 
+#if !TRICE_OFF
 
 #if TRICE_DIRECT_AUXILIARY8 == 1
 
