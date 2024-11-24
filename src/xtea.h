@@ -21,11 +21,10 @@ void XTEAEncrypt(uint32_t* p, unsigned count);
                  b20, b21, b22, b23, \
                  b30, b31, b32, b33) \
 	{                                \
-		0x##b00##b01##b02##b03,      \
-		    0x##b10##b11##b12##b13,  \
-		    0x##b20##b21##b22##b23,  \
-		    0x##b30##b31##b32##b33   \
-	}
+	    0x##b00##b01##b02##b03,      \
+	    0x##b10##b11##b12##b13,      \
+	    0x##b20##b21##b22##b23,      \
+	    0x##b30##b31##b32##b33}
 
 #ifdef __cplusplus
 }

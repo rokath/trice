@@ -60,12 +60,10 @@
 #define TRICE_PUT16_1616(x, n)
 #define PUT_BUFFER(p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
 
-
-#define TRICE0(pFmt, ...) 
+#define TRICE0(pFmt, ...)
 #define trice0(pFmt, ...)
 #define Trice0(pFmt, ...)
 #define TRice0(pFmt, ...)
-
 
 // clang-format off
 //  TRICE_INLINE void trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}

@@ -188,7 +188,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	uint8_t* dat = enc + TRICE_DATA_OFFSET; // This is the start of      32-bit aligned trices.
 	uint8_t* nxt = dat;                     // This is the start of next 32-bit aligned trices.
 	size_t encLen = 0;
-#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) && ((TRICE_PROTECT ==1) || (TRICE_DIAGNOSTICS == 1)) 
+#if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) && ((TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1))
 	uint8_t* dst = enc; // This value dst must not get > nxt to avoid overwrites.
 #endif
 	int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
@@ -261,7 +261,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		encLen += triceNettoLen;
 #endif // #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 #if (TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1)
-		dst = enc + encLen; // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
+		dst = enc + encLen;                           // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
 		int triceDataOffsetSpaceRemained = nxt - dst; // THe begin of unprocessed data MINUS next dst must not be negative.
 #endif
 #if (TRICE_PROTECT == 1)

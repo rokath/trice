@@ -87,11 +87,7 @@
 #warning configuration: TRICE_CGO == 1 needs TRICE_CYCLE_COUNTER == 0 for successful tests.
 #endif
 
-#if (TRICE_DIRECT_OUTPUT == 1) \
-	&& (TRICE_DIRECT_AUXILIARY8 == 0) \
-	&& (TRICE_DIRECT_AUXILIARY32 == 0) \
-	&& (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 0) \
-	&& (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 0)
+#if (TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_AUXILIARY8 == 0) && (TRICE_DIRECT_AUXILIARY32 == 0) && (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 0) && (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 0)
 #error configuration: TRICE_DIRECT_OUTPUT == 1 needs specified output channel, for example add "#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1" to your triceConfig.h
 #endif
 
@@ -256,7 +252,7 @@ void TriceInit(void) {
 #endif
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
-  TriceInitRingBufferMargins();
+	TriceInitRingBufferMargins();
 #endif
 }
 
@@ -553,8 +549,21 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 #endif
 	}
 
-#else  // #if TRICE_PROTECT == 1
+#else // #if TRICE_PROTECT == 1
+
+#ifdef __GNUC__
+// https://stackoverflow.com/questions/5080848/disable-gcc-may-be-used-uninitialized-on-a-particular-variable
+#pragma GCC diagnostic push // save the actual diag context
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // disable maybe warnings
+#endif
+#endif // #ifdef __GNUC__
+	// now impacted section of code
 	SEGGER_Write_RTT0_NoCheck32(buf, count);
+#ifdef __GNUC__
+#pragma GCC diagnostic pop // restore previous diag context
+#endif                     // #ifdef __GNUC__
+
 #endif // #else // #if TRICE_PROTECT == 1
 
 #if TRICE_DIAGNOSTICS == 1
@@ -856,6 +865,16 @@ unsigned TriceOutDepth(void) {
 	return depth;
 }
 
+#ifdef __GNUC__
+// https://stackoverflow.com/questions/5080848/disable-gcc-may-be-used-uninitialized-on-a-particular-variable
+#pragma GCC diagnostic push // save the actual diag context
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // disable maybe warnings
+#endif
+#endif // #ifdef __GNUC__
+// now impacted section of code
+
+
 //! TRICE_ASSERT writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! This is a helper macro and should not be used in user code.
@@ -905,6 +924,10 @@ void TRiceAssertFalse(int idN, char* msg, int flag) {
 		TRICE_ASSERT(ID(idN));
 	}
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop // restore previous diag context
+#endif                     // #ifdef __GNUC__
 
 #ifdef TRICE_N
 

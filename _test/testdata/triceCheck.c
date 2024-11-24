@@ -2689,7 +2689,7 @@ static void exampleOfManualSerialization(void) {
 	Tryout_t tx;          // struct to transfer
 	Tryout_t rx;          // "received" struct
 	static char dst[100]; // serialized data
-      
+
 	/////////////////////////////////////////////////////////
 	// fill tx with data
 	tx.z = (float)123.456;
