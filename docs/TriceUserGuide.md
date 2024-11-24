@@ -182,6 +182,7 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
   - There are only 2 important commands: `trice insert` and `trice log`. Call them with the right CLI switches.
     - `trice help -insert` and `trice help -log` show partial help.
     - Examples:
+
       | CLI command                                     | Description                                                                                                                                   |
       | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
       | `touch ./til.json`                              | Create an empty `til.json file`. This is needed only the very first time.                                                                     |
@@ -192,6 +193,7 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
       | `cat filename.log`                              | View a recorded log file.                                                                                                                     |
       | `trice l -p JLINK -args "..."`                  | Start Logging over RTT. Binary log files are collected in `./temp`.                                                                           |
       | `trice l -p FILEBUFFER -args logfile.bin`       | Play a recorded binary log file.                                                                                                              |
+
     - It is recommended to add `trice insert ...` as pre-compile step into the tool chain.
     - Hint: It is possible to add `trice clean ...` as a post-compile step, so that you can check in your project sources without IDs. That is supported in v0.61.0 and later. This allows to use library sources with trices in different projects and the source code is not spoiled with IDs.
 - The command `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
