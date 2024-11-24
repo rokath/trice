@@ -874,7 +874,6 @@ unsigned TriceOutDepth(void) {
 #endif // #ifdef __GNUC__
 // now impacted section of code
 
-
 //! TRICE_ASSERT writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! This is a helper macro and should not be used in user code.
