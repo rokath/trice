@@ -865,6 +865,16 @@ unsigned TriceOutDepth(void) {
 	return depth;
 }
 
+#ifdef __GNUC__
+// https://stackoverflow.com/questions/5080848/disable-gcc-may-be-used-uninitialized-on-a-particular-variable
+#pragma GCC diagnostic push // save the actual diag context
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized" // disable maybe warnings
+#endif
+#endif // #ifdef __GNUC__
+// now impacted section of code
+
+
 //! TRICE_ASSERT writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! This is a helper macro and should not be used in user code.
@@ -914,6 +924,10 @@ void TRiceAssertFalse(int idN, char* msg, int flag) {
 		TRICE_ASSERT(ID(idN));
 	}
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop // restore previous diag context
+#endif                     // #ifdef __GNUC__
 
 #ifdef TRICE_N
 
