@@ -31,6 +31,46 @@ func TestClean(t *testing.T) {
 	assert.Equal(t, expSrc, string(actSrc))
 }
 
+func TestCleanWithSpace(t *testing.T) {
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+
+	// create src file
+	sFn := t.Name() + "file.c"
+	src := `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1  );`
+	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
+
+	// action
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-spaceAfterOpeningBrace", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
+
+	// check modified src file
+	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1  );`
+
+	actSrc, e := FSys.ReadFile(sFn)
+	assert.Nil(t, e)
+
+	assert.Equal(t, expSrc, string(actSrc))
+}
+
+func TestCleanWithSpace2(t *testing.T) {
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+
+	// create src file
+	sFn := t.Name() + "file.c"
+	src := `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1  );`
+	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
+
+	// action
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-w", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
+
+	// check modified src file
+	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1  );`
+
+	actSrc, e := FSys.ReadFile(sFn)
+	assert.Nil(t, e)
+
+	assert.Equal(t, expSrc, string(actSrc))
+}
+
 func TestCleanWithLIExtension(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

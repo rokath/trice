@@ -190,6 +190,46 @@ func TestInsert99(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
+func TestInsert99w(t *testing.T) {
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+
+	// create src file1
+	sFn1 := "file1.c"
+	src1 := `
+	TRice("x" ); 
+	TRice("x" );
+	TRice( "x" );
+	TRice(id(0),"x" );
+	TRice(id(0),"x" );
+	TRice( id(0),"x" );
+	TRice(id(0), "x" );
+	TRice(  id(0),    "x" );
+	TRICE("%x", 1)
+	TRICE(  Id(0)  , "%x", 1)
+	`
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
+
+	// action
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-w", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+
+	// check modified src file1
+	expSrc1 := `
+	TRice( iD(999), "x" ); 
+	TRice( iD(998), "x" );
+	TRice( iD(997), "x" );
+	TRice( iD(996), "x" );
+	TRice( iD(995), "x" );
+	TRice( iD(994), "x" );
+	TRice( iD(993), "x" );
+	TRice( iD(992), "x" );
+	TRICE( ID(991), "%x", 1)
+	TRICE( Id(990), "%x", 1)
+	`
+	actSrc1, e := FSys.ReadFile(sFn1)
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc1, string(actSrc1))
+}
+
 func TestInsert11(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
