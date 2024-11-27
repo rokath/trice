@@ -2,22 +2,31 @@
 
 > _(Read only you are interested in)_
 
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
 <!-- vscode-markdown-toc -->
-* 1. [Printf-like functions](#Printf-likefunctions)
-* 2. [*Trice* IDs](#TriceIDs)
-* 3. [*Trice* values bit width](#Tricevaluesbitwidth)
-* 4. [Many value parameters](#Manyvalueparameters)
-* 5. [`float` and `double` values](#floatanddoublevalues)
-* 6. [Runtime Generated 0-terminated Strings Transfer with `TRICE_S`](#RuntimeGenerated0-terminatedStringsTransferwithTRICE_S)
-* 7. [Runtime Generated counted Strings Transfer with `TRICE_N`](#RuntimeGeneratedcountedStringsTransferwithTRICE_N)
-* 8. [Runtime Generated Buffer Transfer with `TRICE_B`](#RuntimeGeneratedBufferTransferwithTRICE_B)
-* 9. [Remote function call syntax support with `TRICE_F`](#RemotefunctioncallsyntaxsupportwithTRICE_F)
-* 10. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
-	* 10.1. [*Trice* format specifier](#Triceformatspecifier)
-	* 10.2. [Overview Table](#OverviewTable)
-* 11. [UTF-8 Support](#UTF-8Support)
-* 12. [Switch the language without changing a bit inside the target code](#Switchthelanguagewithoutchangingabitinsidethetargetcode)
-* 13. [Format tags prototype `%[flags][width][.precision][length]` specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
+* 1. [Printf-like functions](#printf-like-functions)
+* 2. [*Trice* IDs](#*trice*-ids)
+* 3. [*Trice* values bit width](#*trice*-values-bit-width)
+* 4. [Many value parameters](#many-value-parameters)
+* 5. [`float` and `double` values](#`float`-and-`double`-values)
+* 6. [Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`](#runtime-generated-0-terminated-strings-transfer-with-`trices`,-`trices`,-`trices`)
+* 7. [Runtime Generated counted Strings Transfer with  `triceN`, `TriceN`, `TRiceN`](#runtime-generated-counted-strings-transfer-with-`tricen`,-`tricen`,-`tricen`)
+* 8. [Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`](#runtime-generated-buffer-transfer-with-`triceb`,-`triceb`,-`triceb`)
+* 9. [Remote function call syntax support with `TRICE_F`, `trice8F`, ...](#remote-function-call-syntax-support-with-`trice_f`,-`trice8f`,-...)
+* 10. [Extended format specifier possibilities](#extended-format-specifier-possibilities)
+  * 10.1. [*Trice* format specifier](#*trice*-format-specifier)
+  * 10.2. [Overview Table](#overview-table)
+* 11. [UTF-8 Support](#utf-8-support)
+* 12. [Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
+* 13. [Format tags prototype `%[flags][width][.precision][length]` specifier examples](#format-tags-prototype-`%[flags][width][.precision][length]`-specifier-examples)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -25,13 +34,15 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  1. <a name='Printf-likefunctions'></a>Printf-like functions
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+
+##  1. <a id='printf-like-functions'></a>Printf-like functions
 
  ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and several open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
 The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls.
 
 
-##  2. <a name='TriceIDs'></a>*Trice* IDs
+##  2. <a id='*trice*-ids'></a>*Trice* IDs
 
 * Each *Trice* caries a 14-bit nuber ID as replacement for the format string.
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the `trice` macro followed by the format string and optional values.
@@ -39,7 +50,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
   * The Trice cache makes this invisible to the build system, allowing full translation speed.
 * The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../_test/testdata/til.json) (example).
 
-##  3. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
+##  3. <a id='*trice*-values-bit-width'></a>*Trice* values bit width
 
 * No need to explicit express the value bit width.
 * The default parameter width for the `trice` macro is 32 bit. It is changeable to 8, 16 or 64-bit:
@@ -50,7 +61,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * The fastest `trice` macro execution is, when MCU bit width matches the `trice`macro bit width.
 * The implicit TCOBS compression compacts the binary Trice data during the framing.
 
-##  4. <a name='Manyvalueparameters'></a>Many value parameters
+##  4. <a id='many-value-parameters'></a>Many value parameters
 
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
@@ -61,7 +72,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * The _Trice_ tool compares the number of given format specifiers with the written parameters in a precimpile step to minimize the risk of runtime errors.
 * There is no variadic values scanning during runtime. The C preprocessor does the work.
 
-##  5. <a name='floatanddoublevalues'></a>`float` and `double` values
+##  5. <a id='`float`-and-`double`-values'></a>`float` and `double` values
 
 These types are mixable with integer types but need to be covered by converter function.
 
@@ -106,7 +117,7 @@ static inline uint64_t aDouble( double x ){
 }
 ```
 
-##  6. <a name='RuntimeGenerated0-terminatedStringsTransferwithTRICE_S'></a>Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`
+##  6. <a id='runtime-generated-0-terminated-strings-transfer-with-`trices`,-`trices`,-`trices`'></a>Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`
 
 * The `%s` format specifier is supported by the `trice` macro too but needs specific treatment.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
@@ -118,13 +129,13 @@ static inline uint64_t aDouble( double x ){
    triceS( "A runtime string %20s\n", s;
   ```
 
-##  7. <a name='RuntimeGeneratedcountedStringsTransferwithTRICE_N'></a>Runtime Generated counted Strings Transfer with  `triceN`, `TriceN`, `TRiceN`
+##  7. <a id='runtime-generated-counted-strings-transfer-with-`tricen`,-`tricen`,-`tricen`'></a>Runtime Generated counted Strings Transfer with  `triceN`, `TriceN`, `TRiceN`
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
 * This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );`
 * There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../_test/testdata/triceCheck.c) for usage or see the following.
 
-##  8. <a name='RuntimeGeneratedBufferTransferwithTRICE_B'></a>Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`
+##  8. <a id='runtime-generated-buffer-transfer-with-`triceb`,-`triceb`,-`triceb`'></a>Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`
 
 * A buffer is transmittable with `TRICE_B` (or `triceB`, `TriceB`, `TRiceB`) and specifying just one format specifier, which is then repeated. Example:
 
@@ -143,7 +154,7 @@ static inline uint64_t aDouble( double x ){
 
  If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
-##  9. <a name='RemotefunctioncallsyntaxsupportwithTRICE_F'></a>Remote function call syntax support with `TRICE_F`, `trice8F`, ...
+##  9. <a id='remote-function-call-syntax-support-with-`trice_f`,-`trice8f`,-...'></a>Remote function call syntax support with `TRICE_F`, `trice8F`, ...
 
 The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Examples:
 
@@ -169,18 +180,18 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
   * `triceD( "dump:32", addr, 160 );` -> The **trice** tool dumps in 32 byte rows.
   * An appropriate syntax is needed.
 
-##  10. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
+##  10. <a id='extended-format-specifier-possibilities'></a>Extended format specifier possibilities
 
 * Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable.
 
-###  10.1. <a name='Triceformatspecifier'></a>*Trice* format specifier
+###  10.1. <a id='*trice*-format-specifier'></a>*Trice* format specifier
 
 * The `TRICE` macros are used in **C** code.
 * The format strings are interpreted by the **trice** tool, which is written in **Go**.
 * The **C** and **Go** format specifier are not equal but similar.
 * Therefore, a **T**rice adaption is internally performed.
 
-###  10.2. <a name='OverviewTable'></a>Overview Table
+###  10.2. <a id='overview-table'></a>Overview Table
 
 | Format Specifier Type                                           | C | Go | T | remark                                                                      |
 |-----------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------|
@@ -221,7 +232,7 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-##  11. <a name='UTF-8Support'></a>UTF-8 Support
+##  11. <a id='utf-8-support'></a>UTF-8 Support
 
 This is gratis, if you edit your source files containing the format strings in UTF-8:
 
@@ -229,11 +240,11 @@ This is gratis, if you edit your source files containing the format strings in U
 
 The target does not even "know" about that, because it gets only the *Trice* IDs.
 
-##  12. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
+##  12. <a id='switch-the-language-without-changing-a-bit-inside-the-target-code'></a>Switch the language without changing a bit inside the target code
 
 Once the [til.json](../examples/F030R8_inst/til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
-##  13. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
+##  13. <a id='format-tags-prototype-`%[flags][width][.precision][length]`-specifier-examples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
 
 * Because the interpretation is done inside the **trice** tool written in Go these all should work:
   * `%-d`
@@ -244,3 +255,4 @@ Once the [til.json](../examples/F030R8_inst/til.json) list is done the user can 
   * `%e`
   * `%9.f`
 
+<p align="right">(<a href="#top">back to top</a>)</p>

@@ -1,10 +1,58 @@
 # Example Projects without and with Trice Instrumentation
 
+
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
+<!-- vscode-markdown-toc -->
+* 1. [About](#about)
+* 2. [Examples](#examples)
+* 3. [Important to know](#important-to-know)
+* 4. [Animation](#animation)
+* 5. [Setup PC](#setup-pc)
+  * 5.1. [Setup Trice](#setup-trice)
+  * 5.2. [Setup ARM Environment](#setup-arm-environment)
+    * 5.2.1. [Install ARM GCC](#install-arm-gcc)
+    * 5.2.2. [MacOS](#macos)
+    * 5.2.3. [Install ARM Clang (optional)](#install-arm-clang-(optional))
+    * 5.2.4. [Check Project Makefile (if it already exists)](#check-project-makefile-(if-it-already-exists))
+  * 5.3. [Setup STM32](#setup-stm32)
+    * 5.3.1. [Generate Base Project](#generate-base-project)
+    * 5.3.2. [Update NUCLEO Onboard Debugger (other ST evaluation boards too)](#update-nucleo-onboard-debugger-(other-st-evaluation-boards-too))
+  * 5.4. [Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)](#setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too))
+  * 5.5. [Setup VS-Code](#setup-vs-code)
+* 6. [Makefile with Clang too](#makefile-with-clang-too)
+* 7. [Download Locations](#download-locations)
+  * 7.1. [Clang](#clang)
+  * 7.2. [GCC](#gcc)
+* 8. [Install Locations](#install-locations)
+* 9. [Environment Variables](#environment-variables)
+* 10. [Build command](#build-command)
+* 11. [Run & Debug](#run-&-debug)
+* 12. [Logging](#logging)
+* 13. [Setting up a new project](#setting-up-a-new-project)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+
+##  1. <a id='about'></a>About
+
 - All used tools are **Open Source**.
 - All provided information is just as example and needs adaption to your needs.
 - There is no need to setup the environment in the given order.
 
-## Examples
+##  2. <a id='examples'></a>Examples
 
 | Project Name | Description |
 | - | - |
@@ -23,17 +71,17 @@
 | [OpenCM3_STM32F411_Nucleo](./OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
 |||
 
-## Important to know
+##  3. <a id='important-to-know'></a>Important to know
 
 The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes not recognize external file modifications. That means for example: After editing `main.c` by adding a `trice( "Hi!\n" )` and executing `trice insert` as pre-compile step it could happen, that an updated `trice( iD(12345), "Hi!\n" )`  was inserted and correct compiled but the update in `main.c` is not shown. Simply close and reopen `main.c` before editing again. This seems to be a [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) "feature" or be caused Windows not signaling a file change.
 
-## Animation
+##  4. <a id='animation'></a>Animation
 
 (The trice IDs occur just during the compilation.)
 
 ![x](./Animation.gif)
 
-## Setup PC
+##  5. <a id='setup-pc'></a>Setup PC
 
 Setting up a PC is for Linux mostly straightforward but Windows PCs are more problematic. The steps shown here are just one example.
 
@@ -56,7 +104,7 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
 - Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
 
-### Setup Trice
+###  5.1. <a id='setup-trice'></a>Setup Trice
 
 - from inside folder `repos` clone trice repo with `git clone https://github.com/rokath/trice.git`.
 - Run `go install ./cmd/trice/...` from folder `repos/trice`.
@@ -68,9 +116,9 @@ OR
 - Put trice/src into `repos` if you want access the trice library code from several projects and have it only once.
   - Alternatively copy it into your project.
 
-### Setup ARM Environment
+###  5.2. <a id='setup-arm-environment'></a>Setup ARM Environment
 
-#### Install ARM GCC
+####  5.2.1. <a id='install-arm-gcc'></a>Install ARM GCC
 
 - Uninstall existing ARM GCC compilers optionally.
 - Check if $PATH is clean.
@@ -87,7 +135,7 @@ OR
   - Extending the path variable at the beginning avoids accidentally usage of installed legacy compilers with the same name.
   - To use exactly `C:\bin\ArmGNUToolchain` as install location allows a more easy project collaboration.
 
-#### MacOS
+####  5.2.2. <a id='macos'></a>MacOS
 
 - In terminal `brew install arm-none-eabi-gcc`
 - Restart terminal
@@ -104,7 +152,7 @@ OR
 - In terminal `brew install arm-none-eabi-gdb`
 - In terminal `brew install --cask gcc-arm-embedded`
 
-#### Install ARM Clang (optional)
+####  5.2.3. <a id='install-arm-clang-(optional)'></a>Install ARM Clang (optional)
 
 With the ARM Clang you get quicker compilation runs and smaller images.
 
@@ -123,7 +171,7 @@ With the ARM Clang you get quicker compilation runs and smaller images.
 - Install exactly into `C:\bin\ArmClang` and do **not** add it to path variable.
   - The path is extended temporarily inside the Makefile for the compiler run.
 
-#### Check Project Makefile (if it already exists)
+####  5.2.4. <a id='check-project-makefile-(if-it-already-exists)'></a>Check Project Makefile (if it already exists)
 
 - The Makefile should start with these lines:
 
@@ -156,9 +204,9 @@ InstalledDir: C:\bin\ArmClang\bin
 
 The paths must match with the installation locations.
 
-### Setup STM32
+###  5.3. <a id='setup-stm32'></a>Setup STM32
 
-#### Generate Base Project
+####  5.3.1. <a id='generate-base-project'></a>Generate Base Project
 
 - Install and start STM32CubeMX code generator.
 - Board-Selector -> STM32G0B1KE` or `STM32L432KC` or ...
@@ -176,7 +224,7 @@ The paths must match with the installation locations.
     - Switch from HAL to LL at least for UART
 - Generate Code as Makefile project
 
-#### Update NUCLEO Onboard Debugger (other ST evaluation boards too)
+####  5.3.2. <a id='update-nucleo-onboard-debugger-(other-st-evaluation-boards-too)'></a>Update NUCLEO Onboard Debugger (other ST evaluation boards too)
 
 (https://www.st.com/en/development-tools/stsw-link007.html)
 
@@ -189,7 +237,7 @@ This step is recommended before re-flashing with the J-Link onboard debugger sof
     - Selecting the other option, would not allow to update with the SEGGER STLinkReflash tool.
   - Close
 
-### Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
+###  5.4. <a id='setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too)'></a>Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
 
 (https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 
@@ -205,7 +253,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Re-Flash onboard debugger.
     - You can undo this step anytime. 
 
-### Setup VS-Code
+###  5.5. <a id='setup-vs-code'></a>Setup VS-Code
 
 - Start VS Code
   - Install Go rich language support if you want to use Go as well (not needed for ARM debugging).
@@ -226,45 +274,45 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
 - Installing the **Cortex Debug** extension allow you to debug the target code.
 
-## Makefile with Clang too
+##  6. <a id='makefile-with-clang-too'></a>Makefile with Clang too
 
 - After STM32 CubeMX code generation the Makefile was edited and spitted.
 - STM32 CubeMX code generation accepts the edited Makefile, so re-generation is no issue.
   - It modifies the settings according to the changes.
 
-## Download Locations
+##  7. <a id='download-locations'></a>Download Locations
 
 * [NUCLEO L432 User Manual](../../ref/dm00231744-stm32-nucleo32-boards-mb1180-stmicroelectronics.pdf) (example)
 
-### Clang
+###  7.1. <a id='clang'></a>Clang
 
 https://releases.llvm.org/download.html -> https://github.com/llvm/llvm-project/releases/tag/llvmorg-16.0.0 (example)
 
-### GCC
+###  7.2. <a id='gcc'></a>GCC
 
 https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain -> https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads (example))
 
-## Install Locations
+##  8. <a id='install-locations'></a>Install Locations
 
 Do not use locations containing spaces, like `C:\Program Files`. Take `C:\bin` for example. This avoids trouble caused by spaces inside path names.
 
-## Environment Variables
+##  9. <a id='environment-variables'></a>Environment Variables
 
 Extend the path variable:
 
 - PATH += `C:\bin\ArmGNUToolchain\bin`
 - PATH += `C:\Program Files\SEGGER\JLink`.
 
-## Build command
+##  10. <a id='build-command'></a>Build command
 
 - Clang: `make` or to get it faster `make -j8`.
 - GCC: `make GCC`.
 
-## Run & Debug
+##  11. <a id='run-&-debug'></a>Run & Debug
 
 - In terminal after `make` click Run&Debug & click green triangle.
 
-## Logging
+##  12. <a id='logging'></a>Logging
 
 - In terminal type `make log`. This executes the command in project folder:
 
@@ -272,7 +320,7 @@ Extend the path variable:
 
 ![x](./Animation.gif)
 
-## Setting up a new project
+##  13. <a id='setting-up-a-new-project'></a>Setting up a new project
 
 - Copy this project folder under a new name like `myAwesomeNewProject` or name it as you like.
 - Make a temporary folder `myTemp` and generate with STM CubeMX the base project.

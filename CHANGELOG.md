@@ -1,48 +1,49 @@
 <!-- Generate TOC for markdown (Markdown TOC from Joffrey Kern) && delete && Markdown All in Once: Generate TOC -->
 <!-- vscode-markdown-toc -->
 
-- [1. v0.60.1 Twice Log Screen Shot](#1-v0601-twice-log-screen-shot)
-- [2. v0.56.0 Changes](#2-v0560-changes)
-	- [2.1. Legacy `TRICE*` macros](#21-legacy-trice-macros)
-	- [2.2. Function call macros `TRice`, `Trice` and `trice`](#22-function-call-macros-trice-trice-and-trice)
-	- [2.3. Common improvements](#23-common-improvements)
-	- [2.4. CLI changes](#24-cli-changes)
-	- [2.5. Changes under the hood](#25-changes-under-the-hood)
-- [3. v063. Changes](#3-v063-changes)
-- [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
-- [5. v0.64.1 changes (unsorted)](#5-v0641-changes-unsorted)
-- [6. v0.65.0 Changes](#6-v0650-changes)
-- [7. v0.66.0 Changes](#7-v0660-changes)
-- [8. v0.67.0 Changes](#8-v0670-changes)
-- [9. v0.68.0 Changes](#9-v0680-changes)
-- [10. v0.69.0 Changes](#10-v0690-changes)
-- [11. v0.70.0 Changes](#11-v0700-changes)
-	- [11.1. Overview](#111-overview)
-	- [11.2. Git Log](#112-git-log)
-- [12. v0.71.0 Changes](#12-v0710-changes)
-	- [12.1. Overview](#121-overview)
-	- [12.2. Git Log](#122-git-log)
-- [13. v0.72.0 Changes](#13-v0720-changes)
-	- [13.1. Overview](#131-overview)
-	- [13.2. Git Log](#132-git-log)
-- [14. v0.72.1 Changes](#14-v0721-changes)
-	- [14.1. Overview](#141-overview)
-	- [14.2. Git Log](#142-git-log)
-- [15. v0.72.2 Changes](#15-v0722-changes)
-	- [15.1. Overview](#151-overview)
-	- [15.2. Git Log](#152-git-log)
-- [16. v0.72.3 Changes](#16-v0723-changes)
-	- [16.1. Overview](#161-overview)
-	- [16.2. Git Log](#162-git-log)
-- [17. master branch changese028a42b Merge branch 'master' into devel](#17-master-branch-changese028a42b-merge-branch-master-into-devel)
+- [Changelog](#changelog)
+	- [1. v0.60.1 Twice Log Screen Shot](#1-v0601-twice-log-screen-shot)
+	- [2. v0.56.0 Changes](#2-v0560-changes)
+		- [2.1. Legacy `TRICE*` macros](#21-legacy-trice-macros)
+		- [2.2. Function call macros `TRice`, `Trice` and `trice`](#22-function-call-macros-trice-trice-and-trice)
+		- [2.3. Common improvements](#23-common-improvements)
+		- [2.4. CLI changes](#24-cli-changes)
+		- [2.5. Changes under the hood](#25-changes-under-the-hood)
+	- [3. v063. Changes](#3-v063-changes)
+	- [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)
+	- [5. v0.64.1 changes (unsorted)](#5-v0641-changes-unsorted)
+	- [6. v0.65.0 Changes](#6-v0650-changes)
+	- [7. v0.66.0 Changes](#7-v0660-changes)
+	- [8. v0.67.0 Changes](#8-v0670-changes)
+	- [9. v0.68.0 Changes](#9-v0680-changes)
+	- [10. v0.69.0 Changes](#10-v0690-changes)
+	- [11. v0.70.0 Changes](#11-v0700-changes)
+		- [11.1. Overview](#111-overview)
+		- [11.2. Git Log](#112-git-log)
+	- [12. v0.71.0 Changes](#12-v0710-changes)
+		- [12.1. Overview](#121-overview)
+		- [12.2. Git Log](#122-git-log)
+	- [13. v0.72.0 Changes](#13-v0720-changes)
+		- [13.1. Overview](#131-overview)
+		- [13.2. Git Log](#132-git-log)
+	- [14. v0.72.1 Changes](#14-v0721-changes)
+		- [14.1. Overview](#141-overview)
+		- [14.2. Git Log](#142-git-log)
+	- [15. v0.72.2 Changes](#15-v0722-changes)
+		- [15.1. Overview](#151-overview)
+		- [15.2. Git Log](#152-git-log)
+	- [16. v0.72.3 Changes](#16-v0723-changes)
+		- [16.1. Overview](#161-overview)
+		- [16.2. Git Log](#162-git-log)
+	- [17. master branch changese028a42b Merge branch 'master' into devel](#17-master-branch-changese028a42b-merge-branch-master-into-devel)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc --># Changelog
+<!-- /vscode-markdown-toc -->
 
-
+# Changelog
 
 | date       | version | comment                                                                                                                                                                                                                                      |
 |------------|--------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -104,23 +105,24 @@
 | 2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#11-v0700-changes)                                                                                                                                                                                                                                                                                                                                                                                               |
 | 2024-OCT-17 |  master | See [13. master branch changes](#13-master-branch-changes)                                                                                                                                                                                                                                                                                                                                                                                 |
 
-##  1. <a name='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
+##  1. <a id='v0.60.1TwiceLogScreenShot'></a>v0.60.1 Twice Log Screen Shot
 
 - Please look at the used command lines carefully, expecially the `-d16` switch
 
-![x](./docs/ref/v0.60.1TwiceLog.png)
-##  2. <a name='v0.56.0Changes'></a>v0.56.0 Changes
+<img src="./docs/ref/v0.60.1TwiceLog.png" width="800">
+
+##  2. <a id='v0.56.0Changes'></a>v0.56.0 Changes
 
 This is a major release hopefully not breaking too much!
 
-###  2.1. <a name='LegacyTRICEmacros'></a>Legacy `TRICE*` macros
+###  2.1. <a id='LegacyTRICEmacros'></a>Legacy `TRICE*` macros
 
 * Using the `TRICE*` macros generally is not recommended anymore, but they are still supported.
 * `TRICE*` macros with an `Id(n)` inside are now with 16-bit stamps. To have 32-bit stamps use `ID(n)` instead and `id(n)` is for no stamps. The ID numbers can stay the same.
 * The very little time advantage of code inlining will not count in most cases.
 * The `TRICE_*` macros, like `TRICE_S` are still needed.
 
-###  2.2. <a name='FunctioncallmacrosTRiceTriceandtrice'></a>Function call macros `TRice`, `Trice` and `trice`
+###  2.2. <a id='FunctioncallmacrosTRiceTriceandtrice'></a>Function call macros `TRice`, `Trice` and `trice`
 * The `TRICE*` macros are inlining the trice code, what could lead to significant memory usage if you use these MACROs heavily.
 
 * `TRice*` macros insert a 32-bit stamp.
@@ -134,7 +136,7 @@ This is a major release hopefully not breaking too much!
 * The `*64` macro extensions are usable for 64-bit values, like `double`.
 * See `test\testdata\triceCheck.c` for examples.
 
-###  2.3. <a name='Commonimprovements'></a>Common improvements
+###  2.3. <a id='Commonimprovements'></a>Common improvements
 
 - Target time stamps now better formatted, Default is `µs`, `ms` is selectable.
 - A new document TriceConfigProjectImageSizeOptimization.md was written.
@@ -144,7 +146,7 @@ This is a major release hopefully not breaking too much!
 - `triceConfig.h` was heavily restructured.
 - Target code split in several files now, but only `trice.c` needs to be added to the target project.
 
-###  2.4. <a name='CLIchanges'></a>CLI changes
+###  2.4. <a id='CLIchanges'></a>CLI changes
 
 - `ts` ist now target stamp. Host stamps are switchable with `-hs`.
 - `-packageFraming` is new.
@@ -153,7 +155,7 @@ This is a major release hopefully not breaking too much!
 - `trice s` now shows if a port is used already.
 - `my/path/auto` now possible with log files.
 
-###  2.5. <a name='Changesunderthehood'></a>Changes under the hood
+###  2.5. <a id='Changesunderthehood'></a>Changes under the hood
 
 * MemFs `afero.Afero` is used now, what is for better tests.
 * A `til.json.c|h` is generated when `trice u` is called with `-v` switch.
@@ -165,7 +167,7 @@ This is a major release hopefully not breaking too much!
 * False positive windows vet warning removed.
 * Endianness updated and tested.
 
-##  3. <a name='v063.Changes'></a>v063. Changes
+##  3. <a id='v063.Changes'></a>v063. Changes
 
 - Issue [#436](https://github.com/rokath/trice/issues/436) done (faster now).
 - Issue [#438](https://github.com/rokath/trice/issues/438) done (minor). 
@@ -179,7 +181,7 @@ This is a major release hopefully not breaking too much!
 - Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
 - Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
 
-##  4. <a name='v0.64.0Changesunsorted'></a>v0.64.0 Changes (unsorted)
+##  4. <a id='v0.64.0Changesunsorted'></a>v0.64.0 Changes (unsorted)
 
 - additional configuration checks 
 - TriceNonBlockingDirectWrite re-coded 
@@ -238,7 +240,7 @@ This is a major release hopefully not breaking too much!
 - improved id testing
 - triceDefaultConfig.h
 
-##  5. <a name='v0.64.1changesunsorted'></a>v0.64.1 changes (unsorted)
+##  5. <a id='v0.64.1changesunsorted'></a>v0.64.1 changes (unsorted)
 
 - `b171458c` (origin/debug, debug) Bugfix: Temp buffer was too small
 - `478bfa7d` diagnostics re-ordered to get more secure output if buffers are very small
@@ -258,13 +260,13 @@ This is a major release hopefully not breaking too much!
 - `a2ec33fe` hint added
 - `4df3bfa5` ReadMe.md added to some examples
 
-##  6. <a name='v0.65.0Changes'></a>v0.65.0 Changes
+##  6. <a id='v0.65.0Changes'></a>v0.65.0 Changes
 
 - `5af9c2bb664e11e5e2663e56116d842719ca6f8d` Issue #431 solved
 - `430c6a4dde817bc39ec35d595341efbe069cf482` Issue #466 solved
 - You can now use `trice8B( "msg: %02x\n", buffer, len);` functions and the like. See [test/testdata/triceCheck.c](test/testdata/triceCheck.c) for examples.
 
-##  7. <a name='v0.66.0Changes'></a>v0.66.0 Changes
+##  7. <a id='v0.66.0Changes'></a>v0.66.0 Changes
 
 - `3b607b44d6681e2d6aa60eea7eba24a939b81e4b` (HEAD -> master, origin/master, origin/devel, origin/HEAD, devel) wip
 - `5db46f255a669a4407af8a255af4413a548a18cf` issue #485 solved: li.json now extended instead of re-generated to keep legacy location information 
@@ -280,7 +282,7 @@ This is a major release hopefully not breaking too much!
 - `d99e06341f871bc9b0e38686ea36f336bfb8a84f` folder renamed
 - `287239db4940c401b395ed9b9f7c91bc210ebc46` Testig slightly improved
 
-##  8. <a name='v0.67.0Changes'></a>v0.67.0 Changes
+##  8. <a id='v0.67.0Changes'></a>v0.67.0 Changes
 
 | hash       | comment                                                                            |
 |------------|------------------------------------------------------------------------------------|
@@ -307,7 +309,7 @@ This is a major release hopefully not breaking too much!
 | `c5ca8482` | Merge branch 'devel'                                                               |
 | `a33627dc` | founding                                                                           |
 
-##  9. <a name='v0.68.0Changes'></a>v0.68.0 Changes
+##  9. <a id='v0.68.0Changes'></a>v0.68.0 Changes
 
 | hash       | comment                                                                                                   |
 |------------|-----------------------------------------------------------------------------------------------------------|
@@ -333,7 +335,7 @@ This is a major release hopefully not breaking too much!
 | `db54a8dd` | add .gitattibutes to avoid problem in git diff with end of line                                           |
 | `653ec4a1` | Automatic TRICE_CLEAN modification added.                                                                 |
 
-##  10. <a name='v0.69.0Changes'></a>v0.69.0 Changes
+##  10. <a id='v0.69.0Changes'></a>v0.69.0 Changes
 
 - Big-endian MCUs should now be usable with the complete Trice macro set (automatic test added).
 - Trice code auto-formatted with `clang-format.sh`. (Special thanks to @Sazerac)
@@ -472,9 +474,9 @@ user    0m0.000s
 sys     0m0.000s
 ```
 
-##  11. <a name='v0.70.0Changes'></a>v0.70.0 Changes
+##  11. <a id='v0.70.0Changes'></a>v0.70.0 Changes
 
-###  11.1. <a name='Overview'></a>Overview
+###  11.1. <a id='Overview'></a>Overview
 
 - Trice cache option added
 - Trice commands `trice update` and `trice zero` removed
@@ -484,7 +486,7 @@ sys     0m0.000s
 - spacing CLI switch added to `trice insert`
 - Target code test folder `test` renamed into `_test` to avoid vsCode slowdown. To execute these tests rename this folder temporary back and run `go test ./test/...`.
 
-###  11.2. <a name='GitLog'></a>Git Log
+###  11.2. <a id='GitLog'></a>Git Log
 
 Used git log command: `git log --pretty=oneline --abbrev-commit` and less importand lines removed
 
@@ -543,13 +545,13 @@ Used git log command: `git log --pretty=oneline --abbrev-commit` and less import
 | `3c1b3aba` | .goreleaser.yaml adapted to goreleaser version 2                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `751def35` | v0.69.0 infos and test results added to CHANGELOG.md                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
-##  12. <a name='v0.71.0Changes'></a>v0.71.0 Changes
+##  12. <a id='v0.71.0Changes'></a>v0.71.0 Changes
 
-###  12.1. <a name='Overview-1'></a>Overview
+###  12.1. <a id='Overview-1'></a>Overview
 
 - A new CLI switch for `trice insert` is invented: `-IDRange`. See `trice help -insert` for details.
 
-###  12.2. <a name='GitLog-1'></a>Git Log
+###  12.2. <a id='GitLog-1'></a>Git Log
 
 Used git log command: `git log --pretty=oneline --abbrev-commit` and less important lines removed
 
@@ -570,15 +572,15 @@ Used git log command: `git log --pretty=oneline --abbrev-commit` and less import
 | `62eacd08` | Doubled used ID test added                                      |
 | `85686181` | v0.70.0 changelog added                                         |
 
-##  13. <a name='v0.72.0Changes'></a>v0.72.0 Changes
+##  13. <a id='v0.72.0Changes'></a>v0.72.0 Changes
 
-###  13.1. <a name='Overview-1'></a>Overview
+###  13.1. <a id='Overview-1'></a>Overview
 
 - Trice cache folders now with correct permissions.
 - Trice deferred mode for ring buffer now also supports multi pack mode.
 - Multi pack mode now as default setting for deferred modes.
 
-###  13.2. <a name='GitLog-1'></a>Git Log
+###  13.2. <a id='GitLog-1'></a>Git Log
 
 Used git log command: `git log --oneline` and less important lines removed
 
@@ -616,13 +618,13 @@ Used git log command: `git log --oneline` and less important lines removed
 | `9b309925` | Trice cache "issue" chapter added                                                                           |
 | `014ebdfc` | v0.71.0 ChangeLog added                                                                                     |
 
-##  14. <a name='v0.72.1Changes'></a>v0.72.1 Changes
+##  14. <a id='v0.72.1Changes'></a>v0.72.1 Changes
 
-###  14.1. <a name='Overview-1'></a>Overview
+###  14.1. <a id='Overview-1'></a>Overview
 
 - Issue #509 fixed (better `TRICE_OFF` handling)
 
-###  14.2. <a name='GitLog-1'></a>Git Log
+###  14.2. <a id='GitLog-1'></a>Git Log
 
 Used git log command: `git log --oneline` and less important lines removed
 
@@ -639,13 +641,13 @@ Used git log command: `git log --oneline` and less important lines removed
 | `010f8edb` | ignore MacOS specific files                                        |
 | `fb734ff5` | Update ReadMe.md                                                   |
 
-##  15. <a name='v0.72.2Changes'></a>v0.72.2 Changes
+##  15. <a id='v0.72.2Changes'></a>v0.72.2 Changes
 
-###  15.1. <a name='Overview-1'></a>Overview
+###  15.1. <a id='Overview-1'></a>Overview
 
 Maintenance release, more build variants tests in L432 project, OpenOCD experiments
 
-###  15.2. <a name='GitLog-1'></a>Git Log
+###  15.2. <a id='GitLog-1'></a>Git Log
 
 Used git log command: `git log --oneline` and less important lines removed
 
@@ -685,13 +687,13 @@ Used git log command: `git log --oneline` and less important lines removed
 | `bc1d8a6e` | In build.s args handling improved                                                          |
 | `58249ac9` | v0.72.1 Changes added                                                                      |
 
-##  16. <a name='v0.72.3Changes'></a>v0.72.3 Changes
+##  16. <a id='v0.72.3Changes'></a>v0.72.3 Changes
 
-###  16.1. <a name='Overview-1'></a>Overview
+###  16.1. <a id='Overview-1'></a>Overview
 
 Minor bug fix release. `trice insert` CLI `-spacing` renamed into `spaceAfterOpeningBrace` and added t0 `trice clean`.
 
-###  16.2. <a name='GitLog-1'></a>Git Log
+###  16.2. <a id='GitLog-1'></a>Git Log
 
 Used git log command: `git log --oneline v0.72.2..HEAD` and less important lines removed
 
@@ -710,4 +712,4 @@ Hash       | Comment
 `588cb266` | .goreleaser.yaml updated
 `5dcd029a` | v0.72.2 Changes incorporated
 
-##  17. <a name='masterbranchchangese028a42bMergebranchmasterintodevel'></a>master branch changese028a42b Merge branch 'master' into devel
+##  17. <a id='masterbranchchangese028a42bMergebranchmasterintodevel'></a>master branch changese028a42b Merge branch 'master' into devel

@@ -1,11 +1,19 @@
 # *Trice* Tags and Color
 
-> *Trice* is usable without tags and color similar to printf also.
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
 <!-- vscode-markdown-toc -->
-* 1. [How to get](#Howtoget)
-	* 1.1. [Output options](#Outputoptions)
-	* 1.2. [Check Alternatives](#CheckAlternatives)
-* 2. [Color issues under Windows](#ColorissuesunderWindows)
+* 1. [How to get](#how-to-get)
+    * 1.1. [Output options](#output-options)
+    * 1.2. [Check Alternatives](#check-alternatives)
+* 2. [Color issues under Windows](#color-issues-under-windows)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -13,7 +21,9 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  1. <a name='Howtoget'></a>How to get
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+
+##  1. <a id='how-to-get'></a>How to get
 
 * Add a tag name as color descriptor in front of each `TRICE` format string like `"wrn:Peng!"`.
 * In file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) the colors are changeable and additional color tags definable.
@@ -28,11 +38,11 @@
 * An option using tag specific ID ranges with optional routing exists. 
 * The **trice** tool offers the 2 command line switches `-pick` and `-ban` to control tag visualization during runtime.  
 
-###  1.1. <a name='Outputoptions'></a>Output options
+###  1.1. <a id='output-options'></a>Output options
 
 ![./ref/ColorOptions.PNG](./ref/ColorOptions.PNG)
 
-###  1.2. <a name='CheckAlternatives'></a>Check Alternatives
+###  1.2. <a id='check-alternatives'></a>Check Alternatives
 
 There are over 1000 possibilities:
 
@@ -40,6 +50,8 @@ There are over 1000 possibilities:
 
 Only file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) needs to be changed and the **trice** tool needs to be rebuild afterwards: `go install ./...`.
 
-##  2. <a name='ColorissuesunderWindows'></a>Color issues under Windows
+##  2. <a id='color-issues-under-windows'></a>Color issues under Windows
 
 **Currently console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start the **trice** tool inside there. Unfortunately this can not be done automatically right now because of missing command line switches. [Alacritty](../third_party/alacritty/ReadMe.md) is one of other alternatives.
+
+<p align="right">(<a href="#top">back to top</a>)</p>

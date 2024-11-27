@@ -5,32 +5,37 @@
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
 
 <!-- vscode-markdown-toc -->
-* 1. [Description](#Description)
-* 2. [Abstract](#Abstract)
-* 3. [A brief history of *Trice*](#AbriefhistoryofTrice)
-* 4. [How it works - the main idea](#Howitworks-themainidea)
-* 5. [*Trice* features](#Tricefeatures)
-	* 5.1. [Open source](#Opensource)
-	* 5.2. [Easy-to-use](#Easy-to-use)
-	* 5.3. [Small size - using *Trice* <u>frees</u> FLASH memory](#Smallsize-usingTriceufreesuFLASHmemory)
-	* 5.4. [Execution speed](#Executionspeed)
-	* 5.5. [Robustness](#Robustness)
-	* 5.6. [More comfort than printf-like functions but small differences](#Morecomfortthanprintf-likefunctionsbutsmalldifferences)
-	* 5.7. [Labeled channels, color and log levels](#Labeledchannelscolorandloglevels)
-	* 5.8. [Compile time enable/disable `TRICE` macros on file level](#CompiletimeenabledisableTRICEmacrosonfilelevel)
-	* 5.9. [Target and host timestamps](#Targetandhosttimestamps)
-	* 5.10. [Target source code location](#Targetsourcecodelocation)
-	* 5.11. [ Several target devices in one log output](#Severaltargetdevicesinonelogoutput)
-	* 5.12. [Any byte capable 1-wire connection usable](#Anybytecapable1-wireconnectionusable)
-	* 5.13. [Scalability](#Scalability)
-	* 5.14. [Portability and Modularity](#PortabilityandModularity)
-	* 5.15. [Optional *Trice* messages encryption](#OptionalTricemessagesencryption)
-* 6. [ Bottom line](#Bottomline)
+* 1. [Description](#description)
+* 2. [Abstract](#abstract)
+* 3. [A brief history of *Trice*](#a-brief-history-of-*trice*)
+* 4. [How it works - the main idea](#how-it-works---the-main-idea)
+* 5. [*Trice* features](#*trice*-features)
+    * 5.1. [Open source](#open-source)
+    * 5.2. [Easy-to-use](#easy-to-use)
+    * 5.3. [Small size - using *Trice* <u>frees</u> FLASH memory](#small-size---using-*trice*-<u>frees</u>-flash-memory)
+    * 5.4. [Execution speed](#execution-speed)
+    * 5.5. [Robustness](#robustness)
+    * 5.6. [More comfort than printf-like functions but small differences](#more-comfort-than-printf-like-functions-but-small-differences)
+    * 5.7. [Labeled channels, color and log levels](#labeled-channels,-color-and-log-levels)
+    * 5.8. [Compile time enable/disable `TRICE` macros on file level](#compile-time-enable/disable-`trice`-macros-on-file-level)
+    * 5.9. [Target and host timestamps](#target-and-host-timestamps)
+    * 5.10. [Target source code location](#target-source-code-location)
+    * 5.11. [ Several target devices in one log output](#-several-target-devices-in-one-log-output)
+    * 5.12. [Any byte capable 1-wire connection usable](#any-byte-capable-1-wire-connection-usable)
+    * 5.13. [Scalability](#scalability)
+    * 5.14. [Portability and Modularity](#portability-and-modularity)
+    * 5.15. [Optional *Trice* messages encryption](#optional-*trice*-messages-encryption)
+* 6. [ Bottom line](#-bottom-line)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -38,10 +43,9 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
- </ol>
-</details>
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
 
-##  1. <a name='Description'></a>Description
+##  1. <a id='description'></a>Description
 
 *Trice* is an unusual software tracer-logger and consists of these parts to use:
 
@@ -55,12 +59,11 @@
   * [x] Windows
   * [ ] Interface options for log collectors are possible.
 
-
 ![./ref/life0.gif](./ref/life0.gif)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  2. <a name='Abstract'></a>Abstract
+##  2. <a id='abstract'></a>Abstract
 
 If you develop software for an embedded system, you need some kind of system feedback. Debuggers are awesome tools, but when it comes to analyze dynamic behavior in the field, they are not usable.
 
@@ -74,7 +77,7 @@ The *Trice* technique tries to fill this gap, being minimal invasive for the tar
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  3. <a name='AbriefhistoryofTrice'></a>A brief history of *Trice*
+##  3. <a id='a-brief-history-of-*trice*'></a>A brief history of *Trice*
 
 Developing firmware means to deal also with interrupts and often with timing. How do you check, if an interrupt occurred? Ok, increment a counter and display it in a background loop with some printf-like function. What about time measurement? Set a digital output to 1 and 0 and connect a measurement device. Once, developing software for a real-time image processing device, I had no clue where in detail the processing time exploded when the image quality got bad. A spare analog output with a video interrupt synced oscilloscope gave me the needed information, after I changed the analog output on several points in my algorithm. But, hey guys, I want to deal with my programming tasks and do not like all this hassle connecting wires and steer into instruments.
 
@@ -98,7 +101,7 @@ Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  4. <a name='Howitworks-themainidea'></a>How it works - the main idea
+##  4. <a id='how-it-works---the-main-idea'></a>How it works - the main idea
 
 *Trice* performs **no** [costly](./TriceVsPrintfSimilaritiesAndDifferences.md#printf-like-functions) printf-like functions on the target at all. The `trice` macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6-8](./TriceSpeed.md) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
 
@@ -115,37 +118,37 @@ The **trice** tool is a background helper giving the developer focus on its prog
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  5. <a name='Tricefeatures'></a>*Trice* features
+##  5. <a id='*trice*-features'></a>*Trice* features
 
-###  5.1. <a name='Opensource'></a>Open source
+###  5.1. <a id='open-source'></a>Open source
 
 Target code and PC tool are open source. The MIT license gives full usage freedom. Users are invited to support the further *Trice* development.
 
-###  5.2. <a name='Easy-to-use'></a>Easy-to-use
+###  5.2. <a id='easy-to-use'></a>Easy-to-use
 
 Making it [facile](./TriceUserGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data during logging.
 
 The **trice** tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type `trice l -p COMn` for logging with a 115200 bit/s baud rate.
 
-###  5.3. <a name='Smallsize-usingTriceufreesuFLASHmemory'></a>Small size - using *Trice* <u>frees</u> FLASH memory
+###  5.3. <a id='small-size---using-*trice*-<u>frees</u>-flash-memory'></a>Small size - using *Trice* <u>frees</u> FLASH memory
 
 Compared to a printf-library code which occupies [1](https://github.com/mludvig/mini-printf) to over [20](https://github.com/mpaland/printf#a-printf--sprintf-implementation-for-embedded-systems) KB FLASH memory, the *Trice* code is really [small](./TriceSpace.md) - less 1 KB will do already but provide full support.
 
-###  5.4. <a name='Executionspeed'></a>Execution speed
+###  5.4. <a id='execution-speed'></a>Execution speed
 
 Can it get faster that [that](./TriceSpeed.md)? Only 3 runtime Assembler instructions per *Trice* needed in the minimum case! Additionally target timestamp and location, disable interrupts and restore interrupt state and cycle counter increment can consume a few more processor clocks, if enabled, but a *Trice* is still incomparable fast.
 
-###  5.5. <a name='Robustness'></a>Robustness
+###  5.5. <a id='robustness'></a>Robustness
 
 When a *Trice* data stream is interrupted, the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding allows an immediate re-sync with the next COBS package delimiter byte and a default *Trice* cycle counter gives a high chance to detect lost *Trice* messages.
 
-###  5.6. <a name='Morecomfortthanprintf-likefunctionsbutsmalldifferences'></a>More comfort than printf-like functions but small differences
+###  5.6. <a id='more-comfort-than-printf-like-functions-but-small-differences'></a>More comfort than printf-like functions but small differences
 
 *Trice* is usable also inside interrupts and additional [format specifier support](./TriceVsPrintfSimilaritiesAndDifferences.md#Extended-format-specifier-possibilities) gives options like binary or bool output. Transmitting runtime generated strings could be a need, so a `TRICE_S` macro exists supporting the `%s` format specifier for strings up to 32737 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings implicit supported, if you use UTF-8 for the source code.
 
 ![./ref/UTF-8Example.PNG](./ref/UTF-8Example.PNG)
 
-###  5.7. <a name='Labeledchannelscolorandloglevels'></a>Labeled channels, color and log levels
+###  5.7. <a id='labeled-channels,-color-and-log-levels'></a>Labeled channels, color and log levels
 
 You can label each *Trice* with a channel specifier to [colorize](./TriceColor.md) the output. This is free of any runtime costs because the channel strings part of the log format strings, which are not compiled into the target. The **trice** tool will strip full lowercase channel descriptors from the format string after setting the appropriate color, making it possible to give each letter its color.
 
@@ -155,7 +158,7 @@ If a target side log level control is needed, a **trice** tool extension could e
 
 ![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
 
-###  5.8. <a name='CompiletimeenabledisableTRICEmacrosonfilelevel'></a>Compile time enable/disable `TRICE` macros on file level 
+###  5.8. <a id='compile-time-enable/disable-`trice`-macros-on-file-level'></a>Compile time enable/disable `TRICE` macros on file level 
 
 After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceConfiguration.md#target-side-trice-on-off). Write a `#define TRICE_OFF 1` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
 
@@ -164,31 +167,31 @@ After debugging code in a file, there is [no need to remove or comment out `TRIC
 #include "trice.h"
 ```
 
-###  5.9. <a name='Targetandhosttimestamps'></a>Target and host timestamps 
+###  5.9. <a id='target-and-host-timestamps'></a>Target and host timestamps 
 
 Enable target timestamps with a variable you want inside [triceConfig.h](../_test/F030R8/Core/Inc/triceConfig.h). This adds a 32-bit value to each *Trice* sequence, which carries than the system clock, a millisecond second or an other event counter. The **trice** tool will automatically recognize and display them in a default mode you can control. If several `TRICE` macros form a single line, the **trice** tool only displays the target timestamp of the first `TRICE` macro.
 
 Embedded devices often lack a real-time clock and some scenarios can last for weeks. Therefore the **trice** tool precedes each *Trice* line with a PC timestamp, if not disabled. This is the *Trice* reception time on the PC, what can be some milliseconds later than the target *Trice* event.
 
-###  5.10. <a name='Targetsourcecodelocation'></a>Target source code location
+###  5.10. <a id='target-source-code-location'></a>Target source code location
 
 Some developers like to see the `filename.c` and `line` in front of each log line for quick source location. During `trice i` a file `li.json` is generated containing the location information. If `trice log` finds this file, filename and line number are displayed in front of each log line, otherwise not.
 
 Because software is a matter of change it could happen you get obsolete information this way. Therefore the **trice** tool log option `-showID` exists to display the *Trice* ID in front of each log line what gives a more reliable way for event localization in some cases. Also you can get it for free, because no target code is needed for that. 
 
-###  5.11. <a name='Severaltargetdevicesinonelogoutput'></a> Several target devices in one log output
+###  5.11. <a id='-several-target-devices-in-one-log-output'></a> Several target devices in one log output
 
 Several **trice** tool instances can run parallel on one or different PCs. Each **trice** tool instance receives *Trices* from one embedded device. Instead of displaying the log lines, the **trice** tool instances can transmit them over TCP/IP (`trice l -p COMx -ds`) to a **trice** tool instance acting as display server (`trice ds`). The display server can fold these log lines in one output. For each embedded device a separate *Trice* line prefix and suffix is definable. This allows comparable time measurements in distributed systems. BTW: The *Trice* message integration could be done also directly with the COBS packages.
 
-###  5.12. <a name='Anybytecapable1-wireconnectionusable'></a>Any byte capable 1-wire connection usable
+###  5.12. <a id='any-byte-capable-1-wire-connection-usable'></a>Any byte capable 1-wire connection usable
 
 The usual *Trice* output device is an UART but also [SEGGER-RTT](./TriceOverRTT.md) is supported over J-Link or ST-Link devices. Many micro controller boards can act as *Trice* bridge to a serial port from any port ([example](./TriceOverOneWire.md)).
 
-###  5.13. <a name='Scalability'></a>Scalability
+###  5.13. <a id='scalability'></a>Scalability
 
 The various [*Trice* ID management features](./TriceIDManagement.md) allow the organization also of bigger software systems. 16383 possible different IDs should match also large projects. Just in case: 16-bit for the ID is a not to hard changeable value.
 
-###  5.14. <a name='PortabilityandModularity'></a>Portability and Modularity
+###  5.14. <a id='portability-and-modularity'></a>Portability and Modularity
 
 The **trice** tool is written in the open source language [*Go*](https://go.dev/) and is therefore usable on many platforms. That means the automatic code patching and ID handling side with `trice insert`.
 
@@ -204,13 +207,13 @@ When less RAM usage is more important the target double buffer is replaceable wi
 
 The **trice** tool supports [many command line switches](./TriceUserGuide.md#9-options-for-trice-tool).
 
-###  5.15. <a name='OptionalTricemessagesencryption'></a>Optional *Trice* messages encryption
+###  5.15. <a id='optional-*trice*-messages-encryption'></a>Optional *Trice* messages encryption
 
 The encryption opportunity makes it possible to test thoroughly a binary with log output and releasing it without the need to change any bit but to make the log output unreadable for a not authorized person. Implemented is the lightweight [XTEA](https://de.wikipedia.org/wiki/Extended_Tiny_Encryption_Algorithm) as option, what will do for many cases. It should be no big deal to add a different algorithm.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  6. <a name='Bottomline'></a> Bottom line
+##  6. <a id='-bottom-line'></a> Bottom line
 
 The *Trice* technique is new and still under development. Additional tests and bug fixing is necessary. A **trice** tool [configuration file](./TriceConfiguration.md#host-configuration-file) and interfacing [Grafana](https://grafana.com/) or similar tools would be possible extensions. Getting started with *Trice* will take a few hours, but probably pay off during the further development.
 

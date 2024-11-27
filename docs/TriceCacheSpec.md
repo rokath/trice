@@ -1,13 +1,34 @@
-# Trice Cache Specification (Draft)
+# Trice Cache Specification
 
-> Experimental implementation!
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
 
-## Preface
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
+<!-- vscode-markdown-toc -->
+* 1. [Preface](#preface)
+* 2. [Trice Cache Logic](#trice-cache-logic)
+* 3. [Remarks](#remarks)
+* 4. [Tests](#tests)
+* 5. [Issues](#issues)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+
+##  1. <a id='preface'></a>Preface
 
 The `trice insert` and `trice clean` commands are parsing and modifying the source code files. Even this is a reasonable fast procedure, this could get time consuming on large projects, especially when using these commands as permanent pre-compile and post-compile steps. It is assumed, that usually between 2 compile steps not all project files are changed. The project files majority will stay unchanged despite the ID insertion and removal. This repeated parsing and modifying of unchanged source code is avoidable with the Trice cache technique. Also it could get anoying to recompile files all the time only because they got Trice IDs removed and inserted. With the Trice cache we get also a solution not to re-compile un-edited files as well.
 
-<!--
-## Trice Cache Idea
+<!--##  2. <a id='trice-cache-idea'></a>Trice Cache Idea
 
 Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process many in one shot.
 
@@ -19,7 +40,7 @@ Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process
 - When a file in cleaned or inserted ID state was edited somehow, its IDs are inserted/cleaned and the cache is updated accordingly on `trice clean` or `trice insert`.
 -->
 
-## Trice Cache Logic
+##  2. <a id='trice-cache-logic'></a>Trice Cache Logic
 
 When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder `~/.trice/cache` exists, we have
 - optionally a _cleaned cache file_   `~/.trice/cache/cleaned/fullpath/file`  with mtime of _IDs cleaned_
@@ -35,7 +56,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
     - On command `trice c`, invalidate cache, process `trice c` and update _cleaned cache file_, file gets a new mtime, the mtime of _IDs cleaned_. <sub>On a following command `trice i`, file mtime is _IDs cleaned_, BUT the cache is invalid, so process `trice i` and update cache/inserted.</sub>
     - On command `trice i`, invalidate cache, process `trice i` and update _inserted cache file_, file gets a new mtime, the mtime of _IDs inserted_. <sub>On a following command `trice c`, file mtime is _IDs inserted_, BUT the cache is invalid, so process `trice c` and update cache/cleaned.</sub>
 
-## Remarks
+##  3. <a id='remarks'></a>Remarks
 
 - `fullpath/file` means `/home/me/proj3/file` for example. When copied to the cache, the real "fullpath" is there `/home/me/.trice/cache/cleaned/home/me/proj3/file`.
 
@@ -46,7 +67,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 - A CLI switch `-cache` does enable/disable the Trice cache. Default is off.
 - The user should consider what happens, if other pre-compile or post-compile steps are modifying files as well, before enabling the Trice cache. 
 
-## Tests
+##  4. <a id='tests'></a>Tests
 
 Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
 ------|----------|---------|---------|------------|------------|------------------------------------------------------------------------------
@@ -76,7 +97,7 @@ Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
 30    | 1:insert | 1:valid | 1:valid | 1:inserted | 0:not      | Test_30_11110_insert_on_valid_cCache_valid_iCache_inserted_not_edited_file
 31    | 1:insert | 1:valid | 1:valid | 1:inserted | 1:yes      | Test_31_11111_insert_on_valid_cCache_valid_iCache_inserted_edited_file
 
-## Issues
+##  5. <a id='issues'></a>Issues
 
 - When a `trice i -cache && make && trice c -cache` sequence is executed, it could happen with in an editor opened and unedited files containing Trice statements, that the editor does not refresh the file view again after the `trice clean -cache` command.
   - It looks like the Trice IDs were not cleaned.
@@ -85,3 +106,5 @@ Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
   - An automatic view refresh (close & open) for the editor could help here. But how to do that in an universal way?
 - A workaround is, at least for vsCode, to first run `trice clean` in the build script.
   - See `trice/examples/G0B1_inst/build.sh` for an implementation.
+
+<p align="right">(<a href="#top">back to top</a>)</p>

@@ -2,17 +2,29 @@
 
 > _(Read only you are interested in)_
 
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
 <!-- vscode-markdown-toc -->
-* 1. [*Trice* Space example](#TriceSpaceexample)
-* 2. [Memory needs (Legacy ARM example project)](#MemoryneedsLegacyARMexampleproject)
-* 3. [Memory needs (example projects)](#Memoryneedsexampleprojects)
+* 1. [*Trice* Space example](#*trice*-space-example)
+* 2. [Memory needs (Legacy ARM example project)](#memory-needs-(legacy-arm-example-project))
+* 3. [Memory needs (example projects)](#memory-needs-(example-projects))
 
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
-##  1. <a name='TriceSpaceexample'></a>*Trice* Space example
+
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+
+##  1. <a id='*trice*-space-example'></a>*Trice* Space example
 
 - STM32CubeMX generated empty default project: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`  
 - Same project with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
@@ -24,7 +36,7 @@
 - No format strings go into the target code anymore.
 - In general *Trice* instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
-##  2. <a name='MemoryneedsLegacyARMexampleproject'></a>Memory needs (Legacy ARM example project)
+##  2. <a id='memory-needs-(legacy-arm-example-project)'></a>Memory needs (Legacy ARM example project)
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
@@ -39,7 +51,7 @@ The following numbers are measured with a legacy encoding, showing that the inst
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 * trices are removable without code changes with `#define TRICE_OFF 1` before `incude "trice.h"` on file level or generally on project level.
 
-##  3. <a name='Memoryneedsexampleprojects'></a>Memory needs (example projects)
+##  3. <a id='memory-needs-(example-projects)'></a>Memory needs (example projects)
 
 | Project                       | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark  |
 | -                             | -           | -            | -                      | -                                             | -       |
@@ -47,3 +59,5 @@ The following numbers are measured with a legacy encoding, showing that the inst
 | MDK-ARM_STM32F030R8_instrumented | CLANG v6.19 | -Oz          | yes                    |Code=4726 RO-data=238 RW-data=16 ZI-data=4608  | This is with full trice instrumentation with example messages.|
 
 * The size need is less than 4 KB. See also [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md).
+
+<p align="right">(<a href="#top">back to top</a>)</p>

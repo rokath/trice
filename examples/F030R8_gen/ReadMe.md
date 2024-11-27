@@ -1,8 +1,32 @@
 # Example F030R8_gen
 
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
+<!-- vscode-markdown-toc -->
+* 1. [About](#about)
+* 2. [Steps performed as potential guide](#steps-performed-as-potential-guide)
+* 3. [Hint](#hint)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+
+##  1. <a id='about'></a>About
+
 This is a STMCubeMX generated project without TRICE instrumentation for easy compare with [../F030R8_inst](../F030R8_inst) to figure out the needed changes to set up trice.
 
-## Steps performed as potential guide
+##  2. <a id='steps-performed-as-potential-guide'></a>Steps performed as potential guide
 
 - Install STM32CubeMX to `C:\SMT32SubeMX`.
 - Select NUCLEO-F030R8 board.
@@ -74,7 +98,9 @@ PS E:\repos\trice\examples\vsCode_NucleoF030R8_generated>
 
 - Press the Debug-Button or "CTRL+SHIFT+D" and start debugging.
 
-## Hint
+##  3. <a id='hint'></a>Hint
 
 - During the code generation, the CubeMX tool did not copy `syscalls.c` and `sysmem.c` but added them to the Makefile. This seems to be a STM32CubeMX "feature".
   - You do not need these files for the example project, but you can add them manually to avoid some warnings.
+
+<p align="right">(<a href="#top">back to top</a>)</p>

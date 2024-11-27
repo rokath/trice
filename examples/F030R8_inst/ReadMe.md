@@ -1,16 +1,39 @@
 # Example F030R8_inst
 
+
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
+<!-- vscode-markdown-toc -->
+* 1. [Description](#description)
+* 2. [Setting Up](#setting-up)
+* 3. [Intrumenting](#intrumenting)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+
 ![x](./IMG_20240722.jpg)
 
-## Description
+##  1. <a id='description'></a>Description
 
 This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](./Core/Inc/triceConfig.h), you get also parallel direct out over RTT.
 
-## Setting Up
+##  2. <a id='setting-up'></a>Setting Up
 
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 
-## Intrumenting
+##  3. <a id='intrumenting'></a>Intrumenting
 
 - Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030R8_gen/](../F030R8_gen/).
 - Add *build.sh* and *clean.sh*.
@@ -27,3 +50,5 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 ![x](./2024-07-22.png)
 
 - The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of less 5 µs.
+
+<p align="right">(<a href="#top">back to top</a>)</p></ol></details>

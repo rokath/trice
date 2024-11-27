@@ -2,21 +2,53 @@
 
 ![./Nucleo_STM32L432KC.jpg](./Nucleo_STM32L432KC.jpg)
 
-## Description
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
+<!-- vscode-markdown-toc -->
+* 1. [Description](#description)
+* 2. [Setting Up](#setting-up)
+* 3. [Build](#build)
+* 4. [Deferred Mode for max Speed](#deferred-mode-for-max-speed)
+* 5. ["Hardware" Changes](#"hardware"-changes)
+* 6. [Using RTT with on-board J-Link and JLinkRTTLogger](#using-rtt-with-on-board-j-link-and-jlinkrttlogger)
+* 7. [Using RTT with on-board J-Link and OpenOCD](#using-rtt-with-on-board-j-link-and-openocd)
+  * 7.1. [With Windows not possible](#with-windows-not-possible)
+  * 7.2. [Darwin](#darwin)
+* 8. [Using RTT with on-board ST-Link and OpenOCD](#using-rtt-with-on-board-st-link-and-openocd)
+* 9. [Using On-board ST-Link and VS-Code Cortex-Debug Extension](#using-on-board-st-link-and-vs-code-cortex-debug-extension)
+  * 9.1. [Fail](#fail)
+  * 9.2. [OK](#ok)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+
+##  1. <a id='description'></a>Description
 
 - This is a with Trice instrumented project.
 - It is for easy compare with  [../L432KC_gen_ad_toClang_ed](../L432KC_gen_ad_toClang_ed) to figure out the needed setup changes.
 
-## Setting Up
+##  2. <a id='setting-up'></a>Setting Up
 
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layout.
 
-## Build
+##  3. <a id='build'></a>Build
 
 Run `./build.sh` for configuration 0 or `./build.sh CONFIGURATION=34` for example.
 
-## Deferred Mode for max Speed
+##  4. <a id='deferred-mode-for-max-speed'></a>Deferred Mode for max Speed
 
 The stamps are MCU clocks here, so `🐁 Speedy Gonzales` lasts 9 processor clocks here.
 
@@ -57,30 +89,30 @@ $ trice l -p com8 -hs off -prefix off
       triceExamples.c    34        2_166 i=44444402 aaaaaa02
 ```
 
-## "Hardware" Changes
+##  5. <a id='"hardware"-changes'></a>"Hardware" Changes
 
 - The used evaluation board is delivered with an on-board ST-Link software for debugging.
 - This was changed to an on-board J-Link software for better debugging and RTT support.
 - See [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md) about that.
 
-## Using RTT with on-board J-Link and JLinkRTTLogger
+##  6. <a id='using-rtt-with-on-board-j-link-and-jlinkrttlogger'></a>Using RTT with on-board J-Link and JLinkRTTLogger
 
 - You need to install the "J-Link Software and Documentation pack" for yout OS.
 - [./Core/Inc/triceConfig.h](./Core/Inc/triceConfig.h) contains example Trice log commands.
 
-## Using RTT with on-board J-Link and OpenOCD
+##  7. <a id='using-rtt-with-on-board-j-link-and-openocd'></a>Using RTT with on-board J-Link and OpenOCD
 
-### With Windows not possible
+###  7.1. <a id='with-windows-not-possible'></a>With Windows not possible
 
 - OpenOCD does not support the installed JLink driver.
 ![./JLinkConfig0.png](./JLinkConfig0.png)
 - Changing to the WinUSB buld device driver is here not supported :-(
 
-### Darwin
+###  7.2. <a id='darwin'></a>Darwin
 
 - See **OpenOCD with Darwin** in [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md)
 
-## Using RTT with on-board ST-Link and OpenOCD
+##  8. <a id='using-rtt-with-on-board-st-link-and-openocd'></a>Using RTT with on-board ST-Link and OpenOCD
 
 **Terminal 1:**
 
@@ -131,9 +163,9 @@ Nov 16 20:38:15.692614  TCP4:       triceExamples.c    18       45_802 2.7182817
 Nov 16 20:38:16.323665  TCP4:       triceExamples.c    19       46_536 2.718282 (default rounded float)
 ```
 
-## Using On-board ST-Link and VS-Code Cortex-Debug Extension
+##  9. <a id='using-on-board-st-link-and-vs-code-cortex-debug-extension'></a>Using On-board ST-Link and VS-Code Cortex-Debug Extension
 
-### Fail
+###  9.1. <a id='fail'></a>Fail
 
 - [https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf](https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf)
 - Downloaded and installed
@@ -144,7 +176,7 @@ Nov 16 20:38:16.323665  TCP4:       triceExamples.c    19       46_536 2.718282 
       - From: "C:\Program Files (x86)\STMicroelectronics\stlink_server\stlinkserver.exe"
       - To: "C:\Program Files (x86)\STMicroelectronics\stlink_server\ST-LINK_gdbserver.exe"
 
-### OK
+###  9.2. <a id='ok'></a>OK
 
 - Download st-util from github.com
 - Unpack to `C:\bin\stlink-1.8.0-win32` and add `C:\bin\stlink-1.8.0-win32\bin` to path

@@ -3,52 +3,58 @@
 > _(Read only you are interested in)_
 > This file exists only as reference for some thoughts for just in case an additional *Trice* encoding is considered. > > The **esc** and **flex** encoding worked well but the code is removed now in favor of the COBS encoding. Check out release [v0.32.0](https://github.com/rokath/trice/releases/tag/v0.32.0) or earlier for working code.
 
-##  1. <a name='Tableofcontent'></a>Table of content
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
 
 <!-- vscode-markdown-toc -->
-* 1. [Table of content](#Tableofcontent)
-* 2. [General](#General)
-* 3. [Quick start recommendation](#Quickstartrecommendation)
-* 4. [Overview](#Overview)
-	* 4.1. [`flex` encoding](#flexencoding)
-		* 4.1.1. [`flex` short sub-encoding](#flexshortsub-encoding)
-		* 4.1.2. [*`flex` medium sub-encoding*](#flexmediumsub-encoding)
-		* 4.1.3. [*`flex` long sub-encoding*](#flexlongsub-encoding)
-	* 4.2. [`pack2` & `pacl2L` encoding](#pack2pacl2Lencoding)
-	* 4.3. [Encoding `pack2` & `pack2L` (with cycle counter, 20-bit IDs, runtime strings up to 65535 chars)](#Encodingpack2pack2Lwithcyclecounter20-bitIDsruntimestringsupto65535chars)
-	* 4.4. [`pack` & `packL` encoding](#packpackLencoding)
-	* 4.5. [Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 65535 chars)](#EncodingpackpackLnocyclecounter16-bitIDsruntimestringsupto65535chars)
-	* 4.6. [`bare` and `bareL` encoding](#bareandbareLencoding)
-	* 4.7. [`wrap` and `wrapL` encoding](#wrapandwrapLencoding)
-	* 4.8. [`esc` encoding](#escencoding)
-	* 4.9. [`mini` encoding (idea)](#miniencodingidea)
-	* 4.10. [`mix` encoding (idea)](#mixencodingidea)
-	* 4.11. [own encoding](#ownencoding)
-* 5. [Encoding `bare` & `bareL`](#EncodingbarebareL)
-* 6. [Encoding `wrap` & `wrapL`](#EncodingwrapwrapL)
-* 7. [Encoding `esc` (experimental)](#Encodingescexperimental)
-	* 7.1. [Start byte `EC`](#StartbyteEC)
-	* 7.2. [Length Code `LC`](#LengthCodeLC)
-	* 7.3. [TriceID `IH` and `IL`](#TriceIDIHandIL)
-	* 7.4. [Payload](#Payload)
-* 8. [Sync packages](#Syncpackages)
-* 9. [ COBS/R encoding](#COBSRencoding)
-* 10. [COBS/R encoding examples](#COBSRencodingexamples)
-	* 10.1. [COBS/R encoding for 0-byte packages](#COBSRencodingfor0-bytepackages)
-	* 10.2. [COBS/R encoding for 1-byte packages](#COBSRencodingfor1-bytepackages)
-	* 10.3. [COBS/R encoding for 2-byte packages](#COBSRencodingfor2-bytepackages)
-	* 10.4. [COBS/R encoding for n-byte packages](#COBSRencodingforn-bytepackages)
-	* 10.5. [COBS/R encoding](#COBSRencoding-1)
-		* 10.5.1. [COBS/R encoding for n-byte packages](#COBSRencodingforn-bytepackages-1)
-		* 10.5.2. [Decoded COBS/R package interpreter](#DecodedCOBSRpackageinterpreter)
-* 11. [Interpreter for decoded COBS/R package](#InterpreterfordecodedCOBSRpackage)
-	* 11.1. [IMPORTANT](#IMPORTANT)
-	* 11.2. [Encoding table 0 legend](#Encodingtable0legend)
-	* 11.3. [Encoding table 0 (without cycle counter)](#Encodingtable0withoutcyclecounter)
-	* 11.4. [Encoding table 1 legend](#Encodingtable1legend)
-	* 11.5. [Encoding table 1 (with 4-bit cycle counter)](#Encodingtable1with4-bitcyclecounter)
-	* 11.6. [Encoding table 2 (with 8-bit cycle counter)](#Encodingtable2with8-bitcyclecounter)
-* 12. [Fast TRICE data storing](#FastTRICEdatastoring)
+* 1. [General](#general)
+* 2. [Quick start recommendation](#quick-start-recommendation)
+* 3. [Overview](#overview)
+  * 3.1. [`flex` encoding](#`flex`-encoding)
+    * 3.1.1. [`flex` short sub-encoding](#`flex`-short-sub-encoding)
+    * 3.1.2. [*`flex` medium sub-encoding*](#*`flex`-medium-sub-encoding*)
+    * 3.1.3. [*`flex` long sub-encoding*](#*`flex`-long-sub-encoding*)
+  * 3.2. [`pack2` & `pacl2L` encoding](#`pack2`-&-`pacl2l`-encoding)
+  * 3.3. [Encoding `pack2` & `pack2L` (with cycle counter, 20-bit IDs, runtime strings up to 65535 chars)](#encoding-`pack2`-&-`pack2l`-(with-cycle-counter,-20-bit-ids,-runtime-strings-up-to-65535-chars))
+  * 3.4. [`pack` & `packL` encoding](#`pack`-&-`packl`-encoding)
+  * 3.5. [Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 65535 chars)](#encoding-`pack`-&-`packl`-(no-cycle-counter,-16-bit-ids,-runtime-strings-up-to-65535-chars))
+  * 3.6. [`bare` and `bareL` encoding](#`bare`-and-`barel`-encoding)
+  * 3.7. [`wrap` and `wrapL` encoding](#`wrap`-and-`wrapl`-encoding)
+  * 3.8. [`esc` encoding](#`esc`-encoding)
+  * 3.9. [`mini` encoding (idea)](#`mini`-encoding-(idea))
+  * 3.10. [`mix` encoding (idea)](#`mix`-encoding-(idea))
+  * 3.11. [own encoding](#own-encoding)
+* 4. [Encoding `bare` & `bareL`](#encoding-`bare`-&-`barel`)
+* 5. [Encoding `wrap` & `wrapL`](#encoding-`wrap`-&-`wrapl`)
+* 6. [Encoding `esc` (experimental)](#encoding-`esc`-(experimental))
+  * 6.1. [Start byte `EC`](#start-byte-`ec`)
+  * 6.2. [Length Code `LC`](#length-code-`lc`)
+  * 6.3. [TriceID `IH` and `IL`](#triceid-`ih`-and-`il`)
+  * 6.4. [Payload](#payload)
+* 7. [Sync packages](#sync-packages)
+* 8. [ COBS/R encoding](#-cobs/r-encoding)
+* 9. [COBS/R encoding examples](#cobs/r-encoding-examples)
+  * 9.1. [COBS/R encoding for 0-byte packages](#cobs/r-encoding-for-0-byte-packages)
+  * 9.2. [COBS/R encoding for 1-byte packages](#cobs/r-encoding-for-1-byte-packages)
+  * 9.3. [COBS/R encoding for 2-byte packages](#cobs/r-encoding-for-2-byte-packages)
+  * 9.4. [COBS/R encoding for n-byte packages](#cobs/r-encoding-for-n-byte-packages)
+  * 9.5. [COBS/R encoding](#cobs/r-encoding)
+    * 9.5.1. [COBS/R encoding for n-byte packages](#cobs/r-encoding-for-n-byte-packages-1)
+    * 9.5.2. [Decoded COBS/R package interpreter](#decoded-cobs/r-package-interpreter)
+* 10. [Interpreter for decoded COBS/R package](#interpreter-for-decoded-cobs/r-package)
+  * 10.1. [IMPORTANT](#important)
+  * 10.2. [Encoding table 0 legend](#encoding-table-0-legend)
+  * 10.3. [Encoding table 0 (without cycle counter)](#encoding-table-0-(without-cycle-counter))
+  * 10.4. [Encoding table 1 legend](#encoding-table-1-legend)
+  * 10.5. [Encoding table 1 (with 4-bit cycle counter)](#encoding-table-1-(with-4-bit-cycle-counter))
+  * 10.6. [Encoding table 2 (with 8-bit cycle counter)](#encoding-table-2-(with-8-bit-cycle-counter))
+* 11. [Fast TRICE data storing](#fast-trice-data-storing)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -56,13 +62,13 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-(Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go))
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
 
-##  2. <a name='General'></a>General
+##  1. <a id='general'></a>General
 
 Trice bytes can be encoded in different flavors and it is easy to develop a new encoding. The encoding `esc` is such a trial. It is not as good as the `flex` encoding but kept for reference.
 
-##  3. <a name='Quickstartrecommendation'></a>Quick start recommendation
+##  2. <a id='quick-start-recommendation'></a>Quick start recommendation
 
 - Use **flexL** encoding if your target processor is a little endian machine, otherwise use **flex**
 - The `trice` tool assumes **flexL** per default, so no need for commandline switch `-enc flexL`.
@@ -71,7 +77,7 @@ Trice bytes can be encoded in different flavors and it is easy to develop a new 
 #define TRICE_ENCODING TRICE_FLEX_ENCODING
 ```
 
-##  4. <a name='Overview'></a>Overview
+##  3. <a id='overview'></a>Overview
 
 Inside the target project specific triceConfig.h is selectable:
 
@@ -94,7 +100,7 @@ triceServeFifoWrappedToBytesBuffer();
 
 Currently these encodings are supported:
 
-###  4.1. <a name='flexencoding'></a>`flex` encoding
+###  3.1. <a id='`flex`-encoding'></a>`flex` encoding
 
 The 3 formats **short**, **medium** and **long** are usable parallel. String transfer is done not in the short format.
 A format extension is possible by using the 2 reserved patterns in medium format.
@@ -110,7 +116,7 @@ the format string, but could also be some (packed) structs and the ID refers to 
   - 0: short encoding
   - 1: medium and long encoding
 
-####  4.1.1. <a name='flexshortsub-encoding'></a>`flex` short sub-encoding
+####  3.1.1. <a id='`flex`-short-sub-encoding'></a>`flex` short sub-encoding
 
 - Maximum payload 2 bytes
 
@@ -127,7 +133,7 @@ This sub-encodig is mainly for _very_ small systems and time critical stuff
 0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD : short, implicit count=2, Trice8_2 
 ```
 
-####  4.1.2. <a name='flexmediumsub-encoding'></a>*`flex` medium sub-encoding*
+####  3.1.2. <a id='*`flex`-medium-sub-encoding*'></a>*`flex` medium sub-encoding*
 
 - Maximun payload 4 bytes
 
@@ -156,7 +162,7 @@ DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
 ...
 ```
 
-####  4.1.3. <a name='flexlongsub-encoding'></a>*`flex` long sub-encoding*
+####  3.1.3. <a id='*`flex`-long-sub-encoding*'></a>*`flex` long sub-encoding*
 
 - Maximun payload 65535 bytes
 
@@ -219,7 +225,7 @@ DDDDDDDD DDDDDDDD DDDDDDDD 00000000
 
 ```
 
-###  4.2. <a name='pack2pacl2Lencoding'></a>`pack2` & `pacl2L` encoding
+###  3.2. <a id='`pack2`-&-`pacl2l`-encoding'></a>`pack2` & `pacl2L` encoding
 
 This is the recommended encoding.
 
@@ -230,7 +236,7 @@ This is the recommended encoding.
 - trice tool source: trice/internal/decoder/pack2Decoder.go
 - trice tool test file: trice/internal/decoder/pack2Decoder_test.go
 
-###  4.3. <a name='Encodingpack2pack2Lwithcyclecounter20-bitIDsruntimestringsupto65535chars'></a>Encoding `pack2` & `pack2L` (with cycle counter, 20-bit IDs, runtime strings up to 65535 chars)
+###  3.3. <a id='encoding-`pack2`-&-`pack2l`-(with-cycle-counter,-20-bit-ids,-runtime-strings-up-to-65535-chars)'></a>Encoding `pack2` & `pack2L` (with cycle counter, 20-bit IDs, runtime strings up to 65535 chars)
 
 The encoding is similar to `pack` & `packL` encoding with these differences:
 
@@ -297,7 +303,7 @@ DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
 NNNNNNNN NNNNNNNN nnnnnnnn nnnnnnnn = 16-bit count N and bit invers n
 ```
 
-###  4.4. <a name='packpackLencoding'></a>`pack` & `packL` encoding
+###  3.4. <a id='`pack`-&-`packl`-encoding'></a>`pack` & `packL` encoding
 
 This is the pack2 & pack2L predecessor and kept for reference.
 
@@ -308,7 +314,7 @@ This is the pack2 & pack2L predecessor and kept for reference.
 - trice tool source: trice/internal/decoder/packDecoder.go
 - trice tool test file: trice/internal/decoder/packDecoder_test.go
 
-###  4.5. <a name='EncodingpackpackLnocyclecounter16-bitIDsruntimestringsupto65535chars'></a>Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 65535 chars)
+###  3.5. <a id='encoding-`pack`-&-`packl`-(no-cycle-counter,-16-bit-ids,-runtime-strings-up-to-65535-chars)'></a>Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 65535 chars)
 
 All values up to 32 bit are combined 32 bit units in big (=network) or little endian order.
 64-bit values are in the same byte order.
@@ -362,7 +368,7 @@ and so on...
 
 A [sync package](#sync-packages) can be inserted anytime between 2 trice but not inside a trice.
 
-###  4.6. <a name='bareandbareLencoding'></a>`bare` and `bareL` encoding
+###  3.6. <a id='`bare`-and-`barel`-encoding'></a>`bare` and `bareL` encoding
 
 This was the first minimal implementation. Could be interstuing for 8-bit and 16-bit processors.
 
@@ -373,11 +379,11 @@ This was the first minimal implementation. Could be interstuing for 8-bit and 16
 - trice tool source: trice/internal/decoder/bareDecoder.go
 - trice tool test file: trice/internal/decoder/bareDecoder_test.go
 
-###  4.7. <a name='wrapandwrapLencoding'></a>`wrap` and `wrapL` encoding
+###  3.7. <a id='`wrap`-and-`wrapl`-encoding'></a>`wrap` and `wrapL` encoding
 
 This is also `bare` & `bareL` encoding but with additional control bytes.
 
-###  4.8. <a name='escencoding'></a>`esc` encoding
+###  3.8. <a id='`esc`-encoding'></a>`esc` encoding
 
 This is a try-out escape sequence encoding implementation and kept for reference.
 
@@ -389,7 +395,7 @@ This is a try-out escape sequence encoding implementation and kept for reference
 - trice tool source: trice/internal/decoder/escDecoder.go
 - trice tool test file: trice/internal/decoder/escDecoder_test.go
 
-###  4.9. <a name='miniencodingidea'></a>`mini` encoding (idea)
+###  3.9. <a id='`mini`-encoding-(idea)'></a>`mini` encoding (idea)
 
 - Supports only `TRICE0`, `TRICE16_1`, `TRICE8_2`.
 - 16-bit IDs and 16-bit data
@@ -397,14 +403,14 @@ This is a try-out escape sequence encoding implementation and kept for reference
 - Minimal memory footprint
 - Maximal speed.
 
-###  4.10. <a name='mixencodingidea'></a>`mix` encoding (idea)
+###  3.10. <a id='`mix`-encoding-(idea)'></a>`mix` encoding (idea)
 
 - Combines `pack2` and `mini` by using 1 bit from the ID space as mode bit.
 - If mode bit is 0, then `mini` encoding with 15-bit IDs (32767 usable)
 - If mode bit is 1, then `pack2` encoding with 19-bit IDs (524287 usable)
 - The 4-bit count offers 2 reserved values for future extension.
 
-###  4.11. <a name='ownencoding'></a>own encoding
+###  3.11. <a id='own-encoding'></a>own encoding
 
 To implement a different encoding:
 
@@ -415,7 +421,7 @@ To implement a different encoding:
 - Integrate *own*Decoder.go accordingly.
 - Write tests!
 
-##  5. <a name='EncodingbarebareL'></a>Encoding `bare` & `bareL`
+##  4. <a id='encoding-`bare`-&-`barel`'></a>Encoding `bare` & `bareL`
 
 - Each trice is coded in one to eight 4-byte trice atoms.
 - A trice atom consists of a 2 byte id and 2 bytes data.
@@ -471,7 +477,7 @@ If the wrap format is desired as output the buffered 4 byte trice is transmitted
 
 The bare output format contains exactly the bare bytes but is enriched with 4 byte [sync packages](#sync-packages) mixed in at 4 byte offsets to achieve syncing. The sync package interval is adjustable.
 
-##  6. <a name='EncodingwrapwrapL'></a>Encoding `wrap` & `wrapL`
+##  5. <a id='encoding-`wrap`-&-`wrapl`'></a>Encoding `wrap` & `wrapL`
 
 This is the same as bare, but each trice atom is prefixed with a 4 byte wrap information:
 
@@ -481,7 +487,7 @@ This is the same as bare, but each trice atom is prefixed with a 4 byte wrap inf
 - crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
 --->
 
-##  7. <a name='Encodingescexperimental'></a>Encoding `esc` (experimental)
+##  6. <a id='encoding-`esc`-(experimental)'></a>Encoding `esc` (experimental)
 
 The `esc` encoding uses an escape character for syncing after some data loss. It is extendable.
 
@@ -494,7 +500,7 @@ An `esc` trice transfer packet consists of an 4-byte header followed by an optio
 |:----------------:|------------------|--------------|--------------|
 | Escape char `EC` | Length Code `LC` | triceID `IH` | triceID `IL` |
 
-###  7.1. <a name='StartbyteEC'></a>Start byte `EC`
+###  6.1. <a id='start-byte-`ec`'></a>Start byte `EC`
 
 ```c
 #define TRICE_ESC  0xEC //!< Escape char is control char to start a package.
@@ -511,7 +517,7 @@ the `0xde` byte.
 This is inserted as not counted value into the bytes stream after an `0xec` to signal that this is an ordinary `0xec`
 byte inside the data stream. As byte `0xec` is not used so often is is defined as ESC character:
 
-###  7.2. <a name='LengthCodeLC'></a>Length Code `LC`
+###  6.2. <a id='length-code-`lc`'></a>Length Code `LC`
 
 The LC is a 1-byte logarithmic length code. This is a copy
 from [trice.h lines 44-58](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.h) and shows the length code
@@ -534,14 +540,14 @@ meaning:
 
 ```
 
-###  7.3. <a name='TriceIDIHandIL'></a>TriceID `IH` and `IL`
+###  6.3. <a id='triceid-`ih`-and-`il`'></a>TriceID `IH` and `IL`
 
 - The third and fourth byte are the 16 bit trice ID: IH & IL.
 - The trice ID encodes one of the allowed trice macros, and a format string.
 - The format string has some format specifiers accordingly to the trice macro.
 - In the case of `TRICE_S` the format string contains one and only one `%s`.
 
-###  7.4. <a name='Payload'></a>Payload
+###  6.4. <a id='payload'></a>Payload
 
 A number of bytes according LC is optionally following the header. If within the data to be transmitted an 0xEC occurs
 it stays on its place and is followed by a not counted 0xDE byte to signal that this is no start byte.
@@ -574,7 +580,7 @@ EC FF ...             |reserved                  |   |All packages starting with
 - Examples See function `TestEsc` and `TestEscDynStrings` in
   file [decoder_test.go](https://github.com/rokath/trice/blob/master/internal/decoder/decoder_test.go).
 
-##  8. <a name='Syncpackages'></a>Sync packages
+##  7. <a id='sync-packages'></a>Sync packages
 
 - The frequency is adjustable and could be every 100ms or 40 bytes.
 - The PC `trice` tool removes them silently.
@@ -627,7 +633,7 @@ EC FF ...             |reserved                  |   |All packages starting with
 //#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
 ```
 
-##  9. <a name='COBSRencoding'></a> COBS/R encoding
+##  8. <a id='-cobs/r-encoding'></a> COBS/R encoding
 
 - Packages are [COBS/R](https://pythonhosted.org/cobs/cobsr-intro.html) encoded.
 - Selected separator byte is `00`. That means the COBS/R encoded packages contain no `00` bytes and separated by a `00` byte.
@@ -637,14 +643,14 @@ EC FF ...             |reserved                  |   |All packages starting with
 - One important point is the possibility to embed additional protocols in the data stream.
 
 
-##  10. <a name='COBSRencodingexamples'></a>COBS/R encoding examples
+##  9. <a id='cobs/r-encoding-examples'></a>COBS/R encoding examples
 
-###  10.1. <a name='COBSRencodingfor0-bytepackages'></a>COBS/R encoding for 0-byte packages
+###  9.1. <a id='cobs/r-encoding-for-0-byte-packages'></a>COBS/R encoding for 0-byte packages
 
 - This is simply an empty package. Just the `00` package separator byte is transmitted.
 - It is normally used as padding byte to reach a multiple of 8 bytes package length when putting several COBS/R packages into one encryption packet.
 
-###  10.2. <a name='COBSRencodingfor1-bytepackages'></a>COBS/R encoding for 1-byte packages
+###  9.2. <a id='cobs/r-encoding-for-1-byte-packages'></a>COBS/R encoding for 1-byte packages
 
 - One byte COBS/R packages are a 1:1 transformation despite for the values `00` and `01`.
 
@@ -662,7 +668,7 @@ EC FF ...             |reserved                  |   |All packages starting with
 
 One byte packages are fast COBS/R codable by simply incrementing the 2 values `00` and `01` and appending a `01`.
 
-###  10.3. <a name='COBSRencodingfor2-bytepackages'></a>COBS/R encoding for 2-byte packages
+###  9.3. <a id='cobs/r-encoding-for-2-byte-packages'></a>COBS/R encoding for 2-byte packages
 
 - Two bytes COBS/R packages are often a 1:1 transformation despite some cases as seen in the following table.
 
@@ -757,23 +763,23 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
   - Id = 0xnn0 = range 256 is forbidden, but not if cycle counter moves only between 1 and 15.
   - -> 3792 different Ids allowed
 
-###  10.4. <a name='COBSRencodingforn-bytepackages'></a>COBS/R encoding for n-byte packages
+###  9.4. <a id='cobs/r-encoding-for-n-byte-packages'></a>COBS/R encoding for n-byte packages
 
 - This looks similar to 1-byte and 2-byte encoding and is not shown here.
 - Some super fast code for 3- and 4-byte packet encoding is also possible.
 - All *trice* packages are much shorter than 255 bytes so the COBS/R encoding is cheap.
 
-###  10.5. <a name='COBSRencoding-1'></a>COBS/R encoding
+###  9.5. <a id='cobs/r-encoding'></a>COBS/R encoding
 
 Packages are COBS/R encoded (without containing `00` bytes) and separated by a `00` byte. This allows the transfer of n-byte packages without the need to decide the meaning of the payload, means, how many bits are ID and how many bits are value is simply a configuration question. The COBS/R encoding usually has the same length as the unencoded data and sometimes has one byte more but an additional 00 is needed for secure package separation. This way the ID bit count is adjustable to the real communication needs because a data disturbance is easily detectable by just waiting for the next 0.
 
 
-####  10.5.1. <a name='COBSRencodingforn-bytepackages-1'></a>COBS/R encoding for n-byte packages
+####  9.5.1. <a id='cobs/r-encoding-for-n-byte-packages-1'></a>COBS/R encoding for n-byte packages
 
 This looks similar to 1-byte and 2-byte encoding and is not shown here.
 Some super fast code for 3- and 4-byte packet encoding is also possible.
 
-####  10.5.2. <a name='DecodedCOBSRpackageinterpreter'></a>Decoded COBS/R package interpreter
+####  9.5.2. <a id='decoded-cobs/r-package-interpreter'></a>Decoded COBS/R package interpreter
 
 How the packages are to interpret is a question of software configuration. When a decoded COBS/R package is to interpret, the known package length is used to choose the right interpreter. For example all multiple of 8 length packages are possibly XTEA encrypted. Also a fixed-size ID is usable. It is also possible to have several `trice` messages inside a packet. That makes sense to reach a multiple of 8-byte message length good for encryption.
 
@@ -853,9 +859,9 @@ If less value bytes are needed padding bytes are used.
 ID7(n) =  7-bit ID
 IDE(n) = 14-bit ID
 
-##  11. <a name='InterpreterfordecodedCOBSRpackage'></a>Interpreter for decoded COBS/R package
+##  10. <a id='interpreter-for-decoded-cobs/r-package'></a>Interpreter for decoded COBS/R package
 
-###  11.1. <a name='IMPORTANT'></a>IMPORTANT
+###  10.1. <a id='important'></a>IMPORTANT
 
 - After receiving and decoding a COBS/R package, the receiver can decide according to the package length and its starting bits what to do with it:
   - Package lengths 2, 3, 4, 6, 10, 18, 34, 66 starting with four 0-bits are trice logs.
@@ -868,7 +874,7 @@ IDE(n) = 14-bit ID
     - Ignore, route forward or call user handler.
     - 1-byte COBS/R packages are not recommended for numerous data. Because of the delimiter byte, are only ~50% bandwidth usable.
 
-###  11.2. <a name='Encodingtable0legend'></a>Encoding table 0 legend
+###  10.2. <a id='encoding-table-0-legend'></a>Encoding table 0 legend
 
 | Legend | Meaning                                                           |
 | :-     | :---------------------------------------------------------------- |
@@ -878,7 +884,7 @@ IDE(n) = 14-bit ID
 | X\|xxxx| 4 arbitrary bits (any half byte )                                 |
 | Y\|yyyy| 4 arbitrary bits, but at least one must be 1 (any half byte != 0) |
 
-###  11.3. <a name='Encodingtable0withoutcyclecounter'></a>Encoding table 0 (without cycle counter)
+###  10.3. <a id='encoding-table-0-(without-cycle-counter)'></a>Encoding table 0 (without cycle counter)
 
 |half bytes      | same as bits                     | bytes|ID bits| ID range    |ID map| remark                                                                      |
 | -              | -------------------------------- |:----:| :---: | :------:    |  :-: |     :-                                                                      |
@@ -900,7 +906,7 @@ IDE(n) = 14-bit ID
 - The ID map number can be deduced from the package length and needs no transmission.
   - So only the 12 lower ID bits are transmitted.
 
-###  11.4. <a name='Encodingtable1legend'></a>Encoding table 1 legend
+###  10.4. <a id='encoding-table-1-legend'></a>Encoding table 1 legend
 
 | Legend | Meaning                           |
 | :-     | :---------------------------------|
@@ -910,7 +916,7 @@ IDE(n) = 14-bit ID
 | X\|xxxx| 4 arbitrary bits (any half byte ) |
 | C\|cccc| 4 cycle counter bits              |
 
-###  11.5. <a name='Encodingtable1with4-bitcyclecounter'></a>Encoding table 1 (with 4-bit cycle counter)
+###  10.5. <a id='encoding-table-1-(with-4-bit-cycle-counter)'></a>Encoding table 1 (with 4-bit cycle counter)
 
 |half bytes      | same as bits                     | bytes|ID bits| ID range    |ID map| remark                                                                      |
 | -              | -------------------------------- |:----:| :---: | :------:    |  :-: |     :-                                                                      |
@@ -926,7 +932,7 @@ IDE(n) = 14-bit ID
 |`XX...8*n`      |`xxxxxxxx...8*n`                  |  8*n |       |             |      | encrypted                                                                   |
 |`XX...n`        |`xxxxxxxx...n`                    |    n |       |             |      | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
 
-###  11.6. <a name='Encodingtable2with8-bitcyclecounter'></a>Encoding table 2 (with 8-bit cycle counter)
+###  10.6. <a id='encoding-table-2-(with-8-bit-cycle-counter)'></a>Encoding table 2 (with 8-bit cycle counter)
 
 |half bytes      | same as bits                              | bytes|ID bits| ID range  |ID map| remark                                                                      |
 | -              | --------------------------------          |:----:| :---: | :------:  |  :-: |     :-                                                                      |
@@ -942,6 +948,8 @@ IDE(n) = 14-bit ID
 |`XX...8*n`      |`xxxxxxxx...8*n`                           |  8*n |       |           |      | encrypted                                                                   |
 |`XX...n`        |`xxxxxxxx...n`                             |    n |       |           |      | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
 
-##  12. <a name='FastTRICEdatastoring'></a>Fast TRICE data storing
+##  11. <a id='fast-trice-data-storing'></a>Fast TRICE data storing
 
 ...
+
+<p align="right">(<a href="#top">back to top</a>)</p>

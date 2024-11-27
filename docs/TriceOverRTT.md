@@ -6,40 +6,42 @@
 >
 > **This document needs a rework, currently it is a mess, sorry!**
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
 
 <!-- vscode-markdown-toc -->
-
-- [*Trice* over RTT](#trice-over-rtt)
-  - [1. Preface](#1-preface)
-  - [2. For the impatient (2 possibilities)](#2-for-the-impatient-2-possibilities)
-    - [2.1. Start JLink commander and connect over TCP](#21-start-jlink-commander-and-connect-over-tcp)
-      - [2.1.1. Setup TCP4 server providing the trace data](#211-setup-tcp4-server-providing-the-trace-data)
-    - [2.2. Start using JLinkLogger](#22-start-using-jlinklogger)
-  - [3. Segger Real Time Transfer (RTT)](#3-segger-real-time-transfer-rtt)
-  - [4. J-Link option](#4-j-link-option)
-    - [4.1. Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 \& v2.1, not for v3)](#41-convert-a-stm-nucleo-or-discovery-onboard-st-link-valid-for-st-link-v2--v21-not-for-v3)
-      - [4.1.1. First step (to do if some issues occur - otherwise you can skip it)](#411-first-step-to-do-if-some-issues-occur---otherwise-you-can-skip-it)
-      - [4.1.2. Second step](#412-second-step)
-    - [4.2. Some SEGGER tools in short](#42-some-segger-tools-in-short)
-      - [4.2.1. JLink.exe](#421-jlinkexe)
-      - [4.2.2. JLinkRTTLogger.exe](#422-jlinkrttloggerexe)
-    - [4.3. JLinkRTTClient.exe](#43-jlinkrttclientexe)
-    - [4.4. JLinkRTTViewer.exe](#44-jlinkrttviewerexe)
-  - [5. Segger RTT](#5-segger-rtt)
-  - [6. Segger J-Link SDK (~800 EUR) Option](#6-segger-j-link-sdk-800-eur-option)
-  - [7. Additional Notes (leftovers)](#7-additional-notes-leftovers)
-  - [8. Further development](#8-further-development)
-  - [9. NUCLEO-F030R8 example](#9-nucleo-f030r8-example)
-    - [9.1. RTT with original on-board ST-LINK firmware](#91-rtt-with-original-on-board-st-link-firmware)
-    - [9.2. Change to J-LINK onboard firmware](#92-change-to-j-link-onboard-firmware)
-    - [9.3. RTT with J-LINK firmware on-board](#93-rtt-with-j-link-firmware-on-board)
-  - [10. Possible issues](#10-possible-issues)
-  - [11. OpenOCD with Darwin](#11-openocd-with-darwin)
-  - [12. Links](#12-links)
+* 1. [Preface](#preface)
+* 2. [For the impatient (2 possibilities)](#for-the-impatient-(2-possibilities))
+  * 2.1. [Start JLink commander and connect over TCP](#start-jlink-commander-and-connect-over-tcp)
+    * 2.1.1. [Setup TCP4 server providing the trace data](#setup-tcp4-server-providing-the-trace-data)
+  * 2.2. [Start using JLinkLogger](#start-using-jlinklogger)
+* 3. [Segger Real Time Transfer (RTT)](#segger-real-time-transfer-(rtt))
+* 4. [J-Link option](#j-link-option)
+  * 4.1. [Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)](#convert-a-stm-nucleo-or-discovery-onboard-st-link-(valid-for-st-link-v2-&-v2.1,-not-for-v3))
+    * 4.1.1. [First step (to do if some issues occur - otherwise you can skip it)](#first-step-(to-do-if-some-issues-occur---otherwise-you-can-skip-it))
+    * 4.1.2. [Second step](#second-step)
+  * 4.2. [Some SEGGER tools in short](#some-segger-tools-in-short)
+    * 4.2.1. [JLink.exe](#jlink.exe)
+    * 4.2.2. [JLinkRTTLogger.exe](#jlinkrttlogger.exe)
+  * 4.3. [JLinkRTTClient.exe](#jlinkrttclient.exe)
+  * 4.4. [JLinkRTTViewer.exe](#jlinkrttviewer.exe)
+* 5. [Segger RTT](#segger-rtt)
+* 6. [Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-(~800-eur)-option)
+* 7. [Additional Notes (leftovers)](#additional-notes-(leftovers))
+* 8. [Further development](#further-development)
+* 9. [NUCLEO-F030R8 example](#nucleo-f030r8-example)
+  * 9.1. [RTT with original on-board ST-LINK firmware](#rtt-with-original-on-board-st-link-firmware)
+  * 9.2. [Change to J-LINK onboard firmware](#change-to-j-link-onboard-firmware)
+  * 9.3. [RTT with J-LINK firmware on-board](#rtt-with-j-link-firmware-on-board)
+* 10. [Possible issues](#possible-issues)
+* 11. [OpenOCD with Darwin](#openocd-with-darwin)
+* 12. [Links](#links)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -47,10 +49,9 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-  </ol>
-</details>
+<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
 
-##  1. <a name='Preface'></a>Preface
+##  1. <a id='preface'></a>Preface
 
 This technique needs to be considered as experimental:
 
@@ -64,11 +65,11 @@ This technique needs to be considered as experimental:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  2. <a name='Fortheimpatient2possibilities'></a>For the impatient (2 possibilities)
+##  2. <a id='for-the-impatient-(2-possibilities)'></a>For the impatient (2 possibilities)
 
 The default SEGGER tools only suport RTT channel 0.
 
-###  2.1. <a name='StartJLinkcommanderandconnectoverTCP'></a>Start JLink commander and connect over TCP
+###  2.1. <a id='start-jlink-commander-and-connect-over-tcp'></a>Start JLink commander and connect over TCP
 
 * JLink.exe → `connect ⏎ ⏎ S ⏎` and keep it active.
   * You can control the target with `r[eset], g[o], h[alt]` and use other commands too.
@@ -77,7 +78,7 @@ The default SEGGER tools only suport RTT channel 0.
 * You may need a **trice** tool restart after firmware reload.
 
 
-####  2.1.1. <a name='SetupTCP4serverprovidingthetracedata'></a>Setup TCP4 server providing the trace data
+####  2.1.1. <a id='setup-tcp4-server-providing-the-trace-data'></a>Setup TCP4 server providing the trace data
 
 This is just the SEGGER J-Link server here for demonstration, but if your target device has an TCP4 interface, you can replace this with your target server.
 
@@ -150,7 +151,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 **This is just a demonstration and test for the `-port TCP4` usage possibility**. Using RTT with J-Link is more easy possible as shown in the next point.
 
-###  2.2. <a name='StartusingJLinkLogger'></a>Start using JLinkLogger
+###  2.2. <a id='start-using-jlinklogger'></a>Start using JLinkLogger
 
 * Start inside Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"`
   * Replace CLI details with your settings.
@@ -163,7 +164,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  3. <a name='SeggerRealTimeTransferRTT'></a>Segger Real Time Transfer (RTT) 
+##  3. <a id='segger-real-time-transfer-(rtt)'></a>Segger Real Time Transfer (RTT) 
 
 * Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
 * If you can use a Segger J-Link or an STM ST-Link debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use *Trice* without any UART or other port.
@@ -204,16 +205,16 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  4. <a name='J-Linkoption'></a>J-Link option
+##  4. <a id='j-link-option'></a>J-Link option
 
 * Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option.
 
-###  4.1. <a name='ConvertaSTMNUCLEOorDISCOVERYonboardST-LinkvalidforST-Linkv2v2.1notforv3'></a>Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)
+###  4.1. <a id='convert-a-stm-nucleo-or-discovery-onboard-st-link-(valid-for-st-link-v2-&-v2.1,-not-for-v3)'></a>Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)
 
 * Following steps describe the needed action for a ST Microelectronics evaluation board and windows - adapt them to your environment.
 * It is always possible to turn back to the ST-Link OB firmware with the SEGGER `STLinkReflash.exe` tool but afterwards the ST-Link Upgrade tool should be used again to get the latest version. 
 
-####  4.1.1. <a name='Firststeptodoifsomeissuesoccur-otherwiseyoucanskipit'></a>First step (to do if some issues occur - otherwise you can skip it)
+####  4.1.1. <a id='first-step-(to-do-if-some-issues-occur---otherwise-you-can-skip-it)'></a>First step (to do if some issues occur - otherwise you can skip it)
 
 [Video](https://www.youtube.com/watch?app=desktop&v=g2Kf6RbdrIs)
 
@@ -224,12 +225,12 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 * Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP`. *The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.*
   ![ST-LINK-Upgrade.PNG](./ref/ST-LINK-Upgrade.PNG)
 
-####  4.1.2. <a name='Secondstep'></a>Second step
+####  4.1.2. <a id='second-step'></a>Second step
 
 * Check [Converting ST-LINK On-Board Into a J-Link](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 * Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. *`STM32 Debug+ VCP` won´t be detected by Segger reflash utility.*
 
-###  4.2. <a name='SomeSEGGERtoolsinshort'></a>Some SEGGER tools in short
+###  4.2. <a id='some-segger-tools-in-short'></a>Some SEGGER tools in short
 
 * Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
   * You may need to add `C:\Program Files\SEGGER\JLink` to the %PATH% variable.
@@ -237,7 +238,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 * For example: Compile and flash `../_test/MDK-ARM_STM32F030R8` project.
   * Check in [../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) if `#define TRICE_RTT_CHANNEL 0` is set as output option.
 
-####  4.2.1. <a name='JLink.exe'></a>JLink.exe
+####  4.2.1. <a id='jlink.exe'></a>JLink.exe
 
 * `JLink.exe` is the SEGGER J-Link commander. It starts the **J-Link driver/server** and one can connect to it
 * Info found [here](https://gist.github.com/GaryLee/ecd8018d1ca046c1a40fcd265fa109c0):
@@ -285,7 +286,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
   * Needs a separate manual start of the `jlink` binary with CLI parameters.
     * I would not recommend to automate that too, because this step is needed only once after PC power on.
 
-####  4.2.2. <a name='JLinkRTTLogger.exe'></a>JLinkRTTLogger.exe
+####  4.2.2. <a id='jlinkrttlogger.exe'></a>JLinkRTTLogger.exe
 
 * `JLinkRTTLogger.exe` is a CLI tool and connects via the SEGGER API to the target. It is usable for writing RTT channel 0 data from target into a file.
 * **PLUS:**
@@ -301,7 +302,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 * The **trice** tool can watch the output file and display the *Trices*: `trice log -port JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"
 ![./ref/JlinkLoggerTrice.PNG](./ref/JlinkLoggerTrice.PNG)
 
-###  4.3. <a name='JLinkRTTClient.exe'></a>JLinkRTTClient.exe
+###  4.3. <a id='jlinkrttclient.exe'></a>JLinkRTTClient.exe
 
 * `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings from target coming over channel 0. It is not used by the **trice** tool.
   * **PLUS:**
@@ -309,7 +310,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
   * **MINUS:**
     * Unfortunately it cannot run separately parallel to stimulate the target with any proprietary protocol because it connects to localhost:19021 and therefore blockades the only one possible connection.
 
-###  4.4. <a name='JLinkRTTViewer.exe'></a>JLinkRTTViewer.exe
+###  4.4. <a id='jlinkrttviewer.exe'></a>JLinkRTTViewer.exe
 
 * `JLinkRTTViewer.exe` is a GUI tool and connects via the SEGGER API to the target. It expects ASCII codes and is not used by the **trice** tool. The switching between the 16 possible terminals is done via `FF 00` ... `FF 0F`. These byte pairs can occur inside the Trice data.
 
@@ -323,7 +324,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  5. <a name='SeggerRTT'></a>Segger RTT
+##  5. <a id='segger-rtt'></a>Segger RTT
 
 * The main advantages are:
   * Speed
@@ -337,7 +338,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  6. <a name='SeggerJ-LinkSDK800EUROption'></a>Segger J-Link SDK (~800 EUR) Option
+##  6. <a id='segger-j-link-sdk-(~800-eur)-option'></a>Segger J-Link SDK (~800 EUR) Option
 
 * Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 * The `trice -port JLINK` is ok for usage **as is** right now. However if you wish more comfort check here:
@@ -347,7 +348,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  7. <a name='AdditionalNotesleftovers'></a>Additional Notes (leftovers)
+##  7. <a id='additional-notes-(leftovers)'></a>Additional Notes (leftovers)
 
 * `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 * Read the manual [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf).
@@ -356,7 +357,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  8. <a name='Furtherdevelopment'></a>Further development
+##  8. <a id='further-development'></a>Further development
 
 
 
@@ -395,21 +396,21 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  9. <a name='NUCLEO-F030R8example'></a>NUCLEO-F030R8 example
+##  9. <a id='nucleo-f030r8-example'></a>NUCLEO-F030R8 example
 
 Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html)
 
-###  9.1. <a name='RTTwithoriginalon-boardST-LINKfirmware'></a>RTT with original on-board ST-LINK firmware
+###  9.1. <a id='rtt-with-original-on-board-st-link-firmware'></a>RTT with original on-board ST-LINK firmware
 
 * `#define TRICE_RTT_CHANNEL 0`:
 * If you use a NUCLEO-F030R8 with the original ST-Link on board after firmware download enter: `trice l -p ST-LINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x2000"`. After pressing the reset button output becomes visible: ![./ref/STRTT.PNG](./ref/STRTT.PNG)
 * It works with both ST-Link variants (with or without mass storage device.)
 
-###  9.2. <a name='ChangetoJ-LINKonboardfirmware'></a>Change to J-LINK onboard firmware
+###  9.2. <a id='change-to-j-link-onboard-firmware'></a>Change to J-LINK onboard firmware
 
  ![./ref/STLinkReflash.PNG](./ref/STLinkReflash.PNG)
 
-###  9.3. <a name='RTTwithJ-LINKfirmwareon-board'></a>RTT with J-LINK firmware on-board
+###  9.3. <a id='rtt-with-j-link-firmware-on-board'></a>RTT with J-LINK firmware on-board
 
 ![./ref/J-LinkRTT.PNG](./ref/J-LinkRTT.PNG)
 
@@ -420,7 +421,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  10. <a name='Possibleissues'></a>Possible issues
+##  10. <a id='possible-issues'></a>Possible issues
 
 * These boards seem not to work reliable with RTT over J-Link on-board firmware.
   * NUCLEO-G071RB
@@ -429,7 +430,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  11. <a name='openocdwithDarwin'></a>OpenOCD with Darwin
+##  11. <a id='openocd-with-darwin'></a>OpenOCD with Darwin
 
 - OpenOCD on MacOS works out of the box after installing it.
 - When using VS code with Cortex-Debug you cannot use OpenOCD at the same time.
@@ -499,9 +500,11 @@ Nov 14 17:32:35.710201  TCP4:       triceExamples.c    26        0_504 i=4444440
 ...
 ```
 
-##  12. <a name='Links'></a>Links
+##  12. <a id='links'></a>Links
 
 * [https://www.codeinsideout.com/blog/stm32/j-link-rtt/](https://www.codeinsideout.com/blog/stm32/j-link-rtt/) (A good explanation of SEGGER J-Link Realtime Transfer - Fast Debug protocol: - only suitable for ASCII transfer)
 * [USB over WSL2?](https://twitter.com/beriberikix/status/1487127732190212102?s=20&t=NQVa27qvOqPi2uGz6pJNRA) (Maybe intersting for OpenOCD)
 
 * https://kickstartembedded.com/2024/03/26/openocd-one-software-to-rule-debug-them-all/?amp=1
+
+<p align="right">(<a href="#top">back to top</a>)</p>
