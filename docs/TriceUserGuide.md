@@ -128,7 +128,7 @@ See [FilesAndFolders.md](../FilesAndFolders.md)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  2. <a name='Getstarted'></a>Get started
+##  2. <a id='Getstarted'></a>Get started
 
 ###  2.1. <a name='Getit'></a>Get it
 
