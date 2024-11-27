@@ -155,6 +155,7 @@ git clone https://github.com/rokath/trice.git
 - [Pigweed Trace Tokenized](https://pigweed.dev/pw_trace_tokenized/)
 - [Postform](https://github.com/Javier-varez/Postform) (Postponed formatting experiments with string interning in C++. Inspired by the defmt Rust crate )
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
+- [Real-time binary data logging/tracing toolkit](https://github.com/RTEdbg/RTEdbg)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
 - [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications
 - [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
