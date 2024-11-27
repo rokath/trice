@@ -16,7 +16,7 @@
 <!-- Use Shift-Ctrl-P "Markdown All in Once: Create Table of Contence" to get correct links in the TOC. Delete the old one. -->
 <!-- vscode-markdown-toc -->
 * 1. [Project structure](#Projectstructure)
-* 2. [Get started](#Getstarted)
+* 2. [Get started](#getstarted)
 	* 2.1. [Get it](#Getit)
 	* 2.2. [Install It](#InstallIt)
 	* 2.3. [Try it](#Tryit)
@@ -128,7 +128,7 @@ See [FilesAndFolders.md](../FilesAndFolders.md)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  2. <a id='Getstarted'></a>Get started
+##  2. <a id="getstarted"></a>Get started
 
 ###  2.1. <a name='Getit'></a>Get it
 
