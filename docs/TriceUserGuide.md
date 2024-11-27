@@ -271,7 +271,8 @@ The full uppercase macro `TRICE` is a Trice macro only using inline code. Becaus
 - In the code snippet above the 32-bit timestamp is used for milliseconds and the 16.bit timestamp is used as clock counter what allows fine grained time measurements.
 - In the screenshot below, the 16-bit timestamp is a parallel counter running between 0-9999 milliseconds, which allows to have 16-bit timestamps all the time and only every 10 seconds is a full 32-bit timestamp needed.
 
-  ![x](./ref/0-16-32BitTimeStamps.jpg)
+  <img src="./ref/0-16-32BitTimeStamps.jpg" width="1000">
+
 
 - The trice tool `-ts*` CLI switches allow customization. With `-hs off` host time stamps are suppressed.
 - It is also possible to use the stamp option not for time stamps but for any values, like addresses or a voltage or a random number.

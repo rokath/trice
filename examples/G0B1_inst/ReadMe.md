@@ -29,7 +29,8 @@ Table of Contents Generation:
 
 ##  2. <a id='setting-up'></a>Setting Up
 
-![x](./IMG_20240722.jpg)
+  <img src="./IMG_20240722.jpg" width="400">
+
 - See and adapt steps in [../G0B1_gen/ReadMe.md](../G0B1_gen/ReadMe.md).
 
 ##  3. <a id='instrumenting'></a>Instrumenting
@@ -37,4 +38,4 @@ Table of Contents Generation:
 - The steps are similar to the steps in [../F030R8_inst/ReadMe.md](../F030R8_inst/ReadMe.md).
 - See comments in [triceConfig.h](./Core/Inc/triceConfig.h) and commandlines in screenshot.
 
-![x](./2024-07-22.png)
+  <img src="./2024-07-22.png" width="1000">

@@ -23,7 +23,8 @@ Table of Contents Generation:
 
 <div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
 
-![x](./IMG_20240722.jpg)
+
+<img src="./IMG_20240722.jpg" width="400">
 
 ##  1. <a id='description'></a>Description
 
@@ -47,7 +48,7 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 - Run `trice s` to determine the relevant comport.
 - You can have this output:
 
-![x](./2024-07-22.png)
+  <img src="./2024-07-22.png" width="1000">
 
 - The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of less 5 µs.
 

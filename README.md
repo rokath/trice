@@ -76,7 +76,7 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 
 (See folder [./examples](./examples) for more details.)
 
-![x](./examples/Animation.gif)
+<img src="./examples/Animation.gif" width="1200">
 
 ## Trice Cache
 

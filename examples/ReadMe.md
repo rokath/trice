@@ -79,7 +79,7 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
 
 (The trice IDs occur just during the compilation.)
 
-![x](./Animation.gif)
+  <img src="./Animation.gif" width="1200">
 
 ##  5. <a id='setup-pc'></a>Setup PC
 
@@ -318,7 +318,7 @@ Extend the path variable:
 
 `trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -ts ms -d16` (example)
 
-![x](./Animation.gif)
+  <img src="./Animation.gif" width="1000">
 
 ##  13. <a id='setting-up-a-new-project'></a>Setting up a new project
 
