@@ -1,3 +1,7 @@
+<div id="top">
+
+# Changelog
+
 <!-- Generate TOC for markdown (Markdown TOC from Joffrey Kern) && delete && Markdown All in Once: Generate TOC -->
 <!-- vscode-markdown-toc -->
 
@@ -42,8 +46,6 @@
 	autoSave=true
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
-
-# Changelog
 
 | date       | version | comment                                                                                                                                                                                                                                      |
 |------------|--------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -713,3 +715,5 @@ Hash       | Comment
 `5dcd029a` | v0.72.2 Changes incorporated
 
 ##  17. <a id='masterbranchchangese028a42bMergebranchmasterintodevel'></a>master branch changese028a42b Merge branch 'master' into devel
+
+<p align="right">(<a href="#top">back to top</a>)</p>

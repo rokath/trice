@@ -1,3 +1,5 @@
+<div id="top">
+
 # *Trice* user guide
 
 > _(Read this)
@@ -116,7 +118,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 <!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
@@ -1956,7 +1958,7 @@ _### Tests
 | 2024-SEP-25 | 0.21.0  | Chapter "Target Macros" added                                                                                |
 | 2024-NOV-11 | 0.22.0  | Whole document re-read aud updated.                                                                          |
 
-<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
+<p align="right">(<a href="#top">back to top</a>)</p>
 
  <!-- 
  

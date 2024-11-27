@@ -1,3 +1,5 @@
+<div id="top">
+
 # *Trice* message encoding
 
 >> Trice Legacy Encoding. For TREX see 1.0 Spec
@@ -38,7 +40,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='cobs-encoding-and-user-protocols'></a>COBS encoding and user protocols
 

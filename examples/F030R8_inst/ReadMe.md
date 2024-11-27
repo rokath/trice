@@ -1,3 +1,5 @@
+<div id="top">
+
 # Example F030R8_inst
 
 
@@ -21,7 +23,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 
 <img src="./IMG_20240722.jpg" width="400">
@@ -52,4 +54,4 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 - The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of less 5 µs.
 
-<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
+<p align="right">(<a href="#top">back to top</a>)</p>

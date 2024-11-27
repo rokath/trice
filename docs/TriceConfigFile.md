@@ -1,3 +1,5 @@
+<div id="top">
+
 # *Trice* Configuration file
 
 > (Not implemented! - just ideas)
@@ -35,7 +37,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 * All following information about config files are just ideas.
 * The config file can contain one or several sub-commands and flags:

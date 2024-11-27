@@ -1,3 +1,5 @@
+<div id="top">
+
 # *Trice* over RTT
 
 > _(Read only you are interested in)_
@@ -49,7 +51,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='preface'></a>Preface
 

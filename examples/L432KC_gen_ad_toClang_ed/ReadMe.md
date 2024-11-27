@@ -1,3 +1,5 @@
+<div id="top">
+
 # Example L432KC_gen_ad_toClang_ed
 
 
@@ -20,15 +22,17 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='description'></a>Description
 
-- This is a STMCubeMX generated project. It was then manually adapted to Clang.
-- It was additionally configured for FreeRTOS.
-- It is for easy compare with  [../L432KC_gen_ad_toClang](../L432KC_gen_ad_toClang) to figure out the needed setup changes.
+* This is a STMCubeMX generated project. It was then manually adapted to Clang.
+* It was additionally configured for FreeRTOS.
+* It is for easy compare with  [../L432KC_gen_ad_toClang](../L432KC_gen_ad_toClang) to figure out the needed setup changes.
 
 ##  2. <a id='setting-up'></a>Setting Up
 
-- See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
-- Then add/modify the files to reach this folder layout.
+* See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
+* Then add/modify the files to reach this folder layout.
+
+<p align="right">(<a href="#top">back to top</a>)</p>

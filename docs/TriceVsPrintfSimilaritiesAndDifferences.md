@@ -1,3 +1,5 @@
+<div id="top">
+
 # *Trice* Similarities and differences to `printf` usage
 
 > _(Read only you are interested in)_
@@ -34,7 +36,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='printf-like-functions'></a>Printf-like functions
 

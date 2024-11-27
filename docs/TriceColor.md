@@ -1,4 +1,4 @@
-# *Trice* Tags and Color
+# <div id="top"> *Trice* Tags and Color
 
 <details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
 
@@ -21,7 +21,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='how-to-get'></a>How to get
 

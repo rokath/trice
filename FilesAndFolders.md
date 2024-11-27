@@ -1,4 +1,29 @@
+<div id="top">
+
 # Files and Folders
+
+<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+Table of Contents Generation:
+- Install vsCode extension "Markdown TOC" from dumeng 
+- Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+- replace "<a id=" with "<a id=" 
+-->
+
+<!-- vscode-markdown-toc -->
+* 1. [`.clang-format`](#`.clang-format`)
+* 2. [`.clang-format-ignore`](#`.clang-format-ignore`)
+* 3. [`.editorconfig`](#`.editorconfig`)
+* 4. [`.gitattributes`](#`.gitattributes`)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 | name                            | content                                          |
 |---------------------------------|--------------------------------------------------|
@@ -42,7 +67,7 @@
 | `dist/`                         | created by goreleaser                            |
 | `fmtcoverage.html`              |                                                  |
 
-## `.clang-format`
+##  1. <a id='`.clang-format`'></a>`.clang-format`
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
@@ -81,7 +106,7 @@ Staying as close as possible to a default version (LLVM in this case) makes it e
 
 See also: https://github.com/rokath/trice/pull/487#issuecomment-2318003072
 
-## `.clang-format-ignore`
+##  2. <a id='`.clang-format-ignore`'></a>`.clang-format-ignore`
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
@@ -89,14 +114,14 @@ Sazerac4 commented Aug 30, 2024:
 I have added .clang-format-ignore to ignore formatting for specific files
 
 
-## `.editorconfig`
+##  3. <a id='`.editorconfig`'></a>`.editorconfig`
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
 The`.editorconfig` file allows to better identify the basic style for every files. (endline, charset, ...). It is a file accepted by a wide list of IDEs and editors : [link](https://editorconfig.org/#file-format-details)
 This addition is motivated by forgetting the end of line in the .gitattributes file.
 
-## `.gitattributes`
+##  4. <a id='`.gitattributes`'></a>`.gitattributes`
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
@@ -107,3 +132,5 @@ To fill the`.gitattributes`, I used the command below to view all the extensions
 ```bash
 git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort -u
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>

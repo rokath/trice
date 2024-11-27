@@ -1,3 +1,5 @@
+<div id="top">
+
 # Trice Cache Specification
 
 <details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
@@ -22,7 +24,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='preface'></a>Preface
 

@@ -1,5 +1,6 @@
-# Example Projects without and with Trice Instrumentation
+<div id="top">
 
+# Example Projects without and with Trice Instrumentation
 
 <details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
 
@@ -44,7 +45,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='about'></a>About
 
@@ -332,4 +333,6 @@ Extend the path variable:
 - Open the copied *ioc file inside `myAwesomeNewProject` and re-generate and re-build to check.
 - Compare the relevant files like `main.c` with the starting project and edit accordingly.
 - Adapt `.vscode/launch.json` to the used MCU.
-- Than the awesome new project should be ready to go for development.  
+- Than the awesome new project should be ready to go for development.
+
+<p align="right">(<a href="#top">back to top</a>)</p>

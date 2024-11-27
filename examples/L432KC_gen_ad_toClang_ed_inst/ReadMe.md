@@ -1,3 +1,5 @@
+<div id="top">
+
 # Example L432KC_gen_ad_toClang_ed_instr
 
 ![./Nucleo_STM32L432KC.jpg](./Nucleo_STM32L432KC.jpg)
@@ -32,17 +34,17 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='description'></a>Description
 
-- This is a with Trice instrumented project.
-- It is for easy compare with  [../L432KC_gen_ad_toClang_ed](../L432KC_gen_ad_toClang_ed) to figure out the needed setup changes.
+* This is a with Trice instrumented project.
+* It is for easy compare with  [../L432KC_gen_ad_toClang_ed](../L432KC_gen_ad_toClang_ed) to figure out the needed setup changes.
 
 ##  2. <a id='setting-up'></a>Setting Up
 
-- See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
-- Then add/modify the files to reach this folder layout.
+* See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
+* Then add/modify the files to reach this folder layout.
 
 ##  3. <a id='build'></a>Build
 
@@ -91,26 +93,26 @@ $ trice l -p com8 -hs off -prefix off
 
 ##  5. <a id='"hardware"-changes'></a>"Hardware" Changes
 
-- The used evaluation board is delivered with an on-board ST-Link software for debugging.
-- This was changed to an on-board J-Link software for better debugging and RTT support.
-- See [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md) about that.
+* The used evaluation board is delivered with an on-board ST-Link software for debugging.
+* This was changed to an on-board J-Link software for better debugging and RTT support.
+* See [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md) about that.
 
 ##  6. <a id='using-rtt-with-on-board-j-link-and-jlinkrttlogger'></a>Using RTT with on-board J-Link and JLinkRTTLogger
 
-- You need to install the "J-Link Software and Documentation pack" for yout OS.
-- [./Core/Inc/triceConfig.h](./Core/Inc/triceConfig.h) contains example Trice log commands.
+* You need to install the "J-Link Software and Documentation pack" for yout OS.
+* [./Core/Inc/triceConfig.h](./Core/Inc/triceConfig.h) contains example Trice log commands.
 
 ##  7. <a id='using-rtt-with-on-board-j-link-and-openocd'></a>Using RTT with on-board J-Link and OpenOCD
 
 ###  7.1. <a id='with-windows-not-possible'></a>With Windows not possible
 
-- OpenOCD does not support the installed JLink driver.
+* OpenOCD does not support the installed JLink driver.
 ![./JLinkConfig0.png](./JLinkConfig0.png)
-- Changing to the WinUSB buld device driver is here not supported :-(
+* Changing to the WinUSB buld device driver is here not supported :-(
 
 ###  7.2. <a id='darwin'></a>Darwin
 
-- See **OpenOCD with Darwin** in [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md)
+* See **OpenOCD with Darwin** in [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md)
 
 ##  8. <a id='using-rtt-with-on-board-st-link-and-openocd'></a>Using RTT with on-board ST-Link and OpenOCD
 
@@ -167,22 +169,22 @@ Nov 16 20:38:16.323665  TCP4:       triceExamples.c    19       46_536 2.718282 
 
 ###  9.1. <a id='fail'></a>Fail
 
-- [https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf](https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf)
-- Downloaded and installed
-  - [en.stm32cubeprg-win64-v2-17-0.zip]()
-  - [en.st-link-server-v2-1-1.zip]()
-    - PATH variable extended with `C:\Program Files (x86)\STMicroelectronics\stlink_server`
-    - Copied 
-      - From: "C:\Program Files (x86)\STMicroelectronics\stlink_server\stlinkserver.exe"
-      - To: "C:\Program Files (x86)\STMicroelectronics\stlink_server\ST-LINK_gdbserver.exe"
+* [https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf](https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf)
+* Downloaded and installed
+  * [en.stm32cubeprg-win64-v2-17-0.zip]()
+  * [en.st-link-server-v2-1-1.zip]()
+    * PATH variable extended with `C:\Program Files (x86)\STMicroelectronics\stlink_server`
+    * Copied 
+      * From: "C:\Program Files (x86)\STMicroelectronics\stlink_server\stlinkserver.exe"
+      * To: "C:\Program Files (x86)\STMicroelectronics\stlink_server\ST-LINK_gdbserver.exe"
 
 ###  9.2. <a id='ok'></a>OK
 
-- Download st-util from github.com
-- Unpack to `C:\bin\stlink-1.8.0-win32` and add `C:\bin\stlink-1.8.0-win32\bin` to path
-- Copy `C:\bin\stlink-1.8.0-win32\Program Files (x86)\stlink` to `C:\Program Files (x86)\stlink`
-- Get `C:\bin\libusb-1.0.27`
-- Copy `C:\bin\libusb-1.0.27\MinGW64\dll\libusb-1.0.dll` to `C:\bin\stlink-1.8.0-win32\bin\libusb-1.0.dll`
+* Download st-util from github.com
+* Unpack to `C:\bin\stlink-1.8.0-win32` and add `C:\bin\stlink-1.8.0-win32\bin` to path
+* Copy `C:\bin\stlink-1.8.0-win32\Program Files (x86)\stlink` to `C:\Program Files (x86)\stlink`
+* Get `C:\bin\libusb-1.0.27`
+* Copy `C:\bin\libusb-1.0.27\MinGW64\dll\libusb-1.0.dll` to `C:\bin\stlink-1.8.0-win32\bin\libusb-1.0.dll`
 ```bash
 ms@LenovoP51Win11 MINGW64 /e/repos/trice/examples/L432KC_gen_ad_toClang_ed_inst (devel)
 $ st-util.exe 
@@ -209,5 +211,4 @@ Receive signal 0. Exiting...
 ```
 (Last line after `CTRL-C`)
 
-
-
+<p align="right">(<a href="#top">back to top</a>)</p>

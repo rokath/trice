@@ -1,3 +1,5 @@
+<div id="top">
+
 # *Trice* Speed
 
 > _(Read only you are interested in)_
@@ -23,7 +25,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
  A `TRICE` macro execution can be as cheap like **3-4 Assembler instructions or 6-8 processor clocks**:
 

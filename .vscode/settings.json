@@ -16,7 +16,8 @@
         "NUCLEO",
         "Strg",
         "tcobs",
-        "TREX"
+        "TREX",
+        "vscode"
     ],
     "C_Cpp.errorSquiggles": "Disabled",
     "cmake.configureOnOpen": false,

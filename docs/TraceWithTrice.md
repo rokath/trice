@@ -1,3 +1,5 @@
+<div id="top">
+
 > This is the draft of
 > [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice)
 
@@ -43,7 +45,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='description'></a>Description
 

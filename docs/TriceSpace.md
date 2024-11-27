@@ -1,3 +1,5 @@
+<div id="top">
+
 # *Trice* memory needs
 
 > _(Read only you are interested in)_
@@ -22,7 +24,7 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-<div id="top"></div></ol></details><!-- TABLE OF CONTENTS END -->
+</div></ol></details><!-- TABLE OF CONTENTS END -->
 
 ##  1. <a id='*trice*-space-example'></a>*Trice* Space example
 
