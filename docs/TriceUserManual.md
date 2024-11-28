@@ -272,7 +272,7 @@ In the future other ports are possible:
 * [Go-mobile](https://github.com/golang/mobile)
 * [tinyGo](https://tinygo.org/)
 * [Wasm](https://webassembly.org/)
-* [Phython](https://en.wikipedia.org/wiki/Python_(programming_language
+* [Phython](https://en.wikipedia.org/wiki/Python_(programming_language))
 
 ![./ref/life0.gif](./ref/life0.gif)
 
@@ -288,9 +288,9 @@ Then, one day I had the idea to compute short checksums for the format strings i
 
 The need became clear for controllable IDs and management options. And there was [Go](https://golang.org) now, an as-fast-as-**C** language, easy to learn, promising high programming efficiency and portability. It would be interesting to try it out on a real PC project.
 
-Trying to add tags in form of partial Trice macro names was blowing up the header code amount and was a too rigid design. Which are the right tags? One lucky day I came to the conclusion to handle tags just as format string parts like `"debug:Here we are!\n"` and getting rid of them in the target code this way also giving the user [full freedom](../internal/emitter/lineTransformerANSI.go) to invent any tags.
+Trying to add tags in form of partial Trice macro names was blowing up the header code amount and was a too rigid design. Which are the right tags? One lucky day I came to the conclusion to handle tags just as format string parts like `"debug:Here we are!\n"` and getting rid of them in the target code this way also giving the user [freedom](../internal/emitter/lineTransformerANSI.go) to invent any tags.
 
-An other point in the design was the question how to re-sync after data stream interruption, because that happens often during firmware development. Several [encodings](./_Legacy/TriceObsoleteEncodings.md) where tried out and a proprietary escape sequence format and an alternative flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying. A side result of that trials is the Trice tool option to add different decoders if needed. Now the default Trice meassage framing is [TCOBS](https://github.com/rokath/tcobs) which includes short message compression and this way allows very low transmit bandwidths and/or saves storage, when binary Trice data are stored in Flash memory.
+An other point in the design was the question how to re-sync after data stream interruption, because that happens often during firmware development. Several [encodings](./_Legacy/TriceObsoleteEncodings.md) where tried out and a proprietary escape sequence format and an alternative flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying. A side result of that trials is the Trice tool option to add different decoders if needed. Now the default Trice meassage framing is [TCOBSv1](https://github.com/rokath/tcobs) which includes short message compression and this way allows very low transmit bandwidths and/or saves storage, when binary Trice data are stored in Flash memory.
 
 There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro [speed](#execution-speed) and universality. That led to a double buffer on the target side as an alternative to the ring buffer solution. The actual binary [encoding](#binary-encoding) encoding, allowing alongside user protocols, is result of the optional target timestamps and location info some users asked for, keeping the target code as light as possible. Float and double number support was implementable for free because this work is done mainly on the host side.
 
@@ -306,16 +306,18 @@ Learning that Trice is also a [baby girl name](https://www.babynamespedia.com/me
 
 Trice performs **no** [costly](./TriceVsPrintfSimilaritiesAndDifferences.md#printf-like-functions) printf-like functions on the target at all. The `trice` macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6-8](./TriceSpeed.md) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
 
-To achieve that, an automatable pre-compile step is needed, executing a `trice insert` command on the PC. This is fast enough not to disturb the build process. The Trice tool parses then the source tree for macros like `trice( "msg: %d Kelvin\n", k );` and patches them to `trice( iD(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 14-bit identifier copied into a [**T**rice **I**D **L**ist](../til.json). During compilation than, the `trice` macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
+To achieve that, an automatable pre-compile step is needed, executing a `trice insert` command on the PC. This is fast enough not to disturb the build process. The Trice tool parses then the source tree for macros like `trice( "msg: %d Kelvin\n", k );` and patches them to `trice( iD(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 14-bit identifier (ID) copied into a [**T**rice **I**D **L**ist](../_test/testdata/til.json). During compilation than, the `trice` macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
 
-The target code is [project specific](../examples/F030R8_inst/Core/Inc/triceConfig.h) configurable.  In **immediate mode** the the stack is used as Trice buffer and the TRICE macro execution includes the quick [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding and the data transfer. This more straightforward and slower architecture can be interesting for many cases because it is anyway much faster than printf-like functions calls. In **deferred mode** a service swaps the Trice double buffer periodically, the COBS encoding takes part and with the filled buffer the background transfer is triggered. Out buffer and half Trice buffer share the same memory for efficiency.
+The target code is [project specific](../examples/F030R8_inst/Core/Inc/triceConfig.h) configurable.  In **direct mode** the the stack or a static buffer is used as Trice buffer and the Trice macro execution includes optionally the quick [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding and the data transfer. This more straightforward and slower architecture can be interesting for many cases because it is anyway much faster than printf-like functions calls. Especially when using [Trice over RTT](#trice-over-rtt) a single Trice is executable within ~100 processor clocks. See `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and look into the [examples](../examples) folder. In **deferred mode** a service swaps the Trice double buffer or reads the Trice ring buffer periodically, the configured encoding, default is TCOBS, takes part and with the filled buffer the background transfer is triggered. Out buffer and Trice buffer share the same memory for efficiency.
 
-During runtime the PC Trice tool receives all what happened in the last ~100ms as a COBS package from the UART port. The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the bit width information. Now the Trice tool can write target timestamp, set msg color and execute `printf("%d Kelvin\n", 0x0000000e);`
+During runtime the PC Trice tool receives all what happened in the last ~100ms as a package from the UART port. The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the bit width information. Now the Trice tool can write target timestamp, set msg color and execute `printf("%d Kelvin\n", 0x0000000e);`
 
 ---
   ![./ref/triceCOBSBlockDiagram.svg](./ref/triceCOBSBlockDiagram.svg)
 
-The Trice tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../til.json) for compatibility with older firmware versions. It could be possible, when merging code, an **ID** is used twice for different format strings. In that case, the **ID** inside the reference list wins and the additional source gets patched with a new **ID**. This maybe unwanted patching is avoidable with proper [ID management](./TriceIDManagement.md). The reference list should be kept under source code control.
+The Trice tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../_test/testdata/til.json) for compatibility with older firmware versions. It could be possible, when merging code, an ID is used twice for different format strings. In that case, the ID inside the reference list wins and the additional source gets patched with a new ID. This maybe unwanted patching is avoidable with proper [ID management](./TriceIDManagement.md). The reference list should be kept under source code control.
+
+Moreover, using `trice i -cache && make && trice c -cache` in a build script makes the IDs invisible to the developer reducing the data noise giving more space to focus on the development task. See [build.sh](../examples/L432KC_gen_ad_toClang_ed_inst/build.sh) as a working example and the [Trice Cache](#trice-cache) chapter for details.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -901,7 +903,7 @@ Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and ad
 * Each project gets its own [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
 * Modify [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) according your needs. Choose the Trice mode here:
   - Immediate mode: Straight output inside `TRICE` macro at the cost of the time it takes.
-    - With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function but no inside interrupts *Trices*!
+    - With `#define TRICE_MODE 0` (direct mode) just provide a **putchar()** function but no inside interrupts *Trices*!
     - Or use [SEGGER_RTT](./TriceOverRTT.md) allowing *Trices* also inside interrupts. An other big plus during new hardware setup is, no need to connect an additional wire. All information goes thru the debug probe. Internally only a `memcpy` transfers maybe 16 bytes to the SEGGER_RTT buffer and Trice does even not need a own buffer and no background task.
   - Deferred mode: Output outside `TRICE` macro, a background output some milliseconds later is needed at the cost of RAM buffer.
     - Compare the **not** instrumented test project [./_test/MDK-ARM_STM32F030R8_generated]([./_test/MDK-ARM_STM32F030R8_generated) with the instrumented test project [./_test/MDK-ARM_STM32F030R8]([./_test/MDK-ARM_STM32F030R8) to see an implementation example.
@@ -910,7 +912,7 @@ Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and ad
   - None-[SEGGER_RTT](./TriceOverRTT.md) transfer (mostly UART):
     - Trice Kick-off: Immediate Trice mode, but **no** `TRICE` macros inside interrupts.
     - Trice usage:  Deferred mode which **allows to use** `TRICE` macros also inside interrupts.
-    - In some cases, when logging a huge amount of data without timing constraints the immediate mode is a better choice.
+    - In some cases, when logging a huge amount of data without timing constraints the direct mode is a better choice.
 * If speed **and** log volume is needed, care must be taken to avoid Trice buffer overflow for example by time triggering.
 * Set options inside [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h):
   - Target timestamps time base
