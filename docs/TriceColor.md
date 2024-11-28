@@ -1,4 +1,6 @@
-# <div id="top"> *Trice* Tags and Color
+<div id="top"> 
+
+# *Trice* Tags and Color
 
 <details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
 
