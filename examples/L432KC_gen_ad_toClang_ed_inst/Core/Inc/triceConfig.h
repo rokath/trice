@@ -49,7 +49,6 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_PROTECT 1
 #define TRICE_DIAGNOSTICS 1
 #define TRICE_CYCLE_COUNTER 1
-#define TRICE_DEFERRED_OUTPUT 1
 
 #define TRICE_DEFERRED_BUFFER_SIZE 4096
 
