@@ -330,7 +330,7 @@ Target code and PC tool are open source. The MIT license gives full usage freedo
 
 ###  4.2. <a id='easy-to-use'></a>Easy-to-use
 
-Making it [facile](./TriceUserGuide.md) for a user to use Trice was the driving point just to have one Trice tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](../til.json) was updated in an pre-build step, the Trice tool automatically reloads the new data during logging.
+Making it facile for a user to use Trice was the driving point just to have one Trice tool and an additional source file with a project specific simple to use [triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) and to get away with the one macro `trice` for most situations. Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](../til.json) was updated in an pre-build step, the Trice tool automatically reloads the new data during logging.
 
 The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type `trice l -p COMn` for logging with a 115200 bit/s baud rate.
 
