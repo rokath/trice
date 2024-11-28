@@ -26,16 +26,17 @@ Table of Contents Generation:
   * 4.3. [Small size - using Trice <u>frees</u> FLASH memory](#small-size---using-trice-<u>frees</u>-flash-memory)
   * 4.4. [Execution speed](#execution-speed)
   * 4.5. [Robustness](#robustness)
-  * 4.6. [More comfort than printf-like functions but small differences](#more-comfort-than-printf-like-functions-but-small-differences)
-  * 4.7. [Tags, Color and Log Levels](#tags,-color-and-log-levels)
-  * 4.8. [Compile time enable/disable `TRICE` macros on file level](#compile-time-enable/disable-`trice`-macros-on-file-level)
-  * 4.9. [Target and host timestamps](#target-and-host-timestamps)
-  * 4.10. [Target source code location](#target-source-code-location)
-  * 4.11. [ Several target devices in one log output](#-several-target-devices-in-one-log-output)
-  * 4.12. [Any byte capable 1-wire connection usable](#any-byte-capable-1-wire-connection-usable)
-  * 4.13. [Scalability](#scalability)
-  * 4.14. [Portability and Modularity](#portability-and-modularity)
-  * 4.15. [Optional Trice messages encryption](#optional-trice-messages-encryption)
+  * 4.6. [Minimal Transfer Bytes Amount](#minimal-transfer-bytes-amount)
+  * 4.7. [More comfort than printf-like functions but small differences](#more-comfort-than-printf-like-functions-but-small-differences)
+  * 4.8. [Tags, Color and Log Levels](#tags,-color-and-log-levels)
+  * 4.9. [Compile Time Enable/Disable Trice Macros on File or Project Level](#compile-time-enable/disable-trice-macros-on-file-or-project-level)
+  * 4.10. [Target and host timestamps](#target-and-host-timestamps)
+  * 4.11. [Target source code location](#target-source-code-location)
+  * 4.12. [ Several target devices in one log output](#-several-target-devices-in-one-log-output)
+  * 4.13. [Any byte capable 1-wire connection usable](#any-byte-capable-1-wire-connection-usable)
+  * 4.14. [Scalability](#scalability)
+  * 4.15. [Portability and Modularity](#portability-and-modularity)
+  * 4.16. [Optional Trice messages encryption](#optional-trice-messages-encryption)
 * 5. [ Bottom line](#-bottom-line)
 * 6. [Project structure](#project-structure)
 * 7. [Get started](#get-started)
@@ -315,7 +316,7 @@ During runtime the PC Trice tool receives all what happened in the last ~100ms a
 ---
   ![./ref/triceCOBSBlockDiagram.svg](./ref/triceCOBSBlockDiagram.svg)
 
-The Trice tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../_test/testdata/til.json) for compatibility with older firmware versions. It could be possible, when merging code, an ID is used twice for different format strings. In that case, the ID inside the reference list wins and the additional source gets patched with a new ID. This maybe unwanted patching is avoidable with proper [ID management](./TriceIDManagement.md). The reference list should be kept under source code control.
+The Trice tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../_test/testdata/til.json) for compatibility with older firmware versions. It could be possible, when merging code, an ID is used twice for different format strings. In that case, the ID inside the reference list wins and the additional source gets patched with a new ID. This maybe unwanted patching is avoidable with proper [Trice ID management](#trice-id-management). The reference list should be kept under source code control.
 
 Moreover, using `trice i -cache && make && trice c -cache` in a build script makes the IDs invisible to the developer reducing the data noise giving more space to focus on the development task. See [build.sh](../examples/L432KC_gen_ad_toClang_ed_inst/build.sh) as a working example and the [Trice Cache](#trice-cache) chapter for details.
 
@@ -335,66 +336,72 @@ The Trice tool comes with many command line switches (`trice help -all`) for tai
 
 ###  4.3. <a id='small-size---using-trice-<u>frees</u>-flash-memory'></a>Small size - using Trice <u>frees</u> FLASH memory
 
-Compared to a printf-library code which occupies [1](https://github.com/mludvig/mini-printf) to over [20](https://github.com/mpaland/printf#a-printf--sprintf-implementation-for-embedded-systems) KB FLASH memory, the Trice code is really [small](./TriceSpace.md) - less 1 KB will do already but provide full support.
+Compared to a printf-library code which occupies [1](https://github.com/mludvig/mini-printf) to over [20](https://github.com/mpaland/printf#a-printf--sprintf-implementation-for-embedded-systems) KB FLASH memory, the Trice code is normally [smaller](#trice-memory-needs) but provides full support.
 
 ###  4.4. <a id='execution-speed'></a>Execution speed
 
-Can it get faster that [that](./TriceSpeed.md)? Only 3 runtime Assembler instructions per Trice needed in the minimum case! Additionally target timestamp and location, disable interrupts and restore interrupt state and cycle counter increment can consume a few more processor clocks, if enabled, but a Trice is still incomparable fast.
+Can it get faster that [that](#execution-speed)? Only 3 runtime Assembler instructions per Trice needed in the minimum case! Additionally target timestamp and location, disable interrupts and restore interrupt state and cycle counter increment can consume a few more processor clocks, if enabled, but a Trice is still incomparable fast.
 
 ###  4.5. <a id='robustness'></a>Robustness
 
 When a Trice data stream is interrupted, the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding allows an immediate re-sync with the next COBS package delimiter byte and a default Trice cycle counter gives a high chance to detect lost Trice messages.
 
-###  4.6. <a id='more-comfort-than-printf-like-functions-but-small-differences'></a>More comfort than printf-like functions but small differences
+###  4.6. <a id='minimal-transfer-bytes-amount'></a>Minimal Transfer Bytes Amount
 
-Trice is usable also inside interrupts and additional [format specifier support](./TriceVsPrintfSimilaritiesAndDifferences.md#Extended-format-specifier-possibilities) gives options like binary or bool output. Transmitting runtime generated strings could be a need, so a `TRICE_S` macro exists supporting the `%s` format specifier for strings up to 32737 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings implicit supported, if you use UTF-8 for the source code.
+A Trice message is 4 bytes long plus optional values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as imaginable.
+
+###  4.7. <a id='more-comfort-than-printf-like-functions-but-small-differences'></a>More comfort than printf-like functions but small differences
+
+Trice is usable also inside interrupts and additional [format specifier support](./TriceVsPrintfSimilaritiesAndDifferences.md#Extended-format-specifier-possibilities) gives options like binary or bool output. Transmitting runtime generated strings could be a need, so a `triS` macro exists supporting the `%s` format specifier for strings up to 32737 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings are implicit supported, if you use UTF-8 for the source code. See chapter [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-`printf`-usage) for more details.
 
 ![./ref/UTF-8Example.PNG](./ref/UTF-8Example.PNG)
 
-###  4.7. <a id='tags,-color-and-log-levels'></a>Tags, Color and Log Levels
+###  4.8. <a id='tags,-color-and-log-levels'></a>Tags, Color and Log Levels
 
-You can label each Trice with a tag specifier to [colorize](./TriceColor.md) the output. This is free of any runtime costs because the tag strings part of the log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each letter its color.
+You can label each Trice with a tag specifier to [colorize](#trice-tags-and-color) the output. This is free of any runtime costs because the tags are part of the log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each letter its color.
 
 Loggers use log levels and offer a setting like "log all above **INFO**" for example. The Trice tags can cover that but can do better: Inside [emitter.ColorChannels](../internal/emitter/lineTransformerANSI.go) all common log levels defined as Trice tags alongside with user tags. The user can adjust this. The Trice tool has the `-pick` and `-ban` switches to control the display in detail. Also a `-logLevel` switch is usable to determine a display threshold as tag position inside ColorChannels.
 
-If a target side log level control is needed, a Trice tool extension could each of these log level tags assign an ID range and a target side log threshold can control which IDs are transmitted. No need to implement that right now, because the runtime and bandwidth costs are so small for each Trice and a back control path is needed which is better designed by the user. Also the [IDManagement](./TriceIDManagement.md) would get more complex.
+If a target side log level control is needed, a Trice tool extension could each of these log level tags assign an ID range and a target side log threshold can control which IDs are transmitted. No need to implement that right now, because the runtime and bandwidth costs are so small for each Trice and a back control path is needed which is better designed by the user. Also the [Trice ID management](#trice-id-management) would get more complex.
 
 ![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
 
-###  4.8. <a id='compile-time-enable/disable-`trice`-macros-on-file-level'></a>Compile time enable/disable `TRICE` macros on file level 
+###  4.9. <a id='compile-time-enable/disable-trice-macros-on-file-or-project-level'></a>Compile Time Enable/Disable Trice Macros on File or Project Level 
 
-After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceConfiguration.md#target-side-trice-on-off). Write a `#define TRICE_OFF 1` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
+After debugging code in a file, there is [no need to remove or comment out Trice macros](#switching-trice-on-and-off). Write a `#define TRICE_OFF 1` just before the `#include "trice.h"` line and all `trice` macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../_test/testdata/til.json), these no code generating macros are regarded.
 
 ```C
 #define TRICE_OFF 0 // Set this value to 1 to disable trice code generation in this file object.
 #include "trice.h"
 ```
 
-###  4.9. <a id='target-and-host-timestamps'></a>Target and host timestamps 
+When you wish to build a firmware without any Trice code, it is sufficient to add `C_DEFS +=-DTRICE_OFF=1` or s.th. similar to your Makefile.
+
+###  4.10. <a id='target-and-host-timestamps'></a>Target and host timestamps 
 
 Enable target timestamps with a variable you want inside [triceConfig.h](../_test/F030R8/Core/Inc/triceConfig.h). This adds a 32-bit value to each Trice sequence, which carries than the system clock, a millisecond second or an other event counter. The Trice tool will automatically recognize and display them in a default mode you can control. If several `TRICE` macros form a single line, the Trice tool only displays the target timestamp of the first `TRICE` macro.
 
 Embedded devices often lack a real-time clock and some scenarios can last for weeks. Therefore the Trice tool precedes each Trice line with a PC timestamp, if not disabled. This is the Trice reception time on the PC, what can be some milliseconds later than the target Trice event.
 
-###  4.10. <a id='target-source-code-location'></a>Target source code location
+###  4.11. <a id='target-source-code-location'></a>Target source code location
 
 Some developers like to see the `filename.c` and `line` in front of each log line for quick source location. During `trice i` a file `li.json` is generated containing the location information. If `trice log` finds this file, filename and line number are displayed in front of each log line, otherwise not.
 
 Because software is a matter of change it could happen you get obsolete information this way. Therefore the Trice tool log option `-showID` exists to display the Trice ID in front of each log line what gives a more reliable way for event localization in some cases. Also you can get it for free, because no target code is needed for that. 
 
-###  4.11. <a id='-several-target-devices-in-one-log-output'></a> Several target devices in one log output
+###  4.12. <a id='-several-target-devices-in-one-log-output'></a> Several target devices in one log output
 
 Several Trice tool instances can run parallel on one or different PCs. Each Trice tool instance receives *Trices* from one embedded device. Instead of displaying the log lines, the Trice tool instances can transmit them over TCP/IP (`trice l -p COMx -ds`) to a Trice tool instance acting as display server (`trice ds`). The display server can fold these log lines in one output. For each embedded device a separate Trice line prefix and suffix is definable. This allows comparable time measurements in distributed systems. BTW: The Trice message integration could be done also directly with the COBS packages.
 
-###  4.12. <a id='any-byte-capable-1-wire-connection-usable'></a>Any byte capable 1-wire connection usable
+###  4.13. <a id='any-byte-capable-1-wire-connection-usable'></a>Any byte capable 1-wire connection usable
 
 The usual Trice output device is an UART but also [SEGGER-RTT](./TriceOverRTT.md) is supported over J-Link or ST-Link devices. Many micro controller boards can act as Trice bridge to a serial port from any port ([example](./TriceOverOneWire.md)).
 
-###  4.13. <a id='scalability'></a>Scalability
+###  4.14. <a id='scalability'></a>Scalability
 
-The various [Trice ID management features](./TriceIDManagement.md) allow the organization also of bigger software systems. 16383 possible different IDs should match also large projects. Just in case: 16-bit for the ID is a not to hard changeable value.
+The various [Trice ID management](#trice-id-management) options allow the organization also of bigger software systems. 16383 possible different IDs should match also large projects. Just in case: 16-bit for the ID is a not to hard changeable value.
 
-###  4.14. <a id='portability-and-modularity'></a>Portability and Modularity
+###  4.15. <a id='portability-and-modularity'></a>Portability and Modularity
 
 The Trice tool is written in the open source language [*Go*](https://go.dev/) and is therefore usable on many platforms. That means the automatic code patching and ID handling side with `trice insert`.
 
@@ -410,7 +417,7 @@ When less RAM usage is more important the target double buffer is replaceable wi
 
 The Trice tool supports [many command line switches](./TriceUserGuide.md#9-options-for-trice-tool).
 
-###  4.15. <a id='optional-trice-messages-encryption'></a>Optional Trice messages encryption
+###  4.16. <a id='optional-trice-messages-encryption'></a>Optional Trice messages encryption
 
 The encryption opportunity makes it possible to test thoroughly a binary with log output and releasing it without the need to change any bit but to make the log output unreadable for a not authorized person. Implemented is the lightweight [XTEA](https://de.wikipedia.org/wiki/Extended_Tiny_Encryption_Algorithm) as option, what will do for many cases. It should be no big deal to add a different algorithm.
 
@@ -1277,7 +1284,7 @@ trice zero -src ./
 
 ![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
 
-- If you intend to integrate some existing sources into a project using [Trice ID management](#18-trice-id-management) options, this could be a need.
+- If you intend to integrate some existing sources into a project using [Trice ID management](#trice-id-management) options, this could be a need.
   - From v0.61.0 is possible to restore the IDs after a `trice c|z` during the next `trice i` exactly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice c|z` as a post compilation step. 
 - Calling `trice i` afterwards will assign the same IDs.
 -->
@@ -2034,7 +2041,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 - As a general rule lu is only extendable.
 - li is rebuild from scratch.
 - For faster operation files will be processed parallel.
-- To keep the ID management simple, the `insert` operation acts "per file". That means, that in case a file is renamed or code containing trice statements is copied to an other file, new IDs are generated for the affectes trices.
+- To keep the [Trice ID management](#trice-id-management) simple, the `insert` operation acts "per file". That means, that in case a file is renamed or code containing trice statements is copied to an other file, new IDs are generated for the affectes trices.
   - File name changes occur are not that often, so tha should be acceptable.
 
 ###  26.3. <a id='method'></a>Method
