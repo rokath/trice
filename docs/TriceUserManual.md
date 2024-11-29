@@ -1,6 +1,5 @@
 <div id="top"> 
 
-
 # Trice User Manual
 
 > Speed of Light `printf` Comfort Within Interrupts And Everywhere 
@@ -20,7 +19,7 @@ Table of Contents Generation:
 * 1. [Abstract](#abstract)
 * 2. [A brief history of Trice](#a-brief-history-of-trice)
 * 3. [How it works - the main idea](#how-it-works---the-main-idea)
-* 4. [Trice features](#trice-features)
+* 4. [Trice Features (Overview)](#trice-features-(overview))
   * 4.1. [Open source](#open-source)
   * 4.2. [Easy-to-use](#easy-to-use)
   * 4.3. [Small size - using Trice <u>frees</u> FLASH memory](#small-size---using-trice-<u>frees</u>-flash-memory)
@@ -37,185 +36,191 @@ Table of Contents Generation:
   * 4.14. [Scalability](#scalability)
   * 4.15. [Portability and Modularity](#portability-and-modularity)
   * 4.16. [Optional Trice messages encryption](#optional-trice-messages-encryption)
-* 5. [ Bottom line](#-bottom-line)
-* 6. [Project structure](#project-structure)
-* 7. [Get started](#get-started)
-  * 7.1. [Get it](#get-it)
-  * 7.2. [Install It](#install-it)
-  * 7.3. [Try it](#try-it)
-  * 7.4. [Use It](#use-it)
-  * 7.5. [Port it](#port-it)
-    * 7.5.1. [Target Macros](#target-macros)
-    * 7.5.2. [Target Trice Stamps](#target-trice-stamps)
-    * 7.5.3. [Trice Checks](#trice-checks)
-    * 7.5.4. [Communication Ports](#communication-ports)
-    * 7.5.5. [Target Code Overview](#target-code-overview)
-    * 7.5.6. [User Code Adaption](#user-code-adaption)
-    * 7.5.7. [Limitations](#limitations)
-    * 7.5.8. [Trice (Time) Stamps](#trice-(time)-stamps)
-    * 7.5.9. [Trice Parameter Bit Widths](#trice-parameter-bit-widths)
-  * 7.6. [Avoid it](#avoid-it)
-    * 7.6.1. [Parser Limitation](#parser-limitation)
-    * 7.6.2. [Trice macros in header files](#trice-macros-in-header-files)
-    * 7.6.3. [Trice macros inside other macros](#trice-macros-inside-other-macros)
-* 8. [Build `trice` tool from Go sources (you can skip that)](#build-`trice`-tool-from-go-sources-(you-can-skip-that))
-* 9. [ Embedded system code configuration](#-embedded-system-code-configuration)
-* 10. [`trice` tool in logging action](#`trice`-tool-in-logging-action)
-* 11. [Encryption](#encryption)
-* 12. [CLI Options for `trice` tool](#cli-options-for-`trice`-tool)
-* 13. [Trice command line examples](#trice-command-line-examples)
-  * 13.1. [Common information](#common-information)
-  * 13.2. [Further examples](#further-examples)
-    * 13.2.1. [Automated pre-build insert command example](#automated-pre-build-insert-command-example)
-    * 13.2.2. [Some Log examples](#some-log-examples)
-    * 13.2.3. [Logging over a display server](#logging-over-a-display-server)
-    * 13.2.4. [Logfile output](#logfile-output)
-    * 13.2.5. [Binary Logfile](#binary-logfile)
-    * 13.2.6. [TCP output](#tcp-output)
-    * 13.2.7. [TCP input](#tcp-input)
-    * 13.2.8. [Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
-    * 13.2.9. [Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
-    * 13.2.10. [Location Information](#location-information)
-* 14. [Limitations](#limitations-1)
-  * 14.1. [Permanent Limitations](#permanent-limitations)
-    * 14.1.1. [Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
-  * 14.2. [Current Limitations](#current-limitations)
-    * 14.2.1. [String Concatenation Within TRICE Macros Not Possible](#string-concatenation-within-trice-macros-not-possible)
-    * 14.2.2. [Limited Trice Parser Capabilities](#limited-trice-parser-capabilities)
-* 15. [Additional hints](#additional-hints)
-  * 15.1. [Pre-built executables are available](#pre-built-executables-are-available)
-  * 15.2. [Configuration file `triceConfig.h`](#configuration-file-`triceconfig.h`)
-  * 15.3. [Setting up the very first connection](#setting-up-the-very-first-connection)
-  * 15.4. [Avoid buffer overruns](#avoid-buffer-overruns)
-  * 15.5. [Buffer Macros](#buffer-macros)
-  * 15.6. [Logfile viewing](#logfile-viewing)
-  * 15.7. [Using the `trice` tool with 3rd party tools](#using-the-`trice`-tool-with-3rd-party-tools)
-  * 15.8. [Several targets at the same time](#several-targets-at-the-same-time)
-  * 15.9. [Executing `go test -race -count 100 ./...`](#executing-`go-test--race--count-100-./...`)
-  * 15.10. [Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization](#direct-trice-out-(trice_mode-trice_stack_buffer)-could-cause-stack-overflow-with--o0-optimization)
-  * 15.11. [Cycle Counter](#cycle-counter)
-* 16. [Switching Trice ON and OFF](#switching-trice-on-and-off)
-  * 16.1. [Target side compile-time  Trice On-Off](#target-side-compile-time-trice-on-off)
-  * 16.2. [Host side Trice On-Off](#host-side-trice-on-off)
-* 17. [Framing](#framing)
-* 18. [Optional XTEA Encryption](#optional-xtea-encryption)
-* 19. [Endianness](#endianness)
-* 20. [`TRICE` (Time)Stamps](#`trice`-(time)stamps)
-* 21. [Binary Encoding](#binary-encoding)
-  * 21.1. [Symbols](#symbols)
-  * 21.2. [Package Format](#package-format)
-* 22. [Trice Decoding](#trice-decoding)
-  * 22.1. [Trice ID list `til.json`](#trice-id-list-`til.json`)
-  * 22.2. [Trice location information file `li.json`](#trice-location-information-file-`li.json`)
-* 23. [Trice ID Numbers](#trice-id-numbers)
-  * 23.1. [ID number selection](#id-number-selection)
-  * 23.2. [ID number usage and stability](#id-number-usage-and-stability)
-  * 23.3. [Trice ID 0](#trice-id-0)
-* 24. [Trice ID management](#trice-id-management)
-  * 24.1. [*Trices* inside source code](#*trices*-inside-source-code)
-    * 24.1.1. [*Trices* in source code comments](#*trices*-in-source-code-comments)
-    * 24.1.2. [Different IDs for same *Trices*](#different-ids-for-same-*trices*)
-    * 24.1.3. [Same IDs for different *Trices*](#same-ids-for-different-*trices*)
-* 25. [ID reference list **til.json**](#id-reference-list-**til.json**)
-  * 25.1. [**til.json** Version control](#**til.json**-version-control)
-  * 25.2. [Long Time Availability](#long-time-availability)
-* 26. [The `trice insert` Algorithm](#the-`trice-insert`-algorithm)
-  * 26.1. [Starting Conditions](#starting-conditions)
-  * 26.2. [Aims](#aims)
-  * 26.3. [Method](#method)
-    * 26.3.1. [`insert` Initialization](#`insert`-initialization)
-  * 26.4. [User Code Patching (`trice insert`)](#user-code-patching-(`trice-insert`))
-  * 26.5. [User Code Patching Examples](#user-code-patching-examples)
-  * 26.6. [User Code Un-Patching](#user-code-un-patching)
-  * 26.7. [ID Usage Options](#id-usage-options)
-  * 26.8. [General ID Management Information](#general-id-management-information)
-  * 26.9. [Option 1: Let the inserted Trice ID be a Part of the User Code](#option-1:-let-the-inserted-trice-id-be-a-part-of-the-user-code)
-  * 26.10. [Option 2: Cleaning in a Post-build process](#option-2:-cleaning-in-a-post-build-process)
-  * 26.11. [Option 3: Cleaning on Repository Check-In](#option-3:-cleaning-on-repository-check-in)
-* 27. [Trice Speed](#trice-speed)
-  * 27.1. [Target Implementation Options](#target-implementation-options)
-    * 27.1.1. [Trice Use Cases `TRICE_STATIC_BUFFER` and `TRICE_STACK_BUFFER` - direct mode only](#trice-use-cases-`trice_static_buffer`-and-`trice_stack_buffer`---direct-mode-only)
-    * 27.1.2. [Trice Use Case `TRICE_DOUBLE_BUFFER` - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-`trice_double_buffer`---deferred-mode,-fastest-trice-execution,-more-ram-needed)
-    * 27.1.3. [Trice Use Case `TRICE_RING_BUFFER` - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-`trice_ring_buffer`---deferred-mode,-balanced-trice-execution-time-and-needed-ram)
-* 28. [Trice Cache](#trice-cache)
-  * 28.1. [Trice Cache Logic](#trice-cache-logic)
-  * 28.2. [Trice Cache Remarks](#trice-cache-remarks)
-  * 28.3. [Trice Cache Tests](#trice-cache-tests)
-  * 28.4. [Possible Trice Cache Editor-Issues And How To Get Around](#possible-trice-cache-editor-issues-and-how-to-get-around)
-* 29. [Trice memory needs](#trice-memory-needs)
-  * 29.1. [Trice Space example](#trice-space-example)
-  * 29.2. [Memory needs (Legacy ARM example project)](#memory-needs-(legacy-arm-example-project))
-  * 29.3. [Memory needs (example projects)](#memory-needs-(example-projects))
-* 30. [Trice Project Image Size Optimization](#trice-project-image-size-optimization)
-  * 30.1. [Code Optimization `-o3` or `-oz` (if supported)](#code-optimization-`-o3`-or-`-oz`-(if-supported))
-  * 30.2. [Compiler Independent Setting](#compiler-independent-setting)
-  * 30.3. [Linker Option `--split-sections` (if supported)](#linker-option-`--split-sections`-(if-supported))
-  * 30.4. [Linker Optimization `-flto` (if supported)](#linker-optimization-`-flto`-(if-supported))
-    * 30.4.1. [ARMCC compiler v5 "Linker Feedback"](#armcc-compiler-v5-"linker-feedback")
-    * 30.4.2. [ARMCLANG compiler v6 "Link-Time Optimization"](#armclang-compiler-v6-"link-time-optimization")
-    * 30.4.3. [GCC](#gcc)
-    * 30.4.4. [LLVM ARM Clang](#llvm-arm-clang)
-    * 30.4.5. [Other IDE´s and compilers](#other-ide´s-and-compilers)
-  * 30.5. [STM32F030 Example Project - Different Builds](#stm32f030-example-project---different-builds)
-    * 30.5.1. [ARMCC compiler v5](#armcc-compiler-v5)
-* 31. [Trice Tags and Color](#trice-tags-and-color)
-  * 31.1. [How to get](#how-to-get)
-    * 31.1.1. [Output options](#output-options)
-    * 31.1.2. [Check Alternatives](#check-alternatives)
-  * 31.2. [Color issues under Windows](#color-issues-under-windows)
-* 32. [Trice without UART](#trice-without-uart)
-* 33. [Trice over RTT](#trice-over-rtt)
-  * 33.1. [For the impatient (2 possibilities)](#for-the-impatient-(2-possibilities))
-    * 33.1.1. [Start JLink commander and connect over TCP](#start-jlink-commander-and-connect-over-tcp)
-    * 33.1.2. [Start using JLinkLogger](#start-using-jlinklogger)
-  * 33.2. [Segger Real Time Transfer (RTT)](#segger-real-time-transfer-(rtt))
-  * 33.3. [J-Link option](#j-link-option)
-    * 33.3.1. [Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)](#convert-a-stm-nucleo-or-discovery-onboard-st-link-(valid-for-st-link-v2-&-v2.1,-not-for-v3))
-    * 33.3.2. [Some SEGGER tools in short](#some-segger-tools-in-short)
-    * 33.3.3. [JLinkRTTClient.exe](#jlinkrttclient.exe)
-    * 33.3.4. [JLinkRTTViewer.exe](#jlinkrttviewer.exe)
-  * 33.4. [Segger RTT](#segger-rtt)
-  * 33.5. [Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-(~800-eur)-option)
-  * 33.6. [Additional Notes (leftovers)](#additional-notes-(leftovers))
-  * 33.7. [Further development](#further-development)
-  * 33.8. [NUCLEO-F030R8 example](#nucleo-f030r8-example)
-    * 33.8.1. [RTT with original on-board ST-LINK firmware](#rtt-with-original-on-board-st-link-firmware)
-    * 33.8.2. [Change to J-LINK onboard firmware](#change-to-j-link-onboard-firmware)
-    * 33.8.3. [RTT with J-LINK firmware on-board](#rtt-with-j-link-firmware-on-board)
-  * 33.9. [Possible issues](#possible-issues)
-  * 33.10. [OpenOCD with Darwin](#openocd-with-darwin)
-  * 33.11. [Links](#links)
-* 34. [Trice Target Code Implementation](#trice-target-code-implementation)
-  * 34.1. [TRICE Macro structure](#trice-macro-structure)
-    * 34.1.1. [`TRICE_ENTER`](#`trice_enter`)
-    * 34.1.2. [`TRICE_PUT`](#`trice_put`)
-    * 34.1.3. [`TRICE_LEAVE`](#`trice_leave`)
-  * 34.2. [`TRICE_STACK_BUFFER`](#`trice_stack_buffer`)
-  * 34.3. [`TRICE_STATIC_BUFFER`](#`trice_static_buffer`)
-  * 34.4. [`TRICE_DOUBLE_BUFFER`](#`trice_double_buffer`)
-  * 34.5. [`TRICE_RING_BUFFER`](#`trice_ring_buffer`)
-  * 34.6. [Deferred Out](#deferred-out)
-    * 34.6.1. [Double Buffer](#double-buffer)
-    * 34.6.2. [Ring Buffer](#ring-buffer)
-  * 34.7. [Direct Transfer](#direct-transfer)
-  * 34.8. [Some Thoughts](#some-thoughts)
-* 35. [Trice Similarities and differences to `printf` usage](#trice-similarities-and-differences-to-`printf`-usage)
-  * 35.1. [Printf-like functions](#printf-like-functions)
-  * 35.2. [Trice IDs](#trice-ids)
-  * 35.3. [Trice values bit width](#trice-values-bit-width)
-  * 35.4. [Many value parameters](#many-value-parameters)
-  * 35.5. [`float` and `double` values](#`float`-and-`double`-values)
-  * 35.6. [Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`](#runtime-generated-0-terminated-strings-transfer-with-`trices`,-`trices`,-`trices`)
-  * 35.7. [Runtime Generated counted Strings Transfer with  `triceN`, `TriceN`, `TRiceN`](#runtime-generated-counted-strings-transfer-with-`tricen`,-`tricen`,-`tricen`)
-  * 35.8. [Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`](#runtime-generated-buffer-transfer-with-`triceb`,-`triceb`,-`triceb`)
-  * 35.9. [Remote function call syntax support with `TRICE_F`, `trice8F`, ...](#remote-function-call-syntax-support-with-`trice_f`,-`trice8f`,-...)
-  * 35.10. [Extended format specifier possibilities](#extended-format-specifier-possibilities)
-    * 35.10.1. [Trice format specifier](#trice-format-specifier)
-    * 35.10.2. [Overview Table](#overview-table)
-  * 35.11. [UTF-8 Support](#utf-8-support)
-  * 35.12. [Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
-  * 35.13. [Format tags prototype `%[flags][width][.precision][length]` specifier examples](#format-tags-prototype-`%[flags][width][.precision][length]`-specifier-examples)
-* 36. [Changelog](#changelog)
+  * 4.17. [Trice Protection](#trice-protection)
+  * 4.18. [Trice Diagnostics](#trice-diagnostics)
+  * 4.19. [Trice Cache](#trice-cache)
+* 5. [Project structure (Files and Folders)](#project-structure-(files-and-folders))
+  * 5.1. [File .clang-format](#file-.clang-format)
+  * 5.2. [File .clang-format-ignore](#file-.clang-format-ignore)
+  * 5.3. [File .editorconfig](#file-.editorconfig)
+  * 5.4. [File .gitattributes](#file-.gitattributes)
+* 6. [ Start with Trice](#-start-with-trice)
+  * 6.1. [Get it](#get-it)
+  * 6.2. [Install It](#install-it)
+  * 6.3. [Try it](#try-it)
+  * 6.4. [Use It](#use-it)
+  * 6.5. [Port it](#port-it)
+    * 6.5.1. [Target Macros](#target-macros)
+    * 6.5.2. [Target Trice Stamps](#target-trice-stamps)
+    * 6.5.3. [Trice Checks](#trice-checks)
+    * 6.5.4. [Communication Ports](#communication-ports)
+    * 6.5.5. [Target Code Overview](#target-code-overview)
+    * 6.5.6. [User Code Adaption](#user-code-adaption)
+    * 6.5.7. [Limitations](#limitations)
+    * 6.5.8. [Trice (Time) Stamps](#trice-(time)-stamps)
+    * 6.5.9. [Trice Parameter Bit Widths](#trice-parameter-bit-widths)
+  * 6.6. [Avoid it](#avoid-it)
+    * 6.6.1. [Parser Limitation](#parser-limitation)
+    * 6.6.2. [Trice macros in header files](#trice-macros-in-header-files)
+    * 6.6.3. [Trice macros inside other macros](#trice-macros-inside-other-macros)
+* 7. [Build Trice tool from Go sources (you can skip that)](#build-trice-tool-from-go-sources-(you-can-skip-that))
+* 8. [ Embedded system code configuration](#-embedded-system-code-configuration)
+* 9. [Trice tool in logging action](#trice-tool-in-logging-action)
+* 10. [Encryption](#encryption)
+* 11. [CLI Options for Trice tool](#cli-options-for-trice-tool)
+* 12. [Trice command line examples](#trice-command-line-examples)
+  * 12.1. [Common information](#common-information)
+  * 12.2. [Further examples](#further-examples)
+    * 12.2.1. [Automated pre-build insert command example](#automated-pre-build-insert-command-example)
+    * 12.2.2. [Some Log examples](#some-log-examples)
+    * 12.2.3. [Logging over a display server](#logging-over-a-display-server)
+    * 12.2.4. [Logfile output](#logfile-output)
+    * 12.2.5. [Binary Logfile](#binary-logfile)
+    * 12.2.6. [TCP output](#tcp-output)
+    * 12.2.7. [TCP input](#tcp-input)
+    * 12.2.8. [Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
+    * 12.2.9. [Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
+    * 12.2.10. [Location Information](#location-information)
+* 13. [Limitations](#limitations-1)
+  * 13.1. [Permanent Limitations](#permanent-limitations)
+    * 13.1.1. [Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
+  * 13.2. [Current Limitations](#current-limitations)
+    * 13.2.1. [String Concatenation Within TRICE Macros Not Possible](#string-concatenation-within-trice-macros-not-possible)
+    * 13.2.2. [Limited Trice Parser Capabilities](#limited-trice-parser-capabilities)
+* 14. [Additional hints](#additional-hints)
+  * 14.1. [Pre-built executables are available](#pre-built-executables-are-available)
+  * 14.2. [Configuration file `triceConfig.h`](#configuration-file-`triceconfig.h`)
+  * 14.3. [Setting up the very first connection](#setting-up-the-very-first-connection)
+  * 14.4. [Avoid buffer overruns](#avoid-buffer-overruns)
+  * 14.5. [Buffer Macros](#buffer-macros)
+  * 14.6. [Logfile viewing](#logfile-viewing)
+  * 14.7. [Using the Trice tool with 3rd party tools](#using-the-trice-tool-with-3rd-party-tools)
+  * 14.8. [Several targets at the same time](#several-targets-at-the-same-time)
+  * 14.9. [Executing `go test -race -count 100 ./...`](#executing-`go-test--race--count-100-./...`)
+  * 14.10. [Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization](#direct-trice-out-(trice_mode-trice_stack_buffer)-could-cause-stack-overflow-with--o0-optimization)
+  * 14.11. [Cycle Counter](#cycle-counter)
+* 15. [Switching Trice ON and OFF](#switching-trice-on-and-off)
+  * 15.1. [Target side compile-time  Trice On-Off](#target-side-compile-time-trice-on-off)
+  * 15.2. [Host side Trice On-Off](#host-side-trice-on-off)
+* 16. [Framing](#framing)
+* 17. [Optional XTEA Encryption](#optional-xtea-encryption)
+* 18. [Endianness](#endianness)
+* 19. [`TRICE` (Time)Stamps](#`trice`-(time)stamps)
+* 20. [Binary Encoding](#binary-encoding)
+  * 20.1. [Symbols](#symbols)
+  * 20.2. [Package Format](#package-format)
+* 21. [Trice Decoding](#trice-decoding)
+  * 21.1. [Trice ID list `til.json`](#trice-id-list-`til.json`)
+  * 21.2. [Trice location information file `li.json`](#trice-location-information-file-`li.json`)
+* 22. [Trice ID Numbers](#trice-id-numbers)
+  * 22.1. [ID number selection](#id-number-selection)
+  * 22.2. [ID number usage and stability](#id-number-usage-and-stability)
+  * 22.3. [Trice ID 0](#trice-id-0)
+* 23. [Trice ID management](#trice-id-management)
+  * 23.1. [*Trices* inside source code](#*trices*-inside-source-code)
+    * 23.1.1. [*Trices* in source code comments](#*trices*-in-source-code-comments)
+    * 23.1.2. [Different IDs for same Trices](#different-ids-for-same-trices)
+    * 23.1.3. [Same IDs for different Trices](#same-ids-for-different-trices)
+* 24. [ID reference list **til.json**](#id-reference-list-**til.json**)
+  * 24.1. [**til.json** Version control](#**til.json**-version-control)
+  * 24.2. [Long Time Availability](#long-time-availability)
+* 25. [The `trice insert` Algorithm](#the-`trice-insert`-algorithm)
+  * 25.1. [Starting Conditions](#starting-conditions)
+  * 25.2. [Aims](#aims)
+  * 25.3. [Method](#method)
+    * 25.3.1. [`insert` Initialization](#`insert`-initialization)
+  * 25.4. [User Code Patching (`trice insert`)](#user-code-patching-(`trice-insert`))
+  * 25.5. [User Code Patching Examples](#user-code-patching-examples)
+  * 25.6. [User Code Un-Patching](#user-code-un-patching)
+  * 25.7. [ID Usage Options](#id-usage-options)
+  * 25.8. [General ID Management Information](#general-id-management-information)
+  * 25.9. [Option 1: Let the inserted Trice ID be a Part of the User Code](#option-1:-let-the-inserted-trice-id-be-a-part-of-the-user-code)
+  * 25.10. [Option 2: Cleaning in a Post-build process](#option-2:-cleaning-in-a-post-build-process)
+  * 25.11. [Option 3: Cleaning on Repository Check-In](#option-3:-cleaning-on-repository-check-in)
+* 26. [Trice Speed](#trice-speed)
+  * 26.1. [Target Implementation Options](#target-implementation-options)
+    * 26.1.1. [Trice Use Cases `TRICE_STATIC_BUFFER` and `TRICE_STACK_BUFFER` - direct mode only](#trice-use-cases-`trice_static_buffer`-and-`trice_stack_buffer`---direct-mode-only)
+    * 26.1.2. [Trice Use Case `TRICE_DOUBLE_BUFFER` - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-`trice_double_buffer`---deferred-mode,-fastest-trice-execution,-more-ram-needed)
+    * 26.1.3. [Trice Use Case `TRICE_RING_BUFFER` - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-`trice_ring_buffer`---deferred-mode,-balanced-trice-execution-time-and-needed-ram)
+* 27. [Trice Cache](#trice-cache-1)
+  * 27.1. [Trice Cache Logic](#trice-cache-logic)
+  * 27.2. [Trice Cache Remarks](#trice-cache-remarks)
+  * 27.3. [Trice Cache Tests](#trice-cache-tests)
+  * 27.4. [Possible Trice Cache Editor-Issues And How To Get Around](#possible-trice-cache-editor-issues-and-how-to-get-around)
+* 28. [Trice memory needs](#trice-memory-needs)
+  * 28.1. [Trice Space example](#trice-space-example)
+  * 28.2. [Memory needs (Legacy ARM example project)](#memory-needs-(legacy-arm-example-project))
+  * 28.3. [Memory needs (example projects)](#memory-needs-(example-projects))
+* 29. [Trice Project Image Size Optimization](#trice-project-image-size-optimization)
+  * 29.1. [Code Optimization `-o3` or `-oz` (if supported)](#code-optimization-`-o3`-or-`-oz`-(if-supported))
+  * 29.2. [Compiler Independent Setting](#compiler-independent-setting)
+  * 29.3. [Linker Option `--split-sections` (if supported)](#linker-option-`--split-sections`-(if-supported))
+  * 29.4. [Linker Optimization `-flto` (if supported)](#linker-optimization-`-flto`-(if-supported))
+    * 29.4.1. [ARMCC compiler v5 "Linker Feedback"](#armcc-compiler-v5-"linker-feedback")
+    * 29.4.2. [ARMCLANG compiler v6 "Link-Time Optimization"](#armclang-compiler-v6-"link-time-optimization")
+    * 29.4.3. [GCC](#gcc)
+    * 29.4.4. [LLVM ARM Clang](#llvm-arm-clang)
+    * 29.4.5. [Other IDE´s and compilers](#other-ide´s-and-compilers)
+  * 29.5. [STM32F030 Example Project - Different Builds](#stm32f030-example-project---different-builds)
+    * 29.5.1. [ARMCC compiler v5](#armcc-compiler-v5)
+* 30. [Trice Tags and Color](#trice-tags-and-color)
+  * 30.1. [How to get](#how-to-get)
+    * 30.1.1. [Output options](#output-options)
+    * 30.1.2. [Check Alternatives](#check-alternatives)
+  * 30.2. [Color issues under Windows](#color-issues-under-windows)
+* 31. [Trice without UART](#trice-without-uart)
+* 32. [Trice over RTT](#trice-over-rtt)
+  * 32.1. [For the impatient (2 possibilities)](#for-the-impatient-(2-possibilities))
+    * 32.1.1. [Start JLink commander and connect over TCP](#start-jlink-commander-and-connect-over-tcp)
+    * 32.1.2. [Start using JLinkLogger](#start-using-jlinklogger)
+  * 32.2. [Segger Real Time Transfer (RTT)](#segger-real-time-transfer-(rtt))
+  * 32.3. [J-Link option](#j-link-option)
+    * 32.3.1. [Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)](#convert-a-stm-nucleo-or-discovery-onboard-st-link-(valid-for-st-link-v2-&-v2.1,-not-for-v3))
+    * 32.3.2. [Some SEGGER tools in short](#some-segger-tools-in-short)
+    * 32.3.3. [JLinkRTTClient.exe](#jlinkrttclient.exe)
+    * 32.3.4. [JLinkRTTViewer.exe](#jlinkrttviewer.exe)
+  * 32.4. [Segger RTT](#segger-rtt)
+  * 32.5. [Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-(~800-eur)-option)
+  * 32.6. [Additional Notes (leftovers)](#additional-notes-(leftovers))
+  * 32.7. [Further development](#further-development)
+  * 32.8. [NUCLEO-F030R8 example](#nucleo-f030r8-example)
+    * 32.8.1. [RTT with original on-board ST-LINK firmware](#rtt-with-original-on-board-st-link-firmware)
+    * 32.8.2. [Change to J-LINK onboard firmware](#change-to-j-link-onboard-firmware)
+    * 32.8.3. [RTT with J-LINK firmware on-board](#rtt-with-j-link-firmware-on-board)
+  * 32.9. [Possible issues](#possible-issues)
+  * 32.10. [OpenOCD with Darwin](#openocd-with-darwin)
+  * 32.11. [Links](#links)
+* 33. [Trice Target Code Implementation](#trice-target-code-implementation)
+  * 33.1. [TRICE Macro structure](#trice-macro-structure)
+    * 33.1.1. [TRICE_ENTER](#trice_enter)
+    * 33.1.2. [TRICE_PUT](#trice_put)
+    * 33.1.3. [TRICE_LEAVE](#trice_leave)
+  * 33.2. [TRICE_STACK_BUFFER](#trice_stack_buffer)
+  * 33.3. [TRICE_STATIC_BUFFER](#trice_static_buffer)
+  * 33.4. [TRICE_DOUBLE_BUFFER](#trice_double_buffer)
+  * 33.5. [TRICE_RING_BUFFER](#trice_ring_buffer)
+  * 33.6. [Deferred Out](#deferred-out)
+    * 33.6.1. [Double Buffer](#double-buffer)
+    * 33.6.2. [Ring Buffer](#ring-buffer)
+  * 33.7. [Direct Transfer](#direct-transfer)
+  * 33.8. [Some Thoughts](#some-thoughts)
+* 34. [Trice Similarities and differences to `printf` usage](#trice-similarities-and-differences-to-`printf`-usage)
+  * 34.1. [Printf-like functions](#printf-like-functions)
+  * 34.2. [Trice IDs](#trice-ids)
+  * 34.3. [Trice values bit width](#trice-values-bit-width)
+  * 34.4. [Many value parameters](#many-value-parameters)
+  * 34.5. [`float` and `double` values](#`float`-and-`double`-values)
+  * 34.6. [Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`](#runtime-generated-0-terminated-strings-transfer-with-`trices`,-`trices`,-`trices`)
+  * 34.7. [Runtime Generated counted Strings Transfer with  `triceN`, `TriceN`, `TRiceN`](#runtime-generated-counted-strings-transfer-with-`tricen`,-`tricen`,-`tricen`)
+  * 34.8. [Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`](#runtime-generated-buffer-transfer-with-`triceb`,-`triceb`,-`triceb`)
+  * 34.9. [Remote function call syntax support with `TRICE_F`, `trice8F`, ...](#remote-function-call-syntax-support-with-`trice_f`,-`trice8f`,-...)
+  * 34.10. [Extended format specifier possibilities](#extended-format-specifier-possibilities)
+    * 34.10.1. [Trice format specifier](#trice-format-specifier)
+    * 34.10.2. [Overview Table](#overview-table)
+  * 34.11. [UTF-8 Support](#utf-8-support)
+  * 34.12. [Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
+  * 34.13. [Format tags prototype `%[flags][width][.precision][length]` specifier examples](#format-tags-prototype-`%[flags][width][.precision][length]`-specifier-examples)
+* 35. [Changelog](#changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -314,6 +319,7 @@ The target code is [project specific](../examples/F030R8_inst/Core/Inc/triceConf
 During runtime the PC Trice tool receives all what happened in the last ~100ms as a package from the UART port. The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the bit width information. Now the Trice tool can write target timestamp, set msg color and execute `printf("%d Kelvin\n", 0x0000000e);`
 
 ---
+
   ![./ref/triceCOBSBlockDiagram.svg](./ref/triceCOBSBlockDiagram.svg)
 
 The Trice tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../_test/testdata/til.json) for compatibility with older firmware versions. It could be possible, when merging code, an ID is used twice for different format strings. In that case, the ID inside the reference list wins and the additional source gets patched with a new ID. This maybe unwanted patching is avoidable with proper [Trice ID management](#trice-id-management). The reference list should be kept under source code control.
@@ -322,7 +328,7 @@ Moreover, using `trice i -cache && make && trice c -cache` in a build script mak
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  4. <a id='trice-features'></a>Trice features
+##  4. <a id='trice-features-(overview)'></a>Trice Features (Overview)
 
 ###  4.1. <a id='open-source'></a>Open source
 
@@ -330,9 +336,20 @@ Target code and PC tool are open source. The MIT license gives full usage freedo
 
 ###  4.2. <a id='easy-to-use'></a>Easy-to-use
 
-Making it facile for a user to use Trice was the driving point just to have one Trice tool and an additional source file with a project specific simple to use [triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) and to get away with the one macro `trice` for most situations. Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](../til.json) was updated in an pre-build step, the Trice tool automatically reloads the new data during logging.
+Making it facile for a user to use Trice was the driving point just to have 
 
-The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type `trice l -p COMn` for logging with a 115200 bit/s baud rate.
+* one Trice tool 
+* one additional [target code](../src/) source folder  
+* a project specific simple to use [triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) 
+* and to get away with the one macro `trice` for most situations.
+ 
+Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](../til.json) was updated in an pre-build step, the Trice tool automatically reloads the new data during logging.
+
+The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type:
+* [./build.sh](../examples/L432KC_gen_ad_toClang_ed_inst/build.sh) containing `trice i -cache`, `make` and `trice c -cache`
+* **`make log`** containing `trice l -p COMn` for logging with default baud rate.
+
+In this example, the user code gets **not** polluted with Trice IDs - they exists only during the compilaton step and the Trice cache makes this invisible for the user and the build system. 
 
 ###  4.3. <a id='small-size---using-trice-<u>frees</u>-flash-memory'></a>Small size - using Trice <u>frees</u> FLASH memory
 
@@ -340,19 +357,19 @@ Compared to a printf-library code which occupies [1](https://github.com/mludvig/
 
 ###  4.4. <a id='execution-speed'></a>Execution speed
 
-Can it get faster that [that](#execution-speed)? Only 3 runtime Assembler instructions per Trice needed in the minimum case! Additionally target timestamp and location, disable interrupts and restore interrupt state and cycle counter increment can consume a few more processor clocks, if enabled, but a Trice is still incomparable fast.
+Can it get faster than [6 clocks only](#trice-speed)? Only 3 runtime Assembler instructions per Trice needed in the minimum case! Additionally target timestamp and location, disable interrupts and restore interrupt state and cycle counter increment can consume a few more processor clocks, if enabled, but a Trice is still incomparable fast.
 
 ###  4.5. <a id='robustness'></a>Robustness
 
-When a Trice data stream is interrupted, the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding allows an immediate re-sync with the next COBS package delimiter byte and a default Trice cycle counter gives a high chance to detect lost Trice messages.
+When a Trice data stream is interrupted, the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding allows an immediate re-sync with the next COBS package delimiter byte and a default Trice **cycle counter** gives a high chance to detect lost Trice messages.
 
 ###  4.6. <a id='minimal-transfer-bytes-amount'></a>Minimal Transfer Bytes Amount
 
-A Trice message is 4 bytes long plus optional values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as imaginable.
+A Trice message is 4 bytes long (2 ID bytes and 2 count bytes) plus optional values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as imaginable.
 
 ###  4.7. <a id='more-comfort-than-printf-like-functions-but-small-differences'></a>More comfort than printf-like functions but small differences
 
-Trice is usable also inside interrupts and additional [format specifier support](./TriceVsPrintfSimilaritiesAndDifferences.md#Extended-format-specifier-possibilities) gives options like binary or bool output. Transmitting runtime generated strings could be a need, so a `triS` macro exists supporting the `%s` format specifier for strings up to 32737 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings are implicit supported, if you use UTF-8 for the source code. See chapter [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-`printf`-usage) for more details.
+Trice is usable also inside interrupts and [extended format specifier possibilities](#extended-format-specifier-possibilities) give options like binary or bool output. Transmitting runtime generated strings could be a need, so a `triceS` macro exists supporting the `%s` format specifier for strings up to 32737 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings are implicit supported, if you use UTF-8 for the source code. See chapter [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-`printf`-usage) for more details.
 
 ![./ref/UTF-8Example.PNG](./ref/UTF-8Example.PNG)
 
@@ -362,7 +379,7 @@ You can label each Trice with a tag specifier to [colorize](#trice-tags-and-colo
 
 Loggers use log levels and offer a setting like "log all above **INFO**" for example. The Trice tags can cover that but can do better: Inside [emitter.ColorChannels](../internal/emitter/lineTransformerANSI.go) all common log levels defined as Trice tags alongside with user tags. The user can adjust this. The Trice tool has the `-pick` and `-ban` switches to control the display in detail. Also a `-logLevel` switch is usable to determine a display threshold as tag position inside ColorChannels.
 
-If a target side log level control is needed, a Trice tool extension could each of these log level tags assign an ID range and a target side log threshold can control which IDs are transmitted. No need to implement that right now, because the runtime and bandwidth costs are so small for each Trice and a back control path is needed which is better designed by the user. Also the [Trice ID management](#trice-id-management) would get more complex.
+If an inside-target log selection is needed, the Trice tool can assign each log tag a separate ID range and a target side ID based log selector can control which IDs are transmitted over which output channel. See chapter [Trice ID management](#trice-id-management) or type `trice help -insert` and look for `-IDRange`.
 
 ![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
 
@@ -371,11 +388,17 @@ If a target side log level control is needed, a Trice tool extension could each 
 After debugging code in a file, there is [no need to remove or comment out Trice macros](#switching-trice-on-and-off). Write a `#define TRICE_OFF 1` just before the `#include "trice.h"` line and all `trice` macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../_test/testdata/til.json), these no code generating macros are regarded.
 
 ```C
-#define TRICE_OFF 0 // Set this value to 1 to disable trice code generation in this file object.
+#define TRICE_OFF 1 // Disable trice code generation for this file object.
 #include "trice.h"
 ```
 
-When you wish to build a firmware without any Trice code, it is sufficient to add `C_DEFS +=-DTRICE_OFF=1` or s.th. similar to your Makefile.
+When you wish to build a firmware without any Trice code, it is sufficient to add
+
+```make
+C_DEFS += -DTRICE_OFF=1 // Define TRICE_OFF=1 for the whole project.
+```
+
+or similar to your Makefile.
 
 ###  4.10. <a id='target-and-host-timestamps'></a>Target and host timestamps 
 
@@ -421,38 +444,142 @@ The Trice tool supports [many command line switches](./TriceUserGuide.md#9-optio
 
 The encryption opportunity makes it possible to test thoroughly a binary with log output and releasing it without the need to change any bit but to make the log output unreadable for a not authorized person. Implemented is the lightweight [XTEA](https://de.wikipedia.org/wiki/Extended_Tiny_Encryption_Algorithm) as option, what will do for many cases. It should be no big deal to add a different algorithm.
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+###  4.17. <a id='trice-protection'></a>Trice Protection
 
-##  5. <a id='-bottom-line'></a> Bottom line
+###  4.18. <a id='trice-diagnostics'></a>Trice Diagnostics
 
-The Trice technique is new and still under development. Additional tests and bug fixing is necessary. A Trice tool [configuration file](./TriceConfiguration.md#host-configuration-file) and interfacing [Grafana](https://grafana.com/) or similar tools would be possible extensions. Getting started with Trice will take a few hours, but probably pay off during the further development.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-##  6. <a id='project-structure'></a>Project structure
-
-See [FilesAndFolders.md](../FilesAndFolders.md)
+###  4.19. <a id='trice-cache'></a>Trice Cache
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  7. <a id='get-started'></a>Get started
 
-###  7.1. <a id='get-it'></a>Get it
+##  5. <a id='project-structure-(files-and-folders)'></a>Project structure (Files and Folders)
+
+| name                            | content                                          |
+|---------------------------------|--------------------------------------------------|
+| [./_test](./_test)              | automatic target code tests                      |
+| `.code_snippets/`               | unused code                                      |
+| `.github/`                      |                                                  |
+| `.idea/`                        | GoLand settings                                  |
+| `.vscode/`                      | vsCode settings                                  |
+| [./cmd/cui](./_cmd/_cui)        | (do not use) command user interface tryout code  |
+| [./cmd/_stim](./cmd/_stim)      | (do not use) target stimulation tool tryout code |
+| [./cmd/trice](./cmd/trice)      | Trice tool command Go sources                  |
+| [./docs](./docs)                | documentation                                    |
+| [./examples](./examples)        | example target projects                          |
+| `./examples/*_inst/temp/`       | project binary logfiles                          |
+| [./internal](./internal)        | Trice tool internal Go packages                |
+| [./pkg](./pkg)                  | Trice tool common Go packages                  |
+| [./src/](./src)                 | C sources for trice instrumentation              |
+| `super-linter.report/`          |                                                  |
+| [./third_party](./third_party)  | external components                              |
+| `_config.yml`                   | unused                                           |
+| `.clang-format`                 | See below                                        |
+| `.clang-format-ignore`          | See below                                        |
+| `.editorconfig`                 | See below                                        |
+| `.git/`                         | version control data base                        |
+| `.gitattributes`                | See below                                        |
+| `.gitignore`                    |                                                  |
+| `.goreleaser.yml`               | goreleaser configuration                         |
+| `.travis.yml`                   |                                                  |
+| `AUTHORS.md`                    | contributors                                     |
+| `CHANGELOG.md`                  |                                                  |
+| `CODE_OF_CONDUCT.md`            |                                                  |
+| `CONTRIBUTING.md`               |                                                  |
+| `FilesAndFolders.md`            | this file                                        |
+| `go.mod`                        |                                                  |
+| `go.sum`                        |                                                  |
+| `GoInfos.txt`                   |                                                  |
+| `LICENSE.md`                    |                                                  |
+| `README.md`                     |                                                  |
+|                                 |                                                  |
+| `coverage.out`                  |                                                  |
+| `dist/`                         | created by goreleaser                            |
+| `fmtcoverage.html`              |                                                  |
+
+###  5.1. <a id='file-.clang-format'></a>File .clang-format
+
+*Contributor: [Sazerac4](https://github.com/Sazerac4)*
+
+Sazerac4 commented Aug 29, 2024:
+I have a code formatter when I make changes to my application but I would like to keep the style of the library when modifying.
+I couldn't find a code formatter, is there a tool used? If not, I propose this to provide one as an example by using clang-format.
+
+```bash
+## I have created a default style :
+clang-format -style=llvm -dump-config > .clang-format
+## Then format the code:
+find ./src  -name '*.c' -o  -name '*.h'| xargs clang-format-18 -style=file -i
+```
+
+The style of the example does not correspond to the original one. Configurations are necessary for this to be the case. Tags can be placed to prevent certain macros from being formatted
+
+```C
+int formatted_code;
+// clang-format off
+    void    unformatted_code  ;
+// clang-format on
+void formatted_code_again;
+```
+
+I have tuned some settings for clang-format :
+
+```bash
+- IndentWidth: 4  // original code size indentation
+- ColumnLimit: 0  // avoid breaking long line (like macros)
+- PointerAlignment: Left  // like original files (mostly)
+```
+
+With preprocessor indentation, the result is a bit strange in some cases. It's possible with the option IndentPPDirectives ([doc](https://releases.llvm.org/18.1.6/tools/clang/docs/ClangFormatStyleOptions.html)).
+
+Staying as close as possible to a default version (LLVM in this case) makes it easier to regenerate the style if necessary.
+
+See also: https://github.com/rokath/trice/pull/487#issuecomment-2318003072
+
+###  5.2. <a id='file-.clang-format-ignore'></a>File .clang-format-ignore
+
+*Contributor: [Sazerac4](https://github.com/Sazerac4)*
+
+Sazerac4 commented Aug 30, 2024:
+I have added .clang-format-ignore to ignore formatting for specific files
+
+###  5.3. <a id='file-.editorconfig'></a>File .editorconfig
+
+*Contributor: [Sazerac4](https://github.com/Sazerac4)*
+
+The`.editorconfig` file allows to better identify the basic style for every files. (endline, charset, ...). It is a file accepted by a wide list of IDEs and editors : [link](https://editorconfig.org/#file-format-details)
+This addition is motivated by forgetting the end of line in the .gitattributes file.
+
+###  5.4. <a id='file-.gitattributes'></a>File .gitattributes
+
+*Contributor: [Sazerac4](https://github.com/Sazerac4)*
+
+With the`.gitattributes` file avoid problems with "diff" and end of lines. [Here](https://www.aleksandrhovhannisyan.com/blog/crlf-vs-lf-normalizing-line-endings-in-git/) is an article that presents the problem.
+
+To fill the`.gitattributes`, I used the command below to view all the extensions currently used.
+
+```bash
+git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort -u
+```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+##  6. <a id='-start-with-trice'></a> Start with Trice
+
+###  6.1. <a id='get-it'></a>Get it
 
 - Download [latest release assets](https://github.com/rokath/trice/releases) for your system: Compressed source code and binaries.
 - OR Get the repo: ![x](./ref/Get-Button.png)
 - OR use the ![./ref/Fork.PNG](./ref/Fork.PNG) button
 
-###  7.2. <a id='install-it'></a>Install It
+###  6.2. <a id='install-it'></a>Install It
 
 - Place the extracted Trice [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
 - Copy the src folder into your project and add all files.
 - Copy a *triceConfig.h* from a subfolder in the examples or test folder and optionally adapt it. See file [*triceDefaultConfig.h*](../src/triceDefaultConfig.h) for help.
   - Inside the *triceCnfig.h* file cou can control, if Trice works in direct or deferred mode or both parallel. 
 
-###  7.3. <a id='try-it'></a>Try it
+###  6.3. <a id='try-it'></a>Try it
 
 - Create a file `tryTrice.c` and write in it:
   
@@ -483,7 +610,7 @@ See [TriceCacheSpec.md](./TriceCacheSpec.md) for more details and [examples/G1B1
 
 A quick setup is possible when using RTT as output channel. Otherwise you need to setup a serial port for Trice data transmission. Other output paths possible too using the auxilary interface.
 
-###  7.4. <a id='use-it'></a>Use It
+###  6.4. <a id='use-it'></a>Use It
 
 - In a console, like [git bash](https://gitforwindows.org/), type `trice help -all`. You should see the complete Trice tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
   - Don´t worry, most of it you will never need.
@@ -514,7 +641,7 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
   
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  7.5. <a id='port-it'></a>Port it
+###  6.5. <a id='port-it'></a>Port it
 
 Trice should be usable on any MCU with any compiler. On ARM MCUs the easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or additionally is also no big deal.
 
@@ -530,7 +657,7 @@ This way you see in a quick way any needed adaptions for your target project to 
 
 The *Readme.md* files in the examples folder contain further helpful information.
 
-####  7.5.1. <a id='target-macros'></a>Target Macros
+####  6.5.1. <a id='target-macros'></a>Target Macros
 
 The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`** which you can mostly use as a `printf` replacement in legacy code. See [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
 
@@ -569,7 +696,7 @@ The value TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the parameter bit with for the ma
 
 The full uppercase macro `TRICE` is a Trice macro only using inline code. Because the main design aim was speed, this was the original design. Then it became clear, that several hundred of `TRICE` macros increase the needed code amount too much and that it is better to have just a function call instead of having inline macros. If speed matters use `TRICE(id(0)`, `TRICE(Id(0)`, `TRICE(ID(0)` else use `trice(iD(0)`, `Trice(iD(0)`, `TRice(iD(0)` or mix usage as you like. The lower case macros internally use `TRICE` like code but each is only a function call and therefore needs less space.
 
-####  7.5.2. <a id='target-trice-stamps'></a>Target Trice Stamps
+####  6.5.2. <a id='target-trice-stamps'></a>Target Trice Stamps
 
 - If you wish to have your Trice messages stamped, most probably time stamped, add the 2 hardware specific macros/functions to your project (example in [./examples/F030R8_inst/Core/Inc/triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) and [./examples/F030R8_inst/Core/Src/stm32f0xx_it.c](../examples/F030R8_inst/Core/Src/stm32f0xx_it.c) ). The time base is in your hands and is allowed to be different for the 16-bit and 32-bit stamps. Example:
   
@@ -590,7 +717,7 @@ The full uppercase macro `TRICE` is a Trice macro only using inline code. Becaus
 
 _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bit timestamp as systick counter to measure short execution times.
 
-####  7.5.3. <a id='trice-checks'></a>Trice Checks
+####  6.5.3. <a id='trice-checks'></a>Trice Checks
 
 - Optionally copy parts of [./_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   - Do not inlucde this file directly, because it could get changed when `updateTestData.sh` is executed inside the `./test` folder.
@@ -608,7 +735,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 - Look into [./TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for options.
 - Read [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md) if needed.
 
-####  7.5.4. <a id='communication-ports'></a>Communication Ports
+####  6.5.4. <a id='communication-ports'></a>Communication Ports
 
 - For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [./TriceOverRTT.md](./TriceOverRTT.md) for more info.
   - If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. But you cannot use it in the field usually.
@@ -619,7 +746,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 - An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality. 
 - See also [./TriceOverOneWire.md](./TriceOverOneWire.md).
 
-####  7.5.5. <a id='target-code-overview'></a>Target Code Overview
+####  6.5.5. <a id='target-code-overview'></a>Target Code Overview
 
 - `./src`: **User Interface**
 
@@ -672,7 +799,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-####  7.5.6. <a id='user-code-adaption'></a>User Code Adaption
+####  6.5.6. <a id='user-code-adaption'></a>User Code Adaption
 
 - Replace all strings `puts` with the string `trice`, when the string follows immediately. For runtime generated strings see `triceS`.
 - Replace all strings `printf` with the string `trice`, when the format string follows immediately.
@@ -712,7 +839,7 @@ The Trice macros are designed for maximal execution speed and therefore we have 
 
 - Add `#include trice.h` to all user files using trice.
 
-####  7.5.7. <a id='limitations'></a>Limitations
+####  6.5.7. <a id='limitations'></a>Limitations
 
 - The maximum parameter count per trice is 12, but buffer transfer alows up to 32764 bytes payload. See `triceB` and its relatives.
 - Each trice must fit into a single line in trice versions before v0.61.0.
@@ -768,7 +895,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 - See also [2.6. Avoid it](#26-avoid-it).
 
-####  7.5.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
+####  6.5.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
 
 - Trice messages can have no or 16-bit or 32-bit (time) stamps.
   - recommended (function calling) syntax:
@@ -789,7 +916,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 <div id="Trice Parameter Bit Widths"></div>
 
-####  7.5.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
+####  6.5.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
 
 - The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside [src/triceDefaultConfig.h](../src/triceDefaultConfig.h) to change that.
 - If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
@@ -809,9 +936,9 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 Hint: With the defaut TCOBS framing 8-bit values as 32-bit parameters typically occupy only 2-bytes during transmission.
 
-###  7.6. <a id='avoid-it'></a>Avoid it
+###  6.6. <a id='avoid-it'></a>Avoid it
 
-####  7.6.1. <a id='parser-limitation'></a>Parser Limitation
+####  6.6.1. <a id='parser-limitation'></a>Parser Limitation
 
 Because the implemented source code parser for `trice insert` and `trice clean` is only a simple one, there is one important limitation:
 
@@ -832,21 +959,21 @@ trice( "hi 4");
 - The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here, but the compiler will mark an error then.
 - See also [issue #427](https://github.com/rokath/trice/issues/427), [issue #465](https://github.com/rokath/trice/issues/465) and see also [Limited Trice Parser Capabilities](#922-limited-trice-parser-capabilities).
 
-####  7.6.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
+####  6.6.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
 
 - There is nothing wrong, when putting _trice_ macros into header files.
 - But: When you use `trice insert` as pre-build command and `trice clean` as post build command, those header files get touched on each build and therefore all source code files including them will be re-translated every time.
 - For efficiency avoid that.
 - ***With inventing the Trice cache this is of no relevance.***
 
-####  7.6.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
+####  6.6.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
 
 - There is nothing wrong, when putting Trice macros into other macros.
 - But: When running the self made macro, the location information of the inner _trice_ macro will point to the self made macro definition and not to its execution location.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  8. <a id='build-`trice`-tool-from-go-sources-(you-can-skip-that)'></a>Build `trice` tool from Go sources (you can skip that)
+##  7. <a id='build-trice-tool-from-go-sources-(you-can-skip-that)'></a>Build Trice tool from Go sources (you can skip that)
 
 - Install [Go](https://golang.org/).
 - On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
@@ -902,7 +1029,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  9. <a id='-embedded-system-code-configuration'></a> Embedded system code configuration
+##  8. <a id='-embedded-system-code-configuration'></a> Embedded system code configuration
 
 Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and adapt your project configuration like shown in [triceConfig.h](../examples/F030R8_inst/Core/Inc/triceConfig.h) as example.
 
@@ -947,7 +1074,7 @@ Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and ad
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_##  5. <a id='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
+_## 5. <a id='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
 
 For example change the legacy source code line
 
@@ -1034,7 +1161,7 @@ These are the fastest trices and with them the speed limit is reached.\
 ![x](./ref/Trice16_1i-Code.PNG)\
 ![x](./ref/Trice16_1i.PNG)\
 The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neighbors is about 13 clocks. \
-Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices. The `trice` tool will handle that for you.
+Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices. The Trice tool will handle that for you.
 - Upper case `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. \
 They insert code directly (no function call) for better performance but the drawback is the rising code amount when many trices are used.
 - Lower case `trice0`, `trice8_1`, ... `trice8_8`, `trice16_1`, ... `trice16_4`, `trice32_1`, ... `trice32_4`, `trice64_1`, `trice64_2` are normal trice functions. \
@@ -1046,7 +1173,7 @@ The function call overhead is reasonable and the advantage is significant less c
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ---
-##  10. <a id='`trice`-tool-in-logging-action'></a>`trice` tool in logging action
+##  9. <a id='trice-tool-in-logging-action'></a>Trice tool in logging action
 
 <!--
 Executing `trice insert` at the root of your project source updates in case of changes, the Trice statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
@@ -1063,12 +1190,12 @@ See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) for referen
 Use the `-color off` switch for piping output in a file. More convenient is the `-lf auto` switch. 
 
 <!---
-_###  6.2. <a id='Checkthetricebinary'></a>Check the `trice` binary
+_### 6.2. <a id='Checkthetricebinary'></a>Check the `trice` binary
 - Copy command trice into a path directory.
 - Run inside a shell `trice check -list path/to/trice/examples/triceDemoF030R8/MDK-ARM/`[til.json](../examples/triceDemoF030R8/MDK-ARM/til.json). You should see output like this:
 ![](./ref/Check.PNG)
 
-_###  6.2. <a id='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
+_### 6.2. <a id='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
 
 Look at one of the appropriate test projects as example. In general:
 
@@ -1128,7 +1255,7 @@ Quick workaround:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  11. <a id='encryption'></a>Encryption
+##  10. <a id='encryption'></a>Encryption
 
 - You can deliver your device with encrypted trices. This way only the service [wo]men is able to read the *Trices*.
 - Implemented is [XTEA](https://en.wikipedia.org/wiki/XTEA) but this is exchangeable.
@@ -1139,7 +1266,7 @@ Quick workaround:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  12. <a id='cli-options-for-`trice`-tool'></a>CLI Options for `trice` tool
+##  11. <a id='cli-options-for-trice-tool'></a>CLI Options for Trice tool
 
 The trice tool is very easy to use even it has a plenty of options. Most of them normally not needed.
 The trice tool can be started in several modes (sub-commands), each with several mandatory or optional switches. Switches can have parameters or not.
@@ -1154,12 +1281,12 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -z`, ... .
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  13. <a id='trice-command-line-examples'></a>Trice command line examples
+##  12. <a id='trice-command-line-examples'></a>Trice command line examples
 
 - The Trice tool has many command line options, but is easy to use with default values.
 - No [config file](./TriceConfigFile.md) implemented yet. But the command history is usable for example inside the bash, simply enter CTRL-R and start typing `trice...` and you can select from the history.
 
-###  13.1. <a id='common-information'></a>Common information
+###  12.1. <a id='common-information'></a>Common information
 
 - `trice h -all` shows all options of the current version.
 - `trice ver` prints version information.
@@ -1175,9 +1302,9 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -z`, ... .
 - `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
 -->
 
-###  13.2. <a id='further-examples'></a>Further examples
+###  12.2. <a id='further-examples'></a>Further examples
 
-####  13.2.1. <a id='automated-pre-build-insert-command-example'></a>Automated pre-build insert command example
+####  12.2.1. <a id='automated-pre-build-insert-command-example'></a>Automated pre-build insert command example
 
 - Scan directories `../src`, `../lib/src` and `./` to insert the IDs there and extend list file `../../../til.json`
 
@@ -1187,7 +1314,7 @@ trice i -v -i ../../../til.json -src ../src -src ../lib/src -src ./
 
 This is a typical line you can add to your project as an automatic pre-compile step.
 
-####  13.2.2. <a id='some-log-examples'></a>Some Log examples
+####  12.2.2. <a id='some-log-examples'></a>Some Log examples
 
 - Log trice messages on COM3 8N1 115200 baud
 
@@ -1201,7 +1328,7 @@ trice log -i ./myProject/til.json -p=COM3
 trice l -s COM3 -baud=9600
 ```
 
-####  13.2.3. <a id='logging-over-a-display-server'></a>Logging over a display server
+####  12.2.3. <a id='logging-over-a-display-server'></a>Logging over a display server
 
 - Start displayserver on ip 127.0.0.1 (localhost) and port 61497
 
@@ -1221,7 +1348,7 @@ trice l -ds -p COM3
 trice sd -r 192.168.1.23:45678
 ```
 
-####  13.2.4. <a id='logfile-output'></a>Logfile output
+####  12.2.4. <a id='logfile-output'></a>Logfile output
 
 ```bash
 trice l -p COM3 -logfile auto
@@ -1237,7 +1364,7 @@ This creates a new logfile `trice.log` on first start and appends to it on each 
 
 Logfiles are text files one can see with 3rd party tools. Example: `cat trice.log`. They contain also the PC reception timestamps if where enabled.
 
-####  13.2.5. <a id='binary-logfile'></a>Binary Logfile
+####  12.2.5. <a id='binary-logfile'></a>Binary Logfile
 
 ```bash
 trice l -p COM3 -binaryLogfile auto
@@ -1257,7 +1384,7 @@ Binary logfiles are handy in the field for long data recordings.
 
 When using RTT, the data are exchanged over a file interface. These binary logfiles are stored in the project [./temp] folder and accessable for later view: `trice l -p FILEBUFFER -args ./temp/logfileName.bin`. Of course the host timestamps are the playing time then.
 
-####  13.2.6. <a id='tcp-output'></a>TCP output
+####  12.2.6. <a id='tcp-output'></a>TCP output
 
 ```bash
 trice l -p COM3 -tcp 127.0.0.1:23
@@ -1268,7 +1395,7 @@ This additionally sends Trice output to a 3rd party TCP listener, for example li
 ![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
 ![./ref/Putty.PNG](./ref/Putty.PNG)
 
-####  13.2.7. <a id='tcp-input'></a>TCP input
+####  12.2.7. <a id='tcp-input'></a>TCP input
 
 ```bash
 trice l -p TCP4 -args "192.168.2.3:45678"
@@ -1276,7 +1403,7 @@ trice l -p TCP4 -args "192.168.2.3:45678"
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
 
-<!--####  8.2.8. <a id='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
+<!--#### 8.2.8. <a id='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
 
 ```bash
 trice zero -src ./ 
@@ -1289,28 +1416,28 @@ trice zero -src ./
 - Calling `trice i` afterwards will assign the same IDs.
 -->
 
-####  13.2.8. <a id='stimulate-target-with-a-user-command-over-uart'></a>Stimulate target with a user command over UART
+####  12.2.8. <a id='stimulate-target-with-a-user-command-over-uart'></a>Stimulate target with a user command over UART
 
 Sometimes it is handy to stimulate the target during development. For that a 2nd screen is helpful what is possible using the display server option:
 
 ![./ref/UARTCommandAnimation.gif](./ref/UARTCommandAnimation.gif)
 
-####  13.2.9. <a id='explpore-and-modify-tags-and-their-colors'></a>Explpore and modify tags and their colors
+####  12.2.9. <a id='explpore-and-modify-tags-and-their-colors'></a>Explpore and modify tags and their colors
 
 See file [TriceColor.md](./TriceColor.md)
 
-####  13.2.10. <a id='location-information'></a>Location Information
+####  12.2.10. <a id='location-information'></a>Location Information
 
 When running  `trice insert`, a file `li.json` is created, what you can control with the `-li|locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves as an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuild with each compilation, when `trice i` is a prebuild step. When `trice clean` is used, the file `li.json` should go into the version management too to secure that identical trices get the same ID back.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-##  14. <a id='limitations-1'></a>Limitations
+##  13. <a id='limitations-1'></a>Limitations
 
-###  14.1. <a id='permanent-limitations'></a>Permanent Limitations
+###  13.1. <a id='permanent-limitations'></a>Permanent Limitations
 
-####  14.1.1. <a id='limitation-trice-in-trice-not-possible'></a>Limitation TRICE in TRICE not possible
+####  13.1.1. <a id='limitation-trice-in-trice-not-possible'></a>Limitation TRICE in TRICE not possible
 
 - No-Good Example:
 
@@ -1330,9 +1457,9 @@ int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
 ```
 
-###  14.2. <a id='current-limitations'></a>Current Limitations
+###  13.2. <a id='current-limitations'></a>Current Limitations
 
-####  14.2.1. <a id='string-concatenation-within-trice-macros-not-possible'></a>String Concatenation Within TRICE Macros Not Possible
+####  13.2.1. <a id='string-concatenation-within-trice-macros-not-possible'></a>String Concatenation Within TRICE Macros Not Possible
 
 String concatenation within TRICE macros does not work. The reason lays inside the way the trice tool parser works:
 
@@ -1343,7 +1470,7 @@ void f0( void ){ TRICE( "msg:" ## "Hello\n" ); } // ERROR!
 To implement this would need to build a trice preprocessor or to run the C preprocessor first and to modify the preprocessor output with the trice tool. That would make things unneccessary complicate and fragile for now.
 
 
-####  14.2.2. <a id='limited-trice-parser-capabilities'></a>Limited Trice Parser Capabilities
+####  13.2.2. <a id='limited-trice-parser-capabilities'></a>Limited Trice Parser Capabilities
 
 The Trice tool internal parser has only limited capabilities. In works well in most cases, but could led to problems in some cases. The compiler run will for sure end up with some error messages in the following examples, so the developer can fix the code.
 
@@ -1401,15 +1528,15 @@ void trice0_test() {
 
 As said, the compiler will complain about that in any case.
 
-<!-- ####  9.2.3. <a id='TRICE_Sanditrelativesarenotcoveredbyfunctioncalls'></a>`TRICE_F` and it relatives are not covered by function calls
+<!-- #### 9.2.3. <a id='TRICE_Sanditrelativesarenotcoveredbyfunctioncalls'></a>`TRICE_F` and it relatives are not covered by function calls
 
 Instead of `TRICE( Id(0), "hi" );` you can also write `Trice( "hi" );`. The difference is that `TRICE` is a macro, inlining trice code. That is a tick faster in execution, but requires more flash memory, relevant when you use many `TRICE` statements instead of `Trice`, what is just a function call. This works for almost all common trices, but not yet for `TRICE_F` and the like. It is planned to implement this one day. `triceS`, `triceN`, and `triceB`-like Trice macros are implemented in Trice versions from v0.66.0.
 
 -->
 
-<!-- ###  9.3. <a id='LegacyLimitations'></a>Legacy Limitations -->
+<!-- ### 9.3. <a id='LegacyLimitations'></a>Legacy Limitations -->
 
-<!--####  9.3.1. <a id='DynamicstringsbuffersonlyasvariableinsideTRICEmacrosbeforev0.61.0'></a>Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0 
+<!--#### 9.3.1. <a id='DynamicstringsbuffersonlyasvariableinsideTRICEmacrosbeforev0.61.0'></a>Dynamic strings/buffers only as variable inside `TRICE` macros before v0.61.0 
 
 - No-Good Example before v0.61.0:
 
@@ -1443,31 +1570,32 @@ Only the dynamic strings should be used as variables in TRICE_S macro.
 
 -->
 
-<!--####  9.3.2. <a id='Limitationgone:triceidoesnotrequireTRICEmacrosonasingleline'></a>Limitation gone: `trice insert` does not require TRICE macros on a single line
+<!--#### 9.3.2. <a id='Limitationgone:triceidoesnotrequireTRICEmacrosonasingleline'></a>Limitation gone: `trice insert` does not require TRICE macros on a single line
 
 - The implemented parser supports `trice` macros over several source code lines now (v0.61.0 and later). This is valid for `trice i` and `trice c` but not for `trice i`.
 - It is possible to have several (complete) `trice` macros on one source code line.
 
 -->
 
-##  15. <a id='additional-hints'></a>Additional hints
+##  14. <a id='additional-hints'></a>Additional hints
 
-###  15.1. <a id='pre-built-executables-are-available'></a>Pre-built executables are available
+###  14.1. <a id='pre-built-executables-are-available'></a>Pre-built executables are available
 
 See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/releases).
-###  15.2. <a id='configuration-file-`triceconfig.h`'></a>Configuration file `triceConfig.h`
 
-- When setting up your first project you need a `triceConfig.h` file.
-- You should **not** use the `./_test/cgo.../triceConfig.h` directly, because these are customized for internal tests with CGO. But you can use their settings as helper for a starting point.
-- Please choose one of the `./examples/*_inst/triceConfig.h` files as starting point.
-- Comparing them and understandig the differences helps quick starting.
-- The file [triceDefaultConfig.h](../src/triceDefaultConfig.h) contains all possible config keys with descriptions.
+###  14.2. <a id='configuration-file-`triceconfig.h`'></a>Configuration file triceConfig.h
 
-###  15.3. <a id='setting-up-the-very-first-connection'></a>Setting up the very first connection
+* When setting up your first project you need a `triceConfig.h` file.
+* You should **not** use the `./_test/cgo.../triceConfig.h` directly, because these are customized for internal tests with CGO. But you can use their settings as helper for a starting point.
+* Please choose one of the `./examples/*_inst/triceConfig.h` files as starting point.
+* Comparing them and understandig the differences helps quick starting.
+* The file [triceDefaultConfig.h](../src/triceDefaultConfig.h) contains all possible config keys with descriptions.
+
+###  14.3. <a id='setting-up-the-very-first-connection'></a>Setting up the very first connection
 
 If you see nothing in the beginning, what is normal ;-), add the `-s` (`-showInputBytes`) switch to see if any data arrive. There is also a switch `-debug` showing you the received packages, if you are interested in.
 
-###  15.4. <a id='avoid-buffer-overruns'></a>Avoid buffer overruns
+###  14.4. <a id='avoid-buffer-overruns'></a>Avoid buffer overruns
 
 It is your responsibility to produce less data than transmittable. If this is not guarantied, a data loss is not avoidable or you have to slow down the user application. The buffers have an optional overflow protection (`TRICE_PROTECT`), which is enabled by default. Recommendation: Make the buffer big and emit the maxDepth cyclically, every 10 or 1000 seconds. Then you know the needed size. It is influenced by the max Trice data burst and the buffer switch interval. See [./example/exampleData/triceLogDiagData.c](./example/exampleData/triceLogDiagData.c) for help.
 
@@ -1479,7 +1607,7 @@ Gennerally it is recommended to enable `TRICE_PROTECT` during development and to
 
 Important to know: If the `TRICE_PROTECT` code inhibits the writing into a buffer, there will be later no cycle error because a non existing Trice cannot cause a cycle error. Therefore the `TriceDirectOverflowCount` and `TriceDeferredOverflowCount` values exist, which could be monitored.
 
-###  15.5. <a id='buffer-macros'></a>Buffer Macros
+###  14.5. <a id='buffer-macros'></a>Buffer Macros
 
 (Examples in [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c))
 
@@ -1492,46 +1620,46 @@ Important to know: If the `TRICE_PROTECT` code inhibits the writing into a buffe
 | `trice32B`\|`Trice32B`\|`TRice32B`\|`TRICE32_B` | Is for 32-bit buffer output according to the given format specifier for a 32-bit value.                                                                                                                                                                                                                                       |
 | `triceB`  \|`TriceB`  \|`TRiceB`  \|`TRICE_B`   | Is buffer output according to the given format specifier for a default unit according to configuration (8                                                                                                                                                                                                                     | 16 | 32-bit value). |
 
-###  15.6. <a id='logfile-viewing'></a>Logfile viewing
+###  14.6. <a id='logfile-viewing'></a>Logfile viewing
 
 Logfiles, Trice tool generated with sub-command switch `-color off`, are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
-- Simply `cat trice.log`. One view option is also `less -R trice.log`. The Linux command `less` is also available inside the windows git bash.
-- Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
-- See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
+* Simply `cat trice.log`. One view option is also `less -R trice.log`. The Linux command `less` is also available inside the windows git bash.
+* Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
+* See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
 
-###  15.7. <a id='using-the-`trice`-tool-with-3rd-party-tools'></a>Using the `trice` tool with 3rd party tools
+###  14.7. <a id='using-the-trice-tool-with-3rd-party-tools'></a>Using the Trice tool with 3rd party tools
 
 Parallel output as logfile, TCP or binary logfile is possible. See examples above.
 
-###  15.8. <a id='several-targets-at-the-same-time'></a>Several targets at the same time
+###  14.8. <a id='several-targets-at-the-same-time'></a>Several targets at the same time
 
 You can connect each target over its transmit channel with an own Trice instance and integrate all transmissions line by line in an additional Trice instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
 
-###  15.9. <a id='executing-`go-test--race--count-100-./...`'></a>Executing `go test -race -count 100 ./...`
+###  14.9. <a id='executing-`go-test--race--count-100-./...`'></a>Executing `go test -race -count 100 ./...`
 
 The C-code is executed during some tests. Prerequisite is an installed GCC.
 
-###  15.10. <a id='direct-trice-out-(trice_mode-trice_stack_buffer)-could-cause-stack-overflow-with--o0-optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
+###  14.10. <a id='direct-trice-out-(trice_mode-trice_stack_buffer)-could-cause-stack-overflow-with--o0-optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
-###  15.11. <a id='cycle-counter'></a>Cycle Counter
+###  14.11. <a id='cycle-counter'></a>Cycle Counter
 
-- The trice tool expects the first cycle counter to start with 0xC0 (=192). If the target is already running and you connect the trice tool then, the first message is marked with "CYCLE: ? not equal expected value 192 - adjusting. Now 1 CycleEvents".
-- If the target is resetted asynchronous, the trice tool receives a cycle counter 192. Most probably the last cycle counter was not 191, so this triggers also a message  with "CYCLE: 192 not equal expected value ?- adjusting. Now n CycleEvents".
-- In the Trice tool is some heuristics to suppress such obvious false positives.
+* The trice tool expects the first cycle counter to start with 0xC0 (=192). If the target is already running and you connect the trice tool then, the first message is marked with "CYCLE: ? not equal expected value 192 - adjusting. Now 1 CycleEvents".
+* If the target is resetted asynchronous, the trice tool receives a cycle counter 192. Most probably the last cycle counter was not 191, so this triggers also a message  with "CYCLE: 192 not equal expected value ?- adjusting. Now n CycleEvents".
+* In the Trice tool is some heuristics to suppress such obvious false positives.
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  16. <a id='switching-trice-on-and-off'></a>Switching Trice ON and OFF
+##  15. <a id='switching-trice-on-and-off'></a>Switching Trice ON and OFF
 
 <div id="Target side Trice On-Off"></div>
 
-###  16.1. <a id='target-side-compile-time-trice-on-off'></a>Target side compile-time  Trice On-Off
+###  15.1. <a id='target-side-compile-time-trice-on-off'></a>Target side compile-time  Trice On-Off
 
-- If your code works well after checking, you can add `#define TRICE_OFF 1` just before the `#include "trice.h"` line and no Trice code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: <!-- ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG) -->
+* If your code works well after checking, you can add `#define TRICE_OFF 1` just before the `#include "trice.h"` line and no Trice code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: <!-- ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG) -->
 
 ```C
 #define TRICE_OFF 1
@@ -1544,25 +1672,25 @@ void fn(void) {
 
 With `#define TRICE_OFF 1` macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
 
-- Hint from @escherstair: With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
-- No runtime On-Off switch is implemented for several reasons:
-  - Would need a control channel to the target.
-  - Would add little performance and code overhead.
-  - Would sligtly change target timing (testing).
-  - User can add its own switches anywhere.
-  - The short `TRICE` macro code is negligible.
-  - The trice output is encryptable, if needed.
-- Because of the low Trice bandwidth needs and to keep the target code as clear as possible the runtime On-Off decision should be done by the Trice tool.
+* Hint from @escherstair: With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
+* No runtime On-Off switch is implemented for several reasons:
+  * Would need a control channel to the target.
+  * Would add little performance and code overhead.
+  * Would sligtly change target timing (testing).
+  * User can add its own switches anywhere.
+  * The short `TRICE` macro code is negligible.
+  * The trice output is encryptable, if needed.
+* Because of the low Trice bandwidth needs and to keep the target code as clear as possible the runtime On-Off decision should be done by the Trice tool.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  16.2. <a id='host-side-trice-on-off'></a>Host side Trice On-Off
+###  15.2. <a id='host-side-trice-on-off'></a>Host side Trice On-Off
 
 * The PC Trice tool offers command line switches to `-pick` or `-ban` for Trice tags and will be extended with display switches.
 * A Trice tool `-logLevel` switch is usable too.
 
 <!--
-_##  12. <a id='Usingadifferentencoding'></a>Using a different encoding
+_## 12. <a id='Usingadifferentencoding'></a>Using a different encoding
 
 It is possible to exchange the code behind the `TRICE` macros with a different encoding and to add an appropriate decoder to the Trice tool.
 The ID assignment is adjustable with `-IDMin` and `-IDMax`.
@@ -1570,20 +1698,20 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_##  14. <a id='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
+_## 14. <a id='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
 
 - `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
 
-_###  14.1. <a id='checkswitch-datasetNotimplemented'></a>`check` switch '-dataset' (Not implemented!)
+_### 14.1. <a id='checkswitch-datasetNotimplemented'></a>`check` switch '-dataset' (Not implemented!)
 
 - This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
 - The `negative` value is uses a dataset with negative values for testing.
 - Running `trice check` should show your message, indicating everything is fine so far.
 
-_##  13. <a id='Testing'></a>Testing
+_## 13. <a id='Testing'></a>Testing
 
 
-_###  13.1. <a id='Folderinformation'></a>Folder information
+_### 13.1. <a id='Folderinformation'></a>Folder information
 
 - The folders in [./_test/](../test), despite `testdata`, are helper "projects" serving as examples and for testing the target C-code located in `./src/`.
 
@@ -1599,7 +1727,7 @@ _###  13.1. <a id='Folderinformation'></a>Folder information
 - In a post-compile step a `trice z` should restore the `triceCheck.c` unmodified state to be identical to `./testdata/triceCheck_EditThisFile_NotTheTriceCheckDotC.txt`.
 - Unfortunately this has to be done on the os filesystem.
 
-_###  13.2. <a id='Packagespecificinformation'></a>Package specific information
+_### 13.2. <a id='Packagespecificinformation'></a>Package specific information
 
 - Each C function gets a Go wrapper which ist tested in appropriate test functions.
 - For some reason inside the trice_test.go an 'import "C"' is not possible.
@@ -1607,7 +1735,7 @@ _###  13.2. <a id='Packagespecificinformation'></a>Package specific information
 - The Go functions defined in the packages are not exported. They are called by the Go test functions in this package.
 - This way the package test functions are executing the trice C-code compiled with the triceConfig.h there.
 
-_###  13.3. <a id='todo'></a>todo
+_### 13.3. <a id='todo'></a>todo
 
 - repair cgo0_tcobs
 - repair cgo1_tcobs
@@ -1616,24 +1744,24 @@ _###  13.3. <a id='todo'></a>todo
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_##  11. <a id='Tricedemotestprojectinfo'></a>Trice demo & test project info
+_## 11. <a id='Tricedemotestprojectinfo'></a>Trice demo & test project info
 
 Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptable to 8 - 64-bit architectures.
 
-_###  11.1. <a id='Backupfolder'></a>Backup folder
+_### 11.1. <a id='Backupfolder'></a>Backup folder
 
 - This folder contains unmaintained legacy test projects.
 - They are only for reference and need some corrections to work with the current release.
 - See also [../docs/TestExamples.md](../docs/TestExamples.md)
 
-_###  11.2. <a id='Terminalinfo'></a>Terminal info
+_### 11.2. <a id='Terminalinfo'></a>Terminal info
 
 - Open an escape sequence capable terminal in trice root `C:\repos\trice\`opr where you put it.
   - Any directory will do as well but the `til.json` file needs to be found.
   - git-bash will do or also windows-terminal from Microsoft store.
     - Under Windows the DOS or powershell could have display issues with the escaped ASCII codes. Search the internet for answers.
 
-_###  11.3. <a id='RTTinfo'></a>RTT info
+_### 11.3. <a id='RTTinfo'></a>RTT info
 
 - The example projects support both, RTT and UART just for demonstration.
 - RTT = Real Time Transfer is a technique developed by SEGGER for background memory access during processor runtime. This is possible for ARM cores over the JTAG or SWD interface if a debug probe is connected.
@@ -1643,11 +1771,11 @@ _###  11.3. <a id='RTTinfo'></a>RTT info
 - You can also flash the on-board debug probe with J-LINK firmware. To use RTT use the `-p JLINK` switch.
   - `JLinkRTTLogger.exe` and `JLinkARM.dll` must be in the PATH.
 
-_###  11.4. <a id='UART'></a>UART
+_### 11.4. <a id='UART'></a>UART
 
 - The default baud rate is 115200 for all test projects and the trice tool assumes that baud rate automatically. Use the trice tool `-baud` switch for other settings.
 
-_###  11.5. <a id='MDK-ARMprojects'></a>MDK-ARM projects
+_### 11.5. <a id='MDK-ARMprojects'></a>MDK-ARM projects
 
 The projects are generated with necessary library files *as reference* to keep them smaller. Therefore, the direct compilation will fail, probably. Projects should compile if you follow these steps:
 
@@ -1659,7 +1787,7 @@ The projects are generated with necessary library files *as reference* to keep t
 - Open the project ioc file with STM32CubeMX and re-generate.
 - Open the project with ARMKeil IDE and build.
 
-_###  11.6. <a id='Details'></a>Details
+_### 11.6. <a id='Details'></a>Details
 
 
 - [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md](MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md)
@@ -1677,23 +1805,23 @@ _###  11.6. <a id='Details'></a>Details
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_##  15. <a id='Furtherinfo'></a>Further info
+_## 15. <a id='Furtherinfo'></a>Further info
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_##  16. <a id='ThirdpartySoftware'></a>Third party Software
+_## 16. <a id='ThirdpartySoftware'></a>Third party Software
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_##  17. <a id='alacritty'></a>alacritty
+_## 17. <a id='alacritty'></a>alacritty
 
 - A fast, cross-platform, OpenGL terminal emulator
 
-_###  17.1. <a id='goST'></a>goST
+_### 17.1. <a id='goST'></a>goST
 
 - see Segger RTT over STLINK
 
-_###  17.2. <a id='keil.com'></a>keil.com
+_### 17.2. <a id='keil.com'></a>keil.com
 
 - Tooling info
 
@@ -1708,24 +1836,24 @@ _## microchip.com
 - Planned NXP example
 
 
-_###  17.3. <a id='segger.com'></a>segger.com
+_### 17.3. <a id='segger.com'></a>segger.com
 
 - Tooling around Segger RTT, Download latest version from SEGGER web site.
 
-_####  17.3.1. <a id='SEGGERdownloadedSoftware'></a>SEGGER downloaded Software
+_#### 17.3.1. <a id='SEGGERdownloadedSoftware'></a>SEGGER downloaded Software
 
 - Check in the Internet for newer versions.
 
-_####  17.3.2. <a id='JLink'></a>JLink
+_#### 17.3.2. <a id='JLink'></a>JLink
 
 - Download and install [J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) or simply use `JLinkRTTLogger.exe` and accompanying `JLinkARM.dll` copied from default install location `C:\Program Files (x86)\SEGGER\JLink`. Both files are inside `JLinkRTTLogger.zip` You need to put to a location in \$PATH or extend \$PATH.
 
-_####  17.3.3. <a id='SEGGER_RTT'></a>SEGGER_RTT
+_#### 17.3.3. <a id='SEGGER_RTT'></a>SEGGER_RTT
 
 - Target code is expected inside SEGGER_RTT. This is the extracted SEGGER_RTT_V....zip.
 - Optionally check for a newer version.
 
-_####  17.3.4. <a id='STLinkReflash_190812.zip'></a>STLinkReflash_190812.zip
+_#### 17.3.4. <a id='STLinkReflash_190812.zip'></a>STLinkReflash_190812.zip
 
 - Tool for exchanging ST-LINK and J-LINK software on STM32 evaluation boards.
   - Works not for v3 Hardware but well for v2 Hardware.
@@ -1733,21 +1861,21 @@ _####  17.3.4. <a id='STLinkReflash_190812.zip'></a>STLinkReflash_190812.zip
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_##  18. <a id='st.com'></a>st.com
+_## 18. <a id='st.com'></a>st.com
 
 - STMicroelectronics
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_##  11. <a id='TriceVersion1.0SpecificationDraft'></a>Trice  Version 1.0 Specification (Draft)
+_## 11. <a id='TriceVersion1.0SpecificationDraft'></a>Trice  Version 1.0 Specification (Draft)
 
-_##  12. <a id='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick Start
+_## 12. <a id='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick Start
 
 -->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  17. <a id='framing'></a>Framing
+##  16. <a id='framing'></a>Framing
 
 - Trice messages are framed binary data, if framing is not disabled.
 - Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data compression) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all. 
@@ -1756,7 +1884,7 @@ _##  12. <a id='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  18. <a id='optional-xtea-encryption'></a>Optional XTEA Encryption
+##  17. <a id='optional-xtea-encryption'></a>Optional XTEA Encryption
 
 - If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
 - The optional decryption is the next step after unpacking a data frame.
@@ -1764,7 +1892,7 @@ _##  12. <a id='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  19. <a id='endianness'></a>Endianness
+##  18. <a id='endianness'></a>Endianness
 
 - To interpret a decoded package, it´s endianness needs to be known.
 - For efficiency, binary trice data are normally stored and transmitted in MCU endianness and the Trice tool expects binary data in little endian format as most MCUs are little endian.
@@ -1774,7 +1902,7 @@ _##  12. <a id='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  20. <a id='`trice`-(time)stamps'></a>`TRICE` (Time)Stamps
+##  19. <a id='`trice`-(time)stamps'></a>`TRICE` (Time)Stamps
 
 - Each Trice message can carry stamp bits, which are free usable like for time, addressing or filtering.
 - By selecting the letter case (**tr**ice, **Tr**ice, **TR**ice) you decide for each single Trice macro about the stamp size.
@@ -1800,9 +1928,9 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  21. <a id='binary-encoding'></a>Binary Encoding
+##  20. <a id='binary-encoding'></a>Binary Encoding
 
-###  21.1. <a id='symbols'></a>Symbols
+###  20.1. <a id='symbols'></a>Symbols
 
 | Symbol  | Meaning                                                                      |
 |:-------:|------------------------------------------------------------------------------|
@@ -1824,7 +1952,7 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
 |   `x`   | unspecified bit                                                              |
 |   `X`   | =`xxxxxxxx` unspecified byte                                                 |
 
-###  21.2. <a id='package-format'></a>Package Format
+###  20.2. <a id='package-format'></a>Package Format
 
 - Because of the **TCOBS** or **COBS** package framing, the package sizes are detectable by the trice tool without additionlal length information.
 - All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the Trice tool.
@@ -1861,16 +1989,16 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  22. <a id='trice-decoding'></a>Trice Decoding
+##  21. <a id='trice-decoding'></a>Trice Decoding
 
 The 14-bit IDs are used to display the log strings. These IDs are pointing in two reference files.
 
-###  22.1. <a id='trice-id-list-`til.json`'></a>Trice ID list `til.json`
+###  21.1. <a id='trice-id-list-`til.json`'></a>Trice ID list `til.json`
 
 - This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
 - The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. Use `trice i -v` for it. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
 
-###  22.2. <a id='trice-location-information-file-`li.json`'></a>Trice location information file `li.json`
+###  21.2. <a id='trice-location-information-file-`li.json`'></a>Trice location information file `li.json`
 
 - If the generated `li.json` is available, the Trice tool automatically displays file name and line number. But that is accurate only with the exact matching firmware version. That usually is the case right after compiling and of most interest at the developers table.
 - The Trice tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID string` could be used. This allows later an easy location of the relevant source code.
@@ -1878,9 +2006,9 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  23. <a id='trice-id-numbers'></a>Trice ID Numbers
+##  22. <a id='trice-id-numbers'></a>Trice ID Numbers
 
-###  23.1. <a id='id-number-selection'></a>ID number selection
+###  22.1. <a id='id-number-selection'></a>ID number selection
 
 - The default encoding TREX supports 14-bit IDs, so over 16000 IDs possible. Other encodings can work with other ID sizes.
 - `trice("Hi!\n");` ➡ `trice i` ➡ `trice( iD(12345), "Hi!\n");` ➡ `trice c` ➡ `trice("Hi!\n");`
@@ -1906,7 +2034,7 @@ _### New Method to get a random ID
 
 -->
 
-###  23.2. <a id='id-number-usage-and-stability'></a>ID number usage and stability
+###  22.2. <a id='id-number-usage-and-stability'></a>ID number usage and stability
 
 - If you write `trice( "msg:%d", 1);` again on a 2nd location, the copy gets a different **ID**, because each Trice gets its own **ID**.
 - If you change `trice( "msg:%d", 1);` to `trice8( "msg:%d", 1);`, to reduce the needed parameter space, a new **ID** is assigned. That is because the parameter bit width is implicit a part of the now changed Trice. If you change that back, the previous **ID** is assigned again.
@@ -1919,7 +2047,7 @@ _### New Method to get a random ID
 - If the same string appears again in the same file this ID is active again.
 - If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets its ID back.
 
-###  23.3. <a id='trice-id-0'></a>Trice ID 0
+###  22.3. <a id='trice-id-0'></a>Trice ID 0
 
 - The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice insert` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
   - It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
@@ -1930,30 +2058,31 @@ _### New Method to get a random ID
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  24. <a id='trice-id-management'></a>Trice ID management
+##  23. <a id='trice-id-management'></a>Trice ID management
 
-###  24.1. <a id='*trices*-inside-source-code'></a>*Trices* inside source code
+###  23.1. <a id='*trices*-inside-source-code'></a>*Trices* inside source code
 
-####  24.1.1. <a id='*trices*-in-source-code-comments'></a>*Trices* in source code comments
+####  23.1.1. <a id='*trices*-in-source-code-comments'></a>*Trices* in source code comments
 
-- `TRICE` macros commented out, are visible for the `trice insert` command and therefore regarded.
-  - Example: `// TRICE( Id(12345), "Hi!\n" );` is still regarded by the `trice i`.
-- During `trice insert` TRICE macros, commented out, are treated in the same way as active TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability across several firmware versions or variants.
+- Trice macros commented out, are **visible** for the `trice insert` command and therefore regarded.
+  - Example: `// trice("Hi!\n");` is still regarded by the `trice i`.
+- During `trice insert` commented out Trice macros, are treated in the same way as active Trice macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability across several firmware versions or variants.
 - The trice tool does treat trice statements inside comments or excluded by compiler switches also.
 
-####  24.1.2. <a id='different-ids-for-same-*trices*'></a>Different IDs for same *Trices*
+####  23.1.2. <a id='different-ids-for-same-trices'></a>Different IDs for same Trices
 
 - When the same Trice is used several times with identical IDs, after copying, and `trice insert` is called, only one ID survives in the source code. 
 
-####  24.1.3. <a id='same-ids-for-different-*trices*'></a>Same IDs for different *Trices*
+####  23.1.3. <a id='same-ids-for-different-trices'></a>Same IDs for different Trices
 
 - If duplicate ID's with different format strings found inside the source tree (case several developers or source code merging) one ID is replaced by a new ID. The probability for such case is low, because of the default random ID generation.
 - Also you can simply copy a Trice statement and modify it without dealing with the ID.
 - The Trice tool will detect the 2nd (or 3rd) usage of this ID and assign a new one, also extending the ID list.
 - That is done silently for you during the next `trice insert`.
+- When you use the Trice cache, the IDs are invisible and all happens in the background automatically.
 
 <!--
-_####  18.1.4. <a id='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
+_#### 18.1.4. <a id='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
 
 > depreciated, functionality will be removed in favor for no-ids functionality
 
@@ -1977,7 +2106,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  25. <a id='id-reference-list-**til.json**'></a>ID reference list **til.json**
+##  24. <a id='id-reference-list-**til.json**'></a>ID reference list **til.json**
 
 - The `trice insert` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you are sure to create a new **til.json** file, create an empty one: `touch til.json`.
 - The name **til.json** is a default one. With the command line parameter `-i` you can use any filename.
@@ -1986,7 +2115,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 - One can delete the ID reference list when IDs inside the code. It will be reconstructed automatically from the source tree with the next `trice clean` command, but history is lost then.
 - Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
 
-###  25.1. <a id='**til.json**-version-control'></a>**til.json** Version control
+###  24.1. <a id='**til.json**-version-control'></a>**til.json** Version control
 
 - The ID list should go into the version control repository of your project.
 - To keep it clean from the daily development garbage one could delete the **til.json**, then check-out again and re-build just before check-in. A small script could do that.
@@ -1996,7 +2125,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 > For the no-ids option deleting **til.json** should not not be done when the sources are without IDs. That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
 
-###  25.2. <a id='long-time-availability'></a>Long Time Availability
+###  24.2. <a id='long-time-availability'></a>Long Time Availability
 
 - You could place a download link for the Trice tool and the used **til.json** list.
 - Link a compressed/encrypted **til.json** file as resource into the target binary and optionally get it back long years later in a safe way.
@@ -2004,9 +2133,9 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  26. <a id='the-`trice-insert`-algorithm'></a>The `trice insert` Algorithm
+##  25. <a id='the-`trice-insert`-algorithm'></a>The `trice insert` Algorithm
 
-###  26.1. <a id='starting-conditions'></a>Starting Conditions
+###  25.1. <a id='starting-conditions'></a>Starting Conditions
 
 - Before `trice i` is executed on a source tree, the starting conditions are partially undefined:
   - A trice ID list file `til.json` file must exist, but it is allowed to be empty.
@@ -2034,7 +2163,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
   - One and only one position is used and relevant, all others are ignored. If no `li.json` exists on the expected location trice insert creates one there.
 - The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. <!-- To keep `trice i` short in execution. `trice refresh` could be run in such cases. -->
 
-###  26.2. <a id='aims'></a>Aims
+###  25.2. <a id='aims'></a>Aims
 
 - The `trice insert` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 - Also the changes should be minimal.
@@ -2044,9 +2173,9 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 - To keep the [Trice ID management](#trice-id-management) simple, the `insert` operation acts "per file". That means, that in case a file is renamed or code containing trice statements is copied to an other file, new IDs are generated for the affectes trices.
   - File name changes occur are not that often, so tha should be acceptable.
 
-###  26.3. <a id='method'></a>Method
+###  25.3. <a id='method'></a>Method
 
-####  26.3.1. <a id='`insert`-initialization'></a>`insert` Initialization
+####  25.3.1. <a id='`insert`-initialization'></a>`insert` Initialization
 
 ```Go
 // insertIDsData holds the insert run specific data.
@@ -2127,7 +2256,7 @@ _### Tests
 
 -->
 
-###  26.4. <a id='user-code-patching-(`trice-insert`)'></a>User Code Patching (`trice insert`)
+###  25.4. <a id='user-code-patching-(`trice-insert`)'></a>User Code Patching (`trice insert`)
 
 - A Trice **ID** is inserted by `trice insert` as shown in the table:
 
@@ -2152,7 +2281,7 @@ _### Tests
   - `trice i` in your project root expects a til.json file there and checks sources and **til.json** for changes to insert.
   - `trice i -v -i ../../../til.json -src ../src -src ../lib/src -src ./` is a typical case as automated pre-build step in your project settings telling Trice to scan the project dir and two external directories. Even `trice i` is fast, it is generally quicker to search only relevant places.
 
-###  26.5. <a id='user-code-patching-examples'></a>User Code Patching Examples
+###  25.5. <a id='user-code-patching-examples'></a>User Code Patching Examples
 
 - A Trice **ID** is modified as shown in these cases:
   - Previously inserted (patched) user code copied to a different location:
@@ -2200,32 +2329,32 @@ _### Tests
   TRice( iD(12345), "Hi!" ); // manually changed stamp size and then "trice i" performed.
   ```
 
-###  26.6. <a id='user-code-un-patching'></a>User Code Un-Patching
+###  25.6. <a id='user-code-un-patching'></a>User Code Un-Patching
 
-###  26.7. <a id='id-usage-options'></a>ID Usage Options
+###  25.7. <a id='id-usage-options'></a>ID Usage Options
 
 - Per default the `trice insert` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
 - After `trice c` all src IDs are removed or 0. In this state the src should go into the version management system.
   
-###  26.8. <a id='general-id-management-information'></a>General ID Management Information
+###  25.8. <a id='general-id-management-information'></a>General ID Management Information
 
 - The trice ID-instead-of-String idea lives from pre-compile patching of the user code.
 - The user has full control how to deal with that.
 - There are 3 options and the user has to decide which fits best for him.
 - Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 
-###  26.9. <a id='option-1:-let-the-inserted-trice-id-be-a-part-of-the-user-code'></a>Option 1: Let the inserted Trice ID be a Part of the User Code
+###  25.9. <a id='option-1:-let-the-inserted-trice-id-be-a-part-of-the-user-code'></a>Option 1: Let the inserted Trice ID be a Part of the User Code
 
 - This is the legacy method. It allows unchanged src translation into code without using the trice tool.
 - It is very robust and maybe needed in nasty debugging situations.
 - It allows to reconstruct lost til.json information.
 - Recommendet for small projects.
 
-###  26.10. <a id='option-2:-cleaning-in-a-post-build-process'></a>Option 2: Cleaning in a Post-build process
+###  25.10. <a id='option-2:-cleaning-in-a-post-build-process'></a>Option 2: Cleaning in a Post-build process
 
 - The code is visually free of IDs all the time.
 
-###  26.11. <a id='option-3:-cleaning-on-repository-check-in'></a>Option 3: Cleaning on Repository Check-In
+###  25.11. <a id='option-3:-cleaning-on-repository-check-in'></a>Option 3: Cleaning on Repository Check-In
 
 - The code is visually free of IDs only inside the repository.
 
@@ -2233,13 +2362,13 @@ _### Tests
 
  <!-- 
  
-_###  3. <a id='TREXTRiceEXtendableencoding'></a>TREX (*TR*ice *EX*tendable) encoding
+_### 3. <a id='TREXTRiceEXtendableencoding'></a>TREX (*TR*ice *EX*tendable) encoding
 
 - The extendable encoding leaves options for user specific data mixable with trice data. This allows filtering of the framed data by just checking a bit pattern.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_###  4. <a id='IDManagement'></a>ID Management
+_### 4. <a id='IDManagement'></a>ID Management
 
 - The IDs inside the source code are a "dealbreaker" as [bora](https://community.memfault.com/u/bora) mentioned in his [comment](https://interrupt.memfault.com/blog/trice). In fact it is not acceptable for library code used in several projects. An improved approach could look like this:
 
@@ -2265,7 +2394,7 @@ TRICE( ID(0), "...", ...); // a trice with a 32-bit stamp
 - [x] `trice log`:
   - The log switch `-ttsf` is the same as `-ttsf32`.
   - There is a new log switch `ttsf16` for the 16 bit timestamps.
-  - The `trice` tool alignes Trice messages with different timestamp sizes.
+  - The Trice tool alignes Trice messages with different timestamp sizes.
 
 - The Trice tool supports several encodings, old projects should be usable with newer Trice tool versions by applying the `-encoding TLE` switch.
 
@@ -2279,7 +2408,7 @@ The with name "COBS" branded [Trice v0.48.0 encoding](./TriceMessagesEncoding.md
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-_###  2. <a id='Compatibility'></a>Compatibility
+_### 2. <a id='Compatibility'></a>Compatibility
 
 - There is no guaranty for compatibility with legacy target trice versions but the aim is to provide it.
 
@@ -2346,7 +2475,7 @@ TRICE( X3, "...", ...); // an extended type 3 trice
   - N > 127
   - extended Trice without C
 
-_#####  3.2. <a id='FramingwithTCOBSencoding'></a>Framing with TCOBS encoding
+_##### 3.2. <a id='FramingwithTCOBSencoding'></a>Framing with TCOBS encoding
 
 - For maximum storage speed each Trice message starts at a 32-bit boundary and has 1-3 padding bytes.
 - In direct mode only a single message needs handling.
@@ -2355,7 +2484,7 @@ _#####  3.2. <a id='FramingwithTCOBSencoding'></a>Framing with TCOBS encoding
   1. **TRICE_FAST_MULTI_MODE**: Compact buffer by removing all padding bytes, encode it as a single package, append one 0-delimiter and transmit. This allows to reduce the transmitted data amount by paying the price of possibly more data lost in case of an error. Also the data interpretation can perform less checks.
   2. **TRICE_SAFE_SINGLE_MODE**: Encode each buffer separate, append a 0-delimiter for each and pack them all together before transmitting. This increases the transmit data slightly but minimizes the amount of lost data in case of a data disruption.
 
-<!-- ####  6.3. <a id='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option
+<!-- #### 6.3. <a id='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option
 
 If for special cases, the main stream encoding is not sufficient, the user can add its own encoding.
 
@@ -2398,7 +2527,7 @@ Additionally only 2 IDs (1 bit) are needed without cycle and count:
   - Each TRICEXn has its own ID space.
 - Several different Trice extensions are contributive.
 
-- ###  6.4. <a id='Unknownuserdata'></a>Unknown user data
+- ### 6.4. <a id='Unknownuserdata'></a>Unknown user data
 
 - Unknown user data are possible as part of the Trice extensions.
   - Without the `-ex0` switch, `0000...` packages are ignored as unknown user data.
@@ -2411,7 +2540,7 @@ Additionally only 2 IDs (1 bit) are needed without cycle and count:
 -->
 
 
-##  27. <a id='trice-speed'></a>Trice Speed
+##  26. <a id='trice-speed'></a>Trice Speed
 
  A `TRICE` macro execution can be as cheap like **3-4 Assembler instructions or 6-8 processor clocks**:
 
@@ -2426,7 +2555,7 @@ The MCU is clocked with 48 MHz and a Trice duration is about 2 µs, where alone 
 
 ![./ref/ReadUsF030.PNG](./ref/ReadUsF030.PNG)
 
-###  27.1. <a id='target-implementation-options'></a>Target Implementation Options
+###  26.1. <a id='target-implementation-options'></a>Target Implementation Options
 
 All trice macros use internally this sub-macro:
 
@@ -2436,7 +2565,7 @@ All trice macros use internally this sub-macro:
 
 The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWritePosition` points to a buffer, which is codified and used with the Trice framing sub-macros `TRICE_ENTER` and `TRICE_LEAVE` in dependence of the use case.
 
-####  27.1.1. <a id='trice-use-cases-`trice_static_buffer`-and-`trice_stack_buffer`---direct-mode-only'></a>Trice Use Cases `TRICE_STATIC_BUFFER` and `TRICE_STACK_BUFFER` - direct mode only
+####  26.1.1. <a id='trice-use-cases-`trice_static_buffer`-and-`trice_stack_buffer`---direct-mode-only'></a>Trice Use Cases `TRICE_STATIC_BUFFER` and `TRICE_STACK_BUFFER` - direct mode only
 
 1. Each singe Trice is build inside a common buffer and finally copied inside the sub-macro `TRICE_LEAVE`.
 2. Disabled relevant interrupts between `TRICE_ENTER` and `TRICE_LEAVE` are mantadory for `TRICE_STATIC_BUFFER`.
@@ -2449,7 +2578,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
   * AUX without extra copy.
   * Not (yet) supported UART transfer loop with polling. With 1MBit baud rate, 4-12 bytes would last 40-120 µs.
 
-####  27.1.2. <a id='trice-use-case-`trice_double_buffer`---deferred-mode,-fastest-trice-execution,-more-ram-needed'></a>Trice Use Case `TRICE_DOUBLE_BUFFER` - deferred mode, fastest Trice execution, more RAM needed
+####  26.1.2. <a id='trice-use-case-`trice_double_buffer`---deferred-mode,-fastest-trice-execution,-more-ram-needed'></a>Trice Use Case `TRICE_DOUBLE_BUFFER` - deferred mode, fastest Trice execution, more RAM needed
 
 1. Several *trices* are build in a half buffer.
 1. No stack used.
@@ -2457,7 +2586,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 1. Usable for multiple blocking and non-blocking physical Trice channels.
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 
-####  27.1.3. <a id='trice-use-case-`trice_ring_buffer`---deferred-mode,-balanced-trice-execution-time-and-needed-ram'></a>Trice Use Case `TRICE_RING_BUFFER` - deferred mode, balanced Trice execution time and needed RAM
+####  26.1.3. <a id='trice-use-case-`trice_ring_buffer`---deferred-mode,-balanced-trice-execution-time-and-needed-ram'></a>Trice Use Case `TRICE_RING_BUFFER` - deferred mode, balanced Trice execution time and needed RAM
 
 1. Each single *trices* is build in a ring buffer segment.
 1. No stack used.
@@ -2469,11 +2598,11 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-##  28. <a id='trice-cache'></a>Trice Cache
+##  27. <a id='trice-cache-1'></a>Trice Cache
 
 The `trice insert` and `trice clean` commands are parsing and modifying the source code files. Even this is a reasonable fast procedure, this could get time consuming on large projects, especially when using these commands as permanent pre-compile and post-compile steps. It is assumed, that usually between 2 compile steps not all project files are changed. The project files majority will stay unchanged despite the ID insertion and removal. This repeated parsing and modifying of unchanged source code is avoidable with the Trice cache technique. Also it could get anoying to recompile files all the time only because they got Trice IDs removed and inserted. With the Trice cache we get also a solution not to re-compile un-edited files as well.
 
-<!--###  2. <a id='trice-cache-idea'></a>Trice Cache Idea
+<!--### 2. <a id='trice-cache-idea'></a>Trice Cache Idea
 
 Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process many in one shot.
 
@@ -2485,7 +2614,7 @@ Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process
 - When a file in cleaned or inserted ID state was edited somehow, its IDs are inserted/cleaned and the cache is updated accordingly on `trice clean` or `trice insert`.
 -->
 
-###  28.1. <a id='trice-cache-logic'></a>Trice Cache Logic
+###  27.1. <a id='trice-cache-logic'></a>Trice Cache Logic
 
 When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder `~/.trice/cache` exists, we have
 - optionally a _cleaned cache file_   `~/.trice/cache/cleaned/fullpath/file`  with mtime of _IDs cleaned_
@@ -2501,7 +2630,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
     - On command `trice c`, invalidate cache, process `trice c` and update _cleaned cache file_, file gets a new mtime, the mtime of _IDs cleaned_. <sub>On a following command `trice i`, file mtime is _IDs cleaned_, BUT the cache is invalid, so process `trice i` and update cache/inserted.</sub>
     - On command `trice i`, invalidate cache, process `trice i` and update _inserted cache file_, file gets a new mtime, the mtime of _IDs inserted_. <sub>On a following command `trice c`, file mtime is _IDs inserted_, BUT the cache is invalid, so process `trice c` and update cache/cleaned.</sub>
 
-###  28.2. <a id='trice-cache-remarks'></a>Trice Cache Remarks
+###  27.2. <a id='trice-cache-remarks'></a>Trice Cache Remarks
 
 - `fullpath/file` means `/home/me/proj3/file` for example. When copied to the cache, the real "fullpath" is there `/home/me/.trice/cache/cleaned/home/me/proj3/file`.
 
@@ -2512,7 +2641,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 - A CLI switch `-cache` does enable/disable the Trice cache. Default is off.
 - The user should consider what happens, if other pre-compile or post-compile steps are modifying files as well, before enabling the Trice cache. 
 
-###  28.3. <a id='trice-cache-tests'></a>Trice Cache Tests
+###  27.3. <a id='trice-cache-tests'></a>Trice Cache Tests
 
 Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
 ------|----------|---------|---------|------------|------------|------------------------------------------------------------------------------
@@ -2542,7 +2671,7 @@ Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
 30    | 1:insert | 1:valid | 1:valid | 1:inserted | 0:not      | Test_30_11110_insert_on_valid_cCache_valid_iCache_inserted_not_edited_file
 31    | 1:insert | 1:valid | 1:valid | 1:inserted | 1:yes      | Test_31_11111_insert_on_valid_cCache_valid_iCache_inserted_edited_file
 
-###  28.4. <a id='possible-trice-cache-editor-issues-and-how-to-get-around'></a>Possible Trice Cache Editor-Issues And How To Get Around
+###  27.4. <a id='possible-trice-cache-editor-issues-and-how-to-get-around'></a>Possible Trice Cache Editor-Issues And How To Get Around
 
 - When a `trice i -cache && make && trice c -cache` sequence is executed, it could happen that the editor-view is not refreshed for opened and unedited files containing Trice statements.
   - It looks like the Trice IDs were not cleaned.
@@ -2554,9 +2683,9 @@ Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  29. <a id='trice-memory-needs'></a>Trice memory needs
+##  28. <a id='trice-memory-needs'></a>Trice memory needs
 
-###  29.1. <a id='trice-space-example'></a>Trice Space example
+###  28.1. <a id='trice-space-example'></a>Trice Space example
 
 - STM32CubeMX generated empty default project: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`  
 - Same project with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
@@ -2568,7 +2697,7 @@ Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
 - No format strings go into the target code anymore.
 - In general Trice instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
-###  29.2. <a id='memory-needs-(legacy-arm-example-project)'></a>Memory needs (Legacy ARM example project)
+###  28.2. <a id='memory-needs-(legacy-arm-example-project)'></a>Memory needs (Legacy ARM example project)
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
@@ -2583,7 +2712,7 @@ The following numbers are measured with a legacy encoding, showing that the inst
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 * trices are removable without code changes with `#define TRICE_OFF 1` before `incude "trice.h"` on file level or generally on project level.
 
-###  29.3. <a id='memory-needs-(example-projects)'></a>Memory needs (example projects)
+###  28.3. <a id='memory-needs-(example-projects)'></a>Memory needs (example projects)
 
 | Project                          | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark                                                             |
 |----------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------|
@@ -2594,16 +2723,16 @@ The following numbers are measured with a legacy encoding, showing that the inst
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  30. <a id='trice-project-image-size-optimization'></a>Trice Project Image Size Optimization
+##  29. <a id='trice-project-image-size-optimization'></a>Trice Project Image Size Optimization
 
 > ---
 > You *can* reduce trice code size by different means.
 
-###  30.1. <a id='code-optimization-`-o3`-or-`-oz`-(if-supported)'></a>Code Optimization `-o3` or `-oz` (if supported)
+###  29.1. <a id='code-optimization-`-o3`-or-`-oz`-(if-supported)'></a>Code Optimization `-o3` or `-oz` (if supported)
 
 * For debugging it could be helpful to switch off code optimization what increases the code size.
 
-###  30.2. <a id='compiler-independent-setting'></a>Compiler Independent Setting
+###  29.2. <a id='compiler-independent-setting'></a>Compiler Independent Setting
 
 Maybe the following is a bit unhandy but it decreases the code amount, build time and the image size.
 
@@ -2613,41 +2742,41 @@ Maybe the following is a bit unhandy but it decreases the code amount, build tim
 
 When having lots of program memory simply let all values be `1`. With specific linker optimization unused functions can get stripped out automatically. 
 
-###  30.3. <a id='linker-option-`--split-sections`-(if-supported)'></a>Linker Option `--split-sections` (if supported)
+###  29.3. <a id='linker-option-`--split-sections`-(if-supported)'></a>Linker Option `--split-sections` (if supported)
 
 * In ARM-MDK uVision `Project -> Options -> C/C++ -> "One EFL section for each function"` allows good optimization and getting rid of unused code without additional linker optimization. This leads to a faster build process and is fine for most cases. It allows excluding unused functions.
 
-###  30.4. <a id='linker-optimization-`-flto`-(if-supported)'></a>Linker Optimization `-flto` (if supported)
+###  29.4. <a id='linker-optimization-`-flto`-(if-supported)'></a>Linker Optimization `-flto` (if supported)
 
 * To get the smallest possible image, do _not_ use option `--split sections`.
 * Use linker optimization alone.
 * This increases the build time but reduces the image size significantly.
 
-####  30.4.1. <a id='armcc-compiler-v5-"linker-feedback"'></a>ARMCC compiler v5 "Linker Feedback"
+####  29.4.1. <a id='armcc-compiler-v5-"linker-feedback"'></a>ARMCC compiler v5 "Linker Feedback"
 
 * In ARM-MDK uVision, when using ARMCC compiler v5, there is a check box `Project -> Options -> Target -> "Cross Module Optimization"`.
 * In ARMCC this works also with the lite version.
 
-####  30.4.2. <a id='armclang-compiler-v6-"link-time-optimization"'></a>ARMCLANG compiler v6 "Link-Time Optimization"
+####  29.4.2. <a id='armclang-compiler-v6-"link-time-optimization"'></a>ARMCLANG compiler v6 "Link-Time Optimization"
 
 * In ARM-MDK uVision, when using ARMCLANG compiler v6, the check box `Project -> Options -> C/C++(AC6) -> "Link-Time Optimization"` is usable to set the CLI `-flto` switch. 
 * LTO is not possible with ARMCLANG6 lite: https://developer.arm.com/documentation/ka004054/latest.
 
-####  30.4.3. <a id='gcc'></a>GCC
+####  29.4.3. <a id='gcc'></a>GCC
 
 With GCC use the `-flto` CLI switch directly.
 
-####  30.4.4. <a id='llvm-arm-clang'></a>LLVM ARM Clang
+####  29.4.4. <a id='llvm-arm-clang'></a>LLVM ARM Clang
 
 This compiler is much faster and creates the smallest images. Right now it uses the GCC libs and linker.
 
-####  30.4.5. <a id='other-ide´s-and-compilers'></a>Other IDE´s and compilers
+####  29.4.5. <a id='other-ide´s-and-compilers'></a>Other IDE´s and compilers
 
 Please check the manuals and create a pull request or simply let me know.
 
-###  30.5. <a id='stm32f030-example-project---different-builds'></a>STM32F030 Example Project - Different Builds
+###  29.5. <a id='stm32f030-example-project---different-builds'></a>STM32F030 Example Project - Different Builds
 
-####  30.5.1. <a id='armcc-compiler-v5'></a>ARMCC compiler v5
+####  29.5.1. <a id='armcc-compiler-v5'></a>ARMCC compiler v5
 
 | Compiler | Linker         | Result                                          | Comment                           |
 |----------|----------------|-------------------------------------------------|-----------------------------------|
@@ -2663,9 +2792,9 @@ Please check the manuals and create a pull request or simply let me know.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  31. <a id='trice-tags-and-color'></a>Trice Tags and Color
+##  30. <a id='trice-tags-and-color'></a>Trice Tags and Color
 
-###  31.1. <a id='how-to-get'></a>How to get
+###  30.1. <a id='how-to-get'></a>How to get
 
 * Add a tag name as color descriptor in front of each `TRICE` format string like `"wrn:Peng!"`.
 * In file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) the colors are changeable and additional color tags definable.
@@ -2680,11 +2809,11 @@ Please check the manuals and create a pull request or simply let me know.
 * An option using tag specific ID ranges with optional routing exists. 
 * The Trice tool offers the 2 command line switches `-pick` and `-ban` to control tag visualization during runtime.  
 
-####  31.1.1. <a id='output-options'></a>Output options
+####  30.1.1. <a id='output-options'></a>Output options
 
 ![./ref/ColorOptions.PNG](./ref/ColorOptions.PNG)
 
-####  31.1.2. <a id='check-alternatives'></a>Check Alternatives
+####  30.1.2. <a id='check-alternatives'></a>Check Alternatives
 
 There are over 1000 possibilities:
 
@@ -2692,13 +2821,13 @@ There are over 1000 possibilities:
 
 Only file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) needs to be changed and the Trice tool needs to be rebuild afterwards: `go install ./...`.
 
-###  31.2. <a id='color-issues-under-windows'></a>Color issues under Windows
+###  30.2. <a id='color-issues-under-windows'></a>Color issues under Windows
 
 **Currently console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start the Trice tool inside there. Unfortunately this can not be done automatically right now because of missing command line switches. [Alacritty](../third_party/alacritty/ReadMe.md) is one of other alternatives.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  32. <a id='trice-without-uart'></a>Trice without UART
+##  31. <a id='trice-without-uart'></a>Trice without UART
 
 A very performant output path is RTT, if your MCU supports background memory access like the ARM-M ones.
 
@@ -2724,7 +2853,7 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-##  33. <a id='trice-over-rtt'></a>Trice over RTT
+##  32. <a id='trice-over-rtt'></a>Trice over RTT
 
 > Allows Trice over the debug probe without using a pin or UART.
 
@@ -2739,11 +2868,11 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.1. <a id='for-the-impatient-(2-possibilities)'></a>For the impatient (2 possibilities)
+###  32.1. <a id='for-the-impatient-(2-possibilities)'></a>For the impatient (2 possibilities)
 
 The default SEGGER tools only suport RTT channel 0.
 
-####  33.1.1. <a id='start-jlink-commander-and-connect-over-tcp'></a>Start JLink commander and connect over TCP
+####  32.1.1. <a id='start-jlink-commander-and-connect-over-tcp'></a>Start JLink commander and connect over TCP
 
 * JLink.exe → `connect ⏎ ⏎ S ⏎` and keep it active.
   * You can control the target with `r[eset], g[o], h[alt]` and use other commands too.
@@ -2752,7 +2881,7 @@ The default SEGGER tools only suport RTT channel 0.
 * You may need a Trice tool restart after firmware reload.
 
 
-#####  2.1.1. <a id='setup-tcp4-server-providing-the-trace-data'></a>Setup TCP4 server providing the trace data
+##### 2.1.1. <a id='setup-tcp4-server-providing-the-trace-data'></a>Setup TCP4 server providing the trace data
 
 This is just the SEGGER J-Link server here for demonstration, but if your target device has an TCP4 interface, you can replace this with your target server.
 
@@ -2825,7 +2954,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 **This is just a demonstration and test for the `-port TCP4` usage possibility**. Using RTT with J-Link is more easy possible as shown in the next point.
 
-####  33.1.2. <a id='start-using-jlinklogger'></a>Start using JLinkLogger
+####  32.1.2. <a id='start-using-jlinklogger'></a>Start using JLinkLogger
 
 * Start inside Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"`
   * Replace CLI details with your settings.
@@ -2838,7 +2967,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.2. <a id='segger-real-time-transfer-(rtt)'></a>Segger Real Time Transfer (RTT) 
+###  32.2. <a id='segger-real-time-transfer-(rtt)'></a>Segger Real Time Transfer (RTT) 
 
 * Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
 * If you can use a Segger J-Link or an STM ST-Link debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use Trice without any UART or other port.
@@ -2879,16 +3008,16 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.3. <a id='j-link-option'></a>J-Link option
+###  32.3. <a id='j-link-option'></a>J-Link option
 
 * Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option.
 
-####  33.3.1. <a id='convert-a-stm-nucleo-or-discovery-onboard-st-link-(valid-for-st-link-v2-&-v2.1,-not-for-v3)'></a>Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)
+####  32.3.1. <a id='convert-a-stm-nucleo-or-discovery-onboard-st-link-(valid-for-st-link-v2-&-v2.1,-not-for-v3)'></a>Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)
 
 * Following steps describe the needed action for a ST Microelectronics evaluation board and windows - adapt them to your environment.
 * It is always possible to turn back to the ST-Link OB firmware with the SEGGER `STLinkReflash.exe` tool but afterwards the ST-Link Upgrade tool should be used again to get the latest version. 
 
-#####  4.1.1. <a id='first-step-(to-do-if-some-issues-occur---otherwise-you-can-skip-it)'></a>First step (to do if some issues occur - otherwise you can skip it)
+##### 4.1.1. <a id='first-step-(to-do-if-some-issues-occur---otherwise-you-can-skip-it)'></a>First step (to do if some issues occur - otherwise you can skip it)
 
 [Video](https://www.youtube.com/watch?app=desktop&v=g2Kf6RbdrIs)
 
@@ -2899,12 +3028,12 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 * Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP`. *The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.*
   ![ST-LINK-Upgrade.PNG](./ref/ST-LINK-Upgrade.PNG)
 
-#####  4.1.2. <a id='second-step'></a>Second step
+##### 4.1.2. <a id='second-step'></a>Second step
 
 * Check [Converting ST-LINK On-Board Into a J-Link](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 * Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. *`STM32 Debug+ VCP` won´t be detected by Segger reflash utility.*
 
-####  33.3.2. <a id='some-segger-tools-in-short'></a>Some SEGGER tools in short
+####  32.3.2. <a id='some-segger-tools-in-short'></a>Some SEGGER tools in short
 
 * Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
   * You may need to add `C:\Program Files\SEGGER\JLink` to the %PATH% variable.
@@ -2912,7 +3041,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 * For example: Compile and flash `../_test/MDK-ARM_STM32F030R8` project.
   * Check in [../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) if `#define TRICE_RTT_CHANNEL 0` is set as output option.
 
-#####  4.2.1. <a id='jlink.exe'></a>JLink.exe
+##### 4.2.1. <a id='jlink.exe'></a>JLink.exe
 
 * `JLink.exe` is the SEGGER J-Link commander. It starts the **J-Link driver/server** and one can connect to it
 * Info found [here](https://gist.github.com/GaryLee/ecd8018d1ca046c1a40fcd265fa109c0):
@@ -2960,7 +3089,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
   * Needs a separate manual start of the `jlink` binary with CLI parameters.
     * I would not recommend to automate that too, because this step is needed only once after PC power on.
 
-#####  4.2.2. <a id='jlinkrttlogger.exe'></a>JLinkRTTLogger.exe
+##### 4.2.2. <a id='jlinkrttlogger.exe'></a>JLinkRTTLogger.exe
 
 * `JLinkRTTLogger.exe` is a CLI tool and connects via the SEGGER API to the target. It is usable for writing RTT channel 0 data from target into a file.
 * **PLUS:**
@@ -2976,7 +3105,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 * The Trice tool can watch the output file and display the *Trices*: `trice log -port JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"
 ![./ref/JlinkLoggerTrice.PNG](./ref/JlinkLoggerTrice.PNG)
 
-####  33.3.3. <a id='jlinkrttclient.exe'></a>JLinkRTTClient.exe
+####  32.3.3. <a id='jlinkrttclient.exe'></a>JLinkRTTClient.exe
 
 * `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings from target coming over channel 0. It is not used by the Trice tool.
   * **PLUS:**
@@ -2984,7 +3113,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
   * **MINUS:**
     * Unfortunately it cannot run separately parallel to stimulate the target with any proprietary protocol because it connects to localhost:19021 and therefore blockades the only one possible connection.
 
-####  33.3.4. <a id='jlinkrttviewer.exe'></a>JLinkRTTViewer.exe
+####  32.3.4. <a id='jlinkrttviewer.exe'></a>JLinkRTTViewer.exe
 
 * `JLinkRTTViewer.exe` is a GUI tool and connects via the SEGGER API to the target. It expects ASCII codes and is not used by the Trice tool. The switching between the 16 possible terminals is done via `FF 00` ... `FF 0F`. These byte pairs can occur inside the Trice data.
 
@@ -2998,7 +3127,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.4. <a id='segger-rtt'></a>Segger RTT
+###  32.4. <a id='segger-rtt'></a>Segger RTT
 
 * The main advantages are:
   * Speed
@@ -3012,7 +3141,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.5. <a id='segger-j-link-sdk-(~800-eur)-option'></a>Segger J-Link SDK (~800 EUR) Option
+###  32.5. <a id='segger-j-link-sdk-(~800-eur)-option'></a>Segger J-Link SDK (~800 EUR) Option
 
 * Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 * The `trice -port JLINK` is ok for usage **as is** right now. However if you wish more comfort check here:
@@ -3022,7 +3151,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.6. <a id='additional-notes-(leftovers)'></a>Additional Notes (leftovers)
+###  32.6. <a id='additional-notes-(leftovers)'></a>Additional Notes (leftovers)
 
 * `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 * Read the manual [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf).
@@ -3031,7 +3160,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.7. <a id='further-development'></a>Further development
+###  32.7. <a id='further-development'></a>Further development
 
 
 
@@ -3070,21 +3199,21 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.8. <a id='nucleo-f030r8-example'></a>NUCLEO-F030R8 example
+###  32.8. <a id='nucleo-f030r8-example'></a>NUCLEO-F030R8 example
 
 Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html)
 
-####  33.8.1. <a id='rtt-with-original-on-board-st-link-firmware'></a>RTT with original on-board ST-LINK firmware
+####  32.8.1. <a id='rtt-with-original-on-board-st-link-firmware'></a>RTT with original on-board ST-LINK firmware
 
 * `#define TRICE_RTT_CHANNEL 0`:
 * If you use a NUCLEO-F030R8 with the original ST-Link on board after firmware download enter: `trice l -p ST-LINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x2000"`. After pressing the reset button output becomes visible: ![./ref/STRTT.PNG](./ref/STRTT.PNG)
 * It works with both ST-Link variants (with or without mass storage device.)
 
-####  33.8.2. <a id='change-to-j-link-onboard-firmware'></a>Change to J-LINK onboard firmware
+####  32.8.2. <a id='change-to-j-link-onboard-firmware'></a>Change to J-LINK onboard firmware
 
  ![./ref/STLinkReflash.PNG](./ref/STLinkReflash.PNG)
 
-####  33.8.3. <a id='rtt-with-j-link-firmware-on-board'></a>RTT with J-LINK firmware on-board
+####  32.8.3. <a id='rtt-with-j-link-firmware-on-board'></a>RTT with J-LINK firmware on-board
 
 ![./ref/J-LinkRTT.PNG](./ref/J-LinkRTT.PNG)
 
@@ -3095,7 +3224,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.9. <a id='possible-issues'></a>Possible issues
+###  32.9. <a id='possible-issues'></a>Possible issues
 
 * These boards seem not to work reliable with RTT over J-Link on-board firmware.
   * NUCLEO-G071RB
@@ -3104,7 +3233,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.10. <a id='openocd-with-darwin'></a>OpenOCD with Darwin
+###  32.10. <a id='openocd-with-darwin'></a>OpenOCD with Darwin
 
 - OpenOCD on MacOS works out of the box after installing it.
 - When using VS code with Cortex-Debug you cannot use OpenOCD at the same time.
@@ -3174,7 +3303,7 @@ Nov 14 17:32:35.710201  TCP4:       triceExamples.c    26        0_504 i=4444440
 ...
 ```
 
-###  33.11. <a id='links'></a>Links
+###  32.11. <a id='links'></a>Links
 
 * [https://www.codeinsideout.com/blog/stm32/j-link-rtt/](https://www.codeinsideout.com/blog/stm32/j-link-rtt/) (A good explanation of SEGGER J-Link Realtime Transfer - Fast Debug protocol: - only suitable for ASCII transfer)
 * [USB over WSL2?](https://twitter.com/beriberikix/status/1487127732190212102?s=20&t=NQVa27qvOqPi2uGz6pJNRA) (Maybe intersting for OpenOCD)
@@ -3185,64 +3314,64 @@ Nov 14 17:32:35.710201  TCP4:       triceExamples.c    26        0_504 i=4444440
 
 
 
-##  34. <a id='trice-target-code-implementation'></a>Trice Target Code Implementation
+##  33. <a id='trice-target-code-implementation'></a>Trice Target Code Implementation
 
 
-###  34.1. <a id='trice-macro-structure'></a>TRICE Macro structure
+###  33.1. <a id='trice-macro-structure'></a>TRICE Macro structure
 
-####  34.1.1. <a id='`trice_enter`'></a>`TRICE_ENTER`
+####  33.1.1. <a id='trice_enter'></a>TRICE_ENTER
 
 - Optionally disable interrupts.
 - Prepare `TriceBufferWritePosition` and keep its initial value.
 
-####  34.1.2. <a id='`trice_put`'></a>`TRICE_PUT`
+####  33.1.2. <a id='trice_put'></a>TRICE_PUT
 
 - Use and increment `TriceBufferWritePosition`.
 
-####  34.1.3. <a id='`trice_leave`'></a>`TRICE_LEAVE`
+####  33.1.3. <a id='trice_leave'></a>TRICE_LEAVE
 
 - Use `TriceBufferWritePosition` and its initial value for data transfer
 - Optionally restore interrupt state.
 
-###  34.2. <a id='`trice_stack_buffer`'></a>`TRICE_STACK_BUFFER`
+###  33.2. <a id='trice_stack_buffer'></a>TRICE_STACK_BUFFER
 
 - `TRICE_ENTER`: Allocate stack
 - `TRICE_LEAVE`: Call TriceDirectOut()
 
-###  34.3. <a id='`trice_static_buffer`'></a>`TRICE_STATIC_BUFFER`
+###  33.3. <a id='trice_static_buffer'></a>TRICE_STATIC_BUFFER
 
 - This is like `TRICE_STACK_BUFFER` but avoids stack allocation, what is better for many stacks.
 - `TRICE_ENTER`: Set TriceBufferWritePosition to buffer start.
 - `TRICE_LEAVE`: Call TriceDirectOut().
 
-###  34.4. <a id='`trice_double_buffer`'></a>`TRICE_DOUBLE_BUFFER`
+###  33.4. <a id='trice_double_buffer'></a>TRICE_DOUBLE_BUFFER
 
 - `TRICE_ENTER`: Keep TriceBufferWritePosition.
 - `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
-###  34.5. <a id='`trice_ring_buffer`'></a>`TRICE_RING_BUFFER`
+###  33.5. <a id='trice_ring_buffer'></a>TRICE_RING_BUFFER
 
 - `TRICE_ENTER`: Keep or wrap TriceBufferWritePosition and add offset.
 - `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
 The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice location is read by a deferred task.
 
-###  34.6. <a id='deferred-out'></a>Deferred Out
+###  33.6. <a id='deferred-out'></a>Deferred Out
 
-####  34.6.1. <a id='double-buffer'></a>Double Buffer
+####  33.6.1. <a id='double-buffer'></a>Double Buffer
 
 - TriceTransfer
   - TriceOut
   - TriceNonBlockingWrite( triceID, enc, encLen );
   
-####  34.6.2. <a id='ring-buffer'></a>Ring Buffer
+####  33.6.2. <a id='ring-buffer'></a>Ring Buffer
 
 - TriceTransfer
   - lastWordCount = TriceSingleDeferredOut(addr);
     - int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
     - TriceNonBlockingWrite( triceID, pEnc, encLen );
 
-###  34.7. <a id='direct-transfer'></a>Direct Transfer
+###  33.7. <a id='direct-transfer'></a>Direct Transfer
 
 - TRICE_LEAVE
   - TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount);
@@ -3253,7 +3382,7 @@ The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice l
       - triceDirectEncode
       - triceNonBlockingDirectWrite
 
-###  34.8. <a id='some-thoughts'></a>Some Thoughts
+###  33.8. <a id='some-thoughts'></a>Some Thoughts
 
 There have been 3 similar implementations for trice encode
 
@@ -3297,15 +3426,15 @@ size_t TriceEncode(int* pTriceID, unsigned int pCount, uint32_t * const dest, ui
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  35. <a id='trice-similarities-and-differences-to-`printf`-usage'></a>Trice Similarities and differences to `printf` usage
+##  34. <a id='trice-similarities-and-differences-to-`printf`-usage'></a>Trice Similarities and differences to `printf` usage
 
-###  35.1. <a id='printf-like-functions'></a>Printf-like functions
+###  34.1. <a id='printf-like-functions'></a>Printf-like functions
 
  ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and several open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
 The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls.
 
 
-###  35.2. <a id='trice-ids'></a>Trice IDs
+###  34.2. <a id='trice-ids'></a>Trice IDs
 
 * Each Trice caries a 14-bit nuber ID as replacement for the format string.
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the `trice` macro followed by the format string and optional values.
@@ -3313,7 +3442,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
   * The Trice cache makes this invisible to the build system, allowing full translation speed.
 * The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../_test/testdata/til.json) (example).
 
-###  35.3. <a id='trice-values-bit-width'></a>Trice values bit width
+###  34.3. <a id='trice-values-bit-width'></a>Trice values bit width
 
 * No need to explicit express the value bit width.
 * The default parameter width for the `trice` macro is 32 bit. It is changeable to 8, 16 or 64-bit:
@@ -3324,7 +3453,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * The fastest `trice` macro execution is, when MCU bit width matches the `trice`macro bit width.
 * The implicit TCOBS compression compacts the binary Trice data during the framing.
 
-###  35.4. <a id='many-value-parameters'></a>Many value parameters
+###  34.4. <a id='many-value-parameters'></a>Many value parameters
 
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
@@ -3335,7 +3464,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * The _Trice_ tool compares the number of given format specifiers with the written parameters in a precimpile step to minimize the risk of runtime errors.
 * There is no variadic values scanning during runtime. The C preprocessor does the work.
 
-###  35.5. <a id='`float`-and-`double`-values'></a>`float` and `double` values
+###  34.5. <a id='`float`-and-`double`-values'></a>`float` and `double` values
 
 These types are mixable with integer types but need to be covered by converter function.
 
@@ -3380,7 +3509,7 @@ static inline uint64_t aDouble( double x ){
 }
 ```
 
-###  35.6. <a id='runtime-generated-0-terminated-strings-transfer-with-`trices`,-`trices`,-`trices`'></a>Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`
+###  34.6. <a id='runtime-generated-0-terminated-strings-transfer-with-`trices`,-`trices`,-`trices`'></a>Runtime Generated 0-terminated Strings Transfer with `triceS`, `TriceS`, `TRiceS`
 
 * The `%s` format specifier is supported by the `trice` macro too but needs specific treatment.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
@@ -3392,13 +3521,13 @@ static inline uint64_t aDouble( double x ){
    triceS( "A runtime string %20s\n", s;
   ```
 
-###  35.7. <a id='runtime-generated-counted-strings-transfer-with-`tricen`,-`tricen`,-`tricen`'></a>Runtime Generated counted Strings Transfer with  `triceN`, `TriceN`, `TRiceN`
+###  34.7. <a id='runtime-generated-counted-strings-transfer-with-`tricen`,-`tricen`,-`tricen`'></a>Runtime Generated counted Strings Transfer with  `triceN`, `TriceN`, `TRiceN`
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
 * This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );`
 * There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../_test/testdata/triceCheck.c) for usage or see the following.
 
-###  35.8. <a id='runtime-generated-buffer-transfer-with-`triceb`,-`triceb`,-`triceb`'></a>Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`
+###  34.8. <a id='runtime-generated-buffer-transfer-with-`triceb`,-`triceb`,-`triceb`'></a>Runtime Generated Buffer Transfer with `triceB`, `TriceB`, `TRiceB`
 
 * A buffer is transmittable with `TRICE_B` (or `triceB`, `TriceB`, `TRiceB`) and specifying just one format specifier, which is then repeated. Example:
 
@@ -3417,7 +3546,7 @@ static inline uint64_t aDouble( double x ){
 
  If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
-###  35.9. <a id='remote-function-call-syntax-support-with-`trice_f`,-`trice8f`,-...'></a>Remote function call syntax support with `TRICE_F`, `trice8F`, ...
+###  34.9. <a id='remote-function-call-syntax-support-with-`trice_f`,-`trice8f`,-...'></a>Remote function call syntax support with `TRICE_F`, `trice8F`, ...
 
 The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Examples:
 
@@ -3443,18 +3572,18 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
   * `triceD( "dump:32", addr, 160 );` -> The **trice** tool dumps in 32 byte rows.
   * An appropriate syntax is needed.
 
-###  35.10. <a id='extended-format-specifier-possibilities'></a>Extended format specifier possibilities
+###  34.10. <a id='extended-format-specifier-possibilities'></a>Extended format specifier possibilities
 
 * Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable.
 
-####  35.10.1. <a id='trice-format-specifier'></a>Trice format specifier
+####  34.10.1. <a id='trice-format-specifier'></a>Trice format specifier
 
 * The `TRICE` macros are used in **C** code.
 * The format strings are interpreted by the **trice** tool, which is written in **Go**.
 * The **C** and **Go** format specifier are not equal but similar.
 * Therefore, a **T**rice adaption is internally performed.
 
-####  35.10.2. <a id='overview-table'></a>Overview Table
+####  34.10.2. <a id='overview-table'></a>Overview Table
 
 | Format Specifier Type                                           | C | Go | T | remark                                                                      |
 |-----------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------|
@@ -3495,7 +3624,7 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-###  35.11. <a id='utf-8-support'></a>UTF-8 Support
+###  34.11. <a id='utf-8-support'></a>UTF-8 Support
 
 This is gratis, if you edit your source files containing the format strings in UTF-8:
 
@@ -3503,11 +3632,11 @@ This is gratis, if you edit your source files containing the format strings in U
 
 The target does not even "know" about that, because it gets only the Trice IDs.
 
-###  35.12. <a id='switch-the-language-without-changing-a-bit-inside-the-target-code'></a>Switch the language without changing a bit inside the target code
+###  34.12. <a id='switch-the-language-without-changing-a-bit-inside-the-target-code'></a>Switch the language without changing a bit inside the target code
 
 Once the [til.json](../examples/F030R8_inst/til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
-###  35.13. <a id='format-tags-prototype-`%[flags][width][.precision][length]`-specifier-examples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
+###  34.13. <a id='format-tags-prototype-`%[flags][width][.precision][length]`-specifier-examples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
 
 * Because the interpretation is done inside the **trice** tool written in Go these all should work:
   * `%-d`
@@ -3521,7 +3650,7 @@ Once the [til.json](../examples/F030R8_inst/til.json) list is done the user can 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-##  36. <a id='changelog'></a>Changelog
+##  35. <a id='changelog'></a>Changelog
 
 <details><summary>Details</summary><ol>
 
