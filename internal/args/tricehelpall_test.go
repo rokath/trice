@@ -290,7 +290,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'a|add': Use for adding library source files containing already trice IDs to your project.
-#	It extends the ID list from these source files but does not change the source files.
+#	It extends the ID list from these source files but does not change the source files, even if they contain Trices without IDs.
 #	Already used IDs are reported, so you have the chance to remove them from til.json and your project and then do "trice add" again.
 #	This way you can make sure to get the new sources unchanged in your list, even they contain trice IDs already.
 #	Afterwards the newly added library source files are treated as regular project files. If you do not edit them, they stay unchanged.

@@ -134,7 +134,7 @@ func cleanIDsInfo(w io.Writer) error {
 
 func addInfo(w io.Writer) error {
 	_, e := fmt.Fprintln(w, `sub-command 'a|add': Use for adding library source files containing already trice IDs to your project.
-#	It extends the ID list from these source files but does not change the source files.
+#	It extends the ID list from these source files but does not change the source files, even if they contain Trices without IDs.
 #	Already used IDs are reported, so you have the chance to remove them from til.json and your project and then do "trice add" again.
 #	This way you can make sure to get the new sources unchanged in your list, even they contain trice IDs already.
 #	Afterwards the newly added library source files are treated as regular project files. If you do not edit them, they stay unchanged.
