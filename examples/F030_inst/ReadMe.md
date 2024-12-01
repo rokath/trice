@@ -1,0 +1,1 @@
+# [../docs/TriceUserManual.md/#f030_inst-example](../docs/TriceUserManual.md/#f030_inst-example)
