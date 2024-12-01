@@ -27,7 +27,7 @@ even inside **↯ interrupts** in less than 1 µs❗
 ## About
 
 - Replace `printf` or `log` in **C**-code for getting:
-  - **[Speed](./docs/TriceUserManual.md/#trice-speedd)**, to be usable also **inside interrupts**,
+  - **[Speed](./docs/TriceUserManual.md/#trice-speed)**, to be usable also **inside interrupts**,
   - **[Space](./docs/TriceUserManual.md/#trice-memory-needs)**, to reduce needed FLASH memory size,
   - **[Features](./docs/TriceUserManual.md/#trice-features-(overview))** delighting the developers heart.
 - <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserManual.md/#-start-with-trice).
