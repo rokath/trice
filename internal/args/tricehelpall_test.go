@@ -451,7 +451,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	This reduces the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
     	Add this flag for script speed-up, when not editing the sources. Alternatively consider the -cache switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -spaceInsideTriceBrace trice(<space>iD(<space>123<space>), "...);
+  -spaceInsideParenthesis trice(<space>iD(<space>123<space>), "...);
     	Add space inside Trice braces: trice(<space>iD(<space>123<space>), "...);. Use this if your default code auto-formatting is with space inside braces.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
@@ -468,7 +468,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -w	Short for (white)spaceInsideTriceBrace or "wide".
+  -w	Short for (white)spaceInsideParenthesis or "wide".
 sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID](0). Remove all iD(n).
 #	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
 #	reported and just cleaned inside the source files. The existing li.json is updated/extended. 
@@ -517,7 +517,7 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	This reduces the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
     	Add this flag for script speed-up, when not editing the sources. Alternatively consider the -cache switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -spaceInsideTriceBrace trice(<space>"...)
+  -spaceInsideParenthesis trice(<space>"...)
     	Add space after Trice opening brace: trice(<space>"...). Use this if your default code auto-formatting is with space after opening brace.
   -src value
     	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
@@ -534,7 +534,7 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-  -w	Short for (white)spaceInsideTriceBrace or "wide".
+  -w	Short for (white)spaceInsideParenthesis or "wide".
 `
 	id.FnJSON = "til.json"
 	execHelper(t, input, expect)

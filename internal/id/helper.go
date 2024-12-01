@@ -198,7 +198,7 @@ restart:
 // writeID inserts id into s according to loc information and returns the result together with the changed len.
 func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result string, delta int) {
 	gap := ""
-	if SpaceInsideTriceBrace {
+	if SpaceInsideParenthesis {
 		gap = " "
 	}
 	var idName string
@@ -237,7 +237,7 @@ func cleanID(s string, offset int, loc []int, t TriceFmt) (result string, delta 
 	idSiz := loc[5] - loc[2]   // idSiz is the size of the replaced ID space inside the source code.
 	last := s[offset+loc[5]:]  // last is the not touched s part after the replacement space.
 	var idIns string           // replacement string
-	if SpaceInsideTriceBrace {
+	if SpaceInsideParenthesis {
 		idIns = " "
 	}
 	result = first + idIns + last //

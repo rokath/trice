@@ -693,7 +693,7 @@ Used git log command: `git log --oneline` and less important lines removed
 
 ###  16.1. <a id='Overview-1'></a>Overview
 
-Minor bug fix release. `trice insert` CLI `-spacing` renamed into `spaceInsideTriceBrace` and added t0 `trice clean`.
+Minor bug fix release. `trice insert` CLI `-spacing` renamed into `spaceInsideParenthesis` and added t0 `trice clean`.
 
 ###  16.2. <a id='GitLog-1'></a>Git Log
 
@@ -710,7 +710,7 @@ Hash       | Comment
 `1677111b` | auto formatting reults
 `f7fbfb10` | exec mode added to scripts
 `e028a42b` | Merge branch 'master' into devel
-`05eede21` | CLI switch -spaceInsideTriceBrace added to `tice clean`
+`05eede21` | CLI switch -spaceInsideParenthesis added to `tice clean`
 `588cb266` | .goreleaser.yaml updated
 `5dcd029a` | v0.72.2 Changes incorporated
 

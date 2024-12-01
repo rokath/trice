@@ -103,7 +103,7 @@ type globalDefaults struct {
 	defaultDefaultStampSize           int
 	defaultStampSizeId                string
 	defaultTriceCacheEnabled          bool
-	defaultSpaceInsideTriceBrace      bool
+	defaultSpaceInsideParenthesis     bool
 }
 
 func (p *globalDefaults) GetGlobalVars() {
@@ -120,7 +120,7 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultDefaultStampSize = DefaultStampSize
 	p.defaultStampSizeId = StampSizeId
 	p.defaultTriceCacheEnabled = TriceCacheEnabled
-	p.defaultSpaceInsideTriceBrace = false
+	p.defaultSpaceInsideParenthesis = false
 }
 
 // SetGlobalVars sets all global variables in a definitive state.
@@ -140,5 +140,5 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	DefaultStampSize = p.defaultDefaultStampSize
 	StampSizeId = p.defaultStampSizeId
 	TriceCacheEnabled = p.defaultTriceCacheEnabled
-	SpaceInsideTriceBrace = p.defaultSpaceInsideTriceBrace
+	SpaceInsideParenthesis = p.defaultSpaceInsideParenthesis
 }
