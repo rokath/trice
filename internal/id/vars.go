@@ -41,8 +41,8 @@ var (
 	// StampSizeId gets set according to the DefaultStampSize value.
 	StampSizeId string
 
-	// SpaceAfterTriceOpeningBrace set true, if your code autoformatter sets a space after opening braces.
-	SpaceAfterTriceOpeningBrace = false
+	// SpaceInsideTriceBrace set true, if your code autoformatter sets a space after opening braces.
+	SpaceInsideTriceBrace = false
 
 	// TriceCacheEnabled needs to be true to use the Trice cache.
 	TriceCacheEnabled bool

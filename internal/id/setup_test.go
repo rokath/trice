@@ -91,19 +91,19 @@ type SrcFile struct {
 }
 
 type globalDefaults struct {
-	defaultVerbose                     bool
-	defaultDryRun                      bool
-	defaultMin                         TriceID
-	defaultMax                         TriceID
-	defaultSearchMethod                string
-	defaultLiPathIsRelative            bool
-	defaultSrcs                        ArrayFlag
-	defaultExtendMacrosWithParamCount  bool
-	defaultDefaultTriceBitWidth        string
-	defaultDefaultStampSize            int
-	defaultStampSizeId                 string
-	defaultTriceCacheEnabled           bool
-	defaultSpaceAfterTriceOpeningBrace bool
+	defaultVerbose                    bool
+	defaultDryRun                     bool
+	defaultMin                        TriceID
+	defaultMax                        TriceID
+	defaultSearchMethod               string
+	defaultLiPathIsRelative           bool
+	defaultSrcs                       ArrayFlag
+	defaultExtendMacrosWithParamCount bool
+	defaultDefaultTriceBitWidth       string
+	defaultDefaultStampSize           int
+	defaultStampSizeId                string
+	defaultTriceCacheEnabled          bool
+	defaultSpaceInsideTriceBrace      bool
 }
 
 func (p *globalDefaults) GetGlobalVars() {
@@ -120,7 +120,7 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultDefaultStampSize = DefaultStampSize
 	p.defaultStampSizeId = StampSizeId
 	p.defaultTriceCacheEnabled = TriceCacheEnabled
-	p.defaultSpaceAfterTriceOpeningBrace = false
+	p.defaultSpaceInsideTriceBrace = false
 }
 
 // SetGlobalVars sets all global variables in a definitive state.
@@ -140,5 +140,5 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	DefaultStampSize = p.defaultDefaultStampSize
 	StampSizeId = p.defaultStampSizeId
 	TriceCacheEnabled = p.defaultTriceCacheEnabled
-	SpaceAfterTriceOpeningBrace = p.defaultSpaceAfterTriceOpeningBrace
+	SpaceInsideTriceBrace = p.defaultSpaceInsideTriceBrace
 }

@@ -191,16 +191,16 @@ func insertIDsInit() {
 	fsScInsert.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
-	fsScInsert.BoolVar(&id.SpaceAfterTriceOpeningBrace, "spaceAfterOpeningBrace", false, "Add space after Trice opening brace. Use this if your default code auto-formatting is with space after opening brace.")
-	fsScInsert.BoolVar(&id.SpaceAfterTriceOpeningBrace, "w", false, "Short for (white)spaceAfterOpeningBrace or \"wide\".")
+	fsScInsert.BoolVar(&id.SpaceInsideTriceBrace, "spaceInsideTriceBrace", false, "Add space inside Trice braces: `trice(<space>iD(<space>123<space>), \"...);`. Use this if your default code auto-formatting is with space inside braces.")
+	fsScInsert.BoolVar(&id.SpaceInsideTriceBrace, "w", false, "Short for (white)spaceInsideTriceBrace or \"wide\".")
 }
 
 func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("clean", flag.ContinueOnError) // sub-command
 	flagsRefreshAndUpdate(fsScClean)
 	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.`)
-	fsScClean.BoolVar(&id.SpaceAfterTriceOpeningBrace, "spaceAfterOpeningBrace", false, "Add space after Trice opening brace. Use this if your default code auto-formatting is with space after opening brace.")
-	fsScClean.BoolVar(&id.SpaceAfterTriceOpeningBrace, "w", false, "Short for (white)spaceAfterOpeningBrace or \"wide\".")
+	fsScClean.BoolVar(&id.SpaceInsideTriceBrace, "spaceInsideTriceBrace", false, "Add space after Trice opening brace: `trice(<space>\"...)`. Use this if your default code auto-formatting is with space after opening brace.")
+	fsScClean.BoolVar(&id.SpaceInsideTriceBrace, "w", false, "Short for (white)spaceInsideTriceBrace or \"wide\".")
 }
 
 func versionInit() {

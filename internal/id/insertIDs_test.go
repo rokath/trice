@@ -214,16 +214,16 @@ func TestInsert99w(t *testing.T) {
 
 	// check modified src file1
 	expSrc1 := `
-	TRice( iD(999), "x" ); 
-	TRice( iD(998), "x" );
-	TRice( iD(997), "x" );
-	TRice( iD(996), "x" );
-	TRice( iD(995), "x" );
-	TRice( iD(994), "x" );
-	TRice( iD(993), "x" );
-	TRice( iD(992), "x" );
-	TRICE( ID(991), "%x", 1)
-	TRICE( Id(990), "%x", 1)
+	TRice( iD( 999 ), "x" ); 
+	TRice( iD( 998 ), "x" );
+	TRice( iD( 997 ), "x" );
+	TRice( iD( 996 ), "x" );
+	TRice( iD( 995 ), "x" );
+	TRice( iD( 994 ), "x" );
+	TRice( iD( 993 ), "x" );
+	TRice( iD( 992 ), "x" );
+	TRICE( ID( 991 ), "%x", 1)
+	TRICE( Id( 990 ), "%x", 1)
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)

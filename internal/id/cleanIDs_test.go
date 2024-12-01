@@ -36,14 +36,14 @@ func TestCleanWithSpace(t *testing.T) {
 
 	// create src file
 	sFn := t.Name() + "file.c"
-	src := `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1  );`
+	src := `break; case __LINE__: trice(iD(999), "msg:value=%d\n", -1);`
 	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-spaceAfterOpeningBrace", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "clean", "-spaceInsideTriceBrace", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file
-	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1  );`
+	expSrc := `break; case __LINE__: trice( "msg:value=%d\n", -1);`
 
 	actSrc, e := FSys.ReadFile(sFn)
 	assert.Nil(t, e)

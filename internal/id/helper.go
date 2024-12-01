@@ -198,31 +198,32 @@ restart:
 // writeID inserts id into s according to loc information and returns the result together with the changed len.
 func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result string, delta int) {
 	gap := ""
-	if SpaceAfterTriceOpeningBrace {
+	if SpaceInsideTriceBrace {
 		gap = " "
 	}
 	var idName string
 	if t.Type[2] == 'i' { // lower case letter
-		idName = gap + "iD("
+		idName = "iD("
 	} else {
 		if loc[3] != loc[4] {
-			idName = gap + s[offset+loc[3]:offset+loc[3]+2] + "("
+			idName = s[offset+loc[3]:offset+loc[3]+2] + "("
 		} else {
 			if DefaultStampSize == 32 {
-				idName = gap + "ID("
+				idName = "ID("
 			} else if DefaultStampSize == 16 {
-				idName = gap + "Id("
+				idName = "Id("
 			} else {
-				idName = gap + "id("
+				idName = "id("
 			}
 		}
 	}
-	first := s[:offset+loc[2]]                      // first is the not touched s part before the replacement space.
-	idSiz := loc[5] - loc[2]                        // idSiz is the size of the replaced ID space inside the source code.
-	last := s[offset+loc[5]:]                       // last is the not touched s part after the replacement space.
-	idIns := idName + strconv.Itoa(int(id)) + "), " // idIns is the ID statement replace string.
-	result = first + idIns + last                   //
-	delta = len(idIns) - idSiz                      // delta is the offset change.
+	idName = gap + idName + gap
+	first := s[:offset+loc[2]]                            // first is the not touched s part before the replacement space.
+	idSiz := loc[5] - loc[2]                              // idSiz is the size of the replaced ID space inside the source code.
+	last := s[offset+loc[5]:]                             // last is the not touched s part after the replacement space.
+	idIns := idName + strconv.Itoa(int(id)) + gap + "), " // idIns is the ID statement replace string.
+	result = first + idIns + last                         //
+	delta = len(idIns) - idSiz                            // delta is the offset change.
 	return
 }
 
@@ -236,7 +237,7 @@ func cleanID(s string, offset int, loc []int, t TriceFmt) (result string, delta 
 	idSiz := loc[5] - loc[2]   // idSiz is the size of the replaced ID space inside the source code.
 	last := s[offset+loc[5]:]  // last is the not touched s part after the replacement space.
 	var idIns string           // replacement string
-	if SpaceAfterTriceOpeningBrace {
+	if SpaceInsideTriceBrace {
 		idIns = " "
 	}
 	result = first + idIns + last //
