@@ -222,38 +222,58 @@ Table of Contents Generation:
   * 34.12. [Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
   * 34.13. [Format tags prototype specifier examples](#format-tags-prototype-specifier-examples)
 * 35. [Trice Example Projects](#trice-example-projects)
-  * 35.1. [F030_bare Example](#f030_bare-example)
-  * 35.2. [Steps performed as potential guide](#steps-performed-as-potential-guide)
-  * 35.3. [F030_bare Hint](#f030_bare-hint)
-* 36. [Example F030R8_inst](#example-f030r8_inst)
-  * 36.1. [Description](#description)
-  * 36.2. [Setting Up](#setting-up)
-  * 36.3. [Intrumenting](#intrumenting)
-* 37. [Example G0B1_gen](#example-g0b1_gen)
-  * 37.1. [G0B1_gen Description](#g0b1_gen-description)
-  * 37.2. [Setting Up G0B1_gen](#setting-up-g0b1_gen)
-  * 37.3. [L432KC_bare Description](#l432kc_bare-description)
-  * 37.4. [Setting Up L432KC_bare](#setting-up-l432kc_bare)
-* 38. [Example L432KC_gen_ad_toClang_ed](#example-l432kc_gen_ad_toclang_ed)
-  * 38.1. [Description](#description-1)
-  * 38.2. [Setting Up](#setting-up-1)
-  * 38.3. [Description](#description-2)
-  * 38.4. [Setting Up](#setting-up-2)
-* 39. [Example L432_inst](#example-l432_inst)
-  * 39.1. [Description](#description-3)
-  * 39.2. [Setting Up](#setting-up-3)
-  * 39.3. [Build](#build)
-  * 39.4. [Deferred Mode for max Speed](#deferred-mode-for-max-speed)
-  * 39.5. ["Hardware" Changes](#"hardware"-changes)
-  * 39.6. [Using RTT with on-board J-Link and JLinkRTTLogger](#using-rtt-with-on-board-j-link-and-jlinkrttlogger)
-  * 39.7. [Using RTT with on-board J-Link and OpenOCD](#using-rtt-with-on-board-j-link-and-openocd)
-    * 39.7.1. [With Windows not possible](#with-windows-not-possible)
-    * 39.7.2. [Darwin](#darwin)
-  * 39.8. [Using RTT with on-board ST-Link and OpenOCD](#using-rtt-with-on-board-st-link-and-openocd)
-  * 39.9. [Using On-board ST-Link and VS-Code Cortex-Debug Extension](#using-on-board-st-link-and-vs-code-cortex-debug-extension)
-    * 39.9.1. [Fail](#fail)
-    * 39.9.2. [OK](#ok)
-* 40. [Trice User Manual Changelog](#trice-user-manual-changelog)
+* 36. [Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
+  * 36.1. [Common Information](#common-information-1)
+  * 36.2. [Important to know](#important-to-know)
+  * 36.3. [Animation](#animation)
+  * 36.4. [Setup PC](#setup-pc)
+    * 36.4.1. [Setup Trice](#setup-trice)
+    * 36.4.2. [Setup ARM Environment](#setup-arm-environment)
+    * 36.4.3. [Setup STM32](#setup-stm32)
+    * 36.4.4. [Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)](#setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too))
+    * 36.4.5. [Setup VS-Code](#setup-vs-code)
+  * 36.5. [Makefile with Clang too](#makefile-with-clang-too)
+  * 36.6. [Download Locations](#download-locations)
+    * 36.6.1. [Clang](#clang)
+    * 36.6.2. [GCC](#gcc-1)
+  * 36.7. [Install Locations](#install-locations)
+  * 36.8. [Environment Variables](#environment-variables)
+  * 36.9. [Build command](#build-command)
+  * 36.10. [Run & Debug](#run-&-debug)
+  * 36.11. [Logging](#logging)
+  * 36.12. [Setting up a new project](#setting-up-a-new-project)
+  * 36.13. [F030_bare Example](#f030_bare-example)
+  * 36.14. [Steps performed as potential guide](#steps-performed-as-potential-guide)
+  * 36.15. [F030_bare Hint](#f030_bare-hint)
+* 37. [Example F030R8_inst](#example-f030r8_inst)
+  * 37.1. [Description](#description)
+  * 37.2. [Setting Up](#setting-up)
+  * 37.3. [Intrumenting](#intrumenting)
+* 38. [Example G0B1_gen](#example-g0b1_gen)
+  * 38.1. [G0B1_gen Description](#g0b1_gen-description)
+  * 38.2. [Setting Up G0B1_gen](#setting-up-g0b1_gen)
+  * 38.3. [L432KC_bare Description](#l432kc_bare-description)
+  * 38.4. [Setting Up L432KC_bare](#setting-up-l432kc_bare)
+* 39. [Example L432KC_gen_ad_toClang_ed](#example-l432kc_gen_ad_toclang_ed)
+  * 39.1. [Description](#description-1)
+  * 39.2. [Setting Up](#setting-up-1)
+  * 39.3. [Description](#description-2)
+  * 39.4. [Setting Up](#setting-up-2)
+* 40. [Example L432_inst](#example-l432_inst)
+  * 40.1. [Description](#description-3)
+  * 40.2. [Setting Up](#setting-up-3)
+  * 40.3. [Build](#build)
+  * 40.4. [Deferred Mode for max Speed](#deferred-mode-for-max-speed)
+  * 40.5. ["Hardware" Changes](#"hardware"-changes)
+  * 40.6. [Using RTT with on-board J-Link and JLinkRTTLogger](#using-rtt-with-on-board-j-link-and-jlinkrttlogger)
+  * 40.7. [Using RTT with on-board J-Link and OpenOCD](#using-rtt-with-on-board-j-link-and-openocd)
+    * 40.7.1. [With Windows not possible](#with-windows-not-possible)
+    * 40.7.2. [Darwin](#darwin)
+  * 40.8. [Using RTT with on-board ST-Link and OpenOCD](#using-rtt-with-on-board-st-link-and-openocd)
+  * 40.9. [Using On-board ST-Link and VS-Code Cortex-Debug Extension](#using-on-board-st-link-and-vs-code-cortex-debug-extension)
+    * 40.9.1. [Fail](#fail)
+    * 40.9.2. [OK](#ok)
+* 41. [Trice User Manual Changelog](#trice-user-manual-changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -3701,11 +3721,309 @@ The [examples](../examples) folder contains some instrumented example projects t
 
 These are STM32 ARM-M core examples, but as Trice should work with any C compiler they can serve you also as a guide.
 
-### 35.1. <a id='f030_bare-example'></a>F030_bare Example
+
+
+
+## 36. <a id='example-projects-without-and-with-trice-instrumentation'></a>Example Projects without and with Trice Instrumentation
+
+### 36.1. <a id='common-information-1'></a>Common Information
+
+- All used tools are **Open Source**.
+- All provided information is just as example and needs adaption to your needs.
+- There is no need to setup the environment in the given order.
+
+| Project Name | Description |
+| - | - |
+|||
+| [F030_bare](./F030_bare) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](./F030_inst) so see quickly the needed instrumentation steps you need for your own project. |
+| [F030_inst](./F030_inst) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](./F030_bare) to see quickly how to instrument your project. |
+|||
+| [G0B1_bare](./G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [G0B1_inst](./G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+|||
+|  | This is a minimal STM32CubeMX generated Makefile project. |
+|  | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [L432_bare](./L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](./L432_inst) project is then a next step performable. |
+| [L432_inst](./L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+|||
+| [OpenCM3_STM32F411_Nucleo](./OpenCM3_STM32F411_Nucleo) | See the [Readme.md](./OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
+|||
+
+### 36.2. <a id='important-to-know'></a>Important to know
+
+The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes not recognize external file modifications. That means for example: After editing `main.c` by adding a `trice( "Hi!\n" )` and executing `trice insert` as pre-compile step it could happen, that an updated `trice( iD(12345), "Hi!\n" )`  was inserted and correct compiled but the update in `main.c` is not shown. Simply close and reopen `main.c` before editing again. This seems to be a [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) "feature" or be caused Windows not signaling a file change.
+
+### 36.3. <a id='animation'></a>Animation
+
+(The trice IDs occur just during the compilation.)
+
+  <img src="./ref/Animation.gif" width="1200">
+
+### 36.4. <a id='setup-pc'></a>Setup PC
+
+Setting up a PC is for Linux mostly straightforward but Windows PCs are more problematic. The steps shown here are just one example.
+
+- Create folder `repos` in your home directory.
+  - Clone all repositories here.
+- Create `C:\bin` folder.
+  - When installing toolchains, put them here then and avoid spaces in created paths.
+- Add `C:\bin` to PATH variable at the beginning.
+  - This allows to copy tools like `trice.exe` simply into `C:\bin`.
+- Install "Git for windows" from https://git-scm.com/downloads to get the neat git bash.
+  - Select the Standalone Installer. This gives you useful context menu entries in the Windows explorer.
+- BTW: For managing git repositories I like https://www.gitkraken.com/. Its free of charge for open source programs.
+- Install VS-Code
+  - This is my favorite editor with many optional Add-Ons. It is used for debugging as well.
+- Install Go if you wish to compile Go programs.
+  - Install latest [TDM GCC](https://jmeubank.github.io/tdm-gcc/download/).
+    - TDM GCC is needed only if you wish to use CGO as well.
+    - If you just want compile the Trice tool TDM GCC is not needed. But for performing all tests it is nessecary.
+- Setup J-Link if you use this debug probe as hardware or software (see below).
+  - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
+- Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
+
+#### 36.4.1. <a id='setup-trice'></a>Setup Trice
+
+- from inside folder `repos` clone trice repo with `git clone https://github.com/rokath/trice.git`.
+- Run `go install ./cmd/trice/...` from folder `repos/trice`.
+
+OR
+
+- Download the latest release archive and extract.
+- Put trice binary into C:\bin.
+- Put trice/src into `repos` if you want access the trice library code from several projects and have it only once.
+  - Alternatively copy it into your project.
+
+#### 36.4.2. <a id='setup-arm-environment'></a>Setup ARM Environment
+
+##### 5.2.1. <a id='install-arm-gcc'></a>Install ARM GCC
+
+- Uninstall existing ARM GCC compilers optionally.
+- Check if $PATH is clean.
+  - In fact you can leave it as it is.
+- Check if `C_INCLUDE_PATH` is not defined.
+  - It would cause issues performing Go tests with CGO.
+  - The environment variable `C_INCLUDE_PATH` is needed by Clang, but is set temporarily inside the Makefile.
+- Open a console.
+  - `which arm-none-eabi-gcc` should return `no arm-none-eabi-gcc` if no legacy compilers installed.
+- Download latest version from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads.
+- Install exactly into `C:\bin\ArmGNUToolchain` and add `C:\bin\ArmGNUToolchain\bin` it to the **beginning** of the path variable.
+  - The path is temporarily extendable inside the manually edited Makefiles as well, but for debugging the Windows path is used directly.
+  - The path is used directly also in generated Makefiles.
+  - Extending the path variable at the beginning avoids accidentally usage of installed legacy compilers with the same name.
+  - To use exactly `C:\bin\ArmGNUToolchain` as install location allows a more easy project collaboration.
+
+##### 5.2.2. <a id='macos'></a>MacOS
+
+- In terminal `brew install arm-none-eabi-gcc`
+- Restart terminal
+- In teminal `arm-non-eabi-gcc --version` delivers `arm-none-eabi-gcc (GCC) 14.2.0`
+- In terminal `brew install arm-none-eabi-clang`
+- Restart terminal
+- In teminal `clang -target arm-none-eabi --version` delivers:
+    ```bash
+    Apple clang version 15.0.0 (clang-1500.3.9.4)
+    Target: arm-none-unknown-eabi
+    Thread model: posix
+    InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+    ```
+- In terminal `brew install arm-none-eabi-gdb`
+- In terminal `brew install --cask gcc-arm-embedded`
+
+##### 5.2.3. <a id='install-arm-clang-(optional)'></a>Install ARM Clang (optional)
+
+With the ARM Clang you get quicker compilation runs and smaller images.
+
+- You need to install ARM GCC as well to use ARM Clang.
+  - ARM Clang uses the GCC libraries. For that it looks for `C_INCLUDE_PATH`.
+  - ARM Clang uses the GCC debugger. For that it looks into the Windows path variable directly.
+- Uninstall existing ARM clang compilers or make sure they are hidden.
+- Check if $PATH is clean.
+  - In fact you can leave is as it is.
+- Check if `C_INCLUDE_PATH` is not defined.
+  - It would cause issues performing Go tests with CGO.
+- Open a console.
+  - `which clang` should return `no clang`.
+  - If you have other clang compilers installed, do not touch them.
+- Download latest version from https://github.com/llvm/llvm-project/releases.
+- Install exactly into `C:\bin\ArmClang` and do **not** add it to path variable.
+  - The path is extended temporarily inside the Makefile for the compiler run.
+
+##### 5.2.4. <a id='check-project-makefile-(if-it-already-exists)'></a>Check Project Makefile (if it already exists)
+
+- The Makefile should start with these lines:
+
+```mak
+# Put ARM Clang first in path temporary to avoid compiler variants issues.
+export PATH := C:\bin\ArmClang\bin:$(PATH)
+
+# ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
+export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
+```
+
+The `C:\bin\ArmGNUToolchain\bin:` is in fact not needed, because it must be in the path anyway for debugging.
+
+- `make version` should give output like that:
+
+```bash
+$ make version
+/c/bin/ArmGNUToolchain/bin/arm-none-eabi-gcc
+arm-none-eabi-gcc (Arm GNU Toolchain 12.3.Rel1 (Build arm-12.35)) 12.3.1 20230626
+Copyright (C) 2022 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+/c/bin/ArmClang/bin/clang
+clang version 17.0.0
+Target: x86_64-pc-windows-msvc
+Thread model: posix
+InstalledDir: C:\bin\ArmClang\bin
+```
+
+The paths must match with the installation locations.
+
+#### 36.4.3. <a id='setup-stm32'></a>Setup STM32
+
+##### 5.3.1. <a id='generate-base-project'></a>Generate Base Project
+
+- Install and start STM32CubeMX code generator.
+- Board-Selector -> STM32G0B1KE` or `STM32L432KC` or ...
+- (Auto-)Initialize with default values.
+- Clock-Generation -> Change PLL *N from "X 16" to "X 32" to get 64 MHz clocks.
+  - Running at max clock speed and using `WFE` instructions in wait loops is slightly more energy efficient.
+- Project Manager
+  - Project
+    - Set Project Name
+    - Select Project Location
+    - Toolchain / IDE -> Select Makefile
+  - Code Generator
+    - Select "Copy only the necessary library files".
+  - Advanced Settings
+    - Switch from HAL to LL at least for UART
+- Generate Code as Makefile project
+
+##### 5.3.2. <a id='update-nucleo-onboard-debugger-(other-st-evaluation-boards-too)'></a>Update NUCLEO Onboard Debugger (other ST evaluation boards too)
+
+(https://www.st.com/en/development-tools/stsw-link007.html)
+
+This step is recommended before re-flashing with the J-Link onboard debugger software.
+
+- Connect STM evaluation board over USB
+- Start ST-Link Upgrade (trice\third_party\st.com or look for a newer version at STM.).
+  - Device Connect
+  - Upgrade Firmware (select version **with** mass storage option)
+    - Selecting the other option, would not allow to update with the SEGGER STLinkReflash tool.
+  - Close
+
+#### 36.4.4. <a id='setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too)'></a>Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
+
+(https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
+
+Using the J-Link onboard debugger software allows parallel debugging and RTT usage.
+
+Unfortunately this is not possible with **v3** onboard debugger hardware! But you can use a J-Link hardware instead. Also it is possible to use a v2 onboard debugger from a different evaluation board or a "Bluepill" Development Board Module with ARM Cortex M3 processor".
+
+- Start STLinkReflash (trice\third_party\segger.com)
+  - Accept and Accept
+  - 1: Upgrade to J-Link
+  - 0: Quit
+- Download, extract & start https://github.com/rokath/trice/blob/master/third_party/segger.com/STLinkReflash_190812.zip
+  - Re-Flash onboard debugger.
+    - You can undo this step anytime. 
+
+#### 36.4.5. <a id='setup-vs-code'></a>Setup VS-Code
+
+- Start VS Code
+  - Install Go rich language support if you want to use Go as well (not needed for ARM debugging).
+  - Install "Cortex Debug" extension.
+  - Open the generated project directory.
+  - Click on Run and Debug.
+    - Click Generate launch.json and select "Cortex Debug"
+  - Open and edit .vscode/launch.json
+    - change "executable" value into: "./build/STM32G0B1KE_generated.elf" (example)
+  - add lines:
+    - `"device": "STM32G0B1KE",` or `"STM32L432KC"` or ...
+    - `"svdFile": "./STM32G0B1KE.svd",` or `"./STM32L4x2.svd"` or ...
+    - `"runToMain": true`
+  - Set the commas right.
+- Latest SVD Files can be found here: https://www.st.com/content/st_com/en/search.html#q=svd-t=resources-page=1
+- Download file [`./STM32G0B1.svd`](./STM32G0B1.svd) from https://www.st.com/resource/en/svd/stm32G0_svd.zip (example)
+  - Alternatively copy it from `"C:\ST\STM32CubeIDE_1.13.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.productdb.debug_2.1.0.202306151215\resources\cmsis\STMicroelectronics_CMSIS_SVD\STM32G0B1.svd"` if you have the STM32CubeIDE installed.
+  - Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
+- Installing the **Cortex Debug** extension allow you to debug the target code.
+
+### 36.5. <a id='makefile-with-clang-too'></a>Makefile with Clang too
+
+- After STM32 CubeMX code generation the Makefile was edited and spitted.
+- STM32 CubeMX code generation accepts the edited Makefile, so re-generation is no issue.
+  - It modifies the settings according to the changes.
+
+### 36.6. <a id='download-locations'></a>Download Locations
+
+* [NUCLEO L432 User Manual](../../ref/dm00231744-stm32-nucleo32-boards-mb1180-stmicroelectronics.pdf) (example)
+
+#### 36.6.1. <a id='clang'></a>Clang
+
+https://releases.llvm.org/download.html -> https://github.com/llvm/llvm-project/releases/tag/llvmorg-16.0.0 (example)
+
+#### 36.6.2. <a id='gcc-1'></a>GCC
+
+https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain -> https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads (example))
+
+### 36.7. <a id='install-locations'></a>Install Locations
+
+Do not use locations containing spaces, like `C:\Program Files`. Take `C:\bin` for example. This avoids trouble caused by spaces inside path names.
+
+### 36.8. <a id='environment-variables'></a>Environment Variables
+
+Extend the path variable:
+
+- PATH += `C:\bin\ArmGNUToolchain\bin`
+- PATH += `C:\Program Files\SEGGER\JLink`.
+
+### 36.9. <a id='build-command'></a>Build command
+
+- Clang: `make` or to get it faster `make -j8`.
+- GCC: `make GCC`.
+
+### 36.10. <a id='run-&-debug'></a>Run & Debug
+
+- In terminal after `make` click Run&Debug & click green triangle.
+
+### 36.11. <a id='logging'></a>Logging
+
+- In terminal type `make log`. This executes the command in project folder:
+
+`trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -ts ms -d16` (example)
+
+  <img src="./Animation.gif" width="1000">
+
+### 36.12. <a id='setting-up-a-new-project'></a>Setting up a new project
+
+- Copy this project folder under a new name like `myAwesomeNewProject` or name it as you like.
+- Make a temporary folder `myTemp` and generate with STM CubeMX the base project.
+- Copy the *.ioc file from `myTemp` to `myAwesomeNewProject` and name it to the project name.
+- Compare `myTemp\Makefile` with `myAwesomeNewProject\Makefile` and overwrite/extend in `myAwesomeNewProject\Makefile` the relevant settings, mainly the filenames, include path settings and DEFINES.
+- Replace all generated files in `myAwesomeNewProject` with the ones in `myTemp`
+- Replace the *.svd file if the MCU is different. You can find it in the internet.
+- Run `make -j8` inside `myAwesomeNewProject` to check if all is ok.
+- Open the copied *ioc file inside `myAwesomeNewProject` and re-generate and re-build to check.
+- Compare the relevant files like `main.c` with the starting project and edit accordingly.
+- Adapt `.vscode/launch.json` to the used MCU.
+- Than the awesome new project should be ready to go for development.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+
+
+
+### 36.13. <a id='f030_bare-example'></a>F030_bare Example
 
 This is a STMCubeMX generated project without Trice instrumentation for easy compare with [..examples/F030_inst](../examples/F030_inst) to figure out the needed changes to set up trice.
 
-### 35.2. <a id='steps-performed-as-potential-guide'></a>Steps performed as potential guide
+### 36.14. <a id='steps-performed-as-potential-guide'></a>Steps performed as potential guide
 
 - Install STM32CubeMX to `C:\SMT32SubeMX`.
 - Select NUCLEO-F030R8 board.
@@ -3777,26 +4095,26 @@ PS E:\repos\trice\examples\vsCode_NucleoF030R8_generated>
 
 - Press the Debug-Button or "CTRL+SHIFT+D" and start debugging.
 
-### 35.3. <a id='f030_bare-hint'></a>F030_bare Hint
+### 36.15. <a id='f030_bare-hint'></a>F030_bare Hint
 
 - During the code generation, the CubeMX tool did not copy `syscalls.c` and `sysmem.c` but added them to the Makefile. This seems to be a STM32CubeMX "feature".
   - You do not need these files for the example project, but you can add them manually to avoid some warnings.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## 36. <a id='example-f030r8_inst'></a>Example F030R8_inst
+## 37. <a id='example-f030r8_inst'></a>Example F030R8_inst
 
 <img src="../ref/IMG_20240722.jpg" width="400">
 
-### 36.1. <a id='description'></a>Description
+### 37.1. <a id='description'></a>Description
 
 This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](./Core/Inc/triceConfig.h), you get also parallel direct out over RTT.
 
-### 36.2. <a id='setting-up'></a>Setting Up
+### 37.2. <a id='setting-up'></a>Setting Up
 
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 
-### 36.3. <a id='intrumenting'></a>Intrumenting
+### 37.3. <a id='intrumenting'></a>Intrumenting
 
 - Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030R8_gen/](../F030R8_gen/).
 - Add *build.sh* and *clean.sh*.
@@ -3816,15 +4134,15 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## 37. <a id='example-g0b1_gen'></a>Example G0B1_gen
+## 38. <a id='example-g0b1_gen'></a>Example G0B1_gen
 
-### 37.1. <a id='g0b1_gen-description'></a>G0B1_gen Description
+### 38.1. <a id='g0b1_gen-description'></a>G0B1_gen Description
 
 - This is a working example with CLang and also GCC. 
 - This is a STMCubeMX generated project. It was then manually adapted to Clang. 
 - It is without TRICE instrumentation for easy compare with [../G0B1_inst](../G0B1_inst) to figure out the needed changes to set up trice.
 
-### 37.2. <a id='setting-up-g0b1_gen'></a>Setting Up G0B1_gen
+### 38.2. <a id='setting-up-g0b1_gen'></a>Setting Up G0B1_gen
 
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layot.
@@ -3837,12 +4155,12 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 
 
-### 37.3. <a id='l432kc_bare-description'></a>L432KC_bare Description
+### 38.3. <a id='l432kc_bare-description'></a>L432KC_bare Description
 
 - This is a STMCubeMX generated project.
 - It is for easy compare with [../L432KC_gen_ad_toClang](../L432KC_gen_ad_toClang) to figure out the needed setup changes.
 
-### 37.4. <a id='setting-up-l432kc_bare'></a>Setting Up L432KC_bare
+### 38.4. <a id='setting-up-l432kc_bare'></a>Setting Up L432KC_bare
 
 - See and adapt steps in [../F030_bare/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layout.
@@ -3850,15 +4168,15 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## 38. <a id='example-l432kc_gen_ad_toclang_ed'></a>Example L432KC_gen_ad_toClang_ed
+## 39. <a id='example-l432kc_gen_ad_toclang_ed'></a>Example L432KC_gen_ad_toClang_ed
 
-### 38.1. <a id='description-1'></a>Description
+### 39.1. <a id='description-1'></a>Description
 
 * This is a STMCubeMX generated project. It was then manually adapted to Clang.
 * It was additionally configured for FreeRTOS.
 * It is for easy compare with  [../L432KC_gen_ad_toClang](../L432KC_gen_ad_toClang) to figure out the needed setup changes.
 
-### 38.2. <a id='setting-up-1'></a>Setting Up
+### 39.2. <a id='setting-up-1'></a>Setting Up
 
 * See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 * Then add/modify the files to reach this folder layout.
@@ -3866,12 +4184,12 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 38.3. <a id='description-2'></a>Description
+### 39.3. <a id='description-2'></a>Description
 
 - This is a STMCubeMX generated project. It was then manually adapted to Clang.
 - It is for easy compare with  [../L432KC_gen](../L432KC_gen) and [../L432KC_gen_ad_toClang_ed](../L432KC_gen_ad_toClang_ed) to figure out the needed setup changes.
 
-### 38.4. <a id='setting-up-2'></a>Setting Up
+### 39.4. <a id='setting-up-2'></a>Setting Up
 
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layout.
@@ -3879,25 +4197,25 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## 39. <a id='example-l432_inst'></a>Example L432_inst
+## 40. <a id='example-l432_inst'></a>Example L432_inst
 
 ![./ref/Nucleo_STM32L432KC.jpg](./ref/Nucleo_STM32L432KC.jpg)
 
-### 39.1. <a id='description-3'></a>Description
+### 40.1. <a id='description-3'></a>Description
 
 * This is a with Trice instrumented project.
 * It is for easy compare with  [../L432KC_gen_ad_toClang_ed](../L432KC_gen_ad_toClang_ed) to figure out the needed setup changes.
 
-### 39.2. <a id='setting-up-3'></a>Setting Up
+### 40.2. <a id='setting-up-3'></a>Setting Up
 
 * See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 * Then add/modify the files to reach this folder layout.
 
-### 39.3. <a id='build'></a>Build
+### 40.3. <a id='build'></a>Build
 
 Run `./build.sh` for configuration 0 or `./build.sh CONFIGURATION=34` for example.
 
-### 39.4. <a id='deferred-mode-for-max-speed'></a>Deferred Mode for max Speed
+### 40.4. <a id='deferred-mode-for-max-speed'></a>Deferred Mode for max Speed
 
 The stamps are MCU clocks here, so `🐁 Speedy Gonzales` lasts 9 processor clocks here.
 
@@ -3938,30 +4256,30 @@ $ trice l -p com8 -hs off -prefix off
       triceExamples.c    34        2_166 i=44444402 aaaaaa02
 ```
 
-### 39.5. <a id='"hardware"-changes'></a>"Hardware" Changes
+### 40.5. <a id='"hardware"-changes'></a>"Hardware" Changes
 
 * The used evaluation board is delivered with an on-board ST-Link software for debugging.
 * This was changed to an on-board J-Link software for better debugging and RTT support.
 * See [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md) about that.
 
-### 39.6. <a id='using-rtt-with-on-board-j-link-and-jlinkrttlogger'></a>Using RTT with on-board J-Link and JLinkRTTLogger
+### 40.6. <a id='using-rtt-with-on-board-j-link-and-jlinkrttlogger'></a>Using RTT with on-board J-Link and JLinkRTTLogger
 
 * You need to install the "J-Link Software and Documentation pack" for yout OS.
 * [./Core/Inc/triceConfig.h](./Core/Inc/triceConfig.h) contains example Trice log commands.
 
-### 39.7. <a id='using-rtt-with-on-board-j-link-and-openocd'></a>Using RTT with on-board J-Link and OpenOCD
+### 40.7. <a id='using-rtt-with-on-board-j-link-and-openocd'></a>Using RTT with on-board J-Link and OpenOCD
 
-#### 39.7.1. <a id='with-windows-not-possible'></a>With Windows not possible
+#### 40.7.1. <a id='with-windows-not-possible'></a>With Windows not possible
 
 * OpenOCD does not support the installed JLink driver.
 ![./ref/JLinkConfig0.png](./ref/JLinkConfig0.png)
 * Changing to the WinUSB buld device driver is here not supported :-(
 
-#### 39.7.2. <a id='darwin'></a>Darwin
+#### 40.7.2. <a id='darwin'></a>Darwin
 
 * See **OpenOCD with Darwin** in [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md)
 
-### 39.8. <a id='using-rtt-with-on-board-st-link-and-openocd'></a>Using RTT with on-board ST-Link and OpenOCD
+### 40.8. <a id='using-rtt-with-on-board-st-link-and-openocd'></a>Using RTT with on-board ST-Link and OpenOCD
 
 **Terminal 1:**
 
@@ -4012,9 +4330,9 @@ Nov 16 20:38:15.692614  TCP4:       triceExamples.c    18       45_802 2.7182817
 Nov 16 20:38:16.323665  TCP4:       triceExamples.c    19       46_536 2.718282 (default rounded float)
 ```
 
-### 39.9. <a id='using-on-board-st-link-and-vs-code-cortex-debug-extension'></a>Using On-board ST-Link and VS-Code Cortex-Debug Extension
+### 40.9. <a id='using-on-board-st-link-and-vs-code-cortex-debug-extension'></a>Using On-board ST-Link and VS-Code Cortex-Debug Extension
 
-#### 39.9.1. <a id='fail'></a>Fail
+#### 40.9.1. <a id='fail'></a>Fail
 
 * [https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf](https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf)
 * Downloaded and installed
@@ -4025,7 +4343,7 @@ Nov 16 20:38:16.323665  TCP4:       triceExamples.c    19       46_536 2.718282 
       * From: "C:\Program Files (x86)\STMicroelectronics\stlink_server\stlinkserver.exe"
       * To: "C:\Program Files (x86)\STMicroelectronics\stlink_server\ST-LINK_gdbserver.exe"
 
-#### 39.9.2. <a id='ok'></a>OK
+#### 40.9.2. <a id='ok'></a>OK
 
 * Download st-util from github.com
 * Unpack to `C:\bin\stlink-1.8.0-win32` and add `C:\bin\stlink-1.8.0-win32\bin` to path
@@ -4061,7 +4379,7 @@ Receive signal 0. Exiting...
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## 40. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
+## 41. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
 <details><summary>Details</summary><ol>
 
