@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 
 NONINSTRUMENTEDDIRS="
-    F030R8_gen/
-    G0B1_gen/
-    L432KC_gen/
-    L432KC_gen_ad_toClang/
-    L432KC_gen_ad_toClang_ed/
+    F030_bare/
+    G0B1_bare/
+    L432_bare/
 "
 
 INSTRUMENTEDDIRS="
-    F030R8_inst/
+    F030_inst/
     G0B1_inst/
-    L432KC_gen_ad_toClang_ed_inst/
+    L432_inst/
 "
 
 failCount=0

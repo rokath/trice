@@ -3,18 +3,15 @@
 failCount=0
 
 INSTRUMENTEDDIRS="
-    F030R8_inst/
+    F030_inst/
     G0B1_inst/
-    L432KC_gen_ad_toClang_ed_inst/
+    L432_inst/
 "
 
 NONINSTRUMENTEDDIRS="
-    F030R8_gen/
-    G0B1_gen/
-    L432KC_gen/
-    L432KC_gen_ad_toClang/
-    L432KC_gen_ad_toClang_ed/
-    OpenCM3_STM32F411_Nucleo/
+    F030_bare/
+    G0B1_bare/
+    L432_bare/
 "
 
 for d in $INSTRUMENTEDDIRS

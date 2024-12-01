@@ -242,38 +242,22 @@ Table of Contents Generation:
   * 36.10. [Run & Debug](#run-&-debug)
   * 36.11. [Logging](#logging)
   * 36.12. [Setting up a new project](#setting-up-a-new-project)
-  * 36.13. [F030_bare Example](#f030_bare-example)
-  * 36.14. [Steps performed as potential guide](#steps-performed-as-potential-guide)
-  * 36.15. [F030_bare Hint](#f030_bare-hint)
-* 37. [Example F030R8_inst](#example-f030r8_inst)
-  * 37.1. [Description](#description)
-  * 37.2. [Setting Up](#setting-up)
-  * 37.3. [Intrumenting](#intrumenting)
-* 38. [Example G0B1_gen](#example-g0b1_gen)
-  * 38.1. [G0B1_gen Description](#g0b1_gen-description)
-  * 38.2. [Setting Up G0B1_gen](#setting-up-g0b1_gen)
-  * 38.3. [L432KC_bare Description](#l432kc_bare-description)
-  * 38.4. [Setting Up L432KC_bare](#setting-up-l432kc_bare)
-* 39. [Example L432KC_gen_ad_toClang_ed](#example-l432kc_gen_ad_toclang_ed)
-  * 39.1. [Description](#description-1)
-  * 39.2. [Setting Up](#setting-up-1)
-  * 39.3. [Description](#description-2)
-  * 39.4. [Setting Up](#setting-up-2)
-* 40. [Example L432_inst](#example-l432_inst)
-  * 40.1. [Description](#description-3)
-  * 40.2. [Setting Up](#setting-up-3)
-  * 40.3. [Build](#build)
-  * 40.4. [Deferred Mode for max Speed](#deferred-mode-for-max-speed)
-  * 40.5. ["Hardware" Changes](#"hardware"-changes)
-  * 40.6. [Using RTT with on-board J-Link and JLinkRTTLogger](#using-rtt-with-on-board-j-link-and-jlinkrttlogger)
-  * 40.7. [Using RTT with on-board J-Link and OpenOCD](#using-rtt-with-on-board-j-link-and-openocd)
-    * 40.7.1. [With Windows not possible](#with-windows-not-possible)
-    * 40.7.2. [Darwin](#darwin)
-  * 40.8. [Using RTT with on-board ST-Link and OpenOCD](#using-rtt-with-on-board-st-link-and-openocd)
-  * 40.9. [Using On-board ST-Link and VS-Code Cortex-Debug Extension](#using-on-board-st-link-and-vs-code-cortex-debug-extension)
-    * 40.9.1. [Fail](#fail)
-    * 40.9.2. [OK](#ok)
-* 41. [Trice User Manual Changelog](#trice-user-manual-changelog)
+* 37. [Nucleo-STM32F030R8 Examples](#nucleo-stm32f030r8-examples)
+  * 37.1. [Example F030_bare](#example-f030_bare)
+    * 37.1.1. [Steps performed as potential guide](#steps-performed-as-potential-guide)
+    * 37.1.2. [F030_bare Hint](#f030_bare-hint)
+  * 37.2. [Example F030_inst](#example-f030_inst)
+    * 37.2.1. [Description](#description)
+    * 37.2.2. [Setting Up](#setting-up)
+    * 37.2.3. [Intrumenting](#intrumenting)
+  * 37.3. [Nucleo-G0B1RE Examples](#nucleo-g0b1re-examples)
+    * 37.3.1. [Example G0B1_gen](#example-g0b1_gen)
+    * 37.3.2. [Example G01B_inst](#example-g01b_inst)
+  * 37.4. [Nucleo-STM32L432KC Examples](#nucleo-stm32l432kc-examples)
+    * 37.4.1. [Example L432KC_bare](#example-l432kc_bare)
+    * 37.4.2. [Example L432_inst](#example-l432_inst)
+    * 37.4.3. [Build](#build)
+* 38. [Trice User Manual Changelog](#trice-user-manual-changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -4019,11 +4003,13 @@ Extend the path variable:
 
 
 
-### 36.13. <a id='f030_bare-example'></a>F030_bare Example
+## 37. <a id='nucleo-stm32f030r8-examples'></a>Nucleo-STM32F030R8 Examples
+
+### 37.1. <a id='example-f030_bare'></a>Example F030_bare
 
 This is a STMCubeMX generated project without Trice instrumentation for easy compare with [..examples/F030_inst](../examples/F030_inst) to figure out the needed changes to set up trice.
 
-### 36.14. <a id='steps-performed-as-potential-guide'></a>Steps performed as potential guide
+#### 37.1.1. <a id='steps-performed-as-potential-guide'></a>Steps performed as potential guide
 
 - Install STM32CubeMX to `C:\SMT32SubeMX`.
 - Select NUCLEO-F030R8 board.
@@ -4095,26 +4081,26 @@ PS E:\repos\trice\examples\vsCode_NucleoF030R8_generated>
 
 - Press the Debug-Button or "CTRL+SHIFT+D" and start debugging.
 
-### 36.15. <a id='f030_bare-hint'></a>F030_bare Hint
+#### 37.1.2. <a id='f030_bare-hint'></a>F030_bare Hint
 
 - During the code generation, the CubeMX tool did not copy `syscalls.c` and `sysmem.c` but added them to the Makefile. This seems to be a STM32CubeMX "feature".
   - You do not need these files for the example project, but you can add them manually to avoid some warnings.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## 37. <a id='example-f030r8_inst'></a>Example F030R8_inst
+### 37.2. <a id='example-f030_inst'></a>Example F030_inst
 
 <img src="../ref/IMG_20240722.jpg" width="400">
 
-### 37.1. <a id='description'></a>Description
+#### 37.2.1. <a id='description'></a>Description
 
 This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](./Core/Inc/triceConfig.h), you get also parallel direct out over RTT.
 
-### 37.2. <a id='setting-up'></a>Setting Up
+#### 37.2.2. <a id='setting-up'></a>Setting Up
 
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 
-### 37.3. <a id='intrumenting'></a>Intrumenting
+#### 37.2.3. <a id='intrumenting'></a>Intrumenting
 
 - Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030R8_gen/](../F030R8_gen/).
 - Add *build.sh* and *clean.sh*.
@@ -4134,33 +4120,57 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## 38. <a id='example-g0b1_gen'></a>Example G0B1_gen
+### 37.3. <a id='nucleo-g0b1re-examples'></a>Nucleo-G0B1RE Examples
 
-### 38.1. <a id='g0b1_gen-description'></a>G0B1_gen Description
+#### 37.3.1. <a id='example-g0b1_gen'></a>Example G0B1_gen
+
+##### 38.1.1. <a id='g0b1_gen-description'></a>G0B1_gen Description
 
 - This is a working example with CLang and also GCC. 
 - This is a STMCubeMX generated project. It was then manually adapted to Clang. 
 - It is without TRICE instrumentation for easy compare with [../G0B1_inst](../G0B1_inst) to figure out the needed changes to set up trice.
 
-### 38.2. <a id='setting-up-g0b1_gen'></a>Setting Up G0B1_gen
+##### 38.1.2. <a id='setting-up-g0b1_gen'></a>Setting Up G0B1_gen
 
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layot.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-# Example L432KC_bare
-
+#### 37.3.2. <a id='example-g01b_inst'></a>Example G01B_inst
 
 
 
-### 38.3. <a id='l432kc_bare-description'></a>L432KC_bare Description
+##### 38.2.1. <a id='description-1'></a>Description
+
+- This is a working example with direct out without framing over RTT and deferred out in TCOBS framing over UART.
+
+##### 38.2.2. <a id='setting-up-1'></a>Setting Up
+
+  <img src="./IMG_20240722.jpg" width="400">
+
+- See and adapt steps in [../G0B1_gen/ReadMe.md](../G0B1_gen/ReadMe.md).
+
+##### 38.2.3. <a id='instrumenting'></a>Instrumenting
+
+- The steps are similar to the steps in [../F030R8_inst/ReadMe.md](../F030R8_inst/ReadMe.md).
+- See comments in [triceConfig.h](./Core/Inc/triceConfig.h) and commandlines in screenshot.
+
+  <img src="./2024-07-22.png" width="1000">
+
+### 37.4. <a id='nucleo-stm32l432kc-examples'></a>Nucleo-STM32L432KC Examples
+
+#### 37.4.1. <a id='example-l432kc_bare'></a>Example L432KC_bare
+
+
+
+
+##### 39.1.1. <a id='l432kc_bare-description'></a>L432KC_bare Description
 
 - This is a STMCubeMX generated project.
 - It is for easy compare with [../L432KC_gen_ad_toClang](../L432KC_gen_ad_toClang) to figure out the needed setup changes.
 
-### 38.4. <a id='setting-up-l432kc_bare'></a>Setting Up L432KC_bare
+##### 39.1.2. <a id='setting-up-l432kc_bare'></a>Setting Up L432KC_bare
 
 - See and adapt steps in [../F030_bare/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layout.
@@ -4168,15 +4178,15 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## 39. <a id='example-l432kc_gen_ad_toclang_ed'></a>Example L432KC_gen_ad_toClang_ed
+<!--### Example L432KC_gen_ad_toClang_ed -->
 
-### 39.1. <a id='description-1'></a>Description
+##### 39.1.3. <a id='description-2'></a>Description
 
 * This is a STMCubeMX generated project. It was then manually adapted to Clang.
 * It was additionally configured for FreeRTOS.
 * It is for easy compare with  [../L432KC_gen_ad_toClang](../L432KC_gen_ad_toClang) to figure out the needed setup changes.
 
-### 39.2. <a id='setting-up-1'></a>Setting Up
+##### 39.1.4. <a id='setting-up-2'></a>Setting Up
 
 * See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 * Then add/modify the files to reach this folder layout.
@@ -4184,12 +4194,12 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 39.3. <a id='description-2'></a>Description
+##### 39.1.5. <a id='description-3'></a>Description
 
 - This is a STMCubeMX generated project. It was then manually adapted to Clang.
 - It is for easy compare with  [../L432KC_gen](../L432KC_gen) and [../L432KC_gen_ad_toClang_ed](../L432KC_gen_ad_toClang_ed) to figure out the needed setup changes.
 
-### 39.4. <a id='setting-up-2'></a>Setting Up
+##### 39.1.6. <a id='setting-up-3'></a>Setting Up
 
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layout.
@@ -4197,25 +4207,25 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## 40. <a id='example-l432_inst'></a>Example L432_inst
+#### 37.4.2. <a id='example-l432_inst'></a>Example L432_inst
 
 ![./ref/Nucleo_STM32L432KC.jpg](./ref/Nucleo_STM32L432KC.jpg)
 
-### 40.1. <a id='description-3'></a>Description
+##### 39.2.1. <a id='description-4'></a>Description
 
 * This is a with Trice instrumented project.
 * It is for easy compare with  [../L432KC_gen_ad_toClang_ed](../L432KC_gen_ad_toClang_ed) to figure out the needed setup changes.
 
-### 40.2. <a id='setting-up-3'></a>Setting Up
+##### 39.2.2. <a id='setting-up-4'></a>Setting Up
 
 * See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 * Then add/modify the files to reach this folder layout.
 
-### 40.3. <a id='build'></a>Build
+#### 37.4.3. <a id='build'></a>Build
 
 Run `./build.sh` for configuration 0 or `./build.sh CONFIGURATION=34` for example.
 
-### 40.4. <a id='deferred-mode-for-max-speed'></a>Deferred Mode for max Speed
+##### 39.3.1. <a id='deferred-mode-for-max-speed'></a>Deferred Mode for max Speed
 
 The stamps are MCU clocks here, so `🐁 Speedy Gonzales` lasts 9 processor clocks here.
 
@@ -4256,30 +4266,30 @@ $ trice l -p com8 -hs off -prefix off
       triceExamples.c    34        2_166 i=44444402 aaaaaa02
 ```
 
-### 40.5. <a id='"hardware"-changes'></a>"Hardware" Changes
+##### 39.3.2. <a id='"hardware"-changes'></a>"Hardware" Changes
 
 * The used evaluation board is delivered with an on-board ST-Link software for debugging.
 * This was changed to an on-board J-Link software for better debugging and RTT support.
 * See [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md) about that.
 
-### 40.6. <a id='using-rtt-with-on-board-j-link-and-jlinkrttlogger'></a>Using RTT with on-board J-Link and JLinkRTTLogger
+##### 39.3.3. <a id='using-rtt-with-on-board-j-link-and-jlinkrttlogger'></a>Using RTT with on-board J-Link and JLinkRTTLogger
 
 * You need to install the "J-Link Software and Documentation pack" for yout OS.
 * [./Core/Inc/triceConfig.h](./Core/Inc/triceConfig.h) contains example Trice log commands.
 
-### 40.7. <a id='using-rtt-with-on-board-j-link-and-openocd'></a>Using RTT with on-board J-Link and OpenOCD
+##### 39.3.4. <a id='using-rtt-with-on-board-j-link-and-openocd'></a>Using RTT with on-board J-Link and OpenOCD
 
-#### 40.7.1. <a id='with-windows-not-possible'></a>With Windows not possible
+###### 40.7.1. <a id='with-windows-not-possible'></a>With Windows not possible
 
 * OpenOCD does not support the installed JLink driver.
 ![./ref/JLinkConfig0.png](./ref/JLinkConfig0.png)
 * Changing to the WinUSB buld device driver is here not supported :-(
 
-#### 40.7.2. <a id='darwin'></a>Darwin
+###### 40.7.2. <a id='darwin'></a>Darwin
 
 * See **OpenOCD with Darwin** in [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md)
 
-### 40.8. <a id='using-rtt-with-on-board-st-link-and-openocd'></a>Using RTT with on-board ST-Link and OpenOCD
+##### 39.3.5. <a id='using-rtt-with-on-board-st-link-and-openocd'></a>Using RTT with on-board ST-Link and OpenOCD
 
 **Terminal 1:**
 
@@ -4330,9 +4340,9 @@ Nov 16 20:38:15.692614  TCP4:       triceExamples.c    18       45_802 2.7182817
 Nov 16 20:38:16.323665  TCP4:       triceExamples.c    19       46_536 2.718282 (default rounded float)
 ```
 
-### 40.9. <a id='using-on-board-st-link-and-vs-code-cortex-debug-extension'></a>Using On-board ST-Link and VS-Code Cortex-Debug Extension
+##### 39.3.6. <a id='using-on-board-st-link-and-vs-code-cortex-debug-extension'></a>Using On-board ST-Link and VS-Code Cortex-Debug Extension
 
-#### 40.9.1. <a id='fail'></a>Fail
+###### 40.9.1. <a id='fail'></a>Fail
 
 * [https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf](https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf)
 * Downloaded and installed
@@ -4343,7 +4353,7 @@ Nov 16 20:38:16.323665  TCP4:       triceExamples.c    19       46_536 2.718282 
       * From: "C:\Program Files (x86)\STMicroelectronics\stlink_server\stlinkserver.exe"
       * To: "C:\Program Files (x86)\STMicroelectronics\stlink_server\ST-LINK_gdbserver.exe"
 
-#### 40.9.2. <a id='ok'></a>OK
+###### 40.9.2. <a id='ok'></a>OK
 
 * Download st-util from github.com
 * Unpack to `C:\bin\stlink-1.8.0-win32` and add `C:\bin\stlink-1.8.0-win32\bin` to path
@@ -4379,7 +4389,7 @@ Receive signal 0. Exiting...
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## 41. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
+## 38. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
 <details><summary>Details</summary><ol>
 

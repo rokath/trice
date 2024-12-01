@@ -11,14 +11,14 @@ trice insert -i $TD/til.json -li $TD/li.json              -IDMax 16383 -IDMethod
 trice insert -i $TD/til.json -li $TD/li.json              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c    # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
 trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c                          # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
 trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/..                                    # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/F030R8_inst/                   # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/                     # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
 trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/                     # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/L432KC_gen_ad_toClang_ed_inst/ # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot.  
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/                     # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot.  
 
 DIRS="
-./examples/F030R8_inst/
+./examples/F030_inst/
 ./examples/G0B1_inst/
-./examples/L432KC_gen_ad_toClang_ed_inst/
+./examples/L432_inst/
 "
 
 for d in $DIRS
