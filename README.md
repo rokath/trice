@@ -27,16 +27,16 @@ even inside **↯ interrupts** in less than 1 µs❗
 ## About
 
 - Replace `printf` or `log` in **C**-code for getting:
-  - **[Speed](./docs/TriceSpeed.md)**, to be usable also **inside interrupts**,
-  - **[Space](./docs/TriceSpace.md)**, to reduce needed FLASH memory size,
-  - **[Features](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
-- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserGuide.md#2-get-started).
+  - **[Speed](./docs/TriceUserManual.md/#trice-speedd)**, to be usable also **inside interrupts**,
+  - **[Space](./docs/TriceUserManual.md/#trice-memory-needs)**, to reduce needed FLASH memory size,
+  - **[Features](./docs/TriceUserManual.md/#trice-features-(overview))** delighting the developers heart.
+- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserManual.md/#-start-with-trice).
 - *Trice* consists of 2 parts:
   1. **C** code `trice` macros, similar usable like `printf`, generating tiny & super-fast embedded device real-time trace/log code.
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *Trice* packages, exchange the carried IDs with the format string and print out.
-- [Trice User guide](./docs/TriceUserGuide.md)
+- [Trice User Manual](./docs/TriceUserManual.md)
 
 ## Possible Use Cases
 
@@ -52,7 +52,7 @@ even inside **↯ interrupts** in less than 1 µs❗
 
 ## How it approximately works (UART example)
 
-This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#4-how-it-works---the-main-idea)
+This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TriceUserManual.md/#how-it-works---the-main-idea)
 
 ![trice](./docs/ref/triceCOBSBlockDiagram.svg)
 
@@ -69,20 +69,21 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 
 ## Documentation
 
-- [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice)
-- [Trice User Guide](./docs/TriceUserGuide.md)
-- Check the [docs](./docs) folder. No need to read all this stuff - it is just for help and reference.
-- Check [issues](https://github.com/rokath/trice/issues)  and [discussions](https://github.com/rokath/trice/discussions) including the closed items.
+- [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice) (a bit outdated)
+- [Trice User Manual](./docs/TriceUserManual.md) (covers also the interrupt blog actualized information)
+- Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions) including the closed items.
+- Read the target source code, especially [triceDefaultConfig.h](./src/triceDefaultConfig.h)
+- Look into and optionally modify [./internal/emitter/lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go)
 
 ## Debugging using VS-Code and Clang for a Trice-instrumented Project in Direct-Out Mode over SEGGER-RTT
 
 (See folder [./examples](./examples) for more details.)
 
-<img src="./examples/Animation.gif" width="1200">
+<img src="./docs/ref/Animation.gif" width="1200">
 
 ## Trice Cache
 
-Starting with Trice version 0.70.0 it is possible to use additionally the Trice `-cache` CLI switch for the commands `trice insert` and `trice clean`. This switch will have only effect when the user creates in his home directory the **`.trice/cache`** folder. The Trice cache is considered as experimental, even it it thoroughly tested. ([Trice Cache Spec](./docs/TriceCacheSpec.md))
+Starting with Trice version 0.70.0 it is possible to use additionally the Trice `-cache` CLI switch for the commands `trice insert` and `trice clean`. This switch will have only effect when the user creates in his home directory the **`.trice/cache`** folder. ([Trice Cache Spec](./docs/TriceUserManual.md(#trice-cache-for-compilation-speed)))
 
 ### When to use it
 
