@@ -241,7 +241,7 @@ Table of Contents Generation:
     * 32.6.2. [Ring Buffer](#ring-buffer)
   * 32.7. [Direct Transfer](#direct-transfer)
   * 32.8. [Possible Target Code Improvements](#possible-target-code-improvements)
-* 33. [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage)
+* 33. [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage)
   * 33.1. [Printf-like functions](#printf-like-functions)
   * 33.2. [Trice IDs](#trice-ids)
   * 33.3. [Trice values bit width](#trice-values-bit-width)
@@ -382,7 +382,7 @@ Learning that Trice is also a [baby girl name](https://www.babynamespedia.com/me
 
 ## 3. <a id='how-it-works---the-main-idea'></a>How it works - the main idea
 
-Trice performs **no** [costly](./TriceVsPrintfSimilaritiesAndDifferences.md#printf-like-functions) printf-like functions on the target at all. The Trice macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6(six!)](#trice-speed) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
+Trice performs **no** [costly](#trice-similarities-and-differences-to-printf-usage) printf-like functions on the target at all. The Trice macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6(six!)](#trice-speed) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
 
 To achieve that, an automatable pre-compile step is needed, executing a `trice insert` command on the PC. This is fast enough not to disturb the build process. The Trice tool parses then the source tree for macros like `trice( "msg: %d Kelvin\n", k );` and patches them to `trice( iD(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 14-bit identifier (ID) copied into a [**T**rice **I**D **L**ist](../_test/testdata/til.json). During compilation than, the Trice macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
 
@@ -496,7 +496,7 @@ Several Trice tool instances can run parallel on one or different PCs. Each Tric
 
 ### 4.13. <a id='any-byte-capable-1-wire-connection-usable'></a>Any byte capable 1-wire connection usable
 
-The usual Trice output device is an UART but also [SEGGER-RTT](./TriceOverRTT.md) is supported over J-Link or ST-Link devices. Many micro controller boards can act as Trice bridge to a serial port from any port ([Trice without UART](#trice-without-uart)).
+The usual Trice output device is an UART but also [SEGGER-RTT](#trice-over-rtt) is supported over J-Link or ST-Link devices. Many micro controller boards can act as Trice bridge to a serial port from any port ([Trice without UART](#trice-without-uart)).
 
 ### 4.14. <a id='scalability'></a>Scalability
 
@@ -542,24 +542,24 @@ Simply one-time create a `~./trice/cache` folder and use `trice i -cache` and `t
 | [.github/](../.github/)                                                               | [Github configuration](https://stackoverflow.com/questions/71235744/where-is-the-github-folder-in-the-project-repository) |
 | [.idea/](../.idea/)                                                                   | GoLand settings                                                                                                           |
 | [.vscode/](../.vscode/)                                                               | vsCode settings                                                                                                           |
-| [cmd/cui/](../_cmd/_cui)                                                              | (do not use) command user interface tryout code                                                                           |
+| [cmd/_cui/](../cmd/_cui)                                                              | (do not use) command user interface tryout code                                                                           |
 | [cmd/_stim/](../cmd/_stim)                                                            | (do not use) target stimulation tool tryout code                                                                          |
 | [cmd/trice](../cmd/trice)                                                             | Trice tool command Go sources                                                                                             |
-| [docs()](../doc)                                                                      | documentation folder with link forwarding                                                                                 |
+| [docs](../docs)                                                                       | documentation folder with link forwarding                                                                                 |
 | [examples/](../examples)                                                              | example target projects                                                                                                   |
 | [internal/](../internal)                                                              | Trice tool internal Go packages                                                                                           |
 | [pkg/](../pkg)                                                                        | Trice tool common Go packages                                                                                             |
 | [src/](../src)                                                                        | C sources for trice instrumentation -> Add to target project                                                              |
-| [super-linter.report/](../.super-linter.report/)                                      | super linter output                                                                                                       |
+| [super-linter.report/](../super-linter.report/)                                       | super linter output                                                                                                       |
 | [third_party/](../third_party)                                                        | external components                                                                                                       |
 | [_config.yml](../_config.yml)                                                         | [jekyll configuration](https://jekyllrb.com/docs/configuration/)                                                          |
 | [.clang-format](../.clang-format)                                                     | See [below](#file-.clang-format)                                                                                          |
 | [.clang-format-ignore](../.clang-format-ignore)                                       | See [below](#file-.clang-format-ignore)                                                                                   |
 | [.editorconfig](../.editorconfig)                                                     | See [below](#file-.editorconfig)                                                                                          |
-| [.git/](../.git)                                                                      | version control data base                                                                                                 |
-| [.gitattributes](../.gitattribute)                                                    | See [below](#file-.gitattributes)                                                                                         |
+| `.git/`                                                                               | version control data base   (hidden)                                                                                      |
+| [.gitattributes](../.gitattributes)                                                   | See [below](#file-.gitattributes)                                                                                         |
 | [.gitignore](../.gitignore)                                                           | Files git ignores                                                                                                         |
-| [.goreleaser.yml](../.goreleaser.yml)                                                 | goreleaser configuration                                                                                                  |
+| [.goreleaser.yaml](../.goreleaser.yaml)                                               | goreleaser configuration                                                                                                  |
 | [.travis.yml](../.travis.yml)                                                         | Travis CI configuration                                                                                                   |
 | [AUTHORS.md](../AUTHORS.md)                                                           | contributors                                                                                                              |
 | [CHANGELOG.md](../CHANGELOG.md)                                                       | History                                                                                                                   |
@@ -570,7 +570,7 @@ Simply one-time create a `~./trice/cache` folder and use `trice i -cache` and `t
 | [LICENSE.md](../)                                                                     | [MIT](https://opensource.org/license/mit)                                                                                 |
 | [README.md](../)                                                                      | Github first page                                                                                                         |
 | [coverage.out](../)                                                                   | Go test coverage output                                                                                                   |
-| [dist/](../dist)                                                                      | distribution files folder created by goreleaser                                                                           |
+| `dist/`                                                                               | local distribution files folder created by goreleaser                                                                     |
 | [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_test_folder.sh) | renew all ID data                                                                                                         |
 | [testAll.sh](../testAll.sh)                                                           | runn all tests                                                                                                            |
 
@@ -669,7 +669,7 @@ int tryIt( void ){
 }
 ```
 
-You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated stings, according to [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md). The file [_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) shows many usage examples.
+You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated stings, according to [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage). The file [_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) shows many usage examples.
 The uppercase Trice macros are inlining the complete Trice code and the lowercase Trice macros are function calls, so most probably you want use `trice` to keep the overall code size smaller.
 
 * Create 2 empty files `til.json` and `li.json` in your project root.
@@ -733,11 +733,11 @@ Compare folders of one of these folder groups:
 
 This way you see in a quick way any needed adaptions for your target project to port trice to it.
 
-The *Readme.md* files in the examples folder contain further helpful information.
+The chapter [Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation) contais further helpful information.
 
 #### 6.5.1. <a id='target-macros'></a>Target Macros
 
-The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`** which you can mostly use as a `printf` replacement in legacy code. See [TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
+The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`** which you can mostly use as a `printf` replacement in legacy code. See [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
 
 The macros 
 
@@ -810,8 +810,8 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
     * Extend `til.json`
       * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
 * When the program runs later, it should output something similar to ![./ref/1div11.PNG](./ref/1div11.PNG)
-* Look into [./TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for options.
-* Read [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md) if needed.
+* Look into [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for options.
+* Read chapter [Trice Project Image Size Optimization](#trice-project-image-size-optimization) if needed.
 
 #### 6.5.4. <a id='communication-ports'></a>Communication Ports
 
@@ -822,57 +822,57 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 * For UART transfer add UART write functionality. The deferred mode is recommended for UART transfer.
 * It is possible to log over several channels parallel and to select an ID range for each tag.
 * An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality. 
-* See also [./TriceOverOneWire.md](./TriceOverOneWire.md).
+* See also [Trice without UART](#trice-without-uart).
 
 #### 6.5.5. <a id='target-code-overview'></a>Target Code Overview
 
 * `./src`: **User Interface**
 
-| File                                                  | description                                                                                                                                                                                 |
-|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [trice.h](../src/trice.h) & [trice.c](../src/trice.c) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
-| [triceDefaultConfig.h](../src/triceDefaultConfig.h)   | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h*                                                                        |
+| File                      | description                                                                                                                                  |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| [trice.h](../src/trice.h) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `./src` to your compiler include path. |
+| `triceConfig.h`           | Create this file to overwrite  [triceDefaultConfig.h](../src/triceDefaultConfig.h) as needed.                                                |
 
 
-* `./src`: **Internal Components** (only partially needed according to configuration)
+* `./src`: **Internal Components** (only partially needed, add all to your project - the configuration selects automatically)
 
-| File                                              | description                                                      |
-|---------------------------------------------------|------------------------------------------------------------------|
-| [cobs.h](../src/cobs.h)                           | message packaging, alternatively for tcobs                       |
-| [cobsEncode.c](../src/cobsEncode.c)               | message encoding, alternatively for tcobs                        |
-| [cobsDecode.c](../src/cobsDecode.c)               | message decoding, normally not needed                            |
-| [trice.h](../src/trice.h)                         | trice lib interface                                              |
-| [trice.c](../src/trice.c)                         | trice core lib                                                   |
-| [trice8McuOrder.c](../src/trice8McuOrder.c)       | trice MCU endianness lib                                         |
-| [trice8McuReverse.c](../src/trice8McuReverse.c)   | trice MCU reverse endianness lib                                 |
-| [trice16McuOrder.c](../src/trice16McuOrder.c)     | trice MCU endianness lib                                         |
-| [trice16McuReverse.c](../src/trice16McuReverse.c) | trice MCU reverse endianness lib                                 |
-| [trice32McuOrder.c](../src/trice32McuOrder.c)     | trice MCU endianness lib                                         |
-| [trice32McuReverse.c](../src/trice32McuReverse.c) | trice MCU reverse endianness lib                                 |
-| [trice64McuOrder.c](../src/trice64McuOrder.c)     | trice MCU endianness lib                                         |
-| [trice64McuReverse.c](../src/trice64McuReverse.c) | trice MCU reverse endianness lib                                 |
-| [SEGGER_RTT.h](../src/SEGGER_RTT.h)               | Segger RTT code interface                                        |
-| [SEGGER_RTT.c](../src/SEGGER_RTT.c)               | Segger RTT code                                                  |
-| [tcobs.h](../src/tcobs.h)                         | message compression and packaging interface                      |
-| [tcobsv1Encode.c](../src/tcobsv1Encode.c)         | message encoding and packaging                                   |
-| [tcobsv1Decode.c](../src/tcobsv1Decode.c)         | message decoding and packaging, normally not needed              |
-| [tcobsv1Internal.h](../src/tcobsv1Internal.h)     | message decoding and packaging internal interface                |
-| [trice8.h](../src/trice8.h)                       | 8-bit trice code interface                                       |
-| [trice8.c](../src/trice8.c)                       | 8-bit trice code                                                 |
-| [trice16.h](../src/trice16.h)                     | 16-bit trice code interface                                      |
-| [trice16.c](../src/trice16.c)                     | 16-bit trice code                                                |
-| [trice32.h](../src/trice32.h)                     | 32-bit trice code interface                                      |
-| [trice32.c](../src/trice32.c)                     | 32-bit trice code                                                |
-| [trice64.h](../src/trice64.h)                     | 64-bit trice code interface                                      |
-| [trice64.c](../src/trice64.c)                     | 64-bit trice code                                                |
-| [triceAuxiliary.c](../src/triceAuxiliary.c)       | trice code for auxiliary interfaces                              |
-| [triceDoubleBuffer.c](../src/triceDoubleBuffer.c) | trice runtime lib extension needed for fastest deferred mode     |
-| [triceStackBuffer.c](../src/triceStackBuffer.c)   | trice runtime lib extension needed for direct mode               |
-| [triceRingBuffer.c](../src/triceRingBuffer.c)     | trice runtime lib extension needed for recommended deferred mode |
-| [xtea.c](../src/xtea.h)                           | XTEA message encryption/decryption interface                     |
-| [xtea.c](../src/xtea.c)                           | XTEA message encryption/decryption code                          |
+| File                                                | description                                                                                                          |
+|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| [cobs.h](../src/cobs.h)                             | message packaging, alternatively for tcobs                                                                           |
+| [cobsEncode.c](../src/cobsEncode.c)                 | message encoding, alternatively for tcobs                                                                            |
+| [cobsDecode.c](../src/cobsDecode.c)                 | message decoding, normally not needed                                                                                |
+| [trice.c](../src/trice.c)                           | trice core lib                                                                                                       |
+| [trice8McuOrder.c](../src/trice8McuOrder.c)         | trice MCU endianness lib                                                                                             |
+| [trice8McuReverse.c](../src/trice8McuReverse.c)     | trice MCU reverse endianness lib                                                                                     |
+| [trice16McuOrder.c](../src/trice16McuOrder.c)       | trice MCU endianness lib                                                                                             |
+| [trice16McuReverse.c](../src/trice16McuReverse.c)   | trice MCU reverse endianness lib                                                                                     |
+| [trice32McuOrder.c](../src/trice32McuOrder.c)       | trice MCU endianness lib                                                                                             |
+| [trice32McuReverse.c](../src/trice32McuReverse.c)   | trice MCU reverse endianness lib                                                                                     |
+| [trice64McuOrder.c](../src/trice64McuOrder.c)       | trice MCU endianness lib                                                                                             |
+| [trice64McuReverse.c](../src/trice64McuReverse.c)   | trice MCU reverse endianness lib                                                                                     |
+| [SEGGER_RTT.h](../src/SEGGER_RTT.h)                 | Segger RTT code interface                                                                                            |
+| [SEGGER_RTT.c](../src/SEGGER_RTT.c)                 | Segger RTT code                                                                                                      |
+| [tcobs.h](../src/tcobs.h)                           | message compression and packaging interface                                                                          |
+| [tcobsv1Encode.c](../src/tcobsv1Encode.c)           | message encoding and packaging                                                                                       |
+| [tcobsv1Decode.c](../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed                                                                  |
+| [tcobsv1Internal.h](../src/tcobsv1Internal.h)       | message decoding and packaging internal interface                                                                    |
+| [trice8.h](../src/trice8.h)                         | 8-bit trice code interface                                                                                           |
+| [trice8.c](../src/trice8.c)                         | 8-bit trice code                                                                                                     |
+| [trice16.h](../src/trice16.h)                       | 16-bit trice code interface                                                                                          |
+| [trice16.c](../src/trice16.c)                       | 16-bit trice code                                                                                                    |
+| [trice32.h](../src/trice32.h)                       | 32-bit trice code interface                                                                                          |
+| [trice32.c](../src/trice32.c)                       | 32-bit trice code                                                                                                    |
+| [trice64.h](../src/trice64.h)                       | 64-bit trice code interface                                                                                          |
+| [trice64.c](../src/trice64.c)                       | 64-bit trice code                                                                                                    |
+| [triceAuxiliary.c](../src/triceAuxiliary.c)         | trice code for auxiliary interfaces                                                                                  |
+| [triceDefaultConfig.h](../src/triceDefaultConfig.h) | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h* |
+| [triceDoubleBuffer.c](../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode                                                         |
+| [triceStackBuffer.c](../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode                                                                   |
+| [triceRingBuffer.c](../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode                                                     |
+| [xtea.c](../src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
+| [xtea.c](../src/xtea.c)                             | XTEA message encryption/decryption code                                                                              |
   
-* The *tcobs\*.\** files are copied from [https://github.com/rokath/tcobs/tree/master/Cv1](https://github.com/rokath/tcobs/tree/master/Cv1). They are maintained there and extensively tested and probably not a matter of significant change.
+* The *tcobs\*.\** files are copied from [https://github.com/rokath/tcobs/tree/master/v1](https://github.com/rokath/tcobs/tree/master/v1). They are maintained there and extensively tested and probably not a matter of significant change.
 * The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -971,7 +971,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
   trice64( "%g: ", aDouble(3.14159)); trice8( "%c%c%c%c%c%c%c%c%c%c", 61, 62, 63, 64, 65, 66, 67, 68, 69, 10 );
   ```
 
-* See also [2.6. Avoid it](#26-avoid-it).
+* See also [Avoid it](#avoid-it).
 
 #### 6.5.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
 
@@ -984,7 +984,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
       TRice( "hello %u\n", year); // 32-bit (time) stamp
       ```
 
-  * legacy (inlining) syntax:
+  * legacy (inlining) syntax (usable for fastest execution):
 
       ```c
       TRICE( id(0), "hello %u\n", year); // no (time) stamp
@@ -1035,7 +1035,7 @@ trice( "hi 4");
 ```
 
 * The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here, but the compiler will mark an error then.
-* See also [issue #427](https://github.com/rokath/trice/issues/427), [issue #465](https://github.com/rokath/trice/issues/465) and see also [Limited Trice Parser Capabilities](#922-limited-trice-parser-capabilities).
+* See also [issue #427](https://github.com/rokath/trice/issues/427), [issue #465](https://github.com/rokath/trice/issues/465) and see also [Limited Trice Parser Capabilities](#limited-trice-parser-capabilities).
 
 #### 6.6.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
 
@@ -1138,7 +1138,7 @@ Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and ad
     * Deferred mode: `#define TRICE_HALF_BUFFER_SIZE 1000`- space for *Trices* within ~100ms
   * Trice output over UART 
     * `#define TRICE_UART USART2`:  In project root a command like `trice l -p COM14` is needed. It should show something similar to![./ref/1div11.PNG](./ref/1div11.PNG) after app start.
-  * Trice output over RTT: Please refer to the [./TriceOverRTT.md](./TriceOverRTT.md) document.
+  * Trice output over RTT: Please refer to the [Trice over RTT](#trice-over-rtt) chapter.
   * Further Trice output options: Please refer to the [./TriceOverOneWire.md](./TriceOverOneWire.md) document.
 * All compiler and hardware specific adaption should be possible inside `triceConfig.h`
 * Compile, load and start your app.
@@ -1148,7 +1148,7 @@ Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and ad
 
 * It is sufficient for most cases just to use the Trice macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
   * For more compact transfer consider `TRICE8` & `TRICE16` macros or if `double` is needed use `TRICE64`.
-  * Further reading: [TriceVsPrintfSimilaritiesAndDifferences.md](TriceVsPrintfSimilaritiesAndDifferences.md).
+  * Further reading: [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -2796,7 +2796,7 @@ The following numbers are measured with a legacy encoding, showing that the inst
 | MDK-ARM_STM32F030_bareerated   | CLANG v6.19 | -Oz          | yes                    | Code=1020 RO-data=196 RW-data=0 ZI-data=1024  | This is the plain generated project without trice instrumentation. |
 | MDK-ARM_STM32F030_instrumented | CLANG v6.19 | -Oz          | yes                    | Code=4726 RO-data=238 RW-data=16 ZI-data=4608 | This is with full trice instrumentation with example messages.     |
 
-* The size need is less than 4 KB. See also [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md).
+* The size need is less than 4 KB. See also [Trice Project Image Size Optimization](#trice-project-image-size-optimization).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -3506,7 +3506,7 @@ size_t TriceEncode(int* pTriceID, unsigned int pCount, uint32_t * const dest, ui
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## 33. <a id='trice-similarities-and-differences-to-printf-usage'></a>Trice Similarities and differences to printf usage
+## 33. <a id='trice-similarities-and-differences-to-printf-usage'></a>Trice Similarities and Differences to printf Usage
 
 ### 33.1. <a id='printf-like-functions'></a>Printf-like functions
 
@@ -4120,7 +4120,7 @@ PS E:\repos\trice\examples\F030_bare>
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
-This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](..examples/F030_inst/Core/Inc/triceConfig.h), you get also parallel direct out over RTT. For setup see and adapt steps in [F030_bare](../F030R8_gen/ReadMe.md).
+This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](..examples/F030_inst/Core/Inc/triceConfig.h), you get also parallel direct out over RTT. For setup see [Trice over RTT](#trice-over-rtt) and adapt steps in [F030_bare](../F030R8_gen/ReadMe.md).
 
 <h6>Intrumenting:</h6>
 
