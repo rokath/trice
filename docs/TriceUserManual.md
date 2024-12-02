@@ -82,7 +82,6 @@ Table of Contents Generation:
   * 4.18. [Trice Diagnostics](#trice-diagnostics)
   * 4.19. [Trice Cache](#trice-cache)
 * 5. [Project structure (Files and Folders)](#project-structure-(files-and-folders))
-  * 5.1. [File .gitattributes](#file-.gitattributes)
 * 6. [ Start with Trice](#-start-with-trice)
   * 6.1. [Get it](#get-it)
   * 6.2. [Install It](#install-it)
@@ -556,9 +555,9 @@ Simply one-time create a `~./trice/cache` folder and use `trice i -cache` and `t
 | [_config.yml](../_config.yml)                                                         | [jekyll configuration](https://jekyllrb.com/docs/configuration/)                                                          |
 | [.clang-format](../.clang-format)                                                     | See [below](#file-.clang-format)                                                                                          |
 | [.clang-format-ignore](../.clang-format-ignore)                                       | See [below](#file-.clang-format-ignore)                                                                                   |
-| [.editorconfig](../.editorconfig)                                                     | See below                                                                                                                 |
+| [.editorconfig](../.editorconfig)                                                     | See [below](#file-.editorconfig)                                                                                          |
 | [.git/](../.git)                                                                      | version control data base                                                                                                 |
-| [.gitattributes](../.gitattribute)                                                    | See below                                                                                                                 |
+| [.gitattributes](../.gitattribute)                                                    | See [below](#file-.gitattributes)                                                                                         |
 | [.gitignore](../.gitignore)                                                           | Files git ignores                                                                                                         |
 | [.goreleaser.yml](../.goreleaser.yml)                                                 | goreleaser configuration                                                                                                  |
 | [.travis.yml](../.travis.yml)                                                         | Travis CI configuration                                                                                                   |
@@ -629,7 +628,7 @@ I have added .clang-format-ignore to ignore formatting for specific files
 The`.editorconfig` file allows to better identify the basic style for every files. (endline, charset, ...). It is a file accepted by a wide list of IDEs and editors : [link](https://editorconfig.org/#file-format-details)
 This addition is motivated by forgetting the end of line in the .gitattributes file.
 
-### 5.1. <a id='file-.gitattributes'></a>File .gitattributes
+<h6><a id='file-.gitattributes'></a>File .gitattributes</h6>
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
