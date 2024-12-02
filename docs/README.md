@@ -1,1 +1,1 @@
-# [TriceUserManual.md](./TriceUserManual.md)
+All files here only links into [TriceUserManual.md](./TriceUserManual.md).
