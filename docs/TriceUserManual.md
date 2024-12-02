@@ -4124,7 +4124,9 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-###  36.2. <a name='[f030_inst](../examples/f030_inst/)'></a>[F030_inst](../examples/F030_inst/)
+###  36.2. <a name='[f030_inst](../examples/f030_inst/)'></a>F030_inst
+
+Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
 This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](..examples/F030_inst/Core/Inc/triceConfig.h), you get also parallel direct out over RTT. For setup see and adapt steps in [F030_bare](../F030R8_gen/ReadMe.md).
 
