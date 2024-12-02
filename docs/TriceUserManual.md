@@ -1,6 +1,8 @@
 <div id="top"> 
 
-# Trice User Manual - To Long To Read
+# Trice User Manual <span style="color:red">⇐ To Long To Read! </span>
+
+<!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
 > Speed of Light `printf` Comfort Within Interrupts And Everywhere 
 
@@ -268,8 +270,6 @@ Table of Contents Generation:
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
 ---
-
-<!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
 ## 1. <a id='abstract'></a>Abstract
 

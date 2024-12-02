@@ -73,7 +73,8 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 - [Trice User Manual](./docs/TriceUserManual.md) (covers also the interrupt blog actualized information)
 - Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions) including the closed items.
 - Read the target source code, especially [triceDefaultConfig.h](./src/triceDefaultConfig.h)
-- Look into and optionally modify [./internal/emitter/lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go)
+- View the [CLI](https://en.wikipedia.org/wiki/Command-line_interface) options by executing `trice help -all` in a terminal or reading [tricehelpall_test.go](./internal/args/tricehelpall_test.go)
+- Look into and optionally modify [./internal/emitter/lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) (Needs `go install ./cmd/trice/...` afterwards.)
 
 ## Debugging using VS-Code and Clang for a Trice-instrumented Project in Direct-Out Mode over SEGGER-RTT
 
