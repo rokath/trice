@@ -285,13 +285,13 @@ Table of Contents Generation:
 * 36. [Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
   * 36.1. [Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
     * 36.1.1. [F030_bare](#f030_bare)
-  * 36.2. [F030_inst](#f030_inst)
-  * 36.3. [Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
-    * 36.3.1. [[G0B1_bare](../examples/G0B1_bare)](#[g0b1_bare](../examples/g0b1_bare))
-    * 36.3.2. [[G0B1_inst](..examples/G0B1_inst)](#[g0b1_inst](..examples/g0b1_inst))
-  * 36.4. [Nucleo-L432KC Examples](#nucleo-l432kc-examples)
-    * 36.4.1. [[L432_bare](../examples/L432_bare)](#[l432_bare](../examples/l432_bare))
-    * 36.4.2. [L432_inst](#l432_inst)
+    * 36.1.2. [F030_inst](#f030_inst)
+  * 36.2. [Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
+    * 36.2.1. [G0B1_bare](#g0b1_bare)
+    * 36.2.2. [G0B1_inst](#g0b1_inst)
+  * 36.3. [Nucleo-L432KC Examples](#nucleo-l432kc-examples)
+    * 36.3.1. [L432_bare](#l432_bare)
+    * 36.3.2. [L432_inst](#l432_inst)
 * 37. [Trice User Manual Changelog](#trice-user-manual-changelog)
 
 <!-- vscode-markdown-toc-config
@@ -3754,21 +3754,6 @@ This syntax is supported: `%[flags][width][.precision][length]`
 - All provided information is just as example and needs adaption to your needs.
 - There is no need to setup the environment in the given order.
 
-| Project Name | Description |
-| - | - |
-|||
-| [F030_bare](../examples/F030_bare) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](../examples/F030_inst) so see quickly the needed instrumentation steps you need for your own project. |
-| [F030_inst](../examples/F030_inst) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](../examples/F030_bare) to see quickly how to instrument your project. |
-|||
-| [G0B1_bare](../examples/G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
-| [G0B1_inst](../examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
-|||
-| [L432_bare](../examples/L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
-| [L432_inst](../examples/L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
-|||
-| [OpenCM3_STM32F411_Nucleo](../examples/OpenCM3_STM32F411_Nucleo) | See the [Readme.md](../examples/OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
-|||
-
 ### 35.2. <a id='important-to-know'></a>Important to know
 
 The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes not recognize external file modifications. That means for example: After editing `main.c` by adding a `trice( "Hi!\n" )` and executing `trice insert` as pre-compile step it could happen, that an updated `trice( iD(12345), "Hi!\n" )`  was inserted and correct compiled but the update in `main.c` is not shown. Simply close and reopen `main.c` before editing again. This seems to be a [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) "feature" or be caused Windows not signaling a file change.
@@ -4034,6 +4019,23 @@ Extend the path variable:
 
 ## 36. <a id='example-projects-without-and-with-trice-instrumentation'></a>Example Projects without and with Trice Instrumentation
 
+| Project Name | Description |
+| - | - |
+|||
+| [F030_bare](../examples/F030_bare) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](../examples/F030_inst) so see quickly the needed instrumentation steps you need for your own project. |
+| [F030_inst](../examples/F030_inst) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](../examples/F030_bare) to see quickly how to instrument your project. |
+|||
+| [G0B1_bare](../examples/G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
+| [G0B1_inst](../examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+|||
+| [L432_bare](../examples/L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
+| [L432_inst](../examples/L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
+|||
+| [OpenCM3_STM32F411_Nucleo](../examples/OpenCM3_STM32F411_Nucleo) | See the [Readme.md](../examples/OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
+|||
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ### 36.1. <a id='nucleo-f030r8-examples'></a>Nucleo-F030R8 Examples
 
 <img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-f030r8-stm32f030r8t6-arm-cortex-m0.jpg">
@@ -4126,7 +4128,7 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-### 36.2. <a id='f030_inst'></a>F030_inst
+#### 36.1.2. <a id='f030_inst'></a>F030_inst
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
@@ -4152,11 +4154,11 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 36.3. <a id='nucleo-g0b1-examples'></a>Nucleo-G0B1 Examples
+### 36.2. <a id='nucleo-g0b1-examples'></a>Nucleo-G0B1 Examples
 
 <img src="https://docs.zephyrproject.org/latest/_images/nucleo_g0b1re.jpg">
 
-#### 36.3.1. <a id='[g0b1_bare](../examples/g0b1_bare)'></a>[G0B1_bare](../examples/G0B1_bare)
+#### 36.2.1. <a id='g0b1_bare'></a>G0B1_bare
 
 Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
@@ -4171,9 +4173,7 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 - See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
 - Then add/modify the files to reach this folder layot.
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-#### 36.3.2. <a id='[g0b1_inst](..examples/g0b1_inst)'></a>[G0B1_inst](..examples/G0B1_inst)
+#### 36.2.2. <a id='g0b1_inst'></a>G0B1_inst
 
 Folder: [../examples/G0B1_inst/](../examples/G0B1_inst/)
 
@@ -4188,13 +4188,15 @@ This is an example with direct out without framing over RTT and deferred out in 
 - The steps are similar to the steps in [../F030R8_inst/ReadMe.md](../F030R8_inst/ReadMe.md).
 - See comments in [triceConfig.h](./Core/Inc/triceConfig.h) and commandlines in screenshot.
 
-  <img src="./ref/2024-07-22.png" width="1000">
+<img src="./ref/2024-07-22.png" width="1000">
 
-### 36.4. <a id='nucleo-l432kc-examples'></a>Nucleo-L432KC Examples
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### 36.3. <a id='nucleo-l432kc-examples'></a>Nucleo-L432KC Examples
 
 <img src="https://cdn-reichelt.de/bilder/web/xxl_ws/A300/NUCLEO_L432KC_01.png" width=400>
 
-#### 36.4.1. <a id='[l432_bare](../examples/l432_bare)'></a>[L432_bare](../examples/L432_bare)
+#### 36.3.1. <a id='l432_bare'></a>L432_bare
 
 Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
@@ -4205,7 +4207,7 @@ Folder: [../examples/L432_bare/](../examples/L432_bare/)
 * It was then manually adapted additionally to Clang.
 * It was additionally configured for FreeRTOS.
 
-#### 36.4.2. <a id='l432_inst'></a>L432_inst
+#### 36.3.2. <a id='l432_inst'></a>L432_inst
 
 Folder: [../examples/L432_inst/](../examples/L432_inst/)
 
