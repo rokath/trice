@@ -716,4 +716,6 @@ Hash       | Comment
 
 ##  17. <a id='masterbranchchangese028a42bMergebranchmasterintodevel'></a>master branch changese028a42b Merge branch 'master' into devel
 
+* All documents merged into [Trice User Manual](./docs/TriceUserManual.md)
+
 <p align="right">(<a href="#top">back to top</a>)</p>
