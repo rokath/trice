@@ -4,6 +4,7 @@
 
 ```diff
 --> To Long To Read❗
++ Speed of Light `printf` Comfort Within Interrupts And Everywhere +
 ```
 
 <!-- 
@@ -45,9 +46,6 @@ https://apps.timwhitlock.info/emoji/tables/unicode
 -->
 
 ---
-
-> Speed of Light `printf` Comfort Within Interrupts And Everywhere 
-
 
 <details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
 
