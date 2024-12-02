@@ -2,6 +2,16 @@
 
 # Trice User Manual
 
+<style>H1{color:Blue;}</style>
+<style>H2{color:DarkOrange;}</style>
+
+<style>p{color:red;}</style>
+<style>blue{color:blue;}</style>
+
+<p>test</p>
+<blue>Blue</blue>
+<b><blue>Blue</blue></b>
+
 ```diff
 --> To Long To Read❗
 + Speed of Light `printf` Comfort Within Interrupts And Everywhere +
