@@ -82,10 +82,7 @@ Table of Contents Generation:
   * 4.18. [Trice Diagnostics](#trice-diagnostics)
   * 4.19. [Trice Cache](#trice-cache)
 * 5. [Project structure (Files and Folders)](#project-structure-(files-and-folders))
-  * 5.1. [File .clang-format](#file-.clang-format)
-  * 5.2. [File .clang-format-ignore](#file-.clang-format-ignore)
-  * 5.3. [File .editorconfig](#file-.editorconfig)
-  * 5.4. [File .gitattributes](#file-.gitattributes)
+  * 5.1. [File .gitattributes](#file-.gitattributes)
 * 6. [ Start with Trice](#-start-with-trice)
   * 6.1. [Get it](#get-it)
   * 6.2. [Install It](#install-it)
@@ -533,56 +530,53 @@ The encryption opportunity makes it possible to test thoroughly a binary with lo
 ### 4.19. <a id='trice-cache'></a>Trice Cache
 
 One may think, automatically cleaning the IDs in the target code with `trice c` after building and re-insering them just for the compilation needs file modififations all the time and a permanent rebuild of all files containing Trices will slow down the re-build process. That is true, but by using the Trice cache this is avoidable.
-Simply one-time create a `~./trice/cache` folder and use `trice i -cache` and `trice c -cache` in youd [build.sh]()script.
+Simply one-time create a `~./trice/cache` folder and use `trice i -cache` and `trice c -cache` in your [build.sh](../examples/L432_inst/build.sh) script.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 ## 5. <a id='project-structure-(files-and-folders)'></a>Project structure (Files and Folders)
 
-| name                            | content                                          |
-|---------------------------------|--------------------------------------------------|
-| [./_test](./_test)              | automatic target code tests                      |
-| `.code_snippets/`               | unused code                                      |
-| `.github/`                      |                                                  |
-| `.idea/`                        | GoLand settings                                  |
-| `.vscode/`                      | vsCode settings                                  |
-| [./cmd/cui](./_cmd/_cui)        | (do not use) command user interface tryout code  |
-| [./cmd/_stim](./cmd/_stim)      | (do not use) target stimulation tool tryout code |
-| [./cmd/trice](./cmd/trice)      | Trice tool command Go sources                  |
-| [./docs](./docs)                | documentation                                    |
-| [./examples](./examples)        | example target projects                          |
-| `./examples/*_inst/temp/`       | project binary logfiles                          |
-| [./internal](./internal)        | Trice tool internal Go packages                |
-| [./pkg](./pkg)                  | Trice tool common Go packages                  |
-| [./src/](./src)                 | C sources for trice instrumentation              |
-| `super-linter.report/`          |                                                  |
-| [./third_party](./third_party)  | external components                              |
-| `_config.yml`                   | unused                                           |
-| `.clang-format`                 | See below                                        |
-| `.clang-format-ignore`          | See below                                        |
-| `.editorconfig`                 | See below                                        |
-| `.git/`                         | version control data base                        |
-| `.gitattributes`                | See below                                        |
-| `.gitignore`                    |                                                  |
-| `.goreleaser.yml`               | goreleaser configuration                         |
-| `.travis.yml`                   |                                                  |
-| `AUTHORS.md`                    | contributors                                     |
-| `CHANGELOG.md`                  |                                                  |
-| `CODE_OF_CONDUCT.md`            |                                                  |
-| `CONTRIBUTING.md`               |                                                  |
-| `FilesAndFolders.md`            | this file                                        |
-| `go.mod`                        |                                                  |
-| `go.sum`                        |                                                  |
-| `GoInfos.txt`                   |                                                  |
-| `LICENSE.md`                    |                                                  |
-| `README.md`                     |                                                  |
-|                                 |                                                  |
-| `coverage.out`                  |                                                  |
-| `dist/`                         | created by goreleaser                            |
-| `fmtcoverage.html`              |                                                  |
+| name                                                                                  | content                                                                                                                   |
+|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| [_test](../_test)                                                                     | automatic target code tests                                                                                               |
+| [github/](../github/)                                                                 | [Github configuration](https://stackoverflow.com/questions/71235744/where-is-the-github-folder-in-the-project-repository) |
+| [idea/](..idea/)                                                                      | GoLand settings                                                                                                           |
+| [vscode/](../vscode/)                                                                 | vsCode settings                                                                                                           |
+| [cmd/cui](../_cmd/_cui)                                                               | (do not use) command user interface tryout code                                                                           |
+| [cmd/_stim](../cmd/_stim)                                                             | (do not use) target stimulation tool tryout code                                                                          |
+| [cmd/trice](../cmd/trice)                                                             | Trice tool command Go sources                                                                                             |
+| [docs](../doc)                                                                        | documentation folder with link forwarding                                                                                 |
+| [examples](../examples)                                                               | example target projects                                                                                                   |
+| [internal](../internal)                                                               | Trice tool internal Go packages                                                                                           |
+| [pkg](../pkg)                                                                         | Trice tool common Go packages                                                                                             |
+| [src/](../src)                                                                        | C sources for trice instrumentation -> Add to target project                                                              |
+| [super-linter.report/](../.super-linter.report/)                                      | super linter output                                                                                                       |
+| [third_party](../third_party)                                                         | external components                                                                                                       |
+| [_config.yml](../_config.yml)                                                         | [jekyll configuration](https://jekyllrb.com/docs/configuration/)                                                          |
+| [.clang-format](../.clang-format)                                                     | See [below](#file-.clang-format)                                                                                          |
+| [.clang-format-ignore](../.clang-format-ignore)                                       | See [below](#file-.clang-format-ignore)                                                                                   |
+| [.editorconfig](../.editorconfig)                                                     | See below                                                                                                                 |
+| [.git/](../.git)                                                                      | version control data base                                                                                                 |
+| [.gitattributes](../.gitattribute)                                                    | See below                                                                                                                 |
+| [.gitignore](../.gitignore)                                                           | Files git ignores                                                                                                         |
+| [.goreleaser.yml](../.goreleaser.yml)                                                 | goreleaser configuration                                                                                                  |
+| [.travis.yml](../.travis.yml)                                                         | Travis CI configuration                                                                                                   |
+| [AUTHORS.md](../AUTHORS.md)                                                           | contributors                                                                                                              |
+| [CHANGELOG.md](../CHANGELOG.md)                                                       | History                                                                                                                   |
+| [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)                                           | How to communicate                                                                                                        |
+| [CONTRIBUTING.md](../CONTRIBUTING.md)                                                 | Helper                                                                                                                    |
+| [go.mod](../go.mod)                                                                   | Go modules file                                                                                                           |
+| [go.sum](../go.sum)                                                                   | Go modules sums                                                                                                           |
+| [LICENSE.md](../)                                                                     | [MIT](https://opensource.org/license/mit)                                                                                 |
+| [README.md](../)                                                                      | Github first page                                                                                                         |
+| [coverage.out](../)                                                                   | Go test coverage output                                                                                                   |
+| [dist/](../dist)                                                                      | distribution files folder created by goreleaser                                                                           |
+| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_test_folder.sh) | renew all ID data                                                                                                         |
+| [testAll.sh](../testAll.sh)                                                           | runn all tests                                                                                                            |
 
-### 5.1. <a id='file-.clang-format'></a>File .clang-format
+
+<h6><a id='file-.clang-format'></a>File .clang-format</h6>
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
@@ -621,21 +615,21 @@ Staying as close as possible to a default version (LLVM in this case) makes it e
 
 See also: https://github.com/rokath/trice/pull/487#issuecomment-2318003072
 
-### 5.2. <a id='file-.clang-format-ignore'></a>File .clang-format-ignore
+<h6><a id='file-.clang-format-ignore'></a>File .clang-format-ignore</h6>
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
 Sazerac4 commented Aug 30, 2024:
 I have added .clang-format-ignore to ignore formatting for specific files
 
-### 5.3. <a id='file-.editorconfig'></a>File .editorconfig
+<h6><a id='file-.editorconfig'></a>File .editorconfig</h6>
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
 The`.editorconfig` file allows to better identify the basic style for every files. (endline, charset, ...). It is a file accepted by a wide list of IDEs and editors : [link](https://editorconfig.org/#file-format-details)
 This addition is motivated by forgetting the end of line in the .gitattributes file.
 
-### 5.4. <a id='file-.gitattributes'></a>File .gitattributes
+### 5.1. <a id='file-.gitattributes'></a>File .gitattributes
 
 *Contributor: [Sazerac4](https://github.com/Sazerac4)*
 
@@ -732,10 +726,10 @@ Trice should be usable on any MCU with any compiler. On ARM MCUs the easiest way
 
 Compare folders of one of these folder groups:
 
-| Without Instrumentation                                                       | With Trice Instrumentation                                                                |
-|-------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| [`./examples/F030_bare`](../examples/F030_bare)                             | [`./examples/F030_inst`](../examples/F030_inst)                                       |
-| [`./examples/G0B1_bare`](../examples/G0B1_bare)                                 | [`./examples/G0B1_inst`](../examples/G0B1_inst)                                           |
+| Without Instrumentation                         | With Trice Instrumentation                      |
+|-------------------------------------------------|-------------------------------------------------|
+| [`./examples/F030_bare`](../examples/F030_bare) | [`./examples/F030_inst`](../examples/F030_inst) |
+| [`./examples/G0B1_bare`](../examples/G0B1_bare) | [`./examples/G0B1_inst`](../examples/G0B1_inst) |
 | [`./examples/L432_bare`](../examples/L432_bare) | [`./examples/L432_inst`](../examples/L432_inst) |
 
 This way you see in a quick way any needed adaptions for your target project to port trice to it.
@@ -835,10 +829,10 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 * `./src`: **User Interface**
 
-| File                                                  | description                                                                                                                                                                                   |
-|-------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| File                                                  | description                                                                                                                                                                                 |
+|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [trice.h](../src/trice.h) & [trice.c](../src/trice.c) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
-| [triceDefaultConfig.h](../src/triceDefaultConfig.h)   | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h*                                                                          |
+| [triceDefaultConfig.h](../src/triceDefaultConfig.h)   | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h*                                                                        |
 
 
 * `./src`: **Internal Components** (only partially needed according to configuration)
@@ -2052,10 +2046,10 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
   | 16-bit groups                      | Stamp Selector (2 msb) | Comment                                                 | Endianness sizes                |
   |:-----------------------------------|:----------------------:|---------------------------------------------------------|:--------------------------------|
   | _________ `00xxxxxxX ...`          |           0            | >= 4-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
-  | _________ `01iiiiiiI NC  ...`      |           1            | >= 4-byte message, Trice format without     stamp     | ___ `u16 u16 [uW] ... [uW]`     |
-  | _________ `10iiiiiiI TT NC ...`    |           2            | >= 4-byte message, Trice format with 16-bit stamp     | ___ `u16 u16 u16 [uW] ... [uW]` |
+  | _________ `01iiiiiiI NC  ...`      |           1            | >= 4-byte message, Trice format without     stamp       | ___ `u16 u16 [uW] ... [uW]`     |
+  | _________ `10iiiiiiI TT NC ...`    |           2            | >= 4-byte message, Trice format with 16-bit stamp       | ___ `u16 u16 u16 [uW] ... [uW]` |
   | `10iiiiiiI 10iiiiiiI TT NC ...`    |           2            | First 16bit are doubled. Info over `-d16` trice switch. | `u16 u16 u16 u16 [uW] ... [uW]` |
-  | _________ `11iiiiiiI TT TT NC ...` |           3            | >= 4-byte message, Trice format with 32-bit stamp     | ___ `u16 u32 u16 [uW] ... [uW]` |
+  | _________ `11iiiiiiI TT TT NC ...` |           3            | >= 4-byte message, Trice format with 32-bit stamp       | ___ `u16 u32 u16 [uW] ... [uW]` |
 
 * The stamp selector `2` encoding has 2 possibilities. When using `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
 * Default endianness is little endian as most MCUs use little endianness. Otherwise the `-triceEndianness=bigEndian` CLI switch is needed.
@@ -2798,9 +2792,9 @@ The following numbers are measured with a legacy encoding, showing that the inst
 
 ### 27.3. <a id='memory-needs-(example-projects)'></a>Memory needs (example projects)
 
-| Project                          | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark                                                             |
-|----------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------|
-| MDK-ARM_STM32F030_bareerated    | CLANG v6.19 | -Oz          | yes                    | Code=1020 RO-data=196 RW-data=0 ZI-data=1024  | This is the plain generated project without trice instrumentation. |
+| Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark                                                             |
+|--------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------|
+| MDK-ARM_STM32F030_bareerated   | CLANG v6.19 | -Oz          | yes                    | Code=1020 RO-data=196 RW-data=0 ZI-data=1024  | This is the plain generated project without trice instrumentation. |
 | MDK-ARM_STM32F030_instrumented | CLANG v6.19 | -Oz          | yes                    | Code=4726 RO-data=238 RW-data=16 ZI-data=4608 | This is with full trice instrumentation with example messages.     |
 
 * The size need is less than 4 KB. See also [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md).
@@ -3672,11 +3666,11 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 
 #### 33.10.2. <a id='overview-table'></a>Overview Table
 
-| Format Specifier Type                                           | C | Go | T | (T =Trice) \| remark                                                                       |
+| Format Specifier Type                                           | C | Go | T | (T =Trice) \| remark                                                        |
 |-----------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------|
 | signed decimal integer                                          | d | d  | d | Supported.                                                                  |
-| unsigned decimal integer                                        | u | -  | u | The Trice tool changes %u into %d and treats value as unsigned.         |
-| signed decimal integer                                          | i | d  | i | The Trice tool changes %i into %d and treats value as signed.           |
+| unsigned decimal integer                                        | u | -  | u | The Trice tool changes %u into %d and treats value as unsigned.             |
+| signed decimal integer                                          | i | d  | i | The Trice tool changes %i into %d and treats value as signed.               |
 | signed octal integer                                            | - | o  | o | With `trice log -unsigned=false` value is treated as signed.                |
 | unsigned octal integer                                          | o | -  | o | With `trice log` value is treated as unsigned.                              |
 | signed octal integer with 0o prefix                             | - | O  | O | With `trice log -unsigned=false` value is treated as signed.                |
@@ -3697,7 +3691,7 @@ The Trice tool displays the parameter buffer in the shown manner. It is planned 
 | a character represented by the corresponding Unicode code point | c | c  | c | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format. |
 | a quoted character                                              | - | q  | q | Supported.                                                                  |
 | the word true or false                                          | - | t  | t | Supported.                                                                  |
-| a string                                                        | s | s  | s | Use `triceS` macro with one and only one runtime generated string.         |
+| a string                                                        | s | s  | s | Use `triceS` macro with one and only one runtime generated string.          |
 | pointer address                                                 | p | p  | p | Supported.                                                                  |
 | a double %% prints a single %                                   | % | %  | % | Supported.                                                                  |
 | Unicode escape sequence                                         | - | U  | - | **Not supported.**                                                          |
@@ -4014,20 +4008,20 @@ Extend the path variable:
 
 ## 35. <a id='example-projects-without-and-with-trice-instrumentation'></a>Example Projects without and with Trice Instrumentation
 
-| Project Name | Description |
-| - | - |
-|||
-| [F030_bare](../examples/F030_bare) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](../examples/F030_inst) so see quickly the needed instrumentation steps you need for your own project. |
-| [F030_inst](../examples/F030_inst) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](../examples/F030_bare) to see quickly how to instrument your project. |
-|||
-| [G0B1_bare](../examples/G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC. |
-| [G0B1_inst](../examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
-|||
-| [L432_bare](../examples/L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
-| [L432_inst](../examples/L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. |
-|||
-| [OpenCM3_STM32F411_Nucleo](../examples/OpenCM3_STM32F411_Nucleo) | See the [Readme.md](../examples/OpenCM3_STM32F411_Nucleo/Readme.md) in this folder. |
-|||
+| Project Name                                                     | Description                                                                                                                                                                                                                                                                      |
+|------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|                                                                  |                                                                                                                                                                                                                                                                                  |
+| [F030_bare](../examples/F030_bare)                               | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](../examples/F030_inst) so see quickly the needed instrumentation steps you need for your own project.                                        |
+| [F030_inst](../examples/F030_inst)                               | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](../examples/F030_bare) to see quickly how to instrument your project.                                           |
+|                                                                  |                                                                                                                                                                                                                                                                                  |
+| [G0B1_bare](../examples/G0B1_bare)                               | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.                                                                                                                                                                                      |
+| [G0B1_inst](../examples/G0B1_inst)                               | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
+|                                                                  |                                                                                                                                                                                                                                                                                  |
+| [L432_bare](../examples/L432_bare)                               | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
+| [L432_inst](../examples/L432_inst)                               | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
+|                                                                  |                                                                                                                                                                                                                                                                                  |
+| [OpenCM3_STM32F411_Nucleo](../examples/OpenCM3_STM32F411_Nucleo) | See the [Readme.md](../examples/OpenCM3_STM32F411_Nucleo/Readme.md) in this folder.                                                                                                                                                                                              |
+|                                                                  |                                                                                                                                                                                                                                                                                  |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -4383,8 +4377,8 @@ Receive signal 0. Exiting...
 
 <details><summary>Details</summary><ol>
 
-| Date        | Version | Comment                                                                                                      |
-|-------------|---------|--------------------------------------------------------------------------------------------------------------|
-| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                                |
+| Date        | Version | Comment       |
+|-------------|---------|---------------|
+| 2024-DEC-01 | 0.0.0   | Initial Draft |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
