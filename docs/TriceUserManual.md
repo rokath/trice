@@ -1,6 +1,8 @@
 <div id="top"> 
 
-# Trice User Manual <span style="color:red">⇐ To Long To Read! </span>
+# Trice User Manual
+
+> <span style="color:red">⇐ To Long To Read! </span>
 
 <!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
