@@ -1747,7 +1747,7 @@ void fn(void) {
 }
 ```
 
-With `#define TRICE_OFF 1` macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
+With `#define TRICE_OFF 1` macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../_test/testdata/til.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
 
 * Hint from @escherstair: With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
 * No runtime On-Off switch is implemented for several reasons:
