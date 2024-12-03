@@ -84,7 +84,7 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 
 ## Trice Cache
 
-Starting with Trice version 0.70.0 it is possible to use additionally the Trice `-cache` CLI switch for the commands `trice insert` and `trice clean`. This switch will have only effect when the user creates in his home directory the **`.trice/cache`** folder. ([Trice Cache Spec](./docs/TriceUserManual.md(#trice-cache-for-compilation-speed)))
+Starting with Trice version 0.70.0 it is possible to use additionally the Trice `-cache` CLI switch for the commands `trice insert` and `trice clean`. This switch will have only effect when the user creates in his home directory the **`.trice/cache`** folder. ([Trice Cache Spec](./docs/TriceUserManual.md#trice-cache-for-compilation-speed))
 
 ### When to use it
 
@@ -92,7 +92,7 @@ When you use `trice i` as a pre-compile step and `trice c` as a post-compile ste
 
 ### How it works
 
-The Trice cache keeps copies of all to `trice i` or `trice c` passed files after processing them, to avoid repeatedly ID inserting and cleaning. **The copies are used to get the same results as with `trice i` or `trice c` for all files not edited inbetween.** Edited files are processed normally and the cache is updated afterwards. Because the file copies are done without changing the file modification time, **a build system does not process unchanged files again even the IDs have been temorarily removed from the files**.
+The Trice cache keeps copies of all to `trice i` or `trice c` passed files after processing them, to avoid repeatedly ID inserting and cleaning. **The copies are used to get the same results as with `trice i` or `trice c` for all files not edited inbetween.** Edited files are processed normally and the cache is updated afterwards. Because the file copies are done without changing the file modification time, **a build system does not process unchanged files again even the IDs have been temporarily removed from the files**.
 
 ### Hint
 
