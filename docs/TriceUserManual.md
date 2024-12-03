@@ -681,7 +681,7 @@ You can use `trice insert` as pre- and `trice clean` as post-compile step, to no
 
 > **The optional Trice cache technique avoids un-edited file changes at all, what means no Trice releated build speed disadvantages.**   
 
-See [TriceCacheSpec.md](./TriceCacheSpec.md) for more details and [examples/G1B1_inst/build.sh](../examples/G0B1_inst/build.sh) as example.
+See [Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed) for more details and [examples/G1B1_inst/build.sh](../examples/G0B1_inst/build.sh) as example.
 
 * Or, use `trice insert` in a post-checkout and `trice clean` in a pre-check-in script to keep just the repository clean of Trice IDs. Using only `trice insert` as pre-compile step is possible too, especially when the code is used just in a single project and you wish to have it as compiled.
 * When using Trice in libraries for several projects, it may make sense to check-in the libraries with IDs and to use a dedicated ID space for them. See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) as an example - especially when building several projects parallel like shown in the examples folder.
@@ -715,7 +715,7 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
   * Even if you do not have such hardware, you can compile the [`examples/F030_inst`](../examples/F030_inst) project just to get started.
   * When adding or modifying Trice macros inside [examples/F030_inst/Core/Src/main.c](../examples/F030_inst/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
 * The examples and test subfolders contains several vsCode Makefile projects and they are also usable as starting points for your configuration.
-* You can use Trice calls also inside header files but when running `trice insert` as pre- and `trice clean` as post-compile step, all files including these headers will be re-compiled every time, what may be too time consuming. Enable the Trice cache then. See [TriceCacheSpec.md](./TriceCacheSpec.md) for more information.
+* You can use Trice calls also inside header files but when running `trice insert` as pre- and `trice clean` as post-compile step, all files including these headers will be re-compiled every time, what may be too time consuming. Enable the Trice cache then. See [Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed) for more information.
   
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -815,10 +815,10 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 #### 6.5.4. <a id='communication-ports'></a>Communication Ports
 
-* For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [./TriceOverRTT.md](./TriceOverRTT.md) for more info.
+* For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [Trice over RTT](#trice-over-rtt) for more info.
   * If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. But you cannot use it in the field usually.
   * The direct trice mode is recommended for RTT. The single trice execution is a bit longer then, but the log is completely done in one shot. It takes about 100-150 processor clocks, aka 1-2 microseconds.
-    * Info: All deferred trice modes are faster in the runtime execution but the Trice logs appear slightly delayed. You can finetune the Trices down to only 3 Assembler instructions **executable within 6 processor clocks**. See [./TriceSpeed.md](./TriceSpeed.md) as example.
+    * Info: All deferred trice modes are faster in the runtime execution but the Trice logs appear slightly delayed. You can finetune the Trices down to only 3 Assembler instructions **executable within 6 processor clocks**. See [Trice Speed](#trice-speed) as example.
 * For UART transfer add UART write functionality. The deferred mode is recommended for UART transfer.
 * It is possible to log over several channels parallel and to select an ID range for each tag.
 * An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality. 
@@ -1116,7 +1116,7 @@ Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and ad
 * Modify [triceConfig.h](../_test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) according your needs. Choose the Trice mode here:
   * Immediate mode: Straight output inside Trice macro at the cost of the time it takes.
     * With `#define TRICE_MODE 0` (direct mode) just provide a **putchar()** function but no inside interrupts *Trices*!
-    * Or use [SEGGER_RTT](./TriceOverRTT.md) allowing *Trices* also inside interrupts. An other big plus during new hardware setup is, no need to connect an additional wire. All information goes thru the debug probe. Internally only a `memcpy` transfers maybe 16 bytes to the SEGGER_RTT buffer and Trice does even not need a own buffer and no background task.
+    * Or use [SEGGER_RTT](#trice-over-rtt) allowing *Trices* also inside interrupts. An other big plus during new hardware setup is, no need to connect an additional wire. All information goes thru the debug probe. Internally only a `memcpy` transfers maybe 16 bytes to the SEGGER_RTT buffer and Trice does even not need a own buffer and no background task.
   * Deferred mode: Output outside Trice macro, a background output some milliseconds later is needed at the cost of RAM buffer.
     * Compare the **not** instrumented test project [./_test/MDK-ARM_STM32F030_bareerated]([./_test/MDK-ARM_STM32F030_bareerated) with the instrumented test project [./_test/MDK-ARM_STM32F030R8]([./_test/MDK-ARM_STM32F030R8) to see an implementation example.
 * Recommendation:
@@ -1221,7 +1221,7 @@ The total amount of data is currently limited to 12 parameters but this is easy 
 
 When the embedded project is compiled, only the ID goes to the binary but not the format string, what results in a smaller memory footprint usually compared to a printf-like function call, because of the stored string.
 
-On execution the ID is pushed into a buffer together with the optional Trice parameters and that is the real fast and important part which could be finished within 6-8 processor clocks ([measured](./TriceSpeed.md) on a ARM M0+). At 64 MHz in the time needed light travels about 30 meters. Slightly delayed in the background the Trice goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
+On execution the ID is pushed into a buffer together with the optional Trice parameters and that is the real fast and important part which could be finished within 6-8 processor clocks ([measured](#trice-speed) on a ARM M0+). At 64 MHz in the time needed light travels about 30 meters. Slightly delayed in the background the Trice goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
 
 Please understand, that when debugging code containing Trice macros, during a Trice step-over only one ore more 32 bit values go into the internal buffer and no serial output immediately is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping real-time trice output is visible. That is (right now) not true for the ST-Link interface because there is only one USB endpoint.
 
@@ -1498,7 +1498,7 @@ Sometimes it is handy to stimulate the target during development. For that a 2nd
 
 #### 11.2.9. <a id='explpore-and-modify-tags-and-their-colors'></a>Explpore and modify tags and their colors
 
-See file [TriceColor.md](./TriceColor.md)
+See chapter [Trice Tags and Color](#trice-tags-and-color).
 
 #### 11.2.10. <a id='location-information'></a>Location Information
 
@@ -1661,7 +1661,10 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
 
 * When setting up your first project you need a `triceConfig.h` file.
 * You should **not** use the `./_test/cgo.../triceConfig.h` directly, because these are customized for internal tests with CGO. But you can use their settings as helper for a starting point.
-* Please choose one of the `./examples/*_inst/triceConfig.h` files as starting point.
+* Please choose one of these files as starting point:
+  *  [../examples/F030_inst/Core/Inc/triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) 
+  *  [../examples/G0B1_inst/Core/Inc/triceConfig.h](../examples/G0B1_inst/Core/Inc/triceConfig.h) 
+  *  [../examples/L432_inst/Core/Inc/triceConfig.h](../examples/L432_inst/Core/Inc/triceConfig.h) 
 * Comparing them and understandig the differences helps quick starting.
 * The file [triceDefaultConfig.h](../src/triceDefaultConfig.h) contains all possible config keys with descriptions.
 
@@ -1671,7 +1674,7 @@ If you see nothing in the beginning, what is normal ;-), add the `-s` (`-showInp
 
 ### 13.4. <a id='avoid-buffer-overruns'></a>Avoid buffer overruns
 
-It is your responsibility to produce less data than transmittable. If this is not guarantied, a data loss is not avoidable or you have to slow down the user application. The buffers have an optional overflow protection (`TRICE_PROTECT`), which is enabled by default. Recommendation: Make the buffer big and emit the maxDepth cyclically, every 10 or 1000 seconds. Then you know the needed size. It is influenced by the max Trice data burst and the buffer switch interval. See [./example/exampleData/triceLogDiagData.c](./example/exampleData/triceLogDiagData.c) for help.
+It is your responsibility to produce less data than transmittable. If this is not guarantied, a data loss is not avoidable or you have to slow down the user application. The buffers have an optional overflow protection (`TRICE_PROTECT`), which is enabled by default. Recommendation: Make the buffer big and emit the maxDepth cyclically, every 10 or 1000 seconds. Then you know the needed size. It is influenced by the max Trice data burst and the buffer switch interval. See [./examples/exampleData/triceLogDiagData.c](../examples/exampleData/triceLogDiagData.c) for help.
 
 If the target application produces more Trice data than transmittable, a buffer overrun can let the target crash, because for performance reasons no overflow check is implemented in versions before v0.65.0. Such a check is added now per default using `TRICE_PROTECT`, but the Trice code can only throw data away in such case. Of course you can disable this protection to get more speed.
 
@@ -1700,7 +1703,7 @@ Logfiles, Trice tool generated with sub-command switch `-color off`, are normal 
 
 * Simply `cat trice.log`. One view option is also `less -R trice.log`. The Linux command `less` is also available inside the windows git bash.
 * Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
-* See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
+* See also [Color issues under Windows](#color-issues-under-windows)
 
 ### 13.7. <a id='using-the-trice-tool-with-3rd-party-tools'></a>Using the Trice tool with 3rd party tools
 
@@ -1952,7 +1955,7 @@ _## <a id='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick Star
 ## 15. <a id='framing'></a>Framing
 
 * Trice messages are framed binary data, if framing is not disabled.
-* Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data compression) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all. 
+* Framing is important for data disruption cases and is done with [TCOBS](https://github.com/rokath/tcobs) (has included data compression) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all. 
   * Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the Trice tool `-packageFraming` switch accordingly.
 * For robustness each Trice can get its own (T)COBS package (`TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE`). That is configurable for transfer data reduction. Use `#define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE` inside `triceConfig.h` (is now default). This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
 
@@ -2928,7 +2931,7 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
   [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/),\
   [CAN](https://en.wikipedia.org/wiki/CAN_bus),\
   [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
-* [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) is also a possible path to use - see [Segger RTT](./TriceOverRTT.md) for options.
+* [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) is also a possible path to use - see [Segger RTT](#trice-over-rtt) for options.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -4120,7 +4123,7 @@ PS E:\repos\trice\examples\F030_bare>
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
-This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](..examples/F030_inst/Core/Inc/triceConfig.h), you get also parallel direct out over RTT. For setup see [Trice over RTT](#trice-over-rtt) and adapt steps in [F030_bare](../F030R8_gen/ReadMe.md).
+This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](..examples/F030_inst/Core/Inc/triceConfig.h), you get also parallel direct out over RTT. For setup see [Trice over RTT](#trice-over-rtt) and adapt steps from [F030_bare](f030-bare).
 
 <h6>Intrumenting:</h6>
 
@@ -4158,7 +4161,7 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
 <a id='setting-up-g0b1_gen'></a><h5>Setting Up G0B1_gen</h5>
 
-- See and adapt steps in [../F030R8_gen/ReadMe.md](../F030R8_gen/ReadMe.md).
+- See and adapt steps from [F030_bare](#f030_bare).
 - Then add/modify the files to reach this folder layot.
 
 #### 35.2.2. <a id='g0b1_inst'></a>G0B1_inst
@@ -4169,12 +4172,12 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <a id='setting-up-1'></a><h5>Setting Up</h5>
 
-- See and adapt steps in [../G0B1_gen/ReadMe.md](../G0B1_gen/ReadMe.md).
+- See and adapt steps from [G0B1_bare](#g0B1_bare).
 
 <a id='instrumenting'></a><h5>Instrumenting</h5>
 
-- The steps are similar to the steps in [../F030R8_inst/ReadMe.md](../F030R8_inst/ReadMe.md).
-- See comments in [triceConfig.h](./Core/Inc/triceConfig.h) and commandlines in screenshot.
+- The steps are similar to the steps in [F030_bare](#f030_bare).
+- See comments in [triceConfig.h](../examples/G0B1_bare/Core/Inc/triceConfig.h) and commandlines in screenshot.
 
 <img src="./ref/2024-07-22.png" width="1000">
 
@@ -4253,7 +4256,7 @@ $ trice l -p com8 -hs off -prefix off
 
 * The used evaluation board is delivered with an on-board ST-Link software for debugging.
 * This was changed to an on-board J-Link software for better debugging and RTT support.
-* See [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md) about that.
+* See [Trice over RTT](#trice-over-rtt) about that.
 
 <a id='using-rtt-with-on-board-j-link-and-jlinkrttlogger'></a><h5>Using RTT with on-board J-Link and JLinkRTTLogger</h5>
 
@@ -4270,7 +4273,7 @@ $ trice l -p com8 -hs off -prefix off
 
 <a id='darwin'></a><h6>Darwin</h6>
 
-* See **OpenOCD with Darwin** in [../../docs/TriceOverRTT.md](../../docs/TriceOverRTT.md)
+* See **OpenOCD with Darwin** in [Trice over RTT](#trice-over-rtt)
 
 <a id='using-rtt-with-on-board-st-link-and-openocd'></a><h5>Using RTT with on-board ST-Link and OpenOCD</h5>
 
