@@ -1,1 +1,0 @@
-# [TriceUserManual.md/#trice-cache](./TriceUserManual.md/#trice-chache)

@@ -3,7 +3,7 @@
 # Trice User Manual
 
 ```diff
---> To Long To Read❗
+--> To Long To Read - use it as reference only❗
 + Speed of Light `printf` Comfort Within Interrupts And Everywhere +
 ```
 
@@ -46,8 +46,8 @@ https://apps.timwhitlock.info/emoji/tables/unicode
 -->
 
 ---
-
-<details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
+<h2>Table of Contents</h2>
+<details><summary>(click to expand)</summary><ol><!-- TABLE OF CONTENTS START -->
 
 <!-- 
 Table of Contents Generation:

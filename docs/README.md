@@ -1,1 +1,1 @@
-All files here only links into [TriceUserManual.md](./TriceUserManual.md).
+Look at the [TriceUserManual.md](./TriceUserManual.md) - other files here only links ⚓.

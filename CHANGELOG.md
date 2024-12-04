@@ -140,7 +140,7 @@ This is a major release hopefully not breaking too much!
 ###  2.3. <a id='Commonimprovements'></a>Common improvements
 
 - Target time stamps now better formatted, Default is `µs`, `ms` is selectable.
-- A new document TriceConfigProjectImageSizeOptimization.md was written.
+- A new document TriceConfigProjectImageSizeOptimization.md was written. (Now part of TriceUserManual.md)
 - Trice messages containing several `\n` are better formatted.
 - Multiple physical channels parallel usable now, like RTT and UART.
 - A space after ShowID inserted, also after target stamp for better visibility.
@@ -177,7 +177,7 @@ This is a major release hopefully not breaking too much!
 - Code cleanup, tests now ok with `-race`. **Added: `triceAssertTrue` and `triceAssertFalse`**.
 - CLI switch `-d16` better documented. 
 - **`UserNonBlockingDirectWrite8AuxiliaryFn` and `UserNonBlockingDeferredWrite8AuxiliaryFn` invented for a cleaner auxiliary interface adaption**.
-- Doc updated in `TriceUserGuide.md`, `TriceVsPrintfSimilaritiesAndDifferences.md`, `TriceTargetCode.md`, `TriceColor.md` and preface extended. 
+- Doc updated in `TriceUserGuide.md`, `TriceVsPrintfSimilaritiesAndDifferences.md`, `TriceTargetCode.md` (now in TriceUserManual.md), `TriceColor.md` and preface extended. 
 - Folder `examples` fixed. 
 - Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
 - Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
@@ -190,7 +190,7 @@ This is a major release hopefully not breaking too much!
 - example projects folder re-worked
 - According issue #456 inside trice.h some renaming to avoid name clashes with other libraries. Only ID, Id, id and iD stayed the same for user code readability and compability.
 - BuildInfo added to self-compiled Trice compiled binary.
-- CGO test dokumentation extended.
+- CGO test documentation extended.
 - CYCLE error now with sound in Trice tool.
 - Chapter "Trice Limitations" re-worked.
 - FreeRTOS example added
@@ -385,16 +385,15 @@ Used git log command: `git log --pretty=oneline --abbrev-commit`
 | `944c4982` | clang-format: don't sort include                                                                                                           |
 | `85ae6d65` | clang-format off/on added for TriceCheck                                                                                                   |
 | `72bd7449` | #493 fix (hopefully, untested)                                                                                                             |
-| `9a7a2eeb` | Update TraceWithTrice.md                                                                                                                   |
 | `b6fe0a31` | Update README.md                                                                                                                           |
 | `bfb430d0` | Typo correction                                                                                                                            |
 | `8bb96662` | edit error corrected                                                                                                                       |
 | `95ea617f` | comments updated                                                                                                                           |
-| `00771e2e` | indentiation adapted                                                                                                                       |
+| `00771e2e` | indent adapted                                                                                                                             |
 | `f8fcc07c` | c++ frame added                                                                                                                            |
-| `05982811` | indentiation manually adapted and .clang-format-ignore extended                                                                            |
+| `05982811` | indent manually adapted and .clang-format-ignore extended                                                                                  |
 | `651aac37` | TRICE_BUFFER_SIZE now with 4 additional scratch bytes                                                                                      |
-| `afd0da98` | indentiation manually changed for readability                                                                                              |
+| `afd0da98` | indent manually changed for readability                                                                                                    |
 | `771754fd` | formatting and comments changed slightly                                                                                                   |
 | `5b4b40d8` | Update README.md                                                                                                                           |
 | `b6e68494` | (tag: v0.68.0) rlcp added to .goreleaser.yaml                                                                                              |
@@ -505,7 +504,7 @@ Used git log command: `git log --pretty=oneline --abbrev-commit` and less import
 | `6788972f` | dead code (after removing command update) commented out                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | `aa465ca5` | code refactored                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `c5eb2a54` | Update insertIDs.go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `8e1a76e9` | Update TriceCacheSpec.md                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `8e1a76e9` | Update TriceCacheSpec.md (now part of TriceUserManual.md)                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `35fece93` | trice commands `update` and `zero` removed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `7e2494bb` | Bugfix in helpinfo.go: update params where shown in insert params.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `75010487` | Hint "EXPERIMENTAL!" to `-cache` switch                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |

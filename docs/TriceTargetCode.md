@@ -1,1 +1,0 @@
-# [TriceUserManual.md/#trice-target-code-implementation](./TriceUserManual.md/#trice-target-code-implementation)
