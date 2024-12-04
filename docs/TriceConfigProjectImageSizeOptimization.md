@@ -1,1 +1,0 @@
-# [TriceUserManual.md/#trice-project-image-size-optimization](./TriceUserManual.md/#trice-project-image-size-optimization)
