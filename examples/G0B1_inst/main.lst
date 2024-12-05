@@ -1,0 +1,412 @@
+
+out.clang/main.o:     file format elf32-littlearm
+
+
+Disassembly of section .text._close:
+
+00000000 <_close>:
+   0:	2000      	movs	r0, #0
+   2:	43c0      	mvns	r0, r0
+   4:	4770      	bx	lr
+
+Disassembly of section .text._lseek:
+
+00000000 <_lseek>:
+   0:	2000      	movs	r0, #0
+   2:	43c0      	mvns	r0, r0
+   4:	4770      	bx	lr
+
+Disassembly of section .text._read:
+
+00000000 <_read>:
+   0:	2000      	movs	r0, #0
+   2:	43c0      	mvns	r0, r0
+   4:	4770      	bx	lr
+
+Disassembly of section .text._write:
+
+00000000 <_write>:
+   0:	2000      	movs	r0, #0
+   2:	43c0      	mvns	r0, r0
+   4:	4770      	bx	lr
+
+Disassembly of section .text.main:
+
+00000000 <main>:
+   0:	b580      	push	{r7, lr}
+   2:	af00      	add	r7, sp, #0
+   4:	b094      	sub	sp, #80	@ 0x50
+   6:	f7ff fffe 	bl	0 <TriceInit>
+   a:	487e      	ldr	r0, [pc, #504]	@ (204 <main+0x204>)
+   c:	f7ff fffe 	bl	0 <TriceHeadLine>
+  10:	f7ff fffe 	bl	0 <HAL_Init>
+  14:	2601      	movs	r6, #1
+  16:	0231      	lsls	r1, r6, #8
+  18:	4d7b      	ldr	r5, [pc, #492]	@ (208 <main+0x208>)
+  1a:	4628      	mov	r0, r5
+  1c:	3834      	subs	r0, #52	@ 0x34
+  1e:	6802      	ldr	r2, [r0, #0]
+  20:	430a      	orrs	r2, r1
+  22:	6002      	str	r2, [r0, #0]
+  24:	6801      	ldr	r1, [r0, #0]
+  26:	0549      	lsls	r1, r1, #21
+  28:	d5fc      	bpl.n	24 <main+0x24>
+  2a:	200f      	movs	r0, #15
+  2c:	0201      	lsls	r1, r0, #8
+  2e:	4628      	mov	r0, r5
+  30:	382c      	subs	r0, #44	@ 0x2c
+  32:	6802      	ldr	r2, [r0, #0]
+  34:	438a      	bics	r2, r1
+  36:	6002      	str	r2, [r0, #0]
+  38:	6801      	ldr	r1, [r0, #0]
+  3a:	2407      	movs	r4, #7
+  3c:	43a1      	bics	r1, r4
+  3e:	6001      	str	r1, [r0, #0]
+  40:	6801      	ldr	r1, [r0, #0]
+  42:	0689      	lsls	r1, r1, #26
+  44:	0f49      	lsrs	r1, r1, #29
+  46:	d1fb      	bne.n	40 <main+0x40>
+  48:	0321      	lsls	r1, r4, #12
+  4a:	6802      	ldr	r2, [r0, #0]
+  4c:	438a      	bics	r2, r1
+  4e:	6002      	str	r2, [r0, #0]
+  50:	486e      	ldr	r0, [pc, #440]	@ (20c <main+0x20c>)
+  52:	f7ff fffe 	bl	0 <LL_SetSystemCoreClock>
+  56:	2003      	movs	r0, #3
+  58:	f7ff fffe 	bl	0 <HAL_InitTick>
+  5c:	2800      	cmp	r0, #0
+  5e:	d001      	beq.n	64 <main+0x64>
+  60:	b672      	cpsid	i
+  62:	e7fe      	b.n	62 <main+0x62>
+  64:	9403      	str	r4, [sp, #12]
+  66:	2400      	movs	r4, #0
+  68:	9410      	str	r4, [sp, #64]	@ 0x40
+  6a:	940f      	str	r4, [sp, #60]	@ 0x3c
+  6c:	940e      	str	r4, [sp, #56]	@ 0x38
+  6e:	940d      	str	r4, [sp, #52]	@ 0x34
+  70:	940c      	str	r4, [sp, #48]	@ 0x30
+  72:	940b      	str	r4, [sp, #44]	@ 0x2c
+  74:	6828      	ldr	r0, [r5, #0]
+  76:	2104      	movs	r1, #4
+  78:	9102      	str	r1, [sp, #8]
+  7a:	4308      	orrs	r0, r1
+  7c:	6028      	str	r0, [r5, #0]
+  7e:	6828      	ldr	r0, [r5, #0]
+  80:	4008      	ands	r0, r1
+  82:	9005      	str	r0, [sp, #20]
+  84:	9805      	ldr	r0, [sp, #20]
+  86:	6829      	ldr	r1, [r5, #0]
+  88:	2220      	movs	r2, #32
+  8a:	4311      	orrs	r1, r2
+  8c:	6029      	str	r1, [r5, #0]
+  8e:	6829      	ldr	r1, [r5, #0]
+  90:	4011      	ands	r1, r2
+  92:	9105      	str	r1, [sp, #20]
+  94:	9905      	ldr	r1, [sp, #20]
+  96:	6829      	ldr	r1, [r5, #0]
+  98:	4331      	orrs	r1, r6
+  9a:	6029      	str	r1, [r5, #0]
+  9c:	6829      	ldr	r1, [r5, #0]
+  9e:	4031      	ands	r1, r6
+  a0:	9105      	str	r1, [sp, #20]
+  a2:	9905      	ldr	r1, [sp, #20]
+  a4:	2105      	movs	r1, #5
+  a6:	0708      	lsls	r0, r1, #28
+  a8:	9004      	str	r0, [sp, #16]
+  aa:	6282      	str	r2, [r0, #40]	@ 0x28
+  ac:	940f      	str	r4, [sp, #60]	@ 0x3c
+  ae:	940e      	str	r4, [sp, #56]	@ 0x38
+  b0:	2102      	movs	r1, #2
+  b2:	9100      	str	r1, [sp, #0]
+  b4:	910d      	str	r1, [sp, #52]	@ 0x34
+  b6:	960c      	str	r6, [sp, #48]	@ 0x30
+  b8:	920b      	str	r2, [sp, #44]	@ 0x2c
+  ba:	a90b      	add	r1, sp, #44	@ 0x2c
+  bc:	f7ff fffe 	bl	0 <LL_GPIO_Init>
+  c0:	9412      	str	r4, [sp, #72]	@ 0x48
+  c2:	9411      	str	r4, [sp, #68]	@ 0x44
+  c4:	9410      	str	r4, [sp, #64]	@ 0x40
+  c6:	940f      	str	r4, [sp, #60]	@ 0x3c
+  c8:	940e      	str	r4, [sp, #56]	@ 0x38
+  ca:	940d      	str	r4, [sp, #52]	@ 0x34
+  cc:	940c      	str	r4, [sp, #48]	@ 0x30
+  ce:	940b      	str	r4, [sp, #44]	@ 0x2c
+  d0:	940a      	str	r4, [sp, #40]	@ 0x28
+  d2:	9409      	str	r4, [sp, #36]	@ 0x24
+  d4:	9408      	str	r4, [sp, #32]
+  d6:	9407      	str	r4, [sp, #28]
+  d8:	9406      	str	r4, [sp, #24]
+  da:	9405      	str	r4, [sp, #20]
+  dc:	6a28      	ldr	r0, [r5, #32]
+  de:	210c      	movs	r1, #12
+  e0:	9101      	str	r1, [sp, #4]
+  e2:	4388      	bics	r0, r1
+  e4:	6228      	str	r0, [r5, #32]
+  e6:	0470      	lsls	r0, r6, #17
+  e8:	68a9      	ldr	r1, [r5, #8]
+  ea:	4301      	orrs	r1, r0
+  ec:	60a9      	str	r1, [r5, #8]
+  ee:	68a9      	ldr	r1, [r5, #8]
+  f0:	4001      	ands	r1, r0
+  f2:	9113      	str	r1, [sp, #76]	@ 0x4c
+  f4:	9813      	ldr	r0, [sp, #76]	@ 0x4c
+  f6:	6828      	ldr	r0, [r5, #0]
+  f8:	4330      	orrs	r0, r6
+  fa:	6028      	str	r0, [r5, #0]
+  fc:	6828      	ldr	r0, [r5, #0]
+  fe:	4030      	ands	r0, r6
+ 100:	9013      	str	r0, [sp, #76]	@ 0x4c
+ 102:	9813      	ldr	r0, [sp, #76]	@ 0x4c
+ 104:	960a      	str	r6, [sp, #40]	@ 0x28
+ 106:	9409      	str	r4, [sp, #36]	@ 0x24
+ 108:	9408      	str	r4, [sp, #32]
+ 10a:	9407      	str	r4, [sp, #28]
+ 10c:	9d00      	ldr	r5, [sp, #0]
+ 10e:	9506      	str	r5, [sp, #24]
+ 110:	9802      	ldr	r0, [sp, #8]
+ 112:	9005      	str	r0, [sp, #20]
+ 114:	a905      	add	r1, sp, #20
+ 116:	9102      	str	r1, [sp, #8]
+ 118:	9804      	ldr	r0, [sp, #16]
+ 11a:	f7ff fffe 	bl	0 <LL_GPIO_Init>
+ 11e:	960a      	str	r6, [sp, #40]	@ 0x28
+ 120:	9409      	str	r4, [sp, #36]	@ 0x24
+ 122:	9408      	str	r4, [sp, #32]
+ 124:	9407      	str	r4, [sp, #28]
+ 126:	9506      	str	r5, [sp, #24]
+ 128:	2008      	movs	r0, #8
+ 12a:	9005      	str	r0, [sp, #20]
+ 12c:	9804      	ldr	r0, [sp, #16]
+ 12e:	9902      	ldr	r1, [sp, #8]
+ 130:	f7ff fffe 	bl	0 <LL_GPIO_Init>
+ 134:	4836      	ldr	r0, [pc, #216]	@ (210 <main+0x210>)
+ 136:	6801      	ldr	r1, [r0, #0]
+ 138:	22c0      	movs	r2, #192	@ 0xc0
+ 13a:	430a      	orrs	r2, r1
+ 13c:	213f      	movs	r1, #63	@ 0x3f
+ 13e:	438a      	bics	r2, r1
+ 140:	6002      	str	r2, [r0, #0]
+ 142:	0730      	lsls	r0, r6, #28
+ 144:	4933      	ldr	r1, [pc, #204]	@ (214 <main+0x214>)
+ 146:	6008      	str	r0, [r1, #0]
+ 148:	9412      	str	r4, [sp, #72]	@ 0x48
+ 14a:	9411      	str	r4, [sp, #68]	@ 0x44
+ 14c:	9801      	ldr	r0, [sp, #4]
+ 14e:	9010      	str	r0, [sp, #64]	@ 0x40
+ 150:	940f      	str	r4, [sp, #60]	@ 0x3c
+ 152:	940e      	str	r4, [sp, #56]	@ 0x38
+ 154:	940d      	str	r4, [sp, #52]	@ 0x34
+ 156:	20e1      	movs	r0, #225	@ 0xe1
+ 158:	0240      	lsls	r0, r0, #9
+ 15a:	900c      	str	r0, [sp, #48]	@ 0x30
+ 15c:	940b      	str	r4, [sp, #44]	@ 0x2c
+ 15e:	4d2e      	ldr	r5, [pc, #184]	@ (218 <main+0x218>)
+ 160:	462c      	mov	r4, r5
+ 162:	3c08      	subs	r4, #8
+ 164:	a90b      	add	r1, sp, #44	@ 0x2c
+ 166:	4620      	mov	r0, r4
+ 168:	f7ff fffe 	bl	0 <LL_USART_Init>
+ 16c:	f3ef 8010 	mrs	r0, PRIMASK
+ 170:	f386 8810 	msr	PRIMASK, r6
+ 174:	9b03      	ldr	r3, [sp, #12]
+ 176:	0759      	lsls	r1, r3, #29
+ 178:	682a      	ldr	r2, [r5, #0]
+ 17a:	438a      	bics	r2, r1
+ 17c:	602a      	str	r2, [r5, #0]
+ 17e:	f380 8810 	msr	PRIMASK, r0
+ 182:	f3ef 8010 	mrs	r0, PRIMASK
+ 186:	f386 8810 	msr	PRIMASK, r6
+ 18a:	0659      	lsls	r1, r3, #25
+ 18c:	682a      	ldr	r2, [r5, #0]
+ 18e:	438a      	bics	r2, r1
+ 190:	602a      	str	r2, [r5, #0]
+ 192:	f380 8810 	msr	PRIMASK, r0
+ 196:	0770      	lsls	r0, r6, #29
+ 198:	6821      	ldr	r1, [r4, #0]
+ 19a:	4381      	bics	r1, r0
+ 19c:	6021      	str	r1, [r4, #0]
+ 19e:	2009      	movs	r0, #9
+ 1a0:	02c0      	lsls	r0, r0, #11
+ 1a2:	1f29      	subs	r1, r5, #4
+ 1a4:	680a      	ldr	r2, [r1, #0]
+ 1a6:	4382      	bics	r2, r0
+ 1a8:	600a      	str	r2, [r1, #0]
+ 1aa:	6828      	ldr	r0, [r5, #0]
+ 1ac:	212a      	movs	r1, #42	@ 0x2a
+ 1ae:	4388      	bics	r0, r1
+ 1b0:	6028      	str	r0, [r5, #0]
+ 1b2:	6820      	ldr	r0, [r4, #0]
+ 1b4:	4330      	orrs	r0, r6
+ 1b6:	6020      	str	r0, [r4, #0]
+ 1b8:	6968      	ldr	r0, [r5, #20]
+ 1ba:	0280      	lsls	r0, r0, #10
+ 1bc:	d5fc      	bpl.n	1b8 <main+0x1b8>
+ 1be:	6968      	ldr	r0, [r5, #20]
+ 1c0:	0240      	lsls	r0, r0, #9
+ 1c2:	d5f9      	bpl.n	1b8 <main+0x1b8>
+ 1c4:	2003      	movs	r0, #3
+ 1c6:	f7ff fffe 	bl	0 <SomeExampleTrices>
+ 1ca:	4914      	ldr	r1, [pc, #80]	@ (21c <main+0x21c>)
+ 1cc:	a80b      	add	r0, sp, #44	@ 0x2c
+ 1ce:	4602      	mov	r2, r0
+ 1d0:	c918      	ldmia	r1!, {r3, r4}
+ 1d2:	c218      	stmia	r2!, {r3, r4}
+ 1d4:	c938      	ldmia	r1!, {r3, r4, r5}
+ 1d6:	c238      	stmia	r2!, {r3, r4, r5}
+ 1d8:	2400      	movs	r4, #0
+ 1da:	4621      	mov	r1, r4
+ 1dc:	f7ff fffe 	bl	0 <osThreadCreate>
+ 1e0:	490f      	ldr	r1, [pc, #60]	@ (220 <main+0x220>)
+ 1e2:	6008      	str	r0, [r1, #0]
+ 1e4:	490f      	ldr	r1, [pc, #60]	@ (224 <main+0x224>)
+ 1e6:	a805      	add	r0, sp, #20
+ 1e8:	4602      	mov	r2, r0
+ 1ea:	c928      	ldmia	r1!, {r3, r5}
+ 1ec:	c228      	stmia	r2!, {r3, r5}
+ 1ee:	c968      	ldmia	r1!, {r3, r5, r6}
+ 1f0:	c268      	stmia	r2!, {r3, r5, r6}
+ 1f2:	4621      	mov	r1, r4
+ 1f4:	f7ff fffe 	bl	0 <osThreadCreate>
+ 1f8:	490b      	ldr	r1, [pc, #44]	@ (228 <main+0x228>)
+ 1fa:	6008      	str	r0, [r1, #0]
+ 1fc:	f7ff fffe 	bl	0 <osKernelStart>
+ 200:	e7fe      	b.n	200 <main+0x200>
+ 202:	46c0      	nop			@ (mov r8, r8)
+ 204:	00000000 	.word	0x00000000
+ 208:	40021034 	.word	0x40021034
+ 20c:	00f42400 	.word	0x00f42400
+ 210:	e000e41c 	.word	0xe000e41c
+ 214:	e000e100 	.word	0xe000e100
+ 218:	40004408 	.word	0x40004408
+	...
+
+Disassembly of section .text.SystemClock_Config:
+
+00000000 <SystemClock_Config>:
+   0:	b580      	push	{r7, lr}
+   2:	af00      	add	r7, sp, #0
+   4:	2001      	movs	r0, #1
+   6:	0202      	lsls	r2, r0, #8
+   8:	4812      	ldr	r0, [pc, #72]	@ (54 <SystemClock_Config+0x54>)
+   a:	4601      	mov	r1, r0
+   c:	3908      	subs	r1, #8
+   e:	680b      	ldr	r3, [r1, #0]
+  10:	4313      	orrs	r3, r2
+  12:	600b      	str	r3, [r1, #0]
+  14:	680a      	ldr	r2, [r1, #0]
+  16:	0552      	lsls	r2, r2, #21
+  18:	d5fc      	bpl.n	14 <SystemClock_Config+0x14>
+  1a:	210f      	movs	r1, #15
+  1c:	0209      	lsls	r1, r1, #8
+  1e:	6802      	ldr	r2, [r0, #0]
+  20:	438a      	bics	r2, r1
+  22:	6002      	str	r2, [r0, #0]
+  24:	6802      	ldr	r2, [r0, #0]
+  26:	2107      	movs	r1, #7
+  28:	438a      	bics	r2, r1
+  2a:	6002      	str	r2, [r0, #0]
+  2c:	6802      	ldr	r2, [r0, #0]
+  2e:	0692      	lsls	r2, r2, #26
+  30:	0f52      	lsrs	r2, r2, #29
+  32:	d1fb      	bne.n	2c <SystemClock_Config+0x2c>
+  34:	0309      	lsls	r1, r1, #12
+  36:	6802      	ldr	r2, [r0, #0]
+  38:	438a      	bics	r2, r1
+  3a:	6002      	str	r2, [r0, #0]
+  3c:	4806      	ldr	r0, [pc, #24]	@ (58 <SystemClock_Config+0x58>)
+  3e:	f7ff fffe 	bl	0 <LL_SetSystemCoreClock>
+  42:	2003      	movs	r0, #3
+  44:	f7ff fffe 	bl	0 <HAL_InitTick>
+  48:	2800      	cmp	r0, #0
+  4a:	d001      	beq.n	50 <SystemClock_Config+0x50>
+  4c:	b672      	cpsid	i
+  4e:	e7fe      	b.n	4e <SystemClock_Config+0x4e>
+  50:	bd80      	pop	{r7, pc}
+  52:	46c0      	nop			@ (mov r8, r8)
+  54:	40021008 	.word	0x40021008
+  58:	00f42400 	.word	0x00f42400
+
+Disassembly of section .text.StartDefaultTask:
+
+00000000 <StartDefaultTask>:
+   0:	b580      	push	{r7, lr}
+   2:	af00      	add	r7, sp, #0
+   4:	f7ff fffe 	bl	0 <HAL_GetTick>
+   8:	490e      	ldr	r1, [pc, #56]	@ (44 <StartDefaultTask+0x44>)
+   a:	680a      	ldr	r2, [r1, #0]
+   c:	4613      	mov	r3, r2
+   e:	3308      	adds	r3, #8
+  10:	600b      	str	r3, [r1, #0]
+  12:	0401      	lsls	r1, r0, #16
+  14:	4b0c      	ldr	r3, [pc, #48]	@ (48 <StartDefaultTask+0x48>)
+  16:	18c9      	adds	r1, r1, r3
+  18:	2303      	movs	r3, #3
+  1a:	059b      	lsls	r3, r3, #22
+  1c:	0c00      	lsrs	r0, r0, #16
+  1e:	18c0      	adds	r0, r0, r3
+  20:	6011      	str	r1, [r2, #0]
+  22:	6050      	str	r0, [r2, #4]
+  24:	4c09      	ldr	r4, [pc, #36]	@ (4c <StartDefaultTask+0x4c>)
+  26:	e006      	b.n	36 <StartDefaultTask+0x36>
+  28:	1c40      	adds	r0, r0, #1
+  2a:	6020      	str	r0, [r4, #0]
+  2c:	f7ff fffe 	bl	0 <TriceCheck>
+  30:	2014      	movs	r0, #20
+  32:	f7ff fffe 	bl	0 <osDelay>
+  36:	2019      	movs	r0, #25
+  38:	0101      	lsls	r1, r0, #4
+  3a:	6820      	ldr	r0, [r4, #0]
+  3c:	4288      	cmp	r0, r1
+  3e:	ddf3      	ble.n	28 <StartDefaultTask+0x28>
+  40:	2000      	movs	r0, #0
+  42:	e7f2      	b.n	2a <StartDefaultTask+0x2a>
+  44:	00000000 	.word	0x00000000
+  48:	0000ff42 	.word	0x0000ff42
+  4c:	00000000 	.word	0x00000000
+
+Disassembly of section .text.StartTask02:
+
+00000000 <StartTask02>:
+   0:	b580      	push	{r7, lr}
+   2:	af00      	add	r7, sp, #0
+   4:	f7ff fffe 	bl	0 <HAL_GetTick>
+   8:	4909      	ldr	r1, [pc, #36]	@ (30 <StartTask02+0x30>)
+   a:	680a      	ldr	r2, [r1, #0]
+   c:	4613      	mov	r3, r2
+   e:	3308      	adds	r3, #8
+  10:	600b      	str	r3, [r1, #0]
+  12:	0401      	lsls	r1, r0, #16
+  14:	4b07      	ldr	r3, [pc, #28]	@ (34 <StartTask02+0x34>)
+  16:	18c9      	adds	r1, r1, r3
+  18:	2303      	movs	r3, #3
+  1a:	059b      	lsls	r3, r3, #22
+  1c:	0c00      	lsrs	r0, r0, #16
+  1e:	18c0      	adds	r0, r0, r3
+  20:	6011      	str	r1, [r2, #0]
+  22:	6050      	str	r0, [r2, #4]
+  24:	f7ff fffe 	bl	0 <TriceTransfer>
+  28:	200a      	movs	r0, #10
+  2a:	f7ff fffe 	bl	0 <osDelay>
+  2e:	e7f9      	b.n	24 <StartTask02+0x24>
+  30:	00000000 	.word	0x00000000
+  34:	0000ff43 	.word	0x0000ff43
+
+Disassembly of section .text.Error_Handler:
+
+00000000 <Error_Handler>:
+   0:	b672      	cpsid	i
+   2:	e7fe      	b.n	2 <Error_Handler+0x2>
+
+Disassembly of section .text.HAL_TIM_PeriodElapsedCallback:
+
+00000000 <HAL_TIM_PeriodElapsedCallback>:
+   0:	b580      	push	{r7, lr}
+   2:	af00      	add	r7, sp, #0
+   4:	6800      	ldr	r0, [r0, #0]
+   6:	4903      	ldr	r1, [pc, #12]	@ (14 <HAL_TIM_PeriodElapsedCallback+0x14>)
+   8:	4288      	cmp	r0, r1
+   a:	d000      	beq.n	e <HAL_TIM_PeriodElapsedCallback+0xe>
+   c:	bd80      	pop	{r7, pc}
+   e:	f7ff fffe 	bl	0 <HAL_IncTick>
+  12:	bd80      	pop	{r7, pc}
+  14:	40014800 	.word	0x40014800

@@ -45,10 +45,6 @@
 osThreadId defaultTaskHandle;
 osThreadId myTask02Handle;
 /* USER CODE BEGIN PV */
-__weak int _close(void) { return -1; }
-__weak int _lseek(void) { return -1; }
-__weak int _read (void) { return -1; }
-__weak int _write(void) { return -1; }
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -64,6 +60,11 @@ void StartTask02(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+__weak int _close(void) { return -1; }
+__weak int _lseek(void) { return -1; }
+__weak int _read (void) { return -1; }
+__weak int _write(void) { return -1; }
+
 volatile uint32_t * const DWT_CONTROL = (uint32_t *) 0xE0001000;
 volatile uint32_t * const DWT_CYCCNT = (uint32_t *) 0xE0001004;
 volatile uint32_t * const DEMCR = (uint32_t *) 0xE000EDFC;
@@ -87,8 +88,6 @@ int main(void)
 #if !TRICE_OFF
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
   TriceHeadLine("  𝕹𝖀𝕮𝕷𝕰𝕺-L432KC   ");
-  LogTriceConfiguration();
-  SomeExampleTrices(10);
 #endif
   /* USER CODE END 1 */
 
@@ -112,7 +111,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  LogTriceConfiguration();
+  SomeExampleTrices(3);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -333,7 +333,7 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   TRICE_UNUSED(argument)
-  trice("StartDefaultTask\n");
+  TRice("msg:StartDefaultTask\n");
   /* Infinite loop */
   for(;;)
   {
@@ -344,7 +344,7 @@ void StartDefaultTask(void const * argument)
     }
     TriceCheck( i ); // this generates trice data
 #endif
-    osDelay(10);
+    osDelay(20);
   }
   /* USER CODE END 5 */
 }
@@ -360,21 +360,28 @@ void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
   TRICE_UNUSED(argument)
-  trice("StartTask02\n");
+  TRice("msg:StartTask02:Diagnostics and TriceTransfer\n" );
   /* Infinite loop */
   for(;;)
   {
 #if !TRICE_OFF
-    static int i = 0;
-    if( ++i >= 10 ){
+
+#if TRICE_DIAGNOSTICS == 1
+    static int i = 100;
+    if( ++i >= 100 ){
       i = 0;
-      #if TRICE_DIAGNOSTICS == 1
       TriceLogDiagnosticData();
-      #endif
     }
+#endif // #if TRICE_DIAGNOSTICS == 1
+
     TriceTransfer();
-#endif
-    osDelay(100);
+    osDelay(10);
+
+#if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+    WatchRingBufferMargins();
+#endif // #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+
+#endif // #if !TRICE_OFF
   }
   /* USER CODE END StartTask02 */
 }

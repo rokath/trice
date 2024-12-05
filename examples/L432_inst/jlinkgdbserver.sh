@@ -8,6 +8,7 @@ JLinkGDBServer \
 -noreset \
 -RTTTelnetPort 19021 \
 
+# JLinkGDBServer \
 # -endian little \
 # -nolocalhostonly \
 # -port 3333 \

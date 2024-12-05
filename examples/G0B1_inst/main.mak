@@ -135,7 +135,7 @@ include flags.mak
 
 .PHONY: all gcc clean log version
 
-all: gcc # gcc clang
+all: clang # gcc clang
 
 clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
 	@:

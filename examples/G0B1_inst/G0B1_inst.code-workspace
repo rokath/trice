@@ -5,6 +5,10 @@
 		},
 		{
 			"path": "../exampleData"
+		},
+		{
+			"path": "../../src"
 		}
-	]
+	],
+	"settings": {}
 }

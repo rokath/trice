@@ -128,7 +128,9 @@ C_INCLUDES =  \
 -IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
 -IMiddlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F \
 -IDrivers/CMSIS/Device/ST/STM32L4xx/Include \
--IDrivers/CMSIS/Include \
+-IDrivers/CMSIS/Include
+
+C_INCLUDES += \
 -I../../src
 
 include flags.mak
@@ -153,7 +155,7 @@ include gcc1.mak
 include clang1.mak
 
 clean:
-	@-rm -fR $(GCC_BUILD) $(CLANG_BUILD)
+	@rm -fR $(GCC_BUILD) $(CLANG_BUILD)
 	
 version:
 	@which arm-none-eabi-gcc
