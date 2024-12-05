@@ -108,18 +108,19 @@ int main(void)
         if( lastMs != ms32 ){ // each ms
             lastMs = ms32;
 
+# if TRICE_DIAGNOSTICS == 1
             static uint32_t msDiag = 0;
             msDiag++;
             if(msDiag >= 3000 ){
                 msDiag = 0;
                 TriceLogDiagnosticData();
             }
-
+#endif
             static uint32_t msCheck = 0;
             msCheck++;
             if(msCheck >= 1000 ){
                 msCheck = 0; 
-                SomeExampleTrices(100);
+                SomeExampleTrices(10);
             }
 
             #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)

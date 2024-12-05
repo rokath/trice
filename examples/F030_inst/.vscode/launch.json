@@ -13,8 +13,7 @@
             "runToEntryPoint": "main",
             "servertype": "jlink",
             "device": "STM32F030R8",
-            "svdFile": "./STM32F030R8.svd",
-            "runToMain": true
+            "svdFile": "./STM32F030R8.svd"
         }
     ]
 }

@@ -2,18 +2,20 @@
 
 TD="./_test/testdata"
 
-rm -f           $TD/til.json     $TD/li.json
-touch           $TD/til.json     $TD/li.json
-trice clean  -i $TD/til.json -li $TD/li.json -src $TD -src ./examples
-rm -f           $TD/til.json     $TD/li.json
-touch           $TD/til.json     $TD/li.json
-trice insert -i $TD/til.json -li $TD/li.json              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
-trice insert -i $TD/til.json -li $TD/li.json              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c    # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c                          # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/..                                    # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/                     # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/                     # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot. 
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/                     # This is done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot.  
+rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, we delete to avoid potential ID conflict messages)
+touch           $TD/til.json     $TD/li.json # new life
+trice clean  -i $TD/til.json -li $TD/li.json -src $TD -src ./examples # wipe out all IDs from the sources
+rm -f           $TD/til.json     $TD/li.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so we delete them again.)
+touch           $TD/til.json     $TD/li.json # new life
+
+# Next steps are done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot.
+trice insert -i $TD/til.json -li $TD/li.json              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c
+trice insert -i $TD/til.json -li $TD/li.json              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/..
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/
 
 DIRS="
 ./examples/F030_inst/
@@ -23,7 +25,7 @@ DIRS="
 
 for d in $DIRS
 do
-    rm -f           $d/til.json     $d/li.json 
+    rm -f           $d/til.json     $d/li.json
     touch           $d/til.json     $d/li.json
     trice add    -i $d/til.json -li $d/li.json -src ./examples/exampleData -src $TD -src $d
 done
@@ -96,4 +98,4 @@ cd ./examples
 ./cleanAllTargets.sh
 cd - > /dev/null
 
-trice clean  -i $TD/til.json -li $TD/li.json  -src $TD/.. -src ./examples 
+trice clean  -i $TD/til.json -li $TD/li.json  -src $TD/.. -src ./examples

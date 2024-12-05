@@ -8743,113 +8743,177 @@
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
-	"16342": {
+	"16326": {
 		"Type": "trice",
 		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
 	},
-	"16343": {
+	"16327": {
 		"Type": "trice",
 		"Strg": "deb:_CYCLE == %d, _PROTECT == %d, _DIAG == %d, XTEA == %d\\n"
 	},
-	"16344": {
+	"16328": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_MULTI_PACK_MODE\\n"
 	},
-	"16345": {
+	"16329": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_SINGLE_PACK_MODE\\n"
 	},
-	"16346": {
+	"16330": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_RING_BUFFER, "
 	},
-	"16347": {
+	"16331": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_DOUBLE_BUFFER, "
 	},
-	"16348": {
+	"16332": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_STATIC_BUFFER, "
 	},
-	"16349": {
+	"16333": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_STACK_BUFFER, "
 	},
-	"16350": {
+	"16334": {
 		"Type": "trice",
 		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d\\n"
 	},
-	"16351": {
+	"16335": {
 		"Type": "Trice",
 		"Strg": "i=%x %x\\n"
 	},
-	"16352": {
+	"16336": {
 		"Type": "trice",
 		"Strg": "info:%d times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:\\n"
 	},
-	"16353": {
+	"16337": {
 		"Type": "Trice16F",
 		"Strg": "att:ARemoteFunctionName"
 	},
-	"16354": {
+	"16338": {
 		"Type": "Trice32B",
 		"Strg": "msg:%08x  \\n"
 	},
-	"16355": {
+	"16339": {
 		"Type": "Trice8B",
 		"Strg": "msg:%02x \\n"
 	},
-	"16356": {
+	"16340": {
 		"Type": "Trice",
 		"Strg": "info:A Buffer:\\n"
 	},
-	"16357": {
+	"16341": {
 		"Type": "Trice",
 		"Strg": "msg:%f (default rounded float)\\n"
 	},
-	"16358": {
+	"16342": {
 		"Type": "Trice",
 		"Strg": "msg:%.20f (float  with more ciphers than precision)\\n"
 	},
-	"16359": {
+	"16343": {
 		"Type": "Trice64",
 		"Strg": "msg:%.20f (double with more ciphers than precision)\\n"
 	},
-	"16360": {
+	"16344": {
 		"Type": "TriceS",
 		"Strg": "rd:%s \u003c- float number as string\\n"
 	},
+	"16345": {
+		"Type": "trice",
+		"Strg": "att:🐁 Speedy Gonzales l without time stamp\\n"
+	},
+	"16346": {
+		"Type": "trice",
+		"Strg": "att:🐁 Speedy Gonzales k without time stamp\\n"
+	},
+	"16347": {
+		"Type": "trice",
+		"Strg": "att:🐁 Speedy Gonzales j without time stamp\\n"
+	},
+	"16348": {
+		"Type": "trice",
+		"Strg": "att:🐁 Speedy Gonzales i without time stamp\\n"
+	},
+	"16349": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales h  16-bit time stamp\\n"
+	},
+	"16350": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales g  16-bit time stamp\\n"
+	},
+	"16351": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales f  16-bit time stamp\\n"
+	},
+	"16352": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales e  16-bit time stamp\\n"
+	},
+	"16353": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales d  32-bit time stamp\\n"
+	},
+	"16354": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales c  32-bit time stamp\\n"
+	},
+	"16355": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales b  32-bit time stamp\\n"
+	},
+	"16356": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales a  32-bit time stamp\\n"
+	},
+	"16357": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales L without time stamp\\n"
+	},
+	"16358": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales K without time stamp\\n"
+	},
+	"16359": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales J without time stamp\\n"
+	},
+	"16360": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales I without time stamp\\n"
+	},
 	"16361": {
-		"Type": "TRICE",
-		"Strg": "att:🐁 Speedy Gonzales \\n"
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales H  16-bit time stamp\\n"
 	},
 	"16362": {
-		"Type": "TRICE",
-		"Strg": "att:🐁 Speedy Gonzales \\n"
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales G  16-bit time stamp\\n"
 	},
 	"16363": {
-		"Type": "TRICE",
-		"Strg": "att:🐁 Speedy Gonzales \\n"
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales F  16-bit time stamp\\n"
 	},
 	"16364": {
-		"Type": "TRICE",
-		"Strg": "att:🐁 Speedy Gonzales \\n"
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales E  16-bit time stamp\\n"
 	},
 	"16365": {
-		"Type": "TRICE",
-		"Strg": "att:🐁 Speedy Gonzales \\n"
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales D  32-bit time stamp\\n"
 	},
 	"16366": {
-		"Type": "TRICE",
-		"Strg": "att:🐁 Speedy Gonzales \\n"
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales C  32-bit time stamp\\n"
 	},
 	"16367": {
-		"Type": "TRICE",
-		"Strg": "att:🐁 Speedy Gonzales \\n"
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales B  32-bit time stamp\\n"
 	},
 	"16368": {
-		"Type": "TRICE",
-		"Strg": "att:🐁 Speedy Gonzales \\n"
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales A  32-bit time stamp\\n"
 	},
 	"16369": {
 		"Type": "TriceS",

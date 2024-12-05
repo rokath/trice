@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../exampleData"
+		},
+		{
+			"path": "../../_test/testdata"
+		},
+		{
+			"path": "../../src"
+		}
+	],
+	"settings": {
+		"cortex-debug.variableUseNaturalFormat": false
+	}
+}

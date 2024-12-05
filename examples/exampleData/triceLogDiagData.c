@@ -1,4 +1,4 @@
-/*! \file triceLogDiagnosticData.c
+/*! \file triceLogDiagData.c
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 

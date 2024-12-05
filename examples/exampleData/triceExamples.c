@@ -12,14 +12,30 @@ void TriceHeadLine(char* name) {
 
 //! SomeExampleTrices generates a few Trice example logs and a burst of Trices.
 void SomeExampleTrices(int burstCount) {
-	TRICE(ID(0), "att:🐁 Speedy Gonzales \n");
-	TRICE(ID(0), "att:🐁 Speedy Gonzales \n");
-	TRICE(ID(0), "att:🐁 Speedy Gonzales \n");
-	TRICE(ID(0), "att:🐁 Speedy Gonzales \n");
-	TRICE(Id(0), "att:🐁 Speedy Gonzales \n");
-	TRICE(Id(0), "att:🐁 Speedy Gonzales \n");
-	TRICE(Id(0), "att:🐁 Speedy Gonzales \n");
-	TRICE(Id(0), "att:🐁 Speedy Gonzales \n");
+	TRICE32_0(ID(0), "att:🐁 Speedy Gonzales A  32-bit time stamp\n");
+	TRICE32_0(ID(0), "att:🐁 Speedy Gonzales B  32-bit time stamp\n");
+	TRICE32_0(ID(0), "att:🐁 Speedy Gonzales C  32-bit time stamp\n");
+	TRICE32_0(ID(0), "att:🐁 Speedy Gonzales D  32-bit time stamp\n");
+	TRICE32_0(Id(0), "att:🐁 Speedy Gonzales E  16-bit time stamp\n");
+	TRICE32_0(Id(0), "att:🐁 Speedy Gonzales F  16-bit time stamp\n");
+	TRICE32_0(Id(0), "att:🐁 Speedy Gonzales G  16-bit time stamp\n");
+	TRICE32_0(Id(0), "att:🐁 Speedy Gonzales H  16-bit time stamp\n");
+	TRICE32_0(id(0), "att:🐁 Speedy Gonzales I without time stamp\n");
+	TRICE32_0(id(0), "att:🐁 Speedy Gonzales J without time stamp\n");
+	TRICE32_0(id(0), "att:🐁 Speedy Gonzales K without time stamp\n");
+	TRICE32_0(id(0), "att:🐁 Speedy Gonzales L without time stamp\n");
+	TRice("att:🐁 Speedy Gonzales a  32-bit time stamp\n");
+	TRice("att:🐁 Speedy Gonzales b  32-bit time stamp\n");
+	TRice("att:🐁 Speedy Gonzales c  32-bit time stamp\n");
+	TRice("att:🐁 Speedy Gonzales d  32-bit time stamp\n");
+	Trice("att:🐁 Speedy Gonzales e  16-bit time stamp\n");
+	Trice("att:🐁 Speedy Gonzales f  16-bit time stamp\n");
+	Trice("att:🐁 Speedy Gonzales g  16-bit time stamp\n");
+	Trice("att:🐁 Speedy Gonzales h  16-bit time stamp\n");
+	trice("att:🐁 Speedy Gonzales i without time stamp\n");
+	trice("att:🐁 Speedy Gonzales j without time stamp\n");
+	trice("att:🐁 Speedy Gonzales k without time stamp\n");
+	trice("att:🐁 Speedy Gonzales l without time stamp\n");
 	char* aString = "2.71828182845904523536";
 	TriceS("rd:%s <- float number as string\n", aString);
 	Trice64("msg:%.20f (double with more ciphers than precision)\n", aDouble(2.71828182845904523536));

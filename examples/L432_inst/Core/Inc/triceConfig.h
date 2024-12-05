@@ -30,29 +30,27 @@ void SomeExampleTrices(int burstCount);
 #define CONFIGURATION 0 //!< The build script can define CONFIGURATION to select.
 #endif
 
-// #define TRICE_CHECK_MIN // TRICE_CHECK_MIN, if defined, reduces the compiled content of this file to a minimum. 
-
 #define TriceStamp16 (*DWT_CYCCNT) // @64MHz wraps after a bit more than 1ms (MCU clocks) 
 #define TriceStamp32 (*DWT_CYCCNT) // @64MHz -> 1 µs, wraps after 2^32 µs ~= 1.2 hours
 
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
 
-#define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 1
-#define TRICE_ENTER_CRITICAL_SECTION { SEGGER_RTT_LOCK() { 
-#define TRICE_LEAVE_CRITICAL_SECTION } SEGGER_RTT_UNLOCK() } 
+#define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 0
+#define TRICE_ENTER_CRITICAL_SECTION { // SEGGER_RTT_LOCK() { 
+#define TRICE_LEAVE_CRITICAL_SECTION } // SEGGER_RTT_UNLOCK() } 
 
 #if CONFIGURATION == 0 //////////////////////////////////////////////////////////////
+// trice log -p com8
 #define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
-#define TRICE_PROTECT 1
-#define TRICE_DIAGNOSTICS 1
-#define TRICE_CYCLE_COUNTER 1
-
 #define TRICE_DEFERRED_BUFFER_SIZE 4096
 
-//#define TRICE_CHECK_MIN
+#define TRICE_PROTECT 0
+#define TRICE_DIAGNOSTICS 0
+#define TRICE_CYCLE_COUNTER 0
+#define TRICE_FULL_CHECK // enable all code inside triceCheck.c
 
 #elif CONFIGURATION == 1 //////////////////////////////////////////////////////////////
 #define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );

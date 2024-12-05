@@ -88,7 +88,7 @@ Revision: $Rev: 24316 $
 // Down-channel 1: SystemView
 //
 #ifndef   SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
-  #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS           (0)     // Max. number of down-buffers (H->T) available on this target  (Default: 3)
+  #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS           (1)     // Max. number of down-buffers (H->T) available on this target  (Default: 3)
 #endif
 
 #ifndef   BUFFER_SIZE_UP

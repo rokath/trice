@@ -8737,87 +8737,151 @@
 	},
 	"16194": {
 		"File": "main.c",
-		"Line": 317
+		"Line": 318
 	},
 	"16195": {
 		"File": "main.c",
-		"Line": 344
+		"Line": 345
 	},
-	"16342": {
+	"16326": {
+		"File": "triceExamples.c",
+		"Line": 75
+	},
+	"16327": {
+		"File": "triceExamples.c",
+		"Line": 74
+	},
+	"16328": {
+		"File": "triceExamples.c",
+		"Line": 72
+	},
+	"16329": {
+		"File": "triceExamples.c",
+		"Line": 70
+	},
+	"16330": {
+		"File": "triceExamples.c",
+		"Line": 67
+	},
+	"16331": {
+		"File": "triceExamples.c",
+		"Line": 65
+	},
+	"16332": {
+		"File": "triceExamples.c",
+		"Line": 63
+	},
+	"16333": {
+		"File": "triceExamples.c",
+		"Line": 61
+	},
+	"16334": {
 		"File": "triceExamples.c",
 		"Line": 59
 	},
-	"16343": {
+	"16335": {
 		"File": "triceExamples.c",
-		"Line": 58
+		"Line": 50
 	},
-	"16344": {
+	"16336": {
 		"File": "triceExamples.c",
-		"Line": 56
+		"Line": 48
 	},
-	"16345": {
-		"File": "triceExamples.c",
-		"Line": 54
-	},
-	"16346": {
-		"File": "triceExamples.c",
-		"Line": 51
-	},
-	"16347": {
-		"File": "triceExamples.c",
-		"Line": 49
-	},
-	"16348": {
+	"16337": {
 		"File": "triceExamples.c",
 		"Line": 47
 	},
-	"16349": {
+	"16338": {
+		"File": "triceExamples.c",
+		"Line": 46
+	},
+	"16339": {
 		"File": "triceExamples.c",
 		"Line": 45
 	},
-	"16350": {
+	"16340": {
+		"File": "triceExamples.c",
+		"Line": 44
+	},
+	"16341": {
 		"File": "triceExamples.c",
 		"Line": 43
 	},
-	"16351": {
+	"16342": {
+		"File": "triceExamples.c",
+		"Line": 42
+	},
+	"16343": {
+		"File": "triceExamples.c",
+		"Line": 41
+	},
+	"16344": {
+		"File": "triceExamples.c",
+		"Line": 40
+	},
+	"16345": {
+		"File": "triceExamples.c",
+		"Line": 38
+	},
+	"16346": {
+		"File": "triceExamples.c",
+		"Line": 37
+	},
+	"16347": {
+		"File": "triceExamples.c",
+		"Line": 36
+	},
+	"16348": {
+		"File": "triceExamples.c",
+		"Line": 35
+	},
+	"16349": {
 		"File": "triceExamples.c",
 		"Line": 34
 	},
-	"16352": {
+	"16350": {
+		"File": "triceExamples.c",
+		"Line": 33
+	},
+	"16351": {
 		"File": "triceExamples.c",
 		"Line": 32
 	},
-	"16353": {
+	"16352": {
 		"File": "triceExamples.c",
 		"Line": 31
 	},
-	"16354": {
+	"16353": {
 		"File": "triceExamples.c",
 		"Line": 30
 	},
-	"16355": {
+	"16354": {
 		"File": "triceExamples.c",
 		"Line": 29
 	},
-	"16356": {
+	"16355": {
 		"File": "triceExamples.c",
 		"Line": 28
 	},
-	"16357": {
+	"16356": {
 		"File": "triceExamples.c",
 		"Line": 27
 	},
-	"16358": {
+	"16357": {
 		"File": "triceExamples.c",
 		"Line": 26
 	},
-	"16359": {
+	"16358": {
 		"File": "triceExamples.c",
 		"Line": 25
 	},
-	"16360": {
+	"16359": {
 		"File": "triceExamples.c",
 		"Line": 24
+	},
+	"16360": {
+		"File": "triceExamples.c",
+		"Line": 23
 	},
 	"16361": {
 		"File": "triceExamples.c",

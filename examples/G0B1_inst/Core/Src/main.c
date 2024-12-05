@@ -111,7 +111,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-    SomeExampleTrices(3);
+  LogTriceConfiguration();
+  SomeExampleTrices(3);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -314,18 +315,18 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   TRICE_UNUSED(argument)
-  TRice("msg:StartDefaultTask\n" );
+  TRice("msg:StartDefaultTask\n");
   /* Infinite loop */
   for(;;)
   {
 #if !TRICE_OFF
     static int i = 0;
-    if( i++ > 400 ){
+    if( i++ > 500 ){
       i = 0;
     }
     TriceCheck( i ); // this generates trice data
 #endif
-    osDelay(20);
+    osDelay(40);
   }
   /* USER CODE END 5 */
 }
@@ -356,14 +357,13 @@ void StartTask02(void const * argument)
 #endif // #if TRICE_DIAGNOSTICS == 1
 
     TriceTransfer();
-    osDelay(10);
+    osDelay(100);
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
     WatchRingBufferMargins();
 #endif // #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
 #endif // #if !TRICE_OFF
-
   }
   /* USER CODE END StartTask02 */
 }

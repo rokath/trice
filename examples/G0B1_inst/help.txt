@@ -1,0 +1,105 @@
+Usage: C:\bin\ArmGNUToolchain\bin\arm-none-eabi-objdump.exe <option(s)> <file(s)>
+ Display information from object <file(s)>.
+ At least one of the following switches must be given:
+  -a, --archive-headers    Display archive header information
+  -f, --file-headers       Display the contents of the overall file header
+  -p, --private-headers    Display object format specific file header contents
+  -P, --private=OPT,OPT... Display object format specific contents
+  -h, --[section-]headers  Display the contents of the section headers
+  -x, --all-headers        Display the contents of all headers
+  -d, --disassemble        Display assembler contents of executable sections
+  -D, --disassemble-all    Display assembler contents of all sections
+      --disassemble=<sym>  Display assembler contents from <sym>
+  -S, --source             Intermix source code with disassembly
+      --source-comment[=<txt>] Prefix lines of source code with <txt>
+  -s, --full-contents      Display the full contents of all sections requested
+  -g, --debugging          Display debug information in object file
+  -e, --debugging-tags     Display debug information using ctags style
+  -G, --stabs              Display (in raw form) any STABS info in the file
+  -W, --dwarf[a/=abbrev, A/=addr, r/=aranges, c/=cu_index, L/=decodedline,
+              f/=frames, F/=frames-interp, g/=gdb_index, i/=info, o/=loc,
+              m/=macro, p/=pubnames, t/=pubtypes, R/=Ranges, l/=rawline,
+              s/=str, O/=str-offsets, u/=trace_abbrev, T/=trace_aranges,
+              U/=trace_info]
+                           Display the contents of DWARF debug sections
+  -Wk,--dwarf=links        Display the contents of sections that link to
+                            separate debuginfo files
+  -WK,--dwarf=follow-links
+                           Follow links to separate debug info files (default)
+  -WN,--dwarf=no-follow-links
+                           Do not follow links to separate debug info files
+  -L, --process-links      Display the contents of non-debug sections in
+                            separate debuginfo files.  (Implies -WK)
+      --ctf[=SECTION]      Display CTF info from SECTION, (default `.ctf')
+      --sframe[=SECTION]   Display SFrame info from SECTION, (default '.sframe')
+  -t, --syms               Display the contents of the symbol table(s)
+  -T, --dynamic-syms       Display the contents of the dynamic symbol table
+  -r, --reloc              Display the relocation entries in the file
+  -R, --dynamic-reloc      Display the dynamic relocation entries in the file
+  @<file>                  Read options from <file>
+  -v, --version            Display this program's version number
+  -i, --info               List object formats and architectures supported
+  -H, --help               Display this information
+
+ The following switches are optional:
+  -b, --target=BFDNAME           Specify the target object format as BFDNAME
+  -m, --architecture=MACHINE     Specify the target architecture as MACHINE
+  -j, --section=NAME             Only display information for section NAME
+  -M, --disassembler-options=OPT Pass text OPT on to the disassembler
+  -EB --endian=big               Assume big endian format when disassembling
+  -EL --endian=little            Assume little endian format when disassembling
+      --file-start-context       Include context from start of file (with -S)
+  -I, --include=DIR              Add DIR to search list for source files
+  -l, --line-numbers             Include line numbers and filenames in output
+  -F, --file-offsets             Include file offsets when displaying information
+  -C, --demangle[=STYLE]         Decode mangled/processed symbol names
+                                   STYLE can be "none", "auto", "gnu-v3",
+                                   "java", "gnat", "dlang", "rust"
+      --recurse-limit            Enable a limit on recursion whilst demangling
+                                  (default)
+      --no-recurse-limit         Disable a limit on recursion whilst demangling
+  -w, --wide                     Format output for more than 80 columns
+  -U[d|l|i|x|e|h]                Controls the display of UTF-8 unicode characters
+  --unicode=[default|locale|invalid|hex|escape|highlight]
+  -z, --disassemble-zeroes       Do not skip blocks of zeroes when disassembling
+      --start-address=ADDR       Only process data whose address is >= ADDR
+      --stop-address=ADDR        Only process data whose address is < ADDR
+      --no-addresses             Do not print address alongside disassembly
+      --prefix-addresses         Print complete address alongside disassembly
+      --[no-]show-raw-insn       Display hex alongside symbolic disassembly
+      --insn-width=WIDTH         Display WIDTH bytes on a single line for -d
+      --adjust-vma=OFFSET        Add OFFSET to all displayed section addresses
+      --show-all-symbols         When disassembling, display all symbols at a given address
+      --special-syms             Include special symbols in symbol dumps
+      --inlines                  Print all inlines for source line (with -l)
+      --prefix=PREFIX            Add PREFIX to absolute paths for -S
+      --prefix-strip=LEVEL       Strip initial directory names for -S
+      --dwarf-depth=N            Do not display DIEs at depth N or greater
+      --dwarf-start=N            Display DIEs starting at offset N
+      --dwarf-check              Make additional dwarf consistency checks.
+      --ctf-parent=NAME          Use CTF archive member NAME as the CTF parent
+      --visualize-jumps          Visualize jumps by drawing ASCII art lines
+      --visualize-jumps=color    Use colors in the ASCII art
+      --visualize-jumps=extended-color
+                                 Use extended 8-bit color codes
+      --visualize-jumps=off      Disable jump visualization
+      --disassembler-color=off       Disable disassembler color output. (default)
+      --disassembler-color=terminal  Enable disassembler color output if displaying on a terminal.
+      --disassembler-color=on        Enable disassembler color output.
+      --disassembler-color=extended  Use 8-bit colors in disassembler output.
+
+C:\bin\ArmGNUToolchain\bin\arm-none-eabi-objdump.exe: supported targets: elf32-littlearm elf32-littlearm-fdpic elf32-bigarm elf32-bigarm-fdpic elf32-little elf32-big srec symbolsrec verilog tekhex binary ihex plugin
+C:\bin\ArmGNUToolchain\bin\arm-none-eabi-objdump.exe: supported architectures: arm armv2 armv2a armv3 armv3m armv4 armv4t armv5 armv5t armv5te xscale ep9312 iwmmxt iwmmxt2 armv5tej armv6 armv6kz armv6t2 armv6k armv7 armv6-m armv6s-m armv7e-m armv8-a armv8-r armv8-m.base armv8-m.main armv8.1-m.main armv9-a arm_any
+
+The following ARM specific disassembler options are supported for use with
+the -M switch:
+  reg-names-raw            Select raw register names
+  reg-names-gcc            Select register names used by GCC
+  reg-names-std            Select register names used in ARM's ISA documentation
+  force-thumb              Assume all insns are Thumb insns
+  no-force-thumb           Examine preceding label to determine an insn's type
+  reg-names-apcs           Select register names used in the APCS
+  reg-names-atpcs          Select register names used in the ATPCS
+  reg-names-special-atpcs  Select special register names used in the ATPCS
+  coproc<N>=(cde|generic)  Enable CDE extensions for coprocessor N space
+Report bugs to <https://bugs.linaro.org/>.
