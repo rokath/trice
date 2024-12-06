@@ -161,12 +161,12 @@ Table of Contents Generation:
   * 28.2. [F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off=1)
   * 28.3. [F030_inst with ring buffer](#f030_inst-with-ring-buffer)
   * 28.4. [F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
-    * 28.4.1. [A developer setting, only enabling SEGGER_RTT](#a-developer-setting,-only-enabling-segger_rtt)
-  * 28.5. [A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:)
-  * 28.6. [Settings Conclusion](#settings-conclusion)
-  * 28.7. [Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-(old-version))
-  * 28.8. [Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
-  * 28.9. [Memory Needs for Old Example 2](#memory-needs-for-old-example-2)
+  * 28.5. [A developer setting, only enabling SEGGER_RTT](#a-developer-setting,-only-enabling-segger_rtt)
+  * 28.6. [A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:)
+  * 28.7. [Settings Conclusion](#settings-conclusion)
+  * 28.8. [Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-(old-version))
+  * 28.9. [Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
+  * 28.10. [Memory Needs for Old Example 2](#memory-needs-for-old-example-2)
 * 29. [Trice Project Image Size Optimization](#trice-project-image-size-optimization)
   * 29.1. [Code Optimization -o3 or -oz (if supported)](#code-optimization--o3-or--oz-(if-supported))
   * 29.2. [Compiler Independent Setting (a bit outdated)](#compiler-independent-setting-(a-bit-outdated))
@@ -2504,7 +2504,7 @@ com5:       triceExamples.c    29    0,031_188 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,030_987 🐁 Speedy Gonzales b  32-bit time stamp
 ```
 
-#### 28.4.1. <a id='a-developer-setting,-only-enabling-segger_rtt'></a>A developer setting, only enabling SEGGER_RTT
+### 28.5. <a id='a-developer-setting,-only-enabling-segger_rtt'></a>A developer setting, only enabling SEGGER_RTT
 
 * `./build.sh`:
 
@@ -2582,7 +2582,7 @@ Dec  6 16:14:41.191648  jlink:       triceExamples.c    30    0,030_072 16355 �
 
 "🐁 Speedy Gonzales" needs about 500 MCU clocks.
 
-### 28.5. <a id='a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:'></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
+### 28.6. <a id='a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:'></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
 
 ```bash
 arm-none-eabi-size out/F030_inst.elf
@@ -2636,12 +2636,12 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 
 "🐁 Speedy Gonzales" direct outout needs about 200 MCU clocks and not 500 as before.
 
-### 28.6. <a id='settings-conclusion'></a>Settings Conclusion
+### 28.7. <a id='settings-conclusion'></a>Settings Conclusion
 
 * 4-8 KB Flash and 1.2 KB RAM needed for the Trice library.
 * Switching off diagnostics and/or protection is ok for less memory needs and faster Trice execution after getting some experience with the project.
 
-### 28.7. <a id='legacy-trice-space-example-(old-version)'></a>Legacy Trice Space Example (Old Version)
+### 28.8. <a id='legacy-trice-space-example-(old-version)'></a>Legacy Trice Space Example (Old Version)
 
 * STM32CubeMX generated empty default project: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`
 * Same project with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
@@ -2653,7 +2653,7 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 * No format strings go into the target code anymore.
 * In general Trice instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
-### 28.8. <a id='memory-needs-for-old-example-1'></a>Memory Needs for Old Example 1
+### 28.9. <a id='memory-needs-for-old-example-1'></a>Memory Needs for Old Example 1
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
@@ -2668,7 +2668,7 @@ The following numbers are measured with a legacy encoding, showing that the inst
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 * trices are removable without code changes with `#define TRICE_OFF 1` before `incude "trice.h"` on file level or generally on project level.
 
-### 28.9. <a id='memory-needs-for-old-example-2'></a>Memory Needs for Old Example 2
+### 28.10. <a id='memory-needs-for-old-example-2'></a>Memory Needs for Old Example 2
 
 | Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark                                                             |
 |--------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------|
