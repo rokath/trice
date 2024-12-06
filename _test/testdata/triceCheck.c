@@ -2585,23 +2585,23 @@ static int64_t DoubleToInt64(double f) {
 #endif
 
 //! SCOPY is a helper macro for struct serialization.
-#define SCOPY(element)                           \
-	do {                                         \
-		char* n = #element;                      \
-		int size = sizeof(src->element);         \
-		memcpy(p, &(src->element), size);        \
-		p += size;                               \
+#define SCOPY(element)                       \
+	do {                                     \
+		char* n = #element;                  \
+		int size = sizeof(src->element);     \
+		memcpy(p, &(src->element), size);    \
+		p += size;                           \
 		TRICE_S(ID(0), "rd:sizeof(%8s)", n); \
 		TRICE(ID(0), " = %d\n", size);       \
 	} while (0);
 
 //! DCOPY is a helper macro for struct deserialization.
-#define DCOPY(element)                           \
-	do {                                         \
-		char* n = #element;                      \
-		int size = sizeof(dst->element);         \
-		memcpy(&(dst->element), p, size);        \
-		p += size;                               \
+#define DCOPY(element)                       \
+	do {                                     \
+		char* n = #element;                  \
+		int size = sizeof(dst->element);     \
+		memcpy(&(dst->element), p, size);    \
+		p += size;                           \
 		TRICE_S(ID(0), "rd:sizeof(%8s)", n); \
 		TRICE(ID(0), " = %d\n", size);       \
 	} while (0);
