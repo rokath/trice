@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = F030R8
+TARGET = F030_inst
 
 
 ######################################
@@ -73,7 +73,7 @@ C_SOURCES += \
 C_SOURCES += \
 ../exampleData/triceLogDiagData.c \
 ../exampleData/triceExamples.c \
-../../_test/testdata/triceCheck.c
+#../../_test/testdata/triceCheck.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -151,8 +151,6 @@ C_INCLUDES =  \
 
 C_INCLUDES += \
 -I../../src \
--I../exampleData\triceLogDiagData.c \
--I../exampleData\triceExamples.c
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
@@ -167,7 +165,6 @@ endif
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
-#CFLAGS += -Wunused-parameter
 
 #######################################
 # LFLAGS

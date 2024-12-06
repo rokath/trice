@@ -59,10 +59,10 @@
 /* External variables --------------------------------------------------------*/
 
 /* USER CODE BEGIN EV */
-
+#if !TRICE_OFF
 // ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
 uint32_t ms32 = 0;
-
+#endif
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -130,7 +130,9 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+#if !TRICE_OFF
     ms32++;
+#endif
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */

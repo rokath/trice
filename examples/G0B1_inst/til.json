@@ -8785,7 +8785,7 @@
 	},
 	"16336": {
 		"Type": "trice",
-		"Strg": "info:%d times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:\\n"
+		"Strg": "info:%d times a 16 byte long Trice messages, which may not be written all if the buffer is too small:\\n"
 	},
 	"16337": {
 		"Type": "Trice16F",

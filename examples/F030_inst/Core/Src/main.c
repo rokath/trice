@@ -67,8 +67,9 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 #if !TRICE_OFF
-  TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
+  TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
   TriceHeadLine("  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   ");
+  LogTriceConfiguration();
 #endif
 
 
@@ -95,20 +96,22 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+#if !TRICE_OFF
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
-    SomeExampleTrices(3);
+    //SomeExampleTrices(3);
+#endif
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  #if !TRICE_OFF
+#if !TRICE_OFF
         static uint32_t lastMs = 0;
         if( lastMs != ms32 ){ // each ms
             lastMs = ms32;
 
-# if TRICE_DIAGNOSTICS == 1
+#if TRICE_DIAGNOSTICS == 1
             static uint32_t msDiag = 0;
             msDiag++;
             if(msDiag >= 3000 ){
@@ -120,21 +123,19 @@ int main(void)
             msCheck++;
             if(msCheck >= 1000 ){
                 msCheck = 0; 
-                SomeExampleTrices(10);
+                SomeExampleTrices(5);
             }
 
             #if (TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER)
 
                 static uint32_t msTransfer = 0;
                 msTransfer++;
-                if(msTransfer >= 1 ){
+                if(msTransfer >= 100 ){
                     msTransfer = 0;
                     // Serve deferred trice transfer every few ms or if TRICE_BUFFER is getting filled. With an RTOS put this in a separate task.
                     // In TRICE_RING_BUFFER && TRICE_SINGLE_PACK_MODE TriceTransfer can transmit only 1 Trice per call, so call it every 1ms then.
-                    // In TRICE_DOUBLE_BUFFER TriceTransfer can transmit one half buffer.
-                    // TRICE_RING_BUFFER && TRICE_MULTI_PACK_MODE not implemented 
+                    // In TRICE_DOUBLE_BUFFER TriceTransfer transmits one half buffer.
                     TriceTransfer(); // serve deferred output
-                    // For the ring buffer TriceTransfer transmits only one Trice per call, so doing that each ms is ok.
                 }
                 #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
                     WatchRingBufferMargins();
