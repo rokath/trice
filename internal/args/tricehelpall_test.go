@@ -260,6 +260,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -singleFraming
     	singleFraming demands, that each received package contains not more than a singe Trice message. This is the case for all direct modes or if you "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" in your triceConfig.h file. Applying this switch makes sense with COBS and TCOBS framing to improve Trice tool error recognition in received binary data. Not usable together with encryption because of the padding bytes.
+  -stat
+    	Print Trices occurances count on exit.
   -stopbits string
     	Serial port stopbit, options: 1.5, 2 (default "1")
   -suffix string

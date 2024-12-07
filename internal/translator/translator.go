@@ -83,7 +83,8 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 			if Verbose {
 				fmt.Fprintln(w, "####################################", sig, "####################################")
 			}
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
+			fmt.Fprintf(w, "\n\nStatistics:\n\n")
 			emitter.PrintTagEvents(w)
 			decoder.PrintStatistics(w)
 			msg.FatalOnErr(rc.Close())

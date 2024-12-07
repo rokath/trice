@@ -282,7 +282,7 @@ func hasTrailingNewline(s string) bool {
 
 func PrintStatistics(w io.Writer) {
 	var sum int
-	fmt.Fprintln(w, "\nStatistics:")
+	fmt.Fprintf(w, "\nDetails:\n\n")
 	fmt.Fprintln(w, `   Count |       Location Information       | Line |  ID   |    Type    |n| Format String`)
 	fmt.Fprintln(w, " ------- | -------------------------------- | ---- | ----- | ---------- |-|----------------------------------------")
 	for tid, count := range IDStat {
