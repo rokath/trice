@@ -116,9 +116,10 @@ var (
 	TargetTimestampSize             int     // TargetTimestampSize is set in dependence of trice type.
 	TargetLocationExists            bool    // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
 
-	PackageFraming string // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
-	IDBits         = 14   // IDBits holds count of bits used for ID (used at least in trexDecoder)
-	NewlineIndent  = -1   // Used for trice messages containing several newlines in format string for formatting.
+	PackageFraming string  // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
+	IDBits         = 14    // IDBits holds count of bits used for ID (used at least in trexDecoder)
+	NewlineIndent  = -1    // Used for trice messages containing several newlines in format string for formatting.
+	Statistics     = false // Keep the occured count for each Trice log when Trice is closed.
 )
 
 // New abstracts the function type for a new decoder.
@@ -253,4 +254,37 @@ func Dump(w io.Writer, b []byte) {
 		fmt.Fprintf(w, "%02x ", x)
 	}
 	fmt.Fprintln(w, "")
+}
+
+var IDStat map[id.TriceID]int
+
+func RecordForStatistics(tid id.TriceID) {
+	if !Statistics {
+		return
+	}
+	count := IDStat[tid]
+	count++
+	IDStat[tid] = count
+}
+
+var (
+	IDLUT id.TriceIDLookUp
+	LILUT id.TriceIDLookUpLI
+)
+
+func PrintStatistics(w io.Writer) {
+	var sum int
+	fmt.Fprintln(w, "   Count | Location Information | Trice | msg")
+	fmt.Fprintln(w, " ------- | -------------------- | ----- | ---")
+	for tid, count := range IDStat {
+		sum += count
+		pFmt := IDLUT[tid]
+		li := LILUT[tid]
+		fmt.Fprintf(w, "%8d | %15s%5d | %5d | %s", count, li.File, li.Line, tid, pFmt)
+		//if pFmt[len(pFmt)-1] != "\n" {
+		//	fmt.Fprintln(w, " (no newline)")
+		//}
+	}
+	fmt.Fprintln(w, " ------- | ----- | ---")
+	fmt.Fprintf(w, "%8d Trice messsges\n", sum)
 }

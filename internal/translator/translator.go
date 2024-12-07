@@ -84,6 +84,7 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 				fmt.Fprintln(w, "####################################", sig, "####################################")
 			}
 			emitter.PrintTagEvents(w)
+			decoder.PrintStatistics(w)
 			msg.FatalOnErr(rc.Close())
 			os.Exit(0) // end
 		case <-ticker.C:

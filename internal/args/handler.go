@@ -162,6 +162,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 		ilu = make(id.TriceIDLookUp)
 	} else {
 		ilu = id.NewLut(w, fSys, id.FnJSON) // lut is a map, that means a pointer
+		decoder.IDLUT = ilu
 	}
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 	m.Lock()
@@ -184,7 +185,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 			}
 		} else {
 			li = id.NewLutLI(w, fSys, id.LIFnJSON) // lut is a map, that means a pointer
-
+			decoder.LILUT = li
 			// Just in case the id location information file LIFnJSON gets updated, the file watcher updates li.
 			// This way trice needs NOT to be restarted during development process.
 			//go li.FileWatcher(w, fSys)

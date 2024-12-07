@@ -284,6 +284,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	triceType := int(tyId >> decoder.IDBits) // most significant bit are the triceType
 	triceID := id.TriceID(0x3FFF & tyId)     // 14 least significant bits are the ID
 	decoder.LastTriceID = triceID            // used for showID
+	decoder.RecordForStatistics(triceID)     // This is for the "trice log -stat" flag
 
 	switch triceType {
 	case typeS0: // no timestamp
