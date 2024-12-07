@@ -120,7 +120,12 @@ var (
 	IDBits         = 14    // IDBits holds count of bits used for ID (used at least in trexDecoder)
 	NewlineIndent  = -1    // Used for trice messages containing several newlines in format string for formatting.
 	Statistics     = false // Keep the occured count for each Trice log when Trice is closed.
+	IDStat         map[id.TriceID]int
 )
+
+func init() {
+	IDStat = make(map[id.TriceID]int)
+}
 
 // New abstracts the function type for a new decoder.
 type New func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder
@@ -256,8 +261,6 @@ func Dump(w io.Writer, b []byte) {
 	fmt.Fprintln(w, "")
 }
 
-var IDStat map[id.TriceID]int
-
 func RecordForStatistics(tid id.TriceID) {
 	if !Statistics {
 		return
@@ -272,19 +275,28 @@ var (
 	LILUT id.TriceIDLookUpLI
 )
 
+func hasTrailingNewline(s string) bool {
+	_, found := strings.CutSuffix(s, "\\n")
+	return found
+}
+
 func PrintStatistics(w io.Writer) {
 	var sum int
-	fmt.Fprintln(w, "   Count | Location Information | Trice | msg")
-	fmt.Fprintln(w, " ------- | -------------------- | ----- | ---")
+	fmt.Fprintln(w, "\nStatistics:")
+	fmt.Fprintln(w, `   Count |       Location Information       | Line |  ID   |    Type    |n| Format String`)
+	fmt.Fprintln(w, " ------- | -------------------------------- | ---- | ----- | ---------- |-|----------------------------------------")
 	for tid, count := range IDStat {
 		sum += count
-		pFmt := IDLUT[tid]
+		trice := IDLUT[tid]
 		li := LILUT[tid]
-		fmt.Fprintf(w, "%8d | %15s%5d | %5d | %s", count, li.File, li.Line, tid, pFmt)
-		//if pFmt[len(pFmt)-1] != "\n" {
-		//	fmt.Fprintln(w, " (no newline)")
-		//}
+		var found bool
+		trice.Strg, found = strings.CutSuffix(trice.Strg, `\n`)
+		newline := ` `
+		if !found {
+			newline = `0`
+		}
+		fmt.Fprintf(w, "%8d | %32s |%5d | %5d | %10s |%s| %s\n", count, li.File, li.Line, tid, trice.Type, newline, trice.Strg)
 	}
-	fmt.Fprintln(w, " ------- | ----- | ---")
+	fmt.Fprintln(w, " -------------------------------------------------------------------------------------------------------------")
 	fmt.Fprintf(w, "%8d Trice messsges\n", sum)
 }
