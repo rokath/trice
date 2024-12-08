@@ -44,6 +44,7 @@ func FlagsInit() {
 	helpInit()
 	logInit()
 	addInit()
+	generateInit()
 	insertIDsInit()
 	cleanIDsInit()
 	versionInit()
@@ -61,6 +62,9 @@ func helpInit() {
 	fsScHelp.BoolVar(&helpHelp, "h", false, "Show h|help specific help.")
 	fsScHelp.BoolVar(&logHelp, "log", false, "Show l|log specific help.")
 	fsScHelp.BoolVar(&logHelp, "l", false, "Show l|log specific help.")
+	fsScHelp.BoolVar(&generateHelp, "g", false, "Show g|gen|generate specific help.")
+	fsScHelp.BoolVar(&generateHelp, "gen", false, "Show g|gen|generate specific help.")
+	fsScHelp.BoolVar(&generateHelp, "generate", false, "Show g|gen|generate specific help.")
 	fsScHelp.BoolVar(&addHelp, "add", false, "Show a|add specific help.")
 	fsScHelp.BoolVar(&addHelp, "a", false, "Show a|add specific help.")
 	fsScHelp.BoolVar(&scanHelp, "scan", false, "Show s|scan specific help.")
@@ -182,6 +186,17 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 func addInit() {
 	fsScAdd = flag.NewFlagSet("add", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScAdd)
+}
+
+func generateInit() {
+	fsScGenerate = flag.NewFlagSet("generate", flag.ExitOnError) // sub-command
+	flagIDList(fsScGenerate)
+	flagVerbosity(fsScGenerate)
+	fsScGenerate.BoolVar(&id.GenerateHFile, "h", false, `Create a til.h file.`)
+	fsScGenerate.BoolVar(&id.GenerateCFile, "c", false, `Create a til.c file.`)
+	fsScGenerate.BoolVar(&id.GenerateCSFile, "cs", false, `Create a til.cs file.`)
+	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
+	fsScGenerate.BoolVar(&id.IDToFunctionPointerList, "fpl", false, `Write ID to function pointer list.`)
 }
 
 func insertIDsInit() {
@@ -309,8 +324,6 @@ func flagIDList(p *flag.FlagSet) {
 The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
 `) // flag
 	p.StringVar(&id.FnJSON, "til", id.FnJSON, `Short for '-idlist'.
-`) // flag
-	p.StringVar(&id.FnJSON, "idList", id.FnJSON, `Alternate for '-idlist'.
 `) // flag
 	p.StringVar(&id.FnJSON, "i", id.FnJSON, `Short for '-idlist'.
 `) // flag

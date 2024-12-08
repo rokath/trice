@@ -25,6 +25,7 @@ func scHelp(w io.Writer) error {
 		{allHelp || helpHelp, helpInfo},
 		{allHelp || logHelp, logInfo},
 		{allHelp || addHelp, addInfo},
+		{allHelp || generateHelp, generateInfo},
 		{allHelp || scanHelp, scanInfo},
 		{allHelp || shutdownHelp, shutdownInfo},
 		{allHelp || versionHelp, versionInfo},
@@ -144,5 +145,12 @@ func addInfo(w io.Writer) error {
 #	Example: 'trice add': Update ID list from source tree.`)
 	fsScAdd.SetOutput(w)
 	fsScAdd.PrintDefaults()
+	return e
+}
+
+func generateInfo(w io.Writer) error {
+	_, e := fmt.Fprintln(w, `sub-command 'g|gen|generate': Use for creating colors or support files.`)
+	fsScGenerate.SetOutput(w)
+	fsScGenerate.PrintDefaults()
 	return e
 }

@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-// SubCmdAddToList etends the trice id list by parsing the source tree without changing any source file.
+// SubCmdAddToList extends the trice id list by parsing the source tree without changing any source file.
 // It only reads FnJSON and tries to add id:tf pairs from the source tree.
 // If equal tf are found with different ids they are all added.
 // If the same id is found with different tf only one is added. The others are reported as warning.

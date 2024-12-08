@@ -25,6 +25,9 @@ var (
 	// fsScAdd is flag set for sub command 'add' for updating ID list without touching the sources.
 	fsScAdd *flag.FlagSet
 
+	// fsScGenerate is flag set for sub command 'generate' for creating support files without touching the sources.
+	fsScGenerate *flag.FlagSet
+
 	// fsScUpdate is flag set for sub command 'update' for updating ID list.
 	//fsScUpdate *flag.FlagSet
 
@@ -57,6 +60,7 @@ var (
 	helpHelp          bool // flag for partial help
 	logHelp           bool // flag for partial help
 	addHelp           bool // flag for partial help
+	generateHelp      bool // flag for partial help
 	scanHelp          bool // flag for partial help
 	shutdownHelp      bool // flag for partial help
 	insertIDsHelp     bool // flag for partial help
