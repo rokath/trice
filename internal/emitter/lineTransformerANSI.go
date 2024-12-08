@@ -259,6 +259,53 @@ func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 	return r, true
 }
 
+// colorize prefixes s with an ansi color code according to these conditions:
+// If p.colorPalette is "off", do nothing.
+// If p.colorPalette is "none" remove only lower case channel info "col:"
+// If "COL:" is start of string add ANSI color code according to COL:
+// If "col:" is start of string replace "col:" with ANSI color code according to col:
+// Additionally, if global variable LogLevel is not the default "all", but found inside
+// ColorChannels, logs with higher index positions are suppressed.
+// As special case LogLevel == "off" does not output anything.
+func Colorize(s string) (r string) {
+	if LogLevel == "off" {
+		return // do not log at all, return empty string
+	}
+
+	r = s
+	sc := strings.SplitN(s, ":", 2)
+	if len(sc) < 2 { // no color separator (no log level)
+		return r // do nothing, return unchanged string
+	}
+	for i, cc := range Tags {
+		for _, c := range cc.Names {
+			if c == sc[0] {
+				Tags[i].count++ // count event
+			}
+			if c == LogLevel {
+			}
+		}
+	}
+
+	if ColorPalette == "off" {
+		return r // do nothing (despite event counting)
+	}
+	if isTag(sc[0]) && isLower(sc[0]) {
+		r = sc[1] // remove channel info
+	}
+	if ColorPalette == "none" {
+		return r
+	}
+	for _, cs := range Tags {
+		for _, c := range cs.Names {
+			if c == sc[0] {
+				return cs.colorize(r)
+			}
+		}
+	}
+	return r
+}
+
 // WriteLine consumes a full line, translates it and writes it to the internal Linewriter.
 // It adds ANSI color Codes and replaces col: channel information.
 // It treats each sub string separately and a color reset code at the end.
