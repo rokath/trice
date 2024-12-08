@@ -1,6 +1,7 @@
 /*! \file triceConfig.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
+
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
 
@@ -16,16 +17,12 @@ extern "C" {
 #define TriceStamp16 TIM17->CNT     // 0...999 us
 #define TriceStamp32 HAL_GetTick()  // 0...2^32-1 ms (wraps after 49.7 days)
 
-#define TRICE_CYCLE_COUNTER 1
-#define TRICE_PROTECT 1
-#define TRICE_DIAGNOSTICS 1
-
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
-#define TRICE_DEFERRED_BUFFER_SIZE 4096
+#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_DEFERRED_BUFFER_SIZE 2000
 
 // trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none  -d16 -ts ms
-#define TRICE_DIRECT_OUTPUT 1
-#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
+//#define TRICE_DIRECT_OUTPUT 1
+//#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 // trice log -p com7 -pw MySecret -pf COBS
 #define TRICE_DEFERRED_OUTPUT 1
@@ -41,6 +38,8 @@ extern "C" {
 void TriceHeadLine(char* name);
 void LogTriceConfiguration(void);
 void SomeExampleTrices(int burstCount);
+
+#define TRICE_FULL_CHECK
 
 #ifdef __cplusplus
 }

@@ -70,9 +70,8 @@ int main(void)
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
   TriceHeadLine("  𝕹𝖀𝕮𝕷𝕰𝕺-F030R8   ");
   LogTriceConfiguration();
+  SomeExampleTrices(3);
 #endif
-
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,7 +97,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 #if !TRICE_OFF
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
-    //SomeExampleTrices(3);
 #endif
   /* USER CODE END 2 */
 

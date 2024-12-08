@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 )
 
@@ -116,11 +117,11 @@ var (
 	TargetTimestampSize             int     // TargetTimestampSize is set in dependence of trice type.
 	TargetLocationExists            bool    // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
 
-	PackageFraming string  // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
-	IDBits         = 14    // IDBits holds count of bits used for ID (used at least in trexDecoder)
-	NewlineIndent  = -1    // Used for trice messages containing several newlines in format string for formatting.
-	Statistics     = false // Keep the occured count for each Trice log when Trice is closed.
-	IDStat         map[id.TriceID]int
+	PackageFraming  string // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
+	IDBits          = 14   // IDBits holds count of bits used for ID (used at least in trexDecoder)
+	NewlineIndent   = -1   // Used for trice messages containing several newlines in format string for formatting.
+	TriceStatistics bool   // Keep the occured count for each Trice log when Trice is closed.
+	IDStat          map[id.TriceID]int
 )
 
 func init() {
@@ -262,7 +263,7 @@ func Dump(w io.Writer, b []byte) {
 }
 
 func RecordForStatistics(tid id.TriceID) {
-	if !Statistics {
+	if !TriceStatistics && !emitter.AllStatistics {
 		return
 	}
 	count := IDStat[tid]
@@ -275,14 +276,12 @@ var (
 	LILUT id.TriceIDLookUpLI
 )
 
-func hasTrailingNewline(s string) bool {
-	_, found := strings.CutSuffix(s, "\\n")
-	return found
-}
-
-func PrintStatistics(w io.Writer) {
+func PrintTriceStatistics(w io.Writer) {
+	if !TriceStatistics && !emitter.AllStatistics {
+		return
+	}
 	var sum int
-	fmt.Fprintf(w, "\nDetails:\n\n")
+	fmt.Fprintf(w, "\nTrice Statistics:                  (n: Trice ends with no newline, if 0 ↴)\n\n")
 	fmt.Fprintln(w, `   Count |       Location Information       | Line |  ID   |    Type    |n| Format String`)
 	fmt.Fprintln(w, " ------- | -------------------------------- | ---- | ----- | ---------- |-|----------------------------------------")
 	for tid, count := range IDStat {
@@ -297,6 +296,6 @@ func PrintStatistics(w io.Writer) {
 		}
 		fmt.Fprintf(w, "%8d | %32s |%5d | %5d | %10s |%s| %s\n", count, li.File, li.Line, tid, trice.Type, newline, trice.Strg)
 	}
-	fmt.Fprintln(w, " -------------------------------------------------------------------------------------------------------------")
+	fmt.Fprintln(w, " ------------------------------------------------------------------------------------------------------------------")
 	fmt.Fprintf(w, "%8d Trice messsges\n", sum)
 }

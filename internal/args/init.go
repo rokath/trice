@@ -174,7 +174,9 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
 	fsScLog.BoolVar(&trexDecoder.AddNewlineToEachTriceMessage, "addNL", false, `Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.`)
-	fsScLog.BoolVar(&decoder.Statistics, "stat", false, `Print Trices occurances count on exit.`)
+	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print Trices occurances count on exit.`)
+	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print Trices occurances count on exit.`)
+	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print complete statistics on exit.`)
 }
 
 func addInit() {

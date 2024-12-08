@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../../src"
+		},
+		{
+			"path": "../../_test/testdata"
 		}
 	],
 	"settings": {}

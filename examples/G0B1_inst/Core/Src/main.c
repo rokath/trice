@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
+#include <limits.h> // INT_MAX
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,13 +57,6 @@ static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
 
-#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
-
-void TriceInitRingBufferMargins(void);
-void WatchRingBufferMargins(void);
-
-#endif
-
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -86,8 +80,10 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 #if !TRICE_OFF
-  TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning.
+  TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
   TriceHeadLine("  NUCLEO-G0B1RE   ");
+  LogTriceConfiguration();
+  SomeExampleTrices(3);
 #endif
   /* USER CODE END 1 */
 
@@ -111,8 +107,6 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  LogTriceConfiguration();
-  SomeExampleTrices(3);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -321,7 +315,7 @@ void StartDefaultTask(void const * argument)
   {
 #if !TRICE_OFF
     static int i = 0;
-    if( i++ > 500 ){
+    if( i++ > 2500 ){
       i = 0;
     }
     TriceCheck( i ); // this generates trice data
@@ -349,8 +343,8 @@ void StartTask02(void const * argument)
 #if !TRICE_OFF
 
 #if TRICE_DIAGNOSTICS == 1
-    static int i = 100;
-    if( ++i >= 100 ){
+    static int i = INT_MAX;
+    if( i++ > 100 ){
       i = 0;
       TriceLogDiagnosticData();
     }

@@ -86,6 +86,9 @@ var (
 	colorizeALARM   = ansi.ColorFunc("red+i:white+h")
 	colorizeCYCLE   = ansi.ColorFunc("magenta+i:yellow+h")
 	colorizeVERBOSE = ansi.ColorFunc("blue:default")
+
+	AllStatistics bool // Keep the complete statistics when Trice is closed.
+	TagStatistics bool // Print the occured count for each Trice log when Trice is closed.
 )
 
 func isLower(s string) bool {
@@ -162,8 +165,12 @@ func TagEvents(ch string) int {
 	return -1
 }
 
-// PrintTagEvents shows the amount of occurred channel events.
-func PrintTagEvents(w io.Writer) {
+// PrintTagStatistics shows the amount of occurred tag events.
+func PrintTagStatistics(w io.Writer) {
+	if !TagStatistics && !AllStatistics {
+		return
+	}
+	fmt.Fprintf(w, "\nTag Statistics:\n\n")
 	for _, s := range Tags {
 		if s.count != 0 {
 			fmt.Fprintf(w, "%6d times: ", s.count)

@@ -199,6 +199,13 @@ extern int TriceRingBufferDepthMax;
 
 #endif
 
+#if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
+
+void TriceInitRingBufferMargins(void);
+void WatchRingBufferMargins(void);
+
+#endif
+
 #endif // #if (TRICE_BUFFER == TRICE_RING_BUFFER)
 
 #if (TRICE_DIAGNOSTICS == 1)
