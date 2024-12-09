@@ -12,7 +12,6 @@ import (
 	"io"
 	"log"
 	"math/rand"
-	"path/filepath"
 	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -268,10 +267,6 @@ func (lim TriceIDLookUpLI) toFile(fSys afero.Fs, fn string) (err error) {
 // toJSON converts lim into JSON byte slice in human-readable form.
 func (lim TriceIDLookUpLI) toJSON() ([]byte, error) {
 	return json.MarshalIndent(lim, "", "\t")
-}
-
-func fileNameWithoutSuffix(fileName string) string {
-	return fileName[:len(fileName)-len(filepath.Ext(fileName))]
 }
 
 // distance returns 80 - len(s) spaces as string

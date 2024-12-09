@@ -60,6 +60,8 @@ sub-command 'h|help': For command line usage.
     	Show ds|displayserver specific help.
   -ds
     	Show ds|displayserver specific help.
+  -generate
+    	Show generate specific help.
   -h	Show h|help specific help.
   -help
     	Show h|help specific help.
@@ -177,9 +179,6 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
-  -idList string
-    	Alternate for '-idlist'.
-    	 (default "til.json")
   -idlist string
     	The trice ID list file.
     	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
@@ -261,11 +260,13 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -singleFraming
     	singleFraming demands, that each received package contains not more than a singe Trice message. This is the case for all direct modes or if you "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" in your triceConfig.h file. Applying this switch makes sense with COBS and TCOBS framing to improve Trice tool error recognition in received binary data. Not usable together with encryption because of the padding bytes.
   -stat
-    	Print Trices occurances count on exit.
+    	Print complete statistics on exit.
   -stopbits string
     	Serial port stopbit, options: 1.5, 2 (default "1")
   -suffix string
     	Append suffix to all lines, options: any string.
+  -tagStat
+    	Print Trices occurances count on exit.
   -tcp string
     	TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".
   -testTable
@@ -275,6 +276,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	 (default "til.json")
   -triceEndianness string
     	Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
+  -triceStat
+    	Print Trices occurances count on exit.
   -ts string
     	Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" or 'off' or 'none' to suppress existing target timestamps. Sets ts0, ts16, ts32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "µs")
   -ts0 string
@@ -306,9 +309,6 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -i string
     	Short for '-idlist'.
-    	 (default "til.json")
-  -idList string
-    	Alternate for '-idlist'.
     	 (default "til.json")
   -idlist string
     	The trice ID list file.
@@ -344,6 +344,30 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	source code files inside directory ./_test and scan also file trice.h inside pkg/src directory. 
     	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
     	 (default "./")
+  -til string
+    	Short for '-idlist'.
+    	 (default "til.json")
+  -v	short for verbose
+  -verbose
+    	Gives more informal output if used. Can be helpful during setup.
+    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+sub-command 'g|gen|generate': Use for creating colors or support files.
+  -c	Create a til.c file.
+  -colors
+    	Write all possible colors.
+  -cs
+    	Create a til.cs file.
+  -fpl
+    	Write ID to function pointer list.
+  -h	Create a til.h file.
+  -i string
+    	Short for '-idlist'.
+    	 (default "til.json")
+  -idlist string
+    	The trice ID list file.
+    	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
+    	 (default "til.json")
   -til string
     	Short for '-idlist'.
     	 (default "til.json")
@@ -423,9 +447,6 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
-  -idList string
-    	Alternate for '-idlist'.
-    	 (default "til.json")
   -idlist string
     	The trice ID list file.
     	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
@@ -488,9 +509,6 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -i string
     	Short for '-idlist'.
-    	 (default "til.json")
-  -idList string
-    	Alternate for '-idlist'.
     	 (default "til.json")
   -idlist string
     	The trice ID list file.

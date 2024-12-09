@@ -40,7 +40,7 @@ func TestNoArgs(t *testing.T) {
 }
 
 func TestComX(t *testing.T) {
-	args := []string{"trice", "log", "-p", "COMX", "-idList", "emptyFile"}
+	args := []string{"trice", "log", "-p", "COMX", "-idlist", "emptyFile"}
 	expect := `can not open COMX
 `
 	execHelper(t, args, expect)

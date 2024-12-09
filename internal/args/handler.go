@@ -85,7 +85,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		id.CompactSrcs()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
-	case "g", "gen", "generate":
+	case "generate":
 		msg.OnErr(fsScGenerate.Parse(subArgs))
 		id.CompactSrcs()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)

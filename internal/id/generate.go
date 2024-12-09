@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strings"
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/pkg/msg"
@@ -25,15 +26,35 @@ var (
 )
 
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
-func SubCmdGenerate(w io.Writer, fSys *afero.Afero) error {
+func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
+
+	ilu := NewLut(w, fSys, FnJSON) // read til.json
+	ilu.AddFmtCount(w)
+
+	fn := strings.TrimSuffix(FnJSON, filepath.Ext(FnJSON))
+	msg.FatalOnErr(err)
+
 	if GenerateHFile {
-		fmt.Fprintln(w, `CLI "-h" not implemented yet`)
+		fnH := fn + ".h"
+		msg.FatalOnErr(ToFileCHeader(fSys, fnH))
+		if Verbose {
+			fmt.Fprintln(w, "generated", fnH)
+		}
 	}
+
 	if GenerateCFile {
-		fmt.Fprintln(w, `CLI "-c" not implemented yet`)
+		fnC := fn + ".c"
+		msg.FatalOnErr(ilu.ToFileLangC(fSys, fnC))
+		if Verbose {
+			fmt.Fprintln(w, "generated", fnC)
+		}
 	}
 	if GenerateCSFile {
-		fmt.Fprintln(w, `CLI "-cs" not implemented yet`)
+		fnCS := fn + ".cs"
+		msg.FatalOnErr(ilu.ToFileCSharp(fSys, fnCS))
+		if Verbose {
+			fmt.Fprintln(w, "generated", fnCS)
+		}
 	}
 	if IDToFunctionPointerList {
 		fmt.Fprintln(w, `CLI "-fpl" not implemented yet`)
@@ -46,76 +67,61 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) error {
 	return nil
 }
 
-// ToFileLangC generates lang:C helpers for a third party tool.
-func (ilu TriceIDLookUp) ToFileLangC(fSys afero.Fs, fn string) (err error) {
-	var fC, fH, fCS afero.File
-	fnC := fn + ".c"
-	fC, err = fSys.Create(fnC)
-	msg.FatalOnErr(err)
-	fnH := fn + ".h"
-	fH, err = fSys.Create(fnH)
+// ToFileCHeader generates lang:C header file.
+func ToFileCHeader(fSys afero.Fs, fn string) (err error) {
+	fh, err := fSys.Create(fn)
 	msg.FatalOnErr(err)
 	defer func() {
-		err = fC.Close()
-		msg.FatalOnErr(err)
-		err = fH.Close()
-		msg.FatalOnErr(err)
-		err = fCS.Close()
+		err = fh.Close()
 		msg.FatalOnErr(err)
 	}()
 
-	c, e := ilu.toCFmtList(fnC)
-	_, err = fC.Write(c)
-	msg.FatalOnErr(e)
+	h := []byte(`//! \file ` + fn + `
+//! ///////////////////////////////////////////////////////////////////////////
 
-	h := []byte(`//! \file ` + fnH + `
-		//! ///////////////////////////////////////////////////////////////////////////
+//! With Trice generated code - do not edit!
 
-		//! generated code - do not edit!
+#include <stdint.h>
 
-		#include <stdint.h>
+typedef struct{
+char* formatString;
+uint16_t id;
+int16_t dataLength;
+uint8_t bitWidth;
+} triceFormatStringList_t;
 
-		typedef struct{
-		char* formatString;
-		uint16_t id;
-		int16_t dataLength;
-		uint8_t bitWidth;
-		} triceFormatStringList_t;
-
-		extern const triceFormatStringList_t triceFormatStringList[];
-		extern const unsigned triceFormatStringListElements;
-
-		`)
-	_, e = fH.Write(h)
-	msg.FatalOnErr(e)
+extern const triceFormatStringList_t triceFormatStringList[];
+extern const unsigned triceFormatStringListElements;
+`)
+	_, err = fh.Write(h)
+	msg.FatalOnErr(err)
 	return
 }
 
-// ToFileCSharp generates C# helpers for a third party tool.
-func (ilu TriceIDLookUp) ToFileCSharp(fSys afero.Fs, fn string) (err error) {
-	var fCS afero.File
-
-	fnCS := fn + ".cs"
-	fCS, err = fSys.Create(fnCS)
+// ToFileLangC generates lang:C helpers for a third party tool.
+func (ilu TriceIDLookUp) ToFileLangC(fSys afero.Fs, fn string) (err error) {
+	fh, err := fSys.Create(fn)
 	msg.FatalOnErr(err)
+
 	defer func() {
-		err = fCS.Close()
+		err = fh.Close()
 		msg.FatalOnErr(err)
 	}()
 
-	cs, e := ilu.toCSFmtList(fnCS)
-	_, err = fCS.Write(cs)
-	msg.FatalOnErr(e)
+	c, err := ilu.toCFmtList(fn)
+	msg.FatalOnErr(err)
+	_, err = fh.Write(c)
+	msg.FatalOnErr(err)
 	return
 }
 
 // toCFmtList converts lim into C-source byte slice in human-readable form.
-func (ilu TriceIDLookUp) toCFmtList(fileName string) ([]byte, error) {
-	fileNameBody := fileNameWithoutSuffix(filepath.Base(fileName))
-	c := []byte(`//! \file ` + fileNameBody + `.c
+func (ilu TriceIDLookUp) toCFmtList(filename string) ([]byte, error) {
+	fileNameBody := strings.TrimSuffix(filename, filepath.Ext(filename))
+	c := []byte(`//! \file ` + filename + `
 //! ///////////////////////////////////////////////////////////////////////////
 
-//! generated code - do not edit!
+//! Trice generated code - do not edit!
 
 #include "` + fileNameBody + `.h"
 
@@ -220,9 +226,26 @@ const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / s
 	return c, nil
 }
 
+// ToFileCSharp generates C# helpers for a third party tool.
+func (ilu TriceIDLookUp) ToFileCSharp(fSys afero.Fs, fn string) (err error) {
+	fh, err := fSys.Create(fn)
+	msg.FatalOnErr(err)
+	defer func() {
+		err = fh.Close()
+		msg.FatalOnErr(err)
+	}()
+
+	cs, e := ilu.toCSFmtList(fn)
+	_, err = fh.Write(cs)
+	msg.FatalOnErr(e)
+	return
+}
+
 // toCSFmtList converts ilu into CS-source byte slice in human-readable form.
-func (ilu TriceIDLookUp) toCSFmtList(fileName string) ([]byte, error) {
-	c := []byte(`// generated code - do not edit!
+func (ilu TriceIDLookUp) toCSFmtList(filename string) ([]byte, error) {
+	c := []byte(`//! \file ` + filename + ` 
+
+// Trice generated code - do not edit!
 
 // There is still a need to exchange the format specifier from C to C#.
 // See https://stackoverflow.com/questions/33432341/how-to-use-c-language-format-specifiers-in-c-sharp
