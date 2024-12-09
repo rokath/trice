@@ -232,7 +232,6 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 func scVersion(w io.Writer) error {
 	if Verbose {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
-		emitter.ShowAllColors()
 	}
 	if Version == "" {
 		fmt.Fprintf(w, "version=devel, built %s\n", Date)
