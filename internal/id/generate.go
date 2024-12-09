@@ -28,9 +28,19 @@ var (
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
 func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 
+	if WriteAllColors {
+		emitter.ShowAllColors()
+		if Verbose {
+			fmt.Fprintln(w, `Modify ansi.ColorFunc assignments in lineTransformerANSI.go to change Trice colors.`)
+		}
+	}
+
+	if !GenerateHFile && !GenerateCFile && !GenerateCSFile && !IDToFunctionPointerList {
+		return nil
+	}
+
 	ilu := NewLut(w, fSys, FnJSON) // read til.json
 	ilu.AddFmtCount(w)
-
 	fn := strings.TrimSuffix(FnJSON, filepath.Ext(FnJSON))
 	msg.FatalOnErr(err)
 
@@ -49,6 +59,7 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 			fmt.Fprintln(w, "generated", fnC)
 		}
 	}
+
 	if GenerateCSFile {
 		fnCS := fn + ".cs"
 		msg.FatalOnErr(ilu.ToFileCSharp(fSys, fnCS))
@@ -56,14 +67,11 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 			fmt.Fprintln(w, "generated", fnCS)
 		}
 	}
+
 	if IDToFunctionPointerList {
 		fmt.Fprintln(w, `CLI "-fpl" not implemented yet`)
 	}
-	if WriteAllColors {
-		emitter.ShowAllColors()
-		fmt.Fprintln(w, `Modify ansi.ColorFunc assignments in lineTransformerANSI.go to change Trice colors.`)
 
-	}
 	return nil
 }
 

@@ -266,7 +266,12 @@ Table of Contents Generation:
   * 36.3. [Nucleo-L432KC Examples](#nucleo-l432kc-examples)
     * 36.3.1. [L432_bare](#l432_bare)
     * 36.3.2. [L432_inst](#l432_inst)
-* 37. [Trice User Manual Changelog](#trice-user-manual-changelog)
+* 37. [Trice Generate](#trice-generate)
+  * 37.1. [Colors](#colors)
+  * 37.2. [C-Code](#c-code)
+  * 37.3. [C#-Code](#c#-code)
+  * 37.4. [Generating a Function Pointer List](#generating-a-function-pointer-list)
+* 38. [Trice User Manual Changelog](#trice-user-manual-changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -2778,7 +2783,7 @@ There are over 1000 possibilities:
 
 ![./ref/ColorAlternatives.PNG](./ref/ColorAlternatives.PNG)
 
-Only file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) needs to be changed and the Trice tool needs to be rebuild afterwards: `go install ./...`.
+To see them all run `trice generate -color`. Only file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) needs to be changed and the Trice tool needs to be rebuild afterwards: `go install ./...`. If you design a good looking flavour, feel free to propose it. 
 
 ### 30.2. <a id='color-issues-under-windows'></a>Color issues under Windows
 
@@ -4247,7 +4252,96 @@ Receive signal 0. Exiting...
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## 37. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
+## 37. <a id='trice-generate'></a>Trice Generate
+
+### 37.1. <a id='colors'></a>Colors
+
+Support for finding a color style:
+
+![generateColors.PNG](./ref/generateColors.png)
+
+See [Check Alternatives](#check-alternatives) chapter.
+
+### 37.2. <a id='c-code'></a>C-Code
+
+If you intend to get the `trice log` functionality full or partially as a `tlog` C-Source and do not wish to parse the _til.json_ file, you can run `trice generate -h -c` to create a C-file with header as starting point. That could be interesting for compiling the log functionality into a small separate microcontroller baoard.
+
+```C
+//! \file til.c
+//! ///////////////////////////////////////////////////////////////////////////
+
+//! Trice generated code - do not edit!
+
+#include "til.h"
+
+//! triceFormatStringList contains all trice format strings together with id and parameter information.
+const triceFormatStringList_t triceFormatStringList[] = {
+    // format-string,                                                                     id, dataLength, bitWidth,
+    { "rd:trice64 double %f (%%f), aDouble(y)\n",                                        15926,   8, 64 },
+    { "isr:SysTick is %6d\n",                                                            14103,   2, 16 },
+    { "sig:triceN=%s\n",                                                                 14249,  -2,  8 },
+    { "tst: %d %d %d %d %d %d %d %d %d %d %d\n",                                         15770,  11,  8 },
+    { "msg:value=%u\n",                                                                  14455,   4, 32 },
+    { "msg:%s\n",                                                                        15982,  -2,  8 },
+...
+    { "w: Hello! 👋🙂 \a\n",                                                            16150,   0, 64 },
+    { "tst:TRICE8_5  %d %d %d %d %d\n",                                                  15764,   5,  8 },
+};
+
+//! triceFormatStringListElements holds the compile time computed count of list elements.
+const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / sizeof(triceFormatStringList_t);
+
+```
+
+### 37.3. <a id='c#-code'></a>C#-Code
+
+With `trice generate -cs` a starting point for a C-Sharp application is generated:
+
+```cs
+//! \file til.cs 
+
+// Trice generated code - do not edit!
+
+// There is still a need to exchange the format specifier from C to C#.
+// See https://stackoverflow.com/questions/33432341/how-to-use-c-language-format-specifiers-in-c-sharp
+// and https://www.codeproject.com/Articles/19274/A-printf-implementation-in-C for possible help.
+
+namespace TriceIDList;
+
+    public class TilItem
+    {
+        public TilItem(string strg, int bitWidth, int size)
+        {
+            Strg = strg;
+            BitWidth = bitWidth;
+            Size = size;
+        }
+
+        public string Strg { get; init; }
+        public int BitWidth { get; init; }
+        public int Size { get; init; }
+    }
+
+    public static class Til
+    {
+        public static readonly Dictionary<int, TilItem> TilList= new Dictionary<int, TilItem>
+        { // id, TilItem ( Strg, bitWidth, dataLength )
+        { 16078, new TilItem( "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", 16, 22 ) },
+        { 14661, new TilItem( "default:off\n", 32, 0 ) },
+        { 15912, new TilItem( "rd:TRICE64_1 double %e (%%e), aDouble(y)\n", 64, 8 ) },
+...
+        { 15504, new TilItem( "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", 64, 56 ) },
+    };
+}
+```
+
+### 37.4. <a id='generating-a-function-pointer-list'></a>Generating a Function Pointer List
+
+When several embedded devices are going to communicate, `trice generate -fpl` could be helpful.
+
+(not implemented yet.)
+
+## 38. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
 <details><summary>Details (click to expand)</summary><ol>
 
