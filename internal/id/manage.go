@@ -197,7 +197,7 @@ func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
 // `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16_2 hi %03u, %5x}]
 func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 	for i, x := range ilu {
-		if strings.ContainsAny(x.Type, "0_") {
+		if strings.ContainsAny(x.Type, "_0") {
 			continue
 		}
 		n := formatSpecifierCount(x.Strg)
