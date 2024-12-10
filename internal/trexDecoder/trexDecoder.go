@@ -461,6 +461,27 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	return
 }
 
+// constructFullTriceInfo returns full TRICE info, if not exist in triceType string
+func constructFullTriceInfo(triceType string, paramCount int) string {
+	origType := triceType
+	for _, name := range []string{"TRICE", "TRice", "Trice", "trice"} {
+		if strings.HasPrefix(origType, name+"_") { // when no bit width, insert it
+			triceType = name + id.DefaultTriceBitWidth + "_" + origType[6:]
+		}
+		if origType == name { // when plain trice name
+			if paramCount == 0 { // no parameters
+				triceType = name + "0" // special case
+			} else { // append bit width and count
+				triceType = fmt.Sprintf(name+id.DefaultTriceBitWidth+"_%d", paramCount)
+			}
+		}
+		if origType == name+"8" || origType == name+"16" || origType == name+"32" || origType == name+"64" { // when no count
+			triceType = fmt.Sprintf(origType+"_%d", paramCount) // append count
+		}
+	}
+	return triceType
+}
+
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
 //
 // p.Trice.Type is the received trice, in fact the name from til.json.
@@ -469,24 +490,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertTrue")
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertFalse")
-	triceType := p.Trice.Type
-
-	// need to reconstruct full TRICE info, if not exist in type string
-	for _, name := range []string{"TRICE", "TRice", "Trice", "trice"} {
-		if strings.HasPrefix(p.Trice.Type, name+"_") { // when no bit width, insert it
-			triceType = name + id.DefaultTriceBitWidth + "_" + p.Trice.Type[6:]
-		}
-		if p.Trice.Type == name { // when plain trice name
-			if len(p.u) == 0 { // no parameters
-				triceType = name + "0" // special case
-			} else { // append bit width and count
-				triceType = fmt.Sprintf(name+id.DefaultTriceBitWidth+"_%d", len(p.u))
-			}
-		}
-		if p.Trice.Type == name+"8" || p.Trice.Type == name+"16" || p.Trice.Type == name+"32" || p.Trice.Type == name+"64" { // when no count
-			triceType = fmt.Sprintf(p.Trice.Type+"_%d", len(p.u)) // append count
-		}
-	}
+	triceType := constructFullTriceInfo(p.Trice.Type, len(p.u))
 
 	ucTriceTypeReceived := strings.ToUpper(p.Trice.Type)   // examples: TRICE_S,   TRICE,   TRICE32,   TRICE16_2
 	ucTriceTypeReconstructed := strings.ToUpper(triceType) // examples: TRICE32_S, TRICE0,  TRICE32_4, TRICE16_2
