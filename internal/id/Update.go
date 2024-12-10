@@ -65,7 +65,7 @@ func formatSpecifierCount(s string) (count int) {
 // addFormatSpecifierCount extends s with _n and returns it as sl
 func addFormatSpecifierCount(w io.Writer, s string, n int) (sx string) {
 	if 0 <= n && n < 99 { // patch
-		if !strings.Contains(s, "_") {
+		if !strings.Contains(s, "_") && s[len(s)-1:] != "0" {
 			sx = fmt.Sprintf(s+"_%d", n) // TRICE*_n
 		} else {
 			sx = s
