@@ -4275,17 +4275,24 @@ If you intend to get the `trice log` functionality full or partially as a `tlog`
 #include "til.h"
 
 //! triceFormatStringList contains all trice format strings together with id and parameter information.
+//!
+//! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
+//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md/#binary-encoding.
+//! It is recommended to check if both values are matching. A negative paramCount indicates, that its value is unknown at compile time.
 const triceFormatStringList_t triceFormatStringList[] = {
-    // format-string,                                                                     id, dataLength, bitWidth,
-    { "rd:trice64 double %f (%%f), aDouble(y)\n",                                        15926,   8, 64 },
-    { "isr:SysTick is %6d\n",                                                            14103,   2, 16 },
-    { "sig:triceN=%s\n",                                                                 14249,  -2,  8 },
-    { "tst: %d %d %d %d %d %d %d %d %d %d %d\n",                                         15770,  11,  8 },
-    { "msg:value=%u\n",                                                                  14455,   4, 32 },
-    { "msg:%s\n",                                                                        15982,  -2,  8 },
+	/* Trice type (  extended  ) */  //  id, bitWidth, paramCount, format-string
+	/*      trice (  trice32_9 ) */ { 14016,  32,  9, "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d\n" },
+	/*      trice (     trice0 ) */ { 14224,  32,  0, "\n" },
+	/*    trice32 (  trice32_1 ) */ { 14337,  32,  1, "msg:%u (%%u)\n" },
+	/*     TRICE8 (  TRICE8_10 ) */ { 15063,   8, 10, "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n" },
+	/*     Trice8 (   Trice8_9 ) */ { 15124,   8,  9, "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n" },
+	/*     TRICE8 (   TRICE8_5 ) */ { 15058,   8,  5, "rd:TRICE8 %d, %d, %d, %d, %d\n" },
+	/*      TRice (     TRice0 ) */ { 14885,  32,  0, "TEST:yellow+h:black\n" },
+	/*    Trice64 (  Trice64_1 ) */ { 15560,  64,  1, "rd:Trice64 %d\n" },
+	/*      trice (  trice32_1 ) */ { 15860,  32,  1, "rd:TRICE float %9.f (%%9.f)\n" },
 ...
-    { "w: Hello! 👋🙂 \a\n",                                                            16150,   0, 64 },
-    { "tst:TRICE8_5  %d %d %d %d %d\n",                                                  15764,   5,  8 },
+	/*  TRICE64_0 (  TRICE64_0 ) */ { 16157,  64,  0, "w: Hello! 👋🙂 \a\n" },
+	/*      TRICE (     TRICE0 ) */ { 14658,  32,  0, "interrupt:magenta+i:default+h\n" },
 };
 
 //! triceFormatStringListElements holds the compile time computed count of list elements.
@@ -4302,35 +4309,40 @@ With `trice generate -cs` a starting point for a C-Sharp application is generate
 
 // Trice generated code - do not edit!
 
-// There is still a need to exchange the format specifier from C to C#.
+// There is still a need to exchange the format specifier from C to C# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // See https://stackoverflow.com/questions/33432341/how-to-use-c-language-format-specifiers-in-c-sharp
 // and https://www.codeproject.com/Articles/19274/A-printf-implementation-in-C for possible help.
 
 namespace TriceIDList;
 
-    public class TilItem
-    {
-        public TilItem(string strg, int bitWidth, int size)
-        {
-            Strg = strg;
-            BitWidth = bitWidth;
-            Size = size;
-        }
+	public class TilItem
+	{
+		public TilItem(int bitWidth, int paramCount, string strg)
+		{
+			BitWidth = bitWidth;
+			ParamCount = paramCount;
+			Strg = strg;
+		}
 
-        public string Strg { get; init; }
-        public int BitWidth { get; init; }
-        public int Size { get; init; }
-    }
+		public int BitWidth { get; init; }
+		public int ParamCount { get; init; }
+		public string Strg { get; init; }
+	}
 
-    public static class Til
-    {
-        public static readonly Dictionary<int, TilItem> TilList= new Dictionary<int, TilItem>
-        { // id, TilItem ( Strg, bitWidth, dataLength )
-        { 16078, new TilItem( "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", 16, 22 ) },
-        { 14661, new TilItem( "default:off\n", 32, 0 ) },
-        { 15912, new TilItem( "rd:TRICE64_1 double %e (%%e), aDouble(y)\n", 64, 8 ) },
+	//! Til contains all trice format strings together with id and parameter information.
+	//!
+	//! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
+	//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md/#binary-encoding.
+	//! It is recommended to check if both values are matching. A negative paramCount indicates, that its value is unknown at compile time.
+	public static class Til
+	{
+		public static readonly Dictionary<int, TilItem> TilList= new Dictionary<int, TilItem>
+		{ /* triceType ( extended ) */ //   id,     TilItem( bitWidth, paramCount, Strg )
+		/*   TRICE_12 ( TRICE32_12 )*/ { 14991, new TilItem( 32, 12, "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n" ) },
+		/*      TRICE (  TRICE32_1 )*/ { 15636, new TilItem( 32,  1, "WR:write        message, SysTick is %6u\n" ) },
+		/*    TRICE_S (    TRICE_S )*/ { 14178, new TilItem( 32, -1, "msg:With TRICE_S:%s\n" ) },
 ...
-        { 15504, new TilItem( "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", 64, 56 ) },
+		/*    TRICE16 (  TRICE16_2 )*/ { 16056, new TilItem( 16,  2, "rd:TRICE16 %p, %p\n" ) },
     };
 }
 ```
