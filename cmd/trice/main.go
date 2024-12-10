@@ -25,7 +25,7 @@ var (
 
 // main is the entry point.
 func main() {
-	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()}
 	e := doit(os.Stdout, fSys)
 	if e != nil {
 		log.Fatal(e)
