@@ -2,6 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "generate",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["generate",
+                    "-c",
+                     "-idlist", "${workspaceFolder}/examples/G0B1_inst/til.json",
+                     "-verbose"
+            ]
+        },
+        {
             "name": "TCP4",
             "type": "go",
             "request": "launch",
