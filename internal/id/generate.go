@@ -9,6 +9,7 @@ package id
 import (
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -28,7 +29,6 @@ var (
 
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
 func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
-
 	if WriteAllColors {
 		emitter.ShowAllColors()
 		if Verbose {
@@ -37,11 +37,13 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 	}
 
 	if !GenerateHFile && !GenerateCFile && !GenerateCSFile && !IDToFunctionPointerList {
+		if !WriteAllColors {
+			fmt.Fprintln(w, `The "trice generate" command needs at least one parameter. Check "trice help -generate".`)
+		}
 		return nil
 	}
 
 	ilu := NewLut(w, fSys, FnJSON) // read til.json
-	ilu.AddFmtCount(w)
 	fn := strings.TrimSuffix(FnJSON, filepath.Ext(FnJSON))
 	msg.FatalOnErr(err)
 
@@ -93,10 +95,10 @@ func ToFileCHeader(fSys afero.Fs, fn string) (err error) {
 #include <stdint.h>
 
 typedef struct{
-char* formatString;
-uint16_t id;
-int16_t dataLength;
-uint8_t bitWidth;
+	uint16_t id;
+	int16_t dataLength;
+	uint8_t bitWidth;
+	char* formatString;
 } triceFormatStringList_t;
 
 extern const triceFormatStringList_t triceFormatStringList[];
@@ -124,189 +126,62 @@ func (ilu TriceIDLookUp) ToFileLangC(fSys afero.Fs, fn string) (err error) {
 	return
 }
 
-var (
-	defaultBitWidth int
-	defaultDataSize int
-)
-
-func init() {
-	defaultBitWidth, err := strconv.Atoi(DefaultTriceBitWidth)
-	msg.FatalOnErr(err)
-	defaultDataSize = defaultBitWidth / 8
-}
-
 // toCFmtList converts lim into C-source byte slice in human-readable form.
 func (ilu TriceIDLookUp) toCFmtList(filename string) ([]byte, error) {
-	fileNameBody := strings.TrimSuffix(filename, filepath.Ext(filename))
-	c := []byte(`//! \file ` + filename + `
-//! ///////////////////////////////////////////////////////////////////////////
-
-//! Trice generated code - do not edit!
-
-#include "` + fileNameBody + `.h"
-
-//! triceFormatStringList contains all trice format strings together with id and parameter information.
-const triceFormatStringList_t triceFormatStringList[] = {
-	/* Trice type */  //format-string,                                                                     id, dataLength, bitWidth,
+	var (
+		fileNameBody = strings.TrimSuffix(filename, filepath.Ext(filename))
+		head         = []byte(`//! \file ` + filename + `
+	//! ///////////////////////////////////////////////////////////////////////////
+	
+	//! Trice generated code - do not edit!
+	
+	#include "` + fileNameBody + `.h"
+	
+	//! triceFormatStringList contains all trice format strings together with id and parameter information.
+	//!
+	//! The dataSize is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md/#binary-encoding.
+	//! It is recommended to check if both values are equal. A negative dataSize indicates, that its value is unknown at compile time.
+	//! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
+	const triceFormatStringList_t triceFormatStringList[] = {
+	/* Trice type (  extended  ) */  //  id, dataSize, bitWidth, format-string
 `)
-	var paramCount int
-	var bitWidth int
-	var dataSize int
-	var add bool
+		tail = []byte(`};
+
+	//! triceFormatStringListElements holds the compile time computed count of list elements.
+	const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / sizeof(triceFormatStringList_t);
+`)
+		text       = head
+		paramCount int
+		bitWidth   int
+		extType    string
+	)
+	defaultBitWidth, err := strconv.Atoi(DefaultTriceBitWidth)
+	msg.FatalOnErr(err)
 
 	for id, k := range ilu {
-		specialTrice := k.Type[len(k.Type)-1:]
-		switch specialTrice {
+		switch k.Type[len(k.Type)-1:] {
 		case "B", "F", "N", "S":
-			add = false
 			paramCount = -1
+			extType = k.Type
 		default:
-			specialTrice = " "
-			add = true
 			paramCount = formatSpecifierCount(k.Strg)
+			extType = addFormatSpecifierCount(os.Stdout, k.Type, paramCount)
 		}
-
-		var sizeInfo bool
 		for i, w := range []string{"8", "16", "32", "64"} {
-			_, _, found := strings.Cut(k.Type, w)
+			_, _, found := strings.Cut(extType, w)
 			if found {
 				bitWidth = 8 << i
-				dataSize = 1 << i
-				sizeInfo = true
+			} else {
+				bitWidth = defaultBitWidth
 			}
 		}
-		if !sizeInfo {
-			bitWidth = defaultBitWidth
-			dataSize = defaultDataSize
-		}
-
-		dataSize *= paramCount
-		if add {
-			c = append(c, []byte(fmt.Sprintf(`    /* %10s */ { "%s",%s%5d, %3d, %2d },`+"\n", k.Type, k.Strg, distance(k.Strg), id, dataSize, bitWidth))...)
-		} else {
-			fmt.Println("ignored: ", k.Type, k.Strg)
-		}
+		dataSize := (bitWidth * paramCount) >> 3
+		text = append(text, []byte(fmt.Sprintf(`	/* %10s ( %10s ) */ { %5d, %3d, %2d, "%s" },`+"\n", k.Type, extType, id, dataSize, bitWidth, k.Strg))...)
 	}
-	tail := []byte(`};
 
-//! triceFormatStringListElements holds the compile time computed count of list elements.
-const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / sizeof(triceFormatStringList_t);
-`)
-	c = append(c, tail...)
-	return c, nil
+	text = append(text, tail...)
+	return text, nil
 }
-
-/*
-
-	u := strings.ToUpper(k.Type)
-	switch u[len(u)-1:] {
-	case "B", "F", "N", "S":
-		add = false // Ignore special Trices.
-		//  case "TRICES":
-		//  	bitWidth = 8
-		//  	paramCount = 1
-		//  	dataLength = -1 // needs to be derived
-		//  	add = true
-		//  case "TRICEN":
-		//  	bitWidth = 8
-		//  	paramCount = 1
-		//  	dataLength = -2 // needs to be derived, add terminating 0
-		//  	add = true
-		//  case "TRICE_B", "TRICE8_B", "TRICEB", "TRICE8B":
-		//  	bitWidth = 8
-		//  	paramCount = 1
-		//  	dataLength = -8 // needs to be derived
-		//  	add = false     // provide generated format string
-		//  case "TRICE16_B", "TRICE16B":
-		//  	bitWidth = 16
-		//  	paramCount = 1
-		//  	dataLength = -16 // needs to be derived
-		//  	add = false      // provide generated format string
-		//  case "TRICE32_B", "TRICE32B":
-		//  	bitWidth = 32
-		//  	paramCount = 1
-		//  	dataLength = -32 // needs to be derived
-		//  	add = false      // provide generated format string
-		//  case "TRICE64_B", "TRICE64B":
-		//  	bitWidth = 64
-		//  	paramCount = 1
-		//  	dataLength = -64 // needs to be derived
-		//  	add = false      // provide generated format string
-		//  case "TRICE8_F", "TRICE_F", "TRICE8F", "TRICEF": // example: TRICE_F( Id( 2844), "info:FunctionNameW",  b8,  sizeof(b8) /sizeof(int8_t) );
-		//  	bitWidth = 8
-		//  	paramCount = 1
-		//  	dataLength = -9 // needs to be derived
-		//  	add = false     // provide generated format string
-		//  case "TRICE16_F", "TRICE16F":
-		//  	bitWidth = 16
-		//  	paramCount = 1
-		//  	dataLength = -17 // needs to be derived
-		//  	add = false      // provide generated format string
-		//  case "TRICE32_F", "TRICE32F":
-		//  	bitWidth = 32
-		//  	paramCount = 1
-		//  	dataLength = -33 // needs to be derived
-		//  	add = false      // provide generated format string
-		//  case "TRICE64_F", "TRICE64F":
-		//  	bitWidth = 64
-		//  	paramCount = 1
-		//  	dataLength = -65 // needs to be derived
-		//  	add = false      // provide generated format string		default:
-		r, _, _ := strings.Cut(u, "_")
-		switch r {
-		case "TRICE64":
-			bitWidth = 64
-			paramCount = formatSpecifierCount(k.Strg)
-			dataLength = paramCount * 8 // use for checks
-			add = true
-		case "TRICE32":
-			bitWidth = 32
-			paramCount = formatSpecifierCount(k.Strg)
-			dataLength = paramCount * 4 // use for checks
-			add = true
-		case "TRICE16":
-			bitWidth = 16
-			paramCount = formatSpecifierCount(k.Strg)
-			dataLength = paramCount * 2 // use for checks
-			add = true
-		case "TRICE8":
-			bitWidth = 8
-			paramCount = formatSpecifierCount(k.Strg)
-			dataLength = paramCount * 1 // use for checks
-			add = true
-		case "TRICE", "TRICE0":
-			switch DefaultTriceBitWidth {
-			case "64":
-				bitWidth = 64
-				paramCount = formatSpecifierCount(k.Strg)
-				dataLength = paramCount * 8 // use for checks
-				add = true
-			case "32":
-				bitWidth = 32
-				paramCount = formatSpecifierCount(k.Strg)
-				dataLength = paramCount * 4 // use for checks
-				add = true
-			case "16":
-				bitWidth = 16
-				paramCount = formatSpecifierCount(k.Strg)
-				dataLength = paramCount * 2 // use for checks
-				add = true
-			case "8":
-				bitWidth = 8
-				paramCount = formatSpecifierCount(k.Strg)
-				dataLength = paramCount // use for checks
-				add = true
-			default:
-				fmt.Println(DefaultTriceBitWidth, "is invalid value for DefaultTriceBitWidth")
-				add = false
-			}
-		default:
-
-			fmt.Println(id, k.Type, "ignored")
-			add = false
-		}
-	}
-*/
 
 // ToFileCSharp generates C# helpers for a third party tool.
 func (ilu TriceIDLookUp) ToFileCSharp(fSys afero.Fs, fn string) (err error) {
