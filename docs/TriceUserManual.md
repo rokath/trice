@@ -988,7 +988,7 @@ Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process
 * On `trice clean  foo.c`, get full path of `foo.c`, then:
   If `.trice/cache/inserted/home/my/src/foo.c` exists and has the same modification time as `/home/my/src/foo.c`, copy `.trice/cache/cleaned/home/my/src/foo.c` (if existing) to `/home/my/src/foo.c`. Otherwise remove IDs from `/home/my/src/foo.c` and copy it to `.trice/cache/cleaned/home/my/src/foo.c`.
 * On any repeated or alternate `trice insert` and `trice clean`, we are done.
-* When a file in cleaned or inserted ID state was edited somehow, its IDs are inserted/cleaned and the cache is updated accordingly on `trice clean` or `trice insert`.
+* When a file in cleaned or inserted ID state was edited somehow, its IDs are inserted/cleaned and the cache is updated accordingly on `trice clean` or `trice insert` because the file modification time has changed.
 
 ### 7.2. <a id='trice-cache-logic'></a>Trice Cache Logic
 
