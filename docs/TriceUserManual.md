@@ -657,7 +657,9 @@ The chapter [Example Projects without and with Trice Instrumentation](#example-p
 The easiest and mostly sufficient way to use Trice on the target side is the Trice macro
 
 ```C
-trice("Hello world!");
+trice("Hello world!"); // without     time stamp
+Trice("Hello world!"); // with 16-bit time stamp
+TRice("Hello world!"); // with 32-bit time stamp
 ```
 
 which you can mostly use as a `printf` replacement in legacy code. See [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
