@@ -654,9 +654,15 @@ The chapter [Example Projects without and with Trice Instrumentation](#example-p
 
 #### 6.5.1. <a id='target-macros'></a>Target Macros
 
-The easiest and mostly sufficient way to use Trice on the target side is the Trice macro **`trice`** which you can mostly use as a `printf` replacement in legacy code. See [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
+The easiest and mostly sufficient way to use Trice on the target side is the Trice macro
 
-The macros
+```C
+trice("Hello world!");
+```
+
+which you can mostly use as a `printf` replacement in legacy code. See [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
+
+The additional macros
 
 * `trice8`, `trice16`, `trice32`, `trice64`
 * `Trice8`, `Trice16`, `Trice32`, `Trice64`
