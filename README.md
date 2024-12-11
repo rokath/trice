@@ -32,7 +32,7 @@ even inside **↯ interrupts** in less than 1 µs❗
   - **[Speed](./docs/TriceUserManual.md/#trice-speed)**, to be usable also **inside interrupts**,
   - **[Space](./docs/TriceUserManual.md/#trice-memory-needs)**, to reduce needed FLASH memory size,
   - **[Features](./docs/TriceUserManual.md/#trice-features-(overview))** delighting the developers heart.
-- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserManual.md/#start-with-trice).
+- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserManual.md/#port-it).
 - *Trice* consists of 2 parts:
   1. **C** code `trice` macros, similar usable like `printf`, generating tiny & super-fast embedded device real-time trace/log code.
   2. Tool **trice** for managing and visualization.
