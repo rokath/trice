@@ -662,7 +662,7 @@ Trice("Hello world!"); // with 16-bit time stamp
 TRice("Hello world!"); // with 32-bit time stamp
 ```
 
-which you can mostly use as a `printf` replacement in legacy code. See [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values. If you wish target stamps use `Trice` for 16-bit ones or `TRice` for 32-bit ones.
+which you can mostly use as a `printf` replacement in legacy code. See [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values.
 
 The additional macros
 
@@ -670,7 +670,7 @@ The additional macros
 * `Trice8`, `Trice16`, `Trice32`, `Trice64`
 * `TRice8`, `TRice16`, `TRice32`, `TRice64`
 
-are always usable and the number 8, 16, 32, 64 specifies the parameter width, which is equal for all values within one macro. They are partially disabled, when the value TRICE_SINGLE_MAX_SIZE is defined to be smaller than 104. For example with TRICE_SINGLE_MAX_SIZE == 8, `TRice32` can have no parameter value (4 byte Trice header, 4 byte stamp) and `trice8` can have up to 4 parameter values (4 byte Trice header, 4 byte values) That's mainly to get compiler errors rather than runtime errors.
+are always usable and the number 8, 16, 32, 64 specifies the parameter width, which is equal for all values within one macro. Trice macros are partially disabled, when the value TRICE_SINGLE_MAX_SIZE is defined to be smaller than 104. For example with TRICE_SINGLE_MAX_SIZE == 8, `TRice32` can have no parameter value (4 byte Trice header, 4 byte stamp) and `trice8` can have up to 4 parameter values (4 byte Trice header, 4 byte values) That's mainly to get compiler errors rather than runtime errors.
 
 More examples:
 
