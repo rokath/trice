@@ -266,7 +266,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -suffix string
     	Append suffix to all lines, options: any string.
   -tagStat
-    	Print Trices occurances count on exit.
+    	Print Trices occurrences count on exit.
   -tcp string
     	TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".
   -testTable
@@ -277,7 +277,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -triceEndianness string
     	Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
   -triceStat
-    	Print Trices occurances count on exit.
+    	Print Trices occurrences count on exit.
   -ts string
     	Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" or 'off' or 'none' to suppress existing target timestamps. Sets ts0, ts16, ts32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "µs")
   -ts0 string
@@ -353,14 +353,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'g|gen|generate': Use for creating colors or support files.
-  -c	Create a til.c file.
   -colors
     	Write all possible colors.
-  -cs
-    	Create a til.cs file.
-  -fpl
-    	Write ID to function pointer list.
-  -h	Create a til.h file.
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
@@ -368,9 +362,19 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
     	The trice ID list file.
     	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
     	 (default "til.json")
+  -rpcC
+    	Create a til_rpc.c file.
+  -rpcH
+    	Create a til_rpc.h file.
   -til string
     	Short for '-idlist'.
     	 (default "til.json")
+  -tilC
+    	Create a til.c file.
+  -tilCS
+    	Create a til.cs file.
+  -tilH
+    	Create a til.h file.
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.

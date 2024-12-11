@@ -176,8 +176,8 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
 	fsScLog.BoolVar(&trexDecoder.AddNewlineToEachTriceMessage, "addNL", false, `Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.`)
-	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print Trices occurances count on exit.`)
-	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print Trices occurances count on exit.`)
+	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print Trices occurrences count on exit.`)
+	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print Trices occurrences count on exit.`)
 	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print complete statistics on exit.`)
 }
 
@@ -190,11 +190,12 @@ func generateInit() {
 	fsScGenerate = flag.NewFlagSet("generate", flag.ExitOnError) // sub-command
 	flagIDList(fsScGenerate)
 	flagVerbosity(fsScGenerate)
-	fsScGenerate.BoolVar(&id.GenerateHFile, "h", false, `Create a til.h file.`)
-	fsScGenerate.BoolVar(&id.GenerateCFile, "c", false, `Create a til.c file.`)
-	fsScGenerate.BoolVar(&id.GenerateCSFile, "cs", false, `Create a til.cs file.`)
+	fsScGenerate.BoolVar(&id.GenerateTilH, "tilH", false, `Create a til.h file.`)
+	fsScGenerate.BoolVar(&id.GenerateTilC, "tilC", false, `Create a til.c file.`)
+	fsScGenerate.BoolVar(&id.GenerateTilCS, "tilCS", false, `Create a til.cs file.`)
+	fsScGenerate.BoolVar(&id.GenerateRpcH, "rpcH", false, `Create a til_rpc.h file.`)
+	fsScGenerate.BoolVar(&id.GenerateRpcC, "rpcC", false, `Create a til_rpc.c file.`)
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
-	fsScGenerate.BoolVar(&id.IDToFunctionPointerList, "fpl", false, `Write ID to function pointer list.`)
 }
 
 func insertIDsInit() {
