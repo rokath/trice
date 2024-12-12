@@ -1498,6 +1498,8 @@ triceS( "msg:This part of the string is known at compile time. This part is dyna
 All the string literals (i.e. compile-time known strings) should be put inside the format string.
 Only the dynamic strings should be used as variables in triceS macro for best performance.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## 15. <a id='additional-hints'></a>Additional hints
 
 ### 15.1. <a id='pre-built-executables-are-available'></a>Pre-built executables are available
