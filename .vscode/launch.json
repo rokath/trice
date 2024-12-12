@@ -106,7 +106,7 @@
             ]
         },
         { 
-            "name": "-p com46",
+            "name": "G0B1 -p com6",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -114,11 +114,12 @@
             "env": {},
             "args": ["log",
                     "-port",
-                    "com46",
+                    "com6",
+                    "-pf=cobs",
                      "-i",
-                     "${workspaceFolder}/../NAi2Development/SD3Modbus/SD3-HW-RevA-Lib_Modbus-STM32-HAL-FreeRTOS/til.json",
+                     "${workspaceFolder}/examples/G0B1_inst/til.json",
                      "-li",
-                     "${workspaceFolder}/../NAi2Development/SD3Modbus/SD3-HW-RevA-Lib_Modbus-STM32-HAL-FreeRTOS/li.json"
+                     "${workspaceFolder}/examples/G0B1_inst/li.json"
             ]
         },
         {
