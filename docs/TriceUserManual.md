@@ -4546,82 +4546,148 @@ Because each test runs a different configuration, all possible combinations are 
 ### 38.6. <a id='test-results'></a>Test Results
 
 ```bash
-ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice_wt_devel (devel)
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
 $ ./testAll.sh
-Thu, Dec 12, 2024  4:29:20 PM
+Thu, Dec 12, 2024  4:51:26 PM
 This can take several minutes ...
 ?       github.com/rokath/trice/internal/decoder        [no test files]
 ?       github.com/rokath/trice/internal/do     [no test files]
 ?       github.com/rokath/trice/internal/translator     [no test files]
 ?       github.com/rokath/trice/pkg/ant [no test files]
-ok      github.com/rokath/trice/cmd/trice       1.386s
-ok      github.com/rokath/trice/internal/args   0.482s
-ok      github.com/rokath/trice/internal/charDecoder    0.335s
-ok      github.com/rokath/trice/internal/com    15.920s
-ok      github.com/rokath/trice/internal/dumpDecoder    0.321s
-ok      github.com/rokath/trice/internal/emitter        0.341s
-ok      github.com/rokath/trice/internal/id     3.108s
-ok      github.com/rokath/trice/internal/keybcmd        0.293s
-ok      github.com/rokath/trice/internal/link   0.259s
-ok      github.com/rokath/trice/internal/receiver       0.290s
-ok      github.com/rokath/trice/internal/trexDecoder    0.266s
-ok      github.com/rokath/trice/pkg/cipher      0.214s
-ok      github.com/rokath/trice/pkg/endian      0.155s
-ok      github.com/rokath/trice/pkg/msg 0.163s
-ok      github.com/rokath/trice/pkg/tst 0.234s
-ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.214s
-ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.181s
-ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   123.259s
-ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.367s
-ok      github.com/rokath/trice/_test/dblB_de_multi_nopf_ua     123.216s
-ok      github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua    123.276s
-ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua        123.332s
-ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       122.964s
-ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   123.266s
-ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  122.418s
+ok      github.com/rokath/trice/cmd/trice       1.392s
+ok      github.com/rokath/trice/internal/args   0.415s
+ok      github.com/rokath/trice/internal/charDecoder    0.298s
+ok      github.com/rokath/trice/internal/com    15.845s
+ok      github.com/rokath/trice/internal/dumpDecoder    0.339s
+ok      github.com/rokath/trice/internal/emitter        0.326s
+ok      github.com/rokath/trice/internal/id     3.088s
+ok      github.com/rokath/trice/internal/keybcmd        0.233s
+ok      github.com/rokath/trice/internal/link   0.196s
+ok      github.com/rokath/trice/internal/receiver       0.246s
+?       github.com/rokath/trice/internal/translator     [no test files]
+?       github.com/rokath/trice/pkg/ant [no test files]
+ok      github.com/rokath/trice/cmd/trice       1.392s
+ok      github.com/rokath/trice/internal/args   0.415s
+ok      github.com/rokath/trice/internal/charDecoder    0.298s
+ok      github.com/rokath/trice/internal/com    15.845s
+ok      github.com/rokath/trice/internal/dumpDecoder    0.339s
+ok      github.com/rokath/trice/internal/emitter        0.326s
+ok      github.com/rokath/trice/internal/id     3.088s
+ok      github.com/rokath/trice/internal/keybcmd        0.233s
+ok      github.com/rokath/trice/internal/link   0.196s
+ok      github.com/rokath/trice/internal/receiver       0.246s
+ok      github.com/rokath/trice/internal/trexDecoder    0.264s
+ok      github.com/rokath/trice/pkg/cipher      0.230s
+ok      github.com/rokath/trice/pkg/endian      0.161s
+ok      github.com/rokath/trice/internal/args   0.415s
+ok      github.com/rokath/trice/internal/charDecoder    0.298s
+ok      github.com/rokath/trice/internal/com    15.845s
+ok      github.com/rokath/trice/internal/dumpDecoder    0.339s
+ok      github.com/rokath/trice/internal/emitter        0.326s
+ok      github.com/rokath/trice/internal/id     3.088s
+ok      github.com/rokath/trice/internal/keybcmd        0.233s
+ok      github.com/rokath/trice/internal/link   0.196s
+ok      github.com/rokath/trice/internal/receiver       0.246s
+ok      github.com/rokath/trice/internal/trexDecoder    0.264s
+ok      github.com/rokath/trice/pkg/cipher      0.230s
+ok      github.com/rokath/trice/pkg/endian      0.161s
+ok      github.com/rokath/trice/internal/id     3.088s
+ok      github.com/rokath/trice/internal/keybcmd        0.233s
+ok      github.com/rokath/trice/internal/link   0.196s
+ok      github.com/rokath/trice/internal/receiver       0.246s
+ok      github.com/rokath/trice/internal/trexDecoder    0.264s
+ok      github.com/rokath/trice/pkg/cipher      0.230s
+ok      github.com/rokath/trice/pkg/endian      0.161s
+ok      github.com/rokath/trice/pkg/msg 0.157s
+ok      github.com/rokath/trice/pkg/tst 0.261s
+ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.142s
+ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.159s
+ok      github.com/rokath/trice/internal/trexDecoder    0.264s
+ok      github.com/rokath/trice/pkg/cipher      0.230s
+ok      github.com/rokath/trice/pkg/endian      0.161s
+ok      github.com/rokath/trice/pkg/msg 0.157s
+ok      github.com/rokath/trice/pkg/tst 0.261s
+ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.142s
+ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.159s
+ok      github.com/rokath/trice/pkg/msg 0.157s
+ok      github.com/rokath/trice/pkg/tst 0.261s
+ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.142s
+ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.159s
+ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   122.964s
+ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.308s
+ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.142s
+ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.159s
+ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   122.964s
+ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.308s
+ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   122.964s
+ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.308s
+ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.308s
+ok      github.com/rokath/trice/_test/dblB_de_multi_nopf_ua     123.244s
+ok      github.com/rokath/trice/_test/dblB_de_multi_nopf_ua     123.244s
+ok      github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua    123.109s
+ok      github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua    123.109s
+ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua        123.213s
+ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       123.001s
+ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua        123.213s
+ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       123.001s
+ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   123.092s
+ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       123.001s
+ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   123.092s
+ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  122.324s
+ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   123.092s
+ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  122.324s
+ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  122.324s
 ok      github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua      123.149s
-ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     123.117s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    247.155s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua      247.183s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua     246.932s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua   246.965s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua       247.484s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua     247.237s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua       247.262s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua      247.044s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua    247.536s
-ok      github.com/rokath/trice/_test/ringB_de_cobs_ua  124.219s
-ok      github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua   123.666s
-ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua       123.858s
-ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua      123.754s
-ok      github.com/rokath/trice/_test/ringB_de_nopf_ua  123.900s
-ok      github.com/rokath/trice/_test/ringB_de_tcobs_ua 123.647s
-ok      github.com/rokath/trice/_test/ringB_de_xtea_cobs_ua     123.858s
-ok      github.com/rokath/trice/_test/ringB_de_xtea_tcobs_ua    124.244s
-ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua  248.032s
-ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua   247.892s
-ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua  247.737s
-ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua      247.479s
-ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua   247.343s
-ok      github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua 247.275s
-ok      github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua 247.167s
-ok      github.com/rokath/trice/_test/special_protect_dblB_de_tcobs_ua  0.554s
-ok      github.com/rokath/trice/_test/stackB_di_nopf_aux32      123.970s
-ok      github.com/rokath/trice/_test/stackB_di_nopf_aux8       124.183s
-ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt32      124.195s
-ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt8       123.880s
-ok      github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8  123.714s
-ok      github.com/rokath/trice/_test/staticB_di_nopf_aux32     123.608s
-ok      github.com/rokath/trice/_test/staticB_di_nopf_aux8      123.622s
-ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt32     123.708s
-ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt8      123.621s
-ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt32    123.451s
-ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt8     123.269s
-ok      github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32        122.980s
+ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     122.883s
+ok      github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua      123.149s
+ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     122.883s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    246.703s
+ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     122.883s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    246.703s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    246.703s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua      247.125s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua     246.862s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua   246.531s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua       247.072s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua     246.639s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua       246.599s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua      247.114s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua    246.851s
+ok      github.com/rokath/trice/_test/ringB_de_cobs_ua  123.578s
+ok      github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua   123.517s
+ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua       123.497s
+ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua      123.379s
+ok      github.com/rokath/trice/_test/ringB_de_nopf_ua  123.555s
+ok      github.com/rokath/trice/_test/ringB_de_tcobs_ua 123.300s
+ok      github.com/rokath/trice/_test/ringB_de_xtea_cobs_ua     123.487s
+ok      github.com/rokath/trice/_test/ringB_de_xtea_tcobs_ua    123.846s
+ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua  247.400s
+ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua   247.202s
+ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua  247.204s
+ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua      246.818s
+ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua   247.006s
+ok      github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua 247.000s
+ok      github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua 246.872s
+ok      github.com/rokath/trice/_test/special_protect_dblB_de_tcobs_ua  0.444s
+ok      github.com/rokath/trice/_test/stackB_di_nopf_aux32      123.819s
+ok      github.com/rokath/trice/_test/stackB_di_nopf_aux8       123.830s
+ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt32      123.912s
+ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt8       123.976s
+ok      github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8  123.719s
+ok      github.com/rokath/trice/_test/staticB_di_nopf_aux32     123.553s
+ok      github.com/rokath/trice/_test/staticB_di_nopf_aux8      123.551s
+ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt32     123.596s
+ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt8      123.618s
+ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt32    123.177s
+ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt8     123.353s
+ok      github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32        123.126s
 
-real    10m31.896s
+real    10m31.130s
 user    0m0.000s
-sys     0m0.045s
+sys     0m0.015s
+
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
+$
 ```
 
 ### 38.7. <a id='special-tests'></a>Special tests
