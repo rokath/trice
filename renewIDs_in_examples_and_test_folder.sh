@@ -11,11 +11,11 @@ touch           $TD/til.json     $TD/li.json # new life
 # Next steps are done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot.
 trice insert -i $TD/til.json -li $TD/li.json              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c
 trice insert -i $TD/til.json -li $TD/li.json              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/..
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/
-trice insert -i $TD/til.json -li $TD/li.json -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 13500 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 13500 -IDMax 16383 -IDMethod upward   -src $TD/..
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/
+trice insert -i $TD/til.json -li $TD/li.json -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/
 
 DIRS="
 ./examples/F030_inst/
@@ -34,6 +34,8 @@ done
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
 CGOTESTDIRS="
+    _special_dblB_de_tcobs_ua/
+    special_protect_dblB_de_tcobs_ua/
     be_dblB_de_tcobs_ua/
     be_staticB_di_xtea_cobs_rtt32/
     _ERROR_dblB_di_cobs_rtt32__de_xtea_cobs_ua/
@@ -75,8 +77,6 @@ CGOTESTDIRS="
     ringB_di_nopf_rtt8__de_tcobs_ua/
     ringB_di_tcobs_rtt32__de_tcobs_ua/
     ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua/
-    special_dblB_de_tcobs_ua/
-    protect_dblB_de_tcobs_ua/
     stackB_di_nopf_aux32/
     stackB_di_nopf_aux8/
     stackB_di_nopf_rtt32/

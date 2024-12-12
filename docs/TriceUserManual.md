@@ -4280,7 +4280,7 @@ See [Check Alternatives](#check-alternatives) chapter.
 
 ### 37.2. <a id='c-code'></a>C-Code
 
-If you intend to get the `trice log` functionality full or partially as a `tlog` C-Source and do not wish to parse the _til.json_ file, you can run `trice generate -h -c` to create a C-file with header as starting point. That could be interesting for compiling the log functionality into a small separate microcontroller baoard.
+If you intend to get the `trice log` functionality full or partially as a `tlog` C-Source and do not wish to parse the _til.json_ file, you can run `trice generate -tilH --tilC` to create a C-file with header as starting point. That could be interesting for compiling the log functionality into a small separate microcontroller board.
 
 ```C
 //! \file til.c
@@ -4318,7 +4318,7 @@ const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / s
 
 ### 37.3. <a id='c#-code'></a>C#-Code
 
-With `trice generate -cs` a starting point for a C-Sharp application is generated:
+With `trice generate -tilCS` a starting point for a C-Sharp application is generated:
 
 ```cs
 //! \file til.cs 
@@ -4470,7 +4470,7 @@ void FunctionNameYa( int32_t* p, int cnt) __attribute__((weak)) {}
 // End of file
 ```
 
-Assume a project with several devices. You can add these 2 files to all targets and if a special target should execute any functions, simply implement them. These functions on their own can execute other Trice statements to transmit result. If a client performs a RPC call this way, the request is transmitted with the Trice speed. Several target devices (servers) can respond and the client can wait for the first or some of them. That waiting functionality is of course not the job of the Trice library. 
+Assume a project with several devices. You can add these 2 files to all targets and if a special target should execute any functions, simply implement them. These functions on their own can execute other Trice statements to transmit results. If a client performs a RPC call this way, the request is transmitted with the Trice speed. Several target devices (servers) can respond and the client can wait for the first or some of them. That waiting functionality is of course not the job of the Trice library. 
 
 ## 38. <a id='testing-the-trice-library-c-code-for-the-target'></a>Testing the Trice Library C-Code for the Target
 
@@ -4480,13 +4480,17 @@ This folder is per default named to `_test` to avoid vsCode slow down. Also, whe
 
 The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way.
 
+* ALSO: In `./examples` you can translate all examples with `./buildAllTargets.sh`.
+* ALSO: In `./examples/L432_inst` the script `all_configs_build.sh` translates many different configurations.
+
 For the user it could be helpful to start with a `triceConfig.h`file from here and to adapt the Trice tool command line from the matching `cgo_test.go` if no close match in the `examples` folder was found.
 
 ### 38.2. <a id='how-to-run-the-tests'></a>How to run the tests
 
 - In `_trice` folder first execute `go clean -cache`. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can led to confusing results.
-- To run the tests `cd` into `_test` and execute `go test ./...` fom there.
-- It is convenient to run `./renewIDs_in_examples_and_test_folder.sh` and `testAll.sh` from the Trice root folder to perform this.
+- Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
+- To run the tests manually `cd` into `_test` and execute `trice insert -i ./testdata/til.json -li ./testdata/li.json` and then `go test ./...` fom there.
+- It is convenient to run  `testAll.sh` from the Trice root folder to perform this.
 
 ### 38.3. <a id='tests-details'></a>Tests Details
 
@@ -4494,11 +4498,11 @@ All folders despite `testdata` are test folders and the name `tf` is used as a p
 
 To exclude a specific folder temporary, simply rename it to start with an underscore `_tf`.
 
-The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](./testdata/triceCheck.c) is the master file for editing. After changing it, [./updateTestData.sh](./updateTestData.sh) needs to run. It runs `trice insert` updating [./testdata/til.json](./testdata/til.json).
+The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](./testdata/triceCheck.c) is the master file for most tests and serves also as example usage.
 
 [./testdata/cgoPackage.go](./testdata/cgoPackage.go) is the common master for the `generated_cgoPackage.go` files and contains the common test code. 
 
-The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently. When the tests are executed for each packages a separate test binary is build and thes run parallel.
+The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently. When the tests are executed for each package, a separate test binary is build and these run parallel.
 
 The `tf/triceConfig.h` files differ and correspondent to the `tf/cgo_test.go` files in the same folder. On test execution, the `./testdata/*.c` files are compiled into the trice test executable together with the trice sources `../src` using the `tf/triceConfig.h` file.
 
@@ -4521,7 +4525,7 @@ The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which lim
 
 The `./trice/_test/testdata/*.c` and `./trice/src/*.c` are compiled together with the actual cgot package into one singe Trice test binary, resulting in as many test binaries as there are test folders. Calling its TestFunction(s) causes the activation of the Trice statement(s) inside *triceCheck.c*. The ususally into an embedded device compiled Trice code generates a few bytes according to the configuration into a buffer. These bytes are transmitted usually in real life over a (serial) port or RTT. In the tests here, this buffer is then read out by the Trice tool handler function according to the used CLI switches and processed to a log string using the *til.json* file. This string is then compared to the expected string for the activated line.
 
-Each `tf` is a **Go** package, which is not part of any **Go** application. They all named `cgot` and are only used independently for testing different configurations. The `tf/generated_cgoPackage.go` file is identical in all `tf`. Its master is `testdata/cgoPackage.go`. After editing the master, running the command `./updateTestData.sh` copies the master to all `tf` and renames it to `generated_cgoPackage.go`.
+Each `tf` is a **Go** package, which is not part of any **Go** application. They all named `cgot` and are only used independently for testing different configurations. The `tf/generated_cgoPackage.go` file is identical in all `tf`. Its master is `testdata/cgoPackage.go`. After editing the master, running the command `./renewIDs_in_examples_and_test_folder.sh` copies the master to all `tf` and renames it to `generated_cgoPackage.go`.
 
 The test specific target code configuration is inside `tf/trice.Config.h` and the appropriate Trice tool CLI switches are in `tf/cgo_test.go`.
 
