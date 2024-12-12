@@ -270,15 +270,17 @@ Table of Contents Generation:
   * 37.1. [Colors](#colors)
   * 37.2. [C-Code](#c-code)
   * 37.3. [C#-Code](#c#-code)
-  * 37.4. [Generating a Function Pointer List](#generating-a-function-pointer-list)
+  * 37.4. [Generating a RPC Function Pointer List](#generating-a-rpc-function-pointer-list)
 * 38. [Testing the Trice Library C-Code for the Target](#testing-the-trice-library-c-code-for-the-target)
   * 38.1. [General info](#general-info)
   * 38.2. [How to run the tests](#how-to-run-the-tests)
   * 38.3. [Tests Details](#tests-details)
   * 38.4. [How to add new test cases](#how-to-add-new-test-cases)
   * 38.5. [Test Internals](#test-internals)
-  * 38.6. [Test Cases](#test-cases)
-    * 38.6.1. [Folder Naming Convention](#folder-naming-convention)
+  * 38.6. [Test Results](#test-results)
+  * 38.7. [Special tests](#special-tests)
+  * 38.8. [Test Cases](#test-cases)
+    * 38.8.1. [Folder Naming Convention](#folder-naming-convention)
 * 39. [Test Issues](#test-issues)
 * 40. [Trice User Manual Changelog](#trice-user-manual-changelog)
 
@@ -4363,7 +4365,7 @@ namespace TriceIDList;
 }
 ```
 
-### 37.4. <a id='generating-a-function-pointer-list'></a>Generating a RPC Function Pointer List
+### 37.4. <a id='generating-a-rpc-function-pointer-list'></a>Generating a RPC Function Pointer List
 
 When several embedded devices are going to communicate, `trice generate -rpcH -rpcC` could be helpful.
 
@@ -4541,11 +4543,92 @@ Some C-code lines contain Trice statements and comments starting with `//exp: ` 
 
 Because each test runs a different configuration, all possible combinations are testable.
 
-### Special tests
+### 38.6. <a id='test-results'></a>Test Results
 
-### 38.6. <a id='test-cases'></a>Test Cases
+```bash
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice_wt_devel (devel)
+$ ./testAll.sh
+Thu, Dec 12, 2024  4:29:20 PM
+This can take several minutes ...
+?       github.com/rokath/trice/internal/decoder        [no test files]
+?       github.com/rokath/trice/internal/do     [no test files]
+?       github.com/rokath/trice/internal/translator     [no test files]
+?       github.com/rokath/trice/pkg/ant [no test files]
+ok      github.com/rokath/trice/cmd/trice       1.386s
+ok      github.com/rokath/trice/internal/args   0.482s
+ok      github.com/rokath/trice/internal/charDecoder    0.335s
+ok      github.com/rokath/trice/internal/com    15.920s
+ok      github.com/rokath/trice/internal/dumpDecoder    0.321s
+ok      github.com/rokath/trice/internal/emitter        0.341s
+ok      github.com/rokath/trice/internal/id     3.108s
+ok      github.com/rokath/trice/internal/keybcmd        0.293s
+ok      github.com/rokath/trice/internal/link   0.259s
+ok      github.com/rokath/trice/internal/receiver       0.290s
+ok      github.com/rokath/trice/internal/trexDecoder    0.266s
+ok      github.com/rokath/trice/pkg/cipher      0.214s
+ok      github.com/rokath/trice/pkg/endian      0.155s
+ok      github.com/rokath/trice/pkg/msg 0.163s
+ok      github.com/rokath/trice/pkg/tst 0.234s
+ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.214s
+ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.181s
+ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   123.259s
+ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.367s
+ok      github.com/rokath/trice/_test/dblB_de_multi_nopf_ua     123.216s
+ok      github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua    123.276s
+ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua        123.332s
+ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       122.964s
+ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   123.266s
+ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  122.418s
+ok      github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua      123.149s
+ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     123.117s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    247.155s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua      247.183s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua     246.932s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua   246.965s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua       247.484s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua     247.237s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua       247.262s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua      247.044s
+ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua    247.536s
+ok      github.com/rokath/trice/_test/ringB_de_cobs_ua  124.219s
+ok      github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua   123.666s
+ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua       123.858s
+ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua      123.754s
+ok      github.com/rokath/trice/_test/ringB_de_nopf_ua  123.900s
+ok      github.com/rokath/trice/_test/ringB_de_tcobs_ua 123.647s
+ok      github.com/rokath/trice/_test/ringB_de_xtea_cobs_ua     123.858s
+ok      github.com/rokath/trice/_test/ringB_de_xtea_tcobs_ua    124.244s
+ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua  248.032s
+ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua   247.892s
+ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua  247.737s
+ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua      247.479s
+ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua   247.343s
+ok      github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua 247.275s
+ok      github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua 247.167s
+ok      github.com/rokath/trice/_test/special_protect_dblB_de_tcobs_ua  0.554s
+ok      github.com/rokath/trice/_test/stackB_di_nopf_aux32      123.970s
+ok      github.com/rokath/trice/_test/stackB_di_nopf_aux8       124.183s
+ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt32      124.195s
+ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt8       123.880s
+ok      github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8  123.714s
+ok      github.com/rokath/trice/_test/staticB_di_nopf_aux32     123.608s
+ok      github.com/rokath/trice/_test/staticB_di_nopf_aux8      123.622s
+ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt32     123.708s
+ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt8      123.621s
+ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt32    123.451s
+ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt8     123.269s
+ok      github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32        122.980s
 
-#### 38.6.1. <a id='folder-naming-convention'></a>Folder Naming Convention
+real    10m31.896s
+user    0m0.000s
+sys     0m0.045s
+```
+
+### 38.7. <a id='special-tests'></a>Special tests
+
+### 38.8. <a id='test-cases'></a>Test Cases
+
+#### 38.8.1. <a id='folder-naming-convention'></a>Folder Naming Convention
 
 | Folder Name Part | Meaning                                                                                                  |
 |:----------------:|----------------------------------------------------------------------------------------------------------|
