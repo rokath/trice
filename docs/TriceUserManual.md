@@ -4476,7 +4476,7 @@ Assume a project with several devices. You can add these 2 files to all targets 
 
 ### 38.1. <a id='general-info'></a>General info
 
-This folder is per default named to `_test` to avoid vsCode slow down.
+This folder is per default named to `_test` to avoid vsCode slow down. Also, when running `go tes./../` the tests in the `_test` folder are excluded, because they tak a long time. Run `./testAll.sh` to include them.
 
 The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way.
 
