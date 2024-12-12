@@ -4476,7 +4476,7 @@ Assume a project with several devices. You can add these 2 files to all targets 
 
 ### 38.1. <a id='general-info'></a>General info
 
-This folder is per default named to `_test` to avoid vsCode slow down. Also, when running `go tes./../` the tests in the `_test` folder are excluded, because they tak a long time. Run `./testAll.sh` to include them.
+This folder is per default named to `_test` to avoid vsCode slow down. Also, when running `go test ./...`,  the tests in the `_test` folder are excluded, because they take a long time. Run `./testAll.sh` to include them.
 
 The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way.
 
@@ -4486,6 +4486,7 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 
 - In `_trice` folder first execute `go clean -cache`. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can led to confusing results.
 - To run the tests `cd` into `_test` and execute `go test ./...` fom there.
+- It is convenient to run `./renewIDs_in_examples_and_test_folder.sh` and `testAll.sh` from the Trice root folder to perform this.
 
 ### 38.3. <a id='tests-details'></a>Tests Details
 
@@ -4495,11 +4496,9 @@ To exclude a specific folder temporary, simply rename it to start with an unders
 
 The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](./testdata/triceCheck.c) is the master file for editing. After changing it, [./updateTestData.sh](./updateTestData.sh) needs to run. It runs `trice insert` updating [./testdata/til.json](./testdata/til.json).
 
-To be able to run `go test ./...` successfully without running the [./updateTestData.sh](./updateTestData.sh) script in advance, the script action results are checked in as well. That implies that [./testdata/triceCheck.c](./testdata/triceCheck.c) goes with IDs into the repo.
-
 [./testdata/cgoPackage.go](./testdata/cgoPackage.go) is the common master for the `generated_cgoPackage.go` files and contains the common test code. 
 
-The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently.
+The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently. When the tests are executed for each packages a separate test binary is build and thes run parallel.
 
 The `tf/triceConfig.h` files differ and correspondent to the `tf/cgo_test.go` files in the same folder. On test execution, the `./testdata/*.c` files are compiled into the trice test executable together with the trice sources `../src` using the `tf/triceConfig.h` file.
 
@@ -4514,7 +4513,7 @@ The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which lim
 ### 38.4. <a id='how-to-add-new-test-cases'></a>How to add new test cases
 
 - Choose a test folder similar to the intended test and copy it under a new descriptive name like `newTest`.
-- Extend file `testdata/updateTestData.sh` accordingly.
+- Extend file `./renewIDs_in_examples_and_test_folder.sh` accordingly.
 - Edit files `newTest/triceConfig.h` and `newTest/cgo_test.go` in a matching way.
 - Run command `go test test/newTest/...`
 
@@ -4538,6 +4537,8 @@ Some C-code lines contain Trice statements and comments starting with `//exp: ` 
 
 Because each test runs a different configuration, all possible combinations are testable.
 
+### Special tests
+
 ### 38.6. <a id='test-cases'></a>Test Cases
 
 #### 38.6.1. <a id='folder-naming-convention'></a>Folder Naming Convention
@@ -4548,6 +4549,7 @@ Because each test runs a different configuration, all possible combinations are 
 |      `_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.                     |
 |      `_di_`      | direct mode                                                                                              |
 |      `_de_`      | deferred mode                                                                                            |
+|    `special_`    | a test, not using `./testdata/triceCheck.c`                                                              |
 |    `staticB_`    | static buffer, direct mode only possible                                                                 |
 |    `stackB_`     | stack buffer, direct mode only possible                                                                  |
 |     `ringB_`     | ring buffer, deferred mode and optional parallel direct mode                                             |

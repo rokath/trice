@@ -75,6 +75,8 @@ CGOTESTDIRS="
     ringB_di_nopf_rtt8__de_tcobs_ua/
     ringB_di_tcobs_rtt32__de_tcobs_ua/
     ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua/
+    special_dblB_de_tcobs_ua/
+    protect_dblB_de_tcobs_ua/
     stackB_di_nopf_aux32/
     stackB_di_nopf_aux8/
     stackB_di_nopf_rtt32/
