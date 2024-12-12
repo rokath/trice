@@ -153,9 +153,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 				msg.OnErr(err)
 				return io.EOF
 			}
-			//  if Verbose {
-			//  	fmt.Fprintln(w, err, "-> WAITING...")
-			//  }
+
 			sleepCounter++
 			if sleepCounter > 100 {
 				time.Sleep(100 * time.Millisecond)
@@ -245,7 +243,6 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		if duration > 1000 {
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
-		//msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
 	}
 }
 

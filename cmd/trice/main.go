@@ -40,8 +40,6 @@ func doit(w io.Writer, fSys *afero.Afero) error {
 	args.Commit = commit
 	args.Date = date
 
-	//rand.Seed(time.Now().UnixNano())
-
 	return args.Handler(w, fSys, os.Args)
 
 }
