@@ -92,10 +92,10 @@ common:
 		if tag != e.tagName {
 			continue
 		}
+		if len(e.iDSpace) <= 0 {
+			log.Fatal("Remaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)")
+		}
 		if SearchMethod == "random" {
-			if len(e.iDSpace) <= 0 {
-				log.Fatal("Remaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)")
-			}
 			index := rand.Intn(len(e.iDSpace))
 			id = e.iDSpace[index]                          // use random
 			e.iDSpace[index] = e.iDSpace[len(e.iDSpace)-1] // overwrite with last
