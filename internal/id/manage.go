@@ -200,6 +200,10 @@ func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 		if strings.ContainsAny(x.Type, "_0") {
 			continue
 		}
+		if x.Type[len(x.Type)-1:] == "F" { // ignore triceF
+			continue
+		}
+
 		n := formatSpecifierCount(x.Strg)
 		x.Type = addFormatSpecifierCount(w, x.Type, n)
 		ilu[i] = x
