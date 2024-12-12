@@ -1,4 +1,4 @@
-<div id="top">
+7<div id="top">
 
 # Trice User Manual
 
@@ -4049,13 +4049,13 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
-<a id='g0b1_gen-description'></a><h5>G0B1_gen Description</h5>
+<a id='g0b1_gen-description'></a><h5>G0B1_bare Description</h5>
 
 - This is a working example with CLang and also GCC.
 - This is a STMCubeMX generated project. It was then manually adapted to Clang.
 - It is without TRICE instrumentation for easy compare with [../G0B1_inst](../G0B1_inst) to figure out the needed changes to set up trice.
 
-<a id='setting-up-g0b1_gen'></a><h5>Setting Up G0B1_gen</h5>
+<a id='setting-up-g0b1_gen'></a><h5>Setting Up G0B1_bare</h5>
 
 - See and adapt steps from [F030_bare](#f030_bare).
 - Then add/modify the files to reach this folder layot.
