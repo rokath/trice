@@ -100,7 +100,7 @@ func (p *idData) join(err error) {
 }
 
 // evaluateTriceParameterCount analyzes rest, if it has the correct parameter count according to t.
-// rest starts immediately after the trice format string and can be very long (the remaining file contet),
+// rest starts immediately after the trice format string and can be very long (the remaining file context),
 // but we check only until the trice end and return nil if the evaluation is ok.
 func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) {
 	fsc := formatSpecifierCount(t.Strg)
