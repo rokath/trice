@@ -12,6 +12,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"strconv"
 	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -192,20 +193,53 @@ func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
 }
 
 // AddFmtCount adds inside ilu to all trice type names without format specifier count the appropriate count.
+// Special Trices are ignored, but checked, because they have a fixed format specifier count:
+// TRICE_S triceS TriceS TRiceS: 1 (1 value)
+// TRICE_N triceN TriceN TRiceN: 1 (2 values)
+// TRICE_B triceB TriceB TRiceB: 1 (2 values)
+// TRICE_F triceF TriceF TRiceF: 0 (2 values)
 // example change:
 // `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16 hi %03u, %5x}]
 // `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16_2 hi %03u, %5x}]
+// ice" -> ice_n", ice8" -> ice8_n"
+// B" -> B", F" -> F", S" -> S", N" -> N"
+// _n" -> _n",
+// see also ConstructFullTriceInfo
 func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 	for i, x := range ilu {
-		if strings.ContainsAny(x.Type, "_0") {
-			continue
-		}
-		if x.Type[len(x.Type)-1:] == "F" { // ignore triceF
-			continue
-		}
-
 		n := formatSpecifierCount(x.Strg)
-		x.Type = addFormatSpecifierCount(w, x.Type, n)
+		if !(0 <= n && n <= 12) {
+			fmt.Fprintln(w, "Invalid format specifier count", n, "- please check", x)
+			continue
+		}
+		if strings.ContainsAny(x.Type, "S") || strings.ContainsAny(x.Type, "N") || strings.ContainsAny(x.Type, "B") {
+			if n != 1 {
+				fmt.Fprintln(w, "Expected format specifier count is", n, "- please check", x)
+			}
+			continue
+		}
+		if strings.ContainsAny(x.Type, "F") {
+			if n != 0 {
+				fmt.Fprintln(w, "Expected format specifier count is", n, "- please check", x)
+			}
+			continue
+		}
+		s := strings.Split(x.Type, "_")
+		if len(s) > 2 { // TRICE_B_1 -> "B" already excluded here
+			fmt.Fprintln(w, "Unexpected Trice type - please check", x)
+			continue
+		}
+		if len(s) == 2 { // example: trice8_3
+			i, err := strconv.Atoi(s[1])
+			if err != nil || i < 0 || i > 12 {
+				fmt.Fprintln(w, "Unexpected Trice type - please check", x)
+			}
+			continue
+		}
+		if n == 0 {
+			continue //
+		}
+		x.Type = fmt.Sprintf(x.Type+"_%d", n) // trice* -> trice*_n
 		ilu[i] = x
 	}
 }

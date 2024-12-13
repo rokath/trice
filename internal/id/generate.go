@@ -163,7 +163,7 @@ func computeValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth, p
 		extType = t.Type
 	default:
 		paramCount = formatSpecifierCount(t.Strg)
-		extType = ConstructFullTriceInfo(t.Type, paramCount)
+		extType, _ = ConstructFullTriceInfo(t.Type, paramCount)
 	}
 	bitWidth = defaultBitWidth
 	for i, w := range []string{"8", "16", "32", "64"} {
@@ -177,22 +177,25 @@ func computeValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth, p
 }
 
 // ConstructFullTriceInfo returns full TRICE info, if not exist in triceType string
-func ConstructFullTriceInfo(triceType string, paramCount int) string {
-	origType := triceType
+// Possible inputs: trice, TRICE_B, trice32F, TRICE8_3, trice16_12, TRICE0
+// see also AddFmtCount
+func ConstructFullTriceInfo(origType string, paramCount int) (fullTriceType string, err error) {
+	fullTriceType = origType
 	for _, name := range []string{"TRICE", "TRice", "Trice", "trice"} {
 		if strings.HasPrefix(origType, name+"_") { // when no bit width, insert it
-			triceType = name + DefaultTriceBitWidth + "_" + origType[6:]
+			// ice_B -> ice32_B
+			fullTriceType = name + DefaultTriceBitWidth + "_" + origType[6:]
 		}
 		if origType == name { // when plain trice name
 			if paramCount == 0 { // no parameters
-				triceType = name + "0" // special case
+				fullTriceType = name + "0" // special case
 			} else { // append bit width and count
-				triceType = fmt.Sprintf(name+DefaultTriceBitWidth+"_%d", paramCount)
+				fullTriceType = fmt.Sprintf(name+DefaultTriceBitWidth+"_%d", paramCount)
 			}
 		}
 		if origType == name+"8" || origType == name+"16" || origType == name+"32" || origType == name+"64" { // when no count
-			triceType = fmt.Sprintf(origType+"_%d", paramCount) // append count
+			fullTriceType = fmt.Sprintf(origType+"_%d", paramCount) // append count
 		}
 	}
-	return triceType
+	return fullTriceType, err
 }

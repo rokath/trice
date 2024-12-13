@@ -62,23 +62,6 @@ func formatSpecifierCount(s string) (count int) {
 	return
 }
 
-// addFormatSpecifierCount extends s with _n and returns it as sl
-func addFormatSpecifierCount(w io.Writer, s string, n int) (sx string) {
-	if 0 <= n && n < 99 { // patch
-		if !strings.Contains(s, "_") && s[len(s)-1:] != "0" {
-			sx = fmt.Sprintf(s+"_%d", n) // TRICE*_n
-		} else {
-			sx = s
-		}
-	} else {
-		if n != 0 {
-			fmt.Fprintln(w, "Parse error: ", n, " % format specifier found inside ", s)
-		}
-		sx = s
-	}
-	return
-}
-
 func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
