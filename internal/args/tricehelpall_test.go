@@ -288,7 +288,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
   -u	Short for '-unsigned'. (default true)
   -unsigned
-    	Hex, Octal and Bin values are printed as unsigned values. (default true)
+    	Hex, Octal and Bin values are printed as unsigned values. For signed output use -unsigned=false (default true)
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
