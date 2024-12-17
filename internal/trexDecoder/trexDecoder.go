@@ -469,8 +469,12 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertTrue")
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertFalse")
-	triceType, _ := id.ConstructFullTriceInfo(p.Trice.Type, len(p.u))
+	triceType, err := id.ConstructFullTriceInfo(p.Trice.Type, len(p.u))
 
+	if err != nil {
+		n += copy(b[n:], fmt.Sprintln("err:ConstructFullTriceInfo failed with:", p.Trice.Type, len(p.B), "- ignoring package:"))
+		return
+	}
 	ucTriceTypeReceived := strings.ToUpper(p.Trice.Type)   // examples: TRICE_S,   TRICE,   TRICE32,   TRICE16_2
 	ucTriceTypeReconstructed := strings.ToUpper(triceType) // examples: TRICE32_S, TRICE0,  TRICE32_4, TRICE16_2
 	for _, s := range cobsFunctionPtrList {                // walk through the list and try to find a match for execution
@@ -546,11 +550,7 @@ type triceTypeFn struct {
 
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
-	{"TRICE0", (*trexDec).trice0, 0, 0, 0},
-	//{"TRICE8_0", (*trexDec).trice0, 0, 0, 0},
-	//{"TRICE16_0", (*trexDec).trice0, 0, 0, 0},
-	//{"TRICE32_0", (*trexDec).trice0, 0, 0, 0},
-	//{"TRICE64_0", (*trexDec).trice0, 0, 0, 0},
+	{"TRICE_0", (*trexDec).trice0, 0, 0, 0},
 	{"TRICE8_1", (*trexDec).unSignedOrSignedOut, 1, 8, 1},
 	{"TRICE8_2", (*trexDec).unSignedOrSignedOut, 2, 8, 2},
 	{"TRICE8_3", (*trexDec).unSignedOrSignedOut, 3, 8, 3},
@@ -602,28 +602,16 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 
 	{"TRICES", (*trexDec).triceS, -1, 0, 0},
 	{"TRICEN", (*trexDec).triceN, -1, 0, 0},
-	{"TRICEB", (*trexDec).trice8B, -1, 0, 0},
-	{"TRICEF", (*trexDec).trice8F, -1, 0, 0},
-
-	{"TRICE_S", (*trexDec).triceS, -1, 0, 0},
-	{"TRICE_N", (*trexDec).triceN, -1, 0, 0},
-	{"TRICE_B", (*trexDec).trice8B, -1, 0, 0},
-	{"TRICE_F", (*trexDec).trice8F, -1, 0, 0},
 
 	{"TRICE8F", (*trexDec).trice8F, -1, 0, 0},
 	{"TRICE16F", (*trexDec).trice16F, -1, 0, 0},
 	{"TRICE32F", (*trexDec).trice32F, -1, 0, 0},
 	{"TRICE64F", (*trexDec).trice64F, -1, 0, 0},
 
-	{"TRICE8_B", (*trexDec).trice8B, -1, 0, 0},
-	{"TRICE16_B", (*trexDec).trice16B, -1, 0, 0},
-	{"TRICE32_B", (*trexDec).trice32B, -1, 0, 0},
-	{"TRICE64_B", (*trexDec).trice64B, -1, 0, 0},
-
-	{"TRICE8_F", (*trexDec).trice8F, -1, 0, 0},
-	{"TRICE16_F", (*trexDec).trice16F, -1, 0, 0},
-	{"TRICE32_F", (*trexDec).trice32F, -1, 0, 0},
-	{"TRICE64_F", (*trexDec).trice64F, -1, 0, 0},
+	{"TRICE8B", (*trexDec).trice8B, -1, 0, 0},
+	{"TRICE16B", (*trexDec).trice16B, -1, 0, 0},
+	{"TRICE32B", (*trexDec).trice32B, -1, 0, 0},
+	{"TRICE64B", (*trexDec).trice64B, -1, 0, 0},
 }
 
 // triceN converts dynamic strings.

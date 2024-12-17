@@ -22,7 +22,7 @@ const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
-	// patTrice matches any TRICE name variant  The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
+	// patTypNameTRICE matches any TRICE name variant. The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
 	patTypNameTRICE = `(?iU)(\b((TRICE((0|_0|AssertTrue|AssertFalse)|((8|16|32|64)*(_*[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/xuD9ar/1
 
 	// patNbID is a regex pattern matching any first "Id(n)" and usable in matches after patTypNameTRICE. It works also over line breaks.
@@ -39,6 +39,7 @@ const (
 	patAnyTriceStart = patTypNameTRICE + `\s*\(`
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
+	// todo: unify with decoder.patNextFormatSpecifier
 	patNextFormatSpecifier = `(?:^|[^%])(%[\ +\-0-9\.#]*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|s|t|u|U|x|X))`
 
 	patID = `\s*\b(i|I)(d|D)\b\s*` // `\s*\b(I|i)d\b\s*`

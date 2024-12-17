@@ -176,26 +176,111 @@ func computeValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth, p
 	return
 }
 
-// ConstructFullTriceInfo returns full TRICE info, if not exist in triceType string
-// Possible inputs: trice, TRICE_B, trice32F, TRICE8_3, trice16_12, TRICE0
+// ConstructFullTriceInfo returns full TRICE info, if not exist in orig‚Type string
+// For examples see TestConstructFullTriceInfo
 // see also AddFmtCount
 func ConstructFullTriceInfo(origType string, paramCount int) (fullTriceType string, err error) {
-	fullTriceType = origType
-	for _, name := range []string{"TRICE", "TRice", "Trice", "trice"} {
-		if strings.HasPrefix(origType, name+"_") { // when no bit width, insert it
-			// ice_B -> ice32_B
-			fullTriceType = name + DefaultTriceBitWidth + "_" + origType[6:]
+	if strings.ToUpper(origType[:5]) != "TRICE" {
+		err = fmt.Errorf(origType, "starts not with trice")
+		return
+	}
+	if len(origType) == 5 { // most often expected case: trice, Trice, TRice or TRICE
+		if paramCount == 0 {
+			fullTriceType = fmt.Sprintf(origType+"_%d", paramCount)
+		} else {
+			fullTriceType = fmt.Sprintf(origType+DefaultTriceBitWidth+"_%d", paramCount)
 		}
-		if origType == name { // when plain trice name
-			if paramCount == 0 { // no parameters
-				fullTriceType = name + "0" // special case
-			} else { // append bit width and count
-				fullTriceType = fmt.Sprintf(name+DefaultTriceBitWidth+"_%d", paramCount)
+		return
+	}
+
+	before, after, found := strings.Cut(origType, "_")
+	if found {
+		switch after {
+		case "N", "S": // TRICE_S
+			if paramCount == 1 {
+				fullTriceType = before + after
+			} else {
+				err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+			}
+		case "B": // TRICE_B or TRICE8_B
+			if paramCount == 1 {
+				if len(before) == 5 { // no bitwidth
+					fullTriceType = before + DefaultTriceBitWidth + after
+				} else {
+					fullTriceType = before + after
+				}
+			} else {
+				err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+			}
+		case "F": // TRICE16_F or TRICE_F
+			if paramCount == 0 {
+				if len(before) == 5 { // no bitwidth
+					fullTriceType = before + DefaultTriceBitWidth + after
+				} else {
+					fullTriceType = before + after
+				}
+			} else {
+				err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+			}
+		default:
+			cnt, e := strconv.Atoi(after)
+			if e != nil {
+				err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+			}
+			if cnt != paramCount {
+				err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+			}
+			if cnt == 0 {
+				fullTriceType = before[:5] + "_0" // no bitwidth
+			} else {
+				if len(before) == 5 { // trice_7 cases
+					fullTriceType = before + DefaultTriceBitWidth + "_" + after
+				} else {
+					fullTriceType = before + "_" + after
+				}
 			}
 		}
-		if origType == name+"8" || origType == name+"16" || origType == name+"32" || origType == name+"64" { // when no count
-			fullTriceType = fmt.Sprintf(origType+"_%d", paramCount) // append count
-		}
+		return
 	}
-	return fullTriceType, err
+	switch before[5:] {
+	case "0": // TRICE0
+		if paramCount != 0 {
+			err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+		}
+		fullTriceType = before[:len(before)-1] + "_0"
+	case "S", "N": // triceS
+		if paramCount == 1 {
+			fullTriceType = before
+		} else {
+			err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+		}
+	case "B", "8B", "16B", "32B", "64B": // TRICE16B or triceF or Trice8B
+		if paramCount == 1 {
+			if len(before) == 6 { // no bit width given
+				fullTriceType = before[:len(before)-1] + DefaultTriceBitWidth + before[len(before)-1:]
+			} else {
+				fullTriceType = before
+			}
+		} else {
+			err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+		}
+	case "F", "8F", "16F", "32F", "64F": // TRICE16B or triceF or Trice8B
+		if paramCount == 0 {
+			if len(before) == 6 { // no bit width given
+				fullTriceType = before[:len(before)-1] + DefaultTriceBitWidth + before[len(before)-1:]
+			} else {
+				fullTriceType = before
+			}
+		} else {
+			err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+		}
+	case "8", "16", "32", "64":
+		if paramCount == 0 {
+			fullTriceType = fmt.Sprintf(before[:5]+"_%d", paramCount) // discard bitwidth
+		} else {
+			fullTriceType = fmt.Sprintf(before+"_%d", paramCount)
+		}
+	default:
+	}
+	return
 }

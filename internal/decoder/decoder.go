@@ -33,13 +33,18 @@ const (
 	// defaultSize is the beginning receive and sync buffer size.
 	DefaultSize = 64 * 1024
 
-	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and ignoring %s
+	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and NOT ignoring %s
 	//
 	// https://regex101.com/r/BjiD5M/1
 	// Language C plus from language Go: %b, %F, %q
 	// Partial implemented: %hi, %hu, %ld, %li, %lf, %Lf, %Lu, %lli, %lld
 	// Not implemented: %s
-	patNextFormatSpecifier = `%([+\-#'0-9\.0-9])*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|t|u|x|X)` // assumes no `%%` inside string!
+	//patNextFormatSpecifier =        `%([+\-#'0-9\.0-9])*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|s|t|u|U|x|X)` // assumes no `%%` inside string!
+	patNextFormatSpecifier = `(?:^|[^%])(%[\ +\-0-9\.#]*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|s|t|u|U|x|X))` // inside update.go
+
+	// patNextFormatSSpecifier is a regex to find next format s specifier in a string
+	// It does also match %%u positions!
+	patNextFormatSSpecifier = `%[0-9]*s` // assumes no `%%` inside string!
 
 	// patNextFormatUSpecifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions!
@@ -73,7 +78,7 @@ const (
 	FloatFormatSpecifier    = 2 // %f and relatives
 	BooleanFormatSpecifier  = 3 // a %t (bool) found
 	PointerFormatSpecifier  = 4 // a %p (pointer) found
-
+	StringFormatSpecifier   = 5 // a %s found
 )
 
 var (
@@ -93,6 +98,7 @@ var (
 	Unsigned bool
 
 	matchNextFormatSpecifier        = regexp.MustCompile(patNextFormatSpecifier)
+	matchNextFormatSSpecifier       = regexp.MustCompile(patNextFormatSSpecifier)
 	matchNextFormatUSpecifier       = regexp.MustCompile(patNextFormatUSpecifier)
 	matchNextFormatISpecifier       = regexp.MustCompile(patNextFormatISpecifier)
 	matchNextFormatXSpecifier       = regexp.MustCompile(patNextFormatXSpecifier)
@@ -189,7 +195,7 @@ func (p *DecoderData) ReadU64(b []byte) uint64 {
 
 // UReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
 //
-// If a replacement took place on position k u[k] is 1. Afterwards len(u) is amount of found format specifiers.
+// If a replacement took place on position k u[k] is 0. Afterwards len(u) is amount of found format specifiers.
 // Additional, if UnsignedHex is true, for FormatX specifiers u[k] is also 1.
 // If a float format specifier was found at position k, u[k] is 2,
 // http://www.cplusplus.com/reference/cstdio/printf/
@@ -222,6 +228,11 @@ func UReplaceN(i string) (o string, u []int) {
 		locBool := matchNextFormatBoolSpecifier.FindStringIndex(fm)
 		if nil != locBool { // a %t found
 			u = append(u, BooleanFormatSpecifier) // bool value
+			continue
+		}
+		locS := matchNextFormatSSpecifier.FindStringIndex(fm)
+		if nil != locS { // a %ns found
+			u = append(u, StringFormatSpecifier) // float value
 			continue
 		}
 		locF := matchNextFormatFSpecifier.FindStringIndex(fm)
