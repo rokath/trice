@@ -30,11 +30,11 @@ do
     trice add    -i $d/til.json -li $d/li.json -src ./examples/exampleData -src $TD -src $d
 done
 
-
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
 CGOTESTDIRS="
     _special_dblB_de_tcobs_ua/
+    special_for_debug/
     special_protect_dblB_de_tcobs_ua/
     be_dblB_de_tcobs_ua/
     be_staticB_di_xtea_cobs_rtt32/
