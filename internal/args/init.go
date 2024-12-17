@@ -157,7 +157,7 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 
 	fsScLog.StringVar(&receiver.ExecCommand, "exec", "", execInfo)
 
-	fsScLog.BoolVar(&decoder.Unsigned, "unsigned", true, "Hex, Octal and Bin values are printed as unsigned values.")
+	fsScLog.BoolVar(&decoder.Unsigned, "unsigned", true, "Hex, Octal and Bin values are printed as unsigned values. For signed output use -unsigned=false")
 	fsScLog.BoolVar(&decoder.Unsigned, "u", true, "Short for '-unsigned'.")
 	fsScLog.BoolVar(&receiver.ShowInputBytes, "showInputBytes", false, `Show incoming bytes, what can be helpful during setup.
 `+boolInfo)
