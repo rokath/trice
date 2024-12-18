@@ -132,9 +132,11 @@ func (p *idData) insertTriceIDs(w io.Writer, liPath string, in []byte, a *ant.Ad
 		t.Type = rest[loc[0]:loc[1]]       // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
 		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
 		if !SkipAdditionalChecks {
-			err = evaluateTriceParameterCount(t, line, rest[loc[6]:])
+			linesOffset := strings.Count(rest[:loc[6]], "\n")
+			err = evaluateTriceParameterCount(t, line+linesOffset, rest[loc[6]:])
 			if err != nil {
-				return
+				fmt.Fprintln(w, liPath, err)
+				os.Exit(-1)
 			}
 		}
 		if loc[3] != loc[4] { // iD(n) found
