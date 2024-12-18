@@ -1,4 +1,4 @@
-7<div id="top">
+<div id="top">
 
 # Trice User Manual
 
