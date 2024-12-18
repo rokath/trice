@@ -8731,21 +8731,13 @@
 		"Type": "TRICE_N",
 		"Strg": "wr:%s\\n"
 	},
-	"15713": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
-	},
-	"15714": {
-		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
-	},
 	"15715": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"15716": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"15717": {
 		"Type": "trice8",
@@ -8816,12 +8808,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15734": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15735": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15736": {
 		"Type": "trice8",
@@ -8972,12 +8964,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15773": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"15774": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"15775": {
 		"Type": "trice8",
@@ -9137,17 +9129,25 @@
 	},
 	"15814": {
 		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\\n"
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15815": {
 		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\\n"
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15816": {
 		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An minimum configuration example.\\n"
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\\n"
 	},
 	"15817": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\\n"
+	},
+	"15818": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An minimum configuration example.\\n"
+	},
+	"15819": {
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\\n"
 	},
