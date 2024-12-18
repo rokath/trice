@@ -11,9 +11,9 @@
         * 2.3. [Common improvements](#common-improvements)
         * 2.4. [CLI changes](#cli-changes)
         * 2.5. [Changes under the hood](#changes-under-the-hood)
-* 3. [v063. Changes](#v063.-changes)
-* 4. [v0.64.0 Changes (unsorted)](#v0.64.0-changes-(unsorted))
-* 5. [v0.64.1 changes (unsorted)](#v0.64.1-changes-(unsorted))
+* 3. [v0.63.0 Changes](#v0.63.0-changes)
+* 4. [v0.64.0 Changes](#v0.64.0-changes)
+* 5. [v0.64.1 changes](#v0.64.1-changes)
 * 6. [v0.65.0 Changes](#v0.65.0-changes)
 * 7. [v0.66.0 Changes](#v0.66.0-changes)
 * 8. [v0.67.0 Changes](#v0.67.0-changes)
@@ -43,7 +43,7 @@
 * 18. [v0.72.5 Changes](#v0.72.5-changes)
         * 18.1. [v0.72.5 Overview](#v0.72.5-overview)
         * 18.2. [v0.72.5 Git Log](#v0.72.5-git-log)
-* 19. [master branch changese028a42b Merge branch 'master' into devel](#master-branch-changese028a42b-merge-branch-'master'-into-devel)
+* 19. [master branch changes](#master-branch-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -95,26 +95,26 @@
 | 2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.                                                                                                                                                                                                                                                                                            |
 | 2023-SEP-10 |  0.62.2 | Fixes issue [#427](https://github.com/rokath/trice/issues/427). TCOBS decoder more robust against data garbage.                                                                                                                                                                                                                                                                                       |
 | 2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.                                                                                                                                                                                                                         |
-| 2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#3-v063-changes)                                                                                                                                                                                                                                                                                                                                                               |
-| 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes (unsorted)](#4-v0640-changes-unsorted)                                                                                                                                                                                                                                                                                                                                        |
-| 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes (unsorted)](#v0.64.1changesunsorted)                                                                                                                                                                                                                                                                                                                                             |
+| 2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#v0.63.0-changes)                                                                                                                                                                                                                                                                                                                                                               |
+| 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes](#v0.64.0-changes)                                                                                                                                                                                                                                                                                                                                        |
+| 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes](#v0.64.1-changes)                                                                                                                                                                                                                                                                                                                                             |
 | 2024-JUL-26 |  0.64.2 | minor cleanups                                                                                                                                                                                                                                                                                                                                                                                        |
 | 2024-JUL-27 |  0.64.3 | ID management improved for special cases                                                                                                                                                                                                                                                                                                                                                              |
-| 2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#6-v0650-changes)                                                                                                                                                                                                                                                                                                                                                            |
-| 2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#7-v0660-changes)                                                                                                                                                                                                                                                                                                                                                            |
+| 2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#v0.65.0-changes)                                                                                                                                                                                                                                                                                                                                                            |
+| 2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#v0.66.0-changes)                                                                                                                                                                                                                                                                                                                                                            |
 | 2024-AUG-18 |  0.66.1 | Documetation and tests improved                                                                                                                                                                                                                                                                                                                                                                       |
-| 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#8-v0670-changes)                                                                                                                                                                                                                                                                                                                                                            |
-| 2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#9-v0680-changes)                                                                                                                                                                                                                                                                                                                                                            |
-| 2024-AUG-23 |  master | See [10. v0.69.0 Changes](#10-v0690-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-OCT-09 |  0.70.0 | See [11. v0.70.0 Changes](#11-v0700-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#v0710-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-OCT-31 |  0.72.0 | See [13. v0.72.0 Changes](#v0720-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-NOV-06 |  0.72.1 | See [14. v0.72.1 Changes](#v0721-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-NOV-17 |  0.72.2 | See [15. v0.72.2 Changes](#v0722-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-NOV-29 |  0.72.3 | See [16. v0.72.3 Changes](#v0723-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-DEC-10 |  0.72.4 | See [17. v0.72.4 Changes](#v0724-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-DEC-18 |  0.72.5 | See [18. v0.72.5 Changes](#v0725-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-DEC-18 |  master | See [19. master branch changes](#13-master-branch-changes)                                                                                                                                                                                                                                                                                                                                            |
+| 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#v0.67.0-changes)                                                                                                                                                                                                                                                                                                                                                            |
+| 2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#v0.68.0-changes)                                                                                                                                                                                                                                                                                                                                                            |
+| 2024-AUG-23 |  0.69.0 | See [10. v0.69.0 Changes](#v0.69.0-changes)                                                                                                                                                                                                                                                                                                                                                          |
+| 2024-OCT-09 |  0.70.0 | See [11. v0.70.0 Changes](#v0.70.0-changes)                                                                                                                                                                                                                                                                                                                                                          |
+| 2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#v0.71.0-changes)                                                                                                                                                                                                                                                                                                                                                          |
+| 2024-OCT-31 |  0.72.0 | See [13. v0.72.0 Changes](#v0.72.0-changes)                                                                                                                                                                                                                                                                                                                                                          |
+| 2024-NOV-06 |  0.72.1 | See [14. v0.72.1 Changes](#v0.72.1-changes)                                                                                                                                                                                                                                                                                                                                                          |
+| 2024-NOV-17 |  0.72.2 | See [15. v0.72.2 Changes](#v0.72.2-changes)                                                                                                                                                                                                                                                                                                                                                         |
+| 2024-NOV-29 |  0.72.3 | See [16. v0.72.3 Changes](#v0.72.3-changes)                                                                                                                                                                                                                                                                                                                                                          |
+| 2024-DEC-10 |  0.72.4 | See [17. v0.72.4 Changes](#v0.72.4-changes)                                                                                                                                                                                                                                                                                                                                                          |
+| 2024-DEC-18 |  0.72.5 | See [18. v0.72.5 Changes](#v0.72.5-changes)                                                                                                                                                                                                                                                                                                                                                          |
+| 2024-DEC-18 |  master | See [19. master branch changes](#master-branch-changes)                                                                                                                                                                                                                                                                                                                                            |
 
 ## 1. <a id='v0.60.1-twice-log-screen-shot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -178,7 +178,7 @@ This is a major release hopefully not breaking too much!
 * False positive windows vet warning removed.
 * Endianness updated and tested.
 
-## 3. <a id='v063.-changes'></a>v063. Changes
+## 3. <a id='v0.63.0-changes'></a>v0.63.0 Changes
 
 - Issue [#436](https://github.com/rokath/trice/issues/436) done (faster now).
 - Issue [#438](https://github.com/rokath/trice/issues/438) done (minor). 
@@ -192,7 +192,7 @@ This is a major release hopefully not breaking too much!
 - Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
 - Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
 
-## 4. <a id='v0.64.0-changes-(unsorted)'></a>v0.64.0 Changes (unsorted)
+## 4. <a id='v0.64.0-changes'></a>v0.64.0 Changes
 
 - additional configuration checks 
 - TriceNonBlockingDirectWrite re-coded 
@@ -251,7 +251,7 @@ This is a major release hopefully not breaking too much!
 - improved id testing
 - triceDefaultConfig.h
 
-## 5. <a id='v0.64.1-changes-(unsorted)'></a>v0.64.1 changes (unsorted)
+## 5. <a id='v0.64.1-changes'></a>v0.64.1 changes
 
 - `b171458c` (origin/debug, debug) Bugfix: Temp buffer was too small
 - `478bfa7d` diagnostics re-ordered to get more secure output if buffers are very small
@@ -811,7 +811,7 @@ Used git log command: `git log --oneline v0.72.4..HEAD | grep -v wip >> CHANGELO
 | `3b23aec7` | typo corrected                                                                                         |
 | `cd366fb3` | Update TriceUserManual.md                                                                              |
 
-## 19. <a id='master-branch-changese028a42b-merge-branch-'master'-into-devel'></a>master branch changese028a42b Merge branch 'master' into devel
+## 19. <a id='master-branch-changes'></a>master branch changes
 
 * All documents merged into [Trice User Manual](./docs/TriceUserManual.md)
 
