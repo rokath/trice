@@ -726,12 +726,12 @@ Used git log command: `git log --oneline v0.72.2..HEAD` and less important lines
 
 ### 17.1. <a id='v0.72.4-overview'></a>v0.72.4 Overview
 
-- A new `trice generate` command added.
-- A statistics switch `trice log -stat` added to display, how often each Trice message occurred. 
-- Documentation extended and improved
-	`./examples folder`
-	- All documentation moved to TriceUserManual.md
-	- Previous documentation locations link into approriate places inside the TriceUserManual.md
+* A new `trice generate` command added.
+* A statistics switch `trice log -stat` added to display, how often each Trice message occurred. 
+* Documentation extended and improved
+  * `./examples folder`
+  *  All documentation moved to TriceUserManual.md
+  *  Previous documentation locations link into approriate places inside the TriceUserManual.md
 
 ### 17.2. <a id='v0.72.4-git-log'></a>v0.72.4 Git Log
 
@@ -791,7 +791,8 @@ Used git log command: `git log --oneline v0.72.3..HEAD | grep -v wip >> CHANGELO
 
 ### 18.1. <a id='v0.72.5-overview'></a>v0.72.5 Overview
 
-The `trice generate` now checks format soecifier count in Trices against their values count.
+* All documents merged into [Trice User Manual](./docs/TriceUserManual.md)
+* The `trice generate` now checks format soecifier count in Trices against their values count.
 
 ### 18.2. <a id='v0.72.5-git-log'></a>v0.72.5 Git Log
 
@@ -812,7 +813,5 @@ Used git log command: `git log --oneline v0.72.4..HEAD | grep -v wip >> CHANGELO
 | `cd366fb3` | Update TriceUserManual.md                                                                              |
 
 ## 19. <a id='master-branch-changes'></a>master branch changes
-
-* All documents merged into [Trice User Manual](./docs/TriceUserManual.md)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
