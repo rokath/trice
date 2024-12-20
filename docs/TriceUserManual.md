@@ -1298,7 +1298,7 @@ ok      github.com/rokath/trice/pkg/msg 0.299s
 ok      github.com/rokath/trice/pkg/tst 0.406s
 ```
 
-To execute the target code tests, you can run `test.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
+To execute the target code tests, you can run `testAll.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
 The last tests can last quite a while, depending on your machine.
 
 ```bash
