@@ -1,5 +1,4 @@
 
-
 // github.com/onsi/ginkgo behavioral tests
 // goconvey.co view test results in browser based display
 // code.google.com/p/gomock
@@ -7,4 +6,3 @@
 // go tool cover -func cover.out
 // go tool cover -html cover.out makes a website
 // go test -coverprofile cover.out -covermode count
-
