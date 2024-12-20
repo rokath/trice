@@ -43,6 +43,7 @@ Table of Contents Generation:
   * 4.17. [Trice Protection](#trice-protection)
   * 4.18. [Trice Diagnostics](#trice-diagnostics)
   * 4.19. [Trice Cache](#trice-cache)
+  * 4.20. [Avoiding False-Positive Editor Warnings](#avoiding-false-positive-editor-warnings)
 * 5. [Project structure (Files and Folders)](#project-structure-(files-and-folders))
 * 6. [Start with Trice](#start-with-trice)
   * 6.1. [Get it](#get-it)
@@ -412,7 +413,7 @@ Making it facile for a user to use Trice was the driving point just to have
 Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](../til.json) was updated in an pre-build step, the Trice tool automatically reloads the new data during logging.
 
 The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type:
-* [./build.sh](../examples/L432_bare_inst/build.sh) containing `trice i -cache`, `make` and `trice c -cache`
+* [./build.sh](../examples/L432_bare_inst/build.sh) containing `trice insert -cache`, `make` and `trice clean -cache`
 * **`make log`** containing `trice l -p COMn` for logging with default baud rate.
 
 In this example, the user code gets **not** polluted with Trice IDs - they exists only during the compilation step and the Trice cache makes this invisible for the user and the build system.
@@ -514,16 +515,58 @@ The Trice tool supports [many command line switches](../internal/args/tricehelpa
 
 ### 4.16. <a id='optional-trice-messages-encryption'></a>Optional Trice messages encryption
 
-The encryption opportunity makes it possible to test thoroughly a binary with log output and releasing it without the need to change any bit but to make the log output unreadable for a not authorized person. Implemented is the lightweight [XTEA](https://de.wikipedia.org/wiki/Extended_Tiny_Encryption_Algorithm) as option, what will do for many cases. It should be no big deal to add a different algorithm.
+The encryption opportunity makes it possible to test thoroughly a binary with log output and releasing it without the need to change any bit but to make the log output unreadable for a not authorized person. Implemented is the lightweight [XTEA](https://en.wikipedia.org/wiki/XTEA) as option, what will do for many cases. It should be no big deal to add a different algorithm.
 
 ### 4.17. <a id='trice-protection'></a>Trice Protection
 
+When using Trice, data are written into buffers. A buffer overflow is impossible with the default configuration `#define TRICE_PROTECT 1` by simply ignoring possible overflow causing Trice statements. Those cases are not detectable by the cycle counter evaluation because non-existing Trice data on the embedded system cannot cause cycle errors. Therefore overflow error counters exists, which the user can watch. In [./examples/exampleData/triceLogDiagData.c](../examples/exampleData/triceLogDiagData.c) an option is shown. Of course this buffer overflow protection costs valuable execution time. If you prefer speed over protection, simply write into your project specific _triceConfig.h_ `#define TRICE_PROTECT 0`.
+
 ### 4.18. <a id='trice-diagnostics'></a>Trice Diagnostics
+
+A trice statement produces 4 bytes buffer data plus optional values data. When for example `TRice16("Voltage=%u\n"), x);` is called inside the ms system tick interrupt every 5th time, 10 bytes data are generated each 5 milliisecond. This needs a transfer baudrate of at least 20.000 bit/s. A UART running at 115.200 baud can easily handle that.
+Anyway after 100 ms, a 200 Bytes buffer is filled and the question arises what is the optimal Trice buffer size. A caclulation is error prone, so measuring is better. So configure the buffer sizes bigger than estimated and watch the max depth of their usage. In [./examples/exampleData/triceLogDiagData.c](../examples/exampleData/triceLogDiagData.c) an option is shown. After you optimized your buffer sizes, you can deactivate the Trice diagnostics in your project specific _triceConfig.h_ with `#define TRICE_DIAGNOSTICS 0`.
 
 ### 4.19. <a id='trice-cache'></a>Trice Cache
 
 One may think, automatically cleaning the IDs in the target code with `trice c` after building and re-inserting them just for the compilation needs file modifications all the time and a permanent rebuild of all files containing Trices will slow down the re-build process. That is true, but by using the Trice cache this is avoidable.
-Simply one-time create a `~./trice/cache` folder and use `trice i -cache` and `trice c -cache` in your [build.sh](../examples/L432_inst/build.sh) script.
+Simply one-time create a `.trice/cache` folder in your home directory and use `trice insert -cache` and `trice clean -cache` in your [build.sh](../examples/L432_inst/build.sh) script.
+
+### 4.20. <a id='avoiding-false-positive-editor-warnings'></a>Avoiding False-Positive Editor Warnings
+
+When the user writes
+
+```C
+trice("msg: Hello! 👋🙂\n");
+```
+
+after `trice insert` this gets
+
+```C
+trice(iD(123), "msg: Hello! 👋🙂\n");
+```
+
+and the compiler builds and then with `trice clean`, this gets again
+
+```C
+trice("msg: Hello! 👋🙂\n");
+```
+
+Sophisticated editors may detect the missing ID and warn by underlining the trice command:
+
+![x](./ref/triceHello.png)
+
+To avoid this you can add the following line to your project specific _triceConfig.h_ file:
+
+```C
+#define TRICE_CLEAN 1
+```
+
+The Trice tool, will change the value to 0 and change it back to 1, when performing the ID insertion and cleaning, when this line occurs inside the _triceConfig.h_ file. This way these false-positive editor warnings are avoidable:
+
+![x](./ref/triceHelloOKnoID.png)
+![x](./ref/triceHelloOKwithID.png)
+
+It is recommended to use the Trice cache in conjunction with this to avoid a permanent re-translation of files including Trice code.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -2664,6 +2707,7 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 ### 28.7. <a id='settings-conclusion'></a>Settings Conclusion
 
 * 4-8 KB Flash and 1.2 KB RAM needed for the Trice library.
+* The RAM size is mainly influenced by the configured buffer sizes.
 * Switching off diagnostics and/or protection is ok for less memory needs and faster Trice execution after getting some experience with the project.
 
 ### 28.8. <a id='legacy-trice-space-example-(old-version)'></a>Legacy Trice Space Example (Old Version)
@@ -2711,7 +2755,7 @@ Modern compilers are optimizing out unused code automatically, but you can help 
 ### 29.1. <a id='code-optimization--o3-or--oz-(if-supported)'></a>Code Optimization -o3 or -oz (if supported)
 
 For debugging it could be helpful to switch off code optimization what increases the code size. A good choice is `-o1`. See also
-[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#direct-trice-out-(trice_mode-trice_stack_buffer)-could-cause-stack-overflow-with--o0-optimization).
+[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization).
 
 
 ### 29.2. <a id='compiler-independent-setting-(a-bit-outdated)'></a>Compiler Independent Setting (a bit outdated)
