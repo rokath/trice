@@ -1,1 +1,1 @@
-# [../docs/TriceUserManual.md/#L432_bare-example](../docs/TriceUserManual.md/#l432_bare-example)
+# [../docs/TriceUserManual.md/#L432_bare](../docs/TriceUserManual.md/#l432_bare)
