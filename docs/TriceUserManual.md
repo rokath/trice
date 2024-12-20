@@ -605,7 +605,7 @@ It is recommended to use the Trice cache in conjunction with this to avoid a per
 
 ### 4.21. <a id='trice-generator'></a>Trice Generator
 
-The Trice tool is able to generate colors or code to support various tasks. One ineresting option is the Remote Procedure Call support, allowing RPC usage in a network of embedded devices.
+The Trice tool is able to generate colors or code to support various tasks. One interesting option is the Remote Procedure Call support, allowing RPC usage in a network of embedded devices.
 
 Read chapter [Trice Generate](#trice-generate) or type:
 
