@@ -895,7 +895,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 | [triceDoubleBuffer.c](../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode                                                         |
 | [triceStackBuffer.c](../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode                                                                   |
 | [triceRingBuffer.c](../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode                                                     |
-| [xtea.c](../src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
+| [xtea.h](../src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
 | [xtea.c](../src/xtea.c)                             | XTEA message encryption/decryption code                                                                              |
 
 * The *tcobs\*.\** files are copied from [https://github.com/rokath/tcobs/tree/master/v1](https://github.com/rokath/tcobs/tree/master/v1). They are maintained there and extensively tested and probably not a matter of significant change.
