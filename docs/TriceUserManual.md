@@ -727,7 +727,7 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
       | `trice l -p FILEBUFFER -args logfile.bin`       | Play a recorded binary log file.                                                                                                              |
 
     * It is recommended to add `trice insert ...` as pre-compile step into the tool chain.
-    * Hint: It is possible to add `trice clean ...` as a post-compile step, so that you can check in your project sources without IDs. That is supported in v0.61.0 and later. This allows to use library sources with trices in different projects and the source code is not spoiled with IDs.
+    * Hint: It is possible to add `trice clean ...` as a post-compile step, so that you can check in your project sources without IDs. That is supported in v0.61.0 and later. This allows to use library sources with trices in different projects and the source code is not spoiled with IDs. The `-cache` CLI switch is recommended then. <small>See [Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed)</small>.
 * The command `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
 * The command `trice` is compiler agnostic - it should work with any compiler.
 * The vsCode editor is free downloadable and free usable, like shown in the [`examples/F030_inst`](../examples/F030_inst) project.
@@ -868,14 +868,14 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 | [cobsEncode.c](../src/cobsEncode.c)                 | message encoding, alternatively for tcobs                                                                            |
 | [cobsDecode.c](../src/cobsDecode.c)                 | message decoding, normally not needed                                                                                |
 | [trice.c](../src/trice.c)                           | trice core lib                                                                                                       |
-| [trice8McuOrder.c](../src/trice8McuOrder.c)         | trice MCU endianness lib                                                                                             |
-| [trice8McuReverse.c](../src/trice8McuReverse.c)     | trice MCU reverse endianness lib                                                                                     |
-| [trice16McuOrder.c](../src/trice16McuOrder.c)       | trice MCU endianness lib                                                                                             |
-| [trice16McuReverse.c](../src/trice16McuReverse.c)   | trice MCU reverse endianness lib                                                                                     |
-| [trice32McuOrder.c](../src/trice32McuOrder.c)       | trice MCU endianness lib                                                                                             |
-| [trice32McuReverse.c](../src/trice32McuReverse.c)   | trice MCU reverse endianness lib                                                                                     |
-| [trice64McuOrder.c](../src/trice64McuOrder.c)       | trice MCU endianness lib                                                                                             |
-| [trice64McuReverse.c](../src/trice64McuReverse.c)   | trice MCU reverse endianness lib                                                                                     |
+| [trice8McuOrder.h](../src/trice8McuOrder.h)         | trice MCU endianness lib                                                                                             |
+| [trice8McuReverse.h](../src/trice8McuReverse.h)     | trice MCU reverse endianness lib                                                                                     |
+| [trice16McuOrder.h](../src/trice16McuOrder.h)       | trice MCU endianness lib                                                                                             |
+| [trice16McuReverse.h](../src/trice16McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
+| [trice32McuOrder.h](../src/trice32McuOrder.h)       | trice MCU endianness lib                                                                                             |
+| [trice32McuReverse.h](../src/trice32McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
+| [trice64McuOrder.h](../src/trice64McuOrder.h)       | trice MCU endianness lib                                                                                             |
+| [trice64McuReverse.h](../src/trice64McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
 | [SEGGER_RTT.h](../src/SEGGER_RTT.h)                 | Segger RTT code interface                                                                                            |
 | [SEGGER_RTT.c](../src/SEGGER_RTT.c)                 | Segger RTT code                                                                                                      |
 | [tcobs.h](../src/tcobs.h)                           | message compression and packaging interface                                                                          |
@@ -1072,8 +1072,32 @@ trice( "hi 4");
 
 #### 6.6.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
 
-* There is nothing wrong, when putting Trice macros into other macros.
-* But: When running the self made macro, the location information of the inner _trice_ macro will point to the self made macro definition and not to its execution location.
+There is nothing wrong, when putting Trice macros into other macros. But: When running the self made macro, the location information of the inner _trice_ macro will point to the self made macro definition and not to its execution location.
+
+**Example:** When Functions fnA and fnB are executed, the MY_MESSAGE location information points to _file.h_ and not into the appropriate lines inside _file.c_.
+
+_file.h_:
+
+```C
+#define MY_MESSAGE trice("msg:Hi\n"); // self made macro
+```
+
+_file.c_:
+
+```C
+void fnA( void ){
+  ...
+  MY_MESSAGE
+  ...
+}
+
+void fnB( void ){
+  ...
+  MY_MESSAGE
+  ...
+}
+```
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
