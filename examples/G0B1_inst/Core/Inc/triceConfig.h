@@ -30,6 +30,8 @@ extern "C" {
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
+//#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
+
 
 #include "cmsis_gcc.h"
 #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
