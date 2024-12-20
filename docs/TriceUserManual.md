@@ -14,9 +14,9 @@
 <!--
 Table of Contents Generation:
 * Install vsCode extension "Markdown TOC" from dumeng
-* Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
+* Use Shift-Command-P "markdownTOC:generate" to get the automatic numbering.
 * replace "<a id=" with "<a id="
-* replace "## " with "## "
+* replace "##" followed by 2 spaces with "## "‚
 -->
 
 <!-- vscode-markdown-toc -->
@@ -44,6 +44,8 @@ Table of Contents Generation:
   * 4.18. [Trice Diagnostics](#trice-diagnostics)
   * 4.19. [Trice Cache](#trice-cache)
   * 4.20. [Avoiding False-Positive Editor Warnings](#avoiding-false-positive-editor-warnings)
+  * 4.21. [Trice Generator](#trice-generator)
+  * 4.22. [Versions and Variants Trice Stability](#versions-and-variants-trice-stability)
 * 5. [Project structure (Files and Folders)](#project-structure-(files-and-folders))
 * 6. [Start with Trice](#start-with-trice)
   * 6.1. [Get it](#get-it)
@@ -412,8 +414,10 @@ Making it facile for a user to use Trice was the driving point just to have
 
 Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](../til.json) was updated in an pre-build step, the Trice tool automatically reloads the new data during logging.
 
-The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type:
-* [./build.sh](../examples/L432_bare_inst/build.sh) containing `trice insert -cache`, `make` and `trice clean -cache`
+The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. <small>In file [../internal/args/tricehelpall_test.go](../internal/args/tricehelpall_test.go) the expected test output contains this information as well.</small>
+
+Normal Trice tool usage is:
+* [./build.sh](../examples/L432_inst/build.sh) containing `trice insert -cache`, `make` and `trice clean -cache`
 * **`make log`** containing `trice l -p COMn` for logging with default baud rate.
 
 In this example, the user code gets **not** polluted with Trice IDs - they exists only during the compilation step and the Trice cache makes this invisible for the user and the build system.
@@ -428,25 +432,56 @@ Can it get faster than [6 clocks only](#trice-speed)? Only 3 runtime Assembler i
 
 ### 4.5. <a id='robustness'></a>Robustness
 
-When a Trice data stream is interrupted, the optional [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding allows an immediate re-sync with the next COBS package delimiter byte and a default Trice **cycle counter** gives a high chance to detect lost Trice messages.
+When a Trice data stream is interrupted, the optional [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) or [TCOBS](https://github.com/rokath/tcobs) encoding allows an immediate re-sync with the next COBS/TCOBS package delimiter byte and a default Trice **cycle counter** gives a high chance to detect lost Trice messages. <small>See also [Versions and Variants Trice Stability](#versions-and-variants-trice-stability).</small>
 
 ### 4.6. <a id='minimal-transfer-bytes-amount'></a>Minimal Transfer Bytes Amount
 
-A Trice message is 4 bytes long (2 ID bytes and 2 count bytes) plus optional time stamps and/or values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as imaginable.
+A Trice message is 4 bytes long (2 ID bytes and 2 count bytes) plus optional time stamps and/or values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as possible. Use the `-debug` switch to see the compressed and framed packages alongside the decompressed ones together with the decoded messages:
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -hs off -pw MySecret -pf cobs -debug    
+...
+cobs: 21 84 b7 60 8b 21 89 1e e3 07 6d dc d9 2d 6f 59 04 8e 50 8f 24 1c a2 63 2e 3d 4a 57 ef 39 63 01 cb 00 
+->TRICE: 84 b7 60 8b 21 89 1e e3 07 6d dc d9 2d 6f 59 04 8e 50 8f 24 1c a2 63 2e 3d 4a 57 ef 39 63 01 cb 
+-> DEC:  cc b6 63 01 71 02 ff fe cd 76 72 03 ff fe fd ce f6 64 81 00 00 73 04 ff fe fd fc 00 00 00 00 00 
+_test/testdata/triceCheck.c   827        0_355 value=-1, -2
+_test/testdata/triceCheck.c   828              value=-1, -2, -3
+_test/testdata/triceCheck.c   829    0,033_124 value=-1, -2, -3, -4
+cobs: 19 50 70 79 d7 75 6f d7 99 dc d8 ec 06 e1 66 e7 a7 c1 0d 96 85 df 19 25 55 00 
+->TRICE: 50 70 79 d7 75 6f d7 99 dc d8 ec 06 e1 66 e7 a7 c1 0d 96 85 df 19 25 55 
+-> DEC:  cf b6 64 01 74 05 ff fe fd fc fb d0 76 75 06 ff fe fd fc fb fa 00 00 00 
+_test/testdata/triceCheck.c   830        0_356 value=-1, -2, -3, -4, -5
+_test/testdata/triceCheck.c   831              value=-1, -2, -3, -4, -5, -6
+...
+```
+
+When encryption is active, a compression makes no sense. To see the encoding for each single message `#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE` inside the project specific _triceConfig.h_. Without encryption we get:
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -hs off -debug
+...
+TCOBSv1: b8 76 7b 18 84 fe e1 fd e1 fc e1 fb e1 fa e1 00 
+->TRICE: b8 76 7b 18 ff ff ff ff fe ff ff ff fd ff ff ff fc ff ff ff fb ff ff ff fa ff ff ff 
+_test/testdata/triceCheck.c   805              value=-1, -2, -3, -4, -5, -6
+...
+```
+
+* The `TRICE_SINGLE_PACK_MODE` inserts after each Trice a package delimiter `0`. 
+* The `TRICE_MULTI_PACK_MODE` inserts after a group of Trice messages a package delimiter `0`, what minimizes the transmit data amount.
 
 ### 4.7. <a id='more-comfort-than-printf-like-functions-but-small-differences'></a>More comfort than printf-like functions but small differences
 
-Trice is usable also inside interrupts and [extended format specifier possibilities](#extended-format-specifier-possibilities) give options like binary or bool output. Transmitting runtime generated strings could be a need, so a `triceS` macro exists supporting the `%s` format specifier for strings up to 32737 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings are implicit supported, if you use UTF-8 for the source code. See chapter [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details.
+Trice is usable also inside interrupts and [extended format specifier possibilities](#extended-format-specifier-possibilities) give options like binary or bool output. Transmitting runtime generated strings could be a need, so a `triceS` macro exists supporting the `%s` format specifier for strings up to 32737 bytes long. It is possible to log float/double numbers using `%f` and its relatives, but the numbers need to be covered with the fast converter function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings are implicit supported, if you use UTF-8 for the source code. See chapter [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details.
 
 ![./ref/UTF-8Example.PNG](./ref/UTF-8Example.PNG)
 
 ### 4.8. <a id='tags,-color-and-log-levels'></a>Tags, Color and Log Levels
 
-You can label each Trice with a tag specifier to [colorize](#trice-tags-and-color) the output. This is free of any runtime costs because the tags are part of the log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each letter its color.
+You can label each Trice with a tag specifier to [colorize](#trice-tags-and-color) the output. This is free of any runtime costs because the tags are part of the Trice log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each letter its color.
 
-Loggers use log levels and offer a setting like "log all above **INFO**" for example. The Trice tags can cover that but can do better: Inside [emitter.ColorChannels](../internal/emitter/lineTransformerANSI.go) all common log levels defined as Trice tags alongside with user tags. The user can adjust this. The Trice tool has the `-pick` and `-ban` switches to control the display in detail. Also a `-logLevel` switch is usable to determine a display threshold as tag position inside ColorChannels.
+Loggers use log levels and offer a setting like "log all above **INFO**" for example. The Trice tags can cover that but can do better: Inside package _emitter.ColorChannels_ in a single file [./internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) all common log levels defined as Trice tags alongside with user tags. The user can adjust this. The Trice tool has the `-pick` and `-ban` switches to control the display in detail. Also a `-logLevel` switch is usable to determine a display threshold as tag position inside ColorChannels.
 
-If an inside-target log selection is needed, the Trice tool can assign each log tag a separate ID range and a target side ID based log selector can control which IDs are transmitted over which output channel. See chapter [Trice ID management](#trice-id-management) or type `trice help -insert` and look for `-IDRange`.
+If an inside-target log selection is needed (routing), the Trice tool can assign each log tag a separate ID range and a target side ID based log selector can control which IDs are transmitted over which output channel. See chapter [Trice ID management](#trice-id-management) or type `trice help -insert` and look for `-IDRange`.
 
 ![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
 
@@ -567,6 +602,20 @@ The Trice tool, will change the value to 0 and change it back to 1, when perform
 ![x](./ref/triceHelloOKwithID.png)
 
 It is recommended to use the Trice cache in conjunction with this to avoid a permanent re-translation of files including Trice code.
+
+### 4.21. <a id='trice-generator'></a>Trice Generator
+
+The Trice tool is able to generate colors or code to support various tasks. One ineresting option is the Remote Procedure Call support, allowing RPC usage in a network of embedded devices.
+
+Read chapter [Trice Generate](#trice-generate) or type:
+
+```bash
+trice help -generate
+```
+
+### 4.22. <a id='versions-and-variants-trice-stability'></a>Versions and Variants Trice Stability
+
+When developing firmware, we get often different versions and variants in the developing process. When, for example, getting an older device back, it could be, we do not know the flashed firmware version at all. Because the Trice tool adds only IDs and their Trices to the project specific _til.json_ file, the complete development history remains in that file. So connecting an old device to the Trice tool will deliver correct output. Of course the location information will be outdated. But when reading the Trice logs the compiled version should get visible and it is no big deal to get the correspondenting _li.json_ from the repository. If not, using the `-showID "%6d"` Trice log option displays the Trice IDs and you can easily grab the source code file and line.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1619,7 +1668,6 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 * If the target is resetted asynchronous, the trice tool receives a cycle counter 192. Most probably the last cycle counter was not 191, so this triggers also a message  with "CYCLE: 192 not equal expected value ?- adjusting. Now n CycleEvents".
 * In the Trice tool is some heuristics to suppress such obvious false positives.
 
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 16. <a id='switching-trice-on-and-off'></a>Switching Trice ON and OFF
@@ -1639,7 +1687,7 @@ void fn(void) {
 }
 ```
 
-With `#define TRICE_OFF 1` macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../_test/testdata/til.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
+With `#define TRICE_OFF 1`, macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../_test/testdata/til.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
 
 * Hint from @escherstair: With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
 * No runtime On-Off switch is implemented for several reasons:
@@ -4518,7 +4566,9 @@ void FunctionNameYa( int32_t* p, int cnt) __attribute__((weak)) {}
 // End of file
 ```
 
-Assume a project with several devices. You can add these 2 files to all targets and if a special target should execute any functions, simply implement them. These functions on their own can execute other Trice statements to transmit results. If a client performs a RPC call this way, the request is transmitted with the Trice speed. Several target devices (servers) can respond and the client can wait for the first or some of them. That waiting functionality is of course not the job of the Trice library. 
+Assume a project with several devices. You can add these 2 files to all targets and if a special target should execute any functions, simply implement them. These functions on their own can execute other Trice statements to transmit results. If a client executes a RPC function this way, the request is transmitted with the Trice speed. Several target devices (servers) can receive and respond and the client can wait for the first or some of them. That server receiving and client waiting functionality is not part of the Trice library. 
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 38. <a id='testing-the-trice-library-c-code-for-the-target'></a>Testing the Trice Library C-Code for the Target
 
@@ -4763,11 +4813,13 @@ $
 |    `_multi_`     | Usually each Trice is handled separately. In multi mode, groups of available Trices are framed together. |
 |      `_ua`       | simulated UART A output (for deferred modes)                                                             |
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## 39. <a id='test-issues'></a>Test Issues
 
 Test folders starting with `ERROR_` have issues. These cases are **usable** on the target. These tests fail for an unknown reason. Probably it is a test implementation issue. Especially when XTEA is used in one output but not in the other, the tests fail.
 
-
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 40. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
