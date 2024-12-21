@@ -149,9 +149,9 @@ Table of Contents Generation:
   * 26.6. [User Code Un-Patching](#user-code-un-patching)
   * 26.7. [ID Usage Options](#id-usage-options)
   * 26.8. [General ID Management Information](#general-id-management-information)
-  * 26.9. [Option Cleaning in a Post-build process](#option-cleaning-in-a-post-build-process)
-  * 26.10. [Option Let the inserted Trice ID be a Part of the User Code](#option-let-the-inserted-trice-id-be-a-part-of-the-user-code)
-  * 26.11. [Option Cleaning on Repository Check-In](#option-cleaning-on-repository-check-in)
+    * 26.8.1. [Option Cleaning in a Post-build process](#option-cleaning-in-a-post-build-process)
+    * 26.8.2. [Option Let the inserted Trice ID be a Part of the User Code](#option-let-the-inserted-trice-id-be-a-part-of-the-user-code)
+    * 26.8.3. [Option Cleaning on Repository Check-In](#option-cleaning-on-repository-check-in)
 * 27. [Trice Speed](#trice-speed)
   * 27.1. [Target Implementation Options](#target-implementation-options)
     * 27.1.1. [Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only](#trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only)
@@ -589,7 +589,7 @@ Anyway after 100 ms, a 200 Bytes buffer is filled and the question arises what i
 
 One may think, automatically cleaning the IDs in the target code with `trice c` after building and re-inserting them just for the compilation needs file modifications all the time and a permanent rebuild of all files containing Trices will slow down the re-build process. That is true, but by using the Trice cache this is avoidable.
 Simply one-time create a `.trice/cache` folder in your home directory and use `trice insert -cache` and `trice clean -cache` in your [build.sh](../examples/L432_inst/build.sh) script.
-More details you find in chapter Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed).
+More details you find in chapter [Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed).
 
 ### 4.20. <a id='avoiding-false-positive-editor-warnings'></a>Avoiding False-Positive Editor Warnings
 
@@ -2018,9 +2018,6 @@ trice clean # Remove the IDs from the source code with deactivated cache.
 ### 26.1. <a id='starting-conditions'></a>Starting Conditions
 
 ```diff
--- To understand this chapter you should look into the Trice tool source code. @@
-++ To understand this chapter you should look into the Trice tool source code. @@
-!! To understand this chapter you should look into the Trice tool source code. @@
 @@ To understand this chapter you should look into the Trice tool source code. @@
 ```
 
@@ -2200,24 +2197,23 @@ Until here the algorithm seem to be ok.
 
 ### 26.8. <a id='general-id-management-information'></a>General ID Management Information
 
+* Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 * The trice ID-instead-of-String idea lives from pre-compile patching of the user code.
 * The user has full control how to deal with that.
-* There are 3 options and the user has to decide which fits best for him.
-* Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
+* There are the 3 following options and the user has to decide which fits best for him. The [Trice Cache](#trice-cache) is probably the best fitting setup for many users.
 
-
-### 26.9. <a id='option-cleaning-in-a-post-build-process'></a>Option Cleaning in a Post-build process
+#### 26.8.1. <a id='option-cleaning-in-a-post-build-process'></a>Option Cleaning in a Post-build process
 
 * The code is visually free of IDs all the time.
 
-### 26.10. <a id='option-let-the-inserted-trice-id-be-a-part-of-the-user-code'></a>Option Let the inserted Trice ID be a Part of the User Code
+#### 26.8.2. <a id='option-let-the-inserted-trice-id-be-a-part-of-the-user-code'></a>Option Let the inserted Trice ID be a Part of the User Code
 
 * This is the legacy method. It allows unchanged src translation into code without using the trice tool.
 * It is very robust and maybe needed in nasty debugging situations.
 * It allows to reconstruct lost til.json information.
 * Recommendet for small projects.
 
-### 26.11. <a id='option-cleaning-on-repository-check-in'></a>Option Cleaning on Repository Check-In
+#### 26.8.3. <a id='option-cleaning-on-repository-check-in'></a>Option Cleaning on Repository Check-In
 
 * The code is visually free of IDs only inside the repository.
 
@@ -4905,15 +4901,19 @@ Test folders starting with `ERROR_` have issues. These cases are **usable** on t
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-<--
+<!--
 
 ```diff
 - text in red
+-- text in red
 + text in green
+++ text in green
 ! text in orange
+!! text in orange
 # text in gray
+## text in gray
 @ text in purple
-@@ text in purple (and bold)@@
+@@ text in purple
 ```
 
 https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
