@@ -630,7 +630,7 @@ It is recommended to use the Trice cache in conjunction with this to avoid a per
 
 ### 4.21. <a id='trice-generator'></a>Trice Generator
 
-The Trice tool is able to generate colors or code to support various tasks. One ineresting option is the Remote Procedure Call support, allowing RPC usage in a network of embedded devices.
+The Trice tool is able to generate colors or code to support various tasks. One interesting option is the Remote Procedure Call support, allowing RPC usage in a network of embedded devices.
 
 Read chapter [Trice Generate](#trice-generate) or type:
 
@@ -920,7 +920,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 | [triceDoubleBuffer.c](../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode                                                         |
 | [triceStackBuffer.c](../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode                                                                   |
 | [triceRingBuffer.c](../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode                                                     |
-| [xtea.c](../src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
+| [xtea.h](../src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
 | [xtea.c](../src/xtea.c)                             | XTEA message encryption/decryption code                                                                              |
 
 * The *tcobs\*.\** files are copied from [https://github.com/rokath/tcobs/tree/master/v1](https://github.com/rokath/tcobs/tree/master/v1). They are maintained there and extensively tested and probably not a matter of significant change.
@@ -1323,7 +1323,7 @@ ok      github.com/rokath/trice/pkg/msg 0.299s
 ok      github.com/rokath/trice/pkg/tst 0.406s
 ```
 
-To execute the target code tests, you can run `test.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
+To execute the target code tests, you can run `testAll.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
 The last tests can last quite a while, depending on your machine.
 
 ```bash
