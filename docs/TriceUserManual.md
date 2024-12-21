@@ -436,7 +436,45 @@ When a Trice data stream is interrupted, the optional [COBS](https://en.wikipedi
 
 ### 4.6. <a id='minimal-transfer-bytes-amount'></a>Minimal Transfer Bytes Amount
 
-A Trice message is 4 bytes long (2 ID bytes and 2 count bytes) plus optional time stamps and/or values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as possible. Use the `-debug` switch to see the compressed and framed packages alongside the decompressed ones together with the decoded messages:
+A Trice message is 4 bytes long (2 ID bytes and 2 count bytes) plus optional time stamps and/or values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as possible. Use the `-debug` switch to see the compressed and framed packages alongside the decompressed ones together with the decoded messages.
+
+To see the encoding for each single message `#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE` inside the project specific _triceConfig.h_.
+
+Without `-debug` CLI switch:
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -li off -hs off -ts off
+...
+This is a message without values and without stamp.
+...
+```
+
+With `-debug` CLI switch:
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -li off -hs off -ts off -debug
+...
+TCOBSv1: c1 74 e2 23 00 
+->TRICE: c1 74 e2 00 
+This is a message without values and without stamp.
+...
+```
+
+The TCOBS encoding cannot compress in the example above, because the data are too small, but here is a significant compression result shown:
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -hs off -debug
+...
+TCOBSv1: b8 76 7b 18 84 fe e1 fd e1 fc e1 fb e1 fa e1 00 
+->TRICE: b8 76 7b 18 ff ff ff ff fe ff ff ff fd ff ff ff fc ff ff ff fb ff ff ff fa ff ff ff 
+_test/testdata/triceCheck.c   805              value=-1, -2, -3, -4, -5, -6
+...
+```
+
+* The `TRICE_SINGLE_PACK_MODE` inserts after each Trice a package delimiter `0`. 
+* The `TRICE_MULTI_PACK_MODE` inserts after a group of Trice messages a package delimiter `0`, what minimizes the transmit data amount.
+
+When encryption is active, a compression makes no sense, but the `TRICE_MULTI_PACK_MODE` can help to reduce the total amount of padding bytes, because each encrypted package must have a multiple of 8 as length.
 
 ```bash
 ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -hs off -pw MySecret -pf cobs -debug    
@@ -454,20 +492,6 @@ _test/testdata/triceCheck.c   830        0_356 value=-1, -2, -3, -4, -5
 _test/testdata/triceCheck.c   831              value=-1, -2, -3, -4, -5, -6
 ...
 ```
-
-When encryption is active, a compression makes no sense. To see the encoding for each single message `#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE` inside the project specific _triceConfig.h_. Without encryption we get:
-
-```bash
-ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -hs off -debug
-...
-TCOBSv1: b8 76 7b 18 84 fe e1 fd e1 fc e1 fb e1 fa e1 00 
-->TRICE: b8 76 7b 18 ff ff ff ff fe ff ff ff fd ff ff ff fc ff ff ff fb ff ff ff fa ff ff ff 
-_test/testdata/triceCheck.c   805              value=-1, -2, -3, -4, -5, -6
-...
-```
-
-* The `TRICE_SINGLE_PACK_MODE` inserts after each Trice a package delimiter `0`. 
-* The `TRICE_MULTI_PACK_MODE` inserts after a group of Trice messages a package delimiter `0`, what minimizes the transmit data amount.
 
 ### 4.7. <a id='more-comfort-than-printf-like-functions-but-small-differences'></a>More comfort than printf-like functions but small differences
 
@@ -565,6 +589,7 @@ Anyway after 100 ms, a 200 Bytes buffer is filled and the question arises what i
 
 One may think, automatically cleaning the IDs in the target code with `trice c` after building and re-inserting them just for the compilation needs file modifications all the time and a permanent rebuild of all files containing Trices will slow down the re-build process. That is true, but by using the Trice cache this is avoidable.
 Simply one-time create a `.trice/cache` folder in your home directory and use `trice insert -cache` and `trice clean -cache` in your [build.sh](../examples/L432_inst/build.sh) script.
+More details you find in chapter Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed).
 
 ### 4.20. <a id='avoiding-false-positive-editor-warnings'></a>Avoiding False-Positive Editor Warnings
 
@@ -1850,8 +1875,8 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
 * In direct mode only a single message needs handling.
 * In deferred mode after double buffer swap any count of trice messages is in the buffer.
 * There are different policies possible:
-  1. **TRICE_FAST_MULTI_MODE**: Compact buffer by removing all padding bytes, encode it as a single package, append one 0-delimiter and transmit. This allows to reduce the transmitted data amount by paying the price of possibly more data lost in case of an error. Also the data interpretation can perform less checks.
-  2. **TRICE_SAFE_SINGLE_MODE**: Encode each buffer separate, append a 0-delimiter for each and pack them all together before transmitting. This increases the transmit data slightly but minimizes the amount of lost data in case of a data disruption.
+  1. **TRICE_MULTI_PACK_MODE**: Compact buffer by removing all padding bytes, encode it as a single package, append one 0-delimiter and transmit. This allows to reduce the transmitted data amount by paying the price of possibly more data lost in case of an error. Also the data interpretation can perform less checks.
+  2. **TRICE_SINGLE_PACK_MODE**: Encode each buffer separate, append a 0-delimiter for each and pack them all together before transmitting. This increases the transmit data slightly but minimizes the amount of lost data in case of a data disruption.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1862,13 +1887,13 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ### 22.1. <a id='trice-id-list-til.json'></a>Trice ID list til.json
 
 * This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
-* The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. Use `trice i -v` for it. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
+* The files `til.h` and `til.c` are generated to help writing an own trice decoder tool in your preferred language. Use `trice generate -tilH -tilC` for creation. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692). See also chapter [Trice Generate](#trice-generate).
 
 ### 22.2. <a id='trice-location-information-file-li.json'></a>Trice location information file li.json
 
 * If the generated `li.json` is available, the Trice tool automatically displays file name and line number. But that is accurate only with the exact matching firmware version. That usually is the case right after compiling and of most interest at the developers table.
-* The Trice tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID string` could be used. This allows later an easy location of the relevant source code.
-* An other option is to record the binary trice messages and to play them later with the Trice tool using the correct `li.json`.
+* The Trice tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID "inf:%5d"` could be used. This allows later an easy location of the relevant source code.
+* An other option is to record the binary trice messages (`trice log -p com1 -blf aFileName`) and to play them later with the Trice tool using the correct `li.json` (`trice log -p FILEBUFFER -args aFileName` ).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1911,7 +1936,8 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ### 23.3. <a id='trice-id-0'></a>Trice ID 0
 
 * The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice insert` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
-  * It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
+  * It is sufficient to write the `TRICE` macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-defaultStampSize` switch. With `trice clean` these stay with 0-values in the source code to encode the intended stamp size.
+  * It is recommended to use the `trice`, `Trice` and `TRice` macros instead of `TRICE`. They encode the stamp size in their names already. There may be cases, where the user prefers to use the code inserting macros `TRICE` to get maximum performnce.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1928,7 +1954,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 #### 24.1.2. <a id='different-ids-for-same-trices'></a>Different IDs for same Trices
 
-* When the same Trice is used several times with identical IDs, after copying, and `trice insert` is called, only one ID survives in the source code.
+* When the same Trice is used several times with identical IDs, after copying, and `trice insert` is called, only one ID survives in the source code. The other Trices get assigned new IDs. Otherwise the location information would not be correct everywhere.
 
 #### 24.1.3. <a id='same-ids-for-different-trices'></a>Same IDs for different Trices
 
@@ -1936,7 +1962,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 * Also you can simply copy a Trice statement and modify it without dealing with the ID.
 * The Trice tool will detect the 2nd (or 3rd) usage of this ID and assign a new one, also extending the ID list.
 * That is done silently for you during the next `trice insert`.
-* When you use the Trice cache, the IDs are invisible and all happens in the background automatically.
+* When you use the [Trice Cache](#trice-cache), the IDs are invisible and all happens in the background automatically.
 
 #### 24.1.4. <a id='id-routing'></a>ID Routing
 
@@ -1948,7 +1974,7 @@ With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags,-color-and-lo
 
 * The `trice insert` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you are sure to create a new **til.json** file, create an empty one: `touch til.json`.
 * The name **til.json** is a default one. With the command line parameter `-i` you can use any filename.
-* It is possible to use several **til.json** files - for example one for each target project but it is easier to maintain only one **til.json*- file for all projects.
+* It is possible to use several **til.json** files - for example one for each target project but it is easier to maintain only one **til.json** file for all projects.
 * The ID reference list keeps all obsolete IDs with their format strings allowing compatibility to former firmware versions.
 * One can delete the ID reference list when IDs inside the code. It will be reconstructed automatically from the source tree with the next `trice clean` command, but history is lost then.
 * Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
@@ -1956,17 +1982,33 @@ With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags,-color-and-lo
 ### 25.1. <a id='til.json-version-control'></a>til.json Version control
 
 * The ID list should go into the version control repository of your project.
-* To keep it clean from the daily development garbage one could delete the **til.json**, then check-out again and re-build just before check-in. A small script could do that.
+* To keep it clean from the daily development garbage one could `git restore til.json`, and re-build just before check-in.
+
+<!--
 * For a firmware release it makes sense to remove all unused IDs from til.json.
   * Just delete the **til.json** contents and run `trice clean`.
 * An other option is to delete **til.json** just before a release build and then check-in the new generated **til.json**.
+-->
 
-> For the no-ids option deleting **til.json** should not not be done when the sources are without IDs. That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
+```diff
+--> For the no-ids option deleting til.json should not not be done when the sources are without IDs. 
+--> That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
+```
+
+You could write a small bash script similar to this (untested):
+
+```bash
+trice insert -cache # Insert the IDs into the source code.
+git restore til.json # Forget the todays garbage.
+
+# Add the todays IDs to the restored til.json and clean the code.
+# We have to deactivate the cache to force the file processing to get the new IDs into til.json.
+trice clean # Remove the IDs from the source code with deactivated cache.  
+```
 
 ### 25.2. <a id='long-time-availability'></a>Long Time Availability
 
 * You could place a download link for the Trice tool and the used **til.json** list.
-* Link a compressed/encrypted **til.json** file as resource into the target binary and optionally get it back long years later in a safe way.
 * Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 200 years.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -1975,13 +2017,20 @@ With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags,-color-and-lo
 
 ### 26.1. <a id='starting-conditions'></a>Starting Conditions
 
+```diff
+-- To understand this chapter you should look into the Trice tool source code. @@
+++ To understand this chapter you should look into the Trice tool source code. @@
+!! To understand this chapter you should look into the Trice tool source code. @@
+@@ To understand this chapter you should look into the Trice tool source code. @@
+```
+
 * Before `trice i` is executed on a source tree, the starting conditions are partially undefined:
   * A trice ID list file `til.json` file must exist, but it is allowed to be empty.
     * The `til.json` is a serialized key-value map, where
       * the keys are the IDs i and
       * the values are Trice format string structs (bit width plus format string) named f.
-      * When de-serializing, it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not done.
-        * The trice tool will report that as error and stop.
+      * When de-serializing, it is not impossible, that an ID is used more than one times. This can only happen, when **til.json** was edited manually, what normally is not done. But could be the result of a `git merge`.
+        * The trice tool will report that as error and stop. The user then has to correct the error manually, for example by deleting one of the doubled keys.
       * This ID look-up is the key-value map `idToFmt TriceIDLookUp` as `map[TriceID]TriceFmt`.
         * Each ID i as key, points to one and only one f.
         * The TriceFmt structs contains the parameter width and the format string.
@@ -2009,7 +2058,7 @@ With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags,-color-and-lo
 * li is rebuild from scratch.
 * For faster operation files will be processed parallel.
 * To keep the [Trice ID management](#trice-id-management) simple, the `insert` operation acts "per file". That means, that in case a file is renamed or code containing trice statements is copied to an other file, new IDs are generated for the affectes trices.
-  * File name changes occur are not that often, so tha should be acceptable.
+  * File name changes occur are not that often, so that should be acceptable.
 
 ### 26.3. <a id='method'></a>Method
 
@@ -4856,13 +4905,14 @@ Test folders starting with `ERROR_` have issues. These cases are **usable** on t
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-<!--
+<--
 
 ```diff
 - text in red
 + text in green
 ! text in orange
 # text in gray
+@ text in purple
 @@ text in purple (and bold)@@
 ```
 
