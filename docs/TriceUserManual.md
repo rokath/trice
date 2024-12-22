@@ -1685,7 +1685,7 @@ Important to know: If the `TRICE_PROTECT` code inhibits the writing into a buffe
 | `trice8B` \|`Trice8B` \|`TRice8B` \|`TRICE8_B`  | Is for byte buffer output according to the given format specifier for a single byte.                                                                                                                                                                                                                                          |
 | `trice16B`\|`Trice16B`\|`TRice16B`\|`TRICE16_B` | Is for 16-bit buffer output according to the given format specifier for a 16-bit value.                                                                                                                                                                                                                                       |
 | `trice32B`\|`Trice32B`\|`TRice32B`\|`TRICE32_B` | Is for 32-bit buffer output according to the given format specifier for a 32-bit value.                                                                                                                                                                                                                                       |
-| `triceB`  \|`TriceB`  \|`TRiceB`  \|`TRICE_B`   | Is buffer output according to the given format specifier for a default unit according to configuration (8                                                                                                                                                                                                                     | 16 | 32-bit value). |
+| `triceB`  \|`TriceB`  \|`TRiceB`  \|`TRICE_B`   | Is buffer output according to the given format specifier for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_B TRICE8_B`. |
 
 ### 15.6. <a id='logfile-viewing'></a>Logfile viewing
 
@@ -1738,7 +1738,7 @@ void fn(void) {
 
 With `#define TRICE_OFF 1`, macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../_test/testdata/til.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
 
-* Hint from @escherstair: With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
+* Hint from [@escherstair](https://github.com/escherstair): With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
 * No runtime On-Off switch is implemented for several reasons:
   * Would need a control channel to the target.
   * Would add little performance and code overhead.
@@ -3708,7 +3708,11 @@ Trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: tim
 trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
 ```
 
-The Trice tool displays the parameter buffer in the shown manner. It is planned to code a FunctionPointerList Generator (See [issue #303](https://github.com/rokath/trice/issues/303), which generates mainly a function pointer list with associated IDs. This list can get part of the source code of a remote device. Then, when receiving a Trice message, the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
+The Trice tool displays the parameter buffer in the shown manner. There is a [FunctionPointerList Generator](#generating-a-rpc-function-pointer-list), which generates mainly a function pointer list with associated IDs. This list can get part of the source code of a remote device. Then, when receiving a Trice message, the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
+
+With `#define TRICE_F TRICE16_F` in the project specific _triceConfig.h_ file the user can specify which should be the bitwidth (16 in this example) for `triceF` macros. The default value is 8.
+
+**Hint:** If you add for example `"rpc"` as [tag](#explpore-and-modify-tags-and-their-colors) and call `trice log -ban "rpc"`, the Trice tool will not display the RPC Trices, but all others. That could be helpful, if you have frequent RPCs and do not wish to spoil your log output with them.
 
 * Future extensions are possible:
   * `triceD( "dump:32", addr, 160 );` -> The Trice tool dumps in 32 byte rows.
