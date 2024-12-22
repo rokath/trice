@@ -4,7 +4,7 @@
 
 <!-- # 🅃🅁ace 🄸d's 🄲 🄴mbedded -->
 
-# TRace Ids C Embedded
+# <ins>TR</ins>ace Ids C Embedded
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
