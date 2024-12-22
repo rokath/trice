@@ -1,8 +1,8 @@
 <div id="top">
 
-![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) 
-
 # 🅃🅁ace 🄸d's 🄲 🄴mbedded
+
+![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) Trice
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
