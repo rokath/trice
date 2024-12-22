@@ -2,9 +2,7 @@
 
 ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) 
 
-<!-- # 🅃🅁ace 🄸d's 🄲 🄴mbedded -->
-
-# <ins>TR</ins>ace Ids C Embedded
+# 🅃🅁ace 🄸d's 🄲 🄴mbedded
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
