@@ -78,7 +78,7 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 
 ## Debugging using VS-Code and Clang for a Trice-instrumented Project in Direct-Out Mode over SEGGER-RTT
 
-(See folder [./examples](./examples) for more details.)
+(See chapter [Development Environment Setup](./docs/TriceUserManual.md#development-environment-setup) for more details.)
 
 <img src="./docs/ref/Animation.gif" width="1200">
 
