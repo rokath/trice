@@ -2,9 +2,9 @@
 
 # 🅃🅁ace 🄸d's 🄲 🄴mbedded
 
-![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) Trice
+#### ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) Hi, I am Trice.
 
-[github.io/trice/](https://rokath.github.io/trice/)
+<!-- [github.io/trice/](https://rokath.github.io/trice/) -->
 
 <!-- ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser) -->
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
@@ -15,16 +15,16 @@
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-[![test](https://github.com/shogo82148/actions-goveralls/workflows/_test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=master)](https://coveralls.io/github/rokath/trice?branch=master)
 
 <!-- [![Sponsor rokath](https://github.com/sponsors/rokath/button)](https://github.com/sponsors/rokath) -->
+<!--[![test](https://github.com/shogo82148/actions-goveralls/workflows/_test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)-->
 
 Log in (a) trice ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif)
 
 even inside **↯ interrupts** in less than 1 µs❗
 
-## About
+## About (Release 1.0 comming soon...)
 
 - Replace `printf` or `log` in **C**-code for getting:
   - **[Speed](./docs/TriceUserManual.md/#trice-speed)**, to be usable also **inside interrupts**,
@@ -37,6 +37,7 @@ even inside **↯ interrupts** in less than 1 µs❗
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *Trice* packages, exchange the carried IDs with the format string and print out.
 - [Trice User Manual](./docs/TriceUserManual.md)
+- Trice Status: **_Trice is ready to be used!_**
 
 ## Possible Use Cases
 
