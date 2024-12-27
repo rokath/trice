@@ -37,6 +37,7 @@ even inside **↯ interrupts** in less than 1 µs❗
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *Trice* packages, exchange the carried IDs with the format string and print out.
 - [Trice User Manual](./docs/TriceUserManual.md)
+- Trice Status: **_Trice is ready to be used!_**
 
 ## Possible Use Cases
 
