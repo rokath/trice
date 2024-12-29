@@ -338,8 +338,8 @@ With "off" or "none" suppress the display or generation of the location informat
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.
 `) // flag
-	p.BoolVar(&id.LiPathIsRelative, "liPathIsRelative", false, `Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
-The default is to use only the files basename.`)
+	p.StringVar(&id.LIPathKind, "liPath", "base", `How to store location information paths inside li.json: base, relative, full.
+`) // flag
 }
 
 func flagIPAddress(p *flag.FlagSet) {

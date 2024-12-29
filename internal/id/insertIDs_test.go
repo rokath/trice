@@ -121,7 +121,7 @@ func TestInsertExistingID_B(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "folder1/file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-liPathIsRelative", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "folder1/file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-liPath=relative", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check untouched src file1
 	actSrc1, e := FSys.ReadFile(sFn1)

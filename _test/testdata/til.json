@@ -8780,64 +8780,64 @@
 		"Strg": "rpc:FunctionNameYc"
 	},
 	"15695": {
-		"Type": "TRice",
-		"Strg": "Hello "
-	},
-	"15696": {
-		"Type": "TRice",
-		"Strg": "World!\\n"
-	},
-	"15697": {
-		"Type": "TRice64",
-		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
-	},
-	"15698": {
-		"Type": "trice",
-		"Strg": "Hello again\\n"
-	},
-	"15699": {
 		"Type": "trice32F",
 		"Strg": "call:FunctionNameYd"
 	},
-	"15700": {
+	"15696": {
 		"Type": "TRICE64_F",
 		"Strg": "info:FunctionNameZa"
 	},
-	"15701": {
+	"15697": {
 		"Type": "TRice64F",
 		"Strg": "call:FunctionNameZb"
 	},
-	"15702": {
+	"15698": {
 		"Type": "Trice64F",
 		"Strg": "RPC:FunctionNameZc"
 	},
-	"15703": {
+	"15699": {
 		"Type": "trice64F",
 		"Strg": "Rpc:FunctionNameZd"
 	},
-	"15704": {
+	"15700": {
 		"Type": "TRice",
 		"Strg": "Hello "
 	},
-	"15705": {
+	"15701": {
 		"Type": "TRice",
 		"Strg": "World!\\n"
 	},
-	"15706": {
+	"15702": {
 		"Type": "TRice64",
 		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
 	},
-	"15707": {
+	"15703": {
 		"Type": "trice",
 		"Strg": "Hello again\\n"
 	},
-	"15708": {
+	"15704": {
 		"Type": "TRice8B",
 		"Strg": "%3x\\n"
 	},
-	"15709": {
+	"15705": {
 		"Type": "TRice8B",
 		"Strg": "%3x\\n"
+	},
+	"15706": {
+		"Type": "TRice",
+		"Strg": "Hello "
+	},
+	"15707": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
+	},
+	"15708": {
+		"Type": "TRice64",
+		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
+	},
+	"15709": {
+		"Type": "trice",
+		"Strg": "Hello again\\n"
 	},
 	"15710": {
 		"Type": "TRice",
@@ -8848,28 +8848,28 @@
 		"Strg": "rx:received command:%s\\n"
 	},
 	"15712": {
-		"Type": "trice",
-		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
-	},
-	"15713": {
 		"Type": "TRice",
 		"Strg": "msg:StartDefaultTask\\n"
 	},
-	"15714": {
+	"15713": {
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
+	"15714": {
+		"Type": "trice",
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+	},
 	"15715": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"15716": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
-	"15716": {
+	"15717": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
-	},
-	"15717": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15718": {
 		"Type": "trice8",
@@ -8988,12 +8988,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15747": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"15748": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"15749": {
 		"Type": "trice8",
@@ -9092,12 +9092,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15773": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15774": {
-		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15775": {
 		"Type": "trice8",

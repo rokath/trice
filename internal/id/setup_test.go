@@ -96,7 +96,7 @@ type globalDefaults struct {
 	defaultMin                        TriceID
 	defaultMax                        TriceID
 	defaultSearchMethod               string
-	defaultLiPathIsRelative           bool
+	defaultLIPathKind                 string
 	defaultSrcs                       ArrayFlag
 	defaultExtendMacrosWithParamCount bool
 	defaultDefaultTriceBitWidth       string
@@ -113,7 +113,7 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultMin = Min
 	p.defaultMax = Max
 	p.defaultSearchMethod = SearchMethod
-	p.defaultLiPathIsRelative = LiPathIsRelative
+	p.defaultLIPathKind = LIPathKind
 	p.defaultSrcs = Srcs
 	p.defaultExtendMacrosWithParamCount = ExtendMacrosWithParamCount
 	p.defaultDefaultTriceBitWidth = DefaultTriceBitWidth
@@ -133,7 +133,7 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	Min = p.defaultMin
 	Max = p.defaultMax
 	SearchMethod = p.defaultSearchMethod
-	LiPathIsRelative = p.defaultLiPathIsRelative
+	LIPathKind = p.defaultLIPathKind
 	Srcs = p.defaultSrcs
 	ExtendMacrosWithParamCount = p.defaultExtendMacrosWithParamCount
 	DefaultTriceBitWidth = p.defaultDefaultTriceBitWidth

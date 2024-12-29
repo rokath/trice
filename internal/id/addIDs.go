@@ -20,6 +20,25 @@ func SubCmdIdAdd(w io.Writer, fSys *afero.Afero) error {
 	return IDData.cmdSwitchTriceIDs(w, fSys, triceIDAdding)
 }
 
+func toLIPath(path string) string {
+	switch LIPathKind[:1] {
+	case "r": // relative
+		return filepath.ToSlash(path)
+	case "f": // full
+		full, err := filepath.Abs(path)
+		if err != nil {
+			fmt.Println("could not get absolute path of", path, "- using base name")
+			return filepath.Base(path)
+		}
+		return full
+	default:
+		fmt.Println("ignoring unknown liPath", LIPathKind, "- using base name")
+		fallthrough
+	case "b": // base
+		return filepath.Base(path)
+	}
+}
+
 // triceIDAdding reads file, processes it and writes it NOT back.
 func triceIDAdding(w io.Writer, fSys *afero.Afero, path string, fileInfo os.FileInfo, a *ant.Admin) error {
 
@@ -30,15 +49,6 @@ func triceIDAdding(w io.Writer, fSys *afero.Afero, path string, fileInfo os.File
 	if Verbose {
 		fmt.Fprintln(w, path)
 	}
-
-	var liPath string
-
-	if LiPathIsRelative {
-		liPath = filepath.ToSlash(path)
-	} else {
-		liPath = filepath.Base(path)
-	}
-
-	_, _, err = zeroTriceIDs(w, liPath, in, a) // just to get the IDs, no write back
+	_, _, err = zeroTriceIDs(w, toLIPath(path), in, a) // just to get the IDs, no write back
 	return err
 }

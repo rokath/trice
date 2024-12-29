@@ -8732,16 +8732,16 @@
 		"Strg": "wr:%s\\n"
 	},
 	"15712": {
-		"Type": "trice",
-		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
-	},
-	"15713": {
 		"Type": "TRice",
 		"Strg": "msg:StartDefaultTask\\n"
 	},
-	"15714": {
+	"15713": {
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+	},
+	"15714": {
+		"Type": "trice",
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
 	},
 	"16326": {
 		"Type": "trice",
