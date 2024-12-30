@@ -8816,28 +8816,28 @@
 		"Strg": "Hello again\\n"
 	},
 	"15704": {
-		"Type": "TRice8B",
-		"Strg": "%3x\\n"
-	},
-	"15705": {
-		"Type": "TRice8B",
-		"Strg": "%3x\\n"
-	},
-	"15706": {
 		"Type": "TRice",
 		"Strg": "Hello "
 	},
-	"15707": {
+	"15705": {
 		"Type": "TRice",
 		"Strg": "World!\\n"
 	},
-	"15708": {
+	"15706": {
 		"Type": "TRice64",
 		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
 	},
-	"15709": {
+	"15707": {
 		"Type": "trice",
 		"Strg": "Hello again\\n"
+	},
+	"15708": {
+		"Type": "TRice8B",
+		"Strg": "%3x\\n"
+	},
+	"15709": {
+		"Type": "TRice8B",
+		"Strg": "%3x\\n"
 	},
 	"15710": {
 		"Type": "TRice",
@@ -8848,36 +8848,36 @@
 		"Strg": "rx:received command:%s\\n"
 	},
 	"15712": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
-	},
-	"15713": {
-		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
-	},
-	"15714": {
 		"Type": "trice",
 		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
 	},
-	"15715": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	"15713": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
-	"15716": {
+	"15714": {
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+	},
+	"15715": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
-	"15717": {
+	"15716": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
+	},
+	"15717": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"15718": {
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15719": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"15720": {
 		"Type": "trice8",
@@ -8988,12 +8988,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15747": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15748": {
-		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15749": {
 		"Type": "trice8",

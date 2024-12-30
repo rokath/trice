@@ -2,11 +2,11 @@
 
 TD="./_test/testdata"
 
-rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, we delete to avoid potential ID conflict messages)
-touch           $TD/til.json     $TD/li.json # new life
-trice clean  -i $TD/til.json -li $TD/li.json -liPath full -src $TD -src ./examples # wipe out all IDs from the sources
-rm -f           $TD/til.json     $TD/li.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so we delete them again.)
-touch           $TD/til.json     $TD/li.json # new life
+# rm -f           $TD/til.json     $TD/li.json # Forget history (users usually should not do that in their projects, we delete to avoid potential ID conflict messages).
+# touch           $TD/til.json     $TD/li.json # New life.
+trice clean  -i $TD/til.json -li $TD/li.json -liPath full # Wipe out all IDs from the sources and add them to til.json if not already there.
+# rm -f           $TD/til.json     $TD/li.json # Forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so we delete them again.)
+# touch           $TD/til.json     $TD/li.json # New life
 
 # Next steps are done separately to get the same IDs continuously, in case we deleted the history - normally all files and folders can be done parallel in one shot.
 # We do noct use -cache here to force the li.json generation.
@@ -26,10 +26,14 @@ DIRS="
 
 for d in $DIRS
 do
+    # This de-facto copies $TD/li.json into $d/li.json and copies $TD/til.json into $d/til.json
     rm -f           $d/til.json     $d/li.json
     touch           $d/til.json     $d/li.json
-    trice add    -i $d/til.json -li $d/li.json -src ./examples/exampleData -src $TD -src $d
+    trice add    -i $d/til.json -li $d/li.json -liPath full
 done
+
+# Remove all IDs from the sources. They are now inside the til.json (and li.json) files.
+trice clean -liPath full -i $TD/til.json -li $TD/li.json
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
@@ -92,13 +96,13 @@ CGOTESTDIRS="
     staticB_di_xtea_cobs_rtt32/
 "
 
+# Refresh test folders.
 for d in $CGOTESTDIRS
 do
     cp $TD/cgoPackage.go $TD/../$d/generated_cgoPackage.go
 done
 
+# Remove legacy build artifacts if existent.
 cd ./examples
 ./cleanAllTargets.sh
 cd - > /dev/null
-
-trice clean -liPath full -i $TD/til.json -li $TD/li.json -src $TD/.. -src ./examples
