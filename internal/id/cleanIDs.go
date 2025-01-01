@@ -37,14 +37,7 @@ func (p *idData) processTriceIDCleaning(w io.Writer, fSys *afero.Afero, path str
 		fmt.Fprintln(w, path)
 	}
 
-	var liPath string
-	if LiPathIsRelative {
-		liPath = filepath.ToSlash(path)
-	} else {
-		liPath = filepath.Base(path)
-	}
-
-	out, modified, err := p.cleanTriceIDs(w, liPath, in, a)
+	out, modified, err := p.cleanTriceIDs(w, toLIPath(path), in, a)
 	p.join(err)
 	if p.err != nil {
 		return msg.OnErrFv(w, err)

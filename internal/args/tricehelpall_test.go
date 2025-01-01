@@ -198,9 +198,9 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	 (default "li.json")
   -liFmt string
     	Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%21s %5d ")
-  -liPathIsRelative
-    	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
-    	The default is to use only the files basename.
+  -liPath string
+    	How to store location information paths inside li.json: base, relative, full.
+    	 (default "base")
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime. 
@@ -317,9 +317,9 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPathIsRelative
-    	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
-    	The default is to use only the files basename.
+  -liPath string
+    	How to store location information paths inside li.json: base, relative, full.
+    	 (default "base")
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime. 
@@ -458,9 +458,9 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPathIsRelative
-    	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
-    	The default is to use only the files basename.
+  -liPath string
+    	How to store location information paths inside li.json: base, relative, full.
+    	 (default "base")
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime. 
@@ -521,9 +521,9 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPathIsRelative
-    	Use this flag, if your project has trices inside files with identical names in different folders to distinguish them in the location information.
-    	The default is to use only the files basename.
+  -liPath string
+    	How to store location information paths inside li.json: base, relative, full.
+    	 (default "base")
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime. 

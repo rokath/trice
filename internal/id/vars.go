@@ -14,7 +14,7 @@ var (
 	Min                        = TriceID(1000) // Min is the smallest allowed ID for normal trices.
 	Max                        = TriceID(7999) // Max is the biggest allowed ID for normal trices.
 	SearchMethod               = "random"      // SearchMethod is the next ID search method.
-	LiPathIsRelative           bool            // LiPathIsRelative causes to store relative paths instead of base names only inside li.json.
+	LIPathKind                 string          // LIPathKind controls how to store paths inside li.json: base, relative, full
 	Srcs                       ArrayFlag       // Srcs gets multiple files or directories.
 	IDRange                    ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
 	IDData                     idData

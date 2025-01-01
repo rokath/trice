@@ -8780,40 +8780,40 @@
 		"Strg": "rpc:FunctionNameYc"
 	},
 	"15695": {
-		"Type": "TRice",
-		"Strg": "Hello "
-	},
-	"15696": {
-		"Type": "TRice",
-		"Strg": "World!\\n"
-	},
-	"15697": {
-		"Type": "TRice64",
-		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
-	},
-	"15698": {
-		"Type": "trice",
-		"Strg": "Hello again\\n"
-	},
-	"15699": {
 		"Type": "trice32F",
 		"Strg": "call:FunctionNameYd"
 	},
-	"15700": {
+	"15696": {
 		"Type": "TRICE64_F",
 		"Strg": "info:FunctionNameZa"
 	},
-	"15701": {
+	"15697": {
 		"Type": "TRice64F",
 		"Strg": "call:FunctionNameZb"
 	},
-	"15702": {
+	"15698": {
 		"Type": "Trice64F",
 		"Strg": "RPC:FunctionNameZc"
 	},
-	"15703": {
+	"15699": {
 		"Type": "trice64F",
 		"Strg": "Rpc:FunctionNameZd"
+	},
+	"15700": {
+		"Type": "TRice",
+		"Strg": "Hello "
+	},
+	"15701": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
+	},
+	"15702": {
+		"Type": "TRice64",
+		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
+	},
+	"15703": {
+		"Type": "trice",
+		"Strg": "Hello again\\n"
 	},
 	"15704": {
 		"Type": "TRice",
@@ -8868,16 +8868,16 @@
 		"Strg": "rx:received command:%s\\n"
 	},
 	"15717": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"15718": {
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15719": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"15720": {
 		"Type": "trice8",
@@ -9092,12 +9092,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15773": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15774": {
-		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15775": {
 		"Type": "trice8",

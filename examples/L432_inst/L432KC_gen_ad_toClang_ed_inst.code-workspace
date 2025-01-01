@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../exampleData"
+		},
+		{
+			"path": "../../_test/testdata"
 		}
 	]
 }
