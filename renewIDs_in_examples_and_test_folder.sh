@@ -2,11 +2,11 @@
 
 TD="./_test/testdata"
 
-# rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, we delete to avoid potential ID conflict messages)
-# touch           $TD/til.json     $TD/li.json # new life
+rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, we delete to avoid potential ID conflict messages)
+touch           $TD/til.json     $TD/li.json # new life
 trice clean  -i $TD/til.json -li $TD/li.json -src $TD -src ./examples # wipe out all IDs from the sources
-# rm -f           $TD/til.json     $TD/li.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so we delete them again.)
-# touch           $TD/til.json     $TD/li.json # new life
+rm -f           $TD/til.json     $TD/li.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so we delete them again.)
+touch           $TD/til.json     $TD/li.json # new life
 
 # Next steps are done separately to get the same IDs continuously. We deleted the history - normally all files and folders can be done parallel in one shot.
 trice insert -i $TD/til.json -li $TD/li.json -liPathIsRelative              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c

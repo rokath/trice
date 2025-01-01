@@ -1279,9 +1279,16 @@ To fill the`.gitattributes`, I used the command below to view all the extensions
 git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort -u
 ```
 
+## Setting up Ubuntu
+
+* Extend PATH variable with `~/go/bin`:
+  * Option for Ubuntu: Add a `/etc/profile.d/my_compiled_trice.sh` file with content `export PATH=$PATH:~/go/bin`.
+* `sudo apt install make`
+
 ## 9. <a id='build-trice-tool-from-go-sources-(you-can-skip-that)'></a>Build Trice tool from Go sources (you can skip that)
 
 * Install [Go](https://golang.org/).
+  * Extend PATH variable with `~/go/bin`
 * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
   * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
   * Recommendation: Minimal online installer.
