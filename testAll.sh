@@ -5,7 +5,7 @@ echo This can take several minutes ...
 
 t0=`date +%s`
 
-./renewIDs_in_examples_and_test_folder.sh
+./renewIDs_in_examples_and_refresh_test_folder.sh
 go clean -cache
 go test ./...
 cd _test
