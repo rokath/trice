@@ -1279,14 +1279,6 @@ To fill the`.gitattributes`, I used the command below to view all the extensions
 git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort -u
 ```
 
-## Setting up Ubuntu
-
-* Extend PATH variable with `~/go/bin`:
-  * Option for Ubuntu: Add a `/etc/profile.d/my_compiled_trice.sh` file with content `export PATH=$PATH:~/go/bin`.
-* `sudo apt install make`
-* `sudo apt install gcc`
-
-
 ## 9. <a id='build-trice-tool-from-go-sources-(you-can-skip-that)'></a>Build Trice tool from Go sources (you can skip that)
 
 * Install [Go](https://golang.org/).
@@ -3830,6 +3822,37 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
   <img src="./ref/Animation.gif" width="1200">
 
 ### 35.4. <a id='setup-pc'></a>Setup PC
+
+#### Setting up Ubuntu
+
+##### vsCode (if no other editor)
+
+##### Git
+
+##### Gitkraken
+
+##### Go
+* Extend PATH variable with `~/go/bin`:
+  * Option for Ubuntu: Add a `/etc/profile.d/my_compiled_trice.sh` file with content `export PATH=$PATH:~/go/bin`.
+* `sudo apt install make`
+* `sudo apt install gcc`
+
+##### arm-none-eabi toolchain
+
+* `sudo apt-get install gcc-arm-none-eabi`
+* `sudo apt-get install binutils-arm-none-eabi`
+* `sudo apt-get install gdb-arm-none-eabi`
+* `sudo apt-get install openocd`
+
+##### J-Link (if needed)
+
+* Download and install from https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
+
+##### Beyond Compare (if no other diff tool)
+
+* Download and install from https://www.scootersoftware.com
+
+#### Setting up Windows
 
 Setting up a PC is for Linux mostly straightforward but Windows PCs are more problematic. The steps shown here are just one example.
 

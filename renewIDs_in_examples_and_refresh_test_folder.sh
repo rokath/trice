@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 TD="./_test/testdata"
+LIP="-liPath relative"
 
 rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, we delete to avoid potential ID conflict messages)
 touch           $TD/til.json     $TD/li.json # new life
@@ -10,13 +11,13 @@ touch           $TD/til.json     $TD/li.json # new life
 
 # Next steps are done separately to get the same IDs continuously, in case we deleted the history - normally all files and folders can be done parallel in one shot.
 # We do noct use -cache here to force the li.json generation.
-trice insert -i $TD/til.json -li $TD/li.json -liPath full              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c
-trice insert -i $TD/til.json -li $TD/li.json -liPath full              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c
-trice insert -i $TD/til.json -li $TD/li.json -liPath full -IDMin 13500 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c
-trice insert -i $TD/til.json -li $TD/li.json -liPath full -IDMin 13500 -IDMax 16383 -IDMethod upward   -src $TD/..
-trice insert -i $TD/til.json -li $TD/li.json -liPath full -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/
-trice insert -i $TD/til.json -li $TD/li.json -liPath full -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/
-trice insert -i $TD/til.json -li $TD/li.json -liPath full -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/
+trice insert -i $TD/til.json -li $TD/li.json $LIP              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c
+trice insert -i $TD/til.json -li $TD/li.json $LIP              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src $TD/..
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/
 
 DIRS="
 ./examples/F030_inst/
@@ -29,11 +30,11 @@ do
     # This de-facto copies $TD/li.json into $d/li.json and copies $TD/til.json into $d/til.json
     rm -f           $d/til.json     $d/li.json
     touch           $d/til.json     $d/li.json
-    trice add    -i $d/til.json -li $d/li.json -liPath full
+    trice add    -i $d/til.json -li $d/li.json $LIP
 done
 
 # Remove all IDs from the sources. They are now inside the til.json (and li.json) files.
-trice clean -liPath full -i $TD/til.json -li $TD/li.json
+trice clean $LIP -i $TD/til.json -li $TD/li.json
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.

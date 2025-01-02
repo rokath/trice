@@ -8733,87 +8733,87 @@
 	},
 	"15683": {
 		"Type": "TRice",
-		"Strg": "Hello World!\\n"
-	},
-	"15684": {
-		"Type": "TRICE8_F",
-		"Strg": "info:FunctionNameWa"
-	},
-	"15685": {
-		"Type": "TRice8F",
-		"Strg": "info:FunctionNameWb"
-	},
-	"15686": {
-		"Type": "Trice8F",
-		"Strg": "info:FunctionNameWc"
-	},
-	"15687": {
-		"Type": "trice8F",
-		"Strg": "info:FunctionNameWd"
-	},
-	"15688": {
-		"Type": "TRICE16_F",
-		"Strg": "info:FunctionNameXa"
-	},
-	"15689": {
-		"Type": "TRice16F",
-		"Strg": "info:FunctionNameXb"
-	},
-	"15690": {
-		"Type": "Trice16F",
-		"Strg": "info:FunctionNameXc"
-	},
-	"15691": {
-		"Type": "trice16F",
-		"Strg": "info:FunctionNameXd"
-	},
-	"15692": {
-		"Type": "TRICE32_F",
-		"Strg": "info:FunctionNameYa"
-	},
-	"15693": {
-		"Type": "TRice32F",
-		"Strg": "rpc:FunctionNameYb"
-	},
-	"15694": {
-		"Type": "Trice32F",
-		"Strg": "rpc:FunctionNameYc"
-	},
-	"15695": {
-		"Type": "trice32F",
-		"Strg": "call:FunctionNameYd"
-	},
-	"15696": {
-		"Type": "TRICE64_F",
-		"Strg": "info:FunctionNameZa"
-	},
-	"15697": {
-		"Type": "TRice64F",
-		"Strg": "call:FunctionNameZb"
-	},
-	"15698": {
-		"Type": "Trice64F",
-		"Strg": "RPC:FunctionNameZc"
-	},
-	"15699": {
-		"Type": "trice64F",
-		"Strg": "Rpc:FunctionNameZd"
-	},
-	"15700": {
-		"Type": "TRice",
 		"Strg": "Hello "
 	},
-	"15701": {
+	"15684": {
 		"Type": "TRice",
 		"Strg": "World!\\n"
 	},
-	"15702": {
+	"15685": {
 		"Type": "TRice64",
 		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
 	},
-	"15703": {
+	"15686": {
 		"Type": "trice",
 		"Strg": "Hello again\\n"
+	},
+	"15687": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15688": {
+		"Type": "TRICE8_F",
+		"Strg": "info:FunctionNameWa"
+	},
+	"15689": {
+		"Type": "TRice8F",
+		"Strg": "info:FunctionNameWb"
+	},
+	"15690": {
+		"Type": "Trice8F",
+		"Strg": "info:FunctionNameWc"
+	},
+	"15691": {
+		"Type": "trice8F",
+		"Strg": "info:FunctionNameWd"
+	},
+	"15692": {
+		"Type": "TRICE16_F",
+		"Strg": "info:FunctionNameXa"
+	},
+	"15693": {
+		"Type": "TRice16F",
+		"Strg": "info:FunctionNameXb"
+	},
+	"15694": {
+		"Type": "Trice16F",
+		"Strg": "info:FunctionNameXc"
+	},
+	"15695": {
+		"Type": "trice16F",
+		"Strg": "info:FunctionNameXd"
+	},
+	"15696": {
+		"Type": "TRICE32_F",
+		"Strg": "info:FunctionNameYa"
+	},
+	"15697": {
+		"Type": "TRice32F",
+		"Strg": "rpc:FunctionNameYb"
+	},
+	"15698": {
+		"Type": "Trice32F",
+		"Strg": "rpc:FunctionNameYc"
+	},
+	"15699": {
+		"Type": "trice32F",
+		"Strg": "call:FunctionNameYd"
+	},
+	"15700": {
+		"Type": "TRICE64_F",
+		"Strg": "info:FunctionNameZa"
+	},
+	"15701": {
+		"Type": "TRice64F",
+		"Strg": "call:FunctionNameZb"
+	},
+	"15702": {
+		"Type": "Trice64F",
+		"Strg": "RPC:FunctionNameZc"
+	},
+	"15703": {
+		"Type": "trice64F",
+		"Strg": "Rpc:FunctionNameZd"
 	},
 	"15704": {
 		"Type": "TRice",
@@ -8872,12 +8872,12 @@
 		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"15718": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
-	},
-	"15719": {
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+	},
+	"15719": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15720": {
 		"Type": "trice8",
