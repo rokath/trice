@@ -1284,6 +1284,8 @@ git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort 
 * Extend PATH variable with `~/go/bin`:
   * Option for Ubuntu: Add a `/etc/profile.d/my_compiled_trice.sh` file with content `export PATH=$PATH:~/go/bin`.
 * `sudo apt install make`
+* `sudo apt install gcc`
+
 
 ## 9. <a id='build-trice-tool-from-go-sources-(you-can-skip-that)'></a>Build Trice tool from Go sources (you can skip that)
 
