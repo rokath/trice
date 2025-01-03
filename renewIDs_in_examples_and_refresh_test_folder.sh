@@ -3,21 +3,22 @@
 TD="./_test/testdata"
 LIP="-liPath relative"
 
-# rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, we delete to avoid potential ID conflict messages)
+# rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, delete to avoid potential ID conflict messages)
 # touch           $TD/til.json     $TD/li.json # new life
-trice clean  -i $TD/til.json -li $TD/li.json -src $TD -src ./examples # wipe out all IDs from the sources
-# rm -f           $TD/til.json     $TD/li.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so we delete them again.)
+trice clean    -i $TD/til.json -li $TD/li.json -src $TD -src ./examples # wipe out all IDs from the sources
+# rm -f           $TD/til.json     $TD/li.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
 # touch           $TD/til.json     $TD/li.json # new life
-
+exit
 # Next steps are done separately to get the same IDs continuously, in case we deleted the history - normally all files and folders can be done parallel in one shot.
-# We do noct use -cache here to force the li.json generation.
+# We do not use -cache here to force the li.json generation.
+# The ID space between 14000 and 16383 is nearly compleate used here. The Trice tool per default chooses IDs randomly between 1000 and 7999.
 trice insert -i $TD/til.json -li $TD/li.json $LIP              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c
 trice insert -i $TD/til.json -li $TD/li.json $LIP              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c
-trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c
-trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src $TD/..
-trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/
-trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/
-trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 13500 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/triceCheck.c
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 14000 -IDMax 16383 -IDMethod upward   -src $TD/..
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/F030_inst/
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/G0B1_inst/
+trice insert -i $TD/til.json -li $TD/li.json $LIP -IDMin 14000 -IDMax 16383 -IDMethod upward   -src ./examples/L432_inst/
 
 DIRS="
 ./examples/F030_inst/
