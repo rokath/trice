@@ -3821,38 +3821,215 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
 
   <img src="./ref/Animation.gif" width="1200">
 
-### 35.4. <a id='setup-pc'></a>Setup PC
+### 35.4. <a id='setup-pc'></a>Setup Linux PC - Example with Debian12 - KDE Desktop
 
-#### Setting up Ubuntu
+#### Github
 
-##### vsCode (if no other editor)
+* Create github account.
+* Create ssh pair:
 
-##### Git
+    ```bash
+    ssh-keygen -t ed25519
+    ```
 
-##### Gitkraken
+* Add ssh key to your github account.
+* Clone Trice repository:
 
-##### Go
-* Extend PATH variable with `~/go/bin`:
-  * Option for Ubuntu: Add a `/etc/profile.d/my_compiled_trice.sh` file with content `export PATH=$PATH:~/go/bin`.
-* `sudo apt install make`
-* `sudo apt install gcc`
+    ```bash
+    cd ~
+    mkdir repos
+    cd repos
+    git clone git@github.com:rokath/trice.git
+    ```
 
-##### arm-none-eabi toolchain
+#### vsCode
 
-* `sudo apt-get install gcc-arm-none-eabi`
-* `sudo apt-get install binutils-arm-none-eabi`
-* `sudo apt-get install gdb-arm-none-eabi`
-* `sudo apt-get install openocd`
+* Download vsCode from https://code.visualstudio.com/download.
+* Install vsCode (adapt to downloaded version) and start it inside the Trice folder:
 
-##### J-Link (if needed)
+    ```bash
+    sudo apt update
+    sudo apt upgrade
+    sudo apt install ~/Downloads/code_1.96.2-1734607745_amd64.deb
+    code .
+    ```
+
+#### Go
+
+* Download the **Go** language from https://go.dev/doc/install and install:
+
+    ```bash
+    cd ~/Downloads
+    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.4.linux-amd64.tar.gz
+    ```
+
+    Extend PATH variable for example by by adding a file like `/etc/profile.d/gopath.sh`:
+
+    ```bash
+    export PATH=$PATH:/usr/local/go/bin:~/go/bin
+    ```
+
+    Restart PC and compile Trice:
+
+    ```bash
+    th@P51-DebianKDE:~/repos$ go version
+    go version go1.23.4 linux/amd64
+    th@P51-DebianKDE:~/repos$ cd trice
+    th@P51-DebianKDE:~/repos/trice$ go install ./cmd/...
+    go: downloading github.com/spf13/afero v1.9.5
+    go: downloading github.com/kr/pretty v0.1.0
+    go: downloading go.bug.st/serial v1.6.0
+    go: downloading github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
+    go: downloading github.com/rokath/cobs v0.0.0-20230425030040-4ebbe9b903b9
+    go: downloading github.com/rokath/tcobs v0.9.1
+    go: downloading golang.org/x/crypto v0.31.0
+    go: downloading github.com/fsnotify/fsnotify v1.6.0
+    go: downloading github.com/pkg/errors v0.9.1
+    go: downloading golang.org/x/sys v0.28.0
+    go: downloading golang.org/x/text v0.21.0
+    go: downloading github.com/kr/text v0.1.0
+    go: downloading github.com/mattn/go-colorable v0.1.13
+    go: downloading github.com/creack/goselect v0.1.2
+    go: downloading github.com/mattn/go-isatty v0.0.19
+    th@P51-DebianKDE:~/repos/trice$ trice version
+    version=devel, built 2025-01-04 16:29:30.51921408 +0100 CET
+    th@P51-DebianKDE:~/repos/trice$ go test ./...
+    go: downloading github.com/tj/assert v0.0.3
+    go: downloading github.com/stretchr/testify v1.8.4
+    go: downloading github.com/udhos/equalfile v0.3.0
+    go: downloading github.com/pmezard/go-difflib v1.0.0
+    go: downloading gopkg.in/yaml.v3 v3.0.1
+    go: downloading github.com/davecgh/go-spew v1.1.1
+    ?       github.com/rokath/trice/internal/do     [no test files]
+    ?       github.com/rokath/trice/internal/translator     [no test files]
+    ?       github.com/rokath/trice/pkg/ant [no test files]
+    ok      github.com/rokath/trice/cmd/trice       1.014s
+    ok      github.com/rokath/trice/internal/args   0.009s
+    ok      github.com/rokath/trice/internal/charDecoder    0.005s
+    ok      github.com/rokath/trice/internal/com    0.005s
+    ok      github.com/rokath/trice/internal/decoder        0.005s
+    ok      github.com/rokath/trice/internal/dumpDecoder    0.006s
+    ok      github.com/rokath/trice/internal/emitter        0.006s
+    ok      github.com/rokath/trice/internal/id     2.744s
+    ok      github.com/rokath/trice/internal/keybcmd        0.006s
+    ok      github.com/rokath/trice/internal/link   0.006s
+    ok      github.com/rokath/trice/internal/receiver       0.007s
+    ok      github.com/rokath/trice/internal/trexDecoder    0.008s
+    ok      github.com/rokath/trice/pkg/cipher      0.006s
+    ok      github.com/rokath/trice/pkg/endian      0.002s
+    ok      github.com/rokath/trice/pkg/msg 0.005s
+    ok      github.com/rokath/trice/pkg/tst 0.003s
+    th@P51-DebianKDE:~/repos/trice$ 
+    th@P51-DebianKDE:~/repos/trice$ gcc --version
+    gcc (Debian 12.2.0-14) 12.2.0
+    Copyright (C) 2022 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    th@P51-DebianKDE:~/repos/trice$ ./testAll.sh 
+    Sa 4. Jan 16:33:57 CET 2025
+    This can take several minutes ...
+    ?       github.com/rokath/trice/internal/do     [no test files]
+    ok      github.com/rokath/trice/cmd/trice       1.013s
+    ok      github.com/rokath/trice/internal/args   0.007s
+    ok      github.com/rokath/trice/internal/charDecoder    0.004s
+    ok      github.com/rokath/trice/internal/com    0.004s
+    ok      github.com/rokath/trice/internal/decoder        0.003s
+    ok      github.com/rokath/trice/internal/dumpDecoder    0.004s
+    ok      github.com/rokath/trice/internal/emitter        0.003s
+    ?       github.com/rokath/trice/internal/translator     [no test files]
+    ?       github.com/rokath/trice/pkg/ant [no test files]
+    ok      github.com/rokath/trice/internal/id     2.742s
+    ok      github.com/rokath/trice/internal/keybcmd        0.004s
+    ok      github.com/rokath/trice/internal/link   0.004s
+    ok      github.com/rokath/trice/internal/receiver       0.005s
+    ok      github.com/rokath/trice/internal/trexDecoder    0.005s
+    ok      github.com/rokath/trice/pkg/cipher      0.004s
+    ok      github.com/rokath/trice/pkg/endian      0.002s
+    ok      github.com/rokath/trice/pkg/msg 0.004s
+    ok      github.com/rokath/trice/pkg/tst 0.004s
+    ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       144.000s
+    ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     143.927s
+    ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   144.006s
+    ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     143.824s
+    ok      github.com/rokath/trice/_test/dblB_de_multi_nopf_ua     144.087s
+    ok      github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua    144.100s
+    ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua        143.928s
+    ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       144.034s
+    ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   142.399s
+    ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  142.520s
+    ok      github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua      142.526s
+    ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     142.246s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    281.643s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua      281.201s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua     281.518s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua   281.536s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua       279.814s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua     280.173s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua       280.095s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua      279.693s
+    ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua    291.037s
+    ok      github.com/rokath/trice/_test/ringB_de_cobs_ua  140.861s
+    ok      github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua   140.802s
+    ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua       141.037s
+    ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua      149.046s
+    ok      github.com/rokath/trice/_test/ringB_de_nopf_ua  149.114s
+    ok      github.com/rokath/trice/_test/ringB_de_tcobs_ua 149.121s
+    ok      github.com/rokath/trice/_test/ringB_de_xtea_cobs_ua     149.089s
+    ok      github.com/rokath/trice/_test/ringB_de_xtea_tcobs_ua    149.164s
+    ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua  288.603s
+    ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua   288.569s
+    ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua  278.409s
+    ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua      278.493s
+    ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua   278.301s
+    ok      github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua 278.462s
+    ok      github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua 278.590s
+    ok      github.com/rokath/trice/_test/special_for_debug 0.129s
+    ok      github.com/rokath/trice/_test/special_protect_dblB_de_tcobs_ua  0.130s
+    ok      github.com/rokath/trice/_test/stackB_di_nopf_aux32      139.984s
+    ok      github.com/rokath/trice/_test/stackB_di_nopf_aux8       139.358s
+    ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt32      139.366s
+    ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt8       143.107s
+    ok      github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8  141.896s
+    ok      github.com/rokath/trice/_test/staticB_di_nopf_aux32     141.398s
+    ok      github.com/rokath/trice/_test/staticB_di_nopf_aux8      141.677s
+    ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt32     141.779s
+    ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt8      141.609s
+    ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt32    141.487s
+    ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt8     141.559s
+    ok      github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32        139.048s
+    Script run 1300 seconds.
+    th@P51-DebianKDE:~/repos/trice$ 
+    ```
+
+#### Gitkraken (or other GUI for git)
+
+* Gitkraken download from https://www.gitkraken.com/download and Install:
+
+    ```bash
+    sudo install ~/Downloads/
+    ```
+
+#### arm-none-eabi toolchain (or other target system compiler)
+
+* `sudo apt install gcc-arm-none-eabi`
+* `sudo apt install binutils-arm-none-eabi`
+* `sudo apt install gdb-arm-none-eabi`
+* `sudo apt install openocd`
+
+#### J-Link (if needed)
 
 * Download and install from https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
 
-##### Beyond Compare (if no other diff tool)
+```bash
+sudo apt install ~/Downloads/JLink_Linux_V812_x86_64.deb
+```
+
+#### Beyond Compare (if no other diff tool)
 
 * Download and install from https://www.scootersoftware.com
 
-#### Setting up Windows
+### Setup Windows PC Example
 
 Setting up a PC is for Linux mostly straightforward but Windows PCs are more problematic. The steps shown here are just one example.
 
