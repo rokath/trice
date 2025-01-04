@@ -1,6 +1,6 @@
 # OS_Linux.mak
 
-todo
+#todo
 
 include main.mak
 

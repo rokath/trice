@@ -8,6 +8,7 @@ package id
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -20,10 +21,17 @@ func SubCmdIdAdd(w io.Writer, fSys *afero.Afero) error {
 	return IDData.cmdSwitchTriceIDs(w, fSys, triceIDAdding)
 }
 
+// toLIPath converts path according to global variable LIPathKind into a base or relative or absolute path.
 func toLIPath(path string) string {
-	switch LIPathKind[:1] {
+	liPathK := filepath.Base(LIPathKind) // strip leading path info
+	switch liPathK[:1] {
 	case "r": // relative
-		return filepath.ToSlash(path)
+		basePath := LIPathKind[:len(LIPathKind)-len(liPathK)]
+		reloc, err := filepath.Rel(basePath, path)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return reloc //filepath.Clean(reloc + path)
 	case "f": // full
 		full, err := filepath.Abs(path)
 		if err != nil {

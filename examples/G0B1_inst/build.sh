@@ -11,8 +11,8 @@ for arg in "$@"; do
 done
 
 # Trice is called here and not within make, to guarantee, it is finished before any other job starts.
-trice clean  -cache $LIP -src ../../_test/testdata -src ../exampleData -src ./Core # Run this first to trigger the used editor to show the Trice IDs cleaned state.
-trice insert -cache $LIP -src ../../_test/testdata -src ../exampleData -src ./Core -IDMin 16200 -IDMax 16383 -IDMethod upward # Add project data.
+trice clean  $LIP -cache -src ../../_test/testdata -src ../exampleData -src ./Core # Run this first to trigger the used editor to show the Trice IDs cleaned state.
+trice insert $LIP -cache -src ../../_test/testdata -src ../exampleData -src ./Core -IDMin 13000 -IDMax 16383 # Add project data.
 
 case "$OSTYPE" in
   darwin*)  make -j $(sysctl -n hw.ncpu) TRICE_FLAGS="$flags" gcc   -f OS_Darwin.mak ;; 
@@ -24,5 +24,5 @@ case "$OSTYPE" in
   bsd*)     echo "BSD not implemented" ;;
 esac
 
-trice clean -cache $LIP -src ../../_test/testdata -src ../exampleData -src ./Core # Run this again to get the Trice IDs cleaned state.
+trice clean $LIP -cache -src ../../_test/testdata -src ../exampleData -src ./Core # Run this again to get the Trice IDs cleaned state.
 

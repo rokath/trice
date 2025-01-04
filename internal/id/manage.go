@@ -307,6 +307,7 @@ func (lim TriceIDLookUpLI) toJSON() ([]byte, error) {
 	return json.MarshalIndent(lim, "", "\t")
 }
 
+/*
 // distance returns 80 - len(s) spaces as string
 func distance(s string) string {
 	switch 80 - len(s) {
@@ -474,3 +475,4 @@ func distance(s string) string {
 		return "                                                                               "
 	}
 }
+*/

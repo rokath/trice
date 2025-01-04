@@ -338,7 +338,7 @@ With "off" or "none" suppress the display or generation of the location informat
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.
 `) // flag
-	p.StringVar(&id.LIPathKind, "liPath", "base", `How to store location information paths inside li.json: base, relative, full.
+	p.StringVar(&id.LIPathKind, "liPath", "base", `How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
 `) // flag
 }
 
