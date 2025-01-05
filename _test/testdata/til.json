@@ -8743,13 +8743,17 @@
 		"Type": "TRice",
 		"Strg": "World!\\n"
 	},
-	"15186": {
+	"15185": {
 		"Type": "TRice64",
 		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
 	},
-	"15187": {
+	"15186": {
 		"Type": "trice",
 		"Strg": "Hello again\\n"
+	},
+	"15187": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
 	},
 	"15188": {
 		"Type": "TRICE8_F",
@@ -8872,12 +8876,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15218": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15219": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15220": {
 		"Type": "trice8",
@@ -8888,28 +8892,28 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15222": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"15223": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"15224": {
 		"Type": "TRice",
 		"Strg": "msg:StartDefaultTask\\n"
 	},
-	"15223": {
+	"15225": {
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
-	"15224": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
-	},
-	"15225": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
-	},
 	"15226": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"15227": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"15228": {
 		"Type": "trice8",
