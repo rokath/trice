@@ -8732,88 +8732,88 @@
 		"Line": 2762
 	},
 	"15183": {
-		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
-		"Line": 7
-	},
-	"15184": {
-		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
-		"Line": 8
-	},
-	"15185": {
-		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
-		"Line": 9
-	},
-	"15186": {
-		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
-		"Line": 11
-	},
-	"15187": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 11
 	},
-	"15188": {
+	"15184": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 12
 	},
-	"15189": {
+	"15185": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 13
 	},
-	"15190": {
+	"15186": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 14
 	},
-	"15191": {
+	"15187": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 15
 	},
-	"15192": {
+	"15188": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 16
 	},
-	"15193": {
+	"15189": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 17
 	},
-	"15194": {
+	"15190": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 18
 	},
-	"15195": {
+	"15191": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 19
 	},
-	"15196": {
+	"15192": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 20
 	},
-	"15197": {
+	"15193": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 21
 	},
-	"15198": {
+	"15194": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 22
 	},
-	"15199": {
+	"15195": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 23
 	},
-	"15200": {
+	"15196": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 24
 	},
-	"15201": {
+	"15197": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 25
 	},
-	"15202": {
+	"15198": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 26
 	},
-	"15203": {
+	"15199": {
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 27
+	},
+	"15200": {
+		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
+		"Line": 7
+	},
+	"15201": {
+		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
+		"Line": 8
+	},
+	"15202": {
+		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
+		"Line": 9
+	},
+	"15203": {
+		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
+		"Line": 11
 	},
 	"15204": {
 		"File": "_test/special_for_debug/TargetActivity.c",
@@ -8872,380 +8872,380 @@
 		"Line": 66
 	},
 	"15218": {
-		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 76
-	},
-	"15219": {
-		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 86
-	},
-	"15220": {
-		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 96
-	},
-	"15221": {
-		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 106
-	},
-	"15222": {
-		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 116
-	},
-	"15223": {
-		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 126
-	},
-	"15224": {
-		"File": "examples/L432_inst/Core/Src/main.c",
-		"Line": 336
-	},
-	"15225": {
-		"File": "examples/L432_inst/Core/Src/main.c",
-		"Line": 363
-	},
-	"15226": {
 		"File": "examples/L432_inst/Core/Src/stm32l4xx_it.c",
 		"Line": 200
 	},
-	"15227": {
+	"15219": {
 		"File": "examples/L432_inst/Core/Src/stm32l4xx_it.c",
 		"Line": 206
 	},
-	"15228": {
+	"15220": {
+		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
+		"Line": 76
+	},
+	"15221": {
+		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
+		"Line": 86
+	},
+	"15222": {
+		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
+		"Line": 96
+	},
+	"15223": {
+		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
+		"Line": 106
+	},
+	"15224": {
+		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
+		"Line": 116
+	},
+	"15225": {
+		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
+		"Line": 126
+	},
+	"15226": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 136
 	},
-	"15229": {
+	"15227": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 146
 	},
-	"15230": {
+	"15228": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 156
 	},
-	"15231": {
+	"15229": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 166
 	},
-	"15232": {
+	"15230": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 176
 	},
-	"15233": {
+	"15231": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 186
 	},
-	"15234": {
+	"15232": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 196
 	},
-	"15235": {
+	"15233": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 206
 	},
-	"15236": {
+	"15234": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 216
 	},
-	"15237": {
+	"15235": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 224
 	},
-	"15238": {
+	"15236": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 232
 	},
-	"15239": {
+	"15237": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 240
 	},
-	"15240": {
+	"15238": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 248
 	},
-	"15241": {
+	"15239": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 256
 	},
-	"15242": {
+	"15240": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 264
 	},
-	"15243": {
+	"15241": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 272
 	},
-	"15244": {
+	"15242": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 280
 	},
-	"15245": {
+	"15243": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 289
 	},
-	"15246": {
+	"15244": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 298
 	},
-	"15247": {
+	"15245": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 307
 	},
-	"15248": {
+	"15246": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 316
 	},
-	"15249": {
+	"15247": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 325
 	},
-	"15250": {
+	"15248": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 334
 	},
-	"15251": {
+	"15249": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 343
 	},
-	"15252": {
+	"15250": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 353
 	},
-	"15253": {
+	"15251": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 363
 	},
-	"15254": {
+	"15252": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 373
 	},
-	"15255": {
+	"15253": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 383
 	},
-	"15256": {
+	"15254": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 393
 	},
-	"15257": {
+	"15255": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 403
 	},
-	"15258": {
+	"15256": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 413
 	},
-	"15259": {
+	"15257": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 423
 	},
-	"15260": {
+	"15258": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 433
 	},
-	"15261": {
+	"15259": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 443
 	},
-	"15262": {
+	"15260": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 453
 	},
-	"15263": {
+	"15261": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 463
 	},
-	"15264": {
+	"15262": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 473
 	},
-	"15265": {
+	"15263": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 483
 	},
-	"15266": {
+	"15264": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 493
 	},
-	"15267": {
+	"15265": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 503
 	},
-	"15268": {
+	"15266": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 513
 	},
-	"15269": {
+	"15267": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 521
 	},
-	"15270": {
+	"15268": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 529
 	},
-	"15271": {
+	"15269": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 537
 	},
-	"15272": {
+	"15270": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 545
 	},
-	"15273": {
+	"15271": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 553
 	},
-	"15274": {
+	"15272": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 561
 	},
-	"15275": {
+	"15273": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 569
 	},
-	"15276": {
+	"15274": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 577
 	},
-	"15277": {
+	"15275": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 586
 	},
-	"15278": {
+	"15276": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 595
 	},
-	"15279": {
+	"15277": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 604
 	},
-	"15280": {
+	"15278": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 613
 	},
-	"15281": {
+	"15279": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 622
 	},
-	"15282": {
+	"15280": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 631
 	},
-	"15283": {
+	"15281": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 640
 	},
-	"15284": {
+	"15282": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 649
 	},
-	"15285": {
+	"15283": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 659
 	},
-	"15286": {
+	"15284": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 669
 	},
-	"15287": {
+	"15285": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 679
 	},
-	"15288": {
+	"15286": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 689
 	},
-	"15289": {
+	"15287": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 699
 	},
-	"15290": {
+	"15288": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 709
 	},
-	"15291": {
+	"15289": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 719
 	},
-	"15292": {
+	"15290": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 729
 	},
-	"15293": {
+	"15291": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 739
 	},
-	"15294": {
+	"15292": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 749
 	},
-	"15295": {
+	"15293": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 759
 	},
-	"15296": {
+	"15294": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 769
 	},
-	"15297": {
+	"15295": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 779
 	},
-	"15298": {
+	"15296": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 789
 	},
-	"15299": {
+	"15297": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 799
 	},
-	"15300": {
+	"15298": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 809
 	},
-	"15301": {
+	"15299": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 817
 	},
-	"15302": {
+	"15300": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 825
 	},
-	"15303": {
+	"15301": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 833
 	},
-	"15304": {
+	"15302": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 841
 	},
-	"15305": {
+	"15303": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 849
 	},
-	"15306": {
+	"15304": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 857
 	},
-	"15307": {
+	"15305": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 865
 	},
-	"15308": {
+	"15306": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 873
 	},
-	"15309": {
+	"15307": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 882
 	},
-	"15310": {
+	"15308": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 891
 	},
-	"15311": {
+	"15309": {
+		"File": "examples/L432_inst/Core/Src/main.c",
+		"Line": 336
+	},
+	"15310": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
 		"Line": 900
+	},
+	"15311": {
+		"File": "examples/L432_inst/Core/Src/main.c",
+		"Line": 363
 	},
 	"15312": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",

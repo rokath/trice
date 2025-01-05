@@ -8733,91 +8733,87 @@
 	},
 	"15183": {
 		"Type": "TRice",
-		"Strg": "Hello "
+		"Strg": "Hello World!\\n"
 	},
 	"15184": {
-		"Type": "TRice",
-		"Strg": "Hello World!\\n"
-	},
-	"15185": {
-		"Type": "TRice",
-		"Strg": "World!\\n"
-	},
-	"15185": {
-		"Type": "TRice64",
-		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
-	},
-	"15186": {
-		"Type": "trice",
-		"Strg": "Hello again\\n"
-	},
-	"15187": {
-		"Type": "TRice",
-		"Strg": "Hello World!\\n"
-	},
-	"15188": {
 		"Type": "TRICE8_F",
 		"Strg": "info:FunctionNameWa"
 	},
-	"15189": {
+	"15185": {
 		"Type": "TRice8F",
 		"Strg": "info:FunctionNameWb"
 	},
-	"15190": {
+	"15186": {
 		"Type": "Trice8F",
 		"Strg": "info:FunctionNameWc"
 	},
-	"15191": {
+	"15187": {
 		"Type": "trice8F",
 		"Strg": "info:FunctionNameWd"
 	},
-	"15192": {
+	"15188": {
 		"Type": "TRICE16_F",
 		"Strg": "info:FunctionNameXa"
 	},
-	"15193": {
+	"15189": {
 		"Type": "TRice16F",
 		"Strg": "info:FunctionNameXb"
 	},
-	"15194": {
+	"15190": {
 		"Type": "Trice16F",
 		"Strg": "info:FunctionNameXc"
 	},
-	"15195": {
+	"15191": {
 		"Type": "trice16F",
 		"Strg": "info:FunctionNameXd"
 	},
-	"15196": {
+	"15192": {
 		"Type": "TRICE32_F",
 		"Strg": "info:FunctionNameYa"
 	},
-	"15197": {
+	"15193": {
 		"Type": "TRice32F",
 		"Strg": "rpc:FunctionNameYb"
 	},
-	"15198": {
+	"15194": {
 		"Type": "Trice32F",
 		"Strg": "rpc:FunctionNameYc"
 	},
-	"15199": {
+	"15195": {
 		"Type": "trice32F",
 		"Strg": "call:FunctionNameYd"
 	},
-	"15200": {
+	"15196": {
 		"Type": "TRICE64_F",
 		"Strg": "info:FunctionNameZa"
 	},
-	"15201": {
+	"15197": {
 		"Type": "TRice64F",
 		"Strg": "call:FunctionNameZb"
 	},
-	"15202": {
+	"15198": {
 		"Type": "Trice64F",
 		"Strg": "RPC:FunctionNameZc"
 	},
-	"15203": {
+	"15199": {
 		"Type": "trice64F",
 		"Strg": "Rpc:FunctionNameZd"
+	},
+	"15200": {
+		"Type": "TRice",
+		"Strg": "Hello "
+	},
+	"15201": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
+	},
+	"15202": {
+		"Type": "TRice64",
+		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
+	},
+	"15203": {
+		"Type": "trice",
+		"Strg": "Hello again\\n"
 	},
 	"15204": {
 		"Type": "TRice8B",
@@ -8876,12 +8872,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15218": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"15219": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"15220": {
 		"Type": "trice8",
@@ -8900,20 +8896,20 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15224": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15225": {
-		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15226": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15227": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15228": {
 		"Type": "trice8",
@@ -9240,16 +9236,16 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15309": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"15310": {
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"15311": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"15312": {
 		"Type": "trice8",
