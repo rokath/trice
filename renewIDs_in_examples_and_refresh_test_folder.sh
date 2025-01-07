@@ -3,11 +3,11 @@
 TD="./_test/testdata"
 LIP="-liPath relative"
 
-rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, delete to avoid potential ID conflict messages)
-touch           $TD/til.json     $TD/li.json # new life
+#rm -f           $TD/til.json     $TD/li.json # forget history (users usually should not do that in their projects, delete to avoid potential ID conflict messages)
+#touch           $TD/til.json     $TD/li.json # new life
 trice clean  -i $TD/til.json -li $TD/li.json -src $TD -src ./examples # wipe out all IDs from the sources
-rm -f           $TD/til.json     $TD/li.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
-touch           $TD/til.json     $TD/li.json # new life
+#m -f           $TD/til.json     $TD/li.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
+#touch           $TD/til.json     $TD/li.json # new life
 
 # Next steps are done separately to get the same IDs continuously, in case we deleted the history - normally all files and folders can be done parallel in one shot.
 # We do not use -cache here to force the li.json generation.

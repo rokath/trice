@@ -3838,7 +3838,7 @@ adduser <your_user_name> sudo
 exit
 ```
 
-* Logout and login again.
+* Logout and login.
 * Install and verify:
 
 ```bash
@@ -4038,16 +4038,80 @@ git config --global user.name "Your Name"
 
 * Gitkraken download from https://www.gitkraken.com/download and Install:
 
-    ```bash
-    sudo install ~/Downloads/
-    ```
+  ```bash
+  sudo install ~/Downloads/
+  ```
 
 #### arm-none-eabi toolchain (or other target system compiler)
 
-* `sudo apt install gcc-arm-none-eabi`
-* `sudo apt install binutils-arm-none-eabi`
-* `sudo apt install gdb-arm-none-eabi`
-* `sudo apt install openocd`
+```bash
+sudo apt install gcc-arm-none-eabi
+sudo apt install binutils-arm-none-eabi
+sudo apt install gdb-arm-none-eabi
+sudo apt install openocd
+arm-none-eabi-gcc --version
+arm-none-eabi-gcc (15:12.2.rel1-1) 12.2.1 20221205
+Copyright (C) 2022 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+ * See installed toolchain:
+
+  ```bash
+  ls -l /usr/bin/ | grep arm-none-eabi
+  -rwxr-xr-x 1 root root     1033504 Feb 28  2023 arm-none-eabi-addr2line
+  -rwxr-xr-x 2 root root     1066088 Feb 28  2023 arm-none-eabi-ar
+  -rwxr-xr-x 2 root root     2095024 Feb 28  2023 arm-none-eabi-as
+  -rwxr-xr-x 2 root root     1514496 Dec 22  2022 arm-none-eabi-c++
+  -rwxr-xr-x 1 root root     1032992 Feb 28  2023 arm-none-eabi-c++filt
+  -rwxr-xr-x 1 root root     1514496 Dec 22  2022 arm-none-eabi-cpp
+  -rwxr-xr-x 1 root root       43640 Feb 28  2023 arm-none-eabi-elfedit
+  -rwxr-xr-x 2 root root     1514496 Dec 22  2022 arm-none-eabi-g++
+  -rwxr-xr-x 2 root root     1514496 Dec 22  2022 arm-none-eabi-gcc
+  -rwxr-xr-x 2 root root     1514496 Dec 22  2022 arm-none-eabi-gcc-12.2.1
+  -rwxr-xr-x 1 root root       35376 Dec 22  2022 arm-none-eabi-gcc-ar
+  -rwxr-xr-x 1 root root       35376 Dec 22  2022 arm-none-eabi-gcc-nm
+  -rwxr-xr-x 1 root root       35376 Dec 22  2022 arm-none-eabi-gcc-ranlib
+  -rwxr-xr-x 1 root root      749664 Dec 22  2022 arm-none-eabi-gcov
+  -rwxr-xr-x 1 root root      585688 Dec 22  2022 arm-none-eabi-gcov-dump
+  -rwxr-xr-x 1 root root      610328 Dec 22  2022 arm-none-eabi-gcov-tool
+  -rwxr-xr-x 1 root root     1104256 Feb 28  2023 arm-none-eabi-gprof
+  -rwxr-xr-x 4 root root     1709968 Feb 28  2023 arm-none-eabi-ld
+  -rwxr-xr-x 4 root root     1709968 Feb 28  2023 arm-none-eabi-ld.bfd
+  -rwxr-xr-x 1 root root    24982344 Dec 22  2022 arm-none-eabi-lto-dump
+  -rwxr-xr-x 2 root root     1054720 Feb 28  2023 arm-none-eabi-nm
+  -rwxr-xr-x 2 root root     1180744 Feb 28  2023 arm-none-eabi-objcopy
+  -rwxr-xr-x 2 root root     1867744 Feb 28  2023 arm-none-eabi-objdump
+  -rwxr-xr-x 2 root root     1066120 Feb 28  2023 arm-none-eabi-ranlib
+  -rwxr-xr-x 2 root root      973400 Feb 28  2023 arm-none-eabi-readelf
+  -rwxr-xr-x 1 root root     1033280 Feb 28  2023 arm-none-eabi-size
+  -rwxr-xr-x 1 root root     1037504 Feb 28  2023 arm-none-eabi-strings
+  -rwxr-xr-x 2 root root     1180744 Feb 28  2023 arm-none-eabi-strip
+  ```
+
+* To try the newest version, download it from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads.
+  * Setup:
+    * Unpack and extend $PATH at the beginning:
+      
+    ```bash
+    cd ~/Downloads
+    tar xf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+    su
+    echo export PATH=/home/th/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/:'$PATH' > /etc/profile.d/arm14.2path.sh
+    exit
+    ```
+
+    * Logout and login
+
+    ```bash
+    arm-none-eabi-gcc --version
+    arm-none-eabi-gcc (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119
+    Copyright (C) 2024 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    ```
+
+  * Remove: Delete `/etc/profile.d/arm14.2path.sh` and `~/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi`
 
 #### J-Link (if needed)
 
