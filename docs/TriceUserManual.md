@@ -3846,9 +3846,11 @@ groups
 sudo apt update
 sudo apt upgrade
 sudo apt install build-essential
-gcc --version
 make --version
+gcc --version
 git --version
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
 ```
 
 #### Github
@@ -3895,13 +3897,11 @@ git --version
 
     ```bash
     su
-    sudo echo export PATH='$PATH':/usr/local/go/bin:~/go/bin > /etc/profile.d/gopath.sh
+    sudo echo export PATH='$PATH':/usr/local/go/bin:/home/<your_user_name>/go/bin > /etc/profile.d/gopath.sh
     exit
     ```
 
-
-
-    Restart PC and compile Trice:
+* Logout, login and compile Trice:
 
     ```bash
     th@P51-DebianKDE:~/repos$ go version
