@@ -692,6 +692,10 @@ When developing firmware, we get often different versions and variants in the de
 
 * Download [latest release assets](https://github.com/rokath/trice/releases) for your system: Compressed source code and binaries.
 * OR Get the repo: ![x](./ref/Get-Button.png)
+  * Create a Github Account
+  * Create SSH key pair inside `~/.ssh/`: `ssh-keygen -t ed25510`
+  * Add content of `~/.ssh/id_ed25519.pub` as SSH key to Github.
+  * Execute `git clone git@github.com:rokath/trice.git` to get the trice repository.
 * OR use the ![./ref/Fork.PNG](./ref/Fork.PNG) button
 
 ### 6.2. <a id='install-it'></a>Install It
@@ -3823,6 +3827,30 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
 
 ### 35.4. <a id='setup-pc'></a>Setup Linux PC - Example with Debian12 - KDE Desktop
 
+#### Basic setup
+
+* Add yourself to the sudo group:
+
+```bash
+su
+apt install sudo
+adduser <your_user_name> sudo
+exit
+```
+
+* Logout and login again.
+* Install and verify:
+
+```bash
+groups
+sudo apt update
+sudo apt upgrade
+sudo apt install build-essential
+gcc --version
+make --version
+git --version
+```
+
 #### Github
 
 * Create github account.
@@ -3863,11 +3891,15 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
     sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.4.linux-amd64.tar.gz
     ```
 
-    Extend PATH variable for example by by adding a file like `/etc/profile.d/gopath.sh`:
+    Extend PATH variable with `/usr/local/go/bin:~/go/bin` for example by by adding a file like `/etc/profile.d/gopath.sh`:
 
     ```bash
-    export PATH=$PATH:/usr/local/go/bin:~/go/bin
+    su
+    sudo echo export PATH='$PATH':/usr/local/go/bin:~/go/bin > /etc/profile.d/gopath.sh
+    exit
     ```
+
+
 
     Restart PC and compile Trice:
 
