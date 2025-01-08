@@ -2,19 +2,7 @@
 
 failCount=0
 
-INSTRUMENTEDDIRS="
-    F030_inst/
-    G0B1_inst/
-    L432_inst/
-"
-
-NONINSTRUMENTEDDIRS="
-    F030_bare/
-    G0B1_bare/
-    L432_bare/
-"
-
-for d in $INSTRUMENTEDDIRS
+for d in ./F030_inst/ ./G0B1_inst/ ./L432_inst/
 do
     cd $d
     ./clean.sh
@@ -24,7 +12,8 @@ do
         echo FAIL: $d
     fi
 done
-for d in $NONINSTRUMENTEDDIRS
+
+for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/
 do
     cd $d
     make clean

@@ -1,29 +1,17 @@
 #!/usr/bin/env bash
 
-NONINSTRUMENTEDDIRS="
-    F030_bare/
-    G0B1_bare/
-    L432_bare/
-"
-
-INSTRUMENTEDDIRS="
-    F030_inst/
-    G0B1_inst/
-    L432_inst/
-"
-
 failCount=0
 
-for d in $INSTRUMENTEDDIRS
+for d in ./F030_inst/ ./G0B1_inst/ ./L432_inst/
 do
     cd $d
-    #echo --------------------------------------------------------------------------------------------------------
-    #echo $d with TRICE_OFF=1
-    #./clean.sh
-    #./build.sh TRICE_OFF=1
+    echo --------------------------------------------------------------------------------------------------------
+    echo $d with TRICE_OFF=1
+    ./clean.sh
+    ./build.sh TRICE_OFF=1
     echo --------------------------------------------------------------------------------------------------------
     echo $d with TRICE_OFF=0
-    #./clean.sh
+    ./clean.sh
     ./build.sh
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
@@ -32,7 +20,7 @@ do
     cd ..
 done
 
-for d in $NONINSTRUMENTEDDIRS
+for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/
 do
     cd $d
     echo --------------------------------------------------------------------------------------------------------
