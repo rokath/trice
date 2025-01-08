@@ -34,7 +34,7 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 	if p.err != nil {
 		return p.err
 	}
-	msg.Tell(w, "process inserting")
+	msg.Tell(w, "process inserting with " + path)
 	// The file has an mtime from last user edit and we keep this as reference.
 	// Inserting IDs takes part as an for the makefile invisible action.
 

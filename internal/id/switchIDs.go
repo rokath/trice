@@ -142,10 +142,13 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 	for i := range p.TagList {
 		e := &(p.TagList[i]) // get list entry address
 		for id := e.min; id <= e.max; id++ {
-			_, usedFmt := p.idToTrice[id]
-			_, usedLoc := p.idToLocRef[id]
+			_, usedFmt := p.idToTrice[id]  // is id used in til.json?
+			_, usedLoc := p.idToLocRef[id] // is id used in li.json?
 			if !usedFmt && !usedLoc {
-				e.iDSpace = append(e.iDSpace, id) // create ID space
+				if Verbose {
+					fmt.Fprintln(w, "ID", id, "unused, so add to ID space (ok, just informal)")
+				}
+				e.iDSpace = append(e.iDSpace, id) // create ID space -> This is what we can use later.
 			} else if Verbose {
 				if usedFmt && !usedLoc {
 					fmt.Fprintln(w, "ID", id, "used, but only inside til.json")
@@ -154,16 +157,16 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 					fmt.Fprintln(w, "ID", id, "used, but only inside li.json")
 				}
 				if usedFmt && usedLoc {
-					fmt.Fprintln(w, "ID", id, "used inside til.json and li.json")
+					fmt.Fprintln(w, "ID", id, "used (ok, just informal)")
 				}
 			}
 		}
 		if Verbose {
 			cnt := e.max - e.min + 1
 			if len(e.tagName) > 0 {
-				fmt.Fprintln(w, "trice tag", e.tagName, "has", cnt, "IDs total space,", len(e.iDSpace), "IDs usable")
+				fmt.Fprintln(w, "special trice tag", e.tagName, "has", cnt, "IDs total space, with", len(e.iDSpace), "IDs usable")
 			} else {
-				fmt.Fprintln(w, "common trice tags have", cnt, "IDs total space,", len(e.iDSpace), "IDs usable")
+				fmt.Fprintln(w, "common trice tags have", cnt, "IDs total space, with", len(e.iDSpace), "IDs usable")
 			}
 		}
 	}
