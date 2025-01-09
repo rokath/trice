@@ -1,3 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-trice insert -i demoTIL.json -li demoLI.json -liPath ./relative -IDMin 13000 -IDMax 16383 -src ./_test -src ./examples/F030_inst -src ./examples/G0B1_inst -src ./examples/L432_inst
+SCRIPT_DIRECTORY="$(dirname $(realpath "$0"))"
+cd $SCRIPT_DIRECTORY
+source ./trice_environment.sh
+
+trice insert $TRICE_CL -IDMin 13000 -IDMax 16383
+
+cd - > /dev/null

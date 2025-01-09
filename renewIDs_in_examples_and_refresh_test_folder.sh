@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 TD="./_test/testdata"
-LIP="-liPath ./relative"
+LIP="-liPath relative"
 
 #rm -f          demoTIL.json     demoLI.json # forget history (users usually should not do that in their projects, delete to avoid potential ID conflict messages)
 #touch          demoTIL.json     demoLI.json # new life
@@ -14,9 +14,9 @@ trice clean  -i demoTIL.json -li demoLI.json -src $TD -src ./examples # wipe out
 # The Trice tool per default chooses IDs randomly between 1000 and 7999.
 trice insert -i demoTIL.json -li demoLI.json $LIP              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c
 trice insert -i demoTIL.json -li demoLI.json $LIP              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c
-trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/F030_inst/
-trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/G0B1_inst/
-trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/L432_inst/
+trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/F030_inst/Core
+trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/G0B1_inst/Core
+trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/L432_inst/Core
 trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src $TD/triceCheck.c
 trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src $TD/..
 
@@ -92,5 +92,5 @@ done
 
 # Remove legacy build artifacts if existent.
 cd ./examples
-./cleanAllTargets.sh
+#./cleanAllTargets.sh
 cd - > /dev/null

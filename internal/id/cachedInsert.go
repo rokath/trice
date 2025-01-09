@@ -1,6 +1,7 @@
 package id
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -23,8 +24,8 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 	var err error
 	var cacheExists bool
 	var insertedCachePath string
+	cache := filepath.Join(UserHomeDir, ".trice/cache")
 	if TriceCacheEnabled {
-		cache := filepath.Join(UserHomeDir, ".trice/cache")
 
 		if _, err = fSys.Stat(cache); err == nil { // cache folder exists
 			// This cache code works in conjunction with the cache code in function triceIDCleaning.
@@ -105,6 +106,9 @@ insert:
 		p.join(err)
 		err = CopyFileWithMTime(fSys, insertedCachePath, path)
 		p.join(err)
+	}
+	if TriceCacheEnabled && !cacheExists {
+		fmt.Fprintln(w, "Warning: Folder", cache, "not found. Please create it or do not use the -cache switch.")
 	}
 	//
 	///////////////////////////////////////////////////////////////////////////////

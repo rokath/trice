@@ -1,3 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-trice clean -i demoTIL.json -li demoLI.json -liPath ./relative -src ./_test -src ./examples/F030_inst -src ./examples/G0B1_inst -src ./examples/L432_inst
+SCRIPT_DIRECTORY="$(dirname $(realpath "$0"))"
+cd $SCRIPT_DIRECTORY
+source ./trice_environment.sh
+
+trice clean $TRICE_CL
+
+cd - > /dev/null

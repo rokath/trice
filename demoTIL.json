@@ -8,16 +8,16 @@
 		"Strg": "rx:received command:%s\\n"
 	},
 	"13002": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
+		"Type": "trice",
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
 	},
 	"13003": {
 		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"13004": {
-		"Type": "trice",
-		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"13005": {
 		"Type": "trice8",
@@ -32,20 +32,20 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13008": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"13009": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"13010": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"13011": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"13012": {
 		"Type": "trice8",
@@ -140,16 +140,16 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13035": {
-		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13036": {
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13037": {
-		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13038": {
 		"Type": "trice8",
@@ -417,27 +417,27 @@
 	},
 	"13104": {
 		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\\n"
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13105": {
 		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\\n"
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13106": {
 		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An minimum configuration example.\\n"
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\\n"
 	},
 	"13107": {
 		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\\n"
+		"Strg": "dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\\n"
 	},
 	"13108": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An minimum configuration example.\\n"
 	},
 	"13109": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\\n"
 	},
 	"13110": {
 		"Type": "TRice",
@@ -9256,88 +9256,28 @@
 		"Strg": "Rpc:FunctionNameZd"
 	},
 	"15314": {
-		"Type": "TRice8B",
-		"Strg": "%3x\\n"
-	},
-	"15315": {
-		"Type": "TRice8B",
-		"Strg": "%3x\\n"
-	},
-	"15316": {
 		"Type": "TRice",
 		"Strg": "Hello "
 	},
-	"15317": {
+	"15315": {
 		"Type": "TRice",
 		"Strg": "World!\\n"
 	},
-	"15318": {
+	"15316": {
 		"Type": "TRice64",
 		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
 	},
-	"15319": {
+	"15317": {
 		"Type": "trice",
 		"Strg": "Hello again\\n"
 	},
-	"15334": {
-		"Type": "TRICE",
-		"Strg": "Hello, TRICE\\n"
+	"15318": {
+		"Type": "TRice8B",
+		"Strg": "%3x\\n"
 	},
-	"15457": {
-		"Type": "TRICE0",
-		"Strg": "s:                                          \\n"
-	},
-	"15534": {
-		"Type": "TRICE8",
-		"Strg": "s:     NUCLEO-F411RE     TRICE_MODE %3u     \\n"
-	},
-	"15581": {
-		"Type": "TRICE32",
-		"Strg": "att:Single Trice Stack buf size:%4u"
-	},
-	"15734": {
-		"Type": "TRICE0",
-		"Strg": "s:                                          \\n"
-	},
-	"15795": {
-		"Type": "TRICE32",
-		"Strg": "att: Trice 2x half buffer size:%4u "
-	},
-	"15828": {
-		"Type": "TRICE0",
-		"Strg": "s:     "
-	},
-	"15855": {
-		"Type": "TRICE0",
-		"Strg": "s:                                          \\n"
-	},
-	"15868": {
-		"Type": "TRICE0",
-		"Strg": "Hello, TRICE0()\\n"
-	},
-	"15873": {
-		"Type": "TRICE",
-		"Strg": ""
-	},
-	"15965": {
-		"Type": "TRICE",
-		"Strg": "Button press at, %d\\n"
-	},
-	"15977": {
-		"Type": "TRICE0",
-		"Strg": ""
-	},
-	"16123": {
-		"Type": "TRICE",
-		"Strg": "Hello, TRICE, %d\\n"
-	},
-	"16227": {
-		"Type": "TRICE0",
-		"Strg": "Hello, TRICE\\n"
-	},
-	"16253": {
-		"Type": "TRICE0",
-		"Strg": "s:     \\n"
+	"15319": {
+		"Type": "TRice8B",
+		"Strg": "%3x\\n"
 	},
 	"16326": {
 		"Type": "trice",
