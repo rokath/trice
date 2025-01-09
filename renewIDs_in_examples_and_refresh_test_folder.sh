@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 TD="./_test/testdata"
 LIP="-liPath relative"

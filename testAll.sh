@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 date
 echo This can take several minutes ...
 t0=`date +%s`
@@ -10,13 +10,13 @@ fi
 ./renewIDs_in_examples_and_refresh_test_folder.sh
 go clean -cache
 go test ./...
-trice insert -til ./demoTIL.json -li ./demoLI.json -IDMin 13000 -IDMax 16383
+./trice_insertIDs_in_examples_and_test_folder.sh
 
 cd _test
 go test ./...
 cd - >/dev/null
 
-trice clean  -til ./demoTIL.json -li ./demoLI.json
+./trice_cleanIDs_in_examples_and_test_folder.sh
 
 t1=`date +%s`
 if command -v caffeinate 2>&1 >/dev/null

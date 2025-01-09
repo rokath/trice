@@ -20,11 +20,11 @@ extern "C" {
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 2000
 
-// trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none  -d16 -ts ms
-//#define TRICE_DIRECT_OUTPUT 1
-//#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
+// trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none  -d16 -ts ms  -i ../../demoTIL.json -li ../../demoLI.json
+#define TRICE_DIRECT_OUTPUT 1
+#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
-// trice log -p com7 -pw MySecret -pf COBS
+// trice log -p com7 -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_XTEA_ENCRYPT 1
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
