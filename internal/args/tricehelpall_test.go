@@ -199,7 +199,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -liFmt string
     	Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%21s %5d ")
   -liPath string
-    	How to store location information paths inside li.json: base, relative, full.
+    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
     	 (default "base")
   -locationInformation string
     	The trice location information file.
@@ -318,7 +318,7 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	Short for '-locationInformation'.
     	 (default "li.json")
   -liPath string
-    	How to store location information paths inside li.json: base, relative, full.
+    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
     	 (default "base")
   -locationInformation string
     	The trice location information file.
@@ -459,7 +459,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Short for '-locationInformation'.
     	 (default "li.json")
   -liPath string
-    	How to store location information paths inside li.json: base, relative, full.
+    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
     	 (default "base")
   -locationInformation string
     	The trice location information file.
@@ -522,7 +522,7 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	Short for '-locationInformation'.
     	 (default "li.json")
   -liPath string
-    	How to store location information paths inside li.json: base, relative, full.
+    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
     	 (default "base")
   -locationInformation string
     	The trice location information file.

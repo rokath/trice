@@ -174,11 +174,11 @@ TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(
 #define TRice_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, ...) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
 #define TRice_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, ...) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
 
-#define TRICE8_B(fmt, p, n, ...) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRICE8_B(id, fmt, p, n ) TRICE_UNUSED(p) TRICE_UNUSED(n)
 #define trice8B( fmt, p, n, ...) TRICE_UNUSED(p) TRICE_UNUSED(n)
 #define Trice8B( fmt, p, n, ...) TRICE_UNUSED(p) TRICE_UNUSED(n)
 #define TRice8B( fmt, p, n, ...) TRICE_UNUSED(p) TRICE_UNUSED(n)
-#define TRICE8_F(fmt, p, n, ...) TRICE_UNUSED(p) TRICE_UNUSED(n)
+#define TRICE8_F(id, fmt, p, n ) TRICE_UNUSED(p) TRICE_UNUSED(n)
 #define trice8F( fmt, p, n, ...) TRICE_UNUSED(p) TRICE_UNUSED(n)
 #define Trice8F( fmt, p, n, ...) TRICE_UNUSED(p) TRICE_UNUSED(n)
 #define TRice8F( fmt, p, n, ...) TRICE_UNUSED(p) TRICE_UNUSED(n)

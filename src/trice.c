@@ -7,7 +7,7 @@
 #include "tcobs.h"
 #include "xtea.h"
 
-#if TRICE_OFF == 0
+#if !TRICE_OFF
 
 // check configuration:
 
@@ -1056,4 +1056,4 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString) {
 
 #endif // #ifdef TRICE_N
 
-#endif // #if TRICE_OFF == 0
+#endif // #if !TRICE_OFF

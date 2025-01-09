@@ -2,10 +2,12 @@
 
 failCount=0
 
-for d in ./F030_inst/ ./G0B1_inst/ ./L432_inst/
+INSTDIRS="./F030_inst/ ./G0B1_inst/ ./L432_inst/"
+
+for d in $INSTDIRS
 do
     cd $d
-    ./clean.sh
+    ./triceCleanIDs.sh
     cd ..
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
@@ -13,7 +15,7 @@ do
     fi
 done
 
-for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/
+for d in $INSTDIRS ./F030_bare/ ./G0B1_bare/ ./L432_bare/
 do
     cd $d
     make clean

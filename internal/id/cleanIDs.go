@@ -28,13 +28,10 @@ func (p *idData) processTriceIDCleaning(w io.Writer, fSys *afero.Afero, path str
 	if p.err != nil {
 		return p.err
 	}
-	msg.Tell(w, "process cleaning")
+	msg.Tell(w, "process cleaning in "+path)
 	in, err := fSys.ReadFile(path)
 	if err != nil {
 		return msg.OnErrFv(w, err)
-	}
-	if Verbose {
-		fmt.Fprintln(w, path)
 	}
 
 	out, modified, err := p.cleanTriceIDs(w, toLIPath(path), in, a)

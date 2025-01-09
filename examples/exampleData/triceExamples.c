@@ -4,7 +4,7 @@
 
 #include "trice.h"
 
-#if TRICE_OFF == 0
+#if !TRICE_OFF
 
 //! TriceHeadLine emits a decorated name. The name length should be 18 characters.
 void TriceHeadLine(char* name) {
@@ -77,4 +77,4 @@ void LogTriceConfiguration(void) {
 	trice("d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\n", TRICE_SINGLE_MAX_SIZE, TRICE_BUFFER_SIZE, TRICE_DEFERRED_BUFFER_SIZE);
 }
 
-#endif // #if TRICE_OFF == 0
+#endif // #if !TRICE_OFF

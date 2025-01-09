@@ -21,12 +21,6 @@ extern "C" {
 // When defined in the project settings, it influences the whole trice code generation.
 #define TRICE_OFF 0
 #endif
-// #define TRICE_DO_EXPAND(VAL)  VAL ## 1
-// #define TRICE_EXPAND(VAL)     TRICE_DO_EXPAND(VAL) //!<  https://stackoverflow.com/questions/3781520/how-to-test-if-preprocessor-symbol-is-defined-but-has-no-value
-// #if (TRICE_EXPAND(TRICE_OFF) == 1)
-// #undef TRICE_OFF // TRICE_OFF was defined as empty string.
-// #define TRICE_OFF 1 // So the intension was probably this.
-// #endif
 
 #ifndef TRICE_UARTA_MIN_ID
 #define TRICE_UARTA_MIN_ID 0 //!< TRICE_UARTA_MIN_ID, if > 0, is the smalles ID routed to UARTA.

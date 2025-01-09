@@ -2079,14 +2079,14 @@ type insertIDsData struct {
 }
 ```
 
-* Create a `insertIDsData` instance.
+* Create an `insertIDsData` instance.
 * De-serialize `til.json` into `idToFmt` and `fmtToId`. On error abort and report for manual correction. One result is a slice with used IDs.
 * De-serialize `li.json` into `idToLocRef`. On error abort and report for manual correction. As result the slice with used IDs is extended.
   * If `li.json` contains IDs not already inside `til.json`, these are reported as warning.
   * `idToLocRef` stays untouched and is used only in cases when identical f are found.
-* Create a slice `IDSpace` with numbers IDmin ... IDmax (1 ... 16383, or 1000 ... 1999 if specified in the command line that way)
+* Create a slice `IDSpace` with numbers IDMin ... IDMax (1 ... 16383, or 1000 ... 1999 if specified in the command line that way)
 * Remove all used IDs from `IDSpace`.
-  * If used IDs outside IDmin and IDmax, for example IDmin=1000, IDmax=1999 and some used IDs are bigger or smaller these are not removable from IDroom what is ok.
+  * If used IDs outside IDMin and IDmax, for example IDMin=1000, IDmax=1999 and some used IDs are bigger or smaller these are not removable from IDroom what is ok.
 * Create empty `itemToId` and `idToItem`.
 * Walk the src and create a **s**ource **t**ree **m**ap STM with
   * key=`Trice+LI` and
@@ -4039,7 +4039,7 @@ git config --global user.name "Your Name"
 * Gitkraken download from https://www.gitkraken.com/download and Install:
 
   ```bash
-  sudo install ~/Downloads/
+  mv ./gitkraken-amd64.deb /tmp; sudo apt install /tmp/gitkraken-amd64.deb
   ```
 
 #### arm-none-eabi toolchain (or other target system compiler)

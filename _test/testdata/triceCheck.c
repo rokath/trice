@@ -34,14 +34,16 @@ void TriceCheck(int n) {
     TRice("\rTriceCheck %4d", n);
 #else // #ifdef TRICE_CHECK_MIN
     char* sABCDE = "abcde 12345";
-#if !TRICE_OFF
     uint32_t lenABCDE = strlen(sABCDE);
-   float  x = (float)1089.6082763671875; // 0x44883377
-    double y = 518.0547492508867; // 0x4080307020601050  
-    #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
+    float  x = (float)1089.6082763671875; // 0x44883377
+    double y = 518.0547492508867; // 0x4080307020601050
+#if TRICE_OFF
+    TRICE_UNUSED(x)
+    TRICE_UNUSED(y)
+#endif
+#if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
     char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-    #endif
-#endif // #if !TRICE_OFF
+#endif
     char* s = "AAAAAAAAAAAA";
     char * five = "five";
     static int8_t b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
@@ -2721,6 +2723,8 @@ static void exampleOfManualSerialization(void) {
 	////////////////////////////////////////////////////////
 #if !TRICE_OFF
 	int len = serializeTryout(dst, &tx); // serialized byte count
+#else
+  int len = 0;
 #endif
 	TRICE(Id(0), "inf: Tryout tx struct:");
 	TRICE8_B(Id(0), " %02x ", &tx, sizeof(tx));

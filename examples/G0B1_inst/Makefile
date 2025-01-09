@@ -1,6 +1,6 @@
-# main.mak
+# Makefile
 
-BUILDFILES = build.sh OS_Darwin.mak OS_Linux.mak OS_Windows.mak main.mak mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
+BUILDFILES = build.sh OS_Darwin.mak OS_Linux.mak OS_Windows.mak Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
 VERBOSE = # -v
 
 ######################################

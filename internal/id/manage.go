@@ -164,7 +164,7 @@ func (ilu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(e, s)
 	if Verbose {
-		fmt.Println("ilu.fromFile", fn, len(b))
+		fmt.Println("ilu.fromFile", fn, "- file size is", len(b))
 	}
 	return ilu.FromJSON(b)
 }
@@ -176,7 +176,7 @@ func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
 	b, err := fSys.ReadFile(fn)
 	if err == nil { // file found
 		if Verbose {
-			fmt.Println("li.fromFile", fn, len(b))
+			fmt.Println("li.fromFile", fn, "- file size is", len(b))
 		}
 		return li.FromJSON(b)
 	}

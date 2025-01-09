@@ -93,7 +93,7 @@ common:
 			continue
 		}
 		if len(e.iDSpace) <= 0 {
-			log.Fatal("Remaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)")
+			log.Fatalf("%+v\n%+v\nRemaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)", e, t)
 		}
 		if SearchMethod == "random" {
 			index := rand.Intn(len(e.iDSpace))

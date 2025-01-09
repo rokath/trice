@@ -34,13 +34,13 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 	if p.err != nil {
 		return p.err
 	}
-	msg.Tell(w, "process inserting with " + path)
+	msg.Tell(w, "process inserting in "+path)
 	// The file has an mtime from last user edit and we keep this as reference.
 	// Inserting IDs takes part as an for the makefile invisible action.
 
 	in, err := fSys.ReadFile(path)
 	p.join(err)
-	msg.Tell(w, path)
+	// msg.Tell(w, path)
 
 	out, modified, err := p.insertTriceIDs(w, toLIPath(path), in, a)
 	p.join(err)
@@ -191,7 +191,7 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 					// The idn value does not match. If idn exists not at all inside ids we will later add it to til.json. See func TestAddIDToTilJSON.
 					// In func TestGenerateNewIDIfUsedToTilJSON we face the issue, that idn is not found inside ids as well, because it is used for a different trice.
 					// But we could assign one of the existing id inside ids to idn. For that we use goto idsLoopEntry later.
-					fmt.Fprintln(w, "ID", idn, "!=", id, "continue...")
+					fmt.Fprintln(w, "ID", idn, "!=", id, "continue to check", ids, "...")
 				}
 				continue
 			}
@@ -215,7 +215,7 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 
 			if !filenameMatch {
 				if Verbose {
-					fmt.Fprintln(w, "ID", id, "is from a different file: -> continue")
+					fmt.Fprintln(w, "ID", id, "is from a different file:", toLIPath(li.File), li.File)
 				}
 				continue
 			}

@@ -687,7 +687,7 @@ Used git log command: `git log --oneline` and less important lines removed
 | `1024170a` | Similar projects extended with postform                                                    |
 | `b8f63c38` | G0B1_inst example SEGGER_RTT_Conf.h finetuned to needs                                     |
 | `74b026fd` | TRICE_DEFERRED_OUTPUT and TRICE_DIRECT_OUTPUT switches added to diagnostic code            |
-| `2be95fd6` | Build scripts reworked for G01B_inst example                                               |
+| `2be95fd6` | Build scripts reworked for G0B1_inst example                                               |
 | `784e2da9` | TriceUserGuide.md updted                                                                   |
 | `6c47db08` | obsolete code removed                                                                      |
 | `5ac9ec50` | Update TriceColor.md                                                                       |
