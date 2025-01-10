@@ -23,7 +23,8 @@ extern uint32_t ms32; //! ms32 is a 32-bit millisecond counter, counting circula
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
-// trice l -p com5 -ts16 "time:     #%6d" -i ../../demoTIL.json -li ../../demoLI.json
+// trice l -p com5         -ts16 "time:     #%6d" -i ../../demoTIL.json -li ../../demoLI.json
+// trice l -p /dev/ttyACM0 -ts16 "time:     #%6d" -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
