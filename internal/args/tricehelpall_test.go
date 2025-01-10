@@ -443,7 +443,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -cache
     	Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.
   -defaultStampSize int
-    	Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32. (default 32)
+    	Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice insert -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
