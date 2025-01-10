@@ -4144,9 +4144,29 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
 - Install VS-Code
   - This is my favorite editor with many optional Add-Ons. It is used for debugging as well.
 - Install Go if you wish to compile Go programs.
-  - Install latest [TDM GCC](https://jmeubank.github.io/tdm-gcc/download/).
-    - TDM GCC is needed only if you wish to use CGO as well.
-    - If you just want compile the Trice tool TDM GCC is not needed. But for performing all tests it is nessecary.
+  - `go test ./...` should succeed in a terminal window.
+  - When GCC is not installed you get some strange errors with `TestAll.sh`:
+    ```bash
+    ms@PaulPCWin11 MINGW64 ~/repos/trice (devel)
+    $ ./testAll.sh
+    Fri Jan 10 11:19:39 WEST 2025
+    This can take several minutes ...
+
+    ...
+
+    ok      github.com/rokath/trice/pkg/tst 0.601s
+    # github.com/rokath/trice/_test/dblB_de_cobs_ua [github.com/rokath/trice/_test/dblB_de_cobs_ua.test]
+    dblB_de_cobs_ua\cgo_test.go:20:110: undefined: triceDir
+    dblB_de_cobs_ua\cgo_test.go:24:2: undefined: triceLogTest
+    dblB_de_cobs_ua\cgo_test.go:24:28: undefined: testLines
+    # github.com/rokath/trice/_test/dblB_de_tcobs_ua [github.com/rokath/trice/_test/dblB_de_tcobs_ua.test]
+    dblB_de_tcobs_ua\cgo_test.go:20:92: undefined: triceDir
+    dblB_de_tcobs_ua\cgo_test.go:24:2: undefined: triceLogTest
+    dblB_de_tcobs_ua\cgo_test.go:24:28: undefined: testLines
+    ```
+  - Download and install latest GCC then, from https://winlibs.com for example.
+    - Extract to `C:\bin\mingw64` and extend PATH with `C:\bin\mingw64\bin`
+    - Open terminal and execute `gcc --version` to check success.
 - Setup J-Link if you use this debug probe as hardware or software (see below).
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
 - Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
@@ -4163,7 +4183,7 @@ OR
 - Put trice/src into `repos` if you want access the trice library code from several projects and have it only once.
   - Alternatively copy it into your project.
 
-#### 35.4.2. <a id='setup-arm-environment'></a>Setup ARM Environment
+#### 35.4.2. <a id='setup-arm-environment'></a>Setup ARM Environment Example
 
 <a id='install-arm-gcc'></a><h5>Install ARM GCC</h5>
 
@@ -4181,6 +4201,17 @@ OR
   - The path is used directly also in generated Makefiles.
   - Extending the path variable at the beginning avoids accidentally usage of installed legacy compilers with the same name.
   - To use exactly `C:\bin\ArmGNUToolchain` as install location allows a more easy project collaboration.
+  - Check path:
+  ```bash
+  $ echo $PATH | tr : '\n'
+  ...
+  /c/bin
+  /c/bin/ArmGNUToolchain/bin
+  /c/bin/mingw64/bin
+  /c/Program Files/Go/bin
+  /c/Users/ms/go/bin
+  ...
+  ```
 
 <a id='macos'></a><h5>MacOS</h5>
 
