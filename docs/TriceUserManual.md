@@ -15,7 +15,7 @@
 Table of Contents Generation:
 * Install vsCode extension "Markdown TOC" from dumeng
 * Use Shift-Command-P "markdownTOC:generate" to get the automatic numbering.
-* replace "<a id=" with "<a id="
+* replace "<a name=" with "<a id="
 * replace "##" followed by 2 spaces with "## "‚
 -->
 
