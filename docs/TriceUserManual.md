@@ -1127,6 +1127,9 @@ void fnB( void ){
 }
 ```
 
+#### Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
+
+The stamp size 0, 16 or 32 is usually controlled by writing `trice`, `Trice` or `TRICE` or for upper case only Trice macros by using id(0), Id(0) or ID(0). When wrting `TRICE("hi");` for example, the Trice CLI switch `-defaultStampSizede` controls the ID insertion, but this is then equal for all new `TRICE` messages.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
