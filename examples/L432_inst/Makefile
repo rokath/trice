@@ -1,6 +1,6 @@
 # Makefile
 
-BUILDFILES = build.sh OS_Darwin.mak OS_Linux.mak OS_Windows.mak Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
+BUILDFILES = build.sh Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
 VERBOSE = # -v
 
 ######################################
@@ -137,7 +137,7 @@ include flags.mak
 
 .PHONY: all gcc clean log version
 
-all: clang # gcc clang
+all: gcc # gcc clang
 
 clang: $(CLANG_BUILD)/$(TARGET).elf $(CLANG_BUILD)/$(TARGET).hex $(CLANG_BUILD)/$(TARGET).bin
 	@:

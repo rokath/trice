@@ -18,12 +18,13 @@ extern uint32_t ms32; //! ms32 is a 32-bit millisecond counter, counting circula
 #define TriceStamp32 (SysTick->VAL) // ms32
 
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
+#define TRICE_DEFERRED_BUFFER_SIZE 2048
 
 // trice l -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0" -pf none -d16 -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
-// trice l -p com5         -ts16 "time:     #%6d" -i ../../demoTIL.json -li ../../demoLI.json
+// trice l -p com4         -ts16 "time:     #%6d" -i ../../demoTIL.json -li ../../demoLI.json
 // trice l -p /dev/ttyACM0 -ts16 "time:     #%6d" -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_UARTA 1

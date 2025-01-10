@@ -82,8 +82,6 @@ int main(void)
 #if !TRICE_OFF
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
   TriceHeadLine("  NUCLEO-G0B1RE   ");
-  LogTriceConfiguration();
-  SomeExampleTrices(3);
 #endif
   /* USER CODE END 1 */
 
@@ -107,6 +105,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  LogTriceConfiguration();
+  SomeExampleTrices(3);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */

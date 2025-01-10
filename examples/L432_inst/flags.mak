@@ -44,7 +44,7 @@ C_FLAGS += -Ofast                 # -Ofast optimizes for speed.
 #C_FLAGS += -Og#                   # -Og
 
 #C_FLAGS += -g #                     # -g includes debug information into the ELF.
-#C_FLAGS += -g3 #                   # -g3 include, a couple extra goodies such as macro definitions used in your application.
+ C_FLAGS += -g3 #                   # -g3 include, a couple extra goodies such as macro definitions used in your application.
 
 #C_FLAGS += -Wunused-parameter
 

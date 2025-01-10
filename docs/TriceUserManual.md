@@ -4185,6 +4185,45 @@ OR
 
 #### 35.4.2. <a id='setup-arm-environment'></a>Setup ARM Environment Example
 
+<a id='install-make'></a><h5>Install make</h5>
+
+```bash
+ms@PaulPCWin11 MINGW64 ~/repos/trice/examples (devel)
+$ winget install ezwinports.make
+The `msstore` source requires that you view the following agreements before using.
+Terms of Transaction: https://aka.ms/microsoft-store-terms-of-transaction
+The source requires the current machine's 2-letter geographic region to be sent to the backend service to function properly (ex. "US").
+
+Do you agree to all the source agreements terms?
+[Y] Yes  [N] No: Y
+Found ezwinports: make [ezwinports.make] Version 4.4.1
+This application is licensed to you by its owner.
+Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Downloading https://downloads.sourceforge.net/project/ezwinports/make-4.4.1-without-guile-w32-bin.zip
+  ██████████████████████████████   383 KB /  383 KB
+Successfully verified installer hash
+Extracting archive...
+Successfully extracted archive
+Starting package install...
+Path environment variable modified; restart your shell to use the new value.
+Command line alias added: "make"
+Successfully installed
+
+ms@PaulPCWin11 MINGW64 ~/repos/trice/examples (devel)
+```
+
+Check:
+
+```bash
+$ make --version
+GNU Make 4.4.1
+Built for Windows32
+Copyright (C) 1988-2023 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+```
+
 <a id='install-arm-gcc'></a><h5>Install ARM GCC</h5>
 
 - Uninstall existing ARM GCC compilers optionally.
@@ -4210,6 +4249,7 @@ OR
   /c/bin/mingw64/bin
   /c/Program Files/Go/bin
   /c/Users/ms/go/bin
+  /c/Users/ms/AppData/Local/Microsoft/WinGet/Packages/ezwinports.make_Microsoft.Winget.Source_8wekyb3d8bbwe/bin
   ...
   ```
 
@@ -4377,7 +4417,7 @@ Do not use locations containing spaces, like `C:\Program Files`. Take `C:\bin` f
 Extend the path variable:
 
 - PATH += `C:\bin\ArmGNUToolchain\bin`
-- PATH += `C:\Program Files\SEGGER\JLink`.
+- PATH += `C:\Program Files\SEGGER\JLink`. (may be C:\Program Files\SEGGER\JLink_V812a or similar)
 
 ### 35.9. <a id='build-command'></a>Build command
 
