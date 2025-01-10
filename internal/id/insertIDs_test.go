@@ -152,7 +152,7 @@ func TestInsertExistingID_B(t *testing.T) {
 
 func TestInsert99(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
-
+	DefaultStampSize = 32
 	// create src file1
 	sFn1 := "file1.c"
 	src1 := `
@@ -192,7 +192,7 @@ func TestInsert99(t *testing.T) {
 
 func TestInsert99w(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
-
+	DefaultStampSize = 32
 	// create src file1
 	sFn1 := "file1.c"
 	src1 := `

@@ -31,6 +31,7 @@ func toLIPath(path string) string {
 		if err != nil {
 			log.Fatal(err)
 		}
+		reloc = filepath.ToSlash(reloc)
 		return reloc //filepath.Clean(reloc + path)
 	case "f": // full
 		full, err := filepath.Abs(path)

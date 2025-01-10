@@ -42,7 +42,8 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 	p.join(err)
 	// msg.Tell(w, path)
 
-	out, modified, err := p.insertTriceIDs(w, toLIPath(path), in, a)
+	lip := toLIPath(path)
+	out, modified, err := p.insertTriceIDs(w, lip, in, a)
 	p.join(err)
 
 	if filepath.Base(path) == "triceConfig.h" && p.err == nil {
