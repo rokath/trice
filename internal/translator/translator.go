@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
@@ -250,13 +251,13 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
 	if li != nil && decoder.LocationInformationFormatString != "off" && decoder.LocationInformationFormatString != "none" {
 		if li, ok := li[tid]; ok {
-			return fmt.Sprintf(decoder.LocationInformationFormatString, li.File, li.Line)
+			return fmt.Sprintf(decoder.LocationInformationFormatString, filepath.Base(li.File), li.Line)
 		} else {
 			return fmt.Sprintf(decoder.LocationInformationFormatString, "", 0)
 		}
 	} else {
 		if Verbose {
-			return fmt.Sprintf("wrn:no li ")
+			return "wrn:no li "
 		}
 	}
 	return ""
