@@ -23,15 +23,7 @@ do
     echo --------------------------------------------------------------------------------------------------------
     echo $d
 
-    case "$OSTYPE" in
-    darwin*)  make -j $(sysctl -n hw.ncpu)   ;; 
-    linux*)   make -j $(nproc --all)         ;;
-    msys*)    make -j $(nproc --all)         ;;
-    cygwin*)  make -j $(nproc --all)         ;;
-    *)        echo "unknown: $OSTYPE"        ;;
-    solaris*) echo "SOLARIS not implemented" ;;
-    bsd*)     echo "BSD not implemented"     ;;
-    esac
+    make -j
 
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
