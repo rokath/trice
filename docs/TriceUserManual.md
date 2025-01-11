@@ -17,7 +17,7 @@
 Table of Contents Generation:
 * Install vsCode extension "Markdown TOC" from dumeng
 * Use Shift-Command-P "markdownTOC:generate" to get the automatic numbering.
-* replace "<a name=" with "<a id="
+* replace "<a id=" with "<a id="
 * replace "##" followed by 2 spaces with "## "‚
 -->
 
@@ -68,12 +68,14 @@ Table of Contents Generation:
     * 6.6.1. [Parser Limitation](#parser-limitation)
     * 6.6.2. [Trice macros in header files](#trice-macros-in-header-files)
     * 6.6.3. [Trice macros inside other macros](#trice-macros-inside-other-macros)
+    * 6.6.4. [Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)](#upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0))
 * 7. [Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed)
   * 7.1. [Trice Cache Idea](#trice-cache-idea)
   * 7.2. [Trice Cache Logic](#trice-cache-logic)
   * 7.3. [Trice Cache Remarks](#trice-cache-remarks)
   * 7.4. [Trice Cache Tests](#trice-cache-tests)
   * 7.5. [Possible Trice Cache Editor-Issues And How To Get Around](#possible-trice-cache-editor-issues-and-how-to-get-around)
+  * 7.6. [Activating the Trice Cache](#activating-the-trice-cache)
 * 8. [Trice Code Formatting](#trice-code-formatting)
   * 8.1. [File .clang-format](#file-.clang-format)
   * 8.2. [File .clang-format-ignore](#file-.clang-format-ignore)
@@ -193,7 +195,8 @@ Table of Contents Generation:
 * 32. [Trice over RTT](#trice-over-rtt)
   * 32.1. [For the impatient (2 possibilities)](#for-the-impatient-(2-possibilities))
     * 32.1.1. [Start JLink commander and connect over TCP](#start-jlink-commander-and-connect-over-tcp)
-    * 32.1.2. [Start using JLinkLogger](#start-using-jlinklogger)
+    * 32.1.2. [Start using JLinkRTTLogger](#start-using-jlinkrttlogger)
+    * 32.1.3. [JLinkRTTLogger Issue](#jlinkrttlogger-issue)
   * 32.2. [Segger Real Time Transfer (RTT)](#segger-real-time-transfer-(rtt))
   * 32.3. [J-Link option](#j-link-option)
     * 32.3.1. [Convert Evaluation Board onboard ST-Link to J-Link](#convert-evaluation-board-onboard-st-link-to-j-link)
@@ -245,22 +248,31 @@ Table of Contents Generation:
   * 35.1. [Common Information](#common-information-1)
   * 35.2. [Important to know](#important-to-know)
   * 35.3. [Animation](#animation)
-  * 35.4. [Setup PC](#setup-pc)
-    * 35.4.1. [Setup Trice](#setup-trice)
-    * 35.4.2. [Setup ARM Environment](#setup-arm-environment)
-    * 35.4.3. [Setup STM32](#setup-stm32)
-    * 35.4.4. [Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)](#setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too))
-    * 35.4.5. [Setup VS-Code](#setup-vs-code)
-  * 35.5. [Makefile with Clang too](#makefile-with-clang-too)
-  * 35.6. [Download Locations](#download-locations)
-    * 35.6.1. [Clang](#clang)
-    * 35.6.2. [GCC](#gcc-1)
-  * 35.7. [Install Locations](#install-locations)
-  * 35.8. [Environment Variables](#environment-variables)
-  * 35.9. [Build command](#build-command)
-  * 35.10. [Run & Debug](#run-&-debug)
-  * 35.11. [Logging](#logging)
-  * 35.12. [Setting up a new project](#setting-up-a-new-project)
+  * 35.4. [Setup Linux PC - Example with Debian12 - KDE Desktop](#setup-linux-pc---example-with-debian12---kde-desktop)
+    * 35.4.1. [Basic setup](#basic-setup)
+    * 35.4.2. [Github](#github)
+    * 35.4.3. [vsCode](#vscode)
+    * 35.4.4. [Go](#go)
+    * 35.4.5. [Gitkraken (or other GUI for git)](#gitkraken-(or-other-gui-for-git))
+    * 35.4.6. [arm-none-eabi toolchain (or other target system compiler)](#arm-none-eabi-toolchain-(or-other-target-system-compiler))
+    * 35.4.7. [J-Link (if needed)](#j-link-(if-needed))
+    * 35.4.8. [Beyond Compare (if no other diff tool)](#beyond-compare-(if-no-other-diff-tool))
+  * 35.5. [Setup Windows PC Example](#setup-windows-pc-example)
+    * 35.5.1. [Setup Trice](#setup-trice)
+    * 35.5.2. [Setup ARM Environment Example](#setup-arm-environment-example)
+    * 35.5.3. [Setup STM32](#setup-stm32)
+    * 35.5.4. [Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)](#setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too))
+    * 35.5.5. [Setup VS-Code](#setup-vs-code)
+  * 35.6. [Makefile with Clang too](#makefile-with-clang-too)
+  * 35.7. [Download Locations](#download-locations)
+    * 35.7.1. [Clang](#clang)
+    * 35.7.2. [GCC](#gcc-1)
+  * 35.8. [Install Locations](#install-locations)
+  * 35.9. [Environment Variables](#environment-variables)
+  * 35.10. [Build command](#build-command)
+  * 35.11. [Run & Debug](#run-&-debug)
+  * 35.12. [Logging](#logging)
+  * 35.13. [Setting up a new project](#setting-up-a-new-project)
 * 36. [Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
   * 36.1. [Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
     * 36.1.1. [F030_bare](#f030_bare)
@@ -1129,7 +1141,7 @@ void fnB( void ){
 }
 ```
 
-#### Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
+#### 6.6.4. <a id='upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0)'></a>Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
 
 The stamp size 0, 16 or 32 is usually controlled by writing `trice`, `Trice` or `TRICE` or for upper case only Trice macros by using id(0), Id(0) or ID(0). When wrting `TRICE("hi");` for example, the Trice CLI switch `-defaultStampSize` controls the ID insertion, but this is then equal for all new `TRICE` messages.
 
@@ -1216,6 +1228,19 @@ Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function
   * An automatic view refresh (close & open) for the editor could help here. But how to do that in an universal way?
 * A workaround is, at least for vsCode, to first run `trice clean` in the build script.
   * See `trice/examples/G0B1_inst/build.sh` for an implementation.
+
+### 7.6. <a id='activating-the-trice-cache'></a>Activating the Trice Cache
+
+* Create Trice cache folder:
+
+```bash
+mkdir -p ~/.trice/cache
+```
+
+* Apply `-cache` CLI switch on `trice insert` and `trice clean`. See [./trice_insertIDs_in_examples_and_test_folder.sh](./trice_insertIDs_in_examples_and_test_folder.sh) and [./trice_cleanIDs_in_examples_and_test_folder.sh](trice_cleanIDs_in_examples_and_test_folder.sh) which both call [./trice_environment.sh](./trice_environment.sh) and used for example in [./examples/G0B1_inst/build.sh](./examples/G0B1_inst/build.sh)
+
+* Do **NOT** add the Trice cache to the version control.
+* It is safe to `rm -rf ~/.trice/cache` and not to use the `-cache` CLI switch anymore.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -3111,16 +3136,106 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 **This is a demonstration and test for the `-port TCP4` usage possibility**. Using RTT with J-Link is more easy possible as shown in the next point.
 
-#### 32.1.2. <a id='start-using-jlinklogger'></a>Start using JLinkLogger
+#### 32.1.2. <a id='start-using-jlinkrttlogger'></a>Start using JLinkRTTLogger
 
 * Start inside Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"`
   * Replace CLI details with your settings.
   * For **G0B1_inst**: `trice l -p JLINK -args "-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -d16 -pf none`
   * You can add the `-verbose` CLI switch for more details.
 * You may **not** need a Trice tool restart after firmware reload.
-* For some reason the RTT technique does not work well with Darwin right now. The problem seems to be that the JLinkRTTLogger app cannot work correctly in the background. But there is a workaround:
-  * In one terminal run `JLinkRTTLogger -Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0 myLogFile.bin`
-  * and in an other terminal execute `trice l -p FILE -args myLogFile.bin -pf none -d16`.
+
+#### 32.1.3. <a id='jlinkrttlogger-issue'></a>JLinkRTTLogger Issue
+
+* For some reason the RTT technique does not work well with Darwin and also Linux right now. The problem seems to be that the JLinkRTTLogger app cannot work correctly in the background. But there is a workaround:
+  * Example 1:
+    * In one terminal run `JLinkRTTLogger -Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0 myLogFile.bin`
+    * and in an other terminal execute `trice l -p FILE -args myLogFile.bin -pf none -d16`.
+  * Example 2:
+    * Flash, start debugger and run to main()
+    * Terminal 1: `rm ./temp/trice.bin && JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin`
+    * Terminal 2: `touch ./temp/trice.bin && trice log -p FILE -args ./temp/trice.bin -prefix off -hs off -d16 -ts ms -i ../../demoTIL.json -li ../../demoLI.json -pf none`
+    * Continue to run in debugger
+    * Terminal 1:
+    
+      ```bash
+      th@P51-DebianKDE:~/repos/trice/examples/G0B1_inst$ rm ./temp/trice.bin && JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
+      SEGGER J-Link RTT Logger
+      Compiled Dec 18 2024 15:48:21
+      (c) 2016-2017 SEGGER Microcontroller GmbH, www.segger.com
+              Solutions for real time microcontroller applications
+
+      Default logfile path: /home/th/.config/SEGGER
+
+      ------------------------------------------------------------ 
+
+
+      ------------------------------------------------------------ 
+      Connected to:
+        SEGGER J-Link ST-LINK
+        S/N: 779220206
+
+      Searching for RTT Control Block...OK.
+      1 up-channels found:
+      0: Terminal
+      Selected RTT Channel description: 
+        Index: 0
+        Name:  Terminal
+        Size:  1024 bytes.
+
+      Output file: ./temp/trice.bin
+
+      Getting RTT data from target. Press any key to quit.
+      ------------------------------------------------------------ 
+
+      Transfer rate: 0 Bytes/s Data written: 15.71 KB
+      ```
+
+    * Terminal 2:
+    
+      ```bash
+      th@P51-DebianKDE:~/repos/trice/examples/G0B1_inst$ touch ./temp/trice.bin && trice log -p FILE -args ./temp/trice.bin -prefix off -hs off -d16 -ts ms  -i ../../demoTIL.json -li ../../demoLI.json -pf none 
+            triceExamples.c    12        0,000  Hello! 👋🙂
+              ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        
+              🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈        
+              🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        
+
+
+            triceExamples.c    61              TRICE_DIRECT_OUTPUT == 1, TRICE_DEFERRED_OUTPUT == 1
+            triceExamples.c    69              TRICE_RING_BUFFER, TRICE_MULTI_PACK_MODE
+            triceExamples.c    76              _CYCLE == 1, _PROTECT == 1, _DIAG == 1, XTEA == 1
+            triceExamples.c    77              _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=2000
+            triceExamples.c    29  0:00:00,003 🐁 Speedy Gonzales a  32-bit time stamp
+            triceExamples.c    30  0:00:00,003 🐁 Speedy Gonzales b  32-bit time stamp
+            triceExamples.c    31  0:00:00,003 🐁 Speedy Gonzales c  32-bit time stamp
+            triceExamples.c    32  0:00:00,003 🐁 Speedy Gonzales d  32-bit time stamp
+            triceExamples.c    33        0,310 🐁 Speedy Gonzales e  16-bit time stamp
+            triceExamples.c    34        0,328 🐁 Speedy Gonzales f  16-bit time stamp
+            triceExamples.c    35        0,347 🐁 Speedy Gonzales g  16-bit time stamp
+            triceExamples.c    36        0,365 🐁 Speedy Gonzales h  16-bit time stamp
+            triceExamples.c    42        0,394 2.71828182845904523536 <- float number as string
+            triceExamples.c    43        0,436 2.71828182845904509080 (double with more ciphers than precision)
+            triceExamples.c    44        0,458 2.71828174591064453125 (float  with more ciphers than precision)
+            triceExamples.c    45        0,479 2.718282 (default rounded float)
+            triceExamples.c    46        0,500 A Buffer:
+            triceExamples.c    47        0,520 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36 
+            triceExamples.c    48        0,562 31372e32  31383238  34383238  34303935  35333235  
+            triceExamples.c    49        0,601 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+            triceExamples.c    50              3 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
+            triceExamples.c    52        0,664 i=44444400 aaaaaa00
+            triceExamples.c    52        0,687 i=44444401 aaaaaa01
+            triceExamples.c    52        0,709 i=44444402 aaaaaa02
+                    main.c   312  0:00:00,003 StartDefaultTask
+                    main.c   339  0:00:00,003 StartTask02:Diagnostics and TriceTransfer
+        triceLogDiagData.c    21              RTT0_writeDepthMax=365 (BUFFER_SIZE_UP=1024)
+        triceLogDiagData.c    44              triceSingleDepthMax =  96 of 172 (TRICE_BUFFER_SIZE)
+        triceLogDiagData.c    75              triceRingBufferDepthMax =   0 of 2000
+              triceCheck.c    57               line 57
+              triceCheck.c    59  0:00:02,325 Hello World!
+              triceCheck.c    61  0:00:02,405 This is a message without values and a 32-bit stamp.
+              triceCheck.c    62        0,306 This is a message without values and a 16-bit stamp.
+              triceCheck.c    63              This is a message without values and without stamp.
+      ```
+      * See also the configuration in [./examples/G0B1_inst/Core/triceConfig.h](../examples/G0B1_inst/Core/triceConfig.h)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -3318,8 +3433,6 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### 32.7. <a id='further-development'></a>Further development
-
-
 
 * Check OpenOCD!
   * Use OpenOCD and its built-in RTT feature. OpenOCD then starts a server on localhost:17001 where it dumps all RTT messages.
@@ -3830,9 +3943,9 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
 
   <img src="./ref/Animation.gif" width="1200">
 
-### 35.4. <a id='setup-pc'></a>Setup Linux PC - Example with Debian12 - KDE Desktop
+### 35.4. <a id='setup-linux-pc---example-with-debian12---kde-desktop'></a>Setup Linux PC - Example with Debian12 - KDE Desktop
 
-#### Basic setup
+#### 35.4.1. <a id='basic-setup'></a>Basic setup
 
 * Add yourself to the sudo group:
 
@@ -3858,7 +3971,7 @@ git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 ```
 
-#### Github
+#### 35.4.2. <a id='github'></a>Github
 
 * Create github account.
 * Create ssh pair:
@@ -3877,7 +3990,7 @@ git config --global user.name "Your Name"
     git clone git@github.com:rokath/trice.git
     ```
 
-#### vsCode
+#### 35.4.3. <a id='vscode'></a>vsCode
 
 * Download vsCode from https://code.visualstudio.com/download.
 * Install vsCode (adapt to downloaded version) and start it inside the Trice folder:
@@ -3889,7 +4002,7 @@ git config --global user.name "Your Name"
     code .
     ```
 
-#### Go
+#### 35.4.4. <a id='go'></a>Go
 
 * Download the **Go** language from https://go.dev/doc/install and install:
 
@@ -4039,7 +4152,7 @@ git config --global user.name "Your Name"
     th@P51-DebianKDE:~/repos/trice$ 
     ```
 
-#### Gitkraken (or other GUI for git)
+#### 35.4.5. <a id='gitkraken-(or-other-gui-for-git)'></a>Gitkraken (or other GUI for git)
 
 * Gitkraken download from https://www.gitkraken.com/download and Install:
 
@@ -4047,7 +4160,7 @@ git config --global user.name "Your Name"
   mv ./gitkraken-amd64.deb /tmp; sudo apt install /tmp/gitkraken-amd64.deb
   ```
 
-#### arm-none-eabi toolchain (or other target system compiler)
+#### 35.4.6. <a id='arm-none-eabi-toolchain-(or-other-target-system-compiler)'></a>arm-none-eabi toolchain (or other target system compiler)
 
 ```bash
 sudo apt install gcc-arm-none-eabi
@@ -4094,6 +4207,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   -rwxr-xr-x 2 root root     1180744 Feb 28  2023 arm-none-eabi-strip
   ```
 
+* For some reason `sudo apt install gdb-arm-none-eabi` gives the message `Note, selecting 'gdb-multiarch' instead of 'gdb-arm-none-eabi'` and *arm-none-eabi-gdb* is not installed afterwards.
 * To try the newest version, download it from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads.
   * Setup:
     * Unpack and extend $PATH at the beginning:
@@ -4116,9 +4230,18 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     ```
 
+    ```bash
+    arm-none-eabi-gdb --version
+    GNU gdb (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 15.2.90.20241130-git
+    Copyright (C) 2024 Free Software Foundation, Inc.
+    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+    This is free software: you are free to change and redistribute it.
+    There is NO WARRANTY, to the extent permitted by law.
+    ```
+
   * Remove: Delete `/etc/profile.d/arm14.2path.sh` and `~/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi`
 
-#### J-Link (if needed)
+#### 35.4.7. <a id='j-link-(if-needed)'></a>J-Link (if needed)
 
 * Download and install from https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
 
@@ -4126,11 +4249,40 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 sudo apt install ~/Downloads/JLink_Linux_V812_x86_64.deb
 ```
 
-#### Beyond Compare (if no other diff tool)
+* Logout & login & check:
+
+```bash
+th@P51-DebianKDE:~/Downloads$ JLinkRTTLogger -?
+SEGGER J-Link RTT Logger
+Compiled Dec 18 2024 15:48:21
+(c) 2016-2017 SEGGER Microcontroller GmbH, www.segger.com
+         Solutions for real time microcontroller applications
+
+Default logfile path: /home/th/.config/SEGGER
+
+------------------------------------------------------------ 
+
+Available options:
+-Device <devicename>
+-If <ifname>
+-Speed <speed>
+-USB <SN>
+-IP <SN>
+-RTTAddress <RTTAddress>
+-RTTSearchRanges "<Rangestart> <RangeSize>[, <Range1Start> <Range1Size>, ...]
+"-RTTChannel <RTTChannel>
+-JLinkScriptFile <PathToScript>
+<OutFilename>
+
+Shutting down... Done.th@P51-DebianKDE:~/Downloads$ 
+```
+
+
+#### 35.4.8. <a id='beyond-compare-(if-no-other-diff-tool)'></a>Beyond Compare (if no other diff tool)
 
 * Download and install from https://www.scootersoftware.com
 
-### Setup Windows PC Example
+### 35.5. <a id='setup-windows-pc-example'></a>Setup Windows PC Example
 
 Setting up a PC is for Linux mostly straightforward but Windows PCs are more problematic. The steps shown here are just one example.
 
@@ -4173,7 +4325,7 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
 - Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
 
-#### 35.4.1. <a id='setup-trice'></a>Setup Trice
+#### 35.5.1. <a id='setup-trice'></a>Setup Trice
 
 - from inside folder `repos` clone trice repo with `git clone https://github.com/rokath/trice.git`.
 - Run `go install ./cmd/trice/...` from folder `repos/trice`.
@@ -4185,7 +4337,7 @@ OR
 - Put trice/src into `repos` if you want access the trice library code from several projects and have it only once.
   - Alternatively copy it into your project.
 
-#### 35.4.2. <a id='setup-arm-environment'></a>Setup ARM Environment Example
+#### 35.5.2. <a id='setup-arm-environment-example'></a>Setup ARM Environment Example
 
 <a id='install-make'></a><h5>Install make</h5>
 
@@ -4324,7 +4476,7 @@ InstalledDir: C:\bin\ArmClang\bin
 
 The paths must match with the installation locations.
 
-#### 35.4.3. <a id='setup-stm32'></a>Setup STM32
+#### 35.5.3. <a id='setup-stm32'></a>Setup STM32
 
 <a id='generate-base-project'></a><h5>Generate Base Project</h5>
 
@@ -4357,7 +4509,7 @@ This step is recommended before re-flashing with the J-Link onboard debugger sof
     - Selecting the other option, would not allow to update with the SEGGER STLinkReflash tool.
   - Close
 
-#### 35.4.4. <a id='setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too)'></a>Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
+#### 35.5.4. <a id='setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too)'></a>Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
 
 (https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 
@@ -4373,7 +4525,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Re-Flash onboard debugger.
     - You can undo this step anytime.
 
-#### 35.4.5. <a id='setup-vs-code'></a>Setup VS-Code
+#### 35.5.5. <a id='setup-vs-code'></a>Setup VS-Code
 
 - Start VS Code
   - Install Go rich language support if you want to use Go as well (not needed for ARM debugging).
@@ -4394,43 +4546,43 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
 - Installing the **Cortex Debug** extension allow you to debug the target code.
 
-### 35.5. <a id='makefile-with-clang-too'></a>Makefile with Clang too
+### 35.6. <a id='makefile-with-clang-too'></a>Makefile with Clang too
 
 - After STM32 CubeMX code generation the Makefile was edited and spitted.
 - STM32 CubeMX code generation accepts the edited Makefile, so re-generation is no issue.
   - It modifies the settings according to the changes.
 
-### 35.6. <a id='download-locations'></a>Download Locations
+### 35.7. <a id='download-locations'></a>Download Locations
 
-#### 35.6.1. <a id='clang'></a>Clang
+#### 35.7.1. <a id='clang'></a>Clang
 
 https://releases.llvm.org/download.html -> https://github.com/llvm/llvm-project/releases/tag/llvmorg-16.0.0 (example)
 
-#### 35.6.2. <a id='gcc-1'></a>GCC
+#### 35.7.2. <a id='gcc-1'></a>GCC
 
 https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain -> https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads (example))
 
-### 35.7. <a id='install-locations'></a>Install Locations
+### 35.8. <a id='install-locations'></a>Install Locations
 
 Do not use locations containing spaces, like `C:\Program Files`. Take `C:\bin` for example. This avoids trouble caused by spaces inside path names.
 
-### 35.8. <a id='environment-variables'></a>Environment Variables
+### 35.9. <a id='environment-variables'></a>Environment Variables
 
 Extend the path variable:
 
 - PATH += `C:\bin\ArmGNUToolchain\bin`
 - PATH += `C:\Program Files\SEGGER\JLink`. (may be C:\Program Files\SEGGER\JLink_V812a or similar)
 
-### 35.9. <a id='build-command'></a>Build command
+### 35.10. <a id='build-command'></a>Build command
 
 - Clang: `make` or to get it faster `make -j8`.
 - GCC: `make GCC`.
 
-### 35.10. <a id='run-&-debug'></a>Run & Debug
+### 35.11. <a id='run-&-debug'></a>Run & Debug
 
 - In terminal after `make` click Run&Debug & click green triangle.
 
-### 35.11. <a id='logging'></a>Logging
+### 35.12. <a id='logging'></a>Logging
 
 - In terminal type `make log`. This executes the command in project folder:
 
@@ -4438,7 +4590,7 @@ Extend the path variable:
 
   <img src="./ref/Animation.gif" width="1000">
 
-### 35.12. <a id='setting-up-a-new-project'></a>Setting up a new project
+### 35.13. <a id='setting-up-a-new-project'></a>Setting up a new project
 
 - Copy this project folder under a new name like `myAwesomeNewProject` or name it as you like.
 - Make a temporary folder `myTemp` and generate with STM CubeMX the base project.
