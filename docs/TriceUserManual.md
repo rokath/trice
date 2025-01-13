@@ -5462,7 +5462,7 @@ Test folders starting with `ERROR_` have issues. These cases are **usable** on t
 ### Get all project files containing Trice messages
 
 ```bash
-cat demoLI.json | grep '"File":' | uniq | sort
+cat demoLI.json | grep '"File":' | sort | uniq
 		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"File": "_test/special_for_debug/TargetActivity.c",
