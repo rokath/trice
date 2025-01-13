@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 //! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
-#define TRICE_CLEAN 0 // Do not define this at an other place! But you can delete this here.
+#define TRICE_CLEAN 1 // Do not define this at an other place! But you can delete this here.
 
 #include <stdint.h>
 
@@ -1064,7 +1064,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 97 /////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8(iD(13106), "dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\n", CONFIGURATION );
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_PROTECT 0
@@ -1074,7 +1074,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 #elif CONFIGURATION == 98 /////////////////////////////////////////////////////
-#define LogConfigInfo() trice8(iD(13107), "dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\n", CONFIGURATION );
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
@@ -1093,14 +1093,14 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_LEAVE_CRITICAL_SECTION }
 
 #elif CONFIGURATION == 99 /////////////////////////////////////////////////////
-#define LogConfigInfo() trice8(iD(13108), "dbg:CONFIGURATION == %d - An minimum configuration example.\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An minimum configuration example.\n", CONFIGURATION );
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
 #elif CONFIGURATION == 100 /////////////////////////////////////////////////////
-#define LogConfigInfo() trice8(iD(13109), "dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\n", CONFIGURATION );
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
@@ -1119,7 +1119,7 @@ void SomeExampleTrices(int burstCount);
 #endif
 
 #ifndef LogConfigInfo
-#define LogConfigInfo() trice8(iD(13007), "dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
 #endif
 
 #ifdef __cplusplus
