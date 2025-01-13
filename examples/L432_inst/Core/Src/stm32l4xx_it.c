@@ -201,7 +201,7 @@ void USART2_IRQHandler(void)
           }
           return;
       }
-#endif // #if defined( TRICE_UARTA )
+#endif // #if !TRICE_OFF && defined( TRICE_UARTA )
     // If both flags active and only one was served, the IRQHandler gets activated again.
 
 #if defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UARTA
