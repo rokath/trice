@@ -20,22 +20,22 @@ extern "C" {
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 2000
 
-// Windows in a user shell like git bash:
+// Windows RTT logging: in a user shell like git bash:
 // trice log -p JLINK -args="-Device STM32G0B1RE" -prefix off -hs off -d16 -ts ms -i ../../demoTIL.json -li ../../demoLI.json -v
 //
 // Linux or Darwin:
-// Flash, start debugger and run to main()
-// Terminal 1: rm ./temp/trice.bin && JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
-// Terminal 2: touch ./temp/trice.bin && trice log -p FILE -args ./temp/trice.bin -prefix off -hs off -d16 -ts ms -i ../../demoTIL.json -li ../../demoLI.json -pf none
+// Flash, start debugger, run to main() and then execute ./RTTLogUnix.sh or do manually:
+    // Terminal 1: rm ./temp/trice.bin && JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
+    // Terminal 2: touch ./temp/trice.bin && trice log -p FILE -args ./temp/trice.bin -prefix off -hs off -d16 -ts ms -i ../../demoTIL.json -li ../../demoLI.json -pf none
 // Continue to run in debugger
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
-// Windows in a user shell like git bash:
-// trice log -p com3         -prefix off -hs off -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
-//
-// Linux or Darwin:
-// trice log -p /dev/ttyACM0 -prefix off -hs off -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
+// Flash, start debugger, run to main() and then execute ./RTTLog*.sh or do manually:
+// Windows serial port logging in a user shell like git bash 
+    // trice log -p com3         -prefix off -hs off -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
+// Unix serial port logging tn a terminal window::
+    // trice log -p /dev/ttyACM0 -prefix off -hs off -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_XTEA_ENCRYPT 1
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS

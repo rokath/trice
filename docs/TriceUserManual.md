@@ -3237,6 +3237,34 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
       ```
       * See also the configuration in [./examples/G0B1_inst/Core/triceConfig.h](../examples/G0B1_inst/Core/triceConfig.h)
 
+* If you install the `screen` command your life can gets esier by using a shell script like [.](../examples/G0B1_inst/RTTLogUnix.sh):
+
+```bash
+#!/bin/bash
+rm -f ./temp/trice.bin
+touch ./temp/trice.bin
+screen -d -m JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
+trice log -p FILE -args ./temp/trice.bin -prefix off -hs off -d16 -ts ms  -i ../../demoTIL.json -li ../../demoLI.json -pf none
+screen -X quit
+```
+
+  * Usage:
+
+    ```bash
+    th@PaulPCdeb128KDE:~/repos/trice/examples/G0B1_inst$ ./RTTLogUnix.sh 
+        triceExamples.c    12        0,000  Hello! 👋🙂
+          ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        
+          🎈🎈🎈🎈  NUCLEO-G0B1RE   🎈🎈🎈🎈
+          🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        
+
+
+        triceExamples.c    61              TRICE_DIRECT_OUTPUT == 1, TRICE_DEFERRED_OUTPUT == 1
+        triceExamples.c    69              TRICE_RING_BUFFER, TRICE_MULTI_PACK_MODE
+        triceExamples.c    76              _CYCLE == 1, _PROTECT == 1, _DIAG == 1, XTEA == 1
+        triceExamples.c    77              _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=2000
+        triceExamples.c    29  0:00:00,002 🐁 Speedy Gonzales a  32-bit time stamp
+    ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### 32.2. <a id='segger-real-time-transfer-(rtt)'></a>Segger Real Time Transfer (RTT)
