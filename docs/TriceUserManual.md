@@ -5457,6 +5457,27 @@ Test folders starting with `ERROR_` have issues. These cases are **usable** on t
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Add-On Hints
+
+### Get all project files containing Trice messages
+
+```bash
+cat demoLI.json | grep '"File":' | uniq | sort
+		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
+		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
+		"File": "_test/special_for_debug/TargetActivity.c",
+		"File": "_test/special_protect_dblB_de_tcobs_ua/TargetActivity.c",
+		"File": "_test/testdata/triceCheck.c",
+		"File": "examples/F030_inst/Core/Src/stm32f0xx_it.c",
+		"File": "examples/G0B1_inst/Core/Src/main.c",
+		"File": "examples/G0B1_inst/Core/Src/stm32g0xx_it.c",
+		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
+		"File": "examples/L432_inst/Core/Src/main.c",
+		"File": "examples/L432_inst/Core/Src/stm32l4xx_it.c",
+		"File": "examples/exampleData/triceExamples.c",
+		"File": "examples/exampleData/triceLogDiagData.c",
+```
+
 ## 40. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
 <details><summary>Details (click to expand)</summary><ol>
