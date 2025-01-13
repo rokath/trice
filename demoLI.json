@@ -13,39 +13,39 @@
 	},
 	"13003": {
 		"File": "examples/G0B1_inst/Core/Src/main.c",
-		"Line": 312
+		"Line": 314
 	},
 	"13004": {
 		"File": "examples/G0B1_inst/Core/Src/main.c",
-		"Line": 339
+		"Line": 341
 	},
 	"13005": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 28
+		"Line": 1122
 	},
 	"13006": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 56
+		"Line": 1122
 	},
 	"13007": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 66
+		"Line": 1120
 	},
 	"13008": {
 		"File": "examples/L432_inst/Core/Src/stm32l4xx_it.c",
-		"Line": 200
+		"Line": 191
 	},
 	"13009": {
 		"File": "examples/L432_inst/Core/Src/stm32l4xx_it.c",
-		"Line": 206
+		"Line": 197
 	},
 	"13010": {
 		"File": "examples/L432_inst/Core/Src/main.c",
-		"Line": 336
+		"Line": 338
 	},
 	"13011": {
 		"File": "examples/L432_inst/Core/Src/main.c",
-		"Line": 363
+		"Line": 365
 	},
 	"13012": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
@@ -425,19 +425,19 @@
 	},
 	"13106": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 986
+		"Line": 1065
 	},
 	"13107": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 996
+		"Line": 1075
 	},
 	"13108": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 1013
+		"Line": 1094
 	},
 	"13109": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 1022
+		"Line": 1101
 	},
 	"13110": {
 		"File": "_test/testdata/triceCheck.c",
