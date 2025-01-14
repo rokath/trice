@@ -1,5 +1,6 @@
 #!/bin/bash
 # Needs "sudo apt install screen" or similar done before.
+# Matching for triceConfig.h CONFIGURATION with TRICE_DIRECT_OUTPUT=1
 
 mkdir -p ./temp
 rm -f ./temp/trice.bin
