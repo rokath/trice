@@ -5963,7 +5963,7 @@ clean:
 ### 40.2. <a id='get-all-project-files-containing-trice-messages'></a>Get all project files containing Trice messages
 
 ```bash
-cat demoLI.json | grep '"File":' | uniq | sort
+cat demoLI.json | grep '"File":' | sort | uniq
 		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
 		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
 		"File": "_test/special_for_debug/TargetActivity.c",
