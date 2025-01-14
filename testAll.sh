@@ -1,6 +1,6 @@
 #!/bin/bash
 date
-echo This can take several minutes ...
+echo This can take a while ...
 t0=`date +%s`
 if command -v caffeinate 2>&1 >/dev/null
 then
