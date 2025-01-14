@@ -2,7 +2,7 @@
 
 failCount=0
 
-for d in ./F030_inst/ ./G0B1_inst/ ./L432_inst/
+for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/ ./F030_inst/ ./G0B1_inst/ ./L432_inst/
 do
     cd $d
     echo --------------------------------------------------------------------------------------------------------
@@ -10,21 +10,6 @@ do
 
     ./build.sh
     
-    if ! [ $? -eq 0 ] ; then
-        failCount=$((failCount + 1))
-        echo FAIL: $d
-    fi
-    cd ..
-done
-
-for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/
-do
-    cd $d
-    echo --------------------------------------------------------------------------------------------------------
-    echo $d
-
-    make -j
-
     if ! [ $? -eq 0 ] ; then
         failCount=$((failCount + 1))
         echo FAIL: $d
