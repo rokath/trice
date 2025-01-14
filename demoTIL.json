@@ -8895,6 +8895,150 @@
 		"Type": "trice",
 		"Strg": "Hello again\\n"
 	},
+	"15242": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X\\n"
+	},
+	"15260": {
+		"Type": "TRice",
+		"Strg": "sig:TRICE16 with 1 to 12 hex\\n"
+	},
+	"15329": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15340": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X\\n"
+	},
+	"15360": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15475": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p\\n"
+	},
+	"15491": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %t (%%t -1)\\n"
+	},
+	"15511": {
+		"Type": "TRICE",
+		"Strg": "att:formatted float\\n"
+	},
+	"15522": {
+		"Type": "TRice",
+		"Strg": "sig:Trice16 with 1 to 12 pointer\\n"
+	},
+	"15525": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15545": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X\\n"
+	},
+	"15556": {
+		"Type": "trice16",
+		"Strg": "wrn:TriceDynStringBufTruncateCount = %u\\n"
+	},
+	"15583": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p\\n"
+	},
+	"15588": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15608": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15632": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15696": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X\\n"
+	},
+	"15700": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %x (%%x)\\n"
+	},
+	"15724": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p\\n"
+	},
+	"15749": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15785": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15805": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %t (%%t -1)\\n"
+	},
+	"15858": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %o (%%o)\\n"
+	},
+	"15881": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15971": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %u (%%u)\\n"
+	},
+	"16004": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"16018": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %b (%%b)\\n"
+	},
+	"16135": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"16161": {
+		"Type": "TRICE",
+		"Strg": "att:formatted double\\n"
+	},
+	"16204": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p\\n"
+	},
+	"16219": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"16267": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X\\n"
+	},
+	"16271": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p\\n"
+	},
+	"16292": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"16307": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p\\n"
+	},
+	"16322": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %d (%%d)\\n"
+	},
 	"16326": {
 		"Type": "trice",
 		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"

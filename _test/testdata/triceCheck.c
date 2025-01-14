@@ -1955,26 +1955,28 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRice64_11("rd:TRice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:feed3322default: rd:TRice64_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: TRice32_12("rd:TRice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:feed3322default: rd:TRice32_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 
-        break; case __LINE__: TRICE(ID(0), "sig:Colors and ticks\n" );
-        break; case __LINE__: TRICE(ID(0), "--------------------------------------------------\n");
-        break; case __LINE__: TRICE(ID(0), "--------------------------------------------------\n");
-        break; case __LINE__: TRICE(ID(0), "dbg:12345 as 16bit is %016b\n", 12345);
-        break; case __LINE__: TRICE(ID(0), "--------------------------------------------------\n");
-        break; case __LINE__: TRICE(ID(0), "sig:This ASSERT error is just a demo and no real error:\n");
-        break; case __LINE__: TRICE(ID(0), "--------------------------------------------------\n");
-      //break; case __LINE__: TRICE(ID(0), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "SIG:signal      message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "RD:read         message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "WR:write        message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL);
-        break; case __LINE__: TRICE(ID(0), "time:TRICE32_1  message, SysTick is %6u\n", SYSTICKVAL);
+        break; case __LINE__:{
+                                TRICE(Id(0), "sig:Colors and ticks\n" );
+                                TRICE(Id(0), "--------------------------------------------------\n");
+                                TRICE(Id(0), "--------------------------------------------------\n");
+                                TRICE(Id(0), "dbg:12345 as 16bit is %016b\n", 12345);
+                                TRICE(Id(0), "--------------------------------------------------\n");
+                                TRICE(Id(0), "sig:This ASSERT error is just a demo and no real error:\n");
+                                TRICE(Id(0), "--------------------------------------------------\n");
+                                TRICE(Id(0), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "SIG:signal      message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "RD:read         message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "WR:write        message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL);
+                                TRICE(Id(0), "time:TRICE32_1  message, SysTick is %6u\n", SYSTICKVAL);
+        }
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         break; case __LINE__: TRICE(ID(0), "sig:Various ranges and formats\n" );
         break; case __LINE__: TRICE8 (ID(0), "tst:TRICE8  %%03x -> %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
@@ -2004,14 +2006,16 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE8_6(ID(0), "tst:TRICE8_6 %02x %02x %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6);
         break; case __LINE__: TRICE8_7(ID(0), "tst:TRICE8_7 %02x %02x %02x %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7);
         break; case __LINE__: TRICE8_8(ID(0), "tst:TRICE8_8 %02X %02X %02X %02X %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8); //exp: time:feed3322default: tst:TRICE8_8 A1 A2 A3 A4 a5 a6 a7 a8
-        break; case __LINE__: TRICE8_1(ID(0), "tst:TRICE8_1 %d\n",                      -1);
-        break; case __LINE__: TRICE8_2(ID(0), "tst:TRICE8_2 %d %d\n",                   -1, -2);
-        break; case __LINE__: TRICE8_3(ID(0), "tst:TRICE8_3 %d %d %d\n",                -1, -2, -3);
-        break; case __LINE__: TRICE8_4(ID(0), "tst:TRICE8_4 %d %d %d %d\n",             -1, -2, -3, -4);
-        break; case __LINE__: TRICE8_5(ID(0), "tst:TRICE8_5 %d %d %d %d %d\n",          -1, -2, -3, -4, -5);
-        break; case __LINE__: TRICE8_6(ID(0), "tst:TRICE8_6 %d %d %d %d %d %d\n",       -1, -2, -3, -4, -5, -6);
-        break; case __LINE__: TRICE8_7(ID(0), "tst:TRICE8_7 %d %d %d %d %d %d %d\n",    -1, -2, -3, -4, -5, -6, -7);
-        break; case __LINE__: TRICE8_8(ID(0), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8);
+        break; case __LINE__: {
+                TRICE8_1(Id(0), "tst:TRICE8_1 %d\n",                      -1);
+                TRICE8_2(Id(0), "tst:TRICE8_2 %d %d\n",                   -1, -2);
+                TRICE8_3(Id(0), "tst:TRICE8_3 %d %d %d\n",                -1, -2, -3);
+                TRICE8_4(Id(0), "tst:TRICE8_4 %d %d %d %d\n",             -1, -2, -3, -4);
+                TRICE8_5(Id(0), "tst:TRICE8_5 %d %d %d %d %d\n",          -1, -2, -3, -4, -5);
+                TRICE8_6(Id(0), "tst:TRICE8_6 %d %d %d %d %d %d\n",       -1, -2, -3, -4, -5, -6);
+                TRICE8_7(Id(0), "tst:TRICE8_7 %d %d %d %d %d %d %d\n",    -1, -2, -3, -4, -5, -6, -7);
+                TRICE8_8(Id(0), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8);
+        }
         break; case __LINE__: TRICE8_1(ID(0), "tst:TRICE8_1 %d\n", 1);
         break; case __LINE__: TRICE8_2(ID(0), "tst:TRICE8_2 %d %d\n", 1, 2);
         break; case __LINE__: TRICE8_3(ID(0), "tst:TRICE8_3 %d %d %d\n", 1, 2, 3);
@@ -2031,141 +2035,162 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE8_8(ID(0), "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\n", 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81);
 
         break; case __LINE__: TRICE    (ID(0), "sig:Legacy TRICE16-64\n" );
-        break; case __LINE__: TRICE16_1(ID(0), "tst:TRICE16_1 %d\n", -111);
-        break; case __LINE__: TRICE16_2(ID(0), "tst:TRICE16_2 %d %d\n", -111, -222);
-        break; case __LINE__: TRICE16_3(ID(0), "tst:TRICE16_3 %d %d %d\n", -111, -222, -333);
-        break; case __LINE__: TRICE16_4(ID(0), "tst:TRICE16_4 %d %d %d %d\n", -111, -222, -333, -444);
-        break; case __LINE__: TRICE32_1(ID(0), "tst:TRICE32_1 %08x\n", 0x0123cafe);
-        break; case __LINE__: TRICE32_1(ID(0), "tst:TRICE32_1 %d\n", -111);
-        break; case __LINE__: TRICE32_2(ID(0), "tst:TRICE32_2 %x %x\n", -111, -222);
-        break; case __LINE__: TRICE32_2(ID(0), "tst:TRICE32_2 %d %d\n", -111, -222);
-        break; case __LINE__: TRICE32_3(ID(0), "tst:TRICE32_3 %x %x %x\n", -111, -222, -333);
-        break; case __LINE__: TRICE32_3(ID(0), "tst:TRICE32_3 %d %d %d\n", -111, -222, -333);
-        break; case __LINE__: TRICE32_4(ID(0), "tst:TRICE32_4 %x %x %x %x\n", -111, -222, -333, -444);
-        break; case __LINE__: TRICE32_4(ID(0), "tst:TRICE32_4 %d %d %d %d\n", -111, -222, -333, -444);
-        break; case __LINE__: TRICE64_1(ID(0), "tst:TRICE64_1 %d\n", -111);
-        break; case __LINE__: TRICE64_2(ID(0), "tst:TRICE64_2 %d %d\n", -111, -222);
-        break; case __LINE__: TRICE16_1(ID(0), "tst:TRICE16_1 %u\n", 60001);
-        break; case __LINE__: TRICE16_2(ID(0), "tst:TRICE16_2 %u %u\n", 60001, 60002);
-        break; case __LINE__: TRICE16_3(ID(0), "tst:TRICE16_3 %u %u %u\n", 60001, 60002, 60003);
-        break; case __LINE__: TRICE16_4(ID(0), "tst:TRICE16_4 %u %u %u %u\n", 60001, 60002, 60003, 60004);
-        break; case __LINE__: TRICE32_1(ID(0), "tst:TRICE32_1 %u\n", 4000000001);
-        break; case __LINE__: TRICE32_2(ID(0), "tst:TRICE32_2 %u %u\n", 4000000001, 4000000002);
-        break; case __LINE__: TRICE32_3(ID(0), "tst:TRICE32_3 %u %u %u\n", 4000000001, 4000000002, 4000000003);
-        break; case __LINE__: TRICE32_4(ID(0), "tst:TRICE32_4 %u %u %u %u\n", 4000000001, 4000000002, 4000000003, 4000000004);
-        break; case __LINE__: TRICE64_1(ID(0), "tst:TRICE64_1 %x\n", -1);
-        break; case __LINE__: TRICE64_2(ID(0), "tst:TRICE64_2 %x %x\n", -1, -2);
-        break; case __LINE__: TRICE64_1(ID(0), "tst:TRICE64_1 %u\n", -1);
-        break; case __LINE__: TRICE64_2(ID(0), "tst:TRICE64_2 %u %u\n", -1, -2);
+        break; case __LINE__: {
+                TRICE16_1(Id(0), "tst:TRICE16_1 %d\n", -111);
+                TRICE16_2(Id(0), "tst:TRICE16_2 %d %d\n", -111, -222);
+                TRICE16_3(Id(0), "tst:TRICE16_3 %d %d %d\n", -111, -222, -333);
+                TRICE16_4(Id(0), "tst:TRICE16_4 %d %d %d %d\n", -111, -222, -333, -444);
+        }
+        break; case __LINE__: {
+                TRICE32_1(Id(0), "tst:TRICE32_1 %08x\n", 0x0123cafe);
+                TRICE32_1(Id(0), "tst:TRICE32_1 %d\n", -111);
+                TRICE32_2(Id(0), "tst:TRICE32_2 %x %x\n", -111, -222);
+                TRICE32_2(Id(0), "tst:TRICE32_2 %d %d\n", -111, -222);
+                TRICE32_3(Id(0), "tst:TRICE32_3 %x %x %x\n", -111, -222, -333);
+                TRICE32_3(Id(0), "tst:TRICE32_3 %d %d %d\n", -111, -222, -333);
+                TRICE32_4(Id(0), "tst:TRICE32_4 %x %x %x %x\n", -111, -222, -333, -444);
+                TRICE32_4(Id(0), "tst:TRICE32_4 %d %d %d %d\n", -111, -222, -333, -444);
+        }
+        break; case __LINE__: {
+                TRICE64_1(Id(0), "tst:TRICE64_1 %d\n", -111);
+                TRICE64_2(Id(0), "tst:TRICE64_2 %d %d\n", -111, -222);
+                TRICE16_1(Id(0), "tst:TRICE16_1 %u\n", 60001);
+                TRICE16_2(Id(0), "tst:TRICE16_2 %u %u\n", 60001, 60002);
+                TRICE16_3(Id(0), "tst:TRICE16_3 %u %u %u\n", 60001, 60002, 60003);
+                TRICE16_4(Id(0), "tst:TRICE16_4 %u %u %u %u\n", 60001, 60002, 60003, 60004);
+        }
+        break; case __LINE__: {
+                TRICE32_1(Id(0), "tst:TRICE32_1 %u\n", 4000000001);
+                TRICE32_2(Id(0), "tst:TRICE32_2 %u %u\n", 4000000001, 4000000002);
+                TRICE32_3(Id(0), "tst:TRICE32_3 %u %u %u\n", 4000000001, 4000000002, 4000000003);
+                TRICE32_4(Id(0), "tst:TRICE32_4 %u %u %u %u\n", 4000000001, 4000000002, 4000000003, 4000000004);
+        }
+        break; case __LINE__: {
+                TRICE64_1(Id(0), "tst:TRICE64_1 %x\n", -1);
+                TRICE64_2(Id(0), "tst:TRICE64_2 %x %x\n", -1, -2);
+                TRICE64_1(Id(0), "tst:TRICE64_1 %u\n", -1);
+                TRICE64_2(Id(0), "tst:TRICE64_2 %u %u\n", -1, -2);
+        }
 #endif // #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         break; case __LINE__: trice("sig:colored single letters and several TRICE macros in one line\n" );
-        break; case __LINE__: trice("e:A");
-        break; case __LINE__: trice("w:B");
-        break; case __LINE__: trice("a:c");
-        break; case __LINE__: trice("wr:d");
-        break; case __LINE__: trice("rd:e\n");
-        break; case __LINE__: trice("diag:f");
-        break; case __LINE__: trice("d:G");
-        break; case __LINE__: trice("t:H");
-        break; case __LINE__: trice("time:i");
-        break; case __LINE__: trice("message:J");
-        break; case __LINE__: trice("dbg:k\n");
-        break; case __LINE__: trice("1");
-        break; case __LINE__: trice("2");
-        break; case __LINE__: trice("3");
-        break; case __LINE__: trice("4");
-        break; case __LINE__: trice("e:7");
-        break; case __LINE__: trice("m:12");
-        break; case __LINE__: trice("m:123\n");
-        break; case __LINE__: trice("e:A"); trice("w:B"); trice("a:c");
-        break; case __LINE__: trice("wr:d"); trice("rd:e\n"); trice("diag:f");
+        break; case __LINE__: {
+                trice("e:A");
+                trice("w:B");
+                trice("a:c");
+                trice("wr:d");
+                trice("rd:e\n");
+                trice("diag:f");
+                trice("d:G");
+                trice("t:H");
+                trice("time:i");
+                trice("message:J");
+                trice("dbg:k\n");
+                trice("1");
+                trice("2");
+                trice("3");
+                trice("4");
+                trice("e:7");
+                trice("m:12");
+                trice("m:123\n");
+                trice("e:A"); trice("w:B"); trice("a:c");
+                trice("wr:d"); trice("rd:e\n"); trice("diag:f");
+        }
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         break; case __LINE__: trice("sig:TRICE8 with variable param count 1 to 12\n" );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d\n", -1 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d\n", -1, -2 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d\n", -1, -2, -3 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d\n", -1, -2, -3, -4 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-        break; case __LINE__: TRICE8(ID(0), "tst:TRICE8 %t %b %x %X %d %u %o %O %p\n", -3, -3, -3, -3, -3, -3, -3, -3, -3 );
-        break; case __LINE__: TRICE8_1 (ID(0), "tst:TRICE8_1  %d\n", -1 );
-        break; case __LINE__: TRICE8_2 (ID(0), "tst:TRICE8_2  %d %d\n", -1, -2 );
-        break; case __LINE__: TRICE8_3 (ID(0), "tst:TRICE8_3  %d %d %d\n", -1, -2, -3 );
-        break; case __LINE__: TRICE8_4 (ID(0), "tst:TRICE8_4  %d %d %d %d\n", -1, -2, -3, -4 );
-        break; case __LINE__: TRICE8_5 (ID(0), "tst:TRICE8_5  %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
-        break; case __LINE__: TRICE8_6 (ID(0), "tst:TRICE8_6  %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
-        break; case __LINE__: TRICE8_7 (ID(0), "tst:TRICE8_7  %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
-        break; case __LINE__: TRICE8_8 (ID(0), "tst:TRICE8_8  %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
-        break; case __LINE__: TRICE8_9 (ID(0), "tst:TRICE8_9  %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
-        break; case __LINE__: TRICE8_10(ID(0), "tst:TRICE8_10 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
-        break; case __LINE__: TRICE8_11(ID(0), "tst:TRICE8_11 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
-        break; case __LINE__: TRICE8_12(ID(0), "tst:TRICE8_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-        break; case __LINE__: TRICE8   (ID(0), "tst:TRICE8   %t %b %x %X %d %u %o %O %p\n", -3, -3, -3, -3, -3, -3, -3, -3, -3 );
-        break; case __LINE__: TRICE8_9 (ID(0), "tst:TRICE8_9 %t %b %x %X %d %u %o %O %p\n", -3, -3, -3, -3, -3, -3, -3, -3, -3 );
-
+        break; case __LINE__: {
+                TRICE8(Id(0), "tst:TRICE8 %d\n", -1 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d\n", -1, -2 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d\n", -1, -2, -3 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d\n", -1, -2, -3, -4 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
+                TRICE8(Id(0), "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+                TRICE8(Id(0), "tst:TRICE8 %t %b %x %X %d %u %o %O %p\n", -3, -3, -3, -3, -3, -3, -3, -3, -3 );
+        }
+        break; case __LINE__: {
+                TRICE8_1 (Id(0), "tst:TRICE8_1  %d\n", -1 );
+                TRICE8_2 (Id(0), "tst:TRICE8_2  %d %d\n", -1, -2 );
+                TRICE8_3 (Id(0), "tst:TRICE8_3  %d %d %d\n", -1, -2, -3 );
+                TRICE8_4 (Id(0), "tst:TRICE8_4  %d %d %d %d\n", -1, -2, -3, -4 );
+                TRICE8_5 (Id(0), "tst:TRICE8_5  %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
+                TRICE8_6 (Id(0), "tst:TRICE8_6  %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
+                TRICE8_7 (Id(0), "tst:TRICE8_7  %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
+                TRICE8_8 (Id(0), "tst:TRICE8_8  %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+                TRICE8_9 (Id(0), "tst:TRICE8_9  %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
+                TRICE8_10(Id(0), "tst:TRICE8_10 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
+                TRICE8_11(Id(0), "tst:TRICE8_11 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
+                TRICE8_12(Id(0), "tst:TRICE8_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+                TRICE8   (Id(0), "tst:TRICE8   %t %b %x %X %d %u %o %O %p\n", -3, -3, -3, -3, -3, -3, -3, -3, -3 );
+                TRICE8_9 (Id(0), "tst:TRICE8_9 %t %b %x %X %d %u %o %O %p\n", -3, -3, -3, -3, -3, -3, -3, -3, -3 );
+        }
         break; case __LINE__: trice("sig:TRICE16 with variable param count 1 to 12\n" );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d\n", -1 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d\n", -1, -2 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d\n", -1, -2, -3 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d\n", -1, -2, -3, -4 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-        break; case __LINE__: TRICE16(ID(0), "tst:TRICE16 %t %b %x %X %d %u %o %O %p\n", 3, 3, 3, 3, 3, 3, 3, 3, 3 );
-        break; case __LINE__: TRICE16_1 (ID(0), "tst:TRICE16_1  %d\n", -1 );
-        break; case __LINE__: TRICE16_2 (ID(0), "tst:TRICE16_2  %d %d\n", -1, -2 );
-        break; case __LINE__: TRICE16_3 (ID(0), "tst:TRICE16_3  %d %d %d\n", -1, -2, -3 );
-        break; case __LINE__: TRICE16_4 (ID(0), "tst:TRICE16_4  %d %d %d %d\n", -1, -2, -3, -4 );
-        break; case __LINE__: TRICE16_5 (ID(0), "tst:TRICE16_5  %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
-        break; case __LINE__: TRICE16_6 (ID(0), "tst:TRICE16_6  %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
-        break; case __LINE__: TRICE16_7 (ID(0), "tst:TRICE16_7  %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
-        break; case __LINE__: TRICE16_8 (ID(0), "tst:TRICE16_8  %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
-        break; case __LINE__: TRICE16_9 (ID(0), "tst:TRICE16_9  %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
-        break; case __LINE__: TRICE16_10(ID(0), "tst:TRICE16_10 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
-        break; case __LINE__: TRICE16_11(ID(0), "tst:TRICE16_11 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
-        break; case __LINE__: TRICE16_12(ID(0), "tst:TRICE16_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-        break; case __LINE__: TRICE16_9 (ID(0), "tst:TRICE16 %t %b %x %X %d %u %o %O %p\n", 3, 3, 3, 3, 3, 3, 3, 3, 3 );
-
+        break; case __LINE__: {
+                TRICE16(Id(0), "tst:TRICE16 %d\n", -1 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d\n", -1, -2 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d\n", -1, -2, -3 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d\n", -1, -2, -3, -4 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
+                TRICE16(Id(0), "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+                TRICE16(Id(0), "tst:TRICE16 %t %b %x %X %d %u %o %O %p\n", 3, 3, 3, 3, 3, 3, 3, 3, 3 );
+        }
+        break; case __LINE__: {
+                TRICE16_1 (ID(0), "tst:TRICE16_1  %d\n", -1 );
+                TRICE16_2 (ID(0), "tst:TRICE16_2  %d %d\n", -1, -2 );
+                TRICE16_3 (ID(0), "tst:TRICE16_3  %d %d %d\n", -1, -2, -3 );
+                TRICE16_4 (ID(0), "tst:TRICE16_4  %d %d %d %d\n", -1, -2, -3, -4 );
+                TRICE16_5 (ID(0), "tst:TRICE16_5  %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
+                TRICE16_6 (ID(0), "tst:TRICE16_6  %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
+                TRICE16_7 (ID(0), "tst:TRICE16_7  %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
+                TRICE16_8 (ID(0), "tst:TRICE16_8  %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+                TRICE16_9 (ID(0), "tst:TRICE16_9  %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
+                TRICE16_10(ID(0), "tst:TRICE16_10 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
+                TRICE16_11(ID(0), "tst:TRICE16_11 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
+                TRICE16_12(ID(0), "tst:TRICE16_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+                TRICE16_9 (ID(0), "tst:TRICE16 %t %b %x %X %d %u %o %O %p\n", 3, 3, 3, 3, 3, 3, 3, 3, 3 );
+        }
         break; case __LINE__: trice("sig:TRICE32 with variable param count 1 to 12\n" );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d\n", -1 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d\n", -1, -2 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d\n", -1, -2, -3 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d\n", -1, -2, -3, -4 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-        break; case __LINE__: TRICE32(ID(0), "tst:TRICE32 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
-        break; case __LINE__: TRICE32_1 (ID(0), "tst:TRICE32_1  %d\n", -1 );
-        break; case __LINE__: TRICE32_2 (ID(0), "tst:TRICE32_2  %d %d\n", -1, -2 );
-        break; case __LINE__: TRICE32_3 (ID(0), "tst:TRICE32_3  %d %d %d\n", -1, -2, -3 );
-        break; case __LINE__: TRICE32_4 (ID(0), "tst:TRICE32_4  %d %d %d %d\n", -1, -2, -3, -4 );
-        break; case __LINE__: TRICE32_5 (ID(0), "tst:TRICE32_5  %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
-        break; case __LINE__: TRICE32_6 (ID(0), "tst:TRICE32_6  %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
-        break; case __LINE__: TRICE32_7 (ID(0), "tst:TRICE32_7  %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
-        break; case __LINE__: TRICE32_8 (ID(0), "tst:TRICE32_8  %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
-        break; case __LINE__: TRICE32_9 (ID(0), "tst:TRICE32_9  %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
-        break; case __LINE__: TRICE32_10(ID(0), "tst:TRICE32_10 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
-        break; case __LINE__: TRICE32_11(ID(0), "tst:TRICE32_11 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
-        break; case __LINE__: TRICE32_12(ID(0), "tst:TRICE32_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-        break; case __LINE__: TRICE32   (ID(0), "tst:TRICE32    %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
-        break; case __LINE__: TRICE32_12(ID(0), "tst:TRICE32_12 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
-
+        break; case __LINE__: {
+                TRICE32(Id(0), "tst:TRICE32 %d\n", -1 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d\n", -1, -2 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d\n", -1, -2, -3 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d\n", -1, -2, -3, -4 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
+                TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+                TRICE32(Id(0), "tst:TRICE32 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
+        }
+        break; case __LINE__: {
+                TRICE32_1 (Id(0), "tst:TRICE32_1  %d\n", -1 );
+                TRICE32_2 (Id(0), "tst:TRICE32_2  %d %d\n", -1, -2 );
+                TRICE32_3 (Id(0), "tst:TRICE32_3  %d %d %d\n", -1, -2, -3 );
+                TRICE32_4 (Id(0), "tst:TRICE32_4  %d %d %d %d\n", -1, -2, -3, -4 );
+                TRICE32_5 (Id(0), "tst:TRICE32_5  %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
+                TRICE32_6 (Id(0), "tst:TRICE32_6  %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
+                TRICE32_7 (Id(0), "tst:TRICE32_7  %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
+                TRICE32_8 (Id(0), "tst:TRICE32_8  %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+                TRICE32_9 (Id(0), "tst:TRICE32_9  %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
+                TRICE32_10(Id(0), "tst:TRICE32_10 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
+                TRICE32_11(Id(0), "tst:TRICE32_11 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
+                TRICE32_12(Id(0), "tst:TRICE32_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+                TRICE32   (Id(0), "tst:TRICE32    %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
+                TRICE32_12(Id(0), "tst:TRICE32_12 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
+        }
         break; case __LINE__: trice("sig:TRICE64 with variable param count 1 to 12\n" );
         break; case __LINE__: TRICE64(ID(0), "tst:TRICE64 %d\n", -1 );
         break; case __LINE__: TRICE64(ID(0), "tst:TRICE64 %d %d\n", -1, -2 );
@@ -2195,38 +2220,40 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE64_12(ID(0), "tst:TRICE64_12 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aDouble(3.14159), aDouble(3.14159), aDouble(3.14159));
 #endif // #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         break; case __LINE__: trice("att:positive and negative float in format variants\n");
-        break; case __LINE__: trice("rd:TRICE float %f (%%f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %9f (%%9f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %.9f (%%.9f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %9.f (%%9.f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %9.6f (%%9.6f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %f (%%f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %9f (%%9f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %.9f (%%.9f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %9.f (%%9.f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %9.6f (%%9.6f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %+f (%%f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %+9f (%%9f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %+.9f (%%.9f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %+9.f (%%9.f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %+9.6f (%%9.6f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %+f (%%f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %+9f (%%9f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %+.9f (%%.9f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %+9.f (%%9.f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %+9.6f (%%9.6f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %-f (%%f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %-9f (%%9f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %-.9f (%%.9f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %-9.f (%%9.f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %-9.6f (%%9.6f)\n", aFloat(x) );
-        break; case __LINE__: trice("rd:TRICE float %-f (%%f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %-9f (%%9f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %-.9f (%%.9f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %-9.f (%%9.f)\n", aFloat(-x) );
-        break; case __LINE__: trice("rd:TRICE float %-9.6f (%%9.6f)\n", aFloat(-x) );
-        break; case __LINE__: trice("att:positive float & double in variants\n");
+        break; case __LINE__: {
+                trice("rd:TRICE float %f (%%f)\n", aFloat(x) );
+                trice("rd:TRICE float %9f (%%9f)\n", aFloat(x) );
+                trice("rd:TRICE float %.9f (%%.9f)\n", aFloat(x) );
+                trice("rd:TRICE float %9.f (%%9.f)\n", aFloat(x) );
+                trice("rd:TRICE float %9.6f (%%9.6f)\n", aFloat(x) );
+                trice("rd:TRICE float %f (%%f)\n", aFloat(-x) );
+                trice("rd:TRICE float %9f (%%9f)\n", aFloat(-x) );
+                trice("rd:TRICE float %.9f (%%.9f)\n", aFloat(-x) );
+                trice("rd:TRICE float %9.f (%%9.f)\n", aFloat(-x) );
+                trice("rd:TRICE float %9.6f (%%9.6f)\n", aFloat(-x) );
+                trice("rd:TRICE float %+f (%%f)\n", aFloat(x) );
+                trice("rd:TRICE float %+9f (%%9f)\n", aFloat(x) );
+                trice("rd:TRICE float %+.9f (%%.9f)\n", aFloat(x) );
+                trice("rd:TRICE float %+9.f (%%9.f)\n", aFloat(x) );
+                trice("rd:TRICE float %+9.6f (%%9.6f)\n", aFloat(x) );
+                trice("rd:TRICE float %+f (%%f)\n", aFloat(-x) );
+                trice("rd:TRICE float %+9f (%%9f)\n", aFloat(-x) );
+                trice("rd:TRICE float %+.9f (%%.9f)\n", aFloat(-x) );
+                trice("rd:TRICE float %+9.f (%%9.f)\n", aFloat(-x) );
+                trice("rd:TRICE float %+9.6f (%%9.6f)\n", aFloat(-x) );
+                trice("rd:TRICE float %-f (%%f)\n", aFloat(x) );
+                trice("rd:TRICE float %-9f (%%9f)\n", aFloat(x) );
+                trice("rd:TRICE float %-.9f (%%.9f)\n", aFloat(x) );
+                trice("rd:TRICE float %-9.f (%%9.f)\n", aFloat(x) );
+                trice("rd:TRICE float %-9.6f (%%9.6f)\n", aFloat(x) );
+                trice("rd:TRICE float %-f (%%f)\n", aFloat(-x) );
+                trice("rd:TRICE float %-9f (%%9f)\n", aFloat(-x) );
+                trice("rd:TRICE float %-.9f (%%.9f)\n", aFloat(-x) );
+                trice("rd:TRICE float %-9.f (%%9.f)\n", aFloat(-x) );
+                trice("rd:TRICE float %-9.6f (%%9.6f)\n", aFloat(-x) );
+        }
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
+        break; case __LINE__: trice("att:positive float & double in variants\n");
         break; case __LINE__: TRICE32_1(ID(0), "rd:TRICE32_1 float %e (%%e)\n", aFloat(x) );
         break; case __LINE__: TRICE32_1(ID(0), "rd:TRICE32_1 float %f (%%f)\n", aFloat(x) );
         break; case __LINE__: TRICE32_1(ID(0), "rd:TRICE32_1 float %g (%%g)\n", aFloat(x) );
@@ -2271,75 +2298,82 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE64(ID(0), "rd:TRICE64 double %F (%%F), aDouble(y)\n", aDouble(-y) );
         break; case __LINE__: TRICE64(ID(0), "rd:TRICE64 double %G (%%G), aDouble(y)\n", aDouble(-y) );
 
-        break; case __LINE__: TRICE  (ID(0), "att:formatted float & double\n" );
-        break; case __LINE__: TRICE32(ID(0), "rd:TRICE32 float %12.6e (%%12.6e)\n", aFloat(x) );
-        break; case __LINE__: TRICE32(ID(0), "rd:TRICE32 float %12.6f (%%12.6f)\n", aFloat(x) );
-        break; case __LINE__: TRICE32(ID(0), "rd:TRICE32 float %12.6g (%%12.6g)\n", aFloat(x) );
-        break; case __LINE__: TRICE32(ID(0), "rd:TRICE32 float %12.6E (%%12.6E)\n", aFloat(x) );
-        break; case __LINE__: TRICE32(ID(0), "rd:TRICE32 float %12.6F (%%12.6F)\n", aFloat(x) );
-        break; case __LINE__: TRICE32(ID(0), "rd:TRICE32 float %12.6G (%%12.6G)\n", aFloat(x) );
-        break; case __LINE__: TRICE64(ID(0), "rd:TRICE64 double %12.6e (%%12.6e), aDouble(y)\n", aDouble(y) );
-        break; case __LINE__: TRICE64(ID(0), "rd:TRICE64 double %12.6f (%%12.6f), aDouble(y)\n", aDouble(y) );
-        break; case __LINE__: TRICE64(ID(0), "rd:TRICE64 double %12.6g (%%12.6g), aDouble(y)\n", aDouble(y) );
-        break; case __LINE__: TRICE64(ID(0), "rd:TRICE64 double %12.6E (%%12.6E), aDouble(y)\n", aDouble(y) );
-        break; case __LINE__: TRICE64(ID(0), "rd:TRICE64 double %12.6F (%%12.6F), aDouble(y)\n", aDouble(y) );
-        break; case __LINE__: TRICE64(ID(0), "rd:TRICE64 double %12.6G (%%12.6G), aDouble(y)\n", aDouble(y) );
-
+        break; case __LINE__: TRICE  (ID(0), "att:formatted float\n" );
+        break; case __LINE__: {
+                TRICE32(Id(0), "rd:TRICE32 float %12.6e (%%12.6e)\n", aFloat(x) );
+                TRICE32(Id(0), "rd:TRICE32 float %12.6f (%%12.6f)\n", aFloat(x) );
+                TRICE32(Id(0), "rd:TRICE32 float %12.6g (%%12.6g)\n", aFloat(x) );
+                TRICE32(Id(0), "rd:TRICE32 float %12.6E (%%12.6E)\n", aFloat(x) );
+                TRICE32(Id(0), "rd:TRICE32 float %12.6F (%%12.6F)\n", aFloat(x) );
+                TRICE32(Id(0), "rd:TRICE32 float %12.6G (%%12.6G)\n", aFloat(x) );
+        }
+        break; case __LINE__: TRICE  (ID(0), "att:formatted double\n" );
+        break; case __LINE__: {
+                TRICE64(Id(0), "rd:TRICE64 double %12.6e (%%12.6e), aDouble(y)\n", aDouble(y) );
+                TRICE64(Id(0), "rd:TRICE64 double %12.6f (%%12.6f), aDouble(y)\n", aDouble(y) );
+                TRICE64(Id(0), "rd:TRICE64 double %12.6g (%%12.6g), aDouble(y)\n", aDouble(y) );
+                TRICE64(Id(0), "rd:TRICE64 double %12.6E (%%12.6E), aDouble(y)\n", aDouble(y) );
+                TRICE64(Id(0), "rd:TRICE64 double %12.6F (%%12.6F), aDouble(y)\n", aDouble(y) );
+                TRICE64(Id(0), "rd:TRICE64 double %12.6G (%%12.6G), aDouble(y)\n", aDouble(y) );
+        }
         break; case __LINE__: TRICE (ID(0), "att:Various single arguments\n" );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %t (%%t ,0)\n", 0 );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %t (%%t ,2)\n", 2 );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %u (%%u ,-1)\n", -1 );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %b (%%b ,-1)\n", -1 );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %o (%%o ,-1)\n", -1 );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %O (%%O ,-1)\n", -1 );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %X (%%X ,-1)\n", -1 );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %x (%%x ,-1)\n", -1 );
-        break; case __LINE__: TRICE8(ID(0), "rd:TRICE8 line %d (%%d ,-1)\n", -1 );
-        break; case __LINE__: TRICE16_1(ID(0), "rd:TRICE16_1 line %t (%%t ,0)\n", 0 );
-        break; case __LINE__: TRICE16_1(ID(0), "rd:TRICE16_1 line %t (%%t ,2)\n", 2 );
-        break; case __LINE__: TRICE16_1(ID(0), "rd:TRICE16_1 line %u (%%u -1)\n", -1 );
-        break; case __LINE__: TRICE16_1(ID(0), "rd:TRICE16_1 line %b (%%b -1)\n", -1 );
-        break; case __LINE__: TRICE16_1(ID(0), "rd:TRICE16_1 line %o (%%o -1)\n", -1 );
-        break; case __LINE__: TRICE16_1(ID(0), "rd:TRICE16_1 line %x (%%x -1)\n", -1 );
-        break; case __LINE__: TRICE16_1(ID(0), "rd:TRICE16_1 line %d (%%d -1)\n", -1 );
-        break; case __LINE__: trice("rd:TRICE line %t (%%t -1)\n", 0 );
-        break; case __LINE__: trice("rd:TRICE line %t (%%t -1)\n", 2 );
-        break; case __LINE__: trice("rd:TRICE line %u (%%u)\n", -1 );
-        break; case __LINE__: trice("rd:TRICE line %b (%%b)\n", -2 );
-        break; case __LINE__: trice("rd:TRICE line %o (%%o)\n", -3 );
-        break; case __LINE__: trice("rd:TRICE line %x (%%x)\n", -4 );
-        break; case __LINE__: trice("rd:TRICE line %d (%%d)\n", -5 );
-
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 0 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 1 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 2 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 3 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 4 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 5 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 6 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 7 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 8 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 9 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 10 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 11 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 12 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 13 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 14 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 15 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 16 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 17 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 18 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 19 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 120 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 121 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 122 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 123 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 124 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 125 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 126 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 127 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 128 );
-        break; case __LINE__: TRICE_N(ID(0), "msg:%s\n", A, 129 );
+        break; case __LINE__: {
+                TRICE8(Id(0), "rd:TRICE8 line %t (%%t ,0)\n", 0 );
+                TRICE8(Id(0), "rd:TRICE8 line %t (%%t ,2)\n", 2 );
+                TRICE8(Id(0), "rd:TRICE8 line %u (%%u ,-1)\n", -1 );
+                TRICE8(Id(0), "rd:TRICE8 line %b (%%b ,-1)\n", -1 );
+                TRICE8(Id(0), "rd:TRICE8 line %o (%%o ,-1)\n", -1 );
+                TRICE8(Id(0), "rd:TRICE8 line %O (%%O ,-1)\n", -1 );
+                TRICE8(Id(0), "rd:TRICE8 line %X (%%X ,-1)\n", -1 );
+                TRICE8(Id(0), "rd:TRICE8 line %x (%%x ,-1)\n", -1 );
+                TRICE8(Id(0), "rd:TRICE8 line %d (%%d ,-1)\n", -1 );
+        }
+        break; case __LINE__: {
+                TRICE16_1(Id(0), "rd:TRICE16_1 line %t (%%t ,0)\n", 0 );
+                TRICE16_1(Id(0), "rd:TRICE16_1 line %t (%%t ,2)\n", 2 );
+                TRICE16_1(Id(0), "rd:TRICE16_1 line %u (%%u -1)\n", -1 );
+                TRICE16_1(Id(0), "rd:TRICE16_1 line %b (%%b -1)\n", -1 );
+                TRICE16_1(Id(0), "rd:TRICE16_1 line %o (%%o -1)\n", -1 );
+                TRICE16_1(Id(0), "rd:TRICE16_1 line %x (%%x -1)\n", -1 );
+                TRICE16_1(Id(0), "rd:TRICE16_1 line %d (%%d -1)\n", -1 );
+                Trice("rd:Trice line %t (%%t -1)\n", 0 );
+                Trice("rd:Trice line %t (%%t -1)\n", 2 );
+                Trice("rd:Trice line %u (%%u)\n", -1 );
+                Trice("rd:Trice line %b (%%b)\n", -2 );
+                Trice("rd:Trice line %o (%%o)\n", -3 );
+                Trice("rd:Trice line %x (%%x)\n", -4 );
+                Trice("rd:Trice line %d (%%d)\n", -5 );
+        }
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 0 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 1 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 2 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 3 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 4 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 5 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 6 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 7 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 8 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 9 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 10 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 11 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 12 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 13 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 14 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 15 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 16 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 17 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 18 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 19 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 120 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 121 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 122 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 123 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 124 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 125 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 126 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 127 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 128 );
+        break; case __LINE__: TRICE_N(id(0), "msg:%s\n", A, 129 );
 #endif // #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         break; case __LINE__: triceN("msg:%s\n", A, 0 );
         break; case __LINE__: triceN("msg:%s\n", A, 1 );
@@ -2400,33 +2434,36 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: trice("rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );          //exp: time:        default: rd:TRICE_11 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11     
         break; case __LINE__: trice("rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 ); //exp: time:        default: rd:TRICE_12 -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12    
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
-        break; case __LINE__: TRICE  (ID(0), "sig:TRICE16 with 1 to 12 pointer\n" );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p\n", -1 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p\n", -1, -2 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p\n", -1, -2, -3 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p\n", -1, -2, -3, -4 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7);
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-
-        break; case __LINE__: TRICE  (ID(0), "sig:TRICE16 with 1 to 12 hex\n" );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X\n", -1 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X\n", -1, -2 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X\n", -1, -2, -3 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X\n", -1, -2, -3, -4 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7);
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
-        break; case __LINE__: TRICE16(ID(0), "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+        break; case __LINE__: TRice("sig:Trice16 with 1 to 12 pointer\n" );
+        break; case __LINE__: {
+                Trice16("rd:Trice16 %p\n", -1 );
+                Trice16("rd:Trice16 %p, %p\n", -1, -2 );
+                Trice16("rd:Trice16 %p, %p, %p\n", -1, -2, -3 );
+                Trice16("rd:Trice16 %p, %p, %p, %p\n", -1, -2, -3, -4 );
+                Trice16("rd:Trice16 %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5 );
+                Trice16("rd:Trice16 %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6 );
+                Trice16("rd:Trice16 %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7);
+                Trice16("rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+                Trice16("rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
+                Trice16("rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);
+                Trice16("rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
+                Trice16("rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+        }
+        break; case __LINE__: TRice("sig:TRICE16 with 1 to 12 hex\n" );
+        break; case __LINE__: {
+                Trice16("rd:Trice16 %X\n", -1 );
+                Trice16("rd:Trice16 %X, %X\n", -1, -2 );
+                Trice16("rd:Trice16 %X, %X, %X\n", -1, -2, -3 );
+                Trice16("rd:Trice16 %X, %X, %X, %X\n", -1, -2, -3, -4 );
+                Trice16("rd:Trice16 %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5 );
+                Trice16("rd:Trice16 %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6 );
+                Trice16("rd:Trice16 %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7);
+                Trice16("rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+                Trice16("rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );
+                Trice16("rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10);
+                Trice16("rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
+                Trice16("rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
+        }
 #endif // #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         break; case __LINE__: TRICE(ID(0), "w: Hello! 👋🙂 \a\n" ); // with sound!
         break; case __LINE__: TRICE(id(0), "w: Hello! 👋🙂 \a\n" ); // with sound!

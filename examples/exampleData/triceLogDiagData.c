@@ -52,8 +52,8 @@ void TriceLogDiagnosticData(void) {
 		trice16("diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\n", TriceDataOffsetDepthMax, TRICE_DATA_OFFSET);
 	}
 
-	if (TriceDynBufTruncateCount != 0) {
-		trice16("wrn:TriceDynBufTruncateCount = %u\n", TriceDynBufTruncateCount);
+	if (TriceDynStringBufTruncateCount != 0) {
+		trice16("wrn:TriceDynStringBufTruncateCount = %u\n", TriceDynStringBufTruncateCount);
 	}
 
 #if TRICE_BUFFER == TRICE_STACK_BUFFER

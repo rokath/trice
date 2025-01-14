@@ -221,8 +221,8 @@ int TriceDataOffsetDepthMax = 0;
 //! TriceSingleMaxWordCount is a diagnostics value usable to optimize buffer space TRICE_BUFFER_SIZE for a single trice message.
 unsigned TriceSingleMaxWordCount = 0;
 
-//! TriceDynBufTruncateCount couts how often a dynamic buffer was truncated because it was too long.
-unsigned TriceDynBufTruncateCount = 0;
+//! TriceDynStringBufTruncateCount couts how often a dynamic buffer was truncated because it was too long.
+unsigned TriceDynStringBufTruncateCount = 0;
 
 #if TRICE_PROTECT == 1
 

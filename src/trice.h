@@ -212,7 +212,7 @@ void WatchRingBufferMargins(void);
 
 extern int TriceDataOffsetDepthMax;
 extern unsigned TriceSingleMaxWordCount;
-extern unsigned TriceDynBufTruncateCount;
+extern unsigned TriceDynStringBufTruncateCount;
 extern unsigned TriceHalfBufferDepthMax;
 
 #if TRICE_PROTECT == 1
@@ -222,14 +222,14 @@ extern unsigned TriceDeferredOverflowCount;
 
 #endif // #if TRICE_PROTECT == 1
 
-#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT() \
+#define TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT() \
 	do {                                         \
-		TriceDynBufTruncateCount++;              \
+		TriceDynStringBufTruncateCount++;              \
 	} while (0)
 
 #else // #if (TRICE_DIAGNOSTICS == 1)
 
-#define TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT()
+#define TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT()
 
 #endif // #else // #if (TRICE_DIAGNOSTICS == 1)
 
@@ -610,7 +610,7 @@ extern uint32_t* TriceBufferWritePosition;
 		uint32_t limit = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
 		uint32_t len_ = n;                           /* n could be a constant */                                                     \
 		if (len_ > limit) {                                                                                                          \
-			TRICE_DYN_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                \
+			TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                \
 			len_ = limit;                                                                                                            \
 		}                                                                                                                            \
 		TRICE_ENTER tid;                                                                                                             \
