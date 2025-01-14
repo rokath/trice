@@ -42,7 +42,7 @@
 *                                                                    *
 **********************************************************************
 *                                                                    *
-*       RTT version: 7.98f                                           *
+*       RTT version: 8.12a                                           *
 *                                                                    *
 **********************************************************************
 
@@ -134,7 +134,12 @@ Revision: $Rev: 25842 $
       #define _CORE_HAS_RTT_ASM_SUPPORT 1
       #define _CORE_NEEDS_DMB           1
       #define RTT__DMB() __asm volatile ("dmb\n" : : :);
-    #elif ((defined __ARM_ARCH_7A__) || (defined __ARM_ARCH_7R__))  // Cortex-A/R 32-bit ARMv7-A/R
+    #elif \
+    ((defined __ARM_ARCH_7A__) || (defined __ARM_ARCH_7R__)) || \   // Cortex-A/R ARMv7-A/R & ARMv8-A/R
+    ((defined __ARM_ARCH_8A__) || (defined __ARM_ARCH_8R__))
+      //
+      // Cortex-A/R ARMv7-A/R & ARMv8-A/R
+      //
       #define _CORE_NEEDS_DMB           1
       #define RTT__DMB() __asm volatile ("dmb\n" : : :);
     #else
@@ -164,7 +169,12 @@ Revision: $Rev: 25842 $
       #define _CORE_HAS_RTT_ASM_SUPPORT 1
       #define _CORE_NEEDS_DMB           1
       #define RTT__DMB() __asm volatile ("dmb\n" : : :);
-    #elif ((defined __ARM_ARCH_7A__) || (defined __ARM_ARCH_7R__))  // Cortex-A/R 32-bit ARMv7-A/R
+    #elif \
+    (defined __ARM_ARCH_7A__) || (defined __ARM_ARCH_7R__) || \
+    (defined __ARM_ARCH_8A__) || (defined __ARM_ARCH_8R__)
+      //
+      // Cortex-A/R ARMv7-A/R & ARMv8-A/R
+      //
       #define _CORE_NEEDS_DMB           1
       #define RTT__DMB() __asm volatile ("dmb\n" : : :);
     #else
@@ -213,20 +223,17 @@ Revision: $Rev: 25842 $
         #define RTT__DMB() asm VOLATILE ("DMB");
       #endif
     #endif
-    #if (defined __ARM7A__)
-      #if (__CORE__ == __ARM7A__)                      // Cortex-A 32-bit ARMv7-A
-        #define _CORE_NEEDS_DMB 1
-        #define RTT__DMB() asm VOLATILE ("DMB");
-      #endif
+    #if\
+    ((defined __ARM7A__) && (__CORE__ == __ARM7A__)) || \
+    ((defined __ARM7R__) && (__CORE__ == __ARM7R__)) || \
+    ((defined __ARM8A__) && (__CORE__ == __ARM8A__)) || \
+    ((defined __ARM8R__) && (__CORE__ == __ARM8R__))
+      //
+      // Cortex-A/R ARMv7-A/R & ARMv8-A/R
+      //
+       #define _CORE_NEEDS_DMB 1
+      #define RTT__DMB() asm VOLATILE ("DMB");
     #endif
-    #if (defined __ARM7R__)
-      #if (__CORE__ == __ARM7R__)                      // Cortex-R 32-bit ARMv7-R
-        #define _CORE_NEEDS_DMB 1
-        #define RTT__DMB() asm VOLATILE ("DMB");
-      #endif
-    #endif
-// TBD: __ARM8A__ => Cortex-A 64-bit ARMv8-A
-// TBD: __ARM8R__ => Cortex-R 64-bit ARMv8-R
   #else
     //
     // Other compilers
