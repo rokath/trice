@@ -4366,7 +4366,7 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
     - Open terminal and execute `gcc --version` to check success.
 - Setup J-Link if you use this debug probe as hardware or software (see below).
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
-- Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
+- Install Make for Windows from [https://sourceforge.net/projects/gnuwin32](https://sourceforge.net/projects/ezwinports/files/make-4.4.1-without-guile-w32-bin.zip/download) and add its installation bin folder location to the PATH variable.
 
 #### 35.5.1. <a id='setup-trice'></a>Setup Trice
 
