@@ -4366,7 +4366,7 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
     - Open terminal and execute `gcc --version` to check success.
 - Setup J-Link if you use this debug probe as hardware or software (see below).
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
-- Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
+- Install [Make for Windows](#install-make) and add its installation bin folder location to the PATH variable.
 
 #### 35.5.1. <a id='setup-trice'></a>Setup Trice
 
@@ -4383,6 +4383,10 @@ OR
 #### 35.5.2. <a id='setup-arm-environment-example'></a>Setup ARM Environment Example
 
 <a id='install-make'></a><h5>Install make</h5>
+
+* Fast lane: Go to https://sourceforge.net/projects/ezwinports/files/, download ans extract **make-4.4.1-without-guile-w32-bin.zip**. Put the *make.exe* file somewhere in you $PATH.
+
+* OR open the Windows Powershell and:
 
 ```bash
 ms@PaulPCWin11 MINGW64 ~/repos/trice/examples (devel)
@@ -4409,7 +4413,7 @@ Successfully installed
 ms@PaulPCWin11 MINGW64 ~/repos/trice/examples (devel)
 ```
 
-Check:
+* Check:
 
 ```bash
 $ make --version
