@@ -2,7 +2,14 @@
 
 # Changelog
 
-<!-- Generate TOC for markdown (Markdown TOC from Joffrey Kern) && delete && Markdown All in Once: Generate TOC -->
+<!--
+Table of Contents Generation:
+* Install vsCode extension "Markdown TOC" from dumeng
+* Use Shift-Command-P "markdownTOC:generate" to get the automatic numbering.
+* replace "<a name" with "<a id"
+* replace "##" followed by 2 spaces with "## "‚
+-->
+
 <!-- vscode-markdown-toc -->
 * 1. [v0.60.1 Twice Log Screen Shot](#v0.60.1-twice-log-screen-shot)
 * 2. [v0.56.0 Changes](#v0.56.0-changes)
@@ -43,7 +50,10 @@
 * 18. [v0.72.5 Changes](#v0.72.5-changes)
         * 18.1. [v0.72.5 Overview](#v0.72.5-overview)
         * 18.2. [v0.72.5 Git Log](#v0.72.5-git-log)
-* 19. [master branch changes](#master-branch-changes)
+* 19. [v0.73.0 Changes](#v0.73.0-changes)
+        * 19.1. [v0.73.0 Overview](#v0.73.0-overview)
+        * 19.2. [v0.73.0 Git Log](#v0.73.0-git-log)
+* 20. [master branch changes](#master-branch-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -95,9 +105,9 @@
 | 2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.                                                                                                                                                                                                                                                                                            |
 | 2023-SEP-10 |  0.62.2 | Fixes issue [#427](https://github.com/rokath/trice/issues/427). TCOBS decoder more robust against data garbage.                                                                                                                                                                                                                                                                                       |
 | 2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.                                                                                                                                                                                                                         |
-| 2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#v0.63.0-changes)                                                                                                                                                                                                                                                                                                                                                               |
-| 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes](#v0.64.0-changes)                                                                                                                                                                                                                                                                                                                                        |
-| 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes](#v0.64.1-changes)                                                                                                                                                                                                                                                                                                                                             |
+| 2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#v0.63.0-changes)                                                                                                                                                                                                                                                                                                                                                              |
+| 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes](#v0.64.0-changes)                                                                                                                                                                                                                                                                                                                                                            |
+| 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes](#v0.64.1-changes)                                                                                                                                                                                                                                                                                                                                                               |
 | 2024-JUL-26 |  0.64.2 | minor cleanups                                                                                                                                                                                                                                                                                                                                                                                        |
 | 2024-JUL-27 |  0.64.3 | ID management improved for special cases                                                                                                                                                                                                                                                                                                                                                              |
 | 2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#v0.65.0-changes)                                                                                                                                                                                                                                                                                                                                                            |
@@ -105,20 +115,20 @@
 | 2024-AUG-18 |  0.66.1 | Documetation and tests improved                                                                                                                                                                                                                                                                                                                                                                       |
 | 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#v0.67.0-changes)                                                                                                                                                                                                                                                                                                                                                            |
 | 2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#v0.68.0-changes)                                                                                                                                                                                                                                                                                                                                                            |
-| 2024-AUG-23 |  0.69.0 | See [10. v0.69.0 Changes](#v0.69.0-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-OCT-09 |  0.70.0 | See [11. v0.70.0 Changes](#v0.70.0-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#v0.71.0-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-OCT-31 |  0.72.0 | See [13. v0.72.0 Changes](#v0.72.0-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-NOV-06 |  0.72.1 | See [14. v0.72.1 Changes](#v0.72.1-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-NOV-17 |  0.72.2 | See [15. v0.72.2 Changes](#v0.72.2-changes)                                                                                                                                                                                                                                                                                                                                                         |
-| 2024-NOV-29 |  0.72.3 | See [16. v0.72.3 Changes](#v0.72.3-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-DEC-10 |  0.72.4 | See [17. v0.72.4 Changes](#v0.72.4-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-DEC-18 |  0.72.5 | See [18. v0.72.5 Changes](#v0.72.5-changes)                                                                                                                                                                                                                                                                                                                                                          |
-| 2024-DEC-18 |  master | See [19. master branch changes](#master-branch-changes)                                                                                                                                                                                                                                                                                                                                            |
+| 2024-AUG-23 |  0.69.0 | See [10. v0.69.0 Changes](#v0.69.0-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-OCT-09 |  0.70.0 | See [11. v0.70.0 Changes](#v0.70.0-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#v0.71.0-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-OCT-31 |  0.72.0 | See [13. v0.72.0 Changes](#v0.72.0-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-NOV-06 |  0.72.1 | See [14. v0.72.1 Changes](#v0.72.1-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-NOV-17 |  0.72.2 | See [15. v0.72.2 Changes](#v0.72.2-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-NOV-29 |  0.72.3 | See [16. v0.72.3 Changes](#v0.72.3-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-DEC-10 |  0.72.4 | See [17. v0.72.4 Changes](#v0.72.4-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-DEC-18 |  0.72.5 | See [18. v0.72.5 Changes](#v0.72.5-changes)                                                                                                                                                                                                                                                                                                                                                           |
+| 2024-DEC-18 |  master | See [19. master branch changes](#master-branch-changes)                                                                                                                                                                                                                                                                                                                                               |
 
 ## 1. <a id='v0.60.1-twice-log-screen-shot'></a>v0.60.1 Twice Log Screen Shot
 
-- Please look at the used command lines carefully, expecially the `-d16` switch
+Please look at the used command lines carefully, expecially the `-d16` switch
 
 <img src="./docs/ref/v0.60.1TwiceLog.png" width="800">
 
@@ -149,22 +159,22 @@ This is a major release hopefully not breaking too much!
 
 ### 2.3. <a id='common-improvements'></a>Common improvements
 
-- Target time stamps now better formatted, Default is `µs`, `ms` is selectable.
-- A new document TriceConfigProjectImageSizeOptimization.md was written. (Now part of TriceUserManual.md)
-- Trice messages containing several `\n` are better formatted.
-- Multiple physical channels parallel usable now, like RTT and UART.
-- A space after ShowID inserted, also after target stamp for better visibility.
-- `triceConfig.h` was heavily restructured.
-- Target code split in several files now, but only `trice.c` needs to be added to the target project.
+* Target time stamps now better formatted, Default is `µs`, `ms` is selectable.
+* A new document TriceConfigProjectImageSizeOptimization.md was written. (Now part of TriceUserManual.md)
+* Trice messages containing several `\n` are better formatted.
+* Multiple physical channels parallel usable now, like RTT and UART.
+* A space after ShowID inserted, also after target stamp for better visibility.
+* `triceConfig.h` was heavily restructured.
+* Target code split in several files now, but only `trice.c` needs to be added to the target project.
 
 ### 2.4. <a id='cli-changes'></a>CLI changes
 
-- `ts` ist now target stamp. Host stamps are switchable with `-hs`.
-- `-packageFraming` is new.
-- Switch `-newlineIndent` added.
-- `li off` is now possible.
-- `trice s` now shows if a port is used already.
-- `my/path/auto` now possible with log files.
+* `ts` ist now target stamp. Host stamps are switchable with `-hs`.
+* `-packageFraming` is new.
+* Switch `-newlineIndent` added.
+* `li off` is now possible.
+* `trice s` now shows if a port is used already.
+* `my/path/auto` now possible with log files.
 
 ### 2.5. <a id='changes-under-the-hood'></a>Changes under the hood
 
@@ -180,118 +190,118 @@ This is a major release hopefully not breaking too much!
 
 ## 3. <a id='v0.63.0-changes'></a>v0.63.0 Changes
 
-- Issue [#436](https://github.com/rokath/trice/issues/436) done (faster now).
-- Issue [#438](https://github.com/rokath/trice/issues/438) done (minor). 
-- Issue [#439](https://github.com/rokath/trice/issues/439) done (no more trice macros inside header files).
-- Now unified `__restrict` keyword. `RESTRICT` keyword removed and `#include <stdint.h>` into all **triceConfig.h** files. Obsolete 'RESTRICT' code removed.
-- Code cleanup, tests now ok with `-race`. **Added: `triceAssertTrue` and `triceAssertFalse`**.
-- CLI switch `-d16` better documented. 
-- **`UserNonBlockingDirectWrite8AuxiliaryFn` and `UserNonBlockingDeferredWrite8AuxiliaryFn` invented for a cleaner auxiliary interface adaption**.
-- Doc updated in `TriceUserGuide.md`, `TriceVsPrintfSimilaritiesAndDifferences.md`, `TriceTargetCode.md` (now in TriceUserManual.md), `TriceColor.md` and preface extended. 
-- Folder `examples` fixed. 
-- Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
-- Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
+* Issue [#436](https://github.com/rokath/trice/issues/436) done (faster now).
+* Issue [#438](https://github.com/rokath/trice/issues/438) done (minor). 
+* Issue [#439](https://github.com/rokath/trice/issues/439) done (no more trice macros inside header files).
+* Now unified `__restrict` keyword. `RESTRICT` keyword removed and `#include <stdint.h>` into all **triceConfig.h** files. Obsolete 'RESTRICT' code removed.
+* Code cleanup, tests now ok with `-race`. **Added: `triceAssertTrue` and `triceAssertFalse`**.
+* CLI switch `-d16` better documented. 
+* **`UserNonBlockingDirectWrite8AuxiliaryFn` and `UserNonBlockingDeferredWrite8AuxiliaryFn` invented for a cleaner auxiliary interface adaption**.
+* Doc updated in `TriceUserGuide.md`, `TriceVsPrintfSimilaritiesAndDifferences.md`, `TriceTargetCode.md` (now in TriceUserManual.md), `TriceColor.md` and preface extended. 
+* Folder `examples` fixed. 
+* Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
+* Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
 
 ## 4. <a id='v0.64.0-changes'></a>v0.64.0 Changes
 
-- additional configuration checks 
-- TriceNonBlockingDirectWrite re-coded 
-- auxiliary output 32bit support
-- example projects folder re-worked
-- According issue #456 inside trice.h some renaming to avoid name clashes with other libraries. Only ID, Id, id and iD stayed the same for user code readability and compability.
-- BuildInfo added to self-compiled Trice compiled binary.
-- CGO test documentation extended.
-- CYCLE error now with sound in Trice tool.
-- Chapter "Trice Limitations" re-worked.
-- FreeRTOS example added
-- Merge pull request #454 from hugobpontes/master
-- More checks for dynamic strings
-- More descriptive  error  messages when running out of IDs
-- Naming for TRICE_DEFERRED_TRANSFER_MODE improved
-- New test cases added
-- Now only one common TriceEncode Function. (Code clean-up)
-- Overflow checks successful
-- SEGGER_RTT_32BIT now also with framing possible
-- TRICE_CONFIG_WARNINGS switch added
-- TRICE_PROTECT test added
-- TRICE_PROTRCT switch added
-- TriceEnoughSpace() better commented for ring buffer.
-- TriceEnoughSpace() corrected and commented for ring buffer.
-- TriceOvewrflowCount added as diagnostics value
-- Undefine ID, Id, id, iD at the trice.h start to avoid name clashes just in case a previous header file used them (see issue #456)
-- Update README.md
-- Update TriceUserGuide.md
-- Update cgo_test.go
-- Update trice.c
-- Update triceConfig.h
-- triceDefaultConfig.h file added. 
-- additional configuration checks
-- additional id processing methods
-- additional test cases
-- automated tests now with all test lines
-- automatic tests extended and adapted
-- code cleanup, formatting, comments updated
-- cycle error message compacted
-- dead code removed
-- Test for double buffer multi packaging now ok with encryption
-- encryption code improved
-- test folder names adapted to pattern
-- example folder names unified
-- full build info displayed (only) with *trice version  -verbose*
-- improved id management and testing
-- "no package framing" fix
-- trice configuration switches added
-- triceAsssertTrue and triceAssertFalse are now covered by TRICE_CLEAN too.
-- triceDefaultConfig.h eases settings now
-- "simulated" UART 
-- Most config switches with 0 or 1 only (removed #ifdef) 
-- +triceUart.c (User provides triceUart.h)
-- better id procesing
-- compiler switches variants
-- improved id testing
-- triceDefaultConfig.h
+* additional configuration checks 
+* TriceNonBlockingDirectWrite re-coded 
+* auxiliary output 32bit support
+* example projects folder re-worked
+* According issue #456 inside trice.h some renaming to avoid name clashes with other libraries. Only ID, Id, id and iD stayed the same for user code readability and compability.
+* BuildInfo added to self-compiled Trice compiled binary.
+* CGO test documentation extended.
+* CYCLE error now with sound in Trice tool.
+* Chapter "Trice Limitations" re-worked.
+* FreeRTOS example added
+* Merge pull request #454 from hugobpontes/master
+* More checks for dynamic strings
+* More descriptive  error  messages when running out of IDs
+* Naming for TRICE_DEFERRED_TRANSFER_MODE improved
+* New test cases added
+* Now only one common TriceEncode Function. (Code clean-up)
+* Overflow checks successful
+* SEGGER_RTT_32BIT now also with framing possible
+* TRICE_CONFIG_WARNINGS switch added
+* TRICE_PROTECT test added
+* TRICE_PROTRCT switch added
+* TriceEnoughSpace() better commented for ring buffer.
+* TriceEnoughSpace() corrected and commented for ring buffer.
+* TriceOvewrflowCount added as diagnostics value
+* Undefine ID, Id, id, iD at the trice.h start to avoid name clashes just in case a previous header file used them (see issue #456)
+* Update README.md
+* Update TriceUserGuide.md
+* Update cgo_test.go
+* Update trice.c
+* Update triceConfig.h
+* triceDefaultConfig.h file added. 
+* additional configuration checks
+* additional id processing methods
+* additional test cases
+* automated tests now with all test lines
+* automatic tests extended and adapted
+* code cleanup, formatting, comments updated
+* cycle error message compacted
+* dead code removed
+* Test for double buffer multi packaging now ok with encryption
+* encryption code improved
+* test folder names adapted to pattern
+* example folder names unified
+* full build info displayed (only) with *trice version  -verbose*
+* improved id management and testing
+* "no package framing" fix
+* trice configuration switches added
+* triceAsssertTrue and triceAssertFalse are now covered by TRICE_CLEAN too.
+* triceDefaultConfig.h eases settings now
+* "simulated" UART 
+* Most config switches with 0 or 1 only (removed #ifdef) 
+* +triceUart.c (User provides triceUart.h)
+* better id procesing
+* compiler switches variants
+* improved id testing
+* triceDefaultConfig.h
 
 ## 5. <a id='v0.64.1-changes'></a>v0.64.1 changes
 
-- `b171458c` (origin/debug, debug) Bugfix: Temp buffer was too small
-- `478bfa7d` diagnostics re-ordered to get more secure output if buffers are very small
-- `3714af9f` double buffer re-worked, tests ok
-- `43c327bc` Minor ID management improvement
-- `7ac98469` remove unused commands from install with renaming
-- `b2824c07` TRICE_DATA_OFFSET diagnostics added.
-- `0be73a55` TRICE_SINGLE_MAX_SIZE now disables Trice functions needing more space.
-- `2fa74111` Issue [#476](https://github.com/rokath/trice/issues/476) solved
-- `f6fdb28f` Update ReadMe.md
-- `67fc2879` small encryption bugfix
-- `2bd02c25` Links corrected
-- `74b2449d` examples doc improved
-- `1b3ae219` doc updated
-- `ba18d165` smaller improvements
-- `f714c213` duplicate information removed and referenced to origin
-- `a2ec33fe` hint added
-- `4df3bfa5` ReadMe.md added to some examples
+* `b171458c` (origin/debug, debug) Bugfix: Temp buffer was too small
+* `478bfa7d` diagnostics re-ordered to get more secure output if buffers are very small
+* `3714af9f` double buffer re-worked, tests ok
+* `43c327bc` Minor ID management improvement
+* `7ac98469` remove unused commands from install with renaming
+* `b2824c07` TRICE_DATA_OFFSET diagnostics added.
+* `0be73a55` TRICE_SINGLE_MAX_SIZE now disables Trice functions needing more space.
+* `2fa74111` Issue [#476](https://github.com/rokath/trice/issues/476) solved
+* `f6fdb28f` Update ReadMe.md
+* `67fc2879` small encryption bugfix
+* `2bd02c25` Links corrected
+* `74b2449d` examples doc improved
+* `1b3ae219` doc updated
+* `ba18d165` smaller improvements
+* `f714c213` duplicate information removed and referenced to origin
+* `a2ec33fe` hint added
+* `4df3bfa5` ReadMe.md added to some examples
 
 ## 6. <a id='v0.65.0-changes'></a>v0.65.0 Changes
 
-- `5af9c2bb664e11e5e2663e56116d842719ca6f8d` Issue #431 solved
-- `430c6a4dde817bc39ec35d595341efbe069cf482` Issue #466 solved
-- You can now use `trice8B( "msg: %02x\n", buffer, len);` functions and the like. See [test/testdata/triceCheck.c](test/testdata/triceCheck.c) for examples.
+* `5af9c2bb664e11e5e2663e56116d842719ca6f8d` Issue #431 solved
+* `430c6a4dde817bc39ec35d595341efbe069cf482` Issue #466 solved
+* You can now use `trice8B( "msg: %02x\n", buffer, len);` functions and the like. See [test/testdata/triceCheck.c](test/testdata/triceCheck.c) for examples.
 
 ## 7. <a id='v0.66.0-changes'></a>v0.66.0 Changes
 
-- `3b607b44d6681e2d6aa60eea7eba24a939b81e4b` (HEAD -> master, origin/master, origin/devel, origin/HEAD, devel) wip
-- `5db46f255a669a4407af8a255af4413a548a18cf` issue #485 solved: li.json now extended instead of re-generated to keep legacy location information 
-- `d0bb82d35446c67ab4337cab033c5957d8c8571b` triceB ok AND logLevel ok
-- `97a3a2a33eb7f56f98626971ba5f844b2754fe93` small bugfix resulting from more test cases
-- `8a4d1c3bfa98ac240d0fda0d961b4a9c94b4f911` Issue #356 solved
-- `58351b3c338957053758f128bbf8837dcfc0f28e` Check added for valid ID range.
-- `a617c97317a08c34cb7e923cf6595a95eac67560` Legacy sub commands refresh and renew replace with sub command add.
-- `e87234851ea1e6dccf33c547657460953c5fd870` changelog update
-- `b28ab89295d2fa38f6ea0c935aa701ac82384ff6` issue #363 solved: Remove legacy "i" artifacts from code (example: updateParamCountAndID0) 
-- `fe82bc6e27c32504f3102705de7f82b8d764b20c` issue #478 solved: : Add Trice tool CLI switch for automated \n after each trice message to avoid the need to write it all the time. 
-- `832e4c1e438a3499b557bb778a91a56dc57edc34` function signature more universal
-- `d99e06341f871bc9b0e38686ea36f336bfb8a84f` folder renamed
-- `287239db4940c401b395ed9b9f7c91bc210ebc46` Testig slightly improved
+* `3b607b44d6681e2d6aa60eea7eba24a939b81e4b` (HEAD -> master, origin/master, origin/devel, origin/HEAD, devel) wip
+* `5db46f255a669a4407af8a255af4413a548a18cf` issue #485 solved: li.json now extended instead of re-generated to keep legacy location information 
+* `d0bb82d35446c67ab4337cab033c5957d8c8571b` triceB ok AND logLevel ok
+* `97a3a2a33eb7f56f98626971ba5f844b2754fe93` small bugfix resulting from more test cases
+* `8a4d1c3bfa98ac240d0fda0d961b4a9c94b4f911` Issue #356 solved
+* `58351b3c338957053758f128bbf8837dcfc0f28e` Check added for valid ID range.
+* `a617c97317a08c34cb7e923cf6595a95eac67560` Legacy sub commands refresh and renew replace with sub command add.
+* `e87234851ea1e6dccf33c547657460953c5fd870` changelog update
+* `b28ab89295d2fa38f6ea0c935aa701ac82384ff6` issue #363 solved: Remove legacy "i" artifacts from code (example: updateParamCountAndID0) 
+* `fe82bc6e27c32504f3102705de7f82b8d764b20c` issue #478 solved: : Add Trice tool CLI switch for automated \n after each trice message to avoid the need to write it all the time. 
+* `832e4c1e438a3499b557bb778a91a56dc57edc34` function signature more universal
+* `d99e06341f871bc9b0e38686ea36f336bfb8a84f` folder renamed
+* `287239db4940c401b395ed9b9f7c91bc210ebc46` Testig slightly improved
 
 ## 8. <a id='v0.67.0-changes'></a>v0.67.0 Changes
 
@@ -348,8 +358,8 @@ This is a major release hopefully not breaking too much!
 
 ## 10. <a id='v0.69.0-changes'></a>v0.69.0 Changes
 
-- Big-endian MCUs should now be usable with the complete Trice macro set (automatic test added).
-- Trice code auto-formatted with `clang-format.sh`. (Special thanks to @Sazerac)
+* Big-endian MCUs should now be usable with the complete Trice macro set (automatic test added).
+* Trice code auto-formatted with `clang-format.sh`. (Special thanks to @Sazerac)
 
 Used git log command: `git log --pretty=oneline --abbrev-commit`
 
@@ -408,7 +418,7 @@ Used git log command: `git log --pretty=oneline --abbrev-commit`
 | `5b4b40d8` | Update README.md                                                                                                                           |
 | `b6e68494` | (tag: v0.68.0) rlcp added to .goreleaser.yaml                                                                                              |
 
-- Test results (`be_dblB_de_tcobs_ua` is the "big-endian" test using `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1` setting and `trice log ...   -triceEndianness bigEndian`):
+* Test results (`be_dblB_de_tcobs_ua` is the "big-endian" test using `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1` setting and `trice log ...   -triceEndianness bigEndian`):
 
 ```bash
 ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
@@ -488,13 +498,13 @@ sys     0m0.000s
 
 ### 11.1. <a id='overview'></a>Overview
 
-- Trice cache option added
-- Trice commands `trice update` and `trice zero` removed
-- Better handling of target MCU endianness - now mostly automatically detected (Special thanks to [Sazerac4](https://github.com/Sazerac4))
-- TRICE_OFF switch without warnings: unused parameter
-- Tests changed to hexadecimal stamps to see issues easier
-- spacing CLI switch added to `trice insert`
-- Target code test folder `test` renamed into `_test` to avoid vsCode slowdown. To execute these tests rename this folder temporary back and run `go test ./test/...`.
+* Trice cache option added
+* Trice commands `trice update` and `trice zero` removed
+* Better handling of target MCU endianness - now mostly automatically detected (Special thanks to [Sazerac4](https://github.com/Sazerac4))
+* TRICE_OFF switch without warnings: unused parameter
+* Tests changed to hexadecimal stamps to see issues easier
+* spacing CLI switch added to `trice insert`
+* Target code test folder `test` renamed into `_test` to avoid vsCode slowdown. To execute these tests rename this folder temporary back and run `go test ./test/...`.
 
 ### 11.2. <a id='git-log'></a>Git Log
 
@@ -559,7 +569,7 @@ Used git log command: `git log --pretty=oneline --abbrev-commit` and less import
 
 ### 12.1. <a id='overview-1'></a>Overview
 
-- A new CLI switch for `trice insert` is invented: `-IDRange`. See `trice help -insert` for details.
+* A new CLI switch for `trice insert` is invented: `-IDRange`. See `trice help -insert` for details.
 
 ### 12.2. <a id='git-log-1'></a>Git Log
 
@@ -586,9 +596,9 @@ Used git log command: `git log --pretty=oneline --abbrev-commit` and less import
 
 ### 13.1. <a id='v0.72.0-overview'></a>v0.72.0 Overview
 
-- Trice cache folders now with correct permissions.
-- Trice deferred mode for ring buffer now also supports multi pack mode.
-- Multi pack mode now as default setting for deferred modes.
+* Trice cache folders now with correct permissions.
+* Trice deferred mode for ring buffer now also supports multi pack mode.
+* Multi pack mode now as default setting for deferred modes.
 
 ### 13.2. <a id='v0.72.0-git-log'></a>v0.72.0 Git Log
 
@@ -632,7 +642,7 @@ Used git log command: `git log --oneline` and less important lines removed
 
 ### 14.1. <a id='v0.72.1-overview'></a>v0.72.1 Overview
 
-- Issue #509 fixed (better `TRICE_OFF` handling)
+* Issue #509 fixed (better `TRICE_OFF` handling)
 
 ### 14.2. <a id='v0.72.1-git-log'></a>v0.72.1 Git Log
 
@@ -812,6 +822,50 @@ Used git log command: `git log --oneline v0.72.4..HEAD | grep -v wip >> CHANGELO
 | `3b23aec7` | typo corrected                                                                                         |
 | `cd366fb3` | Update TriceUserManual.md                                                                              |
 
-## 19. <a id='master-branch-changes'></a>master branch changes
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## 19. <a id='v0.73.0-changes'></a>v0.73.0 Changes
+
+### 19.1. <a id='v0.73.0-overview'></a>v0.73.0 Overview
+
+* RTT Log support for Linux and Darwin improved
+* Trice User Manual extended
+* Example improved
+
+### 19.2. <a id='v0.73.0-git-log'></a>v0.73.0 Git Log
+
+Used git log command: `git log --oneline v0.72.5..HEAD | grep -v wip >> CHANGELOG.md` and less important lines removed
+
+ | Hash     | Comment                                                                                                                                                                |
+ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+ | 7f0854b1 | User manual PDF re-generated                                                                                                                                           |
+ | 4748c60d | Better RTT Log support for Darwin and Linux.                                                                                                                           |
+ | 427aaaa6 | Update TriceUserManual.md                                                                                                                                              |
+ | 33c4cd94 | RTTLog with tmux added (experimental)                                                                                                                                  |
+ | 75c4ec1c | example logs improved                                                                                                                                                  |
+ | 5279680f | OpenCM3 example now part of user manual                                                                                                                                |
+ | c20e95d7 | RTT Support unified and improved,                                                                                                                                      |
+ | 7b86ee49 | example scripts simplified                                                                                                                                             |
+ | 985de7c3 | Chapter Add-On Hints added                                                                                                                                             |
+ | f2dbf365 | RTT script for Linux ok                                                                                                                                                |
+ | e469901a | win setup updated                                                                                                                                                      |
+ | 0d8cf7c7 | minor adaptions for Windows                                                                                                                                            |
+ | ffb2201a | -defaultStampSize for legacy upper case only TRICE messages changed to 0                                                                                               |
+ | b354653f | LI now shows only base name during trice log to keep lines shorter                                                                                                     |
+ | bb9f0d23 | Update TriceUserManual.md                                                                                                                                              |
+ | c3e304e4 | - Scripts improved - Only one common trice-clean... and trice-insert... script - Trice cache warning added in case no cache folder exists and -cache switch is applied |
+ | dd5828f8 | SeveraL Minor improvements                                                                                                                                             |
+ | 6fd091de | Change to global demoTIL.json and demoLI.json                                                                                                                          |
+ | 41be494b | Verbose ID log extended and improved                                                                                                                                   |
+ | 839d0ea3 | Linux setup added                                                                                                                                                      |
+ | aec94373 | ++caffeinate                                                                                                                                                           |
+ | d8312a09 | Chapter "Trice location information file li.json" extended.                                                                                                            |
+ | 506906d9 | CLI -liPathRelative bool replaced with -liPath string                                                                                                                  |
+ | a65202d8 | Link repair                                                                                                                                                            |
+ | 100efb3c | 2 chapters added                                                                                                                                                       |
+ | cd00e784 | Update TriceUserManual.md                                                                                                                                              |
+ | 6a36774e | Chapters Protect, Diag and Avoid False-Positives added                                                                                                                 |
+
+## 20. <a id='master-branch-changes'></a>master branch changes
 
 <p align="right">(<a href="#top">back to top</a>)</p>
