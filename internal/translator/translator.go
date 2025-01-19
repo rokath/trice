@@ -81,12 +81,14 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 	for {
 		select {
 		case sig := <-sigs: // wait for a signal
-			//if Verbose {
-			fmt.Fprintln(w, "####################################", sig, "####################################")
-			//}
+			time.Sleep(250 * time.Millisecond)
+			if Verbose {
+				fmt.Fprintln(w, "####################################", sig, "####################################")
+			} else {
+				fmt.Fprintln(w)
+			}
 			emitter.PrintTagStatistics(w)
 			decoder.PrintTriceStatistics(w)
-			time.Sleep(250 * time.Millisecond)
 			msg.FatalOnErr(rc.Close())
 			os.Exit(0) // end
 		case <-ticker.C:

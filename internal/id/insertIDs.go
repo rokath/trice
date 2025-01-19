@@ -42,7 +42,7 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 	p.join(err)
 	// msg.Tell(w, path)
 
-	lip := toLIPath(path)
+	lip := ToLIPath(path)
 	out, modified, err := p.insertTriceIDs(w, lip, in, a)
 	p.join(err)
 
@@ -212,11 +212,11 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 				}
 				break
 			}
-			filenameMatch = path == toLIPath(li.File)
+			filenameMatch = path == ToLIPath(li.File)
 
 			if !filenameMatch {
 				if Verbose {
-					fmt.Fprintln(w, "ID", id, "is from a different file:", toLIPath(li.File), li.File)
+					fmt.Fprintln(w, "ID", id, "is from a different file:", ToLIPath(li.File), li.File)
 				}
 				continue
 			}
