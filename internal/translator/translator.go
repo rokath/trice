@@ -257,7 +257,7 @@ func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
 		}
 	} else {
 		if Verbose {
-			return "wrn:no li "
+			return "no li"
 		}
 	}
 	return ""
