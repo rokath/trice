@@ -3252,15 +3252,15 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
       ```
       * See also the configuration in [./examples/G0B1_inst/Core/triceConfig.h](../examples/G0B1_inst/Core/triceConfig.h)
 
-* If you install the `screen` command your life can gets esier by using a shell script like [.](../examples/G0B1_inst/RTTLogUnix.sh):
+* If you install the `tmux` command your life gets esier by using a shell script like [./examples/G0B1_inst/RTTLogTmux.sh](../examples/G0B1_inst/RTTLogTmux.sh):
 
 ```bash
-#!/bin/bash
+mkdir -p ./temp
 rm -f ./temp/trice.bin
 touch ./temp/trice.bin
-screen -d -m JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
-trice log -p FILE -args ./temp/trice.bin -prefix off -hs off -d16 -ts ms  -i ../../demoTIL.json -li ../../demoLI.json -pf none
-screen -X quit
+tmux new -s "tricerttlog" -d "JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin"
+trice log -p FILE -args ./temp/trice.bin -pf none -prefix off -hs off -d16 -ts16 "time:offs:%4d µs" -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json -stat
+tmux kill-session -t "tricerttlog"
 ```
 
   * Usage:
@@ -3279,6 +3279,8 @@ screen -X quit
         triceExamples.c    77              _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=2000
         triceExamples.c    29  0:00:00,002 🐁 Speedy Gonzales a  32-bit time stamp
     ```
+
+* **Hint:** If you use *RTTLogTmux.sh* with Darwin, the "control-C" key combination seems not to work immediately. That is simply because the keyboard focus switches away after script start. Simply click into the terminal window again and then use "control-C" to terminate the Trice logging.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
