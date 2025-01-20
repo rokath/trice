@@ -651,6 +651,10 @@ The Trice tool, will change the value to 0 and change it back to 1, when perform
 
 It is recommended to use the Trice cache in conjunction with this to avoid a permanent re-translation of files including Trice code.
 
+TRICE_CLEAN==1 changes all Trice macros into empty ones. It is used only to silence sophisticated editors. In the cleaned state, when the IDs are removed from the files, the editor could underline the Trice macros indicating a false positive.
+
+Do not use TRICE_CLEAN for disabling Trice macros. The *triceConfig.h* line `#define TRICE_CLEAN 0` changes to `1` with every `trice clean` and to `0` with every `trice insert`. This line is optional and must not be in a different file. If you want to disable Trice macros use TRICE_OFF.
+
 ### 4.21. <a id='trice-generator'></a>Trice Generator
 
 The Trice tool is able to generate colors or code to support various tasks. One interesting option is the Remote Procedure Call support, allowing RPC usage in a network of embedded devices.
@@ -1622,7 +1626,7 @@ An example, provided by [@KammutierSpule](https://github.com/kammutierspule), is
 void trice0_test() {
     Trice0( "OK");
     Trice( InvalidUse );
-    Trice( "OK", Variable );
+    Trice( "%u", Variable );
 }
 ```
 
@@ -1632,7 +1636,7 @@ void trice0_test() {
 void trice0_test() {
     Trice0( iD(2740), "OK"); // ok, iD is added
     Trice( InvalidUse ); // no warning or error
-    Trice( "OK", Variable ); // id is not added / inserted
+    Trice( "%u", Variable ); // id is not added / inserted
 }
 ```
 
@@ -5984,6 +5988,16 @@ cat demoLI.json | grep '"File":' | sort | uniq
 		"File": "examples/exampleData/triceExamples.c",
 		"File": "examples/exampleData/triceLogDiagData.c",
 ```
+
+### Building a trice library?
+
+The triceConfig.h is mandatory for the trice code. It controls which parts of the trice code are included. There is no big advantage having a trice library, because it would work only with unchanged settings in the project specific triceConfig.h. Once the trice source files are translated, their objects are rebuilt automatically and only when the triceConfig.h is changed. So only the linker has a bit less to do when it finds a trice library compared to a bunch of trice objects. But does that influence the build time heavily?
+
+The triceConfig.h is the only part of the trice sources which should be modified by the users. It is ment to be a individual part of the user projects. The examples folder shows the usage.
+
+### Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings
+
+If you encounter a compilation error on `trice( "hi");` for example, but not on `trice( "%u stars", 5 );`, this is probably caused by the way your compiler interprets variadic macros. Simply change to `trice0( "hi");` or change your compiler settings. See issue [#279](https://github.com/rokath/trice/issues/279) for more details. If your project needs to be translated with strict-C settings for some reason, you have to use the `trice0` macros when no values exist for the Trice macros.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
