@@ -21,8 +21,8 @@ func SubCmdIdAdd(w io.Writer, fSys *afero.Afero) error {
 	return IDData.cmdSwitchTriceIDs(w, fSys, triceIDAdding)
 }
 
-// toLIPath converts path according to global variable LIPathKind into a base or relative or absolute path.
-func toLIPath(path string) string {
+// ToLIPath converts path according to global variable LIPathKind into a base or relative or absolute path.
+func ToLIPath(path string) string {
 	liPathK := filepath.Base(LIPathKind) // strip leading path info
 	switch liPathK[:1] {
 	case "r": // relative
@@ -58,6 +58,6 @@ func triceIDAdding(w io.Writer, fSys *afero.Afero, path string, fileInfo os.File
 	if Verbose {
 		fmt.Fprintln(w, path)
 	}
-	_, _, err = zeroTriceIDs(w, toLIPath(path), in, a) // just to get the IDs, no write back
+	_, _, err = zeroTriceIDs(w, ToLIPath(path), in, a) // just to get the IDs, no write back
 	return err
 }

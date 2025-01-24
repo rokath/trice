@@ -305,7 +305,8 @@ func PrintTriceStatistics(w io.Writer) {
 		if !found {
 			newline = `0`
 		}
-		fmt.Fprintf(w, "%8d | %32s |%5d | %5d | %10s |%s| %s\n", count, li.File, li.Line, tid, trice.Type, newline, emitter.Colorize(trice.Strg))
+		file := id.ToLIPath(li.File)
+		fmt.Fprintf(w, "%8d | %32s |%5d | %5d | %10s |%s| %s\n", count, file, li.Line, tid, trice.Type, newline, emitter.Colorize(trice.Strg))
 	}
 	fmt.Fprintln(w, " ------------------------------------------------------------------------------------------------------------------")
 	fmt.Fprintf(w, "%8d Trice messsges\n", sum)

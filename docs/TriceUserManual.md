@@ -651,6 +651,10 @@ The Trice tool, will change the value to 0 and change it back to 1, when perform
 
 It is recommended to use the Trice cache in conjunction with this to avoid a permanent re-translation of files including Trice code.
 
+TRICE_CLEAN==1 changes all Trice macros into empty ones. It is used only to silence sophisticated editors. In the cleaned state, when the IDs are removed from the files, the editor could underline the Trice macros indicating a false positive.
+
+Do not use TRICE_CLEAN for disabling Trice macros. The *triceConfig.h* line `#define TRICE_CLEAN 0` changes to `1` with every `trice clean` and to `0` with every `trice insert`. This line is optional and must not be in a different file. If you want to disable Trice macros use TRICE_OFF.
+
 ### 4.21. <a id='trice-generator'></a>Trice Generator
 
 The Trice tool is able to generate colors or code to support various tasks. One interesting option is the Remote Procedure Call support, allowing RPC usage in a network of embedded devices.
@@ -1622,7 +1626,7 @@ An example, provided by [@KammutierSpule](https://github.com/kammutierspule), is
 void trice0_test() {
     Trice0( "OK");
     Trice( InvalidUse );
-    Trice( "OK", Variable );
+    Trice( "%u", Variable );
 }
 ```
 
@@ -1632,7 +1636,7 @@ void trice0_test() {
 void trice0_test() {
     Trice0( iD(2740), "OK"); // ok, iD is added
     Trice( InvalidUse ); // no warning or error
-    Trice( "OK", Variable ); // id is not added / inserted
+    Trice( "%u", Variable ); // id is not added / inserted
 }
 ```
 
@@ -3252,15 +3256,15 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
       ```
       * See also the configuration in [./examples/G0B1_inst/Core/triceConfig.h](../examples/G0B1_inst/Core/triceConfig.h)
 
-* If you install the `screen` command your life can gets esier by using a shell script like [.](../examples/G0B1_inst/RTTLogUnix.sh):
+* If you install the `tmux` command your life gets esier by using a shell script like [./examples/G0B1_inst/RTTLogTmux.sh](../examples/G0B1_inst/RTTLogTmux.sh):
 
 ```bash
-#!/bin/bash
+mkdir -p ./temp
 rm -f ./temp/trice.bin
 touch ./temp/trice.bin
-screen -d -m JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
-trice log -p FILE -args ./temp/trice.bin -prefix off -hs off -d16 -ts ms  -i ../../demoTIL.json -li ../../demoLI.json -pf none
-screen -X quit
+tmux new -s "tricerttlog" -d "JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin"
+trice log -p FILE -args ./temp/trice.bin -pf none -prefix off -hs off -d16 -ts16 "time:offs:%4d µs" -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json -stat
+tmux kill-session -t "tricerttlog"
 ```
 
   * Usage:
@@ -3279,6 +3283,8 @@ screen -X quit
         triceExamples.c    77              _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=2000
         triceExamples.c    29  0:00:00,002 🐁 Speedy Gonzales a  32-bit time stamp
     ```
+
+* **Hint:** If you use *RTTLogTmux.sh* with Darwin, the "control-C" key combination seems not to work immediately. That is simply because the keyboard focus switches away after script start. Simply click into the terminal window again and then use "control-C" to terminate the Trice logging.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -4366,7 +4372,7 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
     - Open terminal and execute `gcc --version` to check success.
 - Setup J-Link if you use this debug probe as hardware or software (see below).
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
-- Install [Make for Windows](https://sourceforge.net/projects/gnuwin32/) and add its installation bin folder location to the PATH variable.
+- Install [Make for Windows](#install-make) and add its installation bin folder location to the PATH variable.
 
 #### 35.5.1. <a id='setup-trice'></a>Setup Trice
 
@@ -4383,6 +4389,10 @@ OR
 #### 35.5.2. <a id='setup-arm-environment-example'></a>Setup ARM Environment Example
 
 <a id='install-make'></a><h5>Install make</h5>
+
+* Fast lane: Go to https://sourceforge.net/projects/ezwinports/files/, download ans extract **make-4.4.1-without-guile-w32-bin.zip**. Put the *make.exe* file somewhere in you $PATH.
+
+* OR open the Windows Powershell and:
 
 ```bash
 ms@PaulPCWin11 MINGW64 ~/repos/trice/examples (devel)
@@ -4409,7 +4419,7 @@ Successfully installed
 ms@PaulPCWin11 MINGW64 ~/repos/trice/examples (devel)
 ```
 
-Check:
+* Check:
 
 ```bash
 $ make --version
@@ -5978,6 +5988,16 @@ cat demoLI.json | grep '"File":' | sort | uniq
 		"File": "examples/exampleData/triceExamples.c",
 		"File": "examples/exampleData/triceLogDiagData.c",
 ```
+
+### Building a trice library?
+
+The triceConfig.h is mandatory for the trice code. It controls which parts of the trice code are included. There is no big advantage having a trice library, because it would work only with unchanged settings in the project specific triceConfig.h. Once the trice source files are translated, their objects are rebuilt automatically and only when the triceConfig.h is changed. So only the linker has a bit less to do when it finds a trice library compared to a bunch of trice objects. But does that influence the build time heavily?
+
+The triceConfig.h is the only part of the trice sources which should be modified by the users. It is ment to be a individual part of the user projects. The examples folder shows the usage.
+
+### Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings
+
+If you encounter a compilation error on `trice( "hi");` for example, but not on `trice( "%u stars", 5 );`, this is probably caused by the way your compiler interprets variadic macros. Simply change to `trice0( "hi");` or change your compiler settings. See issue [#279](https://github.com/rokath/trice/issues/279) for more details. If your project needs to be translated with strict-C settings for some reason, you have to use the `trice0` macros when no values exist for the Trice macros.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

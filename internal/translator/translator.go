@@ -81,10 +81,12 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 	for {
 		select {
 		case sig := <-sigs: // wait for a signal
+			time.Sleep(250 * time.Millisecond)
 			if Verbose {
 				fmt.Fprintln(w, "####################################", sig, "####################################")
+			} else {
+				fmt.Fprintln(w)
 			}
-			time.Sleep(250 * time.Millisecond)
 			emitter.PrintTagStatistics(w)
 			decoder.PrintTriceStatistics(w)
 			msg.FatalOnErr(rc.Close())
@@ -257,7 +259,7 @@ func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
 		}
 	} else {
 		if Verbose {
-			return "wrn:no li "
+			return "no li"
 		}
 	}
 	return ""

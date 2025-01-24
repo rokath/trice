@@ -338,9 +338,9 @@ extern uint32_t* TriceBufferWritePosition;
 
 #else
 
-#ifndef(TRICE_MCU_IS_BIG_ENDIAN)
+#ifndef TRICE_MCU_IS_BIG_ENDIAN
 #error Bytes order not supported or not detected, set TRICE_MCU_IS_BIG_ENDIAN to 0 or 1 in your triceConfig.h file.
-#endif // TRICE_MCU_IS_BIG_ENDIAN
+#endif // #ifndef TRICE_MCU_IS_BIG_ENDIAN
 
 #endif // __BYTE_ORDER__
 
