@@ -160,6 +160,7 @@ git clone https://github.com/rokath/trice.git
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Real-time binary data logging/tracing toolkit](https://github.com/RTEdbg/RTEdbg)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
+- [Tonbandgerät](https://github.com/schilkp/Tonbandgeraet) (A small embedded systems tracer with support for bare-metal and FreeRTOS-based targets)
 - [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications
 - [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 
