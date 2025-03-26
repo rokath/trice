@@ -3001,6 +3001,11 @@ Please check the manuals and create a pull request or simply let me know.
 
 * [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) contains the code for this example.
 * The Trice tool, if knowing `wrn:` as pattern, prepends the appropriate color code. It removes the sequence `wrn:`, if it is known and completely lower case.
+  * The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give even each letter in a message its color.
+
+    `"wrn:fox"` will display colored "fox"
+    `"Wrn:fox"` will display colored "Wrn:fox"
+
 * The user can define any pattern with any color code to create colored output with the Trice tool.
 * There is no tag enable switch inside the target code. It would need a back channel and add overhead.
 * An option using tag specific ID ranges with optional routing exists.
