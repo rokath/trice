@@ -1509,7 +1509,11 @@ trice l -ds -p COM3
 trice sd -r 192.168.1.23:45678
 ```
 
-#### 13.2.4. <a id='logfile-output'></a>Logfile output
+The IP address and port are free selectable. Using a display server, allows to watch the logs of one or many MCUs on a local or remote machine with the same or different display servers.
+
+A local Trice instance sends Trice messages to a display server only, when a log line is complete (if consisting of several Trices). By using the CLI switches `-prefix` and `-suffix` you can decorate the loglines target specific to distinguish them in the output window(s).
+
+##13.2.4. <a id='logfile-output'></a>Logfile output
 
 ```bash
 trice l -p COM3 -logfile auto
