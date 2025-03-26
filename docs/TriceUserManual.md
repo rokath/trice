@@ -1381,6 +1381,8 @@ $ go install ./cmd/trice/
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
 
+After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 10. <a id='-embedded-system-code-configuration'></a> Embedded system code configuration
