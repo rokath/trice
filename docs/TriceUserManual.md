@@ -730,7 +730,7 @@ When developing firmware, we get often different versions and variants in the de
 * Place the extracted Trice [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
 * Copy the src folder into your project and add all files.
 * Copy a triceConfig.h from a subfolder in the examples or test folder and optionally adapt it. See file [*triceDefaultConfig.h*](../src/triceDefaultConfig.h) for help.
-  * Inside the triceConfig.h file cou can control, if Trice works in direct or deferred mode or both parallel.
+  * Inside the triceConfig.h file you can control, if Trice works in direct or deferred mode or both parallel.
 
 ### 6.3. <a id='try-it'></a>Try it
 
