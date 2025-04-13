@@ -928,9 +928,9 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 	}
 }
 
-// TestInsertIDsForNewTrice2 checks for correct line numer in case of an format string / parameter count error.
+// _TestInsertIDsForNewTrice_Issue_523 checks for correct line numer in case of an format string / parameter count error.
 // This test needs a modified insertTriceIDs function: Inside if !SkipAdditionalChecks { replace os.Exit(-1) with return }
-func _TestInsertIDsForNewTrice_Issue_5xx(t *testing.T) {
+func _TestInsertIDsForNewTrice_Issue_523(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	fn0 := t.Name() + "file0.c"

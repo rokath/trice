@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 //! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
-#define TRICE_CLEAN 0 // Do not define this at an other place! But you can delete this here.
+#define TRICE_CLEAN 1 // Do not define this at an other place! But you can delete this here.
 
 // hardware specific trice lib settings
 #include "main.h" 
