@@ -116,7 +116,7 @@ void TIM17_FDCAN_IT1_IRQHandler(void)
 #if !TRICE_OFF
   static int i = 0;
   if( i++>25000 ){
-    trice("isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i );
+    trice(iD(13002), "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i );
     i = 0;
   }
 #endif

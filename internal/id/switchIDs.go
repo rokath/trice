@@ -61,7 +61,7 @@ func (p *idData) removeIDFromIDSpace(id TriceID) {
 		for idx, iD := range e.iDSpace {
 			if iD == id {
 				if SearchMethod == "random" { // do not care about order inside tag.idSpace, so do it fast
-					fmt.Println("tag.idSpace=", e.iDSpace, "idx=", idx, "iD=", iD)
+					// fmt.Println("tag.idSpace=", e.iDSpace, "idx=", idx, "iD=", iD)
 					e.iDSpace[idx] = e.iDSpace[len(e.iDSpace)-1] // overwrite with last
 					e.iDSpace = e.iDSpace[:len(e.iDSpace)-1]     // remove last
 				} else { // keep order inside tag.idSpace, so do it costly

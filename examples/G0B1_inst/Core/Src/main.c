@@ -311,7 +311,7 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   TRICE_UNUSED(argument)
-  TRice("msg:StartDefaultTask\n");
+  TRice(iD(13003), "msg:StartDefaultTask\n");
   /* Infinite loop */
   for(;;)
   {
@@ -338,7 +338,7 @@ void StartTask02(void const * argument)
 {
   /* USER CODE BEGIN StartTask02 */
   TRICE_UNUSED(argument)
-  TRice("msg:StartTask02:Diagnostics and TriceTransfer\n" );
+  TRice(iD(13004), "msg:StartTask02:Diagnostics and TriceTransfer\n" );
   /* Infinite loop */
   for(;;)
   {

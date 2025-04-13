@@ -524,7 +524,7 @@ Trice is usable also inside interrupts and [extended format specifier possibilit
 
 ### 4.8. <a id='tags,-color-and-log-levels'></a>Tags, Color and Log Levels
 
-You can label each Trice with a tag specifier to [colorize](#trice-tags-and-color) the output. This is free of any runtime costs because the tags are part of the Trice log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each letter its color.
+You can label each Trice with a tag specifier to [colorize](#trice-tags-and-color) the output. This is free of any runtime costs because the tags are part of the Trice log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each message its color.
 
 Loggers use log levels and offer a setting like "log all above **INFO**" for example. The Trice tags can cover that but can do better: Inside package _emitter.ColorChannels_ in a single file [./internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) all common log levels defined as Trice tags alongside with user tags. The user can adjust this. The Trice tool has the `-pick` and `-ban` switches to control the display in detail. Also a `-logLevel` switch is usable to determine a display threshold as tag position inside ColorChannels.
 
@@ -730,7 +730,7 @@ When developing firmware, we get often different versions and variants in the de
 * Place the extracted Trice [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
 * Copy the src folder into your project and add all files.
 * Copy a triceConfig.h from a subfolder in the examples or test folder and optionally adapt it. See file [*triceDefaultConfig.h*](../src/triceDefaultConfig.h) for help.
-  * Inside the triceConfig.h file cou can control, if Trice works in direct or deferred mode or both parallel.
+  * Inside the triceConfig.h file you can control, if Trice works in direct or deferred mode or both parallel.
 
 ### 6.3. <a id='try-it'></a>Try it
 
@@ -1381,6 +1381,8 @@ $ go install ./cmd/trice/
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
 
+After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 10. <a id='-embedded-system-code-configuration'></a> Embedded system code configuration
@@ -1507,7 +1509,11 @@ trice l -ds -p COM3
 trice sd -r 192.168.1.23:45678
 ```
 
-#### 13.2.4. <a id='logfile-output'></a>Logfile output
+The IP address and port are free selectable. Using a display server, allows to watch the logs of one or many MCUs on a local or remote machine with the same or different display servers.
+
+A local Trice instance sends Trice messages to a display server only, when a log line is complete (if consisting of several Trices). By using the CLI switches `-prefix` and `-suffix` you can decorate the loglines target specific to distinguish them in the output window(s).
+
+##13.2.4. <a id='logfile-output'></a>Logfile output
 
 ```bash
 trice l -p COM3 -logfile auto
@@ -2999,6 +3005,11 @@ Please check the manuals and create a pull request or simply let me know.
 
 * [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) contains the code for this example.
 * The Trice tool, if knowing `wrn:` as pattern, prepends the appropriate color code. It removes the sequence `wrn:`, if it is known and completely lower case.
+  * The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give even each letter in a message its color.
+
+    `"wrn:fox"` will display colored "fox"
+    `"Wrn:fox"` will display colored "Wrn:fox"
+
 * The user can define any pattern with any color code to create colored output with the Trice tool.
 * There is no tag enable switch inside the target code. It would need a back channel and add overhead.
 * An option using tag specific ID ranges with optional routing exists.

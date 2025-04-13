@@ -90,8 +90,8 @@ extern "C" {
 #endif
 
 #ifndef TRICE_DEFAULT_PARAMETER_BIT_WIDTH
-//! TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the default parameter bit width for TRICE macros not specifying the parameter bit width: 8, 16, 32 or 64.
-//! If for example the majority of your values is 16 bit, it makes sense to set this value to 16 to use TRICE for them and to use TRICE32 explicitely for 32-bit values.
+//! TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the default parameter bit width for Trice macros not specifying the parameter bit width: 8, 16, 32 or 64.
+//! If for example the majority of your values is 16 bit, it makes sense to set this value to 16 to use Trice for them and to use Trice32 explicitely for 32-bit values.
 //! The trice tool CLI switch "-defaultTRICEBitwidth" needs to be set to the same bit width, default is 32.
 #define TRICE_DEFAULT_PARAMETER_BIT_WIDTH 32
 #endif
@@ -116,7 +116,7 @@ extern "C" {
 //! The TRICE_PROTECT switch is only relevant for the deferred trice modes TRICE_DOUBLE_BUFFER and TRICE_RING_BUFFER.
 //! The trice library works well, when less data are produced in the average than transmittable and when in the double buffer case the TriceTransfer
 //! function is called, before too much data in a half buffer according to a good configuration. If that is guarantied you do not need to enable TRICE_PROTECT.
-//! If because of an potential error this is not guarantied, you should enable TRICE_PROTECT. This slows down the TRICE macros a bit, but makes buffer overflows impossible.
+//! If because of an potential error this is not guarantied, you should enable TRICE_PROTECT. This slows down the Trice macros a bit, but makes buffer overflows impossible.
 //! A ring buffer cannot overflow in a first assumption, because old, not yet transmitted, trices are overwritten by newer ones.
 //! But that can happen only to parts of trices. The ring buffer read out function relies on consistent data. If it gets data garbage, wrong values
 //! for the trice lengths are possible and buffer overruns not avoidable. When enabling TRICE_PROTECT, new trices are only written into the deferred buffer,
@@ -126,13 +126,13 @@ extern "C" {
 #endif
 
 #if !defined(TRICE_BUFFER) && !TRICE_OFF
-//!  TRICE_BUFFER selects, where the TRICE macros accumulate the trice data during a single TRICE execution. Selectable options:
+//!  TRICE_BUFFER selects, where the Trice macros accumulate the trice data during a single Trice execution. Selectable options:
 //! - TRICE_STACK_BUFFER: No additional buffer is needed, what makes sense for single task systems with direct output only.
 //! - TRICE_STATIC_BUFFER: A single trice is stored in a separate static buffer, what makes sense for multi-tasking systems with direct output only.
-//! - TRICE_DOUBLE_BUFFER: TRICE macros write direct into a double buffer without any additional management action.
-//!   This is the fastest execution option for TRICE macros but needs more RAM. Used for deferred output and optional additional direct output.
-//! - TRICE_RING_BUFFER: TRICE macros write direct into a ring buffer without any additional management action.
-//!   This is a fast but not the fastest execution option for TRICE macros and needs less RAM. Used for deferred output and optional additional direct output.
+//! - TRICE_DOUBLE_BUFFER: Trice macros write direct into a double buffer without any additional management action.
+//!   This is the fastest execution option for Trice macros but needs more RAM. Used for deferred output and optional additional direct output.
+//! - TRICE_RING_BUFFER: Trice macros write direct into a ring buffer without any additional management action.
+//!   This is a fast but not the fastest execution option for Trice macros and needs less RAM. Used for deferred output and optional additional direct output.
 #error TRICE_BUFFER type not specified in triceConfig.h, please add "#define TRICE_BUFFER TRICE_RING_BUFFER" for example.
 #endif
 
@@ -304,7 +304,7 @@ extern "C" {
 #ifndef TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE
 //! TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1 speeds up RTT transfer by using function SEGGER_Write_RTT0_NoCheck32.
 //! - This setting results in unframed RTT trice packages and requires the `-packageFraming none` switch for the appropriate trice tool instance.
-//!   This squeezes the whole TRICE macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
+//!   This squeezes the whole Trice macro into about 100 processor clocks leaving the data already inside the SEGGER _acUpBuffer.
 //! - If you do not wish RTT, or wish RTT with framing, simply set this value to 0.
 //! - The trice tool CLI switch -d16 is needed too, because for alignment reasons the 16bit ID field is doubled for 16bit timestamp trice messages.
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 0
@@ -345,8 +345,8 @@ extern "C" {
 
 #ifndef TRICE_CYCLE_COUNTER
 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message.
-//! If 0, do not add cycle counter. The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool. The cycle counter byte ist statically 0xC0.
-//! If 1, add an 8-bit cycle counter. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool. The cycle counter byte changes (recommended).
+//! If 0, do not add cycle counter. The Trice macros are a bit faster. Lost TRICEs are not detectable by the trice tool. The cycle counter byte ist statically 0xC0.
+//! If 1, add an 8-bit cycle counter. The Trice macros are a bit slower. Lost TRICEs are detectable by the trice tool. The cycle counter byte changes (recommended).
 #define TRICE_CYCLE_COUNTER 1
 #endif
 
