@@ -4,8 +4,11 @@
 package id_test
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -923,4 +926,94 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 		}
 		assert.True(t, r)
 	}
+}
+
+// TestInsertIDsForNewTrice2 checks for correct line numer in case of an format string / parameter count error.
+// This test needs a modified insertTriceIDs function: Inside if !SkipAdditionalChecks { replace os.Exit(-1) with return }
+func _TestInsertIDsForNewTrice_Issue_5xx(t *testing.T) {
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+
+	fn0 := t.Name() + "file0.c"
+	fn1 := t.Name() + "file1.c"
+
+	testSet := []SrcFile{
+		// fn: in:                                                   expected:
+		{fn0, `TRice(iD(1200), "Hi!" ); trice(iD(1201), "Lo!" );`, `TRice(iD(1200), "Hi!" ); trice(iD(1201), "Lo!" );`},
+		{fn1, // in
+			`	break; case __LINE__: triceS("msg:With triceS:%s\n", sABCDE ); // line 1
+				TRice("hi %d", 5 );                                            // line 2
+				TRice("hi %d %d", 5, 5 );                                      // line 3
+				// don` + "'" + `t forget
+				trice("lo!" );                                                 // line 5
+				TRice("hi %d", 5, 5 );                                         // line 6
+				break; case __LINE__: triceS("msg:With triceS:%s\n", sABCDE );
+				trice32("msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );`,
+
+			// expected
+			`	break; case __LINE__: triceS(iD(1202), "msg:With triceS:%s\n", sABCDE ); // line 1
+				TRice(iD(1203), "hi %d", 5 );                                            // line 2
+				TRice(iD(1204), "hi %d %d", 5, 5 );                                      // line 3
+				// don` + "'" + `t forget
+				trice(iD(1205), "lo!" );                                                 // line 5
+				TRice(iD(1206), "hi %d", 5 );                                            // line 6
+				break; case __LINE__: triceS(iD(1207), "msg:With triceS:%s\n", sABCDE );
+				trice32(iD(1206), "msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );`},
+	}
+
+	// create src files
+	for _, k := range testSet {
+		assert.Nil(t, FSys.WriteFile(k.Fn, []byte(k.Clean), 0777))
+	}
+
+	// action 0
+	assert.Nil(t, args.Handler(os.Stdout, FSys, []string{"trice", "add", "-src", fn0, "-src", fn1, "-til", FnJSON, "-li", LIFnJSON}))
+
+	// check til.json
+	expTil := `{
+	"1200": {
+		"Type": "TRice",
+		"Strg": "Hi!"
+	},
+	"1201": {
+		"Type": "trice",
+		"Strg": "Lo!"
+	}
+}`
+	actTil, e := FSys.ReadFile(FnJSON)
+	assert.Nil(t, e)
+	result := expTil == string(actTil)
+	if !result {
+		fmt.Println("ACTUAL TIL:", string(actTil))
+		fmt.Println("EXPECT TIL:", expTil)
+	}
+	assert.True(t, result)
+
+	// check li.json
+	expLI := `{
+	"1200": {
+		"File": "TestInsertIDsForNewTrice_Issue_5xxfile0.c",
+		"Line": 1
+	},
+	"1201": {
+		"File": "TestInsertIDsForNewTrice_Issue_5xxfile0.c",
+		"Line": 1
+	}
+}`
+	actLI, e := FSys.ReadFile(LIFnJSON)
+	assert.Nil(t, e)
+	result = expLI == string(actLI)
+	if !result {
+		fmt.Println("ACTUAL LI:", string(actLI))
+		fmt.Println("EXPECT LI:", expLI)
+	}
+	assert.True(t, result)
+
+	// action 1 (2nd action)
+	IDData.TagList = IDData.TagList[:0] // reset ID space
+	var o bytes.Buffer
+	e = args.Handler(io.Writer(&o), FSys, []string{"trice", "insert", "-src", fn0, "-src", fn1, "-IDMin=1200", "-IDMax=1299", "-IDMethod=upward", "-til", FnJSON, "-li", LIFnJSON})
+	assert.Error(t, e)
+	expMsg := "TestInsertIDsForNewTrice_Issue_5xxfile1.c line 6 format specifier count 1 != parameter count 2 for {TRice hi %d}"
+	actMsg := o.String()
+	assert.True(t, strings.HasPrefix(actMsg, expMsg))
 }
