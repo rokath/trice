@@ -24,7 +24,7 @@ Log in (a) trice ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif
 
 even inside **↯ interrupts** in less than 1 µs❗
 
-## About (Release 1.0 comming soon...)
+## About
 
 - Replace `printf` or `log` in **C**-code for getting:
   - **[Speed](./docs/TriceUserManual.md/#trice-speed)**, to be usable also **inside interrupts**,
