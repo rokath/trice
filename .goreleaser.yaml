@@ -87,7 +87,7 @@ archives:
     # If format is `binary`, no archives are created and the binaries are instead
     # uploaded directly.
     # Default is `tar.gz`.
-    format: tar.gz
+    formats: tar.gz
     
     # use zip for windows archives
     # Can be used to change the archive formats for specific GOOSs.
@@ -95,7 +95,7 @@ archives:
     # Default is empty.
     format_overrides:
     - goos: windows
-      format: zip
+      formats: [ 'zip' ]
     # Additional files/globs you want to add to the archive.
     # Defaults are any files matching `LICENCE*`, `LICENSE*`,
     # `README*` and `CHANGELOG*` (case-insensitive).
