@@ -19,8 +19,8 @@ import (
 
 const (
 
-	// patSourceFile is a regex pattern matching any source file for patching
-	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
+	// patSourceFile is a regex pattern matching any source file for patching (https://stackoverflow.com/questions/1545080/c-code-file-extension-what-is-the-difference-between-cc-and-cpp)
+	patSourceFile = "(\\.c|\\.cc|\\.cp|\\.cxx|\\.cpp|\\.CPP|\\.c\\+\\+|\\.C|\\.h|\\.hh|\\.hp|\\.hxx|\\.hpp|\\.HPP|\\.h\\+\\+|\\.H|\\.ixx|\\.inc)$"
 
 	// patTypNameTRICE matches any TRICE name variant. The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
 	patTypNameTRICE = `(?iU)(\b((TRICE((0|_0|AssertTrue|AssertFalse)|((8|16|32|64)*(_*[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/xuD9ar/1

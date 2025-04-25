@@ -1,6 +1,8 @@
 module github.com/rokath/trice
 
-go 1.20
+go 1.23.0
+
+toolchain go1.23.4
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0
