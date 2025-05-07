@@ -81,24 +81,24 @@
 
 #define Trice8m_0(tid)                             \
 	TRICE_ENTER                                    \
-	uint16_t ts = TriceStamp16;                    \
+	uint16_t ts_Trice8m_0 = TriceStamp16;                    \
 	TRICE_PUT(0x80008000 | (tid << 16) | (tid));   \
-	TRICE_PUT(0 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT(0 << 24 | (TRICE_CYCLE << 16) | ts_Trice8m_0); \
 	TRICE_LEAVE
 
 #define Trice8m_1(tid, v0)                         \
 	TRICE_ENTER                                    \
-	uint16_t ts = TriceStamp16;                    \
+	uint16_t ts_Trice8m_1 = TriceStamp16;                    \
 	TRICE_PUT(0x80008000 | (tid << 16) | (tid));   \
-	TRICE_PUT(1 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT(1 << 24 | (TRICE_CYCLE << 16) | ts_Trice8m_1); \
 	TRICE_PUT8_1(v0)                               \
 	TRICE_LEAVE
 
 #define Trice8m_2(tid, v0, v1)                     \
 	TRICE_ENTER                                    \
-	uint16_t ts = TriceStamp16;                    \
+	uint16_t ts_Trice8m_2 = TriceStamp16;                    \
 	TRICE_PUT(0x80008000 | (tid << 16) | (tid));   \
-	TRICE_PUT(2 << 24 | (TRICE_CYCLE << 16) | ts); \
+	TRICE_PUT(2 << 24 | (TRICE_CYCLE << 16) | ts_Trice8m_0); \
 	TRICE_PUT8_2(v0, v1);                          \
 	TRICE_LEAVE
 

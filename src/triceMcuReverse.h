@@ -46,11 +46,11 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT16_1616(x, ts) /* little endian */        \
 	do {                                                   \
-		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-		*p++ = TRICE_HTOTS(x);                             \
-		*p++ = TRICE_HTOTS(ts);         /* lo */           \
-		*p++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
-		TriceBufferWritePosition = (uint32_t*)p;           \
+		uint16_t* p_TRICE_PUT16_1616 = (uint16_t*)TriceBufferWritePosition; \
+		*p_TRICE_PUT16_1616++ = TRICE_HTOTS(x);                             \
+		*p_TRICE_PUT16_1616++ = TRICE_HTOTS(ts);         /* lo */           \
+		*p_TRICE_PUT16_1616++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
+		TriceBufferWritePosition = (uint32_t*)p_TRICE_PUT16_1616;           \
 	} while (0)
 
 #define TRICE_PUT64(x)                     \
@@ -62,11 +62,11 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT16_1616(x, ts) /* big endian */           \
 	do {                                                   \
-		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-		*p++ = TRICE_HTOTS(x);                             \
-		*p++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
-		*p++ = TRICE_HTOTS(ts);         /* lo */           \
-		TriceBufferWritePosition = (uint32_t*)p;           \
+		uint16_t* p_TRICE_PUT16_1616 = (uint16_t*)TriceBufferWritePosition; \
+		*p_TRICE_PUT16_1616++ = TRICE_HTOTS(x);                             \
+		*p_TRICE_PUT16_1616++ = TRICE_HTOTS((ts) >> 16); /* hi */           \
+		*p_TRICE_PUT16_1616++ = TRICE_HTOTS(ts);         /* lo */           \
+		TriceBufferWritePosition = (uint32_t*)p_TRICE_PUT16_1616;           \
 	} while (0)
 
 #define TRICE_PUT64(x)                           \

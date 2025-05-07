@@ -109,10 +109,10 @@ extern "C" {
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
 TRICE_INLINE uint32_t aFloat(float f) {
 	union {
-		float from;
-		uint32_t to;
-	} pun = {.from = f};
-	return pun.to;
+		float from_aFloat;
+		uint32_t to_aFloat;
+	} pun = {.from_aFloat = f};
+	return pun.to_aFloat;
 }
 
 // aDouble returns passed double value x as bit pattern in a uint64_t type.
@@ -120,9 +120,9 @@ TRICE_INLINE uint64_t aDouble(double x) {
 	union {
 		double d;
 		uint64_t u;
-	} t;
-	t.d = x;
-	return t.u;
+	} t_aDouble;
+	t_aDouble.d = x;
+	return t_aDouble.u;
 }
 
 // Just in case you are receiving Trice messages containing uint32_t values to be interpreted as float:
@@ -178,7 +178,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 
 // global variables:
 
-extern uint32_t* const triceSingleBufferStartWritePosition;
+extern uint32_t* const triceSingleBufferStartWritePositionXXX;
 extern unsigned TricesCountRingBuffer;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
@@ -283,9 +283,9 @@ extern uint32_t* TriceBufferWritePosition;
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
 #define TRICE_PUT16(x)                                     \
 	do {                                                   \
-		uint16_t* p = (uint16_t*)TriceBufferWritePosition; \
-		*p++ = TRICE_HTOTS(x);                             \
-		TriceBufferWritePosition = (uint32_t*)p;           \
+		uint16_t* p_TRICE_PUT16 = (uint16_t*)TriceBufferWritePosition; \
+		*p_TRICE_PUT16++ = TRICE_HTOTS(x);                             \
+		TriceBufferWritePosition = (uint32_t*)p_TRICE_PUT16;           \
 	} while (0)
 
 #include "trice8.h"
@@ -607,19 +607,19 @@ extern uint32_t* TriceBufferWritePosition;
 #define TRICE_N(tid, pFmt, buf, n)                                                                                                   \
 	do {                                                                                                                             \
 		TRICE_UNUSED(pFmt);                                                                                                          \
-		uint32_t limit = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
-		uint32_t len_ = n;                           /* n could be a constant */                                                     \
-		if (len_ > limit) {                                                                                                          \
+		uint32_t limit_TRICE_N = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
+		uint32_t len_TRICE_N = n;                           /* n could be a constant */                                                     \
+		if (len_TRICE_N > limit_TRICE_N) {                                                                                                          \
 			TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                \
-			len_ = limit;                                                                                                            \
+			len_TRICE_N = limit_TRICE_N;                                                                                                            \
 		}                                                                                                                            \
 		TRICE_ENTER tid;                                                                                                             \
-		if (len_ <= 127) {                                                                                                           \
-			TRICE_CNTC(len_);                                                                                                        \
+		if (len_TRICE_N <= 127) {                                                                                                           \
+			TRICE_CNTC(len_TRICE_N);                                                                                                        \
 		} else {                                                                                                                     \
-			TRICE_LCNT(len_);                                                                                                        \
+			TRICE_LCNT(len_TRICE_N);                                                                                                        \
 		}                                                                                                                            \
-		TRICE_PUT_BUFFER(buf, len_);                                                                                                 \
+		TRICE_PUT_BUFFER(buf, len_TRICE_N);                                                                                                 \
 		TRICE_LEAVE                                                                                                                  \
 	} while (0)
 
@@ -669,8 +669,8 @@ void TRice64F(int tid, char* fmt, void* buf, uint32_t n);
 //! \param runtimeGeneratedString 0-terminated runtime generated string
 #define TRICE_S(tid, pFmt, runtimeGeneratedString)        \
 	do {                                                  \
-		uint32_t ssiz = strlen(runtimeGeneratedString);   \
-		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz); \
+		uint32_t ssiz_TRICE_S = strlen(runtimeGeneratedString);   \
+		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
 
 void triceS(int tid, char* fmt, char* runtimeGeneratedString);
@@ -684,8 +684,8 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 //! C000 = 1100 0000 0000 0000
 #define ID(n)                                 \
 	do {                                      \
-		uint32_t ts = TriceStamp32;           \
-		TRICE_PUT16_1616((0xC000 | (n)), ts); \
+		uint32_t ts_ID = TriceStamp32;           \
+		TRICE_PUT16_1616((0xC000 | (n)), ts_ID); \
 	} while (0)
 
 //! Id writes 14-bit id with 10 as 2 most significant bits two times, followed by a 16-bit stamp.
@@ -693,9 +693,9 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 //! 8000 = 1000 0000 0000 0000
 #define Id(n)                                                   \
 	do {                                                        \
-		uint16_t ts = TriceStamp16;                             \
+		uint16_t ts_Id = TriceStamp16;                             \
 		TRICE_PUT(TRICE_HTOTL(0x80008000 | ((n) << 16) | (n))); \
-		TRICE_PUT16(ts);                                        \
+		TRICE_PUT16(ts_Id);                                        \
 	} while (0)
 
 //! id writes 14-bit id with 01 as 2 most significant bits, followed by no stamp.
@@ -709,8 +709,8 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 //! TRICE_CNTC writes 7-bit byte count and 8-bit cycle counter.
 #define TRICE_CNTC(count)                          \
 	do {                                           \
-		uint16_t v = ((count) << 8) | TRICE_CYCLE; \
-		TRICE_PUT16(v);                            \
+		uint16_t v_TRICE_CNTC = ((count) << 8) | TRICE_CYCLE; \
+		TRICE_PUT16(v_TRICE_CNTC);                            \
 	} while (0)
 
 #if TRICE_CYCLE_COUNTER == 1

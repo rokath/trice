@@ -9,7 +9,7 @@
 uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE >> 2];
 
 //! triceSingleBufferStartWritePosition points to trice data start.
-uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET >> 2];
+uint32_t* const triceSingleBufferStartWritePositionXXX = &triceSingleBuffer[TRICE_DATA_OFFSET >> 2];
 
 void TriceTransfer(void) {}
 
