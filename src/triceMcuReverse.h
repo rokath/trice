@@ -79,10 +79,14 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 #define IdLH TRICE_HTOTS(0x8000 | (tid)) //!< IdLH is the 16-bit-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
 #define IDLH TRICE_HTOTS(0xc000 | (tid)) //!< IDLH is the 32-bit-stamp tid, byte swapped to be used in TRICE_PUT, when TRICE_REVERSE == 1.
 
-#define tsL ((0x00ff & ts) << 8)
-#define tsH ((0xff00 & ts) >> 8)
+
+//#define tsL ((0x00ff & ts) << 8)
+//#define tsH ((0xff00 & ts) >> 8)
+#define TRICE16_LO_BYTE(x16) ((0x00ff & x16) << 8) // was #define tsL ((0x00ff & ts) << 8)
+#define TRICE16_HI_BYTE(x16) ((0xff00 & x16) >> 8) // was #define tsH ((0xff00 & ts) >> 8)
 
 #define tsHH ((0xFF000000 & ts) >> 8)
 #define tsHL ((0x00FF0000 & ts) << 8)
 #define tsLH ((0x0000FF00 & ts) >> 8)
 #define tsLL ((0x000000FF & ts) << 8)
+

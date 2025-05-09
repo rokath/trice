@@ -178,7 +178,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 
 // global variables:
 
-extern uint32_t* const triceSingleBufferStartWritePositionXXX;
+extern uint32_t* const triceSingleBufferStartWritePosition;
 extern unsigned TricesCountRingBuffer;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
