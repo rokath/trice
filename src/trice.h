@@ -178,7 +178,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 
 // global variables:
 
-extern uint32_t* const triceSingleBufferStartWritePosition;
+extern uint32_t* triceSingleBufferStartWritePosition;
 extern unsigned TricesCountRingBuffer;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
@@ -372,7 +372,7 @@ extern uint32_t* TriceBufferWritePosition;
 #if TRICE_DIAGNOSTICS == 1
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER_KEEP_START \
-	uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+	triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
 #define TRICE_DIAGNOSTICS_SINGLE_BUFFER                                                                        \
 	do {                                                                                                       \
@@ -404,7 +404,7 @@ extern uint32_t* TriceBufferWritePosition;
 			TRICE_ENTER_CRITICAL_SECTION {                                                                            \
 				{                                                                                                     \
 					uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE >> 2]; /* no = {0} here for speed */                 \
-					uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET >> 2]; \
+					triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET >> 2]; \
 					uint32_t* TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 	#endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER
@@ -427,7 +427,7 @@ extern uint32_t* TriceBufferWritePosition;
 			#define TRICE_ENTER                \
 				TRICE_ENTER_CRITICAL_SECTION { \
 					if (TriceEnoughSpace()) {  \
-						uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+						triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
 		#else //  #if TRICE_PROTECT == 1
 
@@ -435,7 +435,7 @@ extern uint32_t* TriceBufferWritePosition;
 			#define TRICE_ENTER                \
 				TRICE_ENTER_CRITICAL_SECTION { \
 					{                          \
-						uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;
+						triceSingleBufferStartWritePosition = TriceBufferWritePosition;
 
 		#endif // #else //  #if TRICE_PROTECT == 1
 
@@ -475,7 +475,7 @@ extern uint32_t* TriceBufferWritePosition;
 				/* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */                                      \
 				TriceBufferWritePosition = TriceBufferWritePosition <= TriceRingBufferProtectLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
 				if (TriceEnoughSpace()) {                                                                                                                                           \
-					uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
+					triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
 					TricesCountRingBuffer++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 		#else //  #if TRICE_PROTECT == 1
@@ -489,7 +489,7 @@ extern uint32_t* TriceBufferWritePosition;
 						/* If this space is not given anymore, the `TriceBufferWritePosition` is reset to the start address of the ring buffer. */                                  \
 						/* This implementation is a bit different than a ring buffer is usually implemented. */                                                                     \
 						TriceBufferWritePosition = TriceBufferWritePosition <= TriceRingBufferProtectLimit ? TriceBufferWritePosition : TriceRingBufferStart; \
-						uint32_t* const triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
+						triceSingleBufferStartWritePosition = TriceBufferWritePosition;                                                                             \
 						TricesCountRingBuffer++; // Because TRICE macros are an atomic instruction normally, this can be done here.
 
 		#endif // #else //  #if TRICE_PROTECT == 1

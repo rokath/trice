@@ -7,6 +7,8 @@
 
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
 
+uint32_t* triceSingleBufferStartWritePosition = (void*)0;
+
 static void TriceOut(uint32_t* tb, size_t tLen);
 
 //! triceBuffer is a double buffer for better write speed.

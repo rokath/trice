@@ -7,6 +7,8 @@
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_OFF == 0
 
+uint32_t* triceSingleBufferStartWritePosition = (void*)0;
+
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 static void triceSingleDeferredOut(int* wordCount);
 #else
