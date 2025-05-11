@@ -8,14 +8,35 @@ then
 fi
 
 ./renewIDs_in_examples_and_refresh_test_folder.sh
-go clean -cache
+go clean -cache -testcache
 go test ./...
-./trice_insertIDs_in_examples_and_test_folder.sh
 
+./trice_insertIDs_in_examples_and_test_folder.sh
 cd _test
 go test ./...
 cd - >/dev/null
+./trice_cleanIDs_in_examples_and_test_folder.sh
 
+./trice_insertIDs_in_examples_and_test_folder.sh
+cd examples
+./cleanAllTargets.sh
+echo "Translating all examples with TRICE_OFF..."
+./buildAllTargets_TRICE_OFF.sh
+echo "Translating all examples with TRICE_OFF...done"
+./cleanAllTargets.sh
+echo "Translating all examples with TRICE_ON..."
+./buildAllTargets_TRICE_ON.sh
+echo "Translating all examples with TRICE_ON...done"
+./cleanAllTargets.sh
+cd - >/dev/null
+./trice_cleanIDs_in_examples_and_test_folder.sh
+
+./trice_insertIDs_in_examples_and_test_folder.sh
+cd examples/L432_inst
+echo "Translating all L432 configurations..."
+./all_configs_build.sh
+echo "Translating all L432 configurations...done"
+cd - >/dev/null
 ./trice_cleanIDs_in_examples_and_test_folder.sh
 
 t1=`date +%s`

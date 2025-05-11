@@ -271,12 +271,12 @@ extern uint32_t* TriceBufferWritePosition;
 #define idLH idLH
 #define IdLH IdLH
 #define IDLH IDLH
-#define tsL tsL
-#define tsH tsH
-#define tsHH tsHH
-#define tsHL tsHL
-#define tsLH tsLH
-#define tsLL tsLL
+//#define tsL tsL
+//#define tsH tsH
+//#define tsHH tsHH
+//#define tsHL tsHL
+//#define tsLH tsLH
+//#define tsLL tsLL
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -306,12 +306,12 @@ extern uint32_t* TriceBufferWritePosition;
 #undef idLH
 #undef IdLH
 #undef IDLH
-#undef tsL
-#undef tsH
-#undef tsHH
-#undef tsHL
-#undef tsLH
-#undef tsLL
+// #undef tsL
+// #undef tsH
+// #undef tsHH
+// #undef tsHL
+// #undef tsLH
+// #undef tsLL
 
 #if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)
 
