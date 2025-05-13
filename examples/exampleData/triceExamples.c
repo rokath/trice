@@ -41,8 +41,8 @@ void SomeExampleTrices(int burstCount) {
 	char* aString = "2.71828182845904523536";
 	TriceS("rd:%s <- float number as string\n", aString);
 	Trice64("msg:%.20f (double with more ciphers than precision)\n", aDouble(2.71828182845904523536));
-	Trice("msg:%.20f (float  with more ciphers than precision)\n", aFloat(2.71828182845904523536));
-	Trice("msg:%f (default rounded float)\n", aFloat(2.71828182845904523536));
+	Trice("msg:%.20f (float  with more ciphers than precision)\n", aFloat(2.71828182845904523536f));
+	Trice("msg:%f (default rounded float)\n", aFloat(2.71828182845904523536f));
 	Trice("info:A Buffer:\n");
 	Trice8B("msg:%02x \n", aString, strlen(aString));
 	Trice32B("msg:%08x  \n", aString, strlen(aString) >> 2);

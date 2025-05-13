@@ -46,27 +46,26 @@ C_FLAGS += -Ofast                 # -Ofast optimizes for speed.
 #C_FLAGS += -g #                     # -g includes debug information into the ELF.
  C_FLAGS += -g3 #                   # -g3 include, a couple extra goodies such as macro definitions used in your application.
 
-#C_FLAGS += -Wunused-parameter
-
- C_FLAGS += -Wall #                 # -Wall enables a base set of warnings generally agreed upon as being useful and easy to fix.
-### C_FLAGS += -Wextra                # -Wextra enables an additional set of flags not covered by -Wall
-#C_FLAGS += -Werror                # -Werror causes all enabled warnings to cause compilation errors. 
+ C_FLAGS += -Wall                  # -Wall enables a base set of warnings generally agreed upon as being useful and easy to fix.
+ C_FLAGS += -Wextra                # -Wextra enables an additional set of flags not covered by -Wall
+ C_FLAGS += -Wno-unused-parameter  # Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c:...
+ C_FLAGS += -Wno-sign-conversion   # Drivers/CMSIS/Include/core_cm4.h
+ C_FLAGS += -Wno-conversion        # Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h
+ C_FLAGS += -Werror                # -Werror causes all enabled warnings to cause compilation errors. 
 #C_FLAGS += -Wdocumentation        # -Wdocumentation can catch errors in comments.
                                    # -Wno-<warning> to disable the warning altogether
                                    # -Wno-error=<warning> to keep the warning enabled but not trigger an error.
-### C_FLAGS += -Wshadow               # -Wshadow detects shadowing variables.
-### C_FLAGS += -Wdouble-promotion     # -Wdouble-promotion catches implicit double promotion takes place. (https://interrupt.memfault.com/blog/best-and-worst-gcc-clang-compiler-flags#-wdouble-promotion)
-#C_FLAGS += -Wformat               #
-#C_FLAGS += -Wformat=2             #
-#C_FLAGS += -Wformat-security      #
-#C_FLAGS += -Wformat-overflow      #
-#C_FLAGS += -Wformat-truncation    #
-### C_FLAGS += -Wundef                # -Wundef warns, if an undefined macro silently evaluating as 0 and causing unexpected behavior.
-#C_FLAGS += -Wstack-usage=256      # -Wstack-usage=<limit> emits a warning when stack usage exceeds limit bytes.
-### C_FLAGS += -Wstack-protector
-##C_FLAGS += -Wconversion           # -Wconversion generates warnings when implicit conversions that are likely to change the underlying value take place. (https://interrupt.memfault.com/blog/best-and-worst-gcc-clang-compiler-flags#-wconversion)
+ C_FLAGS += -Wshadow               # -Wshadow detects shadowing variables.
+ C_FLAGS += -Wdouble-promotion     # -Wdouble-promotion catches implicit double promotion takes place. (https://interrupt.memfault.com/blog/best-and-worst-gcc-clang-compiler-flags#-wdouble-promotion)
+ C_FLAGS += -Wformat               #
+ C_FLAGS += -Wformat=2             #
+ C_FLAGS += -Wformat-security      #
+ C_FLAGS += -Wformat-overflow      #
+ C_FLAGS += -Wformat-truncation    #
+ C_FLAGS += -Wundef                # -Wundef warns, if an undefined macro silently evaluating as 0 and causing unexpected behavior.
+ C_FLAGS += -Wstack-usage=300      # -Wstack-usage=<limit> emits a warning when stack usage exceeds limit bytes.
+ C_FLAGS += -Wstack-protector
 #C_FLAGS += -Wpadded               # -Wpadded warns if padding is added to a structure due to alignment requirements.
-### C_FLAGS += -Wunused-parameter     # -Wunused-parameter will detect when a parameter passed to a function is never used in the function. 
 #C_FLAGS += -Wl,--no-warn-rwx-segments
 #C_FLAGS += -Wl,--no-warn-execstack # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
 

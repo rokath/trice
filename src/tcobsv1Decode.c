@@ -17,6 +17,7 @@ int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict inpu
 	int ilen = (int)length; // remaining input length
 	uint8_t* out = (uint8_t*)output;
 	int olen = 0; // output length
+	int Max = (int)max;
 	while (ilen > 0) {
 		uint8_t next = in[ilen - 1]; // get next sigil byte (starting from the end)
 		uint8_t sigil;
@@ -32,46 +33,46 @@ int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict inpu
 
 		case Z3:
 			olen += 1;
-			out[max - olen] = 0;
+			out[Max - olen] = 0;
 			// fallthrough
 		case Z2:
 			olen += 1;
-			out[max - olen] = 0;
+			out[Max - olen] = 0;
 			// fallthrough
 		case Z1:
 			olen += 1;
-			out[max - olen] = 0;
+			out[Max - olen] = 0;
 			goto copyBytes;
 
 		case F4:
 			olen += 1;
-			out[max - olen] = 0xFF;
+			out[Max - olen] = 0xFF;
 			// fallthrough
 		case F3:
 			olen += 1;
-			out[max - olen] = 0xFF;
+			out[Max - olen] = 0xFF;
 			// fallthrough
 		case F2:
 			olen += 1;
-			out[max - olen] = 0xFF;
+			out[Max - olen] = 0xFF;
 			olen += 1;
-			out[max - olen] = 0xFF;
+			out[Max - olen] = 0xFF;
 			goto copyBytes;
 
 		case R4:
 			olen += 1;
-			out[max - olen] = repeatByte(offset, in, ilen);
+			out[Max - olen] = repeatByte(offset, in, ilen);
 			// fallthrough
 		case R3:
 			olen += 1;
-			out[max - olen] = repeatByte(offset, in, ilen);
+			out[Max - olen] = repeatByte(offset, in, ilen);
 			// fallthrough
 		case R2:
 			r = repeatByte(offset, in, ilen);
 			olen += 1;
-			out[max - olen] = r;
+			out[Max - olen] = r;
 			olen += 1;
-			out[max - olen] = r;
+			out[Max - olen] = r;
 			goto copyBytes;
 
 		default:
@@ -79,12 +80,12 @@ int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict inpu
 		}
 
 	copyBytes: {
-		uint8_t* to = out + max - olen - offset; // to := len(d) - n - offset
+		uint8_t* to = out + Max - olen - offset; // to := len(d) - n - offset
 		uint8_t* from = in + ilen - offset;      // from := len(in) - offset // sigil byte is already removed
 		if (to < out) {
 			return OUT_BUFFER_TOO_SMALL - __LINE__;
 		}
-		memcpy(to, from, offset); // n += copy(d[to:], in[from:])
+		memcpy(to, from, (size_t)offset); // n += copy(d[to:], in[from:])
 		olen += offset;
 		ilen -= offset; // in = in[:len(in)-offset] // remove copied bytes
 		continue;

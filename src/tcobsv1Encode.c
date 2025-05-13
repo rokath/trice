@@ -65,7 +65,7 @@
 			*o++ = N | offset;                    \
 			offset = 0;                           \
 		}                                         \
-		*o++ = ((reptCount - 1) << 3) | offset;   \
+		*o++ = (uint8_t)(((reptCount - 1) << 3) | offset);   \
 		offset = 0;                               \
 		reptCount = 0;                            \
 	}
