@@ -41,7 +41,7 @@ extern "C" {
 #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
-void TriceHeadLine(char* name);
+void TriceHeadLine(char const* name);
 void LogTriceConfiguration(void);
 void SomeExampleTrices(int burstCount);
 

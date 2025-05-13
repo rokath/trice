@@ -33,7 +33,7 @@ void TriceCheck(int n) {
 #ifdef TRICE_CHECK_MIN
     TRice("\rTriceCheck %4d", n);
 #else // #ifdef TRICE_CHECK_MIN
-    char const * sABCDE = "abcde 12345";
+    char * sABCDE = "abcde 12345";
     uint32_t lenABCDE = strlen(sABCDE);
     float  x = (float)1089.6082763671875; // 0x44883377
     double y = 518.0547492508867; // 0x4080307020601050
