@@ -207,6 +207,8 @@ void triceTransferSingleFraming(void) {
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 
+void triceTransferMultiFraming(void);
+
 //! triceTransferMultiFraming transfers several, but not necessarily all, Trices from the Ring Buffer.
 void triceTransferMultiFraming(void) {
 	triceRingBufferDiagnostics(); // We need to measure before the RingBufferReadPosition increment.

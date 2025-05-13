@@ -76,8 +76,9 @@ C_FLAGS += -Ofast                 # -Ofast optimizes for speed.
 #C_FLAGS += -Wunused-parameter     # Warn whenever a function parameter is unused aside from its declaration. To suppress this warning use the `unused' attribute (see Variable Attributes). 
  C_FLAGS += -Wunknown-pragmas
  C_FLAGS += -fstrict-aliasing
- C_FLAGS += -fstrict-overflow
- C_FLAGS += -Wstrict-overflow=5
+#C_FLAGS += -fstrict-overflow
+#C_FLAGS += -Wstrict-overflow=5    # TODO: enable
+ C_FLAGS += -Wno-sign-compare      # TODO: disable
  C_FLAGS += -Wfloat-equal          # Warn if floating point values are used in equality comparisons.
  C_FLAGS += -Wundef                # Warn if an undefined identifier is evaluated in an `#if' directive. 
 #C_FLAGS += -Wlarger-than=512      # Warn whenever an object of larger than len bytes is defined.
