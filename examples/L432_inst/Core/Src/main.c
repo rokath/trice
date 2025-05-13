@@ -60,10 +60,10 @@ void StartTask02(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-__weak int _close(void) { return -1; }
-__weak int _lseek(void) { return -1; }
-__weak int _read (void) { return -1; }
-__weak int _write(void) { return -1; }
+int _close(void); __weak int _close(void) { return -1; }
+int _lseek(void); __weak int _lseek(void) { return -1; }
+int _read (void); __weak int _read (void) { return -1; }
+int _write(void); __weak int _write(void) { return -1; }
 
 volatile uint32_t * const DWT_CONTROL = (uint32_t *) 0xE0001000;
 volatile uint32_t * const DWT_CYCCNT = (uint32_t *) 0xE0001004;

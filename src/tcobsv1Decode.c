@@ -12,6 +12,8 @@
 static int sigilAndOffset(uint8_t* sigil, uint8_t b);
 static uint8_t repeatByte(int offset, uint8_t* in, int len);
 
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
+
 int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict input, size_t length) {
 	uint8_t* in = (uint8_t*)input;
 	int ilen = (int)length; // remaining input length

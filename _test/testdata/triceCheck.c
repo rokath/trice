@@ -33,7 +33,7 @@ void TriceCheck(int n) {
 #ifdef TRICE_CHECK_MIN
     TRice("\rTriceCheck %4d", n);
 #else // #ifdef TRICE_CHECK_MIN
-    char* sABCDE = "abcde 12345";
+    char const * sABCDE = "abcde 12345";
     uint32_t lenABCDE = strlen(sABCDE);
     float  x = (float)1089.6082763671875; // 0x44883377
     double y = 518.0547492508867; // 0x4080307020601050
@@ -2591,7 +2591,7 @@ static int64_t DoubleToInt64(double f) {
 //! SCOPY is a helper macro for struct serialization.
 #define SCOPY(element)                       \
 	do {                                     \
-		char* n_SCOPY = #element;                  \
+		char const * n_SCOPY = #element;                  \
 		size_t size_SCOPY = sizeof(src->element);     \
 		memcpy(p, &(src->element), size_SCOPY);    \
 		p += size_SCOPY;                           \
@@ -2602,7 +2602,7 @@ static int64_t DoubleToInt64(double f) {
 //! DCOPY is a helper macro for struct deserialization.
 #define DCOPY(element)                       \
 	do {                                     \
-		char* n_DCOPY = #element;                  \
+		char const * n_DCOPY = #element;                  \
 		size_t size_DCOPY = sizeof(dst->element);     \
 		memcpy(&(dst->element), p, size_DCOPY);    \
 		p += size_DCOPY;                           \
@@ -2760,7 +2760,7 @@ static void exampleOfManualJSONencoding(void) {
 }
 
 static void dynString(int n) {
-	char* s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
+	char const* s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
 	const size_t l = strlen(s);
         size_t N_dynString = (size_t)n; // avoid warning: comparison of integer expressions of different signedness: 'int' and 'size_t' 
 	N_dynString = N_dynString < l ? N_dynString : l;

@@ -23,7 +23,7 @@ extern volatile uint32_t * const LAR; // lock access register
 #define TriceStamp16 ((uint16_t)(*DWT_CYCCNT)) // @64MHz wraps after a bit more than 1ms (MCU clocks) 
 #define TriceStamp32            (*DWT_CYCCNT)  // @64MHz -> 1 µs, wraps after 2^32 µs ~= 1.2 hours
 
-void TriceHeadLine(char* name);
+void TriceHeadLine(char const * name);
 void LogTriceConfiguration( void );
 void SomeExampleTrices(int burstCount);
 
