@@ -13,12 +13,12 @@
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
 
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-#define TRICE_PUT16_1616(x, ts) /* little endian */        \
-	do {                                                   \
+#define TRICE_PUT16_1616(x, ts) /* little endian */                         \
+	do {                                                                    \
 		uint16_t* p_TRICE_PUT16_1616 = (uint16_t*)TriceBufferWritePosition; \
 		*p_TRICE_PUT16_1616++ = x;                                          \
-		*p_TRICE_PUT16_1616++ = (uint16_t)(ts);         /* lo */                        \
-		*p_TRICE_PUT16_1616++ = (uint16_t)((ts) >> 16); /* hi */                        \
+		*p_TRICE_PUT16_1616++ = (uint16_t)(ts);         /* lo */            \
+		*p_TRICE_PUT16_1616++ = (uint16_t)((ts) >> 16); /* hi */            \
 		TriceBufferWritePosition = (uint32_t*)p_TRICE_PUT16_1616;           \
 	} while (0)
 
@@ -29,8 +29,8 @@
 #else                           // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
 
 //! TRICE_PUT16_1616 writes a 16-bit value followed by a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-#define TRICE_PUT16_1616(x, ts) /* big endian */           \
-	do {                                                   \
+#define TRICE_PUT16_1616(x, ts) /* big endian */                            \
+	do {                                                                    \
 		uint16_t* p_TRICE_PUT16_1616 = (uint16_t*)TriceBufferWritePosition; \
 		*p_TRICE_PUT16_1616++ = x;                                          \
 		*p_TRICE_PUT16_1616++ = (ts) >> 16; /* hi */                        \

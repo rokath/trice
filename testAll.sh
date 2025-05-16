@@ -55,10 +55,10 @@ cd - >/dev/null
 ./trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
 
 t1=`date +%s`
-if command -v caffeinate 2>&1 >/dev/null
-then
-    # https://stackoverflow.com/questions/30171050/start-a-process-in-background-do-a-task-then-kill-the-process-in-the-background
-    kill %-                                          2>&1 | tee -a $triceFolder/testAll.log 
-fi
+#if command -v caffeinate 2>&1 >/dev/null
+#then
+#    # https://stackoverflow.com/questions/30171050/start-a-process-in-background-do-a-task-then-kill-the-process-in-the-background
+#    kill %-                                          2>&1 | tee -a $triceFolder/testAll.log 
+#fi
 runtime=$((t1-t0))
 echo Script run $runtime seconds.                    2>&1 | tee -a $triceFolder/testAll.log

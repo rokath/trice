@@ -2591,10 +2591,10 @@ static int64_t DoubleToInt64(double f) {
 #endif
 
 //! SCOPY is a helper macro for struct serialization.
-#define SCOPY(element)                       \
-	do {                                     \
-		char const * n_SCOPY = #element;                  \
-		size_t size_SCOPY = sizeof(src->element);     \
+#define SCOPY(element)                             \
+	do {                                           \
+		char const* n_SCOPY = #element;            \
+		size_t size_SCOPY = sizeof(src->element);  \
 		memcpy(p, &(src->element), size_SCOPY);    \
 		p += size_SCOPY;                           \
 		TRICE_S(ID(0), "rd:sizeof(%8s)", n_SCOPY); \
@@ -2602,10 +2602,10 @@ static int64_t DoubleToInt64(double f) {
 	} while (0);
 
 //! DCOPY is a helper macro for struct deserialization.
-#define DCOPY(element)                       \
-	do {                                     \
-		char const * n_DCOPY = #element;                  \
-		size_t size_DCOPY = sizeof(dst->element);     \
+#define DCOPY(element)                             \
+	do {                                           \
+		char const* n_DCOPY = #element;            \
+		size_t size_DCOPY = sizeof(dst->element);  \
 		memcpy(&(dst->element), p, size_DCOPY);    \
 		p += size_DCOPY;                           \
 		TRICE_S(ID(0), "rd:sizeof(%8s)", n_DCOPY); \
@@ -2727,7 +2727,7 @@ static void exampleOfManualSerialization(void) {
 #if !TRICE_OFF
 	int len = serializeTryout(dst, &tx); // serialized byte count
 #else
-  int len = 0;
+	int len = 0;
 #endif
 	TRICE(Id(0), "inf: Tryout tx struct:");
 	TRICE8_B(Id(0), " %02x ", &tx, sizeof(tx));
@@ -2764,7 +2764,7 @@ static void exampleOfManualJSONencoding(void) {
 static void dynString(int n) {
 	char const* s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
 	const size_t l = strlen(s);
-        size_t N_dynString = (size_t)n; // avoid warning: comparison of integer expressions of different signedness: 'int' and 'size_t' 
+	size_t N_dynString = (size_t)n; // avoid warning: comparison of integer expressions of different signedness: 'int' and 'size_t'
 	N_dynString = N_dynString < l ? N_dynString : l;
 	// trice("sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
 	TRICE_N(id(0), "wr:%s\n", s, N_dynString);

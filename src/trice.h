@@ -223,8 +223,8 @@ extern unsigned TriceDeferredOverflowCount;
 #endif // #if TRICE_PROTECT == 1
 
 #define TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT() \
-	do {                                         \
-		TriceDynStringBufTruncateCount++;              \
+	do {                                              \
+		TriceDynStringBufTruncateCount++;             \
 	} while (0)
 
 #else // #if (TRICE_DIAGNOSTICS == 1)
@@ -271,22 +271,22 @@ extern uint32_t* TriceBufferWritePosition;
 #define idLH idLH
 #define IdLH IdLH
 #define IDLH IDLH
-//#define tsL tsL
-//#define tsH tsH
-//#define tsHH tsHH
-//#define tsHL tsHL
-//#define tsLH tsLH
-//#define tsLL tsLL
+// #define tsL tsL
+// #define tsH tsH
+// #define tsHH tsHH
+// #define tsHL tsHL
+// #define tsLH tsLH
+// #define tsLL tsLL
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
-#define TRICE_PUT16(x)                                     \
-	do {                                                   \
+#define TRICE_PUT16(x)                                                 \
+	do {                                                               \
 		uint16_t* p_TRICE_PUT16 = (uint16_t*)TriceBufferWritePosition; \
 		*p_TRICE_PUT16++ = TRICE_HTOTS(x);                             \
-		TriceBufferWritePosition = p_TRICE_PUT16;           \
+		TriceBufferWritePosition = p_TRICE_PUT16;                      \
 	} while (0)
 #include "trice8.h"
 #include "trice16.h"
@@ -604,60 +604,60 @@ extern uint32_t* TriceBufferWritePosition;
 //
 // todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
 //
-#define TRICE_N(tid, pFmt, buf, n)                                                                                                   \
-	do {                                                                                                                             \
-		TRICE_UNUSED(pFmt);                                                                                                          \
+#define TRICE_N(tid, pFmt, buf, n)                                                                                                           \
+	do {                                                                                                                                     \
+		TRICE_UNUSED(pFmt);                                                                                                                  \
 		uint32_t limit_TRICE_N = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
-		uint32_t len_TRICE_N = (uint32_t)(n);                           /* n could be a constant */                                                     \
-		if (len_TRICE_N > limit_TRICE_N) {                                                                                                          \
-			TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                \
-			len_TRICE_N = limit_TRICE_N;                                                                                                            \
-		}                                                                                                                            \
-		TRICE_ENTER tid;                                                                                                             \
-		if (len_TRICE_N <= 127) {                                                                                                           \
-			TRICE_CNTC(len_TRICE_N);                                                                                                        \
-		} else {                                                                                                                     \
-			TRICE_LCNT(len_TRICE_N);                                                                                                        \
-		}                                                                                                                            \
-		TRICE_PUT_BUFFER(buf, len_TRICE_N);                                                                                                 \
-		TRICE_LEAVE                                                                                                                  \
+		uint32_t len_TRICE_N = (uint32_t)(n);                /* n could be a constant */                                                     \
+		if (len_TRICE_N > limit_TRICE_N) {                                                                                                   \
+			TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                   \
+			len_TRICE_N = limit_TRICE_N;                                                                                                     \
+		}                                                                                                                                    \
+		TRICE_ENTER tid;                                                                                                                     \
+		if (len_TRICE_N <= 127) {                                                                                                            \
+			TRICE_CNTC(len_TRICE_N);                                                                                                         \
+		} else {                                                                                                                             \
+			TRICE_LCNT(len_TRICE_N);                                                                                                         \
+		}                                                                                                                                    \
+		TRICE_PUT_BUFFER(buf, len_TRICE_N);                                                                                                  \
+		TRICE_LEAVE                                                                                                                          \
 	} while (0)
 
-void triceN(int tid, char const * fmt, void* buf, uint32_t n);
-void TriceN(int tid, char const * fmt, void* buf, uint32_t n);
-void TRiceN(int tid, char const * fmt, void* buf, uint32_t n);
+void triceN(int tid, char const* fmt, void* buf, uint32_t n);
+void TriceN(int tid, char const* fmt, void* buf, uint32_t n);
+void TRiceN(int tid, char const* fmt, void* buf, uint32_t n);
 
-void trice8B(int tid, char const * fmt, void* buf, uint32_t n);
-void Trice8B(int tid, char const * fmt, void* buf, uint32_t n);
-void TRice8B(int tid, char const * fmt, void* buf, uint32_t n);
+void trice8B(int tid, char const* fmt, void* buf, uint32_t n);
+void Trice8B(int tid, char const* fmt, void* buf, uint32_t n);
+void TRice8B(int tid, char const* fmt, void* buf, uint32_t n);
 
-void trice16B(int tid, char const * fmt, void* buf, uint32_t n);
-void Trice16B(int tid, char const * fmt, void* buf, uint32_t n);
-void TRice16B(int tid, char const * fmt, void* buf, uint32_t n);
+void trice16B(int tid, char const* fmt, void* buf, uint32_t n);
+void Trice16B(int tid, char const* fmt, void* buf, uint32_t n);
+void TRice16B(int tid, char const* fmt, void* buf, uint32_t n);
 
-void trice32B(int tid, char const * fmt, void* buf, uint32_t n);
-void Trice32B(int tid, char const * fmt, void* buf, uint32_t n);
-void TRice32B(int tid, char const * fmt, void* buf, uint32_t n);
+void trice32B(int tid, char const* fmt, void* buf, uint32_t n);
+void Trice32B(int tid, char const* fmt, void* buf, uint32_t n);
+void TRice32B(int tid, char const* fmt, void* buf, uint32_t n);
 
-void trice64B(int tid, char const * fmt, void* buf, uint32_t n);
-void Trice64B(int tid, char const * fmt, void* buf, uint32_t n);
-void TRice64B(int tid, char const * fmt, void* buf, uint32_t n);
+void trice64B(int tid, char const* fmt, void* buf, uint32_t n);
+void Trice64B(int tid, char const* fmt, void* buf, uint32_t n);
+void TRice64B(int tid, char const* fmt, void* buf, uint32_t n);
 
-void trice8F(int tid, char const * fmt, void* buf, uint32_t n);
-void Trice8F(int tid, char const * fmt, void* buf, uint32_t n);
-void TRice8F(int tid, char const * fmt, void* buf, uint32_t n);
+void trice8F(int tid, char const* fmt, void* buf, uint32_t n);
+void Trice8F(int tid, char const* fmt, void* buf, uint32_t n);
+void TRice8F(int tid, char const* fmt, void* buf, uint32_t n);
 
-void trice16F(int tid, char const * fmt, void* buf, uint32_t n);
-void Trice16F(int tid, char const * fmt, void* buf, uint32_t n);
-void TRice16F(int tid, char const * fmt, void* buf, uint32_t n);
+void trice16F(int tid, char const* fmt, void* buf, uint32_t n);
+void Trice16F(int tid, char const* fmt, void* buf, uint32_t n);
+void TRice16F(int tid, char const* fmt, void* buf, uint32_t n);
 
-void trice32F(int tid, char const * fmt, void* buf, uint32_t n);
-void Trice32F(int tid, char const * fmt, void* buf, uint32_t n);
-void TRice32F(int tid, char const * fmt, void* buf, uint32_t n);
+void trice32F(int tid, char const* fmt, void* buf, uint32_t n);
+void Trice32F(int tid, char const* fmt, void* buf, uint32_t n);
+void TRice32F(int tid, char const* fmt, void* buf, uint32_t n);
 
-void trice64F(int tid, char const * fmt, void* buf, uint32_t n);
-void Trice64F(int tid, char const * fmt, void* buf, uint32_t n);
-void TRice64F(int tid, char const * fmt, void* buf, uint32_t n);
+void trice64F(int tid, char const* fmt, void* buf, uint32_t n);
+void Trice64F(int tid, char const* fmt, void* buf, uint32_t n);
+void TRice64F(int tid, char const* fmt, void* buf, uint32_t n);
 
 #endif // #ifndef TRICE_N
 
@@ -667,8 +667,8 @@ void TRice64F(int tid, char const * fmt, void* buf, uint32_t n);
 //! \param tid trice identifier
 //! \param pFmt format string for trice (ignored here but used by the trice tool)
 //! \param runtimeGeneratedString 0-terminated runtime generated string
-#define TRICE_S(tid, pFmt, runtimeGeneratedString)        \
-	do {                                                  \
+#define TRICE_S(tid, pFmt, runtimeGeneratedString)                \
+	do {                                                          \
 		uint32_t ssiz_TRICE_S = strlen(runtimeGeneratedString);   \
 		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
@@ -682,20 +682,20 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 //! ID writes 14-bit id with 11 as 2 most significant bits, followed by a 32-bit stamp.
 //! 11iiiiiiI TT | TT (NC) | ...
 //! C000 = 1100 0000 0000 0000
-#define ID(n)                                 \
-	do {                                      \
-		uint32_t ts_ID = TriceStamp32;           \
+#define ID(n)                                                            \
+	do {                                                                 \
+		uint32_t ts_ID = TriceStamp32;                                   \
 		TRICE_PUT16_1616((((uint16_t)0xC000) | ((uint16_t)(n))), ts_ID); \
 	} while (0)
 
 //! Id writes 14-bit id with 10 as 2 most significant bits two times, followed by a 16-bit stamp.
 //! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
 //! 8000 = 1000 0000 0000 0000
-#define Id(n)                                                   \
-	do {                                                        \
-		uint16_t ts_Id = TriceStamp16;                             \
+#define Id(n)                                                                            \
+	do {                                                                                 \
+		uint16_t ts_Id = TriceStamp16;                                                   \
 		TRICE_PUT(TRICE_HTOTL(0x80008000u | (((uint32_t)(n)) << 16) | ((uint32_t)(n)))); \
-		TRICE_PUT16(ts_Id);                                        \
+		TRICE_PUT16(ts_Id);                                                              \
 	} while (0)
 
 //! id writes 14-bit id with 01 as 2 most significant bits, followed by no stamp.
@@ -707,10 +707,10 @@ void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
 #define iD(n) (n)
 
 //! TRICE_CNTC writes 7-bit byte count and 8-bit cycle counter.
-#define TRICE_CNTC(count)                          \
-	do {                                           \
+#define TRICE_CNTC(count)                                                 \
+	do {                                                                  \
 		uint16_t v_TRICE_CNTC = (((uint16_t)(count)) << 8) | TRICE_CYCLE; \
-		TRICE_PUT16(v_TRICE_CNTC);                            \
+		TRICE_PUT16(v_TRICE_CNTC);                                        \
 	} while (0)
 
 #if TRICE_CYCLE_COUNTER == 1
