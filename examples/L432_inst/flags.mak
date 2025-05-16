@@ -68,7 +68,7 @@ C_FLAGS += -Ofast                 # -Ofast optimizes for speed.
  C_FLAGS += -Wformat-overflow      #
  C_FLAGS += -Wformat-truncation    #
  C_FLAGS += -Wundef                # -Wundef warns, if an undefined macro silently evaluating as 0 and causing unexpected behavior.
- C_FLAGS += -Wstack-usage=300      # -Wstack-usage=<limit> emits a warning when stack usage exceeds limit bytes.
+ C_FLAGS += -Wstack-usage=400      # -Wstack-usage=<limit> emits a warning when stack usage exceeds limit bytes.
  C_FLAGS += -Wstack-protector
  C_FLAGS += -Wmissing-include-dirs # Warn if a user-supplied include directory does not exist
  C_FLAGS += -Wswitch-default       # Warn whenever a switch statement does not have a default case.
@@ -82,7 +82,7 @@ C_FLAGS += -Ofast                 # -Ofast optimizes for speed.
  C_FLAGS += -Wfloat-equal          # Warn if floating point values are used in equality comparisons.
  C_FLAGS += -Wundef                # Warn if an undefined identifier is evaluated in an `#if' directive. 
 #C_FLAGS += -Wlarger-than=512      # Warn whenever an object of larger than len bytes is defined.
- C_FLAGS += -Wframe-larger-than=256#Warn if the size of a function frame is larger than len bytes. The computation done to determine the stack frame size is approximate and not conservative. The actual requirements may be somewhat greater than len even if you do not get a warning. In addition, any space allocated via alloca, variable-length arrays, or related constructs is not included by the compiler when determining whether or not to issue a warning. 
+ C_FLAGS += -Wframe-larger-than=400#Warn if the size of a function frame is larger than len bytes. The computation done to determine the stack frame size is approximate and not conservative. The actual requirements may be somewhat greater than len even if you do not get a warning. In addition, any space allocated via alloca, variable-length arrays, or related constructs is not included by the compiler when determining whether or not to issue a warning. 
  C_FLAGS += -Wunsafe-loop-optimizations # Warn if the loop cannot be optimized because the compiler could not assume anything on the bounds of the loop indices. With -funsafe-loop-optimizations warn if the compiler made such assumptions. 
  C_FLAGS += -funsafe-loop-optimizations
 #C_FLAGS += -pedantic

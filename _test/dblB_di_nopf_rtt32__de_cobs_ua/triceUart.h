@@ -25,6 +25,7 @@ TRICE_INLINE uint32_t triceTxDataRegisterEmptyUartA(void) {
 //! \param v byte to transmit
 //! User must provide this function.
 TRICE_INLINE void triceTransmitData8UartA(uint8_t v) {
+	TRICE_UNUSED(v); // Avoid noise with -Wunused-parameter 
 	// LL_USART_TransmitData8(TRICE_UARTA, v);
 }
 
