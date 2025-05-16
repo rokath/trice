@@ -6,6 +6,7 @@ package id
 
 import (
 	"fmt"
+	"github.com/rokath/trice/pkg/tst"
 	"testing"
 
 	"github.com/tj/assert"
@@ -73,6 +74,7 @@ func TestJSONToLutMapUpdate(t *testing.T) {
 	err := lut.FromJSON(b1)
 	assert.Nil(t, err)
 	act := fmt.Sprint(lut)
+	act = tst.NormalizeMapString(act)
 	assert.Equal(t, exp, act)
 }
 
@@ -83,6 +85,7 @@ func TestJSONToLut(t *testing.T) {
 	lut := make(TriceIDLookUp)
 	assert.Nil(t, lut.FromJSON(b))
 	act := fmt.Sprint(lut)
+	act = tst.NormalizeMapString(act)
 	assert.Equal(t, exp, act)
 }
 
@@ -106,5 +109,6 @@ func TestJSONWithDoubleIDToLut(t *testing.T) {
 	lut := make(TriceIDLookUp)
 	assert.Nil(t, lut.FromJSON(b))
 	act := fmt.Sprint(lut)
+	act = tst.NormalizeMapString(act)
 	assert.Equal(t, exp, act)
 }

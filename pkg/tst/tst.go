@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -124,4 +125,28 @@ func AssertEqualFiles(t *testing.T, fn0, fn1 string) {
 	ok, err := cmp.CompareFile(fn0, fn1)
 	assert.Nil(t, err)
 	assert.True(t, ok)
+}
+
+// NormalizeMapString trims insignificant whitespace in Go-style map[string]struct formatting.
+//
+// It is useful for comparing stringified maps where `fmt.Sprint(map)` includes
+// formatting inconsistencies such as:
+//   - trailing spaces after struct fields (e.g., "{t11 s11 }")
+//   - extra spaces between map entries (e.g., "12:{... }")
+//
+// This behavior may vary subtly between Go versions (e.g., Go 1.18 vs 1.20+),
+// where `fmt.Sprint` preserves more internal spacing from struct formatting.
+//
+// normalizeMapString helps produce stable, human-readable string output
+// suitable for comparison in tests without altering the logical content.
+func NormalizeMapString(s string) string {
+	// Trim space after struct close
+	s = regexp.MustCompile(`\s+}`).ReplaceAllString(s, "}")
+	// Trim space before struct open
+	s = regexp.MustCompile(`{\s+`).ReplaceAllString(s, "{")
+	// Remove extra space after closing } of each map entry
+	s = regexp.MustCompile(`}\s+`).ReplaceAllString(s, "} ")
+	// Normalize single space between key:value entries
+	s = regexp.MustCompile(`\s+`).ReplaceAllString(s, " ")
+	return strings.TrimSpace(s)
 }

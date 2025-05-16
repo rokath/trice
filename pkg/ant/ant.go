@@ -12,6 +12,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -24,6 +25,8 @@ type Processing func(w io.Writer, fSys *afero.Afero, path string, fileInfo os.Fi
 // Admin holds the walk specific data.
 type Admin struct {
 	Trees            []string                  // Trees contains all files and folders to process. Sub-folders are walked automatically.
+	ExcludeTrees     []string                  // ExcludeTrees contains file and folder paths to be excluded from processing during the Walk operation.
+	Verbose          bool                      // Verbose enables or disables detailed logging during processing.
 	MatchingFileName func(fi os.FileInfo) bool // MatchingFileName is a user provided function and returns true on matching user conditions. Simplest case: func(_ os.FileInfo){ return true } for all files.
 	Action           Processing                // Action is the user provided function executed on each file in Trees.
 	Mutex            sync.RWMutex              // A sync.RWMutex is thus preferable for data that is mostly read.
@@ -83,9 +86,34 @@ func visit(w io.Writer, fSys *afero.Afero, jalan *Admin) filepath.WalkFunc {
 	// when invoked on a non-directory file, Walk skips the remaining files in the
 	// containing directory.
 	return func(path string, fileInfo os.FileInfo, err error) error {
-
-		if err != nil || fileInfo.IsDir() || !jalan.MatchingFileName(fileInfo) {
+		if err != nil {
 			return err // forward any error and do nothing
+		}
+
+		cleanPath := filepath.Clean(path)
+
+		// Check if a path is in the exclusion list
+		for _, excl := range jalan.ExcludeTrees {
+			cleanExcl := filepath.Clean(excl)
+
+			if cleanPath == cleanExcl || strings.HasPrefix(cleanPath, cleanExcl+string(os.PathSeparator)) {
+				if fileInfo.IsDir() {
+					if jalan.Verbose {
+						fmt.Fprintf(w, "exclude: %s/ due to match in exclusions: %s\n", path, excl)
+					}
+					return filepath.SkipDir
+				}
+
+				if jalan.Verbose {
+					fmt.Fprintf(w, "exclude: %s due to match in exclusions: %s\n", path, excl)
+				}
+				return nil
+			}
+		}
+
+		// Skip directories and files that don't match the pattern
+		if fileInfo.IsDir() || !jalan.MatchingFileName(fileInfo) {
+			return nil
 		}
 
 		jalan.wg.Add(1)
@@ -94,7 +122,11 @@ func visit(w io.Writer, fSys *afero.Afero, jalan *Admin) filepath.WalkFunc {
 			err := jalan.Action(w, fSys, path, fileInfo, jalan)
 			if err != nil {
 				fmt.Fprintln(w, path, err)
+
+				// Safely increment errorCount
+				jalan.Mutex.Lock()
 				jalan.errorCount++
+				jalan.Mutex.Unlock()
 			}
 		}()
 

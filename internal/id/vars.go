@@ -16,6 +16,7 @@ var (
 	SearchMethod               = "random"      // SearchMethod is the next ID search method.
 	LIPathKind                 string          // LIPathKind controls how to store paths inside li.json: base, relative, full
 	Srcs                       ArrayFlag       // Srcs gets multiple files or directories.
+	ExcludeSrcs                ArrayFlag       // ExcludeSrcs is an ArrayFlag representing source files to be excluded from processing.
 	IDRange                    ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
 	IDData                     idData
 	matchSourceFile            = regexp.MustCompile(patSourceFile)

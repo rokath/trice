@@ -115,8 +115,9 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     		For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
     	port "FILE": default="trices.raw", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice retries on EOF.
     	port "FILEBUFFER": default="trices.raw", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice stops on EOF.
-    	port "TCP4": default="localhost:17001", use any IP:port endpoint like "127.0.0.1:19021". This port is usable for reading, when the Trice logs go into a TCP server.
+    	port "TCP4": default="localhost:17001", use any IPv4 IP:port endpoint like "127.0.0.1:19021". This port is usable for reading, when the Trice logs go into a TCP server.
     	port "TCP4BUFFER": default="localhost:17001". This port is used for "-port TCP4" testing, to shutdown the Trice tool automatically.
+    	port "UDP4": default="0.0.0.0:17005", use any IPv4 IP:port endpoint to listen on, like 192.168.1.1:17005".
     	port "DEC" or "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
     	port "HEX" or "DUMP": default="", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
     	 (default "default")
@@ -307,6 +308,14 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	No changes applied but output shows what would happen.
     	"trice add -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -e value
+    	Short for exclude.
+  -exclude value
+    	Exclude dir or file, It has one parameter. Not usable in the form "-exclude *.c".
+    	This is a multi-flag switch. It can be used several times for directories and also for files.
+    	Example: "trice add -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
+    	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
+    	 (default none)
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
@@ -448,6 +457,14 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	No changes applied but output shows what would happen.
     	"trice insert -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -e value
+    	Short for exclude.
+  -exclude value
+    	Exclude dir or file, It has one parameter. Not usable in the form "-exclude *.c".
+    	This is a multi-flag switch. It can be used several times for directories and also for files.
+    	Example: "trice insert -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
+    	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
+    	 (default none)
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
@@ -511,6 +528,14 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	No changes applied but output shows what would happen.
     	"trice clean -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -e value
+    	Short for exclude.
+  -exclude value
+    	Exclude dir or file, It has one parameter. Not usable in the form "-exclude *.c".
+    	This is a multi-flag switch. It can be used several times for directories and also for files.
+    	Example: "trice clean -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
+    	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
+    	 (default none)
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
