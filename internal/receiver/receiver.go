@@ -73,6 +73,9 @@ var (
 	// DefaultTCP4Args replaces "default" args value for TCP4 port.
 	DefaultTCP4Args = "localhost:17001" // OpenOCD starts a server on localhost:17001 where it dumps all RTT messages.
 
+	// DefaultUDP4Args replaces "default" args value for UDP4 port.
+	DefaultUDP4Args = "0.0.0.0:17005"
+
 	// DefaultFileArgs replaces "default" args value for FILE port.
 	DefaultFileArgs = "trices.raw"
 
@@ -176,6 +179,46 @@ func (p *tcp4) Close() error {
 	return p.conn.Close()
 }
 
+// udp holds an open udp connection.
+type udp4 struct {
+	w    io.Writer // os.Stdout
+	conn *net.UDPConn
+}
+
+// newTCP4Connection returns a readCloser capable tcp4 instance.
+func newUDPConnection(endpoint string) *udp4 {
+	r := &udp4{}
+	addr, err := net.ResolveUDPAddr("udp4", endpoint)
+	if err != nil {
+		log.Fatal(endpoint, err)
+	}
+
+	r.conn, err = net.ListenUDP("udp", addr)
+	if err != nil {
+		log.Fatalf("Failed to listen on UDP port: %v", err)
+	}
+
+	return r
+}
+
+// Read is part of the exported interface io.ReadCloser. It reads a slice of bytes.
+func (p *udp4) Read(b []byte) (int, error) {
+	n, _, err := p.conn.ReadFromUDP(b) // peer address is ignored
+	return n, err
+}
+
+func (p *udp4) Write(b []byte) (int, error) {
+	panic("udp4.Write not implemented")
+}
+
+// Close is part of the exported interface io.ReadCloser. It ends the connection.
+func (p *udp4) Close() error {
+	if Verbose {
+		fmt.Fprintln(p.w, "Closing udp4 device.")
+	}
+	return p.conn.Close()
+}
+
 // file holds an opened file handle.
 type file struct {
 	w  io.Writer // os.Stdout
@@ -258,6 +301,18 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 			fmt.Println("todo: execute ", ExecCommand)
 		}
 		l := newTCP4Connection(args)
+		r = l
+	case "UDP4":
+		if args == "default" { // nothing assigned in args
+			args = DefaultUDP4Args
+		}
+		if Verbose {
+			fmt.Fprintln(w, "PortArguments=", args)
+		}
+		if ExecCommand != "" {
+			fmt.Println("todo: execute ", ExecCommand)
+		}
+		l := newUDPConnection(args)
 		r = l
 	case "FILE", "FILEBUFFER":
 		if args == "default" { // nothing assigned in args

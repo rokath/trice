@@ -9,6 +9,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/rokath/trice/pkg/tst"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
@@ -23,6 +24,7 @@ func TestLutFileTransfer(t *testing.T) { // Anti-Virus issue
 	rd := make(TriceIDLookUp)
 	assert.Nil(t, rd.fromFile(FSys, fn))
 	act := fmt.Sprint(rd)
+	act = tst.NormalizeMapString(act)
 	assert.Equal(t, exp, act)
 }
 
