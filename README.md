@@ -62,6 +62,8 @@ This slightly simplified [view](https://github.com/jgraph/drawio) is explained [
 - Implemented:
   - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) connectable to virtual UART over USB
   - [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) over [J-Link](./third_party/segger.com/ReadMe.md) and [RTT over ST-Link](./third_party/goST/ReadMe.md)
+  - TCP4 
+  - UDP4 (currently as PR #529)
 - A small separate microcontroller is always usable as interfaces bridge to [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
 - With a Chip from FTDI, check for example [Adafruit FT232H Breakout](https://learn.adafruit.com/adafruit-ft232h-breakout), GPIO, I2C and SPI are easy accessable.
 ## Display server option
