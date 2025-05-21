@@ -3845,7 +3845,7 @@ static inline uint64_t aDouble( double x ){
 
   ```c
    char s[] = "Hello again!";
-   triceS( "A runtime string %20s\n", s;
+   triceS("A runtime string %20s\n", s);
   ```
 
 ### 34.7. <a id='runtime-generated-counted-strings-transfer-with-tricen'></a>Runtime Generated counted Strings Transfer with  triceN
