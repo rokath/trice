@@ -247,6 +247,8 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 	flagDryRun(p)
 	flagSrcs(p)
 	flagExcludeSrcs(p)
+	flagTriceAliases(p)
+	flagTriceSAliases(p)
 	flagVerbosity(p)
 	flagIDList(p)
 	flagLIList(p)
@@ -294,6 +296,22 @@ Example: "trice `+p.Name()+` -v -src ./_test/ -exclude _test/src/trice.h" will s
 source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
  (default none)`) // multi flag
 	p.Var(&id.ExcludeSrcs, "e", "Short for exclude.") // multi flag
+}
+
+func flagTriceAliases(p *flag.FlagSet) {
+	p.Var(&id.TriceAliases, "alias", `Additional macro names to treat like trice().
+This flag can be specified multiple times to add more aliases. Each provided name will be
+recognized as equivalent to a trice() call. (default none)
+ (default none)`) // multi flag
+	p.Var(&id.TriceAliases, "a", "Short for trice() aliases.") // multi flag
+}
+
+func flagTriceSAliases(p *flag.FlagSet) {
+	p.Var(&id.TriceSAliases, "salias", `Additional macro names to treat like triceS().
+This flag can be specified multiple times to add more aliases. Each provided name will be
+recognized as equivalent to a triceS() call.
+ (default none)`) // multi flag
+	p.Var(&id.TriceSAliases, "sa", "Short for triceS() aliases.") // multi flag
 }
 
 func flagTriceIDRange(p *flag.FlagSet) {
