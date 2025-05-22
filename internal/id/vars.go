@@ -16,17 +16,21 @@ var (
 	SearchMethod               = "random"      // SearchMethod is the next ID search method.
 	LIPathKind                 string          // LIPathKind controls how to store paths inside li.json: base, relative, full
 	Srcs                       ArrayFlag       // Srcs gets multiple files or directories.
+	ExcludeSrcs                ArrayFlag       // ExcludeSrcs is an ArrayFlag representing source files to be excluded from processing.
 	IDRange                    ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
 	IDData                     idData
 	matchSourceFile            = regexp.MustCompile(patSourceFile)
-	matchNbTRICE               = regexp.MustCompile(patNbTRICE)
 	matchNbID                  = regexp.MustCompile(patNbID)
 	matchNb                    = regexp.MustCompile(patNb)
-	matchTypNameTRICE          = regexp.MustCompile(patTypNameTRICE)
 	matchFmtString             = regexp.MustCompile(patFmtString)
 	matchNextFormatSpecifier   = regexp.MustCompile(patNextFormatSpecifier)
-	matchAnyTriceStart         = regexp.MustCompile(patAnyTriceStart)
 	ExtendMacrosWithParamCount bool
+
+	TriceAliases       ArrayFlag // Holds trice() aliases.
+	TriceSAliases      ArrayFlag // Holds triceS() aliases.
+	matchNbTRICE       *regexp.Regexp
+	matchTypNameTRICE  *regexp.Regexp
+	matchAnyTriceStart *regexp.Regexp
 
 	// DefaultTriceBitWidth tells the bit width of TRICE macros having no bit width in their names, like TRICE32 or TRICE8.
 	//

@@ -12,6 +12,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -125,8 +126,33 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 		}
 		line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information. // issue # 523
 		// QUESTION: How to correct count (escaped/non-escaped) newlines inside Trice format strings?
-		t.Type = rest[loc[0]:loc[1]]       // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
-		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
+		token := rest[loc[0]:loc[1]] // token is an alias or it can be the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
+		isAlias := slices.Contains(TriceAliases, token)
+		isSAlias := slices.Contains(TriceSAliases, token)
+
+		if isAlias && isSAlias {
+			isSAlias = false
+			// The same alias registered for trice() and triceS(). lets analyze last letter
+			if len(token) > 0 {
+				last := token[len(token)-1]
+				if last == 's' || last == 'S' {
+					isAlias = false
+					isSAlias = true
+				}
+			}
+		}
+
+		if isAlias {
+			t.Alias = token
+			// QUESTION: what can be an easy way to map aliases to variety of triceX_Y?
+			token = "trice"
+		} else if isSAlias {
+			t.Alias = token
+			token = "triceS"
+		}
+
+		t.Type = token
+		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes with +1 and -1.
 		if !SkipAdditionalChecks {
 			linesOffset := 0 //strings.Count(rest[:loc[6]], "\n") // issue # 523
 			err = evaluateTriceParameterCount(t, line+linesOffset, rest[loc[6]:])

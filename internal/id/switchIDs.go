@@ -203,6 +203,8 @@ func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Pr
 	a := new(ant.Admin)
 	a.Action = action
 	a.Trees = Srcs
+	a.ExcludeTrees = ExcludeSrcs
+	a.Verbose = Verbose
 	a.MatchingFileName = isSourceFile
 
 	// process

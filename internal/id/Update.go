@@ -22,21 +22,11 @@ const (
 	// patSourceFile is a regex pattern matching any source file for patching (https://stackoverflow.com/questions/1545080/c-code-file-extension-what-is-the-difference-between-cc-and-cpp)
 	patSourceFile = "(\\.c|\\.cc|\\.cp|\\.cxx|\\.cpp|\\.CPP|\\.c\\+\\+|\\.C|\\.h|\\.hh|\\.hp|\\.hxx|\\.hpp|\\.HPP|\\.h\\+\\+|\\.H|\\.ixx|\\.inc)$"
 
-	// patTypNameTRICE matches any TRICE name variant. The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
-	patTypNameTRICE = `(?iU)(\b((TRICE((0|_0|AssertTrue|AssertFalse)|((8|16|32|64)*(_*[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/xuD9ar/1
-
 	// patNbID is a regex pattern matching any first "Id(n)" and usable in matches after patTypNameTRICE. It works also over line breaks.
 	patNbID = `(?Ui)\b(i)(D)\b\s*\(\s*\d+\s*\)` // https://regex101.com/r/2BlNSv/1
 
 	// patFmtString is a regex matching the first format string inside trice even containing newlines and \"
 	patFmtString = `"(?s)(.*)"` // https://stackoverflow.com/questions/159118/how-do-i-match-any-character-across-multiple-lines-in-a-regular-expression
-
-	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/mllhNQ/1
-	// https://regex101.com/r/4hz1r8/1
-	patNbTRICE = patTypNameTRICE + `\s*\(` + patID + `\(\s*.*[0-9]\s*\)\s*,\s*` + patFmtString + `\s*.*\)`
-
-	// patAnyTriceStart finds a starting trice with opening '(': https://regex101.com/r/wPuT4M/1
-	patAnyTriceStart = patTypNameTRICE + `\s*\(`
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
 	// todo: unify with decoder.patNextFormatSpecifier
