@@ -175,7 +175,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Use to pass an additional command line for port TCP4 (like gdbserver start).
   -hs string
     	PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
-    	This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases. 
+    	This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
     	"LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
   -i string
     	Short for '-idlist'.
@@ -304,6 +304,13 @@ sub-command 'a|add': Use for adding library source files containing already tric
 #	in a project file, it will get a different ID in your project file because of the used location information.
 #	The "add" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
 #	Example: 'trice add': Update ID list from source tree.
+  -a value
+    	Short for trice() aliases.
+  -alias value
+    	Additional macro names to treat like trice().
+    	This flag can be specified multiple times to add more aliases. Each provided name will be
+    	recognized as equivalent to a trice() call. (default none)
+    	 (default none)
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice add -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -339,6 +346,13 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	 (default "li.json")
   -s value
     	Short for src.
+  -sa value
+    	Short for triceS() aliases.
+  -salias value
+    	Additional macro names to treat like triceS().
+    	This flag can be specified multiple times to add more aliases. Each provided name will be
+    	recognized as equivalent to a triceS() call.
+    	 (default none)
   -skip
     	short for skipAdditionalChecks
   -skipAdditionalChecks
@@ -447,8 +461,15 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	in deferred mode over a serial port and, if you need, store all error tagged Trice logs additionally in the Flash memory.
     	You need to configure the target code in your triceConfig.h accordingly (search trice code for MIN_ID): 
     	Use "#define TRICE_UARTA_MIN_ID 10" and "#define TRICE_UARTA_MAX_ID 999" for example. (default "")
+  -a value
+    	Short for trice() aliases.
   -addParamCount
     	Extend TRICE macro names with the parameter count _n to enable compile time checks.
+  -alias value
+    	Additional macro names to treat like trice().
+    	This flag can be specified multiple times to add more aliases. Each provided name will be
+    	recognized as equivalent to a trice() call. (default none)
+    	 (default none)
   -cache
     	Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.
   -defaultStampSize int
@@ -488,6 +509,13 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	 (default "li.json")
   -s value
     	Short for src.
+  -sa value
+    	Short for triceS() aliases.
+  -salias value
+    	Additional macro names to treat like triceS().
+    	This flag can be specified multiple times to add more aliases. Each provided name will be
+    	recognized as equivalent to a triceS() call.
+    	 (default none)
   -skip
     	short for skipAdditionalChecks
   -skipAdditionalChecks
@@ -522,6 +550,13 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
 #	EXPERIMENTAL! With "#define TRICE_CLEAN 1" inside "triceConfig.h" these displayed "errors" are suppressed.
 #	EXPERIMENTAL! All files including trice.h are re-compiled then on the next compiler run, what could be time-consuming.
 #	In difference to "trice zero", Trice function calls get iD(n) removed. Example: "TRice( iD(88), "hi);" -> "TRice("hi);"
+  -a value
+    	Short for trice() aliases.
+  -alias value
+    	Additional macro names to treat like trice().
+    	This flag can be specified multiple times to add more aliases. Each provided name will be
+    	recognized as equivalent to a trice() call. (default none)
+    	 (default none)
   -cache
     	Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.
   -dry-run
@@ -559,6 +594,13 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	 (default "li.json")
   -s value
     	Short for src.
+  -sa value
+    	Short for triceS() aliases.
+  -salias value
+    	Additional macro names to treat like triceS().
+    	This flag can be specified multiple times to add more aliases. Each provided name will be
+    	recognized as equivalent to a triceS() call.
+    	 (default none)
   -skip
     	short for skipAdditionalChecks
   -skipAdditionalChecks

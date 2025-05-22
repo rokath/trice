@@ -20,14 +20,17 @@ var (
 	IDRange                    ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
 	IDData                     idData
 	matchSourceFile            = regexp.MustCompile(patSourceFile)
-	matchNbTRICE               = regexp.MustCompile(patNbTRICE)
 	matchNbID                  = regexp.MustCompile(patNbID)
 	matchNb                    = regexp.MustCompile(patNb)
-	matchTypNameTRICE          = regexp.MustCompile(patTypNameTRICE)
 	matchFmtString             = regexp.MustCompile(patFmtString)
 	matchNextFormatSpecifier   = regexp.MustCompile(patNextFormatSpecifier)
-	matchAnyTriceStart         = regexp.MustCompile(patAnyTriceStart)
 	ExtendMacrosWithParamCount bool
+
+	TriceAliases       ArrayFlag // Holds trice() aliases.
+	TriceSAliases      ArrayFlag // Holds triceS() aliases.
+	matchNbTRICE       *regexp.Regexp
+	matchTypNameTRICE  *regexp.Regexp
+	matchAnyTriceStart *regexp.Regexp
 
 	// DefaultTriceBitWidth tells the bit width of TRICE macros having no bit width in their names, like TRICE32 or TRICE8.
 	//
@@ -63,4 +66,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Initialize matchNbTRICE, matchTypNameTRICE, matchAnyTriceStart
+	ProcessAliases()
 }

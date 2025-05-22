@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
 
@@ -30,6 +31,10 @@ import (
 // Handler is called in main, evaluates args and calls the appropriate functions.
 // It returns for program exit.
 func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
+	// Trim leading and trailing whitespace
+	for i := range args {
+		args[i] = strings.TrimSpace(args[i])
+	}
 
 	if Date == "" { // goreleaser will set Date, otherwise use file info.
 		path, err := os.Executable()
@@ -83,16 +88,19 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	case "a", "add":
 		msg.OnErr(fsScAdd.Parse(subArgs))
 		id.CompactSrcs()
+		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
 	case "generate":
 		msg.OnErr(fsScGenerate.Parse(subArgs))
 		id.CompactSrcs()
+		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdGenerate(w, fSys)
 	case "i", "insert":
 		msg.OnErr(fsScInsert.Parse(subArgs))
 		id.CompactSrcs()
+		id.ProcessAliases()
 		err := id.EvaluateIDRangeStrings()
 		if err != nil {
 			return err
@@ -102,6 +110,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	case "c", "clean":
 		msg.OnErr(fsScClean.Parse(subArgs))
 		id.CompactSrcs()
+		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdClean(w, fSys)
 	case "sd", "shutdown":
@@ -115,6 +124,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	case "l", "log":
 		id.Logging = true
 		msg.OnErr(fsScLog.Parse(subArgs))
+		id.ProcessAliases()
 		decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
 		decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
 		decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")
