@@ -17,7 +17,7 @@
 Table of Contents Generation:
 * Install vsCode extension "Markdown TOC" from dumeng
 * Use Shift-Command-P "markdownTOC:generate" to get the automatic numbering.
-* replace "<a name" with "<a id"
+* replace "<a id" with "<a id"
 * replace "##" followed by 2 spaces with "## "‚
 -->
 
@@ -91,10 +91,10 @@ Table of Contents Generation:
     * 13.2.1. [Automated pre-build insert command example](#automated-pre-build-insert-command-example)
     * 13.2.2. [Some Log examples](#some-log-examples)
     * 13.2.3. [Logging over a display server](#logging-over-a-display-server)
-    * 13.2.4. [Logfile output](#logfile-output)
-    * 13.2.5. [Binary Logfile](#binary-logfile)
-    * 13.2.6. [TCP output](#tcp-output)
-    * 13.2.7. [TCP input](#tcp-input)
+    * 13.2.4. [Binary Logfile](#binary-logfile)
+    * 13.2.5. [TCP output](#tcp-output)
+    * 13.2.6. [TCP4 input](#tcp4-input)
+    * 13.2.7. [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529))
     * 13.2.8. [Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
     * 13.2.9. [Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
     * 13.2.10. [Location Information](#location-information)
@@ -150,7 +150,7 @@ Table of Contents Generation:
     * 26.3.1. [Trice Insert Initialization](#trice-insert-initialization)
   * 26.4. [User Code Patching (trice insert)](#user-code-patching-(trice-insert))
   * 26.5. [User Code Patching Examples](#user-code-patching-examples)
-  * 26.6. [User Code Un-Patching](#user-code-un-patching)
+  * 26.6. [ Exclude folders & files from being parsed (pull request #529)](#-exclude-folders-&-files-from-being-parsed-(pull-request-#529))
   * 26.7. [ID Usage Options](#id-usage-options)
   * 26.8. [General ID Management Information](#general-id-management-information)
     * 26.8.1. [Option Cleaning in a Post-build process](#option-cleaning-in-a-post-build-process)
@@ -308,6 +308,8 @@ Table of Contents Generation:
     * 40.1.5. [Makefile](#makefile)
     * 40.1.6. [Usage](#usage)
   * 40.2. [Get all project files containing Trice messages](#get-all-project-files-containing-trice-messages)
+  * 40.3. [Building a trice library?](#building-a-trice-library?)
+  * 40.4. [Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
 * 41. [Trice User Manual Changelog](#trice-user-manual-changelog)
 
 <!-- vscode-markdown-toc-config
@@ -1529,7 +1531,7 @@ This creates a new logfile `trice.log` on first start and appends to it on each 
 
 Logfiles are text files one can see with 3rd party tools. Example: `cat trice.log`. They contain also the PC reception timestamps if where enabled.
 
-#### 13.2.5. <a id='binary-logfile'></a>Binary Logfile
+#### 13.2.4. <a id='binary-logfile'></a>Binary Logfile
 
 ```bash
 trice l -p COM3 -binaryLogfile auto
@@ -1549,7 +1551,7 @@ Binary logfiles are handy in the field for long data recordings.
 
 When using RTT, the data are exchanged over a file interface. These binary logfiles are stored in the project [./temp] folder and accessable for later view: `trice l -p FILEBUFFER -args ./temp/logfileName.bin`. Of course the host timestamps are the playing time then.
 
-#### 13.2.6. <a id='tcp-output'></a>TCP output
+#### 13.2.5. <a id='tcp-output'></a>TCP output
 
 ```bash
 trice l -p COM3 -tcp 127.0.0.1:23
@@ -1560,13 +1562,28 @@ This additionally sends Trice output to a 3rd party TCP listener, for example li
 ![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
 ![./ref/Putty.PNG](./ref/Putty.PNG)
 
-#### 13.2.7. <a id='tcp-input'></a>TCP input
+#### 13.2.6. <a id='tcp4-input'></a>TCP4 input
 
 ```bash
 trice l -p TCP4 -args "192.168.2.3:45678"
 ```
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
+
+#### 13.2.7. <a id='udp4-input-(accepted-pull-request-#529)'></a>UDP4 input (accepted pull request #529)
+
+The pull request [#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
+
+```b
+    IPv4 UDP Receiver
+    Adds support for receiving data over IPv4 using UDP. This enables integration with systems that broadcast or transmit telemetry, logs, or other messages over the network.
+```
+
+-port UDP4 Example
+
+To receive Trice logs over IPv4 UDP, use the -port UDP4 option. By default, it listens on 0.0.0.0:17005, which accepts packets on all network interfaces. You can specify a different address or multicast group via -args.
+
+trice log -p UDP4
 
 #### 13.2.8. <a id='stimulate-target-with-a-user-command-over-uart'></a>Stimulate target with a user command over UART
 
@@ -2244,7 +2261,20 @@ Until here the algorithm seem to be ok.
   TRice( iD(12345), "Hi!" ); // manually changed stamp size and then "trice i" performed.
   ```
 
-### 26.6. <a id='user-code-un-patching'></a>User Code Un-Patching
+### 26.6. <a id='-exclude-folders-&-files-from-being-parsed-(pull-request-#529)'></a> Exclude folders & files from being parsed (pull request #529)
+
+The pull request [#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
+
+```b
+    -exclude Flag
+    Introduces a command-line flag -exclude that allows users to specify one or more source addresses to be omitted from scanning or processing. This improves flexibility in environments with known noisy or irrelevant sources.
+```
+
+-exclude Flag Example
+
+The -exclude flag can be used multiple times to omit specific files or directories from scanning. Wildcards are not supported.
+
+trice insert -v -src ./_test/ -exclude _test/src/trice.h -exclude _test/generated/
 
 ### 26.7. <a id='id-usage-options'></a>ID Usage Options
 
@@ -6000,13 +6030,13 @@ cat demoLI.json | grep '"File":' | sort | uniq
 		"File": "examples/exampleData/triceLogDiagData.c",
 ```
 
-### Building a trice library?
+### 40.3. <a id='building-a-trice-library?'></a>Building a trice library?
 
 The triceConfig.h is mandatory for the trice code. It controls which parts of the trice code are included. There is no big advantage having a trice library, because it would work only with unchanged settings in the project specific triceConfig.h. Once the trice source files are translated, their objects are rebuilt automatically and only when the triceConfig.h is changed. So only the linker has a bit less to do when it finds a trice library compared to a bunch of trice objects. But does that influence the build time heavily?
 
 The triceConfig.h is the only part of the trice sources which should be modified by the users. It is ment to be a individual part of the user projects. The examples folder shows the usage.
 
-### Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings
+### 40.4. <a id='possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings'></a>Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings
 
 If you encounter a compilation error on `trice( "hi");` for example, but not on `trice( "%u stars", 5 );`, this is probably caused by the way your compiler interprets variadic macros. Simply change to `trice0( "hi");` or change your compiler settings. See issue [#279](https://github.com/rokath/trice/issues/279) for more details. If your project needs to be translated with strict-C settings for some reason, you have to use the `trice0` macros when no values exist for the Trice macros.
 
