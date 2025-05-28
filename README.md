@@ -143,31 +143,31 @@ git clone https://github.com/rokath/trice.git
 
 ## Similar projects
 
-- **ARM ITM/SWO (hardware-native)**
-- **ARM Keil Event Recorder (hardware-native)**
+- ARM ITM/SWO (hardware-native)
+- ARM Keil Event Recorder (hardware-native)
 - [baical.net](http://baical.net/up7.html) (C)
 - [call stack logger function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a) (a way to trace programs flow of execution)
 - [Debugging with Dynamic Printf Breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/) (Eclipse IDE option)
-- **[defmt (Rust)](https://github.com/knurling-rs/defmt)**
+- [defmt (Rust)](https://github.com/knurling-rs/defmt)
 - [Diagnostic Log and Trace](https://github.com/COVESA/dlt-daemon) (AUTOSAR)
-- **[Embedded Logger (elog)](https://github.com/martinribelotta/elog)** (Embedded logger with minimal footprint and memory usage)
+- [Embedded Logger (elog)](https://github.com/martinribelotta/elog) (Embedded logger with minimal footprint and memory usage)
 - [Logging with symbols - The Embedonomicon](https://docs.rust-embedded.org/embedonomicon/logging.html)
+- [McuLog (McuOnEclipse)](https://mcuoneclipse.com/2020/06/01/mculog-logging-framework-for-small-embedded-microcontroller-systems/)
 - [MCUViewer](https://github.com/klonyyy/MCUViewer)
-- **[McuLog (McuOnEclipse)]**
-- **[Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding)** (part of firmware SDK)
+- [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding) (part of firmware SDK)
 - [Metal Serial Library](https://github.com/metal-ci/_test/tree/master/doc/metal.serial.md)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
-- [**NanoLog (C++11)**](https://github.com/PlatformLab/NanoLog) (Linux C++)
-- [**Percepio Tracealyzer (with TraceRecorder)**](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
+- [NanoLog (C++11)](https://github.com/PlatformLab/NanoLog) (Linux C++)
+- [Percepio Tracealyzer (with TraceRecorder)](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
 - [Pigweed Trace Tokenized](https://pigweed.dev/pw_trace_tokenized/)
 - [Postform](https://github.com/Javier-varez/Postform) (Postponed formatting experiments with string interning in C++. Inspired by the defmt Rust crate )
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Real-time binary data logging/tracing toolkit](https://github.com/RTEdbg/RTEdbg)
-- **[SEGGER System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/)**
+- [SEGGER System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
 - [Tonbandgerät](https://github.com/schilkp/Tonbandgeraet) (A small embedded systems tracer with support for bare-metal and FreeRTOS-based targets)
 - [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications
-- **uLog (RD Poor)**
+- [uLog (RD Poor)](https://github.com/rdpoor/ulog)
 - [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 
 [ChatGPT Trice Compare (2025-05-26)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/master/docs/ChatGPTo4-mini-high_TriceCompare.html)
