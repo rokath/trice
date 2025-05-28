@@ -170,7 +170,7 @@ git clone https://github.com/rokath/trice.git
 - **uLog (RD Poor)**
 - [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 
-[ChatGPT Trice Compare (2025-05-26)](./docs/ChatGPTo4-mini-high_TriceCompare.html)
+[ChatGPT Trice Compare (2025-05-26)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/master/docs/ChatGPTo4-mini-high_TriceCompare.html)
 
 <!--- B A C K U P
 
