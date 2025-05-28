@@ -7,9 +7,9 @@
 #if !TRICE_OFF
 
 //! TriceHeadLine emits a decorated name. The name length should be 18 characters.
-void TriceHeadLine(char* name) {
+void TriceHeadLine(char const* name) {
 	//! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
-	TriceS("w: Hello! 👋🙂\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈%s🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n", name);
+	TriceS("w: Hello! 👋🙂\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈%s🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n", (char*)name);
 }
 
 //! SomeExampleTrices generates a few Trice example logs and a burst of Trices.
@@ -41,8 +41,8 @@ void SomeExampleTrices(int burstCount) {
 	char* aString = "2.71828182845904523536";
 	TriceS("rd:%s <- float number as string\n", aString);
 	Trice64("msg:%.20f (double with more ciphers than precision)\n", aDouble(2.71828182845904523536));
-	Trice("msg:%.20f (float  with more ciphers than precision)\n", aFloat(2.71828182845904523536));
-	Trice("msg:%f (default rounded float)\n", aFloat(2.71828182845904523536));
+	Trice("msg:%.20f (float  with more ciphers than precision)\n", aFloat(2.71828182845904523536f));
+	Trice("msg:%f (default rounded float)\n", aFloat(2.71828182845904523536f));
 	Trice("info:A Buffer:\n");
 	Trice8B("msg:%02x \n", aString, strlen(aString));
 	Trice32B("msg:%08x  \n", aString, strlen(aString) >> 2);

@@ -23,6 +23,8 @@ static void dynString(int n);
 
 // clang-format off
 
+void TriceCheck(int index); // Avoid noise with option -Wmissing-prototypes.
+
 //! TriceCheck performs trice code sequence n. TriceCheck writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
@@ -33,7 +35,7 @@ void TriceCheck(int n) {
 #ifdef TRICE_CHECK_MIN
     TRice("\rTriceCheck %4d", n);
 #else // #ifdef TRICE_CHECK_MIN
-    char* sABCDE = "abcde 12345";
+    char * sABCDE = "abcde 12345";
     uint32_t lenABCDE = strlen(sABCDE);
     float  x = (float)1089.6082763671875; // 0x44883377
     double y = 518.0547492508867; // 0x4080307020601050
@@ -50,7 +52,7 @@ void TriceCheck(int n) {
     static int16_t b16[] = { 0, -1, -2, 0x3344 };
     static int32_t b32[] = { 0, -1, -2, 0x33445555};
     static int64_t b64[4] = { 0, -1, -2, 0x3344555566666666 };
-    unsigned anchorLine = __LINE__ + 20; // The offset value here must point to the first test line containing `anchorLine`.
+    int anchorLine = __LINE__ + 20; // The offset value here must point to the first test line containing `anchorLine`.
 
     switch( n ){ 
         default:
@@ -430,14 +432,14 @@ void TriceCheck(int n) {
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
 
         break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
-        break; case __LINE__: TRICE(Id(0), "MSG:1/11 = %g\n", aFloat( 1.0/11 ) ); //exp: time:    be16default: MSG:1/11 = 0.09090909
+        break; case __LINE__: TRICE(Id(0), "MSG:1/11 = %g\n", aFloat( 1.0f/11 ) ); //exp: time:    be16default: MSG:1/11 = 0.09090909
         break; case __LINE__: { //exp: time:feed3322default: msg:x = 5.934 = 5.934, 5.934
 #if !TRICE_OFF
-                              float a = (float)5.934;
+                              float a = 5.934f;
                               float b = a + ((a > 0) ? 0.0005f : -0.0005f);
                               int c = (int)b;
                               int d = (int)(b * 1000) % 1000;
-                              int e = (int)(1000 * (float)(a - c)); 
+                              int e = (int)(1000 * (a - (float)c)); 
                               TRice("msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); 
 #endif                              
                               }
@@ -476,11 +478,11 @@ void TriceCheck(int n) {
 
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
         break; case __LINE__: trice("sig:Float (indent, precision, scientific notation)\n" );
-        break; case __LINE__: trice("rd: 1.234560e+02		%e 	%%e Scientific notation\n", aFloat(123.456) );                               //exp: time:        default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
-        break; case __LINE__: trice("rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aFloat(123.456) );                          //exp: time:        default: rd: 123.456000		123.456001 	%f Decimal point, no exponent
-        break; case __LINE__: trice("rd: 123.46			%.2f		%%.2f Default width, precision 2\n", aFloat(123.456) );                      //exp: time:        default: rd: 123.46			123.46		%.2f Default width, precision 2
-        break; case __LINE__: trice("rd: ␣␣123.46		%8.2f	%%8.2f Width 8, precision 2\n", aFloat(123.456) );                             //exp: time:        default: rd: ␣␣123.46		  123.46	%8.2f Width 8, precision 2
-        break; case __LINE__: trice("rd: 123.456		%g		%%g Exponent as needed, necessary digits only\n", aFloat(123.456) );           //exp: time:        default: rd: 123.456		123.456		%g Exponent as needed, necessary digits only
+        break; case __LINE__: trice("rd: 1.234560e+02		%e 	%%e Scientific notation\n", aFloat(123.456f) );                               //exp: time:        default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
+        break; case __LINE__: trice("rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aFloat(123.456f) );                          //exp: time:        default: rd: 123.456000		123.456001 	%f Decimal point, no exponent
+        break; case __LINE__: trice("rd: 123.46			%.2f		%%.2f Default width, precision 2\n", aFloat(123.456f) );                      //exp: time:        default: rd: 123.46			123.46		%.2f Default width, precision 2
+        break; case __LINE__: trice("rd: ␣␣123.46		%8.2f	%%8.2f Width 8, precision 2\n", aFloat(123.456f) );                             //exp: time:        default: rd: ␣␣123.46		  123.46	%8.2f Width 8, precision 2
+        break; case __LINE__: trice("rd: 123.456		%g		%%g Exponent as needed, necessary digits only\n", aFloat(123.456f) );           //exp: time:        default: rd: 123.456		123.456		%g Exponent as needed, necessary digits only
         break; case __LINE__: trice("sig:Double (indent, precision, scientific notation)\n" );
         break; case __LINE__: trice64("rd: 1.234560e+02		%e 	%%e Scientific notation\n", aDouble(123.456) );                            //exp: time:        default: rd: 1.234560e+02		1.234560e+02 	%e Scientific notation
         break; case __LINE__: trice64("rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aDouble(123.456) );                       //exp: time:        default: rd: 123.456000		123.456000 	%f Decimal point, no exponent
@@ -500,9 +502,9 @@ void TriceCheck(int n) {
         break; case __LINE__: exampleOfManualSerialization(); // ATTENTION: This occupies ~1024 bytes in one half buffer when double buffer ist used!
 
         // This was a CGO compiler issue:
-        break; case __LINE__: TRice("info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:feed3322default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
-        break; case __LINE__: Trice("info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:    be16default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
-        break; case __LINE__: trice("info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:        default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
+        break; case __LINE__: TRice("info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 ); //exp: time:feed3322default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
+        break; case __LINE__: Trice("info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 ); //exp: time:    be16default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
+        break; case __LINE__: trice("info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 ); //exp: time:        default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
 
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
 
@@ -585,16 +587,16 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK) 
 
-        break; case __LINE__: trice  ("rd:%E (%%E)\n",  aFloat(-555555555.5555555555) ); //exp: time:        default: rd:-5.555556E+08 (%E)
-        break; case __LINE__: trice  ("rd:%F (%%F)\n",  aFloat(-555555555.5555555555) ); //exp: time:        default: rd:-555555584.000000 (%F)
-        break; case __LINE__: trice  ("rd:%G (%%G)\n",  aFloat(-555555555.5555555555) ); //exp: time:        default: rd:-5.555556E+08 (%G)
+        break; case __LINE__: trice  ("rd:%E (%%E)\n",  aFloat(-555555555.5555555555f) ); //exp: time:        default: rd:-5.555556E+08 (%E)
+        break; case __LINE__: trice  ("rd:%F (%%F)\n",  aFloat(-555555555.5555555555f) ); //exp: time:        default: rd:-555555584.000000 (%F)
+        break; case __LINE__: trice  ("rd:%G (%%G)\n",  aFloat(-555555555.5555555555f) ); //exp: time:        default: rd:-5.555556E+08 (%G)
         break; case __LINE__: trice64("rd:%E (%%E)\n", aDouble(-555555555.5555555555) ); //exp: time:        default: rd:-5.555556E+08 (%E)
         break; case __LINE__: trice64("rd:%F (%%F)\n", aDouble(-555555555.5555555555) ); //exp: time:        default: rd:-555555555.555556 (%F)
         break; case __LINE__: trice64("rd:%G (%%G)\n", aDouble(-555555555.5555555555) ); //exp: time:        default: rd:-5.555555555555556E+08 (%G)
         
-        break; case __LINE__: trice  ("rd:%e (%%e)\n",  aFloat(-555555555.5555555555) ); //exp: time:        default: rd:-5.555556e+08 (%e)
-        break; case __LINE__: trice  ("rd:%f (%%f)\n",  aFloat(-555555555.5555555555) ); //exp: time:        default: rd:-555555584.000000 (%f)
-        break; case __LINE__: trice  ("rd:%g (%%g)\n",  aFloat(-555555555.5555555555) ); //exp: time:        default: rd:-5.555556e+08 (%g)
+        break; case __LINE__: trice  ("rd:%e (%%e)\n",  aFloat(-555555555.5555555555f) ); //exp: time:        default: rd:-5.555556e+08 (%e)
+        break; case __LINE__: trice  ("rd:%f (%%f)\n",  aFloat(-555555555.5555555555f) ); //exp: time:        default: rd:-555555584.000000 (%f)
+        break; case __LINE__: trice  ("rd:%g (%%g)\n",  aFloat(-555555555.5555555555f) ); //exp: time:        default: rd:-5.555556e+08 (%g)
         break; case __LINE__: trice64("rd:%e (%%e)\n", aDouble(-555555555.5555555555) ); //exp: time:        default: rd:-5.555556e+08 (%e)
         break; case __LINE__: trice64("rd:%f (%%f)\n", aDouble(-555555555.5555555555) ); //exp: time:        default: rd:-555555555.555556 (%f)
         break; case __LINE__: trice64("rd:%g (%%g)\n", aDouble(-555555555.5555555555) ); //exp: time:        default: rd:-5.555555555555556e+08 (%g)
@@ -693,12 +695,12 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE(Id(0), "info:This is a message with one value %d and a 16-bit stamp.\n", -2  ); //exp: time:    be16default: info:This is a message with one value -2 and a 16-bit stamp.
         break; case __LINE__: TRICE(id(0), "info:This is a message with one value %d and without stamp.\n" , -2  ); //exp: time:        default: info:This is a message with one value -2 and without stamp.
 
-        break; case __LINE__: TRICE(ID(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );   //exp: time:feed3322default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
-        break; case __LINE__: TRICE(Id(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );   //exp: time:    be16default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
-        break; case __LINE__: TRICE(id(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );   //exp: time:        default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
-        break; case __LINE__: TRICE32(ID(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:feed3322default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
-        break; case __LINE__: TRICE32(Id(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:    be16default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
-        break; case __LINE__: TRICE32(id(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //exp: time:        default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
+        break; case __LINE__: TRICE(ID(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 );   //exp: time:feed3322default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
+        break; case __LINE__: TRICE(Id(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 );   //exp: time:    be16default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
+        break; case __LINE__: TRICE(id(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 );   //exp: time:        default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
+        break; case __LINE__: TRICE32(ID(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 ); //exp: time:feed3322default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 32-bit stamp.
+        break; case __LINE__: TRICE32(Id(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 ); //exp: time:    be16default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and a 16-bit stamp.
+        break; case __LINE__: TRICE32(id(0), "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), aFloat(-7.123456789f), -8 ); //exp: time:        default: info:12 values -3, 4294967292, fffffffb, FFFFFFFA, true, -7.123457e+00, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11111111111111111111111111111000 and without stamp.
 
         break; case __LINE__: TRICE8   (id(0), "msg:value=%u\n", 200 ); //exp: time:        default: msg:value=200
         break; case __LINE__: TRICE8_1 (id(0), "msg:value=%u\n", 200 ); //exp: time:        default: msg:value=200
@@ -2173,7 +2175,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
                 TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
                 TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
                 TRICE32(Id(0), "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-                TRICE32(Id(0), "tst:TRICE32 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
+                TRICE32(Id(0), "tst:TRICE32 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159f), aFloat(3.14159f), aFloat(3.14159f));
         }
         break; case __LINE__: {
                 TRICE32_1 (Id(0), "tst:TRICE32_1  %d\n", -1 );
@@ -2188,8 +2190,8 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
                 TRICE32_10(Id(0), "tst:TRICE32_10 %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );
                 TRICE32_11(Id(0), "tst:TRICE32_11 %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );
                 TRICE32_12(Id(0), "tst:TRICE32_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
-                TRICE32   (Id(0), "tst:TRICE32    %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
-                TRICE32_12(Id(0), "tst:TRICE32_12 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159), aFloat(3.14159), aFloat(3.14159));
+                TRICE32   (Id(0), "tst:TRICE32    %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159f), aFloat(3.14159f), aFloat(3.14159f));
+                TRICE32_12(Id(0), "tst:TRICE32_12 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aFloat(3.14159f), aFloat(3.14159f), aFloat(3.14159f));
         }
         break; case __LINE__: trice("sig:TRICE64 with variable param count 1 to 12\n" );
         break; case __LINE__: TRICE64(ID(0), "tst:TRICE64 %d\n", -1 );
@@ -2589,25 +2591,25 @@ static int64_t DoubleToInt64(double f) {
 #endif
 
 //! SCOPY is a helper macro for struct serialization.
-#define SCOPY(element)                       \
-	do {                                     \
-		char* n = #element;                  \
-		int size = sizeof(src->element);     \
-		memcpy(p, &(src->element), size);    \
-		p += size;                           \
-		TRICE_S(ID(0), "rd:sizeof(%8s)", n); \
-		TRICE(ID(0), " = %d\n", size);       \
+#define SCOPY(element)                             \
+	do {                                           \
+		char const* n_SCOPY = #element;            \
+		size_t size_SCOPY = sizeof(src->element);  \
+		memcpy(p, &(src->element), size_SCOPY);    \
+		p += size_SCOPY;                           \
+		TRICE_S(ID(0), "rd:sizeof(%8s)", n_SCOPY); \
+		TRICE(ID(0), " = %d\n", size_SCOPY);       \
 	} while (0);
 
 //! DCOPY is a helper macro for struct deserialization.
-#define DCOPY(element)                       \
-	do {                                     \
-		char* n = #element;                  \
-		int size = sizeof(dst->element);     \
-		memcpy(&(dst->element), p, size);    \
-		p += size;                           \
-		TRICE_S(ID(0), "rd:sizeof(%8s)", n); \
-		TRICE(ID(0), " = %d\n", size);       \
+#define DCOPY(element)                             \
+	do {                                           \
+		char const* n_DCOPY = #element;            \
+		size_t size_DCOPY = sizeof(dst->element);  \
+		memcpy(&(dst->element), p, size_DCOPY);    \
+		p += size_DCOPY;                           \
+		TRICE_S(ID(0), "rd:sizeof(%8s)", n_DCOPY); \
+		TRICE(ID(0), " = %d\n", size_DCOPY);       \
 	} while (0);
 
 typedef struct {
@@ -2707,14 +2709,14 @@ static void exampleOfManualSerialization(void) {
 	memcpy(tx.names[1], "bbbb", strlen("bbbb"));
 	memcpy(tx.names[2], "ccccc", strlen("ccccc"));
 
-	tx.point[0].x = 2.22;
-	tx.point[0].y = -3.33;
+	tx.point[0].x = 2.22f;
+	tx.point[0].y = -3.33f;
 	tx.point[0].rgb[0] = 0x44;
 	tx.point[0].rgb[0] = 0x66;
 	tx.point[0].rgb[0] = 0x88;
 
-	tx.point[1].x = -66.66;
-	tx.point[1].y = +5.5555;
+	tx.point[1].x = -66.66f;
+	tx.point[1].y = +5.5555f;
 	tx.point[1].rgb[0] = 0xee;
 	tx.point[1].rgb[0] = 0xaa;
 	tx.point[1].rgb[0] = 0xbb;
@@ -2725,7 +2727,7 @@ static void exampleOfManualSerialization(void) {
 #if !TRICE_OFF
 	int len = serializeTryout(dst, &tx); // serialized byte count
 #else
-  int len = 0;
+	int len = 0;
 #endif
 	TRICE(Id(0), "inf: Tryout tx struct:");
 	TRICE8_B(Id(0), " %02x ", &tx, sizeof(tx));
@@ -2760,11 +2762,12 @@ static void exampleOfManualJSONencoding(void) {
 }
 
 static void dynString(int n) {
-	char* s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
+	char const* s = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,";
 	const size_t l = strlen(s);
-	n = n < l ? n : l;
+	size_t N_dynString = (size_t)n; // avoid warning: comparison of integer expressions of different signedness: 'int' and 'size_t'
+	N_dynString = N_dynString < l ? N_dynString : l;
 	// trice("sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
-	TRICE_N(id(0), "wr:%s\n", s, n);
+	TRICE_N(id(0), "wr:%s\n", s, N_dynString);
 }
 
 #endif // #ifndef TRICE_CHECK_MIN

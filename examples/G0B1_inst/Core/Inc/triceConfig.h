@@ -13,9 +13,9 @@ extern "C" {
 #define TRICE_CLEAN 1 // Do not define this at an other place! But you can delete this here.
 
 // hardware specific trice lib settings
-#include "main.h" 
-#define TriceStamp16 TIM17->CNT     // 0...999 us
-#define TriceStamp32 HAL_GetTick()  // 0...2^32-1 ms (wraps after 49.7 days)
+#include "main.h"
+#define TriceStamp16 TIM17->CNT    // 0...999 us
+#define TriceStamp32 HAL_GetTick() // 0...2^32-1 ms (wraps after 49.7 days)
 
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 2000
@@ -38,10 +38,17 @@ extern "C" {
 #define TRICE_UARTA USART2
 
 #include "cmsis_gcc.h"
-#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
-#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+#define TRICE_ENTER_CRITICAL_SECTION             \
+	{                                            \
+		uint32_t primaskstate = __get_PRIMASK(); \
+		__disable_irq();                         \
+		{
+#define TRICE_LEAVE_CRITICAL_SECTION \
+	}                                \
+	__set_PRIMASK(primaskstate);     \
+	}
 
-void TriceHeadLine(char* name);
+void TriceHeadLine(char const* name);
 void LogTriceConfiguration(void);
 void SomeExampleTrices(int burstCount);
 

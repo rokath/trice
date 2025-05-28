@@ -14,4 +14,8 @@ done
 
 make -j TRICE_FLAGS="$flags" gcc
 
+EXITCODE=$?
+
 ../../trice_cleanIDs_in_examples_and_test_folder.sh # Run this again to get the Trice IDs cleaned state.
+
+exit $EXITCODE

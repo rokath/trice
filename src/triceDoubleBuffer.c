@@ -7,6 +7,8 @@
 
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
 
+uint32_t* triceSingleBufferStartWritePosition = (void*)0;
+
 static void TriceOut(uint32_t* tb, size_t tLen);
 
 //! triceBuffer is a double buffer for better write speed.
@@ -173,7 +175,6 @@ static int TriceNext(uint8_t** buf, size_t* pSize, const uint8_t** pStart, size_
 
 uint8_t* firstNotModifiedAddress;
 int distance;
-int triceDataOffsetDepth;
 
 //! TriceOut encodes trices and writes them in one step to the output.
 //! This function is called only, when the slowest deferred output device has finished its last buffer.
@@ -193,6 +194,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 #endif
 	int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
 #if TRICE_DIAGNOSTICS == 1
+	int triceDataOffsetDepth;
 	unsigned depth = tLen + TRICE_DATA_OFFSET;
 	TriceHalfBufferDepthMax = depth < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : depth;
 #endif
@@ -271,7 +273,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		}
 #endif
 #if TRICE_DIAGNOSTICS == 1
-		int triceDataOffsetDepth = TRICE_DATA_OFFSET - triceDataOffsetSpaceRemained;
+		/*int*/ triceDataOffsetDepth = TRICE_DATA_OFFSET - triceDataOffsetSpaceRemained;
 		TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
 #endif
 	}
@@ -313,7 +315,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	// Mostly eLen < encLen, but it could be eLen = encLen + 1 + (encLen>>5) in TCOBS worst case.
 	// dat - enc = TRICE_DATA_OFFSET
 	// if eLen > encLen, then TriceDataOffsetDepth = eLen - encLen
-	int triceDataOffsetDepth = eLen - encLen; // usually negative
+	/*int*/ triceDataOffsetDepth = eLen - encLen; // usually negative
 	TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
 #endif
 	encLen = eLen;

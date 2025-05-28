@@ -1,5 +1,7 @@
 #include "trice.h"
 
+// clang-format off
+
 void TriceCheckSpecial( int n ) {
 
         static int8_t b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
@@ -27,3 +29,5 @@ void TriceCheckSpecial( int n ) {
                 break;  case __LINE__: trice64F("Rpc:FunctionNameZd",  b64, sizeof(b64)/sizeof(int64_t) );         //exp:          Rpc:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
         }
 }
+
+// clang-format on

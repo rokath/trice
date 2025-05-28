@@ -7,6 +7,8 @@
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_OFF == 0
 
+uint32_t* triceSingleBufferStartWritePosition = (void*)0;
+
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 static void triceSingleDeferredOut(int* wordCount);
 #else
@@ -180,6 +182,7 @@ TRICE_INLINE void triceRingBufferDiagnostics(void) {
 }
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+void triceTransferSingleFraming(void); // Avoid noise whis enabled -Wmissing-prototypes.
 
 //! triceTransferSingleFraming transfers a single Trice from the Ring Buffer.
 //! Implicit assumed is, that the pre-condition "TricesCountRingBuffer > 0" is fulfilled.
@@ -204,6 +207,8 @@ void triceTransferSingleFraming(void) {
 #endif // #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
+
+void triceTransferMultiFraming(void);
 
 //! triceTransferMultiFraming transfers several, but not necessarily all, Trices from the Ring Buffer.
 void triceTransferMultiFraming(void) {
