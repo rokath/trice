@@ -35,6 +35,9 @@ const (
 	patID = `\s*\b(i|I)(d|D)\b\s*` // `\s*\b(I|i)d\b\s*`
 
 	patNb = `\d+` // // `[0-9]*`
+
+	// patSpacesWithOptionalComma matches trailing spaces and optional comma after trice ID: trice(ID(111)>>  ,   <<"%format")
+	patSpacesWithOptionalComma = `^\s*,?\s*`
 )
 
 // formatSpecifierCount parses s for format specifier and returns the found count.

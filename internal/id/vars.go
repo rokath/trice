@@ -7,24 +7,25 @@ import (
 )
 
 var (
-	Verbose                    bool            // Verbose gives more information on output if set. The value is injected from main packages.
-	DryRun                     bool            // DryRun if set, inhibits real changes
-	FnJSON                     = "til.json"    // FnJSON is the filename for the JSON formatted ID list.
-	LIFnJSON                   string          // LIFnJSON is the filename for the JSON formatted location information list.
-	Min                        = TriceID(1000) // Min is the smallest allowed ID for normal trices.
-	Max                        = TriceID(7999) // Max is the biggest allowed ID for normal trices.
-	SearchMethod               = "random"      // SearchMethod is the next ID search method.
-	LIPathKind                 string          // LIPathKind controls how to store paths inside li.json: base, relative, full
-	Srcs                       ArrayFlag       // Srcs gets multiple files or directories.
-	ExcludeSrcs                ArrayFlag       // ExcludeSrcs is an ArrayFlag representing source files to be excluded from processing.
-	IDRange                    ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
-	IDData                     idData
-	matchSourceFile            = regexp.MustCompile(patSourceFile)
-	matchNbID                  = regexp.MustCompile(patNbID)
-	matchNb                    = regexp.MustCompile(patNb)
-	matchFmtString             = regexp.MustCompile(patFmtString)
-	matchNextFormatSpecifier   = regexp.MustCompile(patNextFormatSpecifier)
-	ExtendMacrosWithParamCount bool
+	Verbose                      bool            // Verbose gives more information on output if set. The value is injected from main packages.
+	DryRun                       bool            // DryRun if set, inhibits real changes
+	FnJSON                       = "til.json"    // FnJSON is the filename for the JSON formatted ID list.
+	LIFnJSON                     string          // LIFnJSON is the filename for the JSON formatted location information list.
+	Min                          = TriceID(1000) // Min is the smallest allowed ID for normal trices.
+	Max                          = TriceID(7999) // Max is the biggest allowed ID for normal trices.
+	SearchMethod                 = "random"      // SearchMethod is the next ID search method.
+	LIPathKind                   string          // LIPathKind controls how to store paths inside li.json: base, relative, full
+	Srcs                         ArrayFlag       // Srcs gets multiple files or directories.
+	ExcludeSrcs                  ArrayFlag       // ExcludeSrcs is an ArrayFlag representing source files to be excluded from processing.
+	IDRange                      ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
+	IDData                       idData
+	matchSourceFile              = regexp.MustCompile(patSourceFile)
+	matchNbID                    = regexp.MustCompile(patNbID)
+	matchNb                      = regexp.MustCompile(patNb)
+	matchFmtString               = regexp.MustCompile(patFmtString)
+	matchNextFormatSpecifier     = regexp.MustCompile(patNextFormatSpecifier)
+	matchSpacesWithOptionalComma = regexp.MustCompile(patSpacesWithOptionalComma)
+	ExtendMacrosWithParamCount   bool
 
 	TriceAliases       ArrayFlag // Holds trice() aliases.
 	TriceSAliases      ArrayFlag // Holds triceS() aliases.
