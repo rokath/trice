@@ -10,15 +10,29 @@ import (
 )
 
 func TestMatchTrice(t *testing.T) {
+	// Register custom aliases
+	triceAliasesPtr := &TriceAliases
+	triceAliasesPtr.Set("MyAssert")
+	ProcessAliases()
+
 	var testSet = []struct {
 		text, triceType, triceID, triceFmts string
 	}{
-		{`...TRice( "%d+%3d=\n%u", 
-		(3), 4, 
+		// Test case for assert-style custom macros w/o Trice ID
+		{`...MyAssert( i<12, "%d+%3d=%u",
+		(3), 4, (3+4) ); ,...`, `MyAssert`, ``, `i<12, "%d+%3d=%u"`},
+
+		// Test case for assert-style custom macros with Trice ID
+		{`...MyAssert( iD(42), i<12, "%d+%3d=%u",
+		(3), 4, (3+4) ); ,...`, `MyAssert`, `iD(42)`, `i<12, "%d+%3d=%u"`},
+
+		// Test case for built-in macros
+		{`...TRice( "%d+%3d=\n%u",
+		(3), 4,
 		(3+4) ); ,...`, `TRice`, ``, `"%d+%3d=\n%u"`},
-		{`...TRice( "%d+%3d=%u", 
+		{`...TRice( "%d+%3d=%u",
 		(3), 4, (3+4) ); ,...`, `TRice`, ``, `"%d+%3d=%u"`},
-		{`...TRice( "%d", 
+		{`...TRice( "%d",
 		(3+4) ); ,...`, `TRice`, ``, `"%d"`},
 		{`...TRice( "%d", (3+4) ); ,...`, `TRice`, ``, `"%d"`},
 		{`...TRice( "a" ); ,...`, `TRice`, ``, `"a"`},
@@ -39,7 +53,7 @@ func TestMatchTrice(t *testing.T) {
 		b" ); ,...`, `TRice`, `iD(99)`, `"a
 		b"`},
 		{`... ttt ... TRice( "a", "b" ); ,...`, `TRice`, ``, `"a"`}, // 12 17 18 0 0 19 22
-		{`... ttt ... TRice( 
+		{`... ttt ... TRice(
 			"a", "b" ); ,...`, `TRice`, ``, `"a"`}, // 12 17 18 0 0 19 22
 		{`... ttt ... TRice
 			( "a", "b" ); ,...`, `TRice`, ``, `"a"`}, // 12 17 18 0 0 19 22

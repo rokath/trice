@@ -26,6 +26,32 @@ import (
 
 var SkipAdditionalChecks bool
 
+func ApplyTriceAliases(t *TriceFmt) {
+	isAlias := slices.Contains(TriceAliases, t.Type)
+	isSAlias := slices.Contains(TriceSAliases, t.Type)
+
+	if isAlias && isSAlias {
+		isSAlias = false
+		// The same alias registered for trice() and triceS(). Let's analyze the last letter
+		if len(t.Type) > 0 {
+			last := t.Type[len(t.Type)-1]
+			if last == 's' || last == 'S' {
+				isAlias = false
+				isSAlias = true
+			}
+		}
+	}
+
+	if isAlias {
+		t.Alias = t.Type
+		// QUESTION: What can be an easy way to map aliases to a variety of triceX_Y?
+		t.Type = "trice"
+	} else if isSAlias {
+		t.Alias = t.Type
+		t.Type = "triceS"
+	}
+}
+
 // CompactSrcs adds local dir to Srcs if Srcs is empty and reduces variable Scrs to the minimum to address all intended folders.
 func CompactSrcs() {
 	if len(Srcs) == 0 { // Srcs is an array flag containing desired folders & files
