@@ -381,7 +381,7 @@ func TestInsert_On_valid_iCache_valid_cCache_clean_file_edited(t *testing.T) {
 	// When editing, the old content is still buffered and not synced to disk, so we need to wait until the new mtime.
 	sT := sT0
 	for sT0 == sT { // Wait for the file system ...
-		assertFileCreate(t, FSys, SFName, `trice(i"msg:value=%d\n", -2);`) // edit file
+		assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -2);`) // edit file
 		sT = mTime(t, FSys, SFName)
 		time.Sleep(10 * time.Millisecond)
 	}
