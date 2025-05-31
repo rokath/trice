@@ -32,8 +32,9 @@ func (id *TriceID) Set(value string) error {
 
 // TriceFmt is the trice format information assigned to a trice ID.
 type TriceFmt struct {
-	Type string `json:"Type"` // format type (bit-size and number of fmt string parameters)
-	Strg string `json:"Strg"` // format string
+	Type  string `json:"Type"`            // format type (bit-size and number of fmt string parameters)
+	Strg  string `json:"Strg"`            // format string
+	Alias string `json:"Alias,omitempty"` // alias, if any
 }
 
 // TriceIDLookUp is the ID-to-TriceFmt info translation map. Different IDs can refer to equal TriceFmt's.

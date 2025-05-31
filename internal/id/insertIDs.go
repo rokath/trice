@@ -124,9 +124,10 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 			break // done
 		}
 		line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information. // issue # 523
-		// QUESTION: How to correct count (escaped/non-escaped) newlines inside Trice format strings?
-		t.Type = rest[loc[0]:loc[1]]       // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
-		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
+
+		t.Type = rest[loc[0]:loc[1]] // token is an alias or it can be the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
+		ApplyTriceAliases(&t)
+		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes with +1 and -1.
 		if !SkipAdditionalChecks {
 			linesOffset := 0 //strings.Count(rest[:loc[6]], "\n") // issue # 523
 			err = evaluateTriceParameterCount(t, line+linesOffset, rest[loc[6]:])

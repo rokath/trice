@@ -12,8 +12,10 @@ import (
 	"io"
 	"os"
 	"path"
+	"regexp"
 	"runtime"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -23,6 +25,32 @@ import (
 )
 
 var SkipAdditionalChecks bool
+
+func ApplyTriceAliases(t *TriceFmt) {
+	isAlias := slices.Contains(TriceAliases, t.Type)
+	isSAlias := slices.Contains(TriceSAliases, t.Type)
+
+	if isAlias && isSAlias {
+		isSAlias = false
+		// The same alias registered for trice() and triceS(). Let's analyze the last letter
+		if len(t.Type) > 0 {
+			last := t.Type[len(t.Type)-1]
+			if last == 's' || last == 'S' {
+				isAlias = false
+				isSAlias = true
+			}
+		}
+	}
+
+	if isAlias {
+		t.Alias = t.Type
+		// QUESTION: What can be an easy way to map aliases to a variety of triceX_Y?
+		t.Type = "trice"
+	} else if isSAlias {
+		t.Alias = t.Type
+		t.Type = "triceS"
+	}
+}
 
 // CompactSrcs adds local dir to Srcs if Srcs is empty and reduces variable Scrs to the minimum to address all intended folders.
 func CompactSrcs() {
@@ -34,6 +62,41 @@ func CompactSrcs() {
 	}
 	slices.Sort(Srcs)
 	Srcs = slices.Compact(Srcs)
+}
+
+func ProcessAliases() {
+	suffix := `\b` // Word boundary after macro name
+
+	// Core TRICE pattern (without closing \b)
+	baseTricePattern := `(?i)\bTRICE(?:0|_0|AssertTrue|AssertFalse|(?:8|16|32|64)*(?:_*[0-9SNBF]*)*)`
+
+	// Combine static and dynamic aliases
+	merged := append(TriceAliases, TriceSAliases...)
+
+	// Escape dynamic macros and sort longest first
+	var escapedExtras []string
+	for _, word := range merged {
+		if word != "" {
+			escapedExtras = append(escapedExtras, suffix+regexp.QuoteMeta(word)+suffix)
+		}
+	}
+	sort.SliceStable(escapedExtras, func(i, j int) bool {
+		return len(escapedExtras[i]) > len(escapedExtras[j])
+	})
+
+	// Combine a full pattern with dynamic macros
+	allPatterns := append([]string{baseTricePattern + suffix}, escapedExtras...)
+	finalMacroPattern := `(` + strings.Join(allPatterns, `|`) + `)`
+
+	// Compile a basic macro name matcher
+	matchTypNameTRICE = regexp.MustCompile(finalMacroPattern)
+
+	// Full TRICE call pattern (assumes patID and patFmtString exist)
+	patNbTRICE := finalMacroPattern + `\s*\(` + patID + `\(\s*.*[0-9]\s*\)\s*,\s*` + patFmtString + `\s*.*\)`
+	matchNbTRICE = regexp.MustCompile(patNbTRICE)
+
+	// Partial matcher for the start of any TRICE-style or aliaS macro call
+	matchAnyTriceStart = regexp.MustCompile(finalMacroPattern + `\s*\(`)
 }
 
 // fileExists returns true, if path exits.

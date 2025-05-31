@@ -82,6 +82,22 @@ start:
 			//              TR________________ice                              (
 			rest := s[triceStartloc[1]:fmtLoc[0]]
 			idLoc := matchNbID.FindStringIndex(rest)
+
+			// Calculate the leftmost position of the format string, skipping trailing spaces
+			// and the comma after ID (if present)
+			fmtLoc[0] = triceStartloc[1]
+			if idLoc != nil {
+				fmtLoc[0] += idLoc[1]
+			}
+
+			skipSpacesBeforeFmtLoc := matchSpacesWithOptionalComma.FindStringIndex(s[fmtLoc[0]:])
+			if skipSpacesBeforeFmtLoc != nil {
+				fmtLoc[0] += skipSpacesBeforeFmtLoc[1]
+			}
+
+			// For custom macros, the format string isn't always the first arg after Trice ID
+			// (assert macros put the condition first). So loc[5] tracks where the actual
+			// first arg starts, not where the format string is
 			if idLoc == nil { // no ID statement
 				clpIndex = strings.Index(rest, `)`)
 				// - if `)` is located before format string starts, discard trice
