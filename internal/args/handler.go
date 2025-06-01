@@ -11,7 +11,6 @@ import (
 	"io"
 	"os"
 	"runtime/debug"
-	"strings"
 	"sync"
 	"time"
 
@@ -32,9 +31,9 @@ import (
 // It returns for program exit.
 func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	// Trim leading and trailing whitespace
-	for i := range args {
-		args[i] = strings.TrimSpace(args[i])
-	}
+	//for i := range args {
+	//	args[i] = strings.TrimSpace(args[i])
+	//}
 
 	if Date == "" { // goreleaser will set Date, otherwise use file info.
 		path, err := os.Executable()
