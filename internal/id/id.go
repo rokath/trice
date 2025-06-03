@@ -37,6 +37,14 @@ type TriceFmt struct {
 	Alias string `json:"Alias,omitempty"` // alias, if any
 }
 
+func (tf TriceFmt) isAlias() bool {
+	return tf.Alias != ""
+}
+
+func (tf TriceFmt) isSAlias() bool {
+	return tf.isAlias() && tf.Type == "triceS"
+}
+
 // TriceIDLookUp is the ID-to-TriceFmt info translation map. Different IDs can refer to equal TriceFmt's.
 // It is used during logging.
 // Example: 1:A, 5:C, 7:C

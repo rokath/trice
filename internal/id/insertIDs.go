@@ -126,11 +126,19 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 		line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information. // issue # 523
 
 		t.Type = rest[loc[0]:loc[1]] // token is an alias or it can be the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
-		ApplyTriceAliases(&t)
-		t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes with +1 and -1.
+		resolveTriceAlias(&t)
 
-		// Only check format specifiers for built-in trice macros with defined behavior; alias macros may alter formatting arbitrarily, making such checks unreliable.
-		if !SkipAdditionalChecks && t.Alias == "" {
+		// Q: What should we use as Strg for custom macros when the format string isn't reliably the 1st or 2nd argument after the Trice ID?
+		// A: Use "%s" for dynamic strings; otherwise, assume the format string is the first argument after the Trice ID.
+		if !t.isSAlias() {
+			t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes with +1 and -1.
+		} else {
+			t.Strg = "%s"
+		}
+
+		// Only check format specifiers(param count) for built-in trice macros with defined behavior;
+		// Alias/macros may alter formatting arbitrarily, making such checks unreliable.
+		if !SkipAdditionalChecks && !t.isAlias() {
 			linesOffset := 0 //strings.Count(rest[:loc[6]], "\n") // issue # 523
 			err = evaluateTriceParameterCount(t, line+linesOffset, rest[loc[6]:])
 			if err != nil {
