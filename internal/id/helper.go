@@ -26,7 +26,25 @@ import (
 
 var SkipAdditionalChecks bool
 
-func ApplyTriceAliases(t *TriceFmt) {
+func findClosingParentis(s string, startAt int) int {
+	// Assumes an opening parenthesis exists somewhere before s[startAt],
+	counter := 1
+
+	for i := startAt; i < len(s); i++ {
+		if s[i] == '(' {
+			counter++
+		} else if s[i] == ')' {
+			counter--
+			if counter <= 0 {
+				return i
+			}
+		}
+	}
+
+	return -1
+}
+
+func resolveTriceAlias(t *TriceFmt) {
 	isAlias := slices.Contains(TriceAliases, t.Type)
 	isSAlias := slices.Contains(TriceSAliases, t.Type)
 
