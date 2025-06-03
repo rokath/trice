@@ -16,6 +16,93 @@ import (
 	"github.com/tj/assert"
 )
 
+func TestAliasesInsertion(t *testing.T) {
+	defer Setup(t)()
+
+	// create src file1
+	sFn1 := "folder1/file1.c"
+	src1 := `
+	Alias("Simple message: %d\n", 42);
+	SAlias_NO_MESSAGE(42);
+	SAlias_WITH_MESSAGE(false, "test message\n");
+	SAlias_WITH_MESSAGE_AND_ARGS(false, "test message: %d\n", 42);
+	`
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
+
+	// action
+	assert.Nil(t, args.Handler(W, FSys, []string{
+		"trice", "insert", "-src", "folder1/file1.c",
+		"-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward",
+		"-til", FnJSON,
+		"-li", LIFnJSON,
+		"-alias", "Alias",
+		"-salias", "SAlias_NO_MESSAGE",
+		"-salias", "SAlias_WITH_MESSAGE",
+		"-salias", "SAlias_WITH_MESSAGE_AND_ARGS",
+	}))
+
+	// check modified src file1
+	expSrc1 := `
+	Alias(iD(999), "Simple message: %d\n", 42);
+	SAlias_NO_MESSAGE(iD(998), 42);
+	SAlias_WITH_MESSAGE(iD(997), false, "test message\n");
+	SAlias_WITH_MESSAGE_AND_ARGS(iD(996), false, "test message: %d\n", 42);
+	`
+
+	actSrc1, e := FSys.ReadFile(sFn1)
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc1, string(actSrc1))
+
+	// create expected til.json file
+	expTil := `{
+	"996": {
+		"Type": "triceS",
+		"Strg": "%s",
+		"Alias": "SAlias_WITH_MESSAGE_AND_ARGS"
+	},
+	"997": {
+		"Type": "triceS",
+		"Strg": "%s",
+		"Alias": "SAlias_WITH_MESSAGE"
+	},
+	"998": {
+		"Type": "triceS",
+		"Strg": "%s",
+		"Alias": "SAlias_NO_MESSAGE"
+	},
+	"999": {
+		"Type": "trice",
+		"Strg": "Simple message: %d\\n",
+		"Alias": "Alias"
+	}
+}`
+	actTil, e := FSys.ReadFile(FnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expTil, string(actTil))
+
+	expLi := `{
+	"996": {
+		"File": "file1.c",
+		"Line": 5
+	},
+	"997": {
+		"File": "file1.c",
+		"Line": 4
+	},
+	"998": {
+		"File": "file1.c",
+		"Line": 3
+	},
+	"999": {
+		"File": "file1.c",
+		"Line": 2
+	}
+}`
+	actLi, e := FSys.ReadFile(LIFnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expLi, string(actLi))
+}
+
 func TestInsertKnownID(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -419,15 +506,15 @@ func TestInsertWithTickInComment(t *testing.T) {
 	expSrc1 := `
 	//""'
 	//"
-	TRice("x" );
-	//"
 	TRice(iD(999), "x" );
-	triceAssertTrue(iD(998), "x", flag );
-	TriceAssertTrue(iD(997), "x", flag );
-	TRiceAssertTrue(iD(996), "x", flag );
-	triceAssertFalse(iD(995), "x", flag );
-	TriceAssertFalse(iD(994), "x", flag );
-	TRiceAssertFalse(iD(993), "x", flag );
+	//"
+	TRice(iD(998), "x" );
+	triceAssertTrue(iD(997), "x", flag );
+	TriceAssertTrue(iD(996), "x", flag );
+	TRiceAssertTrue(iD(995), "x", flag );
+	triceAssertFalse(iD(994), "x", flag );
+	TriceAssertFalse(iD(993), "x", flag );
+	TRiceAssertFalse(iD(992), "x", flag );
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
