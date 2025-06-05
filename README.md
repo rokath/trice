@@ -155,7 +155,7 @@ git clone https://github.com/rokath/trice.git
 - [McuLog (McuOnEclipse)](https://mcuoneclipse.com/2020/06/01/mculog-logging-framework-for-small-embedded-microcontroller-systems/)
 - [MCUViewer](https://github.com/klonyyy/MCUViewer)
 - [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding) (part of firmware SDK)
-- [Metal Serial Library](https://github.com/metal-ci/_test/tree/master/doc/metal.serial.md)
+<!-- - [Metal Serial Library](https://github.com/metal-ci/_test/tree/master/doc/metal.serial.md) -->
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog (C++11)](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [Percepio Tracealyzer (with TraceRecorder)](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
