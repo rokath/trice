@@ -18,11 +18,13 @@ func TestMatchTrice(t *testing.T) {
 	var testSet = []struct {
 		text, triceType, triceID, triceFmts string
 	}{
-		// Test case for assert-style custom macros w/o Trice ID
+		// Test case for assert-style custom macros w/o a message at all
+		{`...MyAssert( i<12); ,...`, `MyAssert`, ``, `i<12`},
+		{`...MyAssert( iD(42), i<12); ,...`, `MyAssert`, `iD(42)`, `i<12`},
+
+		// Test case for assert-style custom macros with assert message after condition
 		{`...MyAssert( i<12, "%d+%3d=%u",
 		(3), 4, (3+4) ); ,...`, `MyAssert`, ``, `i<12, "%d+%3d=%u"`},
-
-		// Test case for assert-style custom macros with Trice ID
 		{`...MyAssert( iD(42), i<12, "%d+%3d=%u",
 		(3), 4, (3+4) ); ,...`, `MyAssert`, `iD(42)`, `i<12, "%d+%3d=%u"`},
 
