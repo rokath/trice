@@ -3691,7 +3691,7 @@ Nov 14 17:32:35.710201  TCP4:       triceExamples.c    26        0_504 i=4444440
     UserNonBlockingDeferredWrite8AuxiliaryFn = mySDcardWrite; 
     ```
 
-* If the CD-card write is more effective using 32-bits chunks, consider `TRICE_DEFERRED_AUXILIARY32`, what is recommended also if you use the encryption option. 
+* If the SD-card write is more effective using 32-bits chunks, consider `TRICE_DEFERRED_AUXILIARY32`, what is recommended also if you use the encryption option. 
 * There maybe use cases for `TRICE_DIRECT_AUXILIARY8` or `TRICE_DIRECT_AUXILIARY32`, but consider the max write time.
 * Placing the files *til.json* and *li.json* anto the SD-card as well might be meaninjful.
 * To decode *myTriceLogs.bin* later
