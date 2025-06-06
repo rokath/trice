@@ -37,11 +37,11 @@ echo "---"                                           2>&1 | tee -a $triceFolder/
 echo "Testing the Target code inside PC..."          2>&1 | tee -a $triceFolder/testAll.log
 if [ "$SELECTED" = "quick" ]; then
     echo "go test ./be_dblB_de_tcobs_ua/..."         2>&1 | tee -a $triceFolder/testAll.log
-    #go test ./be_dblB_de_tcobs_ua/...                2>&1 | tee -a $triceFolder/testAll.log
+    go test ./be_dblB_de_tcobs_ua/...                2>&1 | tee -a $triceFolder/testAll.log
 fi
 if [ "$SELECTED" = "full" ]; then
     echo "go test ./..."                             2>&1 | tee -a $triceFolder/testAll.log
-    #go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
+    go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
 fi
 cd - >/dev/null
 sleep 1.0
