@@ -10,3 +10,8 @@ TRICE_CMD_LINE+="-src ./examples/exampleData "
 TRICE_CMD_LINE+="-src ./examples/F030_inst/Core "
 TRICE_CMD_LINE+="-src ./examples/G0B1_inst/Core "
 TRICE_CMD_LINE+="-src ./examples/L432_inst/Core "
+
+# Aliases
+TRICE_CMD_LINE+="-alias CUSTOM_PRINT "
+TRICE_CMD_LINE+="-salias CUSTOM_ASSERT "
+TRICE_CMD_LINE+="-exclude ./examples/G0B1_inst/Core/Inc/triceCustomAliases.h "
