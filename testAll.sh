@@ -19,6 +19,23 @@ fi
 
 echo "Command line: $0 $1 $2"                        2>&1 | tee -a $triceFolder/testAll.log
 echo "SELECTED: $SELECTED"                           2>&1 | tee -a $triceFolder/testAll.log
+echo \$OSTYPE=$OSTYPE                                2>&1 | tee -a $triceFolder/testAll.log
+if command -v uname; then                            2>&1 | tee -a $triceFolder/testAll.log
+uname -a                                             2>&1 | tee -a $triceFolder/testAll.log
+fi
+if command -v clang; then                            2>&1 | tee -a $triceFolder/testAll.log
+clang --version                                      2>&1 | tee -a $triceFolder/testAll.log
+fi
+if command -v  arm-none-eabi-gcc; then               2>&1 | tee -a $triceFolder/testAll.log
+arm-none-eabi-gcc --version                          2>&1 | tee -a $triceFolder/testAll.log
+fi
+echo \$C_INCLUDE_PATH=$C_INCLUDE_PATH                2>&1 | tee -a $triceFolder/testAll.log
+echo arm-none-eabi-gcc location in next line:        2>&1 | tee -a $triceFolder/testAll.log
+which arm-none-eabi-gcc                              2>&1 | tee -a $triceFolder/testAll.log
+if command -v go; then                               2>&1 | tee -a $triceFolder/testAll.log
+go version                                           2>&1 | tee -a $triceFolder/testAll.log
+fi
+trice version                                        2>&1 | tee -a $triceFolder/testAll.log
 ./trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
 rm -f demoTIL.json demoLI.json                       2>&1 | tee -a $triceFolder/testAll.log
 touch demoTIL.json demoLI.json                       2>&1 | tee -a $triceFolder/testAll.log
