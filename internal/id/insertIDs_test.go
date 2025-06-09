@@ -57,23 +57,19 @@ func TestAliasesInsertion(t *testing.T) {
 	expTil := `{
 	"996": {
 		"Type": "triceS",
-		"Strg": "%s",
-		"Alias": "SAlias_WITH_MESSAGE_AND_ARGS"
+		"Strg": "%s"
 	},
 	"997": {
 		"Type": "triceS",
-		"Strg": "%s",
-		"Alias": "SAlias_WITH_MESSAGE"
+		"Strg": "%s"
 	},
 	"998": {
 		"Type": "triceS",
-		"Strg": "%s",
-		"Alias": "SAlias_NO_MESSAGE"
+		"Strg": "%s"
 	},
 	"999": {
 		"Type": "trice",
-		"Strg": "Simple message: %d\\n",
-		"Alias": "Alias"
+		"Strg": "Simple message: %d\\n"
 	}
 }`
 	actTil, e := FSys.ReadFile(FnJSON)
