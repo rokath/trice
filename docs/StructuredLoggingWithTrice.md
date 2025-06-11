@@ -39,6 +39,7 @@ void initABC( void ){
     // ...
     trice(iD(123), "wrn:MyF=%f, myI=%d", aFloat(4.2), 42);
     // ...
+}
 ```
 
 But a `trice insert` command with context option will, for example, change that line into:
@@ -46,38 +47,83 @@ But a `trice insert` command with context option will, for example, change that 
 ```C
 void initABC( void ){
     // ...
-    trice(iD(456), '[log level=wrn][file="main.c"][line=321][function=initABC][taskID=%d][fmt="MyF=%f, myI=%d"][uptime=%08us]\n', getTaskID(), aFloat(4.2), 42), uptime()) ;
+    trice(iD(456), "[log level=wrn][file=\"main.c\"][line=321][function=initABC][taskID=%x][fmt=\"MyF=%f, myI=%d\"][uptime=%08us]\n", getTaskID(), aFloat(4.2), 42), uptime()) ;
     // ...
+}
 ```
-
-A `trice clean` command will remove the context information completely including the ID.
 
 Use these CLI switches on `trice insert` and `trice clean` (with example values):
 
-* `-contextFmtString="[log level=$channel][file=$file][line=$line][function=$function][taskID=%d][fmt=$fmt][uptime=%08us]\n"`
-* `-contextFmtValues=", getTaskID(), $parameters, uptime()"`
+```bash
+trice insert \
+-contextFmtString="[log level=$channel][file=$file][line=$line][function=$function][taskID=%x][fmt=$fmt][uptime=%08us]\n" \
+-contextFmtValues=", getTaskID(), $parameters, uptime()"
+```
 
 The user has full control and could also use a JSON format. Only the format specifiers are requested to match the passed values, so that the Trice tool can perform a printf.
-Before printing, the Trice tool will replace the following Trice tool specific variables:
 
-| Variable    | Example             | Comment                                                                                                                                           |
-| ----------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| $channel    | wrn                 | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                             |
-| $filename   | "main.c"            | The file name, where the Trice log occures.                                                                                                       |
-| $line       | 321                 | The file line, where the Trice log occures.                                                                                                       |
-| $function   | initABC             | The function name, where the Trice log occures.                                                                                                   |
-| $fmt        | "MyF=%f, myI=%d"    | The bare Trice format string stripped from the channel specifier including the colon (`:`) according to the Trice rule (only lowercase-only ones) |
-| $parameters | ", aFloat(4.2), 42" | The bare Trice statement parameters. In the example above: ", aFloat(42.0), 42"                                                                   |
+Adding values like `$line` as strings has performance advantages, but on each such value change is a new Trice ID generated then. Those variables are better inserted as values like this:
+
+```bash
+trice insert \
+-contextFmtString="[log level=$channel][file=$file][line=%d][function=$function][taskID=%x][fmt=$fmt][uptime=%08us]\n" \
+-contextFmtValues=", $line, getTaskID(), $parameters, uptime()"
+```
+
+Or the user decides to include the normal location information of the Trice tool (`li` switch).
+
+To achieve a log output in compact JSON *contextFmtValues* is the same, but change the *contextFmtString*:
+
+```bash
+trice insert \
+-contextFmtString=`{"log level":"wrn","file":"main.c","line:"%d","function":"$function","taskID":"%x","fmt":"MyF=%f, myI=%d","uptime":%08u us"}\n` \
+-contextFmtValues=", $line, getTaskID(), $parameters, uptime()"
+```
+
+The *contextFmtString* is now given as [raw string literal](https://go.dev/ref/spec#String_literals) to avoid `\"` all the time. After `trice insert` a log line as compact JSON would look in **C** like
+
+```C
+void initABC( void ){
+    // ...
+    trice(iD(789), "{\"log level\":\"wrn\",\"file\":\"main.c\",\"line\":\"%d\",\"function\":\"initABC\",\"taskID\":\"%x\",\"fmt\":\"MyF=%f, myI=%d\",\"uptime\":\"%08u us\"}\n', $line, getTaskID(), aFloat(4.2), 42), uptime());
+    // ...
+}
+```
+
+A `trice clean` command will remove the context information completely including the ID. Please keep in mind, that with `trice insert` as a pre-compile and `trice clean` as post-compile step the user all the time sees only the original written code
+
+```C
+void initABC( void ){
+    // ...
+    trice("wrn:MyF=%f, myI=%d\n", aFloat(4.2), 42);
+    // ...
+}
+```
+
+and the optional `-cache` switch makes things blazing fast.
+
+The appropriate Trice tool log line output would be
+
+```bash
+{...}
+{"log level":"wrn","file":"main.c","line":"321","function":"initABC","taskID":"0x123","fmt":"MyF=4.2000, myI=42","uptime":"12345678 us"}
+{...}
+```
+
+Before inserting, the Trice tool will replace the following Trice tool specific variables:
+
+| Variable    | Example             | Comment                                                                                                                                      |
+| ----------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| $channel    | wrn                 | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                        |
+| $filename   | "main.c"            | The file name, where the Trice log occures.                                                                                                  |
+| $line       | 321                 | The file line, where the Trice log occures.                                                                                                  |
+| $function   | initABC             | The function name, where the Trice log occures.                                                                                              |
+| $fmt        | "MyF=%f, myI=%d"    | The bare Trice format string stripped from the channel specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
+| $parameters | ", aFloat(4.2), 42" | The bare Trice statement parameters. In the example above: ", aFloat(42.0), 42"                                                              |
 
 When *contextFmtString* and *contextFmtValues* are empty strings (default) `trice insert` and `trice clean` commands will work the ususal way.
 If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. That will only work if *contextFmtString* and *contextFmtValues* where not changed inbetween. The same way `trice clean` would remove the context information only, if *contextFmtString* and *contextFmtValues* kept unchanged. If the user wants to change *contextFmtString* and *contextFmtValues* during development first a `trice clean` is needed.
 
-Adding values like `__LINE__` as strings has performance advantages, but on each value change is a new Trice ID generated then. Those variables are better inserted as values like this:
-
-* `-contextFmtString="[log level=$channel][file=$file][line=%d][function=$function][taskID=%d][fmt=$fmt][uptime=%08us]\n"`
-* `-contextFmtValues=, __LINE__, getTaskID(), $parameters, uptime()`
-
-Or the user decides to include the normal location information of the Trice tool (`li` switch).
 
 <!--
 
