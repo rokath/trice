@@ -22,12 +22,12 @@ For performance reasons, Trice was designed to only transmit 0-12 (extendable) n
 
 ## An Assumed Example
 
-User may have wriiten:
+User may have written inside *main.c*:
 
 ```C
 void initABC( void ){
     // ...
-    trice("wrn:MyF %f, myI %d\n", aFloat(4.2), 42);
+    trice("wrn:MyF=%f, myI=%d\n", aFloat(4.2), 42);
     // ...
 }
 ```
@@ -37,7 +37,7 @@ and (as we know) a `trice insert` command would change that into:
 ```C
 void initABC( void ){
     // ...
-    trice(iD(123), "wrn:MyF %f, myI %d", aFloat(4.2), 42);
+    trice(iD(123), "wrn:MyF=%f, myI=%d", aFloat(4.2), 42);
     // ...
 ```
 
@@ -46,27 +46,28 @@ But a `trice insert` command with context option will, for example, change that 
 ```C
 void initABC( void ){
     // ...
-    trice(iD(456), '[log level=wrn][file="main.c"][line=321][function=initABC][taskID=%d][fmt=MyF %f, myI %d"][uptime=%08us]\n', getTaskID(), aFloat(4.2), 42), uptime()) ;
+    trice(iD(456), '[log level=wrn][file="main.c"][line=321][function=initABC][taskID=%d][fmt="MyF=%f, myI=%d"][uptime=%08us]\n', getTaskID(), aFloat(4.2), 42), uptime()) ;
     // ...
 ```
 
 A `trice clean` command will remove the context information completely including the ID.
 
-Use these CLI switches together with `trice insert` and `trice clean` (with example values):
+Use these CLI switches on `trice insert` and `trice clean` (with example values):
 
 * `-contextFmtString="[log level=$channel][file=$file][line=$line][function=$function][taskID=%d][fmt=$fmt][uptime=%08us]\n"`
-* `-contextFmtValues=, getTaskID(), $parameters, uptime()`
+* `-contextFmtValues=", getTaskID(), $parameters, uptime()"`
 
-The user has full control and could also use a JSON format. The Trice tool will replace the following Trice tool specific variables:
+The user has full control and could also use a JSON format. Only the format specifiers are requested to match the passed values, so that the Trice tool can perform a printf.
+Before printing, the Trice tool will replace the following Trice tool specific variables:
 
-| variable name | replacement                                                                                                                                       |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| $channel      | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                             |
-| $filename     | The file name, where the Trice log occures.                                                                                                       |
-| $line         | The file line, where the Trice log occures.                                                                                                       |
-| $function     | The function name, where the Trice log occures.                                                                                                   |
-| $fmt          | The bare Trice format string stripped from the channel specifier including the colon (`:`) according to the Trice rule (only lowercase-only ones) |
-| $parameters   | The bare Trice statement parameters. In the example above: ", aFloat(42.0), 42"                                                                   |
+| Variable    | Example             | Comment                                                                                                                                           |
+| ----------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| $channel    | wrn                 | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                             |
+| $filename   | "main.c"            | The file name, where the Trice log occures.                                                                                                       |
+| $line       | 321                 | The file line, where the Trice log occures.                                                                                                       |
+| $function   | initABC             | The function name, where the Trice log occures.                                                                                                   |
+| $fmt        | "MyF=%f, myI=%d"    | The bare Trice format string stripped from the channel specifier including the colon (`:`) according to the Trice rule (only lowercase-only ones) |
+| $parameters | ", aFloat(4.2), 42" | The bare Trice statement parameters. In the example above: ", aFloat(42.0), 42"                                                                   |
 
 When *contextFmtString* and *contextFmtValues* are empty strings (default) `trice insert` and `trice clean` commands will work the ususal way.
 If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. That will only work if *contextFmtString* and *contextFmtValues* where not changed inbetween. The same way `trice clean` would remove the context information only, if *contextFmtString* and *contextFmtValues* kept unchanged. If the user wants to change *contextFmtString* and *contextFmtValues* during development first a `trice clean` is needed.
