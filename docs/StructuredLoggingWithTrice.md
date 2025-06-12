@@ -14,7 +14,7 @@ These data can be strings or numbers.
 
 *uptime, timestamp, hw serial, task ID, stack depth, event count, core ID, position, ...*
 
-In a first approach we assume, these data do not contain dynamically generated strings.
+In a first approach we assume, these data do not contain dynamically generated strings. If really needed, a derived hash is usable instead.
 
 ## Trice Limitations and Special Cases
 
