@@ -253,6 +253,8 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 	flagIDList(p)
 	flagLIList(p)
 	flagSkipAdditionalChecks(p)
+	//p.StringVar(&id.StructuredLoggingFormatString, "sLogF", "", `Structured Logging format string`)
+	//p.StringVar(&id.StructuredLoggingValuesString, "sLogV", "", `Structured Logging values string`)
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {

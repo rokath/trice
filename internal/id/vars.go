@@ -54,6 +54,12 @@ var (
 
 	// UserHomeDir needs to be changed for cache tests.
 	UserHomeDir string
+
+	// StructuredLoggingFormatString contains the structured logging format.
+	//StructuredLoggingFormatString string
+
+	// StructuredLoggingValuesString contains the structured logging values as string.
+	//StructuredLoggingValuesString string
 )
 
 const (
