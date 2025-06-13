@@ -8793,75 +8793,75 @@
 	},
 	"15198": {
 		"Type": "TRice",
-		"Strg": "Hello World!\\n"
-	},
-	"15199": {
-		"Type": "TRICE8_F",
-		"Strg": "info:FunctionNameWa"
-	},
-	"15200": {
-		"Type": "TRice8F",
-		"Strg": "info:FunctionNameWb"
-	},
-	"15201": {
-		"Type": "Trice8F",
-		"Strg": "info:FunctionNameWc"
-	},
-	"15202": {
-		"Type": "trice8F",
-		"Strg": "info:FunctionNameWd"
-	},
-	"15203": {
-		"Type": "TRICE16_F",
-		"Strg": "info:FunctionNameXa"
-	},
-	"15204": {
-		"Type": "TRice16F",
-		"Strg": "info:FunctionNameXb"
-	},
-	"15205": {
-		"Type": "Trice16F",
-		"Strg": "info:FunctionNameXc"
-	},
-	"15206": {
-		"Type": "trice16F",
-		"Strg": "info:FunctionNameXd"
-	},
-	"15207": {
-		"Type": "TRICE32_F",
-		"Strg": "info:FunctionNameYa"
-	},
-	"15208": {
-		"Type": "TRice32F",
-		"Strg": "rpc:FunctionNameYb"
-	},
-	"15209": {
-		"Type": "Trice32F",
-		"Strg": "rpc:FunctionNameYc"
-	},
-	"15210": {
-		"Type": "trice32F",
-		"Strg": "call:FunctionNameYd"
-	},
-	"15211": {
-		"Type": "TRice",
 		"Strg": "Hello "
 	},
-	"15212": {
-		"Type": "TRICE64_F",
-		"Strg": "info:FunctionNameZa"
-	},
-	"15213": {
+	"15199": {
 		"Type": "TRice",
 		"Strg": "World!\\n"
 	},
-	"15214": {
+	"15200": {
 		"Type": "TRice64",
 		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
 	},
-	"15215": {
+	"15201": {
 		"Type": "trice",
 		"Strg": "Hello again\\n"
+	},
+	"15202": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15203": {
+		"Type": "TRICE8_F",
+		"Strg": "info:FunctionNameWa"
+	},
+	"15204": {
+		"Type": "TRice8F",
+		"Strg": "info:FunctionNameWb"
+	},
+	"15205": {
+		"Type": "Trice8F",
+		"Strg": "info:FunctionNameWc"
+	},
+	"15206": {
+		"Type": "trice8F",
+		"Strg": "info:FunctionNameWd"
+	},
+	"15207": {
+		"Type": "TRICE16_F",
+		"Strg": "info:FunctionNameXa"
+	},
+	"15208": {
+		"Type": "TRice16F",
+		"Strg": "info:FunctionNameXb"
+	},
+	"15209": {
+		"Type": "Trice16F",
+		"Strg": "info:FunctionNameXc"
+	},
+	"15210": {
+		"Type": "trice16F",
+		"Strg": "info:FunctionNameXd"
+	},
+	"15211": {
+		"Type": "TRICE32_F",
+		"Strg": "info:FunctionNameYa"
+	},
+	"15212": {
+		"Type": "TRice32F",
+		"Strg": "rpc:FunctionNameYb"
+	},
+	"15213": {
+		"Type": "Trice32F",
+		"Strg": "rpc:FunctionNameYc"
+	},
+	"15214": {
+		"Type": "trice32F",
+		"Strg": "call:FunctionNameYd"
+	},
+	"15215": {
+		"Type": "TRICE64_F",
+		"Strg": "info:FunctionNameZa"
 	},
 	"15216": {
 		"Type": "TRice64F",

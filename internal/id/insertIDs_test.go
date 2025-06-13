@@ -435,9 +435,9 @@ func TestInsertWithTickInComment(t *testing.T) {
 }
 
 // TestInsertIDsIntoTilJSONFromFileWithLi ...
-//
 // IDs 1200 & 1201 are exist, so they are expected to go into til.json.
 func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
+	//
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
 	fn0 := t.Name() + "file0.c"
@@ -1016,4 +1016,57 @@ func _TestInsertIDsForNewTrice_Issue_523(t *testing.T) {
 	expMsg := "TestInsertIDsForNewTrice_Issue_5xxfile1.c line 6 format specifier count 1 != parameter count 2 for {TRice hi %d}"
 	actMsg := o.String()
 	assert.True(t, strings.HasPrefix(actMsg, expMsg))
+}
+
+
+func TestInsertWithBrackets(t *testing.T) {
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+
+	// create src file1
+	sFn1 := "file1.c"
+	src1 := `
+	TRice("x" );
+	TRice("(x)" );
+	TRice("{x}" );
+	TRice("[x]" );
+	TRice("(x" );
+	TRice("{x" );
+	TRice("[x" );
+	TRice("x)" );
+	TRice("x}" );
+	TRice("x]" );
+	TRice("((" );
+	TRice("{{" );
+	TRice("[[" );
+	TRice("))" );
+	TRice("}}" );
+	TRice("]]" );
+	`
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
+
+	// action
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+
+	// check modified src file1
+	expSrc1 := `
+	TRice(iD(999), "x" );
+	TRice(iD(998), "(x)" );
+	TRice(iD(997), "{x}" );
+	TRice(iD(996), "[x]" );
+	TRice(iD(995), "(x" );
+	TRice(iD(994), "{x" );
+	TRice(iD(993), "[x" );
+	TRice(iD(992), "x)" );
+	TRice(iD(991), "x}" );
+	TRice(iD(990), "x]" );
+	TRice(iD(989), "((" );
+	TRice(iD(988), "{{" );
+	TRice(iD(987), "[[" );
+	TRice(iD(986), "))" );
+	TRice(iD(985), "}}" );
+	TRice(iD(984), "]]" );
+	`
+	actSrc1, e := FSys.ReadFile(sFn1)
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc1, string(actSrc1))
 }

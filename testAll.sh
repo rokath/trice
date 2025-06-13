@@ -16,22 +16,13 @@ t0=`date +%s`
 if command -v caffeinate 2>&1 >/dev/null; then
     caffeinate & # keep mac alive
 fi
-
 echo "Command line: $0 $1 $2"                        2>&1 | tee -a $triceFolder/testAll.log
 echo "SELECTED: $SELECTED"                           2>&1 | tee -a $triceFolder/testAll.log
 echo \$OSTYPE=$OSTYPE                                2>&1 | tee -a $triceFolder/testAll.log
 if command -v uname; then                            2>&1 | tee -a $triceFolder/testAll.log
 uname -a                                             2>&1 | tee -a $triceFolder/testAll.log
 fi
-if command -v clang; then                            2>&1 | tee -a $triceFolder/testAll.log
-clang --version                                      2>&1 | tee -a $triceFolder/testAll.log
-fi
-if command -v  arm-none-eabi-gcc; then               2>&1 | tee -a $triceFolder/testAll.log
-arm-none-eabi-gcc --version                          2>&1 | tee -a $triceFolder/testAll.log
-fi
-echo \$C_INCLUDE_PATH=$C_INCLUDE_PATH                2>&1 | tee -a $triceFolder/testAll.log
-echo arm-none-eabi-gcc location in next line:        2>&1 | tee -a $triceFolder/testAll.log
-which arm-none-eabi-gcc                              2>&1 | tee -a $triceFolder/testAll.log
+
 if command -v go; then                               2>&1 | tee -a $triceFolder/testAll.log
 go version                                           2>&1 | tee -a $triceFolder/testAll.log
 fi
@@ -48,10 +39,13 @@ echo "Testing the Go code...done"                    2>&1 | tee -a $triceFolder/
 echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
 
 ./trice_insertIDs_in_examples_and_test_folder.sh     2>&1 | tee -a $triceFolder/testAll.log
-sleep 1.0
 cd _test
 echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
 echo "Testing the Target code inside PC..."          2>&1 | tee -a $triceFolder/testAll.log
+
+# It is important, that C_INLUDE_PATH is not set for the CGO tests.
+C_INCLUDE_PATH=
+
 if [ "$SELECTED" = "quick" ]; then
     echo "go test ./be_dblB_de_tcobs_ua/..."         2>&1 | tee -a $triceFolder/testAll.log
     go test ./be_dblB_de_tcobs_ua/...                2>&1 | tee -a $triceFolder/testAll.log
@@ -61,10 +55,21 @@ if [ "$SELECTED" = "full" ]; then
     go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
 fi
 cd - >/dev/null
-sleep 1.0
 ./trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
 echo "Testing the Target code inside PC...done"      2>&1 | tee -a $triceFolder/testAll.log
 echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
+
+# Now we need the C_INCLUDE_PATH to point to the arm-none-eabi-gcc include files folder.
+source ./build_environment.sh                     
+if command -v  arm-none-eabi-gcc; then               2>&1 | tee -a $triceFolder/testAll.log
+arm-none-eabi-gcc --version                          2>&1 | tee -a $triceFolder/testAll.log
+fi
+echo "C_INCLUDE_PATH=$C_INCLUDE_PATH"                2>&1 | tee -a $triceFolder/testAll.log
+echo arm-none-eabi-gcc location in next line:        2>&1 | tee -a $triceFolder/testAll.log
+which arm-none-eabi-gcc                              2>&1 | tee -a $triceFolder/testAll.log
+if command -v clang; then                            2>&1 | tee -a $triceFolder/testAll.log
+clang --version                                      2>&1 | tee -a $triceFolder/testAll.log
+fi
 
 if ! command -v arm-none-eabi-gcc; then                  2>&1 | tee -a $triceFolder/testAll.log
 
@@ -139,7 +144,7 @@ else
         echo "Translating G0B1_inst with clang..."               2>&1 | tee -a $triceFolder/testAll.log
         ../../trice_insertIDs_in_examples_and_test_folder.sh     2>&1 | tee -a $triceFolder/testAll.log
 
-        make -j clang || echo "examples/G0B1_inst/Makefile: C_INCLUDE_PATH ok?" 2>&1 | tee -a $triceFolder/testAll.log
+        make -j clang || echo "examples/G0B1_inst/Makefile: C_INCLUDE_PATH ok? Check build_environment.sh." 2>&1 | tee -a $triceFolder/testAll.log
 
         ../../trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
         echo "Translating G0B1_inst with clang...done"           2>&1 | tee -a $triceFolder/testAll.log

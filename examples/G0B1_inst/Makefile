@@ -4,7 +4,11 @@
 #export PATH := C:\bin\ArmClang\bin:$(PATH)
 
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
-export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
+#export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
+#export C_INCLUDE_PATH := /Applications/ArmGNUToolchain/13.3.rel1/arm-none-eabi/arm-none-eabi/include/
+
+# for llvm-size under Darwin 
+#export PATH := /Library/Developer/CommandLineTools/usr/bin:$(PATH)
 
 BUILDFILES = build.sh Makefile mcu.mak flags.mak gcc0.mak gcc1.mak clang0.mak clang1.mak
 VERBOSE = # -v
@@ -106,7 +110,6 @@ include mcu.mak
 # CFLAGS
 #######################################
 
-
 # macros for gcc
 # AS defines
 AS_DEFS = 
@@ -117,7 +120,6 @@ C_DEFS =  \
 -DSTM32G0B1xx \
 -DUSE_HAL_DRIVER \
 $(TRICE_FLAGS)
-
 
 # AS includes
 AS_INCLUDES =  \

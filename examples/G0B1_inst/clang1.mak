@@ -26,7 +26,7 @@ $(CLANG_BUILD)/%.o: %.c $(BUILDFILES) | $(CLANG_BUILD)
 $(CLANG_BUILD)/$(TARGET).elf: $(CLANG_OBJECTS) $(BUILDFILES)
 	@echo linking...
 	@$(GCC_CC) $(CLANG_OBJECTS) $(MCU) $(CLANG_LDFLAGS) $(VERBOSE) -o $@ 2> gccLinksClangWarning.txt
-	@echo -e
+	@#echo -e
 	@$(CLANG_SZ) $@
 
 # hex

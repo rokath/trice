@@ -12,6 +12,7 @@ done
 ../../trice_cleanIDs_in_examples_and_test_folder.sh # Run this first to trigger the used editor to show the Trice IDs cleaned state.
 ../../trice_insertIDs_in_examples_and_test_folder.sh 
 
+source ../../build_environment.sh 
 make -j TRICE_FLAGS="$flags" gcc
 
 EXITCODE=$?
