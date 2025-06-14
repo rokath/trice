@@ -27,7 +27,7 @@ User may have written inside *val.c*:
 ```C
 void doStuff( void ){
     // ...
-    trice("wrn:MyF=%f, myI=%d\n", aFloat(4.2), 42);
+    trice("wrn:MyF=%f, myI=%d", aFloat(4.2), 42);
     // ...
 }
 ```
@@ -88,12 +88,12 @@ Before inserting, the Trice tool will replace the following Trice tool specific 
 
 | Variable    | Example             | Comment                                                                                                                                      |
 |-------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `$channel`  | wrn                 | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                        |
-| `$filename` | "val.c"             | The file name, where the Trice log occures.                                                                                                  |
-| `$line`     | 321                 | The file line, where the Trice log occures.                                                                                                  |
-| `$function` | doStuff             | The function name, where the Trice log occures.                                                                                              |
-| `$fmt`      | "MyF=%f, myI=%d"    | The bare Trice format string stripped from the channel specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
-| `$values`   | ", aFloat(4.2), 42" | The bare Trice statement values.                                                                                                             |
+| `$channel`  | `wrn`               | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                        |
+| `$filename` | `val.c`             | The file name, where the Trice log occures.                                                                                                  |
+| `$line`     | `321`               | The file line, where the Trice log occures.                                                                                                  |
+| `$function` | `doStuff`           | The function name, where the Trice log occures.                                                                                              |
+| `$fmt`      | `MyF=%f, myI=%d`    | The bare Trice format string stripped from the channel specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
+| `$values`   | `, aFloat(4.2), 42` | The bare Trice statement values.                                                                                                             |
 
 After `trice insert` a log line as compact JSON would look in **C** like
 
@@ -110,7 +110,7 @@ A `trice clean` command will remove the context information completely including
 ```C
 void doStuff( void ){
     // ...
-    trice("wrn:MyF=%f, myI=%d\n", aFloat(4.2), 42);
+    trice("wrn:MyF=%f, myI=%d", aFloat(4.2), 42);
     // ...
 }
 ```
