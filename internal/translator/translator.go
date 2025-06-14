@@ -103,7 +103,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
-	if decoder.TargetStamp == "" || decoder.TargetStamp == "off" || decoder.TargetStamp == "none" {
+	/*if decoder.TargetStamp == "" || decoder.TargetStamp == "off" || decoder.TargetStamp == "none" {
 		if !decoder.ShowTargetStamp0Passed {
 			decoder.TargetStamp0 = ""
 		}
@@ -135,6 +135,40 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		if !decoder.ShowTargetStamp32Passed {
 			decoder.TargetStamp32 = "us"
 		}
+	}*/
+	switch decoder.TargetStamp {
+	case "", "off", "none":
+		if !decoder.ShowTargetStamp0Passed {
+			decoder.TargetStamp0 = ""
+		}
+		if !decoder.ShowTargetStamp16Passed {
+			decoder.TargetStamp16 = ""
+		}
+		if !decoder.ShowTargetStamp32Passed {
+			decoder.TargetStamp32 = ""
+		}
+	case "ms":
+		if !decoder.ShowTargetStamp0Passed {
+			decoder.TargetStamp0 = DefaultTargetStamp0
+		}
+		if !decoder.ShowTargetStamp16Passed {
+			decoder.TargetStamp16 = "ms"
+		}
+		if !decoder.ShowTargetStamp32Passed {
+			decoder.TargetStamp32 = "ms"
+		}
+	case "us", "µs":
+		if !decoder.ShowTargetStamp0Passed {
+			decoder.TargetStamp0 = DefaultTargetStamp0
+		}
+		if !decoder.ShowTargetStamp16Passed {
+			decoder.TargetStamp16 = "us"
+		}
+		if !decoder.ShowTargetStamp32Passed {
+			decoder.TargetStamp32 = "us"
+		}
+	default:
+		return fmt.Errorf("invalid value '%s' for CLI switch -ts. Please run 'trice help -log' and check the -ts options", decoder.TargetStamp)
 	}
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
