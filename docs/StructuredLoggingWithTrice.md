@@ -78,11 +78,24 @@ To achieve a log output in compact JSON *sLogV* is the same, but change the *sLo
 
 ```bash
 trice insert \
--sLogF=`{"log level":"wrn","file":"val.c","line:"%d","function":"$function","taskID":"%x","fmt":"MyF=%f, myI=%d","uptime":%08u us"}\n` \
+-sLogF=`{"log level":"$channel","file":"val.c","line:"%d","function":"$function","taskID":"%x","fmt":"MyF=%f, myI=%d","uptime":%08u us"}\n` \
 -sLogV=", $line, getTaskID(), $values, uptime()"
 ```
 
-The *sLogF* is now given as [raw string literal](https://go.dev/ref/spec#String_literals) to avoid `\"` all the time. After `trice insert` a log line as compact JSON would look in **C** like
+The *sLogF* is now given as [raw string literal](https://go.dev/ref/spec#String_literals) to avoid `\"` all the time. 
+
+Before inserting, the Trice tool will replace the following Trice tool specific variables:
+
+| Variable    | Example             | Comment                                                                                                                                      |
+|-------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `$channel`  | wrn                 | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                        |
+| `$filename` | "val.c"             | The file name, where the Trice log occures.                                                                                                  |
+| `$line`     | 321                 | The file line, where the Trice log occures.                                                                                                  |
+| `$function` | doStuff             | The function name, where the Trice log occures.                                                                                              |
+| `$fmt`      | "MyF=%f, myI=%d"    | The bare Trice format string stripped from the channel specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
+| `$values`   | ", aFloat(4.2), 42" | The bare Trice statement values.                                                                                                             |
+
+After `trice insert` a log line as compact JSON would look in **C** like
 
 ```C
 void doStuff( void ){
@@ -111,17 +124,6 @@ The appropriate Trice tool log line output would be
 {"log level":"wrn","file":"val.c","line":"321","function":"doStuff","taskID":"0x123","fmt":"MyF=4.2000, myI=42","uptime":"12345678 us"}
 {...}
 ```
-
-Before inserting, the Trice tool will replace the following Trice tool specific variables:
-
-| Variable    | Example             | Comment                                                                                                                                      |
-|-------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `$channel`  | wrn                 | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                        |
-| `$filename` | "val.c"             | The file name, where the Trice log occures.                                                                                                  |
-| `$line`     | 321                 | The file line, where the Trice log occures.                                                                                                  |
-| `$function` | doStuff             | The function name, where the Trice log occures.                                                                                              |
-| `$fmt`      | "MyF=%f, myI=%d"    | The bare Trice format string stripped from the channel specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
-| `$values`   | ", aFloat(4.2), 42" | The bare Trice statement values.                                                                                                             |
 
 When *sLogF* and *sLogV* are empty strings (default), `trice insert` and `trice clean` commands will work the ususal way. If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. **ATTENTION:** That will work only if *sLogF* and *sLogV* where not changed by the user inbetween. The same way `trice clean` would remove the context information only, if *sLogF* and *sLogV* kept unchanged. If the user wants to change *sLogF* and *sLogV* during development, first a `trice clean` is needed. Using a `build.sh` script like this recommended:
 
