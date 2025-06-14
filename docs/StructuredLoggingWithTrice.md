@@ -125,7 +125,7 @@ The appropriate Trice tool log line output would be
 {...}
 ```
 
-When *sLogF* and *sLogV* are empty strings (default), `trice insert` and `trice clean` commands will work the ususal way. If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. **ATTENTION:** That will work only if *sLogF* and *sLogV* where not changed by the user inbetween. The same way `trice clean` would remove the context information only, if *sLogF* and *sLogV* kept unchanged. If the user wants to change *sLogF* and *sLogV* during development, first a `trice clean` is needed. Using a `build.sh` script like this recommended:
+When *sLogF* and *sLogV* are empty strings (default), `trice insert` and `trice clean` commands will work the ususal way. If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. **ATTENTION:** That will work only if *sLogF* and *sLogV* where not changed by the user inbetween. The same way `trice clean` would remove the context information only, if *sLogF* and *sLogV* kept unchanged. If the user wants to change *sLogF* and *sLogV* during development, first a `trice clean` is needed. Use a `build.sh` script like this:
 
 ```bash
 #!/bin/bash
@@ -136,8 +136,20 @@ SLFMT='{"log level":"wrn","file":"main.c","line:"%d","function":"$function","tas
 SLVAL=', $line, getTaskID(), $values, uptime()'
 
 trice insert -cache -sLogF="$SLFMT" -sLogV="$SLVAL"
-#make
+# make
 trice clean  -cache -sLogF="$SLFMT" -sLogV="$SLVAL"
+```
+
+The `-cache` switch is still experimental - to stay safe use:
+
+```bash
+#!/bin/bash
+SLFMT='{"log level":"wrn","file":"main.c","line:"%d","function":"$function","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}\n'
+SLVAL=', $line, getTaskID(), $values, uptime()'
+
+trice insert -sLogF="$SLFMT" -sLogV="$SLVAL"
+# make
+trice clean  -sLogF="$SLFMT" -sLogV="$SLVAL"
 ```
 
 
