@@ -88,7 +88,7 @@ func (p *idData) cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin
 			ignore = true
 		} else {
 			t.Type = rest[loc[0]:loc[1]] // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
-			ApplyTriceAliases(&t)
+			resolveTriceAlias(&t)
 			t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
 			idS = rest[loc[3]:loc[4]]          // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)

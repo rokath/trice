@@ -9,6 +9,10 @@
 extern "C" {
 #endif
 
+// TRICE_SINGLE_MAX_SIZE is used to truncate long runtime-generated strings, to detect the need for a ring buffer wrap, or to protect against overflow.
+// Limit custom assert messages to a safe size (>104) to avoid truncation
+#define TRICE_SINGLE_MAX_SIZE 256
+
 //! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
 #define TRICE_CLEAN 1 // Do not define this at an other place! But you can delete this here.
 

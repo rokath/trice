@@ -22,7 +22,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "trice.h"
+
+#define NANOPRINTF_IMPLEMENTATION
+#include "nanoprintf.h"
+
+#include "triceCustomAliases.h"
+
 #include <limits.h> // INT_MAX
 /* USER CODE END Includes */
 
@@ -109,6 +114,23 @@ int main(void)
   LogTriceConfiguration();
   SomeExampleTrices(3);
 #endif
+
+  /* Some Custom Trice Alias Examples */  
+  const int theRightAnswer = 42;
+  const int theFastFoundAnswer = 24;
+  const char* theQuestion = "What could be the answer to the Ultimate Question of Life, the Universe, and Everything?";
+  
+  // Some Trice custom alias examples
+  CUSTOM_PRINT("CUSTOM_PRINT example: the right answer is: %d\n", theRightAnswer);
+  
+  // Assert with condition 
+  CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer);
+  
+  // Assert with condition and a message
+  CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)theQuestion );
+  
+  // Assert with condition and a message and some extra message arguments 
+  CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)"'%s' Am, it is %d", (char*)theQuestion, theRightAnswer);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
