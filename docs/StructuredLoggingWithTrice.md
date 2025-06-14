@@ -155,7 +155,7 @@ trice clean  -sLogF="$SLFMT" -sLogV="$SLVAL"
 ## Questions 
 
 * How to deal with an existing or none existing `\n` at the format strings end?
-  * There is already a `-newline` switch.
+  * There is already a switch `-addNL`.
 * Should all Trices get handled the same way? Or should we invent a new `strice` and apply `-sLogF` and `-sLogV` only to them?
 * Maybe only one new CLI switch `-sLog` is better and the Trice tool splits int internally?
 
