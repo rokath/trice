@@ -116,9 +116,16 @@ Trice is full usable and there are no known bugs (see [issues](https://github.co
 
 The documentation could get improved, for example by adding a quick start help. Additional features like remote procedure calls could be described and a separate tlog, maybe written in C, would allow logging on any platforms - not only **Go** supported ones.
 
+## Structured Logging
+
+Trice will (hopefully soon) suppport structured logging. Triggered by [#531](https://github.com/rokath/trice/discussions/531) there is now a [specifcation draft](https://github.com/rokath/trice/blob/master/docs/StructuredLoggingWithTrice.md). Please provide some critical feedback before the implementaion starts.
+
 ## Support?
 
-Yes please - or simply :star: it. ☺ 
+* Yes please - Trice takes a lot of my spare time and I wish to keep it MIT licensed in the future as well.
+* If you make profit using Trice in your products, donations would convince my family to proceed with Trice and also secure future improvements. 
+
+<!-- * Or :star: it. ☺ --> 
 
 [Become a Sponsor with your Github Account](https://github.com/sponsors/rokath/)
 
