@@ -132,7 +132,7 @@ When *sLogF* and *sLogV* are empty strings (default), `trice insert` and `trice 
 
 # Run "rm -rf ~/.trice/cache/*", after modifying $SLFMT and SLVAL !!!
 
-SLFMT='{"log level":"wrn","file":"main.c","line:"%d","function":"$function","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}\n'
+SLFMT='{"log level":"$channel","file":"main.c","line:"%d","function":"$function","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}\n'
 SLVAL=', $line, getTaskID(), $values, uptime()'
 
 trice insert -cache -sLogF="$SLFMT" -sLogV="$SLVAL"
@@ -144,7 +144,7 @@ The `-cache` switch is still experimental - to stay safe use:
 
 ```bash
 #!/bin/bash
-SLFMT='{"log level":"wrn","file":"main.c","line:"%d","function":"$function","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}\n'
+SLFMT='{"log level":"$channel","file":"main.c","line:"%d","function":"$function","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}\n'
 SLVAL=', $line, getTaskID(), $values, uptime()'
 
 trice insert -sLogF="$SLFMT" -sLogV="$SLVAL"
@@ -154,10 +154,21 @@ trice clean  -sLogF="$SLFMT" -sLogV="$SLVAL"
 
 ## Questions 
 
-* How to deal with an existing or none existing `\n` at the format strings end?
-  * There is already a switch `-addNL`.
+* Probably only one new CLI switch `-sLog` is better and the Trice tool splits the strings internally.
 * Should all Trices get handled the same way? Or should we invent a new `strice` and apply `-sLogF` and `-sLogV` only to them?
-* Maybe only one new CLI switch `-sLog` is better and the Trice tool splits the 2 strings internally?
+  * Invent new channels starting with an underscore `_` like "_WRN" just for the structured logging.
+* How to deal with an existing or none existing `\n` at the format strings end?
+  * There is already a switch `-addNL`, but this has its own application area.
+  * We could have a switch `-rmNL`, which removes `\n` from the end of legacy format strings during `trice insert`, if wanted.
+* It is also possible to specify `-sLog` differently for different channels. For example as multi switch:
+  * `-slog='_ERR:"{"log_level":"$channel","file":"main.c","line:"%d","taskID":"%x","fmt":"$fmt"}\n":", $line, getTaskID(), $values "'` (with location)
+  * `-slog='_*:"{"log_level":"$channel","taskID":"%x","fmt":"$fmt"}\n":", getTaskID(), $values "'` (no location)
+  
+  This would give structure data including file and line for _ERR messages and excluding file and line for _INFO, _WRN and _DEBUG logs and would not touch any other trice logs.
+* The star `_*` is used instead of _INFO, _WRN and _DEBUG to let all remaining levels/channels have identical structured data.
+* Is is necessary to keep the users original format strings or can we reconstruct them all the time?
+  * When using the `-cache` option we have a copy of the original, but else not. 
+
 
 <!--
 
