@@ -431,7 +431,7 @@ void TriceCheck(int n) {
 
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
 
-        break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000}
+        break; case __LINE__: exampleOfManualJSONencoding(); //exp: time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000})
         break; case __LINE__: TRICE(Id(0), "MSG:1/11 = %g\n", aFloat( 1.0f/11 ) ); //exp: time:    be16default: MSG:1/11 = 0.09090909
         break; case __LINE__: { //exp: time:feed3322default: msg:x = 5.934 = 5.934, 5.934
 #if !TRICE_OFF
@@ -2758,7 +2758,7 @@ static void exampleOfManualJSONencoding(void) {
 	} Ex_t;
 	Ex_t Ex = {-1, 2, (float)2.781};
 #endif
-	Trice("att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
+	Trice("att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f})\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
 }
 
 static void dynString(int n) {
