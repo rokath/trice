@@ -147,6 +147,16 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		if !decoder.ShowTargetStamp32Passed {
 			decoder.TargetStamp32 = ""
 		}
+	case "epoch":
+		if !decoder.ShowTargetStamp0Passed {
+			decoder.TargetStamp0 = "                       " // 23 spaces
+		}
+		if !decoder.ShowTargetStamp16Passed {
+			decoder.TargetStamp16 = "us"
+		}
+		if !decoder.ShowTargetStamp32Passed {
+			decoder.TargetStamp32 = "epoch"
+		}
 	case "ms":
 		if !decoder.ShowTargetStamp0Passed {
 			decoder.TargetStamp0 = DefaultTargetStamp0
@@ -234,6 +244,13 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
 						sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
 						s = fmt.Sprintf("time:%4d,%03d_%03d", sd, ms, us)
+					case "epoch":
+						t := time.Unix(int64(decoder.TargetTimestamp), 0)
+						s = t.Format("2006-01-02 15:04:05 MST")
+						c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
+						if t != c {
+							s += "-->" + c.Format("2006-01-02 15:04:05 MST")
+						}
 					case "":
 					default:
 						s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
@@ -281,6 +298,36 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
 	}
+}
+
+// correctWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
+// and virtually sets a 33rd bit by adding 2^32 seconds to it
+func correctWrappedTimestamp(ts32 uint32) time.Time {
+
+	const (
+		minValidYear = 2025
+		maxValidYear = 2038
+		wrapOffset   = 1 << 32 // 2^32 seconds
+	)
+
+	// Interpret the timestamp as time.Time
+	t := time.Unix(int64(ts32), 0).UTC()
+
+	if t.Year() >= minValidYear && t.Year() <= maxValidYear {
+		return t
+	}
+
+	// Apply wraparound correction by adding 2^32 seconds
+	tWrapped := time.Unix(int64(ts32)+wrapOffset, 0).UTC()
+
+	// If the corrected timestamp is plausible, return it
+	if tWrapped.Year() > maxValidYear && tWrapped.Year() <= maxValidYear+100 {
+		return tWrapped
+	}
+
+	// Fallback: return the original timestamp and print a warning
+	fmt.Printf("WARNING: Timestamp %v (%d) is outside the expected year range\n", t, ts32)
+	return t
 }
 
 // locationInformation returns optional location information for id.
