@@ -18,6 +18,15 @@ func TestMatchTrice(t *testing.T) {
 	var testSet = []struct {
 		text, triceType, triceID, triceFmts string
 	}{
+		// Test case to check matching across parentheses in string literals
+		{` );
+				TRice("8x)" );
+				TRice("9x}" );
+			`, `TRice`, ``, `"8x)"`},
+
+		// Test case to check matching across parentheses escaped quotes in string literals
+		{`...TRice("8x\")" );`, `TRice`, ``, `"8x\")"`},
+
 		// Test case for assert-style custom macros w/o a message at all
 		{`...MyAssert( i<12); ,...`, `MyAssert`, ``, `i<12`},
 		{`...MyAssert( iD(42), i<12); ,...`, `MyAssert`, `iD(42)`, `i<12`},

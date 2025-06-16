@@ -26,21 +26,31 @@ import (
 
 var SkipAdditionalChecks bool
 
+// findClosingParentis returns the index of the closing parenthesis ')' that matches
+// an assumed opening parenthesis before the given startAt index in the string s.
+// It skips parentheses that appear inside double-quoted strings and correctly handles
+// escaped quotes (e.g., \" within a string literal).
 func findClosingParentis(s string, startAt int) int {
 	// Assumes an opening parenthesis exists somewhere before s[startAt],
-	counter := 1
+	inStr, esc, count := false, false, 1
 
 	for i := startAt; i < len(s); i++ {
-		if s[i] == '(' {
-			counter++
-		} else if s[i] == ')' {
-			counter--
-			if counter <= 0 {
+		switch c := s[i]; {
+		case esc:
+			esc = false
+		case c == '\\':
+			esc = true
+		case c == '"':
+			inStr = !inStr
+		case !inStr && c == '(':
+			count++
+		case !inStr && c == ')':
+			count--
+			if count == 0 {
 				return i
 			}
 		}
 	}
-
 	return -1
 }
 
