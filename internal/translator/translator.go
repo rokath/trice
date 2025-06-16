@@ -103,39 +103,6 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
-	/*if decoder.TargetStamp == "" || decoder.TargetStamp == "off" || decoder.TargetStamp == "none" {
-		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = ""
-		}
-		if !decoder.ShowTargetStamp16Passed {
-			decoder.TargetStamp16 = ""
-		}
-		if !decoder.ShowTargetStamp32Passed {
-			decoder.TargetStamp32 = ""
-		}
-	}
-	if decoder.TargetStamp == "ms" {
-		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = DefaultTargetStamp0
-		}
-		if !decoder.ShowTargetStamp16Passed {
-			decoder.TargetStamp16 = "ms"
-		}
-		if !decoder.ShowTargetStamp32Passed {
-			decoder.TargetStamp32 = "ms"
-		}
-	}
-	if decoder.TargetStamp == "us" || decoder.TargetStamp == "µs" {
-		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = DefaultTargetStamp0
-		}
-		if !decoder.ShowTargetStamp16Passed {
-			decoder.TargetStamp16 = "us"
-		}
-		if !decoder.ShowTargetStamp32Passed {
-			decoder.TargetStamp32 = "us"
-		}
-	}*/
 	switch decoder.TargetStamp {
 	case "", "off", "none":
 		if !decoder.ShowTargetStamp0Passed {
@@ -146,16 +113,6 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		}
 		if !decoder.ShowTargetStamp32Passed {
 			decoder.TargetStamp32 = ""
-		}
-	case "epoch":
-		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = "                       " // 23 spaces
-		}
-		if !decoder.ShowTargetStamp16Passed {
-			decoder.TargetStamp16 = "us"
-		}
-		if !decoder.ShowTargetStamp32Passed {
-			decoder.TargetStamp32 = "epoch"
 		}
 	case "ms":
 		if !decoder.ShowTargetStamp0Passed {
@@ -246,16 +203,36 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						s = fmt.Sprintf("time:%4d,%03d_%03d", sd, ms, us)
 					case "epoch":
 						t := time.Unix(int64(decoder.TargetTimestamp), 0)
-						s = t.Format("2006-01-02 15:04:05 MST")
-						c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
-						if t != c {
-							s += "-->" + c.Format("2006-01-02 15:04:05 MST")
-						}
+						s = t.Format("2006-01-02 15:04:05 MST") // use this as default epoch time fomat
+						// c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
+						// if t != c {
+						// 	s += "-->" + c.Format("2006-01-02 15:04:05 MST")
+						// }
 					case "":
+						// no ts32 display
 					default:
-						s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
+						after, found := strings.CutPrefix(decoder.TargetStamp32, "epoch")
+						if !found {
+							s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp) // user specific formatting
+						} else {
+							t := time.Unix(int64(decoder.TargetTimestamp), 0)
+							f := strings.Trim(after, "\"")
+							s = t.Format(f) // use epoch string tail as user specified epoch time fomat
+							// examples
+							// s = t.Format("Mon Jan _2 15:04:05 2006")            //ANSIC
+							// s = t.Format("Mon Jan _2 15:04:05 MST 2006")        //UnixDate
+							// s = t.Format("Mon Jan 02 15:04:05 -0700 2006")      //RubyDate
+							// s = t.Format("02 Jan 06 15:04 MST")                 //RFC822
+							// s = t.Format("02 Jan 06 15:04 -0700")               //RFC822Z     (RFC822 with numeric zone)
+							// s = t.Format("Monday, 02-Jan-06 15:04:05 MST")      //RFC850
+							// s = t.Format("Mon, 02 Jan 2006 15:04:05 MST")       //RFC1123
+							// s = t.Format("Mon, 02 Jan 2006 15:04:05 -0700")     //RFC1123Z    (RFC1123 with numeric zone)
+							// s = t.Format("2006-01-02T15:04:05Z07:00")           //RFC3339
+							// s = t.Format("2006-01-02T15:04:05.999999999Z07:00") //RFC3339Nano
+							// s = t.Format("3:04PM")                              //Kitchen
+							// Assumed usage example: trice log -ts32='epoch"Mon, 02 Jan 2006 15:04:05 MST"' 
+						}
 					}
-
 				case 2:
 					switch decoder.TargetStamp16 {
 					case "ms", "s,ms":
@@ -300,6 +277,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	}
 }
 
+/*
 // correctWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
 // and virtually sets a 33rd bit by adding 2^32 seconds to it
 func correctWrappedTimestamp(ts32 uint32) time.Time {
@@ -329,6 +307,7 @@ func correctWrappedTimestamp(ts32 uint32) time.Time {
 	fmt.Printf("WARNING: Timestamp %v (%d) is outside the expected year range\n", t, ts32)
 	return t
 }
+*/
 
 // locationInformation returns optional location information for id.
 func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
