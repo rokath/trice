@@ -10,8 +10,23 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     echo $OSTYPE
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo $OSTYPE # Mac OSX
+        
+    # Check if Homebrew is installed
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "Homebrew is not installed. Please install Homebrew first."
+        exit 1
+    fi
+    
+    # Check if gcc-arm-embedded is installed via cask
+    if brew list --cask | grep -q "^gcc-arm-embedded$"; then
+        version=$(brew list --cask --versions gcc-arm-embedded | awk '{print $2}')
+        echo "Installed gcc-arm-embedded version: $version"
+    else
+        echo "gcc-arm-embedded is not installed via Homebrew Cask."
+    fi
+
     export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
-    export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/13.3.rel1/arm-none-eabi/arm-none-eabi/include"
+    export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
     export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
 elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo $OSTYPE # POSIX compatibility layer and Linux environment emulation for Windows
@@ -26,3 +41,5 @@ elif [[ "$OSTYPE" == "freebsd"* ]]; then
 else
      echo $OSTYPE # Unknown.
 fi
+
+echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
