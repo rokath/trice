@@ -5,7 +5,7 @@ LIP="-liPath relative"
 
 #rm -f          demoTIL.json     demoLI.json # forget history (users usually should not do that in their projects, delete to avoid potential ID conflict messages)
 #touch          demoTIL.json     demoLI.json # new life
-trice clean  -i demoTIL.json -li demoLI.json -src $TD -src ./examples -alias CUSTOM_PRINT -salias CUSTOM_ASSERT # wipe out all IDs from the sources
+trice clean  -i demoTIL.json -li demoLI.json $LIP -src $TD -src ./examples -alias CUSTOM_PRINT -salias CUSTOM_ASSERT # wipe out all IDs from the sources
 #rm -f          demoTIL.json     demoLI.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
 #touch          demoTIL.json     demoLI.json # new life
 
@@ -21,7 +21,7 @@ trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDM
 trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src $TD/..
 
 # Remove all IDs from the sources. They are now inside the til.json (and li.json) files.
-trice clean -i demoTIL.json -li demoLI.json $LIP 
+trice clean -i demoTIL.json -li demoLI.json $LIP -alias CUSTOM_PRINT -salias CUSTOM_ASSERT 
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.

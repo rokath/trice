@@ -25,7 +25,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "gcc-arm-embedded is not installed via Homebrew Cask."
     fi
 
-    export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
+    #export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
     export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
     export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
 elif [[ "$OSTYPE" == "cygwin" ]]; then

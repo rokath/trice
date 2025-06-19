@@ -155,6 +155,75 @@ func TestInsertKnownID(t *testing.T) {
 	FSys.RemoveAll(UserHomeDir)
 }
 
+// TestInsertKnownID2 is TestInsertKnownID extended with the alias functionality and a check for the json files.
+func TestInsertKnownID2(t *testing.T) {
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+
+	// create existing li.json file
+	exsLI := `{
+	"55": {
+		"File": "file1.c",
+		"Line": 3
+	},
+	"77": {
+		"File": "file1.c",
+		"Line": 2
+	},
+	"999": {
+		"File": "fileX.c",
+		"Line": 2
+	}
+}`
+	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(exsLI), 0777))
+
+	// create existing til.json file
+	exsTIL := `{
+	"55": {
+		"Type": "trice",
+		"Strg": "msg:value=%d\\n"
+	},
+	"77": {
+		"Type": "trice",
+		"Strg": "%x"
+	}
+}`
+	assert.Nil(t, FSys.WriteFile(FnJSON, []byte(exsTIL), 0777))
+
+	// create src file1
+	src1 := `
+	trice("%x", 123 );
+	trice("msg:value=%d\n", 123 );
+	`
+	assert.Nil(t, FSys.WriteFile("file1.c", []byte(src1), 0777))
+
+	// action
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-alias", "log", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+
+	// check modified src file1
+	expSrc1 := `
+	trice(iD(77), "%x", 123 );
+	trice(iD(55), "msg:value=%d\n", 123 );
+	`
+	actSrc1, e := FSys.ReadFile("file1.c")
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc1, string(actSrc1))
+
+	// check til.json
+	actTIL, e := FSys.ReadFile(FnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, exsTIL, string(actTIL))
+
+	// check li.json
+	actLI, e := FSys.ReadFile(LIFnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, exsLI, string(actLI))
+
+	// cleanup
+	FSys.Remove(FnJSON)
+	FSys.Remove(LIFnJSON)
+	FSys.RemoveAll(UserHomeDir)
+}
+
 func TestInsertExistingID_A(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

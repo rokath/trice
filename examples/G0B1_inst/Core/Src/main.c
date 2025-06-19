@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
 #define NANOPRINTF_IMPLEMENTATION
 #include "nanoprintf.h"
 
@@ -113,7 +113,6 @@ int main(void)
 #if !TRICE_OFF
   LogTriceConfiguration();
   SomeExampleTrices(3);
-#endif
 
   /* Some Custom Trice Alias Examples */  
   const int theRightAnswer = 42;
@@ -126,11 +125,12 @@ int main(void)
   // Assert with condition 
   CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer);
   
-  // Assert with condition and a message
-  CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)theQuestion );
+  // Assert with condition and a message: This works too, but triggers a clang compiler warning, we cannot suppress.
+  //CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)theQuestion ); // https://stackoverflow.com/questions/52692564/how-can-i-disable-format-security-error-with-clang
   
-  // Assert with condition and a message and some extra message arguments 
+  // Assert with condition and a message and some extra message arguments
   CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)"'%s' Am, it is %d", (char*)theQuestion, theRightAnswer);
+#endif
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
