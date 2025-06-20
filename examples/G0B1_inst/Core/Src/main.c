@@ -22,12 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "trice.h"
-#define NANOPRINTF_IMPLEMENTATION
-#include "nanoprintf.h"
-
 #include "triceCustomAliases.h"
-
 #include <limits.h> // INT_MAX
 /* USER CODE END Includes */
 
@@ -113,7 +108,7 @@ int main(void)
 #if !TRICE_OFF
   LogTriceConfiguration();
   SomeExampleTrices(3);
-
+//#endif
   /* Some Custom Trice Alias Examples */  
   const int theRightAnswer = 42;
   const int theFastFoundAnswer = 24;

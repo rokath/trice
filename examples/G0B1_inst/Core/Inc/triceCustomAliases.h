@@ -2,6 +2,7 @@
 #define TRICE_CUSTOM_ALIASES_H_
 
 #include "stm32g0xx_ll_usart.h"
+#define NANOPRINTF_IMPLEMENTATION
 #include "nanoprintf.h"
 #include "trice.h"
 
