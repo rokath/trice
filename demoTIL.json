@@ -37,19 +37,19 @@
 	},
 	"13009": {
 		"Type": "TRice",
-		"Strg": "msg:StartDefaultTask\\n"
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"13010": {
 		"Type": "TRice",
-		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+		"Strg": "msg:StartDefaultTask\\n"
 	},
 	"13011": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
-	},
-	"13012": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
+	},
+	"13012": {
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
 	"13013": {
 		"Type": "trice8",
@@ -8824,72 +8824,72 @@
 		"Strg": "info:FunctionNameWc"
 	},
 	"15206": {
-		"Type": "TRice",
-		"Strg": "Hello "
-	},
-	"15207": {
 		"Type": "trice8F",
 		"Strg": "info:FunctionNameWd"
 	},
-	"15208": {
-		"Type": "TRice",
-		"Strg": "World!\\n"
-	},
-	"15209": {
+	"15207": {
 		"Type": "TRICE16_F",
 		"Strg": "info:FunctionNameXa"
 	},
-	"15210": {
-		"Type": "TRice64",
-		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
-	},
-	"15211": {
+	"15208": {
 		"Type": "TRice16F",
 		"Strg": "info:FunctionNameXb"
 	},
-	"15212": {
-		"Type": "trice",
-		"Strg": "Hello again\\n"
-	},
-	"15213": {
+	"15209": {
 		"Type": "Trice16F",
 		"Strg": "info:FunctionNameXc"
 	},
-	"15214": {
+	"15210": {
 		"Type": "trice16F",
 		"Strg": "info:FunctionNameXd"
 	},
-	"15215": {
+	"15211": {
 		"Type": "TRICE32_F",
 		"Strg": "info:FunctionNameYa"
 	},
-	"15216": {
+	"15212": {
 		"Type": "TRice32F",
 		"Strg": "rpc:FunctionNameYb"
 	},
-	"15217": {
+	"15213": {
 		"Type": "Trice32F",
 		"Strg": "rpc:FunctionNameYc"
 	},
-	"15218": {
+	"15214": {
 		"Type": "trice32F",
 		"Strg": "call:FunctionNameYd"
 	},
-	"15219": {
+	"15215": {
 		"Type": "TRICE64_F",
 		"Strg": "info:FunctionNameZa"
 	},
-	"15220": {
+	"15216": {
 		"Type": "TRice64F",
 		"Strg": "call:FunctionNameZb"
 	},
-	"15221": {
+	"15217": {
 		"Type": "Trice64F",
 		"Strg": "RPC:FunctionNameZc"
 	},
-	"15222": {
+	"15218": {
 		"Type": "trice64F",
 		"Strg": "Rpc:FunctionNameZd"
+	},
+	"15219": {
+		"Type": "TRice",
+		"Strg": "Hello "
+	},
+	"15220": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
+	},
+	"15221": {
+		"Type": "TRice64",
+		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
+	},
+	"15222": {
+		"Type": "trice",
+		"Strg": "Hello again\\n"
 	},
 	"15223": {
 		"Type": "TRice8B",
@@ -8915,29 +8915,29 @@
 		"Type": "trice",
 		"Strg": "Hello again\\n"
 	},
-	"15318": {
-		"Type": "triceS",
-		"Strg": "%s"
-	},
-	"15551": {
-		"Type": "trice",
-		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
-	},
-	"15750": {
+	"15319": {
 		"Type": "TRice",
 		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
 	},
-	"15998": {
+	"15539": {
+		"Type": "trice",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+	},
+	"15841": {
+		"Type": "triceS",
+		"Strg": "%s"
+	},
+	"16143": {
+		"Type": "triceS",
+		"Strg": "%s"
+	},
+	"16200": {
+		"Type": "triceS",
+		"Strg": "%s"
+	},
+	"16289": {
 		"Type": "TRice",
 		"Strg": "msg:StartDefaultTask\\n"
-	},
-	"16097": {
-		"Type": "triceS",
-		"Strg": "%s"
-	},
-	"16134": {
-		"Type": "triceS",
-		"Strg": "%s"
 	},
 	"16326": {
 		"Type": "trice",
