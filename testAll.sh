@@ -39,8 +39,13 @@ if command -v go; then                               2>&1 | tee -a $triceFolder/
     echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
     echo "Testing the Go code..."                        2>&1 | tee -a $triceFolder/testAll.log
         go clean -cache -testcache                       2>&1 | tee -a $triceFolder/testAll.log
-#        go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
-    echo "Testing the Go code...done"                    2>&1 | tee -a $triceFolder/testAll.log
+        go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
+        rc=$?
+        if [ $rc -ne 0 ]; then
+            echo "Testing the Go code...failed"               | tee -a $triceFolder/testAll.log
+            exit $rc
+        fi
+    echo "Testing the Go code...pass"                    2>&1 | tee -a $triceFolder/testAll.log
     echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
 
 
@@ -56,17 +61,37 @@ if command -v go; then                               2>&1 | tee -a $triceFolder/
             if [ "$SELECTED" = "quick" ]; then
                 echo "go test ./be_dblB_de_tcobs_ua/..."         2>&1 | tee -a $triceFolder/testAll.log
                 go test ./be_dblB_de_tcobs_ua/...                2>&1 | tee -a $triceFolder/testAll.log
+                rc=$?
+                if [ $rc -ne 0 ]; then
+                    echo "Testing the Target code inside PC...failed" | tee -a $triceFolder/testAll.log
+                    exit $rc
+                fi
+                # On build errors rc can be still 0, so we check the log file for FAIL
+                if cat $triceFolder/testAll.log | grep -q FAIL ; then
+                    echo "Testing the Target code inside PC...failed"               | tee -a $triceFolder/testAll.log
+                    echo "In case of CGO build errors check the PATH variable too." | tee -a $triceFolder/testAll.log
+                    exit 2
+                fi
             fi
             if [ "$SELECTED" = "full" ]; then
                 echo "go test ./..."                             2>&1 | tee -a $triceFolder/testAll.log
                 go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
+                rc=$?
+                if [ $rc -ne 0 ]; then
+                    echo "Testing the Target code inside PC...failed" | tee -a $triceFolder/testAll.log
+                    exit $rc
+                fi
+                # On build errors rc can be still 0, so we check the log file for FAIL
+                if cat $triceFolder/testAll.log | grep -q FAIL ; then
+                    echo "Testing the Target code inside PC...failed"               | tee -a $triceFolder/testAll.log
+                    echo "In case of CGO build errors check the PATH variable too." | tee -a $triceFolder/testAll.log
+                    exit 2
+                fi
             fi
         cd - >/dev/null
     ./trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
-    echo "Testing the Target code inside PC...done"      2>&1 | tee -a $triceFolder/testAll.log
+    echo "Testing the Target code inside PC...pass"      2>&1 | tee -a $triceFolder/testAll.log
     echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
-
-exit
 else
     echo "############################################"  2>&1 | tee -a $triceFolder/testAll.log
     echo "WARNING:     Go not installed."                2>&1 | tee -a $triceFolder/testAll.log
@@ -99,7 +124,11 @@ else
                 make clean                                           2>&1 | tee -a $triceFolder/testAll.log 
                 ./build_with_clang.sh                                2>&1 | tee -a $triceFolder/testAll.log
             cd - >/dev/null
-        echo "Translating G0B1_inst with clang...done"               2>&1 | tee -a $triceFolder/testAll.log
+            if cat $triceFolder/testAll.log | grep -q -e warning -e error ; then
+                echo "Translating G0B1_inst with clang...failed"          | tee -a $triceFolder/testAll.log
+                exit 2
+            fi
+        echo "Translating G0B1_inst with clang...pass"               2>&1 | tee -a $triceFolder/testAll.log
         echo "---"                                                   2>&1 | tee -a $triceFolder/testAll.log
     fi
 fi
@@ -132,13 +161,23 @@ else
             echo "---"                                               2>&1 | tee -a $triceFolder/testAll.log
             echo "Translating all examples with TRICE_OFF..."        2>&1 | tee -a $triceFolder/testAll.log
             ./buildAllTargets_TRICE_OFF.sh                           2>&1 | tee -a $triceFolder/testAll.log
-            echo "Translating all examples with TRICE_OFF...done"    2>&1 | tee -a $triceFolder/testAll.log
+            if cat $triceFolder/testAll.log | grep -q -e warning -e error ; then
+                echo "Translating all examples with TRICE_OFF...failed"   | tee -a $triceFolder/testAll.log
+                cd - >/dev/null
+                exit 2
+            fi
+            echo "Translating all examples with TRICE_OFF...pass"    2>&1 | tee -a $triceFolder/testAll.log
             echo "---"                                               2>&1 | tee -a $triceFolder/testAll.log
             ./cleanAllTargets.sh                                     2>&1 | tee -a $triceFolder/testAll.log
             echo "---"                                               2>&1 | tee -a $triceFolder/testAll.log
             echo "Translating all examples with TRICE_ON..."         2>&1 | tee -a $triceFolder/testAll.log
             ./buildAllTargets_TRICE_ON.sh                            2>&1 | tee -a $triceFolder/testAll.log
-            echo "Translating all examples with TRICE_ON...done"     2>&1 | tee -a $triceFolder/testAll.log
+            if cat $triceFolder/testAll.log | grep -q -e warning -e error ; then
+                echo "Translating all examples with TRICE_ON...failed"    | tee -a $triceFolder/testAll.log
+                cd - >/dev/null
+                exit 2
+            fi
+            echo "Translating all examples with TRICE_ON...pass"     2>&1 | tee -a $triceFolder/testAll.log
             echo "---"                                               2>&1 | tee -a $triceFolder/testAll.log
             ./cleanAllTargets.sh                                     2>&1 | tee -a $triceFolder/testAll.log
         cd - >/dev/null
@@ -147,7 +186,12 @@ else
                 echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
                 echo "Translating all L432 configurations..."        2>&1 | tee -a $triceFolder/testAll.log
                 ./all_configs_build.sh                               2>&1 | tee -a $triceFolder/testAll.log
-                echo "Translating all L432 configurations...done"    2>&1 | tee -a $triceFolder/testAll.log
+                if cat $triceFolder/testAll.log | grep -q -e warning -e error ; then
+                    echo "Translating all L432 configurations...failed"   | tee -a $triceFolder/testAll.log
+                    cd - >/dev/null
+                    exit 2
+                fi
+                echo "Translating all L432 configurations...pass"    2>&1 | tee -a $triceFolder/testAll.log
                 echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
             cd - >/dev/null
         fi
