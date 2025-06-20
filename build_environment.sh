@@ -26,8 +26,8 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     fi
 
     #export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
-    export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
     export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
+    export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
 elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo $OSTYPE # POSIX compatibility layer and Linux environment emulation for Windows
 elif [[ "$OSTYPE" == "msys" ]]; then
