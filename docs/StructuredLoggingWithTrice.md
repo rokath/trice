@@ -74,7 +74,7 @@ trice insert \
 
 Or the user decides to include the normal location information of the Trice tool (`-li` switch).
 
-To achieve a log output in compact JSON *sLogV* is the same, but change the *sLogF*:
+To achieve a log output in compact JSON, *sLogV* is the same, but change the *sLogF*:
 
 ```bash
 trice insert \
