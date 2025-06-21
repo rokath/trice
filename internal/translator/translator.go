@@ -103,39 +103,6 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
-	/*if decoder.TargetStamp == "" || decoder.TargetStamp == "off" || decoder.TargetStamp == "none" {
-		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = ""
-		}
-		if !decoder.ShowTargetStamp16Passed {
-			decoder.TargetStamp16 = ""
-		}
-		if !decoder.ShowTargetStamp32Passed {
-			decoder.TargetStamp32 = ""
-		}
-	}
-	if decoder.TargetStamp == "ms" {
-		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = DefaultTargetStamp0
-		}
-		if !decoder.ShowTargetStamp16Passed {
-			decoder.TargetStamp16 = "ms"
-		}
-		if !decoder.ShowTargetStamp32Passed {
-			decoder.TargetStamp32 = "ms"
-		}
-	}
-	if decoder.TargetStamp == "us" || decoder.TargetStamp == "µs" {
-		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = DefaultTargetStamp0
-		}
-		if !decoder.ShowTargetStamp16Passed {
-			decoder.TargetStamp16 = "us"
-		}
-		if !decoder.ShowTargetStamp32Passed {
-			decoder.TargetStamp32 = "us"
-		}
-	}*/
 	switch decoder.TargetStamp {
 	case "", "off", "none":
 		if !decoder.ShowTargetStamp0Passed {
@@ -146,16 +113,6 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		}
 		if !decoder.ShowTargetStamp32Passed {
 			decoder.TargetStamp32 = ""
-		}
-	case "epoch":
-		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = "                       " // 23 spaces
-		}
-		if !decoder.ShowTargetStamp16Passed {
-			decoder.TargetStamp16 = "us"
-		}
-		if !decoder.ShowTargetStamp32Passed {
-			decoder.TargetStamp32 = "epoch"
 		}
 	case "ms":
 		if !decoder.ShowTargetStamp0Passed {
@@ -245,17 +202,28 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
 						s = fmt.Sprintf("time:%4d,%03d_%03d", sd, ms, us)
 					case "epoch":
-						t := time.Unix(int64(decoder.TargetTimestamp), 0)
-						s = t.Format("2006-01-02 15:04:05 MST")
+						t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
+						s = t.Format("2006-01-02 15:04:05 UTC")
 						c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
-						if t != c {
-							s += "-->" + c.Format("2006-01-02 15:04:05 MST")
+						if ! t.Equal(c) {
+							s += "-->" + c.Format("2006-01-02 15:04:05 UTC")
 						}
 					case "":
+						// no ts32
 					default:
-						s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
-					}
+						after, found := strings.CutPrefix(decoder.TargetStamp32, "epoch")
+						if found { // Assume a -ts32="epoch2006-01-02 15:04:05 UTC" like value.
+						t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
+						s = t.Format(after)
+						c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
+						if ! t.Equal(c) {
+							s += "-->" + c.Format(after)
+						}
 
+						}else{ // Assume a string containing a single %d like format specification.
+							s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
+						}
+					}
 				case 2:
 					switch decoder.TargetStamp16 {
 					case "ms", "s,ms":
@@ -270,7 +238,6 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 					default:
 						s = fmt.Sprintf(decoder.TargetStamp16, decoder.TargetTimestamp)
 					}
-
 				case 0:
 					if decoder.TargetStamp0 != "" {
 						s = fmt.Sprintf(decoder.TargetStamp0)
@@ -305,7 +272,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 func correctWrappedTimestamp(ts32 uint32) time.Time {
 
 	const (
-		minValidYear = 2025
+		minValidYear = 2000
 		maxValidYear = 2038
 		wrapOffset   = 1 << 32 // 2^32 seconds
 	)
