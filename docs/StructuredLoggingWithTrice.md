@@ -1,8 +1,8 @@
 # Trice Structured Logging (Specification Draft)
 
-Structured logging, in contrast to unformatted logging, adds compile time and runtime information to logs as well as log level information. These data are added automatically to logs. The user should be able to configure, which data get added and also should get control about the data formatting. The generic data insertion allows later an automatic log file analysis and frees the developer from manually typing this, what is also error-prone.
+Structured logging, in contrast to unformatted logging, automatically adds compile time and runtime information to logs as well as log level information. The user should be able to configure, which data get added and also should have control about the data formatting. The generic data insertion allows later an automatic log file analysis and frees the developer from manually typing defaults, what is also error-prone.
 
-Trice is considerable already a bit as a (very limited) structured logger, if we look at the file and line insertion capability and the timestamp options. The following is about how the Trice functionality could get extended with structured logging capability without making a breaking change.
+Trice is considerable already a bit as a (very limited) structured logger, if we look at the file and line insertion capability and the timestamp options. The following is about how Trice could get full structured logging capability without making a breaking change.
 
 ## Compile-time Information Examples
 
