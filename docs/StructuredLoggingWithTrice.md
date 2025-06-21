@@ -1,4 +1,4 @@
-# Implementing structured logging as binary logging with Trice (Specification Draft)
+# Trice Structured Logging (Specification Draft)
 
 Structured logging, in contrast to unformatted logging, adds compile time and runtime information to logs as well as log level information. These data are added automatically to logs. The user should be able to configure, which data get added and also should get control about the data formatting. The generic data insertion allows later an automatic log file analysis and frees the developer from manually typing this, what is also error-prone.
 
