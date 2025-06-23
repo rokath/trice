@@ -1212,12 +1212,12 @@ If you do not succeed initially, you can try this:
 int main( void) {
     // system init...
     TriceInit();
-    TRice(iD(170), "Fun %x!\n", 0xadded ); // with "fixed" iD(170), 32-bit stamp, and with `\n`
+    TRice(iD(255), "Fun %x!\n", 0xadded ); // with "fixed" iD(255), 32-bit stamp, and with `\n`
     // system run ...
 }
 ```
 
-* Command line with expected output (`-s` is important):
+* Command line with expected output (`-s` is):
 
 ```bash
 trice log -s -port com1 -v -ts32="att:%08x fix" # enter this (adapted)
@@ -6562,7 +6562,7 @@ trice(201), "runtimeContext: [hw=%x] [core=%x]", getHwSerial(), getCoreID()); TR
 | 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                 |
 | 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                     |
 | 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                               |
-
+| 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved        |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
