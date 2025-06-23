@@ -184,7 +184,10 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 		a.Mutex.Lock() // several files could contain the same t
 
 		// process t
+		alias := t.Alias
+		t.Alias = ""          // Remove potentially existing alias temporary.
 		ids := p.triceToId[t] // ids contains all ID´s of a Trice.
+		t.Alias = alias       // Restore alias information.
 		if Verbose {
 			fmt.Fprintln(w, "Trice ", t, " has", len(ids), "unused ID(s), but could be from different file(s). IDs=", ids, ".")
 		}

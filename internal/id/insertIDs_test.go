@@ -191,18 +191,18 @@ func TestInsertKnownID2(t *testing.T) {
 
 	// create src file1
 	src1 := `
-	trice("%x", 123 );
-	trice("msg:value=%d\n", 123 );
+	printk("%x", 123 );
+	log("msg:value=%d\n", 123 );
 	`
 	assert.Nil(t, FSys.WriteFile("file1.c", []byte(src1), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-alias", "log", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-alias", "log",  "-alias", "printk", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
-	trice(iD(77), "%x", 123 );
-	trice(iD(55), "msg:value=%d\n", 123 );
+	printk(iD(77), "%x", 123 );
+	log(iD(55), "msg:value=%d\n", 123 );
 	`
 	actSrc1, e := FSys.ReadFile("file1.c")
 	assert.Nil(t, e)
