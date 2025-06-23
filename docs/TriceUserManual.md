@@ -1212,17 +1212,27 @@ If you do not succeed initially, you can try this:
 int main( void) {
     // system init...
     TriceInit();
-    TRice(iD(0x3333), "hi %x\n", 0x22222222 ); // with `\n`
+    TRice(iD(170), "Fun %x!\n", 0xadded ); // with "fixed" iD(170), 32-bit stamp, and with `\n`
     // system run ...
 }
 ```
 
-* Command line:
+* Command line with expected output (`-s` is important):
 
 ```bash
-trice log -port com1 -v -s # enter this (adapted)
-
-33 ff 41 42 43 44 c0 04 22 22 22 22 # expected byte stream
+trice log -s -port com1 -v -ts32="att:%08x fix" # enter this (adapted)
+#       /-------------------------------------- ID low byte (170)
+#       |  /----------------------------------- ID high byte (6 bits=0) with 2 most significant bits set (32-bit stamp follows)
+#       |  |       /--------------------------- 32-bit (time) stamp
+#       |  |       |      /-------------------- initial cycle counter: 192
+#       |  |       |      |  /----------------- payload size
+#       |  |       |      |  |       /--------- payload (0x00added) 
+#       |  |       |      |  |       |      / - 0-delimiter or next Trice
+#       |  |       |      |  |       |      |
+#       v  v  vvvvvvvvvvv v  v  vvvvvvvvvvv v
+# Input(aa c0 41 42 43 44 c0 04 ed dd 0a 00 ... ) # expected byte stream
+# ...
+#              main.c    84 44434241 fix   170 Fun added!
 # ...
 ```
 
