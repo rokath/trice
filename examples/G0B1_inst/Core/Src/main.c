@@ -108,7 +108,12 @@ int main(void)
 #if !TRICE_OFF
   LogTriceConfiguration();
   SomeExampleTrices(3);
-//#endif
+#endif
+
+#if 1 // TRICE_OFF == 1 // With TRICE_OFF the custom macros fall back to the custom implementation, so the users implementation is active then.
+  
+  // The custom macros cause compiler warnings, when the IDs are still inserted. Therefore a 'trice clean' is needed before building the binary.
+
   /* Some Custom Trice Alias Examples */  
   const int theRightAnswer = 42;
   const int theFastFoundAnswer = 24;
@@ -125,7 +130,9 @@ int main(void)
   
   // Assert with condition and a message and some extra message arguments
   CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)"'%s' Am, it is %d", (char*)theQuestion, theRightAnswer);
-#endif
+
+  #endif
+
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
