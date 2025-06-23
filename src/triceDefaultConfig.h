@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 #ifndef TRICE_OFF
-// TRICE_OFF, when defined to 1 earlier than including trice.h disables trice code for the file.
+// TRICE_OFF, when defined to 1 earlier, than including trice.h disables trice code for the file.
 // When defined in the project settings, it influences the whole trice code generation.
 #define TRICE_OFF 0
 #endif
