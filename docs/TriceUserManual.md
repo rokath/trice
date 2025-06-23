@@ -699,7 +699,7 @@ When it comes to instrument a legacy project with Trice or to intergrate legacy 
 1. Use for user specific log statements a different output channel. No special care has to be taken. This is maybe acceptable in some cases.
 2. Replace user specific log statements with Trice statements using a text processor and adapt the float, double or runtime strings handling manually. This is acceptable for small code amounts and when is is no problem to edit the legacy sources.
 3. Get the legacy output packages before transmitting them, add a 2-byte count in little-endian (0-16383) in front and frame them the same way the trice packages get framed (for example with COBS). This will set the 2 most significant bits to 00 and the Trice tool, can get informed via CLI switch to treat those packages accordingly. The user code containing specific logs will work unchanged together with Trice code over the same output channel.
-4. Take advantage of the new support for dynamic trice and triceS macro aliases ([Trice Alias Functionality for Integrating Legacy User Code](#trice-alias-functionality-for-integrating-legacy-user-code-trice-v11-and-later)).
+4. Take advantage of the new support for dynamic trice and triceS macro aliases ([Trice Alias Functionality for Integrating Legacy User Code](#trice-alias-functionality-for-integrating-legacy-user-code-(trice-v1.1-and-later))).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
