@@ -6346,7 +6346,7 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptions whe
 
 ## 45. <a id='trice-structured-logging'></a>Trice Structured Logging 
 
-(Specification Draft - please comment)
+(not implemented, specification draft, please comment)
 
 Structured logging, in contrast to unformatted logging, automatically adds compile time and runtime data to logs as well as log level information. The user should be able to configure, which data get added and also should have control about the data formatting. The generic data insertion allows later an automatic log file analysis and frees the developer from manually typing defaults, what is also error-prone.
 
@@ -6435,7 +6435,7 @@ The *sLogF* is now given as [raw string literal](https://go.dev/ref/spec#String_
 Before inserting, the Trice tool will replace the following Trice tool specific variables:
 
 | Variable    | Example             | Comment                                                                                                                                      |
-|-------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `$channel`  | `wrn`               | The bare trice format string part until the first colon (`:`), if known as channel value. In the example it is `wrn`.                        |
 | `$filename` | `val.c`             | The file name, where the Trice log occures.                                                                                                  |
 | `$line`     | `321`               | The file line, where the Trice log occures.                                                                                                  |
@@ -6544,13 +6544,15 @@ trice(201), "runtimeContext: [hw=%x] [core=%x]", getHwSerial(), getCoreID()); TR
 
 <details><summary>Details (click to expand)</summary><ol>
 
-| Date        | Version | Comment                                                                |
-| ----------- | ------- | ---------------------------------------------------------------------- |
-| 2024-DEC-01 | 0.0.0   | Initial Draft                                                          |
-| ...         | 1.0.0   | ...                                                                    |
+| Date        | Version | Comment                                                                                |
+| ----------- | ------- | -------------------------------------------------------------------------------------- |
+| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                          |
+| ...         | 1.0.0   | ...                                                                                    |
 | 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529)) |
-| 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration) |
-| 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                     |
+| 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                 |
+| 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                     |
+| 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                               |
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
