@@ -145,9 +145,9 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 			_, usedFmt := p.idToTrice[id]  // is id used in til.json?
 			_, usedLoc := p.idToLocRef[id] // is id used in li.json?
 			if !usedFmt && !usedLoc {
-				if Verbose {
-					fmt.Fprintln(w, "ID", id, "unused, so add to ID space (ok, just informal)")
-				}
+				//if Verbose {
+				//	fmt.Fprintln(w, "ID", id, "unused, so add to ID space (ok, just informal)")
+				//}
 				e.iDSpace = append(e.iDSpace, id) // create ID space -> This is what we can use later.
 			} else if Verbose {
 				if usedFmt && !usedLoc {

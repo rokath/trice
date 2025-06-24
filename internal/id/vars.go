@@ -65,6 +65,8 @@ var (
 const (
 	insertedCacheFolderName = "inserted"
 	cleanedCacheFolderName  = "cleaned"
+	SAliasStrgPrefix        = "SAlias_Strg('"
+	SAliasStrgSuffix        = "')SAlias_Strg"
 )
 
 func init() {

@@ -2487,7 +2487,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples
 #include "trice.h"
 
 //! TriceHeadLine emits a decorated name. The name length should be 18 characters.
-void TriceHeadLine(char const* name) {
+void TriceHeadLine(char * name) {
 	//! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
 	TriceS("w: Hello! 👋🙂\n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈%s🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n", name);
    0:	f240 0100 	movw	r1, #0

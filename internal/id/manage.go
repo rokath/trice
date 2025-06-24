@@ -214,13 +214,16 @@ func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 		}
 		if strings.ContainsAny(x.Type, "S") || strings.ContainsAny(x.Type, "N") || strings.ContainsAny(x.Type, "B") {
 			if n != 1 {
-				fmt.Fprintln(w, "Expected format specifier count is", n, "- please check", x)
+				if strings.HasPrefix(x.Strg, SAliasStrgPrefix) && strings.HasSuffix(x.Strg, SAliasStrgSuffix) {
+					continue // We do not check parameter count here.
+				}
+				fmt.Fprintf(w, "%+v <- Expected format specifier count is 1 but got %d", x, n)
 			}
 			continue
 		}
 		if strings.ContainsAny(x.Type, "F") {
 			if n != 0 {
-				fmt.Fprintln(w, "Expected format specifier count is", n, "- please check", x)
+				fmt.Fprintf(w, "%+v <- Expected format specifier count is 0 but got %d", x, n)
 			}
 			continue
 		}

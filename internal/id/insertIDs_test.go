@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
+	"github.com/rokath/trice/internal/id"
 	. "github.com/rokath/trice/internal/id"
 	"github.com/tj/assert"
 )
@@ -57,15 +58,15 @@ func TestAliasesInsertion(t *testing.T) {
 	expTil := `{
 	"996": {
 		"Type": "triceS",
-		"Strg": "%s"
+		"Strg": "` + id.SAliasStrgPrefix + `false, \"test message: %d\\n\"` + id.SAliasStrgSuffix + `"
 	},
 	"997": {
 		"Type": "triceS",
-		"Strg": "%s"
+		"Strg": "` + id.SAliasStrgPrefix + `false, \"test message\\n\"` + id.SAliasStrgSuffix + `"
 	},
 	"998": {
 		"Type": "triceS",
-		"Strg": "%s"
+		"Strg": "` + id.SAliasStrgPrefix + `42` + id.SAliasStrgSuffix + `"
 	},
 	"999": {
 		"Type": "trice",
@@ -165,6 +166,10 @@ func TestInsertKnownID2(t *testing.T) {
 		"File": "file1.c",
 		"Line": 3
 	},
+	"66": {
+		"File": "file1.c",
+		"Line": 4
+	},
 	"77": {
 		"File": "file1.c",
 		"Line": 2
@@ -182,6 +187,10 @@ func TestInsertKnownID2(t *testing.T) {
 		"Type": "trice",
 		"Strg": "msg:value=%d\\n"
 	},
+	"66": {
+		"Type": "triceS",
+		"Strg": "` + id.SAliasStrgPrefix + `0 == 1, \"that is wrong\"` + id.SAliasStrgSuffix + `"
+	},
 	"77": {
 		"Type": "trice",
 		"Strg": "%x"
@@ -193,16 +202,18 @@ func TestInsertKnownID2(t *testing.T) {
 	src1 := `
 	printk("%x", 123 );
 	log("msg:value=%d\n", 123 );
+	AST( 0 == 1, "that is wrong" )
 	`
 	assert.Nil(t, FSys.WriteFile("file1.c", []byte(src1), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-alias", "log",  "-alias", "printk", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-alias", "log", "-alias", "printk", "-salias", "AST", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
 	printk(iD(77), "%x", 123 );
 	log(iD(55), "msg:value=%d\n", 123 );
+	AST(iD(66), 0 == 1, "that is wrong" )
 	`
 	actSrc1, e := FSys.ReadFile("file1.c")
 	assert.Nil(t, e)
@@ -823,6 +834,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 		fmt.Println("EXPECT TIL:", expTil)
 	}
 	assert.True(t, result)
+	B.Reset() // -v flag was applied
 }
 
 // TestInsertIDsForNewTrice2WithLI ...
@@ -920,6 +932,7 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 		fmt.Println("EXPECT TIL:", expTil)
 	}
 	assert.True(t, result)
+	B.Reset() // -v flag was applied
 }
 
 // TestInsertIDsForNewTrice ...
@@ -1169,7 +1182,6 @@ func _TestInsertIDsForNewTrice_Issue_523(t *testing.T) {
 	actMsg := o.String()
 	assert.True(t, strings.HasPrefix(actMsg, expMsg))
 }
-
 
 func TestInsertWithBrackets(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.

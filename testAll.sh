@@ -34,7 +34,6 @@ touch demoTIL.json demoLI.json                       2>&1 | tee -a $triceFolder/
 if command -v go; then                               2>&1 | tee -a $triceFolder/testAll.log
     go version                                       2>&1 | tee -a $triceFolder/testAll.log
 
-
     # Go code tests
     echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
     echo "Testing the Go code..."                        2>&1 | tee -a $triceFolder/testAll.log
@@ -43,6 +42,10 @@ if command -v go; then                               2>&1 | tee -a $triceFolder/
         rc=$?
         if [ $rc -ne 0 ]; then
             echo "Testing the Go code...failed"               | tee -a $triceFolder/testAll.log
+            exit $rc
+        fi
+        if cat $triceFolder/testAll.log | grep -q FAIL ; then
+            echo "Testing the Go code...FAILed"               | tee -a $triceFolder/testAll.log
             exit $rc
         fi
     echo "Testing the Go code...pass"                    2>&1 | tee -a $triceFolder/testAll.log

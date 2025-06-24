@@ -58,6 +58,8 @@ func Setup(t *testing.T) func() {
 	fmt.Println(t.Name(), "...")
 	// tear down later //////////////////
 	return func() {
+		// todo: assert.Equal(t, B.String(), "")
+		
 		// tear-down code here
 		fmt.Println(t.Name(), "...done.")
 		B.Reset() // Clear output generated during the test.

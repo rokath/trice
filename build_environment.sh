@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "# Adapt build_environment.sh file to your system eventually."
+# Adapt build_environment.sh file to your system eventually.
 
 # Put ARM Clang first in path temporary to avoid compiler variants issues.
 # llvm-size path under Darwin mabe not set after cklang install.

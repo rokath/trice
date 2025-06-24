@@ -465,8 +465,13 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 //
 // p.Trice.Type is the received trice, in fact the name from til.json.
 func (p *trexDec) sprintTrice(b []byte) (n int) {
-	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
+	isSAlias := strings.HasPrefix( p.Trice.Strg, id.SAliasStrgPrefix ) && strings.HasSuffix( p.Trice.Strg, id.SAliasStrgSuffix )
+	if isSAlias { // A SAlias Strg is covered with id.SAliasStrgPrefix and id.SAliasStrgSuffix in til.json and it needs to be replaced with "%s" here. 
+		p.Trice.Strg = "%s" // See appropriate comment inside insertTriceIDs().
+	} 
+
+	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertTrue")
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertFalse")
 	triceType, err := id.ConstructFullTriceInfo(p.Trice.Type, len(p.u))

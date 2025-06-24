@@ -89,8 +89,12 @@ func (p *idData) cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin
 		} else {
 			t.Type = rest[loc[0]:loc[1]] // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
 			resolveTriceAlias(&t)
-			t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
-			idS = rest[loc[3]:loc[4]]          // idS is where we expect n.
+			if t.isSAlias() {
+				t.Strg = SAliasStrgPrefix + rest[loc[5]:loc[6]] + SAliasStrgSuffix
+			} else {
+				t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
+			}
+			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
 				if Verbose {
@@ -127,10 +131,13 @@ func (p *idData) cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin
 		if !ok {                                   // idn is not inside til.json.
 			IDData.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
+			alias := t.Alias
+			t.Alias = "" // clear
 			if tt != t { // idn references to a different t.
 				fmt.Fprintln(w, "ID", idn, "inside", path, "line", line, "refers to", t, "but is used inside til.json for", tt, "- setting it to 0.")
-				idn = 0 // silently set it to 0
+				idn = 0
 			}
+			t.Alias = alias // restore
 		}
 		if idn != 0 {
 			IDData.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.

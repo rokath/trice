@@ -36,11 +36,12 @@ extern "C" {
 // Windows: trice log -p com3         -prefix off -hs off -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
 // Unix:    trice log -p /dev/ttyACM0 -prefix off -hs off -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DEFERRED_OUTPUT 1
-
 #define TRICE_DEFERRED_XTEA_ENCRYPT 1
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
+//#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
+
 
 #include "cmsis_gcc.h"
 #define TRICE_ENTER_CRITICAL_SECTION             \
@@ -53,7 +54,7 @@ extern "C" {
 	__set_PRIMASK(primaskstate);     \
 	}
 
-void TriceHeadLine(char const* name);
+void TriceHeadLine(char * name);
 void LogTriceConfiguration(void);
 void SomeExampleTrices(int burstCount);
 

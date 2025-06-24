@@ -83,6 +83,8 @@ int main(void)
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
   TRice("Fun %x!\n", 0xadded ); // with "fixed" iD(255), 32-bit stamp,  and with `\n`
   TriceHeadLine("  NUCLEO-G0B1RE   ");
+  LogTriceConfiguration();
+  SomeExampleTrices(3);
 #endif
   /* USER CODE END 1 */
 
@@ -106,10 +108,6 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-#if !TRICE_OFF
-  LogTriceConfiguration();
-  SomeExampleTrices(3);
-#endif
 
 #if 1 // TRICE_OFF == 1 // With TRICE_OFF the custom macros fall back to the custom implementation, so the users implementation is active then.
   

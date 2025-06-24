@@ -73,10 +73,13 @@ func zeroTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte
 		if !ok {                                   // idn is not inside til.json.
 			IDData.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
-			if tt != t { // idn references to a different t.
+			alias := t.Alias // keep
+			t.Alias = ""     // clear
+			if tt != t {     // idn references to a different t.
 				fmt.Fprintln(w, "ID inside", path, "line", line, "refers to", t, "but is already used inside til.json for", tt)
-				idn = 0 // silently set it to 0
+				idn = 0
 			}
+			t.Alias = alias // restore
 		}
 		if idn != 0 {
 			IDData.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.

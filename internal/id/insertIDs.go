@@ -133,7 +133,13 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 		if !t.isSAlias() {
 			t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes with +1 and -1.
 		} else {
-			t.Strg = "%s"
+			// We cannot simply use "%s" here, because that will later not match the source code and cause ID assign issues then.
+			// For til.json file compability we cannot have t.Alias there and we need to have t.Type=="triceS".
+			// To keep the full format information and to signal the SAlias case, we wrap it with SAliasStrgPrefix and SAliasStrgSuffix.
+			t.Strg = SAliasStrgPrefix + rest[loc[5]:loc[6]] + SAliasStrgSuffix
+			// The Trice Tool can check for this case and
+			// - on logging replace t.Strg with "%s" then and
+			// - on ID management t.Strg with t.Strg content SAliasFrame prefix and suffix removed.
 		}
 
 		// Only check format specifiers(param count) for built-in trice macros with defined behavior;

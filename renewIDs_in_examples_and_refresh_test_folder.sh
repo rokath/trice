@@ -3,11 +3,11 @@
 TD="./_test/testdata"
 LIP="-liPath relative"
 
-#rm -f          demoTIL.json     demoLI.json # forget history (users usually should not do that in their projects, delete to avoid potential ID conflict messages)
-#touch          demoTIL.json     demoLI.json # new life
+rm -f           demoTIL.json     demoLI.json # forget history (users usually should not do that in their projects, delete to avoid potential ID conflict messages)
+touch           demoTIL.json     demoLI.json # new life
 trice clean  -i demoTIL.json -li demoLI.json $LIP -src $TD -src ./examples -alias CUSTOM_PRINT -salias CUSTOM_ASSERT # wipe out all IDs from the sources
-#rm -f          demoTIL.json     demoLI.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
-#touch          demoTIL.json     demoLI.json # new life
+rm -f           demoTIL.json     demoLI.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
+touch           demoTIL.json     demoLI.json # new life
 
 # Next steps are done separately to get the same IDs continuously, in case we deleted the history - normally all files and folders can be done parallel in one shot.
 # We do not use -cache here to force the li.json generation.
