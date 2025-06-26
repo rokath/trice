@@ -131,13 +131,29 @@ func (p *idData) cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin
 		if !ok {                                   // idn is not inside til.json.
 			IDData.idToTrice[idn] = t // Add idn.
 		} else { // idn is inside til.json.
-			alias := t.Alias
-			t.Alias = "" // clear
-			if tt != t { // idn references to a different t.
-				fmt.Fprintln(w, "ID", idn, "inside", path, "line", line, "refers to", t, "but is used inside til.json for", tt, "- setting it to 0.")
+
+			// TODO: The following should be done better.
+
+			u := t
+			u.Alias = "" // clear
+			if strings.HasPrefix(u.Strg, SAliasStrgPrefix) && strings.HasSuffix(u.Strg, SAliasStrgSuffix) {
+				u.Strg, _ = strings.CutPrefix(u.Strg, SAliasStrgPrefix)
+				u.Strg, _ = strings.CutSuffix(u.Strg, SAliasStrgSuffix)
+				u.Strg, _ = strings.CutPrefix(u.Strg, `"`)
+				u.Strg, _ = strings.CutSuffix(u.Strg, `"`)
+			}
+			uu := tt
+			uu.Alias = "" // clear
+			if strings.HasPrefix(uu.Strg, SAliasStrgPrefix) && strings.HasSuffix(uu.Strg, SAliasStrgSuffix) {
+				uu.Strg, _ = strings.CutPrefix(uu.Strg, SAliasStrgPrefix)
+				uu.Strg, _ = strings.CutSuffix(uu.Strg, SAliasStrgSuffix)
+				uu.Strg, _ = strings.CutPrefix(uu.Strg, `"`)
+				uu.Strg, _ = strings.CutSuffix(uu.Strg, `"`)
+			}
+			if uu != u { // idn references to a different t.
+				fmt.Fprintln(w, "ID", idn, "inside", path, "line", line, "refers to\n", u, "but is used inside til.json for\n", uu, "- setting it to 0.")
 				idn = 0
 			}
-			t.Alias = alias // restore
 		}
 		if idn != 0 {
 			IDData.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.
