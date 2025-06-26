@@ -24,6 +24,7 @@ echo \$OSTYPE=$OSTYPE                                2>&1 | tee -a $triceFolder/
 if command -v uname; then                            2>&1 | tee -a $triceFolder/testAll.log
     uname -a                                         2>&1 | tee -a $triceFolder/testAll.log
 fi
+go install ./...
 trice version                                        2>&1 | tee -a $triceFolder/testAll.log
 ./trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
 rm -f demoTIL.json demoLI.json                       2>&1 | tee -a $triceFolder/testAll.log
