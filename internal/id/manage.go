@@ -25,7 +25,7 @@ func NewLut(w io.Writer, fSys *afero.Afero, fn string) TriceIDLookUp {
 	if fn == "emptyFile" { // reserved name for tests only
 		return lu
 	}
-	msg.FatalOnErr(lu.fromFile(fSys, fn))
+	msg.FatalInfoOnErr(lu.fromFile(fSys, fn), fmt.Sprintf("Error in file %s?", fn))
 	if Verbose {
 		fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	}
