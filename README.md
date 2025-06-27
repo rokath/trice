@@ -44,7 +44,7 @@ even inside **↯ interrupts** in less than 1 µs❗
 - Using *Trice* not only for **printf debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./_test/testdata/til.json) is the key to read all output if your devices in the field for 10 or more years.
   - Optionally add [til.json](./_test/testdata/til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html). Or simply provide a download link.
 - You can see *Trice* also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
-- Storing *Trice* messages in [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) for later log analysis saves memory because a typical `TRICE` occupies only 4 bytes independently of the format string length plus optional values.
+- [Storing *Trice* messages in FLASH memory](./docs/TriceUserManual.md#writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output)) for later log analysis saves memory because a typical `TRICE` occupies only 4 bytes independently of the format string length plus optional values.
 - Also, it is possible to **encrypt** the *Trice* transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./_test/testdata/til.json).
   - [XTEA](https://en.m.wikipedia.org/wiki/XTEA) is implemented as one option.
