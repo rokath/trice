@@ -57,6 +57,10 @@ void TriceCheck(int n) {
     switch( n ){ 
         default:
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
+        // The following line is what is expected but does not occure: 
+        //break; case __LINE__: who ("att:'-alias' & '-salias' contributor is %s.\n", "@srgg" );     //xxx: time:        default: att:'-alias' & '-salias' contributor is @srgg.
+        // This is, what happens instead - abetter understanding is needed.
+        break; case __LINE__: who ("att:'-alias' & '-salias' contributor is %s.\n", "@srgg" );     //exp: time:        default: @srgg
         // Lines ending with a comment starting with `//exp:` are executed during trhe automatic Go tests.
         break; case __LINE__: TRice("Hello World!\n" );                                              //exp: time:feed3322default: Hello World!		
         // normal use cases
@@ -64,13 +68,9 @@ void TriceCheck(int n) {
         break; case __LINE__: Trice("info:This is a message without values and a 16-bit stamp.\n" ); //exp: time:    be16default: info:This is a message without values and a 16-bit stamp.
         break; case __LINE__: trice("info:This is a message without values and without stamp.\n"  ); //exp: time:        default: info:This is a message without values and without stamp.
         break; case __LINE__: for( int i = 126; i < 130; i++ ){ dynString(i); }
-
-
-
-
-
-
-
+        // 'tell' is declared as -alias in ./trice_environment.sh and defined (here in ./_test/*/triceConfig.h, these files are excluded from parsing in ./trice_environment.sh)
+        break; case __LINE__: tell("A user cmd.\n");                                                             //exp: time:        default: A user cmd.
+        break; case __LINE__: tell("A user cmd: %d * %d * %d = %u = %.1f\n", 2, -3, -7, 2*-3*-7, aFloat(42.0));  //exp: time:        default: A user cmd: 2 * -3 * -7 = 42 = 42.0
 
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:        default: wr:
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:        default: wr:0
