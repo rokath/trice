@@ -6519,14 +6519,25 @@ trice clean  -sLogF="$SLFMT" -sLogV="$SLVAL"
   * There is already a switch `-addNL`, but this has its own application area.
   * We could have a switch `-rmNL`, which removes `\n` from the end of legacy format strings during `trice insert`, if wanted.
 * It is also possible to specify `-sLog` differently for different channels. For example as multi switch:
-  * `-slog='_ERR:"{"log_level":"$channel","file":"main.c","line:"%d","taskID":"%x","fmt":"$fmt"}\n":", $line, getTaskID(), $values "'` (with location)
+  * `-slog='_ERR:"{"log_level":"$channel","file":$file,"line:"%d","taskID":"%x","fmt":"$fmt"}\n":", $line, getTaskID(), $values "'` (with location)
   * `-slog='_*:"{"log_level":"$channel","taskID":"%x","fmt":"$fmt"}\n":", getTaskID(), $values "'` (no location)
+* For the first implementation 2 separate multi flags seem to be better:
+  * Usage is more clear for the user.
+  * It avoids internal splitting, what could be error prone and simplifies parsing.
+* A more flexible possibility, is to place optionally the Trice variables as parameters, which get inserted:
+  * `-stf='_ERR:"{"log_level":"%6s","file":"%24s","line:"%5d","taskID":"%02x","fmt":"$fmt"}\n"`
+  * `-stv='_ERR:$channel, $file, $line, getTaskID(), $values'`
+  * The Trice tool, on `insert` for a `trice("_ERR:foo...");` parses the `-stf` string for the first string format specifier, here `%6s`, and grabs the first Trice variable in `-stv`, here `$channel`, and prints it according to the `"%6s` into the extended `-stf` and removes `$channel, ` from the `-stv`, so that this gets  `-stv=$file, $line, getTaskID(), $values "'` in the first step. 
+  * Then `$file` is printed into the `"%24s` in the same manner, what results in right aligned file names here.
+  * Because in this example `"line:"%5d"` is given, the `$line` is replaced in the value string directly.
+  * Finally the `$fmt` is replaced directly inside the `-stf` string.
+  * So the general rule here is, to replace Trice variables in place if no string format specifier is assigned, and if one is assigned to print the the Trice variable as specified and remove the Trice variable name.
   
   This would give structure data including file and line for _ERR messages and excluding file and line for _INFO, _WRN and _DEBUG logs and would not touch any other trice logs.
 * The star `_*` is used instead of _INFO, _WRN and _DEBUG to let all remaining levels/channels have identical structured data.
 * Is is necessary to keep the users original format strings or can we reconstruct them all the time?
-  * When using the `-cache` option we have a copy of the original, but else not. 
-
+  * When using the `-cache` option we have a copy of the original, but we do not want depend on it.
+  * The original $fmt value could get stored in a *stl.json* file together with the ID.
 
 <!--
 
@@ -6563,6 +6574,7 @@ trice(201), "runtimeContext: [hw=%x] [core=%x]", getHwSerial(), getCoreID()); TR
 | 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                     |
 | 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                               |
 | 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved        |
+| 2025-JUN-29 | pre 1.1 | [Questions](#questions) extended                                                       |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
