@@ -6455,7 +6455,9 @@ trice insert \
 -stv='getTaskID(), $values, uptime()'
 ```
 
-The raw string syntax is mandatory here, to pass the internal Trice tool variables names. Adding variable values like `$line` as strings has performance advantages, but on each such value change is a new Trice ID generated then. Those variables are better inserted as values, if the code is under development, like this:
+The raw string syntax is mandatory here, to pass the internal Trice tool variables names. 
+
+Adding variable values like `$line` as strings has performance advantages, but on each such value change a new Trice ID is generated then. Those variables are better inserted as values, if the code is under development. A `$line` value insertion looks like this:
 
 ```bash
 trice insert \
@@ -6471,25 +6473,27 @@ trice insert \
 -stv='$level, $file, $line, $func, getTaskID(), $values, uptime()'
 ```
 
-The user has full control and could also use any other syntax like a JSON format. Only the format specifiers are requested to match the passed values after the Trice tool internal variables replacement, so that the Trice tool can perform a printf during logging.
+The user has full control and could also use any other syntax like a JSON format. Only the format specifiers are requested to match the passed values after the Trice tool internal variables replacement during `trice insert`, so that the Trice tool can perform a printf during logging.
 
-To achieve a log output in compact JSON, *stv* is the same, but the *stf* value is changed:
+To achieve a log output in compact JSON with line as string we can use:
 
 ```bash
 trice insert \
--stf='{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%04x","fmt":"MyF=%.2f, myI=%d","uptime":%08u us"}' \
+-stf='{"log level":"%-6s","file":"%24s","line:"%5s","func":"%-16s","taskID":"%04x","fmt":"MyF=%.2f, myI=%d","uptime":%08u us"}' \
 -stv='$level, $file, $line, $func, getTaskID(), $values, uptime()'
 ```
 
-After `trice insert` we get this (compact JSON) log line:
+After `trice insert` we get this (compact JSON) log line according to `-stf` and `-stv`:
 
 ```C
 void doStuff( void ){
     // ...
-    trice(iD(789), "{\"log level\":\"wrn   \",\"file\":\"                  val.c\",\"line\":\"%5d\",\"func\":\"doStuff         \",\"taskID\":\"%04x\",\"fmt\":\"MyF=%.2f, myI=%d\",\"uptime\":\"%08u us\"}\n', 321, getTaskID(), aFloat(42.42), 42), uptime());
+    trice(iD(789), "{\"log level\":\"wrn   \",\"file\":\"                  val.c\",\"line\":\"  321\",\"func\":\"doStuff         \",\"taskID\":\"%04x\",\"fmt\":\"MyF=%.2f, myI=%d\",\"uptime\":\"%08u us\"}\n', getTaskID(), aFloat(42.42), 42, uptime());
     // ...
 }
 ```
+
+All compile time strings are part of the Trice format string now, which is registered inside the *til.json* file. The needed Trice byte count stays 4 bytes only plus the 4 times 4 bytes for the runtime parameter values.
 
 A `trice clean` command will remove the context information completely including the ID. Please keep in mind, that with `trice insert` as a pre-compile and `trice clean` as post-compile step, the user all the time sees only the original written code:
 
@@ -6507,7 +6511,7 @@ The appropriate Trice tool log line output would be similar to
 
 ```bash
 {...}
-{"log level":"wrn   ","file":"                   val.c","line":"  321","func":"doStuff         ","taskID":"0123","fmt":"MyF=4.2000, myI=42","uptime":"12345678 us"}
+{"log level":"wrn   ","file":"                   val.c","line":"  321","func":"doStuff         ","taskID":"0123","fmt":"MyF=42.42, myI=42","uptime":"12345678 us"}
 {...}
 ```
 
@@ -6526,17 +6530,32 @@ trice insert -cache -stf="$SLFMT" -stv="$SLVAL"
 trice clean  -cache -stf="$SLFMT" -stv="$SLVAL"
 ```
 
-The `-cache` switch is still experimental - to stay safe use:
+The `-cache` switch is still experimental - to stay safe use (here again with `$line` as string):
 
 ```bash
 #!/bin/bash
-SLFMT='{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'
+SLFMT='{"log level":"%-6s","file":"%24s","line:"%5s","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'
 SLVAL=', $line, getTaskID(), $values, uptime()'
 
 trice insert -stf="$SLFMT" -stv="$SLVAL"
 # make
 trice clean  -stf="$SLFMT" -stv="$SLVAL"
 ```
+
+### The Structured Logging `trice insert` and `trice clean` Algorithm
+
+### On `trice insert`
+
+* When a matching Trice was found, an existing `iD(123)` indicates, that the structured logging data insertion was already performed.
+
+
+* The Trice tool, on `insert` for a `trice("_ERR:foo...");` parses the `-stf` string for the first string format specifier, here `%6s`, and grabs the first Trice variable in `-stv`, here `$level`, and prints it according to the `"%-6s` into the extended `-stf` and removes (internally) `$level, ` from the `-stv`, so that this gets  `-stv=$file, $line, getTaskID(), $values "'` in the first step. 
+* Then `$file` is printed into the `"%24s` in the same manner, what results in right aligned file names here.
+* Because in this example `"line:"%5d"` is given, the `$line` is replaced in the value string directly.
+* Finally the `$fmt` is replaced directly inside the `-stf` string.
+* So the general rule here is, to replace Trice variables in place if no string format specifier is assigned, and if one is assigned to print the the Trice variable as specified and remove the Trice variable name.
+  
+
 
 ### 45.5. <a id='questions'></a>Questions
 
@@ -6547,27 +6566,18 @@ trice clean  -stf="$SLFMT" -stv="$SLVAL"
     * Do not touch the user sources. Just handle that internally.
   * We generally add a `\n` at the end of the final structured logging string, so the user has not to type it inside the `-stf` value.
 * Should all Trices get handled the same way? 
-  * We just deal with the `trice` statements and ignore `triceS` or `trice8` variants.
+  * We just deal with the `trice` statements and ignore variants like `triceS` or `trice8`.
   * Invent new tags/channels starting with an underscore `_` like "_WRN" just for the structured logging, if desired.
   * It is also possible to specify `-stf` and `-stv` differently for different channels/tags. For example as multi switch:
-    * `_ERR:` Trices: 
-      * `-stf='_ERR:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us # with location"}'`
+    * Trices with an `_ERR:` tag `trice("_ERR:...", ...);`: 
+      * `-stf='_ERR:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'` (with location)
       * `-stv='_ERR:   $level,              $file,         $line,        $func,    getTaskID(),   $values,      uptime()'`
-    * `_*:` Trices:
-      * `-stf='_*:"{"log_level":"%-6s","taskID":"%x","fmt":"$fmt","uptime":"%08u us}" # no location'`
+    * Trices with an underscore tag, like `trice("_DEBUG:...", ...);` or `trice("_info:...", ...);`:
+      * `-stf='_*:"{"log_level":"%-6s","taskID":"%x","fmt":"$fmt","uptime":"%08u us}"'` (no location)
       * `-stv='_*:              $level, getTaskID(),    $values,           uptime()'`
-* For the first implementation 2 separate multi flags seem to be better:
-  * Usage is more clear for the user.
-  * It avoids internal splitting, what could be error prone and simplifies parsing.
-
-  * The Trice tool, on `insert` for a `trice("_ERR:foo...");` parses the `-stf` string for the first string format specifier, here `%6s`, and grabs the first Trice variable in `-stv`, here `$level`, and prints it according to the `"%6s` into the extended `-stf` and removes (nternally) `$level, ` from the `-stv`, so that this gets  `-stv=$file, $line, getTaskID(), $values "'` in the first step. 
-  * Then `$file` is printed into the `"%24s` in the same manner, what results in right aligned file names here.
-  * Because in this example `"line:"%5d"` is given, the `$line` is replaced in the value string directly.
-  * Finally the `$fmt` is replaced directly inside the `-stf` string.
-  * So the general rule here is, to replace Trice variables in place if no string format specifier is assigned, and if one is assigned to print the the Trice variable as specified and remove the Trice variable name.
-  
-  This would give structure data including file and line for _ERR messages and excluding file and line for _INFO, _WRN and _DEBUG logs and would not touch any other trice logs.
-* The star `_*` is used instead of _INFO, _WRN and _DEBUG to let all remaining levels/channels have identical structured data.
+    * This would give structure data including file and line for _ERR messages and excluding file and line for _INFO, _WRN and _DEBUG logs and would not touch any other trice logs.
+    * The star `_*` is used instead of _INFO, _WRN and _DEBUG to let all remaining levels/channels have identical structured data.
+    * All other Trices, like `trice("msg:...", ...);` are not treated as structured logging Trices.
 * Is is necessary to keep the users original format strings or can we reconstruct them all the time?
   * When using the `-cache` option we have a copy of the original, but we do not want depend on it.
   * The original $fmt value could get stored in a *stl.json* file together with the ID.
