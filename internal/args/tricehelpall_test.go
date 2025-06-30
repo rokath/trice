@@ -225,6 +225,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	 (default "off")
   -newlineIndent int
     	Force newline offset for trice format strings with line breaks before end. -1=auto sense (default -1)
+  -noCycle
+    	Disables reporting of cycle errors.
   -p string
     	short for -port (default "J-LINK")
   -packageFraming string
