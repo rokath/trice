@@ -180,7 +180,7 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print Trices occurrences count on exit.`)
 	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print Trices occurrences count on exit.`)
 	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print complete statistics on exit.`)
-	fsScLog.BoolVar(&trexDecoder.DisableCycleErrors, "noCycle", false, `Disables reporting of cycle errors.`)
+	fsScLog.BoolVar(&trexDecoder.DisableCycleErrors, "noCycleCheck", false, `Disables reporting of cycle errors.`)
 }
 
 func addInit() {
