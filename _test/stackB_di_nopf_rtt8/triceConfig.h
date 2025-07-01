@@ -9,12 +9,9 @@
 extern "C" {
 #endif
 
-#define TRICE_CLEAN 1
-
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE 1
-
 #define TRICE_CGO 1
 #define TRICE_CYCLE_COUNTER 0
 

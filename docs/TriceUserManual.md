@@ -1967,7 +1967,7 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
 
 ### 21.1. <a id='target-(time)stamps-formatting'></a>Target (Time)Stamps Formatting
 
-To get a short overview run `trice help -log` and read about the CLI switches `ts`, `ts0`, `ts16`, `ts32`. The `ts32` switch supports also "epoch" now as format. That is useful for example, if the binary logs are stored internally in the device flash and read out later. Such usage assumes 1 second as ts32 unit in `uint32_t` format and the Trice tool displays the UTC time. It is also possible to adapt the displayed format like this for example: `trice log -ts32='epoch"06-01-02_15:04:05"'`. The additional passed string must match the Go time package capabilities. A few examples:
+To get a short overview run [trice help -log](../internal/args/tricehelpall_test.go) and read about the CLI switches `ts`, `ts0`, `ts16`, `ts32`. The `ts32` switch supports also "epoch" now as format. That is useful for example, if the binary logs are stored internally in the device flash and read out later. Such usage assumes 1 second as ts32 unit in `uint32_t` format and the Trice tool displays the UTC time. It is also possible to adapt the displayed format like this for example: `trice log -ts32='epoch"06-01-02_15:04:05"'`. The additional passed string must match the Go time package capabilities. A few examples:
 
 ```bash
 trice log -port FILEBUFFER -args myLogs.bin -ts32='"Mon Jan _2 15:04:05 2006"'             # ANSIC   
@@ -6660,16 +6660,17 @@ trice(201), "runtimeContext: [hw=%x] [core=%x]", getHwSerial(), getCoreID()); TR
 
 <details><summary>Details (click to expand)</summary><ol>
 
-| Date        | Version | Comment                                                                                |
-|-------------|---------|----------------------------------------------------------------------------------------|
-| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                          |
-| ...         | 1.0.0   | ...                                                                                    |
-| 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529)) |
-| 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                 |
-| 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                     |
-| 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                               |
-| 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved        |
-| 2025-JUN-29 | pre 1.1 | [Questions](#questions) extended                                                       |
+| Date        | Version | Comment                                                                                            |
+|-------------|---------|----------------------------------------------------------------------------------------------------|
+| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                      |
+| ...         | 1.0.0   | ...                                                                                                |
+| 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529))             |
+| 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                             |
+| 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                                 |
+| 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                                           |
+| 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                    |
+| 2025-JUN-29 | pre 1.1 | [Questions](#questions) extended                                                                   |
+| 2025-JUN-30 | pre 1.1 | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

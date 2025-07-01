@@ -1,27 +1,26 @@
 #!/bin/bash
 
+source ./trice_environment.sh
 TD="./_test/testdata"
-LIP="-liPath relative"
 
-rm -f           demoTIL.json     demoLI.json # forget history (users usually should not do that in their projects, delete to avoid potential ID conflict messages)
+rm -f           demoTIL.json     demoLI.json # forget history (users usually should not do that in their projects, deleted here to avoid potential ID conflict messages)
 touch           demoTIL.json     demoLI.json # new life
-trice clean  -i demoTIL.json -li demoLI.json $LIP -src $TD -src ./examples -alias CUSTOM_PRINT -salias CUSTOM_ASSERT # wipe out all IDs from the sources
+trice clean  $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES # wipe out all IDs from the sources
 rm -f           demoTIL.json     demoLI.json # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
 touch           demoTIL.json     demoLI.json # new life
 
 # Next steps are done separately to get the same IDs continuously, in case we deleted the history - normally all files and folders can be done parallel in one shot.
 # We do not use -cache here to force the li.json generation.
 # The Trice tool per default chooses IDs randomly between 1000 and 7999.
-trice insert -i demoTIL.json -li demoLI.json $LIP              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c
-trice insert -i demoTIL.json -li demoLI.json $LIP              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c
-trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/F030_inst/Core
-trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/G0B1_inst/Core -alias CUSTOM_PRINT -salias CUSTOM_ASSERT -exclude ./examples/G0B1_inst/Core/Inc/triceCustomAliases.h
-trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/L432_inst/Core
-trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src $TD/triceCheck.c
-trice insert -i demoTIL.json -li demoLI.json $LIP -IDMin 13000 -IDMax 15999 -IDMethod upward   -src $TD/..
-
-# Remove all IDs from the sources. They are now inside the til.json (and li.json) files.
-trice clean -i demoTIL.json -li demoLI.json $LIP -alias CUSTOM_PRINT -salias CUSTOM_ASSERT 
+# On changing the test and example projects adapt $TRICE_PRJ_FILES too.
+trice insert $TRICE_DEFAULTS $TRICE_ALIASES              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceLogDiagData.c
+trice insert $TRICE_DEFAULTS $TRICE_ALIASES              -IDMax 16383 -IDMethod downward -src ./examples/exampleData/triceExamples.c
+trice insert $TRICE_DEFAULTS $TRICE_ALIASES -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/F030_inst/Core
+trice insert $TRICE_DEFAULTS $TRICE_ALIASES -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/G0B1_inst/Core 
+trice insert $TRICE_DEFAULTS $TRICE_ALIASES -IDMin 13000 -IDMax 15999 -IDMethod upward   -src ./examples/L432_inst/Core
+trice insert $TRICE_DEFAULTS $TRICE_ALIASES -IDMin 13000 -IDMax 15999 -IDMethod upward   -src $TD/triceCheck.c
+trice insert $TRICE_DEFAULTS $TRICE_ALIASES -IDMin 13000 -IDMax 15999 -IDMethod upward   -src $TD/..
+trice clean  $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES # IDs are now inside the til.json (and li.json) files.
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
