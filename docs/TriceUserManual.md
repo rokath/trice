@@ -6440,14 +6440,14 @@ CLI switch | meaning
 
 Additionally the Trice tool uses these internal variables (no bash variables!) as replacements during `trice insert` and `trice clean`:
 
-| Variable   | Example             | Comment                                                                                                                                      |
-|------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `$level` | `wrn`               | The bare trice format string part until the first colon (`:`), if known as channel/tag value. In the example it is `wrn`.                        |
-| `$file`    | `val.c`             | The file name, where the Trice log occures.                                                                                                  |
-| `$line`    | `321`               | The file line, where the Trice log occures.                                                                                                  |
-| `$func`    | `doStuff`           | The function name, where the Trice log occures.                                                                                              |
-| `$fmt`     | `MyF=%.2f, myI=%d`  | The bare Trice format string stripped from the channel/tag specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
-| `$values`  | `aFloat(42.42), 42` | The bare Trice statement values.                                                                                                             |
+| Variable  | Example             | Comment                                                                                                                                          |
+|-----------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `$level`  | `wrn`               | The bare trice format string part until the first colon (`:`), if known as channel/tag value. In the example it is `wrn`.                        |
+| `$file`   | `val.c`             | The file name, where the Trice log occures.                                                                                                      |
+| `$line`   | `321`               | The file line, where the Trice log occures.                                                                                                      |
+| `$func`   | `doStuff`           | The function name, where the Trice log occures.                                                                                                  |
+| `$fmt`    | `MyF=%.2f, myI=%d`  | The bare Trice format string stripped from the channel/tag specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
+| `$values` | `aFloat(42.42), 42` | The bare Trice statement values.                                                                                                                 |
 
 ```bash
 trice insert \
@@ -6543,6 +6543,54 @@ trice clean  -stf="$SLFMT" -stv="$SLVAL"
 ```
 
 ### The Structured Logging `trice insert` and `trice clean` Algorithm
+
+* As we are going to modify the users code, we need a reliable way to restore the changes.
+* When starting to insert or clean **without** structured logging, the state of a Trice could be:
+
+State | Description                       | Example             | Use Case                                                   | `insert`               | `clean`
+:----:|-----------------------------------|---------------------|------------------------------------------------------------|------------------------|------------------------------------------
+  0   | A new Trice line without ID       | `trice("hi")`       | New code.                                                  | Add a new ID.          | No action.
+      | A new Trice line with ID 0        | `trice(iD(0),"hi")` | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
+      | A new Trice line with ID n!=0     | `trice(iD(1),"hi")` | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
+      | A new Trice line with ID n!=0     | `trice(iD(2),"hi")` | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
+      | An edited Trice line with ID n!=0 | `trice(iD(3),"ha")` | A Trice was changed.                                       | Insert a new ID.       | Add ID=3 to *til.json* and remove `iD(3)`
+
+* When starting to insert or clean **with** structured logging, the state of a Trice could be:
+
+State | Description                       | Example                          | Use Case                                                   | `insert`               | `clean`
+:----:|-----------------------------------|----------------------------------|------------------------------------------------------------|------------------------|------------------------------------------
+  0   | A new Trice line without ID       | `trice("X=%d",x)`                | New code.                                                  | Add a new ID.          | No action.
+      | A new Trice line with ID 0        | `trice(iD(0),"X=%d", x)`         | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
+      | A new Trice line with ID n!=0     | `trice(iD(1),"X=%d", x)`         | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
+      | A new Trice line with ID n!=0     | `trice(iD(2),"X=%d", x)`         | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
+      | An edited Trice line with ID n!=0 | `trice(iD(3),"ha")`              | A Trice was changed or copied from a different source      | Insert a new ID.       | Add ID=3 to *til.json* and remove `iD(3)`
+      | A new Trice line with ID 0        | `trice(iD(0),"#X=%d#", #, x, #)` | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
+      | A new Trice line with ID n!=0     | `trice(iD(1),"#X=%d#", #, x, #)` | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
+      | A new Trice line with ID n!=0     | `trice(iD(2),"#X=%d#", #, x, #)` | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
+      | An edited Trice line with ID n!=0 | `trice(iD(3),"#X=%d#", #, x, #)` | A Trice was changed.                                       | Insert a new ID.       | Remove `iD(0)`
+
+* The hash mark `#` symbolizes here any inserted data, defined with `-stf` and `-stv`.
+* As we see, things are getting complicated. We need to force the user somehow, not to edit Trices during the `trice insert` state.
+  * With `trice insert` as pre-build and `trice clean` as post-build action, this is easy achievable.
+  * But the user could not have run `trice clean` and edited the source code.
+
+What about this?:
+
+State | Description                       | Example                            | Use Case                                                   | `insert`               | `clean`
+:----:|-----------------------------------|------------------------------------|------------------------------------------------------------|------------------------|------------------------------------------
+  0   | A new Trice line without ID       | `trice("X=%d",x)`                  | New code.                                                  | Add a new ID.          | No action.
+      | A new Trice line with ID 0        | `trice(iD(0),"X=%d", x)`           | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
+      | A new Trice line with ID n!=0     | `trice(iD(1),"X=%d", x)`           | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
+      | A new Trice line with ID n!=0     | `trice(iD(2),"X=%d", x)`           | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
+      | An edited Trice line with ID n!=0 | `trice(iD(3),"ha")`                | A Trice was changed or copied from a different source      | Insert a new ID.       | Add ID=3 to *til.json* and remove `iD(3)`
+      | A new Trice line with ID 0        | `trice(iD((0)),"#X=%d#", #, x, #)` | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
+      | A new Trice line with ID n!=0     | `trice(iD((1)),"#X=%d#", #, x, #)` | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
+      | A new Trice line with ID n!=0     | `trice(iD((2)),"#X=%d#", #, x, #)` | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
+      | An edited Trice line with ID n!=0 | `trice(iD((3)),"#X=%d#", #, x, #)` | A Trice was changed.                                       | Insert a new ID.       | Remove `iD(0)`
+
+When `trice insert` is executed with `-stf!=""` or `-stv!=""`, structured data (`#`) are added. We could use a double bracket for the iD: `iD((123))`. The compiler will not care about that.
+On `trice clean`, the Trice tool then automatically knows, if structured data (`#`) have to be removed or not. Trices with `iD(123)` will be handled the usual way and Trices with `iD((123))` are with structured data (`#`) extended Trices.
+On `trice insert`, the Trice tool then automatically knows, if structured data (`#`) have to be added or not. Trices with `iD(123)` will be handled the usual way and Trices with `iD((123))` are with structured data (`#`) extended Trices.
 
 ### On `trice insert`
 
