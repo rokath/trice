@@ -6186,24 +6186,28 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 
 ## 43. <a id='working-with-the-trice-git-repository'></a>Working with the Trice Git Repository
 
-| Action                       | Command                                             |
-|------------------------------|-----------------------------------------------------|
-| Get a local repository copy. | `git clone github.com/rokath/tice.git myTriceClone` |
-| Show current folder          | `pwd`                                               |
-| Switch to repository root.   | `cd` ...                                            |
-| Show repository status.      | `git status`                                        |
-| Clean the repo, if needed.   | `git stash push`                                    |
-| Show all branches.           | `git branch -a`                                     |
-| Switch to master.            | `git switch master`                                 |
-| Fetch a pull request.        | `git fetch origin pull/ID/head:BRANCHNAME`          |
-| Switch to new branch.        | `git checkout BRANCHNAME`                           |
-| List worktree.               | `git worktree list`                                 |
-| Add to worktree.             | `git worktree add ../wt_trice_pull_ID`              |
-| Switch back to master        | `git switch master`                                 |
-| Rstore the repo if needed.   | `git stash pop`                                     |
-| Change to new folder.        | `cd ../wt_trice_pull_ID`                            |
-| Show repository status.      | `git status`                                        |
-| Test pull request.           | `./testAll.sh full`                                 |
+| Action                                    | Command                                       |
+|-------------------------------------------|-----------------------------------------------|
+| Get a local repository copy.              | `git clone github.com/rokath/trice.git trice` |
+| Show current folder                       | `pwd`                                         |
+| Switch to repository root.                | `cd` ...                                      |
+| Show repository status.                   | `git status`                                  |
+| Clean the repo, if needed.                | `git stash push`                              |
+| Show all branches.                        | `git branch -a`                               |
+| Switch to master.                         | `git switch master`                           |
+| Fetch a pull request as new branch PRIDa. | `git fetch origin pull/ID/head:PRIDa`         |
+| List worktree.                            | `git worktree list`                           |
+| Add to worktree.                          | `git worktree add ../trice_wt_PRIDa PRIDa`    |
+| Rstore the repo if needed.                | `git stash pop`                               |
+| Change to new folder.                     | `cd ../trice_wt_PRIDa`                        |
+| Show repository status.                   | `git status`                                  |
+| Test pull request.                        | `./testAll.sh full`                           |
+| Show repository status.                   | `git status`                                  |
+| Clean pull request.                       | `git restore .`                               |
+| Change to previous folder.                | `cd -`                                        |
+| Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`       |
+| Delete git branch.                        | `git branch -d PRIDa`                         |
+
 
 ## 44. <a id='trice-alias-functionality-for-integrating-legacy-user-code-(trice-v1.1-and-later)'></a>Trice Alias Functionality for Integrating Legacy User Code (Trice v1.1 and later)
 
