@@ -223,14 +223,16 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		size_t len8 = (triceNettoLen + 7) & ~7;                   // Only multiple of 8 encryptable, so we adjust len.
 		memset((crypt) + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
 		XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
-		encLen += (size_t)TCOBSEncode(dst, crypt, len8); // encLen is re-used here
+		size_t len = (size_t)TCOBSEncode(dst, crypt, len8); // encLen is re-used here
+		encLen += len;
 		dst[encLen++] = 0;                               // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)
 		memmove(crypt, triceNettoStart, triceNettoLen);
 		size_t len8 = (triceNettoLen + 7) & ~7;                   // Only multiple of 8 encryptable, so we adjust len.
 		memset((crypt) + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
 		XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
-		encLen += (size_t)COBSEncode(dst, crypt, len8); // encLen is re-used here
+		size_t len = (size_t)COBSEncode(dst, crypt, len8); // encLen is re-used here
+		encLen += len;
 		dst[encLen++] = 0;                              // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
 #if TRICE_CONFIG_WARNINGS == 1
@@ -252,6 +254,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		encLen += len;
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
 		memmove(dst, triceNettoStart, triceNettoLen);
+		size_t len = triceNettoLen;
 		encLen += triceNettoLen;
 #else
 #error configuration: unexpected
@@ -262,6 +265,11 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		memmove(packed, triceNettoStart, triceNettoLen); // This action removes all padding bytes of the trices, compacting their sequence this way
 		encLen += triceNettoLen;
 #endif // #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+	TRICE_ENTER_CRITICAL_SECTION
+	TriceNonBlockingDeferredWrite8(triceID, dst, len);
+	TRICE_LEAVE_CRITICAL_SECTION
+#endif // TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 #if (TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1)
 		dst = enc + encLen;                           // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
 		int triceDataOffsetSpaceRemained = nxt - dst; // THe begin of unprocessed data MINUS next dst must not be negative.
@@ -319,7 +327,6 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
 #endif
 	encLen = eLen;
-#endif
 
 	// Reaching here means all trice data in the current half buffer are encoded
 	// into a single continuous buffer having 0-delimiters between them or not but at the ent is a 0-delimiter.
@@ -328,6 +335,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	TRICE_ENTER_CRITICAL_SECTION
 	TriceNonBlockingDeferredWrite8(triceID, enc, encLen); // lint !e771 Info 771: Symbol 'triceID' conceivably not initialized. Comment: tLen is always > 0.
 	TRICE_LEAVE_CRITICAL_SECTION
+#endif // TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 }
 
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
