@@ -14,6 +14,21 @@ import (
 	"github.com/mgutz/ansi"
 )
 
+var userLabelsAdded bool
+
+func AddUserLabels() {
+	if userLabelsAdded {
+		return
+	}
+	userLabelsAdded = true
+	for _, v := range UserLabel {
+		var t tag
+		t.Names = append( t.Names, v ) // User labels get only one name.
+		t.colorize = colorizeUSER
+		Tags = append(Tags, t)
+	}
+}
+
 // lineTransformerANSI implements a Linewriter interface.
 // It uses an internal Linewriter lw to write to.
 // It converts the channel information to color data using colorPalette.
@@ -86,6 +101,7 @@ var (
 	colorizeALARM   = ansi.ColorFunc("red+i:white+h")
 	colorizeCYCLE   = ansi.ColorFunc("magenta+i:yellow+h")
 	colorizeVERBOSE = ansi.ColorFunc("blue:default")
+	colorizeUSER    = ansi.ColorFunc("off")
 
 	AllStatistics bool // Keep the complete statistics when Trice is closed.
 	TagStatistics bool // Print the occured count for each Trice log when Trice is closed.
@@ -138,6 +154,7 @@ var Tags = []tag{
 	{0, []string{"a", "Alarm", "alarm", "ALARM"}, colorizeALARM},
 	{0, []string{"CYCLE_ERROR"}, colorizeCYCLE}, // not for user code!
 	{0, []string{"v", "Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
+	{0, []string{"cfg", "config"}, colorizeDEFAULT},
 }
 
 func FindTagName(name string) (tagName string, err error) {

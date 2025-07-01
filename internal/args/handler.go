@@ -100,6 +100,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		msg.OnErr(fsScInsert.Parse(subArgs))
 		id.CompactSrcs()
 		id.ProcessAliases()
+    	emitter.AddUserLabels()
 		err := id.EvaluateIDRangeStrings()
 		if err != nil {
 			return err
@@ -127,6 +128,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		id.Logging = true
 		msg.OnErr(fsScLog.Parse(subArgs))
 		id.ProcessAliases()
+		emitter.AddUserLabels()
 		decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
 		decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
 		decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")

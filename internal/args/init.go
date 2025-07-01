@@ -96,9 +96,9 @@ Encryption is recommended if you deliver firmware to customers and want protect 
 	fsScLog.BoolVar(&cipher.ShowKey, "showKey", false, `Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
-	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Level based log filtering. "off" suppresses everything. If equal to a channel specifier all with a bigger index inside emitter.ColorChannels the log not shown.
+	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Level based log filtering. "off" suppresses everything. If equal to a channel specifier, all with a bigger index inside emitter.Tags logs are not not shown.
 A typical use case is "-logLevel wrn". Attention this switch influences also location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix and suffix information. Set these channel information appropriate.
-Logs without channel specifier are not suppressed. Using an invalid value like "x" suppresses all logs with a channel specifier. See also CLI switches -pick and -ban.`)
+Logs without channel specifier are not suppressed. Using an invalid value like "x" suppresses all logs with a channel specifier. See also CLI switches -ulabel, -pick and -ban.`)
 	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h`)
 	fsScLog.StringVar(&emitter.HostStamp, "hs", "LOCmicro",
 		`PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
@@ -174,6 +174,7 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick". See also "-logLevel".`) // multi flag
 	fsScLog.Var(&emitter.Pick, "pick", `Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
 Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban". See also "-logLevel".`) // multi flag
+	flagUserLabel(fsScLog)
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
 	fsScLog.BoolVar(&trexDecoder.AddNewlineToEachTriceMessage, "addNL", false, `Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.`)
@@ -212,6 +213,7 @@ func insertIDsInit() {
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
 	fsScInsert.BoolVar(&id.SpaceInsideParenthesis, "spaceInsideParenthesis", false, "Add space inside Trice braces: `trice(<space>iD(<space>123<space>), \"...);`. Use this if your default code auto-formatting is with space inside braces.")
 	fsScInsert.BoolVar(&id.SpaceInsideParenthesis, "w", false, "Short for (white)spaceInsideParenthesis or \"wide\".")
+	flagUserLabel(fsScInsert)
 }
 
 func cleanIDsInit() {
@@ -254,8 +256,13 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 	flagIDList(p)
 	flagLIList(p)
 	flagSkipAdditionalChecks(p)
-	//p.StringVar(&id.StructuredLoggingFormatString, "sLogF", "", `Structured Logging format string`)
-	//p.StringVar(&id.StructuredLoggingValuesString, "sLogV", "", `Structured Logging values string`)
+	//p.StringVar(&id.StructuredLoggingFormatString, "stf", "", `Structured Logging format string`)
+	//p.StringVar(&id.StructuredLoggingValuesString, "stv", "", `Structured Logging values string`)
+}
+
+func flagUserLabel(p *flag.FlagSet) {
+	p.Var(&emitter.UserLabel, "ulabel", `Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.
+Example: "-ulabel this:that -ulabel also" results in adding "also", "this" and "that" as message tags. These user labels are added at the end of emitter.Tags. See also "-logLevel".`) // multi flag
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {
