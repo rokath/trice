@@ -60,6 +60,10 @@ void SomeExampleTrices(int burstCount);
 
 #define TRICE_FULL_CHECK
 
+#define tell  trice
+#define who   triceS
+//#define who(id,...) triceS(id, __VA_ARGS__)
+
 #ifdef __cplusplus
 }
 #endif
