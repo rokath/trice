@@ -6448,48 +6448,83 @@ CLI switch | meaning
 
 Additionally the Trice tool uses these internal variables (no bash variables!) as replacements during `trice insert` and `trice clean`:
 
-| Variable  | Example             | Comment                                                                                                                                          |
-|-----------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `$level`  | `info`              | The bare trice format string part until the first colon (`:`), if known as channel/tag value. In the example it is `wrn`.                        |
-| `$file`   | `val.c`             | The file name, where the Trice log occures.                                                                                                      |
-| `$line`   | `321`               | The file line, where the Trice log occures.                                                                                                      |
-| `$func`   | `doStuff`           | The function name, where the Trice log occures.                                                                                                  |
-| `$fmt`    | `The asnwer is %d.` | The bare Trice format string stripped from the channel/tag specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
-| `$values` | `42`                | The bare Trice statement values.                                                                                                                 |
-| `$usr0`   | `abc` \| `xyz`      | A predefined string value, passed as `-vst 'usr0="xyz":main.c:95 -vst 'usr0="abc":main.c:100` (see below).                                       |
+| Variable  | Example               | Comment                                                                                                                                          |
+|-----------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `$level`  | `info`                | The bare trice format string part until the first colon (`:`), if known as channel/tag value.                                                    |
+| `$file`   | `val.c`               | The file name, where the Trice log occures.                                                                                                      |
+| `$line`   | `321`                 | The file line, where the Trice log occures.                                                                                                      |
+| `$func`   | `doStuff`             | The function name, where the Trice log occures.                                                                                                  |
+| `$fmt`    | `The asnwer is %d.`   | The bare Trice format string stripped from the channel/tag specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
+| `$values` | `42`                  | The bare Trice statement values.                                                                                                                 |
+| `$usr0`   | `abc` \| ` ` \| `xyz` | A predefined string value with location dependent values (see below).                                                                            |
 
 ###  45.6. <a id='trice-structured-logging-user-defined-values'></a>Trice Structured Logging User Defined Values
 
-Adding user specific values like `$usr0` can be done in a later step. Here just an option as first idea:
+This use case is not expected for most cases, but mentioned here to show the possibilities. Adding user specific values like `$usr0` can be done in this way:
 
 * File *main.c*:
 
 ```C
-#define XSTR(x) STR(x)
-#define STR(x) #x
-
-#define TRICE_ETC "xyz"
-#pragma message "$usr0=" XSTR(TRICE_ETC)
-trice("hi");
-
-#undef TRICE_ETC
-#define TRICE_ETC "abc"
-#pragma message "$usr0=" XSTR(TRICE_ETC)
-trice("hi");
+ 88 | ...
+ 89 | trice("info:hi");
+ 90 |  
+ 91 | #define XSTR(x) STR(x)
+ 92 | #define STR(x) #x
+ 93 | 
+ 94 | #define TRICE_ETC "xyz"
+ 95 | #pragma message "$usr0=" XSTR(TRICE_ETC)
+ 96 | trice("info:hi");
+ 97 | 
+ 98 | #undef TRICE_ETC
+ 99 | #pragma message "$usr0=" XSTR(TRICE_ETC)
+100 | trice("info:hi");
+101 | 
+102 | #define TRICE_ETC "abc"
+103 | #pragma message "$usr0=" XSTR(TRICE_ETC)
+104 | trice("info:hi");
+105 | ...
 ```
 
-A pre-compile output could get transferred to the Trice tool, using a script to tell, that `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99 and that `$usr0="abc"` is valid after line 100.
+This is just a demonstration. The `#pragma message "$usr0=" XSTR(TRICE_ETC)` line probably is needed only on a few lines in the project.
+A pre-compile output could get transferred to the Trice tool, using a script to tell, that normally `$usr0=""`, but `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99, that `$usr0="abc"` is valid after line 103.
 
 ```bash
 $ ./build.sh 2>&1 | grep "pragma message:"
 Core/Src/main.c:95:9: note: '#pragma message: $usr0="xyz"'
-Core/Src/main.c:100:9: note: '#pragma message: $usr0="abc"'
+Core/Src/main.c:99:9: note: '#pragma message: $usr0=""'
+Core/Src/main.c:103:9: note: '#pragma message: $usr0="abc"'
 ```
 
-Those things are compiler and user specific and not part of the Trice tool design. But on demand a CLI multi switch `-vst` can get invented to inject such information into the `trice insert` process automatically. 
+Those things are compiler and user specific and not part of the Trice tool design. But on demand a CLI multi switch `-stu` can get invented, to inject such information into the `trice insert` process automatically.
+
+With
+
+```bash
+
+STF='{"level":"%s","loc":"%s:%d","fmt":"$fmt","etc":"%s"}'
+STV='$level, $file, $line, $values, $usr0'
+ST0='usr0="xyz":main.c:95'
+ST1='usr0="":main.c:99'
+ST2='usr0="abc":main.c:103'
+
+trice insert -stf $STF -stv $STV -stu $ST0 -stu $ST1 -stu $ST2 
+```
+
+The structured log output would be:
+
+```bash
+{...}
+{"level":"info","loc":"main.c:89","fmt":"hi","etc":""}
+{"level":"info","loc":"main.c:96","fmt":"hi","etc":"xyz"}
+{"level":"info","loc":"main.c:100","fmt":"hi","etc":""}
+{"level":"info","loc":"main.c:104","fmt":"hi","etc":"abc"}
+{...}
+```
 
 ###  45.7. <a id='trice-structured-logging-cli-switches-usage-options'></a>Trice Structured Logging CLI Switches Usage Options
 
+The in [A Trice Structured Logging Example](#a-trice-structured-logging-example) shown `trice insert` result is possible with
+ 
 ```bash
 trice insert \
 -stf='[level=$level][file=$file][line=$line][func=$func][taskID=%x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
