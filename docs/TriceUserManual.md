@@ -329,7 +329,7 @@ Table of Contents Generation:
 * 45. [Trice Structured Logging](#trice-structured-logging)
   * 45.1. [Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information)
   * 45.2. [Trice Structured Logging Runtime Information](#trice-structured-logging-runtime-information)
-  * 45.3. [Trice Limitations and Special Cases](#trice-limitations-and-special-cases)
+  * 45.3. [Trice Structured Logging Limitations and Special Cases](#trice-structured-logging-limitations-and-special-cases)
   * 45.4. [A Trice Structured Logging Example](#a-trice-structured-logging-example)
   * 45.5. [Trice Structured Logging CLI Switches and Variables](#trice-structured-logging-cli-switches-and-variables)
   * 45.6. [Trice Structured Logging User Defined Values](#trice-structured-logging-user-defined-values)
@@ -6404,7 +6404,7 @@ These data can be strings or numbers.
 
 In an initial approach we assume, these data do not contain runtime generated strings. If really needed, a derived hash is usable instead for now. Despite of this, runtime generated strings are an important feature and therefore Trice supports `triceS`, capable to transmit a single string up to 32KB long, and its relatives. We could add compile-time data (as inserted fixed strings) but runtime information can only get as an additional part of the runtime generated string into the structured log. This should be acceptable and we will deal with this later.
 
-###  45.3. <a id='trice-limitations-and-special-cases'></a>Trice Limitations and Special Cases
+###  45.3. <a id='trice-structured-logging-limitations-and-special-cases'></a>Trice Structured Logging Limitations and Special Cases
 
 For performance reasons, Trice was designed to only transmit 0-12 (straight forward extendable) numbers of equal bit-width **OR** a single runtime generated string. Firstly we look at only "normal" Trice macros `trice`, `Trice`, `TRice` and exclude the special cases `triceS`, `TriceS`, `TRiceS`. Also we consider just trices without specified bit-width, assume 32-bit and exlude cases like `trice32_4` firstly.
 
@@ -6481,7 +6481,7 @@ Adding user specific values like `$usr0` can be done in a later step. Here just 
 > trice("hi");
 > ```
 > 
-> A pre-compile output could get transferred to the Trice tool using a script to tell, that `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99 and that `$usr0="abc"` is valid after line 100.
+> A pre-compile output could get transferred to the Trice tool, using a script to tell, that `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99 and that `$usr0="abc"` is valid after line 100.
 > 
 > ```bash
 > $ ./build.sh 2>&1 | grep "pragma message:"
@@ -6537,9 +6537,9 @@ trice insert \
 
 To put things together. Any structured format string design is possible and the user can insert the $line (example) value:
 
-* directly as string
-* indirectly as formatted string
-* indirectly as formatted number value
+* directly as string (fastest execution, straight forward)
+* indirectly as formatted string (fastest execution alignment option)
+* indirectly as formatted number (recommended when often changing)
 
 After `trice insert` we get this (compact JSON) log line according to `-stf` and `-stv`:
 
@@ -6551,7 +6551,7 @@ void doStuff( void ){
 }
 ```
 
-All compile time strings are part of the Trice format string now, which is registered inside the *til.json* file. The needed Trice byte count stays 4 bytes only plus the 3 times 4 bytes for the runtime parameter values.
+All compile time strings are part of the Trice format string now, which is registered inside the *til.json* file. The needed Trice byte count stays 4 bytes only plus the 3 times 4 bytes for the runtime parameter values taskID, 42, uptime. The default TCOBS compression will afterwards reduce these 16 bytes to 13 or so.
 
 A `trice clean` command will remove the context information completely including the ID. Please keep in mind, that with `trice insert` as a pre-compile and `trice clean` as post-compile step, the user all the time sees only the original written code:
 
