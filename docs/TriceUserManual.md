@@ -6551,7 +6551,7 @@ void doStuff( void ){
 }
 ```
 
-All compile time strings are part of the Trice format string now, which is registered inside the *til.json* file. The needed Trice byte count stays 4 bytes only plus the 3 times 4 bytes for the runtime parameter values taskID, 42, uptime. The default TCOBS compression will afterwards reduce these 16 bytes to 13 or so.
+All compile time strings are part of the Trice format string now, which is registered inside the *til.json* file. The needed Trice byte count stays 4 bytes only plus the 3 times 4 bytes for the runtime parameter values taskID, 42, uptime. The default TCOBS compression will afterwards reduce these 16 bytes to 12 or 13 or so.
 
 A `trice clean` command will remove the context information completely including the ID. Please keep in mind, that with `trice insert` as a pre-compile and `trice clean` as post-compile step, the user all the time sees only the original written code:
 
