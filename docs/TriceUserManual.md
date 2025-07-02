@@ -334,9 +334,6 @@ Table of Contents Generation:
   * 45.5. [Trice Structured Logging CLI Switches and Variables](#trice-structured-logging-cli-switches-and-variables)
   * 45.6. [Trice Structured Logging User Defined Values](#trice-structured-logging-user-defined-values)
   * 45.7. [Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
-  * 45.8. [The Structured Logging `trice insert` and `trice clean` Algorithm](#the-structured-logging-`trice-insert`-and-`trice-clean`-algorithm)
-  * 45.9. [On `trice insert`](#on-`trice-insert`)
-  * 45.10. [Questions](#questions)
 * 46. [Trice User Manual Changelog](#trice-user-manual-changelog)
 
 <!-- vscode-markdown-toc-config
@@ -6600,7 +6597,7 @@ trice insert -stf="$SLFMT" -stv="$SLVAL"
 trice clean  -stf="$SLFMT" -stv="$SLVAL"
 ```
 
-###  45.8. <a id='the-structured-logging-`trice-insert`-and-`trice-clean`-algorithm'></a>The Structured Logging `trice insert` and `trice clean` Algorithm
+<!-- ###  The Structured Logging `trice insert` and `trice clean` Algorithm
 
 * As we are going to modify the users code, we need a reliable way to restore the changes.
 * When starting to insert or clean **without** structured logging, the state of a Trice could be:
@@ -6650,7 +6647,7 @@ When `trice insert` is executed with `-stf!=""` or `-stv!=""`, structured data (
 On `trice clean`, the Trice tool then automatically knows, if structured data (`#`) have to be removed or not. Trices with `iD(123)` will be handled the usual way and Trices with `iD((123))` are with structured data (`#`) extended Trices.
 On `trice insert`, the Trice tool then automatically knows, if structured data (`#`) have to be added or not. Trices with `iD(123)` will be handled the usual way and Trices with `iD((123))` are with structured data (`#`) extended Trices.
 
-###  45.9. <a id='on-`trice-insert`'></a>On `trice insert`
+--### On `trice insert`
 
 * When a matching Trice was found, an existing `iD(123)` indicates, that the structured logging data insertion was already performed.
 
@@ -6663,11 +6660,11 @@ On `trice insert`, the Trice tool then automatically knows, if structured data (
   
 
 
-###  45.10. <a id='questions'></a>Questions
+--###  Questions
 
 * How to deal with an existing or none existing `\n` at the format strings end?
   * There is already a switch `-addNL`, but this has its own application area.
-<!--  * We could have a switch `-rmNL`, which removes `\n` from the end of legacy format strings during `trice insert`, if wanted. -->
+<!--  * We could have a switch `-rmNL`, which removes `\n` from the end of legacy format strings during `trice insert`, if wanted.
   * We could generally remove `\n` from the Trice format strings, if found.
     * Do not touch the user sources. Just handle that internally.
   * We generally add a `\n` at the end of the final structured logging string, so the user has not to type it inside the `-stf` value.
