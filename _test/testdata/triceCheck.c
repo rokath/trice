@@ -57,6 +57,7 @@ void TriceCheck(int n) {
     switch( n ){ 
         default:
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
+
         // Lines ending with a comment starting with `//exp:` are executed during trhe automatic Go tests.
         break; case __LINE__: TRice("Hello World!\n" );                                              //exp: time:feed3322default: Hello World!		
         // normal use cases
@@ -69,8 +70,7 @@ void TriceCheck(int n) {
 
 
 
-
-
+        
 
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:        default: wr:
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:        default: wr:0

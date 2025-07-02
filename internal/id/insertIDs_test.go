@@ -25,6 +25,9 @@ func TestAliasesInsertion(t *testing.T) {
 	src1 := `
 	Alias("Simple message: %d\n", 42);
 	SAlias_NO_MESSAGE(42);
+	trice("some info\n");
+	triceS("a runtime string: %s\n", "info");
+	TRiceS("a runtime string: %s\n", "info");
 	SAlias_WITH_MESSAGE(false, "test message\n");
 	SAlias_WITH_MESSAGE_AND_ARGS(false, "test message: %d\n", 42);
 	`
@@ -46,8 +49,11 @@ func TestAliasesInsertion(t *testing.T) {
 	expSrc1 := `
 	Alias(iD(999), "Simple message: %d\n", 42);
 	SAlias_NO_MESSAGE(iD(998), 42);
-	SAlias_WITH_MESSAGE(iD(997), false, "test message\n");
-	SAlias_WITH_MESSAGE_AND_ARGS(iD(996), false, "test message: %d\n", 42);
+	trice(iD(997), "some info\n");
+	triceS(iD(996), "a runtime string: %s\n", "info");
+	TRiceS(iD(995), "a runtime string: %s\n", "info");
+	SAlias_WITH_MESSAGE(iD(994), false, "test message\n");
+	SAlias_WITH_MESSAGE_AND_ARGS(iD(993), false, "test message: %d\n", 42);
 	`
 
 	actSrc1, e := FSys.ReadFile(sFn1)
@@ -56,13 +62,25 @@ func TestAliasesInsertion(t *testing.T) {
 
 	// create expected til.json file
 	expTil := `{
-	"996": {
+	"993": {
 		"Type": "triceS",
 		"Strg": "` + id.SAliasStrgPrefix + `false, \"test message: %d\\n\"` + id.SAliasStrgSuffix + `"
 	},
-	"997": {
+	"994": {
 		"Type": "triceS",
 		"Strg": "` + id.SAliasStrgPrefix + `false, \"test message\\n\"` + id.SAliasStrgSuffix + `"
+	},
+	"995": {
+		"Type": "TRiceS",
+		"Strg": "a runtime string: %s\\n"
+	},
+	"996": {
+		"Type": "triceS",
+		"Strg": "a runtime string: %s\\n"
+	},
+	"997": {
+		"Type": "trice",
+		"Strg": "some info\\n"
 	},
 	"998": {
 		"Type": "triceS",
@@ -78,6 +96,18 @@ func TestAliasesInsertion(t *testing.T) {
 	assert.Equal(t, expTil, string(actTil))
 
 	expLi := `{
+	"993": {
+		"File": "file1.c",
+		"Line": 8
+	},
+	"994": {
+		"File": "file1.c",
+		"Line": 7
+	},
+	"995": {
+		"File": "file1.c",
+		"Line": 6
+	},
 	"996": {
 		"File": "file1.c",
 		"Line": 5

@@ -9,13 +9,10 @@
 extern "C" {
 #endif
 
-#define TRICE_CLEAN 1
-
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA
-
 #define TRICE_CGO 1
 #define TRICE_CYCLE_COUNTER 0
 

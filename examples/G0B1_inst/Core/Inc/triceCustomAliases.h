@@ -54,8 +54,8 @@
         } \
         char* out_var = full_msg
 
-#if !defined(TRICE_OFF) || TRICE_OFF == 0
-// TRICE ON - ALL calls have ID as first parameter
+#if (defined(TRICE_CLEAN) && TRICE_CLEAN == 0 ) || !defined(TRICE_OFF) || TRICE_OFF == 0
+// ALL calls have ID as first parameter.
 
     #define CUSTOM_ASSERT_IMPL(id, condition, condition_str, file, line, fmt, ...) \
         do { \
@@ -90,8 +90,8 @@
         LL_USART_TransmitData8(USART2, (uint8_t)c);
         while (!LL_USART_IsActiveFlag_TC(USART2)) {}
     }
-           
-    // TRICE OFF - NO calls have ID, fallback to printf
+
+    // NO calls have ID, fallback to printf.
     #define CUSTOM_ASSERT_IMPL(condition, condition_str, file, line, fmt, ...) \
         do { \
             if (!(condition)) { \
