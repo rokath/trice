@@ -6381,9 +6381,9 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptions whe
 
 ![G0B1AliasExample.png](./ref/G0B1AliasExample.png)
 
-##  45. <a id='trice-structured-logging'></a>Trice Structured Logging 
+##  45. <a id='trice-structured-logging'></a>Trice Structured Logging
 
-(not implemented, specification draft, please comment)
+> **Specification Draft**
 
 Structured logging, in contrast to unformatted logging, automatically adds compile time and runtime data to logs as well as log level information. The user should be able to configure, which data get added and also should have control about the data formatting. The generic data insertion allows later an automatic log file analysis and frees the developer from manually typing defaults, what is also error-prone.
 
@@ -6462,29 +6462,29 @@ Additionally the Trice tool uses these internal variables (no bash variables!) a
 
 Adding user specific values like `$usr0` can be done in a later step. Here just an option as first idea:
 
-> * File *main.c*:
-> 
-> ```C
-> #define XSTR(x) STR(x)
-> #define STR(x) #x
-> 
-> #define TRICE_ETC "xyz"
-> #pragma message "$usr0=" XSTR(TRICE_ETC)
-> trice("hi");
-> 
-> #undef TRICE_ETC
-> #define TRICE_ETC "abc"
-> #pragma message "$usr0=" XSTR(TRICE_ETC)
-> trice("hi");
-> ```
-> 
-> A pre-compile output could get transferred to the Trice tool, using a script to tell, that `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99 and that `$usr0="abc"` is valid after line 100.
-> 
-> ```bash
-> $ ./build.sh 2>&1 | grep "pragma message:"
-> Core/Src/main.c:95:9: note: '#pragma message: $usr0="xyz"'
-> Core/Src/main.c:100:9: note: '#pragma message: $usr0="abc"'
-> ```
+* File *main.c*:
+
+```C
+#define XSTR(x) STR(x)
+#define STR(x) #x
+
+#define TRICE_ETC "xyz"
+#pragma message "$usr0=" XSTR(TRICE_ETC)
+trice("hi");
+
+#undef TRICE_ETC
+#define TRICE_ETC "abc"
+#pragma message "$usr0=" XSTR(TRICE_ETC)
+trice("hi");
+```
+
+A pre-compile output could get transferred to the Trice tool, using a script to tell, that `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99 and that `$usr0="abc"` is valid after line 100.
+
+```bash
+$ ./build.sh 2>&1 | grep "pragma message:"
+Core/Src/main.c:95:9: note: '#pragma message: $usr0="xyz"'
+Core/Src/main.c:100:9: note: '#pragma message: $usr0="abc"'
+```
 
 Those things are compiler and user specific and not part of the Trice tool design. But on demand a CLI multi switch `-vst` can get invented to inject such information into the `trice insert` process automatically. 
 
