@@ -6597,116 +6597,6 @@ trice insert -stf="$SLFMT" -stv="$SLVAL"
 trice clean  -stf="$SLFMT" -stv="$SLVAL"
 ```
 
-<!-- ###  The Structured Logging `trice insert` and `trice clean` Algorithm
-
-* As we are going to modify the users code, we need a reliable way to restore the changes.
-* When starting to insert or clean **without** structured logging, the state of a Trice could be:
-
-State | Description                       | Example             | Use Case                                                   | `insert`               | `clean`
-:----:|-----------------------------------|---------------------|------------------------------------------------------------|------------------------|------------------------------------------
-  0   | A new Trice line without ID       | `trice("hi")`       | New code.                                                  | Add a new ID.          | No action.
-  0   | A new Trice line with ID 0        | `trice(iD(0),"hi")` | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
-  0   | A new Trice line with ID n!=0     | `trice(iD(1),"hi")` | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
-  0   | A new Trice line with ID n!=0     | `trice(iD(2),"hi")` | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
-  0   | An edited Trice line with ID n!=0 | `trice(iD(3),"ha")` | A Trice was changed.                                       | Insert a new ID.       | Add ID=3 to *til.json* and remove `iD(3)`
-
-* When starting to insert or clean **with** structured logging, the state of a Trice could be:
-
-State | Description                       | Example                          | Use Case                                                   | `insert`               | `clean`
-:----:|-----------------------------------|----------------------------------|------------------------------------------------------------|------------------------|------------------------------------------
-  0   | A new Trice line without ID       | `trice("X=%d",x)`                | New code.                                                  | Add a new ID.          | No action.
-  0   | A new Trice line with ID 0        | `trice(iD(0),"X=%d", x)`         | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
-  0   | A new Trice line with ID n!=0     | `trice(iD(1),"X=%d", x)`         | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
-  0   | A new Trice line with ID n!=0     | `trice(iD(2),"X=%d", x)`         | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
-  0   | An edited Trice line with ID n!=0 | `trice(iD(3),"ha")`              | A Trice was changed or copied from a different source      | Insert a new ID.       | Add ID=3 to *til.json* and remove `iD(3)`
-  0   | A new Trice line with ID 0        | `trice(iD(0),"#X=%d#", #, x, #)` | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
-  0   | A new Trice line with ID n!=0     | `trice(iD(1),"#X=%d#", #, x, #)` | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
-  0   | A new Trice line with ID n!=0     | `trice(iD(2),"#X=%d#", #, x, #)` | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
-  0   | An edited Trice line with ID n!=0 | `trice(iD(3),"#X=%d#", #, x, #)` | A Trice was changed.                                       | Insert a new ID.       | Remove `iD(0)`
-
-* The hash mark `#` symbolizes here any inserted data, defined with `-stf` and `-stv`.
-* As we see, things are getting complicated. We need to force the user somehow, not to edit Trices during the `trice insert` state.
-  * With `trice insert` as pre-build and `trice clean` as post-build action, this is easy achievable.
-  * But the user could not have run `trice clean` and edited the source code.
-
-What about this?:
-
-State | Description                       | Example                            | Use Case                                                   | `insert`               | `clean`
-:----:|-----------------------------------|------------------------------------|------------------------------------------------------------|------------------------|------------------------------------------
-  0   | A new Trice line without ID       | `trice("X=%d",x)`                  | New code.                                                  | Add a new ID.          | No action.
-  0   | A new Trice line with ID 0        | `trice(iD(0),"X=%d", x)`           | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
-  0   | A new Trice line with ID n!=0     | `trice(iD(1),"X=%d", x)`           | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
-  0   | A new Trice line with ID n!=0     | `trice(iD(2),"X=%d", x)`           | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
-  0   | An edited Trice line with ID n!=0 | `trice(iD(3),"ha")`                | A Trice was changed or copied from a different source      | Insert a new ID.       | Add ID=3 to *til.json* and remove `iD(3)`
-  0   | A new Trice line with ID 0        | `trice(iD((0)),"#X=%d#", #, x, #)` | New code.                                                  | Insert a new ID.       | Remove `iD(0)`
-  0   | A new Trice line with ID n!=0     | `trice(iD((1)),"#X=%d#", #, x, #)` | New code with a forced ID, not existing so far.            | Add ID=1 to *til.json* | Add ID=1 to *til.json* and remove `iD(1)`
-  0   | A new Trice line with ID n!=0     | `trice(iD((2)),"#X=%d#", #, x, #)` | New code with a forced ID, used differently in *til.json*. | Insert a new ID.       | Remove `iD(2)`
-  0   | An edited Trice line with ID n!=0 | `trice(iD((3)),"#X=%d#", #, x, #)` | A Trice was changed.                                       | Insert a new ID.       | Remove `iD(0)`
-
-When `trice insert` is executed with `-stf!=""` or `-stv!=""`, structured data (`#`) are added. We could use a double bracket for the iD: `iD((123))`. The compiler will not care about that.
-On `trice clean`, the Trice tool then automatically knows, if structured data (`#`) have to be removed or not. Trices with `iD(123)` will be handled the usual way and Trices with `iD((123))` are with structured data (`#`) extended Trices.
-On `trice insert`, the Trice tool then automatically knows, if structured data (`#`) have to be added or not. Trices with `iD(123)` will be handled the usual way and Trices with `iD((123))` are with structured data (`#`) extended Trices.
-
---### On `trice insert`
-
-* When a matching Trice was found, an existing `iD(123)` indicates, that the structured logging data insertion was already performed.
-
-
-* The Trice tool, on `insert` for a `trice("_ERR:foo...");` parses the `-stf` string for the first string format specifier, here `%6s`, and grabs the first Trice variable in `-stv`, here `$level`, and prints it according to the `"%-6s` into the extended `-stf` and removes (internally) `$level, ` from the `-stv`, so that this gets  `-stv=$file, $line, getTaskID(), $values "'` in the first step. 
-* Then `$file` is printed into the `"%24s` in the same manner, what results in right aligned file names here.
-* Because in this example `"line:"%5d"` is given, the `$line` is replaced in the value string directly.
-* Finally the `$fmt` is replaced directly inside the `-stf` string.
-* So the general rule here is, to replace Trice variables in place if no string format specifier is assigned, and if one is assigned to print the the Trice variable as specified and remove the Trice variable name.
-  
-
-
---###  Questions
-
-* How to deal with an existing or none existing `\n` at the format strings end?
-  * There is already a switch `-addNL`, but this has its own application area.
-<!--  * We could have a switch `-rmNL`, which removes `\n` from the end of legacy format strings during `trice insert`, if wanted.
-  * We could generally remove `\n` from the Trice format strings, if found.
-    * Do not touch the user sources. Just handle that internally.
-  * We generally add a `\n` at the end of the final structured logging string, so the user has not to type it inside the `-stf` value.
-* Should all Trices get handled the same way? 
-  * We just deal with the `trice` statements and ignore variants like `triceS` or `trice8`.
-  * Invent new tags/channels starting with an underscore `_` like "_WRN" just for the structured logging, if desired.
-  * It is also possible to specify `-stf` and `-stv` differently for different channels/tags. For example as multi switch:
-    * Trices with an `_ERR:` tag `trice("_ERR:...", ...);`: 
-      * `-stf='_ERR:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'` (with location)
-      * `-stv='_ERR:   $level,              $file,         $line,        $func,    getTaskID(),   $values,      uptime()'`
-    * Trices with an underscore tag, like `trice("_DEBUG:...", ...);` or `trice("_info:...", ...);`:
-      * `-stf='_*:"{"log_level":"%-6s","taskID":"%x","fmt":"$fmt","uptime":"%08u us}"'` (no location)
-      * `-stv='_*:              $level, getTaskID(),    $values,           uptime()'`
-    * This would give structure data including file and line for _ERR messages and excluding file and line for _INFO, _WRN and _DEBUG logs and would not touch any other trice logs.
-    * The star `_*` is used instead of _INFO, _WRN and _DEBUG to let all remaining levels/channels have identical structured data.
-    * All other Trices, like `trice("msg:...", ...);` are not treated as structured logging Trices.
-* Is is necessary to keep the users original format strings or can we reconstruct them all the time?
-  * When using the `-cache` option we have a copy of the original, but we do not want depend on it.
-  * The original $fmt value could get stored in a *stl.json* file together with the ID.
-
-<!--
-
-for example according to a configuration file.
-
-    A trice insert -runtimeContext command would only add the runtime information trice(iD(124), "wrn:<taskID:%d>MyValueA %d, myValue %d", getTaskID(), 11, 22);
-
-    The compile time information goes only into a compileTimeContext.json file, similar to file and line already now inside li.json and is displayed by the Trice tool according to the configuration.
-
-    So a triceConfiguration.json file could get specified, where the user selects, which compile time and runtime information should be added, how to obtain it and also how this information should look like.
-
-    Example: TRice("MSG:day is %d\n", Val); -> with trice insert -fullContext this gets:
-
-    trice(200), "context: [hw=%x] [core=%x] [log level=MSG] [fn=main] [build time=2025-06-10_12:34:56] [weekday is %d]\n", getHwSerial(), getCoreID(), Val);
-
-Runtime generated strings need their own separate Trice. triceS("name=%20s\n", sVal); type Trice logs can get compile time context added by format string extension, but not get runtime context added. Also including runtime generated strings as runtime context in to "normal" Trice logs is not possible within the same Trice statement. How to handle that in a clean way?
-
-Example: TRiceS("MSG:weekday is %10s\n", sVal); -> with trice insert -fullContext this gets:
-
-trice(201), "runtimeContext: [hw=%x] [core=%x]", getHwSerial(), getCoreID()); TRiceS(iD(203), "compileTimeContext:[log level=MSG] [fn=main] [build time=2025-06-10_12:34:56] [weekday is %10s]\n", sVal);
-
--->
-
 ##  46. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
 <details><summary>Details (click to expand)</summary><ol>
@@ -6720,7 +6610,6 @@ trice(201), "runtimeContext: [hw=%x] [core=%x]", getHwSerial(), getCoreID()); TR
 | 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                                 |
 | 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                                           |
 | 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                    |
-| 2025-JUN-29 | pre 1.1 | [Questions](#questions) extended                                                                   |
 | 2025-JUN-30 | pre 1.1 | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
