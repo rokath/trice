@@ -6487,8 +6487,7 @@ This use case is not expected for most cases, but mentioned here to show the pos
 105 | ...
 ```
 
-This is just a demonstration. The `#pragma message "$usr0=" XSTR(TRICE_ETC)` line probably is needed only on a few lines in the project.
-A pre-compile output could get transferred to the Trice tool, using a script to tell, that normally `$usr0=""`, but `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99, that `$usr0="abc"` is valid after line 103.
+This is just a demonstration. The `#pragma message "$usr0=" XSTR(TRICE_ETC)` line probably is needed only on a few lines in the project. A pre-compile output 
 
 ```bash
 $ ./build.sh 2>&1 | grep "pragma message:"
@@ -6497,19 +6496,23 @@ Core/Src/main.c:99:9: note: '#pragma message: $usr0=""'
 Core/Src/main.c:103:9: note: '#pragma message: $usr0="abc"'
 ```
 
-Those things are compiler and user specific and not part of the Trice tool design. But on demand a CLI multi switch `-stu` can get invented, to inject such information into the `trice insert` process automatically.
+could get transferred automatically to the Trice tool, with a user generator script to tell, that normally `$usr0=""`, but `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99, that `$usr0="abc"` is valid for *main.c* after line 103.
 
-With
+Those things are compiler and user specific and not part of the Trice tool design. But on demand a CLI multi switch `-stu` can get invented, to inject such information into the `trice insert` process automatically. With
 
 ```bash
 
 STF='{"level":"%s","loc":"%s:%d","fmt":"$fmt","etc":"%s"}'
 STV='$level, $file, $line, $values, $usr0'
-ST0='usr0="xyz":main.c:95'
-ST1='usr0="":main.c:99'
-ST2='usr0="abc":main.c:103'
 
-trice insert -stf $STF -stv $STV -stu $ST0 -stu $ST1 -stu $ST2 
+# user script generated begin ################################################
+ST0='usr0="xyz":main.c:95'                        # user script generated line
+ST1='usr0="":main.c:99'                           # user script generated line
+ST2='usr0="abc":main.c:103'                       # user script generated line
+STU="-stu $ST0 -stu $ST1 -stu $ST2"               # user script generated line
+# user script generated end ##################################################
+
+trice insert $STU -stf $STF -stv $STV
 ```
 
 The structured log output would be:
@@ -6585,7 +6588,7 @@ void doStuff( void ){
 }
 ```
 
-All compile time strings are part of the Trice format string now, which is registered inside the *til.json* file. The needed Trice byte count stays 4 bytes only plus the 3 times 4 bytes for the runtime parameter values taskID, 42, uptime. The default TCOBS compression will afterwards reduce these 16 bytes to 12 or 13 or so.
+All compile time strings are part of the Trice format string now, which is registered inside the *til.json* file. The needed Trice byte count stays 4 bytes only plus the 3 times 4 bytes for the runtime parameter values taskID, 42, uptime. The default [TCOBS](https://github.com/rokath/tcobs) compression will afterwards reduce these 16 bytes to 12 or 13 or so.
 
 A `trice clean` command will remove the context information completely including the ID. Please keep in mind, that with `trice insert` as a pre-compile and `trice clean` as post-compile step, the user all the time sees only the original written code:
 
@@ -6622,7 +6625,7 @@ trice insert -cache -stf="$STF" -stv="$STV"
 trice clean  -cache -stf="$STF" -stv="$STV"
 ```
 
-The `-cache` switch is still experimental - to stay safe use (here again with `$line` as string):
+The `-cache` switch is still experimental - to stay safe, use (here again with `$line` as string):
 
 ```bash
 #!/bin/bash
