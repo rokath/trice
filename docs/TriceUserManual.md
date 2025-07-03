@@ -6162,7 +6162,7 @@ We check the location information file. Every Trice is registered here.
 ```bash
 cat demoLI.json | grep '"File":' | sort | uniq
 		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
-		"File": "_test/_special_dblB_de_tcobs_ua/TargetActivity.c",
+		"File": "_test/special_dblB_de_tcobs_ua/TargetActivity.c",
 		"File": "_test/special_for_debug/TargetActivity.c",
 		"File": "_test/special_protect_dblB_de_tcobs_ua/TargetActivity.c",
 		"File": "_test/testdata/triceCheck.c",

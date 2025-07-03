@@ -25,7 +25,7 @@ trice clean  $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES # IDs are now insid
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.
 CGOTESTDIRS="
-    _special_dblB_de_tcobs_ua/
+    special_dblB_de_tcobs_ua/
     special_for_debug/
     special_protect_dblB_de_tcobs_ua/
     be_dblB_de_tcobs_ua/
