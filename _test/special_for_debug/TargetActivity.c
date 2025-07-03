@@ -1,3 +1,5 @@
+//! \file TargetActivity.c
+
 #include "trice.h"
 
 char* TargetActivity(void) {
