@@ -6466,11 +6466,11 @@ This use case is not expected for most cases, but mentioned here to show the pos
 
 ```C
  88 | ...
- 89 | trice("info:hi");
- 90 |  
- 91 | #define XSTR(x) STR(x)
- 92 | #define STR(x) #x
- 93 | 
+ 89 | #define XSTR(x) STR(x)
+ 90 | #define STR(x) #x
+ 91 | 
+ 92 | trice("info:hi");
+ 93 |  
  94 | #define TRICE_ETC "xyz"
  95 | #pragma message "$usr0=" XSTR(TRICE_ETC)
  96 | trice("info:hi");
@@ -6514,7 +6514,7 @@ The structured log output would be:
 
 ```bash
 {...}
-{"level":"info","loc":"main.c:89","fmt":"hi","etc":""}
+{"level":"info","loc":"main.c:92","fmt":"hi","etc":""}
 {"level":"info","loc":"main.c:96","fmt":"hi","etc":"xyz"}
 {"level":"info","loc":"main.c:100","fmt":"hi","etc":""}
 {"level":"info","loc":"main.c:104","fmt":"hi","etc":"abc"}
@@ -6563,11 +6563,11 @@ To achieve a log output in compact JSON with line as string we can use:
 
 ```bash
 trice insert \
--stf='{"level":"%-6s","file":"%24s","line:"%5s","func":"%-16s","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}' \
--stv='$level, $file, $line, $func, getTaskID(), $values, uptime()'
+-stf='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}' \
+-stv='getTaskID(), $values, uptime()'
 ```
 
-To put things together. Any structured format string design is possible and the user can insert the $line (example) value:
+**To put things together:** Any structured format string design is possible and the user can insert the $line (example) value:
 
 * directly as string (fastest execution, straight forward)
 * indirectly as formatted string (fastest execution alignment option)
@@ -6578,7 +6578,7 @@ After `trice insert` we get this (compact JSON) log line according to `-stf` and
 ```C
 void doStuff( void ){
     // ...
-    trice(iD(789), "{\"level\":\"info  \",\"file\":\"                  val.c\",\"line\":\"  321\",\"func\":\"doStuff         \",\"taskID\":\"%04x\",\"fmt\":\"The answer is %d.\",\"uptime\":\"%08u us\"}\n', getTaskID(), 42, uptime());
+    trice(iD(789), "{\"level\":\"info\",\"file\":\"val.c\",\"line\":\"321\",\"taskID\":\"%04x\",\"fmt\":\"The answer is %d.\",\"uptime\":\"%08u us\"}\n', getTaskID(), 42, uptime());
     // ...
 }
 ```
@@ -6601,35 +6601,35 @@ The appropriate Trice tool log line output would be similar to
 
 ```bash
 {...}
-{"level":"info  ","file":"                   val.c","line":"  321","func":"doStuff         ","taskID":"0123","fmt":"The answer is 42.","uptime":"12345678 us"}
+{"level":"info","file":"val.c","line":"321","taskID":"0123","fmt":"The answer is 42.","uptime":"12345678 us"}
 {...}
 ```
 
-When *stf* and *stv* are empty strings (default), `trice insert` and `trice clean` commands will work the ususal way. If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. **ATTENTION:** That will work only if *stf* and *stv* where not changed by the user inbetween. The same way `trice clean` would remove the context information only, if *stf* and *stv* kept unchanged. If the user wants to change *stf* and *stv* during development, first a `trice clean` is needed. Use a `build.sh` script like this:
+When *stf* and *stv* are empty strings (default), `trice insert` and `trice clean` commands will work the ususal way. If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. **ATTENTION:** That will work only, if *stf* and *stv* where not changed by the user inbetween. In the same way `trice clean` would remove the context information only, if *stf* and *stv* kept unchanged. If the user wants to change *stf* and *stv* during development, first a `trice clean` is needed. Use a `build.sh` script like this:
 
 ```bash
 #!/bin/bash
 
-# Run "rm -rf ~/.trice/cache/*", after modifying $SLFMT and SLVAL !!!
+# Run "rm -rf ~/.trice/cache/*" automatically after changing this file !!! 
 
-SLFMT='{"level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'
-SLVAL='$level, $file, $line, $func, getTaskID(), $values, uptime()'
+STF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
+STV='getTaskID(), $values, uptime()'
 
-trice insert -cache -stf="$SLFMT" -stv="$SLVAL"
+trice insert -cache -stf="$STF" -stv="$STV"
 # make
-trice clean  -cache -stf="$SLFMT" -stv="$SLVAL"
+trice clean  -cache -stf="$STF" -stv="$STV"
 ```
 
 The `-cache` switch is still experimental - to stay safe use (here again with `$line` as string):
 
 ```bash
 #!/bin/bash
-SLFMT='{"level":"%-6s","file":"%24s","line:"%5s","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'
-SLVAL=', $line, getTaskID(), $values, uptime()'
+STF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
+STV='getTaskID(), $values, uptime()'
 
-trice insert -stf="$SLFMT" -stv="$SLVAL"
+trice insert -stf="$STF" -stv="$STV"
 # make
-trice clean  -stf="$SLFMT" -stv="$SLVAL"
+trice clean  -stf="$STF" -stv="$STV"
 ```
 
 ##  46. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
