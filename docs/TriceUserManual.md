@@ -6157,6 +6157,8 @@ clean:
 
 ###  42.2. <a id='get-all-project-files-containing-trice-messages'></a>Get all project files containing Trice messages
 
+We check the location information file. Every Trice is registered here.
+
 ```bash
 cat demoLI.json | grep '"File":' | sort | uniq
 		"File": "_test/_ringB_protect_de_tcobs_ua/TargetActivity.c",
