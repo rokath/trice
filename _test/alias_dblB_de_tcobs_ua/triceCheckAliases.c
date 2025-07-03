@@ -1,6 +1,6 @@
 /*! \file triceCheckAliases.c
 *******************************************************************************/
-#if 1 // !TRICE_OFF - We do not exclude this file globally for TRICE_OFF == 1, to check if TRICE_OFF works well.
+#if 0 // !TRICE_OFF - We do not exclude this file globally for TRICE_OFF == 1, to check if TRICE_OFF works well.
 
 #include <float.h>
 #include "trice.h"
