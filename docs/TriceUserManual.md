@@ -6503,12 +6503,12 @@ Those things are compiler and user specific and not part of the Trice tool desig
 STF='{"level":"%s","loc":"%s:%d","fmt":"$fmt","etc":"%s"}'
 STV='$level, $file, $line, $values, $usr0'
 
-# user script generated begin
-ST0='usr0="xyz":main.c:95' # user script generated line
-ST1='usr0="":main.c:99' # user script generated line
-ST2='usr0="abc":main.c:103' # user script generated line
-STU="-stu $ST0 -stu $ST1 -stu $ST2"
-# user script generated end
+# user script generated begin ################################################
+ST0='usr0="xyz":main.c:95'                        # user script generated line
+ST1='usr0="":main.c:99'                           # user script generated line
+ST2='usr0="abc":main.c:103'                       # user script generated line
+STU="-stu $ST0 -stu $ST1 -stu $ST2"               # user script generated line
+# user script generated end ##################################################
 
 trice insert $STU -stf $STF -stv $STV
 ```
