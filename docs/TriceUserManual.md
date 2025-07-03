@@ -6563,8 +6563,8 @@ To achieve a log output in compact JSON with line as string we can use:
 
 ```bash
 trice insert \
--stf='{"level":"%-6s","file":"%24s","line:"%5s","func":"%-16s","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}' \
--stv='$level, $file, $line, $func, getTaskID(), $values, uptime()'
+-stf='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}' \
+-stv='getTaskID(), $values, uptime()'
 ```
 
 To put things together. Any structured format string design is possible and the user can insert the $line (example) value:
@@ -6578,7 +6578,7 @@ After `trice insert` we get this (compact JSON) log line according to `-stf` and
 ```C
 void doStuff( void ){
     // ...
-    trice(iD(789), "{\"level\":\"info  \",\"file\":\"                  val.c\",\"line\":\"  321\",\"func\":\"doStuff         \",\"taskID\":\"%04x\",\"fmt\":\"The answer is %d.\",\"uptime\":\"%08u us\"}\n', getTaskID(), 42, uptime());
+    trice(iD(789), "{\"level\":\"info\",\"file\":\"val.c\",\"line\":\"321\",\"taskID\":\"%04x\",\"fmt\":\"The answer is %d.\",\"uptime\":\"%08u us\"}\n', getTaskID(), 42, uptime());
     // ...
 }
 ```
@@ -6601,7 +6601,7 @@ The appropriate Trice tool log line output would be similar to
 
 ```bash
 {...}
-{"level":"info  ","file":"                   val.c","line":"  321","func":"doStuff         ","taskID":"0123","fmt":"The answer is 42.","uptime":"12345678 us"}
+{"level":"info","file":"val.c","line":"321","taskID":"0123","fmt":"The answer is 42.","uptime":"12345678 us"}
 {...}
 ```
 
@@ -6610,10 +6610,10 @@ When *stf* and *stv* are empty strings (default), `trice insert` and `trice clea
 ```bash
 #!/bin/bash
 
-# Run "rm -rf ~/.trice/cache/*", after modifying $STF and STV !!!
+# Run "rm -rf ~/.trice/cache/*" automatically after changing this file !!! 
 
-STF='{"level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'
-STV='$level, $file, $line, $func, getTaskID(), $values, uptime()'
+STF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
+STV='getTaskID(), $values, uptime()'
 
 trice insert -cache -stf="$STF" -stv="$STV"
 # make
@@ -6624,8 +6624,8 @@ The `-cache` switch is still experimental - to stay safe use (here again with `$
 
 ```bash
 #!/bin/bash
-STF='{"level":"%-6s","file":"%24s","line:"%5s","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'
-STV=', $line, getTaskID(), $values, uptime()'
+STF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
+STV='getTaskID(), $values, uptime()'
 
 trice insert -stf="$STF" -stv="$STV"
 # make
