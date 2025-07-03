@@ -6567,7 +6567,7 @@ trice insert \
 -stv='getTaskID(), $values, uptime()'
 ```
 
-To put things together. Any structured format string design is possible and the user can insert the $line (example) value:
+**To put things together:** Any structured format string design is possible and the user can insert the $line (example) value:
 
 * directly as string (fastest execution, straight forward)
 * indirectly as formatted string (fastest execution alignment option)
