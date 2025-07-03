@@ -8,7 +8,7 @@
 // The Go functions defined here are not exported. They are called by the Go test functions in this package.
 // This way the test functions are executing the trice C-code compiled with the triceConfig.h here.
 // Inside ./testdata this file is named cgoPackage.go where it is maintained.
-// The test/updateTestData.sh script copied this file under the name generated_cgoPackage.go into various
+// The ../renewIDs_in_examples_and_test_folder.sh script copies this file under the name generated_cgoPackage.go into various
 // package folders, where it is used separately.
 package cgot
 
@@ -18,7 +18,7 @@ package cgot
 // unsigned TriceOutDepth( void );
 // void CgoSetTriceBuffer( uint8_t* buf );
 // void CgoClearTriceBuffer( void );
-// #cgo CFLAGS: -g -I../../src
+// #cgo CFLAGS: -g -I../../src -Wshadow
 // #include "../../src/trice.c"
 // #include "../../src/trice8.c"
 // #include "../../src/trice16.c"
@@ -127,7 +127,7 @@ func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
 			if index >= 0 {
 				var r results
 				r.line = i + 1 // 1st line number is 1 and not 0
-				r.exps = strings.TrimSpace(lineEnd[index+len(subStr) : len(lineEnd)])
+				r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
 				result = append(result, r)
 			}
 		}

@@ -56,6 +56,7 @@ CGOTESTDIRS="
     ringB_de_cobs_ua/
     ringB_de_nopf_ua/
     ringB_de_tcobs_ua/
+    ringB_protect_de_tcobs_ua/
     ringB_de_xtea_cobs_ua/
     ringB_de_xtea_tcobs_ua/
     ringB_de_multi_cobs_ua/
