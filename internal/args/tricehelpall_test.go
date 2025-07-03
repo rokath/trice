@@ -147,7 +147,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
     	 (default "default")
   -d16
-    	Short for '-Doubled16BitID'.
+    	Short for '-doubled16BitID'.
   -databits int
     	Set the serial port databits, options: 7, 9 (default 8)
   -dc int
