@@ -31,7 +31,7 @@ CGOTESTDIRS="
     special_protect_dblB_de_tcobs_ua/
     be_dblB_de_tcobs_ua/
     be_staticB_di_xtea_cobs_rtt32/
-    _ERROR_dblB_di_cobs_rtt32__de_xtea_cobs_ua/
+    dblB_di_cobs_rtt32__de_xtea_cobs_ua/
     _ERROR_ringB_di_cobs_rtt32__de_xtea_cobs_ua/
     _ERROR_ringB_di_xtea_cobs_rtt32__de_cobs_ua/
     _ERROR_ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
