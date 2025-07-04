@@ -141,6 +141,7 @@ Table of Contents Generation:
     * 25.1.2. [Different IDs for same Trices](#different-ids-for-same-trices)
     * 25.1.3. [Same IDs for different Trices](#same-ids-for-different-trices)
     * 25.1.4. [ID Routing](#id-routing)
+    * 25.1.5. [Possibility to create new tags without modifying trice tool source](#possibility-to-create-new-tags-without-modifying-trice-tool-source)
 * 26. [ID reference list til.json](#id-reference-list-til.json)
   * 26.1. [til.json Version control](#til.json-version-control)
   * 26.2. [Long Time Availability](#long-time-availability)
@@ -2150,6 +2151,45 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ####  25.1.4. <a id='id-routing'></a>ID Routing
 
 With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags,-color-and-log-levels) can get a specific ID range assigned and inside the project specific *triceConfig.h* the user can control, which ID range is routed to specific output channels. Search for `_MIN_ID` inside **triceDefaultConfig.h** and extend your search than for example `TRICE_UARTA_MIN_ID` to explore how to use.
+
+####  25.1.5. <a id='possibility-to-create-new-tags-without-modifying-trice-tool-source'></a>Possibility to create new tags without modifying trice tool source
+
+According to the demand in [541](https://github.com/rokath/trice/issues/541) a CLI switch `-ulabel` exists now.
+
+Use `-ulabel` for additional user labels. Try this example in an empty folder:
+
+* File *main.c*:
+
+```C
+#include "trice.h"
+
+int main(void){
+    trice("msg:hi\n");
+    trice("man:hi\n");
+    trice("wife:hi\n");
+    trice("any:hi\n");
+}
+```
+
+* Bash:
+
+```bash
+touch til.json li.json
+trice i -IDMin 1004 -IDMax 6999 -IDRange wife:16000,16009 -IDRange man:1000,1003 -ulabel man -ulabel wife
+```
+
+* File *main.c*:
+
+```C
+#include "trice.h"
+
+int main(void){
+    trice(iD(5778), "msg:hi\n");
+    trice(iD(1002), "man:hi\n");
+    trice(iD(16004), "wife:hi\n");
+    trice(iD(2184), "any:hi\n");
+}
+```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
