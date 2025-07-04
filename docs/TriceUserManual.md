@@ -334,6 +334,8 @@ Table of Contents Generation:
   * 45.5. [Trice Structured Logging CLI Switches and Variables](#trice-structured-logging-cli-switches-and-variables)
   * 45.6. [Trice Structured Logging User Defined Values](#trice-structured-logging-user-defined-values)
   * 45.7. [Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
+  * 45.8. [Trice Structured Logging Level Specific Configuration](#trice-structured-logging-level-specific-configuration)
+  * 45.9. [Trice Structured Logging Assert Macros (TODO)](#trice-structured-logging-assert-macros-(todo))
 * 46. [Trice User Manual Changelog](#trice-user-manual-changelog)
 
 <!-- vscode-markdown-toc-config
@@ -6634,6 +6636,46 @@ trice insert -stf="$STF" -stv="$STV"
 # make
 trice clean  -stf="$STF" -stv="$STV"
 ```
+
+###  45.8. <a id='trice-structured-logging-level-specific-configuration'></a>Trice Structured Logging Level Specific Configuration
+
+Configure the Trice Structured Logging selectively in a way, to provide as much helpful diagnostic info as possible on `ERROR` level for example. Example script:
+
+```bash
+#!/bin/bash
+
+# Specify `-stf` and `-stv` differently for different channels/tags.
+
+STL="" # Trice Structured Logging configuration
+
+# Trices with an `ERROR:` tag `trice("err:...", ...);`:
+STF_ERROR='ERROR:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'` # (with location)
+STV_ERROR='ERROR:$level, $file, $line, $func, getTaskID(), $values, uptime()'`
+STL+=" -stf $STF_ERROR -stv $STV_ERROR "
+
+# Trices with an underscore tag, like `trice("_DEBUG:...", ...);` or `trice("_info:...", ...);`:
+STF_underscoreTagStart='_*:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","fmt":"$fmt","uptime":"%08u us"}'` # (no task ID)
+STV_underscoreTagStart='_*:$level, $file, $line, $func, $values, uptime()'`
+STL+=" -stf $STF_underscoreTagStart -stv $STV_underscoreTagStart "
+
+# Tices with any other tag:
+STF_anyTag='*:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","fmt":"$fmt"}'` # (no task ID, no uptime)
+STV_anyTag='*:$level, $file, $line, $func, $values'`
+STL+=" -stf $STF_anyTag -stv $STV_anyTag "
+
+# Trices with no tag at all:
+STF_noTag='{"file":"%24s","line:"%5d","fmt":"$fmt"}'` # (only location information)
+STV_noTag='$file, $line, $values'`
+STL+=" -stf $STF_noTag -stv $STV_noTag "
+
+trice insert $STL ...
+source make.sh # build process
+trice clean  $STL ...
+```
+
+###  45.9. <a id='trice-structured-logging-assert-macros-(todo)'></a>Trice Structured Logging Assert Macros (TODO)
+
+Configure `TriceAssert` like macros and this works also with the `-salias` switch.
 
 ##  46. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
