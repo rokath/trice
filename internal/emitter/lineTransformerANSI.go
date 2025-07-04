@@ -23,7 +23,7 @@ func AddUserLabels() {
 	userLabelsAdded = true
 	for _, v := range UserLabel {
 		var t tag
-		t.Names = append( t.Names, v ) // User labels get only one name.
+		t.Names = append(t.Names, v) // User labels get only one name.
 		t.colorize = colorizeUSER
 		Tags = append(Tags, t)
 	}
@@ -72,36 +72,36 @@ var (
 	LogLevel = "all"
 
 	// log level colors
-	colorizeFATAL     = ansi.ColorFunc("magenta+b:red")
-	colorizeCRITICAL  = ansi.ColorFunc("red+i:default+h")
-	colorizeEMERGENCY = ansi.ColorFunc("red+i:blue")
-	colorizeERROR     = ansi.ColorFunc("11:red")
-	colorizeWARNING   = ansi.ColorFunc("11+i:red")
-	colorizeATTENTION = ansi.ColorFunc("11:green")
-	colorizeINFO      = ansi.ColorFunc("cyan+b:default+h")
-	colorizeDEBUG     = ansi.ColorFunc("130+i")
-	colorizeTRACE     = ansi.ColorFunc("default+i:default+h")
+	colorizeFATAL     = ansi.ColorFunc("magenta+b:red")       // FATAL
+	colorizeCRITICAL  = ansi.ColorFunc("red+i:default+h")     //
+	colorizeEMERGENCY = ansi.ColorFunc("red+i:blue")          //
+	colorizeERROR     = ansi.ColorFunc("11:red")              // ERROR
+	colorizeWARNING   = ansi.ColorFunc("11+i:red")            // WARN
+	colorizeATTENTION = ansi.ColorFunc("11:green")            //
+	colorizeINFO      = ansi.ColorFunc("cyan+b:default+h")    // INFO
+	colorizeDEBUG     = ansi.ColorFunc("130+i")               // DEBUG
+	colorizeTRACE     = ansi.ColorFunc("default+i:default+h") //
 
 	// user mode colors
-	colorizeTIME      = ansi.ColorFunc("blue+i:yellow+h")
-	colorizeMESSAGE   = ansi.ColorFunc("green+h:black")
-	colorizeREAD      = ansi.ColorFunc("black+i:yellow+h")
-	colorizeWRITE     = ansi.ColorFunc("black+u:yellow+h")
-	colorizeRECEIVE   = ansi.ColorFunc("black+h:black")
-	colorizeTRANSMIT  = ansi.ColorFunc("black:black+h")
-	colorizeDIAG      = ansi.ColorFunc("yellow+i:default+h")
-	colorizeINTERRUPT = ansi.ColorFunc("magenta+i:default+h")
-	colorizeSIGNAL    = ansi.ColorFunc("118+i")
-	colorizeTEST      = ansi.ColorFunc("yellow+h:black")
+	colorizeTIME      = ansi.ColorFunc("blue+i:yellow+h")     //
+	colorizeMESSAGE   = ansi.ColorFunc("green+h:black")       //
+	colorizeREAD      = ansi.ColorFunc("black+i:yellow+h")    //
+	colorizeWRITE     = ansi.ColorFunc("black+u:yellow+h")    //
+	colorizeRECEIVE   = ansi.ColorFunc("black+h:black")       //
+	colorizeTRANSMIT  = ansi.ColorFunc("black:black+h")       //
+	colorizeDIAG      = ansi.ColorFunc("yellow+i:default+h")  //
+	colorizeINTERRUPT = ansi.ColorFunc("magenta+i:default+h") //
+	colorizeSIGNAL    = ansi.ColorFunc("118+i")               //
+	colorizeTEST      = ansi.ColorFunc("yellow+h:black")      //
 
-	colorizeDEFAULT = ansi.ColorFunc("off")
-	colorizeNOTICE  = ansi.ColorFunc("blue:white+h")
-	colorizeALERT   = ansi.ColorFunc("magenta:magenta+h")
-	colorizeASSERT  = ansi.ColorFunc("yellow+i:blue")
-	colorizeALARM   = ansi.ColorFunc("red+i:white+h")
-	colorizeCYCLE   = ansi.ColorFunc("magenta+i:yellow+h")
-	colorizeVERBOSE = ansi.ColorFunc("blue:default")
-	colorizeUSER    = ansi.ColorFunc("off")
+	colorizeDEFAULT = ansi.ColorFunc("off")                //
+	colorizeNOTICE  = ansi.ColorFunc("blue:white+h")       //
+	colorizeALERT   = ansi.ColorFunc("magenta:magenta+h")  //
+	colorizeASSERT  = ansi.ColorFunc("yellow+i:blue")      //
+	colorizeALARM   = ansi.ColorFunc("red+i:white+h")      //
+	colorizeCYCLE   = ansi.ColorFunc("magenta+i:yellow+h") //
+	colorizeVERBOSE = ansi.ColorFunc("blue:default")       // VERB
+	colorizeUSER    = ansi.ColorFunc("off")                //
 
 	AllStatistics bool // Keep the complete statistics when Trice is closed.
 	TagStatistics bool // Print the occured count for each Trice log when Trice is closed.
