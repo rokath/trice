@@ -2207,14 +2207,8 @@ int main(void){
 * The ID list should go into the version control repository of your project.
 * To keep it clean from the daily development garbage one could `git restore til.json`, and re-build just before check-in.
 
-<!--
-* For a firmware release it makes sense to remove all unused IDs from til.json.
-  * Just delete the **til.json** contents and run `trice clean`.
-* An other option is to delete **til.json** just before a release build and then check-in the new generated **til.json**.
--->
-
 ```diff
---> For the no-ids option deleting til.json should not not be done when the sources are without IDs. 
+--> Deleting til.json should not not be done when the sources are without IDs. 
 --> That would result in a loss of the complete ID history and a assignment of a complete new set of IDs.
 ```
 
