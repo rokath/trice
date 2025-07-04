@@ -175,7 +175,7 @@ Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and 
 	fsScLog.Var(&emitter.Pick, "pick", `Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
 Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban". See also "-logLevel".`) // multi flag
 	flagUserLabel(fsScLog)
-	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
+	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" (may need CLI switch -d16) or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
 	fsScLog.BoolVar(&trexDecoder.AddNewlineToEachTriceMessage, "addNL", false, `Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.`)
 	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print Trices occurrences count on exit.`)

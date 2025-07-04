@@ -15,6 +15,10 @@ extern "C" {
 #define TRICE_CGO 1
 #define TRICE_CYCLE_COUNTER 0
 
+#define tell  trice
+#define who   triceS
+//#define who(id,...) triceS(id, __VA_ARGS__)
+
 #ifdef __cplusplus
 }
 #endif

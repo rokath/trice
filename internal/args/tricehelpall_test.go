@@ -230,7 +230,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -p string
     	short for -port (default "J-LINK")
   -packageFraming string
-    	Use "none" or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h". (default "TCOBSv1")
+    	Use "none" (may need CLI switch -d16) or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h". (default "TCOBSv1")
   -parity string
     	Serial port bit parity value, options: odd, even (default "none")
   -password string

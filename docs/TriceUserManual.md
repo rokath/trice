@@ -5433,10 +5433,11 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 
 ###  40.2. <a id='how-to-run-the-tests'></a>How to run the tests
 
-- In `_trice` folder first execute `go clean -cache`. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can led to confusing results.
-- Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
-- To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` fom there. It is more handy to run `trice_insertIDs_in_examples_and_test_folder.sh` from the Trice root folder.
-- It is convenient to run  `testAll.sh` from the Trice root folder to perform this.
+* In `_trice` folder first execute `go clean -cache`. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can led to confusing results.
+* Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
+* To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` fom there. It is more handy to run `trice_insertIDs_in_examples_and_test_folder.sh` from the Trice root folder.
+* It is convenient to run  `testAll.sh` from the Trice root folder to perform this.
+* It is possible to start the tests individually, but for some the default `-timeout 30s` maybe too short.
 
 ###  40.3. <a id='tests-details'></a>Tests Details
 
