@@ -17,9 +17,10 @@ func TestLogs(t *testing.T) {
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog0 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off",
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), 
+			"-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off",
 			"-ts0", "time:        ", "-ts16", "time:    %04x", "-ts32", "time:%08x",
-			"-pf=NONE", "-d16"}))
+			"-pf=cobs", "-d16"}))
 		return o.String()
 	}
 
@@ -27,9 +28,10 @@ func TestLogs(t *testing.T) {
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog1 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", 
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), 
+			"-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off",
 			"-ts0", "time:        ", "-ts16", "time:    %04x", "-ts32", "time:%08x",
-			"-pf=COBS", "-d16=false", "-pw=MySecret"}))
+			"-pw=MySecret", "-pf=COBS", "-d16=false"))}
 		return o.String()
 	}
 

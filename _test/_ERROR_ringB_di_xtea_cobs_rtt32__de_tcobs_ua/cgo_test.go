@@ -17,8 +17,11 @@ func TestLogs(t *testing.T) {
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog0 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		//                                                        trice  -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"  -showID "deb:%04x"   -hs off                                            -pw MySecret    -pf COBS    -d16=true
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pw=MySecret", "-pf=COBS", "-d16=true", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
+		// trice -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0" -hs off -pw MySecret -pf COBS -d16=true
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), 
+		"-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", 
+		"-ts0", "time:        ", "-ts16", "time:    %04x", "-ts32", "time:%08x",
+		"-pw=MySecret", "-pf=COBS", "-d16=true"}))
 		return o.String()
 	}
 
@@ -26,8 +29,11 @@ func TestLogs(t *testing.T) {
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog1 := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		//                                                        trice    l                                                            -p com4                                                                                       -d16=false
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), "-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off", "-pf=TCOBS", "-d16=false", "-ts16", "time:    %04x", "-ts32", "time:%08x"}))
+		// trice -p com4 -d16=false
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), 
+			"-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off",
+			"-ts0", "time:        ", "-ts16", "time:    %04x", "-ts32", "time:%08x",
+			"-pf=TCOBS", "-d16=false"}))
 		return o.String()
 	}
 
