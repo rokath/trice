@@ -21,7 +21,7 @@ fi
 echo "Command line: $0 $1 $2"                        2>&1 | tee -a $triceFolder/testAll.log
 echo "SELECTED: $SELECTED"                           2>&1 | tee -a $triceFolder/testAll.log
 echo \$OSTYPE=$OSTYPE                                2>&1 | tee -a $triceFolder/testAll.log
-if command -v uname; then                            2>&1 | tee -a $triceFolder/testAll.log
+if command -v uname; then
     uname -a                                         2>&1 | tee -a $triceFolder/testAll.log
 fi
 go install ./...
@@ -32,7 +32,7 @@ touch demoTIL.json demoLI.json                       2>&1 | tee -a $triceFolder/
 ./renewIDs_in_examples_and_refresh_test_folder.sh    2>&1 | tee -a $triceFolder/testAll.log
 
 
-if command -v go; then                               2>&1 | tee -a $triceFolder/testAll.log
+if command -v go; then
     go version                                       2>&1 | tee -a $triceFolder/testAll.log
 
     # Go code tests
@@ -104,7 +104,7 @@ else
 fi
 
 # clang translation test
-if ! command -v clang                                    2>&1 | tee -a $triceFolder/testAll.log; then
+if ! command -v clang; then
     echo ""                                              2>&1 | tee -a $triceFolder/testAll.log
     echo "############################################"  2>&1 | tee -a $triceFolder/testAll.log
     echo "WARNING:     clang not installed"              2>&1 | tee -a $triceFolder/testAll.log
@@ -113,7 +113,7 @@ if ! command -v clang                                    2>&1 | tee -a $triceFol
     echo ""                                              2>&1 | tee -a $triceFolder/testAll.log
 else
     clang --version                                          2>&1 | tee -a $triceFolder/testAll.log
-    if ! command -v arm-none-eabi-gcc; then                  2>&1 | tee -a $triceFolder/testAll.log
+    if ! command -v arm-none-eabi-gcc; then
         echo ""                                              2>&1 | tee -a $triceFolder/testAll.log
         echo "############################################"  2>&1 | tee -a $triceFolder/testAll.log
         echo "WARNING:    arm-none-eabi-gcc not installed"   2>&1 | tee -a $triceFolder/testAll.log
@@ -144,13 +144,13 @@ source ./build_environment.sh                            2>&1 | tee -a $triceFol
 
 # gcc translation tests
 # We need the C_INCLUDE_PATH to point to the arm-none-eabi-gcc include files folder.
-if command -v  arm-none-eabi-gcc; then                   2>&1 | tee -a $triceFolder/testAll.log
+if command -v  arm-none-eabi-gcc; then
     arm-none-eabi-gcc --version | grep gcc               2>&1 | tee -a $triceFolder/testAll.log
 fi
 echo "C_INCLUDE_PATH=$C_INCLUDE_PATH"                    2>&1 | tee -a $triceFolder/testAll.log
 echo arm-none-eabi-gcc location in next line:            2>&1 | tee -a $triceFolder/testAll.log
 which arm-none-eabi-gcc                                  2>&1 | tee -a $triceFolder/testAll.log
-if ! command -v arm-none-eabi-gcc; then                  2>&1 | tee -a $triceFolder/testAll.log
+if ! command -v arm-none-eabi-gcc; then
     echo ""                                              2>&1 | tee -a $triceFolder/testAll.log
     echo "############################################"  2>&1 | tee -a $triceFolder/testAll.log
     echo "WARNING:     arm-none-eabi-gcc not installed"  2>&1 | tee -a $triceFolder/testAll.log
@@ -203,8 +203,7 @@ else
 fi
 
 t1=`date +%s`
-#if command -v caffeinate 2>&1 >/dev/null
-#then
+#if command -v caffeinate; then
 #    # https://stackoverflow.com/questions/30171050/start-a-process-in-background-do-a-task-then-kill-the-process-in-the-background
 #    kill %-                                          2>&1 | tee -a $triceFolder/testAll.log 
 #fi
