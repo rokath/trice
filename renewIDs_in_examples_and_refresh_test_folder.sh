@@ -33,8 +33,8 @@ CGOTESTDIRS="
     be_staticB_di_xtea_cobs_rtt32/
     _dblB_di_cobs_rtt32__de_xtea_cobs_ua/
     _ringB_di_cobs_rtt32__de_xtea_cobs_ua/
-    _ERROR_ringB_di_xtea_cobs_rtt32__de_cobs_ua/
-    _ERROR_ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
+    _ringB_di_xtea_cobs_rtt32__de_cobs_ua/
+    _ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
     dblB_de_cobs_ua/
     dblB_de_multi_cobs_ua/
     dblB_de_multi_nopf_ua/
