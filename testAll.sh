@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
-    # To perform just a quick test:
-    # ./testAll.sh
-
-    # To perform a full test:
-    # ./testAll.sh full
+    # test quick:          ./testAll.sh
+    # test config compile: ./testAll.sh config
+    # test full:           ./testAll.sh full
 
 # === Define your long-running task ===
 my_long_task() {
@@ -28,7 +26,11 @@ my_long_task() {
     if command -v uname; then
         uname -a                                         2>&1 | tee -a $triceFolder/testAll.log
     fi
-    go install ./...
+    if command -v go; then
+        go version                                       2>&1 | tee -a $triceFolder/testAll.log
+        go install ./...                                 2>&1 | tee -a $triceFolder/testAll.log
+    fi
+    which trice                                          2>&1 | tee -a $triceFolder/testAll.log
     trice version                                        2>&1 | tee -a $triceFolder/testAll.log
     ./trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
     rm -f demoTIL.json demoLI.json                       2>&1 | tee -a $triceFolder/testAll.log
@@ -36,76 +38,79 @@ my_long_task() {
     ./renewIDs_in_examples_and_refresh_test_folder.sh    2>&1 | tee -a $triceFolder/testAll.log
 
 
-    if command -v go; then
-        go version                                       2>&1 | tee -a $triceFolder/testAll.log
-
-        # Go code tests
-        echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
-        echo "Testing the Go code..."                        2>&1 | tee -a $triceFolder/testAll.log
-            go clean -cache -testcache                       2>&1 | tee -a $triceFolder/testAll.log
-            go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
-            rc=$?
-            if [ $rc -ne 0 ]; then
-                echo "Testing the Go code...failed"               | tee -a $triceFolder/testAll.log
-                exit $rc
-            fi
-            if cat $triceFolder/testAll.log | grep -q FAIL ; then
-                echo "Testing the Go code...FAILed"               | tee -a $triceFolder/testAll.log
-                exit $rc
-            fi
-        echo "Testing the Go code...pass"                    2>&1 | tee -a $triceFolder/testAll.log
-        echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
-
-
-        # Target code inside PC tests
-        echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
-        echo "Testing the Target code inside PC..."          2>&1 | tee -a $triceFolder/testAll.log
-        ./trice_insertIDs_in_examples_and_test_folder.sh     2>&1 | tee -a $triceFolder/testAll.log
-            cd _test
-                if [ "$C_INCLUDE_PATH" != "" ]; then
-                    echo It is important, that C_INLUDE_PATH is not set for the CGO tests. Clearing it temporarily.
-                    export C_INCLUDE_PATH=""
+    if [ "$SELECTED" != "config" ]; then
+        if command -v go; then
+            # Go code tests
+            echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
+            echo "Testing the Go code..."                        2>&1 | tee -a $triceFolder/testAll.log
+                go clean -cache -testcache                       2>&1 | tee -a $triceFolder/testAll.log
+                go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
+                rc=$?
+                if [ $rc -ne 0 ]; then
+                    echo "Testing the Go code...failed"               | tee -a $triceFolder/testAll.log
+                    exit $rc
                 fi
-                if [ "$SELECTED" = "quick" ]; then
-                    echo "go test ./be_dblB_de_tcobs_ua/..."         2>&1 | tee -a $triceFolder/testAll.log
-                    go test ./be_dblB_de_tcobs_ua/...                2>&1 | tee -a $triceFolder/testAll.log
-                    rc=$?
-                    if [ $rc -ne 0 ]; then
-                        echo "Testing the Target code inside PC...failed" | tee -a $triceFolder/testAll.log
-                        exit $rc
-                    fi
-                    # On build errors rc can be still 0, so we check the log file for FAIL
-                    if cat $triceFolder/testAll.log | grep -q FAIL ; then
-                        echo "Testing the Target code inside PC...failed"               | tee -a $triceFolder/testAll.log
-                        echo "In case of CGO build errors check the PATH variable too." | tee -a $triceFolder/testAll.log
-                        exit 2
-                    fi
+                if cat $triceFolder/testAll.log | grep -q FAIL ; then
+                    echo "Testing the Go code...FAILed"               | tee -a $triceFolder/testAll.log
+                    exit $rc
                 fi
-                if [ "$SELECTED" = "full" ]; then
-                    echo "go test ./..."                             2>&1 | tee -a $triceFolder/testAll.log
-                    go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
-                    rc=$?
-                    if [ $rc -ne 0 ]; then
-                        echo "Testing the Target code inside PC...failed" | tee -a $triceFolder/testAll.log
-                        exit $rc
+            echo "Testing the Go code...pass"                    2>&1 | tee -a $triceFolder/testAll.log
+            echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
+
+
+            # Target code inside PC tests
+            echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
+            echo "Testing the Target code inside PC..."          2>&1 | tee -a $triceFolder/testAll.log
+            ./trice_insertIDs_in_examples_and_test_folder.sh     2>&1 | tee -a $triceFolder/testAll.log
+                cd _test
+                    if [ "$C_INCLUDE_PATH" != "" ]; then
+                        echo It is important, that C_INLUDE_PATH is not set for the CGO tests. Clearing it temporarily.
+                        export C_INCLUDE_PATH=""
                     fi
-                    # On build errors rc can be still 0, so we check the log file for FAIL
-                    if cat $triceFolder/testAll.log | grep -q FAIL ; then
-                        echo "Testing the Target code inside PC...failed"               | tee -a $triceFolder/testAll.log
-                        echo "In case of CGO build errors check the PATH variable too." | tee -a $triceFolder/testAll.log
-                        exit 2
+                    if [ "$SELECTED" = "quick" ]; then
+                        echo "go test ./be_dblB_de_tcobs_ua/..."         2>&1 | tee -a $triceFolder/testAll.log
+                        go test ./be_dblB_de_tcobs_ua/...                2>&1 | tee -a $triceFolder/testAll.log
+                        rc=$?
+                        if [ $rc -ne 0 ]; then
+                            echo "Testing the Target code inside PC...failed" | tee -a $triceFolder/testAll.log
+                            exit $rc
+                        fi
+                        # On build errors rc can be still 0, so we check the log file for FAIL
+                        if cat $triceFolder/testAll.log | grep -q FAIL ; then
+                            echo "Testing the Target code inside PC...failed"               | tee -a $triceFolder/testAll.log
+                            echo "In case of CGO build errors check the PATH variable too." | tee -a $triceFolder/testAll.log
+                            exit 2
+                        fi
                     fi
-                fi
-            cd - >/dev/null
-        ./trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
-        echo "Testing the Target code inside PC...pass"      2>&1 | tee -a $triceFolder/testAll.log
-        echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
-    else
-        echo "############################################"  2>&1 | tee -a $triceFolder/testAll.log
-        echo "WARNING:     Go not installed."                2>&1 | tee -a $triceFolder/testAll.log
-        echo "Skipping Go code and PC target code tests."    2>&1 | tee -a $triceFolder/testAll.log
-        echo "############################################"  2>&1 | tee -a $triceFolder/testAll.log
+                    if [ "$SELECTED" = "full" ]; then
+                        echo "go test ./..."                             2>&1 | tee -a $triceFolder/testAll.log
+                        go test ./...                                    2>&1 | tee -a $triceFolder/testAll.log
+                        rc=$?
+                        if [ $rc -ne 0 ]; then
+                            echo "Testing the Target code inside PC...failed" | tee -a $triceFolder/testAll.log
+                            exit $rc
+                        fi
+                        # On build errors rc can be still 0, so we check the log file for FAIL
+                        if cat $triceFolder/testAll.log | grep -q FAIL ; then
+                            echo "Testing the Target code inside PC...failed"               | tee -a $triceFolder/testAll.log
+                            echo "In case of CGO build errors check the PATH variable too." | tee -a $triceFolder/testAll.log
+                            exit 2
+                        fi
+                    fi
+                cd - >/dev/null
+            ./trice_cleanIDs_in_examples_and_test_folder.sh      2>&1 | tee -a $triceFolder/testAll.log
+            echo "Testing the Target code inside PC...pass"      2>&1 | tee -a $triceFolder/testAll.log
+            echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
+        else
+            echo "############################################"  2>&1 | tee -a $triceFolder/testAll.log
+            echo "WARNING:     Go not installed."                2>&1 | tee -a $triceFolder/testAll.log
+            echo "Skipping Go code and PC target code tests."    2>&1 | tee -a $triceFolder/testAll.log
+            echo "############################################"  2>&1 | tee -a $triceFolder/testAll.log
+        fi
     fi
+
+    # set build environment
+    source ./build_environment.sh                            2>&1 | tee -a $triceFolder/testAll.log
 
     # clang translation test
     if ! command -v clang; then
@@ -140,11 +145,6 @@ my_long_task() {
             echo "---"                                                   2>&1 | tee -a $triceFolder/testAll.log
         fi
     fi
-
-
-    # set build environment
-    source ./build_environment.sh                            2>&1 | tee -a $triceFolder/testAll.log
-
 
     # gcc translation tests
     # We need the C_INCLUDE_PATH to point to the arm-none-eabi-gcc include files folder.
@@ -189,7 +189,7 @@ my_long_task() {
                 echo "---"                                               2>&1 | tee -a $triceFolder/testAll.log
                 ./cleanAllTargets.sh                                     2>&1 | tee -a $triceFolder/testAll.log
             cd - >/dev/null
-            if [ $SELECTED = "full" ]; then
+            if [ $SELECTED = "full" || $SELECTED = "config" ]; then
                 cd examples/L432_inst
                     echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
                     echo "Translating all L432 configurations..."        2>&1 | tee -a $triceFolder/testAll.log
