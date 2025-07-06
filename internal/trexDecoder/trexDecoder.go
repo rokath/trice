@@ -40,6 +40,7 @@ var (
 	Doubled16BitID               bool
 	AddNewlineToEachTriceMessage bool
 	SingleFraming                bool // SingleFraming demands, that each received package contains not more than a singe Trice message.
+	DisableCycleErrors           bool
 )
 
 // trexDec is the Decoding instance for trex encoded trices.
@@ -397,7 +398,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if cycle == 0xc0 && p.cycle == 0xc0 && !decoder.InitialCycle { // with or without cycle counter and seems to be a normal case
 		p.cycle = cycle + 1 // adjust cycle
 	}
-	if cycle != 0xc0 { // with cycle counter and s.th. lost
+	if cycle != 0xc0 && !DisableCycleErrors { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
 			n += copy(b[n:], fmt.Sprintln("CYCLE_ERROR:\a", cycle, "!=", p.cycle, " (count=", emitter.TagEvents("CYCLE_ERROR")+1, ")"))
 			n += copy(b[n:], "                                         ") // len of location information plus stamp: 41 spaces - see NewlineIndent below - todo: make it generic

@@ -205,22 +205,34 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
 						s = t.Format("2006-01-02 15:04:05 UTC")
 						c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
-						if ! t.Equal(c) {
+						if !t.Equal(c) {
 							s += "-->" + c.Format("2006-01-02 15:04:05 UTC")
 						}
 					case "":
-						// no ts32
+						// Suppressing ts32 output is desired.
 					default:
 						after, found := strings.CutPrefix(decoder.TargetStamp32, "epoch")
 						if found { // Assume a -ts32="epoch2006-01-02 15:04:05 UTC" like value.
-						t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
-						s = t.Format(after)
-						c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
-						if ! t.Equal(c) {
-							s += "-->" + c.Format(after)
-						}
+							t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
+							s = t.Format(after) // examples for after:
+							// s = t.Format("Mon Jan _2 15:04:05 2006")            //ANSIC
+							// s = t.Format("Mon Jan _2 15:04:05 MST 2006")        //UnixDate
+							// s = t.Format("Mon Jan 02 15:04:05 -0700 2006")      //RubyDate
+							// s = t.Format("02 Jan 06 15:04 MST")                 //RFC822
+							// s = t.Format("02 Jan 06 15:04 -0700")               //RFC822Z     (RFC822 with numeric zone)
+							// s = t.Format("Monday, 02-Jan-06 15:04:05 MST")      //RFC850
+							// s = t.Format("Mon, 02 Jan 2006 15:04:05 MST")       //RFC1123
+							// s = t.Format("Mon, 02 Jan 2006 15:04:05 -0700")     //RFC1123Z    (RFC1123 with numeric zone)
+							// s = t.Format("2006-01-02T15:04:05Z07:00")           //RFC3339
+							// s = t.Format("2006-01-02T15:04:05.999999999Z07:00") //RFC3339Nano
+							// s = t.Format("3:04PM")                              //Kitchen
+							// Assumed usage example: trice log -ts32='epoch"Mon, 02 Jan 2006 15:04:05 MST"'
+							c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
+							if !t.Equal(c) {
+								s += "-->" + c.Format(after)
+							}
 
-						}else{ // Assume a string containing a single %d like format specification.
+						} else { // Assume a string containing a single %d like format specification.
 							s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
 						}
 					}

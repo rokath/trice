@@ -9,13 +9,15 @@
 extern "C" {
 #endif
 
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
-#define TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN 1
-#define TRICE_DEFERRED_OUTPUT 1
-#define TRICE_DEFERRED_UARTA 1
-#define TRICE_UARTA
+#define TRICE_BUFFER TRICE_STACK_BUFFER
+#define TRICE_DIRECT_OUTPUT 1
+#define TRICE_DIRECT_AUXILIARY32 1
 #define TRICE_CGO 1
 #define TRICE_CYCLE_COUNTER 0
+
+#define tell  trice
+#define who   triceS
+//#define who(id,...) triceS(id, __VA_ARGS__)
 
 #ifdef __cplusplus
 }

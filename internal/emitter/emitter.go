@@ -58,7 +58,24 @@ var (
 
 	// Pick is a string slice containing all channel descriptors only to display
 	Pick channelArrayFlag
+
+	// UserLabel is a string slice containing all additional channel descriptors
+	UserLabel ArrayFlag
 )
+
+// ArrayFlag is a slice type for multi flag
+type ArrayFlag []string
+
+// String method is the needed for interface satisfaction.
+func (i *ArrayFlag) String() string {
+	return ""
+}
+
+// Set is a needed method for multi flags.
+func (i *ArrayFlag) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
 
 type channelArrayFlag []string
 
