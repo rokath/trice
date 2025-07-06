@@ -189,7 +189,7 @@ my_long_task() {
                 echo "---"                                               2>&1 | tee -a $triceFolder/testAll.log
                 ./cleanAllTargets.sh                                     2>&1 | tee -a $triceFolder/testAll.log
             cd - >/dev/null
-            if [ $SELECTED = "full" || $SELECTED = "config" ]; then
+            if [ $SELECTED = "full" ] || [ $SELECTED = "config" ]; then
                 cd examples/L432_inst
                     echo "---"                                           2>&1 | tee -a $triceFolder/testAll.log
                     echo "Translating all L432 configurations..."        2>&1 | tee -a $triceFolder/testAll.log
