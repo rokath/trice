@@ -6,11 +6,11 @@
 
 # === Define your long-running task ===
 my_long_task() {
-    local arg1="${1:-default1}"
-    local arg2="${2:-default2}"
+    #local arg1="${1:-default1}"
+    #local arg2="${2:-default2}"
 
     echo "🟢 Starting Test: $(date)"
-    echo "Test parameters: arg1='$arg1', arg2='$arg2'"
+    #echo "Test parameters: arg1='$arg1', arg2='$arg2'"
 
     SELECTED=${1:-quick}
 
@@ -20,7 +20,6 @@ my_long_task() {
     t0=`date +%s`
 
     # show environment and prepare
-    echo "Command line: $0 $1 $2"                        2>&1 | tee -a $triceFolder/testAll.log
     echo "SELECTED: $SELECTED"                           2>&1 | tee -a $triceFolder/testAll.log
     echo \$OSTYPE=$OSTYPE                                2>&1 | tee -a $triceFolder/testAll.log
     if command -v uname; then
