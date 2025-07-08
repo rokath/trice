@@ -16,24 +16,23 @@ fi
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     export C_INCLUDE_PATH=`which arm-none-eabi-gcc | rev | cut -f 2- -d / | rev`../arm-none-eabi/include
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-    export C_INCLUDE_PATH=`which arm-none-eabi-gcc | rev | cut -f 2- -d / | rev`../arm-none-eabi/include
-    ## # Check if Homebrew is installed
-    ## if ! command -v brew >/dev/null 2>&1; then
-    ##     echo "Homebrew is not installed. Please install Homebrew first."
-    ##     exit 1
-    ## fi
-    ## 
-    ## # Check if gcc-arm-embedded is installed via cask
-    ## if brew list --cask | grep -q "^gcc-arm-embedded$"; then
-    ##     version=$(brew list --cask --versions gcc-arm-embedded | awk '{print $2}')
-    ##     echo "Installed gcc-arm-embedded version: $version"
-    ## else
-    ##     echo "gcc-arm-embedded is not installed via Homebrew Cask."
-    ## fi
-    ## 
-    ## #export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
-    ## export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
-    ## export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
+    # Check if Homebrew is installed
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "Homebrew is not installed. Please install Homebrew first."
+        exit 1
+    fi
+    
+    # Check if gcc-arm-embedded is installed via cask
+    if brew list --cask | grep -q "^gcc-arm-embedded$"; then
+        version=$(brew list --cask --versions gcc-arm-embedded | awk '{print $2}')
+        echo "Installed gcc-arm-embedded version: $version"
+    else
+        echo "gcc-arm-embedded is not installed via Homebrew Cask."
+    fi
+    
+    #export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
+    export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
+    export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
 elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo $OSTYPE # POSIX compatibility layer and Linux environment emulation for Windows
 elif [[ "$OSTYPE" == "msys" ]]; then
