@@ -14,10 +14,10 @@ fi
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    export C_INCLUDE_PATH=`which arm-none-eabi-gcc | rev | cut -f 2- -d / | rev`../arm-none-eabi/include
-    echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
-    loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}/arm-none-eabi/include
-    echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
+    #export C_INCLUDE_PATH=`which arm-none-eabi-gcc | rev | cut -f 2- -d / | rev`../arm-none-eabi/include
+    #echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
+    loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}arm-none-eabi/include
+    #echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Check if Homebrew is installed
     if ! command -v brew >/dev/null 2>&1; then
@@ -40,13 +40,11 @@ elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo $OSTYPE # POSIX compatibility layer and Linux environment emulation for Windows
 elif [[ "$OSTYPE" == "msys" ]]; then
     echo $OSTYPE # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-    export PATH="C:\\bin\\ArmClang\\bin:$PATH"
-    export C_INCLUDE_PATH="C:\\bin\\ArmGNUToolchain\\arm-none-eabi\\include"
-    echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
-    export C_INCLUDE_PATH=`which arm-none-eabi-gcc | rev | cut -f 2- -d / | rev`../arm-none-eabi/include
-    echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
+    #export PATH="C:\\bin\\ArmClang\\bin:$PATH"
+    #export C_INCLUDE_PATH="C:\\bin\\ArmGNUToolchain\\arm-none-eabi\\include"
+    #echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}/arm-none-eabi/include
-    echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
+    #echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
 elif [[ "$OSTYPE" == "win32" ]]; then
     echo $OSTYPE # I'm not sure this can happen.
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
