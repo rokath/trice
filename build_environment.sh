@@ -3,10 +3,10 @@
 # Adapt build_environment.sh file to your system eventually.
 
 if ! command -v arm-none-eabi-gcc; then
-    echo Please install arm-none-eabi-gcc !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    echo arm-none-eabi-gcc not found
 fi
 if ! command -v clang; then
-    echo clang is not installed !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    echo clang not found
 fi
 
 # Put ARM Clang first in path temporary to avoid compiler variants issues.
@@ -14,10 +14,7 @@ fi
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    #export C_INCLUDE_PATH=`which arm-none-eabi-gcc | rev | cut -f 2- -d / | rev`../arm-none-eabi/include
-    #echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}arm-none-eabi/include
-    #echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Check if Homebrew is installed
     if ! command -v brew >/dev/null 2>&1; then
@@ -36,15 +33,12 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH" # llvm-size
     export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
     export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
+    
 elif [[ "$OSTYPE" == "cygwin" ]]; then
-    echo $OSTYPE # POSIX compatibility layer and Linux environment emulation for Windows
+    echo $OSTYPE = POSIX compatibility layer and Linux environment emulation for Windows
 elif [[ "$OSTYPE" == "msys" ]]; then
-    echo $OSTYPE # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-    #export PATH="C:\\bin\\ArmClang\\bin:$PATH"
-    #export C_INCLUDE_PATH="C:\\bin\\ArmGNUToolchain\\arm-none-eabi\\include"
-    #echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
+    echo $OSTYPE = Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}/arm-none-eabi/include
-    #echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
 elif [[ "$OSTYPE" == "win32" ]]; then
     echo $OSTYPE # I'm not sure this can happen.
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
@@ -52,7 +46,6 @@ elif [[ "$OSTYPE" == "freebsd"* ]]; then
 else
      echo $OSTYPE # Unknown.
 fi
-
 
 echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
  
