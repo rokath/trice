@@ -1793,13 +1793,13 @@ The `triceS` macro is ment to be used with strings not known at compile time.
 *Usage intention and recommendation:* (given by [@escherstair](https://github.com/escherstair))
 
 ```C
-char dynamic_string[50];
-fillDynamicStringFromSomewhere(dynamic_string); // the content of dynamic_string is filled at run time
-triceS( "msg:This part of the string is known at compile time. This part is dynamic: %s\n", dynamic_string);
+char runtime_string[50];
+fillRuntimeStringFromSomewhere(runtime_string); // the content of runtime_string is filled at run time
+triceS( "msg:This part of the string is known at compile time. This part is dynamic: %s\n", runtime_string);
 ```
 
 All the string literals (i.e. compile-time known strings) should be put inside the format string.
-Only the dynamic strings should be used as variables in triceS macro for best performance.
+Only the runtime strings should be used as variables in triceS macro for best performance.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -3968,7 +3968,7 @@ size_t TriceEncode(int* pTriceID, unsigned int pCount, uint32_t * const dest, ui
 ###  36.1. <a id='printf-like-functions'></a>Printf-like functions
 
  ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and several open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
-The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls.
+The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls. See also chapter [Trice Alias Functionality for Integrating Legacy User Code (Trice v1.1 and later)](#trice-alias-functionality-for-integrating-legacy-user-code-(trice-v1.1-and-later)).
 
 
 ###  36.2. <a id='trice-ids'></a>Trice IDs
@@ -6249,6 +6249,7 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 | Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`       |
 | Delete git branch.                        | `git branch -d PRIDa`                         |
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  44. <a id='trice-alias-functionality-for-integrating-legacy-user-code-(trice-v1.1-and-later)'></a>Trice Alias Functionality for Integrating Legacy User Code (Trice v1.1 and later)
 
@@ -6419,6 +6420,8 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptions whe
 * After flashing:
 
 ![G0B1AliasExample.png](./ref/G0B1AliasExample.png)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  45. <a id='trice-structured-logging'></a>Trice Structured Logging
 
@@ -6713,6 +6716,8 @@ trice clean  $STL ...
 ###  45.9. <a id='trice-structured-logging-assert-macros-(todo)'></a>Trice Structured Logging Assert Macros (TODO)
 
 Configure `TriceAssert` like macros and this works also with the `-salias` switch.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  46. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
