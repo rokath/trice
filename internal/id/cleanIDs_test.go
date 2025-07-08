@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
-	"github.com/rokath/trice/internal/id"
 	. "github.com/rokath/trice/internal/id"
 	"github.com/tj/assert"
 )
@@ -157,7 +156,7 @@ func TestCleanTriceALias(t *testing.T) {
 	},
 	"66": {
 		"Type": "triceS",
-		"Strg": "` + id.SAliasStrgPrefix + `0 == 1, \"that is wrong\"` + id.SAliasStrgSuffix + `"
+		"Strg": "` + SAliasStrgPrefix + `0 == 1, \"that is wrong\"` + SAliasStrgSuffix + `"
 	},
 	"77": {
 		"Type": "trice",

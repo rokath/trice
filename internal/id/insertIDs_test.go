@@ -12,7 +12,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
-	"github.com/rokath/trice/internal/id"
 	. "github.com/rokath/trice/internal/id"
 	"github.com/tj/assert"
 )
@@ -64,11 +63,11 @@ func TestAliasesInsertion(t *testing.T) {
 	expTil := `{
 	"993": {
 		"Type": "triceS",
-		"Strg": "` + id.SAliasStrgPrefix + `false, \"test message: %d\\n\"` + id.SAliasStrgSuffix + `"
+		"Strg": "` + SAliasStrgPrefix + `false, \"test message: %d\\n\"` + SAliasStrgSuffix + `"
 	},
 	"994": {
 		"Type": "triceS",
-		"Strg": "` + id.SAliasStrgPrefix + `false, \"test message\\n\"` + id.SAliasStrgSuffix + `"
+		"Strg": "` + SAliasStrgPrefix + `false, \"test message\\n\"` + SAliasStrgSuffix + `"
 	},
 	"995": {
 		"Type": "TRiceS",
@@ -84,7 +83,7 @@ func TestAliasesInsertion(t *testing.T) {
 	},
 	"998": {
 		"Type": "triceS",
-		"Strg": "` + id.SAliasStrgPrefix + `42` + id.SAliasStrgSuffix + `"
+		"Strg": "` + SAliasStrgPrefix + `42` + SAliasStrgSuffix + `"
 	},
 	"999": {
 		"Type": "trice",
@@ -219,7 +218,7 @@ func TestInsertKnownID2(t *testing.T) {
 	},
 	"66": {
 		"Type": "triceS",
-		"Strg": "` + id.SAliasStrgPrefix + `0 == 1, \"that is wrong\"` + id.SAliasStrgSuffix + `"
+		"Strg": "` + SAliasStrgPrefix + `0 == 1, \"that is wrong\"` + SAliasStrgSuffix + `"
 	},
 	"77": {
 		"Type": "trice",
