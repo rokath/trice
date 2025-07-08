@@ -14,6 +14,8 @@ fi
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # which returns s.th. like /...-arm-none-eabi/bin//arm-none-eabi-gcc # 2 slashes
+    #                                             <---   22 chars   --->
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}arm-none-eabi/include
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Check if Homebrew is installed
@@ -30,7 +32,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "gcc-arm-embedded is not installed via Homebrew Cask."
     fi
     
-    export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH" # llvm-size
+    export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH" # needed for llvm-size
     export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
     export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
     
@@ -38,6 +40,8 @@ elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo $OSTYPE = POSIX compatibility layer and Linux environment emulation for Windows
 elif [[ "$OSTYPE" == "msys" ]]; then
     echo $OSTYPE = Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+    # which returns s.th. like /...-arm-none-eabi/bin/arm-none-eabi-gcc # 1 slash
+    #                                            <---   22 chars   --->
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}/arm-none-eabi/include
 elif [[ "$OSTYPE" == "win32" ]]; then
     echo $OSTYPE # I'm not sure this can happen.
