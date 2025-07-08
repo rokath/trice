@@ -9,7 +9,7 @@ if ! command -v clang; then
     echo clang is not installed
 fi
 
-export C_INCLUDE_PATH=`which arm-none-eabi-gcc` && echo ${x1:0:-21}/arm-none-eabi/include
+loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:-22}/arm-none-eabi/include
 
 ## # Put ARM Clang first in path temporary to avoid compiler variants issues.
 ## # llvm-size path under Darwin mabe not set after clang install.
