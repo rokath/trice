@@ -33,7 +33,7 @@ func TestFformatSpecifierCount(t *testing.T) {
 
 func TestNewID(t *testing.T) {
 	//defer SetupTest(t)()
-	rand.Seed(0)
+	rand.Seed(0) //nolint:staticcheck
 	lut := make(TriceIDLookUp)
 	w := os.Stdout
 	id := lut.newID(w, 32768, 65535, "random")
