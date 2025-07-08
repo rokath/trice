@@ -18,6 +18,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     #                                             <---   22 chars   --->
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}arm-none-eabi/include
 elif [[ "$OSTYPE" == "darwin"* ]]; then
+    echo '$OSTYPE = darwin: MacOS'
     # Check if Homebrew is installed
     if ! command -v brew >/dev/null 2>&1; then
         echo "Homebrew is not installed. Please install Homebrew first."
@@ -37,9 +38,9 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
     
 elif [[ "$OSTYPE" == "cygwin" ]]; then
-    echo $OSTYPE = POSIX compatibility layer and Linux environment emulation for Windows
+    echo '$OSTYPE = cygwin: POSIX compatibility layer and Linux environment emulation for Windows'
 elif [[ "$OSTYPE" == "msys" ]]; then
-    echo $OSTYPE = Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+    echo '$OSTYPE msys: Lightweight shell and GNU utilities compiled for Windows (part of MinGW)'
     # which returns s.th. like /...-arm-none-eabi/bin/arm-none-eabi-gcc # 1 slash
     #                                            <---   22 chars   --->
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}/arm-none-eabi/include
