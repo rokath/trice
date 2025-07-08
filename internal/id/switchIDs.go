@@ -95,18 +95,21 @@ common:
 		if len(e.iDSpace) <= 0 {
 			log.Fatalf("%+v\n%+v\nRemaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)", e, t)
 		}
-		if SearchMethod == "random" {
+
+		switch(SearchMethod){
+		case "random":
 			index := rand.Intn(len(e.iDSpace))
 			id = e.iDSpace[index]                          // use random
 			e.iDSpace[index] = e.iDSpace[len(e.iDSpace)-1] // overwrite with last
 			e.iDSpace = e.iDSpace[:len(e.iDSpace)-1]       // remove last
-		} else if SearchMethod == "upward" {
+		case "upward":
 			id = e.iDSpace[0]         // use first
 			e.iDSpace = e.iDSpace[1:] // remove first
-		} else {
+		default:
 			id = e.iDSpace[len(e.iDSpace)-1]                    // use last
 			e.iDSpace = e.iDSpace[:len(p.TagList[i].iDSpace)-1] // remove last
 		}
+
 		return
 	}
 	if Verbose {

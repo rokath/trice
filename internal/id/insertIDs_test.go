@@ -4,11 +4,8 @@
 package id_test
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -1122,6 +1119,7 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 	}
 }
 
+/*
 // _TestInsertIDsForNewTrice_Issue_523 checks for correct line numer in case of an format string / parameter count error.
 // This test needs a modified insertTriceIDs function: Inside if !SkipAdditionalChecks { replace os.Exit(-1) with return }
 func _TestInsertIDsForNewTrice_Issue_523(t *testing.T) {
@@ -1211,6 +1209,7 @@ func _TestInsertIDsForNewTrice_Issue_523(t *testing.T) {
 	actMsg := o.String()
 	assert.True(t, strings.HasPrefix(actMsg, expMsg))
 }
+*/
 
 func TestInsertWithBrackets(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.

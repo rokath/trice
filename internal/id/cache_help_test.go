@@ -18,14 +18,14 @@ func assertFileNotExists(t *testing.T, FSys *afero.Afero, fn string) {
 func assertMTime(t *testing.T, FSys *afero.Afero, mtime time.Time, fName string) {
 	stat, err := FSys.Stat(fName)
 	assert.Nil(t, err)
-	assert.True(t, mtime == stat.ModTime())
+	assert.True(t, time.Time.Equal(mtime, stat.ModTime()))
 }
 
 // assertNotMTime compares mtime with fName modification times to be different.
 func assertNotMTime(t *testing.T, FSys *afero.Afero, mtime time.Time, fName string) {
 	stat, err := FSys.Stat(fName)
 	assert.Nil(t, err)
-	assert.False(t, mtime == stat.ModTime())
+	assert.False(t, time.Time.Equal(mtime, stat.ModTime()))
 }
 
 // assertEqualMTimes comparesfn0 and fn1 modification times to be equal.
@@ -34,7 +34,7 @@ func assertEqualMTimes(t *testing.T, FSys *afero.Afero, fn0, fn1 string) {
 	assert.Nil(t, err)
 	fn1Stat, err := FSys.Stat(fn1)
 	assert.Nil(t, err)
-	assert.True(t, fn0Stat.ModTime() == fn1Stat.ModTime())
+	assert.True(t,time.Time.Equal( fn0Stat.ModTime(), fn1Stat.ModTime()))
 }
 
 // assertEqualMTimes comparesfn0 and fn1 modification times to be equal.
@@ -43,7 +43,7 @@ func assertNotEqualMTimes(t *testing.T, FSys *afero.Afero, fn0, fn1 string) {
 	assert.Nil(t, err)
 	fn1Stat, err := FSys.Stat(fn1)
 	assert.Nil(t, err)
-	assert.False(t, fn0Stat.ModTime() == fn1Stat.ModTime())
+	assert.False(t,time.Time.Equal( fn0Stat.ModTime(), fn1Stat.ModTime()))
 }
 
 func assertFileContent(t *testing.T, FSys *afero.Afero, fName, exp string) {

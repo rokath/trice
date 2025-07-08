@@ -183,7 +183,7 @@ func Test_14_01110_clean_on_valid_iCache_valid_cCache_inserted_file_not_edited(t
 	assert.Nil(t, CopyFileWithMTime(FSys, CCache, SFName))            // not edited
 	cT := mTime(t, FSys, CCache)
 
-	for cT == mTime(t, FSys, SFName) { // Loop, to ensure the file mtimes are different.
+	for time.Time.Equal(cT, mTime(t, FSys, SFName) ){ // Loop, to ensure the file mtimes are different.
 		time.Sleep((10 * time.Microsecond))
 		assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted file
 	}
@@ -210,7 +210,7 @@ func Test_12_01100_clean_on_valid_iCache_valid_cCache_clean_file_not_edited(t *t
 	assert.Nil(t, CopyFileWithMTime(FSys, ICache, SFName))                     // not edited
 	iT := mTime(t, FSys, ICache)
 
-	for iT == mTime(t, FSys, SFName) { // Loop, to ensure the file mtimes are different.
+	for time.Time.Equal(iT, mTime(t, FSys, SFName) ){ // Loop, to ensure the file mtimes are different.
 		time.Sleep((10 * time.Microsecond))
 		assertFileCreate(t, FSys, SFName, ` "msg:value=%d\n", -1);`) // inserted file
 	}
@@ -236,7 +236,7 @@ func Test_15_01111_clean_on_valid_iCache_valid_cCache_inserted_file_edited(t *te
 	assert.Nil(t, CopyFileWithMTime(FSys, CCache, SFName))            // not edited
 	cT := mTime(t, FSys, CCache)
 
-	for cT == mTime(t, FSys, SFName) { // Loop, to ensure the file mtimes are different.
+	for time.Time.Equal(cT, mTime(t, FSys, SFName) ){ // Loop, to ensure the file mtimes are different.
 		time.Sleep((10 * time.Microsecond))
 		assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted file
 	}
@@ -247,7 +247,7 @@ func Test_15_01111_clean_on_valid_iCache_valid_cCache_inserted_file_edited(t *te
 	sT0 := mTime(t, FSys, SFName)
 	// When editing, the old content is still buffered and not synced to disk, so we need to wait until the new mtime.
 	sT := sT0
-	for sT0 == sT { // Wait for the file system ...
+	for time.Time.Equal(sT0, sT) { // Wait for the file system ...
 		assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -2);`) // edit file
 		sT = mTime(t, FSys, SFName)
 		time.Sleep(10 * time.Millisecond)
@@ -269,7 +269,7 @@ func Test_13_01101_clean_on_valid_iCache_valid_cCache_clean_file_edited(t *testi
 	assert.Nil(t, CopyFileWithMTime(FSys, ICache, SFName))                     // not edited
 	iT := mTime(t, FSys, ICache)
 
-	for iT == mTime(t, FSys, SFName) { // Loop, to ensure the file mtimes are different.
+	for time.Time.Equal(iT, mTime(t, FSys, SFName) ){ // Loop, to ensure the file mtimes are different.
 		time.Sleep((10 * time.Microsecond))
 		assertFileCreate(t, FSys, SFName, ` "msg:value=%d\n", -1);`) // inserted file
 	}
@@ -282,7 +282,7 @@ func Test_13_01101_clean_on_valid_iCache_valid_cCache_clean_file_edited(t *testi
 	sT0 := mTime(t, FSys, SFName)
 	// When editing, the old content is still buffered and not synced to disk, so we need to wait until the new mtime.
 	sT := sT0
-	for sT0 == sT { // Wait for the file system ...
+	for time.Time.Equal(sT0, sT) { // Wait for the file system ...
 		assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -2);`) // edit file
 		sT = mTime(t, FSys, SFName)
 		time.Sleep(10 * time.Millisecond)

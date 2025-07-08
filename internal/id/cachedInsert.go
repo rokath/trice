@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/rokath/trice/pkg/msg"
@@ -61,7 +62,7 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 			}
 
 			// If path content equals insertedCachePath content, we are nearly done.
-			if fileInfo.ModTime() == iCache.ModTime() {
+			if time.Time.Equal(fileInfo.ModTime(), iCache.ModTime()){
 				msg.Tell(w, "trice i was executed before, nothing to do")
 				return msg.OnErrFv(w, p.err) // `trice i File`: File == iCache ? done
 			}
@@ -75,7 +76,7 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 
 			// If path content equals cleanedCachePath content, we can copy insertedCachePath to path.
 			// We know here, that insertedCachePath exists and path was not edited.
-			if fileInfo.ModTime() == cCache.ModTime() && fileExists(fSys, insertedCachePath) {
+			if time.Time.Equal(fileInfo.ModTime(), cCache.ModTime()) && fileExists(fSys, insertedCachePath) {
 				// trice i File: File == cCache ? iCache -> F (trice i was executed before)
 
 				msg.Tell(w, "trice c was executed before, copy iCache into file")
