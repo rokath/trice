@@ -33,14 +33,14 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "gcc-arm-embedded is not installed via Homebrew Cask."
     fi
     
-    #export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
+    export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
     export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
     export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
 elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo $OSTYPE # POSIX compatibility layer and Linux environment emulation for Windows
 elif [[ "$OSTYPE" == "msys" ]]; then
     echo $OSTYPE # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-#    export PATH="C:\\bin\\ArmClang\\bin:$PATH"
+    export PATH="C:\\bin\\ArmClang\\bin:$PATH"
     export C_INCLUDE_PATH="C:\\bin\\ArmGNUToolchain\\arm-none-eabi\\include"
     echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"
     export C_INCLUDE_PATH=`which arm-none-eabi-gcc | rev | cut -f 2- -d / | rev`../arm-none-eabi/include
