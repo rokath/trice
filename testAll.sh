@@ -278,4 +278,4 @@ case "$OS_TYPE" in
     *)         run_without_inhibit "$@" ;;
 esac
 
-echo "🏁 Done."
+echo "🏁 $(date) Done."
