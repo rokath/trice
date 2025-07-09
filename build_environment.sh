@@ -17,6 +17,8 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     # which returns s.th. like /...-arm-none-eabi/bin//arm-none-eabi-gcc # 2 slashes
     #                                             <---   22 chars   --->
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}arm-none-eabi/include
+    export MAKE_JOBS="-j"
+
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo '$OSTYPE = darwin: MacOS'
     # Check if Homebrew is installed
@@ -36,20 +38,30 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH" # needed for llvm-size
     export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
     export C_INCLUDE_PATH="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
+    export MAKE_JOBS="-j"
     
 elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo '$OSTYPE = cygwin: POSIX compatibility layer and Linux environment emulation for Windows'
+    export MAKE_JOBS="" # Enabling -j here can cause blocking.
+
 elif [[ "$OSTYPE" == "msys" ]]; then
     echo '$OSTYPE msys: Lightweight shell and GNU utilities compiled for Windows (part of MinGW)'
     # which returns s.th. like /...-arm-none-eabi/bin/arm-none-eabi-gcc # 1 slash
     #                                            <---   22 chars   --->
     loc=`which arm-none-eabi-gcc` && export C_INCLUDE_PATH=${loc:0:${#loc}-22}/arm-none-eabi/include
+    export MAKE_JOBS="" # Enabling -j here can cause blocking.
+
 elif [[ "$OSTYPE" == "win32" ]]; then
     echo $OSTYPE # I'm not sure this can happen.
+    echo '$OSTYPE is win32'
+
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
      echo $OSTYPE # ...
+     echo '$OSTYPE is freebsd'
+
 else
      echo $OSTYPE # Unknown.
+     echo '$OSTYPE is unknown'
 fi
 
 echo "C_INCLUDE_PATH set to: $C_INCLUDE_PATH"

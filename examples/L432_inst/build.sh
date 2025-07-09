@@ -13,7 +13,7 @@ done
 ../../trice_insertIDs_in_examples_and_test_folder.sh 
 
 source ../../build_environment.sh 
-make -j TRICE_FLAGS="$flags" gcc
+make $MAKE_JOBS TRICE_FLAGS="$flags" gcc
 
 EXITCODE=$?
 

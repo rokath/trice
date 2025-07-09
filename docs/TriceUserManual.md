@@ -4849,7 +4849,7 @@ Extend the path variable:
 
 ###  37.10. <a id='build-command'></a>Build command
 
-- Clang: `make` or to get it faster `make -j8`.
+- Clang: `make` or to get it faster `make -j`.
 - GCC: `make GCC`.
 
 ###  37.11. <a id='run-&-debug'></a>Run & Debug
@@ -4931,7 +4931,7 @@ This is a STMCubeMX generated project without Trice instrumentation for easy com
 - Start a terminal and type `make`. The output should be similar to:
 
 ```bash
-PS E:\repos\trice\examples\F030_bare> make -j8
+PS E:\repos\trice\examples\F030_bare> make -j
 mkdir build
 arm-none-eabi-gcc -c -mcpu=cortex-m0 -mthumb   -DUSE_FULL_LL_DRIVER -DHSE_VALUE=8000000 -DHSE_STARTUP_TIMEOUT=100 -DLSE_STARTUP_TIMEOUT=5000 -DLSE_VALUE=32768 -DHSI_VALUE=8000000 -DLSI_VALUE=40000 -DVDD_VALUE=3300 -DPREFETCH_ENABLE=1 -DINSTRUCTION_CACHE_ENABLE=0 -DDATA_CACHE_ENABLE=0 -DSTM32F030x8 -ICore/Inc -IDrivers/STM32F0xx_HAL_Driver/Inc -IDrivers/CMSIS/Device/ST/STM32F0xx/Include -IDrivers/CMSIS/Include -Og -Wall -fdata-sections -ffunction-sections -g -gdwarf-2 -MMD -MP -MF"build/main.d" -Wa,-a,-ad,-alms=build/main.lst Core/Src/main.c -o build/main.o
 

@@ -244,7 +244,6 @@ run_with_inhibit_macos() {
 
 # === Windows (Git Bash): PowerShell inhibit ===
 # To be honest, this is ChatGPT generated and I do not understand this function. Do you?
-# It seems to work ONLY when using "make" without "-j" in the build scripts, else it blocks.
 run_with_inhibit_windows() {
     echo "🪟 Detected Windows (Git Bash). Using PowerShell inhibit."
 
@@ -275,8 +274,7 @@ OS_TYPE="$(uname -s)"
 case "$OS_TYPE" in
     Linux*)    run_with_inhibit_linux "$@" ;;
     Darwin*)   run_with_inhibit_macos "$@" ;;
-    # MINGW*|MSYS*|CYGWIN*) run_with_inhibit_windows "$@" ;; # For some reason
-    # run_with_inhibit_windows blocks, when "make" is used together with "-j".
+    MINGW*|MSYS*|CYGWIN*) run_with_inhibit_windows "$@" ;;
     *)         run_without_inhibit "$@" ;;
 esac
 

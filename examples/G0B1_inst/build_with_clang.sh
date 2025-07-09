@@ -5,6 +5,6 @@
 ../../trice_insertIDs_in_examples_and_test_folder.sh 
 
 source ../../build_environment.sh
-make -j clang
+make $MAKE_JOBS clang
 
 ../../trice_cleanIDs_in_examples_and_test_folder.sh # Run this again to get the Trice IDs cleaned state.

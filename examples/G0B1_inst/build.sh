@@ -19,6 +19,6 @@ if [ "$triceOFF" != "1" ]; then
 fi
 
 source ../../build_environment.sh
-make -j TRICE_FLAGS="$flags" gcc
+make $MAKE_JOBS TRICE_FLAGS="$flags" gcc
 
 ../../trice_cleanIDs_in_examples_and_test_folder.sh # Run this again to get the Trice IDs cleaned state.
