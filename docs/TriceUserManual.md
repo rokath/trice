@@ -323,7 +323,7 @@ Table of Contents Generation:
     * 44.4.2. [PR533 Summary](#pr533-summary)
     * 44.4.3. [PR533 Motivation](#pr533-motivation)
     * 44.4.4. [What This PR533 Adds](#what-this-pr533-adds)
-    * 44.4.5. [PR533 Example:](#pr533-example:)
+    * 44.4.5. [PR533 Example](#pr533-example)
     * 44.4.6. [PR536 Doc](#pr536-doc)
     * 44.4.7. [Alias Example Project](#alias-example-project)
 * 45. [Trice Structured Logging](#trice-structured-logging)
@@ -6367,7 +6367,7 @@ This makes it difficult to:
 
 **CLI-level aliasing**: Developers can now declare custom macros to be treated as trice or triceS equivalents. These user-defined macros will be recognized during scanning, ID injection, and decoding. 
 
-####  44.4.5. <a id='pr533-example:'></a>PR533 Example:
+####  44.4.5. <a id='pr533-example'></a>PR533 Example
 
 print_macro.h:
 ```
