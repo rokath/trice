@@ -314,19 +314,18 @@ Table of Contents Generation:
   * 42.3. [Building a trice library?](#building-a-trice-library?)
   * 42.4. [Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
 * 43. [Working with the Trice Git Repository](#working-with-the-trice-git-repository)
-* 44. [Trice Alias Functionality for Integrating Legacy User Code (Trice v1.1 and later)](#trice-alias-functionality-for-integrating-legacy-user-code-(trice-v1.1-and-later))
-  * 44.1. [PR 533 Doc](#pr-533-doc)
-  * 44.2. [PR533 Summary](#pr533-summary)
-  * 44.3. [PR533 Motivation](#pr533-motivation)
-  * 44.4. [What This PR 533 Adds](#what-this-pr-533-adds)
-  * 44.5. [PR533 Example:](#pr533-example:)
-    * 44.5.1. [PR533 Check with Trice](#pr533-check-with-trice)
-    * 44.5.2. [PR533 Check without Trice:](#pr533-check-without-trice:)
-  * 44.6. [PR536 Doc](#pr536-doc)
-    * 44.6.1. [What This PR536 Adds](#what-this-pr536-adds)
-    * 44.6.2. [PR536 - The problem Statement](#pr536---the-problem-statement)
-    * 44.6.3. [PR536 Implementation Details:](#pr536-implementation-details:)
-  * 44.7. [Alias Example Project](#alias-example-project)
+* 44. [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)
+  * 44.1. [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
+  * 44.2. [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
+  * 44.3. [Legacy User Code Print Buffer Wrapping & Framing](#legacy-user-code-print-buffer-wrapping-&-framing)
+  * 44.4. [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
+    * 44.4.1. [PR533 Doc](#pr533-doc)
+    * 44.4.2. [PR533 Summary](#pr533-summary)
+    * 44.4.3. [PR533 Motivation](#pr533-motivation)
+    * 44.4.4. [What This PR533 Adds](#what-this-pr533-adds)
+    * 44.4.5. [PR533 Example:](#pr533-example:)
+    * 44.4.6. [PR536 Doc](#pr536-doc)
+    * 44.4.7. [Alias Example Project](#alias-example-project)
 * 45. [Trice Structured Logging](#trice-structured-logging)
   * 45.1. [Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information)
   * 45.2. [Trice Structured Logging Runtime Information](#trice-structured-logging-runtime-information)
@@ -712,7 +711,7 @@ When it comes to instrument a legacy project with Trice or to intergrate legacy 
 ##  5. <a id='project-structure-(files-and-folders)'></a>Project structure (Files and Folders)
 
 | name                                                                                  | content                                                                                                                   |
-|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | [_test](../_test)                                                                     | automatic target code tests                                                                                               |
 | [.github/](../.github/)                                                               | [Github configuration](https://stackoverflow.com/questions/71235744/where-is-the-github-folder-in-the-project-repository) |
 | [.idea/](../.idea/)                                                                   | GoLand settings                                                                                                           |
@@ -810,7 +809,7 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
     * Examples:
 
       | CLI command                                     | Description                                                                                                                                   |
-      |-------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+      | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
       | `touch ./til.json`                              | Create an empty `til.json file`. This is needed only the very first time.                                                                     |
       | `trice i -src . -src ../myLib`                  | Insert IDs to the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file.      |
       | ...                                             | Compile your project                                                                                                                          |
@@ -839,7 +838,7 @@ Trice should be usable on any MCU with any compiler. On ARM MCUs the easiest way
 Compare folders of one of these folder groups:
 
 | Without Instrumentation                         | With Trice Instrumentation                      | Remarks  |
-|-------------------------------------------------|-------------------------------------------------|----------|
+| ----------------------------------------------- | ----------------------------------------------- | -------- |
 | [`./examples/F030_bare`](../examples/F030_bare) | [`./examples/F030_inst`](../examples/F030_inst) | no RTOS  |
 | [`./examples/G0B1_bare`](../examples/G0B1_bare) | [`./examples/G0B1_inst`](../examples/G0B1_inst) | FreeRTOS |
 | [`./examples/L432_bare`](../examples/L432_bare) | [`./examples/L432_inst`](../examples/L432_inst) | FreeRTOS |
@@ -871,7 +870,7 @@ are always usable and the number 8, 16, 32, 64 specifies the parameter width, wh
 More examples:
 
 | Trice     | Header | Stamp | max. Values  | Trice Size |
-|-----------|--------|-------|--------------|------------|
+| --------- | ------ | ----- | ------------ | ---------- |
 | `trice8`  | 4      | 0     | 0 \*1 byte   | 4          |
 | ...       | ...    | ...   | ...          | ...        |
 | `trice8`  | 4      | 0     | 12 \*1 byte  | 16         |
@@ -950,14 +949,14 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 * `./src`: **User Interface**
 
 | File                      | description                                                                                                                                  |
-|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | [trice.h](../src/trice.h) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `./src` to your compiler include path. |
 | `triceConfig.h`           | Create this file to overwrite  [triceDefaultConfig.h](../src/triceDefaultConfig.h) as needed.                                                |
 
 * `./src`: **Internal Components** (only partially needed, add all to your project - the configuration selects automatically)
 
 | File                                                | description                                                                                                          |
-|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | [cobs.h](../src/cobs.h)                             | message packaging, alternatively for tcobs                                                                           |
 | [cobsEncode.c](../src/cobsEncode.c)                 | message encoding, alternatively for tcobs                                                                            |
 | [cobsDecode.c](../src/cobsDecode.c)                 | message decoding, normally not needed                                                                                |
@@ -1298,7 +1297,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 ###  8.4. <a id='trice-cache-tests'></a>Trice Cache Tests
 
 | Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function                                                                 |
-|-------|----------|---------|---------|------------|------------|-------------------------------------------------------------------------------|
+| ----- | -------- | ------- | ------- | ---------- | ---------- | ----------------------------------------------------------------------------- |
 | 0,1   | 0:clean  | 0:inval | 0:inval | 0:cleaned  | X:any      | Test_0_1_0000X_clean_on_invalid_cCache_invalid_iCache_cleaned_file            |
 | 2,3   | 0:clean  | 0:inval | 0:inval | 1:inserted | X:any      | Test_2_3_00011_clean_on_inalid_cCache_invalid_iCache_inserted_edited_file     |
 | 4,5   | 0:clean  | 0:inval | 1:valid | 0:cleaned  | X:any      | Test_4_5_0010X_clean_on_invalid_cCache_valid_iCache_cleaned_file              |
@@ -1841,7 +1840,7 @@ Important to know: If the `TRICE_PROTECT` code inhibits the writing into a buffe
 (Examples in [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c))
 
 | Macro Name                                      | Description                                                                                                                                                                                                                                                                                                                   |
-|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `triceS`  \|`TriceS`  \|`TRiceS`  \|`TRICE_S`   | Output of runtime generated 0-terminated strings.                                                                                                                                                                                                                                                                             |
 | `triceN`  \|`TriceN`  \|`TRiceN`  \|`TRICE_N`   | Is for byte buffer output as string until the specified size. It allows limiting the string size to a specific value and does not rely on a terminating 0. If for example len = 7 is given and "Hello\0World\n" is in the buffer, the byte sequence "Hello\0W" is transmitted but the trice tool probably shows only "Hello". |
 | `trice8B` \|`Trice8B` \|`TRice8B` \|`TRICE8_B`  | Is for byte buffer output according to the given format specifier for a single byte.                                                                                                                                                                                                                                          |
@@ -1953,7 +1952,7 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 * Default notation (function call):
 
   | notation                     | stamp size | remark                                                                      |
-  |------------------------------|------------|-----------------------------------------------------------------------------|
+  | ---------------------------- | ---------- | --------------------------------------------------------------------------- |
   | `trice( iD(n), "...", ...);` | 0-bit      | no stamp at all, shortest footprint                                         |
   | `Trice( iD(n), "...", ...);` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
   | `TRice( iD(n), "...", ...);` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
@@ -1963,7 +1962,7 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 * Legacy notation (code inlining):
 
   | notation                    | stamp size | remark                                                                      |
-  |-----------------------------|------------|-----------------------------------------------------------------------------|
+  | --------------------------- | ---------- | --------------------------------------------------------------------------- |
   | `TRICE( id(n), "...", ...)` | 0-bit      | no stamp at all, shortest footprint                                         |
   | `TRICE( Id(n), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
   | `TRICE( ID(n), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
@@ -1997,7 +1996,7 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 ###  22.1. <a id='symbols'></a>Symbols
 
 | Symbol  | Meaning                                                                      |
-|:-------:|------------------------------------------------------------------------------|
+| :-----: | ---------------------------------------------------------------------------- |
 |   `i`   | ID bit                                                                       |
 |   `I`   | `iiiiiiii` = ID byte                                                         |
 |   `n`   | number bit                                                                   |
@@ -2022,7 +2021,7 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 * All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the Trice tool.
 
   | bytes       | Comment                                                                                                       |
-  |:------------|---------------------------------------------------------------------------------------------------------------|
+  | :---------- | ------------------------------------------------------------------------------------------------------------- |
   | ``          | This is an empty package, which can have also a meaning. It is detectable by 2 consecutive 0-delimiter bytes. |
   | `X`         | 1-byte message, reserved for extensions or user data                                                          |
   | `X` `X`     | 2-byte message, reserved for extensions or user data                                                          |
@@ -2033,7 +2032,7 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 * The `1`, `2` and `3` stamp selector bits are followed by the 14-bit ID.
 
   | 16-bit groups                      | Stamp Selector (2 msb) | Comment                                                 | Endianness sizes                |
-  |:-----------------------------------|:----------------------:|---------------------------------------------------------|:--------------------------------|
+  | :--------------------------------- | :--------------------: | ------------------------------------------------------- | :------------------------------ |
   | _________ `00xxxxxxX ...`          |           0            | >= 4-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
   | _________ `01iiiiiiI NC  ...`      |           1            | >= 4-byte message, Trice format without     stamp       | ___ `u16 u16 [uW] ... [uW]`     |
   | _________ `10iiiiiiI TT NC ...`    |           2            | >= 4-byte message, Trice format with 16-bit stamp       | ___ `u16 u16 u16 [uW] ... [uW]` |
@@ -2337,7 +2336,7 @@ Until here the algorithm seem to be ok.
 * A Trice **ID** is inserted by `trice insert` as shown in the table:
 
   | Unpatched User Code | After `trice insert`          | Remark        |
-  |---------------------|-------------------------------|---------------|
+  | ------------------- | ----------------------------- | ------------- |
   | `trice( "Hi!\n");`  | `trice( iD(12345), "Hi!\n");` | no stamps     |
   | `Trice( "Hi!\n");`  | `Trice( iD(12345), "Hi!\n");` | 16-bit stamps |
   | `TRice( "Hi!\n");`  | `TRice( iD(12345), "Hi!\n");` | 32-bit stamps |
@@ -2345,7 +2344,7 @@ Until here the algorithm seem to be ok.
 * Legacy code is handled this way:
 
   | Unpatched User Code       | After `trice insert`          | Remark                                             |
-  |---------------------------|-------------------------------|----------------------------------------------------|
+  | ------------------------- | ----------------------------- | -------------------------------------------------- |
   | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice i -defaultStampSize 0`      |
   | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice i -defaultStampSize 16` |
   | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice i -defaultStampSize 32` |
@@ -3074,7 +3073,7 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
 | Program Size (STM32-F030R8 demo project)      | trice instrumentation | buffer size | compiler optimize for time | comment                         |
-|-----------------------------------------------|-----------------------|-------------|----------------------------|---------------------------------|
+| --------------------------------------------- | --------------------- | ----------- | -------------------------- | ------------------------------- |
 | Code=1592 RO-data=236 RW-data= 4 ZI-data=1028 | none                  | 0           | off                        | CubeMX generated, no trice      |
 | Code=1712 RO-data=240 RW-data=24 ZI-data=1088 | core                  | 64          | off                        | core added without trices       |
 | Code=3208 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512         | off                        | TRICE_SHORT_MEMORY is 1 (small) |
@@ -3087,7 +3086,7 @@ The following numbers are measured with a legacy encoding, showing that the inst
 ###  29.10. <a id='memory-needs-for-old-example-2'></a>Memory Needs for Old Example 2
 
 | Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark                                                             |
-|--------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------|
+| ------------------------------ | ----------- | ------------ | ---------------------- | --------------------------------------------- | ------------------------------------------------------------------ |
 | MDK-ARM_STM32F030_bareerated   | CLANG v6.19 | -Oz          | yes                    | Code=1020 RO-data=196 RW-data=0 ZI-data=1024  | This is the plain generated project without trice instrumentation. |
 | MDK-ARM_STM32F030_instrumented | CLANG v6.19 | -Oz          | yes                    | Code=4726 RO-data=238 RW-data=16 ZI-data=4608 | This is with full trice instrumentation with example messages.     |
 
@@ -3154,7 +3153,7 @@ Please check the manuals and create a pull request or simply let me know.
 ####  30.5.1. <a id='armcc-compiler-v5'></a>ARMCC compiler v5
 
 | Compiler | Linker         | Result                                          | Comment                           |
-|----------|----------------|-------------------------------------------------|-----------------------------------|
+| -------- | -------------- | ----------------------------------------------- | --------------------------------- |
 | o0       |                | Code=46942 RO-data=266 RW-data=176 ZI-data=4896 | very big                          |
 | o1       |                | Code=22582 RO-data=258 RW-data=168 ZI-data=4896 |                                   |
 | o3       |                | Code=21646 RO-data=258 RW-data=168 ZI-data=4896 |                                   |
@@ -4126,39 +4125,39 @@ With `#define TRICE_F TRICE16_F` in the project specific _triceConfig.h_ file th
 
 ####  36.10.2. <a id='overview-table'></a>Overview Table
 
-| Format Specifier Type                                           | C | Go | T | (T =Trice) \| remark                                                        |
-|-----------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------|
-| signed decimal integer                                          | d | d  | d | Supported.                                                                  |
-| unsigned decimal integer                                        | u | -  | u | The Trice tool changes %u into %d and treats value as unsigned.             |
-| signed decimal integer                                          | i | d  | i | The Trice tool changes %i into %d and treats value as signed.               |
-| signed octal integer                                            | - | o  | o | With `trice log -unsigned=false` value is treated as signed.                |
-| unsigned octal integer                                          | o | -  | o | With `trice log` value is treated as unsigned.                              |
-| signed octal integer with 0o prefix                             | - | O  | O | With `trice log -unsigned=false` value is treated as signed.                |
-| unsigned octal integer with 0o prefix                           | - | -  | O | With `trice log` value is treated as unsigned.                              |
-| signed hexadecimal integer lowercase                            | - | x  | x | With `trice log -unsigned=false` value is treated as signed.                |
-| unsigned hexadecimal integer lowercase                          | x | -  | x | With `trice log` value is treated as unsigned.                              |
-| signed hexadecimal integer uppercase                            | - | X  | X | With `trice log -unsigned=false` value is treated as signed.                |
-| unsigned hexadecimal integer uppercase                          | X | -  | X | With `trice log` value is treated as unsigned.                              |
-| signed binary integer                                           | - | b  | b | With `trice log -unsigned=false` value is treated as signed.                |
-| unsigned binary integer                                         | - | -  | b | With `trice log` value is treated as unsigned.                              |
-| decimal floating point, lowercase                               | f | f  | f | `aFloat(value)`\|`aDouble(value)`                                           |
-| decimal floating point, uppercase                               | - | F  | F | `aFloat(value)`\|`aDouble(value)`                                           |
-| scientific notation (mantissa/exponent), lowercase              | e | e  | e | `aFloat(value)`\|`aDouble(value)`                                           |
-| scientific notation (mantissa/exponent), uppercase              | E | E  | E | `aFloat(value)`\|`aDouble(value)`                                           |
-| the shortest representation of %e or %f                         | g | g  | g | `aFloat(value)`\|`aDouble(value)`                                           |
-| the shortest representation of %E or %F                         | G | G  | G | `aFloat(value)`\|`aDouble(value)`                                           |
-| a character as byte                                             | c | -  | c | Value can contain ASCII character.                                          |
-| a character represented by the corresponding Unicode code point | c | c  | c | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format. |
-| a quoted character                                              | - | q  | q | Supported.                                                                  |
-| the word true or false                                          | - | t  | t | Supported.                                                                  |
-| a string                                                        | s | s  | s | Use `triceS` macro with one and only one runtime generated string.          |
-| pointer address                                                 | p | p  | p | Supported.                                                                  |
-| a double %% prints a single %                                   | % | %  | % | Supported.                                                                  |
-| Unicode escape sequence                                         | - | U  | - | **Not supported.**                                                          |
-| value in default format                                         | - | v  | - | **Not supported.**                                                          |
-| Go-syntax representation of the value                           | - | #v | - | **Not supported.**                                                          |
-| a Go-syntax representation of the type of the value             | - | T  | - | **Not supported.**                                                          |
-| nothing printed                                                 | n | -  | - | **Not supported.**                                                          |
+| Format Specifier Type                                           | C   | Go  | T   | (T =Trice) \| remark                                                        |
+| --------------------------------------------------------------- | --- | --- | --- | --------------------------------------------------------------------------- |
+| signed decimal integer                                          | d   | d   | d   | Supported.                                                                  |
+| unsigned decimal integer                                        | u   | -   | u   | The Trice tool changes %u into %d and treats value as unsigned.             |
+| signed decimal integer                                          | i   | d   | i   | The Trice tool changes %i into %d and treats value as signed.               |
+| signed octal integer                                            | -   | o   | o   | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned octal integer                                          | o   | -   | o   | With `trice log` value is treated as unsigned.                              |
+| signed octal integer with 0o prefix                             | -   | O   | O   | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned octal integer with 0o prefix                           | -   | -   | O   | With `trice log` value is treated as unsigned.                              |
+| signed hexadecimal integer lowercase                            | -   | x   | x   | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned hexadecimal integer lowercase                          | x   | -   | x   | With `trice log` value is treated as unsigned.                              |
+| signed hexadecimal integer uppercase                            | -   | X   | X   | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned hexadecimal integer uppercase                          | X   | -   | X   | With `trice log` value is treated as unsigned.                              |
+| signed binary integer                                           | -   | b   | b   | With `trice log -unsigned=false` value is treated as signed.                |
+| unsigned binary integer                                         | -   | -   | b   | With `trice log` value is treated as unsigned.                              |
+| decimal floating point, lowercase                               | f   | f   | f   | `aFloat(value)`\|`aDouble(value)`                                           |
+| decimal floating point, uppercase                               | -   | F   | F   | `aFloat(value)`\|`aDouble(value)`                                           |
+| scientific notation (mantissa/exponent), lowercase              | e   | e   | e   | `aFloat(value)`\|`aDouble(value)`                                           |
+| scientific notation (mantissa/exponent), uppercase              | E   | E   | E   | `aFloat(value)`\|`aDouble(value)`                                           |
+| the shortest representation of %e or %f                         | g   | g   | g   | `aFloat(value)`\|`aDouble(value)`                                           |
+| the shortest representation of %E or %F                         | G   | G   | G   | `aFloat(value)`\|`aDouble(value)`                                           |
+| a character as byte                                             | c   | -   | c   | Value can contain ASCII character.                                          |
+| a character represented by the corresponding Unicode code point | c   | c   | c   | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format. |
+| a quoted character                                              | -   | q   | q   | Supported.                                                                  |
+| the word true or false                                          | -   | t   | t   | Supported.                                                                  |
+| a string                                                        | s   | s   | s   | Use `triceS` macro with one and only one runtime generated string.          |
+| pointer address                                                 | p   | p   | p   | Supported.                                                                  |
+| a double %% prints a single %                                   | %   | %   | %   | Supported.                                                                  |
+| Unicode escape sequence                                         | -   | U   | -   | **Not supported.**                                                          |
+| value in default format                                         | -   | v   | -   | **Not supported.**                                                          |
+| Go-syntax representation of the value                           | -   | #v  | -   | **Not supported.**                                                          |
+| a Go-syntax representation of the type of the value             | -   | T   | -   | **Not supported.**                                                          |
+| nothing printed                                                 | n   | -   | -   | **Not supported.**                                                          |
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
 * [x] Look in [triceCheck.c](../_test/testdata/triceCheck.c) for exampe code producing this:
@@ -4883,7 +4882,7 @@ Extend the path variable:
 ##  38. <a id='example-projects-without-and-with-trice-instrumentation'></a>Example Projects without and with Trice Instrumentation
 
 | Project Name                                                     | Description                                                                                                                                                                                                                                                                      |
-|------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |                                                                  |                                                                                                                                                                                                                                                                                  |
 | [F030_bare](../examples/F030_bare)                               | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](../examples/F030_inst) so see quickly the needed instrumentation steps you need for your own project.                                        |
 | [F030_inst](../examples/F030_inst)                               | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](../examples/F030_bare) to see quickly how to instrument your project.                                           |
@@ -5676,7 +5675,7 @@ $
 ####  40.8.1. <a id='folder-naming-convention'></a>Folder Naming Convention
 
 | Folder Name Part | Meaning                                                                                                  |
-|:----------------:|----------------------------------------------------------------------------------------------------------|
+| :--------------: | -------------------------------------------------------------------------------------------------------- |
 |    `testdata`    | This is no test folder. It contains data common to all tests.                                            |
 |      `_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.                     |
 |      `_di_`      | direct mode                                                                                              |
@@ -6228,7 +6227,7 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 ##  43. <a id='working-with-the-trice-git-repository'></a>Working with the Trice Git Repository
 
 | Action                                    | Command                                       |
-|-------------------------------------------|-----------------------------------------------|
+| ----------------------------------------- | --------------------------------------------- |
 | Get a local repository copy.              | `git clone github.com/rokath/trice.git trice` |
 | Show current folder                       | `pwd`                                         |
 | Switch to repository root.                | `cd` ...                                      |
@@ -6251,19 +6250,110 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  44. <a id='trice-alias-functionality-for-integrating-legacy-user-code-(trice-v1.1-and-later)'></a>Trice Alias Functionality for Integrating Legacy User Code (Trice v1.1 and later)
+##  44. <a id='legacy-user-code-trice-adaption'></a>Legacy User Code Trice Adaption
+
+When it comes to use legacy sources together with Trice, there are several ways doing so, which do not exclude each other: 
+
+* [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
+* [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
+* [Legacy User Code Print Buffer Wrapping & Framing](#legacy-user-code-print-buffer-wrapping-&-framing)
+* [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
+
+###  44.1. <a id='separate-physically-legacy-user-code-output-channel'></a>Separate Physically Legacy User Code Output Channel 
+
+*Advantages:*
+
+* No User Code Adaption at all needed.
+* Code can mix user prints and Trices.
+
+*Disadvantages:*
+
+* A 2nd physical output is needed.
+* The log output goes to one or the other app, what may result in a partial sequence information loss.
+* Suboptimal result for target image size and speed, because the legacy user code still prints and transmits strings.
+
+*Details:*
+
+* The legacy user code output drives a terminal app and the Trice output feeds the Trice binary data into the Trice tool.
+
+###  44.2. <a id='legacy-user-code-trice-adaption-edits'></a>Legacy User Code Trice Adaption Edits
+
+*Advantages:*
+
+* This is the most straight forward method.
+* Optimal result for target image size and speed.
+
+*Disadvantages:*
+
+* No mixed user prints and Trices.
+* Legacy code gets changed, needs new testing and is not usable parallel in other existing projects anymore.
+* Error prone, even when done KI supported.
+  * Max 12 integers/floats **OR** a single runtime generated string in one Trice possible, otherwise splitting into several Trices is needed.
+  * `float x` values need wrapping with `aFloat(x)` 
+  * `int64` and `double` need `trice64` instead of `trice` and `double x` needs wrapping with `aDouble(x)`.
+* Not applicable for a large legacy code basis.
+
+*Details:*
+
+All exising user prints are replaced with appropriate Trice macros according chapter [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage).
+
+###  44.3. <a id='legacy-user-code-print-buffer-wrapping-&-framing'></a>Legacy User Code Print Buffer Wrapping & Framing 
+
+> **Trice >= v1.1 feature**, see also issue [#550](https://github.com/rokath/trice/issues/550)
+
+*Advantages:*
+
+* Code can mix user prints and Trices.
+* Legacy code stays unchanged and is usable parallel in other existing projects.
+
+*Disadvantages:*
+
+* Suboptimal result for target image size and speed, because the legacy user code still prints and transmits strings.
+* The reserved case, both [Binary Encoding](#binary-encoding) stamp selector bits are 0, is not available anymore for additional use cases.
+
+*Details:*
+
+The Trice binary encoding uses 3 of the 4 states, the 2 [Binary Encoding](#binary-encoding) stamp selector bits can have. They located in the starting `uint16_t` ID value to encode the Trice (time) stamp size. If both bits are 0, the Trice tool can interpret the incoming data buffer according to a passed CLI switch. In this special case just printing it as string. If the Trice library and the user print both write to the same output, an easy modification would be, to prepend the user print output with a 2-byte count as long its size is < 16383, so that the 2 most significant bits are zero. Additionally the this way counted buffer needs the same buffer framing as the Trice binary data.
+
+###  44.4. <a id='legacy-user-code-trice-aliases-adaption'></a>Legacy User Code Trice Aliases Adaption
+
+> **Trice >= v1.1 feature**, see also closed pull requests [533](https://github.com/rokath/trice/pull/533) and [536](https://github.com/rokath/trice/pull/536)
+
+*Advantages:*
+
+* Code can mix user prints and Trices.
+* Legacy code stays unchanged or mainly unchanged and is usable parallel in other existing projects.
+* No need to use the [Binary Encoding](#binary-encoding) stamp selector bits state 0 for this.
+
+*Disadvantages:*
+
+* Suboptimal result for target image size and speed, because the legacy user code still prints and transmits strings.
+
+*Details:*
 
 This cool functionality was contributed by [Serhii](https://github.com/srgg) in pull requests (PR) [#533](https://github.com/rokath/trice/pull/533) and [#536](https://github.com/rokath/trice/pull/536) (to be considered as one PR only). It allows code integration containing user specific log statements into Trice instrumented projects without the need to rename the user specific log statements.
 
-###  44.1. <a id='pr-533-doc'></a>PR 533 Doc
+In the assumption, most `user_print` statements having only up to 12 integers, those user prints could get covered by adding `-alias user_print` to the `trice insert` and `trice clean` commands.
 
-###  44.2. <a id='pr533-summary'></a>PR533 Summary
+The `user_print` statements containing floats, doubles, strings could get simply renamed into `user_prints` and then `-salias user_prints` will cover them too. That, of course, is a legacy user code change, but it allows to use this slightly modified legacy user code parallel in other projects.
+
+Yes, `user_print` and `user_prints` need to be defined too. See [./_test/alias_dblB_de_tcobs_ua/triceConfig.h/triceConfig](../_test/alias_dblB_de_tcobs_ua/triceConfig.h) as a simple example and its usage in [./_test/alias_dblB_de_tcobs_ua/TargetActivity.c](../_test/alias_dblB_de_tcobs_ua/TargetActivity.c)
+
+This technique allows also to cover legacy user code specific ASSERT macros, as shown in [./_test/aliasassert_dblB_de_tcobs_ua/triceConfig.h](../_test/aliasassert_dblB_de_tcobs_ua/triceConfig.h) in the tests [./_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c](../_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c).
+
+Despite of these 2 CGO tests the real-world example [./examples/G0B1_inst](../examples/G0B1_inst/Core/Src/main.c) shows the usage too.
+
+The following sub-chapters are mainly written by [@srgg](https://github.com/srgg) as accompanying documentation to its pull requests.
+
+####  44.4.1. <a id='pr533-doc'></a>PR533 Doc
+
+####  44.4.2. <a id='pr533-summary'></a>PR533 Summary
 
 This PR introduces support for treating user-defined macros as aliases to trice and triceS within the Trice CLI toolchain. The goal is to enable project-specific logging macros to be processed just like built-in Trice macros — including ID generation, decoding, and binary format support — without requiring projects to directly call `trice()` or `triceS()` in their source code.
 
 PR leverages the `-exclude` source feature added in [#529](https://github.com/rokath/trice/pull/529).
 
-###  44.3. <a id='pr533-motivation'></a>PR533 Motivation
+####  44.4.3. <a id='pr533-motivation'></a>PR533 Motivation
 
 Trice uses a source-scanning and ID generation approach, where the toolchain scans for `trice(...)` and `triceS(...)` calls, injects numeric trace IDs, and builds a mapping database. However, it currently only supports built-in(hardcoded) macros and allows only global on/off control via compile-time flags.
 
@@ -6273,11 +6363,11 @@ This makes it difficult to:
 - Redirect trace/logging behavior to other backends (e.g., MicroSD, raw printf, no-op)
 - Change behavior per module or configuration without losing Trice tooling support.
 
-###  44.4. <a id='what-this-pr-533-adds'></a>What This PR 533 Adds
+####  44.4.4. <a id='what-this-pr533-adds'></a>What This PR533 Adds
 
 **CLI-level aliasing**: Developers can now declare custom macros to be treated as trice or triceS equivalents. These user-defined macros will be recognized during scanning, ID injection, and decoding. 
 
-###  44.5. <a id='pr533-example:'></a>PR533 Example:
+####  44.4.5. <a id='pr533-example:'></a>PR533 Example:
 
 print_macro.h:
 ```
@@ -6312,7 +6402,7 @@ void setup() {
  }
 ```
 
-####  44.5.1. <a id='pr533-check-with-trice'></a>PR533 Check with Trice
+#####  44.5.1. <a id='pr533-check-with-trice'></a>PR533 Check with Trice
 
 Insert trice IDs
 ``` shell
@@ -6325,7 +6415,7 @@ Flash the MCU and run the trice receiver on your host machine to receive probes 
    trice log -p UDP4 -v -pf none
 ```
 
-####  44.5.2. <a id='pr533-check-without-trice:'></a>PR533 Check without Trice:
+#####  44.5.2. <a id='pr533-check-without-trice:'></a>PR533 Check without Trice:
 
 Clean trice IDs, if any:
 ``` shell
@@ -6334,9 +6424,9 @@ trice clean -alias DEBUG_PRINT -salias DEBUG_PRINT_S  -exclude ./print_macro.h -
 
 Flash with -DTRICE_OFF
 
-###  44.6. <a id='pr536-doc'></a>PR536 Doc
+####  44.4.6. <a id='pr536-doc'></a>PR536 Doc
 
-####  44.6.1. <a id='what-this-pr536-adds'></a>What This PR536 Adds
+#####  44.6.1. <a id='what-this-pr536-adds'></a>What This PR536 Adds
 
 This is a follow-up to [#533](https://github.com/rokath/trice/pull/533). It **enforces the consistent use of the "%s" format in all triceS aliases** and fixes that behavior in the newly added test case.
 
@@ -6346,7 +6436,7 @@ The following simplified example reflects a real use case where custom macros wr
 #define CUSTOM_PRINT_S(id, fmt, ....) triceS(id, "%s", format_message(fmt, ##__VA_ARGS__))
 ```
 
-####  44.6.2. <a id='pr536---the-problem-statement'></a>PR536 - The problem Statement
+#####  44.6.2. <a id='pr536---the-problem-statement'></a>PR536 - The problem Statement
 
 Determining the Strg argument reliably is challenging due to:
 
@@ -6363,7 +6453,7 @@ CUSTOM_ASSERT(false);
 
 Improving this would likely require Clang integration—adding complexity (e.g., full build flags, complete source context)—whereas Trice’s current regex-based approach remains lightweight and simple to use.
 
-####  44.6.3. <a id='pr536-implementation-details:'></a>PR536 Implementation Details:
+#####  44.6.3. <a id='pr536-implementation-details:'></a>PR536 Implementation Details:
 
 `matchTrice()` was re-implemented to improve robustness. It now:
 
@@ -6373,7 +6463,7 @@ Improving this would likely require Clang integration—adding complexity (e.g.,
 
 This approach simplifies the logic and allows the parser to skip invalid or partial matches without aborting, enabling continued scanning of the file for valid constructs.
 
-###  44.7. <a id='alias-example-project'></a>Alias Example Project
+####  44.4.7. <a id='alias-example-project'></a>Alias Example Project
 
 To use the Alias technique with `examples/G0B1_inst` the following adaptions where made:
 
@@ -6483,15 +6573,15 @@ void doStuff( void ){
 
 To achieve that, 2 structured logging CLI switches `-stf` and `-stv` on `trice insert` and `trice clean` are usable:
 
-CLI switch | meaning
------------|--------------------------
-`-stf`     | structured logging format
-`-stv`     | structured logging values
+| CLI switch | meaning                   |
+| ---------- | ------------------------- |
+| `-stf`     | structured logging format |
+| `-stv`     | structured logging values |
 
 Additionally the Trice tool uses these internal variables (no bash variables!) as replacements during `trice insert` and `trice clean`:
 
 | Variable  | Example               | Comment                                                                                                                                          |
-|-----------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `$level`  | `info`                | The bare trice format string part until the first colon (`:`), if known as channel/tag value.                                                    |
 | `$file`   | `val.c`               | The file name, where the Trice log occures.                                                                                                      |
 | `$line`   | `321`                 | The file line, where the Trice log occures.                                                                                                      |
@@ -6724,7 +6814,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 <details><summary>Details (click to expand)</summary><ol>
 
 | Date        | Version | Comment                                                                                            |
-|-------------|---------|----------------------------------------------------------------------------------------------------|
+| ----------- | ------- | -------------------------------------------------------------------------------------------------- |
 | 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                      |
 | ...         | 1.0.0   | ...                                                                                                |
 | 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529))             |
@@ -6733,6 +6823,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 | 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                                           |
 | 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                    |
 | 2025-JUN-30 | pre 1.1 | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented |
+| 2025-JUL-10 | pre 1.1 | ++ [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)                             |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
