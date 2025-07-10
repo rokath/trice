@@ -62,7 +62,7 @@ void SomeExampleTrices(int burstCount);
 
 #define tell  trice
 #define who   triceS
-//#define who(id,...) triceS(id, __VA_ARGS__)
+//#define who(iD(13002), id,...) triceS(id, __VA_ARGS__)
 
 #ifdef __cplusplus
 }

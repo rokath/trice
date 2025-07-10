@@ -26,6 +26,7 @@ trice clean  $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES # IDs are now insid
 # os agnostic links would be better.
 CGOTESTDIRS="
     alias_dblB_de_tcobs_ua/
+    aliasassert_dblB_de_tcobs_ua/
     special_dblB_de_tcobs_ua/
     special_for_debug/
     special_protect_dblB_de_tcobs_ua/

@@ -10,10 +10,10 @@ TRICE_DEFAULTS+="-liPath relative "      # Prefix base filenames in li.json with
 TRICE_ALIASES+="-alias CUSTOM_PRINT "
 TRICE_ALIASES+="-salias CUSTOM_ASSERT "
 TRICE_ALIASES+="-exclude ./examples/G0B1_inst/Core/Inc/triceCustomAliases.h "
-TRICE_ALIASES+="-salias who "
-TRICE_ALIASES+="-alias tell "
-TRICE_ALIASES+="-exclude ./_test/be_dblB_de_tcobs_ua/triceConfig.h "
-TRICE_ALIASES+="-exclude ./examples/G0B1_inst/triceConfig.h "
+TRICE_ALIASES+="-exclude ./_test/aliasassert_dblB_de_tcobs_ua/triceConfig.h "
+TRICE_ALIASES+="-alias  printi "
+TRICE_ALIASES+="-salias prints "
+TRICE_ALIASES+="-exclude ./_test/alias_dblB_de_tcobs_ua/triceConfig.h "
 
 # trice user project files
 TRICE_PRJ_FILES+="-src ./_test "
