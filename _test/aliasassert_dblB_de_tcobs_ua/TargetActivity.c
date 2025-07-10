@@ -28,7 +28,7 @@ void TriceCheckSpecial( int n ) {
     break; case __LINE__: CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer); //exp: Time:        default: [ASSERT] TargetActivity.c:28: theFastFoundAnswer == theRightAnswer
       
     // Assert with condition and a message: This works too, but triggers a clang compiler warning, we cannot suppress. (https://stackoverflow.com/questions/52692564/how-can-i-disable-format-security-error-with-clang)
-    //break; case __LINE__: CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)theQuestion ); //exp: Time:        default: [ASSERT] TargetActivity.c:31: theFastFoundAnswer == theRightAnswer -> What could be the answer to the Ultimate Question of Life, the Universe, and Everything?
+    break; case __LINE__: CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)theQuestion ); //exp: Time:        default: [ASSERT] TargetActivity.c:31: theFastFoundAnswer == theRightAnswer -> What could be the answer to the Ultimate Question of Life, the Universe, and Everything?
       
     // Assert with condition and a message and some extra message arguments
     break; case __LINE__: CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)"'%s' Am, it is %d", (char*)theQuestion, theRightAnswer); //exp: Time:        default: [ASSERT] TargetActivity.c:34: theFastFoundAnswer == theRightAnswer -> 'What could be the answer to the Ultimate Question of Life, the Universe, and Everything?' Am, it is 42

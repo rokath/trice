@@ -18,7 +18,7 @@ package cgot
 // unsigned TriceOutDepth( void );
 // void CgoSetTriceBuffer( uint8_t* buf );
 // void CgoClearTriceBuffer( void );
-// #cgo CFLAGS: -g -I../../src -Wshadow
+// #cgo CFLAGS: -g -I../../src -Wshadow -Wno-format-security
 // #include "../../src/trice.c"
 // #include "../../src/trice8.c"
 // #include "../../src/trice16.c"
