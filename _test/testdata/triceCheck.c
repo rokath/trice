@@ -138,6 +138,21 @@ void TriceCheck(int n) {
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,
 
+        break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", 0 );    //exp: time:        default: ASSERT:flag not true!
+        break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", 0 );    //exp: time:    be16default: ASSERT:flag not true!
+        break; case __LINE__: TRiceAssertTrue("ASSERT:flag not true!\n", 0 );    //exp: time:feed3322default: ASSERT:flag not true!
+        break; case __LINE__: triceAssertFalse("ASSERT:flag not false!\n", !0 ); //exp: time:        default: ASSERT:flag not false!
+        break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", !0 ); //exp: time:    be16default: ASSERT:flag not false!
+        break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", !0 ); //exp: time:feed3322default: ASSERT:flag not false!
+        
+        // The following 6 asserts are expected to be silent, so we add some output just for the testing here.
+        break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: time:feed3322default: ok
+        break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: time:feed3322default: ok
+        break; case __LINE__: TRiceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: time:feed3322default: ok
+        break; case __LINE__: triceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: time:feed3322default: ok
+        break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: time:feed3322default: ok
+        break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: time:feed3322default: ok
+        
         break; case __LINE__: trice("sig:trice without stamp and with 0 to 12 values (most common use cases)\n" );    
         break; case __LINE__: trice("rd:trice\n" );                                                                                                   //exp: time:        default: rd:trice
         break; case __LINE__: trice("rd:trice %d\n", -1 );                                                                                            //exp: time:        default: rd:trice -1     
