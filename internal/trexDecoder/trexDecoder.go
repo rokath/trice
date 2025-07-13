@@ -322,16 +322,27 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 
 	// try to interpret
-	if triceType == typeS0 {
+	switch triceType {
+	case typeS0:
 		decoder.TargetTimestamp = 0
-	} else if triceType == typeS2 { // 16-bit stamp
+	case typeS2: // 16-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU16(p.B))
-	} else if triceType == typeS4 { // 32-bit stamp
+	case typeS4: // 32-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
-	} else {
-		n += copy(b[n:], fmt.Sprintln("ERROR:\atriceType typeX0 not implemented (hint: IDBits value?)"))
+	default: // typeX0
+		typeX0Handler := "countedString"
+		switch typeX0Handler {
+		case "countedString":
+			len := triceID
+			n += copy(b[n:], "USER:")
+			n += copy(b[n:], fmt.Sprintln(string(p.B[:len])))
+			p.B = p.B[len:]
+		default:
+			n += copy(b[n:], fmt.Sprintln("ERROR:\atriceType typeX0 not implemented (hint: IDBits value?)"))
+		}
 		return n, nil
 	}
+
 	p.B = p.B[decoder.TargetTimestampSize:]
 
 	if len(p.B) < 2 {
@@ -467,10 +478,10 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 // p.Trice.Type is the received trice, in fact the name from til.json.
 func (p *trexDec) sprintTrice(b []byte) (n int) {
 
-	isSAlias := strings.HasPrefix( p.Trice.Strg, id.SAliasStrgPrefix ) && strings.HasSuffix( p.Trice.Strg, id.SAliasStrgSuffix )
-	if isSAlias { // A SAlias Strg is covered with id.SAliasStrgPrefix and id.SAliasStrgSuffix in til.json and it needs to be replaced with "%s" here. 
+	isSAlias := strings.HasPrefix(p.Trice.Strg, id.SAliasStrgPrefix) && strings.HasSuffix(p.Trice.Strg, id.SAliasStrgSuffix)
+	if isSAlias { // A SAlias Strg is covered with id.SAliasStrgPrefix and id.SAliasStrgSuffix in til.json and it needs to be replaced with "%s" here.
 		p.Trice.Strg = "%s" // See appropriate comment inside insertTriceIDs().
-	} 
+	}
 
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertTrue")
