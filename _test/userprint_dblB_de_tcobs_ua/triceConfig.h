@@ -13,23 +13,25 @@ extern "C" {
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_AUXILIARY32 1
 #define TRICE_CGO 1
-#define TRICE_CYCLE_COUNTER 0
+#define TRICE_CYCLE_COUNTER 0 // Needs to be 0, because `trice log` is called on each buffer separately.
 
 //////////////////////////////////////////////////////////////////////////////
 // user print
 //
 #include "nanoprintf.h"
 
+extern uint8_t* cgoTriceBuffer;
+extern unsigned cgoTriceBufferDepth;
+
 //! prints is a user print example with string, float and integer values.
 //! We have to perform a normal print into a buffer, which then is passed to triceS.
 //! This is slow but we can integrate user code without changing it.
 #define print(fmt, ...) \
     do { \
-        char buf[96]; \
-        int lz = sizeof(uint16_t); \
-        int len = npf_snprintf(buf+lz, sizeof(buf-lz), fmt, ##__VA_ARGS__); \
-        (uint16_t*)buf = (uint16_t) len; \
-        CgoSetTriceBuffer(buf) \
+        int len = npf_snprintf((char*)cgoTriceBuffer+sizeof(uint16_t), 256, fmt, ##__VA_ARGS__); \
+        uint16_t * plen = (uint16_t*)cgoTriceBuffer; \
+        *plen = (uint16_t)len; \
+        cgoTriceBufferDepth = sizeof(uint16_t) + len; \
     } while(0)
 
 //

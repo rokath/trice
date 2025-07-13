@@ -278,7 +278,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if packageSize < tyIdSize { // not enough data for a next package
 		return
 	}
-	packed := p.B
+	// packed := p.B
 	tyId := p.ReadU16(p.B)
 	p.B = p.B[tyIdSize:]
 
@@ -286,6 +286,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	triceID := id.TriceID(0x3FFF & tyId)     // 14 least significant bits are the ID
 	decoder.LastTriceID = triceID            // used for showID
 	decoder.RecordForStatistics(triceID)     // This is for the "trice log -stat" flag
+
+	typeX0Handler := "countedString"
 
 	switch triceType {
 	case typeS0: // no timestamp
@@ -304,17 +306,29 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestampSize = 4
 	case typeX0: // extended trice type X0
-		if p.packageFraming == packageFramingNone {
-			// typeX0 is not supported (yet)
-			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\aTo try to resync removing zero HI byte from:"))
-				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
-			}
-			p.B = p.removeZeroHiByte(p.B0)
-			return
+		decoder.TargetTimestampSize = 0
+		switch typeX0Handler {
+		case "countedString":
+			len := triceID
+			//n += copy(b[n:], "vintage:")
+			n += copy(b[n:], fmt.Sprintln(string(p.B[:len])))
+			p.B = p.B[len:]
+		default:
+			n += copy(b[n:], fmt.Sprintln("ERROR:\aNo handler for triceType typeX0"))
 		}
+		return n, nil
+
+		//  if p.packageFraming == packageFramingNone {
+		//  	// typeX0 is not supported (yet)
+		//  	if decoder.Verbose {
+		//  		n += copy(b[n:], fmt.Sprintln("wrn:\aTo try to resync removing zero HI byte from:"))
+		//  		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
+		//  	}
+		//  	p.B = p.removeZeroHiByte(p.B0)
+		//  	return
+		//  }
 		// We can reach here in target TRICE_MULTI_PACK_MODE, when a trice message is followed by several zeroes (up to 7 possible with encryption).
-		p.B = p.removeZeroHiByte(packed)
+		// p.B = p.removeZeroHiByte(packed)
 	}
 
 	if packageSize < tyIdSize+decoder.TargetTimestampSize+ncSize { // for non typeEX trices
@@ -330,7 +344,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
 	default: // typeX0
-		typeX0Handler := "countedString"
 		switch typeX0Handler {
 		case "countedString":
 			len := triceID
