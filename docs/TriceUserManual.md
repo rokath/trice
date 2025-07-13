@@ -6329,7 +6329,7 @@ If the Trice library and the user print both write to the same output, an easy m
 * Legacy code stays unchanged or mainly unchanged and is usable parallel in other existing projects.
 * Nearly optimal result for target image size and speed.
 * No special wrapping and need to use the [Binary Encoding](#binary-encoding) stamp selector bits state 0 for this.
-* Especially, when adapting user specific ASSERT macros with `-salias` (see below), even their strings are compiled into the Target image, only in error cases the strings are prited and transmitted.
+* Especially, when adapting user specific ASSERT macros with `-salias` (see below), even their strings are compiled into the Target image, only in error cases the strings are printed and transmitted.
 
 *Disadvantages:*
 
@@ -6345,7 +6345,7 @@ The user `printi` statements containing floats, doubles, strings could get simpl
 
 Yes, user `printi` and user `prints` need to be defined too. See [./_test/alias_dblB_de_tcobs_ua/triceConfig.h/triceConfig](../_test/alias_dblB_de_tcobs_ua/triceConfig.h) as a simple example and its usage in [./_test/alias_dblB_de_tcobs_ua/TargetActivity.c](../_test/alias_dblB_de_tcobs_ua/TargetActivity.c)
 
-This technique allows also to cover legacy user code specific ASSERT macros, as shown in [./_test/aliasassert_dblB_de_tcobs_ua/triceConfig.h](../_test/aliasassert_dblB_de_tcobs_ua/triceConfig.h) in the tests [./_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c](../_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c).
+This technique allows also to cover legacy user code specific ASSERT macros, as shown in [./_test/aliasassert_dblB_de_tcobs_ua/triceConfig.h](../_test/aliasassert_dblB_de_tcobs_ua/triceConfig.h) and used in the tests [./_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c](../_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c).
 
 Despite of these 2 CGO tests the real-world example [./examples/G0B1_inst](../examples/G0B1_inst/Core/Src/main.c) shows the usage too.
 
