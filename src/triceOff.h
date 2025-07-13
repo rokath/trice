@@ -66,17 +66,13 @@
 #define TRice0(pFmt, ...)
 
 // clang-format off
-//  TRICE_INLINE void trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
-//  TRICE_INLINE void Trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
-//  TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 
-TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-TRICE_INLINE void TRiceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-
-TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+#define triceAssertTrue(  x, y, ... ) TRICE_UNUSED(x) TRICE_UNUSED(y)
+#define TriceAssertTrue(  x, y, ... ) TRICE_UNUSED(x) TRICE_UNUSED(y)
+#define TRiceAssertTrue(  x, y, ... ) TRICE_UNUSED(x) TRICE_UNUSED(y)
+#define triceAssertFalse( x, y, ... ) TRICE_UNUSED(x) TRICE_UNUSED(y)
+#define TriceAssertFalse( x, y, ... ) TRICE_UNUSED(x) TRICE_UNUSED(y)
+#define TRiceAssertFalse( x, y, ... ) TRICE_UNUSED(x) TRICE_UNUSED(y)
 
 // All following macros are defined without ID and as variadic, to avoid editor warnings for TRICE_CLEAN == 1 or TRICE_OFF == 1
 
