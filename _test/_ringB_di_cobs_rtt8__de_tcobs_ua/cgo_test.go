@@ -20,7 +20,7 @@ func TestLogs(t *testing.T) {
 		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", path.Join(triceDir, "/demoTIL.json"), 
 			"-p=BUFFER", "-args", buffer, "-hs=off", "-prefix=off", "-li=off", "-color=off",
 			"-ts0", "time:        ", "-ts16", "time:    %04x", "-ts32", "time:%08x",
-			"-pf=cobs", "-d16"}))
+			"-pf=COBS", "-d16"}))
 		return o.String()
 	}
 
