@@ -41,8 +41,8 @@ func triceLogSpecialTest(t *testing.T, triceLog logF) {
 	length := triceOutDepth()
 	bin := out[:length] // bin contains the binary trice data of trice message.
 
-	buf := fmt.Sprint(bin)
-	buffer := buf[1 : len(buf)-1]
+	buf := fmt.Sprint(bin) // convert into number string enclosed in brackets []
+	buffer := buf[1 : len(buf)-1] // remove brackets []
 
 	act := triceLog(t, osFSys, buffer) // convert binary buffer into result string
 
