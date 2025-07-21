@@ -48,14 +48,17 @@ import (
 	"testing"
 	"unsafe"
 
+	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
 var (
-	triceDir  string // triceDir holds the trice directory path.
-	testLines = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	triceDir  string         // triceDir holds the trice directory path.
+	testLines = -1           // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	g         globalDefaults // g holds global vars default values
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -187,7 +190,7 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 
 // triceLogTest2 works like triceLogTest but additionally expects doubled output: direct and deferred.
 func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
-
+	g.GetGlobalVars() // read changed defaults
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
@@ -213,6 +216,7 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 			buf := fmt.Sprint(bin)
 			buffer := buf[1 : len(buf)-1]
 
+			g.SetGlobalVars() // restore changed defaults
 			act := triceLog0(t, osFSys, buffer)
 			triceClearOutBuffer()
 
@@ -228,10 +232,31 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 			buf := fmt.Sprint(bin)
 			buffer := buf[1 : len(buf)-1]
 
+			g.SetGlobalVars() // restore changed defaults
 			act := triceLog1(t, osFSys, buffer)
 			triceClearOutBuffer()
 
 			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
 		}
 	}
+}
+
+type globalDefaults struct {
+	defaultPassword       string
+	defaultPackageFraming string
+}
+
+// Keep default values of global variables.
+func (p *globalDefaults) GetGlobalVars() {
+	p.defaultPassword = cipher.Password
+	p.defaultPackageFraming = decoder.PackageFraming
+}
+
+// SetGlobalVars sets all global variables in a definitive state.
+// In Go, each package generates an individual test binary and they are tested parallel.
+// All package tests are executed sequentially but use the same global variables.
+// Therefore we have to reset the global variables in each test function.
+func (p *globalDefaults) SetGlobalVars() {
+	cipher.Password = p.defaultPassword
+	decoder.PackageFraming = p.defaultPackageFraming
 }
