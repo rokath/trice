@@ -127,6 +127,8 @@ Table of Contents Generation:
 * 22. [Binary Encoding](#binary-encoding)
   * 22.1. [Symbols](#symbols)
   * 22.2. [Package Format](#package-format)
+    * 22.2.1. [typeX0 Trices](#typex0-trices)
+    * 22.2.2. [ Framing - NONE or with COBS or TCOBS encoding](#-framing---none-or-with-cobs-or-tcobs-encoding)
 * 23. [Trice Decoding](#trice-decoding)
   * 23.1. [Trice ID list til.json](#trice-id-list-til.json)
   * 23.2. [Trice location information file li.json](#trice-location-information-file-li.json)
@@ -317,7 +319,7 @@ Table of Contents Generation:
 * 44. [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)
   * 44.1. [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
   * 44.2. [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
-  * 44.3. [Legacy User Code Print Buffer Wrapping & Framing](#legacy-user-code-print-buffer-wrapping-&-framing)
+  * 44.3. [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)
   * 44.4. [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
     * 44.4.1. [PR533 Doc](#pr533-doc)
     * 44.4.2. [PR533 Summary](#pr533-summary)
@@ -2017,47 +2019,170 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 
 ###  22.2. <a id='package-format'></a>Package Format
 
-* Because of the **TCOBS** or **COBS** package framing, the package sizes are detectable by the trice tool without additionlal length information.
+* Because of the **TCOBS** or **COBS** package framing, the package sizes are detectable by the trice tool without additional length information.
 * All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the Trice tool.
 
   | bytes       | Comment                                                                                                       |
   | :---------- | ------------------------------------------------------------------------------------------------------------- |
-  | ``          | This is an empty package, which can have also a meaning. It is detectable by 2 consecutive 0-delimiter bytes. |
+  | ` `         | This is an empty package, which can have also a meaning. It is detectable by 2 consecutive 0-delimiter bytes. |
   | `X`         | 1-byte message, reserved for extensions or user data                                                          |
   | `X` `X`     | 2-byte message, reserved for extensions or user data                                                          |
   | `X` `X` `X` | 3-byte message, reserved for extensions or user data                                                          |
 
 * In decoded frames with >= 4-bytes the first 2 bytes contain 2 stamp selector bits at the most significant position in the known endianness.
-* The `0` stamp selector is usable for any user encoding. The Trice tool ignores such packages.
+* The `0` stamp selector is usable for any user encoding. The Trice tool handles such packages according to a CLI switch `-typeX0`.
 * The `1`, `2` and `3` stamp selector bits are followed by the 14-bit ID.
 
-  | 16-bit groups                      | Stamp Selector (2 msb) | Comment                                                 | Endianness sizes                |
-  | :--------------------------------- | :--------------------: | ------------------------------------------------------- | :------------------------------ |
-  | _________ `00xxxxxxX ...`          |           0            | >= 4-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
-  | _________ `01iiiiiiI NC  ...`      |           1            | >= 4-byte message, Trice format without     stamp       | ___ `u16 u16 [uW] ... [uW]`     |
-  | _________ `10iiiiiiI TT NC ...`    |           2            | >= 4-byte message, Trice format with 16-bit stamp       | ___ `u16 u16 u16 [uW] ... [uW]` |
-  | `10iiiiiiI 10iiiiiiI TT NC ...`    |           2            | First 16bit are doubled. Info over `-d16` trice switch. | `u16 u16 u16 u16 [uW] ... [uW]` |
-  | _________ `11iiiiiiI TT TT NC ...` |           3            | >= 4-byte message, Trice format with 32-bit stamp       | ___ `u16 u32 u16 [uW] ... [uW]` |
+  | 16-bit groups                      | Stamp Selector (2 msb) | Comment                                                                                                  | Endianness sizes                |
+  | :--------------------------------- | :--------------------: | -------------------------------------------------------------------------------------------------------- | :------------------------------ |
+  | _________ `00xxxxxxX ...`          |           0            | [typeX0 Trice]([typeX0 Trices](#typex0-trices)), >= 4-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
+  | _________ `01iiiiiiI NC  ...`      |           1            | >= 4-byte message, Trice format without     stamp                                                        | ___ `u16 u16 [uW] ... [uW]`     |
+  | _________ `10iiiiiiI TT NC ...`    |           2            | >= 4-byte message, Trice format with 16-bit stamp                                                        | ___ `u16 u16 u16 [uW] ... [uW]` |
+  | `10iiiiiiI 10iiiiiiI TT NC ...`    |           2            | First 16bit are doubled. Info over `-d16` trice switch.                                                  | `u16 u16 u16 u16 [uW] ... [uW]` |
+  | _________ `11iiiiiiI TT TT NC ...` |           3            | >= 4-byte message, Trice format with 32-bit stamp                                                        | ___ `u16 u32 u16 [uW] ... [uW]` |
 
 * The stamp selector `2` encoding has 2 possibilities. When using `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
 * Default endianness is little endian as most MCUs use little endianness. Otherwise the `-triceEndianness=bigEndian` CLI switch is needed.
 * The receiving tool evaluates firstly the 2 stamp bits and follows some rules:
-    * 0: reserved -> ignore the whole package (discard) or treat it as user data.
-    * 1:                                    next 14 bits are the ID                                                              followed by 2 bytes u16=NC and optional parameter values. Package size is >= 4 bytes.
-    * 2 and `-d16` CLI switch not provided: next 14 bits are the ID                            and convert then u16=TT=stamp16   followed by 2 bytes u16=NC and optional parameter values. Package size is >= 6 bytes.
-    * 2 and `-d16` CLI switch     provided: next 14 bits are the ID, discard 2 following bytes and convert then u16=TT=stamp16   followed by 2 bytes u16=NC and optional parameter values. Package size is >= 8 bytes.
-    * 3:                                    next 14 bits are the ID                            and convert then u32=TTTT=stamp32 followed by 2 bytes u16=NC and optional parameter values. Package size is >= 8 bytes.
+  * 0: treat it as user data when CLI switch `-typeX0` is passed or error and ignore the whole package (discard).
+  * 1:                                    next 14 bits are the ID                                                              followed by 2 bytes u16=NC and optional parameter values. Package size is >= 4 bytes.
+  * 2 and `-d16` CLI switch not provided: next 14 bits are the ID                            and convert then u16=TT=stamp16   followed by 2 bytes u16=NC and optional parameter values. Package size is >= 6 bytes.
+  * 2 and `-d16` CLI switch     provided: next 14 bits are the ID, discard 2 following bytes and convert then u16=TT=stamp16   followed by 2 bytes u16=NC and optional parameter values. Package size is >= 8 bytes.
+  * 3:                                    next 14 bits are the ID                            and convert then u32=TTTT=stamp32 followed by 2 bytes u16=NC and optional parameter values. Package size is >= 8 bytes.
 * use ID to get parameters width `W`=8,16,32,64 from file *til.json* and and parameters count and convert appropriate.
   * Within one trice message the parameter bit width `W` does not change.
 
-##### <a id='FramingwithTCOBSencoding'></a>Framing with COBS or TCOBS encoding
+####  22.2.1. <a id='typex0-trices'></a>typeX0 Trices
 
-* For maximum storage speed each Trice message starts at a 32-bit boundary and has 1-3 padding bytes.
-* In direct mode only a single message needs handling.
-* In deferred mode after double buffer swap any count of trice messages is in the buffer.
-* There are different policies possible:
-  1. **TRICE_MULTI_PACK_MODE**: Compact buffer by removing all padding bytes, encode it as a single package, append one 0-delimiter and transmit. This allows to reduce the transmitted data amount by paying the price of possibly more data lost in case of an error. Also the data interpretation can perform less checks.
-  2. **TRICE_SINGLE_PACK_MODE**: Encode each buffer separate, append a 0-delimiter for each and pack them all together before transmitting. This increases the transmit data slightly but minimizes the amount of lost data in case of a data disruption.
+The user can insert any data with a well-defined structure into the Trice data stream. The Trice tool, when interpreting the Trice binary data, will behave on typeX0 Trices according to a passed CLI switch `-typeX0`.
+
+One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)). The user needs to prepend a generated **printi** buffer with its size as 16-bit count (<16384!) for example. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option.
+
+####  22.2.2. <a id='-framing---none-or-with-cobs-or-tcobs-encoding'></a> Framing - NONE or with COBS or TCOBS encoding
+
+> Summary Information for Trice Data Parsing
+
+* With (T)COBS framing:
+  * 1-3 package delimiter zeroes possible between 2 packages.
+  * One or more Trices packed together and only at the package end are 0-3(7) padding zero bytes possible.
+  * typeX0 Trices do not occur together with normal Trices together in a package.
+
+* With NONE framing:
+  * With XTEA encryption and `-pf=none`or `-pf=none64` 64-bit alignment: 0-7 zero bytes after a single Trice.
+  * Without encryption the stream is compact or 32-bit aligned. That does not change for one session and is detectable.
+    * `-pf=none` -> detect stream (depreciated, only for backward compability)
+    * `-pf=none8` -> stream is compact
+    * `-pf=none32` -> stream is 32-bit aligned
+  * A stream with alignment is allowed to have only a single Trice between two allignments. An alignment is just a 4(8)-byte distance.
+  * These combinations are forbidden, because we cannot safely know the actual padding count: `|TriceATriceB0|TriceC00|` <- Is the `0` after `TriceB` a padding zero or part of `TiceC`?
+    * Framing NONE && TRICE_MULTI_PACK_MODE && 32-bit write
+    * Framing NONE && TRICE_MULTI_PACK_MODE && XTEA encryption
+
+> Details
+
+* For maximum storage speed each Trice message starts at a 32-bit boundary and has 1-3 padding bytes inside the target device RAM.
+* The macro `TRICE_LEAVE` and/or function `TriceTransfer` ([Trice Target Code Implementation](#trice-target-code-implementation)) are the Trice data output.
+  * In **direct mode** each single message gets its own transfer buffer.
+  * In **deferred mode** any count of Trice messages is in the transfer buffer.
+  * Additional **typeX0 Trices** are always in a separate transfer buffer or, when without framing, follow immediate after 0-3 padding bytes.
+
+<!--
+* To create the transfer buffer, there are different policies possible:
+  1. **TRICE_MULTI_PACK_MODE**: Compact RAM buffer by removing all padding bytes, encode it as a single (T)COBS package, append one 0-delimiter and transmit. This allows to reduce the transmitted data amount by paying the price of possibly more data loss in case of an error. Also the Trice tool internal data interpretation can perform less checks. TRICE_MULTI_PACK_MODE makes only sense for deferred output.
+     * When Trice is used without framing, the data stream interpretation is possible, but not 100% secure for 32-bit writes, because in some cases we do not know, if 1-3 zeroes after a Trice, part of those are padding bytes or not. We allow such configuration, but will issue a warning: *Combination TRICE_MULTI_PACK_MODE && framing NONE && 32-bit write is depreachiated.*
+  2. **TRICE_SINGLE_PACK_MODE**: Encode each Trice separate as (T)COBS, append a 0-delimiter for each and pack them all together before transmitting. This increases the transmit data slightly but minimizes the amount of lost data in case of a data disruption.
+     * When Trice is used without framing, the data stream interpretation is possible, but not 100% secure for 32-bit writes, because in some cases we do not know, if 1-3 zeroes after a Trice, part of those are padding bytes or not. To avoid that specify `-pf=none32`. We allow such configuration, because even with `pf=none` a one-time detection will work well in almost every case.
+  3. Additional **typeX0 Trices**: Those messages are not mixed into (T)COBS packages. They get their own (T)COBS packages.
+-->
+
+*Framing NONE Overview Table:*
+
+| *mode* | *packed* | `-pf=`   | encr | *wr* | *use* | pad | stream  | remark   |
+| ------ | -------- | -------- | ---- | ---- | ----- | --- | ------- | -------- |
+| *di*   | *single* | `none32` | NONE | *32* | *32*  | 0-3 | aligned | done     |
+| *de*   | *single* | `none8`  | NONE | *8*  | *8*   | 0   | compact | done     |
+| *de*   | *single* | `none32` | NONE | *8*  | *32*  | 0   | aligned | **plan** |
+| *de*   | *multi*  | `none8`  | NONE | *8*  | *8*   | 0   | compact | done     |
+| *de*   | *multi*  | `none`   | NONE | *8*  | *32*  | 0   | unknown | forbid   |
+| *di*   | *single* | `none64` | XTEA | *32* | *32*  | 0-7 | aligned | done     |
+| *de*   | *single* | `none64` | XTEA | *8*  | *8*   | 0-7 | aligned | done     |
+| *de*   | *single* | `none64` | XTEA | *8*  | *32*  | 0-7 | aligned | **plan** |
+| *de*   | *multi*  | `none`   | XTEA | *8*  | *8*   | 0-7 | unknown | forbid   |
+| *de*   | *multi*  | `none`   | XTEA | *8*  | *32*  | 0-7 | unknown | forbid   |
+
+* wr: The internal write function bit width.
+* use: The possible user write function bit width (auxiliary write)
+
+<!--
+
+* The information, if the stream is aligned or not can be passed wit `-pf=none32` or `-pf=none8` but is also detectable.
+* In multi-pack mode only unaligned  
+
+* The Trice tool, when receiving the transfer buffers, knows the framing and also if encryption is active, but does not know if TRICE_SINGLE_PACK_MODE or TRICE_MULTI_PACK_MODE is active. Additionally the information direct or deferred is not used by the Trice tool. It has to deal with the option of 0-7 padding zeroes after a decoded Trice message:
+  * Encryption with framing NONE: forbidden - uninteresting case and resync is difficult
+  * Encryption with framing COBS: 0-7 padding zero bytes inside the decoded buffer only at its end possible.
+  * Encryption with framing TCOBS: 0-7 padding zero bytes inside the decoded buffer only at its end possible. This configuration is not recommended, because random data not compressble.
+  * No Encryption with framing NONE: 0-3 padding zero bytes after each Trice possible.
+  * No Encryption with framing COBS: 0-3 padding zero bytes inside the decoded buffer only at its end possible.
+  * No Encryption with framing TCOBS: 0-3 padding zero bytes inside the decoded buffer only at its end possible.
+  * *In short*:
+    * Only inside at package end: 0-7 padding zeroes with encryption and 0-3 without encryption are possible.
+    * When package framing NONE 0-3 padding zeroes possible and typeX0 Trices are mixed with normal Trices.
+  * Usually, when transmitting over UART unencrypted for example, there are no padding bytes at all.
+  * But with `TRICE_LEAVE` is called `TriceNonBlockingDirectWrite`, what could add padding bytes inside the (T)COBS buffers at their end.
+  * In deferred mode, padding bytes inside a (T)COBS package only possible together with encryption. After packing and when using a 32-bit write function, after (outside) the packages are 1-3 zero bytes possible. Those are treated as package delimiters.
+* The further transfer buffer interpretation after successfully decoding one Trice is:
+  * No encryption:
+    * If framing (T)COBS or NONE and at least 4 bytes left: Try to interpret next bytes.
+    * If framing (T)COBS and max 3 bytes left:
+      * If all 3 are zero: these are padding bytes to be removed before next package is read.
+      * If at least one of the 3 remaining bytes is != 0, this is an error.
+    * If framing (T)COBS and the 4 bytes are not a full Trice -> error
+    * If framing NONE and the 4 bytes are not a full Trice -> read more
+      * Even if we get more, we do not know, if there are 0-4 padding bytes before the next Trice starts. Cases:
+
+        ```C
+        d n n n n // case  1:                                start of next Trice is n n
+
+        d 0 n n n // case  2: 0 is         padding byte  and start of next Trice is n n
+        d 0 n n n // case  3: 0 is no      padding byte  and start of next Trice is 0 n
+
+        d 0 0 n n // case  4: 0 0 are      padding bytes and start of next Trice is n n
+        d 0 0 n n // case  5: first 0 is   padding byte  and start of next Trice is 0 n
+        d 0 0 n n // case  6: no           padding bytes and start of next Trice is 0 0 (error)
+
+        d 0 0 0 n // case  7: 0 0 0 are    padding bytes and start of next Trice is n
+        d 0 0 0 n // case  8: 0 0   are    padding bytes and start of next Trice is 0 n
+        d 0 0 0 n // case  9: 0     is     padding byte  and start of next Trice is 0 0 (error)
+        d 0 0 0 n // case 10: no           padding bytes and start of next Trice is 0 0 (error)
+        ```
+
+      * The padding bytes positions must fit the ByteCount. But even they fit, cases 2 & 3, 4 & 5, 7 & 8 are not distinguishable.
+      * Also the error cases could by interpreting one or two zeroes as padding byte get valid cases.
+      * For a consistent interpretation we need to know if padding is used. That is a use case especially when using RTT8 or RTT32.
+      * Is it possible to detect that automatically for `pf=none`? As soon we have case 2 or 3 and cannot distinguish, there is a high probalbility that one of them will fail. Then we silently know for the current Trice tool life time.
+      * We could invent additional CLI switches `-pf=none8` and `pf=none32` to tell explicitely if package framing none is with padding or not.
+    * We invent a global variable `NopfPadding` witch we set to 0 with `-pf=none`, to 8 with `pf=none8` and 32 with `pf=none32`.
+    * With NopfPadding != 0 we know exactly how to interpret framing NONE streams.
+    * With NopfPadding == 0 we check the ByteCount and if ByteCount mod 4 != 0 and there are no matching zeroes afterwards we set NopfPadding = 8.
+    * With NopfPadding == 0 we check the ByteCount and if ByteCount mod 4 != 0 and there are    matching zeroes afterwards we try to interpret the variants and set NopfPadding = 8||32 according to the success.
+
+    * If framing NONE and max 3 bytes left:
+        * If no more data within 100ms, try to interpret them as typeX0 message and report an error if no success.
+        * If more data arrive, the Trice tool has to determine the correct count of padding bytes.** That can be easily done with the already interpreted byte count **ByteCount**.
+          * BC mod 4 == 0 -> no padding bytes
+          * BC mod 4 == 1 -> 1 padding byte, which is expected to be 0.
+          * BC mod 4 == 2 -> 2 padding bytes, which are expected to be 0.
+          * BC mod 4 == 3 -> 3 padding bytes, which are expected to be 0.
+
+  * With encryption:
+    * If framing (T)COBS or NONE and at least 8 bytes left: Try to interpret next bytes.
+    * If framing (T)COBS and max 7 bytes left:
+      * If all 7 are zero: these are padding bytes to be removed before next package is read.
+      * If at least one of the 7 remaining bytes is != 0, this is an error.
+    * If framing NONE: forbidden situation
+
+-->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -6299,7 +6424,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * All exising user prints are replaced with appropriate Trice macros according chapter [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage).
 * When using 64-bit as default Trice bit width, more RAM is used compared to 32-bit, but in combination with the default [TCOBS](https://github.com/rokath/tcobs) compressing framing the transmitted Trice packets do not increase much compared to 32-bit width.
 
-###  44.3. <a id='legacy-user-code-print-buffer-wrapping-&-framing'></a>Legacy User Code Print Buffer Wrapping and Framing 
+###  44.3. <a id='legacy-user-code-print-buffer-wrapping-and-framing'></a>Legacy User Code Print Buffer Wrapping and Framing 
 
 > **Trice >= v1.1 feature**, see also issue [#550](https://github.com/rokath/trice/issues/550)
 
@@ -6312,6 +6437,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 
 * Suboptimal result for target image size and speed, because the legacy user code still prints and transmits strings.
 * The reserved case, both [Binary Encoding](#binary-encoding) stamp selector bits are 0, is not available anymore for additional use cases.
+* The log output may have a partial sequence information loss.
 
 *Details:*
 
@@ -6823,17 +6949,19 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <details><summary>Details (click to expand)</summary><ol>
 
-| Date        | Version | Comment                                                                                            |
-| ----------- | ------- | -------------------------------------------------------------------------------------------------- |
-| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                      |
-| ...         | 1.0.0   | ...                                                                                                |
-| 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529))             |
-| 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                             |
-| 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                                 |
-| 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                                           |
-| 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                    |
-| 2025-JUN-30 | pre 1.1 | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented |
-| 2025-JUL-10 | pre 1.1 | ++ [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)                             |
+| Date        | Version | Comment                                                                                              |
+| ----------- | ------- | ---------------------------------------------------------------------------------------------------- |
+| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                        |
+| ...         | 1.0.0   | ...                                                                                                  |
+| 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529))               |
+| 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                               |
+| 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                                   |
+| 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                                             |
+| 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                      |
+| 2025-JUN-30 | pre 1.1 | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented   |
+| 2025-JUL-10 | pre 1.1 | ++ [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)                               |
+| 2025-JUL-21 | pre 1.1 | ++ [typeX0 Trices](#typex0-trices)                                                                   |
+| 2025-JUL-21 | pre 1.1 | ++ [ Framing - NONE or with COBS or TCOBS encoding](#-framing---none-or-with-cobs-or-tcobs-encoding) |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
