@@ -37,13 +37,16 @@ for arg in "$@"; do
 done
 
 COUNT=0
+OS_TYPE="$(uname)"
 
-# === Check if Finder is running ===
-FINDER_WAS_RUNNING=false
-if pgrep -xq "Finder"; then
-    FINDER_WAS_RUNNING=true
-    echo -e "${YELLOW}🛑 Quitting Finder to prevent interference...${NC}"
-    osascript -e 'tell application "Finder" to quit'
+if [[ $OS_TYPE == "Darwin" ]]; then
+    # === Check if Finder is running ===
+    FINDER_WAS_RUNNING=false
+    if pgrep -xq "Finder"; then
+        FINDER_WAS_RUNNING=true
+        echo -e "${YELLOW}🛑 Quitting Finder to prevent interference...${NC}"
+        osascript -e 'tell application "Finder" to quit'
+    fi
 fi
 
 echo -e "${BLUE}🔍 Scanning for .DS_Store files...${NC}"
@@ -66,10 +69,12 @@ done
 # === Summary ===
 echo -e "${BLUE}✅ Done. Processed $COUNT file(s).${NC}"
 
-# === Restart Finder if it was previously running ===
-if [ "$FINDER_WAS_RUNNING" = true ]; then
-    echo -e "${YELLOW}🔄 Restarting Finder...${NC}"
-    open -a Finder
-else
-    echo -e "${BLUE}📎 Finder was not running before – not restarted.${NC}"
+if [[ $OS_TYPE == "Darwin" ]]; then
+    # === Restart Finder if it was previously running ===
+    if [ "$FINDER_WAS_RUNNING" = true ]; then
+        echo -e "${YELLOW}🔄 Restarting Finder...${NC}"
+        open -a Finder
+    else
+        echo -e "${BLUE}📎 Finder was not running before – not restarted.${NC}"
+    fi
 fi
