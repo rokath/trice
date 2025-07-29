@@ -146,8 +146,10 @@ type Decoder interface {
 
 // DecoderData is the common data struct for all decoders.
 type DecoderData struct {
-	W           io.Writer          // io.Stdout or the like
-	In          io.Reader          // in is the inner reader, which is used to get raw bytes
+	W           io.Writer // io.Stdout or the like
+	In          io.Reader // in is the inner reader, which is used to get raw bytes
+	ScratchPad  []byte
+	Last        []byte
 	InnerBuffer []byte             // avoid repeated allocation (trex)
 	IBuf        []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
 	B           []byte             // read buffer holds a single decoded TCOBS package, which can contain several trices.
