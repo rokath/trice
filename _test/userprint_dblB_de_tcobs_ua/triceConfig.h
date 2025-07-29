@@ -31,7 +31,7 @@ extern unsigned cgoTriceBufferDepth;
         int len = npf_snprintf((char*)cgoTriceBuffer+sizeof(uint16_t), 256, fmt, ##__VA_ARGS__); \
         uint16_t * plen = (uint16_t*)cgoTriceBuffer; \
         *plen = (uint16_t)len; \
-        cgoTriceBufferDepth = sizeof(uint16_t) + len; \
+        cgoTriceBufferDepth = len ? sizeof(uint16_t) + len : 0; /* no output for len==0 */ \
     } while(0)
 
 //
