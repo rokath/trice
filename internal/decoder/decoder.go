@@ -148,12 +148,12 @@ type Decoder interface {
 type DecoderData struct {
 	W           io.Writer // io.Stdout or the like
 	In          io.Reader // in is the inner reader, which is used to get raw bytes
-	ScratchPad  []byte
+	//ScratchPad  []byte
 	Last        []byte
 	InnerBuffer []byte             // avoid repeated allocation (trex)
 	IBuf        []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
-	B           []byte             // read buffer holds a single decoded TCOBS package, which can contain several trices.
-	B0          []byte             // initial value for B
+	I           []byte             // Interpret buffer
+	B          []byte             // initial value for I
 	Endian      bool               // endian is true for LittleEndian and false for BigEndian
 	TriceSize   int                // trice head and payload size as number of bytes
 	ParamSpace  int                // trice payload size after head
