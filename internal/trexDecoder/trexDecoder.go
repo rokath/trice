@@ -144,7 +144,7 @@ func (p *trexDec) nextData() {
 }
 
 // nextFrame reads with an inner reader a raw byte stream, appends it to p.Last and returns in p.B a complete decoded frame or p.B stays empty.
-func (p *trexDec) nextFrame()(err error) {
+func (p *trexDec) nextFrame() (err error) {
 	p.nextBytes()
 	index := bytes.IndexByte(p.Last, 0) // find terminating 0
 	if index == -1 {                    // p.Last has no complete (T)COBS data
@@ -152,12 +152,12 @@ func (p *trexDec) nextFrame()(err error) {
 		return
 	}
 	err = p.decodeFrame(p.Last[:index]) // exclude terminating 0, put frame into p.B
-	p.Last = p.Last[index:]              // exclude terminating 0, keep rest for next package
-	return 
+	p.Last = p.Last[index:]             // exclude terminating 0, keep rest for next package
+	return
 }
 
 // decodeFrame expects a full frame without 0-delimiter in src, and decodes it into p.I.
-func (p *trexDec) decodeFrame(src []byte) ( err error) {
+func (p *trexDec) decodeFrame(src []byte) (err error) {
 	var n int
 	p.I = p.B
 	switch p.packageFraming {
@@ -190,7 +190,7 @@ func (p *trexDec) DecryptIfEncrypted() (err error) {
 		if len(p.I)%8 != 0 {
 			fmt.Fprint(p.W, "-> ERR:  ")
 			decoder.Dump(p.W, p.I)
-			err = fmt.Errorf("decoded frame length %d not a multiple of 8, discarding.", len(p.I))
+			err = fmt.Errorf("decoded frame length %d not a multiple of 8, discarding", len(p.I))
 			p.I = p.I[:0]
 			return err
 		}
@@ -267,6 +267,7 @@ func (p *trexDec) checkReceivedCycle(b []byte) (n int) {
 		decoder.InitialCycle = false
 		p.expectedCycle++
 	}
+	return
 }
 
 // printTrice expects in p.B enough data for printing a trice.
@@ -320,10 +321,6 @@ func (p *trexDec) TriceComplete() bool {
 		// We may need to wait for more data
 	}
 	tyId := id.TriceID(p.ReadU16(p.I))
-	if tyId == 0 { // No padding bytes expected here.
-		for true {
-		}
-	}
 	p.triceType = tyId >> decoder.IDBits // 2 most significant bits are the triceType
 	p.triceID = 0x3FFF & tyId            // 14 least significant bits are the ID
 	decoder.LastTriceID = p.triceID      // used for showID
@@ -356,7 +353,7 @@ func (p *trexDec) GetCycleAndParamSize(b []byte) {
 
 func (p *trexDec) TriceTypeS0Complete() bool {
 	decoder.TargetTimestampSize = 0
-	p.ntlen = tyIdSize + ncSize
+	p.ntlen += ncSize
 	if len(p.I) < p.ntlen {
 		return false
 	}
@@ -372,9 +369,9 @@ func (p *trexDec) TriceTypeS0Complete() bool {
 func (p *trexDec) TriceTypeS2Complete() bool {
 	decoder.TargetTimestampSize = 2
 	if Doubled16BitID { // p.packageFraming == packageFramingNone || cipher.Password != "" {
-		p.ntlen = tyIdSize + tyIdSize + 2 + ncSize
+		p.ntlen += tyIdSize + 2 + ncSize
 	} else {
-		p.ntlen = tyIdSize + 2 + ncSize
+		p.ntlen += 2 + ncSize
 	}
 	if len(p.I) < p.ntlen {
 		return false
@@ -391,7 +388,7 @@ func (p *trexDec) TriceTypeS2Complete() bool {
 
 func (p *trexDec) TriceTypeS4Complete() bool {
 	decoder.TargetTimestampSize = 4
-	p.ntlen = tyIdSize + 4 + ncSize
+	p.ntlen += 4 + ncSize
 	if len(p.I) < p.ntlen {
 		return false
 	}
@@ -408,7 +405,7 @@ func (p *trexDec) TriceTypeS4Complete() bool {
 func (p *trexDec) TriceTypeX0Complete() bool {
 	switch TypeX0Handler {
 	case "countedString": // The first 2 bytes are the count.
-		p.ntlen = tyIdSize + int(p.triceID)
+		p.ntlen += int(p.triceID)
 		if len(p.I) < p.ntlen {
 			return false // not enough data
 		}

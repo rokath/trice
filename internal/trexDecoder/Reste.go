@@ -171,7 +171,6 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 }
 */
 
-
 //nc := p.ReadU16(p.B) // n = number of data bytes (without timestamp), most significant bit is the count encoding, c = cycle
 
 //decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
@@ -569,41 +568,41 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 }
 */
 
-	//  if len(p.B) < p.ParamSpace {
-	//  	if p.packageFraming == packageFramingNone {
-	//  		if decoder.Verbose {
-	//  			n += copy(b[n:], fmt.Sprintln("wrn:discarding first byte", p.B0[0], "from:"))
-	//  			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
-	//  		}
-	//  		p.B0 = p.B0[1:] // discard first byte and try again
-	//  		p.B = p.B0
-	//  	} else {
-	//  		n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage:"))
-	//  		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
-	//  		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-	//  		p.B = p.B[:0] // discard all
-	//  	}
-	//  } else {
-	//  	if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
-	//  		//p.B=p.B[:0] // This is WRONG! There could be more Trices in p.B
-	//  		p.B = p.B[p.ParamSpace:] // drop param info HERE we drop one of 3 zero bytes
-	//  		// if len(p.B) > 0 {
-	//  		// 	fmt.Println(p.ParamSpace, p.B )
-	//  		// 	p.B = p.B[:0]
-	//  		// }
-	//  	} else { // no package framing
-	//  		padding := (p.ParamSpace + 3) & ^3
-	//  		if padding <= len(p.B) {
-	//  			p.B = p.B[padding:] // drop param info with padding bytes
-	//  			// When no packagge framing and multi pack mode, there are 0-3 padding zero bytes after each Trice.
-	//  		} else {
-	//  			p.B = p.B[p.ParamSpace:] // drop param info
-	//  			// n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes", ))
-	//  		}
-	//  	}
-	//  }
+//  if len(p.B) < p.ParamSpace {
+//  	if p.packageFraming == packageFramingNone {
+//  		if decoder.Verbose {
+//  			n += copy(b[n:], fmt.Sprintln("wrn:discarding first byte", p.B0[0], "from:"))
+//  			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
+//  		}
+//  		p.B0 = p.B0[1:] // discard first byte and try again
+//  		p.B = p.B0
+//  	} else {
+//  		n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage:"))
+//  		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+//  		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+//  		p.B = p.B[:0] // discard all
+//  	}
+//  } else {
+//  	if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
+//  		//p.B=p.B[:0] // This is WRONG! There could be more Trices in p.B
+//  		p.B = p.B[p.ParamSpace:] // drop param info HERE we drop one of 3 zero bytes
+//  		// if len(p.B) > 0 {
+//  		// 	fmt.Println(p.ParamSpace, p.B )
+//  		// 	p.B = p.B[:0]
+//  		// }
+//  	} else { // no package framing
+//  		padding := (p.ParamSpace + 3) & ^3
+//  		if padding <= len(p.B) {
+//  			p.B = p.B[padding:] // drop param info with padding bytes
+//  			// When no packagge framing and multi pack mode, there are 0-3 padding zero bytes after each Trice.
+//  		} else {
+//  			p.B = p.B[p.ParamSpace:] // drop param info
+//  			// n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes", ))
+//  		}
+//  	}
+//  }
 
-	/*
+/*
 // InterpretUnframedData0 analyzes next Trice in compact or aligned p.B, returs the result in b[:n] and removes the interpreted bytes from p.B including optional adding bytes.
 // If not enough data in p.B including optional padding bytes nothing happens and n=0, nil is returned.
 // It tries to detect if the data stream is compact or aligned and sets p.packageFraming accordingly.
@@ -652,5 +651,21 @@ func (p *trexDec) InterpretUnframedData64(b []byte) (n int, err error) {
 		return
 	}
 	return
+}
+*/
+
+/*
+var testTableVirgin = true
+
+// printTestTableLine is used to generate testdata
+func (p *trexDec) printTestTableLine(n int) {
+	if emitter.NextLine || testTableVirgin {
+		emitter.NextLine = false
+		testTableVirgin = false
+		fmt.Printf("{ []byte{ ")
+	}
+	for _, b := range p.IBuf[0:n] { // just to see trice bytes per trice
+		fmt.Printf("%3d,", b)
+	}
 }
 */

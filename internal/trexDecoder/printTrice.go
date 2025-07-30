@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/rokath/trice/internal/decoder"
-	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 )
 
@@ -412,18 +411,4 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		}
 	}
 	return copy(b, fmt.Sprintf(p.pFmt, v[:len(p.u)]...))
-}
-
-var testTableVirgin = true
-
-// printTestTableLine is used to generate testdata
-func (p *trexDec) printTestTableLine(n int) {
-	if emitter.NextLine || testTableVirgin {
-		emitter.NextLine = false
-		testTableVirgin = false
-		fmt.Printf("{ []byte{ ")
-	}
-	//  for _, b := range p.IBuf[0:n] { // just to see trice bytes per trice
-	//  	fmt.Printf("%3d,", b)
-	//  }
 }
