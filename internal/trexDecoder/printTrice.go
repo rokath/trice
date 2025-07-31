@@ -34,9 +34,9 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	ucTriceTypeReconstructed := strings.ToUpper(triceType) // examples: TRICE32_S, TRICE0,  TRICE32_4, TRICE16_2
 	for _, s := range cobsFunctionPtrList {                // walk through the list and try to find a match for execution
 		if s.triceType == ucTriceTypeReconstructed || s.triceType == ucTriceTypeReceived { // match list entry "TRICE..."
-			if len(p.I) < p.ParamSpace {
-				n += copy(b[n:], fmt.Sprintln("err:len(p.I) =", len(p.I), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package:"))
-				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I[:len(p.I)])))
+			if len(p.V) < p.ParamSpace {
+				n += copy(b[n:], fmt.Sprintln("err:len(p.V) =", len(p.V), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package:"))
+				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.V)))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
@@ -57,7 +57,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 					}
 				}
 				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package:"))
-				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I[:len(p.I)])))
+				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.V)))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
@@ -89,7 +89,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 		}
 	}
 	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data:"))
-	n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I[:p.ParamSpace])))
+	n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I)))
 	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 	return
 }
@@ -171,23 +171,23 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 
 // triceN converts dynamic strings.
 func (p *trexDec) triceN(b []byte, _ int, _ int) int {
-	s := string(p.I[:p.ParamSpace])
+	s := string(p.V[:p.ParamSpace])
 	// todo: evaluate p.Trice.Strg, use p.SLen and do whatever should be done
 	return copy(b, fmt.Sprintf(p.Trice.Strg, s))
 }
 
 // triceS converts dynamic strings.
 func (p *trexDec) triceS(b []byte, _ int, _ int) int {
-	s := string(p.I[:p.ParamSpace])
+	s := string(p.V)
 	return copy(b, fmt.Sprintf(p.Trice.Strg, s))
 }
 
 // triceB converts dynamic buffers.
 func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.I)
+		fmt.Fprintln(p.W, p.V)
 	}
-	s := p.I[:p.ParamSpace]
+	s := p.V
 	before, after, found := strings.Cut(p.Trice.Strg, ":")
 	if found {
 		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
@@ -209,9 +209,9 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 // trice16B converts dynamic buffers.
 func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.I)
+		fmt.Fprintln(p.W, p.V)
 	}
-	s := p.I[:p.ParamSpace]
+	s := p.V
 
 	before, after, found := strings.Cut(p.Trice.Strg, ":")
 	if found {
@@ -235,9 +235,9 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 // trice32B converts dynamic buffers.
 func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.I)
+		fmt.Fprintln(p.W, p.V)
 	}
-	s := p.I[:p.ParamSpace]
+	s := p.V
 
 	before, after, found := strings.Cut(p.Trice.Strg, ":")
 	if found {
@@ -260,9 +260,9 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 // trice64B converts dynamic buffers.
 func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.I)
+		fmt.Fprintln(p.W, p.V)
 	}
-	s := p.I[:p.ParamSpace]
+	s := p.V
 
 	before, after, found := strings.Cut(p.Trice.Strg, ":")
 	if found {
@@ -285,9 +285,9 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 // trice8F display function call with 8-bit parameters.
 func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.I)
+		fmt.Fprintln(p.W, p.V)
 	}
-	s := p.I[:p.ParamSpace]
+	s := p.V
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
@@ -299,9 +299,9 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 // trice16F display function call with 16-bit parameters.
 func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.I)
+		fmt.Fprintln(p.W, p.V)
 	}
-	s := p.I[:p.ParamSpace]
+	s := p.V
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
@@ -313,9 +313,9 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 // trice32F display function call with 32-bit parameters.
 func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.I)
+		fmt.Fprintln(p.W, p.V)
 	}
-	s := p.I[:p.ParamSpace]
+	s := p.V
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
@@ -327,9 +327,9 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 // trice64F display function call with 64-bit parameters.
 func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.I)
+		fmt.Fprintln(p.W, p.V)
 	}
-	s := p.I[:p.ParamSpace]
+	s := p.V
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
@@ -343,7 +343,7 @@ func (p *trexDec) trice0(b []byte, _ int, _ int) int {
 	return copy(b, fmt.Sprintf(p.pFmt))
 }
 
-// unSignedOrSignedOut prints p.I according to the format string.
+// unSignedOrSignedOut prints p.V according to the format string.
 func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	if len(p.u) != count {
 		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.Trice.Type, p.Trice.Strg))
@@ -354,18 +354,18 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		for i, f := range p.u {
 			switch f {
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
-				v[i] = p.I[i]
+				v[i] = p.V[i]
 			case decoder.SignedFormatSpecifier:
-				v[i] = int8(p.I[i])
+				v[i] = int8(p.V[i])
 			case decoder.BooleanFormatSpecifier:
-				v[i] = p.I[i] != 0
+				v[i] = p.V[i] != 0
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.Trice.Type, p.Trice.Strg))
 			}
 		}
 	case 16:
 		for i, f := range p.u {
-			n := p.ReadU16(p.I[2*i:])
+			n := p.ReadU16(p.V[2*i:])
 			switch f {
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
 				v[i] = n
@@ -379,7 +379,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		}
 	case 32:
 		for i, f := range p.u {
-			n := p.ReadU32(p.I[4*i:])
+			n := p.ReadU32(p.V[4*i:])
 			switch f {
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
 				v[i] = n
@@ -395,7 +395,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		}
 	case 64:
 		for i, f := range p.u {
-			n := p.ReadU64(p.I[8*i:])
+			n := p.ReadU64(p.V[8*i:])
 			switch f {
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
 				v[i] = n

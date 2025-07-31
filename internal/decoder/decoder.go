@@ -146,14 +146,15 @@ type Decoder interface {
 
 // DecoderData is the common data struct for all decoders.
 type DecoderData struct {
-	W           io.Writer // io.Stdout or the like
-	In          io.Reader // in is the inner reader, which is used to get raw bytes
+	W  io.Writer // io.Stdout or the like
+	In io.Reader // in is the inner reader, which is used to get raw bytes
 	//ScratchPad  []byte
 	Last        []byte
 	InnerBuffer []byte             // avoid repeated allocation (trex)
 	IBuf        []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
-	I           []byte             // Interpret buffer
-	B          []byte             // initial value for I
+	I           []byte             // interpret buffer
+	V           []byte             // values space inside interpret buffer
+	B           []byte             // initial value for I
 	Endian      bool               // endian is true for LittleEndian and false for BigEndian
 	TriceSize   int                // trice head and payload size as number of bytes
 	ParamSpace  int                // trice payload size after head
