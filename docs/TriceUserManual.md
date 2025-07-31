@@ -2073,7 +2073,7 @@ One possible use case is to have user **printi** statements parallel to Trices (
     * `-pf=none` -> detect stream (depreciated, only for backward compability)
     * `-pf=none8` -> stream is compact
     * `-pf=none32` -> stream is 32-bit aligned
-  * A stream with alignment is allowed to have only a single Trice between two allignments. An alignment is just a multiple of 4(8)-bytes distance.
+  * A stream with alignment is allowed to have only a single Trice between two alignments. An alignment is just a multiple of 4(8)-bytes distance.
   * These combinations are forbidden, because we cannot safely know the actual padding count: `|TriceATriceB0|TriceC00|` <- Is the `0` after `TriceB` a padding zero or part of `TiceC`?
     * Framing NONE && TRICE_MULTI_PACK_MODE && 32-bit write
     * Framing NONE && TRICE_MULTI_PACK_MODE && XTEA encryption
