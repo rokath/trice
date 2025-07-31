@@ -602,57 +602,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 //  	}
 //  }
 
-/*
-// InterpretUnframedData0 analyzes next Trice in compact or aligned p.B, returs the result in b[:n] and removes the interpreted bytes from p.B including optional adding bytes.
-// If not enough data in p.B including optional padding bytes nothing happens and n=0, nil is returned.
-// It tries to detect if the data stream is compact or aligned and sets p.packageFraming accordingly.
-func (p *trexDec) InterpretUnframedData0(b []byte) (n int, err error) {
-	// todo
-	return
-}
 
-// InterpretUnframedData8 analyzes next Trice in compact buffer p.B, returs the result in b[:n] and removes the interpreted bytes from p.B.
-// If not enough data in p.B nothing happens and n=0, nil is returned.
-func (p *trexDec) InterpretUnframedData8(b []byte) (n int, err error) {
-	for len(p.B) > 0 {
-		if !p.TriceComplete() {
-			return
-		}
-	}
-	n, err = p.printTrice(b)
-	if
-	p.B = p.B[p.ntlen:]
-	return
-}
-
-// InterpretUnframedData32 analyzes next Trice in 32-bit aligned buffer p.B, returs the result in b[:n] and removes the interpreted bytes from p.B including optional 0-3 adding bytes.
-// If not enough data in p.B including optional padding bytes nothing happens and n=0, nil is returned.
-func (p *trexDec) InterpretUnframedData32(b []byte) (n int, err error) {
-	if !p.TriceComplete() {
-		return
-	}
-	n, err = p.printTrice(b)
-	//p.B = p.B[p.ntlen:]
-	//
-	//switch len(p.B){
-	//case 0:
-	//	return
-	//case
-	//
-	//}
-
-	return
-}
-
-// InterpretUnframedData64 analyzes next Trice in 64-bit aligned buffer p.B, returs the result in b[:n] and removes the interpreted bytes from p.B including optional 0-7 adding bytes.
-// If not enough data in p.B including optional padding bytes nothing happens and n=0, nil is returned.
-func (p *trexDec) InterpretUnframedData64(b []byte) (n int, err error) {
-	if !p.TriceComplete() {
-		return
-	}
-	return
-}
-*/
 
 /*
 var testTableVirgin = true
