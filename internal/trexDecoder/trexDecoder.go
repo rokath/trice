@@ -56,6 +56,7 @@ type trexDec struct {
 	pFmt           string     // modified trice format string: %u -> %d
 	u              []int      // 1: modified format string positions:  %u -> %d, 2: float (%f)
 	packageFraming int        // CLI, range packageFramingNone...packageFramingTCOBSv2
+	unframed0ExpectedByteCount int // 
 }
 
 // New provides a TREX decoder instance.
@@ -110,17 +111,17 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 func (p *trexDec) Read(b []byte) (n int, err error) {
 	switch p.packageFraming {
 	case packageFramingNone, packageFramingNone0:
-		p.nextData() // returns all unprocessed data inside p.I
+		p.nextData() // appends next data to p.I
 		n = p.InterpretUnframedData0(b)
 	case packageFramingNone8:
-		p.nextData() // returns all unprocessed data inside p.I
-		n = p.InterpretUnframedData8(b)
+		p.nextData()                    // appends next data to p.I
+		n = p.InterpretUnframedData8(b) // removes processed data from p.I
 	case packageFramingNone32:
-		p.nextData() // returns all unprocessed data inside p.I
-		n = p.InterpretUnframedData32(b)
+		p.nextData()                     // appends next data to p.I
+		n = p.InterpretUnframedData32(b) // removes processed data from p.I
 	case packageFramingNone64: // XTEA is active
-		p.nextData() // returns all unprocessed data inside p.I
-		n = p.InterpretUnframedData64(b)
+		p.nextData()                     // appends next data to p.I
+		n = p.InterpretUnframedData64(b) // removes processed data from p.I
 	default:
 		p.nextFrame()
 		n = p.InterpretDecodedFrame(b)
@@ -137,10 +138,10 @@ func (p *trexDec) nextBytes() {
 	p.Last = append(p.Last, p.InnerBuffer[:m]...) // merge with leftovers
 }
 
-// nextData reads with an inner reader a raw byte stream and appends it to p.B.
+// nextData reads with an inner reader a raw byte stream and appends it to p.I.
 func (p *trexDec) nextData() {
 	p.nextBytes()
-	p.I = p.Last
+	p.I = append(p.I, p.Last...)
 	p.Last = p.Last[:0]
 }
 
@@ -288,7 +289,7 @@ func (p *trexDec) printTrice(b []byte) (n int) {
 			p.Trice.Strg += `\n` // this adds a newline to each single Trice message
 		}
 		p.V = p.I[p.ntlen-p.ParamSpace:] // values space
-		n += p.sprintTrice(b[n:]) // use param info
+		n += p.sprintTrice(b[n:])        // use param info
 	} else {
 		n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", p.triceID, "- ignoring trice:"))
 		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I[:p.ntlen])))
@@ -411,28 +412,75 @@ func (p *trexDec) TriceTypeX0Complete() bool {
 }
 
 // InterpretUnframedData0 analyzes next Trice in compact or aligned p.I, returs the result in b[:n] and removes the interpreted bytes from p.I including optional padding bytes.
-// If not enough data in p.I including optional padding bytes nothing happens and n=0, nil is returned.
-// It tries to detect if the data stream is compact or aligned and sets p.packageFraming accordingly.
-// Aligned streams are forbidden to have more than a single Trice.
+// If not enough data in p.I including optional padding bytes nothing happens and n=0 is returned.
+// It tries to detect, if the data stream is compact or aligned and sets p.packageFraming accordingly.
+// We do not need to check none64 cases. We forbid for now, that typeX0 Trices start with 00.
+// Aligned streams are forbidden to have more than a single Trice between 2 alignment borders (|).
 // The data stream options:
-hier weiter
-//   p.ntlen == len(p.I) && len(p.I) mod 4 != 0 && no 
-//   p.ntlen == len(p.I) && len(p.I) mod 4 == 0 -> no decision possible
-//   p.ntlen == len(p.I) && len(p.I) mod 4 != 0 -> none8
-//   p.ntlen == len(p.I) && len(p.I) mod 4 == 0 -> no decision possible
-
-//   p.ntlen < len(p.I) && len(p.B) - p.ntlen < 4 and 1-3 zeroes -> none32
-//   p.ntlen < len(p.I) && len(p.B) - p.ntlen < 8 and 1-7 zeroes -> none64
-
-//   No padding bytes at all -> we can check if len(p.I) mod 4 != 0 and some break, -> none8
-//   After a Trice len(p.I) mod 4 == 0
+// case 0: |Trice|    -> p.expectedByteCount = 0. No decision possible.
+//
+//	|Trice |   -> p.expectedByteCount = 1. No decision possible.
+//	|Trice  |  -> p.expectedByteCount = 2. No decision possible.
+//	|Trice   | -> p.expectedByteCount = 3. No decision possible.
+//
+// case 1: |TriceN|   -> If N   is 0   { No decision possible. The 0 could be a padding zero (none32) or part of the next Trice (none8). }else{ none8 }
+// case 2: |TriceNN|  -> If NN  is 00  { none32. The 00  could be a typeX0 start but we forbid that for now. }else{ none8 }
+// case 3: |TriceNNN| -> If NNN is 000 { none32. The 000 could be a typeX0 start but we forbid that for now. }else{ none8 }
 func (p *trexDec) InterpretUnframedData0(b []byte) (n int) {
-	for p.TriceComplete() {
-		n += p.printTrice(b)
-		if len(p.I) == 0 {
+	switch p.unframed0ExpectedByteCount {
+	case 2,3:
+		if allZero(p.I[:p.unframed0ExpectedByteCount]) {
+			p.I = p.I[p.unframed0ExpectedByteCount:] // remove padding zeroes
+			p.packageFraming = packageFramingNone32
 			return
 		}
+	case 1:
+		if p.I[0] != 0 {
+			p.packageFraming = packageFramingNone8
+			return
+		}else{
+			// Here we have |Trice0|Trice and we do not know, if the 0 is part of the next Trice.
+			// So let us check, if the ID is known:
+			_, ok := p.Lut[id.TriceID(p.ReadU16(p.I))]
+			if !ok { // no match
+				p.I = p.I[1:] // remove padding zero
+				p.packageFraming = packageFramingNone32
+				return
+			}
+			// The id with low part 0 is known but that is no guaranty, that the 0 is no padding byte.
+			_, ok = p.Lut[id.TriceID(p.ReadU16(p.I[1:]))]
+			if !ok { // now we have the guaranty
+				p.I = p.I[1:] // remove padding zero
+				p.packageFraming = packageFramingNone32
+				return
+			}
+			// Here we have, the case that both variants give valid IDs.
+			// We could evaluate further to check param count and cycle counter but a 100% guaranty we will not get.
+			// Let it be...
+		}
 	}
+
+	if !p.TriceComplete() {
+		return
+	}
+	n += p.printTrice(b)
+	switch len(p.I) {
+	case 0:
+		p.unframed0ExpectedByteCount = p.ntlen % 4
+		return
+	case 1:
+		if p.I[0] != 0 {
+			p.packageFraming = packageFramingNone8
+		}
+	case 2, 3:
+		if allZero(p.I) {
+			p.packageFraming = packageFramingNone32
+		} else {
+			p.packageFraming = packageFramingNone8
+		}
+		return
+	}
+	return
 }
 
 // InterpretUnframedData8 analyzes next Trice in compact buffer p.I, returs the result in b[:n] and removes the interpreted bytes from p.I.
