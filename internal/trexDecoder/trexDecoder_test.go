@@ -64,7 +64,7 @@ func doTableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool, te
 	}
 }
 
-// TestTREX takes byte sequence in tt as TCOBSv1 framed trice and converts it to the appropriate sting in the tt.
+// TestTREX takes byte sequence in tt as TCOBSv1 framed trice and converts it to the appropriate string in the tt.
 // For translation is uses the idl inside doTableTest. The cycle counter starts with 0xC0 to avoid cycle error messages.
 func TestTREX(t *testing.T) {
 	tt := decoder.TestTable{ // little endian
