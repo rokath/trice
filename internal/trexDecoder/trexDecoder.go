@@ -110,21 +110,22 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 func (p *trexDec) Read(b []byte) (n int, err error) {
 	switch p.packageFraming {
 	case packageFramingNone, packageFramingNone0:
-		p.nextData() // returns all unprocessed data inside p.B
-		return       //p.InterpretUnframedData0(b)
+		p.nextData() // returns all unprocessed data inside p.I
+		n = p.InterpretUnframedData0(b)
 	case packageFramingNone8:
-		p.nextData() // returns all unprocessed data inside p.B
-		return       //p.InterpretUnframedData8(b)
+		p.nextData() // returns all unprocessed data inside p.I
+		n = p.InterpretUnframedData8(b)
 	case packageFramingNone32:
-		p.nextData() // returns all unprocessed data inside p.B
-		return       //p.InterpretUnframedData32(b)
+		p.nextData() // returns all unprocessed data inside p.I
+		n = p.InterpretUnframedData32(b)
 	case packageFramingNone64: // XTEA is active
-		p.nextData() // returns all unprocessed data inside p.B
-		return       //p.InterpretUnframedData64(b)
+		p.nextData() // returns all unprocessed data inside p.I
+		n = p.InterpretUnframedData64(b)
 	default:
 		p.nextFrame()
-		return p.InterpretDecodedFrame(b), nil
+		n = p.InterpretDecodedFrame(b)
 	}
+	return
 }
 
 // nextBytes reads with an inner reader a raw byte stream and appends it to p.Last.
@@ -274,7 +275,7 @@ func (p *trexDec) checkReceivedCycle(b []byte) (n int) {
 	return
 }
 
-// printTrice expects in p.I enough data for printing a trice.
+// printTrice expects in p.I enough data for printing a Trice. After printing a Trice its bytes are removed.
 // p.ntlen, p.triceType, p.triceID==decoder.LastTriceID, p.receivedCycle, p.ParamSpace, decoder.TargetTimestampSize, decoder.TargetTimestamp are valid already
 func (p *trexDec) printTrice(b []byte) (n int) {
 	n = p.checkReceivedCycle(b)
@@ -409,12 +410,29 @@ func (p *trexDec) TriceTypeX0Complete() bool {
 	return true
 }
 
-// InterpretUnframedData0 analyzes next Trice in compact or aligned p.I, returs the result in b[:n] and removes the interpreted bytes from p.I including optional adding bytes.
+// InterpretUnframedData0 analyzes next Trice in compact or aligned p.I, returs the result in b[:n] and removes the interpreted bytes from p.I including optional padding bytes.
 // If not enough data in p.I including optional padding bytes nothing happens and n=0, nil is returned.
 // It tries to detect if the data stream is compact or aligned and sets p.packageFraming accordingly.
-func (p *trexDec) InterpretUnframedData0(b []byte) (n int, err error) {
-	// todo
-	return
+// Aligned streams are forbidden to have more than a single Trice.
+// The data stream options:
+hier weiter
+//   p.ntlen == len(p.I) && len(p.I) mod 4 != 0 && no 
+//   p.ntlen == len(p.I) && len(p.I) mod 4 == 0 -> no decision possible
+//   p.ntlen == len(p.I) && len(p.I) mod 4 != 0 -> none8
+//   p.ntlen == len(p.I) && len(p.I) mod 4 == 0 -> no decision possible
+
+//   p.ntlen < len(p.I) && len(p.B) - p.ntlen < 4 and 1-3 zeroes -> none32
+//   p.ntlen < len(p.I) && len(p.B) - p.ntlen < 8 and 1-7 zeroes -> none64
+
+//   No padding bytes at all -> we can check if len(p.I) mod 4 != 0 and some break, -> none8
+//   After a Trice len(p.I) mod 4 == 0
+func (p *trexDec) InterpretUnframedData0(b []byte) (n int) {
+	for p.TriceComplete() {
+		n += p.printTrice(b)
+		if len(p.I) == 0 {
+			return
+		}
+	}
 }
 
 // InterpretUnframedData8 analyzes next Trice in compact buffer p.I, returs the result in b[:n] and removes the interpreted bytes from p.I.
