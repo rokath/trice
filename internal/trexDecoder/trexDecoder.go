@@ -28,7 +28,7 @@ const (
 	typeS4                = 3 // regular trice format with 32-bit stamp: 11iiiiiiI TT TT NC ...
 	typeX0                = 0 // unspecified, usually a counted string : 00nnnnnnN... with TypeX0Handler = "countedString"
 	packageFramingNone    = iota
-	packageFramingNone0   // For compability, detection, if compact or aligned buffers come in, is not done yet.
+	packageFramingNone0   // -pf=none    For compability. Detection, if compact or aligned buffers come in.
 	packageFramingNone8   // -pf=none8   Compact unframed buffer, no spaces between Trices. Use case is TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE without framing.
 	packageFramingNone32  // -pf=none32  Aligned unframed buffer, after each Trice 0-3 padding zeroes to make the length a multiple of 4 bytes. Use case is TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE without framing.
 	packageFramingNone64  // -pf=none64  Aligned unframed buffer, after each Trice 0-7 padding zeroes to make the length a multiple of 8 bytes. Use case is with encryption and no framing.
@@ -40,7 +40,7 @@ const (
 var (
 	Doubled16BitID               bool              // CLI, needed for rtt32
 	AddNewlineToEachTriceMessage bool              // CLI
-	SingleFraming                bool              // CLI SingleFraming demands, that each received package contains not more than a singe Trice message.
+	SingleFraming                bool              // CLI SingleFraming demands, that each received frame contains not more than a singe Trice message.
 	DisableCycleErrors           bool              // CLI, needed when routing is enabled
 	TypeX0Handler                = "countedString" // CLI, needed when other typeX0 handlers are needed.
 )
@@ -48,14 +48,14 @@ var (
 // trexDec is the Decoding instance for trex encoded trices.
 type trexDec struct {
 	decoder.DecoderData
+	receivedCycle  uint8      // range 0-255
 	expectedCycle  uint8      // cycle date: c0...bf
+	triceType      id.TriceID // range 0-3
+	triceID        id.TriceID // range 0-16383
+	ntlen          int        // computed len of next Trice in p.B
 	pFmt           string     // modified trice format string: %u -> %d
 	u              []int      // 1: modified format string positions:  %u -> %d, 2: float (%f)
 	packageFraming int        // CLI, range packageFramingNone...packageFramingTCOBSv2
-	triceType      id.TriceID // range 0-3
-	triceID        id.TriceID // range 0-16383
-	receivedCycle  uint8      // range 0-255
-	ntlen          int        // computed len of next Trice in p.B
 }
 
 // New provides a TREX decoder instance.
@@ -151,8 +151,8 @@ func (p *trexDec) nextFrame() (err error) {
 		p.I = p.I[:0]
 		return
 	}
-	err = p.decodeFrame(p.Last[:index]) // exclude terminating 0, put frame into p.B
-	p.Last = p.Last[index:]             // exclude terminating 0, keep rest for next package
+	err = p.decodeFrame(p.Last[:index]) // exclude terminating 0, put frame into p.I
+	p.Last = p.Last[index+1:]           // exclude terminating 0, keep rest for next package
 	return
 }
 
@@ -205,25 +205,29 @@ func (p *trexDec) DecryptIfEncrypted() (err error) {
 	return nil
 }
 
+// DiscardPaddingBytes expects in p.I max 7 zeroes and removes them silently.
+// Otherwise an error information is printed into b[n:] and n is increased accordingly.
+// The return value is n.
+func (p *trexDec) DiscardPaddingBytes(b []byte, n int) int {
+	if len(p.I) > 7 || !allZero(p.I) {
+		n += copy(b[n:], fmt.Sprintln())
+		n += copy(b[n:], fmt.Sprintln("ERR:incomplete Trice in frame:\a"))
+		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+	}
+	p.I = p.I[:0] // discard
+	return n
+}
+
 // InterpretDecodedFrame expects in p.I a decoded frame for interpretation.
 func (p *trexDec) InterpretDecodedFrame(b []byte) (n int) {
 	for p.TriceComplete() {
 		n += p.printTrice(b[n:])
-		p.I = p.I[p.ntlen:] // remove used data
+		if SingleFraming {
+			return p.DiscardPaddingBytes(b, n)
+		}
 	}
-	if len(p.I) < 4 && allZero(p.B) {
-		p.I = p.I[:0] // discard padding bytes
-		return
-	}
-	if len(p.B) < 7 && allZero(p.B) && cipher.Password != "" {
-		p.I = p.I[:0] // discard padding bytes
-		return
-	}
-	n += copy(b[n:], fmt.Sprintln("ERR:incomplete Trice in frame:\a"))
-	n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
-	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-	p.I = p.I[:0] // discard
-	return
+	return p.DiscardPaddingBytes(b, n)
 }
 
 // allZero returns true, when all values in bytes are 0.
@@ -270,7 +274,7 @@ func (p *trexDec) checkReceivedCycle(b []byte) (n int) {
 	return
 }
 
-// printTrice expects in p.B enough data for printing a trice.
+// printTrice expects in p.I enough data for printing a trice.
 // p.ntlen, p.triceType, p.triceID==decoder.LastTriceID, p.receivedCycle, p.ParamSpace, decoder.TargetTimestampSize, decoder.TargetTimestamp are valid already
 func (p *trexDec) printTrice(b []byte) (n int) {
 	n = p.checkReceivedCycle(b)
@@ -278,48 +282,38 @@ func (p *trexDec) printTrice(b []byte) (n int) {
 	//p.LutMutex.RLock()
 	p.Trice, ok = p.Lut[p.triceID]
 	//p.LutMutex.RUnlock()
-	if !ok {
-		// if p.packageFraming == packageFramingNone {
-		// 	if decoder.Verbose {
-		// 		n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from:"))
-		// 		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
-		// 	}
-		// 	p.B0 = p.B0[1:] // discard first byte and try again
-		// 	p.B = p.B0
-		// } else {
+	if ok {
+		if AddNewlineToEachTriceMessage {
+			p.Trice.Strg += `\n` // this adds a newline to each single Trice message
+		}
+		p.V = p.I[p.ntlen-p.ParamSpace:] // values space
+		n += p.sprintTrice(b[n:]) // use param info
+	} else {
 		n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", p.triceID, "- ignoring trice:"))
 		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I[:p.ntlen])))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-		//p.I = p.I[p.ntlen:] // discard
-		//}
-		return
 	}
-	if AddNewlineToEachTriceMessage {
-		p.Trice.Strg += `\n` // this adds a newline to each single Trice message
-	}
-
-	n += p.sprintTrice(b[n:]) // use param info
-
+	p.I = p.I[p.ntlen:] // remove evaluated data
 	return
 }
 
 // TriceComplete tries to interpret next data in p.I. If not enough bytes false is returned. p.I is not altered.
 // On success true is returned and these values are valid:
-// p.triceType, p.triceID==decoder.LastTriceID, p.receivedCycle, p.ParamSpace, decoder.TargetTimestampSize, decoder.TargetTimestamp
+// p.ntlen p.triceType, p.triceID==decoder.LastTriceID, p.receivedCycle, p.ParamSpace, decoder.TargetTimestampSize, decoder.TargetTimestamp
 func (p *trexDec) TriceComplete() bool {
 	p.ntlen = 2
 	if len(p.I) < p.ntlen { // not enough data
 		return false
 	}
-	if cipher.Password != "" {
-		p.ntlen = 8
-		if len(p.I) < p.ntlen { // not enough data
-			return false
-		}
-		// todo:
-		// Decrypt 8 bytes and optionally next 8 bytes and so on, until the first Trice is complete.
-		// We may need to wait for more data
-	}
+	//  if cipher.Password != "" {
+	//  	p.ntlen = 8
+	//  	if len(p.I) < p.ntlen { // not enough data
+	//  		return false
+	//  	}
+	//  	// todo:
+	//  	// Decrypt 8 bytes and optionally next 8 bytes and so on, until the first Trice is complete.
+	//  	// We may need to wait for more data
+	//  }
 	tyId := id.TriceID(p.ReadU16(p.I))
 	p.triceType = tyId >> decoder.IDBits // 2 most significant bits are the triceType
 	p.triceID = 0x3FFF & tyId            // 14 least significant bits are the ID
@@ -413,4 +407,61 @@ func (p *trexDec) TriceTypeX0Complete() bool {
 		return false
 	}
 	return true
+}
+
+// InterpretUnframedData0 analyzes next Trice in compact or aligned p.I, returs the result in b[:n] and removes the interpreted bytes from p.I including optional adding bytes.
+// If not enough data in p.I including optional padding bytes nothing happens and n=0, nil is returned.
+// It tries to detect if the data stream is compact or aligned and sets p.packageFraming accordingly.
+func (p *trexDec) InterpretUnframedData0(b []byte) (n int, err error) {
+	// todo
+	return
+}
+
+// InterpretUnframedData8 analyzes next Trice in compact buffer p.I, returs the result in b[:n] and removes the interpreted bytes from p.I.
+// If not enough data in p.I nothing happens and n=0, nil is returned.
+func (p *trexDec) InterpretUnframedData8(b []byte) (n int) {
+	for p.TriceComplete() {
+		n += p.printTrice(b)
+	}
+	return
+}
+
+// InterpretUnframedData32 analyzes next Trice in 32-bit aligned buffer p.B, returs the result in b[:n] and removes the interpreted bytes from p.B including optional 0-3 adding bytes.
+// If not enough data in p.I including optional padding bytes nothing happens and n=0 is returned. Non-zero padding bytes are reported.
+func (p *trexDec) InterpretUnframedData32(b []byte) (n int) {
+	for p.TriceComplete() {
+		alignCount := 3 & (p.ntlen % 4)
+		if len(p.I) < p.ntlen+alignCount {
+			return // not all expected alignment bytes arrived
+		}
+		n += p.printTrice(b)
+		if !allZero(p.I[:alignCount]) {
+			n += copy(b[n:], fmt.Sprintln())
+			n += copy(b[n:], fmt.Sprintln("ERR:non-zero padding bytes:\a"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I[:alignCount])))
+			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		}
+		p.I = p.I[alignCount:]
+	}
+	return
+}
+
+// InterpretUnframedData64 analyzes next Trice in 64-bit aligned buffer p.I, returs the result in b[:n] and removes the interpreted bytes from p.I including optional 0-7 adding bytes.
+// If not enough data in p.I including optional padding bytes nothing happens and n=0 is returned. Non-zero padding bytes are reported.
+func (p *trexDec) InterpretUnframedData64(b []byte) (n int) {
+	for p.TriceComplete() {
+		alignCount := 7 & (p.ntlen % 8)
+		if len(p.I) < p.ntlen+alignCount {
+			return // not all expected alignment bytes arrived
+		}
+		n += p.printTrice(b)
+		if !allZero(p.I[:alignCount]) {
+			n += copy(b[n:], fmt.Sprintln())
+			n += copy(b[n:], fmt.Sprintln("ERR:non-zero padding bytes:\a"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I[:alignCount])))
+			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		}
+		p.I = p.I[alignCount:]
+	}
+	return
 }
