@@ -50,13 +50,25 @@ type trexDec struct {
 	decoder.DecoderData
 	receivedCycle  uint8      // range 0-255
 	expectedCycle  uint8      // cycle date: c0...bf
+
+	TriceR
+	// triceType      id.TriceID // range 0-3
+	// triceID        id.TriceID // range 0-16383
+	// ntlen          int        // computed len of next Trice in p.B
+	// pFmt           string     // modified trice format string: %u -> %d
+	// u              []int      // 1: modified format string positions:  %u -> %d, 2: float (%f)
+
+	packageFraming int        // CLI, range packageFramingNone...packageFramingTCOBSv2
+	paddingSpace   int        // Needed in packageFramingNone0 to help detection of packageFramingNone8 or packageFramingNone32
+}
+
+// Trice contains all individual Trice specific data.
+type TriceR struct {
 	triceType      id.TriceID // range 0-3
 	triceID        id.TriceID // range 0-16383
 	ntlen          int        // computed len of next Trice in p.B
 	pFmt           string     // modified trice format string: %u -> %d
 	u              []int      // 1: modified format string positions:  %u -> %d, 2: float (%f)
-	packageFraming int        // CLI, range packageFramingNone...packageFramingTCOBSv2
-	unframed0ExpectedByteCount int // 
 }
 
 // New provides a TREX decoder instance.
@@ -228,6 +240,9 @@ func (p *trexDec) InterpretDecodedFrame(b []byte) (n int) {
 		if SingleFraming {
 			return p.DiscardPaddingBytes(b, n)
 		}
+		if cipher.Password != "" && len(p.I) < 8 || allZero(p.I) {
+			p.I = p.I[:0] // discard padding zeroes at end of encrypted buffer
+		}
 	}
 	return p.DiscardPaddingBytes(b, n)
 }
@@ -289,6 +304,7 @@ func (p *trexDec) printTrice(b []byte) (n int) {
 			p.Trice.Strg += `\n` // this adds a newline to each single Trice message
 		}
 		p.V = p.I[p.ntlen-p.ParamSpace:] // values space
+		p.V = p.V[:p.ParamSpace]         // discard values paddings bytes
 		n += p.sprintTrice(b[n:])        // use param info
 	} else {
 		n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", p.triceID, "- ignoring trice:"))
@@ -427,58 +443,72 @@ func (p *trexDec) TriceTypeX0Complete() bool {
 // case 2: |TriceNN|  -> If NN  is 00  { none32. The 00  could be a typeX0 start but we forbid that for now. }else{ none8 }
 // case 3: |TriceNNN| -> If NNN is 000 { none32. The 000 could be a typeX0 start but we forbid that for now. }else{ none8 }
 func (p *trexDec) InterpretUnframedData0(b []byte) (n int) {
-	switch p.unframed0ExpectedByteCount {
-	case 2,3:
-		if allZero(p.I[:p.unframed0ExpectedByteCount]) {
-			p.I = p.I[p.unframed0ExpectedByteCount:] // remove padding zeroes
+	switch p.paddingSpace {
+	case 3:
+		if len(p.I) < 3 {
+			return
+		}
+		if allZero(p.I[:p.paddingSpace]) {
+			p.I = p.I[p.paddingSpace:] // remove padding zeroes
+			p.packageFraming = packageFramingNone32
+			return
+		}
+	case 2:
+		if len(p.I) < 2 {
+			return
+		}
+		if allZero(p.I[:p.paddingSpace]) {
+			p.I = p.I[p.paddingSpace:] // remove padding zeroes
 			p.packageFraming = packageFramingNone32
 			return
 		}
 	case 1:
+		if len(p.I) < 1 {
+			return
+		}
 		if p.I[0] != 0 {
 			p.packageFraming = packageFramingNone8
 			return
-		}else{
+		} else {
 			// Here we have |Trice0|Trice and we do not know, if the 0 is part of the next Trice.
 			// So let us check, if the ID is known:
+			if len(p.I) < 2 {
+				return
+			}
 			_, ok := p.Lut[id.TriceID(p.ReadU16(p.I))]
-			if !ok { // no match
+			if !ok { // no match, so the 0 is a padding zero (if no other error)
 				p.I = p.I[1:] // remove padding zero
 				p.packageFraming = packageFramingNone32
 				return
 			}
+			if len(p.I) < 3 {
+				return
+			}
 			// The id with low part 0 is known but that is no guaranty, that the 0 is no padding byte.
 			_, ok = p.Lut[id.TriceID(p.ReadU16(p.I[1:]))]
-			if !ok { // now we have the guaranty
+			if !ok { // now we have the guaranty, because with padding byte we get an error
 				p.I = p.I[1:] // remove padding zero
 				p.packageFraming = packageFramingNone32
 				return
 			}
 			// Here we have, the case that both variants give valid IDs.
 			// We could evaluate further to check param count and cycle counter but a 100% guaranty we will not get.
-			// Let it be...
+			// Let it be for now...
 		}
 	}
-
 	if !p.TriceComplete() {
 		return
 	}
-	n += p.printTrice(b)
-	switch len(p.I) {
+	n += p.printTrice(b) // removes Trice from p.I (p.ntlen bytes)
+	switch p.ntlen % 4 {
 	case 0:
-		p.unframed0ExpectedByteCount = p.ntlen % 4
-		return
+		p.paddingSpace = 0
 	case 1:
-		if p.I[0] != 0 {
-			p.packageFraming = packageFramingNone8
-		}
-	case 2, 3:
-		if allZero(p.I) {
-			p.packageFraming = packageFramingNone32
-		} else {
-			p.packageFraming = packageFramingNone8
-		}
-		return
+		p.paddingSpace = 3
+	case 2:
+		p.paddingSpace = 2
+	case 3:
+		p.paddingSpace = 1
 	}
 	return
 }
