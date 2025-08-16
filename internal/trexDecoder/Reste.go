@@ -1,6 +1,38 @@
 package trexDecoder
 
 /*
+// InterpretDecodedFrame expects in p.I a decoded frame for interpretation.
+func (p *trexDec) InterpretDecodedFrame(b []byte) (n int) {
+	for p.TriceComplete() {
+		n += p.printTrice(b[n:])
+		if SingleFraming {
+			return p.DiscardPaddingBytes(b, n)
+		}
+		if cipher.Password != "" && len(p.I) < 8 || allZero(p.I) {
+			p.I = p.I[:0] // discard padding zeroes at end of encrypted buffer
+		}
+	}
+	return p.DiscardPaddingBytes(b, n)
+}
+*/
+
+/*
+// DiscardPaddingBytes expects in p.I max 7 zeroes and removes them silently.
+// Otherwise an error information is printed into b[n:] and n is increased accordingly.
+// The return value is n.
+func (p *trexDec) DiscardPaddingBytes(b []byte, n int) int {
+	if len(p.I) > 7 || !allZero(p.I) {
+		n += copy(b[n:], fmt.Sprintln())
+		n += copy(b[n:], fmt.Sprintln("ERR:incomplete Trice in frame:\a"))
+		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+	}
+	p.I = p.I[:0] // discard
+	return n
+}
+*/
+
+/*
 // InterpretCobsFramedData analyzes next COBS buffer in framed buffer p.B, returs the result in b[:n] and removes the interpreted COBS data from p.B including the following 0-delimiter byte.
 // If not enough data in p.B (no 0-delimiter) nothing happens and n=0, nil is returned. If an empty COBS package was found (just a 0-delimiter), it is removed from p.B and n=0, nil is returned.
 func (p *trexDec) InterpretCobsFramedData(b []byte) (n int, err error) {
@@ -601,8 +633,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 //  		}
 //  	}
 //  }
-
-
 
 /*
 var testTableVirgin = true

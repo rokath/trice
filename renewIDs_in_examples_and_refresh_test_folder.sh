@@ -32,10 +32,12 @@ CGOTESTDIRS="
     special_protect_dblB_de_tcobs_ua/
     be_dblB_de_tcobs_ua/
     be_staticB_di_xtea_cobs_rtt32/
-    _dblB_di_cobs_rtt32__de_xtea_cobs_ua/
-    _ringB_di_cobs_rtt32__de_xtea_cobs_ua/
-    _ringB_di_xtea_cobs_rtt32__de_cobs_ua/
-    _ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
+    
+    dblB_di_cobs_rtt32__de_xtea_cobs_ua/
+    ringB_di_cobs_rtt32__de_xtea_cobs_ua/
+    ringB_di_xtea_cobs_rtt32__de_cobs_ua/
+    ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
+    
     dblB_de_cobs_ua/
     dblB_de_multi_cobs_ua/
     dblB_de_multi_nopf_ua/

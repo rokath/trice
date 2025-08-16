@@ -143,7 +143,6 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		if err != io.EOF && err != nil {
 			log.Fatal(err)
 		}
-
 		if n == 0 {
 			if (receiver.Port == "FILEBUFFER" ||
 				receiver.Port == "TCP4BUFFER" ||
@@ -170,104 +169,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		// If several, they end with a newline each, despite the last one which optionally ends with a newline.
 		start := time.Now()
 
-		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(b[:n]) // todo: b can contain several trices - handle that!
-
 		if n > 0 { // s.th. to write out
-			var logLineStart bool // logLineStart is a helper flag for log line start detection
-			if len(sw.Line) == 0 {
-				logLineStart = true
-			}
-
-			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
-				s := locationInformation(decoder.LastTriceID, li)
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-			}
-
-			var s string
-			if logLineStart {
-				switch decoder.TargetTimestampSize {
-				case 4:
-					switch decoder.TargetStamp32 {
-					case "ms", "hh:mm:ss,ms":
-						ms := decoder.TargetTimestamp % 1000
-						sec := (decoder.TargetTimestamp - ms) / 1000 % 60
-						min := (decoder.TargetTimestamp - ms - 1000*sec) / 60000 % 60
-						hour := (decoder.TargetTimestamp - ms - 1000*sec - 60000*min) / 3600000
-						s = fmt.Sprintf("time:%2d:%02d:%02d,%03d", hour, min, sec, ms)
-					case "us", "µs", "ssss,ms_µs":
-						us := decoder.TargetTimestamp % 1000
-						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-						sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
-						s = fmt.Sprintf("time:%4d,%03d_%03d", sd, ms, us)
-					case "epoch":
-						t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
-						s = t.Format("2006-01-02 15:04:05 UTC")
-						c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
-						if !t.Equal(c) {
-							s += "-->" + c.Format("2006-01-02 15:04:05 UTC")
-						}
-					case "":
-						// Suppressing ts32 output is desired.
-					default:
-						after, found := strings.CutPrefix(decoder.TargetStamp32, "epoch")
-						if found { // Assume a -ts32="epoch2006-01-02 15:04:05 UTC" like value.
-							t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
-							s = t.Format(after) // examples for after:
-							// s = t.Format("Mon Jan _2 15:04:05 2006")            //ANSIC
-							// s = t.Format("Mon Jan _2 15:04:05 MST 2006")        //UnixDate
-							// s = t.Format("Mon Jan 02 15:04:05 -0700 2006")      //RubyDate
-							// s = t.Format("02 Jan 06 15:04 MST")                 //RFC822
-							// s = t.Format("02 Jan 06 15:04 -0700")               //RFC822Z     (RFC822 with numeric zone)
-							// s = t.Format("Monday, 02-Jan-06 15:04:05 MST")      //RFC850
-							// s = t.Format("Mon, 02 Jan 2006 15:04:05 MST")       //RFC1123
-							// s = t.Format("Mon, 02 Jan 2006 15:04:05 -0700")     //RFC1123Z    (RFC1123 with numeric zone)
-							// s = t.Format("2006-01-02T15:04:05Z07:00")           //RFC3339
-							// s = t.Format("2006-01-02T15:04:05.999999999Z07:00") //RFC3339Nano
-							// s = t.Format("3:04PM")                              //Kitchen
-							// Assumed usage example: trice log -ts32='epoch"Mon, 02 Jan 2006 15:04:05 MST"'
-							c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
-							if !t.Equal(c) {
-								s += "-->" + c.Format(after)
-							}
-
-						} else { // Assume a string containing a single %d like format specification.
-							s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
-						}
-					}
-				case 2:
-					switch decoder.TargetStamp16 {
-					case "ms", "s,ms":
-						ms := decoder.TargetTimestamp % 1000
-						sec := (decoder.TargetTimestamp - ms) / 1000
-						s = fmt.Sprintf("time:      %2d,%03d", sec, ms)
-					case "us", "µs", "ms_µs":
-						us := decoder.TargetTimestamp % 1000
-						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-						s = fmt.Sprintf("time:      %2d_%03d", ms, us)
-					case "":
-					default:
-						s = fmt.Sprintf(decoder.TargetStamp16, decoder.TargetTimestamp)
-					}
-				case 0:
-					if decoder.TargetStamp0 != "" {
-						s = fmt.Sprintf(decoder.TargetStamp0)
-					}
-				}
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-				_, err = sw.Write([]byte("default: "))
-				msg.OnErr(err)
-			}
-			// write ID only if enabled and line start.
-			if logLineStart && decoder.ShowID != "" {
-				s := fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-				_, err = sw.Write([]byte("default: ")) // add space as separator
-				msg.OnErr(err)
-			}
 			_, err := sw.Write(b[:n])
 			msg.OnErr(err)
 		}
@@ -279,9 +181,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	}
 }
 
-// correctWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
+// CorrectWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
 // and virtually sets a 33rd bit by adding 2^32 seconds to it
-func correctWrappedTimestamp(ts32 uint32) time.Time {
+func CorrectWrappedTimestamp(ts32 uint32) time.Time {
 
 	const (
 		minValidYear = 2000
@@ -309,8 +211,8 @@ func correctWrappedTimestamp(ts32 uint32) time.Time {
 	return t
 }
 
-// locationInformation returns optional location information for id.
-func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
+// LocationInformation returns optional location information for id.
+func LocationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
 	if li != nil && decoder.LocationInformationFormatString != "off" && decoder.LocationInformationFormatString != "none" {
 		if li, ok := li[tid]; ok {
 			return fmt.Sprintf(decoder.LocationInformationFormatString, filepath.Base(li.File), li.Line)

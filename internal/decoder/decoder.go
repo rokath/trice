@@ -109,7 +109,7 @@ var (
 	DebugOut                        = false // DebugOut enables debug information.
 	DumpLineByteCount               int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
 	InitialCycle                    = true  // InitialCycle is a helper for the cycle counter automatic.
-	TargetTimestamp                 uint64  // targetTimestamp contains target specific timestamp value.
+	//TargetTimestamp                 uint64  // targetTimestamp contains target specific timestamp value.
 	TargetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
 	TargetStamp                     string  // TargetTimeStampUnit is the target timestamps time base for default formatting.
 	TargetStamp32                   string  // ShowTargetStamp32 is the format string for target timestamps.
@@ -156,13 +156,13 @@ type DecoderData struct {
 	V           []byte             // values space inside interpret buffer
 	B           []byte             // initial value for I
 	Endian      bool               // endian is true for LittleEndian and false for BigEndian
-	TriceSize   int                // trice head and payload size as number of bytes
-	ParamSpace  int                // trice payload size after head
-	SLen        int                // string length for TRICE_S
+	Li          id.TriceIDLookUpLI // location information map
 	Lut         id.TriceIDLookUp   // id look-up map for translation
 	LutMutex    *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
-	Li          id.TriceIDLookUpLI // location information map
-	Trice       id.TriceFmt        // id.TriceFmt // received trice
+	//TriceSize   int                // trice head and payload size as number of bytes
+	//ParamSpace  int                // trice payload size after head
+	//SLen        int                // string length for TRICE_S
+	//Trice       id.TriceFmt        // id.TriceFmt // received trice
 }
 
 // SetInput allows switching the input stream to a different source.
