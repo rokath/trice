@@ -38,7 +38,9 @@ func (p *trexDec) nextFrame() {
 		return
 	}
 	err = p.decodeFrame(p.Last[:index]) // exclude terminating 0, put frame into p.I
-
+	if err != nil {                     // some serious error
+		fmt.Fprint(p.W, "ERROR:decoder error\a", err)
+	}
 	// Here we have read but unprocessed data in p.Last[index+1:]
 	n := copy(p.Last, p.Last[index+1:])
 	p.Last = p.Last[:n]

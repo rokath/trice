@@ -43,10 +43,10 @@ var (
 type trexDec struct {
 	decoder.DecoderData
 	trices         []triceR // Contains parsed but not printed yet Trices.
-	t              *triceR 
-	tcount         int // tcount is the number of parsed Trices. It is the next writable TriceR struct index in Trices.
-	packageFraming int // CLI, range packageFramingNone...packageFramingTCOBSv2
-	paddingSpace   int // Needed in packageFramingNone0 to help detection of packageFramingNone8 or packageFramingNone32
+	t              *triceR  // t points to actual triceR inside trices slice.
+	tcount         int      // tcount is the number of parsed Trices. It is the next writable TriceR struct index in Trices.
+	packageFraming int      // CLI, range packageFramingNone...packageFramingTCOBSv2
+	paddingSpace   int      // Needed in packageFramingNone0 to help detection of packageFramingNone8 or packageFramingNone32
 }
 
 // triceR contains all parsed individual Trice specific read data for a single Trice.
@@ -117,9 +117,9 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 
 // Read is the provided read method for TREX decoding and provides next string as byte slice.
 func (p *trexDec) Read(b []byte) (n int, err error) {
-	err = p.readAndParse()
+	err = p.readAndParseTrices()
 	if err != nil {
 		return 0, err
 	}
-	return p.printTrices(b)
+	return p.interpretTrices(b)
 }

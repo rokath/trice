@@ -153,7 +153,7 @@ type DecoderData struct {
 	InnerBuffer []byte             // avoid repeated allocation (trex)
 	IBuf        []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
 	I           []byte             // interpret buffer
-	V           []byte             // values space inside interpret buffer
+	//V           []byte             // values space inside interpret buffer
 	B           []byte             // initial value for I
 	Endian      bool               // endian is true for LittleEndian and false for BigEndian
 	Li          id.TriceIDLookUpLI // location information map

@@ -9,8 +9,10 @@ import (
 	"github.com/rokath/trice/pkg/cipher"
 )
 
-// readAndParse gets next bytes into p.I and parses them.
-func (p *trexDec) readAndParse() (err error) {
+// readAndParseTrices gets the next Trices into p.trices.
+// To achieve that, it reads next bytes temporary into p.I and parses them.
+func (p *trexDec) readAndParseTrices() (err error) {
+	p.tcount = 0
 	switch p.packageFraming {
 	case packageFramingNone, packageFramingNone0:
 		p.nextData()           // appends next data to p.I
@@ -69,14 +71,14 @@ func (p *trexDec) nextTriceComplete() bool {
 
 // ParseDecodedFrame expects in p.I a decoded frame for interpretation.
 func (p *trexDec) parseDecodedFrame() {
-	restSize := 4
+	maxRestSize := 3
 	if cipher.Password != "" { // with XTEA
-		restSize = 8
+		maxRestSize = 7
 	}
 	for p.nextTriceComplete() {
 		p.parseNextTriceInFramedBuffer()
 	}
-	if len(p.I) >= restSize {
+	if len(p.I) >= maxRestSize {
 		s := fmt.Sprintln("WARNING:discarding unexpected bytes", hex.Dump(p.I))
 		p.W.Write([]byte(s))
 	} else {
@@ -258,7 +260,7 @@ func (p *trexDec) parseUnframedData32() {
 // If not enough data in p.I including optional padding bytes nothing happens. Non-zero padding bytes are reported.
 func (p *trexDec) parseUnframedData64() {
 	for p.nextTriceComplete() {
-		t := p.trices[p.tcount]
+		t := &p.trices[p.tcount]
 		size := t.headerSize + t.paramSize
 		alignCount := 7 & (-(size % 8))
 		if len(p.I) < size+alignCount {
@@ -274,7 +276,7 @@ func (p *trexDec) parseUnframedData64() {
 }
 
 func (p *trexDec) getCycleAndParamSize(i []byte) {
-	t := p.trices[p.tcount]
+	t := &p.trices[p.tcount]
 	nc := p.ReadU16(i) // n = number of data bytes (without timestamp), most significant bit is the count encoding, c = cycle
 	if nc>>15 == 1 {   // special case: more than data 127 bytes
 		// C code: #define TRICE_LCNT(count) TRICE_PUT16( (0x8000 | (count)) );
@@ -331,7 +333,7 @@ func (p *trexDec) triceIlkS4Complete() bool {
 }
 
 func (p *trexDec) triceIlkX0Complete() bool {
-	t := p.trices[p.tcount]
+	t := &p.trices[p.tcount]
 	switch TypeX0Handler {
 	case "countedString": // The first 2 bytes are the count.
 		t.paramSize += int(t.id)
