@@ -106,22 +106,22 @@ var (
 	matchNextFormatBoolSpecifier    = regexp.MustCompile(patNextFormatBoolSpecifier)
 	matchNextFormatPointerSpecifier = regexp.MustCompile(patNextFormatPointerSpecifier)
 
-	DebugOut                        = false // DebugOut enables debug information.
-	DumpLineByteCount               int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
-	InitialCycle                    = true  // InitialCycle is a helper for the cycle counter automatic.
+	DebugOut          = false // DebugOut enables debug information.
+	DumpLineByteCount int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
+	InitialCycle      = true  // InitialCycle is a helper for the cycle counter automatic.
 	//TargetTimestamp                 uint64  // targetTimestamp contains target specific timestamp value.
-	TargetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
-	TargetStamp                     string  // TargetTimeStampUnit is the target timestamps time base for default formatting.
-	TargetStamp32                   string  // ShowTargetStamp32 is the format string for target timestamps.
-	TargetStamp16                   string  // ShowTargetStamp16 is the format string for target timestamps.
-	TargetStamp0                    string  // ShowTargetStamp0 is the format string for target timestamps.
-	TargetTimeStampUnitPassed       bool    // TargetTimeStampUnitPassed is true when flag was TargetTimeStampUnit passed.
-	ShowTargetStamp32Passed         bool    // ShowTargetStamp32Passed is true when flag was TargetTimeStamp32 passed.
-	ShowTargetStamp16Passed         bool    // ShowTargetStamp16Passed is true when flag was TargetTimeStamp16 passed.
-	ShowTargetStamp0Passed          bool    // ShowTargetStamp0Passed is true when flag was TargetTimeStamp0 passed.
-	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
-	TargetTimestampSize             int     // TargetTimestampSize is set in dependence of trice type.
-	TargetLocationExists            bool    // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
+	TargetLocation                  uint32 // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
+	TargetStamp                     string // TargetTimeStampUnit is the target timestamps time base for default formatting.
+	TargetStamp32                   string // ShowTargetStamp32 is the format string for target timestamps.
+	TargetStamp16                   string // ShowTargetStamp16 is the format string for target timestamps.
+	TargetStamp0                    string // ShowTargetStamp0 is the format string for target timestamps.
+	TargetTimeStampUnitPassed       bool   // TargetTimeStampUnitPassed is true when flag was TargetTimeStampUnit passed.
+	ShowTargetStamp32Passed         bool   // ShowTargetStamp32Passed is true when flag was TargetTimeStamp32 passed.
+	ShowTargetStamp16Passed         bool   // ShowTargetStamp16Passed is true when flag was TargetTimeStamp16 passed.
+	ShowTargetStamp0Passed          bool   // ShowTargetStamp0Passed is true when flag was TargetTimeStamp0 passed.
+	LocationInformationFormatString string // LocationInformationFormatString is the format string for target location: line number and file name.
+	TargetTimestampSize             int    // TargetTimestampSize is set in dependence of trice type.
+	TargetLocationExists            bool   // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
 
 	PackageFraming  string // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
 	IDBits          = 14   // IDBits holds count of bits used for ID (used at least in trexDecoder)
@@ -146,23 +146,18 @@ type Decoder interface {
 
 // DecoderData is the common data struct for all decoders.
 type DecoderData struct {
-	W  io.Writer // io.Stdout or the like
-	In io.Reader // in is the inner reader, which is used to get raw bytes
-	//ScratchPad  []byte
+	W           io.Writer // io.Stdout or the like
+	In          io.Reader // in is the inner reader, which is used to get raw bytes
 	Last        []byte
 	InnerBuffer []byte             // avoid repeated allocation (trex)
 	IBuf        []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
 	I           []byte             // interpret buffer
-	//V           []byte             // values space inside interpret buffer
 	B           []byte             // initial value for I
 	Endian      bool               // endian is true for LittleEndian and false for BigEndian
 	Li          id.TriceIDLookUpLI // location information map
 	Lut         id.TriceIDLookUp   // id look-up map for translation
 	LutMutex    *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
-	//TriceSize   int                // trice head and payload size as number of bytes
-	//ParamSpace  int                // trice payload size after head
-	//SLen        int                // string length for TRICE_S
-	//Trice       id.TriceFmt        // id.TriceFmt // received trice
+	sw          *emitter.TriceLineComposer
 }
 
 // SetInput allows switching the input stream to a different source.

@@ -56,7 +56,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	}
 	switch strings.ToUpper(Encoding) {
 	case "TREX":
-		dec = trexDecoder.New(w, lut, m, li, rwc, endian)
+		dec = trexDecoder.New(w, sw, lut, m, li, rwc, endian)
 	case "CHAR":
 		dec = charDecoder.New(w, lut, m, li, rwc, endian)
 	case "DUMP":

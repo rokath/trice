@@ -9,7 +9,7 @@ import (
 )
 
 // SyncPacketPattern is used if a sync packet arrives
-const SyncPacketPattern = "inf:[TRICE_SYNC_PACKET 0x89abcdef]"
+//const SyncPacketPattern = "inf:[TRICE_SYNC_PACKET 0x89abcdef]"
 
 // TriceLineComposer collects all partial strings forming one line.
 type TriceLineComposer struct {

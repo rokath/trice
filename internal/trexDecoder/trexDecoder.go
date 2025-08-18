@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
 )
@@ -71,11 +72,12 @@ type triceR struct {
 //
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder {
+func New(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder {
 	// Todo: rewrite using the TCOBS Reader. The provided in io.Reader provides a raw data stream.
 	// https://github.com/rokath/tcobs/blob/master/TCOBSv1/read.go -> use NewDecoder ...
 
 	p := &trexDec{}
+	p.sw = sw
 	p.W = w
 	p.In = in
 	p.InnerBuffer = make([]byte, decoder.DefaultSize) // len max
