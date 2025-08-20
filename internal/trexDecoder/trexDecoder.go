@@ -77,7 +77,7 @@ func New(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sy
 	// https://github.com/rokath/tcobs/blob/master/TCOBSv1/read.go -> use NewDecoder ...
 
 	p := &trexDec{}
-	p.sw = sw
+	p.Sw = sw
 	p.W = w
 	p.In = in
 	p.InnerBuffer = make([]byte, decoder.DefaultSize) // len max

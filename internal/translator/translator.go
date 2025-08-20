@@ -69,6 +69,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	} else {
 		go handleSIGTERM(w, rwc)
 	}
+	dec.sw =sw
 	return decodeAndComposeLoop(w, sw, dec, lut, li)
 }
 

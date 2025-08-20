@@ -56,13 +56,13 @@ func (p *trexDec) interpretTrice(b []byte) (n int, err error) {
 	return
 
 	var logLineStart bool // logLineStart is a helper flag for log line start detection
-	if len(sw.Line) == 0 {
+	if len(p.Sw.Line) == 0 {
 		logLineStart = true
 	}
 
 	if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
 		s := locationInformation(decoder.LastTriceID, li)
-		_, err := sw.Write([]byte(s))
+		_, err := p.Sw.Write([]byte(s))
 		msg.OnErr(err)
 	}
 

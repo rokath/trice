@@ -157,7 +157,7 @@ type DecoderData struct {
 	Li          id.TriceIDLookUpLI // location information map
 	Lut         id.TriceIDLookUp   // id look-up map for translation
 	LutMutex    *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
-	sw          *emitter.TriceLineComposer
+	Sw          *emitter.TriceLineComposer
 }
 
 // SetInput allows switching the input stream to a different source.
