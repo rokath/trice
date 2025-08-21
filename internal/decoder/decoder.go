@@ -8,9 +8,11 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
@@ -120,7 +122,7 @@ var (
 	ShowTargetStamp16Passed         bool   // ShowTargetStamp16Passed is true when flag was TargetTimeStamp16 passed.
 	ShowTargetStamp0Passed          bool   // ShowTargetStamp0Passed is true when flag was TargetTimeStamp0 passed.
 	LocationInformationFormatString string // LocationInformationFormatString is the format string for target location: line number and file name.
-	TargetTimestampSize             int    // TargetTimestampSize is set in dependence of trice type.
+	//TargetTimestampSize             int    // TargetTimestampSize is set in dependence of trice type.
 	TargetLocationExists            bool   // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
 
 	PackageFraming  string // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
@@ -133,9 +135,6 @@ var (
 func init() {
 	IDStat = make(map[id.TriceID]int)
 }
-
-// New abstracts the function type for a new decoder.
-type New func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder
 
 // Decoder is providing a byte reader returning decoded trice's.
 // SetInput allows switching the input stream to a different source.
@@ -308,4 +307,50 @@ func PrintTriceStatistics(w io.Writer) {
 	}
 	fmt.Fprintln(w, " ------------------------------------------------------------------------------------------------------------------")
 	fmt.Fprintf(w, "%8d Trice messsges\n", sum)
+}
+
+// LocationInformation returns optional location information for id.
+func LocationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
+	if li != nil && LocationInformationFormatString != "off" && LocationInformationFormatString != "none" {
+		if li, ok := li[tid]; ok {
+			return fmt.Sprintf(LocationInformationFormatString, filepath.Base(li.File), li.Line)
+		} else {
+			return fmt.Sprintf(LocationInformationFormatString, "", 0)
+		}
+	} else {
+		if Verbose {
+			return "no li"
+		}
+	}
+	return ""
+}
+
+// CorrectWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
+// and virtually sets a 33rd bit by adding 2^32 seconds to it
+func CorrectWrappedTimestamp(ts32 uint32) time.Time {
+
+	const (
+		minValidYear = 2000
+		maxValidYear = 2038
+		wrapOffset   = 1 << 32 // 2^32 seconds
+	)
+
+	// Interpret the timestamp as time.Time
+	t := time.Unix(int64(ts32), 0).UTC()
+
+	if t.Year() >= minValidYear && t.Year() <= maxValidYear {
+		return t
+	}
+
+	// Apply wraparound correction by adding 2^32 seconds
+	tWrapped := time.Unix(int64(ts32)+wrapOffset, 0).UTC()
+
+	// If the corrected timestamp is plausible, return it
+	if tWrapped.Year() > maxValidYear && tWrapped.Year() <= maxValidYear+100 {
+		return tWrapped
+	}
+
+	// Fallback: return the original timestamp and print a warning
+	fmt.Printf("WARNING: Timestamp %v (%d) is outside the expected year range\n", t, ts32)
+	return t
 }

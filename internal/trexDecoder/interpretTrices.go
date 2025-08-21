@@ -51,41 +51,43 @@ func (p *trexDec) interpretTrice(b []byte) (n int, err error) {
 		t.Trice.Strg += `\n` // this adds a newline to each single Trice message
 	}
 
-	n += p.sprintTrice(b[n:]) // use param info
-
-	return
-
 	var logLineStart bool // logLineStart is a helper flag for log line start detection
 	if len(p.Sw.Line) == 0 {
 		logLineStart = true
 	}
 
 	if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
-		s := locationInformation(decoder.LastTriceID, li)
+		s := decoder.LocationInformation(decoder.LastTriceID, p.Li)
 		_, err := p.Sw.Write([]byte(s))
 		msg.OnErr(err)
+		// TODO: Check is this is a good idea
+		//  if len(s) > 0 { // Add a color-less space after the target stamp only if a stamp was written.
+		//  	_, err = p.Sw.Write([]byte("default: "))
+		//  	msg.OnErr(err)
+		//  }
+
 	}
 
 	var s string
 	if logLineStart {
-		switch decoder.TargetTimestampSize {
+		switch p.t.stampSize {
 		case 4:
 			switch decoder.TargetStamp32 {
 			case "ms", "hh:mm:ss,ms":
-				ms := decoder.TargetTimestamp % 1000
-				sec := (decoder.TargetTimestamp - ms) / 1000 % 60
-				min := (decoder.TargetTimestamp - ms - 1000*sec) / 60000 % 60
-				hour := (decoder.TargetTimestamp - ms - 1000*sec - 60000*min) / 3600000
+				ms := p.t.stamp % 1000
+				sec := (p.t.stamp - ms) / 1000 % 60
+				min := (p.t.stamp - ms - 1000*sec) / 60000 % 60
+				hour := (p.t.stamp - ms - 1000*sec - 60000*min) / 3600000
 				s = fmt.Sprintf("time:%2d:%02d:%02d,%03d", hour, min, sec, ms)
 			case "us", "µs", "ssss,ms_µs":
-				us := decoder.TargetTimestamp % 1000
-				ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-				sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
+				us := p.t.stamp % 1000
+				ms := (p.t.stamp - us) / 1000 % 1000
+				sd := (p.t.stamp - 1000*ms) / 1000000
 				s = fmt.Sprintf("time:%4d,%03d_%03d", sd, ms, us)
 			case "epoch":
-				t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
+				t := time.Unix(int64(p.t.stamp), 0).UTC()
 				s = t.Format("2006-01-02 15:04:05 UTC")
-				c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
+				c := decoder.CorrectWrappedTimestamp(uint32(p.t.stamp))
 				if !t.Equal(c) {
 					s += "-->" + c.Format("2006-01-02 15:04:05 UTC")
 				}
@@ -94,7 +96,7 @@ func (p *trexDec) interpretTrice(b []byte) (n int, err error) {
 			default:
 				after, found := strings.CutPrefix(decoder.TargetStamp32, "epoch")
 				if found { // Assume a -ts32="epoch2006-01-02 15:04:05 UTC" like value.
-					t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
+					t := time.Unix(int64(p.t.stamp), 0).UTC()
 					s = t.Format(after) // examples for after:
 					// s = t.Format("Mon Jan _2 15:04:05 2006")            //ANSIC
 					// s = t.Format("Mon Jan _2 15:04:05 MST 2006")        //UnixDate
@@ -108,47 +110,51 @@ func (p *trexDec) interpretTrice(b []byte) (n int, err error) {
 					// s = t.Format("2006-01-02T15:04:05.999999999Z07:00") //RFC3339Nano
 					// s = t.Format("3:04PM")                              //Kitchen
 					// Assumed usage example: trice log -ts32='epoch"Mon, 02 Jan 2006 15:04:05 MST"'
-					c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
+					c := decoder.CorrectWrappedTimestamp(uint32(p.t.stamp))
 					if !t.Equal(c) {
 						s += "-->" + c.Format(after)
 					}
 
 				} else { // Assume a string containing a single %d like format specification.
-					s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
+					s = fmt.Sprintf(decoder.TargetStamp32, p.t.stamp)
 				}
 			}
 		case 2:
 			switch decoder.TargetStamp16 {
 			case "ms", "s,ms":
-				ms := decoder.TargetTimestamp % 1000
-				sec := (decoder.TargetTimestamp - ms) / 1000
+				ms := p.t.stamp % 1000
+				sec := (p.t.stamp - ms) / 1000
 				s = fmt.Sprintf("time:      %2d,%03d", sec, ms)
 			case "us", "µs", "ms_µs":
-				us := decoder.TargetTimestamp % 1000
-				ms := (decoder.TargetTimestamp - us) / 1000 % 1000
+				us := p.t.stamp % 1000
+				ms := (p.t.stamp - us) / 1000 % 1000
 				s = fmt.Sprintf("time:      %2d_%03d", ms, us)
 			case "":
 			default:
-				s = fmt.Sprintf(decoder.TargetStamp16, decoder.TargetTimestamp)
+				s = fmt.Sprintf(decoder.TargetStamp16, p.t.stamp)
 			}
 		case 0:
 			if decoder.TargetStamp0 != "" {
 				s = fmt.Sprintf(decoder.TargetStamp0)
 			}
 		}
-		_, err := sw.Write([]byte(s))
+		_, err := p.Sw.Write([]byte(s))
 		msg.OnErr(err)
-		_, err = sw.Write([]byte("default: "))
-		msg.OnErr(err)
+		if len(s) > 0 { // Add a color-less space after the target stamp only if a stamp was written.
+			_, err = p.Sw.Write([]byte("default: "))
+			msg.OnErr(err)
+		}
 	}
 	// write ID only if enabled and line start.
 	if logLineStart && decoder.ShowID != "" {
 		s := fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)
-		_, err := sw.Write([]byte(s))
+		_, err := p.Sw.Write([]byte(s))
 		msg.OnErr(err)
-		_, err = sw.Write([]byte("default: ")) // add space as separator
+		_, err = p.Sw.Write([]byte("default: ")) // add space as separator
 		msg.OnErr(err)
 	}
+	n += p.sprintTrice(b[n:]) // use param info
+	return
 }
 
 // checkReceivedCycle uses p.t, evaluates p.receivedCycle and updates p.receivedCycle.

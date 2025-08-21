@@ -6,14 +6,19 @@ import (
 	"io"
 	"io/ioutil"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/id"
 	"github.com/tj/assert"
 )
 
+// newF abstracts the function type for a new decoder.
+type newF func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder
+
 // doTableTest is the universal decoder test sequence.
-func doDUMPtableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool, teTa decoder.TestTable) {
+func doDUMPtableTest(t *testing.T, out io.Writer, f newF, endianness bool, teTa decoder.TestTable) {
 	for _, x := range teTa {
 		buf := make([]byte, decoder.DefaultSize)
 		dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance

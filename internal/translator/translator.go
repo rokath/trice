@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
@@ -52,7 +51,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	case "bigEndian":
 		endian = decoder.BigEndian
 	default:
-		log.Fatalf(fmt.Sprintln("unknown endianness ", TriceEndianness, "-accepting litteEndian or bigEndian."))
+		//log.Fatalf(fmt.Sprintln("unknown endianness ", TriceEndianness, "-accepting litteEndian or bigEndian."))
 	}
 	switch strings.ToUpper(Encoding) {
 	case "TREX":
@@ -62,14 +61,13 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	case "DUMP":
 		dec = dumpDecoder.New(w, lut, m, li, rwc, endian)
 	default:
-		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
+		//log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
 	if emitter.DisplayRemote {
 		keybcmd.ReadInput(rwc)
 	} else {
 		go handleSIGTERM(w, rwc)
 	}
-	dec.sw =sw
 	return decodeAndComposeLoop(w, sw, dec, lut, li)
 }
 
@@ -180,50 +178,4 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
 	}
-}
-
-// CorrectWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
-// and virtually sets a 33rd bit by adding 2^32 seconds to it
-func CorrectWrappedTimestamp(ts32 uint32) time.Time {
-
-	const (
-		minValidYear = 2000
-		maxValidYear = 2038
-		wrapOffset   = 1 << 32 // 2^32 seconds
-	)
-
-	// Interpret the timestamp as time.Time
-	t := time.Unix(int64(ts32), 0).UTC()
-
-	if t.Year() >= minValidYear && t.Year() <= maxValidYear {
-		return t
-	}
-
-	// Apply wraparound correction by adding 2^32 seconds
-	tWrapped := time.Unix(int64(ts32)+wrapOffset, 0).UTC()
-
-	// If the corrected timestamp is plausible, return it
-	if tWrapped.Year() > maxValidYear && tWrapped.Year() <= maxValidYear+100 {
-		return tWrapped
-	}
-
-	// Fallback: return the original timestamp and print a warning
-	fmt.Printf("WARNING: Timestamp %v (%d) is outside the expected year range\n", t, ts32)
-	return t
-}
-
-// LocationInformation returns optional location information for id.
-func LocationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
-	if li != nil && decoder.LocationInformationFormatString != "off" && decoder.LocationInformationFormatString != "none" {
-		if li, ok := li[tid]; ok {
-			return fmt.Sprintf(decoder.LocationInformationFormatString, filepath.Base(li.File), li.Line)
-		} else {
-			return fmt.Sprintf(decoder.LocationInformationFormatString, "", 0)
-		}
-	} else {
-		if Verbose {
-			return "no li"
-		}
-	}
-	return ""
 }

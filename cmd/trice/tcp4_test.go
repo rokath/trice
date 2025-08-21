@@ -254,6 +254,7 @@ func TestHEXToTCP(t *testing.T) {
 	tmp := make([]byte, 500)
 	n, e = conn.Read(tmp)
 	assert.Nil(t, e)
+	fmt.Println( "len(exp) is ", len(exp), "n is", n, "act is", tmp[:n], string(tmp[:n]) )
 	assert.Equal(t, len(exp), n)
 	tmp = tmp[:n]
 

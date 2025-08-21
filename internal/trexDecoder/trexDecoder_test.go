@@ -13,12 +13,16 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/tj/assert"
 )
 
+// newF abstracts the function type for a new decoder.
+type newF func(out io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder
+
 // doTableTest is the universal decoder test sequence.
-func doTableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool, teTa decoder.TestTable) {
+func doTableTest(t *testing.T, out io.Writer, f newF, endianness bool, teTa decoder.TestTable) {
 	var (
 		// til is the trace id list content for test
 		idl = `{
@@ -39,7 +43,8 @@ func doTableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool, te
 	assert.Nil(t, ilu.FromJSON([]byte(idl)))
 	ilu.AddFmtCount(os.Stdout)
 	buf := make([]byte, decoder.DefaultSize)
-	dec := f(out, ilu, luM, li, nil, endianness) // a new decoder instance
+	var sw emitter.TriceLineComposer
+	dec := f(out, &sw, ilu, luM, li, nil, endianness) // a new decoder instance
 	for _, x := range teTa {
 		in := io.NopCloser(bytes.NewBuffer(x.In))
 		dec.SetInput(in)
