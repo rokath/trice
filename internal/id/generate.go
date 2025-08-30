@@ -157,6 +157,7 @@ namespace TriceIDList;
 }
 
 func computeValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth, paramCount int) {
+	DefaultTriceBitWidth = strconv.Itoa(defaultBitWidth)
 	switch t.Type[len(t.Type)-1:] {
 	case "B", "F", "N", "S":
 		paramCount = -1
@@ -166,10 +167,10 @@ func computeValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth, p
 		extType, _ = ConstructFullTriceInfo(t.Type, paramCount)
 	}
 	bitWidth = defaultBitWidth
-	for i, w := range []string{"8", "16", "32", "64"} {
+	for i, w := range []string{"64", "32", "16", "8"} {
 		found := strings.Contains(extType, w)
 		if found {
-			bitWidth = 8 << i
+			bitWidth = 64 >> i
 			break
 		}
 	}
