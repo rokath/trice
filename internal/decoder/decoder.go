@@ -10,6 +10,7 @@ import (
 	"io"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -81,6 +82,8 @@ const (
 	BooleanFormatSpecifier  = 3 // a %t (bool) found
 	PointerFormatSpecifier  = 4 // a %p (pointer) found
 	StringFormatSpecifier   = 5 // a %s found
+
+	LiFmtDefault = "info:%21s%6d "
 )
 
 var (
@@ -108,32 +111,31 @@ var (
 	matchNextFormatBoolSpecifier    = regexp.MustCompile(patNextFormatBoolSpecifier)
 	matchNextFormatPointerSpecifier = regexp.MustCompile(patNextFormatPointerSpecifier)
 
-	DebugOut          = false // DebugOut enables debug information.
-	DumpLineByteCount int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
-	InitialCycle      = true  // InitialCycle is a helper for the cycle counter automatic.
-	//TargetTimestamp                 uint64  // targetTimestamp contains target specific timestamp value.
-	TargetLocation                  uint32 // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
-	TargetStamp                     string // TargetTimeStampUnit is the target timestamps time base for default formatting.
-	TargetStamp32                   string // ShowTargetStamp32 is the format string for target timestamps.
-	TargetStamp16                   string // ShowTargetStamp16 is the format string for target timestamps.
-	TargetStamp0                    string // ShowTargetStamp0 is the format string for target timestamps.
-	TargetTimeStampUnitPassed       bool   // TargetTimeStampUnitPassed is true when flag was TargetTimeStampUnit passed.
-	ShowTargetStamp32Passed         bool   // ShowTargetStamp32Passed is true when flag was TargetTimeStamp32 passed.
-	ShowTargetStamp16Passed         bool   // ShowTargetStamp16Passed is true when flag was TargetTimeStamp16 passed.
-	ShowTargetStamp0Passed          bool   // ShowTargetStamp0Passed is true when flag was TargetTimeStamp0 passed.
-	LocationInformationFormatString string // LocationInformationFormatString is the format string for target location: line number and file name.
-	//TargetTimestampSize             int    // TargetTimestampSize is set in dependence of trice type.
-	TargetLocationExists            bool   // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
-
-	PackageFraming  string // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
-	IDBits          = 14   // IDBits holds count of bits used for ID (used at least in trexDecoder)
-	NewlineIndent   = -1   // Used for trice messages containing several newlines in format string for formatting.
-	TriceStatistics bool   // Keep the occured count for each Trice log when Trice is closed.
-	IDStat          map[id.TriceID]int
+	DebugOut                        = false        // DebugOut enables debug information.
+	DumpLineByteCount               int            // DumpLineByteCount is the bytes per line for the dumpDec decoder.
+	InitialCycle                    = true         // InitialCycle is a helper for the cycle counter automatic.
+	TargetLocation                  uint32         // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
+	TargetStamp                     string         // TargetTimeStampUnit is the target timestamps time base for default formatting.
+	TargetStamp32                   string         // ShowTargetStamp32 is the format string for target timestamps.
+	TargetStamp16                   string         // ShowTargetStamp16 is the format string for target timestamps.
+	TargetStamp0                    string         // ShowTargetStamp0 is the format string for target timestamps.
+	TargetTimeStampUnitPassed       bool           // TargetTimeStampUnitPassed is true when flag was TargetTimeStampUnit passed.
+	ShowTargetStamp32Passed         bool           // ShowTargetStamp32Passed is true when flag was TargetTimeStamp32 passed.
+	ShowTargetStamp16Passed         bool           // ShowTargetStamp16Passed is true when flag was TargetTimeStamp16 passed.
+	ShowTargetStamp0Passed          bool           // ShowTargetStamp0Passed is true when flag was TargetTimeStamp0 passed.
+	LocationInformationFormatString = LiFmtDefault // LocationInformationFormatString is the format string for target location: line number and file name.
+	LiFmtDefaultLen                 int            // Compute as var from LocationInformationFormatString.
+	TargetLocationExists            bool           // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
+	PackageFraming                  string         // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
+	IDBits                          = 14           // IDBits holds count of bits used for ID (used at least in trexDecoder)
+	NewlineIndent                   = -1           // Used for trice messages containing several newlines in format string for formatting.
+	TriceStatistics                 bool           // Keep the occured count for each Trice log when Trice is closed.
+	IDStat                          map[id.TriceID]int
 )
 
 func init() {
 	IDStat = make(map[id.TriceID]int)
+	LiFmtDefaultLen = locationInformationWidth()
 }
 
 // Decoder is providing a byte reader returning decoded trice's.
@@ -323,6 +325,20 @@ func LocationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
 		}
 	}
 	return ""
+}
+
+// locationInformationWidth computes byte count for location information.
+func locationInformationWidth() (sum int) {
+	re := regexp.MustCompile("[0-9]+")
+	s := re.FindAllString(LocationInformationFormatString, -1)
+	for _, n := range s {
+		v, err := strconv.Atoi(n)
+		if err != nil {
+			panic(err)
+		}
+		sum += v
+	}
+	return sum + 1 // plus space after line number
 }
 
 // CorrectWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range

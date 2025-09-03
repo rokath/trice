@@ -29,8 +29,8 @@ func newLineComposer(lw LineWriter) *TriceLineComposer {
 	return p
 }
 
-// timestamp returns local time as string according var p.timeStampFormat
-func (p *TriceLineComposer) timestamp() string {
+// localTimestamp returns local time as string according var p.timeStampFormat
+func (p *TriceLineComposer) localTimestamp() string {
 	var s string
 	switch p.timestampFormat {
 	case "LOCmicro":
@@ -94,7 +94,7 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	// One string with several newlines gets the identical timestamp.
 	// If a string was already started and gets completed with a following WriteString call,
 	// it keeps its original timestamp, but if following lines inside s they get a new timestamp.
-	ts := p.timestamp()
+	ts := p.localTimestamp()
 	for _, sx := range ss {
 		if len(p.Line) == 0 && 0 < lineEndCount { // start new line && and complete line
 			p.Line = append(p.Line, ts, p.prefix, sx, p.suffix)

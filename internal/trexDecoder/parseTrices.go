@@ -35,8 +35,8 @@ func (p *trexDec) readAndParseTrices() (err error) {
 
 // nextTriceComplete tries to interpret next data in p.I. p.I is not altered. If not enough bytes, false is returned.
 // On success, true is returned and in p.Trices[p.tcount] these values get filled already:
-// id, ilk, receivedCycle, headerSize, paramSize, stampSize, stamp
-// p.Trices[p.tcount+1].expectedCycle is set too.
+// id, ilk, headerSize, paramSize,
+// When ilk != 0 also stampSize, stamp, p.Trices[p.tcount+1].expectedCycle are set too.
 func (p *trexDec) nextTriceComplete() bool {
 	t := &p.trices[p.tcount]
 	t.headerSize = 2
@@ -100,9 +100,13 @@ func (p *trexDec) parseNextTriceInFramedBuffer() {
 	t.v = p.I[t.headerSize:]             // values space with optional padding bytes starts here.
 	t.v = t.v[:t.paramSize]              // exclude values paddings bytes
 	p.I = p.I[t.headerSize+t.paramSize:] // remove evaluated data
-	decoder.RecordForStatistics(t.id)    // This is for the "trice log -stat" flag
-	decoder.LastTriceID = t.id           // used for showID TODO: That can get wrong! That is needed during print.
-	p.tcount++
+	if t.ilk != 0 {
+		decoder.RecordForStatistics(t.id) // This is for the "trice log -stat" flag
+		decoder.LastTriceID = t.id        // used for showID TODO: That can get wrong! That is needed during print.
+		p.tcount++
+	} else {
+		// todo: handle typeX0
+	}
 }
 
 // parseNextTriceInUnframedBuffer expects in p.I enough data for parsing a Trice. After parsing a Trice its bytes are removed.
@@ -132,10 +136,14 @@ func (p *trexDec) parseNextTriceInUnframedBuffer() {
 	//	n += copy(b[n:], fmt.Sprintln(hex.Dump(p.I[:p.size])))
 	//	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 	//}
-	p.I = p.I[t.headerSize+t.paramSize:] // remove evaluated data
-	decoder.RecordForStatistics(t.id)    // This is for the "trice log -stat" flag
-	decoder.LastTriceID = t.id           // used for showID TODO: That can get wrong! That is needed during print.
 	p.tcount++
+	if t.ilk != 0 {
+		decoder.RecordForStatistics(t.id) // This is for the "trice log -stat" flag
+		decoder.LastTriceID = t.id        // used for showID TODO: That can get wrong! That is needed during print.
+	} else {
+		// todo: handle typeX0
+	}
+	p.I = p.I[t.headerSize+t.paramSize:] // remove evaluated data
 }
 
 // parseUnframedData0 analyzes next Trice in compact or aligned p.I, returns the result in p.Trices and removes the interpreted bytes from p.I including optional padding bytes.

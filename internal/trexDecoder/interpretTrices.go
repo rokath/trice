@@ -11,16 +11,33 @@ import (
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/msg"
 )
 
 // interpretTrices prints p.trices.
 func (p *trexDec) interpretTrices(b []byte) (n int, err error) {
+	logLineStart := true // logLineStart is a helper flag for log line start detection
 	for i := range p.tcount {
 		p.t = &p.trices[i]
 		var m int
-		m, err = p.interpretTrice(b[n:])
+
+		m, err = p.interpretTrice(logLineStart, b[n:])
 		n += m
+		if n > 0 {
+
+			// if strings.HasSuffix(string(b[:n]), "\n") || strings.HasSuffix(string(b[:n]), "\\n") { // all ok
+
+			// special_protect_dblB_de_tcobs_ua: "time:feed3322default: Hello World!\\n\x00\x00\...
+			// if strings.HasSuffix(string(b[:n]), "\n") { // fail: special_protect_dblB_de_tcobs_ua ringB_protect_de_tcobs_ua
+
+			// special_for_debug:      string() ="time:feed3322default:  aa bb cc\n\x00\x00...
+			// if strings.HasSuffix(string(b[:n]), "\\n") { // fail: special for debug
+
+			if strings.HasSuffix(string(b[:n]), `\n`) {
+				logLineStart = true
+			} else {
+				logLineStart = false
+			}
+		}
 		if err != nil {
 			return n, err
 		}
@@ -29,20 +46,34 @@ func (p *trexDec) interpretTrices(b []byte) (n int, err error) {
 }
 
 // interpretTrice emits Trice p.t into b and returns with n the written byte count.
-func (p *trexDec) interpretTrice(b []byte) (n int, err error) {
+func (p *trexDec) interpretTrice(logLineStart bool, b []byte) (n int, err error) {
 	t := p.t
-	n = p.checkReceivedCycle(b)
-	//size := t.headerSize + t.paramSize
-
-	var ok bool
-	t.Trice, ok = p.Lut[t.id] // t.Trice is field Trice id.TriceFmt <-- That works!
-
-	if !ok {
-		n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", t.id, "- ignoring trice:"))
-		n += copy(b[n:], fmt.Sprintln(hex.Dump(t.v)))
-		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+	if t.ilk != 0 {
+		n = p.checkReceivedCycle(b)
+		var ok bool
+		t.Trice, ok = p.Lut[t.id] // t.Trice is field Trice id.TriceFmt <-- That works!
+		if !ok {
+			n += copy(b[n:], fmt.Sprintln("WARNING:\aunknown ID ", t.id, "- ignoring trice:"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(t.v)))
+			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+			return
+		}
+	} else {
+		if len(t.v) > 0 {
+			var s string
+			if decoder.TargetStamp0 != "" {
+				s = fmt.Sprintf(decoder.TargetStamp0) + "default: "
+			}
+			if AddNewlineToEachTriceMessage {
+				s += fmt.Sprintln(string(t.v))
+			} else {
+				s += fmt.Sprint(string(t.v))
+			}
+			n += copy(b, s)
+		}
 		return
 	}
+
 	// pick or ban filter here
 	// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
 	//n = emitter.BanOrPickFilter(b[:n]) // todo: b can contain several trices - handle that!
@@ -51,21 +82,9 @@ func (p *trexDec) interpretTrice(b []byte) (n int, err error) {
 		t.Trice.Strg += `\n` // this adds a newline to each single Trice message
 	}
 
-	var logLineStart bool // logLineStart is a helper flag for log line start detection
-	if len(p.Sw.Line) == 0 {
-		logLineStart = true
-	}
-
-	if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
-		s := decoder.LocationInformation(decoder.LastTriceID, p.Li)
-		_, err := p.Sw.Write([]byte(s))
-		msg.OnErr(err)
-		// TODO: Check is this is a good idea
-		//  if len(s) > 0 { // Add a color-less space after the target stamp only if a stamp was written.
-		//  	_, err = p.Sw.Write([]byte("default: "))
-		//  	msg.OnErr(err)
-		//  }
-
+	if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" && id.LIFnJSON != "" {
+		s := decoder.LocationInformation(decoder.LastTriceID, p.Li) + "default: "
+		n += copy(b[n:], s)
 	}
 
 	var s string
@@ -114,7 +133,6 @@ func (p *trexDec) interpretTrice(b []byte) (n int, err error) {
 					if !t.Equal(c) {
 						s += "-->" + c.Format(after)
 					}
-
 				} else { // Assume a string containing a single %d like format specification.
 					s = fmt.Sprintf(decoder.TargetStamp32, p.t.stamp)
 				}
@@ -138,20 +156,14 @@ func (p *trexDec) interpretTrice(b []byte) (n int, err error) {
 				s = fmt.Sprintf(decoder.TargetStamp0)
 			}
 		}
-		_, err := p.Sw.Write([]byte(s))
-		msg.OnErr(err)
-		if len(s) > 0 { // Add a color-less space after the target stamp only if a stamp was written.
-			_, err = p.Sw.Write([]byte("default: "))
-			msg.OnErr(err)
+		if len(s) > 0 { // Add a color-less space after the target stamp only if a stamp is written.
+			n += copy(b[n:], s+"default: ")
 		}
 	}
 	// write ID only if enabled and line start.
 	if logLineStart && decoder.ShowID != "" {
 		s := fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)
-		_, err := p.Sw.Write([]byte(s))
-		msg.OnErr(err)
-		_, err = p.Sw.Write([]byte("default: ")) // add space as separator
-		msg.OnErr(err)
+		n += copy(b[n:], s+"default: ")
 	}
 	n += p.sprintTrice(b[n:]) // use param info
 	return
@@ -248,7 +260,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 				if decoder.NewlineIndent == -1 { // auto sense
 					decoder.NewlineIndent = 12 + 1 // todo: strings.SplitN & len(decoder.TargetStamp0) // 12
 					if !(id.LIFnJSON == "off" || id.LIFnJSON == "none") {
-						decoder.NewlineIndent += 28 // todo: length(decoder.LocationInformationFormatString), see https://stackoverflow.com/questions/32987215/find-numbers-in-string-using-golang-regexp
+						decoder.NewlineIndent += decoder.LiFmtDefaultLen // todo: length(decoder.LocationInformationFormatString), see https://stackoverflow.com/questions/32987215/find-numbers-in-string-using-golang-regexp
 						// todo: split channel info with format specifiers too, example: ["msg:%d\nsignal:%x %u\n", p0, p1, p2] -> ["msg:%d\n", p0] && ["signal:%x %u\n", p1, p2]
 					}
 					if decoder.ShowID != "" {
@@ -383,7 +395,8 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 		n += copy(b[n:], fmt.Sprintf(noNewline, s[i]))
 	}
 	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
-		n += copy(b[n:], fmt.Sprintln()) // so add it finally
+		//n += copy(b[n:], fmt.Sprintln()) // so add it finally
+		n += copy(b[n:], `\n`) // so add it finally
 	}
 	return
 }

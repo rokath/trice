@@ -22,6 +22,9 @@ const (
 	typeS2                = 2 // regular trice format with 16-bit stamp: 10iiiiiiI TT NC ... or with -doubled16BitID 10iiiiiiI 10iiiiiiI TT NC ...
 	typeS4                = 3 // regular trice format with 32-bit stamp: 11iiiiiiI TT TT NC ...
 	typeX0                = 0 // unspecified, usually a counted string : 00nnnnnnN... with TypeX0Handler = "countedString"
+)
+
+const (
 	packageFramingNone    = iota
 	packageFramingNone0   // -pf=none    For compability. Detection, if compact or aligned buffers come in.
 	packageFramingNone8   // -pf=none8   Compact unframed buffer, no spaces between Trices. Use case is TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE without framing.
