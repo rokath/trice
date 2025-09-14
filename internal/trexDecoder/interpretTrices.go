@@ -24,15 +24,8 @@ func (p *trexDec) interpretTrices(b []byte) (n int, err error) {
 		n += m
 		if n > 0 {
 
-			// if strings.HasSuffix(string(b[:n]), "\n") || strings.HasSuffix(string(b[:n]), "\\n") { // all ok
-
-			// special_protect_dblB_de_tcobs_ua: "time:feed3322default: Hello World!\\n\x00\x00\...
-			// if strings.HasSuffix(string(b[:n]), "\n") { // fail: special_protect_dblB_de_tcobs_ua ringB_protect_de_tcobs_ua
-
-			// special_for_debug:      string() ="time:feed3322default:  aa bb cc\n\x00\x00...
-			// if strings.HasSuffix(string(b[:n]), "\\n") { // fail: special for debug
-
-			if strings.HasSuffix(string(b[:n]), `\n`) {
+			if strings.HasSuffix(string(b[:n]), "\n") || strings.HasSuffix(string(b[:n]), "\\n") { // all ok
+			//if strings.HasSuffix(string(b[:n]), `\n`) { // fail special2_dblB_de_tcobs_ua
 				logLineStart = true
 			} else {
 				logLineStart = false

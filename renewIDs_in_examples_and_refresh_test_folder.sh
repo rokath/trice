@@ -28,7 +28,9 @@ CGOTESTDIRS="
     alias_dblB_de_tcobs_ua/
     aliasassert_dblB_de_tcobs_ua/
     special_dblB_de_tcobs_ua/
+    special2_dblB_de_tcobs_ua/
     special_for_debug/
+    special2_for_debug/
     special_protect_dblB_de_tcobs_ua/
     be_dblB_de_tcobs_ua/
     be_staticB_di_xtea_cobs_rtt32/
@@ -91,7 +93,8 @@ CGOTESTDIRS="
 # Refresh test folders.
 for d in $CGOTESTDIRS
 do
-    cp $TD/cgoPackage.go $TD/../$d/generated_cgoPackage.go
+    cp $TD/cgoPackage.go      $TD/../$d/generated_cgoPackage.go
+    cp $TD/cgoPackage_test.go $TD/../$d/generated_cgoPackage_test.go
 done
 
 # Remove legacy build artifacts if existent.

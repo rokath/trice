@@ -188,8 +188,8 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 	}
 }
 
-// triceLogTest2 works like triceLogTest but additionally expects doubled output: direct and deferred.
-func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
+// triceLogDirectAndDeferred works like triceLogTest but additionally expects doubled output: direct and deferred.
+func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 	g.GetGlobalVars() // read changed defaults
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 
