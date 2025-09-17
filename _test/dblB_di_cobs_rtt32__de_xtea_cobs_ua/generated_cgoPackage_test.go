@@ -40,7 +40,7 @@ func TestTriceLogBulk(t *testing.T) {
 	}
 }
 
-func _TestTriceLogDirectAndDeferred(t *testing.T) {
+func TestTriceLogDirectAndDeferred(t *testing.T) {
 	defer setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 	if triceLogDirect != nil && triceLogDeferred != nil {
 		triceLogDirectAndDeferred(t, triceLogDirect, triceLogDeferred, testLines, targetActivityC)

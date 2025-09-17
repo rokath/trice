@@ -358,55 +358,55 @@ void TriceCheck(int n) {
         break; case __LINE__: TRICE_S(ID(0), "msg:With TRICE_S:%s\n", sABCDE );             //exp: time:feed3322default: msg:With TRICE_S:abcde 12345
         break; case __LINE__: TRICE_N(ID(0), "sig:With TRICE_N:%s\n", sABCDE, lenABCDE );   //exp: time:feed3322default: sig:With TRICE_N:abcde 12345
 
-        break; case __LINE__: TRICE8_B(ID(0), "  %02x", sABCDE, lenABCDE );                 //exp: time:feed3322default:   61  62  63  64  65  20  31  32  33  34  35
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: TRICE8_B(ID(0), "BUF: %02x\n", sABCDE, lenABCDE );            //exp: time:feed3322default: BUF: 61 62 63 64 65 20 31 32 33 34 35
-        break; case __LINE__: TRICE8_B(ID(0), "%4d", sABCDE, lenABCDE );                    //exp: time:feed3322default:   97  98  99 100 101  32  49  50  51  52  53
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: TRICE8_B(ID(0), "  %02x", b8, sizeof(b8)/sizeof(int8_t) );    //exp: time:feed3322default:   00  ff  fe  33  04  05  06  07  08  09  0a  0b  00  ff  fe  33  04  05  06  07  08  09  0a  0b
-        break; case __LINE__: trice("\n" );
-
-        break; case __LINE__: TRice8B(" %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:feed3322default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: Trice8B(" %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:    be16default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: trice8B(" %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:        default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
-        break; case __LINE__: trice("\n" );
-
-        break; case __LINE__: trice8B("att: %02x\n", b8,  sizeof(b8) /sizeof(int8_t) );  //exp: time:        default: att: 00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
-        break; case __LINE__: trice8B("rd: %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:        default: rd: 00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: trice8B(" %02x\n", b8,  sizeof(b8) /sizeof(int8_t) );      //exp: time:        default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
-
-        break; case __LINE__: TRICE16_B(ID(0), "  %04x", b16, sizeof(b16)/sizeof(int16_t) ); //exp: time:feed3322default:   0000  ffff  fffe  3344
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: TRice16B(" %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:feed3322default:  0000 ffff fffe 3344
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: Trice16B(" %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:    be16default:  0000 ffff fffe 3344
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: trice16B(" %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:        default:  0000 ffff fffe 3344
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: trice16B("msg: %04x\n", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:        default: msg: 0000 ffff fffe 3344
-
-        break; case __LINE__: TRICE32_B(ID(0), " %08x", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:feed3322default:  00000000 ffffffff fffffffe 33445555
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: TRice32B(" %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:feed3322default:  00000000 ffffffff fffffffe 33445555
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: Trice32B(" %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:    be16default:  00000000 ffffffff fffffffe 33445555
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: trice32B(" %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:        default:  00000000 ffffffff fffffffe 33445555
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: trice32B("att: %08x\n", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:        default: att: 00000000 ffffffff fffffffe 33445555
-
-        break; case __LINE__: TRICE64_B(ID(0), " %016x", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:feed3322default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: TRice64B(" %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:feed3322default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: Trice64B(" %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:    be16default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: trice64B(" %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:        default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
-        break; case __LINE__: trice("\n" );
-        break; case __LINE__: trice64B("SIG: %016x\n", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:        default: SIG: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        //break; case __LINE__: TRICE8_B(ID(0), "  %02x", sABCDE, lenABCDE );                 //exp: time:feed3322default:   61  62  63  64  65  20  31  32  33  34  35
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: TRICE8_B(ID(0), "BUF: %02x\n", sABCDE, lenABCDE );            //exp: time:feed3322default: BUF: 61 62 63 64 65 20 31 32 33 34 35
+        //break; case __LINE__: TRICE8_B(ID(0), "%4d", sABCDE, lenABCDE );                    //exp: time:feed3322default:   97  98  99 100 101  32  49  50  51  52  53
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: TRICE8_B(ID(0), "  %02x", b8, sizeof(b8)/sizeof(int8_t) );    //exp: time:feed3322default:   00  ff  fe  33  04  05  06  07  08  09  0a  0b  00  ff  fe  33  04  05  06  07  08  09  0a  0b
+        //break; case __LINE__: trice("\n" );
+//
+        //break; case __LINE__: TRice8B(" %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:feed3322default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: Trice8B(" %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:    be16default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: trice8B(" %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:        default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        //break; case __LINE__: trice("\n" );
+//
+        //break; case __LINE__: trice8B("att: %02x\n", b8,  sizeof(b8) /sizeof(int8_t) );  //exp: time:        default: att: 00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        //break; case __LINE__: trice8B("rd: %02x", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:        default: rd: 00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: trice8B(" %02x\n", b8,  sizeof(b8) /sizeof(int8_t) );      //exp: time:        default:  00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b
+//
+        //break; case __LINE__: TRICE16_B(ID(0), "  %04x", b16, sizeof(b16)/sizeof(int16_t) ); //exp: time:feed3322default:   0000  ffff  fffe  3344
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: TRice16B(" %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:feed3322default:  0000 ffff fffe 3344
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: Trice16B(" %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:    be16default:  0000 ffff fffe 3344
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: trice16B(" %04x", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:        default:  0000 ffff fffe 3344
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: trice16B("msg: %04x\n", b16, sizeof(b16) /sizeof(int16_t) );  //exp: time:        default: msg: 0000 ffff fffe 3344
+//
+        //break; case __LINE__: TRICE32_B(ID(0), " %08x", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:feed3322default:  00000000 ffffffff fffffffe 33445555
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: TRice32B(" %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:feed3322default:  00000000 ffffffff fffffffe 33445555
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: Trice32B(" %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:    be16default:  00000000 ffffffff fffffffe 33445555
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: trice32B(" %08x", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:        default:  00000000 ffffffff fffffffe 33445555
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: trice32B("att: %08x\n", b32, sizeof(b32) /sizeof(int32_t)  ); //exp: time:        default: att: 00000000 ffffffff fffffffe 33445555
+//
+        //break; case __LINE__: TRICE64_B(ID(0), " %016x", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:feed3322default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: TRice64B(" %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:feed3322default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: Trice64B(" %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:    be16default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: trice64B(" %016x", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:        default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
+        //break; case __LINE__: trice("\n" );
+        //break; case __LINE__: trice64B("SIG: %016x\n", b64, sizeof(b64) /sizeof(int64_t)  ); //exp: time:        default: SIG: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666
 
         break; case __LINE__: TRICE8_F(ID(0), "info:FunctionNameWa", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: time:feed3322default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
         break; case __LINE__: TRice8F("call:FunctionNameWb", b8,  sizeof(b8) /sizeof(int8_t) );            //exp: time:feed3322default: call:FunctionNameWb(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)

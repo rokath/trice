@@ -57,7 +57,7 @@ import (
 )
 
 var (
-	testLines       = 10   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 	triceDir        string // triceDir holds the trice directory path.
 	targetActivityC string // triceCheckC contains the target test code.
 )
@@ -161,8 +161,8 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
-	for i, r := range result {
-		fmt.Println(i, r)
+	for _, r := range result {
+		//fmt.Println(i, r)
 		triceCheck(r.line) // target activity
 		triceTransfer()    // This is only for deferred modes needed, but direct modes contain this as empty function.
 		length := triceOutDepth()
@@ -185,21 +185,33 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
-	out := make([]byte, 32768)
-	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
+	fmt.Println("len(result) = ", len(result))
+	out := make([]byte, 4096) // out is the write location for the trice target code.
+	setTriceBuffer(out)
+	var bin []byte // bin is the acceleration place for the trice binary data.
 	for _, r := range result {
 		triceCheck(r.line) // target activity
+		//if i%2 == 0 {     // Avoid target buffer overrun.
+			triceTransfer()
+			length := triceOutDepth()
+			//fmt.Println(out[:length])
+			bin = append(bin, out[:length]...)
+			triceClearOutBuffer()
+		//}
 	}
 	triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
 	length := triceOutDepth()
-	bin := out[:length] // bin contains the binary trice data of trice message i in r.line
+	bin = append(bin, out[:length]...) // bin contains the binary trice data of trice message i in r.line
+	triceClearOutBuffer()
+
 	buf := fmt.Sprint(bin)
 	buffer := buf[1 : len(buf)-1]
 	act := triceLog(t, osFSys, buffer)
 	fmt.Println(act)
-	for _, e := range result {
+	for i, e := range result {
 		a := act[:len(e.exps)]
+		fmt.Println("idx:", i, "line:", e.line, "len(act):", len(act), "len(e.exps):", len(e.exps), "exp:", e.exps, "a:", a)
 		assert.Equal(t, e.exps, a)
 		act = act[len(e.exps)+1:]
 	}

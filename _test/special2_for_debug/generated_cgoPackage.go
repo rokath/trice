@@ -57,7 +57,7 @@ import (
 )
 
 var (
-	testLines       = 10   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	testLines       = 20   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 	triceDir        string // triceDir holds the trice directory path.
 	targetActivityC string // triceCheckC contains the target test code.
 )
@@ -161,8 +161,8 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
-	for i, r := range result {
-		fmt.Println(i, r)
+	for _, r := range result {
+		//fmt.Println(i, r)
 		triceCheck(r.line) // target activity
 		triceTransfer()    // This is only for deferred modes needed, but direct modes contain this as empty function.
 		length := triceOutDepth()
@@ -185,7 +185,7 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
-	out := make([]byte, 32768)
+	out := make([]byte, 4*65536)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
 	for _, r := range result {
@@ -197,9 +197,10 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	buf := fmt.Sprint(bin)
 	buffer := buf[1 : len(buf)-1]
 	act := triceLog(t, osFSys, buffer)
-	fmt.Println(act)
-	for _, e := range result {
+	//fmt.Println(act)
+	for i, e := range result {
 		a := act[:len(e.exps)]
+		fmt.Println("idx:", i, "line:", e.line, "exp:", e.exps )
 		assert.Equal(t, e.exps, a)
 		act = act[len(e.exps)+1:]
 	}
