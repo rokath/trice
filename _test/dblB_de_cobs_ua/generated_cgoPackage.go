@@ -127,12 +127,13 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 		s := strings.Split(line, "//")
 		if len(s) == 2 { // just one "//"
 			lineEnd := s[1]
-			subStr := "exp:"
-			index := strings.LastIndex(lineEnd, subStr)
-			if index >= 0 {
+			index := strings.LastIndex(lineEnd, "exp: \"")
+			if index == 0 { // pattern //exp: "
 				var r results
 				r.line = i + 1 // 1st line number is 1 and not 0
-				r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
+				//  r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
+				s := lineEnd[6 : len(lineEnd)-1]
+				r.exps = strings.Replace(s, "\\n", "\n", -1)
 				result = append(result, r)
 				testLinesCounter++
 				if maxTestlines > 0 && testLinesCounter >= maxTestlines {
@@ -171,7 +172,7 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 		buffer := buf[1 : len(buf)-1]
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()
-		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+		assert.Equal(t, r.exps, act)
 	}
 }
 
@@ -185,35 +186,33 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
-	result := getExpectedResults(osFSys, triceCheckC, testLines)
-	fmt.Println("len(result) = ", len(result))
-	out := make([]byte, 4096) // out is the write location for the trice target code.
+	out := make([]byte, 65536) // out is the binary trice data buffer until the next triceTransfer() call.
 	setTriceBuffer(out)
-	var bin []byte // bin is the acceleration place for the trice binary data.
-	for _, r := range result {
+	result := getExpectedResults(osFSys, triceCheckC, testLines)
+	var bin []byte // bin collects the binary data.
+
+	for i, r := range result {
 		triceCheck(r.line) // target activity
-		//if i%2 == 0 {     // Avoid target buffer overrun.
-			triceTransfer()
+		if i%3 == 0 {
+			triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
 			length := triceOutDepth()
-			//fmt.Println(out[:length])
 			bin = append(bin, out[:length]...)
-			triceClearOutBuffer()
-		//}
+			setTriceBuffer(out)
+		}
 	}
 	triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
 	length := triceOutDepth()
-	bin = append(bin, out[:length]...) // bin contains the binary trice data of trice message i in r.line
-	triceClearOutBuffer()
+	bin = append(bin, out[:length]...)
 
-	buf := fmt.Sprint(bin)
-	buffer := buf[1 : len(buf)-1]
-	act := triceLog(t, osFSys, buffer)
+	buf := fmt.Sprint(bin)             // buf is the ASCII representation of bin.
+	buffer := buf[1 : len(buf)-1]      // buffer contains the bare data (without brackets).
+	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
 	fmt.Println(act)
 	for i, e := range result {
-		a := act[:len(e.exps)]
-		fmt.Println("idx:", i, "line:", e.line, "len(act):", len(act), "len(e.exps):", len(e.exps), "exp:", e.exps, "a:", a)
+		a := act[:len(e.exps)] // get next part of actual data (usually a line).
+		fmt.Println("idx:", i, "\tline:", e.line, "\tlen(act):", len(act), "\tlen(e.exps):", len(e.exps), "\tlen(a):", len(a))
 		assert.Equal(t, e.exps, a)
-		act = act[len(e.exps)+1:]
+		act = act[len(e.exps):]
 	}
 }
 

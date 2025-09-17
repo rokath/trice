@@ -27,21 +27,21 @@ func setup(t *testing.T) func() {
 }
 
 func TestTriceLogLineByLine(t *testing.T) {
-	defer setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
 	if triceLog != nil {
 		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
 	}
 }
 
 func TestTriceLogBulk(t *testing.T) {
-	defer setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
 	if DoTestTriceLogBulk && triceLog != nil {
 		triceLogBulk(t, triceLog, testLines, targetActivityC)
 	}
 }
 
-func _TestTriceLogDirectAndDeferred(t *testing.T) {
-	defer setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+func TestTriceLogDirectAndDeferred(t *testing.T) {
+	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
 	if triceLogDirect != nil && triceLogDeferred != nil {
 		triceLogDirectAndDeferred(t, triceLogDirect, triceLogDeferred, testLines, targetActivityC)
 	}
