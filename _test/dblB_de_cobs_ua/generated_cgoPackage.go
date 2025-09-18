@@ -162,9 +162,8 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
-	for _, r := range result {
-		//fmt.Println(i, r)
-		triceCheck(r.line) // target activity
+	for i, v := range result {
+		triceCheck(v.line) // target activity
 		triceTransfer()    // This is only for deferred modes needed, but direct modes contain this as empty function.
 		length := triceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i in r.line
@@ -172,7 +171,7 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 		buffer := buf[1 : len(buf)-1]
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()
-		assert.Equal(t, r.exps, act)
+		assert.Equal(t, v.exps, act, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)))
 	}
 }
 
@@ -207,12 +206,11 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	buf := fmt.Sprint(bin)             // buf is the ASCII representation of bin.
 	buffer := buf[1 : len(buf)-1]      // buffer contains the bare data (without brackets).
 	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
-	fmt.Println(act)
-	for i, e := range result {
-		a := act[:len(e.exps)] // get next part of actual data (usually a line).
-		fmt.Println("idx:", i, "\tline:", e.line, "\tlen(act):", len(act), "\tlen(e.exps):", len(e.exps), "\tlen(a):", len(a))
-		assert.Equal(t, e.exps, a)
-		act = act[len(e.exps):]
+	for i, v := range result {
+		a := act[:len(v.exps)] // get next part of actual data (usually a line).
+		fmt.Print(i, v.line, " exp:", v.exps)
+		assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
+		act = act[len(v.exps):]
 	}
 }
 

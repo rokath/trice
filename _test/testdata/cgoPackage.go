@@ -57,7 +57,7 @@ import (
 )
 
 var (
-	testLines       = 20   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 	triceDir        string // triceDir holds the trice directory path.
 	targetActivityC string // triceCheckC contains the target test code.
 )
@@ -127,12 +127,13 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 		s := strings.Split(line, "//")
 		if len(s) == 2 { // just one "//"
 			lineEnd := s[1]
-			subStr := "exp:"
-			index := strings.LastIndex(lineEnd, subStr)
-			if index >= 0 {
+			index := strings.LastIndex(lineEnd, "exp: \"")
+			if index == 0 { // pattern //exp: "
 				var r results
 				r.line = i + 1 // 1st line number is 1 and not 0
-				r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
+				//  r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
+				s := lineEnd[6 : len(lineEnd)-1]
+				r.exps = strings.Replace(s, "\\n", "\n", -1)
 				result = append(result, r)
 				testLinesCounter++
 				if maxTestlines > 0 && testLinesCounter >= maxTestlines {
@@ -161,9 +162,8 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
-	for _, r := range result {
-		//fmt.Println(i, r)
-		triceCheck(r.line) // target activity
+	for i, v := range result {
+		triceCheck(v.line) // target activity
 		triceTransfer()    // This is only for deferred modes needed, but direct modes contain this as empty function.
 		length := triceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i in r.line
@@ -171,7 +171,7 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 		buffer := buf[1 : len(buf)-1]
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()
-		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+		assert.Equal(t, v.exps, act, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)))
 	}
 }
 
@@ -185,24 +185,32 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
-	out := make([]byte, 4*65536)
+	out := make([]byte, 65536) // out is the binary trice data buffer until the next triceTransfer() call.
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
-	for _, r := range result {
+	var bin []byte // bin collects the binary data.
+
+	for i, r := range result {
 		triceCheck(r.line) // target activity
+		if i%3 == 0 {
+			triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+			length := triceOutDepth()
+			bin = append(bin, out[:length]...)
+			setTriceBuffer(out)
+		}
 	}
 	triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
 	length := triceOutDepth()
-	bin := out[:length] // bin contains the binary trice data of trice message i in r.line
-	buf := fmt.Sprint(bin)
-	buffer := buf[1 : len(buf)-1]
-	act := triceLog(t, osFSys, buffer)
-	//fmt.Println(act)
-	for i, e := range result {
-		a := act[:len(e.exps)]
-		fmt.Println("idx:", i, "line:", e.line, "exp:", e.exps )
-		assert.Equal(t, e.exps, a)
-		act = act[len(e.exps)+1:]
+	bin = append(bin, out[:length]...)
+
+	buf := fmt.Sprint(bin)             // buf is the ASCII representation of bin.
+	buffer := buf[1 : len(buf)-1]      // buffer contains the bare data (without brackets).
+	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
+	for i, v := range result {
+		a := act[:len(v.exps)] // get next part of actual data (usually a line).
+		fmt.Print(i, v.line, " exp:", v.exps)
+		assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
+		act = act[len(v.exps):]
 	}
 }
 

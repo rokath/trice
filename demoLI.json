@@ -985,7 +985,7 @@
 	},
 	"13246": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 646
+		"Line": 386
 	},
 	"13247": {
 		"File": "_test/testdata/triceCheck.c",
@@ -993,7 +993,7 @@
 	},
 	"13248": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 647
+		"Line": 387
 	},
 	"13249": {
 		"File": "_test/testdata/triceCheck.c",
@@ -1001,7 +1001,7 @@
 	},
 	"13250": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 648
+		"Line": 388
 	},
 	"13251": {
 		"File": "_test/testdata/triceCheck.c",
@@ -1009,7 +1009,7 @@
 	},
 	"13252": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 649
+		"Line": 389
 	},
 	"13253": {
 		"File": "_test/testdata/triceCheck.c",
@@ -8981,7 +8981,7 @@
 	},
 	"15298": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 671
+		"Line": 667
 	},
 	"15304": {
 		"File": "_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c",
@@ -8993,7 +8993,7 @@
 	},
 	"15326": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 680
+		"Line": 676
 	},
 	"15332": {
 		"File": "_test/special2_for_debug/TargetActivity.c",
@@ -9013,11 +9013,11 @@
 	},
 	"15374": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 674
+		"Line": 670
 	},
 	"15377": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 669
+		"Line": 665
 	},
 	"15388": {
 		"File": "_test/ringB_protect_de_tcobs_ua/TargetActivity.c",
@@ -9037,15 +9037,15 @@
 	},
 	"15424": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 679
+		"Line": 675
 	},
 	"15440": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 659
+		"Line": 655
 	},
 	"15441": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 666
+		"Line": 662
 	},
 	"15454": {
 		"File": "_test/testdata/triceCheck.c",
@@ -9067,6 +9067,10 @@
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 141
 	},
+	"15526": {
+		"File": "_test/testdata/triceCheck.c",
+		"Line": 679
+	},
 	"15544": {
 		"File": "_test/special2_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 17
@@ -9081,7 +9085,7 @@
 	},
 	"15566": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 664
+		"Line": 660
 	},
 	"15569": {
 		"File": "_test/testdata/triceCheck.c",
@@ -9093,15 +9097,15 @@
 	},
 	"15599": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 662
+		"Line": 658
 	},
 	"15600": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 660
+		"Line": 656
 	},
 	"15605": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 675
+		"Line": 671
 	},
 	"15615": {
 		"File": "_test/testdata/triceCheck.c",
@@ -9117,11 +9121,11 @@
 	},
 	"15696": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 656
+		"Line": 652
 	},
 	"15704": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 672
+		"Line": 668
 	},
 	"15726": {
 		"File": "_test/special2_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9133,11 +9137,11 @@
 	},
 	"15745": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 651
+		"Line": 647
 	},
 	"15750": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 652
+		"Line": 648
 	},
 	"15776": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9145,7 +9149,7 @@
 	},
 	"15783": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 681
+		"Line": 677
 	},
 	"15818": {
 		"File": "_test/ringB_protect_de_tcobs_ua/TargetActivity.c",
@@ -9157,7 +9161,11 @@
 	},
 	"15831": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 654
+		"Line": 650
+	},
+	"15832": {
+		"File": "_test/testdata/triceCheck.c",
+		"Line": 681
 	},
 	"15837": {
 		"File": "_test/testdata/triceCheck.c",
@@ -9189,11 +9197,15 @@
 	},
 	"15972": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 678
+		"Line": 674
 	},
 	"15973": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 657
+		"Line": 653
+	},
+	"15974": {
+		"File": "_test/testdata/triceCheck.c",
+		"Line": 680
 	},
 	"15976": {
 		"File": "_test/userprint_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9201,11 +9213,11 @@
 	},
 	"16014": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 661
+		"Line": 657
 	},
 	"16022": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 655
+		"Line": 651
 	},
 	"16023": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9221,7 +9233,7 @@
 	},
 	"16043": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 653
+		"Line": 649
 	},
 	"16064": {
 		"File": "_test/special2_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9241,11 +9253,11 @@
 	},
 	"16107": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 663
+		"Line": 659
 	},
 	"16109": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 658
+		"Line": 654
 	},
 	"16117": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9253,11 +9265,11 @@
 	},
 	"16125": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 677
+		"Line": 673
 	},
 	"16134": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 665
+		"Line": 661
 	},
 	"16136": {
 		"File": "_test/special2_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9273,11 +9285,15 @@
 	},
 	"16163": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 673
+		"Line": 669
 	},
 	"16170": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
 		"Line": 29
+	},
+	"16177": {
+		"File": "_test/testdata/triceCheck.c",
+		"Line": 678
 	},
 	"16192": {
 		"File": "_test/special2_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9289,7 +9305,7 @@
 	},
 	"16221": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 650
+		"Line": 646
 	},
 	"16233": {
 		"File": "_test/special2_for_debug/TargetActivity.c",
@@ -9305,15 +9321,15 @@
 	},
 	"16246": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 667
+		"Line": 663
 	},
 	"16249": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 676
+		"Line": 672
 	},
 	"16269": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 670
+		"Line": 666
 	},
 	"16278": {
 		"File": "_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9321,7 +9337,7 @@
 	},
 	"16280": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 668
+		"Line": 664
 	},
 	"16283": {
 		"File": "_test/testdata/triceCheck.c",

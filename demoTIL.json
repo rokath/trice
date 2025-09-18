@@ -9067,6 +9067,10 @@
 		"Type": "triceAssertTrue",
 		"Strg": "ASSERT:flag not true!\\n"
 	},
+	"15526": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
 	"15544": {
 		"Type": "trice8F",
 		"Strg": "info:FunctionNameWd"
@@ -9159,6 +9163,10 @@
 		"Type": "trice",
 		"Strg": "\\n"
 	},
+	"15832": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
 	"15837": {
 		"Type": "triceAssertTrue",
 		"Strg": "ASSERT:flag not true!\\n"
@@ -9192,6 +9200,10 @@
 		"Strg": "\\n"
 	},
 	"15973": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15974": {
 		"Type": "trice",
 		"Strg": "\\n"
 	},
@@ -9278,6 +9290,10 @@
 	"16170": {
 		"Type": "triceS",
 		"Strg": "SAlias_Strg('\"att:%s...\\n\"')SAlias_Strg"
+	},
+	"16177": {
+		"Type": "trice",
+		"Strg": "\\n"
 	},
 	"16192": {
 		"Type": "Trice8F",
