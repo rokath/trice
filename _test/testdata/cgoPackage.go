@@ -208,7 +208,6 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
 	for i, v := range result {
 		a := act[:len(v.exps)] // get next part of actual data (usually a line).
-		fmt.Print(i, v.line, " exp:", v.exps)
 		assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
 		act = act[len(v.exps):]
 	}
@@ -222,10 +221,10 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
-	for i, r := range result {
-		fmt.Println(i, r)
-		triceCheck(r.line) // target activity
-		{                  // check direct output
+	for i, v := range result {
+		triceCheck(v.line) // target activity
+
+		{ // check direct output
 			length := triceOutDepth()
 			bin := out[:length] // bin contains the binary trice data of trice message i
 			buf := fmt.Sprint(bin)
@@ -233,7 +232,7 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 			g.setGlobalVarsDefaults() // restore changed defaults
 			act := triceLog0(t, osFSys, buffer)
 			triceClearOutBuffer()
-			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+			assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
 		}
 		{ // check deferred output
 			triceTransfer()
@@ -244,7 +243,7 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 			g.setGlobalVarsDefaults() // restore changed defaults
 			act := triceLog1(t, osFSys, buffer)
 			triceClearOutBuffer()
-			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+			assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
 		}
 	}
 }
@@ -264,8 +263,6 @@ var (
 	triceLog         func(t *testing.T, fSys *afero.Afero, buffer string) string
 	triceLogDirect   func(t *testing.T, fSys *afero.Afero, buffer string) string
 	triceLogDeferred func(t *testing.T, fSys *afero.Afero, buffer string) string
-
-	DoTestTriceLogBulk = true
 )
 
 // Keep default values of global variables.

@@ -30,5 +30,7 @@ func init() {
 		assert.Nil(t, f)
 		return o.String()
 	}
-	DoTestTriceLogBulk = false 
+	doTestTriceLogLineByLine        = false
+	doTestTriceLogBulk              = true
+	doTestTriceLogDirectAndDeferred = false
 }

@@ -6,6 +6,12 @@ import (
 	"testing"
 )
 
+var (
+	doTestTriceLogLineByLine        bool
+	doTestTriceLogBulk              bool
+	doTestTriceLogDirectAndDeferred bool
+)
+
 // TestMain - see for example https://medium.com/goingogo/why-use-testmain-for-testing-in-go-dafb52b406bc
 func TestMain(m *testing.M) {
 	g.getGlobalVarsDefaults() // Do stuff BEFORE the package tests!
@@ -28,21 +34,21 @@ func setup(t *testing.T) func() {
 
 func TestTriceLogLineByLine(t *testing.T) {
 	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
-	if triceLog != nil {
+	if doTestTriceLogLineByLine && triceLog != nil {
 		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
 	}
 }
 
 func TestTriceLogBulk(t *testing.T) {
 	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
-	if DoTestTriceLogBulk && triceLog != nil {
+	if doTestTriceLogBulk && triceLog != nil {
 		triceLogBulk(t, triceLog, testLines, targetActivityC)
 	}
 }
 
 func TestTriceLogDirectAndDeferred(t *testing.T) {
 	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
-	if triceLogDirect != nil && triceLogDeferred != nil {
+	if doTestTriceLogDirectAndDeferred && triceLogDirect != nil && triceLogDeferred != nil {
 		triceLogDirectAndDeferred(t, triceLogDirect, triceLogDeferred, testLines, targetActivityC)
 	}
 }

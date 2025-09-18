@@ -34,7 +34,7 @@ func triceLogSpecialTest(t *testing.T, triceLog logF) {
 
 	// For the ring buffer, we need to call triceTransfer() at least for each Trice statement in targetActivity()
 	// For the double buffer one call is enough.
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		triceTransfer()
 	}
 
