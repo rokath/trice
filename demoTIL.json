@@ -8955,6 +8955,390 @@
 		"Type": "trice",
 		"Strg": "Hello again\\n"
 	},
+	"15251": {
+		"Type": "trice16F",
+		"Strg": "info:FunctionNameXd"
+	},
+	"15266": {
+		"Type": "TRice16F",
+		"Strg": "info:FunctionNameXb"
+	},
+	"15280": {
+		"Type": "TRICE64_F",
+		"Strg": "info:FunctionNameZa"
+	},
+	"15284": {
+		"Type": "trice",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+	},
+	"15286": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
+	},
+	"15293": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
+	"15298": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15304": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
+	},
+	"15319": {
+		"Type": "TRice32F",
+		"Strg": "rpc:FunctionNameYb"
+	},
+	"15326": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15332": {
+		"Type": "TRice8B",
+		"Strg": "%3x\\n"
+	},
+	"15335": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15348": {
+		"Type": "TRiceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"15360": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user ... with string, integer and float values: %u, %d, %x, %2.1f, %s and %s\\n\"')SAlias_Strg"
+	},
+	"15374": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15377": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15388": {
+		"Type": "trice",
+		"Strg": "Hello again\\n"
+	},
+	"15404": {
+		"Type": "trice",
+		"Strg": "A user printi call without values.\\n"
+	},
+	"15411": {
+		"Type": "TRice64F",
+		"Strg": "call:FunctionNameZb"
+	},
+	"15413": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"15424": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15440": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15441": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15454": {
+		"Type": "TriceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"15462": {
+		"Type": "TRiceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"15477": {
+		"Type": "TRiceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"15484": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s..\\n\"')SAlias_Strg"
+	},
+	"15520": {
+		"Type": "triceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"15544": {
+		"Type": "trice8F",
+		"Strg": "info:FunctionNameWd"
+	},
+	"15557": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"15559": {
+		"Type": "triceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"15566": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15569": {
+		"Type": "TRiceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"15574": {
+		"Type": "Trice16F",
+		"Strg": "info:FunctionNameXc"
+	},
+	"15599": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15600": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15605": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15615": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"15626": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
+	"15627": {
+		"Type": "TRice8F",
+		"Strg": "info:FunctionNameWb"
+	},
+	"15696": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15704": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15726": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15733": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
+	"15745": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15750": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15776": {
+		"Type": "trice",
+		"Strg": "A user printi call with integer and float values: %u, %d, %x, %2.1f\\n"
+	},
+	"15783": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15818": {
+		"Type": "TRice",
+		"Strg": "Hello "
+	},
+	"15823": {
+		"Type": "TRice64",
+		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
+	},
+	"15831": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15837": {
+		"Type": "triceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"15841": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
+	"15850": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s....\\n\"')SAlias_Strg"
+	},
+	"15859": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"15879": {
+		"Type": "triceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"15881": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"15950": {
+		"Type": "TRICE8_F",
+		"Strg": "info:FunctionNameWa"
+	},
+	"15972": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15973": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"15976": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"16014": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16022": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16023": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:'-alias' \u0026 '-salias' contributor is %s.\\n\"')SAlias_Strg"
+	},
+	"16033": {
+		"Type": "trice32F",
+		"Strg": "call:FunctionNameYd"
+	},
+	"16035": {
+		"Type": "Trice",
+		"Strg": "ok!\\n"
+	},
+	"16043": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16064": {
+		"Type": "TRICE32_F",
+		"Strg": "info:FunctionNameYa"
+	},
+	"16076": {
+		"Type": "TriceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"16102": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
+	"16103": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
+	"16107": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16109": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16117": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user prints call with integer and float values: %u, %d, %x, %2.1f\\n\"')SAlias_Strg"
+	},
+	"16125": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16134": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16136": {
+		"Type": "TRICE16_F",
+		"Strg": "info:FunctionNameXa"
+	},
+	"16139": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"16148": {
+		"Type": "TriceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"16163": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16170": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:%s...\\n\"')SAlias_Strg"
+	},
+	"16192": {
+		"Type": "Trice8F",
+		"Strg": "info:FunctionNameWc"
+	},
+	"16208": {
+		"Type": "Trice32F",
+		"Strg": "rpc:FunctionNameYc"
+	},
+	"16221": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16233": {
+		"Type": "TRice8B",
+		"Strg": "%3x\\n"
+	},
+	"16236": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"16242": {
+		"Type": "Trice64F",
+		"Strg": "RPC:FunctionNameZc"
+	},
+	"16246": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16249": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16269": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16278": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
+	},
+	"16280": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"16283": {
+		"Type": "TriceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"16284": {
+		"Type": "trice64F",
+		"Strg": "Rpc:FunctionNameZd"
+	},
+	"16293": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user prints call without values.\\n\"')SAlias_Strg"
+	},
+	"16295": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)\"'%s' Am, it is %d\"')SAlias_Strg"
+	},
 	"16326": {
 		"Type": "trice",
 		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
