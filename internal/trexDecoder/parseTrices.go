@@ -78,8 +78,8 @@ func (p *trexDec) parseDecodedFrame() {
 	for p.nextTriceComplete() {
 		p.parseNextTriceInFramedBuffer()
 	}
-	if len(p.I) >= maxRestSize {
-		s := fmt.Sprintln("WARNING:discarding unexpected bytes", hex.Dump(p.I))
+	if len(p.I) > maxRestSize {
+		s := fmt.Sprintf("WARNING: len(p.I)=%d > maxRestSize=%d,  discarding unexpected bytes %s", len(p.I), maxRestSize, hex.Dump(p.I))
 		p.W.Write([]byte(s))
 	} else {
 		if !allZero(p.I) {
