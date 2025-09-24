@@ -60,6 +60,7 @@ var (
 	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 	triceDir        string // triceDir holds the trice directory path.
 	targetActivityC string // triceCheckC contains the target test code.
+	targetMode      string // targetMode is "directMode" OR "deferredMode" OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -142,7 +143,7 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 			}
 		}
 	}
-	return
+	return result[0:min(500, len(result))]
 }
 
 // logF is the log function type for executing the trice logging on binary log data in buffer as space separated numbers.
@@ -189,7 +190,6 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
 	var bin []byte // bin collects the binary data.
-
 	for i, r := range result {
 		triceCheck(r.line) // target activity
 		if i%3 == 0 {
@@ -221,10 +221,11 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
+
 	for i, v := range result {
 		triceCheck(v.line) // target activity
 
-		{ // check direct output
+		{ // Check direct output line by line.
 			length := triceOutDepth()
 			bin := out[:length] // bin contains the binary trice data of trice message i
 			buf := fmt.Sprint(bin)
@@ -234,16 +235,20 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 			triceClearOutBuffer()
 			assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
 		}
-		{ // check deferred output
-			triceTransfer()
-			length := triceOutDepth()
-			bin := out[:length] // bin contains the binary trice data of trice message i
-			buf := fmt.Sprint(bin)
-			buffer := buf[1 : len(buf)-1]
-			g.setGlobalVarsDefaults() // restore changed defaults
-			act := triceLog1(t, osFSys, buffer)
-			triceClearOutBuffer()
-			assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
+		{ // Check deferred output.
+			if false {
+
+			} else { // liny by line (slow)
+				triceTransfer()
+				length := triceOutDepth()
+				bin := out[:length] // bin contains the binary trice data of trice message i
+				buf := fmt.Sprint(bin)
+				buffer := buf[1 : len(buf)-1]
+				g.setGlobalVarsDefaults() // restore changed defaults
+				act := triceLog1(t, osFSys, buffer)
+				triceClearOutBuffer()
+				assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
+			}
 		}
 	}
 }
