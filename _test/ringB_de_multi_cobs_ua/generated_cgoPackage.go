@@ -41,6 +41,7 @@ import "C"
 
 import (
 	"bufio"
+	"encoding/hex"
 	"fmt"
 	"path"
 	"runtime"
@@ -134,7 +135,7 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 				r.line = i + 1 // 1st line number is 1 and not 0
 				//  r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
 				s := lineEnd[6 : len(lineEnd)-1]
-				r.exps = strings.Replace(s, "\\n", "\n", -1)
+				r.exps = strings.ReplaceAll(s, "\\n", "\n")
 				result = append(result, r)
 				testLinesCounter++
 				if maxTestlines > 0 && testLinesCounter >= maxTestlines {
@@ -143,7 +144,20 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 			}
 		}
 	}
-	return result[0:min(500, len(result))]
+
+	skipAtStart := 0
+	skipAtEnd := 0
+
+	from := skipAtStart
+	if len(result) < skipAtStart {
+		from = 0
+	}
+
+	to := len(result) - skipAtEnd
+	if len(result) < skipAtEnd {
+		to = len(result)
+	}
+	return result[from:to]
 }
 
 // logF is the log function type for executing the trice logging on binary log data in buffer as space separated numbers.
@@ -186,31 +200,69 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
-	out := make([]byte, 65536) // out is the binary trice data buffer until the next triceTransfer() call.
+
+	// out is the binary trice data buffer until the next triceTransfer() call.
+	// It must be able to hold binary Trice data for several Trice calls and should have at least the
+	// configured target internal buffer size, here 65536 is a very safe value.
+	out := make([]byte, 65536)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
 	var bin []byte // bin collects the binary data.
+	var length int
 	for i, r := range result {
+		fmt.Print("i:", i, "\texecute triceCheck.c line:", r.line, "\texp:", r.exps)
 		triceCheck(r.line) // target activity
+
+		// It is not guarantied, that all target internal binary data go to the provided out buffer with a single
+		// triceTransfer() call. Only if the depth after a repeated call is 0 all data are out. This information
+		// has relevance only for this test function, because the trice transfers are done in the target normally.
+		// When executing several triceCheck.c lines before running triceTransfer(), all generated binary Trice
+		// data must fit into the configured #define TRICE_DEFERRED_BUFFER_SIZE 1024, what is the half for the
+		// double buffer case. Per default Trices can get 104 bytes long, and a reserve of one Trice is to be considered.
+		// So starting with triceTransfer() after 3 generated Trices seems to be a good choice here.
 		if i%3 == 0 {
-			triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
-			length := triceOutDepth()
-			bin = append(bin, out[:length]...)
-			setTriceBuffer(out)
+			length = -1
+			for length != 0 {
+				triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+				length = triceOutDepth()
+				bin = append(bin, out[:length]...)
+				setTriceBuffer(out)
+			}
 		}
 	}
-	triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
-	length := triceOutDepth()
-	bin = append(bin, out[:length]...)
-
-	buf := fmt.Sprint(bin)             // buf is the ASCII representation of bin.
-	buffer := buf[1 : len(buf)-1]      // buffer contains the bare data (without brackets).
-	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
-	for i, v := range result {
-		a := act[:len(v.exps)] // get next part of actual data (usually a line).
-		assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
-		act = act[len(v.exps):]
+	length = -1
+	for length != 0 {
+		triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+		length = triceOutDepth()
+		bin = append(bin, out[:length]...)
+		setTriceBuffer(out)
 	}
+
+	assert.NotZero(t, len(result), "length of expected results")
+	assert.NotZero(t, len(bin), "length of binary buffer")
+
+	fmt.Println("bin buffer: len= ", len(bin))
+	fmt.Println(hex.Dump(bin))
+
+	buf := fmt.Sprint(bin)              // buf is the ASCII representation of bin.
+	buffer := buf[1 : len(buf)-1]       // buffer contains the bare data (without brackets).
+	actR := triceLog(t, osFSys, buffer) // actR is the complete printed text.
+	var totalResultText string
+	for _, v := range result {
+		totalResultText += v.exps
+	}
+	fmt.Println("exp result: len of totalResultText= ", len(totalResultText))
+	fmt.Println(result)
+	fmt.Println("act result: len of actR", len(actR))
+	fmt.Println(actR)
+	for i, v := range result {
+		s := fmt.Sprintf("%d: line %d: len(actR)=%d, \tlen(exp)=%d", i, v.line, len(actR), len(v.exps))
+		a := actR[:len(v.exps)] // get next part of actual data (usually a line).
+		fmt.Println(s)
+		assert.Equal(t, v.exps, a, s)
+		actR = actR[len(v.exps):]
+	}
+	//assert.Fail(t, "forced fail")
 }
 
 // triceLogDirectAndDeferred works like triceLogTest but additionally expects doubled output: direct and deferred.
