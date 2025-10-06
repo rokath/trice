@@ -4,7 +4,7 @@
 
 ```diff
 + Speed of Light `printf` Comfort Within Interrupts And Everywhere +
---> To Long; Don't Read - use it as reference only❗
+--> Too Long; Don't Read - use it as reference only❗
 ```
 
 ---
