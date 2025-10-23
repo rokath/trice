@@ -95,6 +95,9 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 // Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
 // Afterwards 0 or at least 4 bytes are inside p.B
 func (p *trexDec) nextData() {
+	if len(p.B) >= 4 {
+		return
+	}
 	m, err := p.In.Read(p.InnerBuffer)      // use p.InnerBuffer as destination read buffer
 	p.B = append(p.B, p.InnerBuffer[:m]...) // merge with leftovers
 	if err != nil && err != io.EOF {        // some serious error
