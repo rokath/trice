@@ -16,9 +16,19 @@ void TriceCheckSpecial( int n ) {
         switch(n){
                 default:
 
-                break; case __LINE__: TRice("Hello World!\n" );                                            //exp: Time:feed3322default: Hello World!
+                break; case __LINE__: TRice("Hello World!\n" );          //exp: Time:feed3322default: Hello World!
                 // 'printi' is declared as -alias  in ./trice_environment.sh and defined here in triceConfig.h which is excluded from parsing in ./trice_environment.sh.
                 // 'prints' is declared as -salias in ./trice_environment.sh and defined here in triceConfig.h which is excluded from parsing in ./trice_environment.sh.
+                break; case __LINE__: prints("att:%s.\n", "" );          //exp: Time:        default: att:.
+                break; case __LINE__: prints("att:%s.\n", "g" );         //exp: Time:        default: att:g.
+                break; case __LINE__: prints("att:%s.\n", "gg" );        //exp: Time:        default: att:gg.
+                break; case __LINE__: prints("att:%s.\n", "rgg" );       //exp: Time:        default: att:rgg.
+                break; case __LINE__: prints("att:%s.\n", "srgg" );      //exp: Time:        default: att:srgg.
+                break; case __LINE__: prints("att:%s.\n", "@srgg" );     //exp: Time:        default: att:@srgg.
+                break; case __LINE__: prints("att:%s..\n", "@srgg" );    //exp: Time:        default: att:@srgg..
+                break; case __LINE__: prints("att:%s...\n", "@srgg" );   //exp: Time:        default: att:@srgg...
+                break; case __LINE__: prints("att:%s....\n", "@srgg" );  //exp: Time:        default: att:@srgg....
+
                 break; case __LINE__: prints("att:'-alias' & '-salias' contributor is %s.\n", "@srgg" );  //exp: Time:        default: att:'-alias' & '-salias' contributor is @srgg.
                 break; case __LINE__: printi("A user printi call without values.\n");                     //exp: Time:        default: A user printi call without values.
                 break; case __LINE__: prints("A user prints call without values.\n");                     //exp: Time:        default: A user prints call without values.

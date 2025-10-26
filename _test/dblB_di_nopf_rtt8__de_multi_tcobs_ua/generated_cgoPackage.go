@@ -48,14 +48,19 @@ import (
 	"testing"
 	"unsafe"
 
+	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/trexDecoder"
+	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
 var (
-	triceDir  string // triceDir holds the trice directory path.
-	testLines = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	triceDir        string // triceDir holds the trice directory path.
+	targetActivityC string // triceCheckC contains the target test code.
+	targetMode      string // targetMode is "directMode" OR "deferredMode" OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -63,6 +68,7 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0) // filename is the test executable inside the package dir like cgo_stackBuffer_noCycle_tcobs
 	testDir := path.Dir(filename)
 	triceDir = path.Join(testDir, "../../")
+	targetActivityC = path.Join(triceDir, "./_test/testdata/triceCheck.c")
 	C.TriceInit()
 }
 
@@ -112,126 +118,171 @@ type results struct {
 	exps string
 }
 
-func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
+func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (result []results) {
 	// get all file lines into a []string
 	f, e := fSys.Open(filename)
 	msg.OnErr(e)
 	lines := linesInFile(f)
-
+	var testLinesCounter = 0
 	for i, line := range lines {
 		s := strings.Split(line, "//")
 		if len(s) == 2 { // just one "//"
 			lineEnd := s[1]
-			subStr := "exp:"
-			index := strings.LastIndex(lineEnd, subStr)
-			if index >= 0 {
+			index := strings.LastIndex(lineEnd, "exp: \"")
+			if index == 0 { // pattern //exp: "
 				var r results
 				r.line = i + 1 // 1st line number is 1 and not 0
-				r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
+				//  r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
+				s := lineEnd[6 : len(lineEnd)-1]
+				r.exps = strings.Replace(s, "\\n", "\n", -1)
 				result = append(result, r)
+				testLinesCounter++
+				if maxTestlines > 0 && testLinesCounter >= maxTestlines {
+					break
+				}
 			}
 		}
 	}
-	return
+	return result[0:min(500, len(result))]
 }
 
 // logF is the log function type for executing the trice logging on binary log data in buffer as space separated numbers.
 // It uses the inside fSys specified til.json and returns the log output.
 type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 
-// triceLogTest creates a list of expected results from  path.Join(triceDir, "./_test/testdata/triceCheck.c").
+// triceLogLineByLine creates a list of expected results from triceCheckC.
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.
 // This function is test package specific defined. The file cgoPackage.go is
 // copied into all specific test packages and compiled there together with the
 // triceConfig.h, which holds the test package specific target code configuration.
-// limit is the count of executed test lines starting from the beginning. -1 ist for all.
-func triceLogTest(t *testing.T, triceLog logF, limit int) {
-
+// testLines is the count of executed test lines starting from the beginning. -1 ist for all.
+func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
-	//mmFSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
-
-	result := getExpectedResults(osFSys, path.Join(triceDir, "./_test/testdata/triceCheck.c"))
-
-	var count int
-	for i, r := range result {
-
-		count++
-		if limit >= 0 && count >= limit {
-			return
-		}
-
-		fmt.Println(i, r)
-
-		// target activity
-		triceCheck(r.line)
-
-		triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
-
+	result := getExpectedResults(osFSys, triceCheckC, testLines)
+	for i, v := range result {
+		triceCheck(v.line) // target activity
+		triceTransfer()    // This is only for deferred modes needed, but direct modes contain this as empty function.
 		length := triceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i in r.line
-
 		buf := fmt.Sprint(bin)
 		buffer := buf[1 : len(buf)-1]
-
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()
-
-		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+		assert.Equal(t, v.exps, act, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)))
 	}
 }
 
-// triceLogTest2 works like triceLogTest but additionally expects doubled output: direct and deferred.
-func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
-
+// triceLogBulk creates a list of expected results from triceCheckC.
+// It loops over the result list and executes for each result the compiled C-code.
+// It passes the received binary data as buffer to the triceLog function of type logF.
+// This function is test package specific defined. The file cgoPackage.go is
+// copied into all specific test packages and compiled there together with the
+// triceConfig.h, which holds the test package specific target code configuration.
+// testLines is the count of executed test lines starting from the beginning. -1 ist for all.
+func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
+	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
+	out := make([]byte, 65536) // out is the binary trice data buffer until the next triceTransfer() call.
+	setTriceBuffer(out)
+	result := getExpectedResults(osFSys, triceCheckC, testLines)
+	var bin []byte // bin collects the binary data.
+	for i, r := range result {
+		triceCheck(r.line) // target activity
+		if i%3 == 0 {
+			triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+			length := triceOutDepth()
+			bin = append(bin, out[:length]...)
+			setTriceBuffer(out)
+		}
+	}
+	triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+	length := triceOutDepth()
+	bin = append(bin, out[:length]...)
 
+	buf := fmt.Sprint(bin)             // buf is the ASCII representation of bin.
+	buffer := buf[1 : len(buf)-1]      // buffer contains the bare data (without brackets).
+	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
+	for i, v := range result {
+		a := act[:len(v.exps)] // get next part of actual data (usually a line).
+		assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
+		act = act[len(v.exps):]
+	}
+}
+
+// triceLogDirectAndDeferred works like triceLogTest but additionally expects doubled output: direct and deferred.
+func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLines int, triceCheckC string) {
+	g.getGlobalVarsDefaults() // read changed defaults
+	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
+	result := getExpectedResults(osFSys, triceCheckC, testLines)
 
-	result := getExpectedResults(osFSys, path.Join(triceDir, "./_test/testdata/triceCheck.c"))
+	for i, v := range result {
+		triceCheck(v.line) // target activity
 
-	var count int
-	for i, r := range result {
-
-		count++
-		if limit >= 0 && count >= limit {
-			return
-		}
-		fmt.Println(i, r)
-		triceCheck(r.line) // target activity
-
-		{ // check direct output
+		{ // Check direct output line by line.
 			length := triceOutDepth()
 			bin := out[:length] // bin contains the binary trice data of trice message i
-
 			buf := fmt.Sprint(bin)
 			buffer := buf[1 : len(buf)-1]
-
+			g.setGlobalVarsDefaults() // restore changed defaults
 			act := triceLog0(t, osFSys, buffer)
 			triceClearOutBuffer()
-
-			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+			assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
 		}
+		{ // Check deferred output.
+			if false {
 
-		{ // check deferred output
-			triceTransfer()
-
-			length := triceOutDepth()
-			bin := out[:length] // bin contains the binary trice data of trice message i
-
-			buf := fmt.Sprint(bin)
-			buffer := buf[1 : len(buf)-1]
-
-			act := triceLog1(t, osFSys, buffer)
-			triceClearOutBuffer()
-
-			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+			} else { // liny by line (slow)
+				triceTransfer()
+				length := triceOutDepth()
+				bin := out[:length] // bin contains the binary trice data of trice message i
+				buf := fmt.Sprint(bin)
+				buffer := buf[1 : len(buf)-1]
+				g.setGlobalVarsDefaults() // restore changed defaults
+				act := triceLog1(t, osFSys, buffer)
+				triceClearOutBuffer()
+				assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
+			}
 		}
 	}
+}
+
+type globalDefaults struct {
+	defaultPassword       string
+	defaultPackageFraming string
+	defaultDoubled16BitID bool
+}
+
+var (
+	// g holds global vars default values
+	g globalDefaults
+
+	// triceLog is the log function for executing the trice logging on binary log data in buffer as space separated numbers.
+	// It uses the inside fSys specified til.json and returns the log output.
+	triceLog         func(t *testing.T, fSys *afero.Afero, buffer string) string
+	triceLogDirect   func(t *testing.T, fSys *afero.Afero, buffer string) string
+	triceLogDeferred func(t *testing.T, fSys *afero.Afero, buffer string) string
+)
+
+// Keep default values of global variables.
+func (p *globalDefaults) getGlobalVarsDefaults() {
+	p.defaultPassword = cipher.Password
+	p.defaultPackageFraming = decoder.PackageFraming
+	p.defaultDoubled16BitID = trexDecoder.Doubled16BitID
+}
+
+// setGlobalVarsDefaults sets all global variables in a definitive state.
+// In Go, each package generates an individual test binary and they are tested parallel.
+// All package tests are executed sequentially but use the same global variables.
+// Therefore we have to reset the global variables in each test function.
+func (p *globalDefaults) setGlobalVarsDefaults() {
+	cipher.Password = p.defaultPassword
+	decoder.PackageFraming = p.defaultPackageFraming
+	trexDecoder.Doubled16BitID = p.defaultDoubled16BitID
 }
