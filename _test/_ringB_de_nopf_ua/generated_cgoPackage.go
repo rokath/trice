@@ -143,7 +143,7 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 			}
 		}
 	}
-	return result[133:min(136, len(result))]
+	return result[0:min(500, len(result))]
 }
 
 // logF is the log function type for executing the trice logging on binary log data in buffer as space separated numbers.
@@ -203,17 +203,13 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	length := triceOutDepth()
 	bin = append(bin, out[:length]...)
 
-	buf := fmt.Sprint(bin)              // buf is the ASCII representation of bin.
-	buffer := buf[1 : len(buf)-1]       // buffer contains the bare data (without brackets).
-	actR := triceLog(t, osFSys, buffer) // actR is the complete printed text.
-	fmt.Println("exp result:\n", result)
-	fmt.Println("act result:\n", actR)
+	buf := fmt.Sprint(bin)             // buf is the ASCII representation of bin.
+	buffer := buf[1 : len(buf)-1]      // buffer contains the bare data (without brackets).
+	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
 	for i, v := range result {
-		s := fmt.Sprintf("%d: line %d: len(actR)=%d, \tlen(exp)=%d", i, v.line, len(actR), len(v.exps))
-		a := actR[:len(v.exps)] // get next part of actual data (usually a line).
-		fmt.Println(s)
-		assert.Equal(t, v.exps, a, s)
-		actR = actR[len(v.exps):]
+		a := act[:len(v.exps)] // get next part of actual data (usually a line).
+		assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
+		act = act[len(v.exps):]
 	}
 }
 
