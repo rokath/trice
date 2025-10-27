@@ -1,270 +1,114 @@
-Thu Sep 18 18:07:19 WEDT 2025
+Mo 27. Okt 00:33:57 CET 2025
 This can take a while ...
 SELECTED: full
-$OSTYPE=msys
-MINGW64_NT-10.0-26100 PaulPCWin11 3.5.7-463ebcdc.x86_64 2025-03-03 17:26 UTC x86_64 Msys
-go version go1.23.4 windows/amd64
-/c/Users/ms/go/bin/trice
-version=devel, built 2025-09-18 18:07:21.0291438 +0200 CEST
+$OSTYPE=linux-gnu
+Linux P51-DebianKDE 6.1.0-29-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.123-1 (2025-01-02) x86_64 GNU/Linux
+go version go1.23.4 linux/amd64
+/home/th/go/bin/trice
+version=devel, built 2025-10-27 00:33:58.359794859 +0100 CET
 ---
 Testing the Go code...
 ?   	github.com/rokath/trice/internal/do	[no test files]
+ok  	github.com/rokath/trice/cmd/trice	1.031s
+ok  	github.com/rokath/trice/internal/args	0.007s
+ok  	github.com/rokath/trice/internal/charDecoder	0.004s
+ok  	github.com/rokath/trice/internal/com	0.004s
+ok  	github.com/rokath/trice/internal/decoder	0.004s
+ok  	github.com/rokath/trice/internal/dumpDecoder	0.003s
+ok  	github.com/rokath/trice/internal/emitter	0.004s
 ?   	github.com/rokath/trice/internal/translator	[no test files]
 ?   	github.com/rokath/trice/pkg/ant	[no test files]
-ok  	github.com/rokath/trice/cmd/trice	1.443s
-ok  	github.com/rokath/trice/internal/args	0.500s
-ok  	github.com/rokath/trice/internal/charDecoder	0.366s
-ok  	github.com/rokath/trice/internal/com	0.391s
-ok  	github.com/rokath/trice/internal/decoder	0.381s
-ok  	github.com/rokath/trice/internal/dumpDecoder	0.373s
-ok  	github.com/rokath/trice/internal/emitter	0.381s
-ok  	github.com/rokath/trice/internal/id	3.177s
-ok  	github.com/rokath/trice/internal/keybcmd	0.287s
-ok  	github.com/rokath/trice/internal/link	0.250s
-ok  	github.com/rokath/trice/internal/receiver	0.291s
-ok  	github.com/rokath/trice/internal/trexDecoder	0.303s
-ok  	github.com/rokath/trice/pkg/cipher	0.240s
-ok  	github.com/rokath/trice/pkg/endian	0.180s
-ok  	github.com/rokath/trice/pkg/msg	0.191s
-ok  	github.com/rokath/trice/pkg/tst	0.259s
+ok  	github.com/rokath/trice/internal/id	2.732s
+ok  	github.com/rokath/trice/internal/keybcmd	0.004s
+ok  	github.com/rokath/trice/internal/link	0.004s
+ok  	github.com/rokath/trice/internal/receiver	0.004s
+ok  	github.com/rokath/trice/internal/trexDecoder	0.006s
+ok  	github.com/rokath/trice/pkg/cipher	0.004s
+ok  	github.com/rokath/trice/pkg/endian	0.002s
+ok  	github.com/rokath/trice/pkg/msg	0.004s
+ok  	github.com/rokath/trice/pkg/tst	0.004s
 Testing the Go code...pass
 ---
 ---
 Testing the Target code inside PC...
 go test ./...
-ok  	github.com/rokath/trice/_test/alias_dblB_de_tcobs_ua	0.256s
-ok  	github.com/rokath/trice/_test/aliasassert_dblB_de_tcobs_ua	0.483s
-ok  	github.com/rokath/trice/_test/be_dblB_de_tcobs_ua	1.020s
-ok  	github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32	194.650s
-ok  	github.com/rokath/trice/_test/dblB_de_cobs_ua	1.161s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_cobs_ua	1.075s
-TestTriceLogLineByLine ...
-TestTriceLogLineByLine ...done.
-TestTriceLogBulk ...
-TestTriceLogBulk ...done.
---- FAIL: TestTriceLogBulk (0.74s)
-panic: runtime error: slice bounds out of range [:76] with length 20 [recovered]
-	panic: runtime error: slice bounds out of range [:76] with length 20
+ok  	github.com/rokath/trice/_test/alias_dblB_de_tcobs_ua	0.006s
+ok  	github.com/rokath/trice/_test/aliasassert_dblB_de_tcobs_ua	0.005s
+ok  	github.com/rokath/trice/_test/be_dblB_de_tcobs_ua	0.148s
+ok  	github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32	66.683s
+ok  	github.com/rokath/trice/_test/dblB_de_cobs_ua	0.231s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_cobs_ua	0.244s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_nopf_ua	0.252s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua	0.248s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua	0.182s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua	0.182s
+ok  	github.com/rokath/trice/_test/dblB_de_nopf_ua	0.201s
+ok  	github.com/rokath/trice/_test/dblB_de_tcobs_ua	0.194s
+ok  	github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua	0.211s
+ok  	github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua	0.209s
+ok  	github.com/rokath/trice/_test/dblB_di_cobs_rtt32__de_xtea_cobs_ua	162.757s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua	161.188s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua	161.129s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua	160.987s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua	161.222s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua	161.050s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua	161.273s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua	162.805s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua	132.039s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua	132.089s
+ok  	github.com/rokath/trice/_test/ringB_de_cobs_ua	0.189s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_cobs_ua	0.185s
+TestTriceLog ...
+0 of 500 v.exps: time:feed3322default: Hello World!
 
-goroutine 20 [running]:
-testing.tRunner.func1.2({0x7ff7c7fff200, 0xc0001a4d98})
-	C:/Program Files/Go/src/testing/testing.go:1632 +0x225
-testing.tRunner.func1()
-	C:/Program Files/Go/src/testing/testing.go:1635 +0x359
-panic({0x7ff7c7fff200?, 0xc0001a4d98?})
-	C:/Program Files/Go/src/runtime/panic.go:785 +0x132
-github.com/rokath/trice/_test/dblB_de_multi_nopf_ua.triceLogBulk(0xc0001a7d40, 0x7ff7c805fac0, 0xffffffffffffffff, {0xc0001d2580, 0x3c})
-	C:/Users/ms/repos/trice_wt_devel/_test/dblB_de_multi_nopf_ua/generated_cgoPackage.go:210 +0x632
-github.com/rokath/trice/_test/dblB_de_multi_nopf_ua.TestTriceLogBulk(0xc0001a7d40)
-	C:/Users/ms/repos/trice_wt_devel/_test/dblB_de_multi_nopf_ua/generated_cgoPackage_test.go:45 +0x65
-testing.tRunner(0xc0001a7d40, 0x7ff7c805f918)
-	C:/Program Files/Go/src/testing/testing.go:1690 +0xcb
-created by testing.(*T).Run in goroutine 1
-	C:/Program Files/Go/src/testing/testing.go:1743 +0x377
-FAIL	github.com/rokath/trice/_test/dblB_de_multi_nopf_ua	1.201s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua	1.024s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua	1.108s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua	1.098s
-TestTriceLogLineByLine ...
-TestTriceLogLineByLine ...done.
-TestTriceLogBulk ...
-TestTriceLogBulk ...done.
---- FAIL: TestTriceLogBulk (0.64s)
-panic: runtime error: slice bounds out of range [:76] with length 20 [recovered]
-	panic: runtime error: slice bounds out of range [:76] with length 20
-
-goroutine 8 [running]:
-testing.tRunner.func1.2({0x7ff67825f200, 0xc000504528})
-	C:/Program Files/Go/src/testing/testing.go:1632 +0x225
-testing.tRunner.func1()
-	C:/Program Files/Go/src/testing/testing.go:1635 +0x359
-panic({0x7ff67825f200?, 0xc000504528?})
-	C:/Program Files/Go/src/runtime/panic.go:785 +0x132
-github.com/rokath/trice/_test/dblB_de_nopf_ua.triceLogBulk(0xc0000b5d40, 0x7ff6782bfaa0, 0xffffffffffffffff, {0xc0000148c0, 0x3c})
-	C:/Users/ms/repos/trice_wt_devel/_test/dblB_de_nopf_ua/generated_cgoPackage.go:210 +0x632
-github.com/rokath/trice/_test/dblB_de_nopf_ua.TestTriceLogBulk(0xc0000b5d40)
-	C:/Users/ms/repos/trice_wt_devel/_test/dblB_de_nopf_ua/generated_cgoPackage_test.go:45 +0x65
-testing.tRunner(0xc0000b5d40, 0x7ff6782bf8f8)
-	C:/Program Files/Go/src/testing/testing.go:1690 +0xcb
-created by testing.(*T).Run in goroutine 1
-	C:/Program Files/Go/src/testing/testing.go:1743 +0x377
-FAIL	github.com/rokath/trice/_test/dblB_de_nopf_ua	1.108s
-ok  	github.com/rokath/trice/_test/dblB_de_tcobs_ua	0.834s
-ok  	github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua	1.094s
-ok  	github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua	0.997s
-ok  	github.com/rokath/trice/_test/dblB_di_cobs_rtt32__de_xtea_cobs_ua	386.151s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua	386.331s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua	383.529s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua	383.403s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua	383.523s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua	383.551s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua	383.483s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua	383.649s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua	383.646s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua	385.315s
-ok  	github.com/rokath/trice/_test/ringB_de_cobs_ua	0.741s
-ok  	github.com/rokath/trice/_test/ringB_de_multi_cobs_ua	0.692s
-ok  	github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua	0.729s
-TestTriceLogLineByLine ...
-TestTriceLogLineByLine ...done.
-TestTriceLogBulk ...
-TestTriceLogBulk ...done.
---- FAIL: TestTriceLogBulk (0.33s)
-    require.go:72: 
-        	Error Trace:	C:/Users/ms/go/pkg/mod/github.com/tj/assert@v0.0.3/require.go:72
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_multi_xtea_cobs_ua/generated_cgoPackage.go:211
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_multi_xtea_cobs_ua/generated_cgoPackage_test.go:45
-        	Error:      	Not equal: 
-        	            	expected: "time:feed3322default: sig:With TRiceN:abcde 12345\n"
-        	            	actual  : "WARNING:discarding unexpected bytes 00000000  00 0"
-        	            	
-        	            	Diff:
-        	            	--- Expected
-        	            	+++ Actual
-        	            	@@ -1,2 +1 @@
-        	            	-time:feed3322default: sig:With TRiceN:abcde 12345
-        	            	-
-        	            	+WARNING:discarding unexpected bytes 00000000  00 0
-        	Test:       	TestTriceLogBulk
-        	Messages:   	229: line 353: len(exp)=50, len(act)=50
-TestTriceLogDirectAndDeferred ...
-TestTriceLogDirectAndDeferred ...done.
+0 act: 
+TestTriceLog ...done.
+--- FAIL: TestTriceLog (0.14s)
+    require.go:131: 
+        	Error Trace:	/home/th/go/pkg/mod/github.com/tj/assert@v0.0.3/require.go:131
+        	            				/home/th/repos/trice/_test/ringB_de_multi_nopf_ua/generated_cgoPackage.go:229
+        	            				/home/th/repos/trice/_test/ringB_de_multi_nopf_ua/generated_cgoPackage_test.go:41
+        	Error:      	0: line 62: len(exp)=35, len(act)=0
+        	Test:       	TestTriceLog
+        	Messages:   	actual data too short
 FAIL
-FAIL	github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua	0.744s
-TestTriceLogLineByLine ...
-TestTriceLogLineByLine ...done.
-TestTriceLogBulk ...
-TestTriceLogBulk ...done.
---- FAIL: TestTriceLogBulk (0.35s)
-    require.go:72: 
-        	Error Trace:	C:/Users/ms/go/pkg/mod/github.com/tj/assert@v0.0.3/require.go:72
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_multi_xtea_tcobs_ua/generated_cgoPackage.go:211
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_multi_xtea_tcobs_ua/generated_cgoPackage_test.go:45
-        	Error:      	Not equal: 
-        	            	expected: "time:feed3322default: sig:With TRiceN:abcde 12345\n"
-        	            	actual  : "WARNING:discarding unexpected bytes 00000000  00 0"
-        	            	
-        	            	Diff:
-        	            	--- Expected
-        	            	+++ Actual
-        	            	@@ -1,2 +1 @@
-        	            	-time:feed3322default: sig:With TRiceN:abcde 12345
-        	            	-
-        	            	+WARNING:discarding unexpected bytes 00000000  00 0
-        	Test:       	TestTriceLogBulk
-        	Messages:   	229: line 353: len(exp)=50, len(act)=50
-TestTriceLogDirectAndDeferred ...
-TestTriceLogDirectAndDeferred ...done.
-FAIL
-FAIL	github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua	0.746s
-TestTriceLogLineByLine ...
-TestTriceLogLineByLine ...done.
-TestTriceLogBulk ...
-TestTriceLogBulk ...done.
---- FAIL: TestTriceLogBulk (0.18s)
-    require.go:72: 
-        	Error Trace:	C:/Users/ms/go/pkg/mod/github.com/tj/assert@v0.0.3/require.go:72
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_nopf_ua/generated_cgoPackage.go:211
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_nopf_ua/generated_cgoPackage_test.go:45
-        	Error:      	Not equal: 
-        	            	expected: "time:        default: wr:0123456789abcdefghijklmnopqrstuvwxy\n"
-        	            	actual  : "time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyz"
-        	            	
-        	            	Diff:
-        	            	--- Expected
-        	            	+++ Actual
-        	            	@@ -1,2 +1 @@
-        	            	-time:        default: wr:0123456789abcdefghijklmnopqrstuvwxy
-        	            	-
-        	            	+time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyz
-        	Test:       	TestTriceLogBulk
-        	Messages:   	39: line 110: len(exp)=61, len(act)=61
-TestTriceLogDirectAndDeferred ...
-TestTriceLogDirectAndDeferred ...done.
-FAIL
-FAIL	github.com/rokath/trice/_test/ringB_de_nopf_ua	0.617s
-ok  	github.com/rokath/trice/_test/ringB_de_tcobs_ua	0.617s
-TestTriceLogLineByLine ...
-TestTriceLogLineByLine ...done.
-TestTriceLogBulk ...
-TestTriceLogBulk ...done.
---- FAIL: TestTriceLogBulk (0.21s)
-    require.go:72: 
-        	Error Trace:	C:/Users/ms/go/pkg/mod/github.com/tj/assert@v0.0.3/require.go:72
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_xtea_cobs_ua/generated_cgoPackage.go:211
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_xtea_cobs_ua/generated_cgoPackage_test.go:45
-        	Error:      	Not equal: 
-        	            	expected: "time:feed3322default: sig:With TRiceN:abcde 12345\n"
-        	            	actual  : "WARNING:discarding unexpected bytes 00000000  00 0"
-        	            	
-        	            	Diff:
-        	            	--- Expected
-        	            	+++ Actual
-        	            	@@ -1,2 +1 @@
-        	            	-time:feed3322default: sig:With TRiceN:abcde 12345
-        	            	-
-        	            	+WARNING:discarding unexpected bytes 00000000  00 0
-        	Test:       	TestTriceLogBulk
-        	Messages:   	229: line 353: len(exp)=50, len(act)=50
-TestTriceLogDirectAndDeferred ...
-TestTriceLogDirectAndDeferred ...done.
-FAIL
-FAIL	github.com/rokath/trice/_test/ringB_de_xtea_cobs_ua	0.604s
-TestTriceLogLineByLine ...
-TestTriceLogLineByLine ...done.
-TestTriceLogBulk ...
-TestTriceLogBulk ...done.
---- FAIL: TestTriceLogBulk (0.19s)
-    require.go:72: 
-        	Error Trace:	C:/Users/ms/go/pkg/mod/github.com/tj/assert@v0.0.3/require.go:72
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_xtea_tcobs_ua/generated_cgoPackage.go:211
-        	            				C:/Users/ms/repos/trice_wt_devel/_test/ringB_de_xtea_tcobs_ua/generated_cgoPackage_test.go:45
-        	Error:      	Not equal: 
-        	            	expected: "time:feed3322default: sig:With TRiceN:abcde 12345\n"
-        	            	actual  : "WARNING:discarding unexpected bytes 00000000  00 0"
-        	            	
-        	            	Diff:
-        	            	--- Expected
-        	            	+++ Actual
-        	            	@@ -1,2 +1 @@
-        	            	-time:feed3322default: sig:With TRiceN:abcde 12345
-        	            	-
-        	            	+WARNING:discarding unexpected bytes 00000000  00 0
-        	Test:       	TestTriceLogBulk
-        	Messages:   	229: line 353: len(exp)=50, len(act)=50
-TestTriceLogDirectAndDeferred ...
-TestTriceLogDirectAndDeferred ...done.
-FAIL
-FAIL	github.com/rokath/trice/_test/ringB_de_xtea_tcobs_ua	0.618s
-ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua	385.997s
-ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_xtea_cobs_ua	387.392s
-ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua	387.945s
-ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua	388.159s
-ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua	387.192s
-ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua	388.956s
-ok  	github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua	385.931s
-ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_cobs_ua	385.380s
-ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_tcobs_ua	379.444s
-ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua	379.482s
-ok  	github.com/rokath/trice/_test/ringB_protect_de_tcobs_ua	0.579s
-ok  	github.com/rokath/trice/_test/special2_dblB_de_tcobs_ua	0.560s
-ok  	github.com/rokath/trice/_test/special2_for_debug	0.569s
-ok  	github.com/rokath/trice/_test/special_dblB_de_tcobs_ua	0.606s
-ok  	github.com/rokath/trice/_test/special_for_debug	0.615s
-ok  	github.com/rokath/trice/_test/special_protect_dblB_de_tcobs_ua	0.612s
-ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux32	190.353s
-ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux8	189.794s
-ok  	github.com/rokath/trice/_test/stackB_di_nopf_rtt32	190.040s
-ok  	github.com/rokath/trice/_test/stackB_di_nopf_rtt8	189.629s
-ok  	github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8	189.948s
-ok  	github.com/rokath/trice/_test/staticB_di_nopf_aux32	189.849s
-ok  	github.com/rokath/trice/_test/staticB_di_nopf_aux8	189.857s
-ok  	github.com/rokath/trice/_test/staticB_di_nopf_rtt32	189.292s
-ok  	github.com/rokath/trice/_test/staticB_di_nopf_rtt8	189.379s
-ok  	github.com/rokath/trice/_test/staticB_di_tcobs_rtt32	189.158s
-ok  	github.com/rokath/trice/_test/staticB_di_tcobs_rtt8	189.201s
-ok  	github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32	187.947s
-ok  	github.com/rokath/trice/_test/userprint_dblB_de_tcobs_ua	0.274s
+FAIL	github.com/rokath/trice/_test/ringB_de_multi_nopf_ua	0.149s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua	0.194s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua	0.188s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua	0.232s
+ok  	github.com/rokath/trice/_test/ringB_de_single_nopf_ua	0.186s
+ok  	github.com/rokath/trice/_test/ringB_de_tcobs_ua	0.204s
+ok  	github.com/rokath/trice/_test/ringB_de_xtea_cobs_ua	0.210s
+ok  	github.com/rokath/trice/_test/ringB_de_xtea_tcobs_ua	0.204s
+ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua	132.961s
+ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_xtea_cobs_ua	132.822s
+ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua	133.386s
+ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua	133.641s
+ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua	133.830s
+ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua	133.684s
+ok  	github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua	135.877s
+ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_cobs_ua	135.969s
+ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_tcobs_ua	138.730s
+ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua	137.756s
+ok  	github.com/rokath/trice/_test/ringB_protect_de_tcobs_ua	0.139s
+ok  	github.com/rokath/trice/_test/special2_dblB_de_tcobs_ua	0.138s
+ok  	github.com/rokath/trice/_test/special2_for_debug	0.143s
+ok  	github.com/rokath/trice/_test/special_dblB_de_tcobs_ua	0.129s
+ok  	github.com/rokath/trice/_test/special_for_debug	0.135s
+ok  	github.com/rokath/trice/_test/special_protect_dblB_de_tcobs_ua	0.127s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux32	70.443s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux8	70.575s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_rtt32	70.289s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_rtt8	71.583s
+ok  	github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8	71.894s
+ok  	github.com/rokath/trice/_test/staticB_di_nopf_aux32	71.728s
+ok  	github.com/rokath/trice/_test/staticB_di_nopf_aux8	68.372s
+ok  	github.com/rokath/trice/_test/staticB_di_nopf_rtt32	69.545s
+ok  	github.com/rokath/trice/_test/staticB_di_nopf_rtt8	69.308s
+ok  	github.com/rokath/trice/_test/staticB_di_tcobs_rtt32	69.587s
+ok  	github.com/rokath/trice/_test/staticB_di_tcobs_rtt8	70.422s
+ok  	github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32	70.972s
+ok  	github.com/rokath/trice/_test/userprint_dblB_de_tcobs_ua	0.004s
 FAIL
 Testing the Target code inside PC...failed
 In case of CGO build errors check the PATH variable too.

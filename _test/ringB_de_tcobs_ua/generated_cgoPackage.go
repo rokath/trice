@@ -190,26 +190,44 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
 	var bin []byte // bin collects the binary data.
+	bulk := 5
 	for i, r := range result {
 		triceCheck(r.line) // target activity
-		if i%3 == 0 {
-			triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
-			length := triceOutDepth()
-			bin = append(bin, out[:length]...)
-			setTriceBuffer(out)
+
+		// In case "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" wee need to call triceTransfer
+		// at least that often a trice was executed. Just in case a test line produces more than one trice message,
+		// we do it 2*bulk times
+		if i%bulk == 0 {
+			for range 2 * bulk { // collect three trice messages before transfer}
+				triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+				length := triceOutDepth()
+				bin = append(bin, out[:length]...)
+				setTriceBuffer(out)
+			}
 		}
 	}
-	triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
-	length := triceOutDepth()
-	bin = append(bin, out[:length]...)
+
+	// For safety do some more transfers to get the last messages.
+	for range 2 * bulk { // collect three trice messages before transfer}
+		triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+		length := triceOutDepth()
+		bin = append(bin, out[:length]...)
+		setTriceBuffer(out)
+	}
 
 	buf := fmt.Sprint(bin)             // buf is the ASCII representation of bin.
 	buffer := buf[1 : len(buf)-1]      // buffer contains the bare data (without brackets).
 	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
 	for i, v := range result {
-		a := act[:len(v.exps)] // get next part of actual data (usually a line).
-		assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
-		act = act[len(v.exps):]
+		if len(act) >= len(v.exps) {
+			a := act[:len(v.exps)] // get next part of actual data (usually a line).
+			assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
+			act = act[len(v.exps):]
+		} else {
+			fmt.Println(i, "of", len(result), "v.exps:", v.exps)
+			fmt.Println(len(act), "act:", act)
+			assert.Fail(t, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)), "actual data too short")
+		}
 	}
 }
 
