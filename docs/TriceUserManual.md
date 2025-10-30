@@ -6413,28 +6413,30 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 
 ##  43. <a id='working-with-the-trice-git-repository'></a>Working with the Trice Git Repository
 
-| Action                                    | Command                                       |
-|-------------------------------------------|-----------------------------------------------|
-| Get a local repository copy.              | `git clone github.com/rokath/trice.git trice` |
-| Show current folder                       | `pwd`                                         |
-| Show repository status.                   | `git status`                                  |
-| Clean the repo, if needed.                | `git stash push`                              |
-| Show all branches.                        | `git branch -a`                               |
-| Switch to master.                         | `git switch master`                           |
-| Fetch a pull request as new branch PRIDa. | `git fetch origin pull/ID/head:PRIDa`         |
-| List worktree.                            | `git worktree list`                           |
-| Add to worktree.                          | `git worktree add ../trice_wt_PRIDa PRIDa`    |
-| Rstore the repo if needed.                | `git stash pop`                               |
-| Change to new folder.                     | `cd ../trice_wt_PRIDa`                        |
-| Show repository status.                   | `git status`                                  |
-| Test pull request.                        | `./testAll.sh full`                           |
-| Show repository status.                   | `git status`                                  |
-| Clean pull request.                       | `git restore .`                               |
-| Change to previous folder.                | `cd -`                                        |
-| Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`       |
-| Delete git branch.                        | `git branch -d PRIDa`                         |
-| Log last 3 commits in branch maste        | `git log -3 master`                           |
-| Checkout by hash                          | `git checkout <hash>`                         |
+| Action                                    | Command                                                                                                                                                                                                 |
+|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Get a local repository copy.              | `git clone github.com/rokath/trice.git trice`                                                                                                                                                           |
+| Show current folder                       | `pwd`                                                                                                                                                                                                   |
+| Show repository status.                   | `git status`                                                                                                                                                                                            |
+| Clean the repo, if needed.                | `git stash push`                                                                                                                                                                                        |
+| Show all branches.                        | `git branch -a`                                                                                                                                                                                         |
+| Switch to master.                         | `git switch master`                                                                                                                                                                                     |
+| Fetch a pull request as new branch PRIDa. | `git fetch origin pull/ID/head:PRIDa`                                                                                                                                                                   |
+| List worktree.                            | `git worktree list`                                                                                                                                                                                     |
+| Add to worktree.                          | `git worktree add ../trice_wt_PRIDa PRIDa`                                                                                                                                                              |
+| Rstore the repo if needed.                | `git stash pop`                                                                                                                                                                                         |
+| Change to new folder.                     | `cd ../trice_wt_PRIDa`                                                                                                                                                                                  |
+| Show repository status.                   | `git status`                                                                                                                                                                                            |
+| Test pull request.                        | `./testAll.sh full`                                                                                                                                                                                     |
+| Show repository status.                   | `git status`                                                                                                                                                                                            |
+| Clean pull request.                       | `git restore .`                                                                                                                                                                                         |
+| Change to previous folder.                | `cd -`                                                                                                                                                                                                  |
+| Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`                                                                                                                                                                 |
+| Delete git branch.                        | `git branch -d PRIDa`                                                                                                                                                                                   |
+| Log last 3 commits in branch maste        | `git log -3 master`                                                                                                                                                                                     |
+| Checkout by hash                          | `git checkout <hash>`                                                                                                                                                                                   |
+| One Liner Log until shortly before v1.0.0 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M' --since 2025-04-01`      |
+| One Liner Log with author                 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold blue)%an%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'` |
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
