@@ -3536,7 +3536,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 ####  33.1.3. <a id='jlinkrttlogger-issue'></a>JLinkRTTLogger Issue
 
-* For some reason the RTT technique does not work well with Darwin and also Linux right now. The problem seems to be that the JLinkRTTLogger app cannot work correctly in the background. But there is a workaround:
+* For some reason the RTT technique does not work well with Darwin (MacOS) and also Linux right now. The problem seems to be that the JLinkRTTLogger app cannot work correctly in the background. But there is a workaround:
   * Example 1:
     * In one terminal run `JLinkRTTLogger -Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0 myLogFile.bin`
     * and in an other terminal execute `trice l -p FILE -args myLogFile.bin -pf none -d16`.
@@ -3655,7 +3655,7 @@ tmux kill-session -t "tricerttlog"
         triceExamples.c    29  0:00:00,002 🐁 Speedy Gonzales a  32-bit time stamp
     ```
 
-* **Hint:** If you use *RTTLogTmux.sh* with Darwin, the "control-C" key combination seems not to work immediately. That is simply because the keyboard focus switches away after script start. Simply click into the terminal window again and then use "control-C" to terminate the Trice logging.
+* **Hint:** If you use *RTTLogTmux.sh* with Darwin (MacOS), the "control-C" key combination seems not to work immediately. That is simply because the keyboard focus switches away after script start. Simply click into the terminal window again and then use "control-C" to terminate the Trice logging.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -3677,7 +3677,7 @@ tmux kill-session -t "tricerttlog"
       * `trice l -p JLINK` or shorter `trice l` for STM32F030R8 (default port is JLINK) starts in background a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the Trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically.
         * It expects a target sending messages over RTT channel **0** (zero). Chapter 16.3.3 in [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf) refers to "Up-Channel 1" but this maybe is a typo and probably a 0 is mend. The `JLinkRTTLogger.exe` main advantage against other free available SEGGER tools is, that all bytes are transferred. Other SEGGER tools assume ASCII characters and use `FF 00` to `FF 0F` as a terminal switch command and filter that out causing Trice data disturbances.
         * It should be possible to start several instances on on different targets using `-SelectEmuBySN <SN>` inside the `-args` Trice CLI switch.
-        * `JLinkRTTLogger` binaries for Linux & Darwin can be found at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
+        * `JLinkRTTLogger` binaries for Linux & Darwin (MacOS) can be found at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
       * `trice l -p STLINK` starts in background a `trice/third_party/goST/stRttLogger.exe` which connects to ST-Link and writes to a logfile which in turn is read by the Trice tool. On exit the `stRttLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too but may not work).\
       It is possible to start several instances on different channels as well as on different targets. The source code is in [https://github.com/bbnote/gostlink](https://github.com/bbnote/gostlink) and should work also at least under Linux.
     * If you have the choice, prefer J-Link. It allows parallel debugging and Trice output.
@@ -3793,7 +3793,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
   * No need to restart the Trice tool after changed firmware download.
 * **MINUS:**
   * Logs in a file, so the Trice tool needs to read from that file.
-  * Maybe cannot write in a file as background process on Darwin.
+  * Maybe cannot write in a file as background process on Darwin (MacOS).
 * The Trice tool can watch the output file and display the *Trices*: `trice log -port JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"
 ![./ref/JlinkLoggerTrice.PNG](./ref/JlinkLoggerTrice.PNG)
 
@@ -3923,7 +3923,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  33.10. <a id='openocd-with-darwin'></a>OpenOCD with Darwin
+###  33.10. <a id='openocd-with-darwin'></a>OpenOCD with Darwin (MacOS)
 
 * OpenOCD on MacOS works out of the box after installing it.
 * When using VS code with Cortex-Debug you cannot use OpenOCD at the same time.
@@ -3992,6 +3992,10 @@ Nov 14 17:32:35.609439  TCP4:       triceExamples.c    27    0,000_002 i=4444440
 Nov 14 17:32:35.710201  TCP4:       triceExamples.c    26        0_504 i=44444402 aaaaaa02
 ...
 ```
+
+### SEGGER J-Link on Darwin (MacOS)
+
+TODO: Working example with SEGGER_RTT J-Link and Open OCD
 
 ###  33.11. <a id='links'></a>Links
 
@@ -5329,7 +5333,7 @@ $ trice l -p com8 -hs off -prefix off
 ![./ref/JLinkConfig0.png](./ref/JLinkConfig0.png)
 * Changing to the WinUSB buld device driver is here not supported :-(
 
-<a id='darwin'></a><h6>Darwin</h6>
+<a id='darwin'></a><h6>Darwin (MacOS)</h6>
 
 * See **OpenOCD with Darwin** in [Trice over RTT](#trice-over-rtt)
 
