@@ -6440,7 +6440,9 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 | Log last 3 commits in branch maste        | `git log -3 master`                                                                                                                                                                                     |
 | Checkout by hash                          | `git checkout <hash>`                                                                                                                                                                                   |
 | One Liner Log until shortly before v1.0.0 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M' --since 2025-04-01`      |
+| One Liner Log for branch `devel` | `git log --graph --decorate devel --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'`      |
 | One Liner Log with author                 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold blue)%an%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'` |
+| New worktree detached branch for compare | `git worktree add --detach ../trice_9995fdc4b 9995fdc4b` |
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
