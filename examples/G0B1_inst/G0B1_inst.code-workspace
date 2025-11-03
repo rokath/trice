@@ -11,7 +11,14 @@
 		},
 		{
 			"path": "../../_test/testdata"
+		},
+		{
+			"path": "../.."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"segger_rtt.h": "c"
+		}
+	}
 }
