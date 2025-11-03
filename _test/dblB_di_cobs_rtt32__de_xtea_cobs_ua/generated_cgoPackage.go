@@ -41,7 +41,6 @@ import "C"
 
 import (
 	"bufio"
-	"encoding/hex"
 	"fmt"
 	"path"
 	"runtime"
