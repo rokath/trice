@@ -42,15 +42,21 @@ void SomeExampleTrices(int burstCount);
 
 #if CONFIGURATION == 0 //////////////////////////////////////////////////////////////
 #define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+
+// Windows: trice log -p jlink -args "-Device STM32L432KC" -pf none -prefix off -hs off -d16 -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json
+// Unix:   ./RTTLogUnix.sh or manually:
+// 		Terminal 1: rm -f ./temp/trice.bin && JLinkRTTLogger -Device STM32L432KC -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
+//      Terminal 2: touch ./temp/trice.bin && trice log -p FILE -args ./temp/trice.bin -pf none -prefix off -hs off -d16 -ts ms -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 4096
-#define TRICE_PROTECT 0
-#define TRICE_DIAGNOSTICS 0
-#define TRICE_CYCLE_COUNTER 0
+#define TRICE_PROTECT 1
+#define TRICE_DIAGNOSTICS 1
+#define TRICE_CYCLE_COUNTER 1
 #define TRICE_FULL_CHECK // enable all code inside triceCheck.c
+#undef  TRICE_FULL_CHECK // disble additional code inside triceCheck.c
 
 #elif CONFIGURATION == 1 //////////////////////////////////////////////////////////////
 #define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
