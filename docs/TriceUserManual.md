@@ -3429,14 +3429,13 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 * Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
   * When using very high Trice loads over RTT for a long time, sometimes an on-board J-Link (re-flashed ST-Link) could get internally into an inconsistent state (probably internal buffer overrun), what needs a power cycle then.
 * You could consider RTT over open-OCD as an alternative.
-* The default SEGGER up-buffer size is 1024 bytes, enough for most cases. If not, adapt it in your *triceConfig.h* file.
-  You need only one up-channel for Trice:
+* The default SEGGER up-buffer size is 1024 bytes, good for most cases. If not, adapt it in your *triceConfig.h* file **AND** in the *SEGGER_RTT_Conf.h* file:
 
   ```C
-  #define BUFFER_SIZE_UP (1024)  // "TRICE_DIRECT_BUFFER_SIZE"
+  #define BUFFER_SIZE_UP (128)  // "TRICE_DIRECT_BUFFER_SIZE"
   ```
-
-* Possible: Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([#446](https://github.com/rokath/trice/issues/446))
+* Inside the [triceDefaultConfig.h](../src/triceDefaultConfig.h) you can find some other settings recommended for the *SEGGER_RTT_Conf.h* file. You have to set them manually in the *SEGGER_RTT_Conf.h* because the SEGGER target sources do not include *trice.h* (and implicit [triceDefaultConfig.h](../src/triceDefaultConfig.h) and *triceConfig.h*).
+* **Possible:** Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([#446](https://github.com/rokath/trice/issues/446))
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
