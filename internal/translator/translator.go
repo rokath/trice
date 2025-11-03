@@ -169,7 +169,10 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		start := time.Now()
 
 		if n > 0 { // s.th. to write out
-			_, err := sw.Write(b[:n])
+			m, err := sw.Write(b[:n])
+			if m!=n {
+				fmt.Println( m, n )
+			}
 			msg.OnErr(err)
 		}
 
