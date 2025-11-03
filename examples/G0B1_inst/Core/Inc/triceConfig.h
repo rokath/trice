@@ -11,7 +11,7 @@ extern "C" {
 
 // TRICE_SINGLE_MAX_SIZE is used to truncate long runtime-generated strings, to detect the need for a ring buffer wrap, or to protect against overflow.
 // Limit custom assert messages to a safe size (>104) to avoid truncation
-#define TRICE_SINGLE_MAX_SIZE 256
+#define TRICE_SINGLE_MAX_SIZE 180
 
 //! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
 #define TRICE_CLEAN 1 // Do not define this at an other place! But you can delete this here.
@@ -23,7 +23,7 @@ extern "C" {
 #define TriceStamp32 1750507965 // Output of 'date +"%s"' at Sa 21 Jun 2025 14:12:45 CEST
 
 #define TRICE_BUFFER TRICE_RING_BUFFER
-#define TRICE_DEFERRED_BUFFER_SIZE 2000
+#define TRICE_DEFERRED_BUFFER_SIZE 6000
 
 // Windows: trice log -p jlink -args "-Device STM32G0B1RE" -pf none -prefix off -hs off -d16 -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json
 // Unix:   ./RTTLogUnix.sh or manually:
@@ -31,7 +31,7 @@ extern "C" {
 //      Terminal 2: touch ./temp/trice.bin && trice log -p FILE -args ./temp/trice.bin -pf none -prefix off -hs off -d16 -ts ms -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
-#define BUFFER_SIZE_UP (2048) // "TRICE_DIRECT_BUFFER_SIZE"
+#define BUFFER_SIZE_UP 2048 // "TRICE_DIRECT_BUFFER_SIZE"
 
 // Windows: trice log -p com3         -prefix off -hs off -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
 // Unix:    trice log -p /dev/ttyACM0 -prefix off -hs off -pw MySecret -pf COBS -i ../../demoTIL.json -li ../../demoLI.json
