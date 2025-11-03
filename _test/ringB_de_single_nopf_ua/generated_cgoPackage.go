@@ -41,6 +41,7 @@ import "C"
 
 import (
 	"bufio"
+	"encoding/hex"
 	"fmt"
 	"path"
 	"runtime"
@@ -134,7 +135,7 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 				r.line = i + 1 // 1st line number is 1 and not 0
 				//  r.exps = strings.TrimSpace(lineEnd[index+len(subStr):])
 				s := lineEnd[6 : len(lineEnd)-1]
-				r.exps = strings.Replace(s, "\\n", "\n", -1)
+				r.exps = strings.ReplaceAll(s, "\\n", "\n")
 				result = append(result, r)
 				testLinesCounter++
 				if maxTestlines > 0 && testLinesCounter >= maxTestlines {
@@ -143,7 +144,20 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 			}
 		}
 	}
-	return result[0:min(500, len(result))]
+
+	skipAtStart := 0
+	skipAtEnd := 0
+
+	from := skipAtStart
+	if len(result) < skipAtStart {
+		from = 0
+	}
+
+	to := len(result) - skipAtEnd
+	if len(result) < skipAtEnd {
+		to = len(result)
+	}
+	return result[from:to]
 }
 
 // logF is the log function type for executing the trice logging on binary log data in buffer as space separated numbers.
@@ -186,12 +200,17 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
-	out := make([]byte, 65536) // out is the binary trice data buffer until the next triceTransfer() call.
+
+	// out is the binary trice data buffer until the next triceTransfer() call.
+	// It must be able to hold binary Trice data for several Trice calls and should have at least the
+	// configured target internal buffer size, here 65536 is a very safe value.
+	out := make([]byte, 65536)
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
 	var bin []byte // bin collects the binary data.
 	bulk := 5
 	for i, r := range result {
+		fmt.Print("i:", i, "\texecute triceCheck.c line:", r.line, "\texp:", r.exps)
 		triceCheck(r.line) // target activity
 
 		// In case "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" wee need to call triceTransfer
@@ -229,6 +248,7 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 			assert.Fail(t, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)), "actual data too short")
 		}
 	}
+	//assert.Fail(t, "forced fail")
 }
 
 // triceLogDirectAndDeferred works like triceLogTest but additionally expects doubled output: direct and deferred.

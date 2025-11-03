@@ -208,16 +208,11 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	setTriceBuffer(out)
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
 	var bin []byte // bin collects the binary data.
-<<<<<<< HEAD
 	bulk := 5
-=======
-	var length int
->>>>>>> devel
 	for i, r := range result {
 		fmt.Print("i:", i, "\texecute triceCheck.c line:", r.line, "\texp:", r.exps)
 		triceCheck(r.line) // target activity
 
-<<<<<<< HEAD
 		// In case "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" wee need to call triceTransfer
 		// at least that often a trice was executed. Just in case a test line produces more than one trice message,
 		// we do it 2*bulk times
@@ -225,26 +220,11 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 			for range 2 * bulk { // collect three trice messages before transfer}
 				triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
 				length := triceOutDepth()
-=======
-		// It is not guarantied, that all target internal binary data go to the provided out buffer with a single
-		// triceTransfer() call. Only if the depth after a repeated call is 0 all data are out. This information
-		// has relevance only for this test function, because the trice transfers are done in the target normally.
-		// When executing several triceCheck.c lines before running triceTransfer(), all generated binary Trice
-		// data must fit into the configured #define TRICE_DEFERRED_BUFFER_SIZE 1024, what is the half for the
-		// double buffer case. Per default Trices can get 104 bytes long, and a reserve of one Trice is to be considered.
-		// So starting with triceTransfer() after 3 generated Trices seems to be a good choice here.
-		if i%3 == 0 {
-			length = -1
-			for length != 0 {
-				triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
-				length = triceOutDepth()
->>>>>>> devel
 				bin = append(bin, out[:length]...)
 				setTriceBuffer(out)
 			}
 		}
 	}
-<<<<<<< HEAD
 
 	// For safety do some more transfers to get the last messages.
 	for range 2 * bulk { // collect three trice messages before transfer}
@@ -267,39 +247,6 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 			fmt.Println(len(act), "act:", act)
 			assert.Fail(t, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)), "actual data too short")
 		}
-=======
-	length = -1
-	for length != 0 {
-		triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
-		length = triceOutDepth()
-		bin = append(bin, out[:length]...)
-		setTriceBuffer(out)
->>>>>>> devel
-	}
-
-	assert.NotZero(t, len(result), "length of expected results")
-	assert.NotZero(t, len(bin), "length of binary buffer")
-
-	fmt.Println("bin buffer: len= ", len(bin))
-	fmt.Println(hex.Dump(bin))
-
-	buf := fmt.Sprint(bin)              // buf is the ASCII representation of bin.
-	buffer := buf[1 : len(buf)-1]       // buffer contains the bare data (without brackets).
-	actR := triceLog(t, osFSys, buffer) // actR is the complete printed text.
-	var totalResultText string
-	for _, v := range result {
-		totalResultText += v.exps
-	}
-	fmt.Println("exp result: len of totalResultText= ", len(totalResultText))
-	fmt.Println(result)
-	fmt.Println("act result: len of actR", len(actR))
-	fmt.Println(actR)
-	for i, v := range result {
-		s := fmt.Sprintf("%d: line %d: len(actR)=%d, \tlen(exp)=%d", i, v.line, len(actR), len(v.exps))
-		a := actR[:len(v.exps)] // get next part of actual data (usually a line).
-		fmt.Println(s)
-		assert.Equal(t, v.exps, a, s)
-		actR = actR[len(v.exps):]
 	}
 	//assert.Fail(t, "forced fail")
 }
