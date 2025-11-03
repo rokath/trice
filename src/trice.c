@@ -127,6 +127,16 @@
 #error configuration: TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
+#if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
+
+enum { SEGGER_RTT_BUFFER_SIZE = BUFFER_SIZE_UP }; // "store" value
+#undef BUFFER_SIZE_UP // Undefine to get the value used in SEGGER_RTT_Conf.h
+#include "SEGGER_RTT.h"
+// Compiler-checked assert (evaluated after preprocessing)
+_Static_assert(SEGGER_RTT_BUFFER_SIZE == BUFFER_SIZE_UP, "BUFFER_SIZE_UP in triceConfig.h differs from SEGGER_RTT_Conf.h - adapt!");
+
+#endif // #if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
+
 #if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
 #error configuration: BUFFER_SIZE_UP too small
 #endif

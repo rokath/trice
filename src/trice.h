@@ -163,12 +163,6 @@ TRICE_INLINE uint64_t aDouble(double x) {
 
 #endif
 
-#if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
-
-#include "SEGGER_RTT.h"
-
-#endif
-
 // global defines
 
 #define TRICE_TYPE_X0 0 //!< TRICE_TYPE_X0 is an unspecified trice (reserved)

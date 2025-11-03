@@ -446,31 +446,30 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// These settings are overwriting the Trice relevant defaults in SEGGER_RTT_Conf.h.
-// To change, you should define them in your project specific triceConfig.h.
-// No separate copy of SEGGER_RTT_Conf.h is needed this way.
-// The BUFFER_SIZE_UP value is de-facto a TRICE_DIRECT_BUFFER_SIZE, if no direct auxilary output is used.
+// These settings are recommended for SEGGER_RTT_Conf.h.
+//
+// The BUFFER_SIZE_UP value is de-facto the TRICE_DIRECT_BUFFER_SIZE, if no direct auxilary output is used.
+// Please make sure, that a BUFFER_SIZE_UP your triceConfig.h is the same as in SEGGER_RTT_Conf.h.
 
-#ifndef SEGGER_RTT_MAX_NUM_UP_BUFFERS
-#define SEGGER_RTT_MAX_NUM_UP_BUFFERS (1) // Max. number of up-buffers (T->H) available on this target
-#endif
-
-#ifndef SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
-#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (0) // Max. number of down-buffers (H->T) available on this target
-#endif
-
-#ifndef BUFFER_SIZE_UP
-#define BUFFER_SIZE_UP (1024) // "TRICE_DIRECT_BUFFER_SIZE"
-#endif
-
-#ifndef BUFFER_SIZE_DOWN
-#define BUFFER_SIZE_DOWN (0) // Size of the buffer for terminal input to target from host
-#endif
-
-#ifndef SEGGER_RTT_PRINTF_BUFFER_SIZE
-#define SEGGER_RTT_PRINTF_BUFFER_SIZE (0u) // Size of buffer for RTT printf to bulk-send chars via RTT
-#endif
-
+// #ifndef SEGGER_RTT_MAX_NUM_UP_BUFFERS
+// #define SEGGER_RTT_MAX_NUM_UP_BUFFERS (1) // Max. number of up-buffers (T->H) available on this target
+// #endif
+// 
+// #ifndef SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+// #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (0) // Max. number of down-buffers (H->T) available on this target
+// #endif
+//
+// #ifndef BUFFER_SIZE_UP
+// #define BUFFER_SIZE_UP (1024)
+// #endif
+//
+// #ifndef BUFFER_SIZE_DOWN
+// #define BUFFER_SIZE_DOWN (0) // Size of the buffer for terminal input to target from host
+// #endif
+// 
+// #ifndef SEGGER_RTT_PRINTF_BUFFER_SIZE
+// #define SEGGER_RTT_PRINTF_BUFFER_SIZE (0u) // Size of buffer for RTT printf to bulk-send chars via RTT
+// #endif
 //
 ///////////////////////////////////////////////////////////////////////////////
 
