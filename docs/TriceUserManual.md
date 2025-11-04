@@ -2561,18 +2561,19 @@ Trice logs are very light-weight and usually is no need for their run-time contr
 When we are able to set a value *LogLevel* in the target device, we can use this value as an ID threshold in combination with the `-IDRange` switch. More in detail as an example:
 
 ```bash
-trice insert -loglevel -IDRange err:10,99 -IDRange info:100,499 -IDMin 1000 -IDMax 4999 -IDRange debug:5000,9999"
+trice insert -loglevel -IDRange debug:1,999 -IDRange info:2000,2999 -IDMin 4000 -IDMax 9999 -IDRange err:10000,10999
 ```
 
-It is important to understand, that with such a command all other Trice messages get IDs in the range `-IDMin` and `-IDMax` and that no range overlapping is allowed.
+It is important to understand, that all other Trice messages get IDs in the range `-IDMin` and `-IDMax` and that no range overlapping is allowed.
 
-| LogLevel | Result                                        |
+| LogLevel | Result                                      |
 |---------:|-----------------------------------------------|
-|        0 | no output                                     |
-|      100 | only error messages                           |
-|      500 | error and info messages but no other messages |
-|     5000 | all output except debug messages              |
-|    16384 | all output                                    |
+|    16384 | no output                                     |
+|    10000 | only error messages                           |
+|     4000 | normal messages and error messages            |
+|     2000 | all output except info and debug messages     |
+|     1000 | all output except debug messages              |
+|        0 | all output                                    |
 
 That implies a small Trice library extension, which gets active only with a `LOGLEVELS` switch. In that case we get a small additional run-time overhead. What we cannot achieve this way is a tag specific target-side selection, but that would be no big deal to add as well.
 
