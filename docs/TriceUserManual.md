@@ -2566,13 +2566,13 @@ trice insert -loglevel -IDRange err:10,99 -IDRange info:100,499 -IDMin 1000 -IDM
 
 It is important to understand, that with such a command all other Trice messages get IDs in the range `-IDMin` and `-IDMax` and that no range overlapping is allowed.
 
-  LogLevel | Result
------------|----------------------------------------------
-         0 | no output
-       100 | only error messages.
-       500 | error and info messages but no other messages
-      5000 | all output except debug messages
-     16383 | all output
+| LogLevel | Result                                        |
+|---------:|-----------------------------------------------|
+|        0 | no output                                     |
+|      100 | only error messages                           |
+|      500 | error and info messages but no other messages |
+|     5000 | all output except debug messages              |
+|    16384 | all output                                    |
 
 That implies a small Trice library extension, which gets active only with a `LOGLEVELS` switch. In that case we get a small additional run-time overhead. What we cannot achieve this way is a tag specific target-side selection, but that would be no big deal to add as well.
 
