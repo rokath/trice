@@ -2567,7 +2567,7 @@ trice insert -loglevel -IDRange err:10,99 -IDRange info:100,499 -IDMin 1000 -IDM
 It is important to understand, that with such a command all other Trice messages get IDs in the range `-IDMin` and `-IDMax` and that no range overlapping is allowed.
 
   LogLevel | Result
-----------:|----------------------------------------------
+-----------|----------------------------------------------
          0 | no output
        100 | only error messages.
        500 | error and info messages but no other messages
