@@ -2574,7 +2574,7 @@ It is important to understand, that with such a command all other Trice messages
       5000 | all output except debug messages
      16383 | all output
 
-That implies a small Trice library extension, which gets active only with a `LOGLEVELS` switch. In that case we get a small additional run-time overhead. What we cannot achieve this way is a tag specific targetz-side selection, but that would be no big deal to add.
+That implies a small Trice library extension, which gets active only with a `LOGLEVELS` switch. In that case we get a small additional run-time overhead. What we cannot achieve this way is a tag specific target-side selection, but that would be no big deal to add as well.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
