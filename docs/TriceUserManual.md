@@ -2399,7 +2399,7 @@ In Trice version 1.0 is no compile-time log-level control. You can only disable 
 
 ###  26.2. <a id='trice-version-1.0-run-time-log-level-control'></a>Trice version 1.0 Run-time Log-level Control
 
-Because the target Trice code is so fast and generates only a few bytes per log, in Trice version 1.0 is no direct run-time log-level control inside the target code.  The user has the Trice CLI switches `-ban` and `-pick`, to control, which Trice messages are displayed by  the Trice tool.
+Because the target Trice code is so fast and generates only a few bytes per log, in Trice version 1.0 is no direct run-time log-level control inside the target code.  The user has the Trice CLI switches `-ban`, `-pick` and `-logLevel`, to control, which Trice messages are displayed by  the Trice tool.
 
 ###  26.3. <a id='trice-version-1.0-compile-time---run-time-"log-level"-control'></a>Trice version 1.0 Compile-time - Run-time "Log-level" Control
 
