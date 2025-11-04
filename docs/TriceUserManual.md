@@ -143,7 +143,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
     * 14.2.4. [Binary Logfile](#binary-logfile)
     * 14.2.5. [TCP output](#tcp-output)
     * 14.2.6. [TCP4 input](#tcp4-input)
-    * 14.2.7. [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529))
+    * 14.2.7. [UDP4 input (accepted pull request \#529)](#udp4-input-(accepted-pull-request-\#529))
     * 14.2.8. [Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
     * 14.2.9. [Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
     * 14.2.10. [Location Information](#location-information)
@@ -211,7 +211,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
     * 29.3.1. [Trice Insert Initialization](#trice-insert-initialization)
   * 29.4. [User Code Patching (trice insert)](#user-code-patching-(trice-insert))
   * 29.5. [User Code Patching Examples](#user-code-patching-examples)
-  * 29.6. [ Exclude folders & files from being parsed (pull request #529)](#-exclude-folders-&-files-from-being-parsed-(pull-request-#529))
+  * 29.6. [ Exclude folders & files from being parsed (pull request \#529)](#-exclude-folders-&-files-from-being-parsed-(pull-request-\#529))
   * 29.7. [ID Usage Options](#id-usage-options)
   * 29.8. [General ID Management Information](#general-id-management-information)
     * 29.8.1. [Option Cleaning in a Post-build process](#option-cleaning-in-a-post-build-process)
@@ -1732,9 +1732,9 @@ trice l -p TCP4 -args "192.168.2.3:45678"
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
 
-####  14.2.7. <a id='udp4-input-(accepted-pull-request-#529)'></a>UDP4 input (accepted pull request #529)
+####  14.2.7. <a id='udp4-input-(accepted-pull-request-\#529)'></a>UDP4 input (accepted pull request \#529)
 
-The pull request [#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
+The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
 
 ```b
     IPv4 UDP Receiver
@@ -2790,9 +2790,9 @@ Until here the algorithm seem to be ok.
   TRice( iD(12345), "Hi!" ); // manually changed stamp size and then "trice i" performed.
   ```
 
-###  29.6. <a id='-exclude-folders-&-files-from-being-parsed-(pull-request-#529)'></a> Exclude folders & files from being parsed (pull request #529)
+###  29.6. <a id='-exclude-folders-&-files-from-being-parsed-(pull-request-\#529)'></a> Exclude folders & files from being parsed (pull request \#529)
 
-The pull request [#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
+The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
 
 ```b
     -exclude Flag
@@ -3634,7 +3634,7 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
   #define BUFFER_SIZE_UP (128)  // "TRICE_DIRECT_BUFFER_SIZE"
   ```
 * Inside the [triceDefaultConfig.h](../src/triceDefaultConfig.h) you can find some other settings recommended for the *SEGGER_RTT_Conf.h* file. You have to set them manually in the *SEGGER_RTT_Conf.h* because the SEGGER target sources do not include *trice.h* (and implicit [triceDefaultConfig.h](../src/triceDefaultConfig.h) and *triceConfig.h*).
-* **Possible:** Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([#446](https://github.com/rokath/trice/issues/446))
+* **Possible:** Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([\#446](https://github.com/rokath/trice/issues/446))
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -4232,11 +4232,11 @@ TODO: Working example with SEGGER_RTT J-Link and Open OCD
     ```
 
 Related issues/discussions:
-[#253](https://github.com/rokath/trice/discussions/253)
-[#405](https://github.com/rokath/trice/discussions/405)
-[#425](https://github.com/rokath/trice/issues/425)
-[#447](https://github.com/rokath/trice/discussions/447)
-[#537](https://github.com/rokath/trice/discussions/537)
+[\#253](https://github.com/rokath/trice/discussions/253)
+[\#405](https://github.com/rokath/trice/discussions/405)
+[\#425](https://github.com/rokath/trice/issues/425)
+[\#447](https://github.com/rokath/trice/discussions/447)
+[\#537](https://github.com/rokath/trice/discussions/537)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -6097,7 +6097,7 @@ Test folders starting with `ERROR_` have issues. These cases are **usable** on t
 ###  44.1. <a id='trice-on-libopencm3'></a>Trice on LibOpenCM3
 
 * This is a OpenCM3_STM32F411_Nucleo Contribution from [kraiskil](https://github.com/kraiskil).
-* See also pull request [#269](https://github.com/rokath/trice/pull/269).
+* See also pull request [\#269](https://github.com/rokath/trice/pull/269).
 * It is here because the code need some re-work to be compatible with Trice version 1.0.
 
 [LibOpenCM3](https://libopencm3.org/) is a hardware abstraction library for many microcontrollers.
@@ -6609,7 +6609,7 @@ The triceConfig.h is the only part of the trice sources which should be modified
 
 ###  44.4. <a id='possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings'></a>Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings
 
-If you encounter a compilation error on `trice( "hi");` for example, but not on `trice( "%u stars", 5 );`, this is probably caused by the way your compiler interprets variadic macros. Simply change to `trice0( "hi");` or change your compiler settings. See issue [#279](https://github.com/rokath/trice/issues/279) for more details. If your project needs to be translated with strict-C settings for some reason, you have to use the `trice0` macros when no values exist for the Trice macros.
+If you encounter a compilation error on `trice( "hi");` for example, but not on `trice( "%u stars", 5 );`, this is probably caused by the way your compiler interprets variadic macros. Simply change to `trice0( "hi");` or change your compiler settings. See issue [\#279](https://github.com/rokath/trice/issues/279) for more details. If your project needs to be translated with strict-C settings for some reason, you have to use the `trice0` macros when no values exist for the Trice macros.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -6699,7 +6699,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 
 ###  46.3. <a id='legacy-user-code-print-buffer-wrapping-and-framing'></a>Legacy User Code Print Buffer Wrapping and Framing 
 
-> **Trice >= v1.1 feature**, see also issue [#550](https://github.com/rokath/trice/issues/550)
+> **Trice >= v1.1 feature**, see also issue [\#550](https://github.com/rokath/trice/issues/550)
 
 *Advantages:*
 
@@ -6720,7 +6720,7 @@ If the Trice library and the user print both write to the same output, an easy m
 
 ###  46.4. <a id='legacy-user-code-trice-aliases-adaption'></a>Legacy User Code Trice Aliases Adaption
 
-> **Trice >= v1.1 feature**, see also accepted pull requests [533](https://github.com/rokath/trice/pull/533) and [536](https://github.com/rokath/trice/pull/536)
+> **Trice >= v1.1 feature**, see also accepted pull requests [\#533](https://github.com/rokath/trice/pull/533) and [\#536](https://github.com/rokath/trice/pull/536)
 
 *Advantages:*
 
@@ -6736,7 +6736,7 @@ If the Trice library and the user print both write to the same output, an easy m
 
 *Details:*
 
-This cool functionality was contributed by [@srgg](https://github.com/srgg) in pull requests (PR) [#533](https://github.com/rokath/trice/pull/533) and [#536](https://github.com/rokath/trice/pull/536) (to be considered as one PR only). It allows code integration containing user specific log statements into Trice instrumented projects without the need to rename the user specific log statements.
+This cool functionality was contributed by [@srgg](https://github.com/srgg) in pull requests (PR) [\#533](https://github.com/rokath/trice/pull/533) and [\#536](https://github.com/rokath/trice/pull/536) (to be considered as one PR only). It allows code integration containing user specific log statements into Trice instrumented projects without the need to rename the user specific log statements.
 
 In the assumption, most user `printi` statements having only up to 12 integers, those user prints could get covered by adding `-alias printi` to the `trice insert` and `trice clean` commands.
 
@@ -6756,7 +6756,7 @@ The following sub-chapters are mainly written by [@srgg](https://github.com/srgg
 
 This PR introduces support for treating user-defined macros as aliases to trice and triceS within the Trice CLI toolchain. The goal is to enable project-specific logging macros to be processed just like built-in Trice macros — including ID generation, decoding, and binary format support — without requiring projects to directly call `trice()` or `triceS()` in their source code.
 
-PR leverages the `-exclude` source feature added in [#529](https://github.com/rokath/trice/pull/529).
+PR leverages the `-exclude` source feature added in [\#529](https://github.com/rokath/trice/pull/529).
 
 ####  46.4.3. <a id='pr533-motivation'></a>PR533 Motivation
 
@@ -6837,7 +6837,7 @@ Flash with `-DTRICE_OFF`.
 
 #####  44.6.1. <a id='what-this-pr536-adds'></a>What This PR536 Adds
 
-This is a follow-up to [#533](https://github.com/rokath/trice/pull/533). It **enforces the consistent use of the "%s" format in all triceS aliases** and fixes that behavior in the newly added test case.
+This is a follow-up to [\#533](https://github.com/rokath/trice/pull/533). It **enforces the consistent use of the "%s" format in all triceS aliases** and fixes that behavior in the newly added test case.
 
 The following simplified example reflects a real use case where custom macros wrap formatting logic:
 
@@ -7222,19 +7222,19 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <details><summary>Details (click to expand)</summary><ol>
 
-| Date        | Version | Comment                                                                                              |
-|-------------|---------|------------------------------------------------------------------------------------------------------|
-| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                        |
-| ...         | 1.0.0   | ...                                                                                                  |
-| 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request #529)](#udp4-input-(accepted-pull-request-#529))               |
-| 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                               |
-| 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                                   |
-| 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                                             |
-| 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                      |
-| 2025-JUN-30 | pre 1.1 | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented   |
-| 2025-JUL-10 | pre 1.1 | ++ [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)                               |
-| 2025-JUL-21 | pre 1.1 | ++ [typeX0 Trices](#typex0-trices)                                                                   |
-| 2025-JUL-21 | pre 1.1 | ++ [ Framing - NONE or with COBS or TCOBS encoding](#-framing---none-or-with-cobs-or-tcobs-encoding) |
+| Date        | Version | Comment                                                                                                                                                                       |
+|-------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                                                                                                 |
+| ...         | 1.0.0   | ...                                                                                                                                                                           |
+| 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request \#529)](#udp4-input-(accepted-pull-request-#529))                                                                                       |
+| 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                                                                                                        |
+| 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                                                                                                            |
+| 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                                                                                                                      |
+| 2025-JUN-23 | pre 1.1 | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                                                                                               |
+| 2025-JUN-30 | pre 1.1 | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented                                                                            |
+| 2025-JUL-10 | pre 1.1 | ++ [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)                                                                                                        |
+| 2025-JUL-21 | pre 1.1 | ++ [typeX0 Trices](#typex0-trices)                                                                                                                                            |
+| 2025-JUL-21 | pre 1.1 | ++ [ Framing - NONE or with COBS or TCOBS encoding](#-framing---none-or-with-cobs-or-tcobs-encoding)                                                                          |
 | 2025-NOV-04 |         | ++ [Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control) ++ [Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft) |
 
 
