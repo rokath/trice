@@ -2520,7 +2520,7 @@ void doStuff( void ){
 }
 ```
 
-and a `trice insert` command could change that into (revertable with `trice clean`):
+and a `trice insert -loglevel` command could change that into (revertable with `trice clean`):
 
 ```C
 void doStuff( void ){
