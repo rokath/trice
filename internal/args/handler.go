@@ -10,7 +10,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
 
@@ -100,7 +102,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		msg.OnErr(fsScInsert.Parse(subArgs))
 		id.CompactSrcs()
 		id.ProcessAliases()
-    	emitter.AddUserLabels()
+		emitter.AddUserLabels()
 		err := id.EvaluateIDRangeStrings()
 		if err != nil {
 			return err
@@ -242,7 +244,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	}
 }
 
-// scVersion is sub-command 'version'. It prints version information.
+/* scVersion is sub-command 'version'. It prints version information.
 func scVersion(w io.Writer) error {
 	if Verbose {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
@@ -253,4 +255,33 @@ func scVersion(w io.Writer) error {
 		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	}
 	return nil
+}
+*/
+
+// scVersion is sub-command 'version'. It prints version information.
+func scVersion(w io.Writer) error {
+	if Verbose {
+		fmt.Fprintln(w, "https://github.com/rokath/trice")
+	}
+
+	if Version == "" {
+		branch := getGitBranch()
+		if branch == "" {
+			branch = "unknown"
+		}
+		fmt.Fprintf(w, "branch=%s, built %s\n", branch, Date)
+	} else {
+		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
+	}
+	return nil
+}
+
+// getGitBranch tries to return the current git branch name.
+func getGitBranch() string {
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
 }
