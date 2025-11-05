@@ -221,7 +221,7 @@ func isTag(tag string) bool {
 	return cv != nil
 }
 
-// colorize prefixes s with an ansi color code according to these conditions:
+// colorize returns s as r but prefixes r with an ansi color code according to these conditions:
 // If p.colorPalette is "off", do nothing.
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is start of string add ANSI color code according to COL:
