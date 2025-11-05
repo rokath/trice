@@ -3614,7 +3614,7 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
   [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/),\
   [CAN](https://en.wikipedia.org/wiki/CAN_bus),\
   [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
-* [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) is also a possible path to use - see [Segger RTT](#trice-over-rtt) for options.
+* [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) is also a possible path to use - see [Trice over RTT](#trice-over-rtt) for options.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
