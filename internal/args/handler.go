@@ -244,20 +244,6 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	}
 }
 
-/* scVersion is sub-command 'version'. It prints version information.
-func scVersion(w io.Writer) error {
-	if Verbose {
-		fmt.Fprintln(w, "https://github.com/rokath/trice")
-	}
-	if Version == "" {
-		fmt.Fprintf(w, "version=devel, built %s\n", Date)
-	} else {
-		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
-	}
-	return nil
-}
-*/
-
 // scVersion is sub-command 'version'. It prints version information.
 func scVersion(w io.Writer) error {
 	if Verbose {
@@ -265,23 +251,41 @@ func scVersion(w io.Writer) error {
 	}
 
 	if Version == "" {
-		branch := getGitBranch()
-		if branch == "" {
-			branch = "unknown"
+		branch, commit, dirty := getGitInfo()
+		modText := ""
+		if dirty {
+			modText = " (local modifications)"
 		}
-		fmt.Fprintf(w, "branch=%s, built %s\n", branch, Date)
+		fmt.Fprintf(w, "branch=%s%s, commit=%s, built %s\n", branch, modText, commit, Date)
 	} else {
 		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	}
 	return nil
 }
 
-// getGitBranch tries to return the current git branch name.
-func getGitBranch() string {
-	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
+// getGitInfo returns current branch, short commit hash and whether local modifications exist.
+func getGitInfo() (branch, commit string, dirty bool) {
+	// branch name
+	b, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
+	if err == nil {
+		branch = strings.TrimSpace(string(b))
+	} else {
+		branch = "unknown"
 	}
-	return strings.TrimSpace(string(out))
+
+	// short commit hash
+	c, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output()
+	if err == nil {
+		commit = strings.TrimSpace(string(c))
+	} else {
+		commit = "unknown"
+	}
+
+	// check for local modifications
+	if err := exec.Command("git", "diff", "--quiet").Run(); err != nil {
+		// non-zero exit means there are changes
+		dirty = true
+	}
+
+	return
 }
