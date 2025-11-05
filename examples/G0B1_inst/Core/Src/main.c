@@ -81,7 +81,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
 #if !TRICE_OFF
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
-  TRice("Fun %x!\n", 0xadded ); // with "fixed" iD(255), 32-bit stamp,  and with `\n`
+  trice("msg:fun %x!\n", 0xadded ); // with "fixed" iD(0xeee), no stamp and with `\n`
+  TRice("att:Fun %x!\n", 0xadded ); // with "fixed" iD(255), 32-bit stamp and with `\n`
   TriceHeadLine("  NUCLEO-G0B1RE   ");
   LogTriceConfiguration();
   SomeExampleTrices(3);
