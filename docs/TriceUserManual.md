@@ -7338,5 +7338,134 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 | 2025-NOV-04 |         | ++ [Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control) ++ [Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft) |
 
 
+<h1>Scratch Pad</h1>
+
+```txt
+                                                          th@Mac trice % ./GitLogWithBranches.sh --since 2025-07-01
+                                                          *               a6497815 2025-11-06 22:01 [HEAD                            ] chore(GitLogWithBranches.sh): change file permissions to make the script executable
+                                                          *               27ca5474 2025-11-06 21:47 [HEAD~1                          ] docs(TriceUserManual): add instructions for installing binutils and updating PATH for objcopy usage
+                                                          *               39e23e78 2025-11-06 18:22 [HEAD~2                          ] docs(TriceUserManual): add installation instructions for `opencommit` on MacOS to assist users in setting up the tool
+                                                          *               6f28bb2a 2025-11-06 15:21 [HEAD~3                          ] Added for History Analysis
+                                                          *               ed0e0229 2025-11-06 15:20 [HEAD~4                          ] Table formatting improved
+                                                          *               72e38cb8 2025-11-05 15:58 [HEAD~5                          ] minor temporary adaptions
+                                                          *               9dc25e83 2025-11-05 15:56 [HEAD~6                          ] adapted trice l -p HEX
+                                                          *               bdf6e901 2025-11-05 15:54 [HEAD~7                          ] comment improved
+                                                          *               d0c6a436 2025-11-05 14:38 [HEAD~8                          ] Merge remote-tracking branch 'origin/master'
+                                                          |\              1c6b704a 2025-11-05 14:38 [HEAD~9                          ] Detection of local modifications added into version string
+                                                          | *             3dd74785 2025-11-05 14:26 [HEAD~10                         ] Solved issue #559
+                                                          | *             493a113b 2025-11-05 08:41 [HEAD~8^2                        ] Update link reference in TriceUserManual.md
+                                                          | *             da407b5d 2025-11-05 00:00 [HEAD~8^2~1                      ] Revise LogLevel command examples in user manual
+                                                          * |             5b97f844 2025-11-04 16:24 [HEAD~8^2~2                      ] Update TriceUserManual with new log control option
+                                                          * |             a5e53f13 2025-11-04 14:30 [HEAD~11                         ] table formatting corrected
+                                                          |/              90da4140 2025-11-04 14:25 [HEAD~12                         ] Fix formatting in TriceUserManual.md
+                                                          *               43bda195 2025-11-04 14:23 [HEAD~13                         ] Fix formatting of LogLevel table in user manual
+                                                          *               4c614397 2025-11-04 14:20 [HEAD~14                         ] Add '-loglevel' to Trice command example
+                                                          *               90f52d4d 2025-11-04 14:16 [HEAD~15                         ] Update command description in user manual
+                                                          *               61fe2b50 2025-11-04 14:04 [HEAD~16                         ] Merge remote-tracking branch 'origin/master'
+                                                          *               261eeb45 2025-11-04 14:04 [HEAD~17                         ] Color codes escaped
+                                                          *               831fc17a 2025-11-04 12:47 [HEAD~16^2                       ] Fix typo in TriceUserManual.md
+                                                          |\              4a4585a8 2025-11-04 12:29 [HEAD~18                         ] log level doc and spec draft added
+                                                          | *             de40422f 2025-11-03 18:02 [HEAD~19                         ] debug HEX added
+                                                          * |             1f2be88d 2025-11-03 17:12 [HEAD~20                         ] Make sure BUFFER_SIZE_UP is equal in SEGGER_RTT_Conf.h and triceConfig.h
+                                                          |/              3019b2a2 2025-11-03 17:09 [HEAD~21                         ] trice folder added
+                                                          *               20983753 2025-11-03 17:08 [HEAD~22                         ] -cache enabled again
+                                                          *               c7e5cd39 2025-11-03 17:08 [HEAD~23                         ] Unneeded package include removed
+                                                          *               ef40998a 2025-11-03 17:07 [HEAD~24                         ] triceDefaultConfig.h recommended values set
+                                                          *               fca59db6 2025-11-03 17:06 [HEAD~25                         ] clang debug config enabled
+                                                          *               5a1fda84 2025-11-03 17:05 [HEAD~26                         ] RTT config hint added
+                                                          *               0293786b 2025-11-03 10:47 [HEAD~27                         ] conflicts resolved
+                                                          *               5263a3b6 2025-11-03 10:45 [HEAD~28                         ] wip
+                                                          *               736b37c7 2025-11-03 10:31 [HEAD~29                         ] merged conflict
+                                                          *               696086ba 2025-11-03 09:31 [HEAD~30                         ] ++
+                                                          *               3b4d982d 2025-10-31 15:28 [HEAD~31                         ] Merge remote-tracking branch 'origin/master'
+                                                          *               17181947 2025-10-31 15:28 [HEAD~32                         ] git log oneliner added
+                                                          *               3cc21ce1 2025-10-31 13:33 [HEAD~31^2                       ] AddWorktreeFromGitLogLine.sh added
+                                                          |\              a0baed49 2025-10-30 22:24 [HEAD~33                         ] Merge remote-tracking branch 'origin/master'
+                                                          | *             48be7e82 2025-10-30 22:23 [HEAD~34                         ] (MacOS) added as hint to Darwin
+                                                          * |             300946c5 2025-10-30 13:30 [HEAD~33^2                       ] Chapter 43 extended
+                                                          * |             e4aea0e3 2025-10-30 10:50 [HEAD~33^2~1                     ] minor
+                                                          |\ \            430d1902 2025-10-27 02:12 [HEAD~33^2~2                     ] Debug _test/_ringB_de_multi_nopf/  #562 issue not solved yet
+                                                          | * |           eff9155b 2025-10-26 15:52 [HEAD~35                         ] Merge branch 'devel'
+                                                          * | |           add773a5 2025-10-26 15:51 [devel                           ] typo corrected
+                                                          |/ /            e98c7653 2025-10-26 13:06 [devel~1                         ] temporary excluded
+                                                          * |             d406f1cc 2025-10-16 15:04 [stash~1                         ] Chapter 10 reworked
+                                                          |\ \            ea439b4b 2025-10-06 16:23 [stash~2                         ] Update TriceUserManual.md
+                                                          | * |           3558a1ca 2025-09-26 13:39 [HEAD~29^2                       ] wip
+                                                          | * |           ef65efef 2025-09-24 14:40 [devel~2                         ] wip, ringB_de_nopf_ua debug
+                                                          | * |           9216168b 2025-09-22 17:18 [devel~3                         ] wip
+                                                          * | |           67ec5779 2025-09-21 19:08 [devel~4                         ] wip
+                                                          |/ /            c2b13037 2025-09-21 19:07 [devel~5                         ] >= changed into > for max leftovers
+                                                          * |             b8dfdeda 2025-09-18 18:30 [devel~6                         ] wip
+                                                          |\ \            e92fa510 2025-09-18 14:36 [devel~7                         ] wip
+                                                          | * |           09a235dd 2025-09-18 13:21 [devel~8                         ] wip
+                                                          | * |           586df15c 2025-09-18 13:13 [devel~9                         ] wip
+                                                          | |/            2350c9a5 2025-09-17 17:39 [devel~10                        ] wip
+                                                          | *             8b2561ce 2025-09-17 10:15 [devel~11                        ] wip
+                                                          | *             e597889a 2025-09-14 10:22 [devel~12                        ] Taret code tests reworked
+                                                          | *             6ece58e6 2025-09-03 19:07 [devel~13                        ] Merge branch 'master' into devel
+                                                          | *             9995fdc4 2025-09-03 19:06 [devel~14                        ] wip, all tests pass
+                                                          | *             28f1594d 2025-08-30 18:36 [stash~3                         ] Update TriceUserManual.md
+                                                          | *             a53e7654 2025-08-30 16:47 [stash~4                         ] Issue #553 fixed
+                                                          | *             0e297c19 2025-08-21 15:10 [devel~15                        ] wip, tests
+                                                          | *             f29f90c2 2025-08-20 11:09 [devel~16                        ] wip
+                                                          | *             cb9b0602 2025-08-18 12:21 [devel~17                        ] wip
+                                                          | *             63dcc31f 2025-08-17 20:04 [devel~18                        ] wip new parser, first tests ok
+  WARNING:discarding unexp bytes 00000000  20 20 f0 ...   | *             a2625d3d 2025-08-16 20:48 [devel~19                        ] wip new parsing
+                                                          | *             eac33c42 2025-08-02 15:27 [devel~20                        ] wip
+(ok)                                                      | |\            c7f5d633 2025-08-02 14:56 [devel~21                        ] New parser ok, but insufficient
+~                                                         | * |           b77d2332 2025-07-31 22:10 [devel~22                        ] wip
+~                                                         | * |           d60559eb 2025-07-31 15:11 [devel~23                        ] wip
+~                                                         | * |           576de293 2025-07-31 15:11 [devel~24                        ] typo corrected
+~                                                         | * |           d68716c8 2025-07-31 14:08 [devel~25                        ] wip
+~                                                         | * |           e8b070c6 2025-07-31 14:07 [devel~26                        ] values in a separate slice
+~                                                         | * |           84bcb3b8 2025-07-31 14:06 [devel~27                        ] typo in comment corrected
+~                                                         | * |           0165da9c 2025-07-31 14:06 [devel~28                        ] Trice parser refactored
+~                                                         | * |           6565b9f7 2025-07-31 14:04 [devel~29                        ] trexDecoder.Doubled16BitID saved and restored for dual tests
+~                                                         | * |           67312193 2025-07-30 16:25 [devel~30                        ] wip
+~                                                         | * |           0f44beba 2025-07-30 16:03 [devel~31                        ] wip new parsing
+syntax error: unexp keyword return, expected expression   | * |           9b003af7 2025-07-29 17:30 [devel~32                        ] wip parsing
+
+(ok)  Canditate for new main.                             | * |           e7c28834 2025-07-29 17:29 [devel~33                        ] minor ++
+
+                                                          | * |           19190d40 2025-07-29 17:28 [devel~34                        ] comment added
+                                                          | * |           0283a37f 2025-07-24 10:17 [stash~5                         ] Darwin check added
+                                                          | * |           26b08b62 2025-07-24 10:00 [stash~6                         ] wip
+(ok)                                                      | * |           6ad44427 2025-07-23 10:04 [stash~7                         ] added
+                                                          | * |           0e3163fb 2025-07-21 17:57 [devel~35                        ] minor corrections
+                                                          | * |           e284a0ef 2025-07-21 16:50 [devel~36                        ] renamed
+                                                          | * |           08441eda 2025-07-21 16:49 [devel~37                        ] comment added
+                                                          | * |           04ce1945 2025-07-21 16:48 [devel~38                        ] minor fix
+                                                          | * |           4a6b98a4 2025-07-21 16:46 [devel~39                        ] Save and restore global vars
+                                                          | * |           d56756f9 2025-07-21 16:42 [devel~40                        ] Trice stream parsing info added
+                                                          | * |           14be75d1 2025-07-21 16:36 [devel~41                        ] comment improved
+                                                          | * |           b0984d4a 2025-07-21 16:35 [devel~42                        ] comments added
+                                                          | * |           5e34294c 2025-07-21 16:32 [devel~43                        ] minor formatting
+                                                          | * |           210b2436 2025-07-21 16:31 [devel~44                        ] typo in comment corrected
+                                                          | * |           51241248 2025-07-13 22:30 [devel~45                        ] countedString typeX0 handler ok
+                                                          | * |           2a4b227d 2025-07-13 22:24 [devel~46                        ] file renamed
+                                                          | * |           7d8abc16 2025-07-13 17:59 [devel~47                        ] user print test over typeX0 added
+                                                          | * |           4d88a3cf 2025-07-13 17:58 [devel~48                        ] typeX0 handler for counted strings added
+                                                          | * |           febd9dc1 2025-07-13 17:56 [devel~49                        ] Exclude custom macros for TRICE_OFF == 1 && TRICE_CLEAN == 0
+                                                          | * |           f607b7a2 2025-07-13 17:53 [devel~50                        ] triceAssert now as empty macros in TRICE_OFF state
+                                                          | * |           797d91a3 2025-07-13 17:49 [devel~51                        ] example G0B1 TRICE_OFF=1translation with and without IDs
+                                                          | * |           3a396fc7 2025-07-13 17:27 [devel~52                        ] typo corrected
+                                                          | * |           cf950725 2025-07-11 11:48 [stash~8                         ] minor
+                                                          | * |           5bd6a1af 2025-07-10 22:56 [stash~9                         ] minor
+                                                          | * |           49ce4499 2025-07-10 22:52 [stash~10                        ] Chapter Legacy User Code Trice Adaption added
+                                                          | * |           d205c665 2025-07-10 22:47 [stash~11                        ] triceAssertTrue and triceAssertFalse tests added
+                                                          | * |           dbaaeaa0 2025-07-10 13:39 [stash~12                        ]  -Wno-format-security added to allow all _test/aliasassert... tests
+                                                          * | |           c8510ea5 2025-07-10 11:43 [stash~13                        ] alias and alias assert CGO tests added
+                                                          * | |           e2080fa5 2025-07-09 23:11 [stash~14                        ] Date for done added
+                                                          | |/            5f99fe46 2025-07-09 16:32 [stash~15                        ] run_without_inhibit for eindows
+                                                          |/|             eba35d4c 2025-07-09 11:22 [stash~16                        ] $MAKE_JOBS invented to tackle Windows blocking
+                                                          * |             50010366 2025-07-09 10:51 [stash~17                        ] run_with_inhibit_windows deactivated
+                                                          * |             a7ae2e39 2025-07-09 01:07 [stash~18                        ] //nolint:staticcheck added
+                                                          * |             d0312428 2025-07-08 22:11 [stash~19                        ] go lint fixes
+                                                          * |             b2ce95aa 2025-07-08 22:11 [stash~20                        ] comments added
+                                                          * |             ad10f846 2025-07-08 20:46 [stash~21                        ] go static check hints followed
+                                                          |/              adc6ddbf 2025-07-08 21:42 [stash~22                        ] readability improved
+ok                                                        *               4b44c069 2025-07-08 21:41 [trice_07-08-21-41_4b44c069_stash] comments added
+```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
