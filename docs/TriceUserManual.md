@@ -374,6 +374,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 44.3. [Building a trice library?](#building-a-trice-library?)
   * 44.4. [Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
 * 45. [Working with the Trice Git Repository](#working-with-the-trice-git-repository)
+  * 45.1. [Install `opencommit` on MacOS](#install-`opencommit`-on-macos)
 * 46. [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)
   * 46.1. [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
   * 46.2. [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
@@ -6646,7 +6647,97 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 | Create a bunch of worktrees               | `./AddWorktreesBetween.sh "<since-date>" "<until-date>"` or `./AddWorktreesBetween.sh <older-hash> <newer-hash>`                                                                                        |
 | Delete all `trice_*` worktrees            | `cd ~/repos && rm trice_* && cd trice && git worktree prune && git worktree list`                                                                                                                       |
 | Delete all `trice_*` branches             | ```git branch -D `git branch \| grep -E 'trice_'` ```                                                                                                                                                   |
+###  45.1. <a id='install-`opencommit`-on-macos'></a>Install `opencommit` on MacOS
 
+* * *
+
+<h4>🧰 Prerequisites</h4>
+
+Before you begin, make sure you have:
+
+* Install [Homebrew](https://brew.sh) first if you don’t have it.
+* **Git**:  Check if Git is installed: `git --version`
+If not, install the Xcode Command Line Tools:
+  *  `xcode-select --install`   
+*  **Node.js and npm**  
+  OpenCommit runs on Node.js. Check with: `node -v` and `npm -v`
+  If not installed: `brew install node` 
+* **An OpenAI API key** (or compatible provider like OpenRouter, see below).
+    
+* * *
+
+<h4>🔑 Step 1 — Get Your OpenAI API Key</h4>
+
+* Go to **[https://platform.openai.com](https://platform.openai.com)**
+* Log in (or sign up) using your email, Google, Microsoft, or Apple account.
+* Navigate to your API Keys page: 👉 [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
+  * Click **“Create new secret key”**.
+  * Give it a name (e.g., `opencommit-mac`) and copy it immediately.  
+    It will look like this: `sk-proj-1a2b3c4d5e6f...`
+    > ⚠️ You’ll only see it once — store it securely (e.g., 1Password, Bitwarden).
+    
+* * *
+
+<h4>⚙️ Step 2 — Install OpenCommit</h4>
+
+* Run the following in your Terminal: `npm install -g opencommit`
+  You may see warnings about deprecated dependencies — those are safe to ignore.  
+* Once installed, check: `opencommit --version`
+
+* * *
+
+<h4>🔧 Step 3 — Set Up Your API Key on macOS</h4>
+
+* Add your key as an environment variable: `export OPENAI_API_KEY="sk-proj-your-key-here"`
+* To make it **permanent**, add it to your shell configuration file (`~/.zshrc`):
+  `echo 'export OPENAI_API_KEY="sk-proj-your-key-here"' >> ~/.zshrc source ~/.zshrc`
+* Verify that it’s active: `echo $OPENAI_API_KEY`
+  If it prints your key (or the beginning of it), you’re good.
+
+* * *
+
+<h4>⚙️ Step 4 — Optional Configuration</h4>
+
+* You can customize OpenCommit’s behavior by setting additional environment variables, for example:
+
+```BASH
+ export OPENCOMMIT_LANG="en"           # or "de", "fr", etc. 
+ export OPENCOMMIT_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
+ export OPENCOMMIT_STYLE="conventional" 
+ export OPENCOMMIT_EMOJI=true
+ ```
+
+Add these to your `~/.zshrc` for persistence.
+
+* * *
+
+<h4>🚀 Step 5 — Use OpenCommit</h4>
+
+* Go to a Git repository: `cd /path/to/your/repo` 
+* Stage your changes: `git add .`
+* Run OpenCommit: `opencommit`
+* It will analyze your staged changes and automatically generate a commit message.  
+    Example:
+    `🔍 Analyzing changes... ✅ Commit message generated: feat(api): add endpoint for user authentication`
+    
+* * *
+
+<h4>🔁 Step 6 — (Optional) Install Git Hook</h4>
+
+* To have OpenCommit run automatically every time you commit: `npx opencommit install-hook`
+* Now every time you run `git commit`, OpenCommit will propose a commit message for you.
+
+* * *
+
+<h4>🧩 Step 7 — Troubleshooting</h4>
+
+If OpenCommit says:
+
+* **“Missing API key”** → Check that `$OPENAI_API_KEY` is set (`echo $OPENAI_API_KEY`).    
+* **“Unauthorized”** → Verify your key is valid or not expired.  
+* **“Cannot find opencommit command”** → Reinstall globally with `npm install -g opencommit`.
+
+* * *
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
