@@ -2566,14 +2566,14 @@ trice insert -loglevel -IDRange debug:1,999 -IDRange info:2000,2999 -IDMin 4000 
 
 It is important to understand, that all other Trice messages get IDs in the range `-IDMin` and `-IDMax` and that no range overlapping is allowed.
 
-| LogLevel | Result                                      |
-|---------:|-----------------------------------------------|
-|    16384 | no output                                     |
-|    10000 | only error messages                           |
-|     4000 | normal messages and error messages            |
-|     2000 | all output except info and debug messages     |
-|     1000 | all output except debug messages              |
-|        0 | all output                                    |
+| LogLevel | Result                                    |
+|---------:|-------------------------------------------|
+|    16384 | no output                                 |
+|    10000 | only error messages                       |
+|     4000 | normal messages and error messages        |
+|     2000 | all output except info and debug messages |
+|     1000 | all output except debug messages          |
+|        0 | all output                                |
 
 That implies a small Trice library extension, which gets active only with a `LOGLEVELS` switch. In that case we get a small additional run-time overhead. What we cannot achieve this way is a tag specific target-side selection, but that would be no big deal to add as well.
 
@@ -6642,7 +6642,8 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 | One Liner Log for branch `devel`          | `git log --graph --decorate devel --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'`                         |
 | One Liner Log with author                 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold blue)%an%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'` |
 | New worktree detached branch for compare  | `git worktree add --detach ../trice_9995fdc4b 9995fdc4b`                                                                                                                                                |
-|                                           |                                                                                                                                                                                                         |
+| Add a special commit worktree             | `./AddWorktreeFromGitLogLineData.sh <commit-hash> <YYYY-MM-DD> <HH:MM>`                                                                                                                                 |
+| Create a bunch of worktrees               | `./AddWorktreesBetween.sh "<since-date>" "<until-date>"` or `./AddWorktreesBetween.sh <older-hash> <newer-hash>`                                                                                        |
 | Delete all `trice_*` worktrees            | `cd ~/repos && rm trice_* && cd trice && git worktree prune && git worktree list`                                                                                                                       |
 | Delete all `trice_*` branches             | ```git branch -D `git branch \| grep -E 'trice_'` ```                                                                                                                                                   |
 
