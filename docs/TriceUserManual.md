@@ -5087,6 +5087,13 @@ There is NO WARRANTY, to the extent permitted by law.
     ```
 - In terminal `brew install arm-none-eabi-gdb`
 - In terminal `brew install --cask gcc-arm-embedded`
+- In terminal to get objcopy:
+
+  ```bash
+  brew install binutils
+  echo 'export PATH="/usr/local/opt/binutils/bin:$PATH"' >> ~/.zshrc
+  source ~/.zshrc
+  ```
 
 <a id='install-arm-clang-(optional)'></a><h5>Install ARM Clang (optional)</h5>
 
