@@ -4,9 +4,9 @@
 --> 2025-11-07:
 --> Due to an too early commit the master branch got broken.
 --> The master branch is removed now and an older well working hash e7c28834 (July 2025) got now main.
---> Please use main if you intend to build from the sources.
+--> Please use v1.0 or main if you intend to build from the sources.
 --> The last devel=master state is continued now as dev branch.
---> Do not expect a well working Trice binary there right now.
+--> Do not expect a well working Trice binary in Branche dev right now.
 ```
 
 # 🅃🅁ace 🄸d's 🄲 🄴mbedded
