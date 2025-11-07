@@ -375,6 +375,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 44.4. [Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
 * 45. [Working with the Trice Git Repository](#working-with-the-trice-git-repository)
   * 45.1. [Install `opencommit` on MacOS](#install-`opencommit`-on-macos)
+  * 45.2. [Install `opencommit` on Windows](#install-`opencommit`-on-windows)
 * 46. [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)
   * 46.1. [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
   * 46.2. [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
@@ -6654,6 +6655,9 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 | Create a bunch of worktrees               | `./AddWorktreesBetween.sh "<since-date>" "<until-date>"` or `./AddWorktreesBetween.sh <older-hash> <newer-hash>`                                                                                        |
 | Delete all `trice_*` worktrees            | `cd ~/repos && rm trice_* && cd trice && git worktree prune && git worktree list`                                                                                                                       |
 | Delete all `trice_*` branches             | ```git branch -D `git branch \| grep -E 'trice_'` ```                                                                                                                                                   |
+| Show all opencommit parameter             | `oco config describe`                                                                                                                                                                                   |
+| Show some config settings                 | `oco config get OCO_MODEL && oco config get OCO_PROMPT_MODULE && oco config get OCO_EMOJI`                                                                                                              |
+
 ###  45.1. <a id='install-`opencommit`-on-macos'></a>Install `opencommit` on MacOS
 
 * * *
@@ -6707,11 +6711,11 @@ If not, install the Xcode Command Line Tools:
 
 * You can customize OpenCommit’s behavior by setting additional environment variables, for example:
 
-```BASH
- export OPENCOMMIT_LANG="en"           # or "de", "fr", etc. 
- export OPENCOMMIT_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
- export OPENCOMMIT_STYLE="conventional" 
- export OPENCOMMIT_EMOJI=true
+```bash
+export OCO_LANG="en"           # or "de", "fr", etc. 
+export OCO_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
+export OCO_PROMPT_MODULE="conventional" 
+export OCO_EMOJI=true
  ```
 
 Add these to your `~/.zshrc` for persistence.
@@ -6746,13 +6750,15 @@ If OpenCommit says:
 
 * * *
 
-### Install `opencommit` on Windows
+###  45.2. <a id='install-`opencommit`-on-windows'></a>Install `opencommit` on Windows
 
 <h4>🧭 Overview</h4>
 
 OpenCommit is a tool that uses AI (like GPT models) to automatically generate meaningful Git commit messages based on your code changes.
 
 This guide explains how to install and configure OpenCommit on Windows step by step.
+
+* * *
 
 <h4>⚙️ Prerequisites</h4>
 
@@ -6768,6 +6774,8 @@ This guide explains how to install and configure OpenCommit on Windows step by s
   ```
 
 * An OpenAI API key (for GPT access) 👉 Get it from https://platform.openai.com/account/api-keys
+
+* * *
 
 <h4>🪄 Installation Steps</h4>
 
@@ -6788,10 +6796,10 @@ This guide explains how to install and configure OpenCommit on Windows step by s
     * You can also customize OpenCommit’s behavior by setting additional environment variables, for example:
 
     ```bash
-    OPENCOMMIT_LANG="en"           # or "de", "fr", etc. 
-    OPENCOMMIT_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
-    OPENCOMMIT_STYLE="conventional" 
-    OPENCOMMIT_EMOJI=true
+   OCO_LANG="en"            # or "de", "fr", etc. 
+   OCO_MODEL="gpt-4o"       # or another model like "gpt-4-turbo" 
+   OCO_PROMPT_MODULE="conventional" 
+   OCO_EMOJI=true
     ```
 
     * Click OK on all windows.
@@ -6804,6 +6812,8 @@ This guide explains how to install and configure OpenCommit on Windows step by s
     * Default model (e.g., gpt-3.5-turbo)
     * Commit style
     * Language
+
+* * *
 
 <h4>🚀 Usage</h4>
 
@@ -6820,6 +6830,8 @@ This guide explains how to install and configure OpenCommit on Windows step by s
   * Error: Missing OPENAI_API_KEY	Set your OpenAI API key as shown above.
   * Model too slow / API errors	Try setting a smaller model: opencommit config --model gpt-3.5-turbo.
 
+* * *
+
 <h4>✅ Example</h4>
 
 ```bash
@@ -6833,36 +6845,6 @@ Output:
 Generated commit message:
 ...
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
