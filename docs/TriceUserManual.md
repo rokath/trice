@@ -6746,6 +6746,124 @@ If OpenCommit says:
 
 * * *
 
+### Install `opencommit` on Windows
+
+<h4>🧭 Overview</h4>
+
+OpenCommit is a tool that uses AI (like GPT models) to automatically generate meaningful Git commit messages based on your code changes.
+
+This guide explains how to install and configure OpenCommit on Windows step by step.
+
+<h4>⚙️ Prerequisites</h4>
+
+* Before installing OpenCommit, make sure you have:
+  * Git installed 👉 Download and install from https://git-scm.com/download/win
+* Verify installation by running in PowerShell or CMD: `git --version`
+* Node.js and npm (Node Package Manager) installed 👉 Download from https://nodejs.org (LTS version recommended).
+  * Verify:
+
+  ```bash
+  node -v
+  npm -v
+  ```
+
+* An OpenAI API key (for GPT access) 👉 Get it from https://platform.openai.com/account/api-keys
+
+<h4>🪄 Installation Steps</h4>
+
+**1. Install OpenCommit Globally**
+
+* Open a terminal (PowerShell or CMD) and run: `npm install -g opencommit`
+* Verify installation: `opencommit --version`
+  If you get an error like “opencommit not recognized”, restart your terminal or ensure your npm global path is in your system PATH environment variable.
+
+**2. Configure the API Key**
+
+* Set your OpenAI API key as an environment variable permanently:
+  * Press Win + R, type SystemPropertiesAdvanced, and press Enter.
+  * Click Environment Variables...
+  * Under User variables, click New, and add:
+    * Variable name: OPENAI_API_KEY
+    * Variable value: your_api_key_here
+    * You can also customize OpenCommit’s behavior by setting additional environment variables, for example:
+
+    ```bash
+    OPENCOMMIT_LANG="en"           # or "de", "fr", etc. 
+    OPENCOMMIT_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
+    OPENCOMMIT_STYLE="conventional" 
+    OPENCOMMIT_EMOJI=true
+    ```
+
+    * Click OK on all windows.
+* Then restart PowerShell.
+
+**3. (Optional) Configure Defaults**
+
+* You can set up default parameters in your Git repository or globally: `opencommit config`
+  * Follow the interactive prompts to define:
+    * Default model (e.g., gpt-3.5-turbo)
+    * Commit style
+    * Language
+
+<h4>🚀 Usage</h4>
+
+* Once installed, simply run: `opencommit`. This will:
+  * Analyze your staged changes (git diff --cached)
+  * Generate an AI-powered commit message
+  * Ask for confirmation before committing
+* You can also use: `opencommit --no-verify` to skip confirmation and commit directly.
+
+<h4>🔧 Troubleshooting</h4>
+
+* Issue	Solution
+  * opencommit: command not found	Ensure npm global bin path is added to your Windows PATH (e.g., C:\Users\<YourUser>\AppData\Roaming\npm).
+  * Error: Missing OPENAI_API_KEY	Set your OpenAI API key as shown above.
+  * Model too slow / API errors	Try setting a smaller model: opencommit config --model gpt-3.5-turbo.
+
+<h4>✅ Example</h4>
+
+```bash
+git add .
+opencommit
+```
+
+Output:
+
+```txt
+Generated commit message:
+...
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  46. <a id='legacy-user-code-trice-adaption'></a>Legacy User Code Trice Adaption
@@ -7425,7 +7543,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 ~                                                         | * |           0f44beba 2025-07-30 16:03 [devel~31                        ] wip new parsing
 syntax error: unexp keyword return, expected expression   | * |           9b003af7 2025-07-29 17:30 [devel~32                        ] wip parsing
 
-(ok)  Canditate for new main.                             | * |           e7c28834 2025-07-29 17:29 [devel~33                        ] minor ++
+ok  Canditate for new main.                               | * |           e7c28834 2025-07-29 17:29 [devel~33                        ] minor ++
 
                                                           | * |           19190d40 2025-07-29 17:28 [devel~34                        ] comment added
                                                           | * |           0283a37f 2025-07-24 10:17 [stash~5                         ] Darwin check added
