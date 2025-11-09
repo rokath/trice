@@ -7419,6 +7419,18 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Trice Internal Log Code
+
+* In file [./internal/args/handler.go](../internal/args/handler.go) function `logLoop` calls `receiver.NewReadWriteCloser` and passes the created `rwc` object to `translator.Translate`.
+* There `rwc` is used to create an appropriate decode object `dec` passed to `decodeAndComposeLoop`, which uses `func (p *trexDec) Read(b []byte) (n int, err error)` then, doing the byte interpretation.
+  * Finally `n += p.sprintTrice(b[n:]) // use param info` is called doing the conversion. 
+* Read returns a **single** Trice conversion result or a **single** error message in b[:n] or is called again.
+* The following `emitter.BanOrPickFilter` could remove the Read result.
+* If s.th. is to write and a log line starts, 
+  * the location information is written,
+  * followed by the time stamp
+* No `decoder.TargetTimestamp` information is used yet.
+
 ##  48. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
 <details><summary>Details (click to expand)</summary><ol>

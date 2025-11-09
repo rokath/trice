@@ -16,12 +16,12 @@ import (
 )
 
 const (
-	tyIdSize              = 2 // tySize is what each trice message starts with: 2 bytes
-	ncSize                = 2 // countSize is what each regular trice message contains after an optional target timestamp
-	typeS0                = 1 // regular trice format without stamp    : 01iiiiiiI NC ...
-	typeS2                = 2 // regular trice format with 16-bit stamp: 10iiiiiiI TT NC ... or with -doubled16BitID 10iiiiiiI 10iiiiiiI TT NC ...
-	typeS4                = 3 // regular trice format with 32-bit stamp: 11iiiiiiI TT TT NC ...
-	typeX0                = 0 // unspecified, usually a counted string : 00nnnnnnN... with TypeX0Handler = "countedString"
+	tyIdSize = 2 // tySize is what each trice message starts with: 2 bytes
+	ncSize   = 2 // countSize is what each regular trice message contains after an optional target timestamp
+	typeS0   = 1 // regular trice format without stamp    : 01iiiiiiI NC ...
+	typeS2   = 2 // regular trice format with 16-bit stamp: 10iiiiiiI TT NC ... or with -doubled16BitID 10iiiiiiI 10iiiiiiI TT NC ...
+	typeS4   = 3 // regular trice format with 32-bit stamp: 11iiiiiiI TT TT NC ...
+	typeX0   = 0 // unspecified, usually a counted string : 00nnnnnnN... with TypeX0Handler = "countedString"
 )
 
 const (
@@ -121,6 +121,8 @@ func New(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sy
 }
 
 // Read is the provided read method for TREX decoding and provides next string as byte slice.
+//
+// TODO: Re-write in a way, that only a single printed Trice is in b OR collect the printed Trices in a []string slice.
 func (p *trexDec) Read(b []byte) (n int, err error) {
 	err = p.readAndParseTrices()
 	if err != nil {
