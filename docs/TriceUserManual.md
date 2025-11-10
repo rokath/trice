@@ -398,7 +398,9 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 47.7. [Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
   * 47.8. [Trice Structured Logging Level Specific Configuration](#trice-structured-logging-level-specific-configuration)
   * 47.9. [Trice Structured Logging Assert Macros (TODO)](#trice-structured-logging-assert-macros-(todo))
-* 48. [Trice User Manual Changelog](#trice-user-manual-changelog)
+* 48. [Trice Internal Log Code](#trice-internal-log-code)
+* 49. [Trice User Manual Changelog](#trice-user-manual-changelog)
+* 50. [Scratch Pad](#scratch-pad)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -6837,7 +6839,7 @@ This guide explains how to install and configure OpenCommit on Windows step by s
 
 ```bash
 git add .
-opencommit
+oco
 ```
 
 Output:
@@ -7419,19 +7421,24 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Trice Internal Log Code
+##  48. <a id='trice-internal-log-code'></a>Trice Internal Log Code Short Description
 
+> **Hint:** To follow this explanation withe the debugger, you can open in VSCode the trice folder, klick the Run & Debug Button or press CTRL-SHIFT-D, select `trice l -p DUMP` and set a breakpoint at `func main()` in [./cmd/trice/main.go](../cmd/trice/main.go) or directly in `translator.Translate` [./internal/translator/translator.go](../internal/translator/translator.go).
 * In file [./internal/args/handler.go](../internal/args/handler.go) function `logLoop` calls `receiver.NewReadWriteCloser` and passes the created `rwc` object to `translator.Translate`.
 * There `rwc` is used to create an appropriate decode object `dec` passed to `decodeAndComposeLoop`, which uses `func (p *trexDec) Read(b []byte) (n int, err error)` then, doing the byte interpretation.
   * Finally `n += p.sprintTrice(b[n:]) // use param info` is called doing the conversion. 
 * Read returns a **single** Trice conversion result or a **single** error message in b[:n] or is called again.
 * The following `emitter.BanOrPickFilter` could remove the Read result.
-* If s.th. is to write and a log line starts, 
-  * the location information is written,
-  * followed by the time stamp
-* No `decoder.TargetTimestamp` information is used yet.
+* If something is to write, the location information is generated if a new line starts and passed to the
+ with `sw := emitter.New(w)` created object `sw.WriteString` method which internally keeps a slice of type `[]string` collecting all parts of an output line.
+* The line `p.Line = append(p.Line, ts, p.prefix, sx)` adds host timestamp `ts`, the build `p.prefix` and the "printed Trice" (`sx` is here just the location information) to the line slice.
+* In the next step the stored target timestamp `decoder.TargetTimestamp` is printed into a string and added to the Trice line.
+* Optionally the Trice ID follows, if desired.
+* The in a string printed Trice follows now and if the `sw.WriteString` method detects a `\n` at its end, the configured line suffix (usually `""`) follows and `p.completeLine()` is called then. It passes the line (slice of strings) to `p.lw.WriteLine(p.Line)`, which adds color, prints to the output device and clears the sw.Line slice for the next line.
 
-##  48. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+##  49. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
 <details><summary>Details (click to expand)</summary><ol>
 
@@ -7450,8 +7457,9 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 | 2025-JUL-21 | pre 1.1 | ++ [ Framing - NONE or with COBS or TCOBS encoding](#-framing---none-or-with-cobs-or-tcobs-encoding)                                                                          |
 | 2025-NOV-04 |         | ++ [Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control) ++ [Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft) |
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-<h1>Scratch Pad</h1>
+##  50. <a id='scratch-pad'></a>Scratch Pad
 
 ```txt
                                                           th@Mac trice % ./GitLogWithBranches.sh --since 2025-07-01
