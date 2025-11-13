@@ -7423,18 +7423,40 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 ##  48. <a id='trice-internal-log-code'></a>Trice Internal Log Code Short Description
 
-> **Hint:** To follow this explanation withe the debugger, you can open in VSCode the trice folder, klick the Run & Debug Button or press CTRL-SHIFT-D, select `trice l -p DUMP` and set a breakpoint at `func main()` in [./cmd/trice/main.go](../cmd/trice/main.go) or directly in `translator.Translate` [./internal/translator/translator.go](../internal/translator/translator.go).
+### Trice v1.0 Code
+
+> **Hint:** To follow this explanation with the debugger, you can open in VSCode the trice folder, klick the Run & Debug Button or press CTRL-SHIFT-D, select `trice l -p DUMP` and set a breakpoint at `func main()` in [./cmd/trice/main.go](../cmd/trice/main.go) or directly in `translator.Translate` [./internal/translator/translator.go](../internal/translator/translator.go).
 * In file [./internal/args/handler.go](../internal/args/handler.go) function `logLoop` calls `receiver.NewReadWriteCloser` and passes the created `rwc` object to `translator.Translate`.
 * There `rwc` is used to create an appropriate decode object `dec` passed to `decodeAndComposeLoop`, which uses `func (p *trexDec) Read(b []byte) (n int, err error)` then, doing the byte interpretation.
   * Finally `n += p.sprintTrice(b[n:]) // use param info` is called doing the conversion. 
-* Read returns a **single** Trice conversion result or a **single** error message in b[:n] or is called again.
-* The following `emitter.BanOrPickFilter` could remove the Read result.
+* Read returns a **single** Trice conversion result or a **single** error message in b[:n] or 0 and is called again and again.
+* The returned Trice conversion result is the Trice format string with inserted values, but no timestamp, color or location information. The target timestamp, for this single Trice is hold in `decoder.TargetTimestamp`. It is used only when a new log line begins, what is the normal case. If a Trice format string ends not with a newline, the following Trice gets part of the same log line and therefore its target time stamp is discarded. Also additional data like the location information only displayed for the first Trice in a log line containing several Trices. Because the color is inherent to the Trice tag and needs no display space it is attached to the following Trices in a log line as well.
+* The after `Read` following `emitter.BanOrPickFilter` could remove the Read result.
 * If something is to write, the location information is generated if a new line starts and passed to the
  with `sw := emitter.New(w)` created object `sw.WriteString` method which internally keeps a slice of type `[]string` collecting all parts of an output line.
 * The line `p.Line = append(p.Line, ts, p.prefix, sx)` adds host timestamp `ts`, the build `p.prefix` and the "printed Trice" (`sx` is here just the location information) to the line slice.
 * In the next step the stored target timestamp `decoder.TargetTimestamp` is printed into a string and added to the Trice line.
 * Optionally the Trice ID follows, if desired.
 * The in a string printed Trice follows now and if the `sw.WriteString` method detects a `\n` at its end, the configured line suffix (usually `""`) follows and `p.completeLine()` is called then. It passes the line (slice of strings) to `p.lw.WriteLine(p.Line)`, which adds color, prints to the output device and clears the sw.Line slice for the next line.
+
+### Disadvantages of Trice v1.0 Implementation
+
+* The Reader can only return a **single** Trice, because its byte interface cannot distinguish between Trices anymore.
+* The field order (prefix, host stamp, location information, target stamp optional ID, format string, suffix) is hardcoded.
+* Trices with several newlines inside the format string cannot deal with tags after an (internal) line break (newline) 
+* Binary parser needs to hold internal location after one Trice was decoded.
+* Only one target timestamp value in a global variable.
+* Line writing is not straight forward understandable.
+
+### Aims for a better implementation
+
+* Read should parse the binary data only and return a Trice struct slice.
+* Cycle errors?
+* Each Trice struct gets printed in a string.
+* The printed string then is split into several strings, which all get the same stamp information or space fields.
+* Finally we have a slice of such structs: hs, ts, loc, idString, format string. 
+* The format string has no newline inside anymore, but has one at the end (usually) or not.
+* The struct slice is cyclically passed to a line writer, which writes one line if it can find a format string ending with a newline.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
