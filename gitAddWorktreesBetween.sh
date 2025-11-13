@@ -1,8 +1,8 @@
 #!/bin/bash
 # Usage:
-#   ./AddWorktreesBetween.sh <older-hash> <newer-hash>
+#   ./gitAddWorktreesBetween.sh <older-hash> <newer-hash>
 #   or
-#   ./AddWorktreesBetween.sh "<since-date>" "<until-date>"
+#   ./gitAddWorktreesBetween.sh "<since-date>" "<until-date>"
 #
 # Requires: AddWorktreeFromGitLogLineData.sh in the same directory
 

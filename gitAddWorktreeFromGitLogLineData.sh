@@ -1,6 +1,6 @@
 #!/bin/bash
-# Usage: ./AddWorktreeFromGitLogLineData.sh <commit-hash> <YYYY-MM-DD> <HH:MM>
-# Example: ./AddWorktreeFromGitLogLineData.sh cb9b06026 2025-08-18 12:21
+# Usage: ./gitAddWorktreeFromGitLogLineData.sh <commit-hash> <YYYY-MM-DD> <HH:MM>
+# Example: ./gitAddWorktreeFromGitLogLineData.sh cb9b06026 2025-08-18 12:21
 
 # Use git log --graph --decorate master --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold blue)%an%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'
 # to get one-line git logs from branch master, wer you can snip <commit-hash> <YYYY-MM-DD> <HH:MM>
