@@ -7531,7 +7531,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
                                                           | * |           eff9155b 2025-10-26 15:52 [HEAD~35                         ] Merge branch 'devel'
                                                           * | |           add773a5 2025-10-26 15:51 [devel                           ] typo corrected
                                                           |/ /            e98c7653 2025-10-26 13:06 [devel~1                         ] temporary excluded
-                                                          * |             d406f1cc 2025-10-16 15:04 [stash~1                         ] Chapter 10 reworked
+Last good main?                                           * |             d406f1cc 2025-10-16 15:04 [stash~1                         ] Chapter 10 reworked
                                                           |\ \            ea439b4b 2025-10-06 16:23 [stash~2                         ] Update TriceUserManual.md
                                                           | * |           3558a1ca 2025-09-26 13:39 [HEAD~29^2                       ] wip
                                                           | * |           ef65efef 2025-09-24 14:40 [devel~2                         ] wip, ringB_de_nopf_ua debug
@@ -7567,34 +7567,13 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 ~                                                         | * |           67312193 2025-07-30 16:25 [devel~30                        ] wip
 ~                                                         | * |           0f44beba 2025-07-30 16:03 [devel~31                        ] wip new parsing
 syntax error: unexp keyword return, expected expression   | * |           9b003af7 2025-07-29 17:30 [devel~32                        ] wip parsing
-
 ok  Canditate for new main.                               | * |           e7c28834 2025-07-29 17:29 [devel~33                        ] minor ++
-
                                                           | * |           19190d40 2025-07-29 17:28 [devel~34                        ] comment added
-                                                          | * |           0283a37f 2025-07-24 10:17 [stash~5                         ] Darwin check added
+(ok)                                                      | * |           0283a37f 2025-07-24 10:17 [stash~5                         ] Darwin check added
                                                           | * |           26b08b62 2025-07-24 10:00 [stash~6                         ] wip
 (ok)                                                      | * |           6ad44427 2025-07-23 10:04 [stash~7                         ] added
                                                           | * |           0e3163fb 2025-07-21 17:57 [devel~35                        ] minor corrections
-                                                          | * |           e284a0ef 2025-07-21 16:50 [devel~36                        ] renamed
-                                                          | * |           08441eda 2025-07-21 16:49 [devel~37                        ] comment added
-                                                          | * |           04ce1945 2025-07-21 16:48 [devel~38                        ] minor fix
-                                                          | * |           4a6b98a4 2025-07-21 16:46 [devel~39                        ] Save and restore global vars
-                                                          | * |           d56756f9 2025-07-21 16:42 [devel~40                        ] Trice stream parsing info added
-                                                          | * |           14be75d1 2025-07-21 16:36 [devel~41                        ] comment improved
-                                                          | * |           b0984d4a 2025-07-21 16:35 [devel~42                        ] comments added
-                                                          | * |           5e34294c 2025-07-21 16:32 [devel~43                        ] minor formatting
-                                                          | * |           210b2436 2025-07-21 16:31 [devel~44                        ] typo in comment corrected
-                                                          | * |           51241248 2025-07-13 22:30 [devel~45                        ] countedString typeX0 handler ok
-                                                          | * |           2a4b227d 2025-07-13 22:24 [devel~46                        ] file renamed
-                                                          | * |           7d8abc16 2025-07-13 17:59 [devel~47                        ] user print test over typeX0 added
-                                                          | * |           4d88a3cf 2025-07-13 17:58 [devel~48                        ] typeX0 handler for counted strings added
-                                                          | * |           febd9dc1 2025-07-13 17:56 [devel~49                        ] Exclude custom macros for TRICE_OFF == 1 && TRICE_CLEAN == 0
-                                                          | * |           f607b7a2 2025-07-13 17:53 [devel~50                        ] triceAssert now as empty macros in TRICE_OFF state
-                                                          | * |           797d91a3 2025-07-13 17:49 [devel~51                        ] example G0B1 TRICE_OFF=1translation with and without IDs
-                                                          | * |           3a396fc7 2025-07-13 17:27 [devel~52                        ] typo corrected
-                                                          | * |           cf950725 2025-07-11 11:48 [stash~8                         ] minor
-                                                          | * |           5bd6a1af 2025-07-10 22:56 [stash~9                         ] minor
-                                                          | * |           49ce4499 2025-07-10 22:52 [stash~10                        ] Chapter Legacy User Code Trice Adaption added
+...
                                                           | * |           d205c665 2025-07-10 22:47 [stash~11                        ] triceAssertTrue and triceAssertFalse tests added
                                                           | * |           dbaaeaa0 2025-07-10 13:39 [stash~12                        ]  -Wno-format-security added to allow all _test/aliasassert... tests
                                                           * | |           c8510ea5 2025-07-10 11:43 [stash~13                        ] alias and alias assert CGO tests added
