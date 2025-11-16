@@ -196,7 +196,6 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	unsigned depth = tLen + TRICE_DATA_OFFSET;
 	TriceHalfBufferDepthMax = depth < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : depth;
 #endif
-
 	
 	while (tLen) { // loop begin
 #if TRICE_DIAGNOSTICS == 1
@@ -208,9 +207,12 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		const uint8_t* triceNettoStart;
 		size_t triceNettoLen; // This is the trice netto length (without padding bytes).
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE)
-		uint8_t* crypt = nxt - 4; // only 8-byte groups are encryptable
+		uint8_t* crypt = nxt - 4; // Only 8-byte groups are encryptable. The Trices are 32-bit aligned and have 0-3 padding zero bytes.
+		// We need 4 bytes behind them and therefore we move them into the TRICE_DATA_OFFSET space to not allocate a buffer.
+		// nxt is here the start of the current (unprocessed) Trice buffer.
 #endif
 		triceID = TriceNext(&nxt, &tLen, &triceNettoStart, &triceNettoLen);
+		// Now triceNettoStart, &triceNettoLen are the net data of the
 		if (triceID <= 0) { // on data error
 			TriceErrorCount++;
 			break; // ignore following data
@@ -224,8 +226,8 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	//! When XTEA enabled, (XTEA can encrypt only multiple of 8 length packages.) we need to copy th data first, because the 4 bytes 
 	//! behind a trice messages could get changed, when the trice length is not a multiple of 8, but only of 4. 
 			memmove(crypt, triceNettoStart, triceNettoLen);
-			size_t len8 = (triceNettoLen + 7) & ~7;                   // Only multiple of 8 encryptable, so we adjust len.
-			memset((crypt) + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
+			size_t len8 = (triceNettoLen + 7) & ~7;                 // Only multiple of 8 encryptable, so we adjust len.
+			memset(crypt + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
 			XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
 			size_t len = (size_t)TCOBSEncode(dst, crypt, len8); // encLen is re-used here
 			encLen += len;
@@ -308,20 +310,20 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 // TRICE_MULTI_PACK_MODE
 //
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
-// At this point the compacted trice messages start TRICE_DATA_OFFSET bytes after tb (now dat) and the encLen is their total netto length.
+// At this point the compacted trice messages start TRICE_DATA_OFFSET bytes after tb (now dat) and the encLen is their total net length.
 // Behind this up to 7 bytes can be used as scratch pad when XTEA is active. That is ok, because the half buffer should not get totally filled.
 // encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
 	#if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
 		// special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
-		size_t len8 = (encLen + 7) & ~7;                    // Only multiple of 8 encryptable, so we adjust len.
-		memset(((uint8_t*)dat) + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
+		size_t len8 = (encLen + 7) & ~7;        // Only multiple of 8 encryptable, so we adjust len.
+		memset(dat + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
 		XTEAEncrypt((uint32_t*)dat, len8 >> 2);
 		size_t eLen = (size_t)TCOBSEncode(enc, dat, len8);                                          // encLen is re-used here
 		enc[eLen++] = 0;                                                                            // Add zero as package delimiter.
 	#elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)  // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
 		// special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
-		size_t len8 = (encLen + 7) & ~7;                    // Only multiple of 8 encryptable, so we adjust len.
-		memset(((uint8_t*)dat) + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
+		size_t len8 = (encLen + 7) & ~7;        // Only multiple of 8 encryptable, so we adjust len.
+		memset(dat + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
 		XTEAEncrypt((uint32_t*)dat, len8 >> 2);
 		size_t eLen = (size_t)COBSEncode(enc, dat, len8); // encLen is re-used here
 		enc[eLen++] = 0;                                  // Add zero as package delimiter.

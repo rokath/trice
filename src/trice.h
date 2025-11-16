@@ -532,7 +532,7 @@ extern uint32_t* TriceBufferWritePosition;
 		#define TRICE_LEAVE                                                                                          \
 			/* wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.  */ \
 			/* The last written uint32_t trice value can contain 1 to 3 padding bytes. */                            \
-			unsigned wordCount = (unsigned)(TriceBufferWritePosition - triceSingleBufferStartWritePosition);                     \
+			unsigned wordCount = (unsigned)(TriceBufferWritePosition - triceSingleBufferStartWritePosition);         \
 			TRICE_DIAGNOSTICS_SINGLE_BUFFER_USING_WORD_COUNT                                                         \
 			TriceNonBlockingDirectWrite(triceSingleBufferStartWritePosition, wordCount);                             \
 			}                                                                                                        \
