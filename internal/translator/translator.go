@@ -166,12 +166,11 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			continue // read again
 		}
 
-		// b contains here none or several complete trice strings.
-		// If several, they end with a newline each, despite the last one which optionally ends with a newline.
+		// b contains here a single trice message with printed values or a single error message.
 		start := time.Now()
 
 		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(b[:n]) // todo: b can contain several trices - handle that!
+		n = emitter.BanOrPickFilter(b[:n])
 
 		if n > 0 { // s.th. to write out
 			var logLineStart bool // logLineStart is a helper flag for log line start detection
@@ -181,7 +180,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 
 			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
 				s := locationInformation(decoder.LastTriceID, li)
-				_, err := sw.Write([]byte(s))
+				_, err := sw.Write([]byte(s)) // todo: sw.WriteString(s) ?
 				msg.OnErr(err)
 			}
 

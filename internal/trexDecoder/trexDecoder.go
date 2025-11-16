@@ -241,6 +241,7 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 	return
 }
 
+// Read returns a single Trice conversion result or a single error message in b[:n].
 // Read is the provided read method for TREX decoding and provides next string as byte slice.
 //
 // It uses inner reader p.In and internal id look-up table to fill b with a string.
