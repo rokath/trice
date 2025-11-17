@@ -398,7 +398,10 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 47.7. [Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
   * 47.8. [Trice Structured Logging Level Specific Configuration](#trice-structured-logging-level-specific-configuration)
   * 47.9. [Trice Structured Logging Assert Macros (TODO)](#trice-structured-logging-assert-macros-(todo))
-* 48. [Trice Internal Log Code](#trice-internal-log-code)
+* 48. [Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
+  * 48.1. [Trice v1.0 Code](#trice-v1.0-code)
+  * 48.2. [Disadvantages of Trice v1.0 Implementation](#disadvantages-of-trice-v1.0-implementation)
+  * 48.3. [Aims for a better implementation](#aims-for-a-better-implementation)
 * 49. [Trice User Manual Changelog](#trice-user-manual-changelog)
 * 50. [Scratch Pad](#scratch-pad)
 
@@ -1549,7 +1552,17 @@ git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort 
   ok      github.com/rokath/trice/pkg/tst 0.406s
   ```
 
-  * To execute the target code tests, you can run `testAll.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
+To execute the target code tests, you can run `testAll.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
+The last tests can last quite a while, depending on your machine.
+
+```bash
+ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+$ go install ./cmd/trice/
+```
+
+Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
+
+After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -3634,6 +3647,7 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
   * When using very high Trice loads over RTT for a long time, sometimes an on-board J-Link (re-flashed ST-Link) could get internally into an inconsistent state (probably internal buffer overrun), what needs a power cycle then.
 * You could consider RTT over open-OCD as an alternative.
 * The default SEGGER up-buffer size is 1024 bytes, good for most cases. If not, adapt it in your *triceConfig.h* file **AND** in the *SEGGER_RTT_Conf.h* file:
+  You need only one up-channel for Trice:
 
   ```C
   #define BUFFER_SIZE_UP (128)  // "TRICE_DIRECT_BUFFER_SIZE"
@@ -7421,9 +7435,9 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  48. <a id='trice-internal-log-code'></a>Trice Internal Log Code Short Description
+##  48. <a id='trice-internal-log-code-short-description'></a>Trice Internal Log Code Short Description
 
-### Trice v1.0 Code
+###  48.1. <a id='trice-v1.0-code'></a>Trice v1.0 Code
 
 > **Hint:** To follow this explanation with the debugger, you can open in VSCode the trice folder, klick the Run & Debug Button or press CTRL-SHIFT-D, select `trice l -p DUMP` and set a breakpoint at `func main()` in [./cmd/trice/main.go](../cmd/trice/main.go) or directly in `translator.Translate` [./internal/translator/translator.go](../internal/translator/translator.go).
 * In file [./internal/args/handler.go](../internal/args/handler.go) function `logLoop` calls `receiver.NewReadWriteCloser` and passes the created `rwc` object to `translator.Translate`.
@@ -7439,7 +7453,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 * Optionally the Trice ID follows, if desired.
 * The in a string printed Trice follows now and if the `sw.WriteString` method detects a `\n` at its end, the configured line suffix (usually `""`) follows and `p.completeLine()` is called then. It passes the line (slice of strings) to `p.lw.WriteLine(p.Line)`, which adds color, prints to the output device and clears the sw.Line slice for the next line.
 
-### Disadvantages of Trice v1.0 Implementation
+###  48.2. <a id='disadvantages-of-trice-v1.0-implementation'></a>Disadvantages of Trice v1.0 Implementation
 
 * The Reader can only return a **single** Trice, because its byte interface cannot distinguish between Trices anymore.
 * The field order (prefix, host stamp, location information, target stamp optional ID, format string, suffix) is hardcoded.
@@ -7448,7 +7462,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 * Only one target timestamp value in a global variable.
 * Line writing is not straight forward understandable.
 
-### Aims for a better implementation
+###  48.3. <a id='aims-for-a-better-implementation'></a>Aims for a better implementation
 
 * Read should parse the binary data only and return a Trice struct slice.
 * Cycle errors?
@@ -7468,7 +7482,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 |-------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                                                                                                 |
 | ...         | 1.0.0   | ...                                                                                                                                                                           |
-| 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request \#529)](#udp4-input-(accepted-pull-request-#529))                                                                                       |
+| 2025-MAY-00 | pre 1.1 | ++ [UDP4 input (accepted pull request \#529)](#udp4-input-(accepted-pull-request-\#529))                                                                                      |
 | 2025-JUN-20 | pre 1.1 | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                                                                                                        |
 | 2025-JUN-20 | pre 1.1 | ++ [Alias Example Project](#alias-example-project)                                                                                                                            |
 | 2025-JUN-21 | pre 1.1 | ++ [Trice Structured Logging](#trice-structured-logging)                                                                                                                      |
