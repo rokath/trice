@@ -191,7 +191,7 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 
 // triceLogTest2 works like triceLogTest but additionally expects doubled output: direct and deferred.
 func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
-	g.GetGlobalVars() // read later changed defaults
+	g.GetGlobalVars() // read changed defaults
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
@@ -210,8 +210,7 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 		fmt.Println(i, r)
 		triceCheck(r.line) // target activity
 
-		{
-			fmt.Println("check direct output")
+		{ // check direct output
 			length := triceOutDepth()
 			bin := out[:length] // bin contains the binary trice data of trice message i
 
@@ -225,17 +224,20 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
 		}
 
-		{
-			// fmt.Println("check deferred output")
-			// triceTransfer()
-			// length := triceOutDepth()
-			// bin := out[:length] // bin contains the binary trice data of trice message i
-			// buf := fmt.Sprint(bin)
-			// buffer := buf[1 : len(buf)-1]
-			// g.SetGlobalVars() // restore changed defaults
-			// act := triceLog1(t, osFSys, buffer)
+		{ // check deferred output
+			triceTransfer()
+
+			length := triceOutDepth()
+			bin := out[:length] // bin contains the binary trice data of trice message i
+
+			buf := fmt.Sprint(bin)
+			buffer := buf[1 : len(buf)-1]
+
+			g.SetGlobalVars() // restore changed defaults
+			act := triceLog1(t, osFSys, buffer)
 			triceClearOutBuffer()
-			// assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
+
+			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
 		}
 	}
 }
