@@ -10,7 +10,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"runtime/debug"
+	"strings"
 	"sync"
 	"time"
 
@@ -100,7 +102,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		msg.OnErr(fsScInsert.Parse(subArgs))
 		id.CompactSrcs()
 		id.ProcessAliases()
-    	emitter.AddUserLabels()
+		emitter.AddUserLabels()
 		err := id.EvaluateIDRangeStrings()
 		if err != nil {
 			return err
@@ -247,10 +249,43 @@ func scVersion(w io.Writer) error {
 	if Verbose {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
 	}
+
 	if Version == "" {
-		fmt.Fprintf(w, "version=devel, built %s\n", Date)
+		branch, commit, dirty := getGitInfo()
+		modText := ""
+		if dirty {
+			modText = " (local modifications)"
+		}
+		fmt.Fprintf(w, "branch=%s%s, commit=%s, built %s\n", branch, modText, commit, Date)
 	} else {
 		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	}
 	return nil
+}
+
+// getGitInfo returns current branch, short commit hash and whether local modifications exist.
+func getGitInfo() (branch, commit string, dirty bool) {
+	// branch name
+	b, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
+	if err == nil {
+		branch = strings.TrimSpace(string(b))
+	} else {
+		branch = "unknown"
+	}
+
+	// short commit hash
+	c, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output()
+	if err == nil {
+		commit = strings.TrimSpace(string(c))
+	} else {
+		commit = "unknown"
+	}
+
+	// check for local modifications
+	if err := exec.Command("git", "diff", "--quiet").Run(); err != nil {
+		// non-zero exit means there are changes
+		dirty = true
+	}
+
+	return
 }
