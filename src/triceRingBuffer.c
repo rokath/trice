@@ -182,7 +182,7 @@ TRICE_INLINE void triceRingBufferDiagnostics(void) {
 }
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
-void triceTransferSingleFraming(void); // Avoid noise whith enabled -Wmissing-prototypes.
+void triceTransferSingleFraming(void); // Avoid noise with enabled -Wmissing-prototypes.
 
 //! triceTransferSingleFraming transfers a single Trice from the Ring Buffer.
 //! Implicit assumed is, that the pre-condition "TricesCountRingBuffer > 0" is fulfilled.
