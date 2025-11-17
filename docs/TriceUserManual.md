@@ -4,12 +4,19 @@
 
 ```diff
 + Speed of Light `printf` Comfort Within Interrupts And Everywhere +
---> To Long; Don't Read - use it as reference only❗
+--> Too Long; Don't Read - use it as reference only❗
 ```
 
 ---
 <h2>Table of Contents</h2>
 <details><summary>(click to expand)</summary><ol><!-- TABLE OF CONTENTS START -->
+
+<!-- 
+PDF Generation
+* Install vsCode extension "Markdown PDF" 
+* Use Shift-Command-P "markdown PDF:export" to generata a PDF
+* page break for PDF generation: <div style="page-break-before: always;"></div> 
+-->
 
 <!--
 Table of Contents Generation:
@@ -17,6 +24,48 @@ Table of Contents Generation:
 * Use Shift-Command-P "markdownTOC:generate" to get the automatic numbering.
 * replace "<a name" with "<a id"
 * replace "##" followed by 2 spaces with "## "‚
+-->
+
+<!--
+```diff
+- text in red
+-- text in red
++ text in green
+++ text in green
+! text in orange
+!! text in orange
+# text in gray
+## text in gray
+@ text in purple
+@@ text in purple
+```
+
+https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+
+🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕
+⚙️🧭🔍🧠
+
+RED APPLE (&#x1F34E;): 🍎
+GREEN APPLE (&#x1F34F;): 🍏
+BLUE HEART (&#x1F499;): 💙
+GREEN HEART (&#x1F49A;): 💚
+YELLOW HEART (&#x1F49B;): 💛
+PURPLE HEART (&#x1F49C;): 💜
+GREEN BOOK (&#x1F4D7;): 📗
+BLUE BOOK (&#x1F4D8;): 📘
+ORANGE BOOK (&#x1F4D9;): 📙
+LARGE RED CIRCLE (&#x1F534;): 🔴
+LARGE BLUE CIRCLE (&#x1F535;): 🔵
+LARGE ORANGE DIAMOND (&#x1F536;): 🔶
+LARGE BLUE DIAMOND (&#x1F537;): 🔷
+SMALL ORANGE DIAMOND (&#x1F538;): 🔸
+SMALL BLUE DIAMOND (&#x1F539;): 🔹
+UP-POINTING RED TRIANGLE (&#x1F53A;): 🔺
+DOWN-POINTING RED TRIANGLE (&#x1F53B;): 🔻
+UP-POINTING SMALL RED TRIANGLE (&#x1F53C;): 🔼
+DOWN-POINTING SMALL RED TRIANGLE (&#x1F53D;): 🔽
+
+https://apps.timwhitlock.info/emoji/tables/unicode
 -->
 
 <!-- vscode-markdown-toc -->
@@ -1423,47 +1472,69 @@ git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort 
 ##  10. <a id='build-trice-tool-from-go-sources-(you-can-skip-that)'></a>Build Trice tool from Go sources (you can skip that)
 
 * Install [Go](https://golang.org/).
-  * Extend PATH variable with `~/go/bin`
-* On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
-  * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
-  * Recommendation: Minimal online installer.
-  * GCC is only needed to test the target C-code on the host.
-  * Make sure TDM-GCC is found first in the path, if you have several compilers installed.
-  * Other gcc variants could work also but not tested.
-* Open a console inside the Trice directory, recommended is the git-bash, when using Windows.
-* Check and install:
+* Run:
 
-```b
-ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
-$ go clean -cache
+  ```bash
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+  $ go install ./cmd/trice/
+  ```
 
-ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
-$ go vet ./...
+* Afterwards you should find an executable `trice` inside `~/go/bin`.
+* Extend PATH variable with `~/go/bin` **OR** copy the Trice binary from there into a folder of your path.
+* Check:
 
-ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
-$ go test ./...
-?       github.com/rokath/trice/cmd/cui [no test files]
-ok      github.com/rokath/trice/cmd/stim        0.227s
-ok      github.com/rokath/trice/cmd/trice       0.577s
-ok      github.com/rokath/trice/internal/args   0.232s
-ok      github.com/rokath/trice/internal/charDecoder    0.407s
-ok      github.com/rokath/trice/internal/com    1.148s
-ok      github.com/rokath/trice/internal/decoder        0.412s [no tests to run]
-?       github.com/rokath/trice/internal/do     [no test files]
-ok      github.com/rokath/trice/internal/dumpDecoder    0.388s
-ok      github.com/rokath/trice/internal/emitter        0.431s
-ok      github.com/rokath/trice/internal/id     0.421s
-ok      github.com/rokath/trice/internal/keybcmd        0.431s
-ok      github.com/rokath/trice/internal/link   0.404s
-ok      github.com/rokath/trice/internal/receiver       0.409s
-ok      github.com/rokath/trice/internal/tleDecoder     0.398s
-?       github.com/rokath/trice/internal/translator     [no test files]
-ok      github.com/rokath/trice/internal/trexDecoder    0.391s
-ok      github.com/rokath/trice/pkg/cipher      0.377s
-ok      github.com/rokath/trice/pkg/endian      0.302s
-ok      github.com/rokath/trice/pkg/msg 0.299s
-ok      github.com/rokath/trice/pkg/tst 0.406s
-```
+  ```bash
+  ms@PaulPCWin11 MSYS ~/repos/trice (master)
+  $ /c/Users/ms/go/bin/trice.exe version
+  version=devel, built 2025-10-16 14:46:40.1465337 +0200 CEST
+  
+  ms@PaulPCWin11 MSYS ~/repos/trice (master)
+  ```
+
+* Hints
+  * Use only the master branch. Other branches may be inconsistent.
+  * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
+  * Use Goreleaser if you wish to create releases on your forked Trice repository.
+  * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
+    * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
+    * Recommendation: Minimal online installer.
+    * GCC is only needed to test the target C-code on the host.
+    * Make sure TDM-GCC is found first in the path, if you have several compilers installed.
+    * Other gcc variants could work also but not tested.
+  * Open a console inside the Trice directory, recommended is the git-bash, when using Windows.
+  * Tests:
+
+  ```b
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+  $ go clean -cache
+  
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+  $ go vet ./...
+  
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+  $ go test ./...
+  ?       github.com/rokath/trice/cmd/cui [no test files]
+  ok      github.com/rokath/trice/cmd/stim        0.227s
+  ok      github.com/rokath/trice/cmd/trice       0.577s
+  ok      github.com/rokath/trice/internal/args   0.232s
+  ok      github.com/rokath/trice/internal/charDecoder    0.407s
+  ok      github.com/rokath/trice/internal/com    1.148s
+  ok      github.com/rokath/trice/internal/decoder        0.412s [no tests to run]
+  ?       github.com/rokath/trice/internal/do     [no test files]
+  ok      github.com/rokath/trice/internal/dumpDecoder    0.388s
+  ok      github.com/rokath/trice/internal/emitter        0.431s
+  ok      github.com/rokath/trice/internal/id     0.421s
+  ok      github.com/rokath/trice/internal/keybcmd        0.431s
+  ok      github.com/rokath/trice/internal/link   0.404s
+  ok      github.com/rokath/trice/internal/receiver       0.409s
+  ok      github.com/rokath/trice/internal/tleDecoder     0.398s
+  ?       github.com/rokath/trice/internal/translator     [no test files]
+  ok      github.com/rokath/trice/internal/trexDecoder    0.391s
+  ok      github.com/rokath/trice/pkg/cipher      0.377s
+  ok      github.com/rokath/trice/pkg/endian      0.302s
+  ok      github.com/rokath/trice/pkg/msg 0.299s
+  ok      github.com/rokath/trice/pkg/tst 0.406s
+  ```
 
 To execute the target code tests, you can run `testAll.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
 The last tests can last quite a while, depending on your machine.
@@ -6668,7 +6739,7 @@ These data can be strings or numbers.
 
 *uptime, timestamp, hw serial, task ID, stack depth, event count, core ID, position, variables values, parameter values ...*
 
-In an initial approach we assume, these data do not contain runtime generated strings. If really needed, a derived hash is usable instead for now. Despite of this, runtime generated strings are an important feature and therefore Trice supports `triceS`, capable to transmit a single string up to 32KB long, and its relatives. We could add compile-time data (as inserted fixed strings) but runtime information can only get as an additional part of the runtime generated string into the structured log. This should be acceptable and we will deal with this later.
+In an initial approach we assume, these data do not contain runtime generated strings. If really needed, a derived hash is usable instead for now. Despite of this, runtime generated strings are an important feature and therefore Trice supports `triceS`, capable to transmit a single string up to 32KB long, and `triceS` relatives like `triceB`. We could add compile-time data (as inserted fixed strings) but runtime information can only get as an additional part of the runtime generated string into the structured log. This should be acceptable and we will deal with this later.
 
 ###  45.3. <a id='trice-structured-logging-limitations-and-special-cases'></a>Trice Structured Logging Limitations and Special Cases
 
@@ -6966,46 +7037,3 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-<!--
-
-```diff
-- text in red
--- text in red
-+ text in green
-++ text in green
-! text in orange
-!! text in orange
-# text in gray
-## text in gray
-@ text in purple
-@@ text in purple
-```
-
-https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
-
-🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕
-
-RED APPLE (&#x1F34E;): 🍎
-GREEN APPLE (&#x1F34F;): 🍏
-BLUE HEART (&#x1F499;): 💙
-GREEN HEART (&#x1F49A;): 💚
-YELLOW HEART (&#x1F49B;): 💛
-PURPLE HEART (&#x1F49C;): 💜
-GREEN BOOK (&#x1F4D7;): 📗
-BLUE BOOK (&#x1F4D8;): 📘
-ORANGE BOOK (&#x1F4D9;): 📙
-LARGE RED CIRCLE (&#x1F534;): 🔴
-LARGE BLUE CIRCLE (&#x1F535;): 🔵
-LARGE ORANGE DIAMOND (&#x1F536;): 🔶
-LARGE BLUE DIAMOND (&#x1F537;): 🔷
-SMALL ORANGE DIAMOND (&#x1F538;): 🔸
-SMALL BLUE DIAMOND (&#x1F539;): 🔹
-UP-POINTING RED TRIANGLE (&#x1F53A;): 🔺
-DOWN-POINTING RED TRIANGLE (&#x1F53B;): 🔻
-UP-POINTING SMALL RED TRIANGLE (&#x1F53C;): 🔼
-DOWN-POINTING SMALL RED TRIANGLE (&#x1F53D;): 🔽
-
-https://apps.timwhitlock.info/emoji/tables/unicode
-
--->

@@ -49,6 +49,7 @@ import (
 	"unsafe"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/trexDecoder"
 	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
@@ -244,12 +245,14 @@ func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
 type globalDefaults struct {
 	defaultPassword       string
 	defaultPackageFraming string
+	defaultDoubled16BitID bool
 }
 
 // Keep default values of global variables.
 func (p *globalDefaults) GetGlobalVars() {
 	p.defaultPassword = cipher.Password
 	p.defaultPackageFraming = decoder.PackageFraming
+	p.defaultDoubled16BitID = trexDecoder.Doubled16BitID
 }
 
 // SetGlobalVars sets all global variables in a definitive state.
@@ -259,4 +262,5 @@ func (p *globalDefaults) GetGlobalVars() {
 func (p *globalDefaults) SetGlobalVars() {
 	cipher.Password = p.defaultPassword
 	decoder.PackageFraming = p.defaultPackageFraming
+	trexDecoder.Doubled16BitID = p.defaultDoubled16BitID
 }
