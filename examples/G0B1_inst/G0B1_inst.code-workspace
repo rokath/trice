@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../../_test/testdata"
+		},
+		{
+			"path": "../.."
 		}
 	],
 	"settings": {}

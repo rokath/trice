@@ -1,0 +1,9318 @@
+{
+	"13000": {
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+	},
+	"13001": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
+	"13002": {
+		"Type": "TRice",
+		"Strg": "Fun %x!\\n"
+	},
+	"13003": {
+		"Type": "trice",
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+	},
+	"13004": {
+		"Type": "trice",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+	},
+	"13005": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
+	},
+	"13006": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
+	},
+	"13007": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)\"'%s' Am, it is %d\"')SAlias_Strg"
+	},
+	"13008": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
+	},
+	"13009": {
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+	},
+	"13010": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13011": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13012": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13013": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13014": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13015": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13016": {
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+	},
+	"13017": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13018": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
+	"13019": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13020": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
+	},
+	"13021": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13022": {
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+	},
+	"13023": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\\n"
+	},
+	"13024": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\\n"
+	},
+	"13025": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An minimum configuration example.\\n"
+	},
+	"13026": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\\n"
+	},
+	"13027": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
+	"13028": {
+		"Type": "TRice",
+		"Strg": "\\rTriceCheck %4d"
+	},
+	"13029": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13030": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"13031": {
+		"Type": "TRice",
+		"Strg": "info:This is a message without values and a 32-bit stamp.\\n"
+	},
+	"13032": {
+		"Type": "Trice",
+		"Strg": "info:This is a message without values and a 16-bit stamp.\\n"
+	},
+	"13033": {
+		"Type": "trice",
+		"Strg": "info:This is a message without values and without stamp.\\n"
+	},
+	"13034": {
+		"Type": "triceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"13035": {
+		"Type": "TriceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"13036": {
+		"Type": "TRiceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"13037": {
+		"Type": "triceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"13038": {
+		"Type": "TriceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"13039": {
+		"Type": "TRiceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"13040": {
+		"Type": "triceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"13041": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"13042": {
+		"Type": "TriceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"13043": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"13044": {
+		"Type": "TRiceAssertTrue",
+		"Strg": "ASSERT:flag not true!\\n"
+	},
+	"13045": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"13046": {
+		"Type": "triceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"13047": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"13048": {
+		"Type": "TriceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"13049": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"13050": {
+		"Type": "TRiceAssertFalse",
+		"Strg": "ASSERT:flag not false!\\n"
+	},
+	"13051": {
+		"Type": "TRice",
+		"Strg": "ok\\n"
+	},
+	"13052": {
+		"Type": "trice",
+		"Strg": "sig:trice without stamp and with 0 to 12 values (most common use cases)\\n"
+	},
+	"13053": {
+		"Type": "trice",
+		"Strg": "rd:trice\\n"
+	},
+	"13054": {
+		"Type": "trice",
+		"Strg": "rd:trice %d\\n"
+	},
+	"13055": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d\\n"
+	},
+	"13056": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d\\n"
+	},
+	"13057": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d\\n"
+	},
+	"13058": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d, %d\\n"
+	},
+	"13059": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13060": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13061": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13062": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13063": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13064": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13065": {
+		"Type": "trice",
+		"Strg": "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13066": {
+		"Type": "Trice",
+		"Strg": "sig:Trice with 16-bit stamp and with 0 to 12 values (common use cases)\\n"
+	},
+	"13067": {
+		"Type": "Trice",
+		"Strg": "rd:Trice\\n"
+	},
+	"13068": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d\\n"
+	},
+	"13069": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d\\n"
+	},
+	"13070": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d\\n"
+	},
+	"13071": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d\\n"
+	},
+	"13072": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d, %d\\n"
+	},
+	"13073": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13074": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13075": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13076": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13077": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13078": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13079": {
+		"Type": "Trice",
+		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13080": {
+		"Type": "TRice",
+		"Strg": "sig:TRice with 32-bit stamp and with 0 to 12 values (common use cases)\\n"
+	},
+	"13081": {
+		"Type": "TRice",
+		"Strg": "rd:TRice\\n"
+	},
+	"13082": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d\\n"
+	},
+	"13083": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d\\n"
+	},
+	"13084": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d\\n"
+	},
+	"13085": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d\\n"
+	},
+	"13086": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d, %d\\n"
+	},
+	"13087": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13088": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13089": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13090": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13091": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13092": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13093": {
+		"Type": "TRice",
+		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13094": {
+		"Type": "trice",
+		"Strg": "sig:trice16 with 1 to 12 pointer\\n"
+	},
+	"13095": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p\\n"
+	},
+	"13096": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p\\n"
+	},
+	"13097": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p\\n"
+	},
+	"13098": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p\\n"
+	},
+	"13099": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p, %p\\n"
+	},
+	"13100": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13101": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13102": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13103": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13104": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13105": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13106": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13107": {
+		"Type": "trice8",
+		"Strg": "rd:trice8  %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13108": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"13109": {
+		"Type": "trice",
+		"Strg": "sig:trice16 with 1 to 12 hex\\n"
+	},
+	"13110": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X\\n"
+	},
+	"13111": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X\\n"
+	},
+	"13112": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X\\n"
+	},
+	"13113": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X\\n"
+	},
+	"13114": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X, %X\\n"
+	},
+	"13115": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13116": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13117": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13118": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13119": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13120": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13121": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13122": {
+		"Type": "trice8",
+		"Strg": "rd:trice8  %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13123": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"13124": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13125": {
+		"Type": "trice",
+		"Strg": "--------------------------------------------------\\n"
+	},
+	"13126": {
+		"Type": "trice32",
+		"Strg": "msg: message = %08x %08x %08x %08x %08x %08x\\n"
+	},
+	"13127": {
+		"Type": "trice32",
+		"Strg": "tim: pre TriceEncryption SysTick=%d\\n"
+	},
+	"13128": {
+		"Type": "trice32",
+		"Strg": "tim: post TriceEncryption SysTick=%d\\n"
+	},
+	"13129": {
+		"Type": "trice32",
+		"Strg": "att: TriceEncrypted =  %08x %08x %08x %08x %08x %08x\\n"
+	},
+	"13130": {
+		"Type": "trice16_1",
+		"Strg": "tim: pre TriceDecryption SysTick=%d\\n"
+	},
+	"13131": {
+		"Type": "trice16_1",
+		"Strg": "tim: post TriceDecryption SysTick=%d\\n"
+	},
+	"13132": {
+		"Type": "trice32",
+		"Strg": "msg: messge = %08x %08x %08x %08x %08x %08x\\n"
+	},
+	"13133": {
+		"Type": "trice",
+		"Strg": "--------------------------------------------------\\n"
+	},
+	"13134": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13135": {
+		"Type": "trice",
+		"Strg": "dbg:Hi!\\n"
+	},
+	"13136": {
+		"Type": "trice",
+		"Strg": "dbg:\tHi!\\n"
+	},
+	"13137": {
+		"Type": "trice",
+		"Strg": "sig:Some time measurements\\n"
+	},
+	"13138": {
+		"Type": "trice",
+		"Strg": "isr:trice isr message, SysTick is %6d\\n"
+	},
+	"13139": {
+		"Type": "trice",
+		"Strg": "isr:trice isr message, SysTick is %6d\\n"
+	},
+	"13140": {
+		"Type": "trice",
+		"Strg": "isr:trice isr message, SysTick is %6d\\n"
+	},
+	"13141": {
+		"Type": "trice",
+		"Strg": "isr:trice isr message, SysTick is %6d\\n"
+	},
+	"13142": {
+		"Type": "trice_1",
+		"Strg": "isr:trice_1 isr message, SysTick is %6d\\n"
+	},
+	"13143": {
+		"Type": "trice_1",
+		"Strg": "isr:trice_1 isr message, SysTick is %6d\\n"
+	},
+	"13144": {
+		"Type": "trice_1",
+		"Strg": "isr:trice_1 isr message, SysTick is %6d\\n"
+	},
+	"13145": {
+		"Type": "trice_1",
+		"Strg": "isr:trice_1 isr message, SysTick is %6d\\n"
+	},
+	"13146": {
+		"Type": "TRICE16_1",
+		"Strg": "isr:TRICE16_1 isr message, SysTick is %6d\\n"
+	},
+	"13147": {
+		"Type": "TRICE16_1",
+		"Strg": "isr:TRICE16_1 isr message, SysTick is %6d\\n"
+	},
+	"13148": {
+		"Type": "TRICE16_1",
+		"Strg": "isr:TRICE16_1 isr message, SysTick is %6d\\n"
+	},
+	"13149": {
+		"Type": "TRICE16_1",
+		"Strg": "isr:TRICE16_1 isr message, SysTick is %6d\\n"
+	},
+	"13150": {
+		"Type": "TRICE_1",
+		"Strg": "isr:TRICE_1 isr message, SysTick is %6d\\n"
+	},
+	"13151": {
+		"Type": "TRICE_1",
+		"Strg": "isr:TRICE_1 isr message, SysTick is %6d\\n"
+	},
+	"13152": {
+		"Type": "TRICE_1",
+		"Strg": "isr:TRICE_1 isr message, SysTick is %6d\\n"
+	},
+	"13153": {
+		"Type": "TRICE_1",
+		"Strg": "isr:TRICE_1 isr message, SysTick is %6d\\n"
+	},
+	"13154": {
+		"Type": "TRICE",
+		"Strg": "isr:TRICE isr message, SysTick is %6d\\n"
+	},
+	"13155": {
+		"Type": "TRICE",
+		"Strg": "isr:TRICE isr message, SysTick is %6d\\n"
+	},
+	"13156": {
+		"Type": "TRICE",
+		"Strg": "isr:TRICE isr message, SysTick is %6d\\n"
+	},
+	"13157": {
+		"Type": "TRICE",
+		"Strg": "isr:TRICE isr message, SysTick is %6d\\n"
+	},
+	"13158": {
+		"Type": "trice",
+		"Strg": "tim:trice START time message\\n"
+	},
+	"13159": {
+		"Type": "trice",
+		"Strg": "tim:trice STOP time message\\n"
+	},
+	"13160": {
+		"Type": "trice",
+		"Strg": "tim:trice START time message\\n"
+	},
+	"13161": {
+		"Type": "trice",
+		"Strg": "tim:trice STOP time message\\n"
+	},
+	"13162": {
+		"Type": "trice",
+		"Strg": "tim:trice START time message\\n"
+	},
+	"13163": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d\\n"
+	},
+	"13164": {
+		"Type": "trice",
+		"Strg": "tim:trice STOP time message\\n"
+	},
+	"13165": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE START time message\\n"
+	},
+	"13166": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE STOP time message\\n"
+	},
+	"13167": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE START time message\\n"
+	},
+	"13168": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE STOP time message\\n"
+	},
+	"13169": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE START time message\\n"
+	},
+	"13170": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d\\n"
+	},
+	"13171": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE STOP time message\\n"
+	},
+	"13172": {
+		"Type": "trice",
+		"Strg": "tim:trice --------------------------------------------------\\n"
+	},
+	"13173": {
+		"Type": "trice",
+		"Strg": "tim:trice --------------------------------------------------\\n"
+	},
+	"13174": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d\\n"
+	},
+	"13175": {
+		"Type": "trice",
+		"Strg": "tim:trice --------------------------------------------------\\n"
+	},
+	"13176": {
+		"Type": "trice",
+		"Strg": "tim:trice --------------------------------------------------\\n"
+	},
+	"13177": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d\\n"
+	},
+	"13178": {
+		"Type": "trice32_1",
+		"Strg": "rd:trice32_1 %d\\n"
+	},
+	"13179": {
+		"Type": "trice64_1",
+		"Strg": "rd:trice64_1 %d\\n"
+	},
+	"13180": {
+		"Type": "trice32_2",
+		"Strg": "rd:trice32_2 %d,%d\\n"
+	},
+	"13181": {
+		"Type": "trice64_2",
+		"Strg": "rd:trice64_2 %d,%d\\n"
+	},
+	"13182": {
+		"Type": "TRice64",
+		"Strg": "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\\n"
+	},
+	"13183": {
+		"Type": "Trice64",
+		"Strg": "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\\n"
+	},
+	"13184": {
+		"Type": "trice64",
+		"Strg": "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\\n"
+	},
+	"13185": {
+		"Type": "TRice32",
+		"Strg": "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\\n"
+	},
+	"13186": {
+		"Type": "Trice32",
+		"Strg": "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\\n"
+	},
+	"13187": {
+		"Type": "trice32",
+		"Strg": "info:12 32-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\\n"
+	},
+	"13188": {
+		"Type": "TRice16",
+		"Strg": "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\\n"
+	},
+	"13189": {
+		"Type": "Trice16",
+		"Strg": "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\\n"
+	},
+	"13190": {
+		"Type": "trice16",
+		"Strg": "info:12 16-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\\n"
+	},
+	"13191": {
+		"Type": "TRice8",
+		"Strg": "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 32-bit stamp.\\n"
+	},
+	"13192": {
+		"Type": "Trice8",
+		"Strg": "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and a 16-bit stamp.\\n"
+	},
+	"13193": {
+		"Type": "trice8",
+		"Strg": "info:12  8-bit values %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d and without stamp.\\n"
+	},
+	"13194": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13195": {
+		"Type": "TRice16",
+		"Strg": "att: 0x8888 == %04xh\\n"
+	},
+	"13196": {
+		"Type": "Trice16",
+		"Strg": "att: 0x8888 == %04xh\\n"
+	},
+	"13197": {
+		"Type": "trice16",
+		"Strg": "att: 0x8888 == %04xh\\n"
+	},
+	"13198": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13199": {
+		"Type": "trice8",
+		"Strg": "value=%x\\n"
+	},
+	"13200": {
+		"Type": "trice8",
+		"Strg": "value=%x\\n"
+	},
+	"13201": {
+		"Type": "trice",
+		"Strg": "att:mixed int \u0026 float \u0026 double \u0026 bits\\n"
+	},
+	"13202": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 int %d, float %f (%%f), %08x, %032b\\n"
+	},
+	"13203": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 int %d, float %f (%%f), %08x, %032b\\n"
+	},
+	"13204": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 int %x, float %f (%%f), %08x, %032b\\n"
+	},
+	"13205": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 int %d, float %f (%%f), %08x, %032b\\n"
+	},
+	"13206": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 int %d, float %f (%%f), %08x, %032b\\n"
+	},
+	"13207": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 int %d, float %f (%%f), %08x, %032b\\n"
+	},
+	"13208": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 int %X, float %f (%%f), %08x, %032b\\n"
+	},
+	"13209": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 int %d, double %f (%%f), %016x, %064b\\n"
+	},
+	"13210": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 int %d, double %f (%%f), %016x, %064b\\n"
+	},
+	"13211": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 int %d, double %f (%%f), %016x, %064b\\n"
+	},
+	"13212": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 int %d, double %f (%%f), %016x, %064b\\n"
+	},
+	"13213": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 int %d, double %f (%%f), %016x, %064b\\n"
+	},
+	"13214": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 int %X, double %f (%%f), %016x, %064b\\n"
+	},
+	"13215": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13216": {
+		"Type": "triceS",
+		"Strg": "msg:With triceS:%s\\n"
+	},
+	"13217": {
+		"Type": "triceN",
+		"Strg": "sig:With triceN:%s\\n"
+	},
+	"13218": {
+		"Type": "TriceS",
+		"Strg": "msg:With TriceS:%s\\n"
+	},
+	"13219": {
+		"Type": "TriceN",
+		"Strg": "sig:With TriceN:%s\\n"
+	},
+	"13220": {
+		"Type": "TRiceS",
+		"Strg": "msg:With TRiceS:%s\\n"
+	},
+	"13221": {
+		"Type": "TRiceN",
+		"Strg": "sig:With TRiceN:%s\\n"
+	},
+	"13222": {
+		"Type": "TRICE_S",
+		"Strg": "msg:With TRICE_S:%s\\n"
+	},
+	"13223": {
+		"Type": "TRICE_N",
+		"Strg": "sig:With TRICE_N:%s\\n"
+	},
+	"13224": {
+		"Type": "TRICE_S",
+		"Strg": "msg:With TRICE_S:%s\\n"
+	},
+	"13225": {
+		"Type": "TRICE_N",
+		"Strg": "sig:With TRICE_N:%s\\n"
+	},
+	"13226": {
+		"Type": "TRICE_S",
+		"Strg": "msg:With TRICE_S:%s\\n"
+	},
+	"13227": {
+		"Type": "TRICE_N",
+		"Strg": "sig:With TRICE_N:%s\\n"
+	},
+	"13228": {
+		"Type": "TRICE8_B",
+		"Strg": "  %02x"
+	},
+	"13229": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13230": {
+		"Type": "TRICE8_B",
+		"Strg": "BUF: %02x\\n"
+	},
+	"13231": {
+		"Type": "TRICE8_B",
+		"Strg": "%4d"
+	},
+	"13232": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13233": {
+		"Type": "TRICE8_B",
+		"Strg": "  %02x"
+	},
+	"13234": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13235": {
+		"Type": "TRice8B",
+		"Strg": " %02x"
+	},
+	"13236": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13237": {
+		"Type": "Trice8B",
+		"Strg": " %02x"
+	},
+	"13238": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13239": {
+		"Type": "trice8B",
+		"Strg": " %02x"
+	},
+	"13240": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13241": {
+		"Type": "trice8B",
+		"Strg": "att: %02x\\n"
+	},
+	"13242": {
+		"Type": "trice8B",
+		"Strg": "rd: %02x"
+	},
+	"13243": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13244": {
+		"Type": "trice8B",
+		"Strg": " %02x\\n"
+	},
+	"13245": {
+		"Type": "TRICE16_B",
+		"Strg": "  %04x"
+	},
+	"13246": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13247": {
+		"Type": "TRice16B",
+		"Strg": " %04x"
+	},
+	"13248": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13249": {
+		"Type": "Trice16B",
+		"Strg": " %04x"
+	},
+	"13250": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13251": {
+		"Type": "trice16B",
+		"Strg": " %04x"
+	},
+	"13252": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13253": {
+		"Type": "trice16B",
+		"Strg": "msg: %04x\\n"
+	},
+	"13254": {
+		"Type": "TRICE32_B",
+		"Strg": " %08x"
+	},
+	"13255": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13256": {
+		"Type": "TRice32B",
+		"Strg": " %08x"
+	},
+	"13257": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13258": {
+		"Type": "Trice32B",
+		"Strg": " %08x"
+	},
+	"13259": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13260": {
+		"Type": "trice32B",
+		"Strg": " %08x"
+	},
+	"13261": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13262": {
+		"Type": "trice32B",
+		"Strg": "att: %08x\\n"
+	},
+	"13263": {
+		"Type": "TRICE64_B",
+		"Strg": " %016x"
+	},
+	"13264": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13265": {
+		"Type": "TRice64B",
+		"Strg": " %016x"
+	},
+	"13266": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13267": {
+		"Type": "Trice64B",
+		"Strg": " %016x"
+	},
+	"13268": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13269": {
+		"Type": "trice64B",
+		"Strg": " %016x"
+	},
+	"13270": {
+		"Type": "trice",
+		"Strg": "\\n"
+	},
+	"13271": {
+		"Type": "trice64B",
+		"Strg": "SIG: %016x\\n"
+	},
+	"13272": {
+		"Type": "TRICE8_F",
+		"Strg": "info:FunctionNameWa"
+	},
+	"13273": {
+		"Type": "TRice8F",
+		"Strg": "call:FunctionNameWb"
+	},
+	"13274": {
+		"Type": "Trice8F",
+		"Strg": "call:FunctionNameWc"
+	},
+	"13275": {
+		"Type": "trice8F",
+		"Strg": "call:FunctionNameWd"
+	},
+	"13276": {
+		"Type": "TRICE16_F",
+		"Strg": "info:FunctionNameXa"
+	},
+	"13277": {
+		"Type": "TRice16F",
+		"Strg": "call:FunctionNameXb"
+	},
+	"13278": {
+		"Type": "Trice16F",
+		"Strg": "call:FunctionNameXc"
+	},
+	"13279": {
+		"Type": "trice16F",
+		"Strg": "call:FunctionNameXd"
+	},
+	"13280": {
+		"Type": "TRICE32_F",
+		"Strg": "info:FunctionNameYa"
+	},
+	"13281": {
+		"Type": "TRice32F",
+		"Strg": "rpc:FunctionNameYb"
+	},
+	"13282": {
+		"Type": "Trice32F",
+		"Strg": "rpc:FunctionNameYc"
+	},
+	"13283": {
+		"Type": "trice32F",
+		"Strg": "call:FunctionNameYd"
+	},
+	"13284": {
+		"Type": "TRICE64_F",
+		"Strg": "info:FunctionNameZa"
+	},
+	"13285": {
+		"Type": "TRice64F",
+		"Strg": "call:FunctionNameZb"
+	},
+	"13286": {
+		"Type": "Trice64F",
+		"Strg": "RPC:FunctionNameZc"
+	},
+	"13287": {
+		"Type": "trice64F",
+		"Strg": "RPC:FunctionNameZd"
+	},
+	"13288": {
+		"Type": "TRiceS",
+		"Strg": "msg:Hi %s!\\n"
+	},
+	"13289": {
+		"Type": "TriceS",
+		"Strg": "msg:Hi %s!\\n"
+	},
+	"13290": {
+		"Type": "triceS",
+		"Strg": "msg:Hi %s!\\n"
+	},
+	"13291": {
+		"Type": "TRiceN",
+		"Strg": "msg:Hi %s!\\n"
+	},
+	"13292": {
+		"Type": "TriceN",
+		"Strg": "msg:Hi %s!\\n"
+	},
+	"13293": {
+		"Type": "triceN",
+		"Strg": "msg:Hi %s!\\n"
+	},
+	"13294": {
+		"Type": "TRICE_S",
+		"Strg": "sig:TRICE_S=%s\\n"
+	},
+	"13295": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n"
+	},
+	"13296": {
+		"Type": "TRICE_S",
+		"Strg": "sig:TRICE_S=%s\\n"
+	},
+	"13297": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n"
+	},
+	"13298": {
+		"Type": "TRICE_S",
+		"Strg": "sig:TRICE_S=%s\\n"
+	},
+	"13299": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n"
+	},
+	"13300": {
+		"Type": "triceS",
+		"Strg": "sig:triceS=%s\\n"
+	},
+	"13301": {
+		"Type": "triceN",
+		"Strg": "sig:triceN=%s\\n"
+	},
+	"13302": {
+		"Type": "TriceS",
+		"Strg": "sig:TriceS=%s\\n"
+	},
+	"13303": {
+		"Type": "TriceN",
+		"Strg": "sig:TriceN=%s\\n"
+	},
+	"13304": {
+		"Type": "TRiceS",
+		"Strg": "sig:TRiceS=%s\\n"
+	},
+	"13305": {
+		"Type": "TRiceN",
+		"Strg": "sig:TRiceN=%s\\n"
+	},
+	"13306": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13307": {
+		"Type": "TRICE",
+		"Strg": "MSG:1/11 = %g\\n"
+	},
+	"13308": {
+		"Type": "TRice",
+		"Strg": "msg:x = %g = %d.%03d, %d.%03d\\n"
+	},
+	"13309": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13310": {
+		"Type": "TRice",
+		"Strg": "sig:Integer (indent, base, sign) - see https://yourbasic.org/golang/fmt-printf-reference-cheat-sheet/\\n"
+	},
+	"13311": {
+		"Type": "TRice",
+		"Strg": "rd: 15 \t%d \tBase 10\\n"
+	},
+	"13312": {
+		"Type": "TRice",
+		"Strg": "rd: +15 \t%+d \tAlways show sign\\n"
+	},
+	"13313": {
+		"Type": "TRice",
+		"Strg": "rd:   15\t%4d \tPad with spaces (width 4, right justified)\\n"
+	},
+	"13314": {
+		"Type": "TRice",
+		"Strg": "rd:    15\t%-4d\tPad with spaces (width 4, left justified)\\n"
+	},
+	"13315": {
+		"Type": "TRice",
+		"Strg": "rd: 0015\t%04d\tPad with zeroes (width 4)\\n"
+	},
+	"13316": {
+		"Type": "TRice",
+		"Strg": "rd: 1111 \t%b \tBase 2\\n"
+	},
+	"13317": {
+		"Type": "TRice",
+		"Strg": "rd: 17 \t%o \tBase 8\\n"
+	},
+	"13318": {
+		"Type": "TRice",
+		"Strg": "rd: f \t%x \tBase 16, lowercase\\n"
+	},
+	"13319": {
+		"Type": "TRice",
+		"Strg": "rd: F \t%X \tBase 16, uppercase\\n"
+	},
+	"13320": {
+		"Type": "TRice",
+		"Strg": "rd: 0xf \t%#x \tBase 16, with leading 0x\\n"
+	},
+	"13321": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13322": {
+		"Type": "trice",
+		"Strg": "sig:Character (quoted, Unicode)\\n"
+	},
+	"13323": {
+		"Type": "trice",
+		"Strg": "rd: A \t%c \tCharacter\\n"
+	},
+	"13324": {
+		"Type": "trice",
+		"Strg": "rd: 'A' \t%q \tQuoted character\\n"
+	},
+	"13325": {
+		"Type": "trice",
+		"Strg": "rd: U+0041 \t%U \tUnicode\\n"
+	},
+	"13326": {
+		"Type": "trice",
+		"Strg": "rd: U+0041 'A' \t%#U \tUnicode with character\\n"
+	},
+	"13327": {
+		"Type": "trice",
+		"Strg": "sig:Boolean (true/false)\\n"
+	},
+	"13328": {
+		"Type": "trice",
+		"Strg": "rd:Use %%t to format a boolean as true (%t) or false (%t).\\n"
+	},
+	"13329": {
+		"Type": "trice",
+		"Strg": "sig:Pointer (hex)\\n"
+	},
+	"13330": {
+		"Type": "trice8",
+		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
+	},
+	"13331": {
+		"Type": "trice16",
+		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
+	},
+	"13332": {
+		"Type": "trice32",
+		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
+	},
+	"13333": {
+		"Type": "trice64",
+		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
+	},
+	"13334": {
+		"Type": "trice",
+		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
+	},
+	"13335": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13336": {
+		"Type": "trice",
+		"Strg": "sig:Float (indent, precision, scientific notation)\\n"
+	},
+	"13337": {
+		"Type": "trice",
+		"Strg": "rd: 1.234560e+02\t\t%e \t%%e Scientific notation\\n"
+	},
+	"13338": {
+		"Type": "trice",
+		"Strg": "rd: 123.456000\t\t%f \t%%f Decimal point, no exponent\\n"
+	},
+	"13339": {
+		"Type": "trice",
+		"Strg": "rd: 123.46\t\t\t%.2f\t\t%%.2f Default width, precision 2\\n"
+	},
+	"13340": {
+		"Type": "trice",
+		"Strg": "rd: ␣␣123.46\t\t%8.2f\t%%8.2f Width 8, precision 2\\n"
+	},
+	"13341": {
+		"Type": "trice",
+		"Strg": "rd: 123.456\t\t%g\t\t%%g Exponent as needed, necessary digits only\\n"
+	},
+	"13342": {
+		"Type": "trice",
+		"Strg": "sig:Double (indent, precision, scientific notation)\\n"
+	},
+	"13343": {
+		"Type": "trice64",
+		"Strg": "rd: 1.234560e+02\t\t%e \t%%e Scientific notation\\n"
+	},
+	"13344": {
+		"Type": "trice64",
+		"Strg": "rd: 123.456000\t\t%f \t%%f Decimal point, no exponent\\n"
+	},
+	"13345": {
+		"Type": "trice64",
+		"Strg": "rd: 123.46\t\t\t%.2f    \t%%.2f Default width, precision 2\\n"
+	},
+	"13346": {
+		"Type": "trice64",
+		"Strg": "rd: ␣␣123.46\t\t%8.2f \t%%8.2f Width 8, precision 2\\n"
+	},
+	"13347": {
+		"Type": "trice64",
+		"Strg": "rd: 123.456\t\t%g\t\t%%g Exponent as needed, necessary digits only\\n"
+	},
+	"13348": {
+		"Type": "trice",
+		"Strg": "sig:String or byte slice (quote, indent, hex)\\n"
+	},
+	"13349": {
+		"Type": "triceS",
+		"Strg": "rd: café \t\t\t%s\t\tPlain string\\n"
+	},
+	"13350": {
+		"Type": "triceS",
+		"Strg": "rd: ␣␣café \t\t%6s \t\tWidth 6, right justify\\n"
+	},
+	"13351": {
+		"Type": "triceS",
+		"Strg": "rd: café␣␣ \t\t%-6s \t\tWidth 6, left justify\\n"
+	},
+	"13352": {
+		"Type": "triceS",
+		"Strg": "rd: \\\"café\\\" \t\t%q\t\tQuoted string\\n"
+	},
+	"13353": {
+		"Type": "triceS",
+		"Strg": "rd: 636166c3a9 \t\t%x\tHex dump of byte values\\n"
+	},
+	"13354": {
+		"Type": "triceS",
+		"Strg": "rd: 63 61 66 c3 a9 \t% x\tHex dump with spaces\\n"
+	},
+	"13355": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13356": {
+		"Type": "TRice",
+		"Strg": "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\\n"
+	},
+	"13357": {
+		"Type": "Trice",
+		"Strg": "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\\n"
+	},
+	"13358": {
+		"Type": "trice",
+		"Strg": "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\\n"
+	},
+	"13359": {
+		"Type": "trice16",
+		"Strg": "att: line %u\\n"
+	},
+	"13360": {
+		"Type": "trice",
+		"Strg": "sig:Runtime generated strings\\n"
+	},
+	"13361": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u:"
+	},
+	"13362": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n"
+	},
+	"13363": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u:"
+	},
+	"13364": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n"
+	},
+	"13365": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u: "
+	},
+	"13366": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n"
+	},
+	"13367": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u: "
+	},
+	"13368": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n"
+	},
+	"13369": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u: "
+	},
+	"13370": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n"
+	},
+	"13371": {
+		"Type": "trice",
+		"Strg": "rd:%E (%%E)\\n"
+	},
+	"13372": {
+		"Type": "trice",
+		"Strg": "rd:%F (%%F)\\n"
+	},
+	"13373": {
+		"Type": "trice",
+		"Strg": "rd:%G (%%G)\\n"
+	},
+	"13374": {
+		"Type": "trice64",
+		"Strg": "rd:%E (%%E)\\n"
+	},
+	"13375": {
+		"Type": "trice64",
+		"Strg": "rd:%F (%%F)\\n"
+	},
+	"13376": {
+		"Type": "trice64",
+		"Strg": "rd:%G (%%G)\\n"
+	},
+	"13377": {
+		"Type": "trice",
+		"Strg": "rd:%e (%%e)\\n"
+	},
+	"13378": {
+		"Type": "trice",
+		"Strg": "rd:%f (%%f)\\n"
+	},
+	"13379": {
+		"Type": "trice",
+		"Strg": "rd:%g (%%g)\\n"
+	},
+	"13380": {
+		"Type": "trice64",
+		"Strg": "rd:%e (%%e)\\n"
+	},
+	"13381": {
+		"Type": "trice64",
+		"Strg": "rd:%f (%%f)\\n"
+	},
+	"13382": {
+		"Type": "trice64",
+		"Strg": "rd:%g (%%g)\\n"
+	},
+	"13383": {
+		"Type": "trice32",
+		"Strg": "msg:%u (%%u)\\n"
+	},
+	"13384": {
+		"Type": "trice32",
+		"Strg": "msg:%b (%%b)\\n"
+	},
+	"13385": {
+		"Type": "trice32",
+		"Strg": "msg:%o (%%o)\\n"
+	},
+	"13386": {
+		"Type": "trice32",
+		"Strg": "msg:%O (%%O)\\n"
+	},
+	"13387": {
+		"Type": "trice32",
+		"Strg": "msg:%X (%%X)\\n"
+	},
+	"13388": {
+		"Type": "trice32",
+		"Strg": "msg:%x (%%x)\\n"
+	},
+	"13389": {
+		"Type": "trice32",
+		"Strg": "msg:%d (%%d)\\n"
+	},
+	"13390": {
+		"Type": "trice64",
+		"Strg": "msg:%u (%%u)\\n"
+	},
+	"13391": {
+		"Type": "trice64",
+		"Strg": "msg:%b (%%b)\\n"
+	},
+	"13392": {
+		"Type": "trice64",
+		"Strg": "msg:%o (%%o)\\n"
+	},
+	"13393": {
+		"Type": "trice64",
+		"Strg": "msg:%O (%%O)\\n"
+	},
+	"13394": {
+		"Type": "trice64",
+		"Strg": "msg:%X (%%X)\\n"
+	},
+	"13395": {
+		"Type": "trice64",
+		"Strg": "msg:%x (%%x)\\n"
+	},
+	"13396": {
+		"Type": "TRice",
+		"Strg": "value=%d\\n"
+	},
+	"13397": {
+		"Type": "Trice",
+		"Strg": "value=%d\\n"
+	},
+	"13398": {
+		"Type": "trice",
+		"Strg": "value=%d\\n"
+	},
+	"13399": {
+		"Type": "TRice8",
+		"Strg": "value=%d\\n"
+	},
+	"13400": {
+		"Type": "Trice8",
+		"Strg": "value=%d\\n"
+	},
+	"13401": {
+		"Type": "trice8",
+		"Strg": "value=%d\\n"
+	},
+	"13402": {
+		"Type": "TRice16",
+		"Strg": "value=%d\\n"
+	},
+	"13403": {
+		"Type": "Trice16",
+		"Strg": "value=%d\\n"
+	},
+	"13404": {
+		"Type": "trice16",
+		"Strg": "value=%d\\n"
+	},
+	"13405": {
+		"Type": "TRice32",
+		"Strg": "value=%d\\n"
+	},
+	"13406": {
+		"Type": "Trice32",
+		"Strg": "value=%d\\n"
+	},
+	"13407": {
+		"Type": "trice32",
+		"Strg": "value=%d\\n"
+	},
+	"13408": {
+		"Type": "TRice64",
+		"Strg": "value=%d\\n"
+	},
+	"13409": {
+		"Type": "Trice64",
+		"Strg": "value=%d\\n"
+	},
+	"13410": {
+		"Type": "trice64",
+		"Strg": "value=%d\\n"
+	},
+	"13411": {
+		"Type": "TRice_1",
+		"Strg": "value=%d\\n"
+	},
+	"13412": {
+		"Type": "Trice_1",
+		"Strg": "value=%d\\n"
+	},
+	"13413": {
+		"Type": "trice_1",
+		"Strg": "value=%d\\n"
+	},
+	"13414": {
+		"Type": "TRice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13415": {
+		"Type": "Trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13416": {
+		"Type": "trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13417": {
+		"Type": "TRice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"13418": {
+		"Type": "Trice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"13419": {
+		"Type": "trice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"13420": {
+		"Type": "TRice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"13421": {
+		"Type": "Trice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"13422": {
+		"Type": "trice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"13423": {
+		"Type": "TRice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"13424": {
+		"Type": "Trice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"13425": {
+		"Type": "trice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"13426": {
+		"Type": "TRice",
+		"Strg": "no value"
+	},
+	"13427": {
+		"Type": "Trice",
+		"Strg": "no value"
+	},
+	"13428": {
+		"Type": "trice",
+		"Strg": "no value"
+	},
+	"13429": {
+		"Type": "TRice8",
+		"Strg": "no value"
+	},
+	"13430": {
+		"Type": "Trice8",
+		"Strg": "no value"
+	},
+	"13431": {
+		"Type": "trice8",
+		"Strg": "no value"
+	},
+	"13432": {
+		"Type": "TRice16",
+		"Strg": "no value"
+	},
+	"13433": {
+		"Type": "Trice16",
+		"Strg": "no value"
+	},
+	"13434": {
+		"Type": "trice16",
+		"Strg": "no value"
+	},
+	"13435": {
+		"Type": "TRice32",
+		"Strg": "no value"
+	},
+	"13436": {
+		"Type": "Trice32",
+		"Strg": "no value"
+	},
+	"13437": {
+		"Type": "trice32",
+		"Strg": "no value"
+	},
+	"13438": {
+		"Type": "TRice64",
+		"Strg": "no value"
+	},
+	"13439": {
+		"Type": "Trice64",
+		"Strg": "no value"
+	},
+	"13440": {
+		"Type": "trice64",
+		"Strg": "no value"
+	},
+	"13441": {
+		"Type": "TRice_0",
+		"Strg": "no value"
+	},
+	"13442": {
+		"Type": "Trice_0",
+		"Strg": "no value"
+	},
+	"13443": {
+		"Type": "trice_0",
+		"Strg": "no value"
+	},
+	"13444": {
+		"Type": "TRice8_0",
+		"Strg": "no value"
+	},
+	"13445": {
+		"Type": "Trice8_0",
+		"Strg": "no value"
+	},
+	"13446": {
+		"Type": "trice8_0",
+		"Strg": "no value"
+	},
+	"13447": {
+		"Type": "TRice16_0",
+		"Strg": "no value"
+	},
+	"13448": {
+		"Type": "Trice16_0",
+		"Strg": "no value"
+	},
+	"13449": {
+		"Type": "trice16_0",
+		"Strg": "no value"
+	},
+	"13450": {
+		"Type": "TRice32_0",
+		"Strg": "no value"
+	},
+	"13451": {
+		"Type": "Trice32_0",
+		"Strg": "no value"
+	},
+	"13452": {
+		"Type": "trice32_0",
+		"Strg": "no value"
+	},
+	"13453": {
+		"Type": "TRice64_0",
+		"Strg": "no value"
+	},
+	"13454": {
+		"Type": "Trice64_0",
+		"Strg": "no value"
+	},
+	"13455": {
+		"Type": "trice64_0",
+		"Strg": "no value"
+	},
+	"13456": {
+		"Type": "TRice0",
+		"Strg": "no value"
+	},
+	"13457": {
+		"Type": "Trice0",
+		"Strg": "no value"
+	},
+	"13458": {
+		"Type": "trice0",
+		"Strg": "no value"
+	},
+	"13459": {
+		"Type": "TRice",
+		"Strg": "no value"
+	},
+	"13460": {
+		"Type": "Trice",
+		"Strg": "no value"
+	},
+	"13461": {
+		"Type": "trice",
+		"Strg": "no value"
+	},
+	"13462": {
+		"Type": "TRice",
+		"Strg": "info:This is a message with one value %d and a 32-bit stamp.\\n"
+	},
+	"13463": {
+		"Type": "Trice",
+		"Strg": "info:This is a message with one value %d and a 16-bit stamp.\\n"
+	},
+	"13464": {
+		"Type": "trice",
+		"Strg": "info:This is a message with one value %d and without stamp.\\n"
+	},
+	"13465": {
+		"Type": "TRICE",
+		"Strg": "info:This is a message without values and a 32-bit stamp.\\n"
+	},
+	"13466": {
+		"Type": "TRICE",
+		"Strg": "info:This is a message without values and a 16-bit stamp.\\n"
+	},
+	"13467": {
+		"Type": "TRICE",
+		"Strg": "info:This is a message without values and without stamp.\\n"
+	},
+	"13468": {
+		"Type": "TRICE",
+		"Strg": "info:This is a message with one value %d and a 32-bit stamp.\\n"
+	},
+	"13469": {
+		"Type": "TRICE",
+		"Strg": "info:This is a message with one value %d and a 16-bit stamp.\\n"
+	},
+	"13470": {
+		"Type": "TRICE",
+		"Strg": "info:This is a message with one value %d and without stamp.\\n"
+	},
+	"13471": {
+		"Type": "TRICE",
+		"Strg": "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\\n"
+	},
+	"13472": {
+		"Type": "TRICE",
+		"Strg": "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\\n"
+	},
+	"13473": {
+		"Type": "TRICE",
+		"Strg": "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\\n"
+	},
+	"13474": {
+		"Type": "TRICE32",
+		"Strg": "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\\n"
+	},
+	"13475": {
+		"Type": "TRICE32",
+		"Strg": "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\\n"
+	},
+	"13476": {
+		"Type": "TRICE32",
+		"Strg": "info:12 values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\\n"
+	},
+	"13477": {
+		"Type": "TRICE8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13478": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13479": {
+		"Type": "TRICE8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13480": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13481": {
+		"Type": "TRICE8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13482": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13483": {
+		"Type": "trice8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13484": {
+		"Type": "trice8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13485": {
+		"Type": "Trice8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13486": {
+		"Type": "Trice8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13487": {
+		"Type": "TRice8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13488": {
+		"Type": "TRice8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13489": {
+		"Type": "TRICE16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13490": {
+		"Type": "TRICE16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13491": {
+		"Type": "TRICE16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13492": {
+		"Type": "TRICE16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13493": {
+		"Type": "TRICE16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13494": {
+		"Type": "TRICE16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13495": {
+		"Type": "trice16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13496": {
+		"Type": "trice16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13497": {
+		"Type": "Trice16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13498": {
+		"Type": "Trice16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13499": {
+		"Type": "TRice16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13500": {
+		"Type": "TRice16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13501": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13502": {
+		"Type": "TRICE32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13503": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13504": {
+		"Type": "TRICE32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13505": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13506": {
+		"Type": "TRICE32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13507": {
+		"Type": "trice32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13508": {
+		"Type": "trice32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13509": {
+		"Type": "Trice32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13510": {
+		"Type": "Trice32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13511": {
+		"Type": "TRice32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13512": {
+		"Type": "TRice32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13513": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13514": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13515": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13516": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13517": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13518": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13519": {
+		"Type": "trice64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13520": {
+		"Type": "trice64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13521": {
+		"Type": "Trice64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13522": {
+		"Type": "Trice64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13523": {
+		"Type": "TRice64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13524": {
+		"Type": "TRice64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"13525": {
+		"Type": "TRice8",
+		"Strg": "msg:value=%d\\n"
+	},
+	"13526": {
+		"Type": "Trice8",
+		"Strg": "msg:value=%d, %d\\n"
+	},
+	"13527": {
+		"Type": "trice8",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"13528": {
+		"Type": "TRice8",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"13529": {
+		"Type": "Trice8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"13530": {
+		"Type": "trice8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"13531": {
+		"Type": "TRice8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13532": {
+		"Type": "Trice8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13533": {
+		"Type": "trice8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13534": {
+		"Type": "TRice8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13535": {
+		"Type": "Trice8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13536": {
+		"Type": "trice8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13537": {
+		"Type": "TRice16",
+		"Strg": "msg:value=%d\\n"
+	},
+	"13538": {
+		"Type": "Trice16",
+		"Strg": "msg:value=%d, %d\\n"
+	},
+	"13539": {
+		"Type": "trice16",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"13540": {
+		"Type": "TRice16",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"13541": {
+		"Type": "Trice16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"13542": {
+		"Type": "trice16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"13543": {
+		"Type": "TRice16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13544": {
+		"Type": "Trice16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13545": {
+		"Type": "trice16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13546": {
+		"Type": "TRice16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13547": {
+		"Type": "Trice16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13548": {
+		"Type": "trice16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13549": {
+		"Type": "TRice32",
+		"Strg": "msg:value=%d\\n"
+	},
+	"13550": {
+		"Type": "Trice32",
+		"Strg": "msg:value=%d, %d\\n"
+	},
+	"13551": {
+		"Type": "trice32",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"13552": {
+		"Type": "TRice32",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"13553": {
+		"Type": "Trice32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"13554": {
+		"Type": "trice32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"13555": {
+		"Type": "TRice32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13556": {
+		"Type": "Trice32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13557": {
+		"Type": "trice32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13558": {
+		"Type": "TRice32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13559": {
+		"Type": "Trice32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13560": {
+		"Type": "trice32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13561": {
+		"Type": "TRice64",
+		"Strg": "msg:value=%d\\n"
+	},
+	"13562": {
+		"Type": "Trice64",
+		"Strg": "msg:value=%d, %d\\n"
+	},
+	"13563": {
+		"Type": "trice64",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"13564": {
+		"Type": "TRice64",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"13565": {
+		"Type": "Trice64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"13566": {
+		"Type": "trice64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"13567": {
+		"Type": "TRice64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13568": {
+		"Type": "Trice64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13569": {
+		"Type": "trice64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13570": {
+		"Type": "TRice64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13571": {
+		"Type": "Trice64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13572": {
+		"Type": "trice64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13573": {
+		"Type": "TRice8_1",
+		"Strg": "msg:value=%d\\n"
+	},
+	"13574": {
+		"Type": "Trice8_2",
+		"Strg": "msg:value=%d, %d\\n"
+	},
+	"13575": {
+		"Type": "trice8_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"13576": {
+		"Type": "TRice8_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"13577": {
+		"Type": "Trice8_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"13578": {
+		"Type": "trice8_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"13579": {
+		"Type": "TRice8_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13580": {
+		"Type": "Trice8_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13581": {
+		"Type": "trice8_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13582": {
+		"Type": "TRice8_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13583": {
+		"Type": "Trice8_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13584": {
+		"Type": "trice8_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13585": {
+		"Type": "TRice16_1",
+		"Strg": "msg:value=%d\\n"
+	},
+	"13586": {
+		"Type": "Trice16_2",
+		"Strg": "msg:value=%d, %d\\n"
+	},
+	"13587": {
+		"Type": "trice16_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"13588": {
+		"Type": "TRice16_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"13589": {
+		"Type": "Trice16_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"13590": {
+		"Type": "trice16_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"13591": {
+		"Type": "TRice16_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13592": {
+		"Type": "Trice16_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13593": {
+		"Type": "trice16_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13594": {
+		"Type": "TRice16_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13595": {
+		"Type": "Trice16_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13596": {
+		"Type": "trice16_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13597": {
+		"Type": "TRice32_1",
+		"Strg": "msg:value=%d\\n"
+	},
+	"13598": {
+		"Type": "Trice32_2",
+		"Strg": "msg:value=%d, %d\\n"
+	},
+	"13599": {
+		"Type": "trice32_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"13600": {
+		"Type": "TRice32_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"13601": {
+		"Type": "Trice32_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"13602": {
+		"Type": "trice32_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"13603": {
+		"Type": "TRice32_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13604": {
+		"Type": "Trice32_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13605": {
+		"Type": "trice32_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13606": {
+		"Type": "TRice32_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13607": {
+		"Type": "Trice32_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13608": {
+		"Type": "trice32_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13609": {
+		"Type": "TRice64_1",
+		"Strg": "msg:value=%d\\n"
+	},
+	"13610": {
+		"Type": "Trice64_2",
+		"Strg": "msg:value=%d, %d\\n"
+	},
+	"13611": {
+		"Type": "trice64_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"13612": {
+		"Type": "TRice64_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"13613": {
+		"Type": "Trice64_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"13614": {
+		"Type": "trice64_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"13615": {
+		"Type": "TRice64_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13616": {
+		"Type": "Trice64_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13617": {
+		"Type": "trice64_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13618": {
+		"Type": "TRice64_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13619": {
+		"Type": "Trice64_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13620": {
+		"Type": "trice64_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13621": {
+		"Type": "trice8",
+		"Strg": "value=%d\\n"
+	},
+	"13622": {
+		"Type": "Trice8",
+		"Strg": "value=%d\\n"
+	},
+	"13623": {
+		"Type": "TRice8",
+		"Strg": "value=%d\\n"
+	},
+	"13624": {
+		"Type": "trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13625": {
+		"Type": "Trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13626": {
+		"Type": "TRice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13627": {
+		"Type": "trice16",
+		"Strg": "value=%d\\n"
+	},
+	"13628": {
+		"Type": "Trice16",
+		"Strg": "value=%d\\n"
+	},
+	"13629": {
+		"Type": "TRice16",
+		"Strg": "value=%d\\n"
+	},
+	"13630": {
+		"Type": "trice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"13631": {
+		"Type": "Trice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"13632": {
+		"Type": "TRice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"13633": {
+		"Type": "trice32",
+		"Strg": "value=%d\\n"
+	},
+	"13634": {
+		"Type": "Trice32",
+		"Strg": "value=%d\\n"
+	},
+	"13635": {
+		"Type": "TRice32",
+		"Strg": "value=%d\\n"
+	},
+	"13636": {
+		"Type": "trice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"13637": {
+		"Type": "Trice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"13638": {
+		"Type": "TRice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"13639": {
+		"Type": "trice64",
+		"Strg": "value=%d\\n"
+	},
+	"13640": {
+		"Type": "Trice64",
+		"Strg": "value=%d\\n"
+	},
+	"13641": {
+		"Type": "TRice64",
+		"Strg": "value=%d\\n"
+	},
+	"13642": {
+		"Type": "trice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"13643": {
+		"Type": "Trice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"13644": {
+		"Type": "TRice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"13645": {
+		"Type": "TRICE",
+		"Strg": "value=%d\\n"
+	},
+	"13646": {
+		"Type": "TRICE",
+		"Strg": "value=%d\\n"
+	},
+	"13647": {
+		"Type": "TRICE",
+		"Strg": "value=%d\\n"
+	},
+	"13648": {
+		"Type": "TRICE",
+		"Strg": "value=%d\\n"
+	},
+	"13649": {
+		"Type": "TRICE8",
+		"Strg": "value=%d\\n"
+	},
+	"13650": {
+		"Type": "TRICE8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13651": {
+		"Type": "trice8",
+		"Strg": "value=%d\\n"
+	},
+	"13652": {
+		"Type": "trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13653": {
+		"Type": "TRICE8",
+		"Strg": "value=%d\\n"
+	},
+	"13654": {
+		"Type": "TRICE8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13655": {
+		"Type": "Trice8",
+		"Strg": "value=%d\\n"
+	},
+	"13656": {
+		"Type": "Trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13657": {
+		"Type": "TRICE8",
+		"Strg": "value=%d\\n"
+	},
+	"13658": {
+		"Type": "TRICE8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13659": {
+		"Type": "TRice8",
+		"Strg": "value=%d\\n"
+	},
+	"13660": {
+		"Type": "TRice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13661": {
+		"Type": "TRICE8",
+		"Strg": "value=%d\\n"
+	},
+	"13662": {
+		"Type": "TRICE8_1",
+		"Strg": "value=%d\\n"
+	},
+	"13663": {
+		"Type": "TRICE",
+		"Strg": "FATAL:magenta+b:red\\n"
+	},
+	"13664": {
+		"Type": "TRICE",
+		"Strg": "CRITICAL:red+i:default+h\\n"
+	},
+	"13665": {
+		"Type": "TRICE",
+		"Strg": "EMERGENCY:red+i:blue\\n"
+	},
+	"13666": {
+		"Type": "TRICE",
+		"Strg": "ERROR:11:red\\n"
+	},
+	"13667": {
+		"Type": "TRICE",
+		"Strg": "WARNING:11+i:red\\n"
+	},
+	"13668": {
+		"Type": "TRICE",
+		"Strg": "ATTENTION:11:green\\n"
+	},
+	"13669": {
+		"Type": "TRICE",
+		"Strg": "INFO:cyan+b:default+h\\n"
+	},
+	"13670": {
+		"Type": "TRICE",
+		"Strg": "DEBUG:130+i\\n"
+	},
+	"13671": {
+		"Type": "TRICE",
+		"Strg": "TRACE:default+i:default+h\\n"
+	},
+	"13672": {
+		"Type": "TRICE",
+		"Strg": "TIME:blue+i:blue+h\\n"
+	},
+	"13673": {
+		"Type": "TRICE",
+		"Strg": "MESSAGE:green+h:black\\n"
+	},
+	"13674": {
+		"Type": "TRICE",
+		"Strg": "READ:black+i:yellow+h\\n"
+	},
+	"13675": {
+		"Type": "TRICE",
+		"Strg": "WRITE:black+u:yellow+h\\n"
+	},
+	"13676": {
+		"Type": "TRICE",
+		"Strg": "RECEIVE:black+h:black\\n"
+	},
+	"13677": {
+		"Type": "TRICE",
+		"Strg": "TRANSMIT:black:black+h\\n"
+	},
+	"13678": {
+		"Type": "TRICE",
+		"Strg": "DIAG:yellow+i:default+h\\n"
+	},
+	"13679": {
+		"Type": "TRICE",
+		"Strg": "INTERRUPT:magenta+i:default+h\\n"
+	},
+	"13680": {
+		"Type": "TRICE",
+		"Strg": "SIGNAL:118+i\\n"
+	},
+	"13681": {
+		"Type": "TRICE",
+		"Strg": "TEST:yellow+h:black\\n"
+	},
+	"13682": {
+		"Type": "TRICE",
+		"Strg": "DEFAULT:off\\n"
+	},
+	"13683": {
+		"Type": "TRICE",
+		"Strg": "NOTICE:blue:white+h\\n"
+	},
+	"13684": {
+		"Type": "TRICE",
+		"Strg": "ALERT:magenta:magenta+h\\n"
+	},
+	"13685": {
+		"Type": "TRICE",
+		"Strg": "ASSERT:yellow+i:blue\\n"
+	},
+	"13686": {
+		"Type": "TRICE",
+		"Strg": "ALARM:red+i:white+h\\n"
+	},
+	"13687": {
+		"Type": "TRICE",
+		"Strg": "VERBOSE:blue:default\\n"
+	},
+	"13688": {
+		"Type": "TRICE",
+		"Strg": "fatal:magenta+b:red\\n"
+	},
+	"13689": {
+		"Type": "TRICE",
+		"Strg": "critical:red+i:default+h\\n"
+	},
+	"13690": {
+		"Type": "TRICE",
+		"Strg": "emergency:red+i:blue\\n"
+	},
+	"13691": {
+		"Type": "TRICE",
+		"Strg": "error:11:red\\n"
+	},
+	"13692": {
+		"Type": "TRICE",
+		"Strg": "warning:11+i:red\\n"
+	},
+	"13693": {
+		"Type": "TRICE",
+		"Strg": "attention:11:green\\n"
+	},
+	"13694": {
+		"Type": "TRICE",
+		"Strg": "info:cyan+b:default+h\\n"
+	},
+	"13695": {
+		"Type": "TRICE",
+		"Strg": "debug:130+i\\n"
+	},
+	"13696": {
+		"Type": "TRICE",
+		"Strg": "trace:default+i:default+h\\n"
+	},
+	"13697": {
+		"Type": "TRICE",
+		"Strg": "time:blue+i:blue+h\\n"
+	},
+	"13698": {
+		"Type": "TRICE",
+		"Strg": "message:green+h:black\\n"
+	},
+	"13699": {
+		"Type": "TRICE",
+		"Strg": "read:black+i:yellow+h\\n"
+	},
+	"13700": {
+		"Type": "TRICE",
+		"Strg": "write:black+u:yellow+h\\n"
+	},
+	"13701": {
+		"Type": "TRICE",
+		"Strg": "receive:black+h:black\\n"
+	},
+	"13702": {
+		"Type": "TRICE",
+		"Strg": "transmit:black:black+h\\n"
+	},
+	"13703": {
+		"Type": "TRICE",
+		"Strg": "diag:yellow+i:default+h\\n"
+	},
+	"13704": {
+		"Type": "TRICE",
+		"Strg": "interrupt:magenta+i:default+h\\n"
+	},
+	"13705": {
+		"Type": "TRICE",
+		"Strg": "signal:118+i\\n"
+	},
+	"13706": {
+		"Type": "TRICE",
+		"Strg": "test:yellow+h:black\\n"
+	},
+	"13707": {
+		"Type": "TRICE",
+		"Strg": "default:off\\n"
+	},
+	"13708": {
+		"Type": "TRICE",
+		"Strg": "notice:blue:white+h\\n"
+	},
+	"13709": {
+		"Type": "TRICE",
+		"Strg": "alert:magenta:magenta+h\\n"
+	},
+	"13710": {
+		"Type": "TRICE",
+		"Strg": "assert:yellow+i:blue\\n"
+	},
+	"13711": {
+		"Type": "TRICE",
+		"Strg": "alarm:red+i:white+h\\n"
+	},
+	"13712": {
+		"Type": "TRICE",
+		"Strg": "verbose:blue:default\\n"
+	},
+	"13713": {
+		"Type": "trice",
+		"Strg": "FATAL:magenta+b:red\\n"
+	},
+	"13714": {
+		"Type": "trice",
+		"Strg": "CRITICAL:red+i:default+h\\n"
+	},
+	"13715": {
+		"Type": "trice",
+		"Strg": "EMERGENCY:red+i:blue\\n"
+	},
+	"13716": {
+		"Type": "trice",
+		"Strg": "ERROR:11:red\\n"
+	},
+	"13717": {
+		"Type": "trice",
+		"Strg": "WARNING:11+i:red\\n"
+	},
+	"13718": {
+		"Type": "trice",
+		"Strg": "ATTENTION:11:green\\n"
+	},
+	"13719": {
+		"Type": "trice",
+		"Strg": "INFO:cyan+b:default+h\\n"
+	},
+	"13720": {
+		"Type": "trice",
+		"Strg": "DEBUG:130+i\\n"
+	},
+	"13721": {
+		"Type": "trice",
+		"Strg": "TRACE:default+i:default+h\\n"
+	},
+	"13722": {
+		"Type": "trice",
+		"Strg": "TIME:blue+i:blue+h\\n"
+	},
+	"13723": {
+		"Type": "trice",
+		"Strg": "MESSAGE:green+h:black\\n"
+	},
+	"13724": {
+		"Type": "trice",
+		"Strg": "READ:black+i:yellow+h\\n"
+	},
+	"13725": {
+		"Type": "trice",
+		"Strg": "WRITE:black+u:yellow+h\\n"
+	},
+	"13726": {
+		"Type": "trice",
+		"Strg": "RECEIVE:black+h:black\\n"
+	},
+	"13727": {
+		"Type": "trice",
+		"Strg": "TRANSMIT:black:black+h\\n"
+	},
+	"13728": {
+		"Type": "trice",
+		"Strg": "DIAG:yellow+i:default+h\\n"
+	},
+	"13729": {
+		"Type": "trice",
+		"Strg": "INTERRUPT:magenta+i:default+h\\n"
+	},
+	"13730": {
+		"Type": "trice",
+		"Strg": "SIGNAL:118+i\\n"
+	},
+	"13731": {
+		"Type": "trice",
+		"Strg": "TEST:yellow+h:black\\n"
+	},
+	"13732": {
+		"Type": "trice",
+		"Strg": "DEFAULT:off\\n"
+	},
+	"13733": {
+		"Type": "trice",
+		"Strg": "NOTICE:blue:white+h\\n"
+	},
+	"13734": {
+		"Type": "trice",
+		"Strg": "ALERT:magenta:magenta+h\\n"
+	},
+	"13735": {
+		"Type": "trice",
+		"Strg": "ASSERT:yellow+i:blue\\n"
+	},
+	"13736": {
+		"Type": "trice",
+		"Strg": "ALARM:red+i:white+h\\n"
+	},
+	"13737": {
+		"Type": "trice",
+		"Strg": "VERBOSE:blue:default\\n"
+	},
+	"13738": {
+		"Type": "trice",
+		"Strg": "fatal:magenta+b:red\\n"
+	},
+	"13739": {
+		"Type": "trice",
+		"Strg": "critical:red+i:default+h\\n"
+	},
+	"13740": {
+		"Type": "trice",
+		"Strg": "emergency:red+i:blue\\n"
+	},
+	"13741": {
+		"Type": "trice",
+		"Strg": "error:11:red\\n"
+	},
+	"13742": {
+		"Type": "trice",
+		"Strg": "warning:11+i:red\\n"
+	},
+	"13743": {
+		"Type": "trice",
+		"Strg": "attention:11:green\\n"
+	},
+	"13744": {
+		"Type": "trice",
+		"Strg": "info:cyan+b:default+h\\n"
+	},
+	"13745": {
+		"Type": "trice",
+		"Strg": "debug:130+i\\n"
+	},
+	"13746": {
+		"Type": "trice",
+		"Strg": "trace:default+i:default+h\\n"
+	},
+	"13747": {
+		"Type": "trice",
+		"Strg": "time:blue+i:blue+h\\n"
+	},
+	"13748": {
+		"Type": "trice",
+		"Strg": "message:green+h:black\\n"
+	},
+	"13749": {
+		"Type": "trice",
+		"Strg": "read:black+i:yellow+h\\n"
+	},
+	"13750": {
+		"Type": "trice",
+		"Strg": "write:black+u:yellow+h\\n"
+	},
+	"13751": {
+		"Type": "trice",
+		"Strg": "receive:black+h:black\\n"
+	},
+	"13752": {
+		"Type": "trice",
+		"Strg": "transmit:black:black+h\\n"
+	},
+	"13753": {
+		"Type": "trice",
+		"Strg": "diag:yellow+i:default+h\\n"
+	},
+	"13754": {
+		"Type": "trice",
+		"Strg": "interrupt:magenta+i:default+h\\n"
+	},
+	"13755": {
+		"Type": "trice",
+		"Strg": "signal:118+i\\n"
+	},
+	"13756": {
+		"Type": "trice",
+		"Strg": "test:yellow+h:black\\n"
+	},
+	"13757": {
+		"Type": "trice",
+		"Strg": "default:off\\n"
+	},
+	"13758": {
+		"Type": "trice",
+		"Strg": "notice:blue:white+h\\n"
+	},
+	"13759": {
+		"Type": "trice",
+		"Strg": "alert:magenta:magenta+h\\n"
+	},
+	"13760": {
+		"Type": "trice",
+		"Strg": "assert:yellow+i:blue\\n"
+	},
+	"13761": {
+		"Type": "trice",
+		"Strg": "alarm:red+i:white+h\\n"
+	},
+	"13762": {
+		"Type": "trice",
+		"Strg": "verbose:blue:default\\n"
+	},
+	"13763": {
+		"Type": "TRICE",
+		"Strg": "FATAL:magenta+b:red\\n"
+	},
+	"13764": {
+		"Type": "TRICE",
+		"Strg": "CRITICAL:red+i:default+h\\n"
+	},
+	"13765": {
+		"Type": "TRICE",
+		"Strg": "EMERGENCY:red+i:blue\\n"
+	},
+	"13766": {
+		"Type": "TRICE",
+		"Strg": "ERROR:11:red\\n"
+	},
+	"13767": {
+		"Type": "TRICE",
+		"Strg": "WARNING:11+i:red\\n"
+	},
+	"13768": {
+		"Type": "TRICE",
+		"Strg": "ATTENTION:11:green\\n"
+	},
+	"13769": {
+		"Type": "TRICE",
+		"Strg": "INFO:cyan+b:default+h\\n"
+	},
+	"13770": {
+		"Type": "TRICE",
+		"Strg": "DEBUG:130+i\\n"
+	},
+	"13771": {
+		"Type": "TRICE",
+		"Strg": "TRACE:default+i:default+h\\n"
+	},
+	"13772": {
+		"Type": "TRICE",
+		"Strg": "TIME:blue+i:blue+h\\n"
+	},
+	"13773": {
+		"Type": "TRICE",
+		"Strg": "MESSAGE:green+h:black\\n"
+	},
+	"13774": {
+		"Type": "TRICE",
+		"Strg": "READ:black+i:yellow+h\\n"
+	},
+	"13775": {
+		"Type": "TRICE",
+		"Strg": "WRITE:black+u:yellow+h\\n"
+	},
+	"13776": {
+		"Type": "TRICE",
+		"Strg": "RECEIVE:black+h:black\\n"
+	},
+	"13777": {
+		"Type": "TRICE",
+		"Strg": "TRANSMIT:black:black+h\\n"
+	},
+	"13778": {
+		"Type": "TRICE",
+		"Strg": "DIAG:yellow+i:default+h\\n"
+	},
+	"13779": {
+		"Type": "TRICE",
+		"Strg": "INTERRUPT:magenta+i:default+h\\n"
+	},
+	"13780": {
+		"Type": "TRICE",
+		"Strg": "SIGNAL:118+i\\n"
+	},
+	"13781": {
+		"Type": "TRICE",
+		"Strg": "TEST:yellow+h:black\\n"
+	},
+	"13782": {
+		"Type": "TRICE",
+		"Strg": "DEFAULT:off\\n"
+	},
+	"13783": {
+		"Type": "TRICE",
+		"Strg": "NOTICE:blue:white+h\\n"
+	},
+	"13784": {
+		"Type": "TRICE",
+		"Strg": "ALERT:magenta:magenta+h\\n"
+	},
+	"13785": {
+		"Type": "TRICE",
+		"Strg": "ASSERT:yellow+i:blue\\n"
+	},
+	"13786": {
+		"Type": "TRICE",
+		"Strg": "ALARM:red+i:white+h\\n"
+	},
+	"13787": {
+		"Type": "TRICE",
+		"Strg": "VERBOSE:blue:default\\n"
+	},
+	"13788": {
+		"Type": "TRICE",
+		"Strg": "fatal:magenta+b:red\\n"
+	},
+	"13789": {
+		"Type": "TRICE",
+		"Strg": "critical:red+i:default+h\\n"
+	},
+	"13790": {
+		"Type": "TRICE",
+		"Strg": "emergency:red+i:blue\\n"
+	},
+	"13791": {
+		"Type": "TRICE",
+		"Strg": "error:11:red\\n"
+	},
+	"13792": {
+		"Type": "TRICE",
+		"Strg": "warning:11+i:red\\n"
+	},
+	"13793": {
+		"Type": "TRICE",
+		"Strg": "attention:11:green\\n"
+	},
+	"13794": {
+		"Type": "TRICE",
+		"Strg": "info:cyan+b:default+h\\n"
+	},
+	"13795": {
+		"Type": "TRICE",
+		"Strg": "debug:130+i\\n"
+	},
+	"13796": {
+		"Type": "TRICE",
+		"Strg": "trace:default+i:default+h\\n"
+	},
+	"13797": {
+		"Type": "TRICE",
+		"Strg": "time:blue+i:blue+h\\n"
+	},
+	"13798": {
+		"Type": "TRICE",
+		"Strg": "message:green+h:black\\n"
+	},
+	"13799": {
+		"Type": "TRICE",
+		"Strg": "read:black+i:yellow+h\\n"
+	},
+	"13800": {
+		"Type": "TRICE",
+		"Strg": "write:black+u:yellow+h\\n"
+	},
+	"13801": {
+		"Type": "TRICE",
+		"Strg": "receive:black+h:black\\n"
+	},
+	"13802": {
+		"Type": "TRICE",
+		"Strg": "transmit:black:black+h\\n"
+	},
+	"13803": {
+		"Type": "TRICE",
+		"Strg": "diag:yellow+i:default+h\\n"
+	},
+	"13804": {
+		"Type": "TRICE",
+		"Strg": "interrupt:magenta+i:default+h\\n"
+	},
+	"13805": {
+		"Type": "TRICE",
+		"Strg": "signal:118+i\\n"
+	},
+	"13806": {
+		"Type": "TRICE",
+		"Strg": "test:yellow+h:black\\n"
+	},
+	"13807": {
+		"Type": "TRICE",
+		"Strg": "default:off\\n"
+	},
+	"13808": {
+		"Type": "TRICE",
+		"Strg": "notice:blue:white+h\\n"
+	},
+	"13809": {
+		"Type": "TRICE",
+		"Strg": "alert:magenta:magenta+h\\n"
+	},
+	"13810": {
+		"Type": "TRICE",
+		"Strg": "assert:yellow+i:blue\\n"
+	},
+	"13811": {
+		"Type": "TRICE",
+		"Strg": "alarm:red+i:white+h\\n"
+	},
+	"13812": {
+		"Type": "TRICE",
+		"Strg": "verbose:blue:default\\n"
+	},
+	"13813": {
+		"Type": "Trice",
+		"Strg": "FATAL:magenta+b:red\\n"
+	},
+	"13814": {
+		"Type": "Trice",
+		"Strg": "CRITICAL:red+i:default+h\\n"
+	},
+	"13815": {
+		"Type": "Trice",
+		"Strg": "EMERGENCY:red+i:blue\\n"
+	},
+	"13816": {
+		"Type": "Trice",
+		"Strg": "ERROR:11:red\\n"
+	},
+	"13817": {
+		"Type": "Trice",
+		"Strg": "WARNING:11+i:red\\n"
+	},
+	"13818": {
+		"Type": "Trice",
+		"Strg": "ATTENTION:11:green\\n"
+	},
+	"13819": {
+		"Type": "Trice",
+		"Strg": "INFO:cyan+b:default+h\\n"
+	},
+	"13820": {
+		"Type": "Trice",
+		"Strg": "DEBUG:130+i\\n"
+	},
+	"13821": {
+		"Type": "Trice",
+		"Strg": "TRACE:default+i:default+h\\n"
+	},
+	"13822": {
+		"Type": "Trice",
+		"Strg": "TIME:blue+i:blue+h\\n"
+	},
+	"13823": {
+		"Type": "Trice",
+		"Strg": "MESSAGE:green+h:black\\n"
+	},
+	"13824": {
+		"Type": "Trice",
+		"Strg": "READ:black+i:yellow+h\\n"
+	},
+	"13825": {
+		"Type": "Trice",
+		"Strg": "WRITE:black+u:yellow+h\\n"
+	},
+	"13826": {
+		"Type": "Trice",
+		"Strg": "RECEIVE:black+h:black\\n"
+	},
+	"13827": {
+		"Type": "Trice",
+		"Strg": "TRANSMIT:black:black+h\\n"
+	},
+	"13828": {
+		"Type": "Trice",
+		"Strg": "DIAG:yellow+i:default+h\\n"
+	},
+	"13829": {
+		"Type": "Trice",
+		"Strg": "INTERRUPT:magenta+i:default+h\\n"
+	},
+	"13830": {
+		"Type": "Trice",
+		"Strg": "SIGNAL:118+i\\n"
+	},
+	"13831": {
+		"Type": "Trice",
+		"Strg": "TEST:yellow+h:black\\n"
+	},
+	"13832": {
+		"Type": "Trice",
+		"Strg": "DEFAULT:off\\n"
+	},
+	"13833": {
+		"Type": "Trice",
+		"Strg": "NOTICE:blue:white+h\\n"
+	},
+	"13834": {
+		"Type": "Trice",
+		"Strg": "ALERT:magenta:magenta+h\\n"
+	},
+	"13835": {
+		"Type": "Trice",
+		"Strg": "ASSERT:yellow+i:blue\\n"
+	},
+	"13836": {
+		"Type": "Trice",
+		"Strg": "ALARM:red+i:white+h\\n"
+	},
+	"13837": {
+		"Type": "Trice",
+		"Strg": "VERBOSE:blue:default\\n"
+	},
+	"13838": {
+		"Type": "Trice",
+		"Strg": "fatal:magenta+b:red\\n"
+	},
+	"13839": {
+		"Type": "Trice",
+		"Strg": "critical:red+i:default+h\\n"
+	},
+	"13840": {
+		"Type": "Trice",
+		"Strg": "emergency:red+i:blue\\n"
+	},
+	"13841": {
+		"Type": "Trice",
+		"Strg": "error:11:red\\n"
+	},
+	"13842": {
+		"Type": "Trice",
+		"Strg": "warning:11+i:red\\n"
+	},
+	"13843": {
+		"Type": "Trice",
+		"Strg": "attention:11:green\\n"
+	},
+	"13844": {
+		"Type": "Trice",
+		"Strg": "info:cyan+b:default+h\\n"
+	},
+	"13845": {
+		"Type": "Trice",
+		"Strg": "debug:130+i\\n"
+	},
+	"13846": {
+		"Type": "Trice",
+		"Strg": "trace:default+i:default+h\\n"
+	},
+	"13847": {
+		"Type": "Trice",
+		"Strg": "time:blue+i:blue+h\\n"
+	},
+	"13848": {
+		"Type": "Trice",
+		"Strg": "message:green+h:black\\n"
+	},
+	"13849": {
+		"Type": "Trice",
+		"Strg": "read:black+i:yellow+h\\n"
+	},
+	"13850": {
+		"Type": "Trice",
+		"Strg": "write:black+u:yellow+h\\n"
+	},
+	"13851": {
+		"Type": "Trice",
+		"Strg": "receive:black+h:black\\n"
+	},
+	"13852": {
+		"Type": "Trice",
+		"Strg": "transmit:black:black+h\\n"
+	},
+	"13853": {
+		"Type": "Trice",
+		"Strg": "diag:yellow+i:default+h\\n"
+	},
+	"13854": {
+		"Type": "Trice",
+		"Strg": "interrupt:magenta+i:default+h\\n"
+	},
+	"13855": {
+		"Type": "Trice",
+		"Strg": "signal:118+i\\n"
+	},
+	"13856": {
+		"Type": "Trice",
+		"Strg": "test:yellow+h:black\\n"
+	},
+	"13857": {
+		"Type": "Trice",
+		"Strg": "default:off\\n"
+	},
+	"13858": {
+		"Type": "Trice",
+		"Strg": "notice:blue:white+h\\n"
+	},
+	"13859": {
+		"Type": "Trice",
+		"Strg": "alert:magenta:magenta+h\\n"
+	},
+	"13860": {
+		"Type": "Trice",
+		"Strg": "assert:yellow+i:blue\\n"
+	},
+	"13861": {
+		"Type": "Trice",
+		"Strg": "alarm:red+i:white+h\\n"
+	},
+	"13862": {
+		"Type": "Trice",
+		"Strg": "verbose:blue:default\\n"
+	},
+	"13863": {
+		"Type": "TRICE",
+		"Strg": "FATAL:magenta+b:red\\n"
+	},
+	"13864": {
+		"Type": "TRICE",
+		"Strg": "CRITICAL:red+i:default+h\\n"
+	},
+	"13865": {
+		"Type": "TRICE",
+		"Strg": "EMERGENCY:red+i:blue\\n"
+	},
+	"13866": {
+		"Type": "TRICE",
+		"Strg": "ERROR:11:red\\n"
+	},
+	"13867": {
+		"Type": "TRICE",
+		"Strg": "WARNING:11+i:red\\n"
+	},
+	"13868": {
+		"Type": "TRICE",
+		"Strg": "ATTENTION:11:green\\n"
+	},
+	"13869": {
+		"Type": "TRICE",
+		"Strg": "INFO:cyan+b:default+h\\n"
+	},
+	"13870": {
+		"Type": "TRICE",
+		"Strg": "DEBUG:130+i\\n"
+	},
+	"13871": {
+		"Type": "TRICE",
+		"Strg": "TRACE:default+i:default+h\\n"
+	},
+	"13872": {
+		"Type": "TRICE",
+		"Strg": "TIME:blue+i:blue+h\\n"
+	},
+	"13873": {
+		"Type": "TRICE",
+		"Strg": "MESSAGE:green+h:black\\n"
+	},
+	"13874": {
+		"Type": "TRICE",
+		"Strg": "READ:black+i:yellow+h\\n"
+	},
+	"13875": {
+		"Type": "TRICE",
+		"Strg": "WRITE:black+u:yellow+h\\n"
+	},
+	"13876": {
+		"Type": "TRICE",
+		"Strg": "RECEIVE:black+h:black\\n"
+	},
+	"13877": {
+		"Type": "TRICE",
+		"Strg": "TRANSMIT:black:black+h\\n"
+	},
+	"13878": {
+		"Type": "TRICE",
+		"Strg": "DIAG:yellow+i:default+h\\n"
+	},
+	"13879": {
+		"Type": "TRICE",
+		"Strg": "INTERRUPT:magenta+i:default+h\\n"
+	},
+	"13880": {
+		"Type": "TRICE",
+		"Strg": "SIGNAL:118+i\\n"
+	},
+	"13881": {
+		"Type": "TRICE",
+		"Strg": "TEST:yellow+h:black\\n"
+	},
+	"13882": {
+		"Type": "TRICE",
+		"Strg": "DEFAULT:off\\n"
+	},
+	"13883": {
+		"Type": "TRICE",
+		"Strg": "NOTICE:blue:white+h\\n"
+	},
+	"13884": {
+		"Type": "TRICE",
+		"Strg": "ALERT:magenta:magenta+h\\n"
+	},
+	"13885": {
+		"Type": "TRICE",
+		"Strg": "ASSERT:yellow+i:blue\\n"
+	},
+	"13886": {
+		"Type": "TRICE",
+		"Strg": "ALARM:red+i:white+h\\n"
+	},
+	"13887": {
+		"Type": "TRICE",
+		"Strg": "VERBOSE:blue:default\\n"
+	},
+	"13888": {
+		"Type": "TRICE",
+		"Strg": "fatal:magenta+b:red\\n"
+	},
+	"13889": {
+		"Type": "TRICE",
+		"Strg": "critical:red+i:default+h\\n"
+	},
+	"13890": {
+		"Type": "TRICE",
+		"Strg": "emergency:red+i:blue\\n"
+	},
+	"13891": {
+		"Type": "TRICE",
+		"Strg": "error:11:red\\n"
+	},
+	"13892": {
+		"Type": "TRICE",
+		"Strg": "warning:11+i:red\\n"
+	},
+	"13893": {
+		"Type": "TRICE",
+		"Strg": "attention:11:green\\n"
+	},
+	"13894": {
+		"Type": "TRICE",
+		"Strg": "info:cyan+b:default+h\\n"
+	},
+	"13895": {
+		"Type": "TRICE",
+		"Strg": "debug:130+i\\n"
+	},
+	"13896": {
+		"Type": "TRICE",
+		"Strg": "trace:default+i:default+h\\n"
+	},
+	"13897": {
+		"Type": "TRICE",
+		"Strg": "time:blue+i:blue+h\\n"
+	},
+	"13898": {
+		"Type": "TRICE",
+		"Strg": "message:green+h:black\\n"
+	},
+	"13899": {
+		"Type": "TRICE",
+		"Strg": "read:black+i:yellow+h\\n"
+	},
+	"13900": {
+		"Type": "TRICE",
+		"Strg": "write:black+u:yellow+h\\n"
+	},
+	"13901": {
+		"Type": "TRICE",
+		"Strg": "receive:black+h:black\\n"
+	},
+	"13902": {
+		"Type": "TRICE",
+		"Strg": "transmit:black:black+h\\n"
+	},
+	"13903": {
+		"Type": "TRICE",
+		"Strg": "diag:yellow+i:default+h\\n"
+	},
+	"13904": {
+		"Type": "TRICE",
+		"Strg": "interrupt:magenta+i:default+h\\n"
+	},
+	"13905": {
+		"Type": "TRICE",
+		"Strg": "signal:118+i\\n"
+	},
+	"13906": {
+		"Type": "TRICE",
+		"Strg": "test:yellow+h:black\\n"
+	},
+	"13907": {
+		"Type": "TRICE",
+		"Strg": "default:off\\n"
+	},
+	"13908": {
+		"Type": "TRICE",
+		"Strg": "notice:blue:white+h\\n"
+	},
+	"13909": {
+		"Type": "TRICE",
+		"Strg": "alert:magenta:magenta+h\\n"
+	},
+	"13910": {
+		"Type": "TRICE",
+		"Strg": "assert:yellow+i:blue\\n"
+	},
+	"13911": {
+		"Type": "TRICE",
+		"Strg": "alarm:red+i:white+h\\n"
+	},
+	"13912": {
+		"Type": "TRICE",
+		"Strg": "verbose:blue:default\\n"
+	},
+	"13913": {
+		"Type": "TRice",
+		"Strg": "FATAL:magenta+b:red\\n"
+	},
+	"13914": {
+		"Type": "TRice",
+		"Strg": "CRITICAL:red+i:default+h\\n"
+	},
+	"13915": {
+		"Type": "TRice",
+		"Strg": "EMERGENCY:red+i:blue\\n"
+	},
+	"13916": {
+		"Type": "TRice",
+		"Strg": "ERROR:11:red\\n"
+	},
+	"13917": {
+		"Type": "TRice",
+		"Strg": "WARNING:11+i:red\\n"
+	},
+	"13918": {
+		"Type": "TRice",
+		"Strg": "ATTENTION:11:green\\n"
+	},
+	"13919": {
+		"Type": "TRice",
+		"Strg": "INFO:cyan+b:default+h\\n"
+	},
+	"13920": {
+		"Type": "TRice",
+		"Strg": "DEBUG:130+i\\n"
+	},
+	"13921": {
+		"Type": "TRice",
+		"Strg": "TRACE:default+i:default+h\\n"
+	},
+	"13922": {
+		"Type": "TRice",
+		"Strg": "TIME:blue+i:blue+h\\n"
+	},
+	"13923": {
+		"Type": "TRice",
+		"Strg": "MESSAGE:green+h:black\\n"
+	},
+	"13924": {
+		"Type": "TRice",
+		"Strg": "READ:black+i:yellow+h\\n"
+	},
+	"13925": {
+		"Type": "TRice",
+		"Strg": "WRITE:black+u:yellow+h\\n"
+	},
+	"13926": {
+		"Type": "TRice",
+		"Strg": "RECEIVE:black+h:black\\n"
+	},
+	"13927": {
+		"Type": "TRice",
+		"Strg": "TRANSMIT:black:black+h\\n"
+	},
+	"13928": {
+		"Type": "TRice",
+		"Strg": "DIAG:yellow+i:default+h\\n"
+	},
+	"13929": {
+		"Type": "TRice",
+		"Strg": "INTERRUPT:magenta+i:default+h\\n"
+	},
+	"13930": {
+		"Type": "TRice",
+		"Strg": "SIGNAL:118+i\\n"
+	},
+	"13931": {
+		"Type": "TRice",
+		"Strg": "TEST:yellow+h:black\\n"
+	},
+	"13932": {
+		"Type": "TRice",
+		"Strg": "DEFAULT:off\\n"
+	},
+	"13933": {
+		"Type": "TRice",
+		"Strg": "NOTICE:blue:white+h\\n"
+	},
+	"13934": {
+		"Type": "TRice",
+		"Strg": "ALERT:magenta:magenta+h\\n"
+	},
+	"13935": {
+		"Type": "TRice",
+		"Strg": "ASSERT:yellow+i:blue\\n"
+	},
+	"13936": {
+		"Type": "TRice",
+		"Strg": "ALARM:red+i:white+h\\n"
+	},
+	"13937": {
+		"Type": "TRice",
+		"Strg": "VERBOSE:blue:default\\n"
+	},
+	"13938": {
+		"Type": "TRice",
+		"Strg": "fatal:magenta+b:red\\n"
+	},
+	"13939": {
+		"Type": "TRice",
+		"Strg": "critical:red+i:default+h\\n"
+	},
+	"13940": {
+		"Type": "TRice",
+		"Strg": "emergency:red+i:blue\\n"
+	},
+	"13941": {
+		"Type": "TRice",
+		"Strg": "error:11:red\\n"
+	},
+	"13942": {
+		"Type": "TRice",
+		"Strg": "warning:11+i:red\\n"
+	},
+	"13943": {
+		"Type": "TRice",
+		"Strg": "attention:11:green\\n"
+	},
+	"13944": {
+		"Type": "TRice",
+		"Strg": "info:cyan+b:default+h\\n"
+	},
+	"13945": {
+		"Type": "TRice",
+		"Strg": "debug:130+i\\n"
+	},
+	"13946": {
+		"Type": "TRice",
+		"Strg": "trace:default+i:default+h\\n"
+	},
+	"13947": {
+		"Type": "TRice",
+		"Strg": "time:blue+i:blue+h\\n"
+	},
+	"13948": {
+		"Type": "TRice",
+		"Strg": "message:green+h:black\\n"
+	},
+	"13949": {
+		"Type": "TRice",
+		"Strg": "read:black+i:yellow+h\\n"
+	},
+	"13950": {
+		"Type": "TRice",
+		"Strg": "write:black+u:yellow+h\\n"
+	},
+	"13951": {
+		"Type": "TRice",
+		"Strg": "receive:black+h:black\\n"
+	},
+	"13952": {
+		"Type": "TRice",
+		"Strg": "transmit:black:black+h\\n"
+	},
+	"13953": {
+		"Type": "TRice",
+		"Strg": "diag:yellow+i:default+h\\n"
+	},
+	"13954": {
+		"Type": "TRice",
+		"Strg": "interrupt:magenta+i:default+h\\n"
+	},
+	"13955": {
+		"Type": "TRice",
+		"Strg": "signal:118+i\\n"
+	},
+	"13956": {
+		"Type": "TRice",
+		"Strg": "test:yellow+h:black\\n"
+	},
+	"13957": {
+		"Type": "TRice",
+		"Strg": "default:off\\n"
+	},
+	"13958": {
+		"Type": "TRice",
+		"Strg": "notice:blue:white+h\\n"
+	},
+	"13959": {
+		"Type": "TRice",
+		"Strg": "alert:magenta:magenta+h\\n"
+	},
+	"13960": {
+		"Type": "TRice",
+		"Strg": "assert:yellow+i:blue\\n"
+	},
+	"13961": {
+		"Type": "TRice",
+		"Strg": "alarm:red+i:white+h\\n"
+	},
+	"13962": {
+		"Type": "TRice",
+		"Strg": "verbose:blue:default\\n"
+	},
+	"13963": {
+		"Type": "TRICE64",
+		"Strg": "msg:%d (%%d)\\n"
+	},
+	"13964": {
+		"Type": "trice",
+		"Strg": "sig:TRICE8 with 1 to 12 values\\n"
+	},
+	"13965": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d\\n"
+	},
+	"13966": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d\\n"
+	},
+	"13967": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d\\n"
+	},
+	"13968": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d\\n"
+	},
+	"13969": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d\\n"
+	},
+	"13970": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13971": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13972": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13973": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13974": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13975": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13976": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13977": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d\\n"
+	},
+	"13978": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d\\n"
+	},
+	"13979": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d\\n"
+	},
+	"13980": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d\\n"
+	},
+	"13981": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d\\n"
+	},
+	"13982": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13983": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13984": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13985": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13986": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13987": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13988": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13989": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d\\n"
+	},
+	"13990": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d\\n"
+	},
+	"13991": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d\\n"
+	},
+	"13992": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d\\n"
+	},
+	"13993": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d\\n"
+	},
+	"13994": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13995": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13996": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13997": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13998": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"13999": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14000": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14001": {
+		"Type": "trice",
+		"Strg": "sig:TRICE_n with 1 to 12 values\\n"
+	},
+	"14002": {
+		"Type": "TRICE_1",
+		"Strg": "rd:TRICE_1  %d\\n"
+	},
+	"14003": {
+		"Type": "TRICE_2",
+		"Strg": "rd:TRICE_2  %d, %d\\n"
+	},
+	"14004": {
+		"Type": "TRICE_3",
+		"Strg": "rd:TRICE_3  %d, %d, %d\\n"
+	},
+	"14005": {
+		"Type": "TRICE_4",
+		"Strg": "rd:TRICE_4  %d, %d, %d, %d\\n"
+	},
+	"14006": {
+		"Type": "TRICE_5",
+		"Strg": "rd:TRICE_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14007": {
+		"Type": "TRICE_6",
+		"Strg": "rd:TRICE_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14008": {
+		"Type": "TRICE_7",
+		"Strg": "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14009": {
+		"Type": "TRICE_8",
+		"Strg": "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14010": {
+		"Type": "TRICE_9",
+		"Strg": "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14011": {
+		"Type": "TRICE_10",
+		"Strg": "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14012": {
+		"Type": "TRICE_11",
+		"Strg": "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14013": {
+		"Type": "TRICE_12",
+		"Strg": "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14014": {
+		"Type": "TRICE_1",
+		"Strg": "rd:TRICE_1  %d\\n"
+	},
+	"14015": {
+		"Type": "TRICE_2",
+		"Strg": "rd:TRICE_2  %d, %d\\n"
+	},
+	"14016": {
+		"Type": "TRICE_3",
+		"Strg": "rd:TRICE_3  %d, %d, %d\\n"
+	},
+	"14017": {
+		"Type": "TRICE_4",
+		"Strg": "rd:TRICE_4  %d, %d, %d, %d\\n"
+	},
+	"14018": {
+		"Type": "TRICE_5",
+		"Strg": "rd:TRICE_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14019": {
+		"Type": "TRICE_6",
+		"Strg": "rd:TRICE_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14020": {
+		"Type": "TRICE_7",
+		"Strg": "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14021": {
+		"Type": "TRICE_8",
+		"Strg": "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14022": {
+		"Type": "TRICE_9",
+		"Strg": "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14023": {
+		"Type": "TRICE_10",
+		"Strg": "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14024": {
+		"Type": "TRICE_11",
+		"Strg": "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14025": {
+		"Type": "TRICE_12",
+		"Strg": "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14026": {
+		"Type": "TRICE_1",
+		"Strg": "rd:TRICE_1  %d\\n"
+	},
+	"14027": {
+		"Type": "TRICE_2",
+		"Strg": "rd:TRICE_2  %d, %d\\n"
+	},
+	"14028": {
+		"Type": "TRICE_3",
+		"Strg": "rd:TRICE_3  %d, %d, %d\\n"
+	},
+	"14029": {
+		"Type": "TRICE_4",
+		"Strg": "rd:TRICE_4  %d, %d, %d, %d\\n"
+	},
+	"14030": {
+		"Type": "TRICE_5",
+		"Strg": "rd:TRICE_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14031": {
+		"Type": "TRICE_6",
+		"Strg": "rd:TRICE_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14032": {
+		"Type": "TRICE_7",
+		"Strg": "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14033": {
+		"Type": "TRICE_8",
+		"Strg": "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14034": {
+		"Type": "TRICE_9",
+		"Strg": "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14035": {
+		"Type": "TRICE_10",
+		"Strg": "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14036": {
+		"Type": "TRICE_11",
+		"Strg": "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14037": {
+		"Type": "TRICE_12",
+		"Strg": "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14038": {
+		"Type": "TRICE",
+		"Strg": "sig:trice_n with 1 to 12 values\\n"
+	},
+	"14039": {
+		"Type": "trice_1",
+		"Strg": "rd:trice_1  %d\\n"
+	},
+	"14040": {
+		"Type": "trice_2",
+		"Strg": "rd:trice_2  %d, %d\\n"
+	},
+	"14041": {
+		"Type": "trice_3",
+		"Strg": "rd:trice_3  %d, %d, %d\\n"
+	},
+	"14042": {
+		"Type": "trice_4",
+		"Strg": "rd:trice_4  %d, %d, %d, %d\\n"
+	},
+	"14043": {
+		"Type": "trice_5",
+		"Strg": "rd:trice_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14044": {
+		"Type": "trice_6",
+		"Strg": "rd:trice_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14045": {
+		"Type": "trice_7",
+		"Strg": "rd:trice_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14046": {
+		"Type": "trice_8",
+		"Strg": "rd:trice_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14047": {
+		"Type": "trice_9",
+		"Strg": "rd:trice_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14048": {
+		"Type": "trice_10",
+		"Strg": "rd:trice_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14049": {
+		"Type": "trice_11",
+		"Strg": "rd:trice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14050": {
+		"Type": "trice_12",
+		"Strg": "rd:trice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14051": {
+		"Type": "Trice_1",
+		"Strg": "rd:Trice_1  %d\\n"
+	},
+	"14052": {
+		"Type": "Trice_2",
+		"Strg": "rd:Trice_2  %d, %d\\n"
+	},
+	"14053": {
+		"Type": "Trice_3",
+		"Strg": "rd:Trice_3  %d, %d, %d\\n"
+	},
+	"14054": {
+		"Type": "Trice_4",
+		"Strg": "rd:Trice_4  %d, %d, %d, %d\\n"
+	},
+	"14055": {
+		"Type": "Trice_5",
+		"Strg": "rd:Trice_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14056": {
+		"Type": "Trice_6",
+		"Strg": "rd:Trice_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14057": {
+		"Type": "Trice_7",
+		"Strg": "rd:Trice_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14058": {
+		"Type": "Trice_8",
+		"Strg": "rd:Trice_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14059": {
+		"Type": "Trice_9",
+		"Strg": "rd:Trice_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14060": {
+		"Type": "Trice_10",
+		"Strg": "rd:Trice_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14061": {
+		"Type": "Trice_11",
+		"Strg": "rd:Trice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14062": {
+		"Type": "Trice_12",
+		"Strg": "rd:Trice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14063": {
+		"Type": "TRice_1",
+		"Strg": "rd:TRice_1  %d\\n"
+	},
+	"14064": {
+		"Type": "TRice_2",
+		"Strg": "rd:TRice_2  %d, %d\\n"
+	},
+	"14065": {
+		"Type": "TRice_3",
+		"Strg": "rd:TRice_3  %d, %d, %d\\n"
+	},
+	"14066": {
+		"Type": "TRice_4",
+		"Strg": "rd:TRice_4  %d, %d, %d, %d\\n"
+	},
+	"14067": {
+		"Type": "TRice_5",
+		"Strg": "rd:TRice_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14068": {
+		"Type": "TRice_6",
+		"Strg": "rd:TRice_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14069": {
+		"Type": "TRice_7",
+		"Strg": "rd:TRice_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14070": {
+		"Type": "TRice_8",
+		"Strg": "rd:TRice_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14071": {
+		"Type": "TRice_9",
+		"Strg": "rd:TRice_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14072": {
+		"Type": "TRice_10",
+		"Strg": "rd:TRice_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14073": {
+		"Type": "TRice_11",
+		"Strg": "rd:TRice_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14074": {
+		"Type": "TRice_12",
+		"Strg": "rd:TRice_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14075": {
+		"Type": "trice",
+		"Strg": "sig:TRICE8 with 1 to 12 values\\n"
+	},
+	"14076": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d\\n"
+	},
+	"14077": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d\\n"
+	},
+	"14078": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d\\n"
+	},
+	"14079": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d\\n"
+	},
+	"14080": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d\\n"
+	},
+	"14081": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14082": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14083": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14084": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14085": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14086": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14087": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14088": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d\\n"
+	},
+	"14089": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d\\n"
+	},
+	"14090": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d\\n"
+	},
+	"14091": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d\\n"
+	},
+	"14092": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d\\n"
+	},
+	"14093": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14094": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14095": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14096": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14097": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14098": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14099": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14100": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d\\n"
+	},
+	"14101": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d\\n"
+	},
+	"14102": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d\\n"
+	},
+	"14103": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d\\n"
+	},
+	"14104": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d\\n"
+	},
+	"14105": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14106": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14107": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14108": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14109": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14110": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14111": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14112": {
+		"Type": "trice",
+		"Strg": "sig:TRICE8_n with 1 to 12 values\\n"
+	},
+	"14113": {
+		"Type": "TRICE8_1",
+		"Strg": "rd:TRICE8_1  %d\\n"
+	},
+	"14114": {
+		"Type": "TRICE8_2",
+		"Strg": "rd:TRICE8_2  %d, %d\\n"
+	},
+	"14115": {
+		"Type": "TRICE8_3",
+		"Strg": "rd:TRICE8_3  %d, %d, %d\\n"
+	},
+	"14116": {
+		"Type": "TRICE8_4",
+		"Strg": "rd:TRICE8_4  %d, %d, %d, %d\\n"
+	},
+	"14117": {
+		"Type": "TRICE8_5",
+		"Strg": "rd:TRICE8_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14118": {
+		"Type": "TRICE8_6",
+		"Strg": "rd:TRICE8_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14119": {
+		"Type": "TRICE8_7",
+		"Strg": "rd:TRICE8_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14120": {
+		"Type": "TRICE8_8",
+		"Strg": "rd:TRICE8_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14121": {
+		"Type": "TRICE8_9",
+		"Strg": "rd:TRICE8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14122": {
+		"Type": "TRICE8_10",
+		"Strg": "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14123": {
+		"Type": "TRICE8_11",
+		"Strg": "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14124": {
+		"Type": "TRICE8_12",
+		"Strg": "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14125": {
+		"Type": "TRICE8_1",
+		"Strg": "rd:TRICE8_1  %d\\n"
+	},
+	"14126": {
+		"Type": "TRICE8_2",
+		"Strg": "rd:TRICE8_2  %d, %d\\n"
+	},
+	"14127": {
+		"Type": "TRICE8_3",
+		"Strg": "rd:TRICE8_3  %d, %d, %d\\n"
+	},
+	"14128": {
+		"Type": "TRICE8_4",
+		"Strg": "rd:TRICE8_4  %d, %d, %d, %d\\n"
+	},
+	"14129": {
+		"Type": "TRICE8_5",
+		"Strg": "rd:TRICE8_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14130": {
+		"Type": "TRICE8_6",
+		"Strg": "rd:TRICE8_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14131": {
+		"Type": "TRICE8_7",
+		"Strg": "rd:TRICE8_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14132": {
+		"Type": "TRICE8_8",
+		"Strg": "rd:TRICE8_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14133": {
+		"Type": "TRICE8_9",
+		"Strg": "rd:TRICE8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14134": {
+		"Type": "TRICE8_10",
+		"Strg": "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14135": {
+		"Type": "TRICE8_11",
+		"Strg": "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14136": {
+		"Type": "TRICE8_12",
+		"Strg": "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14137": {
+		"Type": "TRICE8_1",
+		"Strg": "rd:TRICE8_1  %d\\n"
+	},
+	"14138": {
+		"Type": "TRICE8_2",
+		"Strg": "rd:TRICE8_2  %d, %d\\n"
+	},
+	"14139": {
+		"Type": "TRICE8_3",
+		"Strg": "rd:TRICE8_3  %d, %d, %d\\n"
+	},
+	"14140": {
+		"Type": "TRICE8_4",
+		"Strg": "rd:TRICE8_4  %d, %d, %d, %d\\n"
+	},
+	"14141": {
+		"Type": "TRICE8_5",
+		"Strg": "rd:TRICE8_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14142": {
+		"Type": "TRICE8_6",
+		"Strg": "rd:TRICE8_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14143": {
+		"Type": "TRICE8_7",
+		"Strg": "rd:TRICE8_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14144": {
+		"Type": "TRICE8_8",
+		"Strg": "rd:TRICE8_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14145": {
+		"Type": "TRICE8_9",
+		"Strg": "rd:TRICE8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14146": {
+		"Type": "TRICE8_10",
+		"Strg": "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14147": {
+		"Type": "TRICE8_11",
+		"Strg": "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14148": {
+		"Type": "TRICE8_12",
+		"Strg": "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14149": {
+		"Type": "trice",
+		"Strg": "sig:trice8 with 1 to 12 values\\n"
+	},
+	"14150": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d\\n"
+	},
+	"14151": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d\\n"
+	},
+	"14152": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d\\n"
+	},
+	"14153": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d\\n"
+	},
+	"14154": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d, %d\\n"
+	},
+	"14155": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14156": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14157": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14158": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14159": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14160": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14161": {
+		"Type": "trice8",
+		"Strg": "rd:trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14162": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d\\n"
+	},
+	"14163": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d\\n"
+	},
+	"14164": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d\\n"
+	},
+	"14165": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d\\n"
+	},
+	"14166": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d, %d\\n"
+	},
+	"14167": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14168": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14169": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14170": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14171": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14172": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14173": {
+		"Type": "Trice8",
+		"Strg": "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14174": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d\\n"
+	},
+	"14175": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d\\n"
+	},
+	"14176": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d\\n"
+	},
+	"14177": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d\\n"
+	},
+	"14178": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d, %d\\n"
+	},
+	"14179": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14180": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14181": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14182": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14183": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14184": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14185": {
+		"Type": "TRice8",
+		"Strg": "rd:TRice8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14186": {
+		"Type": "TRICE",
+		"Strg": "sig:trice8_n with 1 to 12 values\\n"
+	},
+	"14187": {
+		"Type": "trice8_1",
+		"Strg": "rd:trice8_1  %d\\n"
+	},
+	"14188": {
+		"Type": "trice8_2",
+		"Strg": "rd:trice8_2  %d, %d\\n"
+	},
+	"14189": {
+		"Type": "trice8_3",
+		"Strg": "rd:trice8_3  %d, %d, %d\\n"
+	},
+	"14190": {
+		"Type": "trice8_4",
+		"Strg": "rd:trice8_4  %d, %d, %d, %d\\n"
+	},
+	"14191": {
+		"Type": "trice8_5",
+		"Strg": "rd:trice8_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14192": {
+		"Type": "trice8_6",
+		"Strg": "rd:trice8_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14193": {
+		"Type": "trice8_7",
+		"Strg": "rd:trice8_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14194": {
+		"Type": "trice8_8",
+		"Strg": "rd:trice8_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14195": {
+		"Type": "trice8_9",
+		"Strg": "rd:trice8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14196": {
+		"Type": "trice8_10",
+		"Strg": "rd:trice8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14197": {
+		"Type": "trice8_11",
+		"Strg": "rd:trice8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14198": {
+		"Type": "trice8_12",
+		"Strg": "rd:trice8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14199": {
+		"Type": "Trice8_1",
+		"Strg": "rd:Trice8_1  %d\\n"
+	},
+	"14200": {
+		"Type": "Trice8_2",
+		"Strg": "rd:Trice8_2  %d, %d\\n"
+	},
+	"14201": {
+		"Type": "Trice8_3",
+		"Strg": "rd:Trice8_3  %d, %d, %d\\n"
+	},
+	"14202": {
+		"Type": "Trice8_4",
+		"Strg": "rd:Trice8_4  %d, %d, %d, %d\\n"
+	},
+	"14203": {
+		"Type": "Trice8_5",
+		"Strg": "rd:Trice8_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14204": {
+		"Type": "Trice8_6",
+		"Strg": "rd:Trice8_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14205": {
+		"Type": "Trice8_7",
+		"Strg": "rd:Trice8_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14206": {
+		"Type": "Trice8_8",
+		"Strg": "rd:Trice8_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14207": {
+		"Type": "Trice8_9",
+		"Strg": "rd:Trice8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14208": {
+		"Type": "Trice8_10",
+		"Strg": "rd:Trice8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14209": {
+		"Type": "Trice8_11",
+		"Strg": "rd:Trice8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14210": {
+		"Type": "Trice8_12",
+		"Strg": "rd:Trice8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14211": {
+		"Type": "TRice8_1",
+		"Strg": "rd:TRice8_1  %d\\n"
+	},
+	"14212": {
+		"Type": "TRice8_2",
+		"Strg": "rd:TRice8_2  %d, %d\\n"
+	},
+	"14213": {
+		"Type": "TRice8_3",
+		"Strg": "rd:TRice8_3  %d, %d, %d\\n"
+	},
+	"14214": {
+		"Type": "TRice8_4",
+		"Strg": "rd:TRice8_4  %d, %d, %d, %d\\n"
+	},
+	"14215": {
+		"Type": "TRice8_5",
+		"Strg": "rd:TRice8_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14216": {
+		"Type": "TRice8_6",
+		"Strg": "rd:TRice8_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14217": {
+		"Type": "TRice8_7",
+		"Strg": "rd:TRice8_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14218": {
+		"Type": "TRice8_8",
+		"Strg": "rd:TRice8_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14219": {
+		"Type": "TRice8_9",
+		"Strg": "rd:TRice8_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14220": {
+		"Type": "TRice8_10",
+		"Strg": "rd:TRice8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14221": {
+		"Type": "TRice8_11",
+		"Strg": "rd:TRice8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14222": {
+		"Type": "TRice8_12",
+		"Strg": "rd:TRice8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14223": {
+		"Type": "trice",
+		"Strg": "sig:TRICE16 with 1 to 12 values (line %d)\\n"
+	},
+	"14224": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d\\n"
+	},
+	"14225": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d\\n"
+	},
+	"14226": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d\\n"
+	},
+	"14227": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d\\n"
+	},
+	"14228": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d\\n"
+	},
+	"14229": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14230": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14231": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14232": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14233": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14234": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14235": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14236": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d\\n"
+	},
+	"14237": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d\\n"
+	},
+	"14238": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d\\n"
+	},
+	"14239": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d\\n"
+	},
+	"14240": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d\\n"
+	},
+	"14241": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14242": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14243": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14244": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14245": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14246": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14247": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14248": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d\\n"
+	},
+	"14249": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d\\n"
+	},
+	"14250": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d\\n"
+	},
+	"14251": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d\\n"
+	},
+	"14252": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d\\n"
+	},
+	"14253": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14254": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14255": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14256": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14257": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14258": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14259": {
+		"Type": "trice16",
+		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14260": {
+		"Type": "trice",
+		"Strg": "sig:TRICE16_n with 1 to 12 values (line %d)\\n"
+	},
+	"14261": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1  %d\\n"
+	},
+	"14262": {
+		"Type": "TRICE16_2",
+		"Strg": "rd:TRICE16_2  %d, %d\\n"
+	},
+	"14263": {
+		"Type": "TRICE16_3",
+		"Strg": "rd:TRICE16_3  %d, %d, %d\\n"
+	},
+	"14264": {
+		"Type": "TRICE16_4",
+		"Strg": "rd:TRICE16_4  %d, %d, %d, %d\\n"
+	},
+	"14265": {
+		"Type": "TRICE16_5",
+		"Strg": "rd:TRICE16_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14266": {
+		"Type": "TRICE16_6",
+		"Strg": "rd:TRICE16_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14267": {
+		"Type": "TRICE16_7",
+		"Strg": "rd:TRICE16_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14268": {
+		"Type": "TRICE16_8",
+		"Strg": "rd:TRICE16_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14269": {
+		"Type": "TRICE16_9",
+		"Strg": "rd:TRICE16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14270": {
+		"Type": "TRICE16_10",
+		"Strg": "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14271": {
+		"Type": "TRICE16_11",
+		"Strg": "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14272": {
+		"Type": "TRICE16_12",
+		"Strg": "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14273": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1  %d\\n"
+	},
+	"14274": {
+		"Type": "TRICE16_2",
+		"Strg": "rd:TRICE16_2  %d, %d\\n"
+	},
+	"14275": {
+		"Type": "TRICE16_3",
+		"Strg": "rd:TRICE16_3  %d, %d, %d\\n"
+	},
+	"14276": {
+		"Type": "TRICE16_4",
+		"Strg": "rd:TRICE16_4  %d, %d, %d, %d\\n"
+	},
+	"14277": {
+		"Type": "TRICE16_5",
+		"Strg": "rd:TRICE16_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14278": {
+		"Type": "TRICE16_6",
+		"Strg": "rd:TRICE16_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14279": {
+		"Type": "TRICE16_7",
+		"Strg": "rd:TRICE16_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14280": {
+		"Type": "TRICE16_8",
+		"Strg": "rd:TRICE16_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14281": {
+		"Type": "TRICE16_9",
+		"Strg": "rd:TRICE16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14282": {
+		"Type": "TRICE16_10",
+		"Strg": "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14283": {
+		"Type": "TRICE16_11",
+		"Strg": "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14284": {
+		"Type": "TRICE16_12",
+		"Strg": "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14285": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1  %d\\n"
+	},
+	"14286": {
+		"Type": "TRICE16_2",
+		"Strg": "rd:TRICE16_2  %d, %d\\n"
+	},
+	"14287": {
+		"Type": "TRICE16_3",
+		"Strg": "rd:TRICE16_3  %d, %d, %d\\n"
+	},
+	"14288": {
+		"Type": "TRICE16_4",
+		"Strg": "rd:TRICE16_4  %d, %d, %d, %d\\n"
+	},
+	"14289": {
+		"Type": "TRICE16_5",
+		"Strg": "rd:TRICE16_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14290": {
+		"Type": "TRICE16_6",
+		"Strg": "rd:TRICE16_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14291": {
+		"Type": "TRICE16_7",
+		"Strg": "rd:TRICE16_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14292": {
+		"Type": "TRICE16_8",
+		"Strg": "rd:TRICE16_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14293": {
+		"Type": "TRICE16_9",
+		"Strg": "rd:TRICE16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14294": {
+		"Type": "TRICE16_10",
+		"Strg": "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14295": {
+		"Type": "TRICE16_11",
+		"Strg": "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14296": {
+		"Type": "TRICE16_12",
+		"Strg": "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14297": {
+		"Type": "trice",
+		"Strg": "sig:trice16 with 1 to 12 values (line %d)\\n"
+	},
+	"14298": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d\\n"
+	},
+	"14299": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d\\n"
+	},
+	"14300": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d\\n"
+	},
+	"14301": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d\\n"
+	},
+	"14302": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d, %d\\n"
+	},
+	"14303": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14304": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14305": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14306": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14307": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14308": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14309": {
+		"Type": "trice16",
+		"Strg": "rd:trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14310": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d\\n"
+	},
+	"14311": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d\\n"
+	},
+	"14312": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d\\n"
+	},
+	"14313": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d\\n"
+	},
+	"14314": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d, %d\\n"
+	},
+	"14315": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14316": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14317": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14318": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14319": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14320": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14321": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14322": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d\\n"
+	},
+	"14323": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d\\n"
+	},
+	"14324": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d\\n"
+	},
+	"14325": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d\\n"
+	},
+	"14326": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d, %d\\n"
+	},
+	"14327": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14328": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14329": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14330": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14331": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14332": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14333": {
+		"Type": "TRice16",
+		"Strg": "rd:TRice16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14334": {
+		"Type": "trice",
+		"Strg": "sig:trice16_n with 1 to 12 values (line %d)\\n"
+	},
+	"14335": {
+		"Type": "trice16_1",
+		"Strg": "rd:trice16_1  %d\\n"
+	},
+	"14336": {
+		"Type": "trice16_2",
+		"Strg": "rd:trice16_2  %d, %d\\n"
+	},
+	"14337": {
+		"Type": "trice16_3",
+		"Strg": "rd:trice16_3  %d, %d, %d\\n"
+	},
+	"14338": {
+		"Type": "trice16_4",
+		"Strg": "rd:trice16_4  %d, %d, %d, %d\\n"
+	},
+	"14339": {
+		"Type": "trice16_5",
+		"Strg": "rd:trice16_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14340": {
+		"Type": "trice16_6",
+		"Strg": "rd:trice16_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14341": {
+		"Type": "trice16_7",
+		"Strg": "rd:trice16_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14342": {
+		"Type": "trice16_8",
+		"Strg": "rd:trice16_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14343": {
+		"Type": "trice16_9",
+		"Strg": "rd:trice16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14344": {
+		"Type": "trice16_10",
+		"Strg": "rd:trice16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14345": {
+		"Type": "trice16_11",
+		"Strg": "rd:trice16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14346": {
+		"Type": "trice16_12",
+		"Strg": "rd:trice16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14347": {
+		"Type": "Trice16_1",
+		"Strg": "rd:Trice16_1  %d\\n"
+	},
+	"14348": {
+		"Type": "Trice16_2",
+		"Strg": "rd:Trice16_2  %d, %d\\n"
+	},
+	"14349": {
+		"Type": "Trice16_3",
+		"Strg": "rd:Trice16_3  %d, %d, %d\\n"
+	},
+	"14350": {
+		"Type": "Trice16_4",
+		"Strg": "rd:Trice16_4  %d, %d, %d, %d\\n"
+	},
+	"14351": {
+		"Type": "Trice16_5",
+		"Strg": "rd:Trice16_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14352": {
+		"Type": "Trice16_6",
+		"Strg": "rd:Trice16_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14353": {
+		"Type": "Trice16_7",
+		"Strg": "rd:Trice16_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14354": {
+		"Type": "Trice16_8",
+		"Strg": "rd:Trice16_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14355": {
+		"Type": "Trice16_9",
+		"Strg": "rd:Trice16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14356": {
+		"Type": "Trice16_10",
+		"Strg": "rd:Trice16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14357": {
+		"Type": "Trice16_11",
+		"Strg": "rd:Trice16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14358": {
+		"Type": "Trice16_12",
+		"Strg": "rd:Trice16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14359": {
+		"Type": "TRice16_1",
+		"Strg": "rd:TRice16_1  %d\\n"
+	},
+	"14360": {
+		"Type": "TRice16_2",
+		"Strg": "rd:TRice16_2  %d, %d\\n"
+	},
+	"14361": {
+		"Type": "TRice16_3",
+		"Strg": "rd:TRice16_3  %d, %d, %d\\n"
+	},
+	"14362": {
+		"Type": "TRice16_4",
+		"Strg": "rd:TRice16_4  %d, %d, %d, %d\\n"
+	},
+	"14363": {
+		"Type": "TRice16_5",
+		"Strg": "rd:TRice16_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14364": {
+		"Type": "TRice16_6",
+		"Strg": "rd:TRice16_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14365": {
+		"Type": "TRice16_7",
+		"Strg": "rd:TRice16_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14366": {
+		"Type": "TRice16_8",
+		"Strg": "rd:TRice16_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14367": {
+		"Type": "TRice16_9",
+		"Strg": "rd:TRice16_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14368": {
+		"Type": "TRice16_10",
+		"Strg": "rd:TRice16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14369": {
+		"Type": "TRice16_11",
+		"Strg": "rd:TRice16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14370": {
+		"Type": "TRice16_12",
+		"Strg": "rd:TRice16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14371": {
+		"Type": "trice",
+		"Strg": "sig:TRICE32 with 1 to 12 values (line %d)\\n"
+	},
+	"14372": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d\\n"
+	},
+	"14373": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d\\n"
+	},
+	"14374": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d\\n"
+	},
+	"14375": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d\\n"
+	},
+	"14376": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d\\n"
+	},
+	"14377": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14378": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14379": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14380": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14381": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14382": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14383": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14384": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d\\n"
+	},
+	"14385": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d\\n"
+	},
+	"14386": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d\\n"
+	},
+	"14387": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d\\n"
+	},
+	"14388": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d\\n"
+	},
+	"14389": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14390": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14391": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14392": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14393": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14394": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14395": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14396": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d\\n"
+	},
+	"14397": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d\\n"
+	},
+	"14398": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d\\n"
+	},
+	"14399": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d\\n"
+	},
+	"14400": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d\\n"
+	},
+	"14401": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14402": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14403": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14404": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14405": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14406": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14407": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14408": {
+		"Type": "trice",
+		"Strg": "signal:TRICE32_n with 1 to 12 values (line %d)\\n"
+	},
+	"14409": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1  %d\\n"
+	},
+	"14410": {
+		"Type": "TRICE32_2",
+		"Strg": "rd:TRICE32_2  %d, %d\\n"
+	},
+	"14411": {
+		"Type": "TRICE32_3",
+		"Strg": "rd:TRICE32_3  %d, %d, %d\\n"
+	},
+	"14412": {
+		"Type": "TRICE32_4",
+		"Strg": "rd:TRICE32_4  %d, %d, %d, %d\\n"
+	},
+	"14413": {
+		"Type": "TRICE32_5",
+		"Strg": "rd:TRICE32_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14414": {
+		"Type": "TRICE32_6",
+		"Strg": "rd:TRICE32_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14415": {
+		"Type": "TRICE32_7",
+		"Strg": "rd:TRICE32_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14416": {
+		"Type": "TRICE32_8",
+		"Strg": "rd:TRICE32_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14417": {
+		"Type": "TRICE32_9",
+		"Strg": "rd:TRICE32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14418": {
+		"Type": "TRICE32_10",
+		"Strg": "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14419": {
+		"Type": "TRICE32_11",
+		"Strg": "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14420": {
+		"Type": "TRICE32_12",
+		"Strg": "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14421": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1  %d\\n"
+	},
+	"14422": {
+		"Type": "TRICE32_2",
+		"Strg": "rd:TRICE32_2  %d, %d\\n"
+	},
+	"14423": {
+		"Type": "TRICE32_3",
+		"Strg": "rd:TRICE32_3  %d, %d, %d\\n"
+	},
+	"14424": {
+		"Type": "TRICE32_4",
+		"Strg": "rd:TRICE32_4  %d, %d, %d, %d\\n"
+	},
+	"14425": {
+		"Type": "TRICE32_5",
+		"Strg": "rd:TRICE32_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14426": {
+		"Type": "TRICE32_6",
+		"Strg": "rd:TRICE32_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14427": {
+		"Type": "TRICE32_7",
+		"Strg": "rd:TRICE32_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14428": {
+		"Type": "TRICE32_8",
+		"Strg": "rd:TRICE32_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14429": {
+		"Type": "TRICE32_9",
+		"Strg": "rd:TRICE32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14430": {
+		"Type": "TRICE32_10",
+		"Strg": "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14431": {
+		"Type": "TRICE32_11",
+		"Strg": "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14432": {
+		"Type": "TRICE32_12",
+		"Strg": "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14433": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1  %d\\n"
+	},
+	"14434": {
+		"Type": "TRICE32_2",
+		"Strg": "rd:TRICE32_2  %d, %d\\n"
+	},
+	"14435": {
+		"Type": "TRICE32_3",
+		"Strg": "rd:TRICE32_3  %d, %d, %d\\n"
+	},
+	"14436": {
+		"Type": "TRICE32_4",
+		"Strg": "rd:TRICE32_4  %d, %d, %d, %d\\n"
+	},
+	"14437": {
+		"Type": "TRICE32_5",
+		"Strg": "rd:TRICE32_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14438": {
+		"Type": "TRICE32_6",
+		"Strg": "rd:TRICE32_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14439": {
+		"Type": "TRICE32_7",
+		"Strg": "rd:TRICE32_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14440": {
+		"Type": "TRICE32_8",
+		"Strg": "rd:TRICE32_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14441": {
+		"Type": "TRICE32_9",
+		"Strg": "rd:TRICE32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14442": {
+		"Type": "TRICE32_10",
+		"Strg": "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14443": {
+		"Type": "TRICE32_11",
+		"Strg": "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14444": {
+		"Type": "TRICE32_12",
+		"Strg": "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14445": {
+		"Type": "trice",
+		"Strg": "sig:trice32 with 1 to 12 values (line %d)\\n"
+	},
+	"14446": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d\\n"
+	},
+	"14447": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d\\n"
+	},
+	"14448": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d\\n"
+	},
+	"14449": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d\\n"
+	},
+	"14450": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d, %d\\n"
+	},
+	"14451": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14452": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14453": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14454": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14455": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14456": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14457": {
+		"Type": "trice32",
+		"Strg": "rd:trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14458": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d\\n"
+	},
+	"14459": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d\\n"
+	},
+	"14460": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d\\n"
+	},
+	"14461": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d\\n"
+	},
+	"14462": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d, %d\\n"
+	},
+	"14463": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14464": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14465": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14466": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14467": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14468": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14469": {
+		"Type": "Trice32",
+		"Strg": "rd:Trice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14470": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d\\n"
+	},
+	"14471": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d\\n"
+	},
+	"14472": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d\\n"
+	},
+	"14473": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d\\n"
+	},
+	"14474": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d, %d\\n"
+	},
+	"14475": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14476": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14477": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14478": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14479": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14480": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14481": {
+		"Type": "TRice32",
+		"Strg": "rd:TRice32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14482": {
+		"Type": "trice",
+		"Strg": "signal:trice32_n with 1 to 12 values (line %d)\\n"
+	},
+	"14483": {
+		"Type": "trice32_1",
+		"Strg": "rd:trice32_1  %d\\n"
+	},
+	"14484": {
+		"Type": "trice32_2",
+		"Strg": "rd:trice32_2  %d, %d\\n"
+	},
+	"14485": {
+		"Type": "trice32_3",
+		"Strg": "rd:trice32_3  %d, %d, %d\\n"
+	},
+	"14486": {
+		"Type": "trice32_4",
+		"Strg": "rd:trice32_4  %d, %d, %d, %d\\n"
+	},
+	"14487": {
+		"Type": "trice32_5",
+		"Strg": "rd:trice32_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14488": {
+		"Type": "trice32_6",
+		"Strg": "rd:trice32_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14489": {
+		"Type": "trice32_7",
+		"Strg": "rd:trice32_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14490": {
+		"Type": "trice32_8",
+		"Strg": "rd:trice32_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14491": {
+		"Type": "trice32_9",
+		"Strg": "rd:trice32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14492": {
+		"Type": "trice32_10",
+		"Strg": "rd:trice32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14493": {
+		"Type": "trice32_11",
+		"Strg": "rd:trice32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14494": {
+		"Type": "trice32_12",
+		"Strg": "rd:trice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14495": {
+		"Type": "Trice32_1",
+		"Strg": "rd:Trice32_1  %d\\n"
+	},
+	"14496": {
+		"Type": "Trice32_2",
+		"Strg": "rd:Trice32_2  %d, %d\\n"
+	},
+	"14497": {
+		"Type": "Trice32_3",
+		"Strg": "rd:Trice32_3  %d, %d, %d\\n"
+	},
+	"14498": {
+		"Type": "Trice32_4",
+		"Strg": "rd:Trice32_4  %d, %d, %d, %d\\n"
+	},
+	"14499": {
+		"Type": "Trice32_5",
+		"Strg": "rd:Trice32_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14500": {
+		"Type": "Trice32_6",
+		"Strg": "rd:Trice32_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14501": {
+		"Type": "Trice32_7",
+		"Strg": "rd:Trice32_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14502": {
+		"Type": "Trice32_8",
+		"Strg": "rd:Trice32_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14503": {
+		"Type": "Trice32_9",
+		"Strg": "rd:Trice32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14504": {
+		"Type": "Trice32_10",
+		"Strg": "rd:Trice32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14505": {
+		"Type": "Trice32_11",
+		"Strg": "rd:Trice32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14506": {
+		"Type": "Trice32_12",
+		"Strg": "rd:Trice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14507": {
+		"Type": "TRice32_1",
+		"Strg": "rd:TRice32_1  %d\\n"
+	},
+	"14508": {
+		"Type": "TRice32_2",
+		"Strg": "rd:TRice32_2  %d, %d\\n"
+	},
+	"14509": {
+		"Type": "TRice32_3",
+		"Strg": "rd:TRice32_3  %d, %d, %d\\n"
+	},
+	"14510": {
+		"Type": "TRice32_4",
+		"Strg": "rd:TRice32_4  %d, %d, %d, %d\\n"
+	},
+	"14511": {
+		"Type": "TRice32_5",
+		"Strg": "rd:TRice32_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14512": {
+		"Type": "TRice32_6",
+		"Strg": "rd:TRice32_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14513": {
+		"Type": "TRice32_7",
+		"Strg": "rd:TRice32_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14514": {
+		"Type": "TRice32_8",
+		"Strg": "rd:TRice32_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14515": {
+		"Type": "TRice32_9",
+		"Strg": "rd:TRice32_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14516": {
+		"Type": "TRice32_10",
+		"Strg": "rd:TRice32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14517": {
+		"Type": "TRice32_11",
+		"Strg": "rd:TRice32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14518": {
+		"Type": "TRice32_12",
+		"Strg": "rd:TRice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14519": {
+		"Type": "trice",
+		"Strg": "sig:TRICE64 with 1 to 12 values (line %d)\\n"
+	},
+	"14520": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d\\n"
+	},
+	"14521": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d\\n"
+	},
+	"14522": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d\\n"
+	},
+	"14523": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d\\n"
+	},
+	"14524": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d\\n"
+	},
+	"14525": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14526": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14527": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14528": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14529": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14530": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14531": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14532": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d\\n"
+	},
+	"14533": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d\\n"
+	},
+	"14534": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d\\n"
+	},
+	"14535": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d\\n"
+	},
+	"14536": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d\\n"
+	},
+	"14537": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14538": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14539": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14540": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14541": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14542": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14543": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14544": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d\\n"
+	},
+	"14545": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d\\n"
+	},
+	"14546": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d\\n"
+	},
+	"14547": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d\\n"
+	},
+	"14548": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d\\n"
+	},
+	"14549": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14550": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14551": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14552": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14553": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14554": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14555": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14556": {
+		"Type": "trice",
+		"Strg": "signal:TRICE64_n with 1 to 12 values (line %d)\\n"
+	},
+	"14557": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1  %d\\n"
+	},
+	"14558": {
+		"Type": "TRICE64_2",
+		"Strg": "rd:TRICE64_2  %d, %d\\n"
+	},
+	"14559": {
+		"Type": "TRICE64_3",
+		"Strg": "rd:TRICE64_3  %d, %d, %d\\n"
+	},
+	"14560": {
+		"Type": "TRICE64_4",
+		"Strg": "rd:TRICE64_4  %d, %d, %d, %d\\n"
+	},
+	"14561": {
+		"Type": "TRICE64_5",
+		"Strg": "rd:TRICE64_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14562": {
+		"Type": "TRICE64_6",
+		"Strg": "rd:TRICE64_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14563": {
+		"Type": "TRICE64_7",
+		"Strg": "rd:TRICE64_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14564": {
+		"Type": "TRICE64_8",
+		"Strg": "rd:TRICE64_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14565": {
+		"Type": "TRICE64_9",
+		"Strg": "rd:TRICE64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14566": {
+		"Type": "TRICE64_10",
+		"Strg": "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14567": {
+		"Type": "TRICE64_11",
+		"Strg": "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14568": {
+		"Type": "TRICE64_12",
+		"Strg": "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14569": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1  %d\\n"
+	},
+	"14570": {
+		"Type": "TRICE64_2",
+		"Strg": "rd:TRICE64_2  %d, %d\\n"
+	},
+	"14571": {
+		"Type": "TRICE64_3",
+		"Strg": "rd:TRICE64_3  %d, %d, %d\\n"
+	},
+	"14572": {
+		"Type": "TRICE64_4",
+		"Strg": "rd:TRICE64_4  %d, %d, %d, %d\\n"
+	},
+	"14573": {
+		"Type": "TRICE64_5",
+		"Strg": "rd:TRICE64_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14574": {
+		"Type": "TRICE64_6",
+		"Strg": "rd:TRICE64_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14575": {
+		"Type": "TRICE64_7",
+		"Strg": "rd:TRICE64_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14576": {
+		"Type": "TRICE64_8",
+		"Strg": "rd:TRICE64_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14577": {
+		"Type": "TRICE64_9",
+		"Strg": "rd:TRICE64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14578": {
+		"Type": "TRICE64_10",
+		"Strg": "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14579": {
+		"Type": "TRICE64_11",
+		"Strg": "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14580": {
+		"Type": "TRICE64_12",
+		"Strg": "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14581": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1  %d\\n"
+	},
+	"14582": {
+		"Type": "TRICE64_2",
+		"Strg": "rd:TRICE64_2  %d, %d\\n"
+	},
+	"14583": {
+		"Type": "TRICE64_3",
+		"Strg": "rd:TRICE64_3  %d, %d, %d\\n"
+	},
+	"14584": {
+		"Type": "TRICE64_4",
+		"Strg": "rd:TRICE64_4  %d, %d, %d, %d\\n"
+	},
+	"14585": {
+		"Type": "TRICE64_5",
+		"Strg": "rd:TRICE64_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14586": {
+		"Type": "TRICE64_6",
+		"Strg": "rd:TRICE64_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14587": {
+		"Type": "TRICE64_7",
+		"Strg": "rd:TRICE64_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14588": {
+		"Type": "TRICE64_8",
+		"Strg": "rd:TRICE64_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14589": {
+		"Type": "TRICE64_9",
+		"Strg": "rd:TRICE64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14590": {
+		"Type": "TRICE64_10",
+		"Strg": "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14591": {
+		"Type": "TRICE64_11",
+		"Strg": "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14592": {
+		"Type": "TRICE64_12",
+		"Strg": "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14593": {
+		"Type": "trice",
+		"Strg": "sig:trice64 with 1 to 12 values (line %d)\\n"
+	},
+	"14594": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d\\n"
+	},
+	"14595": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d\\n"
+	},
+	"14596": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d\\n"
+	},
+	"14597": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d\\n"
+	},
+	"14598": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d, %d\\n"
+	},
+	"14599": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14600": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14601": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14602": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14603": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14604": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14605": {
+		"Type": "trice64",
+		"Strg": "rd:trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14606": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d\\n"
+	},
+	"14607": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d\\n"
+	},
+	"14608": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d\\n"
+	},
+	"14609": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d\\n"
+	},
+	"14610": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d, %d\\n"
+	},
+	"14611": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14612": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14613": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14614": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14615": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14616": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14617": {
+		"Type": "Trice64",
+		"Strg": "rd:Trice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14618": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d\\n"
+	},
+	"14619": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d\\n"
+	},
+	"14620": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d\\n"
+	},
+	"14621": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d\\n"
+	},
+	"14622": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d, %d\\n"
+	},
+	"14623": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14624": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14625": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14626": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14627": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14628": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14629": {
+		"Type": "TRice64",
+		"Strg": "rd:TRice64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14630": {
+		"Type": "trice",
+		"Strg": "signal:trice64_n with 1 to 12 values (line %d)\\n"
+	},
+	"14631": {
+		"Type": "trice64_1",
+		"Strg": "rd:trice64_1  %d\\n"
+	},
+	"14632": {
+		"Type": "trice64_2",
+		"Strg": "rd:trice64_2  %d, %d\\n"
+	},
+	"14633": {
+		"Type": "trice64_3",
+		"Strg": "rd:trice64_3  %d, %d, %d\\n"
+	},
+	"14634": {
+		"Type": "trice64_4",
+		"Strg": "rd:trice64_4  %d, %d, %d, %d\\n"
+	},
+	"14635": {
+		"Type": "trice64_5",
+		"Strg": "rd:trice64_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14636": {
+		"Type": "trice64_6",
+		"Strg": "rd:trice64_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14637": {
+		"Type": "trice64_7",
+		"Strg": "rd:trice64_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14638": {
+		"Type": "trice64_8",
+		"Strg": "rd:trice64_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14639": {
+		"Type": "trice64_9",
+		"Strg": "rd:trice64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14640": {
+		"Type": "trice64_10",
+		"Strg": "rd:trice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14641": {
+		"Type": "trice64_11",
+		"Strg": "rd:trice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14642": {
+		"Type": "trice64_12",
+		"Strg": "rd:trice64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14643": {
+		"Type": "Trice64_1",
+		"Strg": "rd:Trice64_1  %d\\n"
+	},
+	"14644": {
+		"Type": "Trice64_2",
+		"Strg": "rd:Trice64_2  %d, %d\\n"
+	},
+	"14645": {
+		"Type": "Trice64_3",
+		"Strg": "rd:Trice64_3  %d, %d, %d\\n"
+	},
+	"14646": {
+		"Type": "Trice64_4",
+		"Strg": "rd:Trice64_4  %d, %d, %d, %d\\n"
+	},
+	"14647": {
+		"Type": "Trice64_5",
+		"Strg": "rd:Trice64_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14648": {
+		"Type": "Trice64_6",
+		"Strg": "rd:Trice64_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14649": {
+		"Type": "Trice64_7",
+		"Strg": "rd:Trice64_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14650": {
+		"Type": "Trice64_8",
+		"Strg": "rd:Trice64_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14651": {
+		"Type": "Trice64_9",
+		"Strg": "rd:Trice64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14652": {
+		"Type": "Trice64_10",
+		"Strg": "rd:Trice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14653": {
+		"Type": "Trice64_11",
+		"Strg": "rd:Trice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14654": {
+		"Type": "Trice64_12",
+		"Strg": "rd:Trice64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14655": {
+		"Type": "TRice64_1",
+		"Strg": "rd:TRice64_1  %d\\n"
+	},
+	"14656": {
+		"Type": "TRice64_2",
+		"Strg": "rd:TRice64_2  %d, %d\\n"
+	},
+	"14657": {
+		"Type": "TRice64_3",
+		"Strg": "rd:TRice64_3  %d, %d, %d\\n"
+	},
+	"14658": {
+		"Type": "TRice64_4",
+		"Strg": "rd:TRice64_4  %d, %d, %d, %d\\n"
+	},
+	"14659": {
+		"Type": "TRice64_5",
+		"Strg": "rd:TRice64_5  %d, %d, %d, %d, %d\\n"
+	},
+	"14660": {
+		"Type": "TRice64_6",
+		"Strg": "rd:TRice64_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14661": {
+		"Type": "TRice64_7",
+		"Strg": "rd:TRice64_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14662": {
+		"Type": "TRice64_8",
+		"Strg": "rd:TRice64_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14663": {
+		"Type": "TRice64_9",
+		"Strg": "rd:TRice64_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14664": {
+		"Type": "TRice64_10",
+		"Strg": "rd:TRice64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14665": {
+		"Type": "TRice64_11",
+		"Strg": "rd:TRice64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14666": {
+		"Type": "TRice32_12",
+		"Strg": "rd:TRice32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14667": {
+		"Type": "TRICE",
+		"Strg": "sig:Colors and ticks\\n"
+	},
+	"14668": {
+		"Type": "TRICE",
+		"Strg": "--------------------------------------------------\\n"
+	},
+	"14669": {
+		"Type": "TRICE",
+		"Strg": "--------------------------------------------------\\n"
+	},
+	"14670": {
+		"Type": "TRICE",
+		"Strg": "dbg:12345 as 16bit is %016b\\n"
+	},
+	"14671": {
+		"Type": "TRICE",
+		"Strg": "--------------------------------------------------\\n"
+	},
+	"14672": {
+		"Type": "TRICE",
+		"Strg": "sig:This ASSERT error is just a demo and no real error:\\n"
+	},
+	"14673": {
+		"Type": "TRICE",
+		"Strg": "--------------------------------------------------\\n"
+	},
+	"14674": {
+		"Type": "TRICE",
+		"Strg": "ERR:error       message, SysTick is %6u\\n"
+	},
+	"14675": {
+		"Type": "TRICE",
+		"Strg": "WRN:warning     message, SysTick is %6u\\n"
+	},
+	"14676": {
+		"Type": "TRICE",
+		"Strg": "ATT:attention   message, SysTick is %6u\\n"
+	},
+	"14677": {
+		"Type": "TRICE",
+		"Strg": "DIA:diagnostics message, SysTick is %6u\\n"
+	},
+	"14678": {
+		"Type": "TRICE",
+		"Strg": "TIM:timing      message, SysTick is %6u\\n"
+	},
+	"14679": {
+		"Type": "TRICE",
+		"Strg": "DBG:debug       message, SysTick is %6u\\n"
+	},
+	"14680": {
+		"Type": "TRICE",
+		"Strg": "SIG:signal      message, SysTick is %6u\\n"
+	},
+	"14681": {
+		"Type": "TRICE",
+		"Strg": "RD:read         message, SysTick is %6u\\n"
+	},
+	"14682": {
+		"Type": "TRICE",
+		"Strg": "WR:write        message, SysTick is %6u\\n"
+	},
+	"14683": {
+		"Type": "TRICE",
+		"Strg": "ISR:interrupt   message, SysTick is %6u\\n"
+	},
+	"14684": {
+		"Type": "TRICE",
+		"Strg": "MSG:normal      message, SysTick is %6u\\n"
+	},
+	"14685": {
+		"Type": "TRICE",
+		"Strg": "INFO:informal   message, SysTick is %6u\\n"
+	},
+	"14686": {
+		"Type": "TRICE",
+		"Strg": "time:TRICE32_1  message, SysTick is %6u\\n"
+	},
+	"14687": {
+		"Type": "TRICE",
+		"Strg": "sig:Various ranges and formats\\n"
+	},
+	"14688": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8  %%03x -\u003e %03x  %03x  %03x  %03x\\n"
+	},
+	"14689": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n"
+	},
+	"14690": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8   %%4u -\u003e %4u %4u %4u %4u\\n"
+	},
+	"14691": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n"
+	},
+	"14692": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8   %%4O -\u003e %4O %4O %4O %4O\\n"
+	},
+	"14693": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8   %%4X -\u003e %4X %4X %4X %4X\\n"
+	},
+	"14694": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8   %%4x -\u003e %4x %4x %4x %4x\\n"
+	},
+	"14695": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8   %%8b -\u003e %8b %8b %8b %8b\\n"
+	},
+	"14696": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8  %%08b -\u003e %08b %08b %08b %08b\\n"
+	},
+	"14697": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n"
+	},
+	"14698": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n"
+	},
+	"14699": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n"
+	},
+	"14700": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+	},
+	"14701": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+	},
+	"14702": {
+		"Type": "TRICE32",
+		"Strg": "att:TRICE32 %40b\\n"
+	},
+	"14703": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+	},
+	"14704": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+	},
+	"14705": {
+		"Type": "TRICE64",
+		"Strg": "att:TRICE64 %70b\\n"
+	},
+	"14706": {
+		"Type": "TRICE",
+		"Strg": "sig:Legacy TRICE8\\n"
+	},
+	"14707": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:TRICE8_1 %02x\\n"
+	},
+	"14708": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:TRICE8_2 %02x %02x\\n"
+	},
+	"14709": {
+		"Type": "TRICE8_3",
+		"Strg": "tst:TRICE8_3 %02x %02x %02x\\n"
+	},
+	"14710": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4 %02x %02x %02x %02x\\n"
+	},
+	"14711": {
+		"Type": "TRICE8_5",
+		"Strg": "tst:TRICE8_5 %02x %02x %02x %02x %02x\\n"
+	},
+	"14712": {
+		"Type": "TRICE8_6",
+		"Strg": "tst:TRICE8_6 %02x %02x %02x %02x %02x %02x\\n"
+	},
+	"14713": {
+		"Type": "TRICE8_7",
+		"Strg": "tst:TRICE8_7 %02x %02x %02x %02x %02x %02x %02x\\n"
+	},
+	"14714": {
+		"Type": "TRICE8_8",
+		"Strg": "tst:TRICE8_8 %02X %02X %02X %02X %02x %02x %02x %02x\\n"
+	},
+	"14715": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:TRICE8_1 %d\\n"
+	},
+	"14716": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:TRICE8_2 %d %d\\n"
+	},
+	"14717": {
+		"Type": "TRICE8_3",
+		"Strg": "tst:TRICE8_3 %d %d %d\\n"
+	},
+	"14718": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
+	},
+	"14719": {
+		"Type": "TRICE8_5",
+		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
+	},
+	"14720": {
+		"Type": "TRICE8_6",
+		"Strg": "tst:TRICE8_6 %d %d %d %d %d %d\\n"
+	},
+	"14721": {
+		"Type": "TRICE8_7",
+		"Strg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n"
+	},
+	"14722": {
+		"Type": "TRICE8_8",
+		"Strg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n"
+	},
+	"14723": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:TRICE8_1 %d\\n"
+	},
+	"14724": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:TRICE8_2 %d %d\\n"
+	},
+	"14725": {
+		"Type": "TRICE8_3",
+		"Strg": "tst:TRICE8_3 %d %d %d\\n"
+	},
+	"14726": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
+	},
+	"14727": {
+		"Type": "TRICE8_5",
+		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
+	},
+	"14728": {
+		"Type": "TRICE8_6",
+		"Strg": "tst:TRICE8_6 %d %d %d %d %d %d\\n"
+	},
+	"14729": {
+		"Type": "TRICE8_7",
+		"Strg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n"
+	},
+	"14730": {
+		"Type": "TRICE8_8",
+		"Strg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n"
+	},
+	"14731": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:TRICE8_1 %u\\n"
+	},
+	"14732": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:TRICE8_2 %u %u\\n"
+	},
+	"14733": {
+		"Type": "TRICE8_3",
+		"Strg": "tst:TRICE8_3 %u %u %u\\n"
+	},
+	"14734": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4 %u %u %u %u\\n"
+	},
+	"14735": {
+		"Type": "TRICE8_5",
+		"Strg": "tst:TRICE8_5 %u %u %u %u %u\\n"
+	},
+	"14736": {
+		"Type": "TRICE8_6",
+		"Strg": "tst:TRICE8_6 %u %u %u %u %u %u\\n"
+	},
+	"14737": {
+		"Type": "TRICE8_7",
+		"Strg": "tst:TRICE8_7 %u %u %u %u %u %u %u\\n"
+	},
+	"14738": {
+		"Type": "TRICE8_8",
+		"Strg": "tst:TRICE8_8 %u %u %u %u %u %u %u %u\\n"
+	},
+	"14739": {
+		"Type": "TRICE8_8",
+		"Strg": "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\\n"
+	},
+	"14740": {
+		"Type": "TRICE",
+		"Strg": "sig:Legacy TRICE16-64\\n"
+	},
+	"14741": {
+		"Type": "TRICE16_1",
+		"Strg": "tst:TRICE16_1 %d\\n"
+	},
+	"14742": {
+		"Type": "TRICE16_2",
+		"Strg": "tst:TRICE16_2 %d %d\\n"
+	},
+	"14743": {
+		"Type": "TRICE16_3",
+		"Strg": "tst:TRICE16_3 %d %d %d\\n"
+	},
+	"14744": {
+		"Type": "TRICE16_4",
+		"Strg": "tst:TRICE16_4 %d %d %d %d\\n"
+	},
+	"14745": {
+		"Type": "TRICE32_1",
+		"Strg": "tst:TRICE32_1 %08x\\n"
+	},
+	"14746": {
+		"Type": "TRICE32_1",
+		"Strg": "tst:TRICE32_1 %d\\n"
+	},
+	"14747": {
+		"Type": "TRICE32_2",
+		"Strg": "tst:TRICE32_2 %x %x\\n"
+	},
+	"14748": {
+		"Type": "TRICE32_2",
+		"Strg": "tst:TRICE32_2 %d %d\\n"
+	},
+	"14749": {
+		"Type": "TRICE32_3",
+		"Strg": "tst:TRICE32_3 %x %x %x\\n"
+	},
+	"14750": {
+		"Type": "TRICE32_3",
+		"Strg": "tst:TRICE32_3 %d %d %d\\n"
+	},
+	"14751": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4 %x %x %x %x\\n"
+	},
+	"14752": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4 %d %d %d %d\\n"
+	},
+	"14753": {
+		"Type": "TRICE64_1",
+		"Strg": "tst:TRICE64_1 %d\\n"
+	},
+	"14754": {
+		"Type": "TRICE64_2",
+		"Strg": "tst:TRICE64_2 %d %d\\n"
+	},
+	"14755": {
+		"Type": "TRICE16_1",
+		"Strg": "tst:TRICE16_1 %u\\n"
+	},
+	"14756": {
+		"Type": "TRICE16_2",
+		"Strg": "tst:TRICE16_2 %u %u\\n"
+	},
+	"14757": {
+		"Type": "TRICE16_3",
+		"Strg": "tst:TRICE16_3 %u %u %u\\n"
+	},
+	"14758": {
+		"Type": "TRICE16_4",
+		"Strg": "tst:TRICE16_4 %u %u %u %u\\n"
+	},
+	"14759": {
+		"Type": "TRICE32_1",
+		"Strg": "tst:TRICE32_1 %u\\n"
+	},
+	"14760": {
+		"Type": "TRICE32_2",
+		"Strg": "tst:TRICE32_2 %u %u\\n"
+	},
+	"14761": {
+		"Type": "TRICE32_3",
+		"Strg": "tst:TRICE32_3 %u %u %u\\n"
+	},
+	"14762": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4 %u %u %u %u\\n"
+	},
+	"14763": {
+		"Type": "TRICE64_1",
+		"Strg": "tst:TRICE64_1 %x\\n"
+	},
+	"14764": {
+		"Type": "TRICE64_2",
+		"Strg": "tst:TRICE64_2 %x %x\\n"
+	},
+	"14765": {
+		"Type": "TRICE64_1",
+		"Strg": "tst:TRICE64_1 %u\\n"
+	},
+	"14766": {
+		"Type": "TRICE64_2",
+		"Strg": "tst:TRICE64_2 %u %u\\n"
+	},
+	"14767": {
+		"Type": "trice",
+		"Strg": "sig:colored single letters and several TRICE macros in one line\\n"
+	},
+	"14768": {
+		"Type": "trice",
+		"Strg": "e:A"
+	},
+	"14769": {
+		"Type": "trice",
+		"Strg": "w:B"
+	},
+	"14770": {
+		"Type": "trice",
+		"Strg": "a:c"
+	},
+	"14771": {
+		"Type": "trice",
+		"Strg": "wr:d"
+	},
+	"14772": {
+		"Type": "trice",
+		"Strg": "rd:e\\n"
+	},
+	"14773": {
+		"Type": "trice",
+		"Strg": "diag:f"
+	},
+	"14774": {
+		"Type": "trice",
+		"Strg": "d:G"
+	},
+	"14775": {
+		"Type": "trice",
+		"Strg": "t:H"
+	},
+	"14776": {
+		"Type": "trice",
+		"Strg": "time:i"
+	},
+	"14777": {
+		"Type": "trice",
+		"Strg": "message:J"
+	},
+	"14778": {
+		"Type": "trice",
+		"Strg": "dbg:k\\n"
+	},
+	"14779": {
+		"Type": "trice",
+		"Strg": "1"
+	},
+	"14780": {
+		"Type": "trice",
+		"Strg": "2"
+	},
+	"14781": {
+		"Type": "trice",
+		"Strg": "3"
+	},
+	"14782": {
+		"Type": "trice",
+		"Strg": "4"
+	},
+	"14783": {
+		"Type": "trice",
+		"Strg": "e:7"
+	},
+	"14784": {
+		"Type": "trice",
+		"Strg": "m:12"
+	},
+	"14785": {
+		"Type": "trice",
+		"Strg": "m:123\\n"
+	},
+	"14786": {
+		"Type": "trice",
+		"Strg": "e:A"
+	},
+	"14787": {
+		"Type": "trice",
+		"Strg": "w:B"
+	},
+	"14788": {
+		"Type": "trice",
+		"Strg": "a:c"
+	},
+	"14789": {
+		"Type": "trice",
+		"Strg": "wr:d"
+	},
+	"14790": {
+		"Type": "trice",
+		"Strg": "rd:e\\n"
+	},
+	"14791": {
+		"Type": "trice",
+		"Strg": "diag:f"
+	},
+	"14792": {
+		"Type": "trice",
+		"Strg": "sig:TRICE8 with variable param count 1 to 12\\n"
+	},
+	"14793": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d\\n"
+	},
+	"14794": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d\\n"
+	},
+	"14795": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d\\n"
+	},
+	"14796": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d\\n"
+	},
+	"14797": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d %d\\n"
+	},
+	"14798": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d %d %d\\n"
+	},
+	"14799": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d\\n"
+	},
+	"14800": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d\\n"
+	},
+	"14801": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14802": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14803": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14804": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14805": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8 %t %b %x %X %d %u %o %O %p\\n"
+	},
+	"14806": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:TRICE8_1  %d\\n"
+	},
+	"14807": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:TRICE8_2  %d %d\\n"
+	},
+	"14808": {
+		"Type": "TRICE8_3",
+		"Strg": "tst:TRICE8_3  %d %d %d\\n"
+	},
+	"14809": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4  %d %d %d %d\\n"
+	},
+	"14810": {
+		"Type": "TRICE8_5",
+		"Strg": "tst:TRICE8_5  %d %d %d %d %d\\n"
+	},
+	"14811": {
+		"Type": "TRICE8_6",
+		"Strg": "tst:TRICE8_6  %d %d %d %d %d %d\\n"
+	},
+	"14812": {
+		"Type": "TRICE8_7",
+		"Strg": "tst:TRICE8_7  %d %d %d %d %d %d %d\\n"
+	},
+	"14813": {
+		"Type": "TRICE8_8",
+		"Strg": "tst:TRICE8_8  %d %d %d %d %d %d %d %d\\n"
+	},
+	"14814": {
+		"Type": "TRICE8_9",
+		"Strg": "tst:TRICE8_9  %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14815": {
+		"Type": "TRICE8_10",
+		"Strg": "tst:TRICE8_10 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14816": {
+		"Type": "TRICE8_11",
+		"Strg": "tst:TRICE8_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14817": {
+		"Type": "TRICE8_12",
+		"Strg": "tst:TRICE8_12 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14818": {
+		"Type": "TRICE8",
+		"Strg": "tst:TRICE8   %t %b %x %X %d %u %o %O %p\\n"
+	},
+	"14819": {
+		"Type": "TRICE8_9",
+		"Strg": "tst:TRICE8_9 %t %b %x %X %d %u %o %O %p\\n"
+	},
+	"14820": {
+		"Type": "trice",
+		"Strg": "sig:TRICE16 with variable param count 1 to 12\\n"
+	},
+	"14821": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d\\n"
+	},
+	"14822": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d\\n"
+	},
+	"14823": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d\\n"
+	},
+	"14824": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d\\n"
+	},
+	"14825": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d %d\\n"
+	},
+	"14826": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d %d %d\\n"
+	},
+	"14827": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d\\n"
+	},
+	"14828": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d\\n"
+	},
+	"14829": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14830": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14831": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14832": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14833": {
+		"Type": "TRICE16",
+		"Strg": "tst:TRICE16 %t %b %x %X %d %u %o %O %p\\n"
+	},
+	"14834": {
+		"Type": "TRICE16_1",
+		"Strg": "tst:TRICE16_1  %d\\n"
+	},
+	"14835": {
+		"Type": "TRICE16_2",
+		"Strg": "tst:TRICE16_2  %d %d\\n"
+	},
+	"14836": {
+		"Type": "TRICE16_3",
+		"Strg": "tst:TRICE16_3  %d %d %d\\n"
+	},
+	"14837": {
+		"Type": "TRICE16_4",
+		"Strg": "tst:TRICE16_4  %d %d %d %d\\n"
+	},
+	"14838": {
+		"Type": "TRICE16_5",
+		"Strg": "tst:TRICE16_5  %d %d %d %d %d\\n"
+	},
+	"14839": {
+		"Type": "TRICE16_6",
+		"Strg": "tst:TRICE16_6  %d %d %d %d %d %d\\n"
+	},
+	"14840": {
+		"Type": "TRICE16_7",
+		"Strg": "tst:TRICE16_7  %d %d %d %d %d %d %d\\n"
+	},
+	"14841": {
+		"Type": "TRICE16_8",
+		"Strg": "tst:TRICE16_8  %d %d %d %d %d %d %d %d\\n"
+	},
+	"14842": {
+		"Type": "TRICE16_9",
+		"Strg": "tst:TRICE16_9  %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14843": {
+		"Type": "TRICE16_10",
+		"Strg": "tst:TRICE16_10 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14844": {
+		"Type": "TRICE16_11",
+		"Strg": "tst:TRICE16_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14845": {
+		"Type": "TRICE16_12",
+		"Strg": "tst:TRICE16_12 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14846": {
+		"Type": "TRICE16_9",
+		"Strg": "tst:TRICE16 %t %b %x %X %d %u %o %O %p\\n"
+	},
+	"14847": {
+		"Type": "trice",
+		"Strg": "sig:TRICE32 with variable param count 1 to 12\\n"
+	},
+	"14848": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d\\n"
+	},
+	"14849": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d\\n"
+	},
+	"14850": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d\\n"
+	},
+	"14851": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d\\n"
+	},
+	"14852": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d %d\\n"
+	},
+	"14853": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d %d %d\\n"
+	},
+	"14854": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d\\n"
+	},
+	"14855": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d %d\\n"
+	},
+	"14856": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14857": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14858": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14859": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14860": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
+	},
+	"14861": {
+		"Type": "TRICE32_1",
+		"Strg": "tst:TRICE32_1  %d\\n"
+	},
+	"14862": {
+		"Type": "TRICE32_2",
+		"Strg": "tst:TRICE32_2  %d %d\\n"
+	},
+	"14863": {
+		"Type": "TRICE32_3",
+		"Strg": "tst:TRICE32_3  %d %d %d\\n"
+	},
+	"14864": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4  %d %d %d %d\\n"
+	},
+	"14865": {
+		"Type": "TRICE32_5",
+		"Strg": "tst:TRICE32_5  %d %d %d %d %d\\n"
+	},
+	"14866": {
+		"Type": "TRICE32_6",
+		"Strg": "tst:TRICE32_6  %d %d %d %d %d %d\\n"
+	},
+	"14867": {
+		"Type": "TRICE32_7",
+		"Strg": "tst:TRICE32_7  %d %d %d %d %d %d %d\\n"
+	},
+	"14868": {
+		"Type": "TRICE32_8",
+		"Strg": "tst:TRICE32_8  %d %d %d %d %d %d %d %d\\n"
+	},
+	"14869": {
+		"Type": "TRICE32_9",
+		"Strg": "tst:TRICE32_9  %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14870": {
+		"Type": "TRICE32_10",
+		"Strg": "tst:TRICE32_10 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14871": {
+		"Type": "TRICE32_11",
+		"Strg": "tst:TRICE32_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14872": {
+		"Type": "TRICE32_12",
+		"Strg": "tst:TRICE32_12 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14873": {
+		"Type": "TRICE32",
+		"Strg": "tst:TRICE32    %t %b %x %X %d %u %o %O %p %e %f %g\\n"
+	},
+	"14874": {
+		"Type": "TRICE32_12",
+		"Strg": "tst:TRICE32_12 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
+	},
+	"14875": {
+		"Type": "trice",
+		"Strg": "sig:TRICE64 with variable param count 1 to 12\\n"
+	},
+	"14876": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d\\n"
+	},
+	"14877": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d\\n"
+	},
+	"14878": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d\\n"
+	},
+	"14879": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d\\n"
+	},
+	"14880": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d %d\\n"
+	},
+	"14881": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d %d %d\\n"
+	},
+	"14882": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d\\n"
+	},
+	"14883": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d %d\\n"
+	},
+	"14884": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14885": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14886": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14887": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14888": {
+		"Type": "TRICE64",
+		"Strg": "tst:TRICE64 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
+	},
+	"14889": {
+		"Type": "TRICE64_1",
+		"Strg": "tst:TRICE64_1  %d\\n"
+	},
+	"14890": {
+		"Type": "TRICE64_2",
+		"Strg": "tst:TRICE64_2  %d %d\\n"
+	},
+	"14891": {
+		"Type": "TRICE64_3",
+		"Strg": "tst:TRICE64_3  %d %d %d\\n"
+	},
+	"14892": {
+		"Type": "TRICE64_4",
+		"Strg": "tst:TRICE64_4  %d %d %d %d\\n"
+	},
+	"14893": {
+		"Type": "TRICE64_5",
+		"Strg": "tst:TRICE64_5  %d %d %d %d %d\\n"
+	},
+	"14894": {
+		"Type": "TRICE64_6",
+		"Strg": "tst:TRICE64_6  %d %d %d %d %d %d\\n"
+	},
+	"14895": {
+		"Type": "TRICE64_7",
+		"Strg": "tst:TRICE64_7  %d %d %d %d %d %d %d\\n"
+	},
+	"14896": {
+		"Type": "TRICE64_8",
+		"Strg": "tst:TRICE64_8  %d %d %d %d %d %d %d %d\\n"
+	},
+	"14897": {
+		"Type": "TRICE64_9",
+		"Strg": "tst:TRICE64_9  %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14898": {
+		"Type": "TRICE64_10",
+		"Strg": "tst:TRICE64_10 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14899": {
+		"Type": "TRICE64_11",
+		"Strg": "tst:TRICE64_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14900": {
+		"Type": "TRICE64_12",
+		"Strg": "tst:TRICE64_12 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"14901": {
+		"Type": "TRICE64_12",
+		"Strg": "tst:TRICE64_12 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
+	},
+	"14902": {
+		"Type": "trice",
+		"Strg": "att:positive and negative float in format variants\\n"
+	},
+	"14903": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %f (%%f)\\n"
+	},
+	"14904": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %9f (%%9f)\\n"
+	},
+	"14905": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %.9f (%%.9f)\\n"
+	},
+	"14906": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %9.f (%%9.f)\\n"
+	},
+	"14907": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %9.6f (%%9.6f)\\n"
+	},
+	"14908": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %f (%%f)\\n"
+	},
+	"14909": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %9f (%%9f)\\n"
+	},
+	"14910": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %.9f (%%.9f)\\n"
+	},
+	"14911": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %9.f (%%9.f)\\n"
+	},
+	"14912": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %9.6f (%%9.6f)\\n"
+	},
+	"14913": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+f (%%f)\\n"
+	},
+	"14914": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+9f (%%9f)\\n"
+	},
+	"14915": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+.9f (%%.9f)\\n"
+	},
+	"14916": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+9.f (%%9.f)\\n"
+	},
+	"14917": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+9.6f (%%9.6f)\\n"
+	},
+	"14918": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+f (%%f)\\n"
+	},
+	"14919": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+9f (%%9f)\\n"
+	},
+	"14920": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+.9f (%%.9f)\\n"
+	},
+	"14921": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+9.f (%%9.f)\\n"
+	},
+	"14922": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %+9.6f (%%9.6f)\\n"
+	},
+	"14923": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-f (%%f)\\n"
+	},
+	"14924": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-9f (%%9f)\\n"
+	},
+	"14925": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-.9f (%%.9f)\\n"
+	},
+	"14926": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-9.f (%%9.f)\\n"
+	},
+	"14927": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-9.6f (%%9.6f)\\n"
+	},
+	"14928": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-f (%%f)\\n"
+	},
+	"14929": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-9f (%%9f)\\n"
+	},
+	"14930": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-.9f (%%.9f)\\n"
+	},
+	"14931": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-9.f (%%9.f)\\n"
+	},
+	"14932": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %-9.6f (%%9.6f)\\n"
+	},
+	"14933": {
+		"Type": "trice",
+		"Strg": "att:positive float \u0026 double in variants\\n"
+	},
+	"14934": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %e (%%e)\\n"
+	},
+	"14935": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %f (%%f)\\n"
+	},
+	"14936": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %g (%%g)\\n"
+	},
+	"14937": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %E (%%E)\\n"
+	},
+	"14938": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %F (%%F)\\n"
+	},
+	"14939": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %G (%%G)\\n"
+	},
+	"14940": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %e (%%e)\\n"
+	},
+	"14941": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %f (%%f)\\n"
+	},
+	"14942": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %g (%%g)\\n"
+	},
+	"14943": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %E (%%E)\\n"
+	},
+	"14944": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %F (%%F)\\n"
+	},
+	"14945": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %G (%%G)\\n"
+	},
+	"14946": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %e (%%e)\\n"
+	},
+	"14947": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %f (%%f)\\n"
+	},
+	"14948": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %g (%%g)\\n"
+	},
+	"14949": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %E (%%E)\\n"
+	},
+	"14950": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %F (%%F)\\n"
+	},
+	"14951": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %G (%%G)\\n"
+	},
+	"14952": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %e (%%e), aDouble(y)\\n"
+	},
+	"14953": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %f (%%f), aDouble(y)\\n"
+	},
+	"14954": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %g (%%g), aDouble(y)\\n"
+	},
+	"14955": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %E (%%E), aDouble(y)\\n"
+	},
+	"14956": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %F (%%F), aDouble(y)\\n"
+	},
+	"14957": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %G (%%G), aDouble(y)\\n"
+	},
+	"14958": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 double %e (%%e), aDouble(y)\\n"
+	},
+	"14959": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 double %f (%%f), aDouble(y)\\n"
+	},
+	"14960": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 double %g (%%g), aDouble(y)\\n"
+	},
+	"14961": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 double %E (%%E), aDouble(y)\\n"
+	},
+	"14962": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 double %F (%%F), aDouble(y)\\n"
+	},
+	"14963": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 double %G (%%G), aDouble(y)\\n"
+	},
+	"14964": {
+		"Type": "trice",
+		"Strg": "att:negative float \u0026 double\\n"
+	},
+	"14965": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %e (%%e)\\n"
+	},
+	"14966": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %f (%%f)\\n"
+	},
+	"14967": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %g (%%g)\\n"
+	},
+	"14968": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %E (%%E)\\n"
+	},
+	"14969": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %F (%%F)\\n"
+	},
+	"14970": {
+		"Type": "trice",
+		"Strg": "rd:TRICE float %G (%%G)\\n"
+	},
+	"14971": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %e (%%e), aDouble(y)\\n"
+	},
+	"14972": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %f (%%f), aDouble(y)\\n"
+	},
+	"14973": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %g (%%g), aDouble(y)\\n"
+	},
+	"14974": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %E (%%E), aDouble(y)\\n"
+	},
+	"14975": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %F (%%F), aDouble(y)\\n"
+	},
+	"14976": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %G (%%G), aDouble(y)\\n"
+	},
+	"14977": {
+		"Type": "TRICE",
+		"Strg": "att:formatted float\\n"
+	},
+	"14978": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %12.6e (%%12.6e)\\n"
+	},
+	"14979": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %12.6f (%%12.6f)\\n"
+	},
+	"14980": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %12.6g (%%12.6g)\\n"
+	},
+	"14981": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %12.6E (%%12.6E)\\n"
+	},
+	"14982": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %12.6F (%%12.6F)\\n"
+	},
+	"14983": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %12.6G (%%12.6G)\\n"
+	},
+	"14984": {
+		"Type": "TRICE",
+		"Strg": "att:formatted double\\n"
+	},
+	"14985": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %12.6e (%%12.6e), aDouble(y)\\n"
+	},
+	"14986": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %12.6f (%%12.6f), aDouble(y)\\n"
+	},
+	"14987": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %12.6g (%%12.6g), aDouble(y)\\n"
+	},
+	"14988": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %12.6E (%%12.6E), aDouble(y)\\n"
+	},
+	"14989": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %12.6F (%%12.6F), aDouble(y)\\n"
+	},
+	"14990": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 double %12.6G (%%12.6G), aDouble(y)\\n"
+	},
+	"14991": {
+		"Type": "TRICE",
+		"Strg": "att:Various single arguments\\n"
+	},
+	"14992": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %t (%%t ,0)\\n"
+	},
+	"14993": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %t (%%t ,2)\\n"
+	},
+	"14994": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %u (%%u ,-1)\\n"
+	},
+	"14995": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %b (%%b ,-1)\\n"
+	},
+	"14996": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %o (%%o ,-1)\\n"
+	},
+	"14997": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %O (%%O ,-1)\\n"
+	},
+	"14998": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %X (%%X ,-1)\\n"
+	},
+	"14999": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %x (%%x ,-1)\\n"
+	},
+	"15000": {
+		"Type": "TRICE8",
+		"Strg": "rd:TRICE8 line %d (%%d ,-1)\\n"
+	},
+	"15001": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1 line %t (%%t ,0)\\n"
+	},
+	"15002": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1 line %t (%%t ,2)\\n"
+	},
+	"15003": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1 line %u (%%u -1)\\n"
+	},
+	"15004": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1 line %b (%%b -1)\\n"
+	},
+	"15005": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1 line %o (%%o -1)\\n"
+	},
+	"15006": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1 line %x (%%x -1)\\n"
+	},
+	"15007": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1 line %d (%%d -1)\\n"
+	},
+	"15008": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %t (%%t -1)\\n"
+	},
+	"15009": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %t (%%t -1)\\n"
+	},
+	"15010": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %u (%%u)\\n"
+	},
+	"15011": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %b (%%b)\\n"
+	},
+	"15012": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %o (%%o)\\n"
+	},
+	"15013": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %x (%%x)\\n"
+	},
+	"15014": {
+		"Type": "Trice",
+		"Strg": "rd:Trice line %d (%%d)\\n"
+	},
+	"15015": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15016": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15017": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15018": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15019": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15020": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15021": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15022": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15023": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15024": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15025": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15026": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15027": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15028": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15029": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15030": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15031": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15032": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15033": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15034": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15035": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15036": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15037": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15038": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15039": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15040": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15041": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15042": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15043": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15044": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
+	"15045": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15046": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15047": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15048": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15049": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15050": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15051": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15052": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15053": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15054": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15055": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15056": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15057": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15058": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15059": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15060": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15061": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15062": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15063": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15064": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15065": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15066": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15067": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15068": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15069": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15070": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15071": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15072": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15073": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15074": {
+		"Type": "triceN",
+		"Strg": "msg:%s\\n"
+	},
+	"15075": {
+		"Type": "trice",
+		"Strg": "sig:TRICE with 1 to 12 values\\n"
+	},
+	"15076": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d\\n"
+	},
+	"15077": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d\\n"
+	},
+	"15078": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d\\n"
+	},
+	"15079": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d\\n"
+	},
+	"15080": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d\\n"
+	},
+	"15081": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15082": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15083": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15084": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15085": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15086": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15087": {
+		"Type": "trice",
+		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15088": {
+		"Type": "trice",
+		"Strg": "sig:TRICE_n with 1 to 12 values\\n"
+	},
+	"15089": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_1  %d\\n"
+	},
+	"15090": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_2  %d, %d\\n"
+	},
+	"15091": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_3  %d, %d, %d\\n"
+	},
+	"15092": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_4  %d, %d, %d, %d\\n"
+	},
+	"15093": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_5  %d, %d, %d, %d, %d\\n"
+	},
+	"15094": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_6  %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15095": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_7  %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15096": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_8  %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15097": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_9  %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15098": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15099": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15100": {
+		"Type": "trice",
+		"Strg": "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15101": {
+		"Type": "TRice",
+		"Strg": "sig:Trice16 with 1 to 12 pointer\\n"
+	},
+	"15102": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p\\n"
+	},
+	"15103": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p\\n"
+	},
+	"15104": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p\\n"
+	},
+	"15105": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p\\n"
+	},
+	"15106": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p\\n"
+	},
+	"15107": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15108": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15109": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15110": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15111": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15112": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15113": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"15114": {
+		"Type": "TRice",
+		"Strg": "sig:TRICE16 with 1 to 12 hex\\n"
+	},
+	"15115": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X\\n"
+	},
+	"15116": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X\\n"
+	},
+	"15117": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X\\n"
+	},
+	"15118": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X\\n"
+	},
+	"15119": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X\\n"
+	},
+	"15120": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15121": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15122": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15123": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15124": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15125": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15126": {
+		"Type": "Trice16",
+		"Strg": "rd:Trice16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
+	},
+	"15127": {
+		"Type": "TRICE",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15128": {
+		"Type": "TRICE",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15129": {
+		"Type": "TRICE",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15130": {
+		"Type": "TRICE",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15131": {
+		"Type": "trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15132": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15133": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15134": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15135": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15136": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15137": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15138": {
+		"Type": "trice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15139": {
+		"Type": "Trice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15140": {
+		"Type": "TRice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15141": {
+		"Type": "TRICE0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15142": {
+		"Type": "TRICE0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15143": {
+		"Type": "TRICE0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15144": {
+		"Type": "TRICE0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15145": {
+		"Type": "trice0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15146": {
+		"Type": "Trice0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15147": {
+		"Type": "TRice0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15148": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15149": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15150": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15151": {
+		"Type": "TRICE_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15152": {
+		"Type": "trice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15153": {
+		"Type": "Trice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15154": {
+		"Type": "TRice_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15155": {
+		"Type": "TRICE8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15156": {
+		"Type": "TRICE8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15157": {
+		"Type": "TRICE8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15158": {
+		"Type": "TRICE8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15159": {
+		"Type": "trice8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15160": {
+		"Type": "Trice8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15161": {
+		"Type": "TRice8",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15162": {
+		"Type": "TRICE8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15163": {
+		"Type": "TRICE8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15164": {
+		"Type": "TRICE8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15165": {
+		"Type": "TRICE8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15166": {
+		"Type": "trice8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15167": {
+		"Type": "Trice8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15168": {
+		"Type": "TRice8_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15169": {
+		"Type": "trice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15170": {
+		"Type": "trice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15171": {
+		"Type": "trice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15172": {
+		"Type": "trice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15173": {
+		"Type": "trice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15174": {
+		"Type": "Trice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15175": {
+		"Type": "TRice16",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15176": {
+		"Type": "TRICE16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15177": {
+		"Type": "TRICE16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15178": {
+		"Type": "TRICE16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15179": {
+		"Type": "TRICE16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15180": {
+		"Type": "trice16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15181": {
+		"Type": "Trice16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15182": {
+		"Type": "TRice16_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15183": {
+		"Type": "TRICE32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15184": {
+		"Type": "TRICE32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15185": {
+		"Type": "TRICE32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15186": {
+		"Type": "TRICE32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15187": {
+		"Type": "trice32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15188": {
+		"Type": "Trice32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15189": {
+		"Type": "TRice32",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15190": {
+		"Type": "TRICE32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15191": {
+		"Type": "TRICE32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15192": {
+		"Type": "TRICE32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15193": {
+		"Type": "TRICE32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15194": {
+		"Type": "trice32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15195": {
+		"Type": "Trice32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15196": {
+		"Type": "TRice32_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15197": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15198": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15199": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15200": {
+		"Type": "TRICE64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15201": {
+		"Type": "trice64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15202": {
+		"Type": "Trice64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15203": {
+		"Type": "TRice64",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15204": {
+		"Type": "TRICE64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15205": {
+		"Type": "TRICE64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15206": {
+		"Type": "TRICE64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15207": {
+		"Type": "TRICE64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15208": {
+		"Type": "trice64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15209": {
+		"Type": "Trice64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15210": {
+		"Type": "TRice64_0",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
+	"15211": {
+		"Type": "TRICE_S",
+		"Strg": "rd:sizeof(%8s)"
+	},
+	"15212": {
+		"Type": "TRICE",
+		"Strg": " = %d\\n"
+	},
+	"15213": {
+		"Type": "TRICE_S",
+		"Strg": "rd:sizeof(%8s)"
+	},
+	"15214": {
+		"Type": "TRICE",
+		"Strg": " = %d\\n"
+	},
+	"15215": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout tx struct:"
+	},
+	"15216": {
+		"Type": "TRICE8_B",
+		"Strg": " %02x "
+	},
+	"15217": {
+		"Type": "TRICE",
+		"Strg": "\\n"
+	},
+	"15218": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout buffer:"
+	},
+	"15219": {
+		"Type": "TRICE8_B",
+		"Strg": " %02x "
+	},
+	"15220": {
+		"Type": "TRICE",
+		"Strg": "\\n"
+	},
+	"15221": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout rx struct:"
+	},
+	"15222": {
+		"Type": "TRICE8_B",
+		"Strg": " %02x "
+	},
+	"15223": {
+		"Type": "TRICE",
+		"Strg": "\\n"
+	},
+	"15224": {
+		"Type": "TRICE",
+		"Strg": "inf:sizeOf(Trypout) = %d, buffer length = %d\\n"
+	},
+	"15225": {
+		"Type": "TRICE8_F",
+		"Strg": "info:TryoutStructFunction"
+	},
+	"15226": {
+		"Type": "TRICE8_F",
+		"Strg": "info:TryoutBufferFunction"
+	},
+	"15227": {
+		"Type": "Trice",
+		"Strg": "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f})\\n"
+	},
+	"15228": {
+		"Type": "trice",
+		"Strg": "sig:%3d:"
+	},
+	"15229": {
+		"Type": "TRICE_N",
+		"Strg": "wr:%s\\n"
+	},
+	"15230": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15231": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:'-alias' \u0026 '-salias' contributor is %s.\\n\"')SAlias_Strg"
+	},
+	"15232": {
+		"Type": "trice",
+		"Strg": "A user printi call without values.\\n"
+	},
+	"15233": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user prints call without values.\\n\"')SAlias_Strg"
+	},
+	"15234": {
+		"Type": "trice",
+		"Strg": "A user printi call with integer and float values: %u, %d, %x, %2.1f\\n"
+	},
+	"15235": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user prints call with integer and float values: %u, %d, %x, %2.1f\\n\"')SAlias_Strg"
+	},
+	"15236": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user ... with string, integer and float values: %u, %d, %x, %2.1f, %s and %s\\n\"')SAlias_Strg"
+	},
+	"15237": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15238": {
+		"Type": "trice",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+	},
+	"15239": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
+	},
+	"15240": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
+	},
+	"15241": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)\"'%s' Am, it is %d\"')SAlias_Strg"
+	},
+	"15242": {
+		"Type": "TRice",
+		"Strg": "Hello "
+	},
+	"15243": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
+	},
+	"15244": {
+		"Type": "TRice64",
+		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
+	},
+	"15245": {
+		"Type": "trice",
+		"Strg": "Hello again\\n"
+	},
+	"15246": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15247": {
+		"Type": "TRICE8_F",
+		"Strg": "info:FunctionNameWa"
+	},
+	"15248": {
+		"Type": "TRice8F",
+		"Strg": "info:FunctionNameWb"
+	},
+	"15249": {
+		"Type": "Trice8F",
+		"Strg": "info:FunctionNameWc"
+	},
+	"15250": {
+		"Type": "trice8F",
+		"Strg": "info:FunctionNameWd"
+	},
+	"15251": {
+		"Type": "TRICE16_F",
+		"Strg": "info:FunctionNameXa"
+	},
+	"15252": {
+		"Type": "TRice16F",
+		"Strg": "info:FunctionNameXb"
+	},
+	"15253": {
+		"Type": "Trice16F",
+		"Strg": "info:FunctionNameXc"
+	},
+	"15254": {
+		"Type": "trice16F",
+		"Strg": "info:FunctionNameXd"
+	},
+	"15255": {
+		"Type": "TRICE32_F",
+		"Strg": "info:FunctionNameYa"
+	},
+	"15256": {
+		"Type": "TRice8B",
+		"Strg": "%3x\\n"
+	},
+	"15257": {
+		"Type": "TRice32F",
+		"Strg": "rpc:FunctionNameYb"
+	},
+	"15258": {
+		"Type": "TRice8B",
+		"Strg": "%3x\\n"
+	},
+	"15259": {
+		"Type": "Trice32F",
+		"Strg": "rpc:FunctionNameYc"
+	},
+	"15260": {
+		"Type": "trice32F",
+		"Strg": "call:FunctionNameYd"
+	},
+	"15261": {
+		"Type": "TRICE64_F",
+		"Strg": "info:FunctionNameZa"
+	},
+	"15262": {
+		"Type": "TRice64F",
+		"Strg": "call:FunctionNameZb"
+	},
+	"15263": {
+		"Type": "Trice64F",
+		"Strg": "RPC:FunctionNameZc"
+	},
+	"15264": {
+		"Type": "trice64F",
+		"Strg": "Rpc:FunctionNameZd"
+	},
+	"15265": {
+		"Type": "TRice",
+		"Strg": "Hello "
+	},
+	"15266": {
+		"Type": "TRice",
+		"Strg": "World!\\n"
+	},
+	"15267": {
+		"Type": "TRice64",
+		"Strg": "msg:Twelve 64-bit values: %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\\n"
+	},
+	"15268": {
+		"Type": "trice",
+		"Strg": "Hello again\\n"
+	},
+	"15269": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15270": {
+		"Type": "Trice",
+		"Strg": "ok!\\n"
+	},
+	"16326": {
+		"Type": "trice",
+		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
+	},
+	"16327": {
+		"Type": "trice",
+		"Strg": "deb:_CYCLE == %d, _PROTECT == %d, _DIAG == %d, XTEA == %d\\n"
+	},
+	"16328": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_MULTI_PACK_MODE\\n"
+	},
+	"16329": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_SINGLE_PACK_MODE\\n"
+	},
+	"16330": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_RING_BUFFER, "
+	},
+	"16331": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_DOUBLE_BUFFER, "
+	},
+	"16332": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_STATIC_BUFFER, "
+	},
+	"16333": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_STACK_BUFFER, "
+	},
+	"16334": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d\\n"
+	},
+	"16335": {
+		"Type": "Trice",
+		"Strg": "i=%x %x\\n"
+	},
+	"16336": {
+		"Type": "trice",
+		"Strg": "info:%d times a 16 byte long Trice messages, which may not be written all if the buffer is too small:\\n"
+	},
+	"16337": {
+		"Type": "Trice16F",
+		"Strg": "att:ARemoteFunctionName"
+	},
+	"16338": {
+		"Type": "Trice32B",
+		"Strg": "msg:%08x  \\n"
+	},
+	"16339": {
+		"Type": "Trice8B",
+		"Strg": "msg:%02x \\n"
+	},
+	"16340": {
+		"Type": "Trice",
+		"Strg": "info:A Buffer:\\n"
+	},
+	"16341": {
+		"Type": "Trice",
+		"Strg": "msg:%f (default rounded float)\\n"
+	},
+	"16342": {
+		"Type": "Trice",
+		"Strg": "msg:%.20f (float  with more ciphers than precision)\\n"
+	},
+	"16343": {
+		"Type": "Trice64",
+		"Strg": "msg:%.20f (double with more ciphers than precision)\\n"
+	},
+	"16344": {
+		"Type": "TriceS",
+		"Strg": "rd:%s \u003c- float number as string\\n"
+	},
+	"16345": {
+		"Type": "trice",
+		"Strg": "att:🐁 Speedy Gonzales l without time stamp\\n"
+	},
+	"16346": {
+		"Type": "trice",
+		"Strg": "att:🐁 Speedy Gonzales k without time stamp\\n"
+	},
+	"16347": {
+		"Type": "trice",
+		"Strg": "att:🐁 Speedy Gonzales j without time stamp\\n"
+	},
+	"16348": {
+		"Type": "trice",
+		"Strg": "att:🐁 Speedy Gonzales i without time stamp\\n"
+	},
+	"16349": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales h  16-bit time stamp\\n"
+	},
+	"16350": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales g  16-bit time stamp\\n"
+	},
+	"16351": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales f  16-bit time stamp\\n"
+	},
+	"16352": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales e  16-bit time stamp\\n"
+	},
+	"16353": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales d  32-bit time stamp\\n"
+	},
+	"16354": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales c  32-bit time stamp\\n"
+	},
+	"16355": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales b  32-bit time stamp\\n"
+	},
+	"16356": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales a  32-bit time stamp\\n"
+	},
+	"16357": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales L without time stamp\\n"
+	},
+	"16358": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales K without time stamp\\n"
+	},
+	"16359": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales J without time stamp\\n"
+	},
+	"16360": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales I without time stamp\\n"
+	},
+	"16361": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales H  16-bit time stamp\\n"
+	},
+	"16362": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales G  16-bit time stamp\\n"
+	},
+	"16363": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales F  16-bit time stamp\\n"
+	},
+	"16364": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales E  16-bit time stamp\\n"
+	},
+	"16365": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales D  32-bit time stamp\\n"
+	},
+	"16366": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales C  32-bit time stamp\\n"
+	},
+	"16367": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales B  32-bit time stamp\\n"
+	},
+	"16368": {
+		"Type": "TRICE32_0",
+		"Strg": "att:🐁 Speedy Gonzales A  32-bit time stamp\\n"
+	},
+	"16369": {
+		"Type": "TriceS",
+		"Strg": "w: Hello! 👋🙂 \\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈%s🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	},
+	"16370": {
+		"Type": "trice16",
+		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
+	},
+	"16371": {
+		"Type": "trice16",
+		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
+	},
+	"16372": {
+		"Type": "trice16",
+		"Strg": "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
+	},
+	"16373": {
+		"Type": "trice16",
+		"Strg": "diag:TriceHalfBufferDepthMax =%4u of%5d\\n"
+	},
+	"16374": {
+		"Type": "trice16",
+		"Strg": "wrn:TriceDynStringBufTruncateCount = %u\\n"
+	},
+	"16375": {
+		"Type": "trice16",
+		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
+	"16376": {
+		"Type": "trice16",
+		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
+	"16377": {
+		"Type": "trice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
+	},
+	"16378": {
+		"Type": "trice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
+	},
+	"16379": {
+		"Type": "trice16",
+		"Strg": "err:TriceDeferredOverflowCount = %u\\n"
+	},
+	"16380": {
+		"Type": "trice16",
+		"Strg": "err:TriceDirectOverflowCount = %u\\n"
+	},
+	"16381": {
+		"Type": "trice16",
+		"Strg": "err:TriceErrorCount = %u\\n"
+	},
+	"16382": {
+		"Type": "trice16",
+		"Strg": "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
+	},
+	"16383": {
+		"Type": "trice16",
+		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
+	}
+}
