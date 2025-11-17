@@ -77,14 +77,12 @@ __weak int _write(void) { return -1; }
   */
 int main(void)
 {
-
   /* USER CODE BEGIN 1 */
-#if !TRICE_OFF
+#if !TRICE_OFF  
   TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
-  TRice("Fun %x!\n", 0xadded ); // with "fixed" iD(255), 32-bit stamp,  and with `\n`
+  trice("Fun %x!\n", 0xadded ); // with "fixed" iD(255), 32-bit stamp,  and with `\n`
   TriceHeadLine("  NUCLEO-G0B1RE   ");
   LogTriceConfiguration();
-  SomeExampleTrices(3);
 #endif
   /* USER CODE END 1 */
 
@@ -342,6 +340,7 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN 5 */
   TRICE_UNUSED(argument)
   TRice("msg:StartDefaultTask\n");
+  SomeExampleTrices(3);
   /* Infinite loop */
   for(;;)
   {
