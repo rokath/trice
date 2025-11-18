@@ -7496,6 +7496,10 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  50. <a id='scratch-pad'></a>Scratch Pad
+
+> Find a solution for many til.json files.
+> * An UTF-16 like til.json selection?
+
 ```txt
 
 ```
