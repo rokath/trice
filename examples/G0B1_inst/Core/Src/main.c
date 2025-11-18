@@ -340,7 +340,9 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN 5 */
   TRICE_UNUSED(argument)
   TRice("msg:StartDefaultTask\n");
+#if !TRICE_OFF
   SomeExampleTrices(3);
+#endif
   /* Infinite loop */
   for(;;)
   {
