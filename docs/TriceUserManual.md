@@ -7487,10 +7487,10 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 * Of course it is possibe to compress them to save space and traffic.
 * But if a server generates binary Trice log data directly:
   * The log generation is much faster and demands less energy.
-  * An additional compression is not needed, because TCOBS already does it in a reasonable way.
+  * An additional compression is not needed, because the Trice internal [TCOBS](https://github.com/rokath/tcobs) already does it in a reasonable way.
   * Less log data are to be transferred.
 * To read the (binary) log data, the matching Trice-Id-List *til.json* is needed. Because this has a size of only a few kilobytes, the server can transmit it on request.
-* The ~16000 usable IDs may be not enough for bis systems. Options:
+* The ~16000 usable IDs may be not enough for big systems. Options:
   1. Change the TREX binary format to
     * use 32- or 48- or 64-bit IDs. The many zeroes are efficiently compressed internally with TCOBS.
     * use the full 16-bit IDs for ~65000 IDs
