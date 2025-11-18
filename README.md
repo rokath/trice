@@ -1,12 +1,8 @@
 <div id="top">
 
 ```diff
---> 2025-11-16:
---> Due to an too early commit the master branch got broken.
---> The master branch is removed now and an older well working hash  d406f1cc(Oct 2025) got now main.
---> Please use v1.0 or main if you intend to build from the sources.
---> The last devel=master state is continued now as dev branch.
---> Do not expect a well working Trice binary in Branche dev right now.
++ Please use v1.0 or branch "main" if you intend to build from the sources.
+- Do not expect a well working Trice binary in branch "dev" right now. (2026-NOV)
 ```
 
 # 🅃🅁ace 🄸d's 🄲 🄴mbedded
