@@ -5,10 +5,8 @@ package args
 
 import (
 	"bytes"
-	"os"
 	"testing"
 
-	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
@@ -67,14 +65,14 @@ func TestScan(t *testing.T) {
 //  	Verbose = false
 //  	v := []string{"", ""}
 //  	testVersion(t, v)
-//  
+//
 //  	Verbose = true
 //  	v[0] = "https://github.com/rokath/trice\n"
 //  	v[1] = ""
 //  	testVersion(t, v)
 //  	Verbose = false
 //  }
-//  
+//
 //  func testVersion(t *testing.T, v []string) {
 //  	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
 //  	fi, err := fSys.Stat(os.Args[0])
@@ -85,7 +83,7 @@ func TestScan(t *testing.T) {
 //  	msg.OnErr(Handler(&buf0, fSys, []string{"trice", "ver"}))
 //  	act0 := buf0.String()
 //  	assert.Equal(t, exp, act0)
-//  
+//
 //  	var buf1 bytes.Buffer
 //  	msg.OnErr(Handler(&buf1, fSys, []string{"trice", "version"}))
 //  	act1 := buf1.String()
