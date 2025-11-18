@@ -70,7 +70,6 @@ func TestScan(t *testing.T) {
 //  	v[0] = "https://github.com/rokath/trice\n"
 //  	v[1] = ""
 //  	testVersion(t, v)
-//  	Verbose = false
 //  }
 //
 //  func testVersion(t *testing.T, v []string) {
