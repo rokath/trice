@@ -372,39 +372,39 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 43.2. [Get all project files containing Trice messages](#get-all-project-files-containing-trice-messages)
   * 43.3. [Building a trice library?](#building-a-trice-library?)
   * 43.4. [Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
-* 44. [Working with the Trice Git Repository](#working-with-the-trice-git-repository)
-  * 44.1. [Install `opencommit` on MacOS](#install-`opencommit`-on-macos)
-  * 44.2. [Install `opencommit` on Windows](#install-`opencommit`-on-windows)
-* 45. [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)
-  * 45.1. [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
-  * 45.2. [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
-  * 45.3. [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)
-  * 45.4. [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
-    * 45.4.1. [PR533 Doc](#pr533-doc)
-    * 45.4.2. [PR533 Summary](#pr533-summary)
-    * 45.4.3. [PR533 Motivation](#pr533-motivation)
-    * 45.4.4. [What This PR533 Adds](#what-this-pr533-adds)
-    * 45.4.5. [PR533 Example](#pr533-example)
-    * 45.4.6. [PR536 Doc](#pr536-doc)
-    * 45.4.7. [Alias Example Project](#alias-example-project)
-* 46. [Future Development](#future-development)
-  * 46.1. [Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft)
-    * 46.1.1. [What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?](#what-log-levels-exist-in-general,-including-exotic-ones,-and-what-is-their-exact-weighting-relative-to-each-other?)
-    * 46.1.2. [Compile-time Log-level Control](#compile-time-log-level-control)
-    * 46.1.3. [Run-time Log-level Control](#run-time-log-level-control)
-  * 46.2. [Trice Structured Logging](#trice-structured-logging)
-    * 46.2.1. [Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information)
-    * 46.2.2. [Trice Structured Logging Runtime Information](#trice-structured-logging-runtime-information)
-    * 46.2.3. [Trice Structured Logging Limitations and Special Cases](#trice-structured-logging-limitations-and-special-cases)
-    * 46.2.4. [A Trice Structured Logging Example](#a-trice-structured-logging-example)
-    * 46.2.5. [Trice Structured Logging CLI Switches and Variables](#trice-structured-logging-cli-switches-and-variables)
-    * 46.2.6. [Trice Structured Logging User Defined Values](#trice-structured-logging-user-defined-values)
-    * 46.2.7. [Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
-    * 46.2.8. [Trice Structured Logging Level Specific Configuration](#trice-structured-logging-level-specific-configuration)
-    * 46.2.9. [Trice Structured Logging Assert Macros (TODO)](#trice-structured-logging-assert-macros-(todo))
-  * 46.3. [Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser)
-    * 46.3.1. [Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
-  * 46.4. [Using Trice on Servers](#using-trice-on-servers)
+* 44. [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)
+  * 44.1. [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
+  * 44.2. [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
+  * 44.3. [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)
+  * 44.4. [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
+    * 44.4.1. [PR533 Doc](#pr533-doc)
+    * 44.4.2. [PR533 Summary](#pr533-summary)
+    * 44.4.3. [PR533 Motivation](#pr533-motivation)
+    * 44.4.4. [What This PR533 Adds](#what-this-pr533-adds)
+    * 44.4.5. [PR533 Example](#pr533-example)
+    * 44.4.6. [PR536 Doc](#pr536-doc)
+    * 44.4.7. [Alias Example Project](#alias-example-project)
+* 45. [Future Development](#future-development)
+  * 45.1. [Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft)
+    * 45.1.1. [What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?](#what-log-levels-exist-in-general,-including-exotic-ones,-and-what-is-their-exact-weighting-relative-to-each-other?)
+    * 45.1.2. [Compile-time Log-level Control](#compile-time-log-level-control)
+    * 45.1.3. [Run-time Log-level Control](#run-time-log-level-control)
+  * 45.2. [Trice Structured Logging](#trice-structured-logging)
+    * 45.2.1. [Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information)
+    * 45.2.2. [Trice Structured Logging Runtime Information](#trice-structured-logging-runtime-information)
+    * 45.2.3. [Trice Structured Logging Limitations and Special Cases](#trice-structured-logging-limitations-and-special-cases)
+    * 45.2.4. [A Trice Structured Logging Example](#a-trice-structured-logging-example)
+    * 45.2.5. [Trice Structured Logging CLI Switches and Variables](#trice-structured-logging-cli-switches-and-variables)
+    * 45.2.6. [Trice Structured Logging User Defined Values](#trice-structured-logging-user-defined-values)
+    * 45.2.7. [Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
+    * 45.2.8. [Trice Structured Logging Level Specific Configuration](#trice-structured-logging-level-specific-configuration)
+    * 45.2.9. [Trice Structured Logging Assert Macros (TODO)](#trice-structured-logging-assert-macros-(todo))
+  * 45.3. [Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser)
+    * 45.3.1. [Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
+  * 45.4. [Using Trice on Servers](#using-trice-on-servers)
+* 46. [Working with the Trice Git Repository](#working-with-the-trice-git-repository)
+  * 46.1. [Install `opencommit` on MacOS](#install-`opencommit`-on-macos)
+  * 46.2. [Install `opencommit` on Windows](#install-`opencommit`-on-windows)
 * 47. [Trice User Manual Changelog](#trice-user-manual-changelog)
 * 48. [Scratch Pad](#scratch-pad)
 
@@ -6472,233 +6472,7 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  44. <a id='working-with-the-trice-git-repository'></a>Working with the Trice Git Repository
-
-| Action                                    | Command                                                                                                                                                                                                 |
-|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Get a local repository copy.              | `git clone github.com/rokath/trice.git trice`                                                                                                                                                           |
-| Show current folder                       | `pwd`                                                                                                                                                                                                   |
-| Show repository status.                   | `git status`                                                                                                                                                                                            |
-| Clean the repo, if needed.                | `git stash push`                                                                                                                                                                                        |
-| Show all branches.                        | `git branch -a`                                                                                                                                                                                         |
-| Switch to master.                         | `git switch master`                                                                                                                                                                                     |
-| Fetch a pull request as new branch PRIDa. | `git fetch origin pull/ID/head:PRIDa`                                                                                                                                                                   |
-| List worktree.                            | `git worktree list`                                                                                                                                                                                     |
-| Add to worktree.                          | `git worktree add ../trice_wt_PRIDa PRIDa`                                                                                                                                                              |
-| Add branch dev to worktree                | `git worktree add ../trice-dev dev`                                                                                                                                                                     |
-| Rstore the repo if needed.                | `git stash pop`                                                                                                                                                                                         |
-| Change to new folder.                     | `cd ../trice_wt_PRIDa`                                                                                                                                                                                  |
-| Show repository status.                   | `git status`                                                                                                                                                                                            |
-| Test pull request.                        | `./testAll.sh full`                                                                                                                                                                                     |
-| Show repository status.                   | `git status`                                                                                                                                                                                            |
-| Clean pull request.                       | `git restore .`                                                                                                                                                                                         |
-| Change to previous folder.                | `cd -`                                                                                                                                                                                                  |
-| Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`                                                                                                                                                                 |
-| Delete git branch.                        | `git branch -d PRIDa`                                                                                                                                                                                   |
-| Log last 3 commits in branch maste        | `git log -3 master`                                                                                                                                                                                     |
-| Checkout by hash                          | `git checkout <hash>`                                                                                                                                                                                   |
-| One Liner Log until shortly before v1.0.0 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M' --since 2025-04-01`      |
-| One Liner Log for branch `devel`          | `git log --graph --decorate devel --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'`                         |
-| One Liner Log with author                 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold blue)%an%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'` |
-| New worktree detached branch for compare  | `git worktree add --detach ../trice_9995fdc4b 9995fdc4b`                                                                                                                                                |
-| Add a special commit worktree             | `./AddWorktreeFromGitLogLineData.sh <commit-hash> <YYYY-MM-DD> <HH:MM>`                                                                                                                                 |
-| Create a bunch of worktrees               | `./AddWorktreesBetween.sh "<since-date>" "<until-date>"` or `./AddWorktreesBetween.sh <older-hash> <newer-hash>`                                                                                        |
-| Delete all `trice_*` worktrees            | `cd ~/repos && rm trice_* && cd trice && git worktree prune && git worktree list`                                                                                                                       |
-| Delete all `trice_*` branches             | ```git branch -D `git branch \| grep -E 'trice_'` ```                                                                                                                                                   |
-| Show all opencommit parameter             | `oco config describe`                                                                                                                                                                                   |
-| Show some config settings                 | `oco config get OCO_MODEL && oco config get OCO_PROMPT_MODULE && oco config get OCO_EMOJI`                                                                                                              |
-
-###  44.1. <a id='install-`opencommit`-on-macos'></a>Install `opencommit` on MacOS
-
-* * *
-
-<h4>🧰 Prerequisites</h4>
-
-Before you begin, make sure you have:
-
-* Install [Homebrew](https://brew.sh) first if you don’t have it.
-* **Git**:  Check if Git is installed: `git --version`
-If not, install the Xcode Command Line Tools:
-  *  `xcode-select --install`   
-*  **Node.js and npm**  
-  OpenCommit runs on Node.js. Check with: `node -v` and `npm -v`
-  If not installed: `brew install node` 
-* **An OpenAI API key** (or compatible provider like OpenRouter, see below).
-    
-* * *
-
-<h4>🔑 Step 1 — Get Your OpenAI API Key</h4>
-
-* Go to **[https://platform.openai.com](https://platform.openai.com)**
-* Log in (or sign up) using your email, Google, Microsoft, or Apple account.
-* Navigate to your API Keys page: 👉 [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
-  * Click **“Create new secret key”**.
-  * Give it a name (e.g., `opencommit-mac`) and copy it immediately.  
-    It will look like this: `sk-proj-1a2b3c4d5e6f...`
-    > ⚠️ You’ll only see it once — store it securely (e.g., 1Password, Bitwarden).
-    
-* * *
-
-<h4>⚙️ Step 2 — Install OpenCommit</h4>
-
-* Run the following in your Terminal: `npm install -g opencommit`
-  You may see warnings about deprecated dependencies — those are safe to ignore.  
-* Once installed, check: `opencommit --version`
-
-* * *
-
-<h4>🔧 Step 3 — Set Up Your API Key on macOS</h4>
-
-* Add your key as an environment variable: `export OPENAI_API_KEY="sk-proj-your-key-here"`
-* To make it **permanent**, add it to your shell configuration file (`~/.zshrc`):
-  `echo 'export OPENAI_API_KEY="sk-proj-your-key-here"' >> ~/.zshrc source ~/.zshrc`
-* Verify that it’s active: `echo $OPENAI_API_KEY`
-  If it prints your key (or the beginning of it), you’re good.
-
-* * *
-
-<h4>⚙️ Step 4 — Optional Configuration</h4>
-
-* You can customize OpenCommit’s behavior by setting additional environment variables, for example:
-
-```bash
-export OCO_LANG="en"           # or "de", "fr", etc. 
-export OCO_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
-export OCO_PROMPT_MODULE="conventional" 
-export OCO_EMOJI=true
- ```
-
-Add these to your `~/.zshrc` for persistence.
-
-* * *
-
-<h4>🚀 Step 5 — Use OpenCommit</h4>
-
-* Go to a Git repository: `cd /path/to/your/repo` 
-* Stage your changes: `git add .`
-* Run OpenCommit: `opencommit`
-* It will analyze your staged changes and automatically generate a commit message.  
-    Example:
-    `🔍 Analyzing changes... ✅ Commit message generated: feat(api): add endpoint for user authentication`
-    
-* * *
-
-<h4>🔁 Step 6 — (Optional) Install Git Hook</h4>
-
-* To have OpenCommit run automatically every time you commit: `npx opencommit install-hook`
-* Now every time you run `git commit`, OpenCommit will propose a commit message for you.
-
-* * *
-
-<h4>🧩 Step 7 — Troubleshooting</h4>
-
-If OpenCommit says:
-
-* **“Missing API key”** → Check that `$OPENAI_API_KEY` is set (`echo $OPENAI_API_KEY`).    
-* **“Unauthorized”** → Verify your key is valid or not expired.  
-* **“Cannot find opencommit command”** → Reinstall globally with `npm install -g opencommit`.
-
-* * *
-
-###  44.2. <a id='install-`opencommit`-on-windows'></a>Install `opencommit` on Windows
-
-<h4>🧭 Overview</h4>
-
-OpenCommit is a tool that uses AI (like GPT models) to automatically generate meaningful Git commit messages based on your code changes.
-
-This guide explains how to install and configure OpenCommit on Windows step by step.
-
-* * *
-
-<h4>⚙️ Prerequisites</h4>
-
-* Before installing OpenCommit, make sure you have:
-  * Git installed 👉 Download and install from https://git-scm.com/download/win
-* Verify installation by running in PowerShell or CMD: `git --version`
-* Node.js and npm (Node Package Manager) installed 👉 Download from https://nodejs.org (LTS version recommended).
-  * Verify:
-
-  ```bash
-  node -v
-  npm -v
-  ```
-
-* An OpenAI API key (for GPT access) 👉 Get it from https://platform.openai.com/account/api-keys
-
-* * *
-
-<h4>🪄 Installation Steps</h4>
-
-**1. Install OpenCommit Globally**
-
-* Open a terminal (PowerShell or CMD) and run: `npm install -g opencommit`
-* Verify installation: `opencommit --version`
-  If you get an error like “opencommit not recognized”, restart your terminal or ensure your npm global path is in your system PATH environment variable.
-
-**2. Configure the API Key**
-
-* Set your OpenAI API key as an environment variable permanently:
-  * Press Win + R, type SystemPropertiesAdvanced, and press Enter.
-  * Click Environment Variables...
-  * Under User variables, click New, and add:
-    * Variable name: OPENAI_API_KEY
-    * Variable value: your_api_key_here
-    * You can also customize OpenCommit’s behavior by setting additional environment variables, for example:
-
-    ```bash
-   OCO_LANG="en"            # or "de", "fr", etc. 
-   OCO_MODEL="gpt-4o"       # or another model like "gpt-4-turbo" 
-   OCO_PROMPT_MODULE="conventional" 
-   OCO_EMOJI=true
-    ```
-
-    * Click OK on all windows.
-* Then restart PowerShell.
-
-**3. (Optional) Configure Defaults**
-
-* You can set up default parameters in your Git repository or globally: `opencommit config`
-  * Follow the interactive prompts to define:
-    * Default model (e.g., gpt-3.5-turbo)
-    * Commit style
-    * Language
-
-* * *
-
-<h4>🚀 Usage</h4>
-
-* Once installed, simply run: `opencommit`. This will:
-  * Analyze your staged changes (git diff --cached)
-  * Generate an AI-powered commit message
-  * Ask for confirmation before committing
-* You can also use: `opencommit --no-verify` to skip confirmation and commit directly.
-
-<h4>🔧 Troubleshooting</h4>
-
-* Issue	Solution
-  * opencommit: command not found	Ensure npm global bin path is added to your Windows PATH (e.g., C:\Users\<YourUser>\AppData\Roaming\npm).
-  * Error: Missing OPENAI_API_KEY	Set your OpenAI API key as shown above.
-  * Model too slow / API errors	Try setting a smaller model: opencommit config --model gpt-3.5-turbo.
-
-* * *
-
-<h4>✅ Example</h4>
-
-```bash
-git add .
-oco
-```
-
-Output:
-
-```txt
-Generated commit message:
-...
-```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-##  45. <a id='legacy-user-code-trice-adaption'></a>Legacy User Code Trice Adaption
+##  44. <a id='legacy-user-code-trice-adaption'></a>Legacy User Code Trice Adaption
 
 When it comes to use legacy sources together with Trice, there are several ways doing so, which do not exclude each other: 
 
@@ -6707,7 +6481,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)
 * [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
 
-###  45.1. <a id='separate-physically-legacy-user-code-output-channel'></a>Separate Physically Legacy User Code Output Channel 
+###  44.1. <a id='separate-physically-legacy-user-code-output-channel'></a>Separate Physically Legacy User Code Output Channel 
 
 *Advantages:*
 
@@ -6724,7 +6498,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 
 * The legacy user code output drives a terminal app and the Trice output feeds the Trice binary data into the Trice tool.
 
-###  45.2. <a id='legacy-user-code-trice-adaption-edits'></a>Legacy User Code Trice Adaption Edits
+###  44.2. <a id='legacy-user-code-trice-adaption-edits'></a>Legacy User Code Trice Adaption Edits
 
 *Advantages:*
 
@@ -6747,7 +6521,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * All exising user prints are replaced with appropriate Trice macros according chapter [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage).
 * When using 64-bit as default Trice bit width, more RAM is used compared to 32-bit, but in combination with the default [TCOBS](https://github.com/rokath/tcobs) compressing framing the transmitted Trice packets do not increase much compared to 32-bit width.
 
-###  45.3. <a id='legacy-user-code-print-buffer-wrapping-and-framing'></a>Legacy User Code Print Buffer Wrapping and Framing 
+###  44.3. <a id='legacy-user-code-print-buffer-wrapping-and-framing'></a>Legacy User Code Print Buffer Wrapping and Framing 
 
 > **Trice >= v1.1 feature**, see also issue [\#550](https://github.com/rokath/trice/issues/550)
 
@@ -6768,7 +6542,7 @@ The Trice binary encoding uses states 1, 2, 3 of the 4 states, the 2 [Binary Enc
 
 If the Trice library and the user print both write to the same output, an easy modification would be, to prepend the user print output with a 2-byte count as long its size is < 16383, so that the 2 most significant bits are zero. Additionally, the this way counted buffer needs the same buffer framing as the Trice binary data.
 
-###  45.4. <a id='legacy-user-code-trice-aliases-adaption'></a>Legacy User Code Trice Aliases Adaption
+###  44.4. <a id='legacy-user-code-trice-aliases-adaption'></a>Legacy User Code Trice Aliases Adaption
 
 > **Trice >= v1.1 feature**, see also accepted pull requests [\#533](https://github.com/rokath/trice/pull/533) and [\#536](https://github.com/rokath/trice/pull/536)
 
@@ -6800,15 +6574,15 @@ Despite of these 2 CGO tests the real-world example [./examples/G0B1_inst](../ex
 
 The following sub-chapters are mainly written by [@srgg](https://github.com/srgg) as accompanying documentation to its pull requests.
 
-####  45.4.1. <a id='pr533-doc'></a>PR533 Doc
+####  44.4.1. <a id='pr533-doc'></a>PR533 Doc
 
-####  45.4.2. <a id='pr533-summary'></a>PR533 Summary
+####  44.4.2. <a id='pr533-summary'></a>PR533 Summary
 
 This PR introduces support for treating user-defined macros as aliases to trice and triceS within the Trice CLI toolchain. The goal is to enable project-specific logging macros to be processed just like built-in Trice macros — including ID generation, decoding, and binary format support — without requiring projects to directly call `trice()` or `triceS()` in their source code.
 
 PR leverages the `-exclude` source feature added in [\#529](https://github.com/rokath/trice/pull/529).
 
-####  45.4.3. <a id='pr533-motivation'></a>PR533 Motivation
+####  44.4.3. <a id='pr533-motivation'></a>PR533 Motivation
 
 Trice uses a source-scanning and ID generation approach, where the toolchain scans for `trice(...)` and `triceS(...)` calls, injects numeric trace IDs, and builds a mapping database. However, it currently only supports built-in(hardcoded) macros and allows only global on/off control via compile-time flags.
 
@@ -6818,11 +6592,11 @@ This makes it difficult to:
 - Redirect trace/logging behavior to other backends (e.g., MicroSD, raw printf, no-op).
 - Change behavior per module or configuration without losing Trice tooling support.
 
-####  45.4.4. <a id='what-this-pr533-adds'></a>What This PR533 Adds
+####  44.4.4. <a id='what-this-pr533-adds'></a>What This PR533 Adds
 
 **CLI-level aliasing**: Developers can now declare custom macros to be treated as `trice` or `triceS` equivalents. These user-defined macros will be recognized during scanning, ID injection, and decoding. 
 
-####  45.4.5. <a id='pr533-example'></a>PR533 Example
+####  44.4.5. <a id='pr533-example'></a>PR533 Example
 
 *print_macro.h*:
 
@@ -6883,7 +6657,7 @@ trice clean -alias DEBUG_PRINT -salias DEBUG_PRINT_S  -exclude ./print_macro.h -
 
 Flash with `-DTRICE_OFF`.
 
-####  45.4.6. <a id='pr536-doc'></a>PR536 Doc
+####  44.4.6. <a id='pr536-doc'></a>PR536 Doc
 
 ##### What This PR536 Adds
 
@@ -6922,7 +6696,7 @@ Improving this would likely require Clang integration—adding complexity (e.g.,
 
 This approach simplifies the logic and allows the parser to skip invalid or partial matches without aborting, enabling continued scanning of the file for valid constructs.
 
-####  45.4.7. <a id='alias-example-project'></a>Alias Example Project
+####  44.4.7. <a id='alias-example-project'></a>Alias Example Project
 
 To use the Alias technique with `examples/G0B1_inst` the following adaptions where made:
 
@@ -6972,9 +6746,9 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptions whe
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  46. <a id='future-development'></a>Future Development
+##  45. <a id='future-development'></a>Future Development
 
-###  46.1. <a id='trice-log-level-control-specification-draft'></a>Trice Log-level Control Specification Draft
+###  45.1. <a id='trice-log-level-control-specification-draft'></a>Trice Log-level Control Specification Draft
 
 > Specification Draft
 
@@ -6982,7 +6756,7 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptions whe
 --> IMPORTANT: No breaking changes!
 ```
 
-####  46.1.1. <a id='what-log-levels-exist-in-general,-including-exotic-ones,-and-what-is-their-exact-weighting-relative-to-each-other?'></a>What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?
+####  45.1.1. <a id='what-log-levels-exist-in-general,-including-exotic-ones,-and-what-is-their-exact-weighting-relative-to-each-other?'></a>What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?
 
 🧭 **Basic principle**
 
@@ -7073,7 +6847,7 @@ Here’s a 7-level scheme, embedded-friendly yet compatible with syslog/log4j co
 * [x] Backward-compatible (old log constants still valid)
 * [x] Easily extendable (e.g., add NOTICE or ASSERT later)
 
-####  46.1.2. <a id='compile-time-log-level-control'></a>Compile-time Log-level Control
+####  45.1.2. <a id='compile-time-log-level-control'></a>Compile-time Log-level Control
 
 In [Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information) we see, how `trice insert ...` could modify (temporarily) the source code. With an additional *insert* switch like `-loglevel` the shown example could get changed in this way:
 
@@ -7121,7 +6895,7 @@ That results in no code generation for `trice("info:The answer is %d.\n", 42);` 
 * The user is free to add its own log-levels.
 * No run-time costs at all.
 
-####  46.1.3. <a id='run-time-log-level-control'></a>Run-time Log-level Control
+####  45.1.3. <a id='run-time-log-level-control'></a>Run-time Log-level Control
 
 Trice logs are very light-weight and usually is no need for their run-time control. Nevertheless there could be a need for that. The very first we need, is a control channel to tell the target device about a changing log-level. See for example chapter [Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart).
 
@@ -7146,7 +6920,7 @@ That implies a small Trice library extension, which gets active only with a `LOG
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  46.2. <a id='trice-structured-logging'></a>Trice Structured Logging
+###  45.2. <a id='trice-structured-logging'></a>Trice Structured Logging
 
 > **Specification Draft**
 
@@ -7154,23 +6928,23 @@ Structured logging, in contrast to unformatted logging, automatically adds compi
 
 Trice is considerable already a bit as a (very limited) structured logger, if we look at the file and line insertion capability and the timestamp options. The following is about how Trice could get full structured logging capability without making a breaking change.
 
-####  46.2.1. <a id='trice-structured-logging-compile-time-information'></a>Trice Structured Logging Compile-time Information
+####  45.2.1. <a id='trice-structured-logging-compile-time-information'></a>Trice Structured Logging Compile-time Information
 
 *file, line, function, compiler version, module, build time, firmware version, machine name, user name, locale, host OS version, log level, an (unstructured) format string, compiler flags, (locally) defined values...*
 
 These data can be strings or numbers.
 
-####  46.2.2. <a id='trice-structured-logging-runtime-information'></a>Trice Structured Logging Runtime Information
+####  45.2.2. <a id='trice-structured-logging-runtime-information'></a>Trice Structured Logging Runtime Information
 
 *uptime, timestamp, hw serial, task ID, stack depth, event count, core ID, position, variables values, parameter values ...*
 
 In an initial approach we assume, these data do not contain runtime generated strings. If really needed, a derived hash is usable instead for now. Despite of this, runtime generated strings are an important feature and therefore Trice supports `triceS`, capable to transmit a single string up to 32KB long, and `triceS` relatives like `triceB`. We could add compile-time data (as inserted fixed strings) but runtime information can only get as an additional part of the runtime generated string into the structured log. This should be acceptable and we will deal with this later.
 
-####  46.2.3. <a id='trice-structured-logging-limitations-and-special-cases'></a>Trice Structured Logging Limitations and Special Cases
+####  45.2.3. <a id='trice-structured-logging-limitations-and-special-cases'></a>Trice Structured Logging Limitations and Special Cases
 
 For performance reasons, Trice was designed to only transmit 0-12 (straight forward extendable) numbers of equal bit-width **OR** a single runtime generated string. Firstly we look at only "normal" Trice macros `trice`, `Trice`, `TRice` and exclude the special cases `triceS`, `TriceS`, `TRiceS`. Also we consider just trices without specified bit-width, assume 32-bit and exlude cases like `trice32_4` firstly.
 
-####  46.2.4. <a id='a-trice-structured-logging-example'></a>A Trice Structured Logging Example
+####  45.2.4. <a id='a-trice-structured-logging-example'></a>A Trice Structured Logging Example
 
 User may have written inside *val.c*:
 
@@ -7202,7 +6976,7 @@ void doStuff( void ){
 }
 ```
 
-####  46.2.5. <a id='trice-structured-logging-cli-switches-and-variables'></a>Trice Structured Logging CLI Switches and Variables
+####  45.2.5. <a id='trice-structured-logging-cli-switches-and-variables'></a>Trice Structured Logging CLI Switches and Variables
 
 To achieve that, 2 structured logging CLI switches `-stf` and `-stv` on `trice insert` and `trice clean` are usable:
 
@@ -7223,7 +6997,7 @@ Additionally the Trice tool uses these internal variables (no bash variables!) a
 | `$values` | `42`                  | The bare Trice statement values.                                                                                                                 |
 | `$usr0`   | `abc` \| ` ` \| `xyz` | A predefined string value with location dependent values (see below).                                                                            |
 
-####  46.2.6. <a id='trice-structured-logging-user-defined-values'></a>Trice Structured Logging User Defined Values
+####  45.2.6. <a id='trice-structured-logging-user-defined-values'></a>Trice Structured Logging User Defined Values
 
 This use case is not expected for most cases, but mentioned here to show the possibilities. Adding user specific values like `$usr0` can be done in this way:
 
@@ -7289,7 +7063,7 @@ The structured log output would be:
 {...}
 ```
 
-####  46.2.7. <a id='trice-structured-logging-cli-switches-usage-options'></a>Trice Structured Logging CLI Switches Usage Options
+####  45.2.7. <a id='trice-structured-logging-cli-switches-usage-options'></a>Trice Structured Logging CLI Switches Usage Options
 
 The in [A Trice Structured Logging Example](#a-trice-structured-logging-example) shown `trice insert` result is possible with
  
@@ -7400,7 +7174,7 @@ trice insert -stf="$STF" -stv="$STV"
 trice clean  -stf="$STF" -stv="$STV"
 ```
 
-####  46.2.8. <a id='trice-structured-logging-level-specific-configuration'></a>Trice Structured Logging Level Specific Configuration
+####  45.2.8. <a id='trice-structured-logging-level-specific-configuration'></a>Trice Structured Logging Level Specific Configuration
 
 Configure the Trice Structured Logging selectively in a way, to provide as much helpful diagnostic info as possible on `ERROR` level for example. Example script:
 
@@ -7436,15 +7210,15 @@ source make.sh # build process
 trice clean  $STL ...
 ```
 
-####  46.2.9. <a id='trice-structured-logging-assert-macros-(todo)'></a>Trice Structured Logging Assert Macros (TODO)
+####  45.2.9. <a id='trice-structured-logging-assert-macros-(todo)'></a>Trice Structured Logging Assert Macros (TODO)
 
 Configure `TriceAssert` like macros and this works also with the `-salias` switch.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  46.3. <a id='improving-the-trice-tool-internal-parser'></a>Improving the Trice Tool Internal Parser
+###  45.3. <a id='improving-the-trice-tool-internal-parser'></a>Improving the Trice Tool Internal Parser
 
-####  46.3.1. <a id='trice-internal-log-code-short-description'></a>Trice Internal Log Code Short Description
+####  45.3.1. <a id='trice-internal-log-code-short-description'></a>Trice Internal Log Code Short Description
 
 ##### Trice v1.0 Code
 
@@ -7481,7 +7255,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 * The format string has no newline inside anymore, but has one at the end (usually) or not.
 * The struct slice is cyclically passed to a line writer, which writes one line if it can find a format string ending with a newline.
 
-###  46.4. <a id='using-trice-on-servers'></a>Using Trice on Servers
+###  45.4. <a id='using-trice-on-servers'></a>Using Trice on Servers
 
 * The internet traffic causes many megabytes logfiles, which need storage and are also often transferred by themselves.
 * Of course it is possibe to compress them to save space and traffic.
@@ -7496,6 +7270,232 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
     * use the full 16-bit IDs for ~65000 IDs
   2. Use up to 2^16 or 2^32 different *til.json* files and transmit their index in the optional Trice stamp field. This requests minimal code adaptions.
 
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+##  46. <a id='working-with-the-trice-git-repository'></a>Working with the Trice Git Repository
+
+| Action                                    | Command                                                                                                                                                                                                 |
+|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Get a local repository copy.              | `git clone github.com/rokath/trice.git trice`                                                                                                                                                           |
+| Show current folder                       | `pwd`                                                                                                                                                                                                   |
+| Show repository status.                   | `git status`                                                                                                                                                                                            |
+| Clean the repo, if needed.                | `git stash push`                                                                                                                                                                                        |
+| Show all branches.                        | `git branch -a`                                                                                                                                                                                         |
+| Switch to master.                         | `git switch master`                                                                                                                                                                                     |
+| Fetch a pull request as new branch PRIDa. | `git fetch origin pull/ID/head:PRIDa`                                                                                                                                                                   |
+| List worktree.                            | `git worktree list`                                                                                                                                                                                     |
+| Add to worktree.                          | `git worktree add ../trice_wt_PRIDa PRIDa`                                                                                                                                                              |
+| Add branch dev to worktree                | `git worktree add ../trice-dev dev`                                                                                                                                                                     |
+| Rstore the repo if needed.                | `git stash pop`                                                                                                                                                                                         |
+| Change to new folder.                     | `cd ../trice_wt_PRIDa`                                                                                                                                                                                  |
+| Show repository status.                   | `git status`                                                                                                                                                                                            |
+| Test pull request.                        | `./testAll.sh full`                                                                                                                                                                                     |
+| Show repository status.                   | `git status`                                                                                                                                                                                            |
+| Clean pull request.                       | `git restore .`                                                                                                                                                                                         |
+| Change to previous folder.                | `cd -`                                                                                                                                                                                                  |
+| Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`                                                                                                                                                                 |
+| Delete git branch.                        | `git branch -d PRIDa`                                                                                                                                                                                   |
+| Log last 3 commits in branch maste        | `git log -3 master`                                                                                                                                                                                     |
+| Checkout by hash                          | `git checkout <hash>`                                                                                                                                                                                   |
+| One Liner Log until shortly before v1.0.0 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M' --since 2025-04-01`      |
+| One Liner Log for branch `devel`          | `git log --graph --decorate devel --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'`                         |
+| One Liner Log with author                 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold blue)%an%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'` |
+| New worktree detached branch for compare  | `git worktree add --detach ../trice_9995fdc4b 9995fdc4b`                                                                                                                                                |
+| Add a special commit worktree             | `./AddWorktreeFromGitLogLineData.sh <commit-hash> <YYYY-MM-DD> <HH:MM>`                                                                                                                                 |
+| Create a bunch of worktrees               | `./AddWorktreesBetween.sh "<since-date>" "<until-date>"` or `./AddWorktreesBetween.sh <older-hash> <newer-hash>`                                                                                        |
+| Delete all `trice_*` worktrees            | `cd ~/repos && rm trice_* && cd trice && git worktree prune && git worktree list`                                                                                                                       |
+| Delete all `trice_*` branches             | ```git branch -D `git branch \| grep -E 'trice_'` ```                                                                                                                                                   |
+| Show all opencommit parameter             | `oco config describe`                                                                                                                                                                                   |
+| Show some config settings                 | `oco config get OCO_MODEL && oco config get OCO_PROMPT_MODULE && oco config get OCO_EMOJI`                                                                                                              |
+
+###  46.1. <a id='install-`opencommit`-on-macos'></a>Install `opencommit` on MacOS
+
+* * *
+
+<h4>🧰 Prerequisites</h4>
+
+Before you begin, make sure you have:
+
+* Install [Homebrew](https://brew.sh) first if you don’t have it.
+* **Git**:  Check if Git is installed: `git --version`
+If not, install the Xcode Command Line Tools:
+  *  `xcode-select --install`   
+*  **Node.js and npm**  
+  OpenCommit runs on Node.js. Check with: `node -v` and `npm -v`
+  If not installed: `brew install node` 
+* **An OpenAI API key** (or compatible provider like OpenRouter, see below).
+    
+* * *
+
+<h4>🔑 Step 1 — Get Your OpenAI API Key</h4>
+
+* Go to **[https://platform.openai.com](https://platform.openai.com)**
+* Log in (or sign up) using your email, Google, Microsoft, or Apple account.
+* Navigate to your API Keys page: 👉 [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
+  * Click **“Create new secret key”**.
+  * Give it a name (e.g., `opencommit-mac`) and copy it immediately.  
+    It will look like this: `sk-proj-1a2b3c4d5e6f...`
+    > ⚠️ You’ll only see it once — store it securely (e.g., 1Password, Bitwarden).
+    
+* * *
+
+<h4>⚙️ Step 2 — Install OpenCommit</h4>
+
+* Run the following in your Terminal: `npm install -g opencommit`
+  You may see warnings about deprecated dependencies — those are safe to ignore.  
+* Once installed, check: `opencommit --version`
+
+* * *
+
+<h4>🔧 Step 3 — Set Up Your API Key on macOS</h4>
+
+* Add your key as an environment variable: `export OPENAI_API_KEY="sk-proj-your-key-here"`
+* To make it **permanent**, add it to your shell configuration file (`~/.zshrc`):
+  `echo 'export OPENAI_API_KEY="sk-proj-your-key-here"' >> ~/.zshrc source ~/.zshrc`
+* Verify that it’s active: `echo $OPENAI_API_KEY`
+  If it prints your key (or the beginning of it), you’re good.
+
+* * *
+
+<h4>⚙️ Step 4 — Optional Configuration</h4>
+
+* You can customize OpenCommit’s behavior by setting additional environment variables, for example:
+
+```bash
+export OCO_LANG="en"           # or "de", "fr", etc. 
+export OCO_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
+export OCO_PROMPT_MODULE="conventional" 
+export OCO_EMOJI=true
+ ```
+
+Add these to your `~/.zshrc` for persistence.
+
+* * *
+
+<h4>🚀 Step 5 — Use OpenCommit</h4>
+
+* Go to a Git repository: `cd /path/to/your/repo` 
+* Stage your changes: `git add .`
+* Run OpenCommit: `opencommit`
+* It will analyze your staged changes and automatically generate a commit message.  
+    Example:
+    `🔍 Analyzing changes... ✅ Commit message generated: feat(api): add endpoint for user authentication`
+    
+* * *
+
+<h4>🔁 Step 6 — (Optional) Install Git Hook</h4>
+
+* To have OpenCommit run automatically every time you commit: `npx opencommit install-hook`
+* Now every time you run `git commit`, OpenCommit will propose a commit message for you.
+
+* * *
+
+<h4>🧩 Step 7 — Troubleshooting</h4>
+
+If OpenCommit says:
+
+* **“Missing API key”** → Check that `$OPENAI_API_KEY` is set (`echo $OPENAI_API_KEY`).    
+* **“Unauthorized”** → Verify your key is valid or not expired.  
+* **“Cannot find opencommit command”** → Reinstall globally with `npm install -g opencommit`.
+
+* * *
+
+###  46.2. <a id='install-`opencommit`-on-windows'></a>Install `opencommit` on Windows
+
+<h4>🧭 Overview</h4>
+
+OpenCommit is a tool that uses AI (like GPT models) to automatically generate meaningful Git commit messages based on your code changes.
+
+This guide explains how to install and configure OpenCommit on Windows step by step.
+
+* * *
+
+<h4>⚙️ Prerequisites</h4>
+
+* Before installing OpenCommit, make sure you have:
+  * Git installed 👉 Download and install from https://git-scm.com/download/win
+* Verify installation by running in PowerShell or CMD: `git --version`
+* Node.js and npm (Node Package Manager) installed 👉 Download from https://nodejs.org (LTS version recommended).
+  * Verify:
+
+  ```bash
+  node -v
+  npm -v
+  ```
+
+* An OpenAI API key (for GPT access) 👉 Get it from https://platform.openai.com/account/api-keys
+
+* * *
+
+<h4>🪄 Installation Steps</h4>
+
+**1. Install OpenCommit Globally**
+
+* Open a terminal (PowerShell or CMD) and run: `npm install -g opencommit`
+* Verify installation: `opencommit --version`
+  If you get an error like “opencommit not recognized”, restart your terminal or ensure your npm global path is in your system PATH environment variable.
+
+**2. Configure the API Key**
+
+* Set your OpenAI API key as an environment variable permanently:
+  * Press Win + R, type SystemPropertiesAdvanced, and press Enter.
+  * Click Environment Variables...
+  * Under User variables, click New, and add:
+    * Variable name: OPENAI_API_KEY
+    * Variable value: your_api_key_here
+    * You can also customize OpenCommit’s behavior by setting additional environment variables, for example:
+
+    ```bash
+   OCO_LANG="en"            # or "de", "fr", etc. 
+   OCO_MODEL="gpt-4o"       # or another model like "gpt-4-turbo" 
+   OCO_PROMPT_MODULE="conventional" 
+   OCO_EMOJI=true
+    ```
+
+    * Click OK on all windows.
+* Then restart PowerShell.
+
+**3. (Optional) Configure Defaults**
+
+* You can set up default parameters in your Git repository or globally: `opencommit config`
+  * Follow the interactive prompts to define:
+    * Default model (e.g., gpt-3.5-turbo)
+    * Commit style
+    * Language
+
+* * *
+
+<h4>🚀 Usage</h4>
+
+* Once installed, simply run: `opencommit`. This will:
+  * Analyze your staged changes (git diff --cached)
+  * Generate an AI-powered commit message
+  * Ask for confirmation before committing
+* You can also use: `opencommit --no-verify` to skip confirmation and commit directly.
+
+<h4>🔧 Troubleshooting</h4>
+
+* Issue	Solution
+  * opencommit: command not found	Ensure npm global bin path is added to your Windows PATH (e.g., C:\Users\<YourUser>\AppData\Roaming\npm).
+  * Error: Missing OPENAI_API_KEY	Set your OpenAI API key as shown above.
+  * Model too slow / API errors	Try setting a smaller model: opencommit config --model gpt-3.5-turbo.
+
+* * *
+
+<h4>✅ Example</h4>
+
+```bash
+git add .
+oco
+```
+
+Output:
+
+```txt
+Generated commit message:
+...
+```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
