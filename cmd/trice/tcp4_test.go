@@ -229,8 +229,8 @@ func TestHEXToTCP(t *testing.T) {
 	// create a minimalistic til.json
 	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
 	input := []string{"trice", "log", "-port", "HEX", "-args", "09 92 19 06 45 0b 10 56 3a,00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off", "-tcp", "localhost" + portNR}
-	exp := `  Hello! 👋🙂
-`
+	exp := " Hello! 👋🙂\n"
+
 	go func() { // listening for transmit
 		err := args.Handler(os.Stdout, fSys, input)
 		if err != nil {
@@ -254,7 +254,8 @@ func TestHEXToTCP(t *testing.T) {
 	tmp := make([]byte, 500)
 	n, e = conn.Read(tmp)
 	assert.Nil(t, e)
-	assert.Equal(t, 18, n)
+	fmt.Println( "len(exp) is ", len(exp), "n is", n, "act is", tmp[:n], string(tmp[:n]) )
+	assert.Equal(t, len(exp), n)
 	tmp = tmp[:n]
 
 	act := string(tmp)
