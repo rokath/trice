@@ -696,7 +696,7 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 //! This is NOT the case, when using direct and deferred modes parallel, because for efficient RAM usage
 //! there is no gap between the Trices in double or ring buffer. Therefore, when enabling
 //! direct mode together with a deferred mode, for efficiency the direct output should be unencrypted and unframed.
-//! If needed we use a static buffer, copy the Trices into and do the encryption/Encoding there.
+//! If needed, we use a 2nd buffer, copy the Trices into and do the encryption/Encoding there.
 //! The space behind the trice (at triceStart + wordCount) in direct-only mode this is usable.
 //! Because of the 32-bit alignment, each Trice is followed by 0-3 padding zeroes. These are transmitted too,
 //! for performance reasons. The exact determination would ned a partial Trice data interpretation.
@@ -754,8 +754,8 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 #elif TRICE_DIRECT32_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
-	// legacy:   static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer! We cannot encode in place, because the deferred output needs the data too.
-	/* maybe better: */ uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer! We cannot encode in place, because the deferred output needs the data too.
+    // We cannot encode in place, because the deferred output needs the data too.
+	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
 #endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) // copy into separate buffer to encrypt
@@ -780,8 +780,8 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 #elif TRICE_DIRECT8_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
 #if TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE
-	// legacy: static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer! We cannot encode in place, because the deferred output needs the data too.
-	/* maybe better: */ uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer! We cannot encode in place, because the deferred output needs the data too.
+    // We cannot encode in place, because the deferred output needs the data too.
+	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
 #endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
