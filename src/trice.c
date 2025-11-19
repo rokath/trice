@@ -364,7 +364,7 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8
 		// The computing above does not work, because, when several Trices, this "free" location
 		// drifts into the unprocessed Trice data. So we create a buffer.
 		// Not on the stack, because small stacks could be a problem here.
-		static uint32_t loc[TRICE_SINGLE_MAX_SIZE >> 2];
+		static uint32_t loc[TRICE_SINGLE_MAX_SIZE >> 2]; // TODO: warning: dangling pointer 'dat' to 'loc' may be used [-Wdangling-pointer=] - if not static
 
 		// Because dst + TRICE_DATA_OFFSET could be the buf value itself, we need to move at least 4 bytes.
 		memmove(loc, buf, len);                       // We use not memcpy here, because dst and buf allowed to overlap.
@@ -375,6 +375,7 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8
 		XTEAEncrypt(loc, len8 >> 2);
 
 #endif // #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
+	// When we arrive here, the encrypted are starting at dat
 
 #endif // #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 	}
@@ -510,7 +511,7 @@ static void SEGGER_Write_RTT0_NoCheck32(const uint32_t* pData, unsigned NumW) {
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
 //! directXEncode32 transforms buf to enc and adds a 0-delimiter and padding zeroes to the next uint32 boundary.
-//! \retval count of enc values
+//! \retval count of enc 32-bit values
 static unsigned directXEncode32(uint32_t* enc, const void* buf, unsigned count) {
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
@@ -584,8 +585,13 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
 //! directXEncode transforms buf to enc and adds a 0-delimiter and padding zeroes to the next uint32 boundary.
+//! directXEncode frames buf with len to enc, adds a 0-delimiter and returns the resulting length.
+//! \retval len is the length of the encoded buffer including the 0-delimiter
 static size_t directXEncode8(void* enc, const void* buf, unsigned len) {
-
+	// len is the exact payload length or up to 3 bytes longer.
+	// These up to 3 padding bytes are zero, but we do not know if they are part of the Trice parameters.
+	// We could interpret the Trice data here to determine the correct length, but we are on a time critical path here.
+	// So we encode them simply into the (T)COBS package and use the framing information to ignore them in the Trice tool later.
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)
 	size_t lenX = COBSEncode(enc, buf, len);
 #elif (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
@@ -666,7 +672,7 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 #if TRICE_DIRECT32_ONLY // Space at triceStart + wordCount is usable and we can destroy the data.
 
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
+#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)    // in-place encryption
 	triceStart[wordCount++] = 0;        // clear padding space
 	wordCount &= ~1;                    // only multiple of 8 can be encrypted
 	XTEAEncrypt(triceStart, wordCount); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
@@ -676,14 +682,14 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 	uint32_t* enc = triceStart;
 	unsigned count = wordCount;
 #else
-	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // static buffer!
+	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
 	unsigned count = directXEncode32(enc, triceStart, wordCount);
 #endif
 
 	TriceDirectWrite32(enc, count);
 	return;
 
-#elif TRICE_DIRECT8_ONLY // Space at triceStart + wordCount is usable and we can destroy the data.
+#elif TRICE_DIRECT8_ONLY // TRICE_DATA_OFFSET space in front of triceStart and after wordCount space is usable and we can destroy the data.
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 	triceStart[wordCount++] = 0;        // clear padding space
@@ -693,10 +699,11 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 	uint8_t* enc = (uint8_t*)triceStart;
-	unsigned len = wordCount << 2;
+	unsigned len = wordCount << 2; // Up to 3 trailing zeroes are here.
 #else
-	static uint8_t enc[TRICE_BUFFER_SIZE];                          // stack buffer!
+	static uint8_t enc[TRICE_BUFFER_SIZE]; // If not static this is stack buffer and could save/waste RAM depending on users system.
 	unsigned len = directXEncode8(enc, triceStart, wordCount << 2); // Up to 3 trailing zeroes are packed as well here.
+	// We do not know the padding count without interpreting the Trice.
 #endif
 
 	TriceDirectWrite8(enc, len);
@@ -705,10 +712,11 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 #elif TRICE_DIRECT32_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
-	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer!
+    // We cannot encode in place, because the deferred output needs the data too.
+	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
 #endif
 
-#if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
+#if (TRICE_DIRECT_XTEA_ENCRYPT == 1) // copy into separate buffer to encrypt
 	uint32_t* dat = enc + (TRICE_DATA_OFFSET >> 2);
 	memcpy(dat, triceStart, wordCount << 2); // Trice data are 32-bit aligned.
 	dat[wordCount++] = 0;                    // clear padding space
@@ -720,7 +728,7 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 	TriceDirectWrite32(dat, wordCount);
-#else
+#else // encode into separate buffer
 	unsigned count = directXEncode32(enc, dat, wordCount); // Up to 3 trailing zeroes are packed as well here.
 	TriceDirectWrite32(enc, count);
 #endif
@@ -730,21 +738,22 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 #elif TRICE_DIRECT8_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
 #if TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE
-	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // stack buffer!
+    // We cannot encode in place, because the deferred output needs the data too.
+	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
 #endif
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
 	uint32_t* dat = enc + (TRICE_DATA_OFFSET >> 2);
-	memcpy(dat, triceStart, wordCount << 2); // Trice data are 32-bit aligned.
-	dat[wordCount++] = 0;                    // clear padding space
-	wordCount &= ~1;                         // only multiple of 8 can be encrypted
+	memcpy(dat, triceStart, wordCount << 2); // Trice data are 32-bit aligned and contain 0-3 padding zeroes.
+	dat[wordCount++] = 0;                    // Clear padding space for encryption.
+	wordCount &= ~1;                         // Only multiple of 8 can get encrypted.
 	XTEAEncrypt(dat, wordCount);             // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
 #else
 	uint32_t* dat = triceStart;
 #endif
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-	TriceDirectWrite8((uint8_t*)dat, wordCount << 2);
+	TriceDirectWrite8((uint8_t*)dat, wordCount << 2); // Up to 3 trailing zeroes
 #else
 	unsigned len = directXEncode8(enc, dat, wordCount << 2); // Up to 3 trailing zeroes are packed as well here.
 	TriceDirectWrite8((uint8_t*)enc, len);
