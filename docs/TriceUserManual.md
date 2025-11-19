@@ -3473,7 +3473,6 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 
 > Allows Trice over the debug probe without using a pin or UART.
 
-
 * RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
 * Also ST-Link is usable for Trice logs, but maybe not parallel with debugging.
 * Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
@@ -6481,7 +6480,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)
 * [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
 
-###  46.1. <a id='separate-physically-legacy-user-code-output-channel'></a>Separate Physically Legacy User Code Output Channel 
+###  44.1. <a id='separate-physically-legacy-user-code-output-channel'></a>Separate Physically Legacy User Code Output Channel 
 
 *Advantages:*
 
@@ -6498,7 +6497,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 
 * The legacy user code output drives a terminal app and the Trice output feeds the Trice binary data into the Trice tool.
 
-###  46.2. <a id='legacy-user-code-trice-adaption-edits'></a>Legacy User Code Trice Adaption Edits
+###  44.2. <a id='legacy-user-code-trice-adaption-edits'></a>Legacy User Code Trice Adaption Edits
 
 *Advantages:*
 
@@ -6521,7 +6520,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * All exising user prints are replaced with appropriate Trice macros according chapter [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage).
 * When using 64-bit as default Trice bit width, more RAM is used compared to 32-bit, but in combination with the default [TCOBS](https://github.com/rokath/tcobs) compressing framing the transmitted Trice packets do not increase much compared to 32-bit width.
 
-###  46.3. <a id='legacy-user-code-print-buffer-wrapping-and-framing'></a>Legacy User Code Print Buffer Wrapping and Framing 
+###  44.3. <a id='legacy-user-code-print-buffer-wrapping-and-framing'></a>Legacy User Code Print Buffer Wrapping and Framing 
 
 > **Trice >= v1.1 feature**, see also issue [\#550](https://github.com/rokath/trice/issues/550)
 
@@ -6542,7 +6541,7 @@ The Trice binary encoding uses states 1, 2, 3 of the 4 states, the 2 [Binary Enc
 
 If the Trice library and the user print both write to the same output, an easy modification would be, to prepend the user print output with a 2-byte count as long its size is < 16383, so that the 2 most significant bits are zero. Additionally, the this way counted buffer needs the same buffer framing as the Trice binary data.
 
-###  46.4. <a id='legacy-user-code-trice-aliases-adaption'></a>Legacy User Code Trice Aliases Adaption
+###  44.4. <a id='legacy-user-code-trice-aliases-adaption'></a>Legacy User Code Trice Aliases Adaption
 
 > **Trice >= v1.1 feature**, see also accepted pull requests [\#533](https://github.com/rokath/trice/pull/533) and [\#536](https://github.com/rokath/trice/pull/536)
 
@@ -6574,15 +6573,15 @@ Despite of these 2 CGO tests the real-world example [./examples/G0B1_inst](../ex
 
 The following sub-chapters are mainly written by [@srgg](https://github.com/srgg) as accompanying documentation to its pull requests.
 
-####  46.4.1. <a id='pr533-doc'></a>PR533 Doc
+####  44.4.1. <a id='pr533-doc'></a>PR533 Doc
 
-####  46.4.2. <a id='pr533-summary'></a>PR533 Summary
+####  44.4.2. <a id='pr533-summary'></a>PR533 Summary
 
 This PR introduces support for treating user-defined macros as aliases to trice and triceS within the Trice CLI toolchain. The goal is to enable project-specific logging macros to be processed just like built-in Trice macros — including ID generation, decoding, and binary format support — without requiring projects to directly call `trice()` or `triceS()` in their source code.
 
 PR leverages the `-exclude` source feature added in [\#529](https://github.com/rokath/trice/pull/529).
 
-####  46.4.3. <a id='pr533-motivation'></a>PR533 Motivation
+####  44.4.3. <a id='pr533-motivation'></a>PR533 Motivation
 
 Trice uses a source-scanning and ID generation approach, where the toolchain scans for `trice(...)` and `triceS(...)` calls, injects numeric trace IDs, and builds a mapping database. However, it currently only supports built-in(hardcoded) macros and allows only global on/off control via compile-time flags.
 
@@ -6592,11 +6591,11 @@ This makes it difficult to:
 - Redirect trace/logging behavior to other backends (e.g., MicroSD, raw printf, no-op).
 - Change behavior per module or configuration without losing Trice tooling support.
 
-####  46.4.4. <a id='what-this-pr533-adds'></a>What This PR533 Adds
+####  44.4.4. <a id='what-this-pr533-adds'></a>What This PR533 Adds
 
 **CLI-level aliasing**: Developers can now declare custom macros to be treated as `trice` or `triceS` equivalents. These user-defined macros will be recognized during scanning, ID injection, and decoding. 
 
-####  46.4.5. <a id='pr533-example'></a>PR533 Example
+####  44.4.5. <a id='pr533-example'></a>PR533 Example
 
 *print_macro.h*:
 
@@ -6657,7 +6656,7 @@ trice clean -alias DEBUG_PRINT -salias DEBUG_PRINT_S  -exclude ./print_macro.h -
 
 Flash with `-DTRICE_OFF`.
 
-####  46.4.6. <a id='pr536-doc'></a>PR536 Doc
+####  44.4.6. <a id='pr536-doc'></a>PR536 Doc
 
 ##### What This PR536 Adds
 
@@ -6696,7 +6695,7 @@ Improving this would likely require Clang integration—adding complexity (e.g.,
 
 This approach simplifies the logic and allows the parser to skip invalid or partial matches without aborting, enabling continued scanning of the file for valid constructs.
 
-####  46.4.7. <a id='alias-example-project'></a>Alias Example Project
+####  44.4.7. <a id='alias-example-project'></a>Alias Example Project
 
 To use the Alias technique with `examples/G0B1_inst` the following adaptions where made:
 

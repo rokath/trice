@@ -52,11 +52,11 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 4096
-#define TRICE_PROTECT 1
-#define TRICE_DIAGNOSTICS 1
-#define TRICE_CYCLE_COUNTER 1
+#define TRICE_PROTECT 0
+#define TRICE_DIAGNOSTICS 0
+#define TRICE_CYCLE_COUNTER 0
 #define TRICE_FULL_CHECK // enable all code inside triceCheck.c
-#undef  TRICE_FULL_CHECK // disble additional code inside triceCheck.c
+//#undef  TRICE_FULL_CHECK // disble additional code inside triceCheck.c
 
 #elif CONFIGURATION == 1 //////////////////////////////////////////////////////////////
 #define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
