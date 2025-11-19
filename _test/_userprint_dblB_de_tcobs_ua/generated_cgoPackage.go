@@ -57,10 +57,9 @@ import (
 )
 
 var (
-	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
-	triceDir        string // triceDir holds the trice directory path.
-	targetActivityC string // triceCheckC contains the target test code.
-	targetMode      string // targetMode is "directMode" OR "deferredMode" OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
+	triceDir  string         // triceDir holds the trice directory path.
+	testLines = -1           // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
+	g         globalDefaults // g holds global vars default values
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -250,9 +249,9 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	//assert.Fail(t, "forced fail")
 }
 
-// triceLogDirectAndDeferred works like triceLogTest but additionally expects doubled output: direct and deferred.
-func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLines int, triceCheckC string) {
-	g.getGlobalVarsDefaults() // read changed defaults
+// triceLogTest2 works like triceLogTest but additionally expects doubled output: direct and deferred.
+func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
+	g.GetGlobalVars() // read changed defaults
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
 	out := make([]byte, 32768)
@@ -267,7 +266,8 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 			bin := out[:length] // bin contains the binary trice data of trice message i
 			buf := fmt.Sprint(bin)
 			buffer := buf[1 : len(buf)-1]
-			g.setGlobalVarsDefaults() // restore changed defaults
+
+			g.SetGlobalVars() // restore changed defaults
 			act := triceLog0(t, osFSys, buffer)
 			triceClearOutBuffer()
 			assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
@@ -307,18 +307,38 @@ var (
 	triceLogDeferred func(t *testing.T, fSys *afero.Afero, buffer string) string
 )
 
-// Keep default values of global variables.
-func (p *globalDefaults) getGlobalVarsDefaults() {
-	p.defaultPassword = cipher.Password
-	p.defaultPackageFraming = decoder.PackageFraming
-	p.defaultDoubled16BitID = trexDecoder.Doubled16BitID
-}
+			g.SetGlobalVars() // restore changed defaults
+			act := triceLog1(t, osFSys, buffer)
+			triceClearOutBuffer()
 
 // setGlobalVarsDefaults sets all global variables in a definitive state.
 // In Go, each package generates an individual test binary and they are tested parallel.
 // All package tests are executed sequentially but use the same global variables.
 // Therefore we have to reset the global variables in each test function.
 func (p *globalDefaults) setGlobalVarsDefaults() {
+	cipher.Password = p.defaultPassword
+	decoder.PackageFraming = p.defaultPackageFraming
+	trexDecoder.Doubled16BitID = p.defaultDoubled16BitID
+}
+
+type globalDefaults struct {
+	defaultPassword       string
+	defaultPackageFraming string
+	defaultDoubled16BitID bool
+}
+
+// Keep default values of global variables.
+func (p *globalDefaults) GetGlobalVars() {
+	p.defaultPassword = cipher.Password
+	p.defaultPackageFraming = decoder.PackageFraming
+	p.defaultDoubled16BitID = trexDecoder.Doubled16BitID
+}
+
+// SetGlobalVars sets all global variables in a definitive state.
+// In Go, each package generates an individual test binary and they are tested parallel.
+// All package tests are executed sequentially but use the same global variables.
+// Therefore we have to reset the global variables in each test function.
+func (p *globalDefaults) SetGlobalVars() {
 	cipher.Password = p.defaultPassword
 	decoder.PackageFraming = p.defaultPackageFraming
 	trexDecoder.Doubled16BitID = p.defaultDoubled16BitID
