@@ -15,12 +15,14 @@ import (
 var (
 	// do not initialize, goreleaser will handle that
 	version string
+	commit  string
+	date    string
 
-	// do not initialize, goreleaser will handle that
-	commit string
+	branch    string // like "main"
+	gitState  string // "clean" or "dirty"
+	gitStatus string // compressed file list (from build.sh)
 
-	// do not initialize, goreleaser will handle that
-	date string
+	builtBy string // empty or "goreleaser"
 )
 
 // main is the entry point.
@@ -39,6 +41,10 @@ func doit(w io.Writer, fSys *afero.Afero) error {
 	args.Version = version
 	args.Commit = commit
 	args.Date = date
+	args.Branch = branch
+	args.GitState = gitState
+	args.GitStatus = gitStatus
+	args.BuiltBy = builtBy
 
 	return args.Handler(w, fSys, os.Args)
 

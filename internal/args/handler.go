@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -250,42 +249,52 @@ func scVersion(w io.Writer) error {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
 	}
 
-	if Version == "" {
-		branch, commit, dirty := getGitInfo()
-		modText := ""
-		if dirty {
-			modText = " (local modifications)"
+	// Fallback if nothing has been set (e.g., go install without ldflags)
+	if Version == "" && Commit == "" && Date == "" && Branch == "" {
+		fmt.Fprintln(w, "version=dev (no build info)")
+		return nil
+	}
+
+	dirtyText := ""
+	if GitState == "dirty" {
+		dirtyText = " (local modifications at build time)"
+	}
+
+	// If version is set (GoReleaser or local build)
+	if Version != "" {
+		// GoReleaser builds usually don't set Branch/GitState/GitStatus.
+		// For those, we omit the branch to avoid "branch=" being empty.
+		if Branch != "" {
+			fmt.Fprintf(w, "version=%s, branch=%s%s, commit=%s, built at %s",
+				Version, Branch, dirtyText, Commit, Date)
+		} else {
+			fmt.Fprintf(w, "version=%s, commit=%s, built at %s",
+				Version, Commit, Date)
 		}
-		fmt.Fprintf(w, "branch=%s%s, commit=%s, built %s\n", branch, modText, commit, Date)
+
+		// Optional: append builtBy if present.
+		if BuiltBy != "" {
+			fmt.Fprintf(w, " (built by %s)", BuiltBy)
+		}
+		fmt.Fprintln(w)
+
 	} else {
-		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
+		// Fallback to Branch/Commit for local dev builds with missing version
+		fmt.Fprintf(w, "branch=%s%s, commit=%s, built at %s\n",
+			Branch, dirtyText, Commit, Date)
 	}
+
+	// Only with verbose + dirty: display list of files that were modified at build time.
+	if Verbose && GitState == "dirty" && GitStatus != "" {
+		fmt.Fprintln(w, "modified files at build time:")
+		for _, line := range strings.Split(GitStatus, "|") {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+			fmt.Fprintf(w, "  %s\n", line)
+		}
+	}
+
 	return nil
-}
-
-// getGitInfo returns current branch, short commit hash and whether local modifications exist.
-func getGitInfo() (branch, commit string, dirty bool) {
-	// branch name
-	b, err := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD").Output()
-	if err == nil {
-		branch = strings.TrimSpace(string(b))
-	} else {
-		branch = "unknown"
-	}
-
-	// short commit hash
-	c, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output()
-	if err == nil {
-		commit = strings.TrimSpace(string(c))
-	} else {
-		commit = "unknown"
-	}
-
-	// check for local modifications
-	if err := exec.Command("git", "diff", "--quiet").Run(); err != nil {
-		// non-zero exit means there are changes
-		dirty = true
-	}
-
-	return
 }
