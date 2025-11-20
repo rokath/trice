@@ -9,11 +9,12 @@ before:
     # you may remove this if you don't need go generate
     - go generate ./...
 # https://goreleaser.com/customization/#Builds
+
 builds:
   - 
     # ID of the build.
     # Defaults to the project name.
-    id: "trice"
+    id: trice-desktop
 
     # Path to project's (sub)directory containing Go code.
     # This is the working directory for the Go build command(s).
@@ -31,25 +32,44 @@ builds:
 
     # GOOS list to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
-  #- env:
-  #    - CGO_ENABLED=0
     goos: [ windows, linux, darwin ]
 
     # GOARCH to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
     # Defaults are 386 and amd64.
-    goarch: [ 386, amd64, arm, arm64 ]
+    goarch: [ arm64, amd64, 386 ]
 
-    # GOARM to build for when GOARCH is arm.
+    env:
+      - CGO_ENABLED=0
+
+    # You don't need to set this because GoReleaser sets the three ldflags by default anyway.
+    # But sometimes it's better to be explicit, especially if you want to expand later (e.g., builtBy):
+    ldflags:
+      - >-
+        -s -w
+        -X main.version={{ .Version }}
+        -X main.commit={{ .Commit }}
+        -X main.date={{ .Date }}
+        -X main.builtBy=goreleaser
+    # Of course, you would then have to add main.builtBy as a variable in main.go if you want to use it.
+
+  - 
+    # GOARM to build for when GOARCH is arm. (only Linux)
     # For more info refer to: https://golang.org/doc/install/source#environment
     # Default is only 6.
+    id: trice-linux-arm
+    dir: .
+    main: ./cmd/trice
+    binary: trice
+    goos: [ linux ]
+    goarch: [ arm ]
     goarm: [ 6, 7 ]
 
     # Custom environment variables to be set during the builds.
     # Default is empty.
     env:
       - CGO_ENABLED=0
-    
+
     # You don't need to set this because GoReleaser sets the three ldflags by default anyway.
     # But sometimes it's better to be explicit, especially if you want to expand later (e.g., builtBy):
     ldflags:
@@ -106,8 +126,12 @@ archives:
     # `README*` and `CHANGELOG*` (case-insensitive).
     # This list excludes the Go sources and git related files but includes the target source code.
     files:
-      - "**/*.json"
-      - "**/*.md"
+      - "demo*.json"
+      - "**/launch.json"
+      - "**/settings.json"
+      - "**/c_cpp_properties.json"
+      - "**/test*.json"
+      - "**/ReadMe.md"
       - "**/*.jpg"
     # - "**/*.JPG"
     # - "**/*.jpeg"
@@ -116,10 +140,19 @@ archives:
       - "**/*.PNG"
       - "**/*.gif"
     # - "**/*.GIF"
-      - "**/*.svg"
+    # - "**/*.svg"
     # - "**/*.SVG"
-      - "**/*.html"
-      - "**/*.pdf"
+    # - "**/*.html"
+    # - "**/*.pdf"
+      - "**/*.txt"
+    # - "**/*.yml"
+      - "AUTHORS.md"
+      - "CHANGELOG.md"
+      - "LICENSE.md"
+      - "**/LICENSE"
+      - "CODE_OF_CONDUCT.md"
+      - "CONTRIBUTING.md"
+      - "README.md"
       - _test/**/*.c
       - _test/**/*.h
       - _test/**/*.go
@@ -128,6 +161,10 @@ archives:
     # - .idea/*
     # - cmd/*
     # - dist/*
+      - docs/*.pdf
+      - docs/*.md
+      - docs/*.html
+      - examples/**/.cortex*.json
       - examples/**/*.sh
       - examples/**/*.c
       - examples/**/*.h
@@ -138,16 +175,17 @@ archives:
       - examples/**/Makefile
       - examples/**/Makefile.*
       - examples/**/*.ioc
-      - examples/**/*.txt
       - examples/**/*.code-workspace
       - examples/**/*.jflash
       - examples/**/*.cfg
+      - examples/*.sh
     # - internal/*
     # - pkg/*
       - src/*.c
       - src/*.h
     # - super-linter.report
       - third_party/**/*.zip
+      - third_party/*.zip
       - _config.yml
       - .clang-format
       - .clang-format-ignore
@@ -157,6 +195,8 @@ archives:
       - .goreleaser.yaml
       - .travis.yml
       - build_environment.sh
+      - buildTriceTool.sh
+      - clean-dsstore.sh
     # - build.sh
       - clang-format.sh
     # - clean-dsstore.sh
