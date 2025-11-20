@@ -815,7 +815,7 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
+	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
 	}
@@ -829,7 +829,7 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
+	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
 	}
@@ -843,7 +843,7 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
+	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
 	}
@@ -857,7 +857,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
+	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
 	}
@@ -867,7 +867,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 
 // trice0 prints the trice format string.
 func (p *trexDec) trice0(b []byte, _ int, _ int) int {
-	return copy(b, fmt.Sprintf(p.pFmt))
+	return copy(b, fmt.Sprint(p.pFmt))
 }
 
 // unSignedOrSignedOut prints p.B according to the format string.

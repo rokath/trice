@@ -52,7 +52,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	case "bigEndian":
 		endian = decoder.BigEndian
 	default:
-		log.Fatalf(fmt.Sprintln("unknown endianness ", TriceEndianness, "-accepting litteEndian or bigEndian."))
+		log.Fatal(fmt.Sprintln("unknown endianness", TriceEndianness, "- accepting litteEndian or bigEndian."))
 	}
 	switch strings.ToUpper(Encoding) {
 	case "TREX":
@@ -62,7 +62,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	case "DUMP":
 		dec = dumpDecoder.New(w, lut, m, li, rwc, endian)
 	default:
-		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
+		log.Fatal(fmt.Sprintln("unknown encoding ", Encoding))
 	}
 	if emitter.DisplayRemote {
 		keybcmd.ReadInput(rwc)
@@ -251,7 +251,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 					}
 				case 0:
 					if decoder.TargetStamp0 != "" {
-						s = fmt.Sprintf(decoder.TargetStamp0)
+						s = fmt.Sprint(decoder.TargetStamp0)
 					}
 				}
 				_, err := sw.Write([]byte(s))
