@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# file name: trice_environment.sh
+
 # trice command line common part
 TRICE_DEFAULTS+="-i ./demoTIL.json "     # Use a common til.json for all examples and tests.
 TRICE_DEFAULTS+="-li ./demoLI.json "     # Use a common  li.json for all examples and tests.

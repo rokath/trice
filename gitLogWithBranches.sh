@@ -1,7 +1,7 @@
 #!/bin/bash
 # Show git log with graph and the branch (from name-rev) of each commit.
 # Usage:
-#   ./GitLogWithBranches.sh [--since YYYY-MM-DD]
+#   ./gitLogWithBranches.sh [--since YYYY-MM-DD]
 
 SINCE=""
 if [ "$1" == "--since" ] && [ -n "$2" ]; then

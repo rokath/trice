@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# file name: renewIDs_in_examples_and_refresh_test_folder.sh
+
 source ./trice_environment.sh
 TD="./_test/testdata"
 
