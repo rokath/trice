@@ -120,7 +120,6 @@ archives:
     # - "**/*.SVG"
       - "**/*.html"
       - "**/*.pdf"
-      - "**/*.zip"
       - _test/**/*.c
       - _test/**/*.h
       - _test/**/*.go
@@ -148,6 +147,7 @@ archives:
       - src/*.c
       - src/*.h
     # - super-linter.report
+      - third_party/**/*.zip
       - _config.yml
       - .clang-format
       - .clang-format-ignore
