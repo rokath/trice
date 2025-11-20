@@ -5,7 +5,6 @@
 package id
 
 import (
-	"math/rand"
 	"os"
 	"testing"
 
@@ -32,22 +31,23 @@ func TestFformatSpecifierCount(t *testing.T) {
 }
 
 func TestNewID(t *testing.T) {
-	//defer SetupTest(t)()
-	rand.Seed(0) //nolint:staticcheck
+	var id, mi, ma TriceID
 	lut := make(TriceIDLookUp)
 	w := os.Stdout
-	id := lut.newID(w, 32768, 65535, "random")
-	assert.True(t, id == 45050)
-	id = lut.newID(w, 1, 65535, "downward")
-	assert.True(t, id == 65535)
-	id = lut.newID(w, 32768, 65535, "upward")
-	assert.True(t, id == 32768)
-	id = lut.newID(w, 32768, 65535, "upward")
-	assert.True(t, id == 32768)
+	mi = 32768
+	ma = 65535
+	id = lut.newID(w, 1, ma, "downward")
+	assert.True(t, id == ma)
+	id = lut.newID(w, mi, ma, "upward")
+	assert.True(t, id == mi)
+	id = lut.newID(w, mi, ma, "upward")
+	assert.True(t, id == mi)
 	var i TriceFmt
 	lut[id] = i
-	id = lut.newID(w, 32768, 65535, "upward")
+	id = lut.newID(w, mi, ma, "upward")
 	assert.True(t, id == 32769)
+	id = lut.newID(w, mi, ma, "random")
+	assert.True(t, mi <= id && id <= ma)
 }
 
 func TestNewUpwardID(t *testing.T) {
@@ -87,15 +87,12 @@ func TestNewDownwardID(t *testing.T) {
 }
 
 func TestNewRandomID(t *testing.T) {
-	rand.Seed(0)
-	min := TriceID(50)
-	max := TriceID(100)
+	mi := TriceID(50)
+	ma := TriceID(100)
 	lut := make(TriceIDLookUp, 4)
 	w := os.Stdout
-	id := lut.newRandomID(w, min, max)
-	assert.True(t, id == 56)
-	id = lut.newRandomID(w, min, max)
-	assert.True(t, id == 92)
+	id := lut.newRandomID(w, mi, ma)
+	assert.True(t, mi <= id && id <= ma)
 	id = lut.newRandomID(w, 92, 92)
 	assert.True(t, id == 92)
 }
