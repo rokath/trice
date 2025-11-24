@@ -7460,6 +7460,15 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+## Trouble Shooting
+
+Problem                        | Hint
+-------------------------------|------------------------------------
+Missing `objcopy` in MacOS     | `brew install bunutils`
+Small Editor for MacOs Scripts | `brew install cotedit` Usage: `cot`
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  49. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
 
 <details><summary>Details (click to expand)</summary><ol>
@@ -7482,6 +7491,9 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  50. <a id='scratch-pad'></a>Scratch Pad
+
+* TODO
+  * recall and document why +build in test files in internal/link
 
 ```txt
                                                           th@Mac trice % ./GitLogWithBranches.sh --since 2025-07-01
