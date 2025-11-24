@@ -18,9 +18,9 @@ extern "C" {
 
 // hardware specific trice lib settings
 #include "main.h"
-#define TriceStamp16 0x4444 // TIM17->CNT    // 0...999 us
-//#define TriceStamp32 HAL_GetTick() // 0...2^32-1 ms (wraps after 49.7 days)
-#define TriceStamp32 0x44444444 // 1750507965 // Output of 'date +"%s"' at Sa 21 Jun 2025 14:12:45 CEST
+#define TriceStamp16 TIM17->CNT    // 0...999 us
+#define TriceStamp32 HAL_GetTick() // 0...2^32-1 ms (wraps after 49.7 days)
+//#define TriceStamp32 1750507965 // Output of 'date +"%s"' at Sa 21 Jun 2025 14:12:45 CEST
 
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 6000

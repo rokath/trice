@@ -1,5 +1,10 @@
 <div id="top">
 
+```diff
++ Please use v1.0 or branch "main" if you intend to build from the sources.
+- Do not expect a well working Trice binary in branch "dev" right now. (2026-NOV)
+```
+
 # 🅃🅁ace 🄸d's 🄲 🄴mbedded
 
 #### ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) Hi, I am Trice.

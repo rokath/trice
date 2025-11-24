@@ -16,9 +16,5 @@
 			"path": "../.."
 		}
 	],
-	"settings": {
-		"files.associations": {
-			"segger_rtt.h": "c"
-		}
-	}
+	"settings": {}
 }

@@ -248,11 +248,13 @@
                      "-port",
                      "DUMP",
                      "-args",
-                     "cb de 32 13 c0 0b 61 62 63 64 65 20 31 32 33 34 35 ad 00",
+                     "f1 bf f1 bf 00 00 c0 12 20 20 4e 55 43 4c 45 4f 2d 47 30 42 31 52 45 20 20 20 00 00 ce 7f c1 08 01 00 00 00 01 00 00 00 ca 7f c3 00 c8 7f c4 00 c7 7f c5 10 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 c6 7f c6 0c b4 00 00 00 f8 00 00 00 70 17 00 00",
+                     "-pf=none",
+                     "-d16",
                      "-idlist",
-                     "${workspaceFolder}/_test/testdata/til.json",
+                     "${workspaceFolder}/_test/testdata/testTIL.json",
                      "-li",
-                     "${workspaceFolder}/_test/testdata/li.json"
+                     "${workspaceFolder}/_test/testdata/testLI.json"
             ]
         },
         {
