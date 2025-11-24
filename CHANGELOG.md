@@ -888,6 +888,152 @@ Used git log command: `git log --oneline v0.72.5..HEAD | grep -v wip >> CHANGELO
  |`f6aaddeb`| 2 chapters added: library? and possible variadic macros issue
  |`d105a8da`| Update trice.h
 
+## v1.1.0 Changes
+
+* Thanks to some contributions
+  * Trice now supports aliases. That means, you can use legacy user code with the Trice technology without changing it or the adaptions are marginal.
+  * We also can have additional tags "user labels" without changing the Trice tool source code and the need to re-build it.
+  * When filtering Trices in the target with enabled cycle counter in target code, the Trice tool complains about cycle errors because of the missing Trices. Those false positive error messages you now can suppress. 
+  * Some users want to have the 32-bit target time stamps as a epoch second counter. The Trice tool can now display the epoch seconds as human readable time. 
+  * Some traget devices use UDP for Trice message transfer. Trice can that handle now too.  
+
+* No breaking changes!
+* New CLI switches / switches extensions:
+  * `-exclude`
+  * `-ulabel`
+  * `-noCycleCheck` Add flag to disable CYCLE_ERROR in log
+  * `-ts32 epoch` option added
+  * `-alias`
+  * `trice version` now with git hash during compile time and `-verbose` gives list of local changed files
+  * `-port` supports now also IPv4 UDP receiver
+* Issue fixing:
+  * \#526
+  * \#529
+  * \#536
+  * \#538
+  * \#539
+  * \#553
+* Improved Testing
+  * Global vars saved and restored
+  * Inhibit system sleep during test execution
+* Slightly restructured, enhanced and reworked TriceUserManual
+  * Chapter *Future Development* contains now specification draft for structured logging and log level logging 
+* `trice version -verbose` now with list of local changed files and git hash during compile time
+* goreleaser now with linux arm 6/7 build to run `trice log` on embedded Linux platforms
+
+### v1.1.0 Git Log
+
+Used command: `./gitLogWithBranches.sh --since 2025-04-01` and unimportant lines and infos removed
+
+```txt
+*            5e88de2e 2025-11-20  Now with linux arm 6/7 build and better selected files
+*            51e971df 2025-11-20  moved to deb branch User manual
+*            395c85f2 2025-11-20  renamed for goreleaser config
+*            0b6d1041 2025-11-20  *.zip file handling corrected
+*            1b2f3e03 2025-11-20  File name as comment added
+*            0abe6255 2025-11-20  Syntax improvements & file list more fine granular
+*            260cc225 2025-11-20  "trice version -verbose" now with list of local changed files and git hash during compile time
+*            d462829e 2025-11-20  fmt.Sprintf  -> fmt.Sprint correction
+*            a6983eb0 2025-11-20  random tests fixed, more robust now
+*            dee62a9b 2025-11-18  Chapter "Working with the Git Repo" moved to the end
+*            d215075c 2025-11-18  Fix typos and enhance clarity in TriceUserManual
+*            02e95241 2025-11-18  Chapter Future Development added
+*            720740cb 2025-11-18  Function `SomeExampleTrices()` now in TRICE_OFF bracket
+*            80b2f5e3 2025-11-18  TestVersion removed
+*            f434203b 2025-11-17  typeX0Handler temporary roll back
+*            9b9a6f47 2025-11-17  Test TRICE_OFF=1 translation with and without IDs
+*            ccfc8e27 2025-11-17  Auto stash before merge of "main" and "origin/main"
+*            972c00e1 2025-11-17  Merge remote-tracking branch 'origin/main'
+|\           93fa69ad 2025-11-16  test adaptions
+| *          e7895afb 2025-11-16  Global vars saved and restored
+| *          84af1cd0 2025-11-16  generated results
+| *          0d37831e 2025-11-16  renamed to exclude temporary from tests
+| *          91284eac 2025-11-16  typeX0 Trices chapter added
+| *          67757768 2025-11-16  TRICE_OFF=1 translation for triceAssert fixed
+| *          e8f4cad0 2025-11-07  Update README with branch structure changes
+| *          d406f1cc 2025-10-16  Chapter 10 reworked
+| *          ea439b4b 2025-10-06  Update TriceUserManual.md
+| *          a53e7654 2025-08-30  Issue #553 fixed
+* |          4a6b98a4 2025-07-21  Save and restore global vars
+* |          d56756f9 2025-07-21  Trice stream parsing info added
+* |          51241248 2025-07-13  countedString typeX0 handler ok
+* |          2a4b227d 2025-07-13  file renamed
+* |          7d8abc16 2025-07-13  user print test over typeX0 added
+* |          4d88a3cf 2025-07-13  typeX0 handler for counted strings added
+* |          febd9dc1 2025-07-13  Exclude custom macros for TRICE_OFF == 1 && TRICE_CLEAN == 0
+* |          f607b7a2 2025-07-13  triceAssert now as empty macros in TRICE_OFF state
+* |          797d91a3 2025-07-13  example G0B1 TRICE_OFF=1 translation with and without IDs
+*            49ce4499 2025-07-10  Chapter Legacy User Code Trice Adaption added
+*            d205c665 2025-07-10  triceAssertTrue and triceAssertFalse tests added
+*            dbaaeaa0 2025-07-10   -Wno-format-security added to allow all _test/aliasassert... tests
+*            c8510ea5 2025-07-10  alias and alias assert CGO tests added
+*            eba35d4c 2025-07-09  $MAKE_JOBS invented to tackle Windows blocking
+*            41cfd4f5 2025-07-01  Transferring trices one by one for TRICE_SINGLE_PACK_MODE in double buffer
+|/           91ebd130 2025-07-08  C_INCLUDE_PATH determination with which command
+*            40f18153 2025-07-06  ./testAll.sh with CLI config switch
+*            cb71772d 2025-07-06  Inhibit system sleep during test execution
+| *          17412b2c 2025-07-04  Merge branch 'master' into devel
+| *          0b06e8f7 2025-07-04  alias test added (incomplete)
+| *          9603454f 2025-07-04  CLI switch `-ulabel` example added.
+| *          85c2196a 2025-07-04  Level Specific Configuration added
+| | *        36cea272 2025-07-04  wip alias test
+| | *        f7f38430 2025-07-03  Test special_dblB_de_tcobs_ua fixed.
+| * |        ba916083 2025-07-03  missing switch -d16 added, time->Time to let tests pass
+| | *        fc4fe788 2025-07-02  wip Structured Logging Draft
+| | * | |    d735a528 2025-07-01  experimental: user labels
+| * | |      421b75aa 2025-07-01  Change flag naming
+| |\ \ \     dd8fd6f1 2025-06-30  Add flag to disable CYCLE_ERROR in log
+| | * |      1240ca76 2025-06-30  -ts32 epoch doc improved
+| | * |      46c0a335 2025-06-29  Structured Logging chapter extended
+| * | |      d0ad4226 2025-06-27  -alias added to ./testAll.sh
+| |\ \       7fcef857 2025-06-26  TRICE_CLEAN included into evaluation
+| | |/       8f0b5278 2025-06-26  Better handling of aliases
+| |/|        5491c8f0 2025-06-26  alias insertion test extended with normal triceS
+| | *        6daefe44 2025-06-26  error message more descriptive
+| | *        04bb7484 2025-06-26  trice is build automatically before executing tests
+| | *        56b936d7 2025-06-26  trice settings more centralized to avoid issues
+| | |\       6ed615e5 2025-06-25  testAll.sh full passes
+| * | |      ab0cf1dc 2025-06-24  Internal SAlias handling modified
+| * | |      3468d8f6 2025-06-23  trouble shooting & changelog updated
+| * | |      468ac374 2025-06-23  issue #538 fix
+| * | |      b89e57ae 2025-06-23  issue #539 fix
+| |_|/       e9b9ec76 2025-06-21  Update StructuredLoggingWithTrice.md
+|\| |        76f2adcb 2025-06-21  Better support for '-ts32 epoch'
+| * |        e8115933 2025-06-20  Merge branch 'ts32epoch'
+|\| |        95a48def 2025-06-20  automatic error checks and early exit on errors
+* | |        3217fb34 2025-06-20  New -alias CLI switch chapter
+* | |        67934b22 2025-06-20  deactivated PATH extension for objcopy
+* | |        8a4d019a 2025-06-19  wip after merging pr #536
+* | |        7b41a67e 2025-06-16  Fix TestInsertWithBrackets by updating findClosingParentis to handle escaped quotes and parentheses in string literals.
+* | |        8f75007f 2025-06-16  Fix missing closing parenthesis in exampleOfManualJSONencoding() in triceCheck.c
+* | |        e88c25f6 2025-06-16  Add Homebrew check and dynamic gcc-arm-embedded version setup in build_environment.sh
+* | |        a248cd0d 2025-06-08  Updated G0B1_inst example to demonstrate the use of the Alias feature.
+* | |        2e90daa6 2025-06-08  Omit the Alias field from serialization to minimize the til.json size
+|/ /         0f42ac93 2025-06-03  Refactored matchTrice for better custom macro support, added resolveTriceAlias, and expanded tests for alias handling.
+* |          b1a8ee6b 2025-06-16  -ts32=epoch CLI switch added and documented (untested!)
+* |          5fcc17e8 2025-06-16  -ts32 epoch tryout code
+* |          86c082d9 2025-06-15  Chapter "Questions" reworked
+* |          1ef58606 2025-06-14  Wrong use of -ts switch now inhibits trice log to run
+* |          06c3aae9 2025-06-13  Structured Logging Spec a bit improved
+* |          ecce3f91 2025-06-13  bracket test inserted to catch unwanted parser behaviour changes
+* |          ddc21e49 2025-06-12  Update StructuredLoggingWithTrice.md
+* |          1cd50928 2025-06-11  Compact JSON example added.
+* |          75c52060 2025-06-11  Structured Logging Specification Draft added.
+* |          bd299fe9 2025-06-10  testAll.sh extended with context information
+|\|          979690b2 2025-06-06  Chapter SD-card writing added
+* |          4791e43c 2025-06-05  testAll.sh checks first for tool existence and has a (default) quick mode now. Also clang translation is included partially.
+* |          50b5e4b6 2025-06-01  args trim from PR #533 deactivated
+* |          63355ee3 2025-06-01  Refine format specifier checks to exclude alias macros, ensuring reliable evaluation for built-in trice macros only.
+* |          b02c6492 2025-05-29  Refactor alias handling logic, fixing custom macro handling where the format string isn't the first arg after Trice ID.
+* |          395b5ed3 2025-05-22  Add support for dynamic trice and triceS macro aliases
+* |          3316fc2b 2025-05-28  Merge branch 'issue526shadow'
+* |          5d211019 2025-05-28  pr 529 added, ChatGPT Trice compare added
+|/           c0419731 2025-05-15  Add an IPv4 UDP receiver and introduce the '-exclude' flag to omit specified sources from scanning.
+*            f032d5d1 2025-05-16  clang-format
+*            b73577ea 2025-05-10  triceSingleBufferStartWritePosition now a global variable for all 4 buffer variants
+*            0c462659 2025-05-07  wip issue 526
+*            ef6f3046 2025-04-25  Release 1.0
+```
 
 ## 21. <a id='master-branch-changes'></a>master branch changes
 

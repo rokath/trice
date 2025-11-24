@@ -1,7 +1,7 @@
 #!/bin/bash
 # Show git log with graph and the branch (from name-rev) of each commit.
 # Usage:
-#   ./gitLogWithBranches.sh [--since YYYY-MM-DD]
+#   ./GitLogWithBranches.sh [--since YYYY-MM-DD]
 
 SINCE=""
 if [ "$1" == "--since" ] && [ -n "$2" ]; then
@@ -9,11 +9,11 @@ if [ "$1" == "--since" ] && [ -n "$2" ]; then
 fi
 
 # ANSI colors
-yellow='\033[1;33m'
-green='\033[1;32m'
-cyan='\033[1;36m'
-white='\033[1;37m'
-reset='\033[0m'
+yellow= #'\033[1;33m'
+green=  #'\033[1;32m'
+cyan=   #'\033[1;36m'
+white=  #'\033[1;37m'
+reset=  #'\033[0m'
 
 # Collect graph and hashes separately (keep graph layout intact)
 GRAPH_LINES=()
