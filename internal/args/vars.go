@@ -22,6 +22,18 @@ var (
 	// Verbose gives more information on output if set. This variable is copied into the appropriate packages.
 	Verbose bool
 
+	// Branch is the during compile time active git repo branch.
+	Branch    string
+
+	// GitState is "clean" or "dirty"
+	GitState  string 
+
+	// GitStatus during build.sh, with | divided
+	GitStatus string
+
+	// BuiltBy is an optiona usable value. See .goreleaser.yaml.
+	BuiltBy string
+
 	// fsScAdd is flag set for sub command 'add' for updating ID list without touching the sources.
 	fsScAdd *flag.FlagSet
 
