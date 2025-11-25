@@ -12,6 +12,8 @@ import (
 )
 
 func init() {
+	// triceLog is the log function for executing the trice logging on binary log data in buffer as space separated numbers.
+	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog = func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
 		f := args.Handler(io.Writer(&o), fSys,
@@ -23,7 +25,6 @@ func init() {
 				"-ts0", "time:        ",
 				"-ts16", "time:    %04x",
 				"-ts32", "time:%08x",
-
 				"-pf=NONE",
 			},
 		)
