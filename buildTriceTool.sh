@@ -59,9 +59,10 @@ fi
 if git describe --tags --exact-match >/dev/null 2>&1; then
   version=$(git describe --tags --exact-match)
 else
-  version="$branch"
   if [[ "$git_state" == "dirty" ]]; then
-    version="${version}-dirty"
+    version="branch dirty"
+  else
+    version="branch clean"
   fi
 fi
 
@@ -71,8 +72,8 @@ fi
 
 echo "----------------------------------------"
 echo "Building trice with embedded Git metadata:"
-echo "  version:    $version"
 echo "  branch:     $branch"
+echo "  version:    $version"
 echo "  commit:     $commit"
 echo "  date:       $date"
 echo "  git_state:  $git_state"

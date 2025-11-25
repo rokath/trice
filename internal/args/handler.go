@@ -265,8 +265,7 @@ func scVersion(w io.Writer) error {
 		// GoReleaser builds usually don't set Branch/GitState/GitStatus.
 		// For those, we omit the branch to avoid "branch=" being empty.
 		if Branch != "" {
-			fmt.Fprintf(w, "version=%s, branch=%s%s, commit=%s, built at %s",
-				Version, Branch, dirtyText, Commit, Date)
+			fmt.Fprintf(w, "no version, branch=%s%s, commit=%s, built at %s", Branch, dirtyText, Commit, Date)
 		} else {
 			fmt.Fprintf(w, "version=%s, commit=%s, built at %s",
 				Version, Commit, Date)
@@ -280,8 +279,13 @@ func scVersion(w io.Writer) error {
 
 	} else {
 		// Fallback to Branch/Commit for local dev builds with missing version
-		fmt.Fprintf(w, "branch=%s%s, commit=%s, built at %s\n",
-			Branch, dirtyText, Commit, Date)
+		if Branch != "" {
+			fmt.Fprintf(w, "branch=%s%s, ", Branch, dirtyText)
+		}
+		if Commit != "" {
+			fmt.Fprintf(w, "commit=%s, ", Date)
+		}
+		fmt.Fprintf(w, "built at %s\n", Date)
 	}
 
 	// Only with verbose + dirty: display list of files that were modified at build time.
