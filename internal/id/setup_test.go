@@ -76,12 +76,12 @@ func Setup(t *testing.T) func() {
 // TestMain - see for example https://medium.com/goingogo/why-use-testmain-for-testing-in-go-dafb52b406bc
 func TestMain(m *testing.M) {
 
-	// log.Println("Do stuff BEFORE the id package tests!")
+	// log.Println("Do stuff BEFORE the package tests!")
 	g.GetGlobalVars()
-	// Run the id tests sequentially in alphabetical order.
+	// Run the package tests sequentially in alphabetical order.
 	exitVal := m.Run()
 
-	//log.Println("Do stuff AFTER the id package tests!")
+	//log.Println("Do stuff AFTER the package tests!")
 	os.Exit(exitVal)
 }
 
