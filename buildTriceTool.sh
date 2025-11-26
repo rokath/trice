@@ -27,6 +27,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 # Collect Git information
 ##############################################
 
+origin=$(git remote get-url origin 2>&1 || echo "unknown")
+
 # Current branch (fallback to "unknown" if not in a repo)
 branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 
@@ -72,6 +74,7 @@ fi
 
 echo "----------------------------------------"
 echo "Building trice with embedded Git metadata:"
+echo "  origin:     $origin"
 echo "  branch:     $branch"
 echo "  version:    $version"
 echo "  commit:     $commit"
@@ -102,7 +105,7 @@ go install -ldflags "\
   -X 'main.version=$version' \
   -X 'main.commit=$commit' \
   -X 'main.date=$date' \
-  -X 'main.branch=$branch' \
+  -X 'main.branch=$origin - $branch' \
   -X 'main.gitState=$git_state' \
   -X 'main.gitStatus=$git_status' \
 " ./cmd/trice/...
