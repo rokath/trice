@@ -106,13 +106,25 @@ extern "C" {
 //      return t.u;
 //  }
 
+//  // aFloat returns passed float value x as bit pattern in a uint32_t type.
+//  // See also \#571
+//  TRICE_INLINE uint32_t aFloat(float f) {
+//  	union {
+//  		float from_aFloat;
+//  		uint32_t to_aFloat;
+//  	} pun = {.from_aFloat = f};
+//  	return pun.to_aFloat;
+//  }
+
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
+// See also \#571
 TRICE_INLINE uint32_t aFloat(float f) {
 	union {
-		float from_aFloat;
-		uint32_t to_aFloat;
-	} pun = {.from_aFloat = f};
-	return pun.to_aFloat;
+		float from;
+		uint32_t to;
+	} pun;
+	pun.from = f;
+	return pun.to;
 }
 
 // aDouble returns passed double value x as bit pattern in a uint64_t type.
@@ -280,7 +292,9 @@ extern uint32_t* TriceBufferWritePosition;
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef __cplusplus // see \#571
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+#endif
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
 #define TRICE_PUT16(x)                                                 \
 	do {                                                               \
