@@ -20,6 +20,7 @@ unsigned TriceOutDepthCGO(void) {
 // This function is called from Go for test setup.
 void CgoSetTriceBuffer(uint8_t* buf) {
 	cgoTriceBuffer = buf;
+	cgoTriceBufferDepth = 0;
 }
 
 // CgoClearTriceBuffer sets the internal cgoTriceBuffer cgoTriceBufferDepth to 0.

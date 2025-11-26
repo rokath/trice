@@ -25,41 +25,23 @@ func targetSpecialActivity(n int) {
 // This function is test package specific defined. The file cgoPackage.go is
 // copied into all specific test packages and compiled there together with the
 // triceConfig.h, which holds the test package specific target code configuration.
-// limit is the count of executed test lines starting from the beginning. -1 ist for all.
-func triceLogSpecialTest(t *testing.T, triceLog logF, limit int) {
-
+// maxTestlines is the count of executed test lines starting from the beginning. -1 ist for all.
+func triceLogSpecialTest(t *testing.T, triceLog logF, maxTestlines int) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
-
-	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 
-	result := getExpectedResults(osFSys, "./TargetActivity.c")
-
-	var count int
+	result := getExpectedResults(osFSys, "./TargetActivity.c", maxTestlines)
 	for i, r := range result {
-
-		count++
-		if limit >= 0 && count >= limit {
-			return
-		}
-
 		fmt.Println(i, r)
-
-		// target activity
 		targetSpecialActivity(r.line) // triceCheck would compile but not wat we want here
-
 		triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
-
 		length := triceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i in r.line
-
 		buf := fmt.Sprint(bin)
 		buffer := buf[1 : len(buf)-1]
-
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()
-
 		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
 	}
 }
