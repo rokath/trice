@@ -9,7 +9,7 @@ import (
 )
 
 // SyncPacketPattern is used if a sync packet arrives
-const SyncPacketPattern = "inf:[TRICE_SYNC_PACKET 0x89abcdef]"
+// const SyncPacketPattern = "inf:[TRICE_SYNC_PACKET 0x89abcdef]"
 
 // TriceLineComposer collects all partial strings forming one line.
 type TriceLineComposer struct {
@@ -25,7 +25,14 @@ type TriceLineComposer struct {
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // It uses lw for writing the generated lines.
 func newLineComposer(lw LineWriter) *TriceLineComposer {
-	p := &TriceLineComposer{lw, HostStamp, Prefix, Suffix, make([]string, 0, 4096), nil} // not more than 4096 strings per line expected
+	p := &TriceLineComposer{
+		lw,                      // initialize p.lw with lw
+		HostStamp,               // initialize p.timeStampFormat with HostStamp
+		Prefix,                  // initialize p.prefix with Prefix
+		Suffix,                  // initialize p.suffix with Suffix
+		make([]string, 0, 4096), // initialize p.Line (not more than 4096 strings per line expected)
+		nil,                     // initialize p.err with nil
+	}
 	return p
 }
 
