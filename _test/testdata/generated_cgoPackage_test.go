@@ -45,7 +45,7 @@ func TestTriceLog(t *testing.T) {
 		assert.NotNil(t, triceLogDeferred)
 		triceLogDirectAndDeferred(t, triceLogDirect, triceLogDeferred, testLines, targetActivityC)
 	case "specificTest":
-		specificTest(t, triceLog) 
+		specificTest(t, triceLog logF) 
 	default:
 		//assert.Fail(t, "unexpected targetMode", targetMode)
 	}
