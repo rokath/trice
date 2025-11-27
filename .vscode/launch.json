@@ -102,7 +102,7 @@
                      "-args",
                      "${workspaceFolder}/internal/decoder/testdata/trice.bin",
                      "-idlist",
-                     "${workspaceFolder}/til.json"
+                     "${workspaceFolder}/demoTIL.json"
             ]
         },
         { 
