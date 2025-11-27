@@ -56,15 +56,14 @@ CGOTESTDIRS="
  dblB_di_nopf_rtt8__de_multi_cobs_ua/
  dblB_di_nopf_rtt8__de_multi_tcobs_ua/
  dblB_di_nopf_rtt8__de_tcobs_ua/
- ringB_de_cobs_ua/
  ringB_de_multi_cobs_ua/
- _ringB_de_multi_nopf_ua/
+ ringB_de_multi_nopf_ua/
  ringB_de_multi_tcobs_ua/
  ringB_de_multi_xtea_cobs_ua/
  ringB_de_multi_xtea_tcobs_ua/
- _ringB_de_nopf_ua/
+ ringB_de_single_cobs_ua/
  ringB_de_single_nopf_ua/
- ringB_de_tcobs_ua/
+ ringB_de_single_tcobs_ua/
  ringB_de_xtea_cobs_ua/
  ringB_de_xtea_tcobs_ua/
  ringB_di_cobs_rtt32__de_tcobs_ua/
