@@ -105,22 +105,27 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 6.2. [Install It](#install-it)
   * 6.3. [Try it](#try-it)
   * 6.4. [Use It](#use-it)
-  * 6.5. [Build It](#build-it)
-  * 6.6. [Port it](#port-it)
-    * 6.6.1. [Target Macros](#target-macros)
-    * 6.6.2. [Target Trice Stamps](#target-trice-stamps)
-    * 6.6.3. [Trice Checks](#trice-checks)
-    * 6.6.4. [Communication Ports](#communication-ports)
-    * 6.6.5. [Target Code Overview](#target-code-overview)
-    * 6.6.6. [User Code Adaption](#user-code-adaption)
-    * 6.6.7. [Limitations](#limitations)
-    * 6.6.8. [Trice (Time) Stamps](#trice-(time)-stamps)
-    * 6.6.9. [Trice Parameter Bit Widths](#trice-parameter-bit-widths)
-  * 6.7. [Avoid it](#avoid-it)
-    * 6.7.1. [Parser Limitation](#parser-limitation)
-    * 6.7.2. [Trice macros in header files](#trice-macros-in-header-files)
-    * 6.7.3. [Trice macros inside other macros](#trice-macros-inside-other-macros)
-    * 6.7.4. [Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)](#upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0))
+  * 6.5. [Fork It (get a contributor)](#fork-it-(get-a-contributor))
+    * 6.5.1. [✅ What “forking” means](#✅-what-“forking”-means)
+    * 6.5.2. [🧭 How to Fork (GitHub)](#🧭-how-to-fork-(github))
+  * 6.6. [Clone It](#clone-it)
+  * 6.7. [Build It](#build-it)
+  * 6.8. [Modify It](#modify-it)
+  * 6.9. [Port it](#port-it)
+    * 6.9.1. [Target Macros](#target-macros)
+    * 6.9.2. [Target Trice Stamps](#target-trice-stamps)
+    * 6.9.3. [Trice Checks](#trice-checks)
+    * 6.9.4. [Communication Ports](#communication-ports)
+    * 6.9.5. [Target Code Overview](#target-code-overview)
+    * 6.9.6. [User Code Adaption](#user-code-adaption)
+    * 6.9.7. [Limitations](#limitations)
+    * 6.9.8. [Trice (Time) Stamps](#trice-(time)-stamps)
+    * 6.9.9. [Trice Parameter Bit Widths](#trice-parameter-bit-widths)
+  * 6.10. [Avoid it](#avoid-it)
+    * 6.10.1. [Parser Limitation](#parser-limitation)
+    * 6.10.2. [Trice macros in header files](#trice-macros-in-header-files)
+    * 6.10.3. [Trice macros inside other macros](#trice-macros-inside-other-macros)
+    * 6.10.4. [Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)](#upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0))
 * 7. [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints)
   * 7.1. [Initial Data Transfer Setup Hints](#initial-data-transfer-setup-hints)
   * 7.2. [Short Trouble Shooting Hints](#short-trouble-shooting-hints)
@@ -906,11 +911,90 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  6.5. <a id='build-it'></a>Build It
+###  6.5. <a id='fork-it-(get-a-contributor)'></a>Fork It (get a contributor)
+
+If you wish to get a contributor please fork the Trice repository.
+
+####  6.5.1. <a id='✅-what-“forking”-means'></a>✅ What “forking” means
+
+Forking creates **your own copy** of someone else’s repository under your account.  
+You can then:
+
+* freely make changes,   
+* push commits to your fork, 
+* and later submit a **pull request** to propose changes back to the original repo.
+
+####  6.5.2. <a id='🧭-how-to-fork-(github)'></a>🧭 How to Fork (GitHub)
+
+**1\. Go to the repository you want to fork**
+
+Example: `https://github.com/rokath/trice`
+
+**2\. Click the **“Fork”** button (top-right)**
+
+You’ll be taken to a _Create Fork_ page.
+
+**3\. Choose options (usually leave defaults)**
+
+* **Owner** → your GitHub account
+* **Repository name** → auto-filled
+* Optional: copy only the default branch
+    
+Click **Create Fork**.
+
+**4\. Clone your fork locally**
+
+`git clone https://github.com/YOUR_USERNAME/trice.git && cd trice`
+
+**5\. (Optional but recommended) Add the original repo as `upstream`**
+
+This lets you pull updates later.
+
+`git remote add upstream https://github.com/rokath/trice.git`
+
+Check remotes:
+
+`git remote -v`
+
+**6\. Keep your fork updated**
+
+`git fetch upstream git merge upstream/main`
+
+Or:
+
+`git pull upstream main`
+
+###  6.6. <a id='clone-it'></a>Clone It
+
+**1\. Make sure Git is installed**
+
+Check with:
+
+`git --version`
+
+If not installed, download from [https://git-scm.com](https://git-scm.com/)
+
+**2\. Clone the repository**
+
+Run this command in your terminal or command prompt:
+
+`git clone https://github.com/rokath/trice.git`
+
+This creates a local folder named **trice** with the full project history.
+
+**3\. (Optional) Enter the project folder**
+
+`cd trice`
+
+###  6.7. <a id='build-it'></a>Build It
 
 See [Build Trice tool from Go sources (you can skip that)](#build-trice-tool-from-go-sources-(you-can-skip-that)).
 
-###  6.6. <a id='port-it'></a>Port it
+###  6.8. <a id='modify-it'></a>Modify It
+
+If for example you wich to change the logging capablilities, like changing/extending CLI switches, thanks to **Go** this is very easy also if you are not familar with **Go**. [See this example](https://github.com/rokath/trice/issues/573#issuecomment-3585705996).
+
+###  6.9. <a id='port-it'></a>Port it
 
 Trice should be usable on any MCU with any compiler. On ARM MCUs the easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or additionally is also no big deal.
 
@@ -926,7 +1010,7 @@ This way you see in a quick way any needed adaptions for your target project to 
 
 The chapter [Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation) contains further helpful information.
 
-####  6.6.1. <a id='target-macros'></a>Target Macros
+####  6.9.1. <a id='target-macros'></a>Target Macros
 
 The easiest and mostly sufficient way to use Trice on the target side is the Trice macro
 
@@ -973,7 +1057,7 @@ The value TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the parameter bit with for the ma
 
 The full uppercase macro Trice is a Trice macro only using inline code. Because the main design aim was speed, this was the original design. Then it became clear, that several hundred of Trice macros increase the needed code amount too much and that it is better to have just a function call instead of having inline macros. If speed matters use `TRICE(id(0)`, `TRICE(Id(0)`, `TRICE(ID(0)` else use `trice(iD(0)`, `Trice(iD(0)`, `TRice(iD(0)` or mix usage as you like. The lower case macros internally use Trice like code but each is only a function call and therefore needs less space.
 
-####  6.6.2. <a id='target-trice-stamps'></a>Target Trice Stamps
+####  6.9.2. <a id='target-trice-stamps'></a>Target Trice Stamps
 
 * If you wish to have your Trice messages stamped, most probably time stamped, add the 2 hardware specific macros/functions to your project (example in [./examples/F030_inst/Core/Inc/triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) and [./examples/F030_inst/Core/Src/stm32f0xx_it.c](../examples/F030_inst/Core/Src/stm32f0xx_it.c) ). The time base is in your hands and is allowed to be different for the 16-bit and 32-bit stamps. Example:
 
@@ -994,7 +1078,7 @@ The full uppercase macro Trice is a Trice macro only using inline code. Because 
 
 _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bit timestamp as systick counter to measure short execution times.
 
-####  6.6.3. <a id='trice-checks'></a>Trice Checks
+####  6.9.3. <a id='trice-checks'></a>Trice Checks
 
 * Optionally copy parts of [./_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   * Do not inclucde this file directly, because it could get changed when `updateTestData.sh` is executed inside the `./test` folder.
@@ -1012,7 +1096,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 * Look into [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for options.
 * Read chapter [Trice Project Image Size Optimization](#trice-project-image-size-optimization) if needed.
 
-####  6.6.4. <a id='communication-ports'></a>Communication Ports
+####  6.9.4. <a id='communication-ports'></a>Communication Ports
 
 * For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [Trice over RTT](#trice-over-rtt) for more info.
   * If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. But you cannot use it in the field usually.
@@ -1023,7 +1107,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 * An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality.
 * See also [Trice without UART](#trice-without-uart).
 
-####  6.6.5. <a id='target-code-overview'></a>Target Code Overview
+####  6.9.5. <a id='target-code-overview'></a>Target Code Overview
 
 * `./src`: **User Interface**
 
@@ -1075,7 +1159,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-####  6.6.6. <a id='user-code-adaption'></a>User Code Adaption
+####  6.9.6. <a id='user-code-adaption'></a>User Code Adaption
 
 * Replace all strings `puts` with the string `trice`, when the string follows immediately. For runtime generated strings see `triceS`.
 * Replace all strings `printf` with the string `trice`, when the format string follows immediately.
@@ -1115,7 +1199,7 @@ The Trice macros are designed for maximal execution speed and therefore we have 
 
 * Add `#include trice.h` to all user files using trice.
 
-####  6.6.7. <a id='limitations'></a>Limitations
+####  6.9.7. <a id='limitations'></a>Limitations
 
 * The maximum parameter count per trice is 12, but buffer transfer allows up to 32764 bytes payload. See `triceB` and its relatives.
 * Each trice must fit into a single line in trice versions before v0.61.0.
@@ -1171,7 +1255,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 * See also [Avoid it](#avoid-it).
 
-####  6.6.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
+####  6.9.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
 
 * Trice messages can have no or 16-bit or 32-bit (time) stamps.
   * recommended (function calling) syntax:
@@ -1192,7 +1276,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 <div id="Trice Parameter Bit Widths"></div>
 
-####  6.6.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
+####  6.9.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
 
 * The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside [src/triceDefaultConfig.h](../src/triceDefaultConfig.h) to change that.
 * If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
@@ -1212,9 +1296,9 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 Hint: With the default TCOBS framing 8-bit values as 32-bit parameters typically occupy only 2-bytes during transmission.
 
-###  6.7. <a id='avoid-it'></a>Avoid it
+###  6.10. <a id='avoid-it'></a>Avoid it
 
-####  6.7.1. <a id='parser-limitation'></a>Parser Limitation
+####  6.10.1. <a id='parser-limitation'></a>Parser Limitation
 
 Because the implemented source code parser for `trice insert` and `trice clean` is only a simple one, there is one important limitation:
 
@@ -1235,14 +1319,14 @@ trice( "hi 4");
 * The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here, but the compiler will mark an error then.
 * See also [issue #427](https://github.com/rokath/trice/issues/427), [issue #465](https://github.com/rokath/trice/issues/465) and see also [Limited Trice Parser Capabilities](#limited-trice-parser-capabilities).
 
-####  6.7.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
+####  6.10.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
 
 * There is nothing wrong, when putting _trice_ macros into header files.
 * But: When you use `trice insert` as pre-build command and `trice clean` as post build command, those header files get touched on each build and therefore all source code files including them will be re-translated every time.
 * For efficiency avoid that.
 * **With inventing the [Trice Cache](#trice-cache-for-compilation-speed) this is of no relevance.**
 
-####  6.7.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
+####  6.10.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
 
 There is nothing wrong, when putting Trice macros into other macros. But: When running the self made macro, the location information of the inner _trice_ macro will point to the self made macro definition and not to its execution location.
 
@@ -1270,7 +1354,7 @@ void fnB( void ){
 }
 ```
 
-####  6.7.4. <a id='upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0)'></a>Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
+####  6.10.4. <a id='upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0)'></a>Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
 
 The stamp size 0, 16 or 32 is usually controlled by writing `trice`, `Trice` or `TRICE` or for upper case only Trice macros by using id(0), Id(0) or ID(0). When wrting `TRICE("hi");` for example, the Trice CLI switch `-defaultStampSize` controls the ID insertion, but this is then equal for all new `TRICE` messages.
 
@@ -1516,7 +1600,7 @@ git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort 
 
   ```bash
   ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
-  $ go install ./cmd/trice/
+  $ bash ./buildTriceTool.sh # does internal do go install ./cmd/trice/...
   ```
 
 * Afterwards you should find an executable `trice` inside `~/go/bin`.
@@ -1524,11 +1608,25 @@ git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort 
 * Check:
 
   ```bash
-  ms@PaulPCWin11 MSYS ~/repos/trice (master)
-  $ /c/Users/ms/go/bin/trice.exe version
-  version=devel, built 2025-10-16 14:46:40.1465337 +0200 CEST
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
+  $ ./buildTriceTool.sh
+  ----------------------------------------
+  Building trice with embedded Git metadata:
+    origin:     git@github.com:rokath/trice.git
+    branch:     main
+    version:    branch dirty
+    commit:     f7edcc51
+    date:       2025-11-27T13:59:50+01:00
+    git_state:  dirty
+    git_status:  M .vscode/launch.json  M docs/TriceUserManual.md  M internal/emitter/lineComposer.go
+  ----------------------------------------
+  Build complete.
   
-  ms@PaulPCWin11 MSYS ~/repos/trice (master)
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
+  $ trice version
+  no version, branch=git@github.com:rokath/trice.git - main (local modifications at build time), commit=f7edcc51,   built at 2025-11-27T13:59:50+01:00
+  
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
   ```
 
 * Hints
