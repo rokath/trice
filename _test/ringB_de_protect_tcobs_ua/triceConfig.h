@@ -9,9 +9,14 @@
 extern "C" {
 #endif
 
-#define TRICE_BUFFER TRICE_STACK_BUFFER
-#define TRICE_DIRECT_OUTPUT 1
-#define TRICE_DIRECT_AUXILIARY32 1
+#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_PROTECT 1 // default
+#define TRICE_DEFERRED_BUFFER_SIZE 324 // especially too small
+//#define TRICE_DATA_OFFSET 4
+#define TRICE_SINGLE_MAX_SIZE 104 // default
+#define TRICE_DEFERRED_OUTPUT 1
+#define TRICE_DEFERRED_UARTA 1
+#define TRICE_UARTA
 #define TRICE_CGO 1
 #define TRICE_CYCLE_COUNTER 0
 

@@ -44,6 +44,7 @@ CGOTESTDIRS="
  dblB_de_multi_xtea_tcobs_ua/
  dblB_de_nopf_ua/
  dblB_de_tcobs_ua/
+ dblB_de_protect_tcobs_ua/
  dblB_de_xtea_cobs_ua/
  dblB_de_xtea_tcobs_ua/
  dblB_di_cobs_rtt32__de_xtea_cobs_ua/
@@ -56,6 +57,7 @@ CGOTESTDIRS="
  dblB_di_nopf_rtt8__de_multi_cobs_ua/
  dblB_di_nopf_rtt8__de_multi_tcobs_ua/
  dblB_di_nopf_rtt8__de_tcobs_ua/
+ modify_for_debug/
  ringB_de_multi_cobs_ua/
  ringB_de_multi_nopf_ua/
  ringB_de_multi_tcobs_ua/
@@ -64,6 +66,7 @@ CGOTESTDIRS="
  ringB_de_single_cobs_ua/
  ringB_de_single_nopf_ua/
  ringB_de_single_tcobs_ua/
+ ringB_de_protect_tcobs_ua/
  ringB_de_xtea_cobs_ua/
  ringB_de_xtea_tcobs_ua/
  ringB_di_cobs_rtt32__de_tcobs_ua/
@@ -76,12 +79,7 @@ CGOTESTDIRS="
  ringB_di_xtea_cobs_rtt32__de_cobs_ua/
  ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
  ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua/
- ringB_protect_de_tcobs_ua/
  special_dblB_de_tcobs_ua/
- special2_dblB_de_tcobs_ua/
- _special_for_debug/
- _special_protect_dblB_de_tcobs_ua/
- _special2_for_debug/
  stackB_di_nopf_aux32/
  stackB_di_nopf_aux8/
  stackB_di_nopf_rtt32/

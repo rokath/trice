@@ -50,3 +50,10 @@ func TestTriceLog(t *testing.T) {
 		//assert.Fail(t, "unexpected targetMode", targetMode)
 	}
 }
+
+type specificTestFunc func(t *testing.T, triceLog logF)
+
+// Default: No-Op
+var specificTest specificTestFunc = func(t *testing.T, triceLog logF) {
+    // do nothing
+}

@@ -272,7 +272,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		}
 
 		duration := time.Since(start).Milliseconds()
-		if duration > 10000 {
+		if duration > 100000 {
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
 	}
