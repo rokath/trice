@@ -76,7 +76,7 @@ CGOTESTDIRS="
  ringB_di_xtea_cobs_rtt32__de_cobs_ua/
  ringB_di_xtea_cobs_rtt32__de_tcobs_ua/
  ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua/
- _ringB_protect_de_tcobs_ua/
+ ringB_protect_de_tcobs_ua/
  special_dblB_de_tcobs_ua/
  special2_dblB_de_tcobs_ua/
  _special_for_debug/
