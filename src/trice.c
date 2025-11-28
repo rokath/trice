@@ -474,7 +474,7 @@ static void SEGGER_Write_RTT0_NoCheck32(const uint32_t* pData, unsigned NumW) {
 #endif
 	// Get "to-host" ring buffer.
 	// Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
-	static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);
+	static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((const char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);
 	WrOff = pRingUp0->WrOff;
 	RemW = (pRingUp0->SizeOfBuffer - WrOff) >> 2;
 	volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); // lint !e826
@@ -891,42 +891,42 @@ unsigned TriceOutDepth(void) {
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-void triceAssertTrue(int idN, char* msg, int flag) {
+void triceAssertTrue(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (!flag) {
 		TRICE_ASSERT(id(idN));
 	}
 }
 
-void TriceAssertTrue(int idN, char* msg, int flag) {
+void TriceAssertTrue(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (!flag) {
 		TRICE_ASSERT(Id(idN));
 	}
 }
 
-void TRiceAssertTrue(int idN, char* msg, int flag) {
+void TRiceAssertTrue(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (!flag) {
 		TRICE_ASSERT(ID(idN));
 	}
 }
 
-void triceAssertFalse(int idN, char* msg, int flag) {
+void triceAssertFalse(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (flag) {
 		TRICE_ASSERT(id(idN));
 	}
 }
 
-void TriceAssertFalse(int idN, char* msg, int flag) {
+void TriceAssertFalse(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (flag) {
 		TRICE_ASSERT(Id(idN));
 	}
 }
 
-void TRiceAssertFalse(int idN, char* msg, int flag) {
+void TRiceAssertFalse(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (flag) {
 		TRICE_ASSERT(ID(idN));
@@ -1051,15 +1051,15 @@ void TRice64F(int tid, char const* fmt, void* buf, uint32_t n) {
 
 #ifdef TRICE_S
 
-void triceS(int tid, char* fmt, char* runtimeGeneratedString) {
+void triceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
 	TRICE_S(id(tid), fmt, runtimeGeneratedString);
 }
 
-void TriceS(int tid, char* fmt, char* runtimeGeneratedString) {
+void TriceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
 	TRICE_S(Id(tid), fmt, runtimeGeneratedString);
 }
 
-void TRiceS(int tid, char* fmt, char* runtimeGeneratedString) {
+void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
 	TRICE_S(ID(tid), fmt, runtimeGeneratedString);
 }
 

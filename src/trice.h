@@ -702,9 +702,9 @@ void TRice64F(int tid, char const* fmt, void* buf, uint32_t n);
 		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
 
-void triceS(int tid, char* fmt, char* runtimeGeneratedString);
-void TriceS(int tid, char* fmt, char* runtimeGeneratedString);
-void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
+void triceS(int tid, const char* fmt, const char* runtimeGeneratedString);
+void TriceS(int tid, const char* fmt, const char* runtimeGeneratedString);
+void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString);
 
 #endif // #ifndef TRICE_S
 
@@ -778,13 +778,13 @@ TRICE_INLINE void TRice0(uint16_t tid, const char* pFmt) {
 	TRICE_UNUSED(pFmt)
 }
 
-void triceAssertTrue(int idN, char* msg, int flag);
-void TriceAssertTrue(int idN, char* msg, int flag);
-void TRiceAssertTrue(int idN, char* msg, int flag);
+void triceAssertTrue(int idN, const char* msg, int flag);
+void TriceAssertTrue(int idN, const char* msg, int flag);
+void TRiceAssertTrue(int idN, const char* msg, int flag);
 
-void triceAssertFalse(int idN, char* msg, int flag);
-void TriceAssertFalse(int idN, char* msg, int flag);
-void TRiceAssertFalse(int idN, char* msg, int flag);
+void triceAssertFalse(int idN, const char* msg, int flag);
+void TriceAssertFalse(int idN, const char* msg, int flag);
+void TRiceAssertFalse(int idN, const char* msg, int flag);
 
 typedef void (*Write8AuxiliaryFn_t)(const uint8_t* enc, size_t encLen);
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;
