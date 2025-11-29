@@ -45,8 +45,8 @@ CGOTESTDIRS="
  dblB_de_single_cobs_ua/
  dblB_de_single_nopf_ua/
  dblB_de_single_tcobs_ua/
- dblB_de_single_xtea_cobs_ua/
- dblB_de_single_xtea_tcobs_ua/
+ _dblB_de_single_xtea_cobs_ua/
+ _dblB_de_single_xtea_tcobs_ua/
  dblB_di_cobs_rtt32__de_xtea_cobs_ua/
  dblB_di_nopf_rtt32__de_cobs_ua/
  dblB_di_nopf_rtt32__de_multi_cobs_ua/
