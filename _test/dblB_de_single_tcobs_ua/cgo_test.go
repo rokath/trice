@@ -29,5 +29,5 @@ func init() {
 		assert.Nil(t, f)
 		return o.String()
 	}
-	targetMode = "deferredModeLinebyLineAndBulk"
+	targetMode = "deferredModeLinebyLine" // AndBulk"
 }
