@@ -60,7 +60,7 @@ var (
 	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 	triceDir        string // triceDir holds the trice directory path.
 	targetActivityC string // triceCheckC contains the target test code.
-	targetMode      string // targetMode is "directMode" OR "deferredMode" OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
+	targetMode      string // targetMode is "direct..." OR "deferred..." OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory

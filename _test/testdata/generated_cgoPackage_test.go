@@ -34,7 +34,7 @@ func TestTriceLog(t *testing.T) {
 	case "deferredModeLinebyLine":
 		assert.NotNil(t, triceLog)
 		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
-	case "deferredMode":
+	case "deferredModeBulk‚":
 		assert.NotNil(t, triceLog)
 		triceLogBulk(t, triceLog, testLines, targetActivityC)
 	case "directMode":

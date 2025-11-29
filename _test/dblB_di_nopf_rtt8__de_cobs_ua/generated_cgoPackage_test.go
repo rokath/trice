@@ -34,7 +34,7 @@ func TestTriceLog(t *testing.T) {
 	case "deferredModeLinebyLine":
 		assert.NotNil(t, triceLog)
 		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
-	case "deferredMode":
+	case "deferredModeBulk":
 		assert.NotNil(t, triceLog)
 		triceLogBulk(t, triceLog, testLines, targetActivityC)
 	case "directMode":
@@ -45,7 +45,7 @@ func TestTriceLog(t *testing.T) {
 		assert.NotNil(t, triceLogDeferred)
 		triceLogDirectAndDeferred(t, triceLogDirect, triceLogDeferred, testLines, targetActivityC)
 	case "specificTest":
-		specificTest(t, triceLog) 
+		specificTest(t, triceLog)
 	default:
 		//assert.Fail(t, "unexpected targetMode", targetMode)
 	}
@@ -55,5 +55,5 @@ type specificTestFunc func(t *testing.T, triceLog logF)
 
 // Default: No-Op
 var specificTest specificTestFunc = func(t *testing.T, triceLog logF) {
-    // do nothing
+	// do nothing
 }

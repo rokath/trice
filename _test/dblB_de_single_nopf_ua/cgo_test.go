@@ -23,13 +23,12 @@ func init() {
 				"-ts0", "time:        ",
 				"-ts16", "time:    %04x",
 				"-ts32", "time:%08x",
-
-				"-pw=MySecret",
-				"-pf=TCOBS",
+				"-singleFraming",
+				"-pf=NONE",
 			},
 		)
 		assert.Nil(t, f)
 		return o.String()
 	}
-	targetMode = "deferredMode"
+	targetMode = "deferredModeLinebyLine"
 }

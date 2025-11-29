@@ -23,8 +23,7 @@ func init() {
 				"-ts0", "time:        ",
 				"-ts16", "time:    %04x",
 				"-ts32", "time:%08x",
-
-				"-pf=NONE",
+				"-singleFraming",
 			},
 		)
 		assert.Nil(t, f)
