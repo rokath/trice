@@ -21,7 +21,7 @@ static unsigned triceOutIndexUartA = 0;
 //! TriceNonBlockingWriteUartA registers a buffer for TRICE_UARTA transmission.
 //! \param buf is byte buffer start.
 //! \param nByte is the number of bytes to transfer
-void TriceNonBlockingWriteUartA(const void* buf, size_t nByte) {
+__weak void TriceNonBlockingWriteUartA(const void* buf, size_t nByte) {
 #if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(buf, nByte);
 #else // #if TRICE_CGO == 1// automated tests
@@ -41,7 +41,7 @@ void TriceNonBlockingWriteUartA(const void* buf, size_t nByte) {
 }
 
 //! TriceOutDepthUartA returns the amount of bytes not written yet to UARTB.
-unsigned TriceOutDepthUartA(void) {
+__weak unsigned TriceOutDepthUartA(void) {
 	unsigned depth;
 	TRICE_ENTER_CRITICAL_SECTION
 	depth = triceOutCountUartA - triceOutIndexUartA;
@@ -94,7 +94,7 @@ static unsigned triceOutIndexUartB = 0;
 //! TriceNonBlockingWriteUartB registers a buffer for TRICE_UARTB transmission.
 //! \param buf is byte buffer start.
 //! \param nByte is the number of bytes to transfer
-void TriceNonBlockingWriteUartB(const void* buf, size_t nByte) {
+__weak void TriceNonBlockingWriteUartB(const void* buf, size_t nByte) {
 #if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(buf, nByte);
 #else  // #if TRICE_CGO == 1// automated tests
@@ -106,7 +106,7 @@ void TriceNonBlockingWriteUartB(const void* buf, size_t nByte) {
 }
 
 //! TriceOutDepthUartB returns the amount of bytes not written yet to UARTB.
-unsigned TriceOutDepthUartB(void) {
+__weak unsigned TriceOutDepthUartB(void) {
 	// unsigned depthRtt0 = 0; -> assuming RTT is fast enough
 	unsigned depth = triceOutCountUartB - triceOutIndexUartB;
 	return depth;
