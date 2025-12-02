@@ -353,7 +353,7 @@ void StartDefaultTask(void const * argument)
     }
     TriceCheck( i ); // this generates trice data
 #endif
-    osDelay(40);
+    osDelay(50);
   }
   /* USER CODE END 5 */
 }

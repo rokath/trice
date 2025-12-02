@@ -159,7 +159,7 @@
 #error configuration: TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if defined(SEGGER_RTT)  && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP) 
+#if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP) 
 #error configuration: TRICE_BUFFER_SIZE > BUFFER_SIZE_UP
 #endif
 
