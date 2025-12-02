@@ -75,20 +75,16 @@ Revision: $Rev: 24316 $
 //#define SEGGER_RTT_CPU_CACHE_LINE_SIZE            (32)          // Largest cache line size (in bytes) in the current system
 //#define SEGGER_RTT_UNCACHED_OFF                   (0xFB000000)  // Address alias where RTT CB and buffers can be accessed uncached
 //
-// Most common case:
+/// Most common case:
 // Up-channel 0: RTT
 // Up-channel 1: SystemView
 //
 #ifndef   SEGGER_RTT_MAX_NUM_UP_BUFFERS
-  #define SEGGER_RTT_MAX_NUM_UP_BUFFERS             (3)     // Max. number of up-buffers (T->H) available on this target    (Default: 3)
+  #define SEGGER_RTT_MAX_NUM_UP_BUFFERS             (1)     // Max. number of up-buffers (T->H) available on this target    (Default: 3)
 #endif
-//
-// Most common case:
-// Down-channel 0: RTT
-// Down-channel 1: SystemView
-//
+
 #ifndef   SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
-  #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS           (3)     // Max. number of down-buffers (H->T) available on this target  (Default: 3)
+  #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS           (1)     // Max. number of down-buffers (H->T) available on this target  (Default: 3)
 #endif
 
 #ifndef   BUFFER_SIZE_UP
@@ -96,11 +92,11 @@ Revision: $Rev: 24316 $
 #endif
 
 #ifndef   BUFFER_SIZE_DOWN
-  #define BUFFER_SIZE_DOWN                          (16)    // Size of the buffer for terminal input to target from host (Usually keyboard input) (Default: 16)
+  #define BUFFER_SIZE_DOWN                          (0)    // Size of the buffer for terminal input to target from host (Usually keyboard input) (Default: 16)
 #endif
 
 #ifndef   SEGGER_RTT_PRINTF_BUFFER_SIZE
-  #define SEGGER_RTT_PRINTF_BUFFER_SIZE             (64u)    // Size of buffer for RTT printf to bulk-send chars via RTT     (Default: 64)
+  #define SEGGER_RTT_PRINTF_BUFFER_SIZE             (0)    // Size of buffer for RTT printf to bulk-send chars via RTT     (Default: 64)
 #endif
 
 #ifndef   SEGGER_RTT_MODE_DEFAULT

@@ -6,7 +6,8 @@
         "trice_test.h": "c",
         "triceCheckTestpattern.C": "cpp",
         "cobs.h": "c",
-        "segger_rtt_conf.h": "c"
+        "segger_rtt_conf.h": "c",
+        "segger_rtt.h": "c"
     },
     "cSpell.words": [
         "CFLAGS",

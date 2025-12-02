@@ -11,6 +11,38 @@
 
 // check configuration:
 
+#if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
+
+// triceDefaultConfig.h defines 5 recommended SEGGER_RTT values (with prefix TRICE_), the user can change in its triceConfig.h.
+// Because SEGGER_RTT_Conf.h is used separately in the SEGGER code, which we do not touch,
+// we need to make sure, that these values are equal for the Trice code and the SEGGER code.
+// Make sure for example, a (inside triceConfig.h) defined TRICE_BUFFER_SIZE_UP is equal to BUFFER_SIZE_UP in "SEGGER_RTT.h".
+// If user defines its own value, this must be reflected in "SEGGER_RTT_Conf.h" to avoid misbehave.
+
+#include "SEGGER_RTT.h" // get the value used in SEGGER_RTT_Conf.h
+
+#if TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS != SEGGER_RTT_MAX_NUM_UP_BUFFERS
+#error TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS != SEGGER_RTT_MAX_NUM_UP_BUFFERS (must be equal)
+#endif
+
+#if TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS != SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+#error TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS != SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (must be equal)
+#endif
+
+#if TRICE_BUFFER_SIZE_UP != BUFFER_SIZE_UP
+#error TRICE_BUFFER_SIZE_UP != BUFFER_SIZE_UP (must be equal)
+#endif
+
+#if TRICE_BUFFER_SIZE_DOWN != BUFFER_SIZE_DOWN
+#error TRICE_BUFFER_SIZE_DOWN != BUFFER_SIZE_DOWN (must be equal)
+#endif
+
+#if TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE != SEGGER_RTT_PRINTF_BUFFER_SIZE
+#error TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE != SEGGER_RTT_PRINTF_BUFFER_SIZE (must be equal)
+#endif
+
+#endif // #if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
+
 #ifndef TRICE_DATA_OFFSET
 #error configuration: Check triceDefaultConfig.h or add "#define TRICE_DATA_OFFSET 16" to your triceConfig.h.
 #endif
@@ -127,8 +159,8 @@
 #error configuration: TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
-#error configuration: BUFFER_SIZE_UP too small
+#if defined(SEGGER_RTT)  && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP) 
+#error configuration: TRICE_BUFFER_SIZE > BUFFER_SIZE_UP
 #endif
 
 #if (TRICE_BUFFER == TRICE_STACK_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
