@@ -220,7 +220,7 @@ func TestHEXToTCP(t *testing.T) {
 	til := `{
 	"16201": {
 		"Type": "TRice",
-		"Strg": "w:_Hello! 👋🙂\\n"
+		"Strg": "w: Hello! 👋🙂\\n"
 	}
 }`
 
@@ -229,7 +229,7 @@ func TestHEXToTCP(t *testing.T) {
 	// create a minimalistic til.json
 	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
 	input := []string{"trice", "log", "-port", "HEX", "-args", "09 92 19 06 45 0b 10 56 3a,00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off", "-tcp", "localhost" + portNR}
-	exp := "_Hello! 👋🙂\n"
+	exp := " Hello! 👋🙂\n"
 
 	go func() { // listening for transmit
 		err := args.Handler(os.Stdout, fSys, input)
