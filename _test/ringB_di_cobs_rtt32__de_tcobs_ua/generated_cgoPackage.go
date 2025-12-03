@@ -60,7 +60,7 @@ var (
 	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 	triceDir        string // triceDir holds the trice directory path.
 	targetActivityC string // triceCheckC contains the target test code.
-	targetMode      string // targetMode is "directMode" OR "deferredMode" OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
+	targetMode      string // targetMode is "direct..." OR "deferred..." OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -163,6 +163,10 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 // It uses the inside fSys specified til.json and returns the log output.
 type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 
+// triceLogLineByLine executes each triceCheck.c test line, gets its binary output and
+// restarts the whole Trice log functionality for this, resulting in a long test duration.
+// This test is avoidable for only-deferred modes which allow doTestTriceLogBulk=true,
+// but useful for debugging.
 // triceLogLineByLine creates a list of expected results from triceCheckC.
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.
@@ -189,7 +193,11 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 	}
 }
 
-<<<<<<<< HEAD:_test/ringB_di_cobs_rtt32__de_tcobs_ua/generated_cgoPackage.go
+// triceLogBulk executes each triceCheck.c test line, gets its binary output and
+// collects all these outputs into one (big) buffer. Then the Trice log functionality
+// is started once for this (big) buffer and the whole output is generated. Afterwards
+// this generated output is compared line by line with the expected results. The
+// function triceLogBulk is much faster than triceLogLineByLine but difficult to debug.
 // triceLogBulk creates a list of expected results from triceCheckC.
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.
@@ -198,11 +206,6 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 // triceConfig.h, which holds the test package specific target code configuration.
 // testLines is the count of executed test lines starting from the beginning. -1 ist for all.
 func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string) {
-========
-// triceLogTest2 works like triceLogTest but additionally expects doubled output: direct and deferred.
-func triceLogTest2(t *testing.T, triceLog0, triceLog1 logF, limit int) {
-	g.GetGlobalVars() // read changed defaults
->>>>>>>> main:_test/ringB_di_cobs_rtt8__de_tcobs_ua/generated_cgoPackage.go
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
 
@@ -268,21 +271,7 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 	for i, v := range result {
 		triceCheck(v.line) // target activity
 
-<<<<<<<< HEAD:_test/ringB_di_cobs_rtt32__de_tcobs_ua/generated_cgoPackage.go
 		{ // Check direct output line by line.
-========
-	var count int
-	for i, r := range result {
-
-		count++
-		if limit >= 0 && count >= limit {
-			return
-		}
-		fmt.Println(i, r)
-		triceCheck(r.line) // target activity
-
-		{ // check direct output
->>>>>>>> main:_test/ringB_di_cobs_rtt8__de_tcobs_ua/generated_cgoPackage.go
 			length := triceOutDepth()
 			bin := out[:length] // bin contains the binary trice data of trice message i
 			buf := fmt.Sprint(bin)
@@ -295,7 +284,6 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 		{ // Check deferred output.
 			if false {
 
-<<<<<<<< HEAD:_test/ringB_di_cobs_rtt32__de_tcobs_ua/generated_cgoPackage.go
 			} else { // liny by line (slow)
 				triceTransfer()
 				length := triceOutDepth()
@@ -307,22 +295,6 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 				triceClearOutBuffer()
 				assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
 			}
-========
-		{ // check deferred output
-			triceTransfer()
-
-			length := triceOutDepth()
-			bin := out[:length] // bin contains the binary trice data of trice message i
-
-			buf := fmt.Sprint(bin)
-			buffer := buf[1 : len(buf)-1]
-
-			g.SetGlobalVars() // restore changed defaults
-			act := triceLog1(t, osFSys, buffer)
-			triceClearOutBuffer()
-
-			assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
->>>>>>>> main:_test/ringB_di_cobs_rtt8__de_tcobs_ua/generated_cgoPackage.go
 		}
 	}
 }

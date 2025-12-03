@@ -21,18 +21,24 @@ static unsigned triceOutIndexUartA = 0;
 //! TriceNonBlockingWriteUartA registers a buffer for TRICE_UARTA transmission.
 //! \param buf is byte buffer start.
 //! \param nByte is the number of bytes to transfer
-void TriceNonBlockingWriteUartA(const void* buf, size_t nByte) {
+TRICE_WEAK void TriceNonBlockingWriteUartA(const void* buf, size_t nByte) {
 #if TRICE_CGO == 1 // automated tests
-	TriceWriteDeviceCgo(buf, nByte);
+	// Having TRICE_CGO here is not perfect, but the alternative would be an additional triceUart_defaults.c file,
+	// containing the TRICE_WEAK definitions and demanding additional code. This file
+	// would be not included for the CGO tests. But then also the internal static variables may be problematic.
+	// The point is, that TRICE_WEAK gets used during link time and not earlier. For the CGO tests all files
+	// get compiled in one big object and the C-compiler sees then 2 definitions of TriceNonBlockingWriteUartA
+	// in the same object throwing an error then.
+  	TriceWriteDeviceCgo(buf, nByte);
 #else // #if TRICE_CGO == 1// automated tests
 	TRICE_ENTER_CRITICAL_SECTION
-#if 1
+//  #if 1
 	triceOutBufferUartA = buf;
-#else
-	static uint8_t t[TRICE_DEFERRED_BUFFER_SIZE / 2]; // todo: find a better solution to avoid RAM wasting
-	memcpy(t, buf, nByte);
-	triceOutBufferUartA = t;
-#endif
+//  #else
+//  	static uint8_t t[TRICE_DEFERRED_BUFFER_SIZE / 2]; // todo: find a better solution to avoid RAM wasting
+//  	memcpy(t, buf, nByte);
+//  	triceOutBufferUartA = t;
+//  #endif
 	triceOutIndexUartA = 0;
 	triceOutCountUartA = nByte;
 	triceEnableTxEmptyInterruptUartA(); // triceTriggerTransmitUartA();
@@ -41,7 +47,7 @@ void TriceNonBlockingWriteUartA(const void* buf, size_t nByte) {
 }
 
 //! TriceOutDepthUartA returns the amount of bytes not written yet to UARTB.
-unsigned TriceOutDepthUartA(void) {
+TRICE_WEAK unsigned TriceOutDepthUartA(void) {
 	unsigned depth;
 	TRICE_ENTER_CRITICAL_SECTION
 	depth = triceOutCountUartA - triceOutIndexUartA;
@@ -94,7 +100,7 @@ static unsigned triceOutIndexUartB = 0;
 //! TriceNonBlockingWriteUartB registers a buffer for TRICE_UARTB transmission.
 //! \param buf is byte buffer start.
 //! \param nByte is the number of bytes to transfer
-void TriceNonBlockingWriteUartB(const void* buf, size_t nByte) {
+TRICE_WEAK void TriceNonBlockingWriteUartB(const void* buf, size_t nByte) {
 #if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(buf, nByte);
 #else  // #if TRICE_CGO == 1// automated tests
@@ -106,7 +112,7 @@ void TriceNonBlockingWriteUartB(const void* buf, size_t nByte) {
 }
 
 //! TriceOutDepthUartB returns the amount of bytes not written yet to UARTB.
-unsigned TriceOutDepthUartB(void) {
+TRICE_WEAK unsigned TriceOutDepthUartB(void) {
 	// unsigned depthRtt0 = 0; -> assuming RTT is fast enough
 	unsigned depth = triceOutCountUartB - triceOutIndexUartB;
 	return depth;

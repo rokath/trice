@@ -91,6 +91,21 @@ extern "C" {
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
 
+#ifndef TRICE_WEAK // user can define TRICE_WEAK for special cases
+  #ifdef WEAK
+    #define TRICE_WEAK WEAK // use existing weak
+  #else // #ifdef WEAK
+    #if defined(__GNUC__) || defined(__clang__)
+      #define TRICE_WEAK __attribute__((weak))
+    #elif defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__IAR_SYSTEMS_ICC__)
+      #define TRICE_WEAK __weak
+    #else // for example MSVC (Visual C++)
+      #define TRICE_WEAK // fallback
+    #endif
+  #endif // #else // #ifdef WEAK
+#endif // #ifndef TRICE_WEAK
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // These converter functions need to be visible in the TRICE_OFF == 1 case to avoid compiler warnings then.
 //
@@ -106,13 +121,25 @@ extern "C" {
 //      return t.u;
 //  }
 
+//  // aFloat returns passed float value x as bit pattern in a uint32_t type.
+//  // See also \#571
+//  TRICE_INLINE uint32_t aFloat(float f) {
+//  	union {
+//  		float from_aFloat;
+//  		uint32_t to_aFloat;
+//  	} pun = {.from_aFloat = f};
+//  	return pun.to_aFloat;
+//  }
+
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
+// See also \#571
 TRICE_INLINE uint32_t aFloat(float f) {
 	union {
-		float from_aFloat;
-		uint32_t to_aFloat;
-	} pun = {.from_aFloat = f};
-	return pun.to_aFloat;
+		float from;
+		uint32_t to;
+	} pun;
+	pun.from = f;
+	return pun.to;
 }
 
 // aDouble returns passed double value x as bit pattern in a uint64_t type.
@@ -160,6 +187,12 @@ TRICE_INLINE uint64_t aDouble(double x) {
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
 #define SEGGER_RTT
+
+#endif
+
+#if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
+
+#include "SEGGER_RTT.h"
 
 #endif
 
@@ -274,7 +307,9 @@ extern uint32_t* TriceBufferWritePosition;
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef __cplusplus // see \#571
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+#endif
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
 #define TRICE_PUT16(x)                                                 \
 	do {                                                               \
@@ -667,9 +702,9 @@ void TRice64F(int tid, char const* fmt, void* buf, uint32_t n);
 		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
 
-void triceS(int tid, char* fmt, char* runtimeGeneratedString);
-void TriceS(int tid, char* fmt, char* runtimeGeneratedString);
-void TRiceS(int tid, char* fmt, char* runtimeGeneratedString);
+void triceS(int tid, const char* fmt, const char* runtimeGeneratedString);
+void TriceS(int tid, const char* fmt, const char* runtimeGeneratedString);
+void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString);
 
 #endif // #ifndef TRICE_S
 
@@ -743,13 +778,13 @@ TRICE_INLINE void TRice0(uint16_t tid, const char* pFmt) {
 	TRICE_UNUSED(pFmt)
 }
 
-void triceAssertTrue(int idN, char* msg, int flag);
-void TriceAssertTrue(int idN, char* msg, int flag);
-void TRiceAssertTrue(int idN, char* msg, int flag);
+void triceAssertTrue(int idN, const char* msg, int flag);
+void TriceAssertTrue(int idN, const char* msg, int flag);
+void TRiceAssertTrue(int idN, const char* msg, int flag);
 
-void triceAssertFalse(int idN, char* msg, int flag);
-void TriceAssertFalse(int idN, char* msg, int flag);
-void TRiceAssertFalse(int idN, char* msg, int flag);
+void triceAssertFalse(int idN, const char* msg, int flag);
+void TriceAssertFalse(int idN, const char* msg, int flag);
+void TRiceAssertFalse(int idN, const char* msg, int flag);
 
 typedef void (*Write8AuxiliaryFn_t)(const uint8_t* enc, size_t encLen);
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;

@@ -31,26 +31,33 @@ func setup(t *testing.T) func() {
 func TestTriceLog(t *testing.T) {
 	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
 	switch targetMode {
-	case "deferredMode":
+	case "deferredModeLinebyLineAndBulk":
 		assert.NotNil(t, triceLog)
-		// triceLogBulk executes each triceCheck.c test line, gets its binary output and
-		// collects all these outputs into one (big) buffer. Then the Trice log functionality
-		// is started once for this (big) buffer and the whole output is generated. Afterwards
-		// this generated output is compared line by line with the expected results. The
-		// function triceLogBulk is much faster than triceLogLineByLine but difficult to debug.
+		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
+		triceLogBulk(t, triceLog, testLines, targetActivityC)
+	case "deferredModeLinebyLine":
+		assert.NotNil(t, triceLog)
+		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
+	case "deferredModeBulk":
+		assert.NotNil(t, triceLog)
 		triceLogBulk(t, triceLog, testLines, targetActivityC)
 	case "directMode":
 		assert.NotNil(t, triceLog)
-		// triceLogLineByLine executes each triceCheck.c test line, gets its binary output and
-		// restarts the whole Trice log functionality for this, resulting in a long test duration.
-		// This test is avoidable for only-deferred modes which allow doTestTriceLogBulk=true,
-		// but useful for debugging.
 		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
 	case "combinedMode":
 		assert.NotNil(t, triceLogDirect)
 		assert.NotNil(t, triceLogDeferred)
 		triceLogDirectAndDeferred(t, triceLogDirect, triceLogDeferred, testLines, targetActivityC)
+	case "specificTest":
+		specificTest(t, triceLog)
 	default:
 		//assert.Fail(t, "unexpected targetMode", targetMode)
 	}
+}
+
+type specificTestFunc func(t *testing.T, triceLog logF)
+
+// Default: No-Op
+var specificTest specificTestFunc = func(t *testing.T, triceLog logF) {
+	// do nothing
 }

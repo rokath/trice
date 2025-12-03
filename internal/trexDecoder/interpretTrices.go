@@ -55,7 +55,7 @@ func (p *trexDec) interpretTrice(logLineStart bool, b []byte) (n int, err error)
 		if len(t.v) > 0 {
 			var s string
 			if decoder.TargetStamp0 != "" {
-				s = fmt.Sprintf(decoder.TargetStamp0) + "default: "
+				s = decoder.TargetStamp0 + "default: "
 			}
 			if AddNewlineToEachTriceMessage {
 				s += fmt.Sprintln(string(t.v))
@@ -146,7 +146,7 @@ func (p *trexDec) interpretTrice(logLineStart bool, b []byte) (n int, err error)
 			}
 		case 0:
 			if decoder.TargetStamp0 != "" {
-				s = fmt.Sprintf(decoder.TargetStamp0)
+				s = decoder.TargetStamp0
 			}
 		}
 		if len(s) > 0 { // Add a color-less space after the target stamp only if a stamp is written.
@@ -480,7 +480,7 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, string(p.t.v))
 	}
 	s := p.t.v
-	n += copy(b[n:], fmt.Sprintf(t.Trice.Strg))
+	n += copy(b[n:], t.Trice.Strg)
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
 	}
@@ -495,7 +495,7 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, string(p.t.v))
 	}
 	s := p.t.v
-	n += copy(b[n:], fmt.Sprintf(t.Trice.Strg))
+	n += copy(b[n:], t.Trice.Strg)
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
 	}
@@ -510,7 +510,7 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, string(p.t.v))
 	}
 	s := p.t.v
-	n += copy(b[n:], fmt.Sprintf(t.Trice.Strg))
+	n += copy(b[n:], t.Trice.Strg)
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
 	}
@@ -525,7 +525,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, string(p.t.v))
 	}
 	s := p.t.v
-	n += copy(b[n:], fmt.Sprintf(t.Trice.Strg))
+	n += copy(b[n:], t.Trice.Strg)
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
 	}
@@ -536,7 +536,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 // trice0 prints the trice format string.
 func (p *trexDec) trice0(b []byte, _ int, _ int) int {
 	t := p.t
-	return copy(b, fmt.Sprintf(t.pFmt))
+	return copy(b, t.pFmt)
 }
 
 // unSignedOrSignedOut prints p.t.v according to the format string.

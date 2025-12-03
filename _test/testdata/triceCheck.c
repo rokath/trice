@@ -852,63 +852,63 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 
         // use cases for 8-bit data
         break; case __LINE__: trice8     ("value=%d\n", -2  ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: Trice8     ("value=%d\n", -2  ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRice8     ("value=%d\n", -2  ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: trice8_1   ("value=%d\n", -2  ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: Trice8_1   ("value=%d\n", -2  ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRice8_1   ("value=%d\n", -2  ); //exp: "time:feed3322default: value=-2\n"
+        break; case __LINE__: Trice8     ("value=%d\n", -3  ); //exp: "time:    be16default: value=-3\n"
+        break; case __LINE__: TRice8     ("value=%d\n", -4  ); //exp: "time:feed3322default: value=-4\n"
+        break; case __LINE__: trice8_1   ("value=%d\n", -5  ); //exp: "time:        default: value=-5\n"
+        break; case __LINE__: Trice8_1   ("value=%d\n", -6  ); //exp: "time:    be16default: value=-6\n"
+        break; case __LINE__: TRice8_1   ("value=%d\n", -7  ); //exp: "time:feed3322default: value=-7\n"
 
         // use cases for 16-bit data
         break; case __LINE__: trice16    ("value=%d\n", -2  ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: Trice16    ("value=%d\n", -2  ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRice16    ("value=%d\n", -2  ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: trice16_1  ("value=%d\n", -2  ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: Trice16_1  ("value=%d\n", -2  ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRice16_1  ("value=%d\n", -2  ); //exp: "time:feed3322default: value=-2\n"
+        break; case __LINE__: Trice16    ("value=%d\n", -3  ); //exp: "time:    be16default: value=-3\n"
+        break; case __LINE__: TRice16    ("value=%d\n", -4  ); //exp: "time:feed3322default: value=-4\n"
+        break; case __LINE__: trice16_1  ("value=%d\n", -5  ); //exp: "time:        default: value=-5\n"
+        break; case __LINE__: Trice16_1  ("value=%d\n", -6  ); //exp: "time:    be16default: value=-6\n"
+        break; case __LINE__: TRice16_1  ("value=%d\n", -7  ); //exp: "time:feed3322default: value=-7\n"
 
         // use cases for 32-bit data
         break; case __LINE__: trice32    ("value=%d\n", -2  ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: Trice32    ("value=%d\n", -2  ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRice32    ("value=%d\n", -2  ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: trice32_1  ("value=%d\n", -2  ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: Trice32_1  ("value=%d\n", -2  ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRice32_1  ("value=%d\n", -2  ); //exp: "time:feed3322default: value=-2\n"
+        break; case __LINE__: Trice32    ("value=%d\n", -3  ); //exp: "time:    be16default: value=-3\n"
+        break; case __LINE__: TRice32    ("value=%d\n", -4  ); //exp: "time:feed3322default: value=-4\n"
+        break; case __LINE__: trice32_1  ("value=%d\n", -5  ); //exp: "time:        default: value=-5\n"
+        break; case __LINE__: Trice32_1  ("value=%d\n", -6  ); //exp: "time:    be16default: value=-6\n"
+        break; case __LINE__: TRice32_1  ("value=%d\n", -7  ); //exp: "time:feed3322default: value=-7\n"
 
         // use cases for 64-bit data
         break; case __LINE__: trice64    ("value=%d\n", -2  ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: Trice64    ("value=%d\n", -2  ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRice64    ("value=%d\n", -2  ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: trice64_1  ("value=%d\n", -2  ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: Trice64_1  ("value=%d\n", -2  ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRice64_1  ("value=%d\n", -2  ); //exp: "time:feed3322default: value=-2\n"
+        break; case __LINE__: Trice64    ("value=%d\n", -3  ); //exp: "time:    be16default: value=-3\n"
+        break; case __LINE__: TRice64    ("value=%d\n", -4  ); //exp: "time:feed3322default: value=-4\n"
+        break; case __LINE__: trice64_1  ("value=%d\n", -5  ); //exp: "time:        default: value=-5\n"
+        break; case __LINE__: Trice64_1  ("value=%d\n", -6  ); //exp: "time:    be16default: value=-6\n"
+        break; case __LINE__: TRice64_1  ("value=%d\n", -7  ); //exp: "time:feed3322default: value=-7\n"
 
         // legacy use cases
-        break; case __LINE__: TRICE      (ID(0), "value=%d\n", -2 ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: TRICE      (id(0), "value=%d\n", -2 ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: TRICE      (Id(0), "value=%d\n", -2 ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRICE      (ID(0), "value=%d\n", -2 ); //exp: "time:feed3322default: value=-2\n"
+        break; case __LINE__: TRICE      (ID(0), "value=%d\n", -3 ); //exp: "time:feed3322default: value=-3\n"
+        break; case __LINE__: TRICE      (id(0), "value=%d\n", -4 ); //exp: "time:        default: value=-4\n"
+        break; case __LINE__: TRICE      (Id(0), "value=%d\n", -5 ); //exp: "time:    be16default: value=-5\n"
+        break; case __LINE__: TRICE      (ID(0), "value=%d\n", -6 ); //exp: "time:feed3322default: value=-6\n"
 
         // default stamp
         break; case __LINE__: TRICE8     (ID(0), "value=%d\n", -2 ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: TRICE8_1   (ID(0), "value=%d\n", -2 ); //exp: "time:feed3322default: value=-2\n"
+        break; case __LINE__: TRICE8_1   (ID(0), "value=%d\n", -3 ); //exp: "time:feed3322default: value=-3\n"
 
         // no stamp
-        break; case __LINE__: trice8     ("value=%d\n", -2 ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: trice8_1   ("value=%d\n", -2 ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: TRICE8     (id(0), "value=%d\n", -2 ); //exp: "time:        default: value=-2\n"
-        break; case __LINE__: TRICE8_1   (id(0), "value=%d\n", -2 ); //exp: "time:        default: value=-2\n"
+        break; case __LINE__: trice8     ("value=%d\n", -3 ); //exp: "time:        default: value=-3\n"
+        break; case __LINE__: trice8_1   ("value=%d\n", -4 ); //exp: "time:        default: value=-4\n"
+        break; case __LINE__: TRICE8     (id(0), "value=%d\n", -5 ); //exp: "time:        default: value=-5\n"
+        break; case __LINE__: TRICE8_1   (id(0), "value=%d\n", -6 ); //exp: "time:        default: value=-6\n"
 
         // 16-bit stamp:
-        break; case __LINE__: Trice8     ("value=%d\n", -2 ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: Trice8_1   ("value=%d\n", -2 ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRICE8     (Id(0), "value=%d\n", -2 ); //exp: "time:    be16default: value=-2\n"
-        break; case __LINE__: TRICE8_1   (Id(0), "value=%d\n", -2 ); //exp: "time:    be16default: value=-2\n"
+        break; case __LINE__: Trice8     ("value=%d\n", -3 ); //exp: "time:    be16default: value=-3\n"
+        break; case __LINE__: Trice8_1   ("value=%d\n", -4 ); //exp: "time:    be16default: value=-4\n"
+        break; case __LINE__: TRICE8     (Id(0), "value=%d\n", -5 ); //exp: "time:    be16default: value=-5\n"
+        break; case __LINE__: TRICE8_1   (Id(0), "value=%d\n", -6 ); //exp: "time:    be16default: value=-6\n"
 
         // 32-bit stamp:
-        break; case __LINE__: TRice8     ("value=%d\n", -2 ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: TRice8_1   ("value=%d\n", -2 ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: TRICE8     (ID(0), "value=%d\n", -2 ); //exp: "time:feed3322default: value=-2\n"
-        break; case __LINE__: TRICE8_1   (ID(0), "value=%d\n", -2 ); //exp: "time:feed3322default: value=-2\n"
+        break; case __LINE__: TRice8     ("value=%d\n", -3 ); //exp: "time:feed3322default: value=-3\n"
+        break; case __LINE__: TRice8_1   ("value=%d\n", -4 ); //exp: "time:feed3322default: value=-4\n"
+        break; case __LINE__: TRICE8     (ID(0), "value=%d\n", -5 ); //exp: "time:feed3322default: value=-5\n"
+        break; case __LINE__: TRICE8_1   (ID(0), "value=%d\n", -6 ); //exp: "time:feed3322default: value=-6\n"
 
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         // tags

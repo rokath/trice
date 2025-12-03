@@ -105,22 +105,30 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 6.2. [Install It](#install-it)
   * 6.3. [Try it](#try-it)
   * 6.4. [Use It](#use-it)
-  * 6.5. [Port it](#port-it)
-    * 6.5.1. [Target Macros](#target-macros)
-    * 6.5.2. [Target Trice Stamps](#target-trice-stamps)
-    * 6.5.3. [Trice Checks](#trice-checks)
-    * 6.5.4. [Communication Ports](#communication-ports)
-    * 6.5.5. [Target Code Overview](#target-code-overview)
-    * 6.5.6. [User Code Adaption](#user-code-adaption)
-    * 6.5.7. [Limitations](#limitations)
-    * 6.5.8. [Trice (Time) Stamps](#trice-(time)-stamps)
-    * 6.5.9. [Trice Parameter Bit Widths](#trice-parameter-bit-widths)
-  * 6.6. [Avoid it](#avoid-it)
-    * 6.6.1. [Parser Limitation](#parser-limitation)
-    * 6.6.2. [Trice macros in header files](#trice-macros-in-header-files)
-    * 6.6.3. [Trice macros inside other macros](#trice-macros-inside-other-macros)
-    * 6.6.4. [Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)](#upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0))
+  * 6.5. [Fork It (get a contributor)](#fork-it-(get-a-contributor))
+    * 6.5.1. [✅ What “forking” means](#✅-what-“forking”-means)
+    * 6.5.2. [🧭 How to Fork (GitHub)](#🧭-how-to-fork-(github))
+  * 6.6. [Clone It](#clone-it)
+  * 6.7. [Build It](#build-it)
+  * 6.8. [Modify It](#modify-it)
+  * 6.9. [Port it](#port-it)
+    * 6.9.1. [Target Macros](#target-macros)
+    * 6.9.2. [Target Trice Stamps](#target-trice-stamps)
+    * 6.9.3. [Trice Checks](#trice-checks)
+    * 6.9.4. [Communication Ports](#communication-ports)
+    * 6.9.5. [Target Code Overview](#target-code-overview)
+    * 6.9.6. [User Code Adaption](#user-code-adaption)
+    * 6.9.7. [Limitations](#limitations)
+    * 6.9.8. [Trice (Time) Stamps](#trice-(time)-stamps)
+    * 6.9.9. [Trice Parameter Bit Widths](#trice-parameter-bit-widths)
+  * 6.10. [Avoid it](#avoid-it)
+    * 6.10.1. [Parser Limitation](#parser-limitation)
+    * 6.10.2. [Trice macros in header files](#trice-macros-in-header-files)
+    * 6.10.3. [Trice macros inside other macros](#trice-macros-inside-other-macros)
+    * 6.10.4. [Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)](#upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0))
 * 7. [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints)
+  * 7.1. [Initial Data Transfer Setup Hints](#initial-data-transfer-setup-hints)
+  * 7.2. [Short Trouble Shooting Hints](#short-trouble-shooting-hints)
 * 8. [Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed)
   * 8.1. [Trice Cache Idea](#trice-cache-idea)
   * 8.2. [Trice Cache Logic](#trice-cache-logic)
@@ -903,7 +911,90 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  6.5. <a id='port-it'></a>Port it
+###  6.5. <a id='fork-it-(get-a-contributor)'></a>Fork It (get a contributor)
+
+If you wish to get a contributor please fork the Trice repository.
+
+####  6.5.1. <a id='✅-what-“forking”-means'></a>✅ What “forking” means
+
+Forking creates **your own copy** of someone else’s repository under your account.  
+You can then:
+
+* freely make changes,   
+* push commits to your fork, 
+* and later submit a **pull request** to propose changes back to the original repo.
+
+####  6.5.2. <a id='🧭-how-to-fork-(github)'></a>🧭 How to Fork (GitHub)
+
+**1\. Go to the repository you want to fork**
+
+Example: `https://github.com/rokath/trice`
+
+**2\. Click the **“Fork”** button (top-right)**
+
+You’ll be taken to a _Create Fork_ page.
+
+**3\. Choose options (usually leave defaults)**
+
+* **Owner** → your GitHub account
+* **Repository name** → auto-filled
+* Optional: copy only the default branch
+    
+Click **Create Fork**.
+
+**4\. Clone your fork locally**
+
+`git clone https://github.com/YOUR_USERNAME/trice.git && cd trice`
+
+**5\. (Optional but recommended) Add the original repo as `upstream`**
+
+This lets you pull updates later.
+
+`git remote add upstream https://github.com/rokath/trice.git`
+
+Check remotes:
+
+`git remote -v`
+
+**6\. Keep your fork updated**
+
+`git fetch upstream git merge upstream/main`
+
+Or:
+
+`git pull upstream main`
+
+###  6.6. <a id='clone-it'></a>Clone It
+
+**1\. Make sure Git is installed**
+
+Check with:
+
+`git --version`
+
+If not installed, download from [https://git-scm.com](https://git-scm.com/)
+
+**2\. Clone the repository**
+
+Run this command in your terminal or command prompt:
+
+`git clone https://github.com/rokath/trice.git`
+
+This creates a local folder named **trice** with the full project history.
+
+**3\. (Optional) Enter the project folder**
+
+`cd trice`
+
+###  6.7. <a id='build-it'></a>Build It
+
+See [Build Trice tool from Go sources (you can skip that)](#build-trice-tool-from-go-sources-(you-can-skip-that)).
+
+###  6.8. <a id='modify-it'></a>Modify It
+
+If for example you wich to change the logging capablilities, like changing/extending CLI switches, thanks to **Go** this is very easy also if you are not familar with **Go**. [See this example](https://github.com/rokath/trice/issues/573#issuecomment-3585705996).
+
+###  6.9. <a id='port-it'></a>Port it
 
 Trice should be usable on any MCU with any compiler. On ARM MCUs the easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or additionally is also no big deal.
 
@@ -919,7 +1010,7 @@ This way you see in a quick way any needed adaptions for your target project to 
 
 The chapter [Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation) contains further helpful information.
 
-####  6.5.1. <a id='target-macros'></a>Target Macros
+####  6.9.1. <a id='target-macros'></a>Target Macros
 
 The easiest and mostly sufficient way to use Trice on the target side is the Trice macro
 
@@ -966,7 +1057,7 @@ The value TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the parameter bit with for the ma
 
 The full uppercase macro Trice is a Trice macro only using inline code. Because the main design aim was speed, this was the original design. Then it became clear, that several hundred of Trice macros increase the needed code amount too much and that it is better to have just a function call instead of having inline macros. If speed matters use `TRICE(id(0)`, `TRICE(Id(0)`, `TRICE(ID(0)` else use `trice(iD(0)`, `Trice(iD(0)`, `TRice(iD(0)` or mix usage as you like. The lower case macros internally use Trice like code but each is only a function call and therefore needs less space.
 
-####  6.5.2. <a id='target-trice-stamps'></a>Target Trice Stamps
+####  6.9.2. <a id='target-trice-stamps'></a>Target Trice Stamps
 
 * If you wish to have your Trice messages stamped, most probably time stamped, add the 2 hardware specific macros/functions to your project (example in [./examples/F030_inst/Core/Inc/triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) and [./examples/F030_inst/Core/Src/stm32f0xx_it.c](../examples/F030_inst/Core/Src/stm32f0xx_it.c) ). The time base is in your hands and is allowed to be different for the 16-bit and 32-bit stamps. Example:
 
@@ -987,7 +1078,7 @@ The full uppercase macro Trice is a Trice macro only using inline code. Because 
 
 _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bit timestamp as systick counter to measure short execution times.
 
-####  6.5.3. <a id='trice-checks'></a>Trice Checks
+####  6.9.3. <a id='trice-checks'></a>Trice Checks
 
 * Optionally copy parts of [./_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   * Do not inclucde this file directly, because it could get changed when `updateTestData.sh` is executed inside the `./test` folder.
@@ -1005,7 +1096,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 * Look into [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for options.
 * Read chapter [Trice Project Image Size Optimization](#trice-project-image-size-optimization) if needed.
 
-####  6.5.4. <a id='communication-ports'></a>Communication Ports
+####  6.9.4. <a id='communication-ports'></a>Communication Ports
 
 * For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [Trice over RTT](#trice-over-rtt) for more info.
   * If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. But you cannot use it in the field usually.
@@ -1016,7 +1107,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 * An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality.
 * See also [Trice without UART](#trice-without-uart).
 
-####  6.5.5. <a id='target-code-overview'></a>Target Code Overview
+####  6.9.5. <a id='target-code-overview'></a>Target Code Overview
 
 * `./src`: **User Interface**
 
@@ -1068,7 +1159,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-####  6.5.6. <a id='user-code-adaption'></a>User Code Adaption
+####  6.9.6. <a id='user-code-adaption'></a>User Code Adaption
 
 * Replace all strings `puts` with the string `trice`, when the string follows immediately. For runtime generated strings see `triceS`.
 * Replace all strings `printf` with the string `trice`, when the format string follows immediately.
@@ -1108,7 +1199,7 @@ The Trice macros are designed for maximal execution speed and therefore we have 
 
 * Add `#include trice.h` to all user files using trice.
 
-####  6.5.7. <a id='limitations'></a>Limitations
+####  6.9.7. <a id='limitations'></a>Limitations
 
 * The maximum parameter count per trice is 12, but buffer transfer allows up to 32764 bytes payload. See `triceB` and its relatives.
 * Each trice must fit into a single line in trice versions before v0.61.0.
@@ -1164,7 +1255,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 * See also [Avoid it](#avoid-it).
 
-####  6.5.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
+####  6.9.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
 
 * Trice messages can have no or 16-bit or 32-bit (time) stamps.
   * recommended (function calling) syntax:
@@ -1185,7 +1276,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 <div id="Trice Parameter Bit Widths"></div>
 
-####  6.5.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
+####  6.9.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
 
 * The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside [src/triceDefaultConfig.h](../src/triceDefaultConfig.h) to change that.
 * If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
@@ -1205,9 +1296,9 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 Hint: With the default TCOBS framing 8-bit values as 32-bit parameters typically occupy only 2-bytes during transmission.
 
-###  6.6. <a id='avoid-it'></a>Avoid it
+###  6.10. <a id='avoid-it'></a>Avoid it
 
-####  6.6.1. <a id='parser-limitation'></a>Parser Limitation
+####  6.10.1. <a id='parser-limitation'></a>Parser Limitation
 
 Because the implemented source code parser for `trice insert` and `trice clean` is only a simple one, there is one important limitation:
 
@@ -1228,14 +1319,14 @@ trice( "hi 4");
 * The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here, but the compiler will mark an error then.
 * See also [issue #427](https://github.com/rokath/trice/issues/427), [issue #465](https://github.com/rokath/trice/issues/465) and see also [Limited Trice Parser Capabilities](#limited-trice-parser-capabilities).
 
-####  6.6.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
+####  6.10.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
 
 * There is nothing wrong, when putting _trice_ macros into header files.
 * But: When you use `trice insert` as pre-build command and `trice clean` as post build command, those header files get touched on each build and therefore all source code files including them will be re-translated every time.
 * For efficiency avoid that.
 * **With inventing the [Trice Cache](#trice-cache-for-compilation-speed) this is of no relevance.**
 
-####  6.6.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
+####  6.10.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
 
 There is nothing wrong, when putting Trice macros into other macros. But: When running the self made macro, the location information of the inner _trice_ macro will point to the self made macro definition and not to its execution location.
 
@@ -1263,13 +1354,15 @@ void fnB( void ){
 }
 ```
 
-####  6.6.4. <a id='upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0)'></a>Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
+####  6.10.4. <a id='upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0)'></a>Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
 
 The stamp size 0, 16 or 32 is usually controlled by writing `trice`, `Trice` or `TRICE` or for upper case only Trice macros by using id(0), Id(0) or ID(0). When wrting `TRICE("hi");` for example, the Trice CLI switch `-defaultStampSize` controls the ID insertion, but this is then equal for all new `TRICE` messages.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  7. <a id='trice-trouble-shooting-hints'></a>Trice Trouble Shooting Hints
+
+###  7.1. <a id='initial-data-transfer-setup-hints'></a>Initial Data Transfer Setup Hints
 
 If you do not succeed initially, you can try this:
 
@@ -1322,6 +1415,16 @@ trice log -s -port com1 -v -ts32="att:%08x fix" # enter this (adapted)
   * `c0` cycle counter, initial value is 192
   * `04` parameter size
   * `22 22 22 22` 4 parameter bytes
+
+###  7.2. <a id='short-trouble-shooting-hints'></a>Short Trouble Shooting Hints
+
+Problem                        | Hint
+-------------------------------|------------------------------------
+Missing `objcopy` in MacOS     | `brew install bunutils`
+Small GUI Editor for MacOs     | `brew install cotedit` Usage: `cot` (not as root)
+Small In-Terminal Editor Linux | https://cte.e10labs.com/, tilde, micro, joe, https://craigbarnes.gitlab.io/dte/ (also as root)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  8. <a id='trice-cache-for-compilation-speed'></a>Trice Cache for Compilation Speed
 
@@ -1497,7 +1600,7 @@ git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort 
 
   ```bash
   ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
-  $ go install ./cmd/trice/
+  $ bash ./buildTriceTool.sh # does internal do go install ./cmd/trice/...
   ```
 
 * Afterwards you should find an executable `trice` inside `~/go/bin`.
@@ -1505,11 +1608,25 @@ git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort 
 * Check:
 
   ```bash
-  ms@PaulPCWin11 MSYS ~/repos/trice (master)
-  $ /c/Users/ms/go/bin/trice.exe version
-  version=devel, built 2025-10-16 14:46:40.1465337 +0200 CEST
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
+  $ ./buildTriceTool.sh
+  ----------------------------------------
+  Building trice with embedded Git metadata:
+    origin:     git@github.com:rokath/trice.git
+    branch:     main
+    version:    branch dirty
+    commit:     f7edcc51
+    date:       2025-11-27T13:59:50+01:00
+    git_state:  dirty
+    git_status:  M .vscode/launch.json  M docs/TriceUserManual.md  M internal/emitter/lineComposer.go
+  ----------------------------------------
+  Build complete.
   
-  ms@PaulPCWin11 MSYS ~/repos/trice (master)
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
+  $ trice version
+  no version, branch=git@github.com:rokath/trice.git - main (local modifications at build time), commit=f7edcc51,   built at 2025-11-27T13:59:50+01:00
+  
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
   ```
 
 * Hints
@@ -1567,7 +1684,7 @@ $ go install ./cmd/trice/
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
 
-After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`
+After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`. There is now a remommended script `./buildTriceTool.sh`. Using it, depending on your system you may need to enter `bash ./buildTriceTool.sh`, includes the actual Trice repository state into the Trice binary, which is shown with `trice version` then - useful in case of issues.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -5704,16 +5821,19 @@ Assume a project with several devices. You can add these 2 files to all targets 
 
 This folder is per default named to `_test` to avoid vsCode slow down. Also, when running `go test ./...`,  the tests in the `_test` folder are excluded, because they take a long time. Run `./testAll.sh` to include them.
 
-The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way.
+The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way. 
 
-* ALSO: In `./examples` you can translate all examples with `./buildAllTargets.sh`.
-* ALSO: In `./examples/L432_inst` the script `all_configs_build.sh` translates many different configurations.
+`testAll.sh quick` performs just a short test. `testAll.sh full` runs all tests. That can take hours on a Windows PC because make is executed only as single thread there for stability reasons. On Darwin and Linux systems about an hour test duration should be expected. 
+
+* Partial tests:
+  * In `./examples` you can translate all examples with `./buildAllTargets.sh`.
+  * In `./examples/L432_inst` the script `all_configs_build.sh` translates many different configurations.
 
 For the user it could be helpful to start with a `triceConfig.h`file from here and to adapt the Trice tool command line from the matching `cgo_test.go` if no close match in the `examples` folder was found.
 
 ###  41.2. <a id='how-to-run-the-tests'></a>How to run the tests
 
-* In `_trice` folder first execute `go clean -cache`. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can led to confusing results.
+* In `_trice` folder first execute `go clean -cache` after editing C-files. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can led to confusing results.
 * Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
 * To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` fom there. It is more handy to run `trice_insertIDs_in_examples_and_test_folder.sh` from the Trice root folder.
 * It is convenient to run  `testAll.sh` from the Trice root folder to perform this.
@@ -5727,7 +5847,7 @@ To exclude a specific folder temporary, simply rename it to start with an unders
 
 The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](./testdata/triceCheck.c) is the master file for most tests and serves also as example usage.
 
-[./testdata/cgoPackage.go](./testdata/cgoPackage.go) is the common master for the `generated_cgoPackage.go` files and contains the common test code. 
+[_test/testdata/cgoPackage.go](../_test/testdata/cgoPackage.go) is the common master for the `generated_cgoPackage.go` files and contains the common test code. 
 
 The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently. When the tests are executed for each package, a separate test binary is build and these run parallel.
 
@@ -7272,16 +7392,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Trouble Shooting
-
-Problem                        | Hint
--------------------------------|------------------------------------
-Missing `objcopy` in MacOS     | `brew install bunutils`
-Small Editor for MacOs Scripts | `brew install cotedit` Usage: `cot`
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-##  49. <a id='trice-user-manual-changelog'></a>Trice User Manual Changelog
+##  46. <a id='working-with-the-trice-git-repository'></a>Working with the Trice Git Repository
 
 | Action                                    | Command                                                                                                                                                                                                 |
 |-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -7322,6 +7433,183 @@ Small Editor for MacOs Scripts | `brew install cotedit` Usage: `cot`
 * * *
 
 <h4>🧰 Prerequisites</h4>
+
+Before you begin, make sure you have:
+
+* Install [Homebrew](https://brew.sh) first if you don’t have it.
+* **Git**:  Check if Git is installed: `git --version`
+If not, install the Xcode Command Line Tools:
+  *  `xcode-select --install`   
+*  **Node.js and npm**  
+  OpenCommit runs on Node.js. Check with: `node -v` and `npm -v`
+  If not installed: `brew install node` 
+* **An OpenAI API key** (or compatible provider like OpenRouter, see below).
+    
+* * *
+
+<h4>🔑 Step 1 — Get Your OpenAI API Key</h4>
+
+* Go to **[https://platform.openai.com](https://platform.openai.com)**
+* Log in (or sign up) using your email, Google, Microsoft, or Apple account.
+* Navigate to your API Keys page: 👉 [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
+  * Click **“Create new secret key”**.
+  * Give it a name (e.g., `opencommit-mac`) and copy it immediately.  
+    It will look like this: `sk-proj-1a2b3c4d5e6f...`
+    > ⚠️ You’ll only see it once — store it securely (e.g., 1Password, Bitwarden).
+    
+* * *
+
+<h4>⚙️ Step 2 — Install OpenCommit</h4>
+
+* Run the following in your Terminal: `npm install -g opencommit`
+  You may see warnings about deprecated dependencies — those are safe to ignore.  
+* Once installed, check: `opencommit --version`
+
+* * *
+
+<h4>🔧 Step 3 — Set Up Your API Key on macOS</h4>
+
+* Add your key as an environment variable: `export OPENAI_API_KEY="sk-proj-your-key-here"`
+* To make it **permanent**, add it to your shell configuration file (`~/.zshrc`):
+  `echo 'export OPENAI_API_KEY="sk-proj-your-key-here"' >> ~/.zshrc source ~/.zshrc`
+* Verify that it’s active: `echo $OPENAI_API_KEY`
+  If it prints your key (or the beginning of it), you’re good.
+
+* * *
+
+<h4>⚙️ Step 4 — Optional Configuration</h4>
+
+* You can customize OpenCommit’s behavior by setting additional environment variables, for example:
+
+```bash
+export OCO_LANG="en"           # or "de", "fr", etc. 
+export OCO_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
+export OCO_PROMPT_MODULE="conventional" 
+export OCO_EMOJI=true
+ ```
+
+Add these to your `~/.zshrc` for persistence.
+
+* * *
+
+<h4>🚀 Step 5 — Use OpenCommit</h4>
+
+* Go to a Git repository: `cd /path/to/your/repo` 
+* Stage your changes: `git add .`
+* Run OpenCommit: `opencommit`
+* It will analyze your staged changes and automatically generate a commit message.  
+    Example:
+    `🔍 Analyzing changes... ✅ Commit message generated: feat(api): add endpoint for user authentication`
+    
+* * *
+
+<h4>🔁 Step 6 — (Optional) Install Git Hook</h4>
+
+* To have OpenCommit run automatically every time you commit: `npx opencommit install-hook`
+* Now every time you run `git commit`, OpenCommit will propose a commit message for you.
+
+* * *
+
+<h4>🧩 Step 7 — Troubleshooting</h4>
+
+If OpenCommit says:
+
+* **“Missing API key”** → Check that `$OPENAI_API_KEY` is set (`echo $OPENAI_API_KEY`).    
+* **“Unauthorized”** → Verify your key is valid or not expired.  
+* **“Cannot find opencommit command”** → Reinstall globally with `npm install -g opencommit`.
+
+* * *
+
+###  46.2. <a id='install-`opencommit`-on-windows'></a>Install `opencommit` on Windows
+
+<h4>🧭 Overview</h4>
+
+OpenCommit is a tool that uses AI (like GPT models) to automatically generate meaningful Git commit messages based on your code changes.
+
+This guide explains how to install and configure OpenCommit on Windows step by step.
+
+* * *
+
+<h4>⚙️ Prerequisites</h4>
+
+* Before installing OpenCommit, make sure you have:
+  * Git installed 👉 Download and install from https://git-scm.com/download/win
+* Verify installation by running in PowerShell or CMD: `git --version`
+* Node.js and npm (Node Package Manager) installed 👉 Download from https://nodejs.org (LTS version recommended).
+  * Verify:
+
+  ```bash
+  node -v
+  npm -v
+  ```
+
+* An OpenAI API key (for GPT access) 👉 Get it from https://platform.openai.com/account/api-keys
+
+* * *
+
+<h4>🪄 Installation Steps</h4>
+
+**1. Install OpenCommit Globally**
+
+* Open a terminal (PowerShell or CMD) and run: `npm install -g opencommit`
+* Verify installation: `opencommit --version`
+  If you get an error like “opencommit not recognized”, restart your terminal or ensure your npm global path is in your system PATH environment variable.
+
+**2. Configure the API Key**
+
+* Set your OpenAI API key as an environment variable permanently:
+  * Press Win + R, type SystemPropertiesAdvanced, and press Enter.
+  * Click Environment Variables...
+  * Under User variables, click New, and add:
+    * Variable name: OPENAI_API_KEY
+    * Variable value: your_api_key_here
+    * You can also customize OpenCommit’s behavior by setting additional environment variables, for example:
+
+    ```bash
+   OCO_LANG="en"            # or "de", "fr", etc. 
+   OCO_MODEL="gpt-4o"       # or another model like "gpt-4-turbo" 
+   OCO_PROMPT_MODULE="conventional" 
+   OCO_EMOJI=true
+    ```
+
+    * Click OK on all windows.
+* Then restart PowerShell.
+
+**3. (Optional) Configure Defaults**
+
+* You can set up default parameters in your Git repository or globally: `opencommit config`
+  * Follow the interactive prompts to define:
+    * Default model (e.g., gpt-3.5-turbo)
+    * Commit style
+    * Language
+
+* * *
+
+<h4>🚀 Usage</h4>
+
+* Once installed, simply run: `opencommit`. This will:
+  * Analyze your staged changes (git diff --cached)
+  * Generate an AI-powered commit message
+  * Ask for confirmation before committing
+* You can also use: `opencommit --no-verify` to skip confirmation and commit directly.
+
+<h4>🔧 Troubleshooting</h4>
+
+* Issue	Solution
+  * opencommit: command not found	Ensure npm global bin path is added to your Windows PATH (e.g., C:\Users\<YourUser>\AppData\Roaming\npm).
+  * Error: Missing OPENAI_API_KEY	Set your OpenAI API key as shown above.
+  * Model too slow / API errors	Try setting a smaller model: opencommit config --model gpt-3.5-turbo.
+
+* * *
+
+<h4>✅ Example</h4>
+
+```bash
+git add .
+oco
+```
+
+Output:
 
 ```txt
 Generated commit message:

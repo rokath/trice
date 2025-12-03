@@ -70,13 +70,13 @@
 //  TRICE_INLINE void Trice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 //  TRICE_INLINE void TRice0( const char * pFmt ){TRICE_UNUSED(pFmt)}
 /*
-TRICE_INLINE void triceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-TRICE_INLINE void TriceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-TRICE_INLINE void TRiceAssertTrue( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void triceAssertTrue( int idN, const char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void TriceAssertTrue( int idN, const char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void TRiceAssertTrue( int idN, const char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
 
-TRICE_INLINE void triceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-TRICE_INLINE void TriceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
-TRICE_INLINE void TRiceAssertFalse( int idN, char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void triceAssertFalse( int idN, const char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void TriceAssertFalse( int idN, const char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
+TRICE_INLINE void TRiceAssertFalse( int idN, const char* msg, int flag ){TRICE_UNUSED(idN) TRICE_UNUSED(msg) TRICE_UNUSED(flag)}
 */
 
 

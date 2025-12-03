@@ -1,114 +1,158 @@
-Mo 27. Okt 00:33:57 CET 2025
+Wed Dec  3 10:33:56 WEST 2025
 This can take a while ...
 SELECTED: full
-$OSTYPE=linux-gnu
-Linux P51-DebianKDE 6.1.0-29-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.123-1 (2025-01-02) x86_64 GNU/Linux
-go version go1.23.4 linux/amd64
-/home/th/go/bin/trice
-version=devel, built 2025-10-27 00:33:58.359794859 +0100 CET
+$OSTYPE=msys
+MINGW64_NT-10.0-26100 PaulPCWin11 3.5.7-463ebcdc.x86_64 2025-03-03 17:26 UTC x86_64 Msys
+go version go1.24.0 windows/amd64
+/c/Users/ms/go/bin/trice
+built at 2025-12-03 10:34:06.5966207 +0100 CET
 ---
 Testing the Go code...
+ok  	github.com/rokath/trice/cmd/trice	2.182s
+ok  	github.com/rokath/trice/internal/args	1.211s
+ok  	github.com/rokath/trice/internal/charDecoder	0.839s
+ok  	github.com/rokath/trice/internal/com	0.890s
+ok  	github.com/rokath/trice/internal/decoder	0.842s
 ?   	github.com/rokath/trice/internal/do	[no test files]
-ok  	github.com/rokath/trice/cmd/trice	1.031s
-ok  	github.com/rokath/trice/internal/args	0.007s
-ok  	github.com/rokath/trice/internal/charDecoder	0.004s
-ok  	github.com/rokath/trice/internal/com	0.004s
-ok  	github.com/rokath/trice/internal/decoder	0.004s
-ok  	github.com/rokath/trice/internal/dumpDecoder	0.003s
-ok  	github.com/rokath/trice/internal/emitter	0.004s
+ok  	github.com/rokath/trice/internal/dumpDecoder	0.828s
+ok  	github.com/rokath/trice/internal/emitter	0.918s
+ok  	github.com/rokath/trice/internal/id	3.959s
+ok  	github.com/rokath/trice/internal/keybcmd	0.891s
+ok  	github.com/rokath/trice/internal/link	0.788s
+ok  	github.com/rokath/trice/internal/receiver	0.916s
 ?   	github.com/rokath/trice/internal/translator	[no test files]
+ok  	github.com/rokath/trice/internal/trexDecoder	0.915s
 ?   	github.com/rokath/trice/pkg/ant	[no test files]
-ok  	github.com/rokath/trice/internal/id	2.732s
-ok  	github.com/rokath/trice/internal/keybcmd	0.004s
-ok  	github.com/rokath/trice/internal/link	0.004s
-ok  	github.com/rokath/trice/internal/receiver	0.004s
-ok  	github.com/rokath/trice/internal/trexDecoder	0.006s
-ok  	github.com/rokath/trice/pkg/cipher	0.004s
-ok  	github.com/rokath/trice/pkg/endian	0.002s
-ok  	github.com/rokath/trice/pkg/msg	0.004s
-ok  	github.com/rokath/trice/pkg/tst	0.004s
+ok  	github.com/rokath/trice/pkg/cipher	0.797s
+ok  	github.com/rokath/trice/pkg/endian	0.608s
+ok  	github.com/rokath/trice/pkg/msg	0.656s
+ok  	github.com/rokath/trice/pkg/tst	0.821s
 Testing the Go code...pass
 ---
 ---
 Testing the Target code inside PC...
 go test ./...
-ok  	github.com/rokath/trice/_test/alias_dblB_de_tcobs_ua	0.006s
-ok  	github.com/rokath/trice/_test/aliasassert_dblB_de_tcobs_ua	0.005s
-ok  	github.com/rokath/trice/_test/be_dblB_de_tcobs_ua	0.148s
-ok  	github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32	66.683s
-ok  	github.com/rokath/trice/_test/dblB_de_cobs_ua	0.231s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_cobs_ua	0.244s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_nopf_ua	0.252s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua	0.248s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua	0.182s
-ok  	github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua	0.182s
-ok  	github.com/rokath/trice/_test/dblB_de_nopf_ua	0.201s
-ok  	github.com/rokath/trice/_test/dblB_de_tcobs_ua	0.194s
-ok  	github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua	0.211s
-ok  	github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua	0.209s
-ok  	github.com/rokath/trice/_test/dblB_di_cobs_rtt32__de_xtea_cobs_ua	162.757s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua	161.188s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua	161.129s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua	160.987s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua	161.222s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua	161.050s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua	161.273s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua	162.805s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua	132.039s
-ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua	132.089s
-ok  	github.com/rokath/trice/_test/ringB_de_cobs_ua	0.189s
-ok  	github.com/rokath/trice/_test/ringB_de_multi_cobs_ua	0.185s
-TestTriceLog ...
-0 of 500 v.exps: time:feed3322default: Hello World!
-
-0 act: 
-TestTriceLog ...done.
---- FAIL: TestTriceLog (0.14s)
-    require.go:131: 
-        	Error Trace:	/home/th/go/pkg/mod/github.com/tj/assert@v0.0.3/require.go:131
-        	            				/home/th/repos/trice/_test/ringB_de_multi_nopf_ua/generated_cgoPackage.go:229
-        	            				/home/th/repos/trice/_test/ringB_de_multi_nopf_ua/generated_cgoPackage_test.go:41
-        	Error:      	0: line 62: len(exp)=35, len(act)=0
-        	Test:       	TestTriceLog
-        	Messages:   	actual data too short
-FAIL
-FAIL	github.com/rokath/trice/_test/ringB_de_multi_nopf_ua	0.149s
-ok  	github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua	0.194s
-ok  	github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua	0.188s
-ok  	github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua	0.232s
-ok  	github.com/rokath/trice/_test/ringB_de_single_nopf_ua	0.186s
-ok  	github.com/rokath/trice/_test/ringB_de_tcobs_ua	0.204s
-ok  	github.com/rokath/trice/_test/ringB_de_xtea_cobs_ua	0.210s
-ok  	github.com/rokath/trice/_test/ringB_de_xtea_tcobs_ua	0.204s
-ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua	132.961s
-ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_xtea_cobs_ua	132.822s
-ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua	133.386s
-ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua	133.641s
-ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua	133.830s
-ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua	133.684s
-ok  	github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua	135.877s
-ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_cobs_ua	135.969s
-ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_tcobs_ua	138.730s
-ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua	137.756s
-ok  	github.com/rokath/trice/_test/ringB_protect_de_tcobs_ua	0.139s
-ok  	github.com/rokath/trice/_test/special2_dblB_de_tcobs_ua	0.138s
-ok  	github.com/rokath/trice/_test/special2_for_debug	0.143s
-ok  	github.com/rokath/trice/_test/special_dblB_de_tcobs_ua	0.129s
-ok  	github.com/rokath/trice/_test/special_for_debug	0.135s
-ok  	github.com/rokath/trice/_test/special_protect_dblB_de_tcobs_ua	0.127s
-ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux32	70.443s
-ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux8	70.575s
-ok  	github.com/rokath/trice/_test/stackB_di_nopf_rtt32	70.289s
-ok  	github.com/rokath/trice/_test/stackB_di_nopf_rtt8	71.583s
-ok  	github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8	71.894s
-ok  	github.com/rokath/trice/_test/staticB_di_nopf_aux32	71.728s
-ok  	github.com/rokath/trice/_test/staticB_di_nopf_aux8	68.372s
-ok  	github.com/rokath/trice/_test/staticB_di_nopf_rtt32	69.545s
-ok  	github.com/rokath/trice/_test/staticB_di_nopf_rtt8	69.308s
-ok  	github.com/rokath/trice/_test/staticB_di_tcobs_rtt32	69.587s
-ok  	github.com/rokath/trice/_test/staticB_di_tcobs_rtt8	70.422s
-ok  	github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32	70.972s
-ok  	github.com/rokath/trice/_test/userprint_dblB_de_tcobs_ua	0.004s
-FAIL
-Testing the Target code inside PC...failed
-In case of CGO build errors check the PATH variable too.
+ok  	github.com/rokath/trice/_test/alias_dblB_de_tcobs_ua	0.780s
+ok  	github.com/rokath/trice/_test/aliasassert_dblB_de_tcobs_ua	1.096s
+ok  	github.com/rokath/trice/_test/be_dblB_de_tcobs_ua	206.172s
+ok  	github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32	206.148s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_cobs_ua	208.404s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_nopf_ua	208.417s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua	208.693s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua	208.456s
+ok  	github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua	206.114s
+ok  	github.com/rokath/trice/_test/dblB_de_protect_tcobs_ua	1.506s
+ok  	github.com/rokath/trice/_test/dblB_de_single_nopf_ua	208.375s
+ok  	github.com/rokath/trice/_test/dblB_de_single_tcobs_ua	206.068s
+ok  	github.com/rokath/trice/_test/dblB_di_cobs_rtt32__de_xtea_cobs_ua	510.517s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua	463.707s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua	508.509s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua	509.930s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua	523.034s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua	468.819s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua	518.278s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua	469.648s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua	479.937s
+ok  	github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua	466.761s
+ok  	github.com/rokath/trice/_test/modify_for_debug	1.262s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_cobs_ua	2.192s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_nopf_ua	1.047s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua	2.874s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua	233.786s
+ok  	github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua	234.140s
+ok  	github.com/rokath/trice/_test/ringB_de_protect_tcobs_ua	0.721s
+ok  	github.com/rokath/trice/_test/ringB_de_single_cobs_ua	1.258s
+ok  	github.com/rokath/trice/_test/ringB_de_single_nopf_ua	0.553s
+ok  	github.com/rokath/trice/_test/ringB_de_single_tcobs_ua	1.703s
+ok  	github.com/rokath/trice/_test/ringB_de_single_xtea_cobs_ua	235.364s
+ok  	github.com/rokath/trice/_test/ringB_de_single_xtea_tcobs_ua	236.850s
+ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua	461.474s
+ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_xtea_cobs_ua	463.260s
+ok  	github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua	455.299s
+ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua	453.048s
+ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua	446.846s
+ok  	github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua	451.048s
+ok  	github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua	441.824s
+ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_cobs_ua	451.971s
+ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_tcobs_ua	451.526s
+ok  	github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua	448.378s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux32	224.231s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux32_specific	1.412s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_aux8	230.894s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_rtt32	230.688s
+ok  	github.com/rokath/trice/_test/stackB_di_nopf_rtt8	223.544s
+ok  	github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8	223.663s
+ok  	github.com/rokath/trice/_test/staticB_di_nopf_aux32	220.844s
+ok  	github.com/rokath/trice/_test/staticB_di_nopf_aux8	208.154s
+ok  	github.com/rokath/trice/_test/staticB_di_nopf_rtt32	203.085s
+ok  	github.com/rokath/trice/_test/staticB_di_nopf_rtt8	201.322s
+ok  	github.com/rokath/trice/_test/staticB_di_tcobs_rtt32	195.548s
+ok  	github.com/rokath/trice/_test/staticB_di_tcobs_rtt8	192.638s
+ok  	github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32	191.566s
+Testing the Target code inside PC...pass
+---
+/c/bin/ArmGNUToolchain/bin/arm-none-eabi-gcc
+/c/bin/mingw64/bin/clang
+$OSTYPE msys: Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+C_INCLUDE_PATH set to: /c/bin/ArmGNUToolchain/arm-none-eabi/include
+(built by Brecht Sanders, r2) clang version 19.1.1
+Target: x86_64-w64-windows-gnu
+Thread model: posix
+InstalledDir: C:/bin/mingw64/bin
+---
+Translating G0B1_inst with clang...
+/c/bin/ArmGNUToolchain/bin/arm-none-eabi-gcc
+/c/bin/mingw64/bin/clang
+$OSTYPE msys: Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+C_INCLUDE_PATH set to: /c/bin/ArmGNUToolchain/arm-none-eabi/include
+mkdir out.clang
+startup_stm32g0b1xx.s
+Core/Src/main.c
+Core/Src/app_freertos.c
+Core/Src/stm32g0xx_it.c
+Core/Src/stm32g0xx_hal_msp.c
+Core/Src/stm32g0xx_hal_timebase_tim.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_gpio.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_exti.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_utils.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_crs.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc_ex.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash_ex.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_gpio.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma_ex.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr_ex.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_cortex.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_exti.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim_ex.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_usart.c
+Core/Src/system_stm32g0xx.c
+Middlewares/Third_Party/FreeRTOS/Source/croutine.c
+Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
+Middlewares/Third_Party/FreeRTOS/Source/list.c
+Middlewares/Third_Party/FreeRTOS/Source/queue.c
+Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+Middlewares/Third_Party/FreeRTOS/Source/timers.c
+Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c
+Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
+../../src/cobsDecode.c
+../../src/cobsEncode.c
+../../src/SEGGER_RTT.c
+../../src/tcobsv1Decode.c
+../../src/tcobsv1Encode.c
+../../src/trice.c
+../../src/trice.c:33:2: error: TRICE_BUFFER_SIZE_UP != BUFFER_SIZE_UP (must be equal)
+   33 | #error TRICE_BUFFER_SIZE_UP != BUFFER_SIZE_UP (must be equal)
+      |  ^
+1 error generated.
+make: *** [clang1.mak:22: out.clang/trice.o] Error 1
+Translating G0B1_inst with clang...failed

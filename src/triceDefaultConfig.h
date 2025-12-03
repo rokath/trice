@@ -446,30 +446,40 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// These settings are recommended for SEGGER_RTT_Conf.h.
+// These settings are recommended for SEGGER_RTT_Conf.h (names there without prefix TRICE_).
+// You should adapt your SEGGER_RTT_Conf.h values to exactly these values here.
+// You can define your own values in your project specific triceConfig.h equal to your SEGGER_RTT_Conf.h.
 //
 // The BUFFER_SIZE_UP value is de-facto the TRICE_DIRECT_BUFFER_SIZE, if no direct auxilary output is used.
-// Please make sure, that a BUFFER_SIZE_UP your triceConfig.h is the same as in SEGGER_RTT_Conf.h.
+// Please make sure, that a TRICE_BUFFER_SIZE_UP in your triceConfig.h is the same as BUFFER_SIZE_UP in file
+// SEGGER_RTT_Conf.h. The other 4 values should be set in SEGGER_RTT_Conf.h to the values here, or, define them in 
+// your project specific triceConfig.h equal to the SEGGER_RTT_Conf.h settings (with the TRICE_ prefix).
+// The Trice library uses just the BUFFER_SIZE_UP value implicit in SEGGER_Write_RTT0_NoCheck32 when TRICE_PROTECT is enabled.
+// The other values are recommended for more efficient memory usage, if you use no other SEGGER_RTT functionality.
+//
+#ifndef TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS
+#define TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS 1 // Max. number of up-buffers (T->H) available on this target
+#endif
 
-// #ifndef SEGGER_RTT_MAX_NUM_UP_BUFFERS
-// #define SEGGER_RTT_MAX_NUM_UP_BUFFERS (1) // Max. number of up-buffers (T->H) available on this target
-// #endif
-// 
-// #ifndef SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
-// #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (0) // Max. number of down-buffers (H->T) available on this target
-// #endif
-//
-// #ifndef BUFFER_SIZE_UP
-// #define BUFFER_SIZE_UP (1024)
-// #endif
-//
-// #ifndef BUFFER_SIZE_DOWN
-// #define BUFFER_SIZE_DOWN (0) // Size of the buffer for terminal input to target from host
-// #endif
-// 
-// #ifndef SEGGER_RTT_PRINTF_BUFFER_SIZE
-// #define SEGGER_RTT_PRINTF_BUFFER_SIZE (0u) // Size of buffer for RTT printf to bulk-send chars via RTT
-// #endif
+#ifndef TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+// Even we do not need a down buffer, we have to set this number to at least 1 to avoid compiler warnings (SEGGER_RTT bug).
+// This causes a small RAM overhead (struct for the nuffer header) but avoids complaining the compiler this way:
+// SEGGER_RTT.c:341:11: warning: array subscript 0 is outside array bounds of 'volatile SEGGER_RTT_BUFFER_DOWN[0]' [-Warray-bounds=]
+// If you very short of RAM, set TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS to 0 and patch the SEGGER_RTT code or disable this warning.
+#define TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS 1 // Max. number of down-buffers (H->T) available on this target
+#endif
+
+#ifndef TRICE_BUFFER_SIZE_UP
+#define TRICE_BUFFER_SIZE_UP 1024 // "TRICE_DIRECT_BUFFER_SIZE"
+#endif
+
+#ifndef TRICE_BUFFER_SIZE_DOWN
+#define TRICE_BUFFER_SIZE_DOWN 0 // Size of the buffer for terminal input to target from host
+#endif
+
+#ifndef TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE
+#define TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE 0 // Size of buffer for RTT printf to bulk-send chars via RTT
+#endif
 //
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -60,7 +60,7 @@ var (
 	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
 	triceDir        string // triceDir holds the trice directory path.
 	targetActivityC string // triceCheckC contains the target test code.
-	targetMode      string // targetMode is "directMode" OR "deferredMode" OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
+	targetMode      string // targetMode is "direct..." OR "deferred..." OR "combinedMode" (direct AND deferred mode) and must fit the triceConfig.h settings to adapt the tests.
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -163,6 +163,10 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 // It uses the inside fSys specified til.json and returns the log output.
 type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 
+// triceLogLineByLine executes each triceCheck.c test line, gets its binary output and
+// restarts the whole Trice log functionality for this, resulting in a long test duration.
+// This test is avoidable for only-deferred modes which allow doTestTriceLogBulk=true,
+// but useful for debugging.
 // triceLogLineByLine creates a list of expected results from triceCheckC.
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.
@@ -189,6 +193,11 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 	}
 }
 
+// triceLogBulk executes each triceCheck.c test line, gets its binary output and
+// collects all these outputs into one (big) buffer. Then the Trice log functionality
+// is started once for this (big) buffer and the whole output is generated. Afterwards
+// this generated output is compared line by line with the expected results. The
+// function triceLogBulk is much faster than triceLogLineByLine but difficult to debug.
 // triceLogBulk creates a list of expected results from triceCheckC.
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.

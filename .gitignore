@@ -10,6 +10,6 @@
 # files
 **/gccLinksClangWarning.txt
 **/.mxproject
+**/.DS_Store
 internal/receiver/trices.raw
-**/.DS_store
 

@@ -11,6 +11,38 @@
 
 // check configuration:
 
+#if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
+
+// triceDefaultConfig.h defines 5 recommended SEGGER_RTT values (with prefix TRICE_), the user can change in its triceConfig.h.
+// Because SEGGER_RTT_Conf.h is used separately in the SEGGER code, which we do not touch,
+// we need to make sure, that these values are equal for the Trice code and the SEGGER code.
+// Make sure for example, a (inside triceConfig.h) defined TRICE_BUFFER_SIZE_UP is equal to BUFFER_SIZE_UP in "SEGGER_RTT.h".
+// If user defines its own value, this must be reflected in "SEGGER_RTT_Conf.h" to avoid misbehave.
+
+#include "SEGGER_RTT.h" // get the value used in SEGGER_RTT_Conf.h
+
+#if TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS != SEGGER_RTT_MAX_NUM_UP_BUFFERS
+#error TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS != SEGGER_RTT_MAX_NUM_UP_BUFFERS (must be equal)
+#endif
+
+#if TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS != SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+#error TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS != SEGGER_RTT_MAX_NUM_DOWN_BUFFERS (must be equal)
+#endif
+
+#if TRICE_BUFFER_SIZE_UP != BUFFER_SIZE_UP
+#error TRICE_BUFFER_SIZE_UP != BUFFER_SIZE_UP (must be equal)
+#endif
+
+#if TRICE_BUFFER_SIZE_DOWN != BUFFER_SIZE_DOWN
+#error TRICE_BUFFER_SIZE_DOWN != BUFFER_SIZE_DOWN (must be equal)
+#endif
+
+#if TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE != SEGGER_RTT_PRINTF_BUFFER_SIZE
+#error TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE != SEGGER_RTT_PRINTF_BUFFER_SIZE (must be equal)
+#endif
+
+#endif // #if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
+
 #ifndef TRICE_DATA_OFFSET
 #error configuration: Check triceDefaultConfig.h or add "#define TRICE_DATA_OFFSET 16" to your triceConfig.h.
 #endif
@@ -127,18 +159,8 @@
 #error configuration: TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
-
-enum { SEGGER_RTT_BUFFER_SIZE = BUFFER_SIZE_UP }; // "store" value
-#undef BUFFER_SIZE_UP // Undefine to get the value used in SEGGER_RTT_Conf.h
-#include "SEGGER_RTT.h"
-// Compiler-checked assert (evaluated after preprocessing)
-_Static_assert(SEGGER_RTT_BUFFER_SIZE == BUFFER_SIZE_UP, "BUFFER_SIZE_UP in triceConfig.h differs from SEGGER_RTT_Conf.h - adapt!");
-
-#endif // #if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
-
-#if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
-#error configuration: BUFFER_SIZE_UP too small
+#if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP) 
+#error configuration: TRICE_BUFFER_SIZE > BUFFER_SIZE_UP
 #endif
 
 #if (TRICE_BUFFER == TRICE_STACK_BUFFER) && (TRICE_DIRECT_OUTPUT == 0)
@@ -484,7 +506,7 @@ static void SEGGER_Write_RTT0_NoCheck32(const uint32_t* pData, unsigned NumW) {
 #endif
 	// Get "to-host" ring buffer.
 	// Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
-	static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);
+	static SEGGER_RTT_BUFFER_UP* const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((const char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);
 	WrOff = pRingUp0->WrOff;
 	RemW = (pRingUp0->SizeOfBuffer - WrOff) >> 2;
 	volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF); // lint !e826
@@ -594,6 +616,7 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
+//! directXEncode transforms buf to enc and adds a 0-delimiter and padding zeroes to the next uint32 boundary.
 //! directXEncode frames buf with len to enc, adds a 0-delimiter and returns the resulting length.
 //! \retval len is the length of the encoded buffer including the 0-delimiter
 static size_t directXEncode8(void* enc, const void* buf, unsigned len) {
@@ -933,42 +956,42 @@ unsigned TriceOutDepth(void) {
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-void triceAssertTrue(int idN, char* msg, int flag) {
+void triceAssertTrue(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (!flag) {
 		TRICE_ASSERT(id(idN));
 	}
 }
 
-void TriceAssertTrue(int idN, char* msg, int flag) {
+void TriceAssertTrue(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (!flag) {
 		TRICE_ASSERT(Id(idN));
 	}
 }
 
-void TRiceAssertTrue(int idN, char* msg, int flag) {
+void TRiceAssertTrue(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (!flag) {
 		TRICE_ASSERT(ID(idN));
 	}
 }
 
-void triceAssertFalse(int idN, char* msg, int flag) {
+void triceAssertFalse(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (flag) {
 		TRICE_ASSERT(id(idN));
 	}
 }
 
-void TriceAssertFalse(int idN, char* msg, int flag) {
+void TriceAssertFalse(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (flag) {
 		TRICE_ASSERT(Id(idN));
 	}
 }
 
-void TRiceAssertFalse(int idN, char* msg, int flag) {
+void TRiceAssertFalse(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (flag) {
 		TRICE_ASSERT(ID(idN));
@@ -1093,15 +1116,15 @@ void TRice64F(int tid, char const* fmt, void* buf, uint32_t n) {
 
 #ifdef TRICE_S
 
-void triceS(int tid, char* fmt, char* runtimeGeneratedString) {
+void triceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
 	TRICE_S(id(tid), fmt, runtimeGeneratedString);
 }
 
-void TriceS(int tid, char* fmt, char* runtimeGeneratedString) {
+void TriceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
 	TRICE_S(Id(tid), fmt, runtimeGeneratedString);
 }
 
-void TRiceS(int tid, char* fmt, char* runtimeGeneratedString) {
+void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
 	TRICE_S(ID(tid), fmt, runtimeGeneratedString);
 }
 
