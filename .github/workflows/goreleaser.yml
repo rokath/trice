@@ -1,32 +1,57 @@
 name: goreleaser
 
 on:
-  # pull_request:
+  # This workflow is only triggered manually from the GitHub UI.
+  # Go to: Actions -> "goreleaser" workflow -> "Run workflow".
+  # This matches your intent: no automatic releases on push or tag.
+  workflow_dispatch:
+  # If in the future you want to trigger releases when pushing tags,
+  # you can uncomment the block below:
+  #
   # push:
   #   tags:
-  #     - '*'
-  workflow_dispatch:
+  #     - 'v*'          # e.g. v0.1.0, v1.2.3
 
 jobs:
-  job1:
+  goreleaser:
+    name: Run GoReleaser
     runs-on: ubuntu-latest
+
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v2
+      - name: Check out repository
+        uses: actions/checkout@v4
         with:
+          # Fetch the full git history.
+          # GoReleaser uses tags and commits to determine the version
+          # and to generate changelogs. With a shallow clone this may fail
+          # or produce incomplete changelogs.
           fetch-depth: 0
-      -
-        name: Set up Go
-        uses: actions/setup-go@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.16
-      -
-        name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+          # Use the Go version declared in go.mod.
+          # This keeps local development and CI in sync automatically.
+          go-version-file: go.mod
+          # Alternatively you could hard-code a version:
+          # go-version: '1.22'
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
+          # Use the standard GoReleaser distribution.
+          distribution: goreleaser
+          # Install the latest GoReleaser release.
+          # For fully reproducible builds you can pin a specific version here.
           version: latest
-          args: release --rm-dist
+          # "release --clean" is the modern equivalent of "--rm-dist":
+          # it removes the dist/ directory before building, so you never
+          # accidentally ship stale artefacts from a previous run.
+          args: release --clean
         env:
-          DEFAULT_BRANCH: main
+          # GitHub automatically provides this token.
+          # GoReleaser uses it to create or update the GitHub Release and
+          # upload the build artefacts (archives, checksums, etc.).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # You previously had DEFAULT_BRANCH here; GoReleaser does not
+          # need it by default, so it is omitted for clarity.
