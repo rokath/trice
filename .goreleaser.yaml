@@ -11,75 +11,81 @@ before:
 # https://goreleaser.com/customization/#Builds
 
 builds:
-  - 
-    # ID of the build.
-    # Defaults to the project name.
-    id: trice-desktop
-
-    # Path to project's (sub)directory containing Go code.
-    # This is the working directory for the Go build command(s).
-    # Default is `.`.
-    dir: .
-
-    # Path to main.go file or main package.
-    # Default is `.`.
-    main: ./cmd/trice
- 
-    # Binary name.
-    # Can be a path (e.g. `bin/app`) to wrap the binary in a directory.
-    # Default is the name of the project directory.
-    binary: trice
-
-    # GOOS list to build for.
-    # For more info refer to: https://golang.org/doc/install/source#environment
-    goos: [ windows, linux, darwin ]
-
-    # GOARCH to build for.
-    # For more info refer to: https://golang.org/doc/install/source#environment
-    # Defaults are 386 and amd64.
-    goarch: [ arm64, amd64, 386 ]
-
+  #
+  # 1) Universal 64-bit build for ALL platforms:
+  #    - windows/amd64
+  #    - windows/arm64
+  #    - linux/amd64
+  #    - linux/arm64
+  #    - darwin/amd64
+  #    - darwin/arm64
+  #
+  - id: trice-64bit   # ID of the build. Defaults to the project name.
+    main: ./cmd/trice # Path to main.go file or main package. Default is `.`.
+    binary: trice     # Binary name. Can be a path (e.g. `bin/app`) to wrap the binary in a directory. Default is the name of the project directory.
+    dir: .            # Path to project's (sub)directory containing Go code. This is the working directory for the Go build command(s). Default is `.`.
+    goos:             # GOOS list to build for. For more info refer to: https://golang.org/doc/install/source#environment.
+      - windows
+      - linux
+      - darwin
+    goarch:           # GOARCH to build for. For more info refer to: https://golang.org/doc/install/source#environment. Defaults are 386 and amd64.
+      - amd64
+      - arm64
     env:
       - CGO_ENABLED=0
-
-    # You don't need to set this because GoReleaser sets the three ldflags by default anyway.
-    # But sometimes it's better to be explicit, especially if you want to expand later (e.g., builtBy):
-    ldflags:
-      - >-
+    ldflags:          # You don't need to set this because GoReleaser sets the three ldflags by default anyway.
+      - >-            # But sometimes it's better to be explicit, especially if you want to expand later (e.g., builtBy):
         -s -w
         -X main.version={{ .Version }}
         -X main.commit={{ .Commit }}
         -X main.date={{ .Date }}
         -X main.builtBy=goreleaser
-    # Of course, you would then have to add main.builtBy as a variable in main.go if you want to use it.
-
-  - 
-    # GOARM to build for when GOARCH is arm. (only Linux)
-    # For more info refer to: https://golang.org/doc/install/source#environment
-    # Default is only 6.
-    id: trice-linux-arm
-    dir: .
-    main: ./cmd/trice
-    binary: trice
-    goos: [ linux ]
-    goarch: [ arm ]
-    goarm: [ 6, 7 ]
-
-    # Custom environment variables to be set during the builds.
-    # Default is empty.
+  
+  #
+  # 2) 32-bit build ONLY for Windows and Linux (NO darwin/386)
+  #
+  - id: trice-32bit   # ID of the build. Defaults to the project name.
+    main: ./cmd/trice # Path to main.go file or main package. Default is `.`.
+    binary: trice     # Binary name. Can be a path (e.g. `bin/app`) to wrap the binary in a directory. Default is the name of the project directory.
+    dir: .            # Path to project's (sub)directory containing Go code. This is the working directory for the Go build command(s). Default is `.`.
+    goos:             # GOOS list to build for. For more info refer to: https://golang.org/doc/install/source#environment.
+      - windows
+      - linux         # <— darwin deliberately omitted
+    goarch:           # GOARCH to build for. For more info refer to: https://golang.org/doc/install/source#environment. Defaults are 386 and amd64.
+      - 386           # <— 32-bit x86 only here
     env:
       - CGO_ENABLED=0
-
-    # You don't need to set this because GoReleaser sets the three ldflags by default anyway.
-    # But sometimes it's better to be explicit, especially if you want to expand later (e.g., builtBy):
-    ldflags:
-      - >-
+    ldflags:          # You don't need to set this because GoReleaser sets the three ldflags by default anyway.
+      - >-            # But sometimes it's better to be explicit, especially if you want to expand later (e.g., builtBy):
         -s -w
         -X main.version={{ .Version }}
         -X main.commit={{ .Commit }}
         -X main.date={{ .Date }}
         -X main.builtBy=goreleaser
-    # Of course, you would then have to add main.builtBy as a variable in main.go if you want to use it.
+
+  #
+  # 3) ARMv6/v7 Linux builds (embedded targets)
+  #
+  - id: trice-32bit   # ID of the build. Defaults to the project name.
+    main: ./cmd/trice # Path to main.go file or main package. Default is `.`.
+    binary: trice     # Binary name. Can be a path (e.g. `bin/app`) to wrap the binary in a directory. Default is the name of the project directory.
+    dir: .            # Path to project's (sub)directory containing Go code. This is the working directory for the Go build command(s). Default is `.`.
+    goos:             # GOOS list to build for. For more info refer to: https://golang.org/doc/install/source#environment.
+      - linux
+    goarch:           # GOARCH to build for. For more info refer to: https://golang.org/doc/install/source#environment. Defaults are 386 and amd64.
+      - arm
+    goarm:            # GOARM to build for when GOARCH is arm. (only Linux). For more info refer to: https://golang.org/doc/install/source#environment. # Default is only 6.
+      - 6
+      - 7
+    env:              # Custom environment variables to be set during the builds. # Default is empty.
+      - CGO_ENABLED=0
+    ldflags:          # You don't need to set this because GoReleaser sets the three ldflags by default anyway.
+      - >-            # But sometimes it's better to be explicit, especially if you want to expand later (e.g., builtBy):
+        -s -w
+        -X main.version={{ .Version }}
+        -X main.commit={{ .Commit }}
+        -X main.date={{ .Date }}
+        -X main.builtBy=goreleaser
 
 archives:
   - 
@@ -245,12 +251,10 @@ changelog:
     # the changelog
     # Default is empty
     exclude:
-      - '^docs:'
-      - '^test:'
-      - typo
-      - minor
-      - Update
-      - wip
+      - '^typo$'
+      - '^minor$'
+      - '^update$'
+      - '^wip$'
 
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
