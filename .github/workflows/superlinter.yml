@@ -1,6 +1,7 @@
 name: Super Linter
 
 # Run this workflow every time a new commit pushed to your repository
+
 on:
   push:
     branches: [ "main" ]
@@ -9,11 +10,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
+  # Set the job key. The key is displayed as the job name when a job name is not provided
   lint:
     # Name the Job
-    name: Lint Code Base
+    name: Lint code base
     # Set the type of machine to run on
     runs-on: ubuntu-latest
 
@@ -27,20 +27,106 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
         with:
-          # Super-Linter braucht die Historie, um Änderungen zu erkennen.
           fetch-depth: 0
           persist-credentials: false
-      
-      # Runs the Super-Linter action
+
       - name: Run Super-Linter
         uses: super-linter/super-linter@v8.3.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: main
-          # Optional: nur tatsächlich benötigte Sprachen validieren,
-          # um den Job schneller und ruhiger zu halten:
-          VALIDATE_ALL_CODEBASE: true
-          # Beispiel: einzelne Validatoren ein/aus
-          # VALIDATE_GO: true
-          # VALIDATE_YAML: true
-          # VALIDATE_MD: true
+
+          # ───────────────────────────────────────────────────────────────
+          # GLOBAL SETTINGS
+          # ───────────────────────────────────────────────────────────────
+
+          # If TRUE → entire codebase is always scanned  
+          # If FALSE → only changed files are scanned (faster, less noisy)
+          VALIDATE_ALL_CODEBASE: false
+
+          # You may want this OFF while your repository is still noisy.
+          # When TRUE, lint results will be posted as PR comments.
+          COMMENT_ON_PR: false
+
+
+          # ───────────────────────────────────────────────────────────────
+          # LINTERS: FULL LIST
+          # All available VALIDATE_* options are included below.
+          # Only a *minimal subset* is set to true.
+          # Everything else is explicitly disabled (false).
+          # ───────────────────────────────────────────────────────────────
+
+
+          # -------------------------
+          # MINIMAL ENABLED LINTERS
+          # -------------------------
+
+          # Keep essential lightweight validators enabled:
+          VALIDATE_MARKDOWN: true
+          VALIDATE_YAML: true
+
+          # (Optional: Add more here if needed)
+          # VALIDATE_JSON: true
+          # VALIDATE_BASH: true
+
+
+          # -------------------------
+          # DISABLED LINTERS
+          # -------------------------
+
+          # Languages
+          VALIDATE_CSHARP: false
+          VALIDATE_CPP: false
+          VALIDATE_C: false
+          VALIDATE_GO: false
+          VALIDATE_JAVA: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_PERL: false
+          VALIDATE_PHP: false
+          VALIDATE_POWERSHELL: false
+          VALIDATE_PYTHON: false
+          VALIDATE_RUBY: false
+          VALIDATE_RUST: false
+          VALIDATE_TYPESCRIPT_ES: false
+
+          # Shell / Bash-related
+          VALIDATE_BASH: false
+          VALIDATE_BASH_EXEC: false
+          VALIDATE_SHELL_SHFMT: false
+          VALIDATE_EDITORCONFIG: false
+
+          # Infrastructure / Security
+          VALIDATE_CHECKOV: false
+          VALIDATE_TERRAFORM_TFLINT: false
+          VALIDATE_TERRAFORM_VALIDATE: false
+          VALIDATE_GITLEAKS: false
+          VALIDATE_TRIVY: false
+
+          # Web-related
+          VALIDATE_HTML: false
+          VALIDATE_HTML_PRETTIER: false
+          VALIDATE_CSS: false
+          VALIDATE_JAVASCRIPT_PRETTIER: false
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
+
+          # CI/CD / GitHub stuff
+          VALIDATE_GITHUB_ACTIONS: false
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
+
+          # Documentation / prose
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_NATURAL_LANGUAGE: false
+
+          # Miscellaneous
+          VALIDATE_XML: false
+          VALIDATE_SQL: false
+          VALIDATE_DOCKERFILE: false
+          VALIDATE_JSCPD: false
+          VALIDATE_BIOME_LINT: false
+          VALIDATE_BIOME_FORMAT: false
+          VALIDATE_GO_MODULES: false
+          VALIDATE_GO_RELEASER: false
+          VALIDATE_PRE_COMMIT: false
+
+          # Add any future validators here by following the same pattern.
