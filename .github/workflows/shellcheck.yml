@@ -23,7 +23,7 @@ jobs:
 
       # Install and run ShellCheck using a maintained GitHub Action.
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@v2
+        uses: ludeeus/action-shellcheck@latest
         with:
           # Optional: you can configure which paths to scan. By default,
           # the action will look for *.sh files in the repository.
