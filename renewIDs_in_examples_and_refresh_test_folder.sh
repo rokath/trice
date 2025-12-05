@@ -104,6 +104,6 @@ done
 # Remove legacy build artifacts if existent.
 cd ./examples || exit 1
 ./cleanAllTargets.sh
-cd - >/dev/null
+cd - >/dev/null || exit 1
 
 ####################
