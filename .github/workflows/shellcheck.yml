@@ -1,4 +1,3 @@
-
 # This workflow will scan all *.sh files and report problems in the PR checks.
 #   Runs on every push to main and PR targeting main.
 #   Can be run manually via Actions → “ShellCheck (Bash Linting)” → Run workflow.
@@ -23,8 +22,16 @@ jobs:
 
       # Install and run ShellCheck using a maintained GitHub Action.
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@latest
+        uses: ludeeus/action-shellcheck@2.0.0
         with:
           # Optional: you can configure which paths to scan. By default,
           # the action will look for *.sh files in the repository.
+
+          # minimum severity to report: error, warning, info, style
           severity: warning
+          # optional extras you *could* add:
+          # scandir: .                # where to search for scripts (default ".")
+          # ignore_paths: "vendor"    # space-separated paths to ignore
+          # ignore_names: "*.tmpl"    # ignore by filename pattern
+          # version: stable           # ShellCheck version (default: stable)
+
