@@ -66,7 +66,7 @@ builds:
   #
   # 3) ARMv6/v7 Linux builds (embedded targets)
   #
-  - id: trice-32bit   # ID of the build. Defaults to the project name.
+  - id: trice-arm32   # ID of the build. Defaults to the project name.
     main: ./cmd/trice # Path to main.go file or main package. Default is `.`.
     binary: trice     # Binary name. Can be a path (e.g. `bin/app`) to wrap the binary in a directory. Default is the name of the project directory.
     dir: .            # Path to project's (sub)directory containing Go code. This is the working directory for the Go build command(s). Default is `.`.
