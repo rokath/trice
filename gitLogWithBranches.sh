@@ -5,7 +5,7 @@
 
 SINCE=""
 if [ "$1" == "--since" ] && [ -n "$2" ]; then
-	SINCE="--since=$2"
+  SINCE="--since=$2"
 fi
 
 # ANSI colors
@@ -21,37 +21,37 @@ HASHES=()
 
 # Fill arrays line by line
 while IFS= read -r line; do
-	GRAPH_LINES+=("${line//[0-9a-f]/ }") # replace Hash with spaces
+  GRAPH_LINES+=("${line//[0-9a-f]/ }") # replace Hash with spaces
 done < <(git log --graph --pretty=format:'%h' --date=short $SINCE)
 
 while IFS= read -r hash; do
-	HASHES+=("$hash")
+  HASHES+=("$hash")
 done < <(git log --pretty=format:'%H' $SINCE)
 
 # Print each line with full info
 for i in "${!GRAPH_LINES[@]}"; do
-	graph="${GRAPH_LINES[$i]}"
-	fullhash="${HASHES[$i]}"
+  graph="${GRAPH_LINES[$i]}"
+  fullhash="${HASHES[$i]}"
 
-	# Skip if fullhash is empty
-	[ -z "$fullhash" ] && continue
+  # Skip if fullhash is empty
+  [ -z "$fullhash" ] && continue
 
-	short=${fullhash:0:8} # for display
+  short=${fullhash:0:8} # for display
 
-	# Extract info
-	info=$(git log -1 --date=format:'%Y-%m-%d %H:%M' \
-		--pretty=format:'%ad|%s' "$fullhash")
-	date="${info%%|*}"
-	subject="${info#*|}"
+  # Extract info
+  info=$(git log -1 --date=format:'%Y-%m-%d %H:%M' \
+    --pretty=format:'%ad|%s' "$fullhash")
+  date="${info%%|*}"
+  subject="${info#*|}"
 
-	# Determine nearest branch name (ignore remotes/)
-	branch=$(git name-rev --name-only "$fullhash" 2>/dev/null | sed -E 's#^remotes/origin/##')
-	[ -z "$branch" ] && branch="(no branch)"
-	branch=$(printf "%.32s" "$branch")
+  # Determine nearest branch name (ignore remotes/)
+  branch=$(git name-rev --name-only "$fullhash" 2>/dev/null | sed -E 's#^remotes/origin/##')
+  [ -z "$branch" ] && branch="(no branch)"
+  branch=$(printf "%.32s" "$branch")
 
-	# Output formatted, keeping graph intact
-	printf "${white}%-16s${yellow}%-8s${reset} ${green}%-16s${reset} [${cyan}%-32s${reset}] %s\n" \
-		"$graph" "$short" "$date" "$branch" "$subject"
+  # Output formatted, keeping graph intact
+  printf "${white}%-16s${yellow}%-8s${reset} ${green}%-16s${reset} [${cyan}%-32s${reset}] %s\n" \
+    "$graph" "$short" "$date" "$branch" "$subject"
 done
 
 ###############################################################################

@@ -97,8 +97,8 @@ _userprint_dblB_de_tcobs_ua/
 
 # Refresh test folders.
 for d in $CGOTESTDIRS; do
-	cp $TD/cgoPackage.go $TD/../$d/generated_cgoPackage.go
-	cp $TD/cgoPackage_test.go $TD/../$d/generated_cgoPackage_test.go
+  cp $TD/cgoPackage.go $TD/../$d/generated_cgoPackage.go
+  cp $TD/cgoPackage_test.go $TD/../$d/generated_cgoPackage_test.go
 done
 
 # Remove legacy build artifacts if existent.

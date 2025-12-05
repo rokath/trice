@@ -5,7 +5,7 @@ flags=""
 
 # Loop through all arguments
 for arg in "$@"; do
-	flags+="-D$arg "
+  flags+="-D$arg "
 done
 
 # Trice is called here and not within make, to guarantee, it is finished before any other job starts.
