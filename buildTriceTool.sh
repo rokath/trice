@@ -45,10 +45,10 @@ git_status=""
 # Check whether there are local modifications
 # git diff --quiet exits non-zero if there are changes
 if ! git diff --quiet --ignore-submodules HEAD 2>/dev/null; then
-  git_state="dirty"
-  # Collect short status lines, e.g. " M file.go"
-  # We store them "|" separated so Go can split them easily
-  git_status=$(git status --short | tr '\n' '|' | sed 's/|$//')
+	git_state="dirty"
+	# Collect short status lines, e.g. " M file.go"
+	# We store them "|" separated so Go can split them easily
+	git_status=$(git status --short | tr '\n' '|' | sed 's/|$//')
 fi
 
 ##############################################
@@ -59,13 +59,13 @@ fi
 #   - Otherwise → version = <branch>[ -dirty ] (similar to GoReleaser)
 
 if git describe --tags --exact-match >/dev/null 2>&1; then
-  version=$(git describe --tags --exact-match)
+	version=$(git describe --tags --exact-match)
 else
-  if [[ "$git_state" == "dirty" ]]; then
-    version="branch dirty"
-  else
-    version="branch clean"
-  fi
+	if [[ "$git_state" == "dirty" ]]; then
+		version="branch dirty"
+	else
+		version="branch clean"
+	fi
 fi
 
 ##############################################
@@ -81,7 +81,7 @@ echo "  commit:     $commit"
 echo "  date:       $date"
 echo "  git_state:  $git_state"
 if [[ "$git_state" == "dirty" ]]; then
-  echo "  git_status: $(echo "$git_status" | tr '|' ' ')"
+	echo "  git_status: $(echo "$git_status" | tr '|' ' ')"
 fi
 echo "----------------------------------------"
 

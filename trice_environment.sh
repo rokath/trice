@@ -3,9 +3,9 @@
 # file name: trice_environment.sh
 
 # trice command line common part
-TRICE_DEFAULTS+="-i ./demoTIL.json "     # Use a common til.json for all examples and tests.
-TRICE_DEFAULTS+="-li ./demoLI.json "     # Use a common  li.json for all examples and tests.
-TRICE_DEFAULTS+="-liPath relative "      # Prefix base filenames in li.json with relative path for new IDs.
+TRICE_DEFAULTS+="-i ./demoTIL.json " # Use a common til.json for all examples and tests.
+TRICE_DEFAULTS+="-li ./demoLI.json " # Use a common  li.json for all examples and tests.
+TRICE_DEFAULTS+="-liPath relative "  # Prefix base filenames in li.json with relative path for new IDs.
 #TRICE_DEFAULTS+="-cache "                # Do not forget to create ~/.trice/cache folder, if the Trice cache should work or disable this line.
 
 # trice user aliases

@@ -7,8 +7,8 @@
 
 # Check argument count
 if [ $# -ne 3 ]; then
-  echo "Usage: $0 <commit-hash> <YYYY-MM-DD> <HH:MM>"
-  exit 1
+	echo "Usage: $0 <commit-hash> <YYYY-MM-DD> <HH:MM>"
+	exit 1
 fi
 
 HASH=$1
@@ -25,10 +25,10 @@ TIME_PART=$(echo "$TIME" | tr ':' '-')
 RAW_NAME=$(git name-rev --name-only "$HASH" 2>/dev/null)
 
 if [ -n "$RAW_NAME" ]; then
-  # Clean up: remove 'remotes/origin/', 'remotes/', 'heads/' prefixes and trailing '~<n>'
-  BRANCH=$(echo "$RAW_NAME" | sed -E 's#^remotes/origin/##' | sed -E 's#^remotes/##' | sed -E 's#^heads/##' | sed -E 's#~[0-9]+$##')
+	# Clean up: remove 'remotes/origin/', 'remotes/', 'heads/' prefixes and trailing '~<n>'
+	BRANCH=$(echo "$RAW_NAME" | sed -E 's#^remotes/origin/##' | sed -E 's#^remotes/##' | sed -E 's#^heads/##' | sed -E 's#~[0-9]+$##')
 else
-  BRANCH="noBranch"
+	BRANCH="noBranch"
 fi
 
 # Construct branch and directory name
@@ -41,7 +41,7 @@ git worktree add -b "$NAME" "$DIR" "$HASH"
 
 # Report result
 if [ $? -eq 0 ]; then
-  echo "✅ Worktree created at $DIR"
+	echo "✅ Worktree created at $DIR"
 else
-  echo "❌ Error creating worktree"
+	echo "❌ Error creating worktree"
 fi
