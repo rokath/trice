@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ "go", "cpp" ]
+        language: [ "go" ] # , "cpp" ] no build for C code here
 
     steps:
       # Checkout the repository so CodeQL can see the source code.
