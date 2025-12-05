@@ -1,23 +1,77 @@
 name: Mark stale issues and pull requests
 
+# This workflow marks and optionally closes issues and pull requests
+# that have had no activity for a configurable amount of time.
 on:
+  # Run once per day at 02:00 UTC
+  schedule:
+    - cron: "0 2 * * *"
+
+  # Allow manual runs from the GitHub Actions UI
+  workflow_dispatch:
+
+  # If you ever want to trigger it on pushes (e.g. on new tags),
+  # you can uncomment and adjust this block:
   # push:
   #   tags:
-  #   - '*'
-  # schedule:
-  # - cron:  '*/15 * * * *'
-  workflow_dispatch:
+  #     - '*'
 
 jobs:
   stale:
-
+    # Use the latest Ubuntu runner
     runs-on: ubuntu-latest
 
+    # Explicit permissions required for the stale action to work
+    permissions:
+      issues: write          # Needed to label, comment and close issues
+      pull-requests: write   # Needed to label, comment and close pull requests
+
     steps:
-    - uses: actions/stale@v3
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'Stale issue message'
-        stale-pr-message: 'Stale pull request message'
-        stale-issue-label: 'no-issue-activity'
-        stale-pr-label: 'no-pr-activity'
+      # Run the official stale action (v10 is the current major version)
+      - name: Run stale bot
+        uses: actions/stale@v10
+        with:
+          # GitHub token used for authentication (by default provided by GitHub)
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Number of days of inactivity before marking items as stale.
+          # Set to -1 if you never want to mark items automatically.
+          days-before-stale: 60
+
+          # Number of days after being marked stale before closing.
+          # Set to -1 if you never want to close items automatically.
+          days-before-close: -1
+
+          # Message posted when an issue is marked as stale
+          stale-issue-message: >
+            This issue has been automatically marked as stale because it has not
+            had recent activity. Please update it if it is still relevant.
+
+          # Message posted when a pull request is marked as stale
+          stale-pr-message: >
+            This pull request has been automatically marked as stale because it
+            has not had recent activity. Please update it if it is still relevant.
+
+          # Message posted when an issue is closed due to being stale
+          close-issue-message: >
+            This issue was automatically closed because it has been stale for
+            more than 14 days. If this is still a problem, please reopen it
+            or open a new issue.
+
+          # Message posted when a pull request is closed due to being stale
+          close-pr-message: >
+            This pull request was automatically closed because it has been stale
+            for more than 14 days. If this work is still planned, please reopen
+            it or open a new pull request.
+
+          # Label applied when an issue becomes stale
+          stale-issue-label: "no-issue-activity"
+
+          # Label applied when a pull request becomes stale
+          stale-pr-label: "no-pr-activity"
+
+          # Remove the stale label again when there is new activity
+          remove-stale-when-updated: true
+
+          # Set to true for dry-run debugging (no comments, labels, or closes)
+          debug-only: false
