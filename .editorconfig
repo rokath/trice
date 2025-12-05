@@ -1,29 +1,99 @@
+###############################################
+# Root .editorconfig for the Trice repository #
+###############################################
+# This file enforces consistent formatting rules
+# across all operating systems and editors.
+# Supported by: shfmt, Go tools, most IDEs, GitHub UI.
+#
+# NOTE:
+# - shfmt automatically reads .editorconfig settings
+#   when formatting *.sh files.
+# - Use consistent indentation to avoid CI/cross-platform
+#   formatting conflicts.
+###############################################
+
 root = true
 
+
+###############################################
+# Global defaults for all files
+###############################################
 [*]
 charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
+trim_trailing_whitespace = true     # Remove trailing whitespace unless overridden
+insert_final_newline = true         # Ensure all files end with a newline
 
+
+###############################################
+# C and C++ source/header files
+# - Trice uses tabs for indentation
+# - Indent width = 4 spaces when tabs are rendered
+###############################################
 [*.{c,h,cpp,hpp}]
 indent_style = tab
 indent_size = 4
 
-[*.{go}]
-indent_style = tab
 
-#Script
+###############################################
+# Go source code
+# - Go formatting is handled by gofmt/goimports
+# - However, tab indentation is declared for clarity
+###############################################
+[*.go]
+indent_style = tab
+indent_size = 8        # gofmt shows tabs as width=8, but the value does not affect gofmt
+end_of_line = lf       # Go tools expect LF line endings
+
+
+###############################################
+# Shell scripts (shfmt will use these rules)
+#
+# IMPORTANT:
+# These settings ensure that shfmt behaves identically
+# across Linux, macOS, Windows, and GitHub CI.
+#
+# Recommended shfmt rules:
+# - indent_size = 2   → typical shell style
+# - end_of_line = lf  → required by CI and POSIX tools
+# - shfmt_case_indent = true      → indent switch-case blocks
+# - shfmt_redirect_space = true   → insert space before redirections:   command > file
+# - shfmt_binop_next = true       → binary operators at start of line
+###############################################
 [*.{sh,bash}]
+indent_style = space
 indent_size = 2
 end_of_line = lf
 
-#Linker script
-[*.{ld}]
+# shfmt-specific configuration keys:
+shfmt_case_indent = true
+shfmt_redirect_space = true
+shfmt_binop_next = true
+
+
+###############################################
+# Linker scripts
+# Usually small, indent_size=2 is common
+###############################################
+[*.ld]
+indent_style = space
 indent_size = 2
 
-# Makefile
+
+###############################################
+# Makefiles
+# Makefiles require real TAB characters
+# Never replace tabs with spaces here.
+###############################################
 [{Makefile,*.mk}]
 indent_style = tab
+indent_size = 8       # Visual width; actual tab character is required
 
+
+###############################################
+# Markdown files
+# - Do NOT trim trailing whitespace because Markdown
+#   uses two trailing spaces as an explicit line break.
+###############################################
 [*.{md,markdown}]
-trim_trailing_whitespace = false # Double space used for newline
+trim_trailing_whitespace = false
+end_of_line = lf
