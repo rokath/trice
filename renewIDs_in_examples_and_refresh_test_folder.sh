@@ -102,7 +102,7 @@ for d in $CGOTESTDIRS; do
 done
 
 # Remove legacy build artifacts if existent.
-cd ./examples
+cd ./examples || exit 1
 ./cleanAllTargets.sh
 cd - >/dev/null
 

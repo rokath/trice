@@ -59,7 +59,7 @@ my_long_task() {
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
       echo "Testing the Target code inside PC..." 2>&1 | tee -a $triceFolder/testAll.log
       ./trice_insertIDs_in_examples_and_test_folder.sh 2>&1 | tee -a $triceFolder/testAll.log
-      cd _test
+      cd _test || exit 1
       if [ "$C_INCLUDE_PATH" != "" ]; then
         echo It is important, that C_INLUDE_PATH is not set for the CGO tests. Clearing it temporarily.
         export C_INCLUDE_PATH=""
@@ -130,7 +130,7 @@ my_long_task() {
     else
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
       echo "Translating G0B1_inst with clang..." 2>&1 | tee -a $triceFolder/testAll.log
-      cd examples/G0B1_inst
+      cd examples/G0B1_inst || exit 1
       make clean 2>&1 | tee -a $triceFolder/testAll.log
       ./build_with_clang.sh 2>&1 | tee -a $triceFolder/testAll.log
       cd - >/dev/null
@@ -161,7 +161,7 @@ my_long_task() {
   else
     # translate gcc arm target examples
     ./trice_insertIDs_in_examples_and_test_folder.sh 2>&1 | tee -a $triceFolder/testAll.log
-    cd examples
+    cd examples || exit 1
     ./cleanAllTargets.sh 2>&1 | tee -a $triceFolder/testAll.log
     echo "---" 2>&1 | tee -a $triceFolder/testAll.log
     echo "Translating all examples with TRICE_OFF..." 2>&1 | tee -a $triceFolder/testAll.log
@@ -187,7 +187,7 @@ my_long_task() {
     ./cleanAllTargets.sh 2>&1 | tee -a $triceFolder/testAll.log
     cd - >/dev/null
     if [ $SELECTED = "full" ] || [ $SELECTED = "config" ]; then
-      cd examples/L432_inst
+      cd examples/L432_inst || exit 1
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
       echo "Translating all L432 configurations..." 2>&1 | tee -a $triceFolder/testAll.log
       ./all_configs_build.sh 2>&1 | tee -a $triceFolder/testAll.log

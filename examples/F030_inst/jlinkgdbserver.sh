@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 JLinkGDBServer \
   -device STM32F030R8 \
   -if SWD \

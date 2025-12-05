@@ -3,7 +3,7 @@
 failCount=0
 
 for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/ ./F030_inst/ ./G0B1_inst/ ./L432_inst/; do
-  cd $d
+  cd $d || exit 1
   echo --------------------------------------------------------------------------------------------------------
   echo $d with TRICE_OFF=0
 
