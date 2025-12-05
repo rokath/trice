@@ -1,4 +1,6 @@
 
+# Enables the GitHub “Sponsor” button.
+
 github: rokath
 buy_me_a_coffee: rokath
 custom: ["https://paypal.me/rolfkarlthomas?country.x=DE&locale.x=de_DE"]
