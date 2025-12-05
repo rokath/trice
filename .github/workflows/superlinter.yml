@@ -1,25 +1,46 @@
-name: Super-Linter
+name: Super Linter
 
 # Run this workflow every time a new commit pushed to your repository
-on: [workflow_dispatch]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
-  super-lint:
+  lint:
     # Name the Job
-    name: Lint code base
+    name: Lint Code Base
     # Set the type of machine to run on
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
 
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v5
+        with:
+          # Super-Linter braucht die Historie, um Änderungen zu erkennen.
+          fetch-depth: 0
+          persist-credentials: false
+      
       # Runs the Super-Linter action
       - name: Run Super-Linter
-        uses: github/super-linter@v3
+        uses: super-linter/super-linter@v8.3.0
         env:
-          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: main
+          # Optional: nur tatsächlich benötigte Sprachen validieren,
+          # um den Job schneller und ruhiger zu halten:
+          VALIDATE_ALL_CODEBASE: true
+          # Beispiel: einzelne Validatoren ein/aus
+          # VALIDATE_GO: true
+          # VALIDATE_YAML: true
+          # VALIDATE_MD: true
