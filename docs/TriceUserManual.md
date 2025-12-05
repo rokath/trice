@@ -143,17 +143,24 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 9.4. [File .gitattributes](#file-.gitattributes)
 * 10. [📁 The .github Folder — Purpose and Contents (For Trice Developers)](#📁-the-.github-folder-—-purpose-and-contents-(for-trice-developers))
   * 10.1. [📁 `.github` Root](#📁-`.github`-root)
-  * 10.2. [📂 .github/workflows — GitHub Actions Workflows](#📂-.github/workflows-—-github-actions-workflows)
-* 11. [Build Trice tool from Go sources (you can skip that)](#build-trice-tool-from-go-sources-(you-can-skip-that))
-  * 11.1. [Prepare A Release](#prepare-a-release)
-    * 11.1.1. [Check a Goreleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
-  * 11.2. [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
-    * 11.2.1. [Step: Make sure your workflow reacts to tags](#step:-make-sure-your-workflow-reacts-to-tags)
-    * 11.2.2. [Step: Final checks before tagging](#step:-final-checks-before-tagging)
-    * 11.2.3. [Step: Choose a version and create a `git tag`](#step:-choose-a-version-and-create-a-`git-tag`)
-    * 11.2.4. [Step: Push the tag to GitHub (this triggers CI)](#step:-push-the-tag-to-github-(this-triggers-ci))
-    * 11.2.5. [Step: Watch the CI release run on GitHub](#step:-watch-the-ci-release-run-on-github)
-    * 11.2.6. [Step: Check the GitHub Release](#step:-check-the-github-release)
+    * 10.1.1. [🧩 Visual Architecture Diagram — Trice .github Automation System](#🧩-visual-architecture-diagram-—-trice-.github-automation-system)
+  * 10.2. [ Automatic Pull Request Labeling in Trice](#-automatic-pull-request-labeling-in-trice)
+    * 10.2.1. [ File-based labels](#-file-based-labels)
+    * 10.2.2. [ Text-based labels](#-text-based-labels)
+    * 10.2.3. [ Benefits of automatic labeling](#-benefits-of-automatic-labeling)
+    * 10.2.4. [ How contributors can help](#-how-contributors-can-help)
+  * 10.3. [📂 `.github/workflows` — GitHub Actions Workflows](#📂-`.github/workflows`-—-github-actions-workflows)
+* 11. [Build and Release the Trice Tool (you can skip that)](#build-and-release-the-trice-tool-(you-can-skip-that))
+  * 11.1. [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
+  * 11.2. [Prepare A Release](#prepare-a-release)
+    * 11.2.1. [Check a Goreleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
+  * 11.3. [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
+    * 11.3.1. [Step: Make sure your workflow reacts to tags](#step:-make-sure-your-workflow-reacts-to-tags)
+    * 11.3.2. [Step: Final checks before tagging](#step:-final-checks-before-tagging)
+    * 11.3.3. [Step: Choose a version and create a `git tag`](#step:-choose-a-version-and-create-a-`git-tag`)
+    * 11.3.4. [Step: Push the tag to GitHub (this triggers CI)](#step:-push-the-tag-to-github-(this-triggers-ci))
+    * 11.3.5. [Step: Watch the CI release run on GitHub](#step:-watch-the-ci-release-run-on-github)
+    * 11.3.6. [Step: Check the GitHub Release](#step:-check-the-github-release)
 * 12. [ Embedded system code configuration](#-embedded-system-code-configuration)
 * 13. [Trice tool in logging action](#trice-tool-in-logging-action)
 * 14. [Encryption](#encryption)
@@ -1615,27 +1622,306 @@ This folder defines how the project behaves on GitHub: issue templates, automate
 The `.github` folder defines how the Trice project behaves on GitHub.  
 It contains issue templates, labels, workflow automation, code scanning, linting, and the CI/CD release pipeline.
 
+
 * **ISSUE_TEMPLATE/** Used to create structured bug reports and feature requests.
 * **FUNDING.yml** Enables the GitHub “Sponsor” button.
 * **labeler.yml** Automatically adds labels to issues or pull requests based on content or file changes.
 * **workflows/** Contains GitHub Actions automation
 
-###  10.2. <a id='📂-.github/workflows-—-github-actions-workflows'></a>📂 `.github/workflows` — GitHub Actions Workflows
+####  10.1.1. <a id='🧩-visual-architecture-diagram-—-trice-.github-automation-system'></a>🧩 Visual Architecture Diagram — Trice .github Automation System
+
+```pgsql
+                                       ┌───────────────────────────────────────┐
+                                       │               GitHub UI               │
+                                       │  (Issues, Pull Requests, Actions)     │
+                                       └───────────────────┬───────────────────┘
+                                                           │
+                                                           ▼
+                                       ┌───────────────────────────────────────┐
+                                       │               .github/                │
+                                       │  Project automation & CI/CD settings  │
+                                       └───────────────────┬───────────────────┘
+                                                           │
+     ┌─────────────────────────────────────────────────────┼──────────────────────────────────────────────────┐
+     │                                                     │                                                  │
+     ▼                                                     ▼                                                  ▼
+┌────────────────┐                                 ┌───────────────────┐                          ┌──────────────────────────┐
+│ ISSUE_TEMPLATE │                                 │   FUNDING.yml     │                          │        labeler.yml       │
+│  bug/feature   │                                 │ Sponsor settings  │                          │ Automatic PR labelling   │
+└───────┬────────┘                                 └───────────────────┘                          └───────────┬──────────────┘
+        │                                                                                                     │
+        ▼                                                                                                     ▼
+┌────────────────┐                                                                                ┌─────────────────────────┐
+│ New Issue form │   Contributors create issues → GitHub loads templates                          │ Labels added to PRs     │
+│ Guided inputs  │──────────────────────────────────────────────────────────────────────────────► │ based on files & title  │
+└────────────────┘                                                                                └─────────────────────────┘
+
+
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                   GITHUB ACTIONS WORKFLOWS (.github/workflows/)
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+                                           (Triggered by pushes, PRs, tags, or manually)
+        ┌─────────────────────────┬────────────────────────┬─────────────────────────┬──────────────────────────────┐
+        │                         │                        │                         │                              │
+        ▼                         ▼                        ▼                         ▼                              ▼
+┌────────────────────┐    ┌────────────────────┐   ┌──────────────────┐   ┌────────────────────────┐   ┌──────────────────────┐
+│     go.yml         │    │   codeql.yml       │   │ superlinter.yml  │   │    goreleaser.yml      │   │     stale.yml        │
+│ Build & test Go    │    │ Security scanning  │   │ Linting of code  │   │ Build+release pipeline │   │ Auto-close inactive  │
+│ on every push/PR   │    │ for vulnerabilities│   │ for consistency  │   │ for multi-platform     │   │ issues & PRs         │
+└─────────┬──────────┘    └──────────┬───────V─┘   └──────────┬───────┘   └────────────┬───────────┘   └───────────┬──────────┘
+          │                          │                        │                        │                           │
+          ▼                          ▼                        ▼                        ▼                           ▼
+┌────────────────┐     ┌───────────────────────┐   ┌────────────────────┐   ┌──────────────────────────┐   ┌─────────────────────┐
+│ CI test result │     │ Security report       │   │ Linter annotations │   │ Build artifacts (dist/)  │   │ Issues marked stale │
+│ pass/fail      │     │ shown in Security tab │   │ shown in PR checks │   │ GitHub Release published │   │ Closed after timeout│
+└────────────────┘     └───────────────────────┘   └────────────────────┘   └──────────────────────────┘   └─────────────────────┘
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                      COMMUNITY AUTOMATION (.github/workflows/)
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+                             ┌───────────────────────┬────────────────────────┐
+                             │                       │                        │
+                             ▼                       ▼                        ▼
+                    ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────────────┐
+                    │ greetings.yml   │     │ manual.yml       │     │ learn-github-actions.yml│
+                    │ Welcome message │     │ Run tasks manually│    │ Example workflow        │
+                    │ for new PR/issue│     │ on demand        │     │ for contributors        │
+                    └─────────────────┘     └──────────────────┘     └─────────────────────────┘
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                   SUPPORTING FILES (.github/properties/, icons/)
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+                       ┌──────────────────────────┐       ┌────────────────────────────┐
+                       │ properties/*.json        │       │ icons/* (e.g., go.svg)     │
+                       │ Metadata for workflows   │       │ Used in badges or UI       │
+                       │ (category, permissions)  │       │ decorations in README      │
+                       └──────────────────────────┘       └────────────────────────────┘
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                              GITHUB ACTIONS OUTPUT FLOW
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+                                               User pushes commit / PR / tag
+                                                       │
+                                                       ▼
+                                               GitHub triggers matching workflows
+                                                       │
+                                                       ▼
+                                               Workflows run in parallel:
+                                               - Build & test
+                                               - Security scan
+                                               - Linting
+                                               - Release packaging
+                                               - Labeling PRs
+                                               - Greetings
+                                               - Stale handling
+                                                       │
+                                                       ▼
+                                               Results appear in:
+                                               - Pull request checks
+                                               - Security dashboard
+                                               - GitHub Releases page
+                                               - Automated comments and labels
+```
+
+###  10.2. <a id='-automatic-pull-request-labeling-in-trice'></a> Automatic Pull Request Labeling in Trice
+
+Trice uses GitHub’s **Labeler** workflow to automatically assign labels to pull requests.  
+These labels help maintainers and contributors quickly understand what a PR affects, without having to inspect every file manually.
+
+The labeling is triggered by two factors:
+
+1.  **Which files were changed** (file-based labeling)
+    
+2.  **What is written in the PR title or description** (text-based labeling)
+    
+
+This system ensures consistent categorization and improves the review workflow.
+
+```sql
+                           ┌───────────────────────────┐
+                           │   Contributor opens a     │
+                           │      Pull Request         │
+                           └──────────────┬────────────┘
+                                          │
+                                          ▼
+                          ┌─────────────────────────────────┐
+                          │ GitHub Action: "Labeler" starts │
+                          │ (.github/labeler.yml)           │
+                          └─────────────────┬───────────────┘
+                                            │
+                      ┌─────────────────────┼─────────────────────┐
+                      │                     │                     │
+                      ▼                     ▼                     ▼
+        ┌────────────────────┐  ┌──────────────────────┐ ┌──────────────────────┐
+        │ File-based rules   │  │ Title-based rules    │ │ Body-based rules     │
+        │(changed-files)     │  │(contains keywords)   │ │(contains keywords)   │
+        └──────────┬─────────┘  └───────────┬──────────┘ └──────────┬───────────┘
+                   │                        │                       │
+                   ▼                        ▼                       ▼
+       ┌───────────────────┐     ┌───────────────────┐     ┌───────────────────┐
+       │ Example outputs:  │     │ Example outputs:  │     │ Example outputs:  │
+       │  go, c, docs, ci  │     │  fix, feature     │     │  fix, feature     │
+       └──────────┬────────┘     └──────────┬────────┘     └──────────┬────────┘
+                  │                         │                         │
+                  └──────────────┬──────────┴──────────────┬──────────┘
+                                 │                         │
+                                 ▼                         ▼
+                        ┌────────────────────────────────────────┐
+                        │ Labels are attached to the PR          │
+                        │ automatically within seconds           │
+                        └────────────────────────────────────────┘
+```
+
+* * *
+
+####  10.2.1. <a id='-file-based-labels'></a> File-based labels
+
+Github automatically applies specific labels depending on which files a pull request changes.  
+Below is an overview of the most relevant label categories.
+
+##### **`AnyChange`**
+
+Applied to **every** pull request that modifies at least one file.  
+Useful as a catch-all label for triggers or filtering.
+
+* * *
+
+##### **`go`**
+
+Applied when the PR changes any Go source file:
+
+`**/*.go`
+
+This marks PRs that affect Go code, modules, or logic.
+
+* * *
+
+##### **`c`**
+
+Applied when the PR touches C or header files inside:
+
+-   `src/`
+    
+-   `examples/`
+    
+-   `_test/`
+    
+
+Examples:
+
+`src/foo.c examples/demo.h _test/bar.c`
+
+This helps identify changes relevant to embedded/low-level components.
+
+* * *
+
+##### **`docs`**
+
+Applied when documentation is modified, including:
+
+-   any file in `docs/`
+    
+-   any Markdown file (`*.md`) anywhere in the repo
+    
+
+This is helpful for changes affecting documentation only.
+
+* * *
+
+##### **`tests`**
+
+Applied when the PR updates or adds tests:
+
+-   Go test files (`*_test.go`)
+    
+-   any files inside the `_test/` directory
+    
+
+* * *
+
+##### **`ci`**
+
+Applied when the PR modifies continuous integration or GitHub configuration files:
+
+`.github/**`
+
+This includes workflow files, templates, automation settings, and metadata.
+
+* * *
+
+####  10.2.2. <a id='-text-based-labels'></a> Text-based labels
+
+Some labels are applied based on **keywords** in the pull request title or description.
+
+##### **`fix`**
+
+Applied when the PR title or body contains the keyword:
+
+`fix`
+
+This is useful when PRs follow conventional commit messages (e.g., `fix: prevent overflow`).
+
+* * *
+
+##### **`feature`**
+
+Applied when the title or description contains:
+
+`feat feature`
+
+This marks PRs that introduce new functionality.
+
+* * *
+
+####  10.2.3. <a id='-benefits-of-automatic-labeling'></a> Benefits of automatic labeling
+
+-   **Faster reviews**: reviewers instantly see what areas of the project are affected.
+    
+-   **Better filtering**: maintainers can filter for categories such as documentation, CI, features, etc.
+    
+-   **Consistent classification**: no need for contributors to manually apply labels.
+    
+-   **Supports larger workflows**: labels can trigger additional automations, such as notifications or CI behavior.
+    
+
+* * *
+
+####  10.2.4. <a id='-how-contributors-can-help'></a> How contributors can help
+
+Contributors can ensure correct labeling by:
+
+-   writing clear PR titles (e.g., `fix: handle invalid input`)
+    
+-   using structured commit messages
+    
+-   modifying files within appropriate directories
+    
+
+Labels will be applied automatically within seconds after opening or updating a pull request.
+
+
+###  10.3. <a id='📂-`.github/workflows`-—-github-actions-workflows'></a>📂 `.github/workflows` — GitHub Actions Workflows
 
 Every file in this directory defines an automated process. These processes run on GitHub’s servers (CI/CD).
 
-* **codeql.yml** This workflow runs CodeQL, GitHub’s static code analysis tool. Purpose:
+* **codeql.yml**: This workflow runs CodeQL, GitHub’s static code analysis tool. Purpose:
   * scan the codebase for potential security vulnerabilities
   * detect unsafe code patterns
   * provide security alerts in the “Security” tab
   * Runs automatically on pushes and pull requests.
-* **go.yml** A workflow for building and testing Go code.
+* **go.yml**: A workflow for building and testing Go code. It runs GitHub CodeQL for Go and C (cpp language pack), detecting security vulnerabilities and code issues.
   * Typically includes steps such as:
   * setting up the Go toolchain
   * checking out the repository
   * compiling the project
   * running unit tests
-* **goreleaser.yml** This workflow runs GoReleaser, the tool that builds and packages Trice for distribution.
+* **goreleaser.yml**: This workflow runs GoReleaser, the tool that builds and packages Trice for distribution.
   * Purpose:
     * create release binaries for all supported platforms
     * generate archives (ZIP, tar.gz, etc.)
@@ -1645,44 +1931,49 @@ Every file in this directory defines an automated process. These processes run o
     * manually from the GitHub UI (“Run workflow”)
     * automatically when pushing a tag matching v* (e.g., v0.44.0)
     * This is the workflow responsible for generating official Trice releases.
-* **greetings.yml** A small automation that posts a friendly greeting message when somebody:
+* **greetings.yml**: A small automation that posts a friendly greeting message when somebody:
   * opens their first issue
   * opens their first pull request
   * Used to make new contributors feel welcome.
-* **label.yml** Defines automatic labeling rules for issues and PRs.
+* **label.yml**: Defines automatic labeling rules for issues and PRs.
   * For example, files in certain directories may automatically get category labels.
   * This helps maintainers classify submissions more easily.
-* **learn-github-actions.yml** An instructional workflow provided by GitHub. Purpose:
+* **learn-github-actions.yml**: An instructional workflow provided by GitHub. Purpose:
   * demonstrate basic GitHub Actions usage
   * serve as documentation or a teaching example for new contributors
   * It does not affect the Trice build or release process.
-* **manual.yml** A workflow that is designed to be triggered manually (similar to _workflow_dispatch_ workflows). Common use cases:
+* **manual.yml**: A workflow that is designed to be triggered manually (similar to _workflow_dispatch_ workflows). Common use cases:
   * executing maintenance tasks
   * running scripts on demand
   * testing workflow behavior without making a commit
   * This workflow does not run automatically.
-* **stale.yml** Automates stale issue handling. Function:
+* **shellcheck.yml**: runs ShellCheck on all *.sh files, catching common bugs in Bash scripts.
+* **shfmt.yml**: runs shfmt in diff mode on pull requests to ensure consistent formatting of shell scripts.
+* **stale.yml**: Automates stale issue handling. Function:
   * marks inactive issues or PRs as “stale”
   * closes them after a configurable time period if there is no further activity
   * eps the issue tracker manageable.
-* **superlinter.yml** Runs GitHub Super Linter, a powerful linting suite. Purpose:
+* **superlinter.yml**: Runs GitHub Super Linter, a powerful linting suite. Purpose:
   * ensure consistent code formatting
   * detect stylistic issues
   * catch potential errors in supported languages
   * Helps maintain code quality across the entire repository.
-* **README.md** Documentation specifically for the /workflows folder.
+* **README.md**: Documentation specifically for the /workflows folder.
   * Can be useful for contributors who want to understand or modify CI behaviors.
 * **Additional Subdirectories**
-* **icons/** Stores custom icons used inside workflows (e.g., for badges or reporting).
-  * Example: go.svg — used in the Go workflow or README badges.
-* **properties/** Contains metadata files used by GitHub for configuration purposes such as:
-  * enabling/disabling features
-  * controlling workflow permissions
-  * defining workflow categories for the Actions UI
+  * **icons/**: Stores custom icons used inside workflows (e.g., for badges or reporting).
+    * Example: go.svg — used in the Go workflow or README badges.
+  * **properties/**: Contains metadata files used by GitHub for configuration purposes such as:
+    * enabling/disabling features
+    * controlling workflow permissions
+    * defining workflow categories for the Actions UI
 
+These workflows run automatically on pushes and pull requests to main, and can also be triggered manually via the GitHub Actions UI.
 These files are not executed; they simply inform GitHub how certain workflows behave or should be displayed.
 
-##  11. <a id='build-trice-tool-from-go-sources-(you-can-skip-that)'></a>Build Trice tool from Go sources (you can skip that)
+##  11. <a id='build-and-release-the-trice-tool-(you-can-skip-that)'></a>Build and Release the Trice Tool (you can skip that)
+
+###  11.1. <a id='build-trice-tool-from-go-sources'></a>Build Trice tool from Go sources 
 
 * Install [Go](https://golang.org/).
 * Run:
@@ -1775,11 +2066,11 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`. There is now a remommended script `./buildTriceTool.sh`. Using it, depending on your system you may need to enter `bash ./buildTriceTool.sh`, includes the actual Trice repository state into the Trice binary, which is shown with `trice version` then - useful in case of issues.
 
-###  11.1. <a id='prepare-a-release'></a>Prepare A Release
+###  11.2. <a id='prepare-a-release'></a>Prepare A Release
 
 Prerequisite: Installed `goreleaser`.
 
-####  11.1.1. <a id='check-a-goreleaser-release-before-publishing'></a>Check a Goreleaser Release before Publishing
+####  11.2.1. <a id='check-a-goreleaser-release-before-publishing'></a>Check a Goreleaser Release before Publishing
 
 By cloning the Trice repo into an empty folder, you make sure no other files exist in the Trice folder.
 
@@ -1818,11 +2109,11 @@ What you should see:
 If this **succeeds**, you’ve already tested 90% of what CI will do for a real release.
 If it **fails**, fix the problem locally first (missing files, bad paths, etc.) – it would fail the same way in CI.
 
-###  11.2. <a id='trigger-a-**real**-trice-release-via-ci-(with-`git-tag`)'></a>Trigger a **real** Trice release via CI (with `git tag`)
+###  11.3. <a id='trigger-a-**real**-trice-release-via-ci-(with-`git-tag`)'></a>Trigger a **real** Trice release via CI (with `git tag`)
 
 Letting CI build and publish an **official release**.
 
-####  11.2.1. <a id='step:-make-sure-your-workflow-reacts-to-tags'></a>Step: Make sure your workflow reacts to tags
+####  11.3.1. <a id='step:-make-sure-your-workflow-reacts-to-tags'></a>Step: Make sure your workflow reacts to tags
 
 In [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml), you need `on:   workflow_dispatch:   push:     tags:       - 'v*'`.
 
@@ -1833,7 +2124,7 @@ Commit & push this change (if you haven’t already):
 
 `git add .github/workflows/goreleaser.yml git commit -m "Configure GoReleaser workflow to run on tags" git push origin main`
 
-####  11.2.2. <a id='step:-final-checks-before-tagging'></a>Step: Final checks before tagging
+####  11.3.2. <a id='step:-final-checks-before-tagging'></a>Step: Final checks before tagging
 
 In your local `trice` repo:
 
@@ -1846,7 +2137,7 @@ In your local `trice` repo:
     
 If all of that is green, you’re ready to “bless” a version.
 
-####  11.2.3. <a id='step:-choose-a-version-and-create-a-`git-tag`'></a>Step: Choose a version and create a `git tag`
+####  11.3.3. <a id='step:-choose-a-version-and-create-a-`git-tag`'></a>Step: Choose a version and create a `git tag`
 
 Decide on a version, for example:
 
@@ -1867,7 +2158,7 @@ You should see `v0.44.0` in the list.
 > 💡 The **tag** is what GoReleaser uses as the release version (`.Tag`, `.Version`, etc.) in your `.goreleaser.yaml`.  
 > Your `ldflags` like `-X main.version={{ .Version }}` will use this.
 
-####  11.2.4. <a id='step:-push-the-tag-to-github-(this-triggers-ci)'></a>Step: Push the tag to GitHub (this triggers CI)
+####  11.3.4. <a id='step:-push-the-tag-to-github-(this-triggers-ci)'></a>Step: Push the tag to GitHub (this triggers CI)
 
 Now push the tag:
 
@@ -1877,7 +2168,7 @@ This does **not** push all tags, only `v0.44.0`.
 
 Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts** the GoReleaser workflow in GitHub Actions.
 
-####  11.2.5. <a id='step:-watch-the-ci-release-run-on-github'></a>Step: Watch the CI release run on GitHub
+####  11.3.5. <a id='step:-watch-the-ci-release-run-on-github'></a>Step: Watch the CI release run on GitHub
 
 1.  Open your browser and go to your repo:
     
@@ -1901,7 +2192,7 @@ Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts
 
 If “Run GoReleaser” is green ✔, the CI release has succeeded.
 
-####  11.2.6. <a id='step:-check-the-github-release'></a>Step: Check the GitHub Release
+####  11.3.6. <a id='step:-check-the-github-release'></a>Step: Check the GitHub Release
 
 Finally, verify the published release:
 
