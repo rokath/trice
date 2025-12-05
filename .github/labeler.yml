@@ -1,6 +1,160 @@
-#FIXME: used to test. Can be reworked to automatic labelling (fixes, features ,c , go , ...)
-# Add 'AnyChange' label to any changes within the entire repository
-AnyChange:
-- changed-files:
-  - any-glob-to-any-file: '**'
 
+# Automatically adds labels to issues or pull requests based on content or file changes.
+
+# .github/labeler.yml
+#
+# This file configures the GitHub "labeler" action.
+# It automatically adds labels to pull requests based on:
+#   - which files were changed (changed-files)
+#   - the PR title or description (title, body)
+#
+# IMPORTANT:
+# - All label names used below (e.g. "go", "c", "docs") must exist
+#   as labels in the GitHub repository settings.
+# - This file affects pull requests only (not individual commits).
+
+# --------------------------------------------------------------------
+# Label: AnyChange
+# --------------------------------------------------------------------
+# Purpose:
+#   - Add a very generic label to any pull request that touches any file.
+#   - This can be useful if you want to trigger other automations or
+#     simply mark “this PR changes something”.
+#
+# When is it applied?
+#   - Whenever *any* file in the repository is changed.
+AnyChange:
+  - changed-files:
+      # Match any file in the repository.
+      - any-glob-to-any-file: '**'
+
+
+# --------------------------------------------------------------------
+# Label: go
+# --------------------------------------------------------------------
+# Purpose:
+#   - Mark pull requests that modify Go source files.
+#
+# When is it applied?
+#   - If any *.go file is changed anywhere in the repository.
+go:
+  - changed-files:
+      - any-glob-to-any-file: '**/*.go'
+
+
+# --------------------------------------------------------------------
+# Label: c
+# --------------------------------------------------------------------
+# Purpose:
+#   - Mark pull requests that touch C source or header files.
+#
+# When is it applied?
+#   - If any *.c or *.h file is changed in typical C locations.
+#   - You can adjust the paths below to match your project layout.
+c:
+  - changed-files:
+      # C sources and headers in src/
+      - any-glob-to-any-file: 'src/**/*.c'
+      - any-glob-to-any-file: 'src/**/*.h'
+
+      # C sources and headers in examples/
+      - any-glob-to-any-file: 'examples/**/*.c'
+      - any-glob-to-any-file: 'examples/**/*.h'
+
+      # C sources and headers in the _test directory
+      - any-glob-to-any-file: '_test/**/*.c'
+      - any-glob-to-any-file: '_test/**/*.h'
+
+
+# --------------------------------------------------------------------
+# Label: docs
+# --------------------------------------------------------------------
+# Purpose:
+#   - Mark pull requests that primarily modify documentation.
+#
+# When is it applied?
+#   - If files in docs/ are changed, or *.md files anywhere.
+docs:
+  - changed-files:
+      # Any file inside the docs/ folder
+      - any-glob-to-any-file: 'docs/**'
+
+      # Any Markdown file (README, guides, etc.)
+      - any-glob-to-any-file: '**/*.md'
+
+
+# --------------------------------------------------------------------
+# Label: tests
+# --------------------------------------------------------------------
+# Purpose:
+#   - Mark pull requests that add or modify tests.
+#
+# When is it applied?
+#   - If Go test files or other test-related files are changed.
+tests:
+  - changed-files:
+      # Go test files
+      - any-glob-to-any-file: '**/*_test.go'
+
+      # Any files inside a _test folder (C tests, configs, etc.)
+      - any-glob-to-any-file: '_test/**'
+
+
+# --------------------------------------------------------------------
+# Label: ci
+# --------------------------------------------------------------------
+# Purpose:
+#   - Mark pull requests that change Continuous Integration (CI)
+#     or GitHub-related configuration.
+#
+# When is it applied?
+#   - If files under .github/ are modified (workflows, templates, etc.).
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+
+
+# --------------------------------------------------------------------
+# Label: fix
+# --------------------------------------------------------------------
+# Purpose:
+#   - Mark pull requests that appear to fix a bug.
+#
+# When is it applied?
+#   - If the PR title or description contains the word "fix".
+#     (Case-sensitive by default; if needed, you can switch to regex.)
+#
+# Note:
+#   - These matchers are very simple on purpose.
+#   - They work well with conventional commit messages such as:
+#       "fix: handle empty input"
+fix:
+  # PR title contains "fix"
+  - title: 'fix'
+  # PR body (description) contains "fix"
+  - body: 'fix'
+
+
+# --------------------------------------------------------------------
+# Label: feature
+# --------------------------------------------------------------------
+# Purpose:
+#   - Mark pull requests that introduce new features.
+#
+# When is it applied?
+#   - If the PR title or description contains "feat" or "feature".
+#
+# Note:
+#   - This works nicely with conventional commit style messages like:
+#       "feat: add new logging options"
+#       "feature: support additional hardware"
+feature:
+  # PR title contains "feat"
+  - title: 'feat'
+  # PR body contains "feat"
+  - body: 'feat'
+
+  # PR title contains "feature"
+  - title: 'feature'
+  # PR body contains "feature"
+  - body: 'feature'

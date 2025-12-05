@@ -1,0 +1,35 @@
+
+# This workflow runs on pull requests (and manually),
+# fails the check if any shell script isn’t formatted according to shfmt style.
+# 
+# Developers can fix formatting locally by running:
+# 
+# shfmt -w .
+
+name: "shfmt (Shell Formatting)"
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  shfmt:
+    name: Check shell script formatting (shfmt)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install shfmt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shfmt
+
+      - name: Run shfmt in diff mode
+        run: |
+          # Check formatting of all shell scripts.
+          # -d prints a diff if formatting does not match.
+          # This does NOT change files, it only fails the job if formatting is off.
+          shfmt -d .

@@ -1,0 +1,30 @@
+
+# This workflow will scan all *.sh files and report problems in the PR checks.
+#   Runs on every push to main and PR targeting main.
+#   Can be run manually via Actions → “ShellCheck (Bash Linting)” → Run workflow.
+
+name: "ShellCheck (Bash Linting)"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    name: ShellCheck (Bash)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install and run ShellCheck using a maintained GitHub Action.
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@v2
+        with:
+          # Optional: you can configure which paths to scan. By default,
+          # the action will look for *.sh files in the repository.
+          severity: warning
