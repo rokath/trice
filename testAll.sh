@@ -94,7 +94,7 @@ my_long_task() {
           exit 2
         fi
       fi
-      cd - >/dev/null
+      cd - >/dev/null || exit
       ./trice_cleanIDs_in_examples_and_test_folder.sh 2>&1 | tee -a $triceFolder/testAll.log
       echo "Testing the Target code inside PC...pass" 2>&1 | tee -a $triceFolder/testAll.log
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
@@ -133,7 +133,7 @@ my_long_task() {
       cd examples/G0B1_inst || exit 1
       make clean 2>&1 | tee -a $triceFolder/testAll.log
       ./build_with_clang.sh 2>&1 | tee -a $triceFolder/testAll.log
-      cd - >/dev/null
+      cd - >/dev/null || exit
       if cat $triceFolder/testAll.log | grep -q -e warning -e error; then
         echo "Translating G0B1_inst with clang...failed" | tee -a $triceFolder/testAll.log
         exit 2
@@ -168,7 +168,7 @@ my_long_task() {
     ./buildAllTargets_TRICE_OFF.sh 2>&1 | tee -a $triceFolder/testAll.log
     if cat $triceFolder/testAll.log | grep -q -e warning -e error; then
       echo "Translating all examples with TRICE_OFF...failed" | tee -a $triceFolder/testAll.log
-      cd - >/dev/null
+      cd - >/dev/null || exit
       exit 2
     fi
     echo "Translating all examples with TRICE_OFF...pass" 2>&1 | tee -a $triceFolder/testAll.log
@@ -179,13 +179,13 @@ my_long_task() {
     ./buildAllTargets_TRICE_ON.sh 2>&1 | tee -a $triceFolder/testAll.log
     if cat $triceFolder/testAll.log | grep -q -e warning -e error; then
       echo "Translating all examples with TRICE_ON...failed" | tee -a $triceFolder/testAll.log
-      cd - >/dev/null
+      cd - >/dev/null || exit
       exit 2
     fi
     echo "Translating all examples with TRICE_ON...pass" 2>&1 | tee -a $triceFolder/testAll.log
     echo "---" 2>&1 | tee -a $triceFolder/testAll.log
     ./cleanAllTargets.sh 2>&1 | tee -a $triceFolder/testAll.log
-    cd - >/dev/null
+    cd - >/dev/null || exit
     if [ $SELECTED = "full" ] || [ $SELECTED = "config" ]; then
       cd examples/L432_inst || exit 1
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
@@ -193,12 +193,12 @@ my_long_task() {
       ./all_configs_build.sh 2>&1 | tee -a $triceFolder/testAll.log
       if cat $triceFolder/testAll.log | grep -q -e warning -e error; then
         echo "Translating all L432 configurations...failed" | tee -a $triceFolder/testAll.log
-        cd - >/dev/null
+        cd - >/dev/null || exit
         exit 2
       fi
       echo "Translating all L432 configurations...pass" 2>&1 | tee -a $triceFolder/testAll.log
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
-      cd - >/dev/null
+      cd - >/dev/null || exit
     fi
     ./trice_cleanIDs_in_examples_and_test_folder.sh 2>&1 | tee -a $triceFolder/testAll.log
   fi
