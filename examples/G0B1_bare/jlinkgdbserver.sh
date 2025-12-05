@@ -1,12 +1,12 @@
 JLinkGDBServer \
--device STM32G0B1RE \
--if SWD \
--speed 4000 \
--notimeout \
--noir \
--nohalt \
--noreset \
--RTTTelnetPort 19021 \
+	-device STM32G0B1RE \
+	-if SWD \
+	-speed 4000 \
+	-notimeout \
+	-noir \
+	-nohalt \
+	-noreset \
+	-RTTTelnetPort 19021
 
 # -endian little \
 # -nolocalhostonly \
