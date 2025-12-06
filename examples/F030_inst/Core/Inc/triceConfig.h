@@ -44,7 +44,7 @@ extern uint32_t ms32; //! ms32 is a 32-bit millisecond counter, counting circula
 	__set_PRIMASK(primaskstate);     \
 	}
 
-void TriceHeadLine(char * name);
+void TriceHeadLine(char* name);
 void LogTriceConfiguration(void);
 void SomeExampleTrices(int burstCount);
 

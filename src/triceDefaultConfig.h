@@ -452,7 +452,7 @@ extern "C" {
 //
 // The BUFFER_SIZE_UP value is de-facto the TRICE_DIRECT_BUFFER_SIZE, if no direct auxilary output is used.
 // Please make sure, that a TRICE_BUFFER_SIZE_UP in your triceConfig.h is the same as BUFFER_SIZE_UP in file
-// SEGGER_RTT_Conf.h. The other 4 values should be set in SEGGER_RTT_Conf.h to the values here, or, define them in 
+// SEGGER_RTT_Conf.h. The other 4 values should be set in SEGGER_RTT_Conf.h to the values here, or, define them in
 // your project specific triceConfig.h equal to the SEGGER_RTT_Conf.h settings (with the TRICE_ prefix).
 // The Trice library uses just the BUFFER_SIZE_UP value implicit in SEGGER_Write_RTT0_NoCheck32 when TRICE_PROTECT is enabled.
 // The other values are recommended for more efficient memory usage, if you use no other SEGGER_RTT functionality.

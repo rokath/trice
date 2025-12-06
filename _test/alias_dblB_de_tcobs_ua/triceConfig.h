@@ -21,17 +21,17 @@ extern "C" {
 #include "nanoprintf.h"
 
 //! printi is a user print example with only integer values and therefore replacable direct with trice.
-#define printi trice 
+#define printi trice
 
 //! prints is a user print example with string, float and integer values.
 //! We have to perform a normal print into a buffer, which then is passed to triceS.
 //! This is slow but we can integrate user code without changing it.
-#define prints(id, fmt, ...) \
-    do { \
-        char buf[96]; \
-        npf_snprintf(buf, sizeof(buf), fmt, ##__VA_ARGS__); \
-        triceS(id, "%s", buf); \
-    } while(0)
+#define prints(id, fmt, ...)                                \
+	do {                                                    \
+		char buf[96];                                       \
+		npf_snprintf(buf, sizeof(buf), fmt, ##__VA_ARGS__); \
+		triceS(id, "%s", buf);                              \
+	} while (0)
 
 //
 //////////////////////////////////////////////////////////////////////////////

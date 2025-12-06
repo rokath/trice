@@ -1,3 +1,4 @@
 src/SEGGER_RTT.c
 src/SEGGER_RTT.h
 _test/*/SEGGER_RTT_Conf.h
+**/nanoprintf.h

@@ -23,22 +23,22 @@ static unsigned triceOutIndexUartA = 0;
 //! \param nByte is the number of bytes to transfer
 TRICE_WEAK void TriceNonBlockingWriteUartA(const void* buf, size_t nByte) {
 #if TRICE_CGO == 1 // automated tests
-	// Having TRICE_CGO here is not perfect, but the alternative would be an additional triceUart_defaults.c file,
-	// containing the TRICE_WEAK definitions and demanding additional code. This file
-	// would be not included for the CGO tests. But then also the internal static variables may be problematic.
-	// The point is, that TRICE_WEAK gets used during link time and not earlier. For the CGO tests all files
-	// get compiled in one big object and the C-compiler sees then 2 definitions of TriceNonBlockingWriteUartA
-	// in the same object throwing an error then.
-  	TriceWriteDeviceCgo(buf, nByte);
-#else // #if TRICE_CGO == 1// automated tests
+	               // Having TRICE_CGO here is not perfect, but the alternative would be an additional triceUart_defaults.c file,
+	               // containing the TRICE_WEAK definitions and demanding additional code. This file
+	               // would be not included for the CGO tests. But then also the internal static variables may be problematic.
+	               // The point is, that TRICE_WEAK gets used during link time and not earlier. For the CGO tests all files
+	               // get compiled in one big object and the C-compiler sees then 2 definitions of TriceNonBlockingWriteUartA
+	               // in the same object throwing an error then.
+	TriceWriteDeviceCgo(buf, nByte);
+#else  // #if TRICE_CGO == 1// automated tests
 	TRICE_ENTER_CRITICAL_SECTION
-//  #if 1
+	//  #if 1
 	triceOutBufferUartA = buf;
-//  #else
-//  	static uint8_t t[TRICE_DEFERRED_BUFFER_SIZE / 2]; // todo: find a better solution to avoid RAM wasting
-//  	memcpy(t, buf, nByte);
-//  	triceOutBufferUartA = t;
-//  #endif
+	//  #else
+	//  	static uint8_t t[TRICE_DEFERRED_BUFFER_SIZE / 2]; // todo: find a better solution to avoid RAM wasting
+	//  	memcpy(t, buf, nByte);
+	//  	triceOutBufferUartA = t;
+	//  #endif
 	triceOutIndexUartA = 0;
 	triceOutCountUartA = nByte;
 	triceEnableTxEmptyInterruptUartA(); // triceTriggerTransmitUartA();

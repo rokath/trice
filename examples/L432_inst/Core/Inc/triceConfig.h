@@ -21,9 +21,9 @@ extern volatile uint32_t* const DEMCR;
 extern volatile uint32_t* const LAR; // lock access register
 
 #define TriceStamp16 ((uint16_t)(*DWT_CYCCNT)) // @64MHz wraps after a bit more than 1ms (MCU clocks)
-#define TriceStamp32            (*DWT_CYCCNT)  // @64MHz -> 1 µs, wraps after 2^32 µs ~= 1.2 hours
+#define TriceStamp32 (*DWT_CYCCNT)             // @64MHz -> 1 µs, wraps after 2^32 µs ~= 1.2 hours
 
-void TriceHeadLine(char * name);
+void TriceHeadLine(char* name);
 void LogTriceConfiguration(void);
 void SomeExampleTrices(int burstCount);
 
@@ -37,11 +37,11 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_UARTA USART2
 
 #define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 0
-#define TRICE_ENTER_CRITICAL_SECTION { // SEGGER_RTT_LOCK() { 
-#define TRICE_LEAVE_CRITICAL_SECTION } // SEGGER_RTT_UNLOCK() } 
+#define TRICE_ENTER_CRITICAL_SECTION { // SEGGER_RTT_LOCK() {
+#define TRICE_LEAVE_CRITICAL_SECTION } // SEGGER_RTT_UNLOCK() }
 
 #if CONFIGURATION == 0 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 
 // Windows: trice log -p jlink -args "-Device STM32L432KC" -pf none -prefix off -hs off -d16 -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json
 // Unix:   ./RTTLogUnix.sh or manually:
@@ -56,10 +56,10 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DIAGNOSTICS 0
 #define TRICE_CYCLE_COUNTER 0
 #define TRICE_FULL_CHECK // enable all code inside triceCheck.c
-//#undef  TRICE_FULL_CHECK // disble additional code inside triceCheck.c
+// #undef  TRICE_FULL_CHECK // disble additional code inside triceCheck.c
 
 #elif CONFIGURATION == 1 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -69,7 +69,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 2 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -79,7 +79,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 3 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -89,7 +89,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 4 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -99,7 +99,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 5 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -109,7 +109,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 6 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -119,7 +119,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 7 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -129,7 +129,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 8 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION );
+#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -976,10 +976,10 @@ void SomeExampleTrices(int burstCount);
 #elif CONFIGURATION == 99 /////////////////////////////////////////////////////
 #define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An minimum configuration example.\n", CONFIGURATION);
 #define TRICE_DEFERRED_OUTPUT 1
-//#undef TriceStamp16
-//#undef TriceStamp32
-//#define TriceStamp16 uwTick  // 1ms, wraps after 2^16 ms ~= a bit more than 1min 
-//#define TriceStamp32 uwTick  // 1ms, wraps after 2^32 ms ~= 41 days 
+// #undef TriceStamp16
+// #undef TriceStamp32
+// #define TriceStamp16 uwTick  // 1ms, wraps after 2^16 ms ~= a bit more than 1min
+// #define TriceStamp32 uwTick  // 1ms, wraps after 2^32 ms ~= 41 days
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
 #elif CONFIGURATION == 100 /////////////////////////////////////////////////////

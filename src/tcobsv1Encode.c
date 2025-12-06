@@ -70,9 +70,9 @@
 		reptCount = 0;                                     \
 	}
 
-//! TCOBSEncode encodes input buffer data into output. The output buffer and input buffer are allowed to overlap. 
+//! TCOBSEncode encodes input buffer data into output. The output buffer and input buffer are allowed to overlap.
 //! It is user responsibility to guarantee that output-input >= length/31 for cases where compression is inpossible.
-//! To put it easy: With 16 bytes distance input legths up to 496 are covered. 
+//! To put it easy: With 16 bytes distance input legths up to 496 are covered.
 //! \param length input buffer length
 //! \param input source buffer
 //! \param output destination

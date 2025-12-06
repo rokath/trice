@@ -20,7 +20,7 @@ extern "C" {
 #include "main.h"
 #define TriceStamp16 TIM17->CNT    // 0...999 us
 #define TriceStamp32 HAL_GetTick() // 0...2^32-1 ms (wraps after 49.7 days)
-//#define TriceStamp32 1750507965 // Output of 'date +"%s"' at Sa 21 Jun 2025 14:12:45 CEST
+// #define TriceStamp32 1750507965 // Output of 'date +"%s"' at Sa 21 Jun 2025 14:12:45 CEST
 
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 2000
@@ -40,8 +40,7 @@ extern "C" {
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA USART2
-//#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
-
+// #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
 
 #include "cmsis_gcc.h"
 #define TRICE_ENTER_CRITICAL_SECTION             \
@@ -54,15 +53,15 @@ extern "C" {
 	__set_PRIMASK(primaskstate);     \
 	}
 
-void TriceHeadLine(char * name);
+void TriceHeadLine(char* name);
 void LogTriceConfiguration(void);
 void SomeExampleTrices(int burstCount);
 
 #define TRICE_FULL_CHECK
 
-#define tell  trice
-#define who   triceS
-//#define who(iD(13002), id,...) triceS(id, __VA_ARGS__)
+#define tell trice
+#define who triceS
+// #define who(iD(13002), id,...) triceS(id, __VA_ARGS__)
 
 #ifdef __cplusplus
 }

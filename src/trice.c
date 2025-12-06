@@ -159,7 +159,7 @@
 #error configuration: TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1 needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP) 
+#if defined(SEGGER_RTT) && (TRICE_BUFFER_SIZE > BUFFER_SIZE_UP)
 #error configuration: TRICE_BUFFER_SIZE > BUFFER_SIZE_UP
 #endif
 
@@ -406,8 +406,8 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8
 		len = len8;
 		XTEAEncrypt(loc, len8 >> 2);
 
-#endif // #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-	// When we arrive here, the encrypted are starting at dat
+#endif  // #else // #if (TRICE_BUFFER == TRICE_DOUBLE_BUFFER) && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
+		// When we arrive here, the encrypted are starting at dat
 
 #endif // #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1)
 	}
@@ -733,9 +733,9 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 	uint8_t* enc = (uint8_t*)triceStart;
 	unsigned len = wordCount << 2; // Up to 3 trailing zeroes are here.
 #else
-	static uint8_t enc[TRICE_BUFFER_SIZE]; // If not static this is stack buffer and could save/waste RAM depending on users system.
+	static uint8_t enc[TRICE_BUFFER_SIZE];                          // If not static this is stack buffer and could save/waste RAM depending on users system.
 	unsigned len = directXEncode8(enc, triceStart, wordCount << 2); // Up to 3 trailing zeroes are packed as well here.
-	// We do not know the padding count without interpreting the Trice.
+	                                                                // We do not know the padding count without interpreting the Trice.
 #endif
 
 	TriceDirectWrite8(enc, len);
@@ -744,7 +744,7 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 #elif TRICE_DIRECT32_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE)
-    // We cannot encode in place, because the deferred output needs the data too.
+	// We cannot encode in place, because the deferred output needs the data too.
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
 #endif
 
@@ -770,7 +770,7 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 #elif TRICE_DIRECT8_ALSO // Space at triceStart + wordCount is NOT usable and we can NOT destroy the data.
 
 #if TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE
-    // We cannot encode in place, because the deferred output needs the data too.
+	// We cannot encode in place, because the deferred output needs the data too.
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
 #endif
 

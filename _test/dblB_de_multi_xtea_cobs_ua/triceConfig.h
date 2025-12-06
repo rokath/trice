@@ -24,4 +24,3 @@ extern "C" {
 #endif
 
 #endif /* TRICE_CONFIG_H_ */
-

@@ -3,7 +3,7 @@
 
 #include "cobs.h"
 
-//! COBSEncode encodes data at in to out. 
+//! COBSEncode encodes data at in to out.
 //! @param in Pointer to input data to encode.
 //! @param length Number of bytes to encode.
 //! @param out Pointer to encoded output buffer.

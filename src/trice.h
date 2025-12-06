@@ -92,19 +92,18 @@ extern "C" {
 #include "triceDefaultConfig.h" // default settings
 
 #ifndef TRICE_WEAK // user can define TRICE_WEAK for special cases
-  #ifdef WEAK
-    #define TRICE_WEAK WEAK // use existing weak
-  #else // #ifdef WEAK
-    #if defined(__GNUC__) || defined(__clang__)
-      #define TRICE_WEAK __attribute__((weak))
-    #elif defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__IAR_SYSTEMS_ICC__)
-      #define TRICE_WEAK __weak
-    #else // for example MSVC (Visual C++)
-      #define TRICE_WEAK // fallback
-    #endif
-  #endif // #else // #ifdef WEAK
+#ifdef WEAK
+#define TRICE_WEAK WEAK // use existing weak
+#else                   // #ifdef WEAK
+#if defined(__GNUC__) || defined(__clang__)
+#define TRICE_WEAK __attribute__((weak))
+#elif defined(__CC_ARM) || defined(__ARMCC_VERSION) || defined(__IAR_SYSTEMS_ICC__)
+#define TRICE_WEAK __weak
+#else              // for example MSVC (Visual C++)
+#define TRICE_WEAK // fallback
+#endif
+#endif // #else // #ifdef WEAK
 #endif // #ifndef TRICE_WEAK
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // These converter functions need to be visible in the TRICE_OFF == 1 case to avoid compiler warnings then.
