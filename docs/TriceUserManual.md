@@ -1173,7 +1173,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 | [xtea.h](../src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
 | [xtea.c](../src/xtea.c)                             | XTEA message encryption/decryption code                                                                              |
 
-* The *tcobs\*.\** files are copied from [https://github.com/rokath/tcobs/tree/master/v1](https://github.com/rokath/tcobs/tree/master/v1). They are maintained there and extensively tested and probably not a matter of significant change.
+* The *tcobs\*.\** files are copied from [https://github.com/rokath/tcobs/tree/main/v1](https://github.com/rokath/tcobs/tree/main/v1). They are maintained there and extensively tested and probably not a matter of significant change.
 * The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -1438,7 +1438,7 @@ trice log -s -port com1 -v -ts32="att:%08x fix" # enter this (adapted)
 ###  7.2. <a id='short-trouble-shooting-hints'></a>Short Trouble Shooting Hints
 
 Problem                        | Hint
--------------------------------|------------------------------------
+-------------------------------|-----------------------------------------------------------------------------------------------
 Missing `objcopy` in MacOS     | `brew install bunutils`
 Small GUI Editor for MacOs     | `brew install cotedit` Usage: `cot` (not as root)
 Small In-Terminal Editor Linux | https://cte.e10labs.com/, tilde, micro, joe, https://craigbarnes.gitlab.io/dte/ (also as root)
@@ -1979,7 +1979,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
 * Run:
 
   ```bash
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
   $ bash ./buildTriceTool.sh # does internal do go install ./cmd/trice/...
   ```
 
@@ -2010,7 +2010,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
   ```
 
 * Hints
-  * Use only the master branch. Other branches may be inconsistent.
+  * Use only the main branch. Other branches may be inconsistent.
   * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
   * Use Goreleaser if you wish to create releases on your forked Trice repository.
   * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
@@ -2023,13 +2023,13 @@ These files are not executed; they simply inform GitHub how certain workflows be
   * Tests:
 
   ```b
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
   $ go clean -cache
   
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
   $ go vet ./...
   
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
   $ go test ./...
   ?       github.com/rokath/trice/cmd/cui [no test files]
   ok      github.com/rokath/trice/cmd/stim        0.227s
@@ -2058,7 +2058,7 @@ To execute the target code tests, you can run `testAll.sh` or `cd` into `_test` 
 The last tests can last quite a while, depending on your machine.
 
 ```bash
-ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
 $ go install ./cmd/trice/
 ```
 
@@ -4146,7 +4146,7 @@ The default SEGGER tools only suport RTT channel 0.
 This is just the SEGGER J-Link server here for demonstration, but if your target device has an TCP4 interface, you can replace this with your target server.
 
 ```bash
-ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
 $ jlink
 SEGGER J-Link Commander V7.92g (Compiled Sep 27 2023 15:36:46)
 DLL version V7.92g, compiled Sep 27 2023 15:35:10
@@ -5680,7 +5680,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Accept and Accept
   - 1: Upgrade to J-Link
   - 0: Quit
-- Download, extract & start https://github.com/rokath/trice/blob/master/third_party/segger.com/STLinkReflash_190812.zip
+- Download, extract & start https://github.com/rokath/trice/blob/main/third_party/segger.com/STLinkReflash_190812.zip
   - Re-Flash onboard debugger.
     - You can undo this step anytime.
 
@@ -6367,9 +6367,9 @@ All folders despite `testdata` are test folders and the name `tf` is used as a p
 
 To exclude a specific folder temporary, simply rename it to start with an underscore `_tf`.
 
-The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](./testdata/triceCheck.c) is the master file for most tests and serves also as example usage.
+The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](./testdata/triceCheck.c) is the main file for most tests and serves also as example usage.
 
-[_test/testdata/cgoPackage.go](../_test/testdata/cgoPackage.go) is the common master for the `generated_cgoPackage.go` files and contains the common test code. 
+[_test/testdata/cgoPackage.go](../_test/testdata/cgoPackage.go) is the common main for the `generated_cgoPackage.go` files and contains the common test code. 
 
 The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently. When the tests are executed for each package, a separate test binary is build and these run parallel.
 
@@ -6413,7 +6413,7 @@ Because each test runs a different configuration, all possible combinations are 
 ###  42.6. <a id='test-results'></a>Test Results
 
 ```bash
-ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
 $ ./testAll.sh
 Thu, Dec 12, 2024  4:51:26 PM
 This can take several minutes ...
@@ -6553,7 +6553,7 @@ real    10m31.130s
 user    0m0.000s
 sys     0m0.015s
 
-ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
 $
 ```
 
@@ -7923,7 +7923,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 | Show repository status.                   | `git status`                                                                                                                                                                                            |
 | Clean the repo, if needed.                | `git stash push`                                                                                                                                                                                        |
 | Show all branches.                        | `git branch -a`                                                                                                                                                                                         |
-| Switch to master.                         | `git switch master`                                                                                                                                                                                     |
+| Switch to main.                           | `git switch main`                                                                                                                                                                                       |
 | Fetch a pull request as new branch PRIDa. | `git fetch origin pull/ID/head:PRIDa`                                                                                                                                                                   |
 | List worktree.                            | `git worktree list`                                                                                                                                                                                     |
 | Add to worktree.                          | `git worktree add ../trice_wt_PRIDa PRIDa`                                                                                                                                                              |
@@ -7937,7 +7937,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 | Change to previous folder.                | `cd -`                                                                                                                                                                                                  |
 | Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`                                                                                                                                                                 |
 | Delete git branch.                        | `git branch -d PRIDa`                                                                                                                                                                                   |
-| Log last 3 commits in branch maste        | `git log -3 master`                                                                                                                                                                                     |
+| Log last 3 commits in branch maste        | `git log -3 main`                                                                                                                                                                                       |
 | Checkout by hash                          | `git checkout <hash>`                                                                                                                                                                                   |
 | One Liner Log until shortly before v1.0.0 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M' --since 2025-04-01`      |
 | One Liner Log for branch `devel`          | `git log --graph --decorate devel --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'`                         |
