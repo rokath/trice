@@ -286,9 +286,9 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		TriceNonBlockingDeferredWrite8(triceID, dst, len); // Write each message separately to allow ID routing. See https://github.com/rokath/trice/issues/543.
 		TRICE_LEAVE_CRITICAL_SECTION
 #endif // TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
-		//
-		// TRICE_SINGLE_PACK_MODE
-		//////////////////////////////////////////////////////////////////////////////
+       //
+       // TRICE_SINGLE_PACK_MODE
+       //////////////////////////////////////////////////////////////////////////////
 
 #if (TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1)
 		dst = enc + encLen;                           // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
@@ -314,14 +314,16 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	// Behind this up to 7 bytes can be used as scratch pad when XTEA is active. That is ok, because the half buffer should not get totally filled.
 	// encLen = TriceEncode( TRICE_DEFERRED_XTEA_ENCRYPT, TRICE_DEFERRED_OUT_FRAMING, enc, dat, encLen );
 #if (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS) // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-	  // special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
+	// special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
+
 	size_t len8 = (encLen + 7) & ~7;        // Only multiple of 8 encryptable, so we adjust len.
 	memset(dat + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
 	XTEAEncrypt((uint32_t*)dat, len8 >> 2);
 	size_t eLen = (size_t)TCOBSEncode(enc, dat, len8);                                          // encLen is re-used here
 	enc[eLen++] = 0;                                                                            // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)  // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-	  // special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
+	// special case: The data are at dat and can be big, are compacted and behind them is space. So we can encrypt them in space
+
 	size_t len8 = (encLen + 7) & ~7;        // Only multiple of 8 encryptable, so we adjust len.
 	memset(dat + encLen, 0, len8 - encLen); // clear padding space: ATTENTION! OK only for this compiler switch setting.
 	XTEAEncrypt((uint32_t*)dat, len8 >> 2);
@@ -360,9 +362,9 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	TriceNonBlockingDeferredWrite8(triceID, enc, encLen); // lint !e771 Info 771: Symbol 'triceID' conceivably not initialized. Comment: tLen is always > 0.
 	TRICE_LEAVE_CRITICAL_SECTION
 #endif // TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
-	//
-	// TRICE_MULTI_PACK_MODE
-	//////////////////////////////////////////////////////////////////////////////
+       //
+       // TRICE_MULTI_PACK_MODE
+       //////////////////////////////////////////////////////////////////////////////
 }
 
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
