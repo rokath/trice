@@ -1,4 +1,42 @@
+# ---------------------------------------------------------------------------
+# .clang-format-ignore
+#
+# This file uses gitignore-style syntax to define which paths should NOT be
+# formatted by clang-format. It is processed by the helper tool in cmd/clang-filter.
+# ---------------------------------------------------------------------------
+
+# ===========================
+#  Vendor / third-party code
+# ===========================
+
+# SEGGER RTT should never be formatted
 src/SEGGER_RTT.c
 src/SEGGER_RTT.h
 _test/*/SEGGER_RTT_Conf.h
+
+# Ignore any nanoprintf header anywhere
 **/nanoprintf.h
+
+# ===========================
+#  Examples exclusions
+# ===========================
+
+# 1) Exclude ALL content of: ./examples/*_bare/
+examples/*_bare/**
+
+# 2) Exclude ALL content of: ./examples/*_inst/Drivers/
+examples/*_inst/Drivers/**
+
+# 3) Exclude trice*.h in: ./examples/*_inst/Core/Inc/
+examples/*_inst/Core/Inc/trice*.h
+
+# 4) Exclude main.c in: ./examples/*_inst/Core/Src/
+examples/*_inst/Core/Src/main.c
+
+# ---------------------------------------------------------------------------
+# Notes:
+#   - Patterns are matched from the project root.
+#   - '**' recursively matches subdirectories.
+#   - '*' matches within a single path segment.
+#   - Adjust or extend these rules as new examples or vendor files are added.
+# ---------------------------------------------------------------------------

@@ -1,21 +1,21 @@
 name: Clang-Format Check
 
-# This workflow checks that all tracked *.c and *.h files comply
-# with the formatting rules defined in the .clang-format file
-# at the root of the repository.
+# This workflow verifies that all tracked C/C++ files in the repository
+# are formatted according to the .clang-format rules.
 #
-# It does NOT modify any files – it only fails the job if
-# formatting issues are detected.
+# It uses:
+#   - clang-format (installed via apt)
+#   - a Go-based helper (cmd/clang-filter) via `go run`
+#   - the shell script `./clang-format.sh` to orchestrate everything
 #
-# Later, you can optionally enable the auto-fix section at the
-# bottom of this file to let the CI format and commit changes.
+# The workflow runs:
+#   - on every push to any branch
+#   - on every pull request
 
 on:
-  # Run on every push to any branch
   push:
     branches:
       - "**"
-  # And for every pull request
   pull_request:
 
 jobs:
@@ -23,119 +23,62 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ---------------------------------------------------------
-      # 1) Check out the repository so clang-format can access
-      #    the source files and the .clang-format configuration.
-      # ---------------------------------------------------------
+      #########################################################################
+      # 1) Check out the repository so we have access to:
+      #    - source files
+      #    - .clang-format
+      #    - .clang-format-ignore
+      #    - cmd/clang-filter
+      #    - clang-format.sh
+      #########################################################################
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          # Fetch full history so git ls-files works as expected.
-          # You can change this to "1" if you want faster clones
-          # and do not rely on full history.
+          # Full git history is not strictly required for formatting,
+          # but some tools or future changes might rely on it.
           fetch-depth: 0
 
-      # ---------------------------------------------------------
+      #########################################################################
       # 2) Install clang-format on the runner.
-      #    Ubuntu's package should provide a recent enough version.
-      # ---------------------------------------------------------
+      #
+      # We rely on Ubuntu's clang-format package. If you require a specific
+      # version, you can pin it here or use a prebuilt toolchain image.
+      #########################################################################
       - name: Install clang-format
         run: |
           sudo apt-get update
           sudo apt-get install -y clang-format
 
-      # Optional: print the installed clang-format version
       - name: Show clang-format version
         run: clang-format --version
 
-      # ---------------------------------------------------------
-      # 3) Run clang-format in "check" mode.
+      #########################################################################
+      # 3) Set up Go toolchain for `go run ./cmd/clang-filter`
       #
-      #    Strategy:
-      #    - Use git ls-files to list all tracked *.c and *.h files.
-      #    - For each file, run clang-format with -output-replacements-xml.
-      #    - If the XML output contains <replacement> entries, the file
-      #      is not properly formatted according to .clang-format.
-      #    - If any file is misformatted, the job fails.
+      # The Go helper uses github.com/sabhiram/go-gitignore to implement
+      # gitignore-style rules for .clang-format-ignore.
+      #########################################################################
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          # Use a reasonably recent Go version. Adjust as needed.
+          go-version: '1.22.x'
+
+      # Optional but recommended: download all Go module dependencies up front.
+      # This avoids doing network fetches during `go run` and can speed up CI.
+      - name: Download Go modules
+        run: go mod download
+
+      #########################################################################
+      # 4) Run clang-format in CHECK mode via the shell script.
       #
-      #    This does NOT modify files; it only inspects them.
-      # ---------------------------------------------------------
-      - name: Check formatting of all C files
+      # The script:
+      #   - collects tracked C/C++ files (git ls-files)
+      #   - filters them via `go run ./cmd/clang-filter` using .clang-format-ignore
+      #   - runs clang-format in CHECK mode (no in-place changes)
+      #   - prints per-file errors using GitHub Actions "::error" annotations
+      #   - fails the job (exit 1) if any file is misformatted
+      #########################################################################
+      - name: Run clang-format in check mode
         run: |
-          set -e
-
-          echo "Searching for tracked .c and .h files..."
-          FILES=$(git ls-files '*.c' '*.h' || true)
-
-          if [ -z "$FILES" ]; then
-            echo "No .c or .h files found in the repository."
-            exit 0
-          fi
-
-          echo "Found the following C/C header files:"
-          echo "$FILES"
-          echo
-
-          FORMAT_ERRORS=0
-
-          for f in $FILES; do
-            # Run clang-format in "dry-run" mode via XML output. This does not change the file.
-            # If there is at least one <replacement> tag, clang-format would change the file.
-            if clang-format -style=file -output-replacements-xml "$f" | grep -q "<replacement "; then
-              echo "::error file=$f::File is not formatted according to .clang-format"
-              FORMAT_ERRORS=1
-            fi
-          done
-
-          if [ "$FORMAT_ERRORS" -ne 0 ]; then
-            echo
-            echo "One or more files are not properly formatted."
-            echo "Please run clang-format locally on your .c/.h files before committing."
-            exit 1
-          fi
-
-          echo "All .c and .h files are properly formatted according to .clang-format."
-
-      # ---------------------------------------------------------
-      # 4) OPTIONAL: Auto-fix and auto-commit formatting changes
-      #
-      #    This section is currently commented out so that the
-      #    workflow only performs a check.
-      #
-      #    To enable automatic formatting:
-      #    - Uncomment the steps below.
-      #    - Decide whether you want this to run on push, PR, or
-      #      in a separate job.
-      #
-      #    WARNING:
-      #    - Auto-committing from CI modifies branches directly.
-      #    - This may not be desired for forks or external PRs.
-      # ---------------------------------------------------------
-      # - name: Apply clang-format to all C files (auto-fix)  # OPTIONAL - currently disabled
-      #   run: |
-      #     set -e
-      #     FILES=$(git ls-files '*.c' '*.h' || true)
-      #     if [ -z "$FILES" ]; then
-      #       echo "No .c or .h files found in the repository."
-      #       exit 0
-      #     fi
-      #
-      #     echo "Running clang-format in-place on all .c and .h files..."
-      #     clang-format -style=file -i $FILES
-      #
-      #     echo "clang-format applied. Checking for changes..."
-      #     if git diff --quiet; then
-      #       echo "No formatting changes were needed."
-      #     else
-      #       echo "Formatting changes detected."
-      #     fi
-      #
-      # - name: Commit formatting changes (auto-commit)       # OPTIONAL - currently disabled
-      #   uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     # This commit message will appear in the Git history
-      #     commit_message: "Apply clang-format"
-      #     # Configure which files should be considered for the commit (here: everything)
-      #     file_pattern: "*.c *.h"
-      #     # Optionally, you can restrict auto-commits to specific branches, e.g.:
-      #     # branch: main
+          chmod +x
