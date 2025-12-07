@@ -2079,7 +2079,7 @@ mkdir ./tmp
 cd /tmp
 git clone https://github.com/rokath/trice.git
 cd trice
-goreleaser release --clean --snapshot --skip-publish
+goreleaser release --clean --snapshot --skip=publish
 ```
 
 This just generates the artifacts locally in `/tmp/trice/dist` using the [./trice/.goreleaser.yaml](../.goreleaser.yaml) copy in `./temp/trice`.
@@ -2089,7 +2089,7 @@ Alternatively you can do in your local Trice clone directly, by removing everyth
 ```bash
 git status
 git clean -xfd
-goreleaser release --clean --snapshot --skip-publish
+goreleaser release --clean --snapshot --skip=publish
 ```
 
 Explanation:
@@ -2097,15 +2097,15 @@ Explanation:
 * `release` – run the normal release pipeline (builds, archives, checksums, changelog, etc.).
 * `--clean` – delete the `dist/` folder first so no old artefacts are reused. 
 * `--snapshot` – build as a “snapshot” version, not a real tagged release.
-* `--skip-publish` – **do not upload** anything (no GitHub Releases, no Homebrew, no Docker, etc.).
-    
+* `--skip=publish` – **do not upload** anything (no GitHub Releases, no Homebrew, no Docker, etc.).
+
 What you should see:
 
 * GoReleaser building all your `builds:` targets from `.goreleaser.yaml`.
 * Creating archives in `dist/`.
 * Generating checksums.
 * No attempts to call the GitHub API for a real release.
-    
+
 If this **succeeds**, you’ve already tested 90% of what CI will do for a real release.
 If it **fails**, fix the problem locally first (missing files, bad paths, etc.) – it would fail the same way in CI.
 
@@ -2133,7 +2133,7 @@ In your local `trice` repo:
   * Run your tests:
   * `go test ./...` or better `./testAll.sh full`
   * Optional but recommended: **run the snapshot dry run** again, just to be safe:
-* `goreleaser release --clean --snapshot --skip-publish`
+* `goreleaser release --clean --snapshot --skip=publish`
     
 If all of that is green, you’re ready to “bless” a version.
 
