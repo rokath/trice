@@ -1,0 +1,284 @@
+# .markdownlint.yaml
+# Global configuration for markdownlint in this repository.
+#
+# Goals of this configuration:
+# - Keep markdownlint useful without being overwhelming on a large legacy document.
+# - Allow common documentation patterns (inline HTML, TOC, long lines, etc.).
+# - Focus on issues that really affect readability or correctness (links, anchors, etc.).
+# - De-emphasize purely stylistic rules that generate a lot of noise.
+
+################################################################################
+# Line length / high-noise rules
+################################################################################
+
+# MD013 - Line length
+# Large technical documents often contain long lines (URLs, tables, examples).
+# Enforcing a strict line length limit produces many warnings but little value.
+# For this documentation, we disable the rule entirely.
+MD013: false
+
+################################################################################
+# HTML-related rules
+################################################################################
+
+# MD033 - Inline HTML
+# This document uses a lot of inline HTML, for example:
+# - <div id="top"></div>
+# - <p align="right">(...)</p>
+# - <h2>Table of Contents</h2>
+# - <details><summary>...</summary><ol>...</ol></details>
+# - <small>...</small>
+#
+# Instead of disabling MD033 globally, we explicitly allow the HTML elements
+# that are actually used (and a few that are commonly useful).
+MD033:
+  allowed_elements:
+    # Layout / structure
+    - div
+    - p
+    - span
+    - small
+    - br
+    - hr
+
+    # Headings used as HTML
+    - h1
+    - h2
+    - h3
+    - h4
+    - h5
+    - h6
+
+    # Collapsible sections (e.g. TOC)
+    - details
+    - summary
+
+    # HTML lists for complex TOC structures
+    - ol
+    - ul
+    - li
+
+    # Links and images in HTML form
+    - a
+    - img
+
+    # Code-related HTML (if ever needed)
+    - code
+    - pre
+
+################################################################################
+# Heading-related rules
+################################################################################
+
+# MD041 - First line in a file should be a top-level heading
+# In theory, this is a good rule for documentation structure.
+# However, in this large existing document it has already caused noise
+# (e.g. because of HTML elements near the top).
+# To keep things pragmatic, we disable it for now.
+# You can re-enable it later if you standardize all docs.
+MD041: false
+
+# MD018 - No missing space after hash on ATX style heading
+# Example of what this complains about:
+#   ##Heading   (no space)  instead of   ## Heading
+# While this is a good style rule, it can generate many warnings in a legacy file.
+# We disable it to reduce noise.
+MD018: false
+
+# MD019 - Multiple spaces after hash on ATX style heading
+# Example:
+#   ##  Heading   (two spaces after "##")
+# This is purely stylistic and not critical for readability.
+# Disable to avoid noise on existing headings.
+MD019: false
+
+# MD026 - Trailing punctuation in heading
+# Example:
+#   ## What is this?
+# The rule suggests removing trailing punctuation from headings.
+# In many technical documents, punctuation in headings is acceptable.
+# Disable to avoid constant renaming of headings.
+MD026: false
+
+################################################################################
+# Ordered / unordered lists and indentation
+################################################################################
+
+# MD029 - Ordered list item prefix
+# Your document uses "real" numbered lists (1., 2., 3., ...) e.g. in the TOC.
+# We configure the rule to accept this style instead of forcing all items to "1.".
+MD029:
+  style: ordered
+
+# MD030 - Spaces after list markers
+# This enforces a specific number of spaces after list markers.
+# In large legacy docs with mixed styles, it generates many warnings.
+# For now, we disable it to avoid unnecessary reformatting.
+MD030: false
+
+# MD032 - Lists should be surrounded by blank lines
+# This can conflict with auto-generated sections or tightly formatted lists.
+# Since the document is already large and structured, we disable this rule.
+MD032: false
+
+# MD004 - Unordered list style (asterisk vs dash vs plus)
+# Enforces a consistent bullet character.
+# In existing documentation where both "-" and "*" are used,
+# this becomes noisy without giving much benefit.
+MD004: false
+
+# MD007 - Unordered list indentation
+# Enforces indentation width for nested lists.
+# Large legacy docs often mix indent styles; fixing all would be tedious.
+# Disabled to reduce styling noise.
+MD007: false
+
+# MD005 - List item indentation consistency
+# Similar to MD007, but about consistency at the same nesting level.
+# In a mature document, it's usually not worth the churn to fix all of this.
+MD005: false
+
+################################################################################
+# Links, link text and fragments
+################################################################################
+
+# MD039 - No spaces inside link text
+# Example of what this rule complains about:
+#   [ Link text ](url)  <-- space after "[" or before "]"
+# This rule improves consistency and often catches accidental whitespace.
+# We keep it enabled and fix the occurrences over time.
+MD039: true
+
+# MD051 - Link fragments should be valid
+# Ensures that fragments like "#some-heading" actually match existing headings
+# or IDs, which helps avoid broken in-page navigation.
+# This is valuable in a long document with many internal links.
+# Keep it enabled and fix invalid anchors gradually.
+MD051: true
+
+# MD034 - Bare URLs
+# Warns when URLs appear without markdown link syntax, e.g.:
+#   https://example.com
+# In technical docs bare URLs are often acceptable and common.
+# We disable this to avoid warnings for normal usage.
+MD034: false
+
+# MD042 - No empty links
+# Warns when link syntax is used without actual target.
+# In a large document there may be "placeholder" links or work-in-progress areas.
+# To avoid constant warnings for those, we disable this rule for now.
+MD042: false
+
+# MD059 - Descriptive link text
+# Suggests using descriptive link text instead of generic "[link]".
+# This is a good accessibility guideline, but can be noisy in existing docs.
+# Disable for now; you can re-enable it if you decide to clean this up later.
+MD059: false
+
+################################################################################
+# Emphasis, code spans and inline formatting
+################################################################################
+
+# MD049 - Emphasis style
+# Enforces a consistent marker for emphasis (* vs _).
+# This is purely stylistic and often mixed in older documents.
+# Disable to avoid churn with mass-reformatting.
+MD049: false
+
+# MD037 - No space inside emphasis markers
+# Example:
+#   _ text _  instead of  _text_
+# While stylistically nicer, it is not critical for understanding.
+# We disable this rule to reduce noise.
+MD037: false
+
+# MD038 - No space inside code span elements
+# Example:
+#   ` code `  instead of  `code`
+# Again, this is a cosmetic detail with limited practical impact.
+# Disabled to keep the rule set focused on more important issues.
+MD038: false
+
+################################################################################
+# Trailing spaces, tabs, blank lines
+################################################################################
+
+# MD009 - No trailing spaces
+# Trailing spaces are often used intentionally in markdown to force line breaks.
+# This rule can be very noisy in existing files where that pattern was used.
+# Disable for now to avoid having to review every trailing space manually.
+MD009: false
+
+# MD010 - No hard tabs
+# Enforces spaces instead of tab characters.
+# If the document historically used tabs in some places, this rule will be noisy.
+# Disable to avoid unnecessary reformatting.
+MD010: false
+
+# MD012 - Multiple consecutive blank lines
+# Warns when there is more than one blank line in a row.
+# In a long document, extra blank lines are often harmless and sometimes used
+# intentionally for visual separation.
+# Disable for now.
+MD012: false
+
+################################################################################
+# Code blocks and fenced blocks
+################################################################################
+
+# MD040 - Fenced code blocks should have a language specified
+# Having a language on fenced code blocks is very helpful for syntax highlighting.
+# Your document already uses this in many places (```diff, ```C, etc.).
+# Keep it enabled and add missing languages over time.
+MD040: true
+
+# MD031 - Fenced code blocks should be surrounded by blank lines
+# This ensures readability around code blocks, but can conflict with
+# tight formatting or special layouts in an existing long document.
+# We disable it to reduce noise.
+MD031: false
+
+# MD046 - Code block style
+# Enforces the use of fenced code blocks (```), which is already your practice.
+# This keeps code blocks consistent without being too intrusive.
+MD046:
+  style: fenced
+
+################################################################################
+# Images, horizontal rules, tables
+################################################################################
+
+# MD045 - Images should have alternate text
+# This is an accessibility rule suggesting alt text for images.
+# In a large, existing document this can be a big effort to fix everywhere.
+# Disable for now; you can re-enable when you decide to improve accessibility.
+MD045: false
+
+# MD035 - Horizontal rule style
+# Enforces a consistent style of horizontal rules (e.g. --- vs ***).
+# This is purely cosmetic, so we disable it.
+MD035: false
+
+# MD055 - Table pipe style
+# Enforces leading/trailing pipes in tables for a specific style.
+# Existing tables may not follow that style; changing them all is noisy.
+# Disable to avoid reformatting all tables.
+MD055: false
+
+################################################################################
+# Commands, URLs in examples and headings
+################################################################################
+
+# MD014 - Commands should show output
+# Example:
+#   $ some-command
+# The rule expects a follow-up block showing the command output.
+# In documentation, you often just show the command itself.
+# We disable this rule so shell examples are not forced to include output.
+MD014: false
+
+# MD036 - Emphasis used instead of a heading
+# Warns when emphasized text (e.g. "*Title*") is used like a heading.
+# This may be intentional stylistic choice in parts of the document.
+# Disable to avoid having to refactor those sections.
+MD036: false
