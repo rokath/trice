@@ -147,6 +147,8 @@ github.com/rokath/cobs v0.0.0-20230425030040-4ebbe9b903b9 h1:sBgY4+/Qx/bdK8/qmQH
 github.com/rokath/cobs v0.0.0-20230425030040-4ebbe9b903b9/go.mod h1:5g1BgE3hXZKLjCGkbljRYJRwEzmaC4rq4gVF3BNvncE=
 github.com/rokath/tcobs v0.9.1 h1:z6O7flXBKEPBlbT2yTqJLXv1Dyx7fvwB0nVXFztSK+Q=
 github.com/rokath/tcobs v0.9.1/go.mod h1:w/78VZSCCzriX+vq1qCpEm5RHuxU1pbY3gYQeFH6liU=
+github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 h1:OkMGxebDjyw0ULyrTYWeN0UNCCkmCWfjPnIA2W6oviI=
+github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06/go.mod h1:+ePHsJ1keEjQtpvf9HHw0f4ZeJ0TLRsxhunSI2hYJSs=
 github.com/spf13/afero v1.9.5 h1:stMpOSZFs//0Lv29HduCmli3GUfpFoF3Y1Q/aXj/wVM=
 github.com/spf13/afero v1.9.5/go.mod h1:UBogFpq8E9Hx+xc5CNTTEpTnuHVmXDwZcZcE1eb/UhQ=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
