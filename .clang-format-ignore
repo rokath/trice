@@ -1,42 +1,119 @@
-# ---------------------------------------------------------------------------
+###############################################################################
 # .clang-format-ignore
 #
-# This file uses gitignore-style syntax to define which paths should NOT be
-# formatted by clang-format. It is processed by the helper tool in cmd/clang-filter.
-# ---------------------------------------------------------------------------
+# This file defines which files and directories should NOT be processed by
+# clang-format. It is parsed using gitignore-style syntax by the helper
+# tool located in cmd/clang-filter.
+#
+# Syntax summary (gitignore-like):
+#   - Lines starting with '#' are comments.
+#   - '*'  matches any number of characters except '/'.
+#   - '**' matches zero or more directories recursively.
+#   - '?'  matches exactly one character.
+#   - A trailing slash ('/') matches directories only.
+#   - '!'  negates (re-includes) a previously ignored pattern.
+#   - Later rules override earlier rules → last match wins.
+#
+# Important:
+#   clang-format.sh uses:
+#       git ls-files | clang-filter
+#   Therefore only *tracked* files are considered, and this ignore file acts
+#   as the single source of truth for excluding files from formatting.
+###############################################################################
 
-# ===========================
-#  Vendor / third-party code
-# ===========================
 
-# SEGGER RTT should never be formatted
+###############################################################################
+# SECTION 1 — Third-party / vendor code (never format!)
+###############################################################################
+
+# SEGGER RTT sources — should never be altered by formatting.
 src/SEGGER_RTT.c
 src/SEGGER_RTT.h
+
+# SEGGER configuration headers in test directories.
 _test/*/SEGGER_RTT_Conf.h
 
-# Ignore any nanoprintf header anywhere
+# nanoprintf header — third-party minimal printf implementation.
+# Avoid reformatting vendor code.
 **/nanoprintf.h
 
-# ===========================
-#  Examples exclusions
-# ===========================
 
-# 1) Exclude ALL content of: ./examples/*_bare/
+
+###############################################################################
+# SECTION 2 — Example projects: complete directories excluded
+###############################################################################
+
+# 1) Ignore EVERYTHING inside: ./examples/*_bare/
+#
+# These projects represent bare-metal examples and may contain vendor code,
+# auto-generated code, or STM32 HAL code that must not be edited.
 examples/*_bare/**
 
-# 2) Exclude ALL content of: ./examples/*_inst/Drivers/
+# 2) Ignore EVERYTHING inside: ./examples/*_inst/Drivers/
+#
+# STM32 HAL driver code is machine-generated and should not be modified.
 examples/*_inst/Drivers/**
 
-# 3) Exclude trice*.h in: ./examples/*_inst/Core/Inc/
-examples/*_inst/Core/Inc/trice*.h
 
-# 4) Exclude main.c in: ./examples/*_inst/Core/Src/
-examples/*_inst/Core/Src/main.c
+
+###############################################################################
+# SECTION 3 — Example projects: selective exclusions with exceptions
+###############################################################################
 
 # ---------------------------------------------------------------------------
-# Notes:
-#   - Patterns are matched from the project root.
-#   - '**' recursively matches subdirectories.
-#   - '*' matches within a single path segment.
-#   - Adjust or extend these rules as new examples or vendor files are added.
+# 3A — Directory: ./examples/*_inst/Core/Inc/
+#
+# Rule:
+#   - Ignore ALL .h files
+#   - EXCEPT those matching 'trice*.h' (these should be formatted!)
+#
+# Reason:
+#   The HAL header files and CMSIS headers should not be reformatted.
+#   Your "trice" headers, however, are part of your own codebase.
 # ---------------------------------------------------------------------------
+
+# Ignore all .h files in Core/Inc
+examples/*_inst/Core/Inc/*.h
+
+# Re-include trice*.h — these files SHALL be formatted.
+!examples/*_inst/Core/Inc/trice*.h
+
+
+
+# ---------------------------------------------------------------------------
+# 3B — Directory: ./examples/*_inst/Core/Src/
+#
+# Rule:
+#   - Ignore ALL .c files
+#   - EXCEPT 'main.c' (format this one!)
+#
+# Reason:
+#   HAL startup files and interrupt handlers should not be reformatted,
+#   but main.c normally contains your actual example code.
+# ---------------------------------------------------------------------------
+
+# Ignore all .c files in Core/Src
+examples/*_inst/Core/Src/*.c
+
+# Re-include main.c — this file SHALL be formatted.
+!examples/*_inst/Core/Src/main.c
+
+
+
+###############################################################################
+# SECTION 4 — (optional) more example exclusions
+#
+# Add patterns here if more generated STM32Cube files appear.
+#
+# Examples:
+#   examples/**/startup_*.s
+#   examples/**/system_*.c
+#   examples/**/stm32*_hal_*.c
+#
+# These are intentionally commented out until required.
+###############################################################################
+
+
+###############################################################################
+# END OF FILE
+###############################################################################
