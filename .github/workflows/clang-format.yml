@@ -81,4 +81,5 @@ jobs:
       #########################################################################
       - name: Run clang-format in check mode
         run: |
-          chmod +x
+          chmod +x ./clang-format.sh
+          ./clang-format.sh check
