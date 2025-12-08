@@ -87,7 +87,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 4.9. [Compile Time Enable/Disable Trice Macros on File or Project Level](#compile-time-enable/disable-trice-macros-on-file-or-project-level)
   * 4.10. [Target and host timestamps](#target-and-host-timestamps)
   * 4.11. [Target source code location](#target-source-code-location)
-  * 4.12. [ Several target devices in one log output](#-several-target-devices-in-one-log-output)
+  * 4.12. [Several target devices in one log output](#several-target-devices-in-one-log-output)
   * 4.13. [Any byte capable 1-wire connection usable](#any-byte-capable-1-wire-connection-usable)
   * 4.14. [Scalability](#scalability)
   * 4.15. [Portability and Modularity](#portability-and-modularity)
@@ -144,13 +144,13 @@ https://apps.timwhitlock.info/emoji/tables/unicode
 * 10. [📁 The .github Folder — Purpose and Contents (For Trice Developers)](#📁-the-.github-folder-—-purpose-and-contents-(for-trice-developers))
   * 10.1. [📁 `.github` Root](#📁-`.github`-root)
     * 10.1.1. [🧩 Visual Architecture Diagram — Trice .github Automation System](#🧩-visual-architecture-diagram-—-trice-.github-automation-system)
-  * 10.2. [ Automatic Pull Request Labeling in Trice](#-automatic-pull-request-labeling-in-trice)
-    * 10.2.1. [ File-based labels](#-file-based-labels)
-    * 10.2.2. [ Text-based labels](#-text-based-labels)
-    * 10.2.3. [ Benefits of automatic labeling](#-benefits-of-automatic-labeling)
-    * 10.2.4. [ How contributors can help](#-how-contributors-can-help)
+  * 10.2. [Automatic Pull Request Labeling in Trice](#automatic-pull-request-labeling-in-trice)
+    * 10.2.1. [File-based labels](#file-based-labels)
+    * 10.2.2. [Text-based labels](#text-based-labels)
+    * 10.2.3. [Benefits of automatic labeling](#benefits-of-automatic-labeling)
+    * 10.2.4. [How contributors can help](#how-contributors-can-help)
   * 10.3. [📂 `.github/workflows` — GitHub Actions Workflows](#📂-`.github/workflows`-—-github-actions-workflows)
-* 11. [Build and Release the Trice Tool (you can skip that)](#build-and-release-the-trice-tool-(you-can-skip-that))
+* 11. [Build and Release the Trice Tool](#build-and-release-the-trice-tool)
   * 11.1. [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
   * 11.2. [Prepare A Release](#prepare-a-release)
     * 11.2.1. [Check a Goreleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
@@ -161,7 +161,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
     * 11.3.4. [Step: Push the tag to GitHub (this triggers CI)](#step:-push-the-tag-to-github-(this-triggers-ci))
     * 11.3.5. [Step: Watch the CI release run on GitHub](#step:-watch-the-ci-release-run-on-github)
     * 11.3.6. [Step: Check the GitHub Release](#step:-check-the-github-release)
-* 12. [ Embedded system code configuration](#-embedded-system-code-configuration)
+* 12. [Embedded system code configuration](#embedded-system-code-configuration)
 * 13. [Trice tool in logging action](#trice-tool-in-logging-action)
 * 14. [Encryption](#encryption)
 * 15. [Trice Command Line Interface & Examples](#trice-command-line-interface-&-examples)
@@ -173,7 +173,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
     * 15.2.4. [Binary Logfile](#binary-logfile)
     * 15.2.5. [TCP output](#tcp-output)
     * 15.2.6. [TCP4 input](#tcp4-input)
-    * 15.2.7. [UDP4 input (accepted pull request \#529)](#udp4-input-(accepted-pull-request-\#529))
+    * 15.2.7. [UDP4 input (accepted pull request 529)](#udp4-input-(accepted-pull-request-529))
     * 15.2.8. [Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
     * 15.2.9. [Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
     * 15.2.10. [Location Information](#location-information)
@@ -207,7 +207,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 23.1. [Symbols](#symbols)
   * 23.2. [Package Format](#package-format)
     * 23.2.1. [typeX0 Trices](#typex0-trices)
-    * 23.2.2. [ Framing - NONE or with COBS or TCOBS encoding](#-framing---none-or-with-cobs-or-tcobs-encoding)
+    * 23.2.2. [Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
 * 24. [Trice Decoding](#trice-decoding)
   * 24.1. [Trice ID list til.json](#trice-id-list-til.json)
   * 24.2. [Trice location information file li.json](#trice-location-information-file-li.json)
@@ -226,7 +226,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
 * 27. [Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control)
   * 27.1. [Trice version 1.0 Compile-time Log-level Control](#trice-version-1.0-compile-time-log-level-control)
   * 27.2. [Trice version 1.0 Run-time Log-level Control](#trice-version-1.0-run-time-log-level-control)
-  * 27.3. [Trice version 1.0 Compile-time - Run-time "Log-level" Control](#trice-version-1.0-compile-time---run-time-"log-level"-control)
+  * 27.3. [Trice Version 1.0 Compile-time - Run-time Log-level Control](#trice-version-1.0-compile-time---run-time-log-level-control)
 * 28. [ID reference list til.json](#id-reference-list-til.json)
   * 28.1. [til.json Version control](#til.json-version-control)
   * 28.2. [Long Time Availability](#long-time-availability)
@@ -237,7 +237,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
     * 29.3.1. [Trice Insert Initialization](#trice-insert-initialization)
   * 29.4. [User Code Patching (trice insert)](#user-code-patching-(trice-insert))
   * 29.5. [User Code Patching Examples](#user-code-patching-examples)
-  * 29.6. [ Exclude folders & files from being parsed (pull request \#529)](#-exclude-folders-&-files-from-being-parsed-(pull-request-\#529))
+  * 29.6. [Exclude folders & files from being parsed (pull request 529)](#exclude-folders-&-files-from-being-parsed-(pull-request-529))
   * 29.7. [ID Usage Options](#id-usage-options)
   * 29.8. [General ID Management Information](#general-id-management-information)
     * 29.8.1. [Option Cleaning in a Post-build process](#option-cleaning-in-a-post-build-process)
@@ -266,8 +266,8 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 32.2. [Compiler Independent Setting (a bit outdated)](#compiler-independent-setting-(a-bit-outdated))
   * 32.3. [Linker Option --split-sections (if supported)](#linker-option---split-sections-(if-supported))
   * 32.4. [Linker Optimization -flto (if supported)](#linker-optimization--flto-(if-supported))
-    * 32.4.1. [ARMCC compiler v5 "Linker Feedback"](#armcc-compiler-v5-"linker-feedback")
-    * 32.4.2. [ARMCLANG compiler v6 "Link-Time Optimization"](#armclang-compiler-v6-"link-time-optimization")
+    * 32.4.1. [ARMCC Compiler v5 Linker Feedback](#armcc-compiler-v5-linker-feedback)
+    * 32.4.2. [ARMCLANG Compiler v6 Link-Time Optimization](#armclang-compiler-v6-link-time-optimization)
     * 32.4.3. [GCC](#gcc)
     * 32.4.4. [LLVM ARM Clang](#llvm-arm-clang)
     * 32.4.5. [Other IDE´s and compilers](#other-ide´s-and-compilers)
@@ -399,11 +399,11 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 44.2. [Get all project files containing Trice messages](#get-all-project-files-containing-trice-messages)
   * 44.3. [Building a trice library?](#building-a-trice-library?)
   * 44.4. [Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
-* 45. [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)
-  * 45.1. [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
-  * 45.2. [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
-  * 45.3. [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)
-  * 45.4. [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
+* 45. [Trice And Legacy User Code](#trice-and-legacy-user-code)
+  * 45.1. [Legacy User Code Option: Separate Physical Output Channel](#legacy-user-code-option:-separate-physical-output-channel)
+  * 45.2. [Legacy User Code Option: Trice Adaption Edits](#legacy-user-code-option:-trice-adaption-edits)
+  * 45.3. [Legacy User Code Option: Print Buffer Wrapping and Framing](#legacy-user-code-option:-print-buffer-wrapping-and-framing)
+  * 45.4. [Legacy User Code Option: Trice Aliases Adaption](#legacy-user-code-option:-trice-aliases-adaption)
     * 45.4.1. [PR533 Doc](#pr533-doc)
     * 45.4.2. [PR533 Summary](#pr533-summary)
     * 45.4.3. [PR533 Motivation](#pr533-motivation)
@@ -694,7 +694,7 @@ Some developers like to see the `filename.c` and `line` in front of each log lin
 
 Because software is a matter of change it could happen you get obsolete information this way. Therefore the Trice tool log option `-showID` exists to display the Trice ID in front of each log line what gives a more reliable way for event localization in some cases. Also you can get it for free, because no target code is needed for that.
 
-###  4.12. <a id='-several-target-devices-in-one-log-output'></a> Several target devices in one log output
+###  4.12. <a id='several-target-devices-in-one-log-output'></a>Several target devices in one log output
 
 Several Trice tool instances can run parallel on one or different PCs. Each Trice tool instance receives *Trices* from one embedded device. Instead of displaying the log lines, the Trice tool instances can transmit them over TCP/IP (`trice l -p COMx -ds`) to a Trice tool instance acting as display server (`trice ds`). The display server can fold these log lines in one output. For each embedded device a separate Trice line prefix and suffix is definable. This allows comparable time measurements in distributed systems.
 
@@ -803,7 +803,7 @@ When it comes to instrument a legacy project with Trice or to intergrate legacy 
 1. Use for user specific log statements a different output channel. No special care has to be taken. This is maybe acceptable in some cases.
 2. Replace user specific log statements with Trice statements using a text processor and adapt the float, double or runtime strings handling manually. This is acceptable for small code amounts and when is is no problem to edit the legacy sources.
 3. Get the legacy output packages before transmitting them, add a 2-byte count in little-endian (0-16383) in front and frame them the same way the trice packages get framed (for example with COBS). This will set the 2 most significant bits to 00 and the Trice tool, can get informed via CLI switch to treat those packages accordingly. The user code containing specific logs will work unchanged together with Trice code over the same output channel.
-4. Take advantage of the new support for dynamic trice and triceS macro aliases ([Trice Alias Functionality for Integrating Legacy User Code](#trice-alias-functionality-for-integrating-legacy-user-code-(trice-v1.1-and-later))).
+4. Take advantage of the new support for dynamic trice and triceS macro aliases (Legacy User Code Option: Trice Aliases Adaption](#legacy-user-code-option:-trice-aliases-adaption)).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1007,7 +1007,7 @@ This creates a local folder named **trice** with the full project history.
 
 ###  6.7. <a id='build-it'></a>Build It
 
-See [Build Trice tool from Go sources (you can skip that)](#build-trice-tool-from-go-sources-(you-can-skip-that)).
+See [Build Trice tool from Go sources](#build-trice-tool-from-go-sources).
 
 ###  6.8. <a id='modify-it'></a>Modify It
 
@@ -1729,7 +1729,7 @@ It contains issue templates, labels, workflow automation, code scanning, linting
                                                - Automated comments and labels
 ```
 
-###  10.2. <a id='-automatic-pull-request-labeling-in-trice'></a> Automatic Pull Request Labeling in Trice
+###  10.2. <a id='automatic-pull-request-labeling-in-trice'></a>Automatic Pull Request Labeling in Trice
 
 Trice uses GitHub’s **Labeler** workflow to automatically assign labels to pull requests.  
 These labels help maintainers and contributors quickly understand what a PR affects, without having to inspect every file manually.
@@ -1780,7 +1780,7 @@ This system ensures consistent categorization and improves the review workflow.
 
 * * *
 
-####  10.2.1. <a id='-file-based-labels'></a> File-based labels
+####  10.2.1. <a id='file-based-labels'></a>File-based labels
 
 Github automatically applies specific labels depending on which files a pull request changes.  
 Below is an overview of the most relevant label categories.
@@ -1855,7 +1855,7 @@ This includes workflow files, templates, automation settings, and metadata.
 
 * * *
 
-####  10.2.2. <a id='-text-based-labels'></a> Text-based labels
+####  10.2.2. <a id='text-based-labels'></a>Text-based labels
 
 Some labels are applied based on **keywords** in the pull request title or description.
 
@@ -1879,7 +1879,7 @@ This marks PRs that introduce new functionality.
 
 * * *
 
-####  10.2.3. <a id='-benefits-of-automatic-labeling'></a> Benefits of automatic labeling
+####  10.2.3. <a id='benefits-of-automatic-labeling'></a>Benefits of automatic labeling
 
 -   **Faster reviews**: reviewers instantly see what areas of the project are affected.
     
@@ -1892,7 +1892,7 @@ This marks PRs that introduce new functionality.
 
 * * *
 
-####  10.2.4. <a id='-how-contributors-can-help'></a> How contributors can help
+####  10.2.4. <a id='how-contributors-can-help'></a>How contributors can help
 
 Contributors can ensure correct labeling by:
 
@@ -1971,7 +1971,7 @@ Every file in this directory defines an automated process. These processes run o
 These workflows run automatically on pushes and pull requests to main, and can also be triggered manually via the GitHub Actions UI.
 These files are not executed; they simply inform GitHub how certain workflows behave or should be displayed.
 
-##  11. <a id='build-and-release-the-trice-tool-(you-can-skip-that)'></a>Build and Release the Trice Tool (you can skip that)
+##  11. <a id='build-and-release-the-trice-tool'></a>Build and Release the Trice Tool
 
 ###  11.1. <a id='build-trice-tool-from-go-sources'></a>Build Trice tool from Go sources 
 
@@ -2210,7 +2210,7 @@ This is now your **official Trice release built by CI**.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  12. <a id='-embedded-system-code-configuration'></a> Embedded system code configuration
+##  12. <a id='embedded-system-code-configuration'></a>Embedded system code configuration
 
 Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and adapt your project configuration like shown in [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) as example.
 
@@ -2393,7 +2393,7 @@ trice l -p TCP4 -args "192.168.2.3:45678"
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
 
-####  15.2.7. <a id='udp4-input-(accepted-pull-request-\#529)'></a>UDP4 input (accepted pull request \#529)
+####  15.2.7. <a id='udp4-input-(accepted-pull-request-529)'></a>UDP4 input (accepted pull request 529)
 
 The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
 
@@ -2787,9 +2787,9 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 
 The user can insert any data with a well-defined structure into the Trice data stream. The Trice tool, when interpreting the Trice binary data, will behave on typeX0 Trices according to a passed CLI switch `-typeX0`.
 
-One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)). The user needs to prepend a generated **printi** buffer with its size as 16-bit count (<16384!) for example. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option.
+One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option: Print Buffer Wrapping and Framing](#legacy-user-code-option:-print-buffer-wrapping-and-framing). The user needs to prepend a generated **printi** buffer with its size as 16-bit count (<16384!) for example. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option.
 
-####  23.2.2. <a id='-framing---none-or-with-cobs-or-tcobs-encoding'></a> Framing - NONE or with COBS or TCOBS encoding
+####  23.2.2. <a id='framing---none-or-with-cobs-or-tcobs-encoding'></a>Framing - NONE or with COBS or TCOBS encoding
 
 > Summary Information for Trice Data Parsing
 
@@ -3062,7 +3062,7 @@ In Trice version 1.0 is no compile-time log-level control. You can only disable 
 
 Because the target Trice code is so fast and generates only a few bytes per log, in Trice version 1.0 is no direct run-time log-level control inside the target code.  The user has the Trice CLI switches `-ban`, `-pick` and `-logLevel`, to control, which Trice messages are displayed by  the Trice tool.
 
-###  27.3. <a id='trice-version-1.0-compile-time---run-time-"log-level"-control'></a>Trice version 1.0 Compile-time - Run-time "Log-level" Control
+###  27.3. <a id='trice-version-1.0-compile-time---run-time-log-level-control'></a>Trice Version 1.0 Compile-time - Run-time Log-level Control
 
 During compilation the developer can control which Trice tags, like *info* in `trice( "info:...\n");` get get which ID range. Look for `-IDRange` in `trice h -i` output. By defining values like `TRICE_UARTA_MIN_ID` in the project specific *triceConfig.h* during compile-time is controllable, which Trice tags get routed to an output device or not.
 
@@ -3280,7 +3280,7 @@ Until here the algorithm seem to be ok.
   TRice( iD(12345), "Hi!" ); // manually changed stamp size and then "trice i" performed.
   ```
 
-###  29.6. <a id='-exclude-folders-&-files-from-being-parsed-(pull-request-\#529)'></a> Exclude folders & files from being parsed (pull request \#529)
+###  29.6. <a id='exclude-folders-&-files-from-being-parsed-(pull-request-529)'></a>Exclude folders & files from being parsed (pull request 529)
 
 The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
 
@@ -4002,12 +4002,12 @@ In ARM-MDK uVision `Project -> Options -> C/C++ -> "One EFL section for each fun
 * Use linker optimization alone.
 * This increases the build time but reduces the image size significantly.
 
-####  32.4.1. <a id='armcc-compiler-v5-"linker-feedback"'></a>ARMCC compiler v5 "Linker Feedback"
+####  32.4.1. <a id='armcc-compiler-v5-linker-feedback'></a>ARMCC Compiler v5 Linker Feedback
 
 * In ARM-MDK uVision, when using ARMCC compiler v5, there is a check box `Project -> Options -> Target -> "Cross Module Optimization"`.
 * In ARMCC this works also with the lite version.
 
-####  32.4.2. <a id='armclang-compiler-v6-"link-time-optimization"'></a>ARMCLANG compiler v6 "Link-Time Optimization"
+####  32.4.2. <a id='armclang-compiler-v6-link-time-optimization'></a>ARMCLANG Compiler v6 Link-Time Optimization
 
 * In ARM-MDK uVision, when using ARMCLANG compiler v6, the check box `Project -> Options -> C/C++(AC6) -> "Link-Time Optimization"` is usable to set the CLI `-flto` switch.
 * LTO is not possible with ARMCLANG6 lite: https://developer.arm.com/documentation/ka004054/latest.
@@ -4846,8 +4846,7 @@ size_t TriceEncode(int* pTriceID, unsigned int pCount, uint32_t * const dest, ui
 ###  38.1. <a id='printf-like-functions'></a>Printf-like functions
 
  ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and several open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
-The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls. See also chapter [Trice Alias Functionality for Integrating Legacy User Code (Trice v1.1 and later)](#trice-alias-functionality-for-integrating-legacy-user-code-(trice-v1.1-and-later)).
-
+The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls. See also chapter [Legacy User Code Option: Print Buffer Wrapping and Framing](#legacy-user-code-option:-print-buffer-wrapping-and-framing).
 
 ###  38.2. <a id='trice-ids'></a>Trice IDs
 
@@ -5792,7 +5791,7 @@ Extend the path variable:
 
 Folder: [../examples/F030_bare/](../examples/F030_bare/)
 
-This is a STMCubeMX generated project without Trice instrumentation for easy compare with [F030_inst](#nucleo-f030r8-example-f030_inst) to figure out the needed changes to set up trice.
+This is a STMCubeMX generated project without Trice instrumentation for easy compare with [F030_inst](../examples/F030_inst) to figure out the needed changes to set up trice.
 
 <h6>Steps performed as potential guide:</h6>
 
@@ -5929,7 +5928,7 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <a id='setting-up-1'></a><h5>Setting Up</h5>
 
-- See and adapt steps from [G0B1_bare](#g0B1_bare).
+- See and adapt steps from [G0B1_bare](#g0b1_bare).
 
 <a id='instrumenting'></a><h5>Instrumenting</h5>
 
@@ -5959,7 +5958,7 @@ Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
 Folder: [../examples/L432_inst/](../examples/L432_inst/)
 
-* This is the with Trice instrumented example project [L432_bare](#l432-bare).
+* This is the with Trice instrumented example project [L432_bare](#l432_bare).
 * It is for easy compare to figure out the needed setup changes.
 * See and adapt steps in [F030_bare](l432-bare).
 * Then add/modify the files to reach this folder layout.
@@ -7113,16 +7112,16 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  45. <a id='legacy-user-code-trice-adaption'></a>Legacy User Code Trice Adaption
+##  45. <a id='trice-and-legacy-user-code'></a>Trice And Legacy User Code 
 
-When it comes to use legacy sources together with Trice, there are several ways doing so, which do not exclude each other: 
+When it comes to use legacy sources together with Trice, there are several ways doing so, which do not exclude each other:
 
-* [Separate Physically Legacy User Code Output Channel](#separate-physically-legacy-user-code-output-channel)
-* [Legacy User Code Trice Adaption Edits](#legacy-user-code-trice-adaption-edits)
-* [Legacy User Code Print Buffer Wrapping and Framing](#legacy-user-code-print-buffer-wrapping-and-framing)
-* [Legacy User Code Trice Aliases Adaption](#legacy-user-code-trice-aliases-adaption)
+* [Legacy User Code Option: Separate Physical Output Channel](#legacy-user-code-option:-separate-physical-output-channel)
+* [Legacy User Code Option: Trice Adaption Edits](#legacy-user-code-option:-trice-adaption-edits)
+* [Legacy User Code Option: Print Buffer Wrapping and Framing](#legacy-user-code-option:-print-buffer-wrapping-and-framing)
+* [Legacy User Code Option: Trice Aliases Adaption](#legacy-user-code-option:-trice-aliases-adaption)
 
-###  45.1. <a id='separate-physically-legacy-user-code-output-channel'></a>Separate Physically Legacy User Code Output Channel 
+###  45.1. <a id='legacy-user-code-option:-separate-physical-output-channel'></a>Legacy User Code Option: Separate Physical Output Channel 
 
 *Advantages:*
 
@@ -7139,7 +7138,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 
 * The legacy user code output drives a terminal app and the Trice output feeds the Trice binary data into the Trice tool.
 
-###  45.2. <a id='legacy-user-code-trice-adaption-edits'></a>Legacy User Code Trice Adaption Edits
+###  45.2. <a id='legacy-user-code-option:-trice-adaption-edits'></a>Legacy User Code Option: Trice Adaption Edits
 
 *Advantages:*
 
@@ -7162,7 +7161,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * All exising user prints are replaced with appropriate Trice macros according chapter [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage).
 * When using 64-bit as default Trice bit width, more RAM is used compared to 32-bit, but in combination with the default [TCOBS](https://github.com/rokath/tcobs) compressing framing the transmitted Trice packets do not increase much compared to 32-bit width.
 
-###  45.3. <a id='legacy-user-code-print-buffer-wrapping-and-framing'></a>Legacy User Code Print Buffer Wrapping and Framing 
+###  45.3. <a id='legacy-user-code-option:-print-buffer-wrapping-and-framing'></a>Legacy User Code Option: Print Buffer Wrapping and Framing 
 
 > **Trice >= v1.1 feature**, see also issue [\#550](https://github.com/rokath/trice/issues/550)
 
@@ -7183,7 +7182,7 @@ The Trice binary encoding uses states 1, 2, 3 of the 4 states, the 2 [Binary Enc
 
 If the Trice library and the user print both write to the same output, an easy modification would be, to prepend the user print output with a 2-byte count as long its size is < 16383, so that the 2 most significant bits are zero. Additionally, the this way counted buffer needs the same buffer framing as the Trice binary data.
 
-###  45.4. <a id='legacy-user-code-trice-aliases-adaption'></a>Legacy User Code Trice Aliases Adaption
+###  45.4. <a id='legacy-user-code-option:-trice-aliases-adaption'></a>Legacy User Code Option: Trice Aliases Adaption
 
 > **Trice >= v1.1 feature**, see also accepted pull requests [\#533](https://github.com/rokath/trice/pull/533) and [\#536](https://github.com/rokath/trice/pull/536)
 
@@ -8088,10 +8087,10 @@ This guide explains how to install and configure OpenCommit on Windows step by s
     * You can also customize OpenCommit’s behavior by setting additional environment variables, for example:
 
     ```bash
-   OCO_LANG="en"            # or "de", "fr", etc. 
-   OCO_MODEL="gpt-4o"       # or another model like "gpt-4-turbo" 
-   OCO_PROMPT_MODULE="conventional" 
-   OCO_EMOJI=true
+    OCO_LANG="en"            # or "de", "fr", etc. 
+    OCO_MODEL="gpt-4o"       # or another model like "gpt-4-turbo" 
+    OCO_PROMPT_MODULE="conventional" 
+    OCO_EMOJI=true
     ```
 
     * Click OK on all windows.
@@ -8144,21 +8143,21 @@ Generated commit message:
 
 <details><summary>Details (click to expand)</summary><ol>
 
-| Date        | Version | Comment                                                                                                                                                                                                                                                |
-|-------------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                                                                                                                                                                          |
-| ...         | 1.0.0   | ...                                                                                                                                                                                                                                                    |
-| 2025-MAY-00 |         | ++ [UDP4 input (accepted pull request \#529)](#udp4-input-(accepted-pull-request-\#529))                                                                                                                                                               |
-| 2025-JUN-20 |         | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                                                                                                                                                                                 |
-| 2025-JUN-20 |         | ++ [Alias Example Project](#alias-example-project)                                                                                                                                                                                                     |
-| 2025-JUN-21 |         | ++ [Trice Structured Logging](#trice-structured-logging)                                                                                                                                                                                               |
-| 2025-JUN-23 |         | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                                                                                                                                                                        |
-| 2025-JUN-30 |         | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented                                                                                                                                                     |
-| 2025-JUL-10 |         | ++ [Legacy User Code Trice Adaption](#legacy-user-code-trice-adaption)                                                                                                                                                                                 |
-| 2025-JUL-21 |         | ++ [typeX0 Trices](#typex0-trices)                                                                                                                                                                                                                     |
-| 2025-JUL-21 |         | ++ [ Framing - NONE or with COBS or TCOBS encoding](#-framing---none-or-with-cobs-or-tcobs-encoding)                                                                                                                                                   |
-| 2025-NOV-04 |         | ++ [Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control) ++ [Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft)                                                                          |
-| 2025-NOV-18 |         | restructured & extended: ++ [Future Development](#future-development) with log level, structured logging, ++[Using Trice on Servers](#using-trice-on-servers), ++[Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser) |
+| Date        | Version | Comment                                                                                                                                                                                                                                                        |
+|-------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                                                                                                                                                                                  |
+| ...         | 1.0.0   | ...                                                                                                                                                                                                                                                            |
+| 2025-MAY-00 |         | ++ [UDP4 input (accepted pull request 529)](#udp4-input-(accepted-pull-request-529))                                                                                                                                                                           |
+| 2025-JUN-20 |         | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                                                                                                                                                                                         |
+| 2025-JUN-20 |         | ++ [Alias Example Project](#alias-example-project)                                                                                                                                                                                                             |
+| 2025-JUN-21 |         | ++ [Trice Structured Logging](#trice-structured-logging)                                                                                                                                                                                                       |
+| 2025-JUN-23 |         | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                                                                                                                                                                                |
+| 2025-JUN-30 |         | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented                                                                                                                                                             |
+| 2025-JUL-10 |         | ++ [Trice And Legacy User Code](#trice-and-legacy-user-code)                                                                                                                                                                                                   |
+| 2025-JUL-21 |         | ++ [typeX0 Trices](#typex0-trices)                                                                                                                                                                                                                             |
+| 2025-JUL-21 |         | ++ [[Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)                                                                                                                                                            |
+| 2025-NOV-04 |         | ++ [Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control) ++ [Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft)                                                                                  |
+| 2025-NOV-18 |         | restructured & extended: ++ [Future Development](#future-development) with log level, <br>structured logging, ++[Using Trice on Servers](#using-trice-on-servers), <br>++[Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser) |
 
 </ol></details>
 

@@ -38,6 +38,7 @@ MD033:
     - p
     - span
     - small
+    - sub
     - br
     - hr
 
@@ -107,8 +108,8 @@ MD026: false
 # MD029 - Ordered list item prefix
 # Your document uses "real" numbered lists (1., 2., 3., ...) e.g. in the TOC.
 # We configure the rule to accept this style instead of forcing all items to "1.".
-MD029:
-  style: ordered
+MD029: false
+# style: ordered
 
 # MD030 - Spaces after list markers
 # This enforces a specific number of spaces after list markers.
