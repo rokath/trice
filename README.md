@@ -7,7 +7,8 @@
 
 # 🅃🅁ace 🄸d's 🄲 🄴mbedded
 
-#### ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) Hi, I am Trice.
+
+![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) **Hi, I am Trice.**
 
 <!-- [github.io/trice/](https://rokath.github.io/trice/) -->
 
@@ -71,6 +72,7 @@ This slightly simplified [view](https://github.com/jgraph/drawio) is explained [
   - UDP4 (currently as PR #529)
 - A small separate microcontroller is always usable as interfaces bridge from [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ... to UART.
 - With a Chip from FTDI, check for example [Adafruit FT232H Breakout](https://learn.adafruit.com/adafruit-ft232h-breakout), GPIO, I2C and SPI are easy accessable.
+
 ## Display server option
 
 Start `trice ds` inside a console, option: [third_party/alacritty](./third_party/alacritty), locally or on a remote PC and connect with several **trice** tool instances like with `trice log -p COM15 -ds` for example.

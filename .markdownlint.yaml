@@ -41,6 +41,7 @@ MD033:
     - sub
     - br
     - hr
+    - u
 
     # Headings used as HTML
     - h1
@@ -283,3 +284,26 @@ MD014: false
 # This may be intentional stylistic choice in parts of the document.
 # Disable to avoid having to refactor those sections.
 MD036: false
+
+# MD060 - Table column style
+# This rule enforces a specific spacing style around pipes in tables.
+# The "compact" style requires *minimal spacing*:
+#   - exactly one space after each "|" and before content
+#   - no visual alignment padding
+#
+# If you use a markdown table prettifier, it almost always adds padding
+# to align columns visually, which *directly conflicts* with the
+# "compact" style MD060 enforces. Because these tools beautify tables,
+# not compress them, MD060 will report many false-positive violations.
+#
+# Recommended: disable MD060 when using auto-formatters,
+# unless you explicitly require strictly compact tables.
+MD060: false
+# Alternative (if you only want to disable the rule in specific files):
+#
+# MD060:
+#   files:
+#     - "CHANGELOG.md"
+#     - "docs/**/*.md"
+#
+# This retains strict checking for everything else.
