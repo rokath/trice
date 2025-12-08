@@ -28,7 +28,7 @@ import (
 
 // printHelpAndExit prints a short usage help and exits with code 0.
 func printHelpAndExit() {
-	fmt.Println(`clang-filter – filter file lists using .clang-format-ignore
+	fmt.Print(`clang-filter – filter file lists using .clang-format-ignore
 
 Usage:
   git ls-files '*.c' '*.h' | clang-filter [options]
