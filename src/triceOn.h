@@ -66,7 +66,7 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount);
 void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen);
 void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen);
 void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count);
-void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t* enc, unsigned count);
+//void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t* enc, unsigned count);
 void TriceInit(void);
 void TriceLogDiagnosticData(void);
 void TriceLogSeggerDiagnostics(void);

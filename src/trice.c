@@ -171,7 +171,7 @@
 #error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
+#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) // && (TRICE_DEFERRED_AUXILIARY32 == 0)
 #error configuration: TRICE_DEFERRED_OUTPUT == 1 needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
 #endif
 
@@ -817,7 +817,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 	{
 		TriceNonBlockingWriteUartA(enc, encLen);
 	}
-#endif
+#endif // #if TRICE_DEFERRED_UARTA == 1
 
 #if TRICE_DEFERRED_UARTB == 1
 #if (TRICE_UARTB_MIN_ID != 0) && (TRICE_UARTB_MAX_ID != 0)
@@ -831,7 +831,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 	{
 		TriceNonBlockingWriteUartB(enc, encLen);
 	}
-#endif
+#endif // #if TRICE_DEFERRED_UARTB == 1
 
 #if (TRICE_DEFERRED_AUXILIARY8 == 1)
 #if defined(TRICE_DEFERRED_AUXILIARY8_MIN_ID) && defined(TRICE_DEFERRED_AUXILIARY8_MAX_ID)
@@ -845,7 +845,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 	{
 		TriceNonBlockingDeferredWrite8Auxiliary(enc, encLen);
 	}
-#endif
+#endif // #if (TRICE_DEFERRED_AUXILIARY8 == 1)
 
 #if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 #if defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID) && defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID)
@@ -859,7 +859,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 	{
 		TriceWriteDeviceRtt0(enc, encLen);
 	}
-#endif
+#endif // #if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
 	//  #if TRICE_LOG_OVER_MODBUS_FUNC24_ALSO == 1
 	//      #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)

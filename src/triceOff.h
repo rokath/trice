@@ -13,7 +13,7 @@
 #define TriceNonBlockingDirectWrite8Auxiliary(enc, encLen) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
 #define TriceNonBlockingDeferredWrite8Auxiliary(enc, encLen) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
 #define TriceNonBlockingDirectWrite32Auxiliary(enc, count) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
-#define TriceNonBlockingDeferredWrite32Auxiliary(enc, count) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
+//#define TriceNonBlockingDeferredWrite32Auxiliary(enc, count) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
 #define TriceInit()
 #define TriceLogDiagnosticData()
 #define TriceLogSeggerDiagnostics()

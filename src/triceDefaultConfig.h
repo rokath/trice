@@ -58,9 +58,9 @@ extern "C" {
 #define TRICE_DIRECT_AUXILIARY32 0 //!< TRICE_DIRECT_AUXILIARY32 enables a user defineddirect trice write.
 #endif
 
-#ifndef TRICE_DEFERRED_AUXILIARY32
-#define TRICE_DEFERRED_AUXILIARY32 0 //!< TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice write.
-#endif
+//  #ifndef TRICE_DEFERRED_AUXILIARY32
+//  #define TRICE_DEFERRED_AUXILIARY32 0 //!< TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice write.
+//  #endif
 
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
@@ -333,10 +333,10 @@ extern "C" {
 #define TRICE_DEFERRED_AUXILIARY8 0
 #endif
 
-#ifndef TRICE_DEFERRED_AUXILIARY32
-//! TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice 32bit word write.
-#define TRICE_DEFERRED_AUXILIARY32 0
-#endif
+//  #ifndef TRICE_DEFERRED_AUXILIARY32
+//  //! TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice 32bit word write.
+//  #define TRICE_DEFERRED_AUXILIARY32 0
+//  #endif
 
 #ifndef TRICE_CGO
 //! CGO interface for testing the target code with Go only, do not enable normally. Usage examples can be found in the trice/_test folder.
