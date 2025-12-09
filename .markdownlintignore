@@ -1,0 +1,3 @@
+# .markdownlintignore
+# Ignore all Drivers folders under examples/*
+examples/**/Drivers/**
