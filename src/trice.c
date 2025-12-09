@@ -5,7 +5,10 @@
 #include "trice.h"
 #include "cobs.h"
 #include "tcobs.h"
+
+#if ((TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1))
 #include "xtea.h"
+#endif
 
 #if !TRICE_OFF
 
