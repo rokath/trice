@@ -16,6 +16,15 @@
 # Enforcing a strict line length limit produces many warnings but little value.
 # For this documentation, we disable the rule entirely.
 MD013: false
+# OPTIONAL: If you want to keep MD013 enabled but relax it instead of disabling:
+# MD013:
+#   line_length: 120          # Allow longer lines before warning
+#   heading_line_length: 120  # Separate limit for headings (optional)
+#   code_blocks: false        # Ignore code blocks (often long by nature)
+#   tables: false             # Ignore table rows (commonly exceed limits)
+#   headings: false           # Ignore headings
+#   strict: false             # Use non-strict mode (fewer warnings)
+#   stern: false              # Avoid converting warnings to errors
 
 ################################################################################
 # HTML-related rules
