@@ -12,7 +12,7 @@
 >>
 >> Trice Legacy Encoding. For TREX see 1.0 Spec
 
-> _(Read only you are interested in)_
+_(Read only you are interested in)_
 
 <details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
 

@@ -1,6 +1,6 @@
-<div id="top">
-
 # Obsolete *Trice* encodings
+
+<div id="top">
 
 > _(Read only you are interested in)_
 > This file exists only as reference for some thoughts for just in case an additional *Trice* encoding is considered. > > The **esc** and **flex** encoding worked well but the code is removed now in favor of the COBS encoding. Check out release [v0.32.0](https://github.com/rokath/trice/releases/tag/v0.32.0) or earlier for working code.
@@ -8,10 +8,12 @@
 <details><summary>Table of Contents</summary><ol><!-- TABLE OF CONTENTS START -->
 
 <!-- 
+
 Table of Contents Generation:
 - Install vsCode extension "Markdown TOC" from dumeng 
 - Use Shift-Ctrl-P "markdownTOC:generate" to get the automatic numbering.
 - replace "<a id=" with "<a id=" 
+
 -->
 
 <!-- vscode-markdown-toc -->
@@ -40,7 +42,7 @@ Table of Contents Generation:
   * 6.3. [TriceID `IH` and `IL`](#triceid-`ih`-and-`il`)
   * 6.4. [Payload](#payload)
 * 7. [Sync packages](#sync-packages)
-* 8. [ COBS/R encoding](#-cobs/r-encoding)
+* 8. [COBS/R encoding](#cobs/r-encoding)
 * 9. [COBS/R encoding examples](#cobs/r-encoding-examples)
   * 9.1. [COBS/R encoding for 0-byte packages](#cobs/r-encoding-for-0-byte-packages)
   * 9.2. [COBS/R encoding for 1-byte packages](#cobs/r-encoding-for-1-byte-packages)
@@ -326,44 +328,44 @@ All values up to 32 bit are combined 32 bit units in big (=network) or little en
 - 0-3 padding 0-bytes fill the last 32-bit unit
 
 ```b
-byte 3 2 1 0  | macro
---------------|-----------------------------------------------------------------
-   0x89abcdef | TRICE16_1( Id(0x89ab), "inf:[ SYNCTRICE 0x89ab%04x ]", 0xcdef );
-     IIIICCCC | TRICE0( Id(I), "..." );
-     IIIICCCC | TRICE_S( Id(I), "...%s...", "" );
+byte 3 2 1 0 | macro
+-------------|-----------------------------------------------------------------
+0x89abcdef   | TRICE16_1( Id(0x89ab), "inf:[ SYNCTRICE 0x89ab%04x ]", 0xcdef );
+IIIICCCC     | TRICE0( Id(I), "..." );
+IIIICCCC     | TRICE_S( Id(I), "...%s...", "" );
 ```
 
 ```b
-byte 3 2 1 0    3 2 1 0      | macro
------------------------------|-----------------------------------------------------
-     IIIICCCC   000000b0     | TRICE8_1( Id(I), "...", b0 );             // cnt = 1
-     IIIICCCC   0000b0b1     | TRICE8_2( Id(I), "...", b0, b1 );         // cnt = 2
-     IIIICCCC   00b0b1b2     | TRICE8_3( Id(I), "...", b0, b1, b2 );     // cnt = 2
-     IIIICCCC   b0b1b2b3     | TRICE8_4( Id(I), "...", b0, b1, b2, b3 ); // cnt = 3
-     IIIICCCC   0000w0w0     | TRICE16_1( Id(I), "...", w0 );            // cnt = 2
-     IIIICCCC   w0w0w1w1     | TRICE16_2( Id(I), "...", w0, w1 );        // cnt = 4
-     IIIICCCC   d0d0d0d0     | TRICE32_1( Id(I), "...", d0 );            // cnt = 4
-     IIIICCCC   000000aa     | TRICE_S( Id(I), "...%s...", "a" );        // cnt = 1
-     IIIICCCC   0000aabb     | TRICE_S( Id(I), "...%s...", "ab" );       // cnt = 2
-     IIIICCCC   00aabbcc     | TRICE_S( Id(I), "...%s...", "abc" );      // cnt = 3
-     IIIICCCC   aabbccdd     | TRICE_S( Id(I), "...%s...", "abcd" );     // cnt = 4
+byte 3 2 1 0    3 2 1 0 | macro
+------------------------|-----------------------------------------------------
+IIIICCCC   000000b0     | TRICE8_1( Id(I), "...", b0 );             // cnt = 1
+IIIICCCC   0000b0b1     | TRICE8_2( Id(I), "...", b0, b1 );         // cnt = 2
+IIIICCCC   00b0b1b2     | TRICE8_3( Id(I), "...", b0, b1, b2 );     // cnt = 2
+IIIICCCC   b0b1b2b3     | TRICE8_4( Id(I), "...", b0, b1, b2, b3 ); // cnt = 3
+IIIICCCC   0000w0w0     | TRICE16_1( Id(I), "...", w0 );            // cnt = 2
+IIIICCCC   w0w0w1w1     | TRICE16_2( Id(I), "...", w0, w1 );        // cnt = 4
+IIIICCCC   d0d0d0d0     | TRICE32_1( Id(I), "...", d0 );            // cnt = 4
+IIIICCCC   000000aa     | TRICE_S( Id(I), "...%s...", "a" );        // cnt = 1
+IIIICCCC   0000aabb     | TRICE_S( Id(I), "...%s...", "ab" );       // cnt = 2
+IIIICCCC   00aabbcc     | TRICE_S( Id(I), "...%s...", "abc" );      // cnt = 3
+IIIICCCC   aabbccdd     | TRICE_S( Id(I), "...%s...", "abcd" );     // cnt = 4
 ```
 
 ```b
-byte  3 2 1 0   3 2 1 0   3 2 1 0  | macro
------------------------------------|---------------------------------------------------------------------
-     IIIICCCC  b0b1b2b3  000000b4  | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );             // cnt = 5
-     IIIICCCC  b0b1b2b3  0000b4b5  | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );         // cnt = 6
-     IIIICCCC  b0b1b2b3  00b4b5b6  | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );     // cnt = 7
-     IIIICCCC  b0b1b2b3  b4b5b6b7  | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 ); // cnt = 8
-     IIIICCCC  w0w0w1w1  0000w2w2  | TRICE16_3( Id(I), "...", w0, w1, w2 );                    // cnt = 6
-     IIIICCCC  w0w0w1w1  w2w2w3w3  | TRICE16_4( Id(I), "...", w0, w1, w2, w3 );                // cnt = 8
-     IIIICCCC  d0d0d0d0  d1d1d1d1  | TRICE32_2( Id(I), "...", d0, d1 );                        // cnt = 8
-     IIIICCCC  l0l0l0l0  l0l0l0l0  | TRICE64_1( Id(I), "...", l0 );                            // cnt = 8
-     IIIICCCC  aabbccdd  000000ee  | TRICE_S( Id(I), "...%s...", "abcde" );                    // cnt = 5
-     IIIICCCC  aabbccdd  0000eeff  | TRICE_S( Id(I), "...%s...", "abcdef" );                   // cnt = 6
-     IIIICCCC  aabbccdd  00eeffgg  | TRICE_S( Id(I), "...%s...", "abcdefg" );                  // cnt = 7
-     IIIICCCC  aabbccdd  eeffgghh  | TRICE_S( Id(I), "...%s...", "abcdefgh" );                 // cnt = 8
+byte  3 2 1 0   3 2 1 0   3 2 1 0 | macro
+----------------------------------|---------------------------------------------------------------------
+IIIICCCC  b0b1b2b3  000000b4      | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );             // cnt = 5
+IIIICCCC  b0b1b2b3  0000b4b5      | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );         // cnt = 6
+IIIICCCC  b0b1b2b3  00b4b5b6      | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );     // cnt = 7
+IIIICCCC  b0b1b2b3  b4b5b6b7      | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 ); // cnt = 8
+IIIICCCC  w0w0w1w1  0000w2w2      | TRICE16_3( Id(I), "...", w0, w1, w2 );                    // cnt = 6
+IIIICCCC  w0w0w1w1  w2w2w3w3      | TRICE16_4( Id(I), "...", w0, w1, w2, w3 );                // cnt = 8
+IIIICCCC  d0d0d0d0  d1d1d1d1      | TRICE32_2( Id(I), "...", d0, d1 );                        // cnt = 8
+IIIICCCC  l0l0l0l0  l0l0l0l0      | TRICE64_1( Id(I), "...", l0 );                            // cnt = 8
+IIIICCCC  aabbccdd  000000ee      | TRICE_S( Id(I), "...%s...", "abcde" );                    // cnt = 5
+IIIICCCC  aabbccdd  0000eeff      | TRICE_S( Id(I), "...%s...", "abcdef" );                   // cnt = 6
+IIIICCCC  aabbccdd  00eeffgg      | TRICE_S( Id(I), "...%s...", "abcdefg" );                  // cnt = 7
+IIIICCCC  aabbccdd  eeffgghh      | TRICE_S( Id(I), "...%s...", "abcdefgh" );                 // cnt = 8
 ```
 
 and so on...
@@ -432,39 +434,39 @@ To implement a different encoding:
 - `IIII` = 16-bit ID
 
 ```b
-byte  3 2 1 0  | macro
----------------|--------------------------------
-     IIII0000  | TRICE0( Id(I), "..." );
-     IIII00b0  | TRICE8_1( Id(I), "...", b0 );
-     IIIIb0b1  | TRICE8_2( Id(I), "...", b1 );
-     IIIIw0w0  | TRICE16_1( Id(I), "...", w0 );
+byte  3 2 1 0 | macro
+--------------|-------------------------------
+IIII0000      | TRICE0( Id(I), "..." );
+IIII00b0      | TRICE8_1( Id(I), "...", b0 );
+IIIIb0b1      | TRICE8_2( Id(I), "...", b1 );
+IIIIw0w0      | TRICE16_1( Id(I), "...", w0 );
 ```
 
 ```b
-byte  3 2 1 0    3 2 1 0  | macro
---------------------------|-----------------------------------------------
-     0000b0b1   IIII00b2  | TRICE8_3( Id(I), "...", b0, b1, b2 );
-     0000b0b1   IIIIb2b3  | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
-     0000w0w0   IIIIw1w1  | TRICE16_2( Id(I), "...", w0, w1 );
-     0000d0d0   IIIId0d0  | TRICE32_1( Id(I), "...", d0 );
+byte  3 2 1 0    3 2 1 0 | macro
+-------------------------|------------------------------------------
+0000b0b1   IIII00b2      | TRICE8_3( Id(I), "...", b0, b1, b2 );
+0000b0b1   IIIIb2b3      | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
+0000w0w0   IIIIw1w1      | TRICE16_2( Id(I), "...", w0, w1 );
+0000d0d0   IIIId0d0      | TRICE32_1( Id(I), "...", d0 );
 ```
 
 ```b
-byte  3 2 1 0    3 2 1 0    3 2 1 0  | macro
------------------------------------  |------------
-     0000b0b1   0000b2b3   IIII00b4  | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
-     0000b0b1   0000b2b3   IIIIb4b5  | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
-     0000w0w0   0000w1w1   IIIIw2w2  | TRICE16_3( Id(I), "...", w0, w1, w2);
+byte  3 2 1 0    3 2 1 0    3 2 1 0 | macro
+------------------------------------|--------------------------------------------------
+0000b0b1   0000b2b3   IIII00b4      | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
+0000b0b1   0000b2b3   IIIIb4b5      | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
+0000w0w0   0000w1w1   IIIIw2w2      | TRICE16_3( Id(I), "...", w0, w1, w2);
 ```
 
 ```b
-byte 3 2 1 0    3 2 1 0    3 2 1 0    3 2 1 0  | macro
------------------------------------------------|------------
-    0000b0b1   0000b2b3   0000b4b5   IIII00b6  | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
-    0000b0b1   0000b2b3   0000b4b5   IIIIb6b7  | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
-    0000w0w0   0000w1w1   0000w2w2   IIIIw3w3  | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
-    0000d0d0   0000d0d0   0000d1d1   IIIId1d1  | TRICE32_2( Id(I), "...", d0, d1 );
-    0000l0l0   0000l0l0   0000l0l0   IIIIl0l0  | TRICE64_1( Id(I), "...", l0 );
+byte 3 2 1 0    3 2 1 0    3 2 1 0    3 2 1 0 | macro
+----------------------------------------------|----------------------------------------------------------
+0000b0b1   0000b2b3   0000b4b5   IIII00b6     | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
+0000b0b1   0000b2b3   0000b4b5   IIIIb6b7     | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
+0000w0w0   0000w1w1   0000w2w2   IIIIw3w3     | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
+0000d0d0   0000d0d0   0000d1d1   IIIId1d1     | TRICE32_2( Id(I), "...", d0, d1 );
+0000l0l0   0000l0l0   0000l0l0   IIIIl0l0     | TRICE64_1( Id(I), "...", l0 );
 ```
 
 and so on...
@@ -557,26 +559,26 @@ it stays on its place and is followed by a not counted 0xDE byte to signal that 
 - Generic description
 
 ```b
-Code                  |Meaning                   |pad|Remark
-----------------------|--------------------------|---|-----------------------------------------------------------------------------
-EC LC IH IL ...       |payload = 2^(LC-E0) bytes |   |LC is a length code
-EC 00 ...             |reserved                  |   |All packages starting with EC 00 until starting with EC DD are reserved.
-EC .. ...             |reserved                  |   |All packages starting with EC 00 until starting with EC DD are reserved.
-EC DD ...             |reserved                  |   |All packages starting with EC 00 until starting with EC DD are reserved.
-EC DE = EC            |real EC character         |   |If inside the payload occures EC an uncounted DE is injected afterwards.
-EC DF IH IL           |16 bit ID no payload      |  0|TRICE0, special case: 2^-1 = 0 byte payload
-EC E0 IH IL B0        |16 bit ID   1 byte payload|  0|TRICE8_1, TRICE_S(""): 2^0 = 1 byte payload
-EC E1 IH IL B0 B1     |16 bit ID   2 byte payload|  0|TRICE8_2, TRICE16_1, TRICE_S("0")
-EC E2 IH IL B0 .. B3  |16 bit ID   4 byte payload|  1|TRICE8_3, TRICE8_4, TRICE16_2, TRICE32_1, TRICE_S("01"), TRICE_S("012")
-EC E3 IH IL B0 .. B7  |16 bit ID   8 byte payload|  3|TRICE8_5,...TRICE8_8,TRICE16_3,TRICE16_4,TRICE32_2,TRICE64_1,TRICE_S("0...7")
-EC E4 IH IL B0 .. B15 |16 bit ID  16 byte payload|  7|TRICE32_3, TRICE32_4, TRICE64_2, TRICE_S("0...e")
-EC E5 IH IL B0 .. B31 |16 bit ID  32 byte payload| 15|TRICE_S("0123456789abcdef"), ... TRICE_S(strlen(31))
-EC E6 IH IL B0 .. B63 |16 bit ID  64 byte payload| 31|TRICE_S(strlen(32)), ...,TRICE_S(strlen(63))
-EC E7 IH IL B0 .. B127|16 bit ID 128 byte payload| 63|TRICE_S(strlen(64)), ...,TRICE_S(strlen(127))
-EC E8 IH IL B0 .. B255|16 bit ID 256 byte payload|127|TRICE_S(strlen(128)), ...,TRICE_S(strlen(255))
-EC E9 ...             |reserved                  |   |All packages starting with EC E9 until starting with EC FF are reserved.
-EC .. ...             |reserved                  |   |All packages starting with EC E9 until starting with EC FF are reserved.
-EC FF ...             |reserved                  |   |All packages starting with EC E9 until starting with EC FF are reserved.
+Code                   | Meaning                    | pad | Remark
+-----------------------|----------------------------|-----|------------------------------------------------------------------------------
+EC LC IH IL ...        | payload = 2^(LC-E0) bytes  |     | LC is a length code
+EC 00 ...              | reserved                   |     | All packages starting with EC 00 until starting with EC DD are reserved.
+EC .. ...              | reserved                   |     | All packages starting with EC 00 until starting with EC DD are reserved.
+EC DD ...              | reserved                   |     | All packages starting with EC 00 until starting with EC DD are reserved.
+EC DE = EC             | real EC character          |     | If inside the payload occures EC an uncounted DE is injected afterwards.
+EC DF IH IL            | 16 bit ID no payload       | 0   | TRICE0, special case: 2^-1 = 0 byte payload
+EC E0 IH IL B0         | 16 bit ID   1 byte payload | 0   | TRICE8_1, TRICE_S(""): 2^0 = 1 byte payload
+EC E1 IH IL B0 B1      | 16 bit ID   2 byte payload | 0   | TRICE8_2, TRICE16_1, TRICE_S("0")
+EC E2 IH IL B0 .. B3   | 16 bit ID   4 byte payload | 1   | TRICE8_3, TRICE8_4, TRICE16_2, TRICE32_1, TRICE_S("01"), TRICE_S("012")
+EC E3 IH IL B0 .. B7   | 16 bit ID   8 byte payload | 3   | TRICE8_5,...TRICE8_8,TRICE16_3,TRICE16_4,TRICE32_2,TRICE64_1,TRICE_S("0...7")
+EC E4 IH IL B0 .. B15  | 16 bit ID  16 byte payload | 7   | TRICE32_3, TRICE32_4, TRICE64_2, TRICE_S("0...e")
+EC E5 IH IL B0 .. B31  | 16 bit ID  32 byte payload | 15  | TRICE_S("0123456789abcdef"), ... TRICE_S(strlen(31))
+EC E6 IH IL B0 .. B63  | 16 bit ID  64 byte payload | 31  | TRICE_S(strlen(32)), ...,TRICE_S(strlen(63))
+EC E7 IH IL B0 .. B127 | 16 bit ID 128 byte payload | 63  | TRICE_S(strlen(64)), ...,TRICE_S(strlen(127))
+EC E8 IH IL B0 .. B255 | 16 bit ID 256 byte payload | 127 | TRICE_S(strlen(128)), ...,TRICE_S(strlen(255))
+EC E9 ...              | reserved                   |     | All packages starting with EC E9 until starting with EC FF are reserved.
+EC .. ...              | reserved                   |     | All packages starting with EC E9 until starting with EC FF are reserved.
+EC FF ...              | reserved                   |     | All packages starting with EC E9 until starting with EC FF are reserved.
 ```
 
 - Examples See function `TestEsc` and `TestEscDynStrings` in
@@ -635,7 +637,7 @@ EC FF ...             |reserved                  |   |All packages starting with
 //#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
 ```
 
-##  8. <a id='-cobs/r-encoding'></a> COBS/R encoding
+##  8. <a id='-cobs/r-encoding'></a>COBS/R encoding
 
 - Packages are [COBS/R](https://pythonhosted.org/cobs/cobsr-intro.html) encoded.
 - Selected separator byte is `00`. That means the COBS/R encoded packages contain no `00` bytes and separated by a `00` byte.
@@ -656,17 +658,17 @@ EC FF ...             |reserved                  |   |All packages starting with
 
 - One byte COBS/R packages are a 1:1 transformation despite for the values `00` and `01`.
 
-| raw  | COBS/R (all followed by a not shown 00)  | remark
-| :--  | :-----                                   | ---------------------------
-| `00` |  `01 01`                                 | starting byte 00 prolongs code
-| `01` |  `02 01`                                 | starting byte 01 prolongs code
-| `02` |  `02`                                    |
-| `03` |  `03`                                    |
-| `...`|  `...`                                   |
-| `fc` |  `fc`                                    |
-| `fd` |  `fd`                                    |
-| `fe` |  `fe`                                    |
-| `ff` |  `ff`                                    |
+| raw   | COBS/R (all followed by a not shown 00) | remark                         |
+|:------|:----------------------------------------|--------------------------------|
+| `00`  | `01 01`                                 | starting byte 00 prolongs code |
+| `01`  | `02 01`                                 | starting byte 01 prolongs code |
+| `02`  | `02`                                    |                                |
+| `03`  | `03`                                    |                                |
+| `...` | `...`                                   |                                |
+| `fc`  | `fc`                                    |                                |
+| `fd`  | `fd`                                    |                                |
+| `fe`  | `fe`                                    |                                |
+| `ff`  | `ff`                                    |                                |
 
 One byte packages are fast COBS/R codable by simply incrementing the 2 values `00` and `01` and appending a `01`.
 
@@ -674,87 +676,87 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 
 - Two bytes COBS/R packages are often a 1:1 transformation despite some cases as seen in the following table.
 
-| raw  | COBS/R (all followed by a not shown 00)     | remark
-| :--  | :-----                                      | ---------------------------
-| `00 00` |  `01 01 01`                              | starting bytes 00, 01 and 02 prolong code usually
-| `00 01` |  `02 01 01`                              |
-| `00 02` |  `02 02 01`                              |
-| `00 03` |  `02 03 01`                              |
-| `...`   |  `...`                                   |
-| `00 fc` |  `02 fc 01`                              |
-| `00 fd` |  `02 fd 01`                              |
-| `00 fe` |  `02 fe 01`                              |
-| `00 ff` |  `02 ff 01`                              |
-| `...`   |  `...`                                   |
-| `01 00` |  `01 02 01`                              |
-| `01 01` |  `03 01 01`                              |
-| `01 02` |  `03 02 01`                              |
-| `01 03` |  `03 03 01`                              |
-| `...`   |  `...`                                   |
-| `01 fc` |  `03 fc 01`                              |
-| `01 fd` |  `03 fd 01`                              |
-| `01 fe` |  `03 fe 01`                              |
-| `01 ff` |  `03 ff 01`                              |
-| `...`   |  `...`                                   |
-| `02 00` |  `01 02   `                              | special case
-| `02 01` |  `03 01 02`                              |
-| `02 02` |  `03 02 02`                              |
-| `02 03` |  `03 03 02`                              |
-| `...`   |  `...`                                   |
-| `02 fc` |  `03 fc 02`                              |
-| `02 fd` |  `03 fd 02`                              |
-| `02 fe` |  `03 fe 02`                              |
-| `02 ff` |  `03 ff 02`                              |
-| `...`   |  `...`                                   |
-| `03 00` |  `01 03`                                 |
-| `03 01` |  `03 01`                                 |
-| `03 02` |  `03 02`                                 |
-| `03 03` |  `03 03`                                 |
-| `...`   |  `...`                                   |
-| `03 fc` |  `03 fc`                                 |
-| `03 fd` |  `03 fd`                                 |
-| `03 fe` |  `03 fe`                                 |
-| `03 ff` |  `03 ff`                                 |
-| `...`   |  `...`                                   |
-| `fc 00` |  `01 fc`                                 |
-| `fc 01` |  `fc 01`                                 |
-| `fc 02` |  `fc 02`                                 |
-| `fc 03` |  `fc 03`                                 |
-| `...`   |  `...`                                   |
-| `fc fc` |  `fc fc`                                 |
-| `fc fd` |  `fc fd`                                 |
-| `fc fe` |  `fc fe`                                 |
-| `fc ff` |  `fc ff`                                 |
-| `...`   |  `...`                                   |
-| `fd 00` |  `01 fd`                                 |
-| `fd 01` |  `fd 01`                                 |
-| `fd 02` |  `fd 02`                                 |
-| `fd 03` |  `fd 03`                                 |
-| `...`   |  `...`                                   |
-| `fd fc` |  `fd fc`                                 |
-| `fd fd` |  `fd fd`                                 |
-| `fd fe` |  `fd fe`                                 |
-| `fd ff` |  `fd ff`                                 |
-| `...`   |  `...`                                   |
-| `fe 00` |  `01 fe`                                 |
-| `fe 01` |  `fe 01`                                 |
-| `fe 02` |  `fe 02`                                 |
-| `fe 03` |  `fe 03`                                 |
-| `...`   |  `...`                                   |
-| `fe fc` |  `fe fc`                                 |
-| `fe fd` |  `fe fd`                                 |
-| `fe fe` |  `fe fe`                                 |
-| `fe ff` |  `fe ff`                                 |
-| `...`   |  `...`                                   |
-| `ff 00` |  `01 ff`                                 |
-| `ff 01` |  `ff 01`                                 |
-| `ff 02` |  `ff 02`                                 |
-| `ff 03` |  `ff 03`                                 |
-| `...`   |  `...`                                   |
-| `ff fc` |  `ff fc`                                 |
-| `ff fd` |  `ff fd`                                 |
-| `ff fe` |  `ff fe`                                 |
-| `ff ff` |  `ff ff`                                 |
+| raw     | COBS/R (all followed by a not shown 00) | remark                                            |
+|:--------|:----------------------------------------|---------------------------------------------------|
+| `00 00` | `01 01 01`                              | starting bytes 00, 01 and 02 prolong code usually |
+| `00 01` | `02 01 01`                              |                                                   |
+| `00 02` | `02 02 01`                              |                                                   |
+| `00 03` | `02 03 01`                              |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `00 fc` | `02 fc 01`                              |                                                   |
+| `00 fd` | `02 fd 01`                              |                                                   |
+| `00 fe` | `02 fe 01`                              |                                                   |
+| `00 ff` | `02 ff 01`                              |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `01 00` | `01 02 01`                              |                                                   |
+| `01 01` | `03 01 01`                              |                                                   |
+| `01 02` | `03 02 01`                              |                                                   |
+| `01 03` | `03 03 01`                              |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `01 fc` | `03 fc 01`                              |                                                   |
+| `01 fd` | `03 fd 01`                              |                                                   |
+| `01 fe` | `03 fe 01`                              |                                                   |
+| `01 ff` | `03 ff 01`                              |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `02 00` | `01 02   `                              | special case                                      |
+| `02 01` | `03 01 02`                              |                                                   |
+| `02 02` | `03 02 02`                              |                                                   |
+| `02 03` | `03 03 02`                              |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `02 fc` | `03 fc 02`                              |                                                   |
+| `02 fd` | `03 fd 02`                              |                                                   |
+| `02 fe` | `03 fe 02`                              |                                                   |
+| `02 ff` | `03 ff 02`                              |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `03 00` | `01 03`                                 |                                                   |
+| `03 01` | `03 01`                                 |                                                   |
+| `03 02` | `03 02`                                 |                                                   |
+| `03 03` | `03 03`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `03 fc` | `03 fc`                                 |                                                   |
+| `03 fd` | `03 fd`                                 |                                                   |
+| `03 fe` | `03 fe`                                 |                                                   |
+| `03 ff` | `03 ff`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `fc 00` | `01 fc`                                 |                                                   |
+| `fc 01` | `fc 01`                                 |                                                   |
+| `fc 02` | `fc 02`                                 |                                                   |
+| `fc 03` | `fc 03`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `fc fc` | `fc fc`                                 |                                                   |
+| `fc fd` | `fc fd`                                 |                                                   |
+| `fc fe` | `fc fe`                                 |                                                   |
+| `fc ff` | `fc ff`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `fd 00` | `01 fd`                                 |                                                   |
+| `fd 01` | `fd 01`                                 |                                                   |
+| `fd 02` | `fd 02`                                 |                                                   |
+| `fd 03` | `fd 03`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `fd fc` | `fd fc`                                 |                                                   |
+| `fd fd` | `fd fd`                                 |                                                   |
+| `fd fe` | `fd fe`                                 |                                                   |
+| `fd ff` | `fd ff`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `fe 00` | `01 fe`                                 |                                                   |
+| `fe 01` | `fe 01`                                 |                                                   |
+| `fe 02` | `fe 02`                                 |                                                   |
+| `fe 03` | `fe 03`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `fe fc` | `fe fc`                                 |                                                   |
+| `fe fd` | `fe fd`                                 |                                                   |
+| `fe fe` | `fe fe`                                 |                                                   |
+| `fe ff` | `fe ff`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `ff 00` | `01 ff`                                 |                                                   |
+| `ff 01` | `ff 01`                                 |                                                   |
+| `ff 02` | `ff 02`                                 |                                                   |
+| `ff 03` | `ff 03`                                 |                                                   |
+| `...`   | `...`                                   |                                                   |
+| `ff fc` | `ff fc`                                 |                                                   |
+| `ff fd` | `ff fd`                                 |                                                   |
+| `ff fe` | `ff fe`                                 |                                                   |
+| `ff ff` | `ff ff`                                 |                                                   |
 
 - Two byte packages are fast COBS/R codable by simply using an Id subset having no first byte 0, 1, 2 and no 0 in the 2nd byte higher nibble:
 - Using `II IC`, where C is a 4 bit cycle counter assumed to sometimes 0 :
@@ -789,30 +791,30 @@ How the packages are to interpret is a question of software configuration. When 
 
 Hint: The value space itself is usable according to ID, for example a 32 bit value space could be a 16-bit and two 8-bit values.
 
-| package byte count |   optional usage                      | apportionment example
-| -----------------: |   --------------------------          | :-
-|                  2 |   on|off time measurement             | `Ivvvvvvv vvvvvvvv`
-|                  2 |   256 different value events          | `IIIIIIII vvvvvvvv`
-|                  8 | **XTEA, 256 different 56 bit values** | `IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`
-|                 10 |   65535 different 64 bit values       | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`
-|                  6 |   65535 different 32 bit values       | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`
-|                  4 |   65535 different 16 bit values       | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv`
-|                  3 |   65535 different  8 bit values       | `IIIIIIII IIIIIIII vvvvvvvv`
-|                  2 |   65535 different no-value messages   | `IIIIIIII IIIIIIII`
-|                  1 |   8 different  5 bit values           | `IIIvvvvv`
-|                  1 |   256 different no-value messages     | `IIIIIIII`
-|                  4 |   32768 different 17-bit messages     | `IIIIIIII IIIIIIIx vvvvvvvv vvvvvvvv`
-|                  8 |   XTEA, 2 messages in one packet      | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv`
-|                 16 |   XTEA, 5 messages in one packet      | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv IIIIIIII IIIIIIII`
+| package byte count | optional usage                        | apportionment example                                                                                                                             |
+|-------------------:|---------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
+|                  2 | on\|off time measurement              | `Ivvvvvvv vvvvvvvv`                                                                                                                               |
+|                  2 | 256 different value events            | `IIIIIIII vvvvvvvv`                                                                                                                               |
+|                  8 | **XTEA, 256 different 56 bit values** | `IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`                                                                         |
+|                 10 | 65535 different 64 bit values         | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`                                                       |
+|                  6 | 65535 different 32 bit values         | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`                                                                                           |
+|                  4 | 65535 different 16 bit values         | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv`                                                                                                             |
+|                  3 | 65535 different  8 bit values         | `IIIIIIII IIIIIIII vvvvvvvv`                                                                                                                      |
+|                  2 | 65535 different no-value messages     | `IIIIIIII IIIIIIII`                                                                                                                               |
+|                  1 | 8 different  5 bit values             | `IIIvvvvv`                                                                                                                                        |
+|                  1 | 256 different no-value messages       | `IIIIIIII`                                                                                                                                        |
+|                  4 | 32768 different 17-bit messages       | `IIIIIIII IIIIIIIx vvvvvvvv vvvvvvvv`                                                                                                             |
+|                  8 | XTEA, 2 messages in one packet        | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv`                                                                         |
+|                 16 | XTEA, 5 messages in one packet        | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv IIIIIIII IIIIIIII` |
 
 - To keeps things simple:
 - The first byte in a package is an ID byte optionally followed by more ID bytes
 
-| ID coding                    | ID bits |         ID range  | remark
-| ---------------------------: | ------: | ----------------: | -
-| `0IIIIIII`                   |  7      |     0 ...     127 | 
-| `10IIIIII IIIIIIII`          | 14      |   128 ...   16383 | 0 ...   127 unused (reserved)
-| `100IIIII IIIIIIII IIIIIIII` | 21      | 16384 ... 2097151 | 0 ... 16383 unused (reserved)
+|                    ID coding | ID bits |          ID range | remark                        |
+|-----------------------------:|--------:|------------------:|-------------------------------|
+|                   `0IIIIIII` |       7 |     0 ...     127 |                               |
+|          `10IIIIII IIIIIIII` |      14 |   128 ...   16383 | 0 ...   127 unused (reserved) |
+| `100IIIII IIIIIIII IIIIIIII` |      21 | 16384 ... 2097151 | 0 ... 16383 unused (reserved) |
 
 - How many value bits are following an ID and how they are to interpret is coded inside the ID information.
 
@@ -848,15 +850,15 @@ If less value bytes are needed padding bytes are used.
 
 `Trice( DESCRIPTOR, Id(0), "fmtString", ... )`
 
-| Legacy notation                    | COBSR notation                       | ID coding
-| :-                                 | :-                                   | :-
-| Trice0( id(0), "text" );           | Trice0( IDE(0), "text" );            | `00IIIIII IIIIIIII`
-|                                    | TriceB( ID7(0), "text", 1 );         | `IIIIIIIv`
-| Trice8( id(0), "text", 255 );      | Trice8( ID7(0), "text", 255 );       | `1IIIIIII vvvvvvvv`
-| Trice8( id(0), "text", 255, 255 ); | Trice8( ID7(0), "text", 255, 255 );  | `1IIIIIII vvvvvvvv vvvvvvvv`
-| Trice16( id(0), "text", 65535 );   | Trice16( ID7(0), "text", 65535 );    | `1IIIIIII vvvvvvvv vvvvvvvv`
-| trice8( Id(0), "text" );           | Trice8( IDE(0), "text", 255 );       | `00IIIIII IIIIIIII vvvvvvvv` 
-| trice16( Id(0), "text" );          | Trice16( IDE(0), "text", 65535 );    | `00IIIIII IIIIIIII vvvvvvvv vvvvvvvv`
+| Legacy notation                    | COBSR notation                      | ID coding                             |
+|:-----------------------------------|:------------------------------------|:--------------------------------------|
+| Trice0( id(0), "text" );           | Trice0( IDE(0), "text" );           | `00IIIIII IIIIIIII`                   |
+|                                    | TriceB( ID7(0), "text", 1 );        | `IIIIIIIv`                            |
+| Trice8( id(0), "text", 255 );      | Trice8( ID7(0), "text", 255 );      | `1IIIIIII vvvvvvvv`                   |
+| Trice8( id(0), "text", 255, 255 ); | Trice8( ID7(0), "text", 255, 255 ); | `1IIIIIII vvvvvvvv vvvvvvvv`          |
+| Trice16( id(0), "text", 65535 );   | Trice16( ID7(0), "text", 65535 );   | `1IIIIIII vvvvvvvv vvvvvvvv`          |
+| trice8( Id(0), "text" );           | Trice8( IDE(0), "text", 255 );      | `00IIIIII IIIIIIII vvvvvvvv`          |
+| trice16( Id(0), "text" );          | Trice16( IDE(0), "text", 65535 );   | `00IIIIII IIIIIIII vvvvvvvv vvvvvvvv` |
 
 ID7(n) =  7-bit ID
 IDE(n) = 14-bit ID
@@ -878,31 +880,31 @@ IDE(n) = 14-bit ID
 
 ###  10.2. <a id='encoding-table-0-legend'></a>Encoding table 0 legend
 
-| Legend | Meaning                                                           |
-| :-     | :---------------------------------------------------------------- |
-| ...n   | totally n times                                                   |
-| I\|iiii| 4 Id-bits (half byte)                                             |
-| V\|vvvv| 4 value bits                                                      |
-| X\|xxxx| 4 arbitrary bits (any half byte )                                 |
-| Y\|yyyy| 4 arbitrary bits, but at least one must be 1 (any half byte != 0) |
+| Legend  | Meaning                                                           |
+|:--------|:------------------------------------------------------------------|
+| ...n    | totally n times                                                   |
+| I\|iiii | 4 Id-bits (half byte)                                             |
+| V\|vvvv | 4 value bits                                                      |
+| X\|xxxx | 4 arbitrary bits (any half byte )                                 |
+| Y\|yyyy | 4 arbitrary bits, but at least one must be 1 (any half byte != 0) |
 
 ###  10.3. <a id='encoding-table-0-(without-cycle-counter)'></a>Encoding table 0 (without cycle counter)
 
-|half bytes      | same as bits                     | bytes|ID bits| ID range    |ID map| remark                                                                      |
-| -              | -------------------------------- |:----:| :---: | :------:    |  :-: |     :-                                                                      |
-|` `             | ` `                              |    0 |       |             |      | COBS/R padding byte                                                         |
-|`0I II`         |`0000iiii iiiiiiii`               |    2 |   12  | 0\-4095     |  0   | `TRICE0`                                                                    |
-|`0I II VV`      |`0000iiii iiiiiiii vvvvvvvv`      |    3 |   12  | 4096\- 8191 |  1   | `TRICE8_1`                                                                  |
-|`0I II VV VV`   |`0000iiii iiiiiiii vvvvvvvv...2`  |    4 |   12  | 8192\-12287 |  2   | `TRICE8_2`, `TRICE16_1`                                                     |
-|`0I II VV...4`  |`0000iiii iiiiiiii vvvvvvvv...4`  |    6 |   12  |12288\-16383 |  3   | `TRICE8_3`, `TRICE8_4`, `TRICE16_1`, `TRICE16_2`,  `TRICE32_1`              |
-|`0I II VV...8`  |`0000iiii iiiiiiii vvvvvvvv...8`  |   10 |   12  |16384\-20479 |  4   | `TRICE8_5`...`TRICE8_8`, `TRICE16_3`, `TRICE16_4`, `TRICE32_2`, `TRICE64_1` |
-|`0I II VV...16` |`0000iiii iiiiiiii vvvvvvvv...16` |   18 |   12  |20480\-24575 |  5   | `TRICE116_5`...`TRICE16_8`, `TRICE32_3`...`TRICE32_4`, `TRICE64_2`          |
-|`0I II VV...32` |`0000iiii iiiiiiii vvvvvvvv...32` |   34 |   12  |24576\-28671 |  6   | `TRICE32_5`...`TRICE32_8`, `TRICE64_3`...`TRICE64_4`                        |
-|`0I II VV...64` |`0000iiii iiiiiiii vvvvvvvv...64` |   66 |   12  |28672\-32767 |  7   | `TRICE64_5`...`TRICE64_8`                                                   |
-|`YX XX`         |`yyyyxxxx xxxxxxxx`               |    2 |       |             |      | reserved                                                                    |
-|`YX XX XX...2^n`|`yyyyxxxx xxxxxxxx xxxxxxxx...2^n`|2+2^n |       |             |      | reserved, n = 0...6                                                         |
-|`XX...8*n`      |`xxxxxxxx...8*n`                  |  8*n |       |             |      | encrypted or reserved                                                       |
-|`XX...n`        |`xxxxxxxx...n`                    |    n |       |             |      | reserved, n%8 != 0 && n != 2+2^m for m = 0...6                              |
+| half bytes       | same as bits                       | bytes | ID bits |   ID range   | ID map | remark                                                                      |
+|------------------|------------------------------------|:-----:|:-------:|:------------:|:------:|:----------------------------------------------------------------------------|
+| ` `              | ` `                                |   0   |         |              |        | COBS/R padding byte                                                         |
+| `0I II`          | `0000iiii iiiiiiii`                |   2   |   12    |   0\-4095    |   0    | `TRICE0`                                                                    |
+| `0I II VV`       | `0000iiii iiiiiiii vvvvvvvv`       |   3   |   12    | 4096\- 8191  |   1    | `TRICE8_1`                                                                  |
+| `0I II VV VV`    | `0000iiii iiiiiiii vvvvvvvv...2`   |   4   |   12    | 8192\-12287  |   2    | `TRICE8_2`, `TRICE16_1`                                                     |
+| `0I II VV...4`   | `0000iiii iiiiiiii vvvvvvvv...4`   |   6   |   12    | 12288\-16383 |   3    | `TRICE8_3`, `TRICE8_4`, `TRICE16_1`, `TRICE16_2`,  `TRICE32_1`              |
+| `0I II VV...8`   | `0000iiii iiiiiiii vvvvvvvv...8`   |  10   |   12    | 16384\-20479 |   4    | `TRICE8_5`...`TRICE8_8`, `TRICE16_3`, `TRICE16_4`, `TRICE32_2`, `TRICE64_1` |
+| `0I II VV...16`  | `0000iiii iiiiiiii vvvvvvvv...16`  |  18   |   12    | 20480\-24575 |   5    | `TRICE116_5`...`TRICE16_8`, `TRICE32_3`...`TRICE32_4`, `TRICE64_2`          |
+| `0I II VV...32`  | `0000iiii iiiiiiii vvvvvvvv...32`  |  34   |   12    | 24576\-28671 |   6    | `TRICE32_5`...`TRICE32_8`, `TRICE64_3`...`TRICE64_4`                        |
+| `0I II VV...64`  | `0000iiii iiiiiiii vvvvvvvv...64`  |  66   |   12    | 28672\-32767 |   7    | `TRICE64_5`...`TRICE64_8`                                                   |
+| `YX XX`          | `yyyyxxxx xxxxxxxx`                |   2   |         |              |        | reserved                                                                    |
+| `YX XX XX...2^n` | `yyyyxxxx xxxxxxxx xxxxxxxx...2^n` | 2+2^n |         |              |        | reserved, n = 0...6                                                         |
+| `XX...8*n`       | `xxxxxxxx...8*n`                   |  8*n  |         |              |        | encrypted or reserved                                                       |
+| `XX...n`         | `xxxxxxxx...n`                     |   n   |         |              |        | reserved, n%8 != 0 && n != 2+2^m for m = 0...6                              |
 
 - All packages are as encoded COBS/R sometimes 1 byte longer and always followed by the delimiter `00`byte.
 - The ID map number can be deduced from the package length and needs no transmission.
@@ -910,45 +912,45 @@ IDE(n) = 14-bit ID
 
 ###  10.4. <a id='encoding-table-1-legend'></a>Encoding table 1 legend
 
-| Legend | Meaning                           |
-| :-     | :---------------------------------|
-| ...n   | totally n times                   |
-| I\|iiii| 4 Id-bits (half byte)             |
-| V\|vvvv| 4 value bits                      |
-| X\|xxxx| 4 arbitrary bits (any half byte ) |
-| C\|cccc| 4 cycle counter bits              |
+| Legend  | Meaning                           |
+|:--------|:----------------------------------|
+| ...n    | totally n times                   |
+| I\|iiii | 4 Id-bits (half byte)             |
+| V\|vvvv | 4 value bits                      |
+| X\|xxxx | 4 arbitrary bits (any half byte ) |
+| C\|cccc | 4 cycle counter bits              |
 
 ###  10.5. <a id='encoding-table-1-(with-4-bit-cycle-counter)'></a>Encoding table 1 (with 4-bit cycle counter)
 
-|half bytes      | same as bits                     | bytes|ID bits| ID range    |ID map| remark                                                                      |
-| -              | -------------------------------- |:----:| :---: | :------:    |  :-: |     :-                                                                      |
-|` `             | ` `                              |    0 |       |             |      | COBS/R padding byte                                                         |
-|`II IC`         |`iiiiiiii iiiicccc`               |    2 |   12  | 0\-4095     |  0   | `TRICE0`                                                                    |
-|`II IC VV`      |`iiiiiiii iiiicccc vvvvvvvv`      |    3 |   12  | 4096\- 8191 |  1   | `TRICE8_1`                                                                  |
-|`II IC VV VV`   |`iiiiiiii iiiicccc vvvvvvvv...2`  |    4 |   12  | 8192\-12287 |  2   | `TRICE8_2`, `TRICE16_1`                                                     |
-|`II IC VV...4`  |`iiiiiiii iiiicccc vvvvvvvv...4`  |    6 |   12  |12288\-16383 |  3   | `TRICE8_3`, `TRICE8_4`, `TRICE16_1`, `TRICE16_2`,  `TRICE32_1`              |
-|`II IC VV...8`  |`iiiiiiii iiiicccc vvvvvvvv...8`  |   10 |   12  |16384\-20479 |  4   | `TRICE8_5`...`TRICE8_8`, `TRICE16_3`, `TRICE16_4`, `TRICE32_2`, `TRICE64_1` |
-|`II IC VV...16` |`iiiiiiii iiiicccc vvvvvvvv...16` |   18 |   12  |20480\-24575 |  5   | `TRICE116_5`...`TRICE16_8`, `TRICE32_3`...`TRICE32_4`, `TRICE64_2`          |
-|`II IC VV...32` |`iiiiiiii iiiicccc vvvvvvvv...32` |   34 |   12  |24576\-28671 |  6   | `TRICE32_5`...`TRICE32_8`, `TRICE64_3`...`TRICE64_4`                        |
-|`II IC VV...64` |`iiiiiiii iiiicccc vvvvvvvv...64` |   66 |   12  |28672\-32767 |  7   | `TRICE64_5`...`TRICE64_8`                                                   |
-|`XX...8*n`      |`xxxxxxxx...8*n`                  |  8*n |       |             |      | encrypted                                                                   |
-|`XX...n`        |`xxxxxxxx...n`                    |    n |       |             |      | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
+| half bytes      | same as bits                      | bytes | ID bits |   ID range   | ID map | remark                                                                      |
+|-----------------|-----------------------------------|:-----:|:-------:|:------------:|:------:|:----------------------------------------------------------------------------|
+| ` `             | ` `                               |   0   |         |              |        | COBS/R padding byte                                                         |
+| `II IC`         | `iiiiiiii iiiicccc`               |   2   |   12    |   0\-4095    |   0    | `TRICE0`                                                                    |
+| `II IC VV`      | `iiiiiiii iiiicccc vvvvvvvv`      |   3   |   12    | 4096\- 8191  |   1    | `TRICE8_1`                                                                  |
+| `II IC VV VV`   | `iiiiiiii iiiicccc vvvvvvvv...2`  |   4   |   12    | 8192\-12287  |   2    | `TRICE8_2`, `TRICE16_1`                                                     |
+| `II IC VV...4`  | `iiiiiiii iiiicccc vvvvvvvv...4`  |   6   |   12    | 12288\-16383 |   3    | `TRICE8_3`, `TRICE8_4`, `TRICE16_1`, `TRICE16_2`,  `TRICE32_1`              |
+| `II IC VV...8`  | `iiiiiiii iiiicccc vvvvvvvv...8`  |  10   |   12    | 16384\-20479 |   4    | `TRICE8_5`...`TRICE8_8`, `TRICE16_3`, `TRICE16_4`, `TRICE32_2`, `TRICE64_1` |
+| `II IC VV...16` | `iiiiiiii iiiicccc vvvvvvvv...16` |  18   |   12    | 20480\-24575 |   5    | `TRICE116_5`...`TRICE16_8`, `TRICE32_3`...`TRICE32_4`, `TRICE64_2`          |
+| `II IC VV...32` | `iiiiiiii iiiicccc vvvvvvvv...32` |  34   |   12    | 24576\-28671 |   6    | `TRICE32_5`...`TRICE32_8`, `TRICE64_3`...`TRICE64_4`                        |
+| `II IC VV...64` | `iiiiiiii iiiicccc vvvvvvvv...64` |  66   |   12    | 28672\-32767 |   7    | `TRICE64_5`...`TRICE64_8`                                                   |
+| `XX...8*n`      | `xxxxxxxx...8*n`                  |  8*n  |         |              |        | encrypted                                                                   |
+| `XX...n`        | `xxxxxxxx...n`                    |   n   |         |              |        | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
 
 ###  10.6. <a id='encoding-table-2-(with-8-bit-cycle-counter)'></a>Encoding table 2 (with 8-bit cycle counter)
 
-|half bytes      | same as bits                              | bytes|ID bits| ID range  |ID map| remark                                                                      |
-| -              | --------------------------------          |:----:| :---: | :------:  |  :-: |     :-                                                                      |
-|` `             | ` `                                       |    0 |       |           |      | COBS/R padding byte                                                         |
-|`II IC`         |`iiiiiiii iiiiiiii cccccccc`               |    3 |   16  | 1 - 65535 |  0   | `TRICE0`                                                                    |
-|`II IC VV`      |`iiiiiiii iiiiiiii cccccccc vvvvvvvv`      |    4 |   16  | 1 - 65535 |  1   | `TRICE8_1`                                                                  |
-|`II IC VV VV`   |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...2`  |    5 |   16  | 1 - 65535 |  2   | `TRICE8_2`, `TRICE16_1`                                                     |
-|`II IC VV...4`  |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...4`  |    7 |   16  | 1 - 65535 |  3   | `TRICE8_3`, `TRICE8_4`, `TRICE16_1`, `TRICE16_2`,  `TRICE32_1`              |
-|`II IC VV...8`  |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...8`  |   17 |   16  | 1 - 65535 |  4   | `TRICE8_5`...`TRICE8_8`, `TRICE16_3`, `TRICE16_4`, `TRICE32_2`, `TRICE64_1` |
-|`II IC VV...16` |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...16` |   19 |   16  | 1 - 65535 |  5   | `TRICE16_5`...`TRICE16_8`, `TRICE32_3`...`TRICE32_4`, `TRICE64_2`           |
-|`II IC VV...32` |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...32` |   35 |   16  | 1 - 65535 |  6   | `TRICE32_5`...`TRICE32_8`, `TRICE64_3`...`TRICE64_4`                        |
-|`II IC VV...64` |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...64` |   67 |   16  | 1 - 65535 |  7   | `TRICE64_5`...`TRICE64_8`                                                   |
-|`XX...8*n`      |`xxxxxxxx...8*n`                           |  8*n |       |           |      | encrypted                                                                   |
-|`XX...n`        |`xxxxxxxx...n`                             |    n |       |           |      | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
+| half bytes      | same as bits                               | bytes | ID bits | ID range  | ID map | remark                                                                      |
+|-----------------|--------------------------------------------|:-----:|:-------:|:---------:|:------:|:----------------------------------------------------------------------------|
+| ` `             | ` `                                        |   0   |         |           |        | COBS/R padding byte                                                         |
+| `II IC`         | `iiiiiiii iiiiiiii cccccccc`               |   3   |   16    | 1 - 65535 |   0    | `TRICE0`                                                                    |
+| `II IC VV`      | `iiiiiiii iiiiiiii cccccccc vvvvvvvv`      |   4   |   16    | 1 - 65535 |   1    | `TRICE8_1`                                                                  |
+| `II IC VV VV`   | `iiiiiiii iiiiiiii cccccccc vvvvvvvv...2`  |   5   |   16    | 1 - 65535 |   2    | `TRICE8_2`, `TRICE16_1`                                                     |
+| `II IC VV...4`  | `iiiiiiii iiiiiiii cccccccc vvvvvvvv...4`  |   7   |   16    | 1 - 65535 |   3    | `TRICE8_3`, `TRICE8_4`, `TRICE16_1`, `TRICE16_2`,  `TRICE32_1`              |
+| `II IC VV...8`  | `iiiiiiii iiiiiiii cccccccc vvvvvvvv...8`  |  17   |   16    | 1 - 65535 |   4    | `TRICE8_5`...`TRICE8_8`, `TRICE16_3`, `TRICE16_4`, `TRICE32_2`, `TRICE64_1` |
+| `II IC VV...16` | `iiiiiiii iiiiiiii cccccccc vvvvvvvv...16` |  19   |   16    | 1 - 65535 |   5    | `TRICE16_5`...`TRICE16_8`, `TRICE32_3`...`TRICE32_4`, `TRICE64_2`           |
+| `II IC VV...32` | `iiiiiiii iiiiiiii cccccccc vvvvvvvv...32` |  35   |   16    | 1 - 65535 |   6    | `TRICE32_5`...`TRICE32_8`, `TRICE64_3`...`TRICE64_4`                        |
+| `II IC VV...64` | `iiiiiiii iiiiiiii cccccccc vvvvvvvv...64` |  67   |   16    | 1 - 65535 |   7    | `TRICE64_5`...`TRICE64_8`                                                   |
+| `XX...8*n`      | `xxxxxxxx...8*n`                           |  8*n  |         |           |        | encrypted                                                                   |
+| `XX...n`        | `xxxxxxxx...n`                             |   n   |         |           |        | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
 
 ##  11. <a id='fast-trice-data-storing'></a>Fast TRICE data storing
 

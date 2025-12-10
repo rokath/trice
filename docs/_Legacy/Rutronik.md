@@ -19,4 +19,4 @@ ST ist ebenfalls auf github aktiv: [https://github.com/STMicroelectronics](https
 
 Es gibt [STM32Cube expansion packages](https://www.st.com/en/embedded-software/stm32cube-expansion-packages.html#products)
 
-Die meisten packages sind kostenlos.
+Die meisten Packages sind kostenlos.
