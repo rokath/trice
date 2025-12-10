@@ -65,12 +65,28 @@
 #define Trice0(...)
 #define TRice0(...)
 
-#define triceAssertTrue(x, y, ...) TRICE_UNUSED(x) TRICE_UNUSED(y)
-#define TriceAssertTrue(x, y, ...) TRICE_UNUSED(x) TRICE_UNUSED(y)
-#define TRiceAssertTrue(x, y, ...) TRICE_UNUSED(x) TRICE_UNUSED(y)
-#define triceAssertFalse(x, y, ...) TRICE_UNUSED(x) TRICE_UNUSED(y)
-#define TriceAssertFalse(x, y, ...) TRICE_UNUSED(x) TRICE_UNUSED(y)
-#define TRiceAssertFalse(x, y, ...) TRICE_UNUSED(x) TRICE_UNUSED(y)
+#define triceAssertTrue(...)
+#define TriceAssertTrue(...)
+#define TRiceAssertTrue(...)
+#define triceAssertFalse(...)
+#define TriceAssertFalse(...)
+#define TRiceAssertFalse(...)
+
+#define triceAssertFail(...)
+#define TriceAssertFail(...)
+#define TRiceAssertFail(...)
+
+#define triceAssert(...)
+#define TriceAssert(...)
+#define TRiceAssert(...)
+
+#define triceAssertOrReturn(b, c) do {if (!(c)) {return;}} while(0)
+#define TriceAssertOrReturn(b, c) do {if (!(c)) {return;}} while(0)
+#define TRiceAssertOrReturn(b, c) do {if (!(c)) {return;}} while(0)
+
+#define triceAssertOrReturnValue(b, c, v) do {if (!(c)) {return (v);}} while(0)
+#define TriceAssertOrReturnValue(b, c, v) do {if (!(c)) {return (v);}} while(0)
+#define TRiceAssertOrReturnValue(b, c, v) do {if (!(c)) {return (v);}} while(0)
 
 // All following macros are defined without ID and as variadic, to avoid editor warnings for TRICE_CLEAN == 1 or TRICE_OFF == 1
 

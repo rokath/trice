@@ -96,7 +96,7 @@ func ProcessAliases() {
 	suffix := `\b` // Word boundary after macro name
 
 	// Core TRICE pattern (without closing \b)
-	baseTricePattern := `(?i)\bTRICE(?:0|_0|AssertTrue|AssertFalse|(?:8|16|32|64)*(?:_*[0-9SNBF]*)*)`
+	baseTricePattern := `(?i)\bTRICE(?:0|_0|Assert\w*|(?:8|16|32|64)*(?:_*[0-9SNBF]*)*)`
 
 	// Combine static and dynamic aliases
 	merged := append(TriceAliases, TriceSAliases...)
@@ -239,9 +239,9 @@ func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) 
 			return fmt.Errorf("line %d %v should have exactly two parameters and not %d", line, t, cnt)
 		}
 	default:
-		if strings.Contains(t.Type, "Assert") { // matches triceAssertTrue and triceAssertFalse
-			if fsc != 0 || cnt != 1 {
-				return fmt.Errorf("line %d %v should have no format specifiers and eactly one parameter, the boolean value (fsc=%d, cnt=%d)", line, t, fsc, cnt)
+		if strings.Contains(t.Type, "Assert") { // matches triceAssert*
+			if fsc != 0 || cnt < 1 {
+				return fmt.Errorf("line %d %v should have no format specifiers and one or more parameters, the boolean value is need (fsc=%d, cnt=%d)", line, t, fsc, cnt)
 			}
 			return
 		}
