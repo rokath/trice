@@ -774,6 +774,22 @@ void triceAssertFalse(int idN, const char* msg, int flag);
 void TriceAssertFalse(int idN, const char* msg, int flag);
 void TRiceAssertFalse(int idN, const char* msg, int flag);
 
+void triceAssertFail(int idN);
+void TriceAssertFail(int idN);
+void TRiceAssertFail(int idN);
+
+#define triceAssert(a, b, c) triceAssertTrue(a, b, c)
+#define TriceAssert(a, b, c) TriceAssertTrue(a, b, c)
+#define TRiceAssert(a, b, c) TRiceAssertTrue(a, b, c)
+
+#define triceAssertOrReturn(a, b, c) do {if (!(c)) {triceAssertFail(a); return;}} while(0)
+#define TriceAssertOrReturn(a, b, c) do {if (!(c)) {TriceAssertFail(a); return;}} while(0)
+#define TRiceAssertOrReturn(a, b, c) do {if (!(c)) {TRiceAssertFail(a); return;}} while(0)
+
+#define triceAssertOrReturnValue(a, b, c, v) do {if (!(c)) {triceAssertFail(a); return (v);}} while(0)
+#define TriceAssertOrReturnValue(a, b, c, v) do {if (!(c)) {TriceAssertFail(a); return (v);}} while(0)
+#define TRiceAssertOrReturnValue(a, b, c, v) do {if (!(c)) {TRiceAssertFail(a); return (v);}} while(0)
+
 typedef void (*Write8AuxiliaryFn_t)(const uint8_t* enc, size_t encLen);
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;
 extern Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn;
