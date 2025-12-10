@@ -100,7 +100,11 @@ echo "----------------------------------------"
 # )
 #
 # Make sure the package path ("main.") matches your actual package.
-
+#
+# Additionally:
+#   -s —> strip the symbol table
+#   -w —> strip DWARF debugging info
+#
 go install -ldflags "\
   -X 'main.version=$version' \
   -X 'main.commit=$commit' \
@@ -108,6 +112,8 @@ go install -ldflags "\
   -X 'main.branch=$origin - $branch' \
   -X 'main.gitState=$git_state' \
   -X 'main.gitStatus=$git_status' \
+  -s \
+  -w \
 " ./cmd/trice/...
 
 echo "Build complete."
