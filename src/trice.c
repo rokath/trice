@@ -1098,6 +1098,21 @@ void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
 	TRICE_S(ID(tid), fmt, runtimeGeneratedString);
 }
 
-#endif // #ifdef TRICE_N
+#endif // #ifdef TRICE_S
+
+void trice0(uint16_t tid, const char* pFmt) {
+	trice32m_0(tid);
+	TRICE_UNUSED(pFmt)
+}
+
+void Trice0(uint16_t tid, const char* pFmt) {
+	Trice32m_0(tid);
+	TRICE_UNUSED(pFmt)
+}
+
+void TRice0(uint16_t tid, const char* pFmt) {
+	TRice32m_0(tid);
+	TRICE_UNUSED(pFmt)
+}
 
 #endif // #if !TRICE_OFF

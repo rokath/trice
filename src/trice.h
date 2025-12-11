@@ -762,20 +762,9 @@ void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString);
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-TRICE_INLINE void trice0(uint16_t tid, const char* pFmt) {
-	trice32m_0(tid);
-	TRICE_UNUSED(pFmt)
-}
-
-TRICE_INLINE void Trice0(uint16_t tid, const char* pFmt) {
-	Trice32m_0(tid);
-	TRICE_UNUSED(pFmt)
-}
-
-TRICE_INLINE void TRice0(uint16_t tid, const char* pFmt) {
-	TRice32m_0(tid);
-	TRICE_UNUSED(pFmt)
-}
+void trice0(uint16_t tid, const char* pFmt);
+void Trice0(uint16_t tid, const char* pFmt);
+void TRice0(uint16_t tid, const char* pFmt);
 
 void triceAssertTrue(int idN, const char* msg, int flag);
 void TriceAssertTrue(int idN, const char* msg, int flag);
