@@ -7,24 +7,62 @@
 # environment variables (PATH, C_INCLUDE_PATH, MAKE_JOBS, …) persist in
 # the current shell.
 #
-# The script:
-#   - checks for the presence of arm-none-eabi-gcc and clang
-#   - sets C_INCLUDE_PATH so that ARM Clang can find the ARM GNU toolchain headers
-#   - sets PATH for some platforms (e.g. macOS for llvm-size and binutils)
-#   - sets MAKE_JOBS to control "make -j" usage per platform
+# Behavior:
+#   - By default, it only prints errors and warnings.
+#   - If called with -v or --verbose, it prints additional informational output.
+#
+# Example:
+#   . ./build_environment.sh          # quiet, only errors/warnings
+#   . ./build_environment.sh -v       # verbose
+
+###############################################################################
+# Verbosity handling
+###############################################################################
+
+VERBOSE=0
+
+# Look for -v / --verbose in the current shell's positional parameters.
+# Note: when sourced, this inspects the caller's "$@", which usually is what
+# you passed to ". ./build_environment.sh ...".
+for arg in "$@"; do
+  case "$arg" in
+    -v|--verbose)
+      VERBOSE=1
+      ;;
+  esac
+done
+
+###############################################################################
+# Logging helpers
+###############################################################################
+
+log_info() {
+  # Informational messages only printed in verbose mode
+  if [ "$VERBOSE" -eq 1 ]; then
+    echo "$@"
+  fi
+}
+
+log_warn() {
+  # Warnings are always printed to stderr
+  echo "WARNING: $@" >&2
+}
+
+log_error() {
+  # Errors are always printed to stderr
+  echo "ERROR: $@" >&2
+}
 
 ###############################################################################
 # Basic tool presence checks
 ###############################################################################
 
 if ! command -v arm-none-eabi-gcc >/dev/null 2>&1; then
-  echo "WARNING: arm-none-eabi-gcc not found in PATH."
-  echo "         Cross-compilation will not work until you install it or adjust PATH."
+  log_warn "arm-none-eabi-gcc not found in PATH. Cross-compilation will not work until you install it or adjust PATH."
 fi
 
 if ! command -v clang >/dev/null 2>&1; then
-  echo "WARNING: clang not found in PATH."
-  echo "         Some projects or checks may require Clang/LLVM."
+  log_warn "clang not found in PATH. Some projects or checks may require Clang/LLVM."
 fi
 
 ###############################################################################
@@ -84,7 +122,7 @@ detect_arm_include_dir() {
 ###############################################################################
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  echo "Detected platform: Linux (OSTYPE=$OSTYPE)"
+  log_info "Detected platform: Linux (OSTYPE=$OSTYPE)"
 
   # On Linux we usually want to enable parallel builds.
   export MAKE_JOBS="-j"
@@ -100,12 +138,11 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
       export C_INCLUDE_PATH="${arm_inc_dir}"
     fi
   else
-    echo "NOTE: Could not auto-detect ARM include directory on Linux."
-    echo "      You may need to set C_INCLUDE_PATH manually for your toolchain."
+    log_warn "Could not auto-detect ARM include directory on Linux. You may need to set C_INCLUDE_PATH manually for your toolchain."
   fi
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-  echo "Detected platform: macOS (OSTYPE=$OSTYPE)"
+  log_info "Detected platform: macOS (OSTYPE=$OSTYPE)"
 
   ###########################################################################
   # macOS specifics:
@@ -119,12 +156,14 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   # Ensure Xcode Command Line Tools are ahead in PATH so llvm-size is found
   if [ -d "/Library/Developer/CommandLineTools/usr/bin" ]; then
     export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
+    log_info "Added /Library/Developer/CommandLineTools/usr/bin to PATH."
   fi
 
   # If Homebrew binutils exist, put them early in PATH as well
   if command -v brew >/dev/null 2>&1; then
     if [ -d "/opt/homebrew/opt/binutils/bin" ]; then
       export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
+      log_info "Added /opt/homebrew/opt/binutils/bin to PATH."
     fi
   fi
 
@@ -140,14 +179,14 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
       export C_INCLUDE_PATH="${arm_inc_dir}"
     fi
   else
-    echo "NOTE: Could not auto-detect ARM include directory via arm-none-eabi-gcc on macOS."
+    log_warn "Could not auto-detect ARM include directory via arm-none-eabi-gcc on macOS."
 
     # Fallback for the legacy ARM GNU Toolchain installed under /Applications.
     # This is *not* guaranteed to be present and may need manual adjustment.
     if command -v brew >/dev/null 2>&1 && brew list --cask >/dev/null 2>&1; then
       if brew list --cask | grep -q "^gcc-arm-embedded$"; then
         version=$(brew list --cask --versions gcc-arm-embedded | awk '{print $2}' | head -n1)
-        echo "Found Homebrew cask gcc-arm-embedded, version: $version"
+        log_info "Found Homebrew cask gcc-arm-embedded, version: $version"
 
         # Typical layout for the ARM GNU Toolchain GUI installer on macOS.
         candidate="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
@@ -158,18 +197,16 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
             export C_INCLUDE_PATH="${candidate}"
           fi
         else
-          echo "WARNING: ARM include directory not found at:"
-          echo "         $candidate"
-          echo "         You may need to adjust C_INCLUDE_PATH manually."
+          log_warn "ARM include directory not found at: $candidate. You may need to adjust C_INCLUDE_PATH manually."
         fi
       else
-        echo "NOTE: Homebrew cask gcc-arm-embedded is not installed."
+        log_info "Homebrew cask gcc-arm-embedded is not installed."
       fi
     fi
   fi
 
 elif [[ "$OSTYPE" == "cygwin" ]]; then
-  echo "Detected platform: Cygwin on Windows (OSTYPE=$OSTYPE)"
+  log_info "Detected platform: Cygwin on Windows (OSTYPE=$OSTYPE)"
 
   # Under Cygwin, aggressive parallel builds (-j) are known to cause blocking
   # or instability on some setups. We therefore disable it by default.
@@ -184,12 +221,11 @@ elif [[ "$OSTYPE" == "cygwin" ]]; then
       export C_INCLUDE_PATH="${arm_inc_dir}"
     fi
   else
-    echo "NOTE: Could not auto-detect ARM include directory on Cygwin."
-    echo "      You may need to set C_INCLUDE_PATH manually."
+    log_warn "Could not auto-detect ARM include directory on Cygwin. You may need to set C_INCLUDE_PATH manually."
   fi
 
 elif [[ "$OSTYPE" == "msys" ]]; then
-  echo "Detected platform: MSYS / MinGW on Windows (OSTYPE=$OSTYPE)"
+  log_info "Detected platform: MSYS / MinGW on Windows (OSTYPE=$OSTYPE)"
 
   # Same reasoning as for Cygwin: parallel make can be problematic; keep it off
   # by default to avoid hard-to-debug hangs.
@@ -204,21 +240,20 @@ elif [[ "$OSTYPE" == "msys" ]]; then
       export C_INCLUDE_PATH="${arm_inc_dir}"
     fi
   else
-    echo "NOTE: Could not auto-detect ARM include directory on MSYS."
-    echo "      You may need to set C_INCLUDE_PATH manually."
+    log_warn "Could not auto-detect ARM include directory on MSYS. You may need to set C_INCLUDE_PATH manually."
   fi
 
 elif [[ "$OSTYPE" == "win32" ]]; then
   # This branch is rarely seen with modern bash installations. It is kept
   # only as a diagnostic in case OSTYPE is literally "win32".
-  echo "Detected platform: Windows (OSTYPE=$OSTYPE)"
-  echo "No default configuration implemented for plain win32."
+  log_info "Detected platform: Windows (OSTYPE=$OSTYPE)"
+  log_info "No default configuration implemented for plain win32."
   export MAKE_JOBS=""
   # We do not attempt to detect C_INCLUDE_PATH here because the installation
   # paths vary widely on native Windows environments.
 
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
-  echo "Detected platform: FreeBSD (OSTYPE=$OSTYPE)"
+  log_info "Detected platform: FreeBSD (OSTYPE=$OSTYPE)"
 
   # FreeBSD is closer to Linux in behaviour; enable parallel builds by default.
   export MAKE_JOBS="-j"
@@ -231,35 +266,36 @@ elif [[ "$OSTYPE" == "freebsd"* ]]; then
       export C_INCLUDE_PATH="${arm_inc_dir}"
     fi
   else
-    echo "NOTE: Could not auto-detect ARM include directory on FreeBSD."
-    echo "      You may need to set C_INCLUDE_PATH manually."
+    log_warn "Could not auto-detect ARM include directory on FreeBSD. You may need to set C_INCLUDE_PATH manually."
   fi
 
 else
-  echo "Detected platform: Unknown (OSTYPE=$OSTYPE)"
-  echo "No platform-specific configuration available."
+  log_info "Detected platform: Unknown (OSTYPE=$OSTYPE)"
+  log_info "No platform-specific configuration available."
   export MAKE_JOBS=""
   # We do not attempt C_INCLUDE_PATH auto-detection here.
 fi
 
 ###############################################################################
-# Final summary for the user
+# Final summary (verbose only)
 ###############################################################################
 
-echo
-echo "===== Build environment summary ====="
-echo "OSTYPE        : $OSTYPE"
-if command -v arm-none-eabi-gcc >/dev/null 2>&1; then
-  echo "arm-none-eabi-gcc: $(command -v arm-none-eabi-gcc)"
-else
-  echo "arm-none-eabi-gcc: NOT FOUND"
+if [ "$VERBOSE" -eq 1 ]; then
+  echo
+  echo "===== Build environment summary ====="
+  echo "OSTYPE        : $OSTYPE"
+  if command -v arm-none-eabi-gcc >/dev/null 2>&1; then
+    echo "arm-none-eabi-gcc: $(command -v arm-none-eabi-gcc)"
+  else
+    echo "arm-none-eabi-gcc: NOT FOUND"
+  fi
+  if command -v clang >/dev/null 2>&1; then
+    echo "clang         : $(command -v clang)"
+  else
+    echo "clang         : NOT FOUND"
+  fi
+  echo "C_INCLUDE_PATH: ${C_INCLUDE_PATH:-<unset>}"
+  echo "MAKE_JOBS     : ${MAKE_JOBS:-<unset>}"
+  echo "====================================="
+  echo
 fi
-if command -v clang >/dev/null 2>&1; then
-  echo "clang         : $(command -v clang)"
-else
-  echo "clang         : NOT FOUND"
-fi
-echo "C_INCLUDE_PATH: ${C_INCLUDE_PATH:-<unset>}"
-echo "MAKE_JOBS     : ${MAKE_JOBS:-<unset>}"
-echo "====================================="
-echo
