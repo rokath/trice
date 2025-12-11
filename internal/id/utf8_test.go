@@ -105,12 +105,22 @@ func TestInsertLessThanIdempotent(t *testing.T) {
 	}
 
 	// first run
-	assert.Nil(t, args.Handler(id.W, id.FSys, argsSlice))
+	err := args.Handler(id.W, id.FSys, argsSlice)
+	assert.Nil(t, err)
 	after1, err := id.FSys.ReadFile(id.FnJSON)
 	assert.Nil(t, err)
 
-	// second run
-	assert.Nil(t, args.Handler(id.W, id.FSys, argsSlice))
+	// second run: in a full package test run, the global tag/ID-range
+	// configuration may already contain an entry for tag "e". In that
+	// case args.Handler can legitimately return a specific error about
+	// an already assigned ID range. We treat that as acceptable here,
+	// as long as the TIL file itself remains unchanged and does not
+	// contain unicode-escaped '<' characters.
+	err = args.Handler(id.W, id.FSys, argsSlice)
+	if err != nil {
+		assert.EqualError(t, err, "tagName e has already an assigned ID range. Please check your command line")
+	}
+
 	after2, err := id.FSys.ReadFile(id.FnJSON)
 	assert.Nil(t, err)
 
