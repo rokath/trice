@@ -778,17 +778,17 @@ void triceAssertFail(int idN);
 void TriceAssertFail(int idN);
 void TRiceAssertFail(int idN);
 
-#define triceAssert(a, b, c) triceAssertTrue(a, b, c)
-#define TriceAssert(a, b, c) TriceAssertTrue(a, b, c)
-#define TRiceAssert(a, b, c) TRiceAssertTrue(a, b, c)
+#define triceAssert(idN, msg, flag) triceAssertTrue(idN, msg, flag)
+#define TriceAssert(idN, msg, flag) TriceAssertTrue(idN, msg, flag)
+#define TRiceAssert(idN, msg, flag) TRiceAssertTrue(idN, msg, flag)
 
-#define triceAssertOrReturn(a, b, c) do {if (!(c)) {triceAssertFail(a); return;}} while(0)
-#define TriceAssertOrReturn(a, b, c) do {if (!(c)) {TriceAssertFail(a); return;}} while(0)
-#define TRiceAssertOrReturn(a, b, c) do {if (!(c)) {TRiceAssertFail(a); return;}} while(0)
+#define triceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {triceAssertFail(idN); return;}} while(0)
+#define TriceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TriceAssertFail(idN); return;}} while(0)
+#define TRiceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TRiceAssertFail(idN); return;}} while(0)
 
-#define triceAssertOrReturnValue(a, b, c, v) do {if (!(c)) {triceAssertFail(a); return (v);}} while(0)
-#define TriceAssertOrReturnValue(a, b, c, v) do {if (!(c)) {TriceAssertFail(a); return (v);}} while(0)
-#define TRiceAssertOrReturnValue(a, b, c, v) do {if (!(c)) {TRiceAssertFail(a); return (v);}} while(0)
+#define triceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {triceAssertFail(idN); return (value);}} while(0)
+#define TriceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TriceAssertFail(idN); return (value);}} while(0)
+#define TRiceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRiceAssertFail(idN); return (value);}} while(0)
 
 typedef void (*Write8AuxiliaryFn_t)(const uint8_t* enc, size_t encLen);
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;
