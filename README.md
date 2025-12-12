@@ -2,7 +2,7 @@
 
 <a id="top"> </a>
 
-![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) **Hi, I am Trice.**
+![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) **Hi, I am Trice.**
 
 <!-- [github.io/trice/](https://rokath.github.io/trice/) -->
 
@@ -55,7 +55,7 @@ even inside **↯ interrupts** in less than 1 µs❗
 
 This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TriceUserManual.md/#how-it-works---the-main-idea)
 
-![trice](./docs/ref/triceCOBSBlockDiagram.svg)
+![trice](docs/ref/triceCOBSBlockDiagram.svg)
 
 ## Data Transfer
 
@@ -84,7 +84,7 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 
 (See chapter [Development Environment Setup](./docs/TriceUserManual.md#development-environment-setup) for more details.)
 
-<img src="./docs/ref/Animation.gif" width="1200">
+<img src="docs/ref/Animation.gif" width="1200">
 
 ## Trice Cache
 
