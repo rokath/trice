@@ -2,6 +2,8 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#include "triceVariadic.h"
+
 // global function prototypes: (not all always used)
 
 #define TriceInitRingBufferMargins()
@@ -80,44 +82,33 @@
 #define TriceAssert(...)
 #define TRiceAssert(...)
 
-// ----- Arity detection helpers (C99) -----
-#define _TRICE_PP_NARG_IMPL( \
-          _1,_2,_3,_4,_5,_6,_7,_8,_9,_10, \
-          _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, \
-          N, ...) N
-#define _TRICE_PP_NARG(...) \
-        _TRICE_PP_NARG_IMPL(__VA_ARGS__, \
-          20,19,18,17,16,15,14,13,12,11, \
-          10,9,8,7,6,5,4,3,2,1,0)
-
-#define _TRICE_PP_CAT(a,b) a##b
-#define _TRICE_PP_OVERLOAD(name, count) _TRICE_PP_CAT(name, count)
-#define _TRICE_PP_DISPATCH(name, ...) \
-        _TRICE_PP_OVERLOAD(name, _TRICE_PP_NARG(__VA_ARGS__))(__VA_ARGS__)
+// Allows assert functions to be used with or without idN
+// Taking advantage of the variadic mechanism to use correct define.
 
 // triceAssertOrReturn
-#define triceAssertOrReturn2(msg, flag) do {if (!(flag)) {return;}} while(0)
-#define TriceAssertOrReturn2(msg, flag) do {if (!(flag)) {return;}} while(0)
-#define TRiceAssertOrReturn2(msg, flag) do {if (!(flag)) {return;}} while(0)
-#define triceAssertOrReturn3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
-#define TriceAssertOrReturn3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
-#define TRiceAssertOrReturn3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
+#define triceAssertOrReturn_2(msg, flag) do {if (!(flag)) {return;}} while(0)
+#define TriceAssertOrReturn_2(msg, flag) do {if (!(flag)) {return;}} while(0)
+#define TRiceAssertOrReturn_2(msg, flag) do {if (!(flag)) {return;}} while(0)
+#define triceAssertOrReturn_3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
+#define TriceAssertOrReturn_3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
+#define TRiceAssertOrReturn_3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
 
-#define triceAssertOrReturn(...) _TRICE_PP_DISPATCH(triceAssertOrReturn, __VA_ARGS__)
-#define TriceAssertOrReturn(...) _TRICE_PP_DISPATCH(TriceAssertOrReturn, __VA_ARGS__)
-#define TRiceAssertOrReturn(...) _TRICE_PP_DISPATCH(TRiceAssertOrReturn, __VA_ARGS__)
+#define triceAssertOrReturn(...) TRICE_CONCAT2(triceAssertOrReturn_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(__VA_ARGS__)
+#define TriceAssertOrReturn(...) TRICE_CONCAT2(TriceAssertOrReturn_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(__VA_ARGS__)
+#define TRiceAssertOrReturn(...) TRICE_CONCAT2(TRiceAssertOrReturn_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(__VA_ARGS__)
+
 
 // triceAssertOrReturnValue
-#define triceAssertOrReturnValue3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
-#define TriceAssertOrReturnValue3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
-#define TRiceAssertOrReturnValue3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
-#define triceAssertOrReturnValue4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
-#define TriceAssertOrReturnValue4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
-#define TRiceAssertOrReturnValue4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define triceAssertOrReturnValue_3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define TriceAssertOrReturnValue_3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define TRiceAssertOrReturnValue_3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define triceAssertOrReturnValue_4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define TriceAssertOrReturnValue_4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define TRiceAssertOrReturnValue_4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
 
-#define triceAssertOrReturnValue(...) _TRICE_PP_DISPATCH(triceAssertOrReturnValue, __VA_ARGS__)
-#define TriceAssertOrReturnValue(...) _TRICE_PP_DISPATCH(TriceAssertOrReturnValue, __VA_ARGS__)
-#define TRiceAssertOrReturnValue(...) _TRICE_PP_DISPATCH(TRiceAssertOrReturnValue, __VA_ARGS__)
+#define triceAssertOrReturnValue(...) TRICE_CONCAT2(triceAssertOrReturnValue_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(__VA_ARGS__)
+#define TriceAssertOrReturnValue(...) TRICE_CONCAT2(TriceAssertOrReturnValue_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(__VA_ARGS__)
+#define TRiceAssertOrReturnValue(...) TRICE_CONCAT2(TRiceAssertOrReturnValue_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(__VA_ARGS__)
 
 
 // All following macros are defined without ID and as variadic, to avoid editor warnings for TRICE_CLEAN == 1 or TRICE_OFF == 1
