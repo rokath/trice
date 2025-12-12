@@ -80,13 +80,45 @@
 #define TriceAssert(...)
 #define TRiceAssert(...)
 
-#define triceAssertOrReturn(msg, flag) do {if (!(flag)) {return;}} while(0)
-#define TriceAssertOrReturn(msg, flag) do {if (!(flag)) {return;}} while(0)
-#define TRiceAssertOrReturn(msg, flag) do {if (!(flag)) {return;}} while(0)
+// ----- Arity detection helpers (C99) -----
+#define _TRICE_PP_NARG_IMPL( \
+          _1,_2,_3,_4,_5,_6,_7,_8,_9,_10, \
+          _11,_12,_13,_14,_15,_16,_17,_18,_19,_20, \
+          N, ...) N
+#define _TRICE_PP_NARG(...) \
+        _TRICE_PP_NARG_IMPL(__VA_ARGS__, \
+          20,19,18,17,16,15,14,13,12,11, \
+          10,9,8,7,6,5,4,3,2,1,0)
 
-#define triceAssertOrReturnValue(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
-#define TriceAssertOrReturnValue(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
-#define TRiceAssertOrReturnValue(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define _TRICE_PP_CAT(a,b) a##b
+#define _TRICE_PP_OVERLOAD(name, count) _TRICE_PP_CAT(name, count)
+#define _TRICE_PP_DISPATCH(name, ...) \
+        _TRICE_PP_OVERLOAD(name, _TRICE_PP_NARG(__VA_ARGS__))(__VA_ARGS__)
+
+// triceAssertOrReturn
+#define triceAssertOrReturn2(msg, flag) do {if (!(flag)) {return;}} while(0)
+#define TriceAssertOrReturn2(msg, flag) do {if (!(flag)) {return;}} while(0)
+#define TRiceAssertOrReturn2(msg, flag) do {if (!(flag)) {return;}} while(0)
+#define triceAssertOrReturn3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
+#define TriceAssertOrReturn3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
+#define TRiceAssertOrReturn3(idN, msg, flag) do {if (!(flag)) {return;}} while(0)
+
+#define triceAssertOrReturn(...) _TRICE_PP_DISPATCH(triceAssertOrReturn, __VA_ARGS__)
+#define TriceAssertOrReturn(...) _TRICE_PP_DISPATCH(TriceAssertOrReturn, __VA_ARGS__)
+#define TRiceAssertOrReturn(...) _TRICE_PP_DISPATCH(TRiceAssertOrReturn, __VA_ARGS__)
+
+// triceAssertOrReturnValue
+#define triceAssertOrReturnValue3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define TriceAssertOrReturnValue3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define TRiceAssertOrReturnValue3(msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define triceAssertOrReturnValue4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define TriceAssertOrReturnValue4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+#define TRiceAssertOrReturnValue4(idN, msg, flag, value) do {if (!(flag)) {return (value);}} while(0)
+
+#define triceAssertOrReturnValue(...) _TRICE_PP_DISPATCH(triceAssertOrReturnValue, __VA_ARGS__)
+#define TriceAssertOrReturnValue(...) _TRICE_PP_DISPATCH(TriceAssertOrReturnValue, __VA_ARGS__)
+#define TRiceAssertOrReturnValue(...) _TRICE_PP_DISPATCH(TRiceAssertOrReturnValue, __VA_ARGS__)
+
 
 // All following macros are defined without ID and as variadic, to avoid editor warnings for TRICE_CLEAN == 1 or TRICE_OFF == 1
 
