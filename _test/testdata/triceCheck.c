@@ -151,9 +151,9 @@ void TriceCheck(int n) {
         break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", !0 ); //exp: "time:    be16default: ASSERT:flag not false!\n"
         break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", !0 ); //exp: "time:feed3322default: ASSERT:flag not false!\n"
 
-        break; case __LINE__: (void)Test_triceAssertOrReturnValue(0); //exp: "time:        default: ASSERT:flag not true!\n"
-        break; case __LINE__: (void)Test_TriceAssertOrReturnValue(0); //exp: "time:    be16default: ASSERT:flag not true!\n"
-        break; case __LINE__: (void)Test_TRiceAssertOrReturnValue(0); //exp: "time:feed3322default: ASSERT:flag not true!\n"
+        break; case __LINE__: Test_triceAssertOrReturnValue(0); //exp: "time:        default: ASSERT:flag not true!\n"
+        break; case __LINE__: Test_TriceAssertOrReturnValue(0); //exp: "time:    be16default: ASSERT:flag not true!\n"
+        break; case __LINE__: Test_TRiceAssertOrReturnValue(0); //exp: "time:feed3322default: ASSERT:flag not true!\n"
         
         // The following asserts are expected to be silent, so we add some output just for the testing here.
         break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
