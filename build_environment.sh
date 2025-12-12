@@ -14,9 +14,7 @@ fi
 # ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  # which returns s.th. like /...-arm-none-eabi/bin//arm-none-eabi-gcc # 2 slashes
-  #                                             <---   22 chars   --->
-  loc=$(which arm-none-eabi-gcc) && export C_INCLUDE_PATH=${loc:0:${#loc}-22}arm-none-eabi/include
+  loc=$(arm-none-eabi-gcc -print-file-name=include) && export C_INCLUDE_PATH="${loc}:/usr/include/newlib/"
   export MAKE_JOBS="-j"
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
