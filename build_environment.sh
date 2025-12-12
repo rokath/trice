@@ -39,18 +39,18 @@ done
 log_info() {
   # Informational messages only printed in verbose mode
   if [ "$VERBOSE" -eq 1 ]; then
-    echo "$@"
+    echo "INFO:" "$@"
   fi
 }
 
 log_warn() {
   # Warnings are always printed to stderr
-  echo "WARNING: $@" >&2
+  echo "WARNING:" "$@" >&2
 }
 
 log_error() {
   # Errors are always printed to stderr
-  echo "ERROR: $@" >&2
+  echo "ERROR:" "$@" >&2
 }
 
 ###############################################################################
