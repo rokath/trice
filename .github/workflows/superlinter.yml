@@ -35,7 +35,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: main
-          LOG_LEVEL: DEBUG
+          # LOG_LEVEL: DEBUG
+          LINTER_RULES_PATH: .
 
           # ───────────────────────────────────────────────────────────────
           # GLOBAL SETTINGS
