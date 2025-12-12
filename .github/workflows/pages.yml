@@ -33,29 +33,35 @@ jobs:
       #     
       #     EOF
       #     cat README.md >> docs/index.md
-      - name: Generate docs/index.md from README.md (Pages-safe)
-        shell: bash
-        run: |
-          set -euo pipefail
 
-          # Create front matter
-          cat > docs/index.md <<'EOF'
-          ---
-          layout: default
-          ---
-          EOF
-
-          # Append README, but strip HTML block constructs that commonly break Kramdown parsing on Pages
-          # - remove <div ...> and </div>
-          # - remove standalone HTML <p ...> blocks used for alignment
-          # - remove raw <img ...> tags (use Markdown images instead in README, or keep them in docs)
-          sed -E \
-            -e '/^[[:space:]]*<div[^>]*>[[:space:]]*$/d' \
-            -e '/^[[:space:]]*<\/div>[[:space:]]*$/d' \
-            -e '/^[[:space:]]*<p[^>]*>[[:space:]]*$/d' \
-            -e '/^[[:space:]]*<\/p>[[:space:]]*$/d' \
-            -e '/^[[:space:]]*<img[^>]*>[[:space:]]*$/d' \
-            README.md >> docs/index.md
+      # - name: Generate docs/index.md from README.md (Pages-safe)
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+# 
+      #     # Create front matter
+      #     cat > docs/index.md <<'EOF'
+      #     ---
+      #     layout: default
+      #     ---
+      #     EOF
+# 
+      #     # Append README, but strip HTML block constructs that commonly break Kramdown parsing on Pages
+      #     # - remove <div ...> and </div>
+      #     # - remove standalone HTML <p ...> blocks used for alignment
+      #     # - remove raw <img ...> tags (use Markdown images instead in README, or keep them in docs)
+      #     sed -E \
+      #       -e '/^[[:space:]]*<div[^>]*>[[:space:]]*$/d' \
+      #       -e '/^[[:space:]]*<\/div>[[:space:]]*$/d' \
+      #       -e '/^[[:space:]]*<p[^>]*>[[:space:]]*$/d' \
+      #       -e '/^[[:space:]]*<\/p>[[:space:]]*$/d' \
+      #       -e '/^[[:space:]]*<img[^>]*>[[:space:]]*$/d' \
+      #       README.md >> docs/index.md
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
