@@ -19,6 +19,9 @@ static int64_t DoubleToInt64(double f);
 static void exampleOfManualSerialization(void);
 static void exampleOfManualJSONencoding(void);
 static void dynString(int n);
+static int Test_triceAssertOrReturnValue(int flag);
+static int Test_TriceAssertOrReturnValue(int flag);
+static int Test_TRiceAssertOrReturnValue(int flag);
 #endif // #ifndef TRICE_CHECK_MIN
 
 // clang-format off
@@ -141,17 +144,35 @@ void TriceCheck(int n) {
         break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", 0 );    //exp: "time:        default: ASSERT:flag not true!\n"
         break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", 0 );    //exp: "time:    be16default: ASSERT:flag not true!\n"
         break; case __LINE__: TRiceAssertTrue("ASSERT:flag not true!\n", 0 );    //exp: "time:feed3322default: ASSERT:flag not true!\n"
+        break; case __LINE__: triceAssert("ASSERT:flag not true!\n", 0 );                   //exp: "time:        default: ASSERT:flag not true!\n"
+        break; case __LINE__: TriceAssert("ASSERT:flag not true!\n", 0 );                   //exp: "time:    be16default: ASSERT:flag not true!\n"
+        break; case __LINE__: TRiceAssert("ASSERT:flag not true!\n", 0 );                   //exp: "time:feed3322default: ASSERT:flag not true!\n"
         break; case __LINE__: triceAssertFalse("ASSERT:flag not false!\n", !0 ); //exp: "time:        default: ASSERT:flag not false!\n"
         break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", !0 ); //exp: "time:    be16default: ASSERT:flag not false!\n"
         break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", !0 ); //exp: "time:feed3322default: ASSERT:flag not false!\n"
+
+        break; case __LINE__: (void)Test_triceAssertOrReturnValue(0); //exp: "time:        default: ASSERT:flag not true!\n"
+        break; case __LINE__: (void)Test_TriceAssertOrReturnValue(0); //exp: "time:    be16default: ASSERT:flag not true!\n"
+        break; case __LINE__: (void)Test_TRiceAssertOrReturnValue(0); //exp: "time:feed3322default: ASSERT:flag not true!\n"
         
-        // The following 6 asserts are expected to be silent, so we add some output just for the testing here.
+        // The following asserts are expected to be silent, so we add some output just for the testing here.
         break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
         break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
         break; case __LINE__: TRiceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: triceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: TriceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: TRiceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
         break; case __LINE__: triceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
         break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
         break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+
+        break; case __LINE__: triceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: TriceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: TRiceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+
+        break; case __LINE__: if(Test_triceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: if(Test_TriceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: if(Test_TRiceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
         
         break; case __LINE__: trice("sig:trice without stamp and with 0 to 12 values (most common use cases)\n" );    
         break; case __LINE__: trice("rd:trice\n" );                                                                                                   //exp: "time:        default: rd:trice\n"
@@ -2758,6 +2779,24 @@ static void dynString(int n) {
 	N_dynString = N_dynString < l ? N_dynString : l;
 	// trice("sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
 	TRICE_N(id(0), "wr:%s\n", s, N_dynString);
+}
+
+static int Test_triceAssertOrReturnValue(int flag) {
+    triceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
+
+    return 1;
+}
+
+static int Test_TriceAssertOrReturnValue(int flag) {
+    TriceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
+
+    return 1;
+}
+
+static int Test_TRiceAssertOrReturnValue(int flag) {
+    TRiceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
+
+    return 1;
 }
 
 #endif // #ifndef TRICE_CHECK_MIN
