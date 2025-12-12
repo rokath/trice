@@ -926,18 +926,6 @@ unsigned TriceOutDepth(void) {
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-void triceAssertFail(int idN) {
-	TRICE_ASSERT(id(idN));
-}
-
-void TriceAssertFail(int idN) {
-	TRICE_ASSERT(Id(idN));
-}
-
-void TRiceAssertFail(int idN) {
-	TRICE_ASSERT(ID(idN));
-}
-
 void triceAssertTrue(int idN, const char* msg, int flag) {
 	TRICE_UNUSED(msg)
 	if (!flag) {
