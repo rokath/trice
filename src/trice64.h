@@ -62,6 +62,8 @@
 
 #endif // #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 64
 
+#include "triceVariadic.h"
+
 #define TRICE64(tid, fmt, ...) TRICE_CONCAT2(TRICE64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 //! TRICE64_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
