@@ -2,4 +2,7 @@
 layout: default
 ---
 
-{% raw %}{% include_relative ../README.md %}{% endraw %}
+{% capture readme %}
+{% include_relative ../README.md %}
+{% endcapture %}
+{{ readme | markdownify }}
