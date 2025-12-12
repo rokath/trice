@@ -1,10 +1,8 @@
 # 🅃🅁ace 🄸d's 🄲 🄴mbedded
 
-<div id="top">
+<a id="top"> </a>
 
 ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) **Hi, I am Trice.**
-
-</div>
 
 <!-- [github.io/trice/](https://rokath.github.io/trice/) -->
 
