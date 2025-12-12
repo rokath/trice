@@ -22,17 +22,40 @@ jobs:
         uses: actions/checkout@v4
 
       # Generate docs/index.md from the repository root README.md (no duplicate committed)
-      - name: Generate index.md from README.md
+      # - name: Generate index.md from README.md
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+      #     cat > docs/index.md <<'EOF'
+      #     ---
+      #     layout: default
+      #     ---
+      #     
+      #     EOF
+      #     cat README.md >> docs/index.md
+      - name: Generate docs/index.md from README.md (Pages-safe)
         shell: bash
         run: |
           set -euo pipefail
+
+          # Create front matter
           cat > docs/index.md <<'EOF'
           ---
           layout: default
           ---
-          
           EOF
-          cat README.md >> docs/index.md
+
+          # Append README, but strip HTML block constructs that commonly break Kramdown parsing on Pages
+          # - remove <div ...> and </div>
+          # - remove standalone HTML <p ...> blocks used for alignment
+          # - remove raw <img ...> tags (use Markdown images instead in README, or keep them in docs)
+          sed -E \
+            -e '/^[[:space:]]*<div[^>]*>[[:space:]]*$/d' \
+            -e '/^[[:space:]]*<\/div>[[:space:]]*$/d' \
+            -e '/^[[:space:]]*<p[^>]*>[[:space:]]*$/d' \
+            -e '/^[[:space:]]*<\/p>[[:space:]]*$/d' \
+            -e '/^[[:space:]]*<img[^>]*>[[:space:]]*$/d' \
+            README.md >> docs/index.md
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
