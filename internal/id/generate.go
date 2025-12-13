@@ -132,7 +132,7 @@ namespace TriceIDList;
 	//! Til contains all trice format strings together with id and parameter information.
 	//!
 	//! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
-	//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md/#binary-encoding.
+	//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md#binary-encoding.
 	//! It is recommended to check if both values are matching. A negative paramCount indicates, that its value is unknown at compile time.
 	public static class Til
 	{
