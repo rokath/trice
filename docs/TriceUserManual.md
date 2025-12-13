@@ -161,12 +161,12 @@ Table of Contents Generation:
 11.2. [Prepare A Release](#prepare-a-release)
 11.2.1. [Check a Goreleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
 11.3. [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
-11.3.1. [Step: Make sure your workflow reacts to tags](#step:-make-sure-your-workflow-reacts-to-tags)
-11.3.2. [Step: Final checks before tagging](#step:-final-checks-before-tagging)
-11.3.3. [Step: Choose a version and create a `git tag`](#step:-choose-a-version-and-create-a-`git-tag`)
-11.3.4. [Step: Push the tag to GitHub (this triggers CI)](#step:-push-the-tag-to-github-(this-triggers-ci))
-11.3.5. [Step: Watch the CI release run on GitHub](#step:-watch-the-ci-release-run-on-github)
-11.3.6. [Step: Check the GitHub Release](#step:-check-the-github-release)
+11.3.1. [ Make sure your workflow reacts to tags](#-make-sure-your-workflow-reacts-to-tags)
+11.3.2. [ Final checks before tagging](#-final-checks-before-tagging)
+11.3.3. [ Choose a version and create a `git tag`](#-choose-a-version-and-create-a-`git-tag`)
+11.3.4. [ Push the tag to GitHub (this triggers CI)](#-push-the-tag-to-github-(this-triggers-ci))
+11.3.5. [ Watch the CI release run on GitHub](#-watch-the-ci-release-run-on-github)
+11.3.6. [ Check the GitHub Release](#-check-the-github-release)
 12. [Embedded system code configuration](#embedded-system-code-configuration)
 13. [Trice tool in logging action](#trice-tool-in-logging-action)
 14. [Encryption](#encryption)
@@ -406,10 +406,10 @@ Table of Contents Generation:
 44.3. [Building a trice library?](#building-a-trice-library?)
 44.4. [Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
 45. [Trice And Legacy User Code](#trice-and-legacy-user-code)
-45.1. [Legacy User Code Option: Separate Physical Output Channel](#legacy-user-code-option:-separate-physical-output-channel)
-45.2. [Legacy User Code Option: Trice Adaption Edits](#legacy-user-code-option:-trice-adaption-edits)
-45.3. [Legacy User Code Option: Print Buffer Wrapping and Framing](#legacy-user-code-option:-print-buffer-wrapping-and-framing)
-45.4. [Legacy User Code Option: Trice Aliases Adaption](#legacy-user-code-option:-trice-aliases-adaption)
+45.1. [Legacy User Code Option Separate Physical Output Channel](#legacy-user-code-option-separate-physical-output-channel)
+45.2. [Legacy User Code Option Trice Adaption Edits](#legacy-user-code-option-trice-adaption-edits)
+45.3. [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
+45.4. [Legacy User Code Option Trice Aliases Adaption](#legacy-user-code-option-trice-aliases-adaption)
 45.4.1. [PR533 Doc](#pr533-doc)
 45.4.2. [PR533 Summary](#pr533-summary)
 45.4.3. [PR533 Motivation](#pr533-motivation)
@@ -1634,6 +1634,8 @@ To fill the`.gitattributes`, I used the command below to view all the extensions
 git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort -u
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  10. <a id='📁-the-.github-folder-—-purpose-and-contents-(for-trice-developers)'></a>📁 The .github Folder — Purpose and Contents (For Trice Developers)
 
 GitHub automatically recognizes and uses everything contained inside the [.github/](../.github/) directory.
@@ -2136,7 +2138,7 @@ If it **fails**, fix the problem locally first (missing files, bad paths, etc.) 
 
 Letting CI build and publish an **official release**.
 
-####  11.3.1. <a id='step:-make-sure-your-workflow-reacts-to-tags'></a>Step: Make sure your workflow reacts to tags
+####  11.3.1. <a id='-make-sure-your-workflow-reacts-to-tags'></a> Make sure your workflow reacts to tags
 
 In [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml), you need `on:   workflow_dispatch:   push:     tags:       - 'v*'`.
 
@@ -2147,7 +2149,7 @@ Commit & push this change (if you haven’t already):
 
 `git add .github/workflows/goreleaser.yml git commit -m "Configure GoReleaser workflow to run on tags" git push origin main`
 
-####  11.3.2. <a id='step:-final-checks-before-tagging'></a>Step: Final checks before tagging
+####  11.3.2. <a id='-final-checks-before-tagging'></a> Final checks before tagging
 
 In your local `trice` repo:
 
@@ -2160,7 +2162,7 @@ In your local `trice` repo:
     
 If all of that is green, you’re ready to “bless” a version.
 
-####  11.3.3. <a id='step:-choose-a-version-and-create-a-`git-tag`'></a>Step: Choose a version and create a `git tag`
+####  11.3.3. <a id='-choose-a-version-and-create-a-`git-tag`'></a> Choose a version and create a `git tag`
 
 Decide on a version, for example:
 
@@ -2181,7 +2183,7 @@ You should see `v0.44.0` in the list.
 > 💡 The **tag** is what GoReleaser uses as the release version (`.Tag`, `.Version`, etc.) in your `.goreleaser.yaml`.  
 > Your `ldflags` like `-X main.version={{ .Version }}` will use this.
 
-####  11.3.4. <a id='step:-push-the-tag-to-github-(this-triggers-ci)'></a>Step: Push the tag to GitHub (this triggers CI)
+####  11.3.4. <a id='-push-the-tag-to-github-(this-triggers-ci)'></a> Push the tag to GitHub (this triggers CI)
 
 Now push the tag:
 
@@ -2191,7 +2193,7 @@ This does **not** push all tags, only `v0.44.0`.
 
 Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts** the GoReleaser workflow in GitHub Actions.
 
-####  11.3.5. <a id='step:-watch-the-ci-release-run-on-github'></a>Step: Watch the CI release run on GitHub
+####  11.3.5. <a id='-watch-the-ci-release-run-on-github'></a> Watch the CI release run on GitHub
 
 1.  Open your browser and go to your repo:
     
@@ -2215,7 +2217,7 @@ Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts
 
 If “Run GoReleaser” is green ✔, the CI release has succeeded.
 
-####  11.3.6. <a id='step:-check-the-github-release'></a>Step: Check the GitHub Release
+####  11.3.6. <a id='-check-the-github-release'></a> Check the GitHub Release
 
 Finally, verify the published release:
 
@@ -7145,7 +7147,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * [Legacy User Code Option: Print Buffer Wrapping and Framing](#legacy-user-code-option:-print-buffer-wrapping-and-framing)
 * [Legacy User Code Option: Trice Aliases Adaption](#legacy-user-code-option:-trice-aliases-adaption)
 
-###  45.1. <a id='legacy-user-code-option:-separate-physical-output-channel'></a>Legacy User Code Option: Separate Physical Output Channel 
+###  45.1. <a id='legacy-user-code-option-separate-physical-output-channel'></a>Legacy User Code Option Separate Physical Output Channel 
 
 *Advantages:*
 
@@ -7162,7 +7164,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 
 * The legacy user code output drives a terminal app and the Trice output feeds the Trice binary data into the Trice tool.
 
-###  45.2. <a id='legacy-user-code-option:-trice-adaption-edits'></a>Legacy User Code Option: Trice Adaption Edits
+###  45.2. <a id='legacy-user-code-option-trice-adaption-edits'></a>Legacy User Code Option Trice Adaption Edits
 
 *Advantages:*
 
@@ -7185,7 +7187,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * All exising user prints are replaced with appropriate Trice macros according chapter [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage).
 * When using 64-bit as default Trice bit width, more RAM is used compared to 32-bit, but in combination with the default [TCOBS](https://github.com/rokath/tcobs) compressing framing the transmitted Trice packets do not increase much compared to 32-bit width.
 
-###  45.3. <a id='legacy-user-code-option:-print-buffer-wrapping-and-framing'></a>Legacy User Code Option: Print Buffer Wrapping and Framing 
+###  45.3. <a id='legacy-user-code-option-print-buffer-wrapping-and-framing'></a>Legacy User Code Option Print Buffer Wrapping and Framing 
 
 > **Trice >= v1.1 feature**, see also issue [\#550](https://github.com/rokath/trice/issues/550)
 
@@ -7206,7 +7208,7 @@ The Trice binary encoding uses states 1, 2, 3 of the 4 states, the 2 [Binary Enc
 
 If the Trice library and the user print both write to the same output, an easy modification would be, to prepend the user print output with a 2-byte count as long its size is < 16383, so that the 2 most significant bits are zero. Additionally, the this way counted buffer needs the same buffer framing as the Trice binary data.
 
-###  45.4. <a id='legacy-user-code-option:-trice-aliases-adaption'></a>Legacy User Code Option: Trice Aliases Adaption
+###  45.4. <a id='legacy-user-code-option-trice-aliases-adaption'></a>Legacy User Code Option Trice Aliases Adaption
 
 > **Trice >= v1.1 feature**, see also accepted pull requests [\#533](https://github.com/rokath/trice/pull/533) and [\#536](https://github.com/rokath/trice/pull/536)
 
