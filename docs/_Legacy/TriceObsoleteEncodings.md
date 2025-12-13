@@ -524,7 +524,7 @@ byte inside the data stream. As byte `0xec` is not used so often is is defined a
 ###  6.2. <a id='length-code-`lc`'></a>Length Code `LC`
 
 The LC is a 1-byte logarithmic length code. This is a copy
-from [trice.h lines 44-58](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.h) and shows the length code
+from [trice.h lines 44-58](https://github.com/rokath/trice/blob/master/src/trice.h) and shows the length code
 meaning:
 
 ```c
