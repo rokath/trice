@@ -1,0 +1,59 @@
+name: Link Check
+
+on:
+  push:
+    branches: ["main"]           # Run link checks on every push to main
+  pull_request:                  # Also run on every PR (useful for gating changes)
+  workflow_dispatch:             # Allow manual runs from the GitHub UI
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest       # Use the latest Ubuntu runner
+
+    permissions:
+      contents: read             # Required so lychee can read repository files
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        # This makes the full repository (including all Markdown files)
+        # available in the GitHub Actions workspace.
+
+      - name: Run lychee link checker on all Markdown files
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # args are passed directly to the lychee CLI.
+          # Here we:
+          #   - enable verbose logging
+          #   - disable the interactive progress bar (better CI logs)
+          #   - set a timeout per request
+          #   - limit the inputs to all Markdown files in the repo tree
+          #
+          # Notes:
+          #   - './**/*.md' is a glob that matches all Markdown files
+          #     in the repository, recursively.
+          #   - You can later add more patterns (e.g. './**/*.html') if needed.
+          args: >
+            --verbose
+            --no-progress
+            --timeout 15
+            --max-redirects 5
+            './**/*.md'
+          #
+          # fail:
+          #   - If true, the workflow will fail when lychee finds broken links.
+          #   - This is typically what you want for CI gating.
+          fail: true
+
+        env:
+          # GITHUB_TOKEN is used by lychee to authenticate against the GitHub API
+          # when checking links that point to GitHub (better rate limits, fewer 429 errors).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optional: Add a future step to post-process the lychee output,
+      # create issues, or upload artifacts if desired.
+      #
+      # Example (for later):
+      # - name: Inspect lychee raw output
+      #   run: cat ./lychee/out.md || echo "No output file generated."
