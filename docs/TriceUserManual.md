@@ -12,25 +12,11 @@ title: Trice User Manual
 --> Too Long; Don't Read - use it as reference only❗
 ```
 
-<p align="right">(<a href="#bottom">go to bottom</a>)</p>
-
----
-<h2>Table of Contents</h2>
-<details><summary>(click to expand)</summary><ol><!-- TABLE OF CONTENTS START -->
-
 <!-- 
 PDF Generation
 * Install vsCode extension "Markdown PDF" 
 * Use Shift-Command-P "markdown PDF:export" to generata a PDF
 * page break for PDF generation: <div style="page-break-before: always;"></div> 
--->
-
-<!--
-Table of Contents Generation:
-* Install vsCode extension "Markdown TOC" from dumeng
-* Use Shift-Command-P "markdownTOC:generate" to get the automatic numbering.
-* replace "<a name" with "<a id"
-* replace "##" followed by 2 spaces with "## "‚
 -->
 
 <!--
@@ -73,6 +59,22 @@ UP-POINTING SMALL RED TRIANGLE (&#x1F53C;): 🔼
 DOWN-POINTING SMALL RED TRIANGLE (&#x1F53D;): 🔽
 
 https://apps.timwhitlock.info/emoji/tables/unicode
+-->
+
+<p align="right">(<a href="#bottom">go to bottom</a>)</p>
+
+---
+<h2>Table of Contents</h2><!-- TABLE OF CONTENTS START -->
+
+<details markdown="1"> <!-- parse this block as markdown -->
+<summary>(click to expand)</summary>
+
+<!--
+Table of Contents Generation:
+* Install vsCode extension "Markdown TOC" from dumeng
+* Use Shift-Command-P "markdownTOC:generate" to get the automatic numbering.
+* replace "<a name" with "<a id"
+* replace "##" followed by 2 spaces with "## "‚
 -->
 
 <!-- vscode-markdown-toc -->
@@ -437,6 +439,21 @@ https://apps.timwhitlock.info/emoji/tables/unicode
   * 47.1. [Install `opencommit` on MacOS](#install-`opencommit`-on-macos)
   * 47.2. [Install `opencommit` on Windows](#install-`opencommit`-on-windows)
 * 48. [Trice Folder Maintenance](#trice-folder-maintenance)
+  * 48.1. [Cleaning the Sources](#cleaning-the-sources)
+  * 48.2. [Github Maintenance](#github-maintenance)
+    * 48.2.1. [Clang Format](#clang-format)
+    * 48.2.2. [CodeQL](#codeql)
+    * 48.2.3. [Test Go](#test-go)
+    * 48.2.4. [Run GoReleaser](#run-goreleaser)
+    * 48.2.5. [Labeler](#labeler)
+    * 48.2.6. [Broken Links Check](#broken-links-check)
+    * 48.2.7. [Pages](#pages)
+    * 48.2.8. [Shell Check](#shell-check)
+    * 48.2.9. [Shell Format](#shell-format)
+    * 48.2.10. [Mark stale issues and pull requests](#mark-stale-issues-and-pull-requests)
+    * 48.2.11. [Super Linter](#super-linter)
+    * 48.2.12. [Test Goreleaser](#test-goreleaser)
+    * 48.2.13. [Clean MacOS Files](#clean-macos-files)
 * 49. [Trice User Manual Changelog](#trice-user-manual-changelog)
 * 50. [Scratch Pad](#scratch-pad)
 
@@ -448,7 +465,7 @@ https://apps.timwhitlock.info/emoji/tables/unicode
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-</ol></details><!-- TABLE OF CONTENTS END -->
+</details><!-- TABLE OF CONTENTS END -->
 
 ---
 
@@ -536,7 +553,7 @@ Learning that Trice is also a [baby girl name](https://www.babynamespedia.com/me
 
 Trice performs **no** [costly](#trice-similarities-and-differences-to-printf-usage) printf-like functions on the target at all. The Trice macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6(six!)](#trice-speed) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
 
-To achieve that, a pre-compile step is needed, executing a `trice insert` command on the PC. This is fast enough not to disturb the build process. The Trice tool parses then the source tree for macros like `trice( "msg: %d Kelvin\n", k );` and patches them to `trice( iD(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 14-bit identifier (ID) copied into a [**T**rice **I**D **L**ist](../_test/testdata/til.json). During compilation than, the Trice macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
+To achieve that, a pre-compile step is needed, executing a `trice insert` command on the PC. This is fast enough not to disturb the build process. The Trice tool parses then the source tree for macros like `trice( "msg: %d Kelvin\n", k );` and patches them to `trice( iD(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 14-bit identifier (ID) copied into a [**T**rice **I**D **L**ist](../demoTIL.json). During compilation than, the Trice macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
 
 The target code is [project specific](../examples/F030_inst/Core/Inc/triceConfig.h) configurable.  In **direct mode** the the stack or a static buffer is used as Trice buffer and the Trice macro execution includes optionally the quick [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding and the data transfer. This more straightforward and slower architecture can be interesting for many cases because it is anyway much faster than printf-like functions calls. Especially when using [Trice over RTT](#trice-over-rtt) a single Trice is executable within ~100 processor clocks. See `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and look into the [examples](../examples) folder. In **deferred mode** a service swaps the Trice double buffer or reads the Trice ring buffer periodically, the configured encoding, default is TCOBS, takes part and with the filled buffer the background transfer is triggered. Out buffer and Trice buffer share the same memory for efficiency.
 
@@ -546,7 +563,7 @@ During runtime the PC Trice tool receives all what happened in the last ~100ms a
 
   ![./ref/triceCOBSBlockDiagram.svg](./ref/triceCOBSBlockDiagram.svg)
 
-The Trice tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../_test/testdata/til.json) for compatibility with older firmware versions. It could be possible, when merging code, an ID is used twice for different format strings. In that case, the ID inside the reference list wins and the additional source gets patched with a new ID. This maybe unwanted patching is avoidable with proper [Trice ID management](#trice-id-management). The reference list should be kept under source code control.
+The Trice tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../demoTIL.json) for compatibility with older firmware versions. It could be possible, when merging code, an ID is used twice for different format strings. In that case, the ID inside the reference list wins and the additional source gets patched with a new ID. This maybe unwanted patching is avoidable with proper [Trice ID management](#trice-id-management). The reference list should be kept under source code control.
 
 Moreover, using `trice i -cache && make && trice c -cache` in a build script makes the IDs invisible to the developer reducing the data noise giving more space to focus on the development task. See [build.sh](../examples/L432_inst/build.sh) as a working example and the [Trice Cache](#trice-cache) chapter for details.
 
@@ -666,7 +683,7 @@ If an inside-target log selection is needed (routing), the Trice tool can assign
 
 ###  4.9. <a id='compile-time-enable/disable-trice-macros-on-file-or-project-level'></a>Compile Time Enable/Disable Trice Macros on File or Project Level
 
-After debugging code in a file, there is [no need to remove or comment out Trice macros](#switching-trice-on-and-off). Write a `#define TRICE_OFF 1` just before the `#include "trice.h"` line and all Trice macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../_test/testdata/til.json), these no code generating macros are regarded.
+After debugging code in a file, there is [no need to remove or comment out Trice macros](#switching-trice-on-and-off). Write a `#define TRICE_OFF 1` just before the `#include "trice.h"` line and all Trice macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../demoTIL.json), these no code generating macros are regarded.
 
 ```C
 #define TRICE_OFF 1 // Disable trice code generation for this file object.
@@ -2636,7 +2653,7 @@ void fn(void) {
 }
 ```
 
-With `#define TRICE_OFF 1`, macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../_test/testdata/til.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
+With `#define TRICE_OFF 1`, macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of re-constructing the [**T**rice **ID** **L**ist](../demoTIL.json) these no code generating macros are regarded and go into (or stay inside) the ID reference list.
 
 * Hint from [@escherstair](https://github.com/escherstair): With `-D TRICE_OFF=1` as compiler option, the trice code diappears completely from the binary.
 * No runtime On-Off switch is implemented for several reasons:
@@ -2973,7 +2990,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 * If you change `trice( "msg:%d", 1);` to `TRice8( "msg:%d", 1);`, to get a 32-bit stamp, the associated **ID** remains unchanged. That is because the optional stamp is not a part of the Trice itself.
 * IDs stay constant and get only changed to solve conflicts.
 * To make sure, a single ID will not be changed, you could change it manually to a hexadecimal syntax.
-  * This lets the `trice insert` command ignore such Trice macros and therefore a full [til.json](../_test/testdata/til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
+  * This lets the `trice insert` command ignore such Trice macros and therefore a full [til.json](../demoTIL.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
   * It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice i|c` if no conflicts occur.
 * If a Trice was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
 * If the same string appears again in the same file this ID is active again.
@@ -4861,7 +4878,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the Trice macro followed by the format string and optional values.
 * The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`.
   * The Trice cache makes this invisible to the build system, allowing full translation speed.
-* The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../_test/testdata/til.json) (example).
+* The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../demoTIL.json) (example).
 
 ###  38.3. <a id='trice-values-bit-width'></a>Trice values bit width
 
@@ -8148,7 +8165,7 @@ Generated commit message:
 
 ##  48. <a id='trice-folder-maintenance'></a>Trice Folder Maintenance
 
-### Cleaning the Sources
+###  48.1. <a id='cleaning-the-sources'></a>Cleaning the Sources
 
 In Github are some Actions defined. Some of them get triggered on a `git push` and perform some checks. To get no fail, some scripts should run before committing:
 
@@ -8158,12 +8175,79 @@ In Github are some Actions defined. Some of them get triggered on a `git push` a
 * `./clang-format.sh` - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore)
 * `trice_cleanIDs_in_examples_and_test_folder.sh`
 
-### Github Maintenance
+###  48.2. <a id='github-maintenance'></a>Github Maintenance
 
-* Action *Mark stale issues and pull requests*
-* Action *test goreleaser*
-* Action *Labeler*
-* ...
+The [.github/workflows/](../.github/workflows/) folder contains YAML decriptions for various actions, which will be triggered automatically on certain events or are started manually.
+
+* not documented (yet):
+  * [.github/workflows/greetings.yml](../.github/workflows/greetings.yml)
+  * [.github/workflows/learn-github-actions.yml](../.github/workflows/learn-github-actions.yml)
+  * [.github/workflows/manual.yml](../.github/workflows/manual.yml)
+
+####  48.2.1. <a id='clang-format'></a>Clang Format
+
+* **Local Action:** [clang-format.sh](../clang-format.sh)
+
+* **Github Action:** [.github/workflows/clang-format.yml](../.github/workflows/clang-format.yml)
+
+####  48.2.2. <a id='codeql'></a>CodeQL
+
+* **Github Action:** [.github/workflows/codeql.yml](../.github/workflows/codeql.yml)
+
+####  48.2.3. <a id='test-go'></a>Test Go
+
+* **Local Action:** `go test ./...` or better `./testAll.sh full` (takes long)
+
+* **Github Action:** [.github/workflows/go.yml](../.github/workflows/go.yml)
+
+####  48.2.4. <a id='run-goreleaser'></a>Run GoReleaser
+
+* **Local Action:** `goreleaser`
+
+* **Github Action:** [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml)
+
+####  48.2.5. <a id='labeler'></a>Labeler
+
+* **Github Action:** [.github/workflows/label.yml](../.github/workflows/label.yml)
+
+####  48.2.6. <a id='broken-links-check'></a>Broken Links Check
+
+* **Local Action:** `markdown-link-check ./docs/TriceUserManual.md `
+  * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
+* Info: `[/] #%F0%9F%93%82-%60.github/workflows%60-%E2%80%94-github-actions-workflows` = skipped check
+
+* **Github Action:** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
+  * Exclude files: [.lycheeignore](../.lycheeignore)
+
+####  48.2.7. <a id='pages'></a>Pages
+
+* **Github Action:** [.github/workflows/pages.yml](../.github/workflows/pages.yml)
+
+####  48.2.8. <a id='shell-check'></a>Shell Check
+
+* **Github Action:** [.github/workflows/shellcheck.yml](../.github/workflows/shellcheck.yml)
+
+####  48.2.9. <a id='shell-format'></a>Shell Format
+
+* **Local Action:** `go test ./...` or better `./testAll.sh full` (takes long)
+
+* **Github Action:** [.github/workflows/shfmt.yml](../.github/workflows/shfmt.yml)
+
+####  48.2.10. <a id='mark-stale-issues-and-pull-requests'></a>Mark stale issues and pull requests
+
+* **Github Action:** [.github/workflows/stale.yml](../.github/workflows/stale.yml)
+
+####  48.2.11. <a id='super-linter'></a>Super Linter
+
+* **Github Action:** [.github/workflows/superlinter.yml](../.github/workflows/superlinter.yml)
+
+####  48.2.12. <a id='test-goreleaser'></a>Test Goreleaser
+
+* **Github Action:** [.github/workflows/.yml](../.github/workflows/.yml)
+
+####  48.2.13. <a id='clean-macos-files'></a>Clean MacOS Files
+
+* **Local Action:** [clean-dsstore.sh](../clean-dsstore.sh)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

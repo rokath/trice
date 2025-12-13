@@ -41,14 +41,14 @@ even inside **↯ interrupts** in less than 1 µs❗
 
 ## Possible Use Cases
 
-- Using *Trice* not only for **printf debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./_test/testdata/til.json) is the key to read all output if your devices in the field for 10 or more years.
-  - Optionally add [til.json](./_test/testdata/til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html). Or simply provide a download link.
+- Using *Trice* not only for **printf debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./demoTIL.json) is the key to read all output if your devices in the field for 10 or more years.
+  - Optionally add [til.json](./demoTIL.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html). Or simply provide a download link.
 - You can see *Trice* also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
 - [Storing *Trice* messages in FLASH memory](./docs/TriceUserManual.md#writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output)) for later log analysis saves memory because a typical `TRICE` occupies only 4 bytes independently of the format string length plus optional values.
 - Also, it is possible to **encrypt** the *Trice* transfer packets to get a reasonable protection for many cases.
-  - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./_test/testdata/til.json).
+  - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./demoTIL.json).
   - [XTEA](https://en.m.wikipedia.org/wiki/XTEA) is implemented as one option.
-- You can even translate the [til.json](./_test/testdata/til.json) file in **different languages**, so changing a language is just changing the [til.json](./_test/testdata/til.json) file without touching the target binary.
+- You can even translate the [til.json](./demoTIL.json) file in **different languages**, so changing a language is just changing the [til.json](./demoTIL.json) file without touching the target binary.
 - With *Trice* it is easy to do **timing analysis** on distributed embedded systems. Host and target timestamps are supported.
 
 ## How it approximately works (UART example)
@@ -124,7 +124,7 @@ The documentation could get improved, for example by adding a quick start help. 
 
 ## Structured Logging
 
-Trice will (hopefully soon) suppport structured logging. Triggered by [#531](https://github.com/rokath/trice/discussions/531) there is now a [specifcation draft](https://github.com/rokath/trice/blob/master/docs/StructuredLoggingWithTrice.md). Please provide some critical feedback before the implementaion starts.
+Trice will (hopefully soon) suppport structured logging. Triggered by [#531](https://github.com/rokath/trice/discussions/531) there is now a [specifcation draft](./docs/TriceUserManual.md#trice-structured-logging). Please provide some critical feedback before the implementaion starts.
 
 ## Support?
 
