@@ -2,88 +2,142 @@ name: Deploy GitHub Pages
 
 on:
   push:
-    branches: ["main"]
-  workflow_dispatch:
+    branches: ["main"]          # Run this workflow on every push to the main branch
+  workflow_dispatch:            # Allow manual triggering of the workflow from the GitHub UI
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read                # Required to read the repository contents
+  pages: write                  # Required to write/deploy to GitHub Pages
+  id-token: write               # Required for OIDC authentication used by deploy-pages@v4
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: true
+  group: "pages"                # Ensure only one Pages deployment runs at a time
+  cancel-in-progress: true      # Cancel any in-progress runs if a new one starts
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest      # Use the latest Ubuntu runner
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        # This checks out the repository so subsequent steps can read README.md,
+        # docs/TriceUserManual.md, etc.
 
-      # Generate docs/index.md from the repository root README.md (no duplicate committed)
-      # - name: Generate index.md from README.md
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-      #     cat > docs/index.md <<'EOF'
-      #     ---
-      #     layout: default
-      #     ---
-      #     
-      #     EOF
-      #     cat README.md >> docs/index.md
+      - name: Generate index.md from README.md for GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
 
-      # - name: Generate docs/index.md from README.md (Pages-safe)
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-# 
-      #     # Create front matter
-      #     cat > docs/index.md <<'EOF'
-      #     ---
-      #     layout: default
-      #     ---
-      #     EOF
-# 
-      #     # Append README, but strip HTML block constructs that commonly break Kramdown parsing on Pages
-      #     # - remove <div ...> and </div>
-      #     # - remove standalone HTML <p ...> blocks used for alignment
-      #     # - remove raw <img ...> tags (use Markdown images instead in README, or keep them in docs)
-      #     sed -E \
-      #       -e '/^[[:space:]]*<div[^>]*>[[:space:]]*$/d' \
-      #       -e '/^[[:space:]]*<\/div>[[:space:]]*$/d' \
-      #       -e '/^[[:space:]]*<p[^>]*>[[:space:]]*$/d' \
-      #       -e '/^[[:space:]]*<\/p>[[:space:]]*$/d' \
-      #       -e '/^[[:space:]]*<img[^>]*>[[:space:]]*$/d' \
-      #       README.md >> docs/index.md
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
-        with:
-          source: ./docs
-          destination: ./_site
+          # Create index.md with Jekyll front matter.
+          # This file is NOT committed; it only exists in the build workspace
+          # and becomes the site homepage on GitHub Pages.
+          {
+            echo '---'
+            echo 'layout: default'
+            echo '---'
+            echo
+
+            # Copy README.md, but rewrite all links that point to
+            # ./docs/TriceUserManual.md (with or without anchors) so they
+            # target the rendered HTML page instead.
+            #
+            # Examples in README.md:
+            #   [Manual](./docs/TriceUserManual.md)
+            #   [Speed](./docs/TriceUserManual.md#trice-speed)
+            #
+            # All become (in index.md for Pages):
+            #   ...](./docs/TriceUserManual.html#trice-speed)
+            sed -E 's,./docs/TriceUserManual\.md,./docs/TriceUserManual.html,g' README.md
+          } > index.md
+
+      - name: Prepare TriceUserManual.md for GitHub Pages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # We want docs/TriceUserManual.md to remain GitHub-friendly in the repo
+          # with relative links like:
+          #   [freedom](../internal/emitter/lineTransformerANSI.go)
+          #   [Something](./StructuredLoggingWithTrice.md)
+          #
+          # On the published site we prefer those links to open the GitHub file view,
+          # so the user sees the source file with syntax highlighting, blame, etc.
+          #
+          # Strategy:
+          #   1. Copy the original manual to a temporary file.
+          #   2. Rewrite all "normal" Markdown links (NOT images) of the form
+          #        [text](../path...)
+          #      to:
+          #        [text](https://github.com/rokath/trice/blob/main/path...)
+          #
+          #      and all links of the form
+          #        [text](./path...)
+          #      to:
+          #        [text](https://github.com/rokath/trice/blob/main/docs/path...)
+          #
+          # Notes:
+          #   - We explicitly avoid matching image syntax `![alt](...)` by requiring
+          #     that the character before '[' is either start-of-line or not '!'.
+          #   - We rewrite everything inside the parentheses up to the closing ')',
+          #     including any #anchor, so anchors are preserved in the final URL.
+
+          cp docs/TriceUserManual.md /tmp/TriceUserManual.md
+
+          sed -E '
+            # Rewrite links of the form [text](../path...)
+            # Capture:
+            #   (^|[^!])   -> group 1: start of line OR a character that is NOT "!"
+            #   (\[[^]]*\]) -> group 2: the [link text]
+            #   \(\.\./([^)]+)\) -> group 3: everything after "../" up to ")"
+            #
+            # Replacement:
+            #   \1\2(https://github.com/rokath/trice/blob/main/\3)
+            #
+            # Examples:
+            #   [freedom](../internal/emitter/lineTransformerANSI.go)
+            #   -> [freedom](https://github.com/rokath/trice/blob/main/internal/emitter/lineTransformerANSI.go)
+            s#(^|[^!])(\[[^]]*\])\(\.\./([^)]+)\)#\1\2(https://github.com/rokath/trice/blob/main/\3)#g
+
+            # Rewrite links of the form [text](./path...)
+            # Here docs/TriceUserManual.md lives in docs/, so "./path"
+            # corresponds to "docs/path" in the repository.
+            #
+            # Examples:
+            #   [Spec](./StructuredLoggingWithTrice.md)
+            #   -> [Spec](https://github.com/rokath/trice/blob/main/docs/StructuredLoggingWithTrice.md)
+            s#(^|[^!])(\[[^]]*\])\(./([^)]+)\)#\1\2(https://github.com/rokath/trice/blob/main/docs/\3)#g
+          ' /tmp/TriceUserManual.md > docs/TriceUserManual.md
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        # Prepares the environment (paths, tokens, etc.) for the Pages build.
 
-      #- name: Build with Jekyll
-      #  uses: actions/jekyll-build-pages@v1
-      #  with:
-      #    source: ./docs
-      #    destination: ./_site
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./             # Build from the repository root
+          destination: ./_site   # Generated static site output
+
+        # Jekyll will:
+        # - Use _config.yml in the repository root.
+        # - Use index.md (generated above) as the homepage.
+        # - Render docs/TriceUserManual.md (modified above) as a page.
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./_site
+          path: ./_site          # Upload the generated site as an artifact
+        # This artifact is what the deploy job will publish to GitHub Pages.
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build                 # Only run deploy after build completes successfully
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: github-pages         # Special environment used by GitHub Pages
+      url: ${{ steps.deployment.outputs.page_url }}  # Expose the deployed URL
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        # This takes the uploaded artifact from the build job and
+        # deploys it to GitHub Pages.

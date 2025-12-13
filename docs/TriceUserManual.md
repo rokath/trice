@@ -1,7 +1,11 @@
+---
+layout: default
+title: Trice User Manual
+---
+
+<!-- # Trice User Manual -->
 
 <div id="top"></div>
-
-# Trice User Manual
 
 ```diff
 + Speed of Light `printf` Comfort Within Interrupts And Everywhere +
@@ -5950,10 +5954,10 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
-* [NUCLEO L432 User Manual](../../ref/dm00231744-stm32-nucleo32-boards-mb1180-stmicroelectronics.pdf) (example)
-* This example is without Trice istrumentation and serves for comparing with [L432_inst](l432-inst) to see the needed instrumentation steps quickly.
+<!-- * [NUCLEO L432 User Manual](../../ref/dm00231744-stm32-nucleo32-boards-mb1180-stmicroelectronics.pdf) (example) -->
+* This example is without Trice istrumentation and serves for comparing with [L432_inst](../examples/L432-inst/) to see the needed instrumentation steps quickly.
 * This is a STMCubeMX generated project.
-* See and adapt steps from [F030_bare](#f030_bare) example.
+* See and adapt steps from [F030_bare](../examples/F030-bare) example.
 * It was then manually adapted additionally to Clang.
 * It was additionally configured for FreeRTOS.
 
@@ -5961,9 +5965,9 @@ Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
 Folder: [../examples/L432_inst/](../examples/L432_inst/)
 
-* This is the with Trice instrumented example project [L432_bare](#l432_bare).
+* This is the with Trice instrumented example project [L432_bare](../examples/L432_bare).
 * It is for easy compare to figure out the needed setup changes.
-* See and adapt steps in [F030_bare](l432-bare).
+* See and adapt steps in [F030_bare](../examples/F030-bare).
 * Then add/modify the files to reach this folder layout.
 
 <h5>Build:</h5>
@@ -6158,7 +6162,7 @@ If you intend to get the `trice log` functionality full or partially as a `tlog`
 //! triceFormatStringList contains all trice format strings together with id and parameter information.
 //!
 //! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
-//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md/#binary-encoding.
+//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md#binary-encoding.
 //! It is recommended to check if both values are matching. A negative paramCount indicates, that its value is unknown at compile time.
 const triceFormatStringList_t triceFormatStringList[] = {
 	/* Trice type (  extended  ) */  //  id, bitWidth, paramCount, format-string
@@ -6213,7 +6217,7 @@ namespace TriceIDList;
 	//! Til contains all trice format strings together with id and parameter information.
 	//!
 	//! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
-	//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md/#binary-encoding.
+	//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md#binary-encoding.
 	//! It is recommended to check if both values are matching. A negative paramCount indicates, that its value is unknown at compile time.
 	public static class Til
 	{

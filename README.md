@@ -27,10 +27,10 @@ even inside **↯ interrupts** in less than 1 µs❗
 ## About
 
 - Replace `printf` or `log` in **C**-code for getting:
-  - **[Speed](./docs/TriceUserManual.md/#trice-speed)**, to be usable also **inside interrupts**,
-  - **[Space](./docs/TriceUserManual.md/#trice-memory-needs)**, to reduce needed FLASH memory size,
-  - **[Features](./docs/TriceUserManual.md/#trice-features-(overview))** delighting the developers heart.
-- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserManual.md/#port-it).
+  - **[Speed](./docs/TriceUserManual.md#trice-speed)**, to be usable also **inside interrupts**,
+  - **[Space](./docs/TriceUserManual.md#trice-memory-needs)**, to reduce needed FLASH memory size,
+  - **[Features](./docs/TriceUserManual.md#trice-features-(overview))** delighting the developers heart.
+- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserManual.md#port-it).
 - *Trice* consists of 2 parts:
   1. **C** code `trice` macros, similar usable like `printf`, generating tiny & super-fast embedded device real-time trace/log code.
   2. Tool **trice** for managing and visualization.
@@ -53,7 +53,7 @@ even inside **↯ interrupts** in less than 1 µs❗
 
 ## How it approximately works (UART example)
 
-This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TriceUserManual.md/#how-it-works---the-main-idea)
+This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TriceUserManual.md#how-it-works---the-main-idea)
 
 ![trice](docs/ref/triceCOBSBlockDiagram.svg)
 
