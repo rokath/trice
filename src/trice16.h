@@ -62,6 +62,8 @@
 
 #endif // #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 16
 
+#include "triceVariadic.h"
+
 #define TRICE_SHORT0(v) TRICE_HTOTS((uint16_t)(v))                   //!< TRICE_SHORT0(v) is the 16-bit value v moved to the LLLL position in a 32-bit value 0xHHHH_LLLL.
 #define TRICE_SHORT1(v) ((uint32_t)TRICE_HTOTS((uint16_t)(v)) << 16) //!< TRICE_SHORT1(v) is the 16-bit value v moved to the HHHH position in a 32-bit value 0xHHHH_LLLL.
 

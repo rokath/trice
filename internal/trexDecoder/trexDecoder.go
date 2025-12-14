@@ -549,8 +549,13 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	}
 
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
-	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertTrue")
-	p.Trice.Type = strings.TrimSuffix(p.Trice.Type, "AssertFalse")
+
+	// remove Assert if found
+	before, _, found := strings.Cut(p.Trice.Type, "Assert")
+	if found {
+	    p.Trice.Type = strings.TrimSpace(before)
+	}
+
 	triceType, err := id.ConstructFullTriceInfo(p.Trice.Type, len(p.u))
 
 	if err != nil {
