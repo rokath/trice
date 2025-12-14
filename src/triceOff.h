@@ -74,10 +74,6 @@
 #define TriceAssertFalse(...)
 #define TRiceAssertFalse(...)
 
-#define triceAssertFail(...)
-#define TriceAssertFail(...)
-#define TRiceAssertFail(...)
-
 #define triceAssert(...)
 #define TriceAssert(...)
 #define TRiceAssert(...)
