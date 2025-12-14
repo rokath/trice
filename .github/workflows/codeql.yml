@@ -1,56 +1,69 @@
+# Workflow name as shown in the GitHub Actions UI
 name: "CodeQL"
 
+# Define when this workflow should run
 on:
+  # Run CodeQL analysis on every push to the main branch
   push:
-    # Run CodeQL on pushes to main (adapt if your default branch is different)
     branches: [ "main" ]
+
+  # Run CodeQL analysis for pull requests targeting main
   pull_request:
-    # Analyze pull requests targeting main
     branches: [ "main" ]
-  # Allow manual runs from the GitHub Actions UI
+
+  # Allow the workflow to be triggered manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   analyze:
+    # Job name as displayed in GitHub Actions
     name: Analyze (CodeQL)
+
+    # Use the latest Ubuntu runner provided by GitHub
     runs-on: ubuntu-latest
 
-    # We explicitly tell CodeQL which languages to analyze.
-    # For Trice, we have:
-    #   - Go code           -> language: "go"
-    #   - C sources/headers -> language: "cpp" (covers C/C++)
+    # Matrix strategy allows running the same job for multiple languages
     strategy:
+      # Do not cancel other matrix jobs if one fails
       fail-fast: false
+
       matrix:
+        # Languages to analyze with CodeQL
+        # - "go": analyzes Go source code
+        # - "cpp": would analyze C/C++ code (disabled here)
         language: [ "go" ] # , "cpp" ] no build for C code here
 
     steps:
-      # Checkout the repository so CodeQL can see the source code.
+      # Step 1: Check out the repository so CodeQL can access the source code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Initialize the CodeQL tools for the selected language.
+      # Step 2: Initialize the CodeQL analysis environment
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          # Use the current matrix language (go or cpp).
+          # Specify which language from the matrix should be analyzed
           languages: ${{ matrix.language }}
-          # Optional: specify custom queries or query packs here if needed.
+
+          # Optional: You could specify custom query packs here
           # queries: security-and-quality
 
-      # Autobuild step:
-      # - For "go", CodeQL does not strictly need a traditional build; it can
-      #   analyze the source directly.
-      # - For "cpp", CodeQL tries to automatically build the project to
-      #   understand the compiled artifacts (C/C++ code).
+      # Step 3: Automatically build the project (if applicable)
       #
-      # If autobuild fails for your C parts, you may need to:
-      #   - remove this step, and
-      #   - add a manual build step (e.g. make, cmake, etc.).
+      # - For Go projects, CodeQL can usually analyze the source without
+      #   a traditional build step.
+      # - For C/C++ projects, CodeQL attempts to build the code to better
+      #   understand compilation units and binaries.
+      #
+      # If autobuild fails (especially for C/C++), you may need to:
+      #   - Remove this step
+      #   - Add a manual build command (e.g. make, cmake, etc.)
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
 
-      # Perform the actual CodeQL analysis and upload the results to GitHub.
-      # Results show up under the "Security" -> "Code scanning alerts" tab.
+      # Step 4: Run the CodeQL analysis and upload results to GitHub
+      #
+      # The findings will appear under:
+      #   Security -> Code scanning alerts
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
