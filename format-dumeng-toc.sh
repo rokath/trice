@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+
 
 # ==============================================================================
 # format_dumeng_toc.sh.sh
@@ -33,6 +33,8 @@ set -euo pipefail
 #   tools/format_dumeng_toc.sh.sh path/to/file.md
 # ==============================================================================
 
+set -euo pipefail
+
 FILE="${1:-docs/TriceUserManual.md}"
 
 if [[ ! -f "$FILE" ]]; then
@@ -47,10 +49,7 @@ TMP="${DIR}/.${BASENAME}.tmp"
 awk '
 BEGIN { in_toc = 0 }
 
-# ------------------------------------------------------------------------------
-# Replace " name=" with " id=" ONLY inside <a ...> opening tags.
-# No GNU extensions, no \b word-boundaries (POSIX awk compatible).
-# ------------------------------------------------------------------------------
+# --- Replace <a name="..."> -> <a id="..."> inside <a ...> opening tags (whole doc)
 function fix_anchor_tags(line,    out, pos, aRel, aPos, gtRel, gtPos, tag) {
   out = ""
   pos = 1
@@ -64,32 +63,12 @@ function fix_anchor_tags(line,    out, pos, aRel, aPos, gtRel, gtPos, tag) {
 
     # Find end of the opening tag ">"
     gtRel = index(substr(line, aPos), ">")
-    if (gtRel == 0) {
-      # No closing ">" found; append rest unchanged
-      out = out substr(line, aPos)
-      return out
-    }
+    if (gtRel == 0) { out = out substr(line, aPos); return out }
     gtPos = gtRel + aPos - 1
 
-    # Extract the opening tag
     tag = substr(line, aPos, gtPos - aPos + 1)
 
-    # Replace attribute token " name=" (with optional spaces around "=").
-    # We do this conservatively: the attribute must be preceded by whitespace.
-    #
-    # Handle cases like:
-    #   <a name="top">
-    #   <a  name = "top" class="x">
-    #   <a href="..." name="top">
-    #
-    # Approach:
-    # - First, normalize cases where name is the *first* attribute after <a:
-    #     "<a name" -> "<a id"
     sub(/^<a[[:space:]]+name[[:space:]]*=/, "<a id=", tag)
-
-    # - Then replace any other occurrences of whitespace + name= inside the tag:
-    #     " name=" -> " id="
-    # This will not match "data-name=" because there is no leading whitespace before "name".
     gsub(/[[:space:]]+name[[:space:]]*=/, " id=", tag)
 
     # Append fixed tag
@@ -98,37 +77,56 @@ function fix_anchor_tags(line,    out, pos, aRel, aPos, gtRel, gtPos, tag) {
     # Continue after the end of this tag
     pos = gtPos + 1
   }
-
-  # Append remainder of the line
   out = out substr(line, pos)
   return out
+}
+
+# --- TOC line transform (only inside TOC block):
+# "* 4.1. [Title](#x)" -> "* [4.1. Title](#x)"
+function move_number_into_link(line,    leadLen, lead, rest, cut, num, afterNum, br) {
+  # Must be a list-item bullet line (keep indentation + bullet exactly as-is)
+  if (match(line, /^[[:space:]]*[*-][[:space:]]+/) == 0) return line
+
+  leadLen = RLENGTH
+  lead = substr(line, 1, leadLen)
+  rest = substr(line, leadLen + 1)
+
+  # Find first ". " which separates number token and the link
+  cut = index(rest, ". ")
+  if (cut == 0) return line
+
+  num = substr(rest, 1, cut - 1)          # "1" or "4.1" or "6.5.1"
+  afterNum = substr(rest, cut + 2)        # should start with "[Title](#...)"
+
+  # Locate the first "[" in afterNum
+  br = index(afterNum, "[")
+  if (br == 0) return line
+
+  # Remove any leading spaces before "[" (defensive)
+  # (dumeng normally has none, but harmless)
+  while (substr(afterNum, 1, 1) ~ /[[:space:]]/) afterNum = substr(afterNum, 2)
+
+  # Now inject "num. " right after the first "["
+  # afterNum is like: "[Title](#x)"
+  # We want: "[num. Title](#x)"
+  return lead "[" num ". " substr(afterNum, 2)
 }
 
 {
   line = $0
 
-  # (2) Anchor modernization for the whole document
-  # Fast pre-check: only do the heavier parsing if "name=" is present at all.
+  # Whole document: normalize <a name=...> to <a id=...>
   if (index(line, "name=") > 0 && index(line, "<a") > 0) {
     line = fix_anchor_tags(line)
   }
 
   # TOC block detection
-  if (line ~ /<!-- vscode-markdown-toc -->/) {
-    in_toc = 1
-    print line
-    next
-  }
-  if (line ~ /<!-- \/vscode-markdown-toc -->/) {
-    in_toc = 0
-    print line
-    next
-  }
+  if (line ~ /<!-- vscode-markdown-toc -->/) { in_toc = 1; print line; next }
+  if (line ~ /<!-- \/vscode-markdown-toc -->/) { in_toc = 0; print line; next }
 
-  # (1) TOC formatting only inside TOC block:
-  # Remove indentation + bullet "* " or "- "
+  # Only in TOC: transform numbering into link text
   if (in_toc) {
-    sub(/^[[:space:]]*[*-][[:space:]]+/, "", line)
+    line = move_number_into_link(line)
   }
 
   print line
