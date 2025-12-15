@@ -61,357 +61,347 @@ PDF Generation
   * [4.21. Trice Generator](#trice-generator)
   * [4.22. Versions and Variants Trice Stability](#versions-and-variants-trice-stability)
   * [4.23. Legacy Project Code Integration](#legacy-project-code-integration)
-* [5. Project structure (Files and Folders)](#project-structure-(files-and-folders))
-* [6. Start with Trice](#start-with-trice)
-  * [6.1. Get it](#get-it)
-  * [6.2. Install It](#install-it)
-  * [6.3. Try it](#try-it)
-  * [6.4. Use It](#use-it)
-  * [6.5. Fork It (get a contributor)](#fork-it-(get-a-contributor))
-    * [6.5.1. ✅ What “forking” means](#✅-what-“forking”-means)
-    * [6.5.2. 🧭 How to Fork (GitHub)](#🧭-how-to-fork-(github))
-  * [6.6. Clone It](#clone-it)
-  * [6.7. Build It](#build-it)
-  * [6.8. Modify It](#modify-it)
-  * [6.9. Port it](#port-it)
-    * [6.9.1. Target Macros](#target-macros)
-    * [6.9.2. Target Trice Stamps](#target-trice-stamps)
-    * [6.9.3. Trice Checks](#trice-checks)
-    * [6.9.4. Communication Ports](#communication-ports)
-    * [6.9.5. Target Code Overview](#target-code-overview)
-    * [6.9.6. User Code Adaption](#user-code-adaption)
-    * [6.9.7. Limitations](#limitations)
-    * [6.9.8. Trice (Time) Stamps](#trice-(time)-stamps)
-    * [6.9.9. Trice Parameter Bit Widths](#trice-parameter-bit-widths)
-  * [6.10. Avoid it](#avoid-it)
-    * [6.10.1. Parser Limitation](#parser-limitation)
-    * [6.10.2. Trice macros in header files](#trice-macros-in-header-files)
-    * [6.10.3. Trice macros inside other macros](#trice-macros-inside-other-macros)
-    * [6.10.4. Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)](#upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0))
-* [7. Trice Trouble Shooting Hints](#trice-trouble-shooting-hints)
-  * [7.1. Initial Data Transfer Setup Hints](#initial-data-transfer-setup-hints)
-  * [7.2. Short Trouble Shooting Hints](#short-trouble-shooting-hints)
-* [8. Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed)
-  * [8.1. Trice Cache Idea](#trice-cache-idea)
-  * [8.2. Trice Cache Logic](#trice-cache-logic)
-  * [8.3. Trice Cache Remarks](#trice-cache-remarks)
-  * [8.4. Trice Cache Tests](#trice-cache-tests)
-  * [8.5. Possible Trice Cache Editor-Issues And How To Get Around](#possible-trice-cache-editor-issues-and-how-to-get-around)
-  * [8.6. Activating the Trice Cache](#activating-the-trice-cache)
-* [9. Trice Code Formatting](#trice-code-formatting)
-  * [9.1. File .clang-format](#file-.clang-format)
-  * [9.2. File .clang-format-ignore](#file-.clang-format-ignore)
-  * [9.3. File .editorconfig](#file-.editorconfig)
-  * [9.4. File .gitattributes](#file-.gitattributes)
-* [10. 📁 The .github Folder — Purpose and Contents (For Trice Developers)](#📁-the-.github-folder-—-purpose-and-contents-(for-trice-developers))
-  * [10.1. 📁 `.github` Root](#📁-`.github`-root)
-    * [10.1.1. 🧩 Visual Architecture Diagram — Trice .github Automation System](#🧩-visual-architecture-diagram-—-trice-.github-automation-system)
-  * [10.2. Automatic Pull Request Labeling in Trice](#automatic-pull-request-labeling-in-trice)
-    * [10.2.1. File-based labels](#file-based-labels)
-    * [10.2.2. Text-based labels](#text-based-labels)
-    * [10.2.3. Benefits of automatic labeling](#benefits-of-automatic-labeling)
-    * [10.2.4. How contributors can help](#how-contributors-can-help)
-  * [10.3. 📂 `.github/workflows` — GitHub Actions Workflows](#📂-`.github/workflows`-—-github-actions-workflows)
-* [11. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
-  * [11.1. Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
-  * [11.2. Prepare A Release](#prepare-a-release)
-    * [11.2.1. Check a Goreleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
-  * [11.3. Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
-    * [11.3.1.  Make sure your workflow reacts to tags](#-make-sure-your-workflow-reacts-to-tags)
-    * [11.3.2.  Final checks before tagging](#-final-checks-before-tagging)
-    * [11.3.3.  Choose a version and create a `git tag`](#-choose-a-version-and-create-a-`git-tag`)
-    * [11.3.4.  Push the tag to GitHub (this triggers CI)](#-push-the-tag-to-github-(this-triggers-ci))
-    * [11.3.5.  Watch the CI release run on GitHub](#-watch-the-ci-release-run-on-github)
-    * [11.3.6.  Check the GitHub Release](#-check-the-github-release)
-* [12. Embedded system code configuration](#embedded-system-code-configuration)
-* [13. Trice tool in logging action](#trice-tool-in-logging-action)
-* [14. Encryption](#encryption)
-* [15. Trice Command Line Interface & Examples](#trice-command-line-interface-&-examples)
-  * [15.1. Common information](#common-information)
-  * [15.2. Further examples](#further-examples)
-    * [15.2.1. Automated pre-build insert command example](#automated-pre-build-insert-command-example)
-    * [15.2.2. Some Log examples](#some-log-examples)
-    * [15.2.3. Logging over a display server](#logging-over-a-display-server)
-    * [15.2.4. Binary Logfile](#binary-logfile)
-    * [15.2.5. TCP output](#tcp-output)
-    * [15.2.6. TCP4 input](#tcp4-input)
-    * [15.2.7. UDP4 input (accepted pull request 529)](#udp4-input-(accepted-pull-request-529))
-    * [15.2.8. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
-    * [15.2.9. Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
-    * [15.2.10. Location Information](#location-information)
-* [16. Limitations](#limitations-1)
-  * [16.1. Permanent Limitations](#permanent-limitations)
-    * [16.1.1. Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
-  * [16.2. Current Limitations](#current-limitations)
-    * [16.2.1. String Concatenation Within TRICE Macros Not Possible](#string-concatenation-within-trice-macros-not-possible)
-    * [16.2.2. Limited Trice Parser Capabilities](#limited-trice-parser-capabilities)
-    * [16.2.3. Special Care Demands](#special-care-demands)
-* [17. Additional hints](#additional-hints)
-  * [17.1. Pre-built executables are available](#pre-built-executables-are-available)
-  * [17.2. Configuration file triceConfig.h](#configuration-file-triceconfig.h)
-  * [17.3. Setting up the very first connection](#setting-up-the-very-first-connection)
-  * [17.4. Avoid buffer overruns](#avoid-buffer-overruns)
-  * [17.5. Buffer Macros](#buffer-macros)
-  * [17.6. Logfile viewing](#logfile-viewing)
-  * [17.7. Using the Trice tool with 3rd party tools](#using-the-trice-tool-with-3rd-party-tools)
-  * [17.8. Several targets at the same time](#several-targets-at-the-same-time)
-  * [17.9. TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
-  * [17.10. Cycle Counter](#cycle-counter)
-* [18. Switching Trice ON and OFF](#switching-trice-on-and-off)
-  * [18.1. Target side compile-time  Trice On-Off](#target-side-compile-time-trice-on-off)
-  * [18.2. Host side Trice On-Off](#host-side-trice-on-off)
-* [19. Framing](#framing)
-* [20. Optional XTEA Encryption](#optional-xtea-encryption)
-* [21. Endianness](#endianness)
-* [22. Trice (Time)Stamps](#trice-(time)stamps)
-  * [22.1. Target (Time)Stamps Formatting](#target-(time)stamps-formatting)
-* [23. Binary Encoding](#binary-encoding)
-  * [23.1. Symbols](#symbols)
-  * [23.2. Package Format](#package-format)
-    * [23.2.1. typeX0 Trices](#typex0-trices)
-    * [23.2.2. Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
-* [24. Trice Decoding](#trice-decoding)
-  * [24.1. Trice ID list til.json](#trice-id-list-til.json)
-  * [24.2. Trice location information file li.json](#trice-location-information-file-li.json)
-* [25. Trice ID Numbers](#trice-id-numbers)
-  * [25.1. ID number selection](#id-number-selection)
-    * [25.1.1. Trice tool internal Method to get fast a random ID](#trice-tool-internal-method-to-get-fast-a-random-id)
-  * [25.2. ID number usage and stability](#id-number-usage-and-stability)
-  * [25.3. Trice ID 0](#trice-id-0)
-* [26. Trice ID management](#trice-id-management)
-  * [26.1. Trice inside source code](#trice-inside-source-code)
-    * [26.1.1. Trice in source code comments](#trice-in-source-code-comments)
-    * [26.1.2. Different IDs for same Trices](#different-ids-for-same-trices)
-    * [26.1.3. Same IDs for different Trices](#same-ids-for-different-trices)
-    * [26.1.4. ID Routing](#id-routing)
-    * [26.1.5. Possibility to create new tags without modifying trice tool source](#possibility-to-create-new-tags-without-modifying-trice-tool-source)
-* [27. Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control)
-  * [27.1. Trice version 1.0 Compile-time Log-level Control](#trice-version-1.0-compile-time-log-level-control)
-  * [27.2. Trice version 1.0 Run-time Log-level Control](#trice-version-1.0-run-time-log-level-control)
-  * [27.3. Trice Version 1.0 Compile-time - Run-time Log-level Control](#trice-version-1.0-compile-time---run-time-log-level-control)
-* [28. ID reference list til.json](#id-reference-list-til.json)
-  * [28.1. til.json Version control](#til.json-version-control)
-  * [28.2. Long Time Availability](#long-time-availability)
-* [29. The Trice Insert Algorithm](#the-trice-insert-algorithm)
-  * [29.1. Starting Conditions](#starting-conditions)
-  * [29.2. Aims](#aims)
-  * [29.3. Method](#method)
-    * [29.3.1. Trice Insert Initialization](#trice-insert-initialization)
-  * [29.4. User Code Patching (trice insert)](#user-code-patching-(trice-insert))
-  * [29.5. User Code Patching Examples](#user-code-patching-examples)
-  * [29.6. Exclude folders & files from being parsed (pull request 529)](#exclude-folders-&-files-from-being-parsed-(pull-request-529))
-  * [29.7. ID Usage Options](#id-usage-options)
-  * [29.8. General ID Management Information](#general-id-management-information)
-    * [29.8.1. Option Cleaning in a Post-build process](#option-cleaning-in-a-post-build-process)
-    * [29.8.2. Option Let the inserted Trice ID be a Part of the User Code](#option-let-the-inserted-trice-id-be-a-part-of-the-user-code)
-    * [29.8.3. Option Cleaning on Repository Check-In](#option-cleaning-on-repository-check-in)
-* [30. Trice Speed](#trice-speed)
-  * [30.1. Target Implementation Options](#target-implementation-options)
-    * [30.1.1. Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only](#trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only)
-    * [30.1.2. Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-trice_double_buffer---deferred-mode,-fastest-trice-execution,-more-ram-needed)
-    * [30.1.3. Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-trice_ring_buffer---deferred-mode,-balanced-trice-execution-time-and-needed-ram)
-  * [30.2. A configuration for maximum Trice execution speed with the L432_inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example)
-  * [30.3. A configuration for normal Trice execution speed with the G0B1_inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example)
-* [31. Trice memory needs](#trice-memory-needs)
-  * [31.1. F030_bare Size](#f030_bare-size)
-  * [31.2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off=1)
-  * [31.3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
-  * [31.4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
-  * [31.5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting,-only-enabling-segger_rtt)
-  * [31.6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:)
-  * [31.7. Settings Conclusion](#settings-conclusion)
-  * [31.8. Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-(old-version))
-  * [31.9. Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
-  * [31.10. Memory Needs for Old Example 2](#memory-needs-for-old-example-2)
-* [32. Trice Project Image Size Optimization](#trice-project-image-size-optimization)
-  * [32.1. Code Optimization -o3 or -oz (if supported)](#code-optimization--o3-or--oz-(if-supported))
-  * [32.2. Compiler Independent Setting (a bit outdated)](#compiler-independent-setting-(a-bit-outdated))
-  * [32.3. Linker Option --split-sections (if supported)](#linker-option---split-sections-(if-supported))
-  * [32.4. Linker Optimization -flto (if supported)](#linker-optimization--flto-(if-supported))
-    * [32.4.1. ARMCC Compiler v5 Linker Feedback](#armcc-compiler-v5-linker-feedback)
-    * [32.4.2. ARMCLANG Compiler v6 Link-Time Optimization](#armclang-compiler-v6-link-time-optimization)
-    * [32.4.3. GCC](#gcc)
-    * [32.4.4. LLVM ARM Clang](#llvm-arm-clang)
-    * [32.4.5. Other IDE´s and compilers](#other-ide´s-and-compilers)
-  * [32.5. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32f030-example-project---different-build-sizes)
-    * [32.5.1. ARMCC compiler v5](#armcc-compiler-v5)
-* [33. Trice Tags and Color](#trice-tags-and-color)
-  * [33.1. How to get](#how-to-get)
-    * [33.1.1. Output options](#output-options)
-    * [33.1.2. Check Alternatives](#check-alternatives)
-  * [33.2. Color issues under Windows](#color-issues-under-windows)
-* [34. Trice without UART](#trice-without-uart)
-* [35. Trice over RTT](#trice-over-rtt)
-  * [35.1. For the impatient (2 possibilities)](#for-the-impatient-(2-possibilities))
-    * [35.1.1. Start JLink commander and connect over TCP](#start-jlink-commander-and-connect-over-tcp)
-    * [35.1.2. Start using JLinkRTTLogger](#start-using-jlinkrttlogger)
-    * [35.1.3. JLinkRTTLogger Issue](#jlinkrttlogger-issue)
-  * [35.2. Segger Real Time Transfer (RTT)](#segger-real-time-transfer-(rtt))
-  * [35.3. J-Link option](#j-link-option)
-    * [35.3.1. Convert Evaluation Board onboard ST-Link to J-Link](#convert-evaluation-board-onboard-st-link-to-j-link)
-    * [35.3.2. Some SEGGER tools in short](#some-segger-tools-in-short)
-    * [35.3.3. JLinkRTTClient.exe](#jlinkrttclient.exe)
-    * [35.3.4. JLinkRTTViewer.exe](#jlinkrttviewer.exe)
-  * [35.4. Segger RTT](#segger-rtt)
-  * [35.5. Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-(~800-eur)-option)
-  * [35.6. Additional Notes (leftovers)](#additional-notes-(leftovers))
-  * [35.7. Further development](#further-development)
-  * [35.8. NUCLEO-F030R8 example](#nucleo-f030r8-example)
-    * [35.8.1. RTT with original on-board ST-LINK firmware](#rtt-with-original-on-board-st-link-firmware)
-    * [35.8.2. Change to J-LINK onboard firmware](#change-to-j-link-onboard-firmware)
-    * [35.8.3. RTT with J-LINK firmware on-board](#rtt-with-j-link-firmware-on-board)
-  * [35.9. Possible issues](#possible-issues)
-  * [35.10. OpenOCD with Darwin (MacOS)](#openocd-with-darwin-(macos))
-  * [35.11. SEGGER J-Link on Darwin (MacOS)](#segger-j-link-on-darwin-(macos))
-  * [35.12. Links](#links)
-* [36. Writing the Trice logs into an SD-card (or a user specific output)](#writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output))
-* [37. Trice Target Code Implementation](#trice-target-code-implementation)
-  * [37.1. TRICE Macro structure](#trice-macro-structure)
-    * [37.1.1. TRICE_ENTER](#trice_enter)
-    * [37.1.2. TRICE_PUT](#trice_put)
-    * [37.1.3. TRICE_LEAVE](#trice_leave)
-  * [37.2. TRICE_STACK_BUFFER](#trice_stack_buffer)
-  * [37.3. TRICE_STATIC_BUFFER](#trice_static_buffer)
-  * [37.4. TRICE_DOUBLE_BUFFER](#trice_double_buffer)
-  * [37.5. TRICE_RING_BUFFER](#trice_ring_buffer)
-  * [37.6. Deferred Out](#deferred-out)
-    * [37.6.1. Double Buffer](#double-buffer)
-    * [37.6.2. Ring Buffer](#ring-buffer)
-  * [37.7. Direct Transfer](#direct-transfer)
-  * [37.8. Possible Target Code Improvements](#possible-target-code-improvements)
-* [38. Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage)
-  * [38.1. Printf-like functions](#printf-like-functions)
-  * [38.2. Trice IDs](#trice-ids)
-  * [38.3. Trice values bit width](#trice-values-bit-width)
-  * [38.4. Many value parameters](#many-value-parameters)
-  * [38.5. Floating Point Values](#floating-point-values)
-  * [38.6. Runtime Generated 0-terminated Strings Transfer with triceS](#runtime-generated-0-terminated-strings-transfer-with-trices)
-  * [38.7. Runtime Generated counted Strings Transfer with  triceN](#runtime-generated-counted-strings-transfer-with-tricen)
-  * [38.8. Runtime Generated Buffer Transfer with triceB](#runtime-generated-buffer-transfer-with-triceb)
-  * [38.9. Remote function call syntax support with triceF](#remote-function-call-syntax-support-with-tricef)
-  * [38.10. Extended format specifier possibilities](#extended-format-specifier-possibilities)
-    * [38.10.1. Trice format specifier](#trice-format-specifier)
-    * [38.10.2. Overview Table](#overview-table)
-  * [38.11. UTF-8 Support](#utf-8-support)
-  * [38.12. Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
-  * [38.13. Format tags prototype specifier examples](#format-tags-prototype-specifier-examples)
-* [39. Development Environment Setup](#development-environment-setup)
-  * [39.1. Common Information](#common-information-1)
-  * [39.2. Important to know](#important-to-know)
-  * [39.3. Animation](#animation)
-  * [39.4. Setup Linux PC - Example with Debian12 - KDE Desktop](#setup-linux-pc---example-with-debian12---kde-desktop)
-    * [39.4.1. Basic setup](#basic-setup)
-    * [39.4.2. Github](#github)
-    * [39.4.3. vsCode](#vscode)
-    * [39.4.4. Go](#go)
-    * [39.4.5. Gitkraken (or other GUI for git)](#gitkraken-(or-other-gui-for-git))
-    * [39.4.6. arm-none-eabi toolchain (or other target system compiler)](#arm-none-eabi-toolchain-(or-other-target-system-compiler))
-    * [39.4.7. J-Link (if needed)](#j-link-(if-needed))
-    * [39.4.8. Beyond Compare (if no other diff tool)](#beyond-compare-(if-no-other-diff-tool))
-  * [39.5. Setup Windows PC Example](#setup-windows-pc-example)
-    * [39.5.1. Setup Trice](#setup-trice)
-    * [39.5.2. Setup ARM Environment Example](#setup-arm-environment-example)
-    * [39.5.3. Setup STM32](#setup-stm32)
-    * [39.5.4. Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)](#setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too))
-    * [39.5.5. Setup VS-Code](#setup-vs-code)
-  * [39.6. Makefile with Clang too](#makefile-with-clang-too)
-  * [39.7. Download Locations](#download-locations)
-    * [39.7.1. Clang](#clang)
-    * [39.7.2. GCC](#gcc-1)
-  * [39.8. Install Locations](#install-locations)
-  * [39.9. Environment Variables](#environment-variables)
-  * [39.10. Build command](#build-command)
-  * [39.11. Run & Debug](#run-&-debug)
-  * [39.12. Logging](#logging)
-  * [39.13. Setting up a new project](#setting-up-a-new-project)
-* [40. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
-  * [40.1. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
-    * [40.1.1. F030_bare](#f030_bare)
-    * [40.1.2. F030_inst](#f030_inst)
-  * [40.2. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
-    * [40.2.1. G0B1_bare](#g0b1_bare)
-    * [40.2.2. G0B1_inst](#g0b1_inst)
-  * [40.3. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
-    * [40.3.1. L432_bare](#l432_bare)
-    * [40.3.2. L432_inst](#l432_inst)
-* [41. Trice Generate](#trice-generate)
-  * [41.1. Colors](#colors)
-  * [41.2. C-Code](#c-code)
-  * [41.3. C#-Code](#c#-code)
-  * [41.4. Generating a RPC Function Pointer List](#generating-a-rpc-function-pointer-list)
-* [42. Testing the Trice Library C-Code for the Target](#testing-the-trice-library-c-code-for-the-target)
-  * [42.1. General info](#general-info)
-  * [42.2. How to run the tests](#how-to-run-the-tests)
-  * [42.3. Tests Details](#tests-details)
-  * [42.4. How to add new test cases](#how-to-add-new-test-cases)
-  * [42.5. Test Internals](#test-internals)
-  * [42.6. Test Results](#test-results)
-  * [42.7. Special tests](#special-tests)
-  * [42.8. Test Cases](#test-cases)
-    * [42.8.1. Folder Naming Convention](#folder-naming-convention)
-* [43. Test Issues](#test-issues)
-* [44. Add-On Hints](#add-on-hints)
-  * [44.1. Trice on LibOpenCM3](#trice-on-libopencm3)
-    * [44.1.1. Prerequisites](#prerequisites)
-    * [44.1.2. triceConfig.h](#triceconfig.h)
-    * [44.1.3. main.c](#main.c)
-    * [44.1.4. nucleo-f411re.ld](#nucleo-f411re.ld)
-    * [44.1.5. Makefile](#makefile)
-    * [44.1.6. Usage](#usage)
-  * [44.2. Get all project files containing Trice messages](#get-all-project-files-containing-trice-messages)
-  * [44.3. Building a trice library?](#building-a-trice-library?)
-  * [44.4. Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
-* [45. Trice And Legacy User Code](#trice-and-legacy-user-code)
-  * [45.1. Legacy User Code Option Separate Physical Output Channel](#legacy-user-code-option-separate-physical-output-channel)
-  * [45.2. Legacy User Code Option Trice Adaption Edits](#legacy-user-code-option-trice-adaption-edits)
-  * [45.3. Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
-  * [45.4. Legacy User Code Option Trice Aliases Adaption](#legacy-user-code-option-trice-aliases-adaption)
-    * [45.4.1. PR533 Doc](#pr533-doc)
-    * [45.4.2. PR533 Summary](#pr533-summary)
-    * [45.4.3. PR533 Motivation](#pr533-motivation)
-    * [45.4.4. What This PR533 Adds](#what-this-pr533-adds)
-    * [45.4.5. PR533 Example](#pr533-example)
-    * [45.4.6. PR536 Doc](#pr536-doc)
-    * [45.4.7. Alias Example Project](#alias-example-project)
-* [46. Future Development](#future-development)
-  * [46.1. Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft)
-    * [46.1.1. What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?](#what-log-levels-exist-in-general,-including-exotic-ones,-and-what-is-their-exact-weighting-relative-to-each-other?)
-    * [46.1.2. Compile-time Log-level Control](#compile-time-log-level-control)
-    * [46.1.3. Run-time Log-level Control](#run-time-log-level-control)
-  * [46.2. Trice Structured Logging](#trice-structured-logging)
-    * [46.2.1. Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information)
-    * [46.2.2. Trice Structured Logging Runtime Information](#trice-structured-logging-runtime-information)
-    * [46.2.3. Trice Structured Logging Limitations and Special Cases](#trice-structured-logging-limitations-and-special-cases)
-    * [46.2.4. A Trice Structured Logging Example](#a-trice-structured-logging-example)
-    * [46.2.5. Trice Structured Logging CLI Switches and Variables](#trice-structured-logging-cli-switches-and-variables)
-    * [46.2.6. Trice Structured Logging User Defined Values](#trice-structured-logging-user-defined-values)
-    * [46.2.7. Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
-    * [46.2.8. Trice Structured Logging Level Specific Configuration](#trice-structured-logging-level-specific-configuration)
-    * [46.2.9. Trice Structured Logging Assert Macros (TODO)](#trice-structured-logging-assert-macros-(todo))
-  * [46.3. Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser)
-    * [46.3.1. Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
-  * [46.4. Using Trice on Servers](#using-trice-on-servers)
-* [47. Working with the Trice Git Repository](#working-with-the-trice-git-repository)
-  * [47.1. Install `opencommit` on MacOS](#install-`opencommit`-on-macos)
-  * [47.2. Install `opencommit` on Windows](#install-`opencommit`-on-windows)
-* [48. Trice Folder Maintenance](#trice-folder-maintenance)
-  * [48.1. Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
-  * [48.2. Cleaning the Sources](#cleaning-the-sources)
-  * [48.3. Github Maintenance](#github-maintenance)
-    * [48.3.1. Clang Format](#clang-format)
-    * [48.3.2. CodeQL - query language and analysis engine](#codeql---query-language-and-analysis-engine)
-    * [48.3.3. Test Go](#test-go)
-    * [48.3.4. Run GoReleaser](#run-goreleaser)
-    * [48.3.5. Labeler](#labeler)
-    * [48.3.6. Broken Links Check](#broken-links-check)
-    * [48.3.7. Pages](#pages)
-    * [48.3.8. Shell Check](#shell-check)
-    * [48.3.9. Shell Format](#shell-format)
-    * [48.3.10. Mark stale issues and pull requests](#mark-stale-issues-and-pull-requests)
-    * [48.3.11. Super Linter](#super-linter)
-    * [48.3.12. Test Goreleaser](#test-goreleaser)
-    * [48.3.13. Clean MacOS Files](#clean-macos-files)
-* [49. Scratch Pad](#scratch-pad)
+* [5. Start with Trice](#start-with-trice)
+  * [5.1. Get it](#get-it)
+  * [5.2. Install It](#install-it)
+  * [5.3. Try it](#try-it)
+  * [5.4. Use It](#use-it)
+  * [5.5. Fork It (get a contributor)](#fork-it-(get-a-contributor))
+    * [5.5.1. ✅ What “forking” means](#✅-what-“forking”-means)
+    * [5.5.2. 🧭 How to Fork (GitHub)](#🧭-how-to-fork-(github))
+  * [5.6. Clone It](#clone-it)
+  * [5.7. Build It](#build-it)
+  * [5.8. Modify It](#modify-it)
+  * [5.9. Port it](#port-it)
+    * [5.9.1. Target Macros](#target-macros)
+    * [5.9.2. Target Trice Stamps](#target-trice-stamps)
+    * [5.9.3. Trice Checks](#trice-checks)
+    * [5.9.4. Communication Ports](#communication-ports)
+    * [5.9.5. Target Code Overview](#target-code-overview)
+    * [5.9.6. User Code Adaption](#user-code-adaption)
+    * [5.9.7. Limitations](#limitations)
+    * [5.9.8. Trice (Time) Stamps](#trice-(time)-stamps)
+    * [5.9.9. Trice Parameter Bit Widths](#trice-parameter-bit-widths)
+  * [5.10. Avoid it](#avoid-it)
+    * [5.10.1. Parser Limitation](#parser-limitation)
+    * [5.10.2. Trice macros in header files](#trice-macros-in-header-files)
+    * [5.10.3. Trice macros inside other macros](#trice-macros-inside-other-macros)
+    * [5.10.4. Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)](#upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0))
+* [6. Trice Trouble Shooting Hints](#trice-trouble-shooting-hints)
+  * [6.1. Initial Data Transfer Setup Hints](#initial-data-transfer-setup-hints)
+  * [6.2. Short Trouble Shooting Hints](#short-trouble-shooting-hints)
+* [7. Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed)
+  * [7.1. Trice Cache Idea](#trice-cache-idea)
+  * [7.2. Trice Cache Logic](#trice-cache-logic)
+  * [7.3. Trice Cache Remarks](#trice-cache-remarks)
+  * [7.4. Trice Cache Tests](#trice-cache-tests)
+  * [7.5. Possible Trice Cache Editor-Issues And How To Get Around](#possible-trice-cache-editor-issues-and-how-to-get-around)
+  * [7.6. Activating the Trice Cache](#activating-the-trice-cache)
+* [8. Embedded system code configuration](#embedded-system-code-configuration)
+* [9. Trice tool in logging action](#trice-tool-in-logging-action)
+* [10. Encryption](#encryption)
+* [11. Trice Command Line Interface & Examples](#trice-command-line-interface-&-examples)
+  * [11.1. Common information](#common-information)
+  * [11.2. Further examples](#further-examples)
+    * [11.2.1. Automated pre-build insert command example](#automated-pre-build-insert-command-example)
+    * [11.2.2. Some Log examples](#some-log-examples)
+    * [11.2.3. Logging over a display server](#logging-over-a-display-server)
+    * [11.2.4. Binary Logfile](#binary-logfile)
+    * [11.2.5. TCP output](#tcp-output)
+    * [11.2.6. TCP4 input](#tcp4-input)
+    * [11.2.7. UDP4 input (accepted pull request 529)](#udp4-input-(accepted-pull-request-529))
+    * [11.2.8. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
+    * [11.2.9. Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
+    * [11.2.10. Location Information](#location-information)
+* [12. Limitations](#limitations-1)
+  * [12.1. Permanent Limitations](#permanent-limitations)
+    * [12.1.1. Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
+  * [12.2. Current Limitations](#current-limitations)
+    * [12.2.1. String Concatenation Within TRICE Macros Not Possible](#string-concatenation-within-trice-macros-not-possible)
+    * [12.2.2. Limited Trice Parser Capabilities](#limited-trice-parser-capabilities)
+    * [12.2.3. Special Care Demands](#special-care-demands)
+* [13. Additional hints](#additional-hints)
+  * [13.1. Pre-built executables are available](#pre-built-executables-are-available)
+  * [13.2. Configuration file triceConfig.h](#configuration-file-triceconfig.h)
+  * [13.3. Setting up the very first connection](#setting-up-the-very-first-connection)
+  * [13.4. Avoid buffer overruns](#avoid-buffer-overruns)
+  * [13.5. Buffer Macros](#buffer-macros)
+  * [13.6. Logfile viewing](#logfile-viewing)
+  * [13.7. Using the Trice tool with 3rd party tools](#using-the-trice-tool-with-3rd-party-tools)
+  * [13.8. Several targets at the same time](#several-targets-at-the-same-time)
+  * [13.9. TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
+  * [13.10. Cycle Counter](#cycle-counter)
+* [14. Switching Trice ON and OFF](#switching-trice-on-and-off)
+  * [14.1. Target side compile-time  Trice On-Off](#target-side-compile-time-trice-on-off)
+  * [14.2. Host side Trice On-Off](#host-side-trice-on-off)
+* [15. Framing](#framing)
+* [16. Optional XTEA Encryption](#optional-xtea-encryption)
+* [17. Endianness](#endianness)
+* [18. Trice (Time)Stamps](#trice-(time)stamps)
+  * [18.1. Target (Time)Stamps Formatting](#target-(time)stamps-formatting)
+* [19. Binary Encoding](#binary-encoding)
+  * [19.1. Symbols](#symbols)
+  * [19.2. Package Format](#package-format)
+    * [19.2.1. typeX0 Trices](#typex0-trices)
+    * [19.2.2. Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
+* [20. Trice Decoding](#trice-decoding)
+  * [20.1. Trice ID list til.json](#trice-id-list-til.json)
+  * [20.2. Trice location information file li.json](#trice-location-information-file-li.json)
+* [21. Trice ID Numbers](#trice-id-numbers)
+  * [21.1. ID number selection](#id-number-selection)
+    * [21.1.1. Trice tool internal Method to get fast a random ID](#trice-tool-internal-method-to-get-fast-a-random-id)
+  * [21.2. ID number usage and stability](#id-number-usage-and-stability)
+  * [21.3. Trice ID 0](#trice-id-0)
+* [22. Trice ID management](#trice-id-management)
+  * [22.1. Trice inside source code](#trice-inside-source-code)
+    * [22.1.1. Trice in source code comments](#trice-in-source-code-comments)
+    * [22.1.2. Different IDs for same Trices](#different-ids-for-same-trices)
+    * [22.1.3. Same IDs for different Trices](#same-ids-for-different-trices)
+    * [22.1.4. ID Routing](#id-routing)
+    * [22.1.5. Possibility to create new tags without modifying trice tool source](#possibility-to-create-new-tags-without-modifying-trice-tool-source)
+* [23. Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control)
+  * [23.1. Trice version 1.0 Compile-time Log-level Control](#trice-version-1.0-compile-time-log-level-control)
+  * [23.2. Trice version 1.0 Run-time Log-level Control](#trice-version-1.0-run-time-log-level-control)
+  * [23.3. Trice Version 1.0 Compile-time - Run-time Log-level Control](#trice-version-1.0-compile-time---run-time-log-level-control)
+* [24. ID reference list til.json](#id-reference-list-til.json)
+  * [24.1. til.json Version control](#til.json-version-control)
+  * [24.2. Long Time Availability](#long-time-availability)
+* [25. The Trice Insert Algorithm](#the-trice-insert-algorithm)
+  * [25.1. Starting Conditions](#starting-conditions)
+  * [25.2. Aims](#aims)
+  * [25.3. Method](#method)
+    * [25.3.1. Trice Insert Initialization](#trice-insert-initialization)
+  * [25.4. User Code Patching (trice insert)](#user-code-patching-(trice-insert))
+  * [25.5. User Code Patching Examples](#user-code-patching-examples)
+  * [25.6. Exclude folders & files from being parsed (pull request 529)](#exclude-folders-&-files-from-being-parsed-(pull-request-529))
+  * [25.7. ID Usage Options](#id-usage-options)
+  * [25.8. General ID Management Information](#general-id-management-information)
+    * [25.8.1. Option Cleaning in a Post-build process](#option-cleaning-in-a-post-build-process)
+    * [25.8.2. Option Let the inserted Trice ID be a Part of the User Code](#option-let-the-inserted-trice-id-be-a-part-of-the-user-code)
+    * [25.8.3. Option Cleaning on Repository Check-In](#option-cleaning-on-repository-check-in)
+* [26. Trice Speed](#trice-speed)
+  * [26.1. Target Implementation Options](#target-implementation-options)
+    * [26.1.1. Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only](#trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only)
+    * [26.1.2. Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-trice_double_buffer---deferred-mode,-fastest-trice-execution,-more-ram-needed)
+    * [26.1.3. Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-trice_ring_buffer---deferred-mode,-balanced-trice-execution-time-and-needed-ram)
+  * [26.2. A configuration for maximum Trice execution speed with the L432_inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example)
+  * [26.3. A configuration for normal Trice execution speed with the G0B1_inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example)
+* [27. Trice memory needs](#trice-memory-needs)
+  * [27.1. F030_bare Size](#f030_bare-size)
+  * [27.2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off=1)
+  * [27.3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
+  * [27.4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
+  * [27.5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting,-only-enabling-segger_rtt)
+  * [27.6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:)
+  * [27.7. Settings Conclusion](#settings-conclusion)
+  * [27.8. Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-(old-version))
+  * [27.9. Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
+  * [27.10. Memory Needs for Old Example 2](#memory-needs-for-old-example-2)
+* [28. Trice Project Image Size Optimization](#trice-project-image-size-optimization)
+  * [28.1. Code Optimization -o3 or -oz (if supported)](#code-optimization--o3-or--oz-(if-supported))
+  * [28.2. Compiler Independent Setting (a bit outdated)](#compiler-independent-setting-(a-bit-outdated))
+  * [28.3. Linker Option --split-sections (if supported)](#linker-option---split-sections-(if-supported))
+  * [28.4. Linker Optimization -flto (if supported)](#linker-optimization--flto-(if-supported))
+    * [28.4.1. ARMCC Compiler v5 Linker Feedback](#armcc-compiler-v5-linker-feedback)
+    * [28.4.2. ARMCLANG Compiler v6 Link-Time Optimization](#armclang-compiler-v6-link-time-optimization)
+    * [28.4.3. GCC](#gcc)
+    * [28.4.4. LLVM ARM Clang](#llvm-arm-clang)
+    * [28.4.5. Other IDE´s and compilers](#other-ide´s-and-compilers)
+  * [28.5. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32f030-example-project---different-build-sizes)
+    * [28.5.1. ARMCC compiler v5](#armcc-compiler-v5)
+* [29. Trice Tags and Color](#trice-tags-and-color)
+  * [29.1. How to get](#how-to-get)
+    * [29.1.1. Output options](#output-options)
+    * [29.1.2. Check Alternatives](#check-alternatives)
+  * [29.2. Color issues under Windows](#color-issues-under-windows)
+* [30. Trice without UART](#trice-without-uart)
+* [31. Trice over RTT](#trice-over-rtt)
+  * [31.1. For the impatient (2 possibilities)](#for-the-impatient-(2-possibilities))
+    * [31.1.1. Start JLink commander and connect over TCP](#start-jlink-commander-and-connect-over-tcp)
+    * [31.1.2. Start using JLinkRTTLogger](#start-using-jlinkrttlogger)
+    * [31.1.3. JLinkRTTLogger Issue](#jlinkrttlogger-issue)
+  * [31.2. Segger Real Time Transfer (RTT)](#segger-real-time-transfer-(rtt))
+  * [31.3. J-Link option](#j-link-option)
+    * [31.3.1. Convert Evaluation Board onboard ST-Link to J-Link](#convert-evaluation-board-onboard-st-link-to-j-link)
+    * [31.3.2. Some SEGGER tools in short](#some-segger-tools-in-short)
+    * [31.3.3. JLinkRTTClient.exe](#jlinkrttclient.exe)
+    * [31.3.4. JLinkRTTViewer.exe](#jlinkrttviewer.exe)
+  * [31.4. Segger RTT](#segger-rtt)
+  * [31.5. Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-(~800-eur)-option)
+  * [31.6. Additional Notes (leftovers)](#additional-notes-(leftovers))
+  * [31.7. Further development](#further-development)
+  * [31.8. NUCLEO-F030R8 example](#nucleo-f030r8-example)
+    * [31.8.1. RTT with original on-board ST-LINK firmware](#rtt-with-original-on-board-st-link-firmware)
+    * [31.8.2. Change to J-LINK onboard firmware](#change-to-j-link-onboard-firmware)
+    * [31.8.3. RTT with J-LINK firmware on-board](#rtt-with-j-link-firmware-on-board)
+  * [31.9. Possible issues](#possible-issues)
+  * [31.10. OpenOCD with Darwin (MacOS)](#openocd-with-darwin-(macos))
+  * [31.11. SEGGER J-Link on Darwin (MacOS)](#segger-j-link-on-darwin-(macos))
+  * [31.12. Links](#links)
+* [32. Writing the Trice logs into an SD-card (or a user specific output)](#writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output))
+* [33. Trice Target Code Implementation](#trice-target-code-implementation)
+  * [33.1. TRICE Macro structure](#trice-macro-structure)
+    * [33.1.1. TRICE_ENTER](#trice_enter)
+    * [33.1.2. TRICE_PUT](#trice_put)
+    * [33.1.3. TRICE_LEAVE](#trice_leave)
+  * [33.2. TRICE_STACK_BUFFER](#trice_stack_buffer)
+  * [33.3. TRICE_STATIC_BUFFER](#trice_static_buffer)
+  * [33.4. TRICE_DOUBLE_BUFFER](#trice_double_buffer)
+  * [33.5. TRICE_RING_BUFFER](#trice_ring_buffer)
+  * [33.6. Deferred Out](#deferred-out)
+    * [33.6.1. Double Buffer](#double-buffer)
+    * [33.6.2. Ring Buffer](#ring-buffer)
+  * [33.7. Direct Transfer](#direct-transfer)
+  * [33.8. Possible Target Code Improvements](#possible-target-code-improvements)
+* [34. Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage)
+  * [34.1. Printf-like functions](#printf-like-functions)
+  * [34.2. Trice IDs](#trice-ids)
+  * [34.3. Trice values bit width](#trice-values-bit-width)
+  * [34.4. Many value parameters](#many-value-parameters)
+  * [34.5. Floating Point Values](#floating-point-values)
+  * [34.6. Runtime Generated 0-terminated Strings Transfer with triceS](#runtime-generated-0-terminated-strings-transfer-with-trices)
+  * [34.7. Runtime Generated counted Strings Transfer with  triceN](#runtime-generated-counted-strings-transfer-with-tricen)
+  * [34.8. Runtime Generated Buffer Transfer with triceB](#runtime-generated-buffer-transfer-with-triceb)
+  * [34.9. Remote function call syntax support with triceF](#remote-function-call-syntax-support-with-tricef)
+  * [34.10. Extended format specifier possibilities](#extended-format-specifier-possibilities)
+    * [34.10.1. Trice format specifier](#trice-format-specifier)
+    * [34.10.2. Overview Table](#overview-table)
+  * [34.11. UTF-8 Support](#utf-8-support)
+  * [34.12. Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
+  * [34.13. Format tags prototype specifier examples](#format-tags-prototype-specifier-examples)
+* [35. Development Environment Setup](#development-environment-setup)
+  * [35.1. Common Information](#common-information-1)
+  * [35.2. Important to know](#important-to-know)
+  * [35.3. Animation](#animation)
+  * [35.4. Setup Linux PC - Example with Debian12 - KDE Desktop](#setup-linux-pc---example-with-debian12---kde-desktop)
+    * [35.4.1. Basic setup](#basic-setup)
+    * [35.4.2. Github](#github)
+    * [35.4.3. vsCode](#vscode)
+    * [35.4.4. Go](#go)
+    * [35.4.5. Gitkraken (or other GUI for git)](#gitkraken-(or-other-gui-for-git))
+    * [35.4.6. arm-none-eabi toolchain (or other target system compiler)](#arm-none-eabi-toolchain-(or-other-target-system-compiler))
+    * [35.4.7. J-Link (if needed)](#j-link-(if-needed))
+    * [35.4.8. Beyond Compare (if no other diff tool)](#beyond-compare-(if-no-other-diff-tool))
+  * [35.5. Setup Windows PC Example](#setup-windows-pc-example)
+    * [35.5.1. Setup Trice](#setup-trice)
+    * [35.5.2. Setup ARM Environment Example](#setup-arm-environment-example)
+    * [35.5.3. Setup STM32](#setup-stm32)
+    * [35.5.4. Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)](#setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too))
+    * [35.5.5. Setup VS-Code](#setup-vs-code)
+  * [35.6. Makefile with Clang too](#makefile-with-clang-too)
+  * [35.7. Download Locations](#download-locations)
+    * [35.7.1. Clang](#clang)
+    * [35.7.2. GCC](#gcc-1)
+  * [35.8. Install Locations](#install-locations)
+  * [35.9. Environment Variables](#environment-variables)
+  * [35.10. Build command](#build-command)
+  * [35.11. Run & Debug](#run-&-debug)
+  * [35.12. Logging](#logging)
+  * [35.13. Setting up a new project](#setting-up-a-new-project)
+* [36. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
+  * [36.1. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
+    * [36.1.1. F030_bare](#f030_bare)
+    * [36.1.2. F030_inst](#f030_inst)
+  * [36.2. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
+    * [36.2.1. G0B1_bare](#g0b1_bare)
+    * [36.2.2. G0B1_inst](#g0b1_inst)
+  * [36.3. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
+    * [36.3.1. L432_bare](#l432_bare)
+    * [36.3.2. L432_inst](#l432_inst)
+* [37. Trice Generate](#trice-generate)
+  * [37.1. Colors](#colors)
+  * [37.2. C-Code](#c-code)
+  * [37.3. C#-Code](#c#-code)
+  * [37.4. Generating a RPC Function Pointer List](#generating-a-rpc-function-pointer-list)
+* [38. Testing the Trice Library C-Code for the Target](#testing-the-trice-library-c-code-for-the-target)
+  * [38.1. General info](#general-info)
+  * [38.2. How to run the tests](#how-to-run-the-tests)
+  * [38.3. Tests Details](#tests-details)
+  * [38.4. How to add new test cases](#how-to-add-new-test-cases)
+  * [38.5. Test Internals](#test-internals)
+  * [38.6. Test Results](#test-results)
+  * [38.7. Special tests](#special-tests)
+  * [38.8. Test Cases](#test-cases)
+    * [38.8.1. Folder Naming Convention](#folder-naming-convention)
+* [39. Test Issues](#test-issues)
+* [40. Add-On Hints](#add-on-hints)
+  * [40.1. Trice on LibOpenCM3](#trice-on-libopencm3)
+    * [40.1.1. Prerequisites](#prerequisites)
+    * [40.1.2. triceConfig.h](#triceconfig.h)
+    * [40.1.3. main.c](#main.c)
+    * [40.1.4. nucleo-f411re.ld](#nucleo-f411re.ld)
+    * [40.1.5. Makefile](#makefile)
+    * [40.1.6. Usage](#usage)
+  * [40.2. Get all project files containing Trice messages](#get-all-project-files-containing-trice-messages)
+  * [40.3. Building a trice library?](#building-a-trice-library?)
+  * [40.4. Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
+* [41. Trice And Legacy User Code](#trice-and-legacy-user-code)
+  * [41.1. Legacy User Code Option Separate Physical Output Channel](#legacy-user-code-option-separate-physical-output-channel)
+  * [41.2. Legacy User Code Option Trice Adaption Edits](#legacy-user-code-option-trice-adaption-edits)
+  * [41.3. Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
+  * [41.4. Legacy User Code Option Trice Aliases Adaption](#legacy-user-code-option-trice-aliases-adaption)
+    * [41.4.1. PR533 Doc](#pr533-doc)
+    * [41.4.2. PR533 Summary](#pr533-summary)
+    * [41.4.3. PR533 Motivation](#pr533-motivation)
+    * [41.4.4. What This PR533 Adds](#what-this-pr533-adds)
+    * [41.4.5. PR533 Example](#pr533-example)
+    * [41.4.6. PR536 Doc](#pr536-doc)
+    * [41.4.7. Alias Example Project](#alias-example-project)
+* [42. Future Development](#future-development)
+  * [42.1. Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft)
+    * [42.1.1. What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?](#what-log-levels-exist-in-general,-including-exotic-ones,-and-what-is-their-exact-weighting-relative-to-each-other?)
+    * [42.1.2. Compile-time Log-level Control](#compile-time-log-level-control)
+    * [42.1.3. Run-time Log-level Control](#run-time-log-level-control)
+  * [42.2. Trice Structured Logging](#trice-structured-logging)
+    * [42.2.1. Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information)
+    * [42.2.2. Trice Structured Logging Runtime Information](#trice-structured-logging-runtime-information)
+    * [42.2.3. Trice Structured Logging Limitations and Special Cases](#trice-structured-logging-limitations-and-special-cases)
+    * [42.2.4. A Trice Structured Logging Example](#a-trice-structured-logging-example)
+    * [42.2.5. Trice Structured Logging CLI Switches and Variables](#trice-structured-logging-cli-switches-and-variables)
+    * [42.2.6. Trice Structured Logging User Defined Values](#trice-structured-logging-user-defined-values)
+    * [42.2.7. Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
+    * [42.2.8. Trice Structured Logging Level Specific Configuration](#trice-structured-logging-level-specific-configuration)
+    * [42.2.9. Trice Structured Logging Assert Macros (TODO)](#trice-structured-logging-assert-macros-(todo))
+  * [42.3. Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser)
+    * [42.3.1. Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
+  * [42.4. Using Trice on Servers](#using-trice-on-servers)
+* [43. Working with the Trice Git Repository](#working-with-the-trice-git-repository)
+  * [43.1. Install `opencommit` on MacOS](#install-`opencommit`-on-macos)
+  * [43.2. Install `opencommit` on Windows](#install-`opencommit`-on-windows)
+* [44. Trice Maintenance](#trice-maintenance)
+  * [44.1. Trice Project structure (Files and Folders)](#trice-project-structure-(files-and-folders))
+  * [44.2. 📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)
+    * [44.2.1. 📁 `.github` Root](#📁-`.github`-root)
+    * [44.2.2. 📂 `.github/workflows` — GitHub Actions Workflows](#📂-`.github/workflows`-—-github-actions-workflows)
+    * [44.2.3.  GitHub Action clang-format.yml](#-github-action-clang-format.yml)
+    * [44.2.4. GitHub Action codeql.yml](#github-action-codeql.yml)
+    * [44.2.5. GitHub Action go.yml](#github-action-go.yml)
+    * [44.2.6. GitHub Action goreleaser.yml](#github-action-goreleaser.yml)
+    * [44.2.7. GitHub Action greetings.yml](#github-action-greetings.yml)
+    * [44.2.8. GitHub Action label.yml](#github-action-label.yml)
+    * [44.2.9. GitHub Action learn-github-actions.yml](#github-action-learn-github-actions.yml)
+    * [44.2.10. GitHub Action link-check.yml](#github-action-link-check.yml)
+    * [44.2.11. GitHub Action manual.ym](#github-action-manual.ym)
+    * [44.2.12. GitHub Action shellcheck.yml](#github-action-shellcheck.yml)
+    * [44.2.13. GitHub Action shfmt.yml](#github-action-shfmt.yml)
+    * [44.2.14. GitHub Action stale.yml](#github-action-stale.yml)
+    * [44.2.15. GitHub Action superlinter.yml](#github-action-superlinter.yml)
+    * [44.2.16.  Github Action pages.yml](#-github-action-pages.yml)
+    * [44.2.17.  Github Action test_goreleaser.yml](#-github-action-test_goreleaser.yml)
+  * [44.3. Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
+  * [44.4. Cleaning the Sources](#cleaning-the-sources)
+* [45. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
+  * [45.1. Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
+  * [45.2. Prepare A Release](#prepare-a-release)
+    * [45.2.1. Check a Goreleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
+  * [45.3. Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
+    * [45.3.1.  Make sure your workflow reacts to tags](#-make-sure-your-workflow-reacts-to-tags)
+    * [45.3.2.  Final checks before tagging](#-final-checks-before-tagging)
+    * [45.3.3.  Choose a version and create a `git tag`](#-choose-a-version-and-create-a-`git-tag`)
+    * [45.3.4.  Push the tag to GitHub (this triggers CI)](#-push-the-tag-to-github-(this-triggers-ci))
+    * [45.3.5.  Watch the CI release run on GitHub](#-watch-the-ci-release-run-on-github)
+    * [45.3.6.  Check the GitHub Release](#-check-the-github-release)
+* [46. Scratch Pad](#scratch-pad)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -785,51 +775,9 @@ When it comes to instrument a legacy project with Trice or to intergrate legacy 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  5. <a id='project-structure-(files-and-folders)'></a>Project structure (Files and Folders)
+##  5. <a id='start-with-trice'></a>Start with Trice
 
-| name                                                                                  | content                                                                                                                   |
-|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| [_test](../_test)                                                                     | automatic target code tests                                                                                               |
-| [.github/](../.github/)                                                               | [Github configuration](https://stackoverflow.com/questions/71235744/where-is-the-github-folder-in-the-project-repository) |
-| [.idea/](../.idea/)                                                                   | GoLand settings                                                                                                           |
-| [.vscode/](../.vscode/)                                                               | vsCode settings                                                                                                           |
-| [cmd/_cui/](../cmd/_cui)                                                              | (do not use) command user interface tryout code                                                                           |
-| [cmd/_stim/](../cmd/_stim)                                                            | (do not use) target stimulation tool tryout code                                                                          |
-| [cmd/trice](../cmd/trice)                                                             | Trice tool command Go sources                                                                                             |
-| [docs](../docs)                                                                       | documentation folder with link forwarding                                                                                 |
-| [examples/](../examples)                                                              | example target projects                                                                                                   |
-| [internal/](../internal)                                                              | Trice tool internal Go packages                                                                                           |
-| [pkg/](../pkg)                                                                        | Trice tool common Go packages                                                                                             |
-| [src/](../src)                                                                        | C sources for trice instrumentation -> Add to target project                                                              |
-| [super-linter.report/](../super-linter.report/)                                       | super linter output                                                                                                       |
-| [third_party/](../third_party)                                                        | external components                                                                                                       |
-| [_config.yml](../_config.yml)                                                         | [jekyll configuration](https://jekyllrb.com/docs/configuration/)                                                          |
-| [.clang-format](../.clang-format)                                                     | See [Trice Code Formatting](#trice-code-formatting)                                                                       |
-| [.clang-format-ignore](../.clang-format-ignore)                                       | See [Trice Code Formatting](#trice-code-formatting)                                                                       |
-| [.editorconfig](../.editorconfig)                                                     | See [Trice Code Formatting](#trice-code-formatting)                                                                       |
-| `.git/`                                                                               | version control data base   (hidden)                                                                                      |
-| [.gitattributes](../.gitattributes)                                                   | See[Trice Code Formatting](#trice-code-formatting)                                                                        |
-| [.gitignore](../.gitignore)                                                           | Files git ignores                                                                                                         |
-| [.goreleaser.yaml](../.goreleaser.yaml)                                               | goreleaser configuration                                                                                                  |
-| [.travis.yml](../.travis.yml)                                                         | Travis CI configuration                                                                                                   |
-| [AUTHORS.md](../AUTHORS.md)                                                           | contributors                                                                                                              |
-| [CHANGELOG.md](../CHANGELOG.md)                                                       | History                                                                                                                   |
-| [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)                                           | How to communicate                                                                                                        |
-| [CONTRIBUTING.md](../CONTRIBUTING.md)                                                 | Helper                                                                                                                    |
-| [go.mod](../go.mod)                                                                   | Go modules file                                                                                                           |
-| [go.sum](../go.sum)                                                                   | Go modules sums                                                                                                           |
-| [LICENSE.md](../)                                                                     | [MIT](https://opensource.org/license/mit)                                                                                 |
-| [README.md](../)                                                                      | Github first page                                                                                                         |
-| [coverage.out](../)                                                                   | Go test coverage output                                                                                                   |
-| `dist/`                                                                               | local distribution files folder created by goreleaser                                                                     |
-| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_test_folder.sh) | renew all ID data                                                                                                         |
-| [testAll.sh](../testAll.sh)                                                           | run all tests                                                                                                             |
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-##  6. <a id='start-with-trice'></a>Start with Trice
-
-###  6.1. <a id='get-it'></a>Get it
+###  5.1. <a id='get-it'></a>Get it
 
 * Download [latest release assets](https://github.com/rokath/trice/releases) for your system: Compressed source code and binaries.
 * OR Get the repo: ![x](./ref/Get-Button.png)
@@ -839,14 +787,14 @@ When it comes to instrument a legacy project with Trice or to intergrate legacy 
   * Execute `git clone git@github.com:rokath/trice.git` to get the trice repository.
 * OR use the ![./ref/Fork.PNG](./ref/Fork.PNG) button
 
-###  6.2. <a id='install-it'></a>Install It
+###  5.2. <a id='install-it'></a>Install It
 
 * Place the extracted Trice [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
 * Copy the src folder into your project and add all files.
 * Copy a triceConfig.h from a subfolder in the examples or test folder and optionally adapt it. See file [*triceDefaultConfig.h*](../src/triceDefaultConfig.h) for help.
   * Inside the triceConfig.h file you can control, if Trice works in direct or deferred mode or both parallel.
 
-###  6.3. <a id='try-it'></a>Try it
+###  5.3. <a id='try-it'></a>Try it
 
 * Create a file `tryTrice.c` and write in it:
 
@@ -877,7 +825,7 @@ See [Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed) for 
 
 A quick setup is possible when using RTT as output channel. Otherwise you need to setup a serial port for Trice data transmission. Other output paths possible too using the auxiliary interface.
 
-###  6.4. <a id='use-it'></a>Use It
+###  5.4. <a id='use-it'></a>Use It
 
 * In a console, like [git bash](https://gitforwindows.org/), type `trice help -all`. You should see the complete Trice tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
   * Don´t worry, most of it you will never need.
@@ -908,11 +856,11 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  6.5. <a id='fork-it-(get-a-contributor)'></a>Fork It (get a contributor)
+###  5.5. <a id='fork-it-(get-a-contributor)'></a>Fork It (get a contributor)
 
 If you wish to get a contributor please fork the Trice repository.
 
-####  6.5.1. <a id='✅-what-“forking”-means'></a>✅ What “forking” means
+####  5.5.1. <a id='✅-what-“forking”-means'></a>✅ What “forking” means
 
 Forking creates **your own copy** of someone else’s repository under your account.  
 You can then:
@@ -921,7 +869,7 @@ You can then:
 * push commits to your fork, 
 * and later submit a **pull request** to propose changes back to the original repo.
 
-####  6.5.2. <a id='🧭-how-to-fork-(github)'></a>🧭 How to Fork (GitHub)
+####  5.5.2. <a id='🧭-how-to-fork-(github)'></a>🧭 How to Fork (GitHub)
 
 **1\. Go to the repository you want to fork**
 
@@ -961,7 +909,7 @@ Or:
 
 `git pull upstream main`
 
-###  6.6. <a id='clone-it'></a>Clone It
+###  5.6. <a id='clone-it'></a>Clone It
 
 **1\. Make sure Git is installed**
 
@@ -983,15 +931,15 @@ This creates a local folder named **trice** with the full project history.
 
 `cd trice`
 
-###  6.7. <a id='build-it'></a>Build It
+###  5.7. <a id='build-it'></a>Build It
 
 See [Build Trice tool from Go sources](#build-trice-tool-from-go-sources).
 
-###  6.8. <a id='modify-it'></a>Modify It
+###  5.8. <a id='modify-it'></a>Modify It
 
 If for example you wich to change the logging capablilities, like changing/extending CLI switches, thanks to **Go** this is very easy also if you are not familar with **Go**. [See this example](https://github.com/rokath/trice/issues/573#issuecomment-3585705996).
 
-###  6.9. <a id='port-it'></a>Port it
+###  5.9. <a id='port-it'></a>Port it
 
 Trice should be usable on any MCU with any compiler. On ARM MCUs the easiest way is to use SEGGER J-Link with RTT as output. Setting up UART transmission as alternative or additionally is also no big deal.
 
@@ -1007,7 +955,7 @@ This way you see in a quick way any needed adaptions for your target project to 
 
 The chapter [Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation) contains further helpful information.
 
-####  6.9.1. <a id='target-macros'></a>Target Macros
+####  5.9.1. <a id='target-macros'></a>Target Macros
 
 The easiest and mostly sufficient way to use Trice on the target side is the Trice macro
 
@@ -1054,7 +1002,7 @@ The value TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the parameter bit with for the ma
 
 The full uppercase macro Trice is a Trice macro only using inline code. Because the main design aim was speed, this was the original design. Then it became clear, that several hundred of Trice macros increase the needed code amount too much and that it is better to have just a function call instead of having inline macros. If speed matters use `TRICE(id(0)`, `TRICE(Id(0)`, `TRICE(ID(0)` else use `trice(iD(0)`, `Trice(iD(0)`, `TRice(iD(0)` or mix usage as you like. The lower case macros internally use Trice like code but each is only a function call and therefore needs less space.
 
-####  6.9.2. <a id='target-trice-stamps'></a>Target Trice Stamps
+####  5.9.2. <a id='target-trice-stamps'></a>Target Trice Stamps
 
 * If you wish to have your Trice messages stamped, most probably time stamped, add the 2 hardware specific macros/functions to your project (example in [./examples/F030_inst/Core/Inc/triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) and [./examples/F030_inst/Core/Src/stm32f0xx_it.c](../examples/F030_inst/Core/Src/stm32f0xx_it.c) ). The time base is in your hands and is allowed to be different for the 16-bit and 32-bit stamps. Example:
 
@@ -1075,7 +1023,7 @@ The full uppercase macro Trice is a Trice macro only using inline code. Because 
 
 _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bit timestamp as systick counter to measure short execution times.
 
-####  6.9.3. <a id='trice-checks'></a>Trice Checks
+####  5.9.3. <a id='trice-checks'></a>Trice Checks
 
 * Optionally copy parts of [./_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   * Do not inclucde this file directly, because it could get changed when `updateTestData.sh` is executed inside the `./test` folder.
@@ -1093,7 +1041,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 * Look into [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for options.
 * Read chapter [Trice Project Image Size Optimization](#trice-project-image-size-optimization) if needed.
 
-####  6.9.4. <a id='communication-ports'></a>Communication Ports
+####  5.9.4. <a id='communication-ports'></a>Communication Ports
 
 * For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [Trice over RTT](#trice-over-rtt) for more info.
   * If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. But you cannot use it in the field usually.
@@ -1104,7 +1052,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 * An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality.
 * See also [Trice without UART](#trice-without-uart).
 
-####  6.9.5. <a id='target-code-overview'></a>Target Code Overview
+####  5.9.5. <a id='target-code-overview'></a>Target Code Overview
 
 * `./src`: **User Interface**
 
@@ -1156,7 +1104,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-####  6.9.6. <a id='user-code-adaption'></a>User Code Adaption
+####  5.9.6. <a id='user-code-adaption'></a>User Code Adaption
 
 * Replace all strings `puts` with the string `trice`, when the string follows immediately. For runtime generated strings see `triceS`.
 * Replace all strings `printf` with the string `trice`, when the format string follows immediately.
@@ -1196,7 +1144,7 @@ The Trice macros are designed for maximal execution speed and therefore we have 
 
 * Add `#include trice.h` to all user files using trice.
 
-####  6.9.7. <a id='limitations'></a>Limitations
+####  5.9.7. <a id='limitations'></a>Limitations
 
 * The maximum parameter count per trice is 12, but buffer transfer allows up to 32764 bytes payload. See `triceB` and its relatives.
 * Each trice must fit into a single line in trice versions before v0.61.0.
@@ -1252,7 +1200,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 * See also [Avoid it](#avoid-it).
 
-####  6.9.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
+####  5.9.8. <a id='trice-(time)-stamps'></a>Trice (Time) Stamps
 
 * Trice messages can have no or 16-bit or 32-bit (time) stamps.
   * recommended (function calling) syntax:
@@ -1273,7 +1221,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 <div id="Trice Parameter Bit Widths"></div>
 
-####  6.9.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
+####  5.9.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
 
 * The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside [src/triceDefaultConfig.h](../src/triceDefaultConfig.h) to change that.
 * If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
@@ -1293,9 +1241,9 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 Hint: With the default TCOBS framing 8-bit values as 32-bit parameters typically occupy only 2-bytes during transmission.
 
-###  6.10. <a id='avoid-it'></a>Avoid it
+###  5.10. <a id='avoid-it'></a>Avoid it
 
-####  6.10.1. <a id='parser-limitation'></a>Parser Limitation
+####  5.10.1. <a id='parser-limitation'></a>Parser Limitation
 
 Because the implemented source code parser for `trice insert` and `trice clean` is only a simple one, there is one important limitation:
 
@@ -1316,14 +1264,14 @@ trice( "hi 4");
 * The `trice insert` and `trice clean` will not see the `trice( "hi 3");` line here, but the compiler will mark an error then.
 * See also [issue #427](https://github.com/rokath/trice/issues/427), [issue #465](https://github.com/rokath/trice/issues/465) and see also [Limited Trice Parser Capabilities](#limited-trice-parser-capabilities).
 
-####  6.10.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
+####  5.10.2. <a id='trice-macros-in-header-files'></a>Trice macros in header files
 
 * There is nothing wrong, when putting _trice_ macros into header files.
 * But: When you use `trice insert` as pre-build command and `trice clean` as post build command, those header files get touched on each build and therefore all source code files including them will be re-translated every time.
 * For efficiency avoid that.
 * **With inventing the [Trice Cache](#trice-cache-for-compilation-speed) this is of no relevance.**
 
-####  6.10.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
+####  5.10.3. <a id='trice-macros-inside-other-macros'></a>Trice macros inside other macros
 
 There is nothing wrong, when putting Trice macros into other macros. But: When running the self made macro, the location information of the inner _trice_ macro will point to the self made macro definition and not to its execution location.
 
@@ -1351,15 +1299,15 @@ void fnB( void ){
 }
 ```
 
-####  6.10.4. <a id='upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0)'></a>Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
+####  5.10.4. <a id='upper-case-only-trice-macros-should-be-written-with-id(0),-id(0)-or-id(0)'></a>Upper case only TRICE macros should be written with id(0), Id(0) or ID(0)
 
 The stamp size 0, 16 or 32 is usually controlled by writing `trice`, `Trice` or `TRICE` or for upper case only Trice macros by using id(0), Id(0) or ID(0). When wrting `TRICE("hi");` for example, the Trice CLI switch `-defaultStampSize` controls the ID insertion, but this is then equal for all new `TRICE` messages.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  7. <a id='trice-trouble-shooting-hints'></a>Trice Trouble Shooting Hints
+##  6. <a id='trice-trouble-shooting-hints'></a>Trice Trouble Shooting Hints
 
-###  7.1. <a id='initial-data-transfer-setup-hints'></a>Initial Data Transfer Setup Hints
+###  6.1. <a id='initial-data-transfer-setup-hints'></a>Initial Data Transfer Setup Hints
 
 If you do not succeed initially, you can try this:
 
@@ -1413,7 +1361,7 @@ trice log -s -port com1 -v -ts32="att:%08x fix" # enter this (adapted)
   * `04` parameter size
   * `22 22 22 22` 4 parameter bytes
 
-###  7.2. <a id='short-trouble-shooting-hints'></a>Short Trouble Shooting Hints
+###  6.2. <a id='short-trouble-shooting-hints'></a>Short Trouble Shooting Hints
 
 Problem                        | Hint
 -------------------------------|-----------------------------------------------------------------------------------------------
@@ -1423,11 +1371,11 @@ Small In-Terminal Editor Linux | https://cte.e10labs.com/, tilde, micro, joe, ht
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  8. <a id='trice-cache-for-compilation-speed'></a>Trice Cache for Compilation Speed
+##  7. <a id='trice-cache-for-compilation-speed'></a>Trice Cache for Compilation Speed
 
 The `trice insert` and `trice clean` commands are parsing and modifying the source code files. Even this is a reasonable fast procedure, this could get time consuming on large projects, especially when using these commands as permanent pre-compile and post-compile steps. It is assumed, that usually between 2 compile steps not all project files are changed. The project files majority will stay unchanged despite the ID insertion and removal. This repeated parsing and modifying of unchanged source code is avoidable with the Trice cache technique. Also it could get annoying to recompile files all the time only because they got Trice IDs removed and inserted. With the Trice cache we get also a solution not to re-compile un-edited files as well.
 
-###  8.1. <a id='trice-cache-idea'></a>Trice Cache Idea
+###  7.1. <a id='trice-cache-idea'></a>Trice Cache Idea
 
 Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process many in one shot.
 
@@ -1438,7 +1386,7 @@ Lets talk about just one source file `$HOME/my/src/foo.c` and imagine we process
 * On any repeated or alternate `trice insert` and `trice clean`, we are done.
 * When a file in cleaned or inserted ID state was edited somehow, its IDs are inserted/cleaned and the cache is updated accordingly on `trice clean` or `trice insert` because the file modification time has changed.
 
-###  8.2. <a id='trice-cache-logic'></a>Trice Cache Logic
+###  7.2. <a id='trice-cache-logic'></a>Trice Cache Logic
 
 When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder `~/.trice/cache` exists, we have
 
@@ -1455,7 +1403,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
     * On command `trice c`, invalidate cache, process `trice c` and update _cleaned cache file_, file gets a new mtime, the mtime of _IDs cleaned_. <sub>On a following command `trice i`, file mtime is _IDs cleaned_, BUT the cache is invalid, so process `trice i` and update cache/inserted.</sub>
     * On command `trice i`, invalidate cache, process `trice i` and update _inserted cache file_, file gets a new mtime, the mtime of _IDs inserted_. <sub>On a following command `trice c`, file mtime is _IDs inserted_, BUT the cache is invalid, so process `trice c` and update cache/cleaned.</sub>
 
-###  8.3. <a id='trice-cache-remarks'></a>Trice Cache Remarks
+###  7.3. <a id='trice-cache-remarks'></a>Trice Cache Remarks
 
 * `fullpath/file` means `/home/me/proj3/file` for example. When copied to the cache, the real "fullpath" is there `/home/me/.trice/cache/cleaned/home/me/proj3/file`.
 
@@ -1466,7 +1414,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 * A CLI switch `-cache` does enable/disable the Trice cache. Default is off.
 * The user should consider what happens, if other pre-compile or post-compile steps are modifying files as well, before enabling the Trice cache.
 
-###  8.4. <a id='trice-cache-tests'></a>Trice Cache Tests
+###  7.4. <a id='trice-cache-tests'></a>Trice Cache Tests
 
 | Nr    | Action   | cCache  | iCache  | ID state   | Edid state | Test function                                                                 |
 |-------|----------|---------|---------|------------|------------|-------------------------------------------------------------------------------|
@@ -1496,7 +1444,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 | 30    | 1:insert | 1:valid | 1:valid | 1:inserted | 0:not      | Test_30_11110_insert_on_valid_cCache_valid_iCache_inserted_not_edited_file    |
 | 31    | 1:insert | 1:valid | 1:valid | 1:inserted | 1:yes      | Test_31_11111_insert_on_valid_cCache_valid_iCache_inserted_edited_file        |
 
-###  8.5. <a id='possible-trice-cache-editor-issues-and-how-to-get-around'></a>Possible Trice Cache Editor-Issues And How To Get Around
+###  7.5. <a id='possible-trice-cache-editor-issues-and-how-to-get-around'></a>Possible Trice Cache Editor-Issues And How To Get Around
 
 * When a `trice i -cache && make && trice c -cache` sequence is executed, it could happen that the editor-view is not refreshed for opened and unedited files containing Trice statements.
   * It looks like the Trice IDs were not cleaned.
@@ -1506,7 +1454,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 * A workaround is, at least for vsCode, to first run `trice clean` in the build script.
   * See `trice/examples/G0B1_inst/build.sh` for an implementation.
 
-###  8.6. <a id='activating-the-trice-cache'></a>Activating the Trice Cache
+###  7.6. <a id='activating-the-trice-cache'></a>Activating the Trice Cache
 
 * Create Trice cache folder:
 
@@ -1521,677 +1469,7 @@ mkdir -p ~/.trice/cache
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  9. <a id='trice-code-formatting'></a>Trice Code Formatting
-
-The file [./clang-format.sh](../clang-format.sh) is used to auto-format the Trice code.
-
-###  9.1. <a id='file-.clang-format'></a>File .clang-format
-
-*Contributor: [Sazerac4](https://github.com/Sazerac4)*
-
-Sazerac4 commented Aug 29, 2024:
-I have a code formatter when I make changes to my application but I would like to keep the style of the library when modifying.
-I couldn't find a code formatter, is there a tool used? If not, I propose this to provide one as an example by using clang-format.
-
-```bash
-## I have created a default style :
-clang-format -style=llvm -dump-config > .clang-format
-## Then format the code:
-find ./src  -name '*.c' -o  -name '*.h'| xargs clang-format-18 -style=file -i
-```
-
-The style of the example does not correspond to the original one. Configurations are necessary for this to be the case. Tags can be placed to prevent certain macros from being formatted
-
-```C
-int formatted_code;
-// clang-format off
-    void    unformatted_code  ;
-// clang-format on
-void formatted_code_again;
-```
-
-I have tuned some settings for clang-format :
-
-```bash
-* IndentWidth: 4  // original code size indentation
-* ColumnLimit: 0  // avoid breaking long line (like macros)
-* PointerAlignment: Left  // like original files (mostly)
-```
-
-With preprocessor indentation, the result is a bit strange in some cases. It's possible with the option IndentPPDirectives ([doc](https://releases.llvm.org/18.1.6/tools/clang/docs/ClangFormatStyleOptions.html)).
-
-Staying as close as possible to a default version (LLVM in this case) makes it easier to regenerate the style if necessary.
-
-See also: https://github.com/rokath/trice/pull/487#issuecomment-2318003072
-
-###  9.2. <a id='file-.clang-format-ignore'></a>File .clang-format-ignore
-
-*Contributor: [Sazerac4](https://github.com/Sazerac4)*
-
-Sazerac4 commented Aug 30, 2024:
-I have added .clang-format-ignore to ignore formatting for specific files
-
-###  9.3. <a id='file-.editorconfig'></a>File .editorconfig
-
-*Contributor: [Sazerac4](https://github.com/Sazerac4)*
-
-The`.editorconfig` file allows to better identify the basic style for every files. (endline, charset, ...). It is a file accepted by a wide list of IDEs and editors : [link](https://editorconfig.org/#file-format-details)
-This addition is motivated by forgetting the end of line in the .gitattributes file.
-
-###  9.4. <a id='file-.gitattributes'></a>File .gitattributes
-
-*Contributor: [Sazerac4](https://github.com/Sazerac4)*
-
-With the`.gitattributes` file avoid problems with "diff" and end of lines. [Here](https://www.aleksandrhovhannisyan.com/blog/crlf-vs-lf-normalizing-line-endings-in-git/) is an article that presents the problem.
-
-To fill the`.gitattributes`, I used the command below to view all the extensions currently used.
-
-```bash
-git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort -u
-```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-##  10. <a id='📁-the-.github-folder-—-purpose-and-contents-(for-trice-developers)'></a>📁 The .github Folder — Purpose and Contents (For Trice Developers)
-
-GitHub automatically recognizes and uses everything contained inside the [.github/](../.github/) directory.
-This folder defines how the project behaves on GitHub: issue templates, automated workflows, labels, code scanning, greetings, and release automation. Details:
-
-###  10.1. <a id='📁-`.github`-root'></a>📁 `.github` Root
-
-The `.github` folder defines how the Trice project behaves on GitHub.  
-It contains issue templates, labels, workflow automation, code scanning, linting, and the CI/CD release pipeline.
-
-
-* **ISSUE_TEMPLATE/** Used to create structured bug reports and feature requests.
-* **FUNDING.yml** Enables the GitHub “Sponsor” button.
-* **labeler.yml** Automatically adds labels to issues or pull requests based on content or file changes.
-* **workflows/** Contains GitHub Actions automation
-
-####  10.1.1. <a id='🧩-visual-architecture-diagram-—-trice-.github-automation-system'></a>🧩 Visual Architecture Diagram — Trice .github Automation System
-
-```pgsql
-                                       ┌───────────────────────────────────────┐
-                                       │               GitHub UI               │
-                                       │  (Issues, Pull Requests, Actions)     │
-                                       └───────────────────┬───────────────────┘
-                                                           │
-                                                           ▼
-                                       ┌───────────────────────────────────────┐
-                                       │               .github/                │
-                                       │  Project automation & CI/CD settings  │
-                                       └───────────────────┬───────────────────┘
-                                                           │
-     ┌─────────────────────────────────────────────────────┼──────────────────────────────────────────────────┐
-     │                                                     │                                                  │
-     ▼                                                     ▼                                                  ▼
-┌────────────────┐                                 ┌───────────────────┐                          ┌──────────────────────────┐
-│ ISSUE_TEMPLATE │                                 │   FUNDING.yml     │                          │        labeler.yml       │
-│  bug/feature   │                                 │ Sponsor settings  │                          │ Automatic PR labelling   │
-└───────┬────────┘                                 └───────────────────┘                          └───────────┬──────────────┘
-        │                                                                                                     │
-        ▼                                                                                                     ▼
-┌────────────────┐                                                                                ┌─────────────────────────┐
-│ New Issue form │   Contributors create issues → GitHub loads templates                          │ Labels added to PRs     │
-│ Guided inputs  │──────────────────────────────────────────────────────────────────────────────► │ based on files & title  │
-└────────────────┘                                                                                └─────────────────────────┘
-
-
-
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-                                   GITHUB ACTIONS WORKFLOWS (.github/workflows/)
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-                                           (Triggered by pushes, PRs, tags, or manually)
-        ┌─────────────────────────┬────────────────────────┬─────────────────────────┬──────────────────────────────┐
-        │                         │                        │                         │                              │
-        ▼                         ▼                        ▼                         ▼                              ▼
-┌────────────────────┐    ┌────────────────────┐   ┌──────────────────┐   ┌────────────────────────┐   ┌──────────────────────┐
-│     go.yml         │    │   codeql.yml       │   │ superlinter.yml  │   │    goreleaser.yml      │   │     stale.yml        │
-│ Build & test Go    │    │ Security scanning  │   │ Linting of code  │   │ Build+release pipeline │   │ Auto-close inactive  │
-│ on every push/PR   │    │ for vulnerabilities│   │ for consistency  │   │ for multi-platform     │   │ issues & PRs         │
-└─────────┬──────────┘    └──────────┬───────V─┘   └──────────┬───────┘   └────────────┬───────────┘   └───────────┬──────────┘
-          │                          │                        │                        │                           │
-          ▼                          ▼                        ▼                        ▼                           ▼
-┌────────────────┐     ┌───────────────────────┐   ┌────────────────────┐   ┌──────────────────────────┐   ┌─────────────────────┐
-│ CI test result │     │ Security report       │   │ Linter annotations │   │ Build artifacts (dist/)  │   │ Issues marked stale │
-│ pass/fail      │     │ shown in Security tab │   │ shown in PR checks │   │ GitHub Release published │   │ Closed after timeout│
-└────────────────┘     └───────────────────────┘   └────────────────────┘   └──────────────────────────┘   └─────────────────────┘
-
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-                                      COMMUNITY AUTOMATION (.github/workflows/)
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-                             ┌───────────────────────┬────────────────────────┐
-                             │                       │                        │
-                             ▼                       ▼                        ▼
-                    ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────────────┐
-                    │ greetings.yml   │     │ manual.yml       │     │ learn-github-actions.yml│
-                    │ Welcome message │     │ Run tasks manually│    │ Example workflow        │
-                    │ for new PR/issue│     │ on demand        │     │ for contributors        │
-                    └─────────────────┘     └──────────────────┘     └─────────────────────────┘
-
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-                                   SUPPORTING FILES (.github/properties/, icons/)
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-                       ┌──────────────────────────┐       ┌────────────────────────────┐
-                       │ properties/*.json        │       │ icons/* (e.g., go.svg)     │
-                       │ Metadata for workflows   │       │ Used in badges or UI       │
-                       │ (category, permissions)  │       │ decorations in README      │
-                       └──────────────────────────┘       └────────────────────────────┘
-
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-                                              GITHUB ACTIONS OUTPUT FLOW
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-
-                                               User pushes commit / PR / tag
-                                                       │
-                                                       ▼
-                                               GitHub triggers matching workflows
-                                                       │
-                                                       ▼
-                                               Workflows run in parallel:
-                                               - Build & test
-                                               - Security scan
-                                               - Linting
-                                               - Release packaging
-                                               - Labeling PRs
-                                               - Greetings
-                                               - Stale handling
-                                                       │
-                                                       ▼
-                                               Results appear in:
-                                               - Pull request checks
-                                               - Security dashboard
-                                               - GitHub Releases page
-                                               - Automated comments and labels
-```
-
-###  10.2. <a id='automatic-pull-request-labeling-in-trice'></a>Automatic Pull Request Labeling in Trice
-
-Trice uses GitHub’s **Labeler** workflow to automatically assign labels to pull requests.  
-These labels help maintainers and contributors quickly understand what a PR affects, without having to inspect every file manually.
-
-The labeling is triggered by two factors:
-
-1.  **Which files were changed** (file-based labeling)
-    
-2.  **What is written in the PR title or description** (text-based labeling)
-    
-
-This system ensures consistent categorization and improves the review workflow.
-
-```sql
-                           ┌───────────────────────────┐
-                           │   Contributor opens a     │
-                           │      Pull Request         │
-                           └──────────────┬────────────┘
-                                          │
-                                          ▼
-                          ┌─────────────────────────────────┐
-                          │ GitHub Action: "Labeler" starts │
-                          │ (.github/labeler.yml)           │
-                          └─────────────────┬───────────────┘
-                                            │
-                      ┌─────────────────────┼─────────────────────┐
-                      │                     │                     │
-                      ▼                     ▼                     ▼
-        ┌────────────────────┐  ┌──────────────────────┐ ┌──────────────────────┐
-        │ File-based rules   │  │ Title-based rules    │ │ Body-based rules     │
-        │(changed-files)     │  │(contains keywords)   │ │(contains keywords)   │
-        └──────────┬─────────┘  └───────────┬──────────┘ └──────────┬───────────┘
-                   │                        │                       │
-                   ▼                        ▼                       ▼
-       ┌───────────────────┐     ┌───────────────────┐     ┌───────────────────┐
-       │ Example outputs:  │     │ Example outputs:  │     │ Example outputs:  │
-       │  go, c, docs, ci  │     │  fix, feature     │     │  fix, feature     │
-       └──────────┬────────┘     └──────────┬────────┘     └──────────┬────────┘
-                  │                         │                         │
-                  └──────────────┬──────────┴──────────────┬──────────┘
-                                 │                         │
-                                 ▼                         ▼
-                        ┌────────────────────────────────────────┐
-                        │ Labels are attached to the PR          │
-                        │ automatically within seconds           │
-                        └────────────────────────────────────────┘
-```
-
-* * *
-
-####  10.2.1. <a id='file-based-labels'></a>File-based labels
-
-Github automatically applies specific labels depending on which files a pull request changes.  
-Below is an overview of the most relevant label categories.
-
-##### **`AnyChange`**
-
-Applied to **every** pull request that modifies at least one file.  
-Useful as a catch-all label for triggers or filtering.
-
-* * *
-
-##### **`go`**
-
-Applied when the PR changes any Go source file:
-
-`**/*.go`
-
-This marks PRs that affect Go code, modules, or logic.
-
-* * *
-
-##### **`c`**
-
-Applied when the PR touches C or header files inside:
-
--   `src/`
-    
--   `examples/`
-    
--   `_test/`
-    
-
-Examples:
-
-`src/foo.c examples/demo.h _test/bar.c`
-
-This helps identify changes relevant to embedded/low-level components.
-
-* * *
-
-##### **`docs`**
-
-Applied when documentation is modified, including:
-
--   any file in `docs/`
-    
--   any Markdown file (`*.md`) anywhere in the repo
-    
-
-This is helpful for changes affecting documentation only.
-
-* * *
-
-##### **`tests`**
-
-Applied when the PR updates or adds tests:
-
--   Go test files (`*_test.go`)
-    
--   any files inside the `_test/` directory
-    
-
-* * *
-
-##### **`ci`**
-
-Applied when the PR modifies continuous integration or GitHub configuration files:
-
-`.github/**`
-
-This includes workflow files, templates, automation settings, and metadata.
-
-* * *
-
-####  10.2.2. <a id='text-based-labels'></a>Text-based labels
-
-Some labels are applied based on **keywords** in the pull request title or description.
-
-##### **`fix`**
-
-Applied when the PR title or body contains the keyword:
-
-`fix`
-
-This is useful when PRs follow conventional commit messages (e.g., `fix: prevent overflow`).
-
-* * *
-
-##### **`feature`**
-
-Applied when the title or description contains:
-
-`feat feature`
-
-This marks PRs that introduce new functionality.
-
-* * *
-
-####  10.2.3. <a id='benefits-of-automatic-labeling'></a>Benefits of automatic labeling
-
--   **Faster reviews**: reviewers instantly see what areas of the project are affected.
-    
--   **Better filtering**: maintainers can filter for categories such as documentation, CI, features, etc.
-    
--   **Consistent classification**: no need for contributors to manually apply labels.
-    
--   **Supports larger workflows**: labels can trigger additional automations, such as notifications or CI behavior.
-    
-
-* * *
-
-####  10.2.4. <a id='how-contributors-can-help'></a>How contributors can help
-
-Contributors can ensure correct labeling by:
-
--   writing clear PR titles (e.g., `fix: handle invalid input`)
-    
--   using structured commit messages
-    
--   modifying files within appropriate directories
-    
-
-Labels will be applied automatically within seconds after opening or updating a pull request.
-
-
-###  10.3. <a id='📂-`.github/workflows`-—-github-actions-workflows'></a>📂 `.github/workflows` — GitHub Actions Workflows
-
-Every file in this directory defines an automated process. These processes run on GitHub’s servers (CI/CD).
-
-* **codeql.yml**: This workflow runs CodeQL, GitHub’s static code analysis tool. Purpose:
-  * scan the codebase for potential security vulnerabilities
-  * detect unsafe code patterns
-  * provide security alerts in the “Security” tab
-  * Runs automatically on pushes and pull requests.
-* **go.yml**: A workflow for building and testing Go code. It runs GitHub CodeQL for Go and C (cpp language pack), detecting security vulnerabilities and code issues.
-  * Typically includes steps such as:
-  * setting up the Go toolchain
-  * checking out the repository
-  * compiling the project
-  * running unit tests
-* **goreleaser.yml**: This workflow runs GoReleaser, the tool that builds and packages Trice for distribution.
-  * Purpose:
-    * create release binaries for all supported platforms
-    * generate archives (ZIP, tar.gz, etc.)
-    * compute checksums
-    * create a GitHub Release with all artifacts
-  * Triggers:
-    * manually from the GitHub UI (“Run workflow”)
-    * automatically when pushing a tag matching v* (e.g., v0.44.0)
-    * This is the workflow responsible for generating official Trice releases.
-* **greetings.yml**: A small automation that posts a friendly greeting message when somebody:
-  * opens their first issue
-  * opens their first pull request
-  * Used to make new contributors feel welcome.
-* **label.yml**: Defines automatic labeling rules for issues and PRs.
-  * For example, files in certain directories may automatically get category labels.
-  * This helps maintainers classify submissions more easily.
-* **learn-github-actions.yml**: An instructional workflow provided by GitHub. Purpose:
-  * demonstrate basic GitHub Actions usage
-  * serve as documentation or a teaching example for new contributors
-  * It does not affect the Trice build or release process.
-* **manual.yml**: A workflow that is designed to be triggered manually (similar to _workflow_dispatch_ workflows). Common use cases:
-  * executing maintenance tasks
-  * running scripts on demand
-  * testing workflow behavior without making a commit
-  * This workflow does not run automatically.
-* **shellcheck.yml**: runs ShellCheck on all *.sh files, catching common bugs in Bash scripts.
-* **shfmt.yml**: runs shfmt in diff mode on pull requests to ensure consistent formatting of shell scripts.
-* **stale.yml**: Automates stale issue handling. Function:
-  * marks inactive issues or PRs as “stale”
-  * closes them after a configurable time period if there is no further activity
-  * eps the issue tracker manageable.
-* **superlinter.yml**: Runs GitHub Super Linter, a powerful linting suite. Purpose:
-  * ensure consistent code formatting
-  * detect stylistic issues
-  * catch potential errors in supported languages
-  * Helps maintain code quality across the entire repository.
-* **README.md**: Documentation specifically for the /workflows folder.
-  * Can be useful for contributors who want to understand or modify CI behaviors.
-* **Additional Subdirectories**
-  * **icons/**: Stores custom icons used inside workflows (e.g., for badges or reporting).
-    * Example: go.svg — used in the Go workflow or README badges.
-  * **properties/**: Contains metadata files used by GitHub for configuration purposes such as:
-    * enabling/disabling features
-    * controlling workflow permissions
-    * defining workflow categories for the Actions UI
-
-These workflows run automatically on pushes and pull requests to main, and can also be triggered manually via the GitHub Actions UI.
-These files are not executed; they simply inform GitHub how certain workflows behave or should be displayed.
-
-##  11. <a id='build-and-release-the-trice-tool'></a>Build and Release the Trice Tool
-
-###  11.1. <a id='build-trice-tool-from-go-sources'></a>Build Trice tool from Go sources 
-
-* Install [Go](https://golang.org/).
-* Run:
-
-  ```bash
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-  $ bash ./buildTriceTool.sh # does internal do go install ./cmd/trice/...
-  ```
-
-* Afterwards you should find an executable `trice` inside `~/go/bin`.
-* Extend PATH variable with `~/go/bin` **OR** copy the Trice binary from there into a folder of your path.
-* Check:
-
-  ```bash
-  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
-  $ ./buildTriceTool.sh
-  ----------------------------------------
-  Building trice with embedded Git metadata:
-    origin:     git@github.com:rokath/trice.git
-    branch:     main
-    version:    branch dirty
-    commit:     f7edcc51
-    date:       2025-11-27T13:59:50+01:00
-    git_state:  dirty
-    git_status:  M .vscode/launch.json  M docs/TriceUserManual.md  M internal/emitter/lineComposer.go
-  ----------------------------------------
-  Build complete.
-  
-  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
-  $ trice version
-  no version, branch=git@github.com:rokath/trice.git - main (local modifications at build time), commit=f7edcc51,   built at 2025-11-27T13:59:50+01:00
-  
-  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
-  ```
-
-* Hints
-  * Use only the main branch. Other branches may be inconsistent.
-  * When using [./buildTriceTool.sh](../buildTriceTool.sh), the generated Trice image is significant smaller (about 30%), because the build script removes debugging information from the Trice binary. The Trice release images contain this additionally information for a more verbose error reporting, just in case.  
-  * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
-  * Use Goreleaser if you wish to create releases on your forked Trice repository.
-  * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
-    * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
-    * Recommendation: Minimal online installer.
-    * GCC is only needed to test the target C-code on the host.
-    * Make sure TDM-GCC is found first in the path, if you have several compilers installed.
-    * Other gcc variants could work also but not tested.
-  * Open a console inside the Trice directory, recommended is the git-bash, when using Windows.
-  * Tests:
-
-  ```b
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-  $ go clean -cache
-  
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-  $ go vet ./...
-  
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-  $ go test ./...
-  ?       github.com/rokath/trice/cmd/cui [no test files]
-  ok      github.com/rokath/trice/cmd/stim        0.227s
-  ok      github.com/rokath/trice/cmd/trice       0.577s
-  ok      github.com/rokath/trice/internal/args   0.232s
-  ok      github.com/rokath/trice/internal/charDecoder    0.407s
-  ok      github.com/rokath/trice/internal/com    1.148s
-  ok      github.com/rokath/trice/internal/decoder        0.412s [no tests to run]
-  ?       github.com/rokath/trice/internal/do     [no test files]
-  ok      github.com/rokath/trice/internal/dumpDecoder    0.388s
-  ok      github.com/rokath/trice/internal/emitter        0.431s
-  ok      github.com/rokath/trice/internal/id     0.421s
-  ok      github.com/rokath/trice/internal/keybcmd        0.431s
-  ok      github.com/rokath/trice/internal/link   0.404s
-  ok      github.com/rokath/trice/internal/receiver       0.409s
-  ok      github.com/rokath/trice/internal/tleDecoder     0.398s
-  ?       github.com/rokath/trice/internal/translator     [no test files]
-  ok      github.com/rokath/trice/internal/trexDecoder    0.391s
-  ok      github.com/rokath/trice/pkg/cipher      0.377s
-  ok      github.com/rokath/trice/pkg/endian      0.302s
-  ok      github.com/rokath/trice/pkg/msg 0.299s
-  ok      github.com/rokath/trice/pkg/tst 0.406s
-  ```
-
-To execute the target code tests, you can run `testAll.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
-The last tests can last quite a while, depending on your machine.
-
-```bash
-ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-$ go install ./cmd/trice/
-```
-
-Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
-
-After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`. There is now a remommended script `./buildTriceTool.sh`. Using it, depending on your system you may need to enter `bash ./buildTriceTool.sh`, includes the actual Trice repository state into the Trice binary, which is shown with `trice version` then - useful in case of issues.
-
-###  11.2. <a id='prepare-a-release'></a>Prepare A Release
-
-Prerequisite: Installed `goreleaser`.
-
-####  11.2.1. <a id='check-a-goreleaser-release-before-publishing'></a>Check a Goreleaser Release before Publishing
-
-By cloning the Trice repo into an empty folder, you make sure no other files exist in the Trice folder.
-
-```bash
-mkdir ./tmp
-cd /tmp
-git clone https://github.com/rokath/trice.git
-cd trice
-goreleaser release --clean --snapshot --skip=publish
-```
-
-This just generates the artifacts locally in `/tmp/trice/dist` using the [./trice/.goreleaser.yaml](../.goreleaser.yaml) copy in `./temp/trice`.
-
-Alternatively you can do in your local Trice clone directly, by removing everything not a part of the Trice repo, if you are sure not to loose any data:
-
-```bash
-git status
-git clean -xfd
-goreleaser release --clean --snapshot --skip=publish
-```
-
-Explanation:
-
-* `release` – run the normal release pipeline (builds, archives, checksums, changelog, etc.).
-* `--clean` – delete the `dist/` folder first so no old artefacts are reused. 
-* `--snapshot` – build as a “snapshot” version, not a real tagged release.
-* `--skip=publish` – **do not upload** anything (no GitHub Releases, no Homebrew, no Docker, etc.).
-
-What you should see:
-
-* GoReleaser building all your `builds:` targets from `.goreleaser.yaml`.
-* Creating archives in `dist/`.
-* Generating checksums.
-* No attempts to call the GitHub API for a real release.
-
-If this **succeeds**, you’ve already tested 90% of what CI will do for a real release.
-If it **fails**, fix the problem locally first (missing files, bad paths, etc.) – it would fail the same way in CI.
-
-###  11.3. <a id='trigger-a-**real**-trice-release-via-ci-(with-`git-tag`)'></a>Trigger a **real** Trice release via CI (with `git tag`)
-
-Letting CI build and publish an **official release**.
-
-####  11.3.1. <a id='-make-sure-your-workflow-reacts-to-tags'></a> Make sure your workflow reacts to tags
-
-In [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml), you need `on:   workflow_dispatch:   push:     tags:       - 'v*'`.
-
-* `workflow_dispatch` = you can still run it manually from the Actions tab.
-* `push -> tags: 'v*'` = whenever you push a tag like `v0.44.0`, this workflow will start automatically.
-
-Commit & push this change (if you haven’t already):
-
-`git add .github/workflows/goreleaser.yml git commit -m "Configure GoReleaser workflow to run on tags" git push origin main`
-
-####  11.3.2. <a id='-final-checks-before-tagging'></a> Final checks before tagging
-
-In your local `trice` repo:
-
-* Update to latest main:
-  * `git checkout main git pull origin main`
-  * Run your tests:
-  * `go test ./...` or better `./testAll.sh full`
-  * Optional but recommended: **run the snapshot dry run** again, just to be safe:
-* `goreleaser release --clean --snapshot --skip=publish`
-    
-If all of that is green, you’re ready to “bless” a version.
-
-####  11.3.3. <a id='-choose-a-version-and-create-a-`git-tag`'></a> Choose a version and create a `git tag`
-
-Decide on a version, for example:
-
-* `v0.44.0`
-* `v1.0.0`  
-    (Important: GoReleaser expects **SemVer-style tags** like `vX.Y.Z`.)
-
-Create an **annotated tag**:
-
-`git tag -a v0.44.0 -m "Trice v0.44.0"`
-
-Check your tags:
-
-`git tag`
-
-You should see `v0.44.0` in the list.
-
-> 💡 The **tag** is what GoReleaser uses as the release version (`.Tag`, `.Version`, etc.) in your `.goreleaser.yaml`.  
-> Your `ldflags` like `-X main.version={{ .Version }}` will use this.
-
-####  11.3.4. <a id='-push-the-tag-to-github-(this-triggers-ci)'></a> Push the tag to GitHub (this triggers CI)
-
-Now push the tag:
-
-`git push origin v0.44.0`
-
-This does **not** push all tags, only `v0.44.0`.
-
-Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts** the GoReleaser workflow in GitHub Actions.
-
-####  11.3.5. <a id='-watch-the-ci-release-run-on-github'></a> Watch the CI release run on GitHub
-
-1.  Open your browser and go to your repo:
-    
-    `https://github.com/rokath/trice`
-    
-2.  Click the **“Actions”** tab at the top.
-    
-3.  In the list of workflows, click on **“goreleaser”**.
-    
-4.  You should see a new run with something like:
-    
-* Event: `push`
-* Ref: `refs/tags/v0.44.0`
-* Status: in progress → green (hopefully)
-        
-5.  Click on that run, then on the job (e.g. `goreleaser`):
-    
-* Step “Check out repository”
-* Step “Set up Go”
-* Step “Run GoReleaser”
-
-If “Run GoReleaser” is green ✔, the CI release has succeeded.
-
-####  11.3.6. <a id='-check-the-github-release'></a> Check the GitHub Release
-
-Finally, verify the published release:
-
-1.  In your repo, click the **“Releases”** section (right side or under “Code”).
-    
-2.  You should see a new release **`v0.44.0`** created by GoReleaser.
-    
-3.  Inside it you’ll find:
-    
-* the generated archives (tar.gz/zip), 
-* checksums,
-* etc., as defined in your `.goreleaser.yaml`.
-        
-This is now your **official Trice release built by CI**.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-##  12. <a id='embedded-system-code-configuration'></a>Embedded system code configuration
+##  8. <a id='embedded-system-code-configuration'></a>Embedded system code configuration
 
 Check comments inside [triceDefaultConfig.h](../src/triceDefaultConfig.h) and adapt your project configuration like shown in [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) as example.
 
@@ -2213,7 +1491,7 @@ into a source file of your project. The `8` stands here for 8 bit values (`16`, 
 
 ---
 
-##  13. <a id='trice-tool-in-logging-action'></a>Trice tool in logging action
+##  9. <a id='trice-tool-in-logging-action'></a>Trice tool in logging action
 
 
 With `trice log -port COM12` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at the 115200 default baudrate.
@@ -2228,7 +1506,7 @@ Use the `-color off` switch for piping output in a file. More convenient is the 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  14. <a id='encryption'></a>Encryption
+##  10. <a id='encryption'></a>Encryption
 
 * You can deliver your device with encrypted trices. This way only the service [wo]men is able to read the *Trices*.
 * Implemented is [XTEA](https://en.wikipedia.org/wiki/XTEA) but this is exchangeable.
@@ -2239,7 +1517,7 @@ Use the `-color off` switch for piping output in a file. More convenient is the 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  15. <a id='trice-command-line-interface-&-examples'></a>Trice Command Line Interface & Examples
+##  11. <a id='trice-command-line-interface-&-examples'></a>Trice Command Line Interface & Examples
 
 The trice tool is very easy to use even it has a plenty of options. Most of them normally not needed.
 The trice tool can be started in several modes (sub-commands), each with several mandatory or optional switches. Switches can have a single parameter string or not.
@@ -2255,7 +1533,7 @@ Info for a special sub-command is shown with `trice help -log` for example.
 * The command history is usable for example inside the bash, simply enter CTRL-R and start typing `trice...` and you can select from the history.
 * The most convenient way is to use trice inside scripts like in [this](../examples/L432_inst/build.sh) example.
 
-###  15.1. <a id='common-information'></a>Common information
+###  11.1. <a id='common-information'></a>Common information
 
 * `trice h -all` shows all options of the current version.
 * `trice ver` prints version information.
@@ -2269,9 +1547,9 @@ Info for a special sub-command is shown with `trice help -log` for example.
 * `trice ds` starts a display server listening on default ip address *127.0.0.1:61487* or any specified value. This is possible also on a remote device, lets say with ip address 192.168.1.200.
 * `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
 
-###  15.2. <a id='further-examples'></a>Further examples
+###  11.2. <a id='further-examples'></a>Further examples
 
-####  15.2.1. <a id='automated-pre-build-insert-command-example'></a>Automated pre-build insert command example
+####  11.2.1. <a id='automated-pre-build-insert-command-example'></a>Automated pre-build insert command example
 
 * Scan directories `../src`, `../lib/src` and `./` to insert the IDs there and extend list file `../../../til.json`
 
@@ -2281,7 +1559,7 @@ trice i -v -i ../../../til.json -src ../src -src ../lib/src -src ./
 
 This is a typical line you can add to your project as an automatic pre-compile step.
 
-####  15.2.2. <a id='some-log-examples'></a>Some Log examples
+####  11.2.2. <a id='some-log-examples'></a>Some Log examples
 
 * Log trice messages on COM3 8N1 115200 baud
 
@@ -2295,7 +1573,7 @@ trice log -i ./myProject/til.json -p=COM3
 trice l -s COM3 -baud=9600
 ```
 
-####  15.2.3. <a id='logging-over-a-display-server'></a>Logging over a display server
+####  11.2.3. <a id='logging-over-a-display-server'></a>Logging over a display server
 
 * Start displayserver on ip 127.0.0.1 (localhost) and port 61497
 
@@ -2319,7 +1597,7 @@ The IP address and port are free selectable. Using a display server, allows to w
 
 A local Trice instance sends Trice messages to a display server only, when a log line is complete (if consisting of several Trices). By using the CLI switches `-prefix` and `-suffix` you can decorate the loglines target specific to distinguish them in the output window(s).
 
-##13.2.4. <a id='logfile-output'></a>Logfile output
+##13.2.4. Logfile output
 
 ```bash
 trice l -p COM3 -logfile auto
@@ -2335,7 +1613,7 @@ This creates a new logfile `trice.log` on first start and appends to it on each 
 
 Logfiles are text files one can see with 3rd party tools. Example: `cat trice.log`. They contain also the PC reception timestamps if where enabled.
 
-####  15.2.4. <a id='binary-logfile'></a>Binary Logfile
+####  11.2.4. <a id='binary-logfile'></a>Binary Logfile
 
 ```bash
 trice l -p COM3 -binaryLogfile auto
@@ -2355,7 +1633,7 @@ Binary logfiles are handy in the field for long data recordings.
 
 When using RTT, the data are exchanged over a file interface. These binary logfiles are stored in the project [./temp] folder and accessable for later view: `trice l -p FILEBUFFER -args ./temp/logfileName.bin`. Of course the host timestamps are the playing time then.
 
-####  15.2.5. <a id='tcp-output'></a>TCP output
+####  11.2.5. <a id='tcp-output'></a>TCP output
 
 ```bash
 trice l -p COM3 -tcp 127.0.0.1:23
@@ -2366,7 +1644,7 @@ This additionally sends Trice output to a 3rd party TCP listener, for example li
 ![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
 ![./ref/Putty.PNG](./ref/Putty.PNG)
 
-####  15.2.6. <a id='tcp4-input'></a>TCP4 input
+####  11.2.6. <a id='tcp4-input'></a>TCP4 input
 
 ```bash
 trice l -p TCP4 -args "192.168.2.3:45678"
@@ -2374,7 +1652,7 @@ trice l -p TCP4 -args "192.168.2.3:45678"
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
 
-####  15.2.7. <a id='udp4-input-(accepted-pull-request-529)'></a>UDP4 input (accepted pull request 529)
+####  11.2.7. <a id='udp4-input-(accepted-pull-request-529)'></a>UDP4 input (accepted pull request 529)
 
 The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
 
@@ -2389,27 +1667,27 @@ To receive Trice logs over IPv4 UDP, use the -port UDP4 option. By default, it l
 
 trice log -p UDP4
 
-####  15.2.8. <a id='stimulate-target-with-a-user-command-over-uart'></a>Stimulate target with a user command over UART
+####  11.2.8. <a id='stimulate-target-with-a-user-command-over-uart'></a>Stimulate target with a user command over UART
 
 Sometimes it is handy to stimulate the target during development. For that a 2nd screen is helpful what is possible using the display server option:
 
 ![./ref/UARTCommandAnimation.gif](./ref/UARTCommandAnimation.gif)
 
-####  15.2.9. <a id='explpore-and-modify-tags-and-their-colors'></a>Explpore and modify tags and their colors
+####  11.2.9. <a id='explpore-and-modify-tags-and-their-colors'></a>Explpore and modify tags and their colors
 
 See chapter [Trice Tags and Color](#trice-tags-and-color).
 
-####  15.2.10. <a id='location-information'></a>Location Information
+####  11.2.10. <a id='location-information'></a>Location Information
 
 When running  `trice insert`, a file `li.json` is created, what you can control with the `-li|locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves as an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuild with each compilation, when `trice i` is a prebuild step. When `trice clean` is used, the file `li.json` should go into the version management too to secure that identical trices get the same ID back.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  16. <a id='limitations-1'></a>Limitations
+##  12. <a id='limitations-1'></a>Limitations
 
-###  16.1. <a id='permanent-limitations'></a>Permanent Limitations
+###  12.1. <a id='permanent-limitations'></a>Permanent Limitations
 
-####  16.1.1. <a id='limitation-trice-in-trice-not-possible'></a>Limitation TRICE in TRICE not possible
+####  12.1.1. <a id='limitation-trice-in-trice-not-possible'></a>Limitation TRICE in TRICE not possible
 
 * No-Good Example:
 
@@ -2429,9 +1707,9 @@ int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
 ```
 
-###  16.2. <a id='current-limitations'></a>Current Limitations
+###  12.2. <a id='current-limitations'></a>Current Limitations
 
-####  16.2.1. <a id='string-concatenation-within-trice-macros-not-possible'></a>String Concatenation Within TRICE Macros Not Possible
+####  12.2.1. <a id='string-concatenation-within-trice-macros-not-possible'></a>String Concatenation Within TRICE Macros Not Possible
 
 String concatenation within TRICE macros does not work. The reason lays inside the way the trice tool parser works:
 
@@ -2441,7 +1719,7 @@ void f0( void ){ TRICE( "msg:" ## "Hello\n" ); } // ERROR!
 
 To implement this would need to build a trice preprocessor or to run the C preprocessor first and to modify the preprocessor output with the trice tool. That would make things unneccessary complicate and fragile for now.
 
-####  16.2.2. <a id='limited-trice-parser-capabilities'></a>Limited Trice Parser Capabilities
+####  12.2.2. <a id='limited-trice-parser-capabilities'></a>Limited Trice Parser Capabilities
 
 The Trice tool internal parser has only limited capabilities. In works well in most cases, but could led to problems in some cases. The compiler run will for sure end up with some error messages in the following examples, so the developer can fix the code.
 
@@ -2469,7 +1747,7 @@ void trice0_test() {
 
 As said, the compiler will complain about that in any case.
 
-####  16.2.3. <a id='special-care-demands'></a>Special Care Demands
+####  12.2.3. <a id='special-care-demands'></a>Special Care Demands
 
 <h6>More than 12 printf parameters</h6>
 
@@ -2516,13 +1794,13 @@ Only the runtime strings should be used as variables in triceS macro for best pe
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  17. <a id='additional-hints'></a>Additional hints
+##  13. <a id='additional-hints'></a>Additional hints
 
-###  17.1. <a id='pre-built-executables-are-available'></a>Pre-built executables are available
+###  13.1. <a id='pre-built-executables-are-available'></a>Pre-built executables are available
 
 See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/releases).
 
-###  17.2. <a id='configuration-file-triceconfig.h'></a>Configuration file triceConfig.h
+###  13.2. <a id='configuration-file-triceconfig.h'></a>Configuration file triceConfig.h
 
 * When setting up your first project you need a `triceConfig.h` file.
 * You should **not** use the `./_test/cgo.../triceConfig.h` directly, because these are customized for internal tests with CGO. But you can use their settings as helper for a starting point.
@@ -2533,11 +1811,11 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
 * Comparing them and understandig the differences helps quick starting.
 * The file [triceDefaultConfig.h](../src/triceDefaultConfig.h) contains all possible config keys with descriptions.
 
-###  17.3. <a id='setting-up-the-very-first-connection'></a>Setting up the very first connection
+###  13.3. <a id='setting-up-the-very-first-connection'></a>Setting up the very first connection
 
 If you see nothing in the beginning, what is normal ;-), add the `-s` (`-showInputBytes`) switch to see if any data arrive. There is also a switch `-debug` showing you the received packages, if you are interested in.
 
-###  17.4. <a id='avoid-buffer-overruns'></a>Avoid buffer overruns
+###  13.4. <a id='avoid-buffer-overruns'></a>Avoid buffer overruns
 
 It is your responsibility to produce less data than transmittable. If this is not guarantied, a data loss is not avoidable or you have to slow down the user application. The buffers have an optional overflow protection (`TRICE_PROTECT`), which is enabled by default. Recommendation: Make the buffer big and emit the maxDepth cyclically, every 10 or 1000 seconds. Then you know the needed size. It is influenced by the max Trice data burst and the buffer switch interval. See [./examples/exampleData/triceLogDiagData.c](../examples/exampleData/triceLogDiagData.c) for help.
 
@@ -2549,7 +1827,7 @@ Gennerally it is recommended to enable `TRICE_PROTECT` during development and to
 
 Important to know: If the `TRICE_PROTECT` code inhibits the writing into a buffer, there will be later no cycle error because a non existing Trice cannot cause a cycle error. Therefore the `TriceDirectOverflowCount` and `TriceDeferredOverflowCount` values exist, which could be monitored.
 
-###  17.5. <a id='buffer-macros'></a>Buffer Macros
+###  13.5. <a id='buffer-macros'></a>Buffer Macros
 
 (Examples in [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c))
 
@@ -2562,7 +1840,7 @@ Important to know: If the `TRICE_PROTECT` code inhibits the writing into a buffe
 | `trice32B`\|`Trice32B`\|`TRice32B`\|`TRICE32_B` | Is for 32-bit buffer output according to the given format specifier for a 32-bit value.                                                                                                                                                                                                                                       |
 | `triceB`  \|`TriceB`  \|`TRiceB`  \|`TRICE_B`   | Is buffer output according to the given format specifier for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_B TRICE8_B`.                                                                                                                                                     |
 
-###  17.6. <a id='logfile-viewing'></a>Logfile viewing
+###  13.6. <a id='logfile-viewing'></a>Logfile viewing
 
 Logfiles, Trice tool generated with sub-command switch `-color off`, are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
@@ -2570,23 +1848,23 @@ Logfiles, Trice tool generated with sub-command switch `-color off`, are normal 
 * Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 * See also [Color issues under Windows](#color-issues-under-windows)
 
-###  17.7. <a id='using-the-trice-tool-with-3rd-party-tools'></a>Using the Trice tool with 3rd party tools
+###  13.7. <a id='using-the-trice-tool-with-3rd-party-tools'></a>Using the Trice tool with 3rd party tools
 
 Parallel output as logfile, TCP or binary logfile is possible. See examples above.
 
-###  17.8. <a id='several-targets-at-the-same-time'></a>Several targets at the same time
+###  13.8. <a id='several-targets-at-the-same-time'></a>Several targets at the same time
 
 You can connect each target over its transmit channel with an own Trice instance and integrate all transmissions line by line in an additional Trice instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
 
-<!-- _### <a id='executing-`go-test--race--count-100-./...`'></a>Executing `go test -race -count 100 ./...`-->
+<!-- _### Executing `go test -race -count 100 ./...`-->
 
 The C-code is executed during some tests. Prerequisite is an installed GCC.
 
-###  17.9. <a id='trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization'></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
+###  13.9. <a id='trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization'></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
-###  17.10. <a id='cycle-counter'></a>Cycle Counter
+###  13.10. <a id='cycle-counter'></a>Cycle Counter
 
 * The trice tool expects the first cycle counter to start with 0xC0 (=192). If the target is already running and you connect the trice tool then, the first message is marked with "CYCLE: ? not equal expected value 192 - adjusting. Now 1 CycleEvents".
 * If the target is resetted asynchronous, the trice tool receives a cycle counter 192. Most probably the last cycle counter was not 191, so this triggers also a message  with "CYCLE: 192 not equal expected value ?- adjusting. Now n CycleEvents".
@@ -2594,11 +1872,11 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  18. <a id='switching-trice-on-and-off'></a>Switching Trice ON and OFF
+##  14. <a id='switching-trice-on-and-off'></a>Switching Trice ON and OFF
 
 <div id="Target side Trice On-Off"></div>
 
-###  18.1. <a id='target-side-compile-time-trice-on-off'></a>Target side compile-time  Trice On-Off
+###  14.1. <a id='target-side-compile-time-trice-on-off'></a>Target side compile-time  Trice On-Off
 
 * If your code works well after checking, you can add `#define TRICE_OFF 1` just before the `#include "trice.h"` line and no Trice code is generated anymore for that file, so no need to delete or comment out Trice macros: <!-- ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG) -->
 
@@ -2625,14 +1903,14 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  18.2. <a id='host-side-trice-on-off'></a>Host side Trice On-Off
+###  14.2. <a id='host-side-trice-on-off'></a>Host side Trice On-Off
 
 * The PC Trice tool offers command line switches to `-pick` or `-ban` for Trice tags and will be extended with display switches.
 * A Trice tool `-logLevel` switch is usable too.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  19. <a id='framing'></a>Framing
+##  15. <a id='framing'></a>Framing
 
 * Trice messages are framed binary data, if framing is not disabled.
 * Framing is important for data disruption cases and is done with [TCOBS](https://github.com/rokath/tcobs) (has included data compression) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all.
@@ -2641,7 +1919,7 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  20. <a id='optional-xtea-encryption'></a>Optional XTEA Encryption
+##  16. <a id='optional-xtea-encryption'></a>Optional XTEA Encryption
 
 * If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
 * The optional decryption is the next step after unpacking a data frame.
@@ -2649,7 +1927,7 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  21. <a id='endianness'></a>Endianness
+##  17. <a id='endianness'></a>Endianness
 
 * To interpret a decoded package, it´s endianness needs to be known.
 * For efficiency, binary trice data are normally stored and transmitted in MCU endianness and the Trice tool expects binary data in little endian format as most MCUs are little endian.
@@ -2659,7 +1937,7 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  22. <a id='trice-(time)stamps'></a>Trice (Time)Stamps
+##  18. <a id='trice-(time)stamps'></a>Trice (Time)Stamps
 
 * Each Trice message can carry stamp bits, which are free usable like for time, addressing or filtering.
 * By selecting the letter case (**tr**ice, **Tr**ice, **TR**ice) you decide for each single Trice macro about the stamp size.
@@ -2683,7 +1961,7 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp32`. Normally they return a µs or ms tick count but any values are allowed.
 
-###  22.1. <a id='target-(time)stamps-formatting'></a>Target (Time)Stamps Formatting
+###  18.1. <a id='target-(time)stamps-formatting'></a>Target (Time)Stamps Formatting
 
 To get a short overview run [trice help -log](../internal/args/tricehelpall_test.go) and read about the CLI switches `ts`, `ts0`, `ts16`, `ts32`. The `ts32` switch supports also "epoch" now as format. That is useful for example, if the binary logs are stored internally in the device flash and read out later. Such usage assumes 1 second as ts32 unit in `uint32_t` format and the Trice tool displays the UTC time. It is also possible to adapt the displayed format like this for example: `trice log -ts32='epoch"06-01-02_15:04:05"'`. The additional passed string must match the Go time package capabilities. A few examples:
 
@@ -2705,9 +1983,9 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  23. <a id='binary-encoding'></a>Binary Encoding
+##  19. <a id='binary-encoding'></a>Binary Encoding
 
-###  23.1. <a id='symbols'></a>Symbols
+###  19.1. <a id='symbols'></a>Symbols
 
 | Symbol  | Meaning                                                                      |
 |:-------:|------------------------------------------------------------------------------|
@@ -2729,7 +2007,7 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 |   `x`   | unspecified bit                                                              |
 |   `X`   | =`xxxxxxxx` unspecified byte                                                 |
 
-###  23.2. <a id='package-format'></a>Package Format
+###  19.2. <a id='package-format'></a>Package Format
 
 * Because of the **TCOBS** or **COBS** package framing, the package sizes are detectable by the trice tool without additional length information.
 * All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the Trice tool.
@@ -2764,13 +2042,13 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 * use ID to get parameters width `W`=8,16,32,64 from file *til.json* and and parameters count and convert appropriate.
   * Within one trice message the parameter bit width `W` does not change.
 
-####  23.2.1. <a id='typex0-trices'></a>typeX0 Trices
+####  19.2.1. <a id='typex0-trices'></a>typeX0 Trices
 
 The user can insert any data with a well-defined structure into the Trice data stream. The Trice tool, when interpreting the Trice binary data, will behave on typeX0 Trices according to a passed CLI switch `-typeX0`.
 
 One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing). The user needs to prepend a generated **printi** buffer with its size as 16-bit count (<16384!) for example. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option.
 
-####  23.2.2. <a id='framing---none-or-with-cobs-or-tcobs-encoding'></a>Framing - NONE or with COBS or TCOBS encoding
+####  19.2.2. <a id='framing---none-or-with-cobs-or-tcobs-encoding'></a>Framing - NONE or with COBS or TCOBS encoding
 
 > Summary Information for Trice Data Parsing
 
@@ -2899,16 +2177,16 @@ One possible use case is to have user **printi** statements parallel to Trices (
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  24. <a id='trice-decoding'></a>Trice Decoding
+##  20. <a id='trice-decoding'></a>Trice Decoding
 
 The 14-bit IDs are used to display the log strings. These IDs are pointing in two reference files.
 
-###  24.1. <a id='trice-id-list-til.json'></a>Trice ID list til.json
+###  20.1. <a id='trice-id-list-til.json'></a>Trice ID list til.json
 
 * This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
 * The files `til.h` and `til.c` are generated to help writing an own trice decoder tool in your preferred language. Use `trice generate -tilH -tilC` for creation. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692). See also chapter [Trice Generate](#trice-generate).
 
-###  24.2. <a id='trice-location-information-file-li.json'></a>Trice location information file li.json
+###  20.2. <a id='trice-location-information-file-li.json'></a>Trice location information file li.json
 
 * If the generated `li.json` is available, the Trice tool automatically displays file name and line number. But that is accurate only with the exact matching firmware version. That usually is the case right after compiling and of most interest at the developers table.
 * The Trice tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID "inf:%5d"` could be used. This allows later an easy location of the relevant source code.
@@ -2918,9 +2196,9 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  25. <a id='trice-id-numbers'></a>Trice ID Numbers
+##  21. <a id='trice-id-numbers'></a>Trice ID Numbers
 
-###  25.1. <a id='id-number-selection'></a>ID number selection
+###  21.1. <a id='id-number-selection'></a>ID number selection
 
 * The default encoding TREX supports 14-bit IDs, so over 16000 IDs possible. Other encodings can work with other ID sizes.
 * `trice("Hi!\n");` ➡ `trice i` ➡ `trice( iD(12345), "Hi!\n");` ➡ `trice c` ➡ `trice("Hi!\n");`
@@ -2934,14 +2212,14 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
       * Example: `trice insert -IDMin 6000 -IDMax 6999` will choose new randomly IDs only between 6000 and 6999.
 * It is possible to give each Trice tag an **ID** range making it possible to implement Trice tag specific runtime on/off on the target side if that is needed. This could be interesting for routing purposes also. Please run `trice help -insert` and read about the `-IDRange` switch for more details.
 
-####  25.1.1. <a id='trice-tool-internal-method-to-get-fast-a-random-id'></a>Trice tool internal Method to get fast a random ID
+####  21.1.1. <a id='trice-tool-internal-method-to-get-fast-a-random-id'></a>Trice tool internal Method to get fast a random ID
 
 * Create Slice with numbers 1...16383
 * Remove all used ID numbers from this slice
 * Get random number between 0 and len(slice)
 * remove this ID from slice and use it as new ID
 
-###  25.2. <a id='id-number-usage-and-stability'></a>ID number usage and stability
+###  21.2. <a id='id-number-usage-and-stability'></a>ID number usage and stability
 
 * If you write `trice( "msg:%d", 1);` again on a 2nd location, the copy gets a different **ID**, because each Trice gets its own **ID**.
 * If you change `trice( "msg:%d", 1);` to `trice8( "msg:%d", 1);`, to reduce the needed parameter space, a new **ID** is assigned. That is because the parameter bit width is implicit a part of the now changed Trice. If you change that back, the previous **ID** is assigned again.
@@ -2954,7 +2232,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 * If the same string appears again in the same file this ID is active again.
 * If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets its ID back.
 
-###  25.3. <a id='trice-id-0'></a>Trice ID 0
+###  21.3. <a id='trice-id-0'></a>Trice ID 0
 
 * The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice insert` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
   * It is sufficient to write the `TRICE` macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-defaultStampSize` switch. With `trice clean` these stay with 0-values in the source code to encode the intended stamp size.
@@ -2962,22 +2240,22 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  26. <a id='trice-id-management'></a>Trice ID management
+##  22. <a id='trice-id-management'></a>Trice ID management
 
-###  26.1. <a id='trice-inside-source-code'></a>Trice inside source code
+###  22.1. <a id='trice-inside-source-code'></a>Trice inside source code
 
-####  26.1.1. <a id='trice-in-source-code-comments'></a>Trice in source code comments
+####  22.1.1. <a id='trice-in-source-code-comments'></a>Trice in source code comments
 
 * Trice macros commented out, are **visible** for the `trice insert` command and therefore regarded.
   * Example: `// trice("Hi!\n");` is still regarded by the `trice i`.
 * During `trice insert` commented out Trice macros, are treated in the same way as active Trice macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability across several firmware versions or variants.
 * The trice tool does treat trice statements inside comments or excluded by compiler switches also.
 
-####  26.1.2. <a id='different-ids-for-same-trices'></a>Different IDs for same Trices
+####  22.1.2. <a id='different-ids-for-same-trices'></a>Different IDs for same Trices
 
 * When the same Trice is used several times with identical IDs, after copying, and `trice insert` is called, only one ID survives in the source code. The other Trices get assigned new IDs. Otherwise the location information would not be correct everywhere.
 
-####  26.1.3. <a id='same-ids-for-different-trices'></a>Same IDs for different Trices
+####  22.1.3. <a id='same-ids-for-different-trices'></a>Same IDs for different Trices
 
 * If duplicate ID's with different format strings found inside the source tree (case several developers or source code merging) one ID is replaced by a new ID. The probability for such case is low, because of the default random ID generation.
 * Also you can simply copy a Trice statement and modify it without dealing with the ID.
@@ -2985,11 +2263,11 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 * That is done silently for you during the next `trice insert`.
 * When you use the [Trice Cache](#trice-cache), the IDs are invisible and all happens in the background automatically.
 
-####  26.1.4. <a id='id-routing'></a>ID Routing
+####  22.1.4. <a id='id-routing'></a>ID Routing
 
 With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags,-color-and-log-levels) can get a specific ID range assigned and inside the project specific *triceConfig.h* the user can control, which ID range is routed to specific output channels. Search for `_MIN_ID` inside **triceDefaultConfig.h** and extend your search than for example `TRICE_UARTA_MIN_ID` to explore how to use.
 
-####  26.1.5. <a id='possibility-to-create-new-tags-without-modifying-trice-tool-source'></a>Possibility to create new tags without modifying trice tool source
+####  22.1.5. <a id='possibility-to-create-new-tags-without-modifying-trice-tool-source'></a>Possibility to create new tags without modifying trice tool source
 
 According to the demand in [541](https://github.com/rokath/trice/issues/541) a CLI switch `-ulabel` exists now.
 
@@ -3030,26 +2308,26 @@ int main(void){
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  27. <a id='trice-version-1.0-log-level-control'></a>Trice version 1.0 Log-level Control
+##  23. <a id='trice-version-1.0-log-level-control'></a>Trice version 1.0 Log-level Control
 
-###  27.1. <a id='trice-version-1.0-compile-time-log-level-control'></a>Trice version 1.0 Compile-time Log-level Control
+###  23.1. <a id='trice-version-1.0-compile-time-log-level-control'></a>Trice version 1.0 Compile-time Log-level Control
 
 In Trice version 1.0 is no compile-time log-level control. You can only disable **all** Trice logs 
 
 * on file level by adding a `#define TRICE_OFF` line before `#include "trice.h"`
 * or project level by using `-DTRICE_OFF` as compiler switch.
 
-###  27.2. <a id='trice-version-1.0-run-time-log-level-control'></a>Trice version 1.0 Run-time Log-level Control
+###  23.2. <a id='trice-version-1.0-run-time-log-level-control'></a>Trice version 1.0 Run-time Log-level Control
 
 Because the target Trice code is so fast and generates only a few bytes per log, in Trice version 1.0 is no direct run-time log-level control inside the target code.  The user has the Trice CLI switches `-ban`, `-pick` and `-logLevel`, to control, which Trice messages are displayed by  the Trice tool.
 
-###  27.3. <a id='trice-version-1.0-compile-time---run-time-log-level-control'></a>Trice Version 1.0 Compile-time - Run-time Log-level Control
+###  23.3. <a id='trice-version-1.0-compile-time---run-time-log-level-control'></a>Trice Version 1.0 Compile-time - Run-time Log-level Control
 
 During compilation the developer can control which Trice tags, like *info* in `trice( "info:...\n");` get get which ID range. Look for `-IDRange` in `trice h -i` output. By defining values like `TRICE_UARTA_MIN_ID` in the project specific *triceConfig.h* during compile-time is controllable, which Trice tags get routed to an output device or not.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  28. <a id='id-reference-list-til.json'></a>ID reference list til.json
+##  24. <a id='id-reference-list-til.json'></a>ID reference list til.json
 
 * The `trice insert` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you are sure to create a new **til.json** file, create an empty one: `touch til.json`.
 * The name **til.json** is a default one. With the command line parameter `-i` you can use any filename.
@@ -3058,7 +2336,7 @@ During compilation the developer can control which Trice tags, like *info* in `t
 * One can delete the ID reference list when IDs inside the code. It will be reconstructed automatically from the source tree with the next `trice clean` command, but history is lost then.
 * Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
 
-###  28.1. <a id='til.json-version-control'></a>til.json Version control
+###  24.1. <a id='til.json-version-control'></a>til.json Version control
 
 * The ID list should go into the version control repository of your project.
 * To keep it clean from the daily development garbage one could `git restore til.json`, and re-build just before check-in.
@@ -3079,16 +2357,16 @@ git restore til.json # Forget the todays garbage.
 trice clean # Remove the IDs from the source code with deactivated cache.  
 ```
 
-###  28.2. <a id='long-time-availability'></a>Long Time Availability
+###  24.2. <a id='long-time-availability'></a>Long Time Availability
 
 * You could place a download link for the Trice tool and the used **til.json** list.
 * Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 200 years.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  29. <a id='the-trice-insert-algorithm'></a>The Trice Insert Algorithm
+##  25. <a id='the-trice-insert-algorithm'></a>The Trice Insert Algorithm
 
-###  29.1. <a id='starting-conditions'></a>Starting Conditions
+###  25.1. <a id='starting-conditions'></a>Starting Conditions
 
 ```diff
 @@ To understand this chapter you should look into the Trice tool source code. @@
@@ -3120,7 +2398,7 @@ trice clean # Remove the IDs from the source code with deactivated cache.
   * One and only one position is used and relevant, all others are ignored. If no `li.json` exists on the expected location trice insert creates one there.
 * The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. <!-- To keep `trice i` short in execution. `trice refresh` could be run in such cases. -->
 
-###  29.2. <a id='aims'></a>Aims
+###  25.2. <a id='aims'></a>Aims
 
 * The `trice insert` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 * Also the changes should be minimal.
@@ -3130,9 +2408,9 @@ trice clean # Remove the IDs from the source code with deactivated cache.
 * To keep the [Trice ID management](#trice-id-management) simple, the `insert` operation acts "per file". That means, that in case a file is renamed or code containing trice statements is copied to an other file, new IDs are generated for the affectes trices.
   * File name changes occur are not that often, so that should be acceptable.
 
-###  29.3. <a id='method'></a>Method
+###  25.3. <a id='method'></a>Method
 
-####  29.3.1. <a id='trice-insert-initialization'></a>Trice Insert Initialization
+####  25.3.1. <a id='trice-insert-initialization'></a>Trice Insert Initialization
 
 ```Go
 // insertIDsData holds the insert run specific data.
@@ -3188,7 +2466,7 @@ Until here the algorithm seem to be ok.
 
 * If after `trice i` a `trice c` and a `trice i` again is executed, all IDs are expected to be at the same place again. If in between `trice i`, an optional `trice c`and a `trice i` src was edited, most IDs are expected to be at the same place again.
 
-###  29.4. <a id='user-code-patching-(trice-insert)'></a>User Code Patching (trice insert)
+###  25.4. <a id='user-code-patching-(trice-insert)'></a>User Code Patching (trice insert)
 
 * A Trice **ID** is inserted by `trice insert` as shown in the table:
 
@@ -3213,7 +2491,7 @@ Until here the algorithm seem to be ok.
   * `trice i` in your project root expects a til.json file there and checks sources and **til.json** for changes to insert.
   * `trice i -v -i ../../../til.json -src ../src -src ../lib/src -src ./` is a typical case as automated pre-build step in your project settings telling Trice to scan the project dir and two external directories. Even `trice i` is fast, it is generally quicker to search only relevant places.
 
-###  29.5. <a id='user-code-patching-examples'></a>User Code Patching Examples
+###  25.5. <a id='user-code-patching-examples'></a>User Code Patching Examples
 
 * A Trice **ID** is modified as shown in these cases:
   * Previously inserted (patched) user code copied to a different location:
@@ -3261,7 +2539,7 @@ Until here the algorithm seem to be ok.
   TRice( iD(12345), "Hi!" ); // manually changed stamp size and then "trice i" performed.
   ```
 
-###  29.6. <a id='exclude-folders-&-files-from-being-parsed-(pull-request-529)'></a>Exclude folders & files from being parsed (pull request 529)
+###  25.6. <a id='exclude-folders-&-files-from-being-parsed-(pull-request-529)'></a>Exclude folders & files from being parsed (pull request 529)
 
 The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
 
@@ -3276,36 +2554,36 @@ The -exclude flag can be used multiple times to omit specific files or directori
 
 trice insert -v -src ./_test/ -exclude _test/src/trice.h -exclude _test/generated/
 
-###  29.7. <a id='id-usage-options'></a>ID Usage Options
+###  25.7. <a id='id-usage-options'></a>ID Usage Options
 
 * Per default the `trice insert` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
 * After `trice c` all src IDs are removed or 0. In this state the src should go into the version management system.
 
-###  29.8. <a id='general-id-management-information'></a>General ID Management Information
+###  25.8. <a id='general-id-management-information'></a>General ID Management Information
 
 * Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 * The trice ID-instead-of-String idea lives from pre-compile patching of the user code.
 * The user has full control how to deal with that.
 * There are the 3 following options and the user has to decide which fits best for him. The [Trice Cache](#trice-cache) is probably the best fitting setup for many users.
 
-####  29.8.1. <a id='option-cleaning-in-a-post-build-process'></a>Option Cleaning in a Post-build process
+####  25.8.1. <a id='option-cleaning-in-a-post-build-process'></a>Option Cleaning in a Post-build process
 
 * The code is visually free of IDs all the time.
 
-####  29.8.2. <a id='option-let-the-inserted-trice-id-be-a-part-of-the-user-code'></a>Option Let the inserted Trice ID be a Part of the User Code
+####  25.8.2. <a id='option-let-the-inserted-trice-id-be-a-part-of-the-user-code'></a>Option Let the inserted Trice ID be a Part of the User Code
 
 * This is the legacy method. It allows unchanged src translation into code without using the trice tool.
 * It is very robust and maybe needed in nasty debugging situations.
 * It allows to reconstruct lost til.json information.
 * Recommendet for small projects.
 
-####  29.8.3. <a id='option-cleaning-on-repository-check-in'></a>Option Cleaning on Repository Check-In
+####  25.8.3. <a id='option-cleaning-on-repository-check-in'></a>Option Cleaning on Repository Check-In
 
 * The code is visually free of IDs only inside the repository.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  30. <a id='trice-speed'></a>Trice Speed
+##  26. <a id='trice-speed'></a>Trice Speed
 
  A Trice macro execution can be as cheap like **3 Assembler instructions or 6 processor clocks**:
 
@@ -3320,7 +2598,7 @@ The MCU is clocked with 48 MHz and a Trice duration is about 2 µs, where alone 
 
 ![./ref/ReadUsF030.PNG](./ref/ReadUsF030.PNG)
 
-###  30.1. <a id='target-implementation-options'></a>Target Implementation Options
+###  26.1. <a id='target-implementation-options'></a>Target Implementation Options
 
 All trice macros use internally this sub-macro:
 
@@ -3330,7 +2608,7 @@ All trice macros use internally this sub-macro:
 
 The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWritePosition` points to a buffer, which is codified and used with the Trice framing sub-macros `TRICE_ENTER` and `TRICE_LEAVE` in dependence of the use case.
 
-####  30.1.1. <a id='trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only'></a>Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only
+####  26.1.1. <a id='trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only'></a>Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only
 
 1. Each singe Trice is build inside a common buffer and finally copied inside the sub-macro `TRICE_LEAVE`.
 2. Disabled relevant interrupts between `TRICE_ENTER` and `TRICE_LEAVE` are mantadory for `TRICE_STATIC_BUFFER`.
@@ -3343,7 +2621,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
   * AUX without extra copy.
   * Not (yet) supported UART transfer loop with polling. With 1MBit baud rate, 4-12 bytes would last 40-120 µs.
 
-####  30.1.2. <a id='trice-use-case-trice_double_buffer---deferred-mode,-fastest-trice-execution,-more-ram-needed'></a>Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed
+####  26.1.2. <a id='trice-use-case-trice_double_buffer---deferred-mode,-fastest-trice-execution,-more-ram-needed'></a>Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed
 
 1. Several *trices* are build in a half buffer.
 1. No stack used.
@@ -3351,7 +2629,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 1. Usable for multiple blocking and non-blocking physical Trice channels.
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 
-####  30.1.3. <a id='trice-use-case-trice_ring_buffer---deferred-mode,-balanced-trice-execution-time-and-needed-ram'></a>Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM
+####  26.1.3. <a id='trice-use-case-trice_ring_buffer---deferred-mode,-balanced-trice-execution-time-and-needed-ram'></a>Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM
 
 1. Each single *trices* is build in a ring buffer segment.
 1. No stack used.
@@ -3360,7 +2638,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 1. Allocation call inside `TRICE_ENTER`
 
-###  30.2. <a id='a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example'></a>A configuration for maximum Trice execution speed with the L432_inst example
+###  26.2. <a id='a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example'></a>A configuration for maximum Trice execution speed with the L432_inst example
 
 * To not loose any clocks, the function `SomeExampleTrices` in [triceExamples.c](../examples/exampleData/triceExamples.c) uses the upper case macro `TRICE` for the first "🐁 Speedy Gonzales" Trices.
 
@@ -3547,7 +2825,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../../src/trice.h:741
 
 As you can see in the highlighted blue timestamp bar, typical 8-10 clocks are needed for one Trice macro. One clock duration @64MHz is 15.625 ns, so we need about 150 ns for a Trice. Light can travel about 50 meter in that time.
 
-###  30.3. <a id='a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example'></a>A configuration for normal Trice execution speed with the G0B1_inst example
+###  26.3. <a id='a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example'></a>A configuration for normal Trice execution speed with the G0B1_inst example
 
 * The `triceConfig.h` settings are
 
@@ -3596,11 +2874,11 @@ Still fast enough for many cases but you hopefully have a good knowledge now how
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  31. <a id='trice-memory-needs'></a>Trice memory needs
+##  27. <a id='trice-memory-needs'></a>Trice memory needs
 
 Depending on your target configuration the needed space can differ:
 
-###  31.1. <a id='f030_bare-size'></a>F030_bare Size
+###  27.1. <a id='f030_bare-size'></a>F030_bare Size
 
 * `./build.sh`:
 
@@ -3612,7 +2890,7 @@ arm-none-eabi-size build/F030_bare.elf
 
 That is the basic size of an empty generated project just containing some drivers.
 
-###  31.2. <a id='f030_inst-size-with-trice_off=1'></a>F030_inst Size with TRICE_OFF=1
+###  27.2. <a id='f030_inst-size-with-trice_off=1'></a>F030_inst Size with TRICE_OFF=1
 
 * `./build.sh TRICE_OFF=1` :
 
@@ -3624,7 +2902,7 @@ arm-none-eabi-size build/F030_inst.elf
 
 This is exactly the same result, proofing that `TRICE_OFF 1` is working correctly.
 
-###  31.3. <a id='f030_inst-with-ring-buffer'></a>F030_inst with ring buffer
+###  27.3. <a id='f030_inst-with-ring-buffer'></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -3700,7 +2978,7 @@ com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit time stamp
 ```
 
-###  31.4. <a id='f030_inst-with-ring-buffer-1'></a>F030_inst with ring buffer
+###  27.4. <a id='f030_inst-with-ring-buffer-1'></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -3775,7 +3053,7 @@ com5:       triceExamples.c    29    0,031_188 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,030_987 🐁 Speedy Gonzales b  32-bit time stamp
 ```
 
-###  31.5. <a id='a-developer-setting,-only-enabling-segger_rtt'></a>A developer setting, only enabling SEGGER_RTT
+###  27.5. <a id='a-developer-setting,-only-enabling-segger_rtt'></a>A developer setting, only enabling SEGGER_RTT
 
 * `./build.sh`:
 
@@ -3853,7 +3131,7 @@ Dec  6 16:14:41.191648  jlink:       triceExamples.c    30    0,030_072 16355 �
 
 "🐁 Speedy Gonzales" needs about 500 MCU clocks.
 
-###  31.6. <a id='a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:'></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
+###  27.6. <a id='a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:'></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
 
 ```bash
 arm-none-eabi-size out/F030_inst.elf
@@ -3907,13 +3185,13 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 
 "🐁 Speedy Gonzales" direct outout needs about 200 MCU clocks and not 500 as before.
 
-###  31.7. <a id='settings-conclusion'></a>Settings Conclusion
+###  27.7. <a id='settings-conclusion'></a>Settings Conclusion
 
 * 4-8 KB Flash and 1.2 KB RAM needed for the Trice library.
 * The RAM size is mainly influenced by the configured buffer sizes.
 * Switching off diagnostics and/or protection is ok for less memory needs and faster Trice execution after getting some experience with the project.
 
-###  31.8. <a id='legacy-trice-space-example-(old-version)'></a>Legacy Trice Space Example (Old Version)
+###  27.8. <a id='legacy-trice-space-example-(old-version)'></a>Legacy Trice Space Example (Old Version)
 
 * STM32CubeMX generated empty default project: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`
 * Same project with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
@@ -3925,7 +3203,7 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 * No format strings go into the target code anymore.
 * In general Trice instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
-###  31.9. <a id='memory-needs-for-old-example-1'></a>Memory Needs for Old Example 1
+###  27.9. <a id='memory-needs-for-old-example-1'></a>Memory Needs for Old Example 1
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
@@ -3940,7 +3218,7 @@ The following numbers are measured with a legacy encoding, showing that the inst
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 * trices are removable without code changes with `#define TRICE_OFF 1` before `incude "trice.h"` on file level or generally on project level.
 
-###  31.10. <a id='memory-needs-for-old-example-2'></a>Memory Needs for Old Example 2
+###  27.10. <a id='memory-needs-for-old-example-2'></a>Memory Needs for Old Example 2
 
 | Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark                                                             |
 |--------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------|
@@ -3951,17 +3229,17 @@ The following numbers are measured with a legacy encoding, showing that the inst
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  32. <a id='trice-project-image-size-optimization'></a>Trice Project Image Size Optimization
+##  28. <a id='trice-project-image-size-optimization'></a>Trice Project Image Size Optimization
 
 Modern compilers are optimizing out unused code automatically, but you can help to reduce trice code size if your compiler is not perfect.
 
-###  32.1. <a id='code-optimization--o3-or--oz-(if-supported)'></a>Code Optimization -o3 or -oz (if supported)
+###  28.1. <a id='code-optimization--o3-or--oz-(if-supported)'></a>Code Optimization -o3 or -oz (if supported)
 
 For debugging it could be helpful to switch off code optimization what increases the code size. A good choice is `-o1`. See also
 [TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization).
 
 
-###  32.2. <a id='compiler-independent-setting-(a-bit-outdated)'></a>Compiler Independent Setting (a bit outdated)
+###  28.2. <a id='compiler-independent-setting-(a-bit-outdated)'></a>Compiler Independent Setting (a bit outdated)
 
 Maybe the following is a bit unhandy but it decreases the code amount, build time and the image size.
 
@@ -3973,41 +3251,41 @@ When having lots of program memory simply let all values be `1`. With specific l
 
 It is possible to `#define TRICE_SINGLE_MAX_SIZE 12` for example in *triceConfig.h*. This automaticaly disables all Trice messages with payloads > 8 bytes (Trice size is 4 bytes).
 
-###  32.3. <a id='linker-option---split-sections-(if-supported)'></a>Linker Option --split-sections (if supported)
+###  28.3. <a id='linker-option---split-sections-(if-supported)'></a>Linker Option --split-sections (if supported)
 
 In ARM-MDK uVision `Project -> Options -> C/C++ -> "One EFL section for each function"` allows good optimization and getting rid of unused code without additional linker optimization. This leads to a faster build process and is fine for most cases. It allows excluding unused functions.
 
-###  32.4. <a id='linker-optimization--flto-(if-supported)'></a>Linker Optimization -flto (if supported)
+###  28.4. <a id='linker-optimization--flto-(if-supported)'></a>Linker Optimization -flto (if supported)
 
 * To get the smallest possible image, do _not_ use option `--split sections`.
 * Use linker optimization alone.
 * This increases the build time but reduces the image size significantly.
 
-####  32.4.1. <a id='armcc-compiler-v5-linker-feedback'></a>ARMCC Compiler v5 Linker Feedback
+####  28.4.1. <a id='armcc-compiler-v5-linker-feedback'></a>ARMCC Compiler v5 Linker Feedback
 
 * In ARM-MDK uVision, when using ARMCC compiler v5, there is a check box `Project -> Options -> Target -> "Cross Module Optimization"`.
 * In ARMCC this works also with the lite version.
 
-####  32.4.2. <a id='armclang-compiler-v6-link-time-optimization'></a>ARMCLANG Compiler v6 Link-Time Optimization
+####  28.4.2. <a id='armclang-compiler-v6-link-time-optimization'></a>ARMCLANG Compiler v6 Link-Time Optimization
 
 * In ARM-MDK uVision, when using ARMCLANG compiler v6, the check box `Project -> Options -> C/C++(AC6) -> "Link-Time Optimization"` is usable to set the CLI `-flto` switch.
 * LTO is not possible with ARMCLANG6 lite: https://developer.arm.com/documentation/ka004054/latest.
 
-####  32.4.3. <a id='gcc'></a>GCC
+####  28.4.3. <a id='gcc'></a>GCC
 
 With GCC use the `-flto` CLI switch directly.
 
-####  32.4.4. <a id='llvm-arm-clang'></a>LLVM ARM Clang
+####  28.4.4. <a id='llvm-arm-clang'></a>LLVM ARM Clang
 
 This compiler is much faster and creates the smallest images. Right now it uses the GCC libs and linker.
 
-####  32.4.5. <a id='other-ide´s-and-compilers'></a>Other IDE´s and compilers
+####  28.4.5. <a id='other-ide´s-and-compilers'></a>Other IDE´s and compilers
 
 Please check the manuals and create a pull request or simply let me know.
 
-###  32.5. <a id='legacy-stm32f030-example-project---different-build-sizes'></a>Legacy STM32F030 Example Project - Different Build Sizes
+###  28.5. <a id='legacy-stm32f030-example-project---different-build-sizes'></a>Legacy STM32F030 Example Project - Different Build Sizes
 
-####  32.5.1. <a id='armcc-compiler-v5'></a>ARMCC compiler v5
+####  28.5.1. <a id='armcc-compiler-v5'></a>ARMCC compiler v5
 
 | Compiler | Linker         | Result                                          | Comment                           |
 |----------|----------------|-------------------------------------------------|-----------------------------------|
@@ -4023,9 +3301,9 @@ Please check the manuals and create a pull request or simply let me know.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  33. <a id='trice-tags-and-color'></a>Trice Tags and Color
+##  29. <a id='trice-tags-and-color'></a>Trice Tags and Color
 
-###  33.1. <a id='how-to-get'></a>How to get
+###  29.1. <a id='how-to-get'></a>How to get
 
 * Add a tag name as color descriptor in front of each Trice format string like `"wrn:Peng!"`.
 * In file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) the colors are changeable and additional color tags definable.
@@ -4045,11 +3323,11 @@ Please check the manuals and create a pull request or simply let me know.
 * An option using tag specific ID ranges with optional routing exists.
 * The Trice tool offers the 2 command line switches `-pick` and `-ban` to control tag visualization during runtime.
 
-####  33.1.1. <a id='output-options'></a>Output options
+####  29.1.1. <a id='output-options'></a>Output options
 
 ![./ref/ColorOptions.PNG](./ref/ColorOptions.PNG)
 
-####  33.1.2. <a id='check-alternatives'></a>Check Alternatives
+####  29.1.2. <a id='check-alternatives'></a>Check Alternatives
 
 There are over 1000 possibilities:
 
@@ -4057,13 +3335,13 @@ There are over 1000 possibilities:
 
 To see them all run `trice generate -color`. Only file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) needs to be changed and the Trice tool needs to be rebuild afterwards: `go install ./...`. If you design a good looking flavour, feel free to propose it. 
 
-###  33.2. <a id='color-issues-under-windows'></a>Color issues under Windows
+###  29.2. <a id='color-issues-under-windows'></a>Color issues under Windows
 
 **Currently console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start the Trice tool inside there. Unfortunately this can not be done automatically right now because of missing command line switches. [Alacritty](../third_party/alacritty/ReadMe.md) is one of other alternatives.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  34. <a id='trice-without-uart'></a>Trice without UART
+##  30. <a id='trice-without-uart'></a>Trice without UART
 
 A very performant output path is RTT, if your MCU supports background memory access like the ARM-M ones.
 
@@ -4089,7 +3367,7 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-##  35. <a id='trice-over-rtt'></a>Trice over RTT
+##  31. <a id='trice-over-rtt'></a>Trice over RTT
 
 > Allows Trice over the debug probe without using a pin or UART.
 
@@ -4109,11 +3387,11 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.1. <a id='for-the-impatient-(2-possibilities)'></a>For the impatient (2 possibilities)
+###  31.1. <a id='for-the-impatient-(2-possibilities)'></a>For the impatient (2 possibilities)
 
 The default SEGGER tools only suport RTT channel 0.
 
-####  35.1.1. <a id='start-jlink-commander-and-connect-over-tcp'></a>Start JLink commander and connect over TCP
+####  31.1.1. <a id='start-jlink-commander-and-connect-over-tcp'></a>Start JLink commander and connect over TCP
 
 * JLink.exe → `connect ⏎ ⏎ S ⏎` and keep it active.
   * You can control the target with `r[eset], g[o], h[alt]` and use other commands too.
@@ -4195,7 +3473,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
 
 **This is a demonstration and test for the `-port TCP4` usage possibility**. Using RTT with J-Link is more easy possible as shown in the next point.
 
-####  35.1.2. <a id='start-using-jlinkrttlogger'></a>Start using JLinkRTTLogger
+####  31.1.2. <a id='start-using-jlinkrttlogger'></a>Start using JLinkRTTLogger
 
 * Start inside Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"`
   * Replace CLI details with your settings.
@@ -4203,7 +3481,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
   * You can add the `-verbose` CLI switch for more details.
 * You may **not** need a Trice tool restart after firmware reload.
 
-####  35.1.3. <a id='jlinkrttlogger-issue'></a>JLinkRTTLogger Issue
+####  31.1.3. <a id='jlinkrttlogger-issue'></a>JLinkRTTLogger Issue
 
 * For some reason the RTT technique does not work well with Darwin (MacOS) and also Linux right now. The problem seems to be that the JLinkRTTLogger app cannot work correctly in the background. But there is a workaround:
   * Example 1:
@@ -4328,7 +3606,7 @@ tmux kill-session -t "tricerttlog"
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.2. <a id='segger-real-time-transfer-(rtt)'></a>Segger Real Time Transfer (RTT)
+###  31.2. <a id='segger-real-time-transfer-(rtt)'></a>Segger Real Time Transfer (RTT)
 
 * Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
 * If you can use a Segger J-Link or an STM ST-Link debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use Trice without any UART or other port.
@@ -4369,11 +3647,11 @@ tmux kill-session -t "tricerttlog"
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.3. <a id='j-link-option'></a>J-Link option
+###  31.3. <a id='j-link-option'></a>J-Link option
 
 * Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option.
 
-####  35.3.1. <a id='convert-evaluation-board-onboard-st-link-to-j-link'></a>Convert Evaluation Board onboard ST-Link to J-Link
+####  31.3.1. <a id='convert-evaluation-board-onboard-st-link-to-j-link'></a>Convert Evaluation Board onboard ST-Link to J-Link
 
 * Following steps describe the needed action for a ST Microelectronics evaluation board and windows - adapt them to your environment.
 * It is always possible to turn back to the ST-Link OB firmware with the SEGGER `STLinkReflash.exe` tool but afterwards the ST-Link Upgrade tool should be used again to get the latest version.
@@ -4394,7 +3672,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 * Check [Converting ST-LINK On-Board Into a J-Link](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 * Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. *`STM32 Debug+ VCP` won´t be detected by Segger reflash utility.*
 
-####  35.3.2. <a id='some-segger-tools-in-short'></a>Some SEGGER tools in short
+####  31.3.2. <a id='some-segger-tools-in-short'></a>Some SEGGER tools in short
 
 * Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
   * You may need to add `C:\Program Files\SEGGER\JLink` to the %PATH% variable.
@@ -4466,7 +3744,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 * The Trice tool can watch the output file and display the *Trices*: `trice log -port JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"
 ![./ref/JlinkLoggerTrice.PNG](./ref/JlinkLoggerTrice.PNG)
 
-####  35.3.3. <a id='jlinkrttclient.exe'></a>JLinkRTTClient.exe
+####  31.3.3. <a id='jlinkrttclient.exe'></a>JLinkRTTClient.exe
 
 * `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings from target coming over channel 0. It is not used by the Trice tool.
   * **PLUS:**
@@ -4474,7 +3752,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
   * **MINUS:**
     * Unfortunately it cannot run separately parallel to stimulate the target with any proprietary protocol because it connects to localhost:19021 and therefore blockades the only one possible connection.
 
-####  35.3.4. <a id='jlinkrttviewer.exe'></a>JLinkRTTViewer.exe
+####  31.3.4. <a id='jlinkrttviewer.exe'></a>JLinkRTTViewer.exe
 
 * `JLinkRTTViewer.exe` is a GUI tool and connects via the SEGGER API to the target. It expects ASCII codes and is not used by the Trice tool. The switching between the 16 possible terminals is done via `FF 00` ... `FF 0F`. These byte pairs can occur inside the Trice data.
 
@@ -4488,7 +3766,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.4. <a id='segger-rtt'></a>Segger RTT
+###  31.4. <a id='segger-rtt'></a>Segger RTT
 
 * The main advantages are:
   * Speed
@@ -4502,7 +3780,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.5. <a id='segger-j-link-sdk-(~800-eur)-option'></a>Segger J-Link SDK (~800 EUR) Option
+###  31.5. <a id='segger-j-link-sdk-(~800-eur)-option'></a>Segger J-Link SDK (~800 EUR) Option
 
 * Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 * The `trice -port JLINK` is ok for usage **as is** right now. However if you wish more comfort check here:
@@ -4512,7 +3790,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.6. <a id='additional-notes-(leftovers)'></a>Additional Notes (leftovers)
+###  31.6. <a id='additional-notes-(leftovers)'></a>Additional Notes (leftovers)
 
 * `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 * Read the manual [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf).
@@ -4521,7 +3799,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.7. <a id='further-development'></a>Further development
+###  31.7. <a id='further-development'></a>Further development
 
 * Check OpenOCD!
   * Use OpenOCD and its built-in RTT feature. OpenOCD then starts a server on localhost:17001 where it dumps all RTT messages.
@@ -4558,21 +3836,21 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.8. <a id='nucleo-f030r8-example'></a>NUCLEO-F030R8 example
+###  31.8. <a id='nucleo-f030r8-example'></a>NUCLEO-F030R8 example
 
 Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html)
 
-####  35.8.1. <a id='rtt-with-original-on-board-st-link-firmware'></a>RTT with original on-board ST-LINK firmware
+####  31.8.1. <a id='rtt-with-original-on-board-st-link-firmware'></a>RTT with original on-board ST-LINK firmware
 
 * `#define TRICE_RTT_CHANNEL 0`:
 * If you use a NUCLEO-F030R8 with the original ST-Link on board after firmware download enter: `trice l -p ST-LINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x2000"`. After pressing the reset button output becomes visible: ![./ref/STRTT.PNG](./ref/STRTT.PNG)
 * It works with both ST-Link variants (with or without mass storage device.)
 
-####  35.8.2. <a id='change-to-j-link-onboard-firmware'></a>Change to J-LINK onboard firmware
+####  31.8.2. <a id='change-to-j-link-onboard-firmware'></a>Change to J-LINK onboard firmware
 
  ![./ref/STLinkReflash.PNG](./ref/STLinkReflash.PNG)
 
-####  35.8.3. <a id='rtt-with-j-link-firmware-on-board'></a>RTT with J-LINK firmware on-board
+####  31.8.3. <a id='rtt-with-j-link-firmware-on-board'></a>RTT with J-LINK firmware on-board
 
 ![./ref/J-LinkRTT.PNG](./ref/J-LinkRTT.PNG)
 
@@ -4583,7 +3861,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.9. <a id='possible-issues'></a>Possible issues
+###  31.9. <a id='possible-issues'></a>Possible issues
 
 * These boards seem not to work reliable with RTT over J-Link on-board firmware.
   * NUCLEO-G071RB
@@ -4592,7 +3870,7 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  35.10. <a id='openocd-with-darwin-(macos)'></a>OpenOCD with Darwin (MacOS)
+###  31.10. <a id='openocd-with-darwin-(macos)'></a>OpenOCD with Darwin (MacOS)
 
 * OpenOCD on MacOS works out of the box after installing it.
 * When using VS code with Cortex-Debug you cannot use OpenOCD at the same time.
@@ -4662,11 +3940,11 @@ Nov 14 17:32:35.710201  TCP4:       triceExamples.c    26        0_504 i=4444440
 ...
 ```
 
-###  35.11. <a id='segger-j-link-on-darwin-(macos)'></a>SEGGER J-Link on Darwin (MacOS)
+###  31.11. <a id='segger-j-link-on-darwin-(macos)'></a>SEGGER J-Link on Darwin (MacOS)
 
 TODO: Working example with SEGGER_RTT J-Link and Open OCD
 
-###  35.12. <a id='links'></a>Links
+###  31.12. <a id='links'></a>Links
 
 * [https://www.codeinsideout.com/blog/stm32/j-link-rtt/](https://www.codeinsideout.com/blog/stm32/j-link-rtt/) (A good explanation of SEGGER J-Link Realtime Transfer - Fast Debug protocol: - only suitable for ASCII transfer)
 * [USB over WSL2?](https://twitter.com/beriberikix/status/1487127732190212102?s=20&t=NQVa27qvOqPi2uGz6pJNRA) (Maybe intersting for OpenOCD)
@@ -4675,7 +3953,7 @@ TODO: Working example with SEGGER_RTT J-Link and Open OCD
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  36. <a id='writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output)'></a>Writing the Trice logs into an SD-card (or a user specific output)
+##  32. <a id='writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output)'></a>Writing the Trice logs into an SD-card (or a user specific output)
 
 * Enable `TRICE_DEFERRED_AUXILIARY8` in your project specific _triceConfig.h_ file. 
 * Enabling `TRICE_DEFERRED_AUXILIARY8` is possible parallel to any direct and/or deferred output.
@@ -4712,63 +3990,63 @@ Related issues/discussions:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  37. <a id='trice-target-code-implementation'></a>Trice Target Code Implementation
+##  33. <a id='trice-target-code-implementation'></a>Trice Target Code Implementation
 
-###  37.1. <a id='trice-macro-structure'></a>TRICE Macro structure
+###  33.1. <a id='trice-macro-structure'></a>TRICE Macro structure
 
-####  37.1.1. <a id='trice_enter'></a>TRICE_ENTER
+####  33.1.1. <a id='trice_enter'></a>TRICE_ENTER
 
 * Optionally disable interrupts.
 * Prepare `TriceBufferWritePosition` and keep its initial value.
 
-####  37.1.2. <a id='trice_put'></a>TRICE_PUT
+####  33.1.2. <a id='trice_put'></a>TRICE_PUT
 
 * Use and increment `TriceBufferWritePosition`.
 
-####  37.1.3. <a id='trice_leave'></a>TRICE_LEAVE
+####  33.1.3. <a id='trice_leave'></a>TRICE_LEAVE
 
 * Use `TriceBufferWritePosition` and its initial value for data transfer
 * Optionally restore interrupt state.
 
-###  37.2. <a id='trice_stack_buffer'></a>TRICE_STACK_BUFFER
+###  33.2. <a id='trice_stack_buffer'></a>TRICE_STACK_BUFFER
 
 * `TRICE_ENTER`: Allocate stack
 * `TRICE_LEAVE`: Call TriceDirectOut()
 
-###  37.3. <a id='trice_static_buffer'></a>TRICE_STATIC_BUFFER
+###  33.3. <a id='trice_static_buffer'></a>TRICE_STATIC_BUFFER
 
 * This is like `TRICE_STACK_BUFFER` but avoids stack allocation, what is better for many stacks.
 * `TRICE_ENTER`: Set TriceBufferWritePosition to buffer start.
 * `TRICE_LEAVE`: Call TriceDirectOut().
 
-###  37.4. <a id='trice_double_buffer'></a>TRICE_DOUBLE_BUFFER
+###  33.4. <a id='trice_double_buffer'></a>TRICE_DOUBLE_BUFFER
 
 * `TRICE_ENTER`: Keep TriceBufferWritePosition.
 * `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
-###  37.5. <a id='trice_ring_buffer'></a>TRICE_RING_BUFFER
+###  33.5. <a id='trice_ring_buffer'></a>TRICE_RING_BUFFER
 
 * `TRICE_ENTER`: Keep or wrap TriceBufferWritePosition and add offset.
 * `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
 The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice location is read by a deferred task.
 
-###  37.6. <a id='deferred-out'></a>Deferred Out
+###  33.6. <a id='deferred-out'></a>Deferred Out
 
-####  37.6.1. <a id='double-buffer'></a>Double Buffer
+####  33.6.1. <a id='double-buffer'></a>Double Buffer
 
 * TriceTransfer
   * TriceOut
   * TriceNonBlockingWrite( triceID, enc, encLen );
 
-####  37.6.2. <a id='ring-buffer'></a>Ring Buffer
+####  33.6.2. <a id='ring-buffer'></a>Ring Buffer
 
 * TriceTransfer
   * lastWordCount = TriceSingleDeferredOut(addr);
     * int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
     * TriceNonBlockingWrite( triceID, pEnc, encLen );
 
-###  37.7. <a id='direct-transfer'></a>Direct Transfer
+###  33.7. <a id='direct-transfer'></a>Direct Transfer
 
 * TRICE_LEAVE
   * TriceDirectWrite(triceSingleBufferStartWritePosition, wordCount);
@@ -4779,7 +4057,7 @@ The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice l
       * triceDirectEncode
       * triceNonBlockingDirectWrite
 
-###  37.8. <a id='possible-target-code-improvements'></a>Possible Target Code Improvements
+###  33.8. <a id='possible-target-code-improvements'></a>Possible Target Code Improvements
 
 There have been 3 similar implementations for trice encode
 
@@ -4823,14 +4101,14 @@ size_t TriceEncode(int* pTriceID, unsigned int pCount, uint32_t * const dest, ui
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  38. <a id='trice-similarities-and-differences-to-printf-usage'></a>Trice Similarities and Differences to printf Usage
+##  34. <a id='trice-similarities-and-differences-to-printf-usage'></a>Trice Similarities and Differences to printf Usage
 
-###  38.1. <a id='printf-like-functions'></a>Printf-like functions
+###  34.1. <a id='printf-like-functions'></a>Printf-like functions
 
  ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and several open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
 The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls. See also chapter [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing).
 
-###  38.2. <a id='trice-ids'></a>Trice IDs
+###  34.2. <a id='trice-ids'></a>Trice IDs
 
 * Each Trice caries a 14-bit nuber ID as replacement for the format string.
 * This ID is automatically generated (controllable) and in the source code it is the first parameter inside the Trice macro followed by the format string and optional values.
@@ -4838,7 +4116,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
   * The Trice cache makes this invisible to the build system, allowing full translation speed.
 * The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../demoTIL.json) (example).
 
-###  38.3. <a id='trice-values-bit-width'></a>Trice values bit width
+###  34.3. <a id='trice-values-bit-width'></a>Trice values bit width
 
 * No need to explicit express the value bit width.
 * The default parameter width for the Trice macro is 32 bit. It is changeable to 8, 16 or 64-bit:
@@ -4849,7 +4127,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * The fastest Trice macro execution is, when MCU bit width matches the macro bit width.
 * The implicit TCOBS compression compacts the binary Trice data during the framing.
 
-###  38.4. <a id='many-value-parameters'></a>Many value parameters
+###  34.4. <a id='many-value-parameters'></a>Many value parameters
 
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
@@ -4860,7 +4138,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * The _Trice_ tool compares the number of given format specifiers with the written parameters in a precimpile step to minimize the risk of runtime errors.
 * There is no variadic values scanning during runtime. The C preprocessor does the work.
 
-###  38.5. <a id='floating-point-values'></a>Floating Point Values
+###  34.5. <a id='floating-point-values'></a>Floating Point Values
 
 These types are mixable with integer types but need to be covered by converter function.
 
@@ -4905,7 +4183,7 @@ static inline uint64_t aDouble( double x ){
 }
 ```
 
-###  38.6. <a id='runtime-generated-0-terminated-strings-transfer-with-trices'></a>Runtime Generated 0-terminated Strings Transfer with triceS
+###  34.6. <a id='runtime-generated-0-terminated-strings-transfer-with-trices'></a>Runtime Generated 0-terminated Strings Transfer with triceS
 
 * The `%s` format specifier is supported by the Trice macro too but needs specific treatment.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
@@ -4917,13 +4195,13 @@ static inline uint64_t aDouble( double x ){
    triceS("A runtime string %20s\n", s);
   ```
 
-###  38.7. <a id='runtime-generated-counted-strings-transfer-with-tricen'></a>Runtime Generated counted Strings Transfer with  triceN
+###  34.7. <a id='runtime-generated-counted-strings-transfer-with-tricen'></a>Runtime Generated counted Strings Transfer with  triceN
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
 * This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );`
 * There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../_test/testdata/triceCheck.c) for usage or see the following.
 
-###  38.8. <a id='runtime-generated-buffer-transfer-with-triceb'></a>Runtime Generated Buffer Transfer with triceB
+###  34.8. <a id='runtime-generated-buffer-transfer-with-triceb'></a>Runtime Generated Buffer Transfer with triceB
 
 * A buffer is transmittable with `TRICE_B` (or `triceB`, `TriceB`, `TRiceB`) and specifying just one format specifier, which is then repeated. Example:
 
@@ -4942,7 +4220,7 @@ static inline uint64_t aDouble( double x ){
 
  If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
-###  38.9. <a id='remote-function-call-syntax-support-with-tricef'></a>Remote function call syntax support with triceF
+###  34.9. <a id='remote-function-call-syntax-support-with-tricef'></a>Remote function call syntax support with triceF
 
 The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Examples:
 
@@ -4972,18 +4250,18 @@ With `#define TRICE_F TRICE16_F` in the project specific _triceConfig.h_ file th
   * `triceD( "dump:32", addr, 160 );` -> The Trice tool dumps in 32 byte rows.
   * An appropriate syntax is needed.
 
-###  38.10. <a id='extended-format-specifier-possibilities'></a>Extended format specifier possibilities
+###  34.10. <a id='extended-format-specifier-possibilities'></a>Extended format specifier possibilities
 
 * Because the format string is interpreted by the Trice tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable.
 
-####  38.10.1. <a id='trice-format-specifier'></a>Trice format specifier
+####  34.10.1. <a id='trice-format-specifier'></a>Trice format specifier
 
 * The Trice macros are used in **C** code.
 * The format strings are interpreted by the Trice tool, which is written in **Go**.
 * The **C** and **Go** format specifier are not equal but similar.
 * Therefore, a **T**rice adaption is internally performed.
 
-####  38.10.2. <a id='overview-table'></a>Overview Table
+####  34.10.2. <a id='overview-table'></a>Overview Table
 
 | Format Specifier Type                                           | C | Go | T | (T =Trice) \| remark                                                        |
 |-----------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------|
@@ -5024,7 +4302,7 @@ With `#define TRICE_F TRICE16_F` in the project specific _triceConfig.h_ file th
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-###  38.11. <a id='utf-8-support'></a>UTF-8 Support
+###  34.11. <a id='utf-8-support'></a>UTF-8 Support
 
 This is gratis, if you edit your source files containing the format strings in UTF-8:
 
@@ -5032,11 +4310,11 @@ This is gratis, if you edit your source files containing the format strings in U
 
 The target does not even "know" about that, because it gets only the Trice IDs.
 
-###  38.12. <a id='switch-the-language-without-changing-a-bit-inside-the-target-code'></a>Switch the language without changing a bit inside the target code
+###  34.12. <a id='switch-the-language-without-changing-a-bit-inside-the-target-code'></a>Switch the language without changing a bit inside the target code
 
 Once the [til.json](../examples/F030_inst/til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
-###  38.13. <a id='format-tags-prototype-specifier-examples'></a>Format tags prototype specifier examples
+###  34.13. <a id='format-tags-prototype-specifier-examples'></a>Format tags prototype specifier examples
 
 This syntax is supported: `%[flags][width][.precision][length]`
 
@@ -5051,30 +4329,30 @@ This syntax is supported: `%[flags][width][.precision][length]`
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  39. <a id='development-environment-setup'></a>Development Environment Setup
+##  35. <a id='development-environment-setup'></a>Development Environment Setup
 
 * Trice is usable with any C-compiler for any processor type, bit width and endianness. The example projects here are STM32 ones but illustrate how to setup Trice.
 * The [examples](../examples) folder contains some instrumented example projects together with bare counterparts. Comparing a bare project with its intrumented counterpart gives a quick overview what needs to be done to get started.
 
-###  39.1. <a id='common-information-1'></a>Common Information
+###  35.1. <a id='common-information-1'></a>Common Information
 
 - All used tools are **Open Source** (despite the [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/), for new projects vsCode is a better choice).
 - All provided information is just as example and needs adaption to your needs.
 - There is no need to setup the environment in the given order.
 
-###  39.2. <a id='important-to-know'></a>Important to know
+###  35.2. <a id='important-to-know'></a>Important to know
 
 The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes not recognize external file modifications. That means for example: After editing `main.c` by adding a `trice( "Hi!\n" )` and executing `trice insert` as pre-compile step it could happen, that an updated `trice( iD(12345), "Hi!\n" )`  was inserted and correct compiled but the update in `main.c` is not shown. Simply close and reopen `main.c` before editing again. This seems to be a [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) "feature" or be caused Windows not signaling a file change.
 
-###  39.3. <a id='animation'></a>Animation
+###  35.3. <a id='animation'></a>Animation
 
 (The trice IDs occur just during the compilation.)
 
   <img src="./ref/Animation.gif" width="1200">
 
-###  39.4. <a id='setup-linux-pc---example-with-debian12---kde-desktop'></a>Setup Linux PC - Example with Debian12 - KDE Desktop
+###  35.4. <a id='setup-linux-pc---example-with-debian12---kde-desktop'></a>Setup Linux PC - Example with Debian12 - KDE Desktop
 
-####  39.4.1. <a id='basic-setup'></a>Basic setup
+####  35.4.1. <a id='basic-setup'></a>Basic setup
 
 * Add yourself to the sudo group:
 
@@ -5100,7 +4378,7 @@ git config --global user.email "you@example.com"
 git config --global user.name "Your Name"
 ```
 
-####  39.4.2. <a id='github'></a>Github
+####  35.4.2. <a id='github'></a>Github
 
 * Create github account.
 * Create ssh pair:
@@ -5119,7 +4397,7 @@ git config --global user.name "Your Name"
     git clone git@github.com:rokath/trice.git
     ```
 
-####  39.4.3. <a id='vscode'></a>vsCode
+####  35.4.3. <a id='vscode'></a>vsCode
 
 * Download vsCode from https://code.visualstudio.com/download.
 * Install vsCode (adapt to downloaded version) and start it inside the Trice folder:
@@ -5131,7 +4409,7 @@ git config --global user.name "Your Name"
     code .
     ```
 
-####  39.4.4. <a id='go'></a>Go
+####  35.4.4. <a id='go'></a>Go
 
 * Download the **Go** language from https://go.dev/doc/install and install:
 
@@ -5281,7 +4559,7 @@ git config --global user.name "Your Name"
     th@P51-DebianKDE:~/repos/trice$ 
     ```
 
-####  39.4.5. <a id='gitkraken-(or-other-gui-for-git)'></a>Gitkraken (or other GUI for git)
+####  35.4.5. <a id='gitkraken-(or-other-gui-for-git)'></a>Gitkraken (or other GUI for git)
 
 * Gitkraken download from https://www.gitkraken.com/download and Install:
 
@@ -5289,7 +4567,7 @@ git config --global user.name "Your Name"
   mv ./gitkraken-amd64.deb /tmp; sudo apt install /tmp/gitkraken-amd64.deb
   ```
 
-####  39.4.6. <a id='arm-none-eabi-toolchain-(or-other-target-system-compiler)'></a>arm-none-eabi toolchain (or other target system compiler)
+####  35.4.6. <a id='arm-none-eabi-toolchain-(or-other-target-system-compiler)'></a>arm-none-eabi toolchain (or other target system compiler)
 
 ```bash
 sudo apt install gcc-arm-none-eabi
@@ -5370,7 +4648,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
   * Remove: Delete `/etc/profile.d/arm14.2path.sh` and `~/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi`
 
-####  39.4.7. <a id='j-link-(if-needed)'></a>J-Link (if needed)
+####  35.4.7. <a id='j-link-(if-needed)'></a>J-Link (if needed)
 
 * Download and install from https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
 
@@ -5407,11 +4685,11 @@ Shutting down... Done.th@P51-DebianKDE:~/Downloads$
 ```
 
 
-####  39.4.8. <a id='beyond-compare-(if-no-other-diff-tool)'></a>Beyond Compare (if no other diff tool)
+####  35.4.8. <a id='beyond-compare-(if-no-other-diff-tool)'></a>Beyond Compare (if no other diff tool)
 
 * Download and install from https://www.scootersoftware.com
 
-###  39.5. <a id='setup-windows-pc-example'></a>Setup Windows PC Example
+###  35.5. <a id='setup-windows-pc-example'></a>Setup Windows PC Example
 
 Setting up a PC is for Linux mostly straightforward but Windows PCs are more problematic. The steps shown here are just one example.
 
@@ -5454,7 +4732,7 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
 - Install [Make for Windows](#install-make) and add its installation bin folder location to the PATH variable.
 
-####  39.5.1. <a id='setup-trice'></a>Setup Trice
+####  35.5.1. <a id='setup-trice'></a>Setup Trice
 
 - from inside folder `repos` clone trice repo with `git clone https://github.com/rokath/trice.git`.
 - Run `go install ./cmd/trice/...` from folder `repos/trice`.
@@ -5466,7 +4744,7 @@ OR
 - Put trice/src into `repos` if you want access the trice library code from several projects and have it only once.
   - Alternatively copy it into your project.
 
-####  39.5.2. <a id='setup-arm-environment-example'></a>Setup ARM Environment Example
+####  35.5.2. <a id='setup-arm-environment-example'></a>Setup ARM Environment Example
 
 <a id='install-make'></a><h5>Install make</h5>
 
@@ -5616,7 +4894,7 @@ InstalledDir: C:\bin\ArmClang\bin
 
 The paths must match with the installation locations.
 
-####  39.5.3. <a id='setup-stm32'></a>Setup STM32
+####  35.5.3. <a id='setup-stm32'></a>Setup STM32
 
 <a id='generate-base-project'></a><h5>Generate Base Project</h5>
 
@@ -5649,7 +4927,7 @@ This step is recommended before re-flashing with the J-Link onboard debugger sof
     - Selecting the other option, would not allow to update with the SEGGER STLinkReflash tool.
   - Close
 
-####  39.5.4. <a id='setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too)'></a>Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
+####  35.5.4. <a id='setup-onboard-j-link-on-nucleo-(other-st-evaluation-boards-too)'></a>Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
 
 (https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 
@@ -5665,7 +4943,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Re-Flash onboard debugger.
     - You can undo this step anytime.
 
-####  39.5.5. <a id='setup-vs-code'></a>Setup VS-Code
+####  35.5.5. <a id='setup-vs-code'></a>Setup VS-Code
 
 - Start VS Code
   - Install Go rich language support if you want to use Go as well (not needed for ARM debugging).
@@ -5686,43 +4964,43 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
 - Installing the **Cortex Debug** extension allow you to debug the target code.
 
-###  39.6. <a id='makefile-with-clang-too'></a>Makefile with Clang too
+###  35.6. <a id='makefile-with-clang-too'></a>Makefile with Clang too
 
 - After STM32 CubeMX code generation the Makefile was edited and spitted.
 - STM32 CubeMX code generation accepts the edited Makefile, so re-generation is no issue.
   - It modifies the settings according to the changes.
 
-###  39.7. <a id='download-locations'></a>Download Locations
+###  35.7. <a id='download-locations'></a>Download Locations
 
-####  39.7.1. <a id='clang'></a>Clang
+####  35.7.1. <a id='clang'></a>Clang
 
 https://releases.llvm.org/download.html -> https://github.com/llvm/llvm-project/releases/tag/llvmorg-16.0.0 (example)
 
-####  39.7.2. <a id='gcc-1'></a>GCC
+####  35.7.2. <a id='gcc-1'></a>GCC
 
 https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain -> https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads (example))
 
-###  39.8. <a id='install-locations'></a>Install Locations
+###  35.8. <a id='install-locations'></a>Install Locations
 
 Do not use locations containing spaces, like `C:\Program Files`. Take `C:\bin` for example. This avoids trouble caused by spaces inside path names.
 
-###  39.9. <a id='environment-variables'></a>Environment Variables
+###  35.9. <a id='environment-variables'></a>Environment Variables
 
 Extend the path variable:
 
 - PATH += `C:\bin\ArmGNUToolchain\bin`
 - PATH += `C:\Program Files\SEGGER\JLink`. (may be C:\Program Files\SEGGER\JLink_V812a or similar)
 
-###  39.10. <a id='build-command'></a>Build command
+###  35.10. <a id='build-command'></a>Build command
 
 - Clang: `make` or to get it faster `make -j`.
 - GCC: `make GCC`.
 
-###  39.11. <a id='run-&-debug'></a>Run & Debug
+###  35.11. <a id='run-&-debug'></a>Run & Debug
 
 - In terminal after `make` click Run&Debug & click green triangle.
 
-###  39.12. <a id='logging'></a>Logging
+###  35.12. <a id='logging'></a>Logging
 
 - In terminal type `make log`. This executes the command in project folder:
 
@@ -5730,7 +5008,7 @@ Extend the path variable:
 
   <img src="./ref/Animation.gif" width="1000">
 
-###  39.13. <a id='setting-up-a-new-project'></a>Setting up a new project
+###  35.13. <a id='setting-up-a-new-project'></a>Setting up a new project
 
 - Copy this project folder under a new name like `myAwesomeNewProject` or name it as you like.
 - Make a temporary folder `myTemp` and generate with STM CubeMX the base project.
@@ -5746,7 +5024,7 @@ Extend the path variable:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  40. <a id='example-projects-without-and-with-trice-instrumentation'></a>Example Projects without and with Trice Instrumentation
+##  36. <a id='example-projects-without-and-with-trice-instrumentation'></a>Example Projects without and with Trice Instrumentation
 
 | Project Name                                                     | Description                                                                                                                                                                                                                                                                      |
 |------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -5765,11 +5043,11 @@ Extend the path variable:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  40.1. <a id='nucleo-f030r8-examples'></a>Nucleo-F030R8 Examples
+###  36.1. <a id='nucleo-f030r8-examples'></a>Nucleo-F030R8 Examples
 
 <img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-f030r8-stm32f030r8t6-arm-cortex-m0.jpg">
 
-####  40.1.1. <a id='f030_bare'></a>F030_bare
+####  36.1.1. <a id='f030_bare'></a>F030_bare
 
 Folder: [../examples/F030_bare/](../examples/F030_bare/)
 
@@ -5857,7 +5135,7 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-####  40.1.2. <a id='f030_inst'></a>F030_inst
+####  36.1.2. <a id='f030_inst'></a>F030_inst
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
@@ -5883,11 +5161,11 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  40.2. <a id='nucleo-g0b1-examples'></a>Nucleo-G0B1 Examples
+###  36.2. <a id='nucleo-g0b1-examples'></a>Nucleo-G0B1 Examples
 
 <img src="https://docs.zephyrproject.org/latest/_images/nucleo_g0b1re.jpg">
 
-####  40.2.1. <a id='g0b1_bare'></a>G0B1_bare
+####  36.2.1. <a id='g0b1_bare'></a>G0B1_bare
 
 Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
@@ -5902,7 +5180,7 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 - See and adapt steps from [F030_bare](#f030_bare).
 - Then add/modify the files to reach this folder layot.
 
-####  40.2.2. <a id='g0b1_inst'></a>G0B1_inst
+####  36.2.2. <a id='g0b1_inst'></a>G0B1_inst
 
 Folder: [../examples/G0B1_inst/](../examples/G0B1_inst/)
 
@@ -5921,11 +5199,11 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  40.3. <a id='nucleo-l432kc-examples'></a>Nucleo-L432KC Examples
+###  36.3. <a id='nucleo-l432kc-examples'></a>Nucleo-L432KC Examples
 
 <img src="https://cdn-reichelt.de/bilder/web/xxl_ws/A300/NUCLEO_L432KC_01.png" width=400>
 
-####  40.3.1. <a id='l432_bare'></a>L432_bare
+####  36.3.1. <a id='l432_bare'></a>L432_bare
 
 Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
@@ -5936,7 +5214,7 @@ Folder: [../examples/L432_bare/](../examples/L432_bare/)
 * It was then manually adapted additionally to Clang.
 * It was additionally configured for FreeRTOS.
 
-####  40.3.2. <a id='l432_inst'></a>L432_inst
+####  36.3.2. <a id='l432_inst'></a>L432_inst
 
 Folder: [../examples/L432_inst/](../examples/L432_inst/)
 
@@ -6112,9 +5390,9 @@ Receive signal 0. Exiting...
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  41. <a id='trice-generate'></a>Trice Generate
+##  37. <a id='trice-generate'></a>Trice Generate
 
-###  41.1. <a id='colors'></a>Colors
+###  37.1. <a id='colors'></a>Colors
 
 Support for finding a color style:
 
@@ -6122,7 +5400,7 @@ Support for finding a color style:
 
 See [Check Alternatives](#check-alternatives) chapter.
 
-###  41.2. <a id='c-code'></a>C-Code
+###  37.2. <a id='c-code'></a>C-Code
 
 If you intend to get the `trice log` functionality full or partially as a `tlog` C-Source and do not wish to parse the _til.json_ file, you can run `trice generate -tilH --tilC` to create a C-file with header as starting point. That could be interesting for compiling the log functionality into a small separate microcontroller board.
 
@@ -6160,7 +5438,7 @@ const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / s
 
 ```
 
-###  41.3. <a id='c#-code'></a>C#-Code
+###  37.3. <a id='c#-code'></a>C#-Code
 
 With `trice generate -tilCS` a starting point for a C-Sharp application is generated:
 
@@ -6207,7 +5485,7 @@ namespace TriceIDList;
 }
 ```
 
-###  41.4. <a id='generating-a-rpc-function-pointer-list'></a>Generating a RPC Function Pointer List
+###  37.4. <a id='generating-a-rpc-function-pointer-list'></a>Generating a RPC Function Pointer List
 
 When several embedded devices are going to communicate, `trice generate -rpcH -rpcC` could be helpful.
 
@@ -6318,9 +5596,9 @@ Assume a project with several devices. You can add these 2 files to all targets 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  42. <a id='testing-the-trice-library-c-code-for-the-target'></a>Testing the Trice Library C-Code for the Target
+##  38. <a id='testing-the-trice-library-c-code-for-the-target'></a>Testing the Trice Library C-Code for the Target
 
-###  42.1. <a id='general-info'></a>General info
+###  38.1. <a id='general-info'></a>General info
 
 This folder is per default named to `_test` to avoid vsCode slow down. Also, when running `go test ./...`,  the tests in the `_test` folder are excluded, because they take a long time. Run `./testAll.sh` to include them.
 
@@ -6334,7 +5612,7 @@ The main aim of these tests is to automatic compile and run the target code in d
 
 For the user it could be helpful to start with a `triceConfig.h`file from here and to adapt the Trice tool command line from the matching `cgo_test.go` if no close match in the `examples` folder was found.
 
-###  42.2. <a id='how-to-run-the-tests'></a>How to run the tests
+###  38.2. <a id='how-to-run-the-tests'></a>How to run the tests
 
 * In `_trice` folder first execute `go clean -cache` after editing C-files. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can led to confusing results.
 * Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
@@ -6342,7 +5620,7 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 * It is convenient to run  `testAll.sh` from the Trice root folder to perform this.
 * It is possible to start the tests individually, but for some the default `-timeout 30s` maybe too short.
 
-###  42.3. <a id='tests-details'></a>Tests Details
+###  38.3. <a id='tests-details'></a>Tests Details
 
 All folders despite `testdata` are test folders and the name `tf` is used as a place holder for them in this document.
 
@@ -6364,14 +5642,14 @@ The whole process is relatively slow because of the often passed Go - C barrier,
 
 The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which limits the amount of performed trices for each test case to `n`. Changing this value will heavily influence the test duration. The value `-1` is reserved for testing all test lines.
 
-###  42.4. <a id='how-to-add-new-test-cases'></a>How to add new test cases
+###  38.4. <a id='how-to-add-new-test-cases'></a>How to add new test cases
 
 - Choose a test folder similar to the intended test and copy it under a new descriptive name like `newTest`.
 - Extend file `./renewIDs_in_examples_and_test_folder.sh` accordingly.
 - Edit files `newTest/triceConfig.h` and `newTest/cgo_test.go` in a matching way.
 - Run command `go test test/newTest/...`
 
-###  42.5. <a id='test-internals'></a>Test Internals
+###  38.5. <a id='test-internals'></a>Test Internals
 
 The `./trice/_test/testdata/*.c` and `./trice/src/*.c` are compiled together with the actual cgot package into one singe Trice test binary, resulting in as many test binaries as there are test folders. Calling its TestFunction(s) causes the activation of the Trice statement(s) inside *triceCheck.c*. The ususally into an embedded device compiled Trice code generates a few bytes according to the configuration into a buffer. These bytes are transmitted usually in real life over a (serial) port or RTT. In the tests here, this buffer is then read out by the Trice tool handler function according to the used CLI switches and processed to a log string using the *til.json* file. This string is then compared to the expected string for the activated line.
 
@@ -6391,7 +5669,7 @@ Some C-code lines contain Trice statements and comments starting with `//exp: ` 
 
 Because each test runs a different configuration, all possible combinations are testable.
 
-###  42.6. <a id='test-results'></a>Test Results
+###  38.6. <a id='test-results'></a>Test Results
 
 ```bash
 ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
@@ -6538,11 +5816,11 @@ ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
 $
 ```
 
-###  42.7. <a id='special-tests'></a>Special tests
+###  38.7. <a id='special-tests'></a>Special tests
 
-###  42.8. <a id='test-cases'></a>Test Cases
+###  38.8. <a id='test-cases'></a>Test Cases
 
-####  42.8.1. <a id='folder-naming-convention'></a>Folder Naming Convention
+####  38.8.1. <a id='folder-naming-convention'></a>Folder Naming Convention
 
 | Folder Name Part | Meaning                                                                                                  |
 |:----------------:|----------------------------------------------------------------------------------------------------------|
@@ -6567,15 +5845,15 @@ $
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  43. <a id='test-issues'></a>Test Issues
+##  39. <a id='test-issues'></a>Test Issues
 
 Test folders starting with `ERROR_` have issues. These cases are **usable** on the target. These tests fail for an unknown reason. Probably it is a test implementation issue. Especially when XTEA is used in one output but not in the other, the tests fail.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  44. <a id='add-on-hints'></a>Add-On Hints
+##  40. <a id='add-on-hints'></a>Add-On Hints
 
-###  44.1. <a id='trice-on-libopencm3'></a>Trice on LibOpenCM3
+###  40.1. <a id='trice-on-libopencm3'></a>Trice on LibOpenCM3
 
 * This is a OpenCM3_STM32F411_Nucleo Contribution from [kraiskil](https://github.com/kraiskil).
 * See also pull request [\#269](https://github.com/rokath/trice/pull/269).
@@ -6589,7 +5867,7 @@ This is an exampe using STM's [STM32F411 Nucleo](https://www.st.com/en/evaluatio
 --> This code uses a legacy Trice version and needs adaption!
 ```
 
-####  44.1.1. <a id='prerequisites'></a>Prerequisites
+####  40.1.1. <a id='prerequisites'></a>Prerequisites
 
 - Suitable ARM GCC cross compiler (`arm-none-eabi-gcc`) found in your system's PATH
 - GNU Make, or compatible
@@ -6597,7 +5875,7 @@ This is an exampe using STM's [STM32F411 Nucleo](https://www.st.com/en/evaluatio
   This is e.g. the libopencm3 source directory, if you also built it in the source directory.
 - OpenOCD
 
-####  44.1.2. <a id='triceconfig.h'></a>triceConfig.h
+####  40.1.2. <a id='triceconfig.h'></a>triceConfig.h
 
 ```C
 /*! \file triceConfig.h
@@ -6832,7 +6110,7 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 ```
 
-####  44.1.3. <a id='main.c'></a>main.c
+####  40.1.3. <a id='main.c'></a>main.c
 
 ```C
 /*
@@ -6987,7 +6265,7 @@ int main(void)
 
 ```
 
-####  44.1.4. <a id='nucleo-f411re.ld'></a>nucleo-f411re.ld
+####  40.1.4. <a id='nucleo-f411re.ld'></a>nucleo-f411re.ld
 
 ```ld
 /* Use the LibOpenCM3-provided defaults for the linker details.
@@ -7001,7 +6279,7 @@ MEMORY
 INCLUDE cortex-m-generic.ld
 ```
 
-####  44.1.5. <a id='makefile'></a>Makefile
+####  40.1.5. <a id='makefile'></a>Makefile
 
 ```mak
 # Makefile for compiling the Trice demo on LibOpenCM3
@@ -7055,13 +6333,13 @@ clean:
 	@rm -f *.elf til.json main.trice.c
 ```
 
-####  44.1.6. <a id='usage'></a>Usage
+####  40.1.6. <a id='usage'></a>Usage
 
 - Run `make direct_mode.elf` to compile with Trice mode 0.
 - Run `make flash_direct_mode` to program the board.
 - Run trice: `trice l -p /dev/ttyACM0`.
 
-###  44.2. <a id='get-all-project-files-containing-trice-messages'></a>Get all project files containing Trice messages
+###  40.2. <a id='get-all-project-files-containing-trice-messages'></a>Get all project files containing Trice messages
 
 We check the location information file. Every Trice is registered here.
 
@@ -7082,19 +6360,19 @@ cat demoLI.json | grep '"File":' | sort | uniq
 		"File": "examples/exampleData/triceLogDiagData.c",
 ```
 
-###  44.3. <a id='building-a-trice-library?'></a>Building a trice library?
+###  40.3. <a id='building-a-trice-library?'></a>Building a trice library?
 
 The triceConfig.h is mandatory for the trice code. It controls which parts of the trice code are included. There is no big advantage having a trice library, because it would work only with unchanged settings in the project specific triceConfig.h. Once the trice source files are translated, their objects are rebuilt automatically and only when the triceConfig.h is changed. So only the linker has a bit less to do when it finds a trice library compared to a bunch of trice objects. But does that influence the build time heavily?
 
 The triceConfig.h is the only part of the trice sources which should be modified by the users. It is ment to be a individual part of the user projects. The examples folder shows the usage.
 
-###  44.4. <a id='possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings'></a>Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings
+###  40.4. <a id='possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings'></a>Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings
 
 If you encounter a compilation error on `trice( "hi");` for example, but not on `trice( "%u stars", 5 );`, this is probably caused by the way your compiler interprets variadic macros. Simply change to `trice0( "hi");` or change your compiler settings. See issue [\#279](https://github.com/rokath/trice/issues/279) for more details. If your project needs to be translated with strict-C settings for some reason, you have to use the `trice0` macros when no values exist for the Trice macros.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  45. <a id='trice-and-legacy-user-code'></a>Trice And Legacy User Code 
+##  41. <a id='trice-and-legacy-user-code'></a>Trice And Legacy User Code 
 
 When it comes to use legacy sources together with Trice, there are several ways doing so, which do not exclude each other:
 
@@ -7103,7 +6381,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * [Legacy User Code Option: Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
 * [Legacy User Code Option: Trice Aliases Adaption](#legacy-user-code-option-trice-aliases-adaption)
 
-###  45.1. <a id='legacy-user-code-option-separate-physical-output-channel'></a>Legacy User Code Option Separate Physical Output Channel 
+###  41.1. <a id='legacy-user-code-option-separate-physical-output-channel'></a>Legacy User Code Option Separate Physical Output Channel 
 
 *Advantages:*
 
@@ -7120,7 +6398,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 
 * The legacy user code output drives a terminal app and the Trice output feeds the Trice binary data into the Trice tool.
 
-###  45.2. <a id='legacy-user-code-option-trice-adaption-edits'></a>Legacy User Code Option Trice Adaption Edits
+###  41.2. <a id='legacy-user-code-option-trice-adaption-edits'></a>Legacy User Code Option Trice Adaption Edits
 
 *Advantages:*
 
@@ -7143,7 +6421,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 * All exising user prints are replaced with appropriate Trice macros according chapter [Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage).
 * When using 64-bit as default Trice bit width, more RAM is used compared to 32-bit, but in combination with the default [TCOBS](https://github.com/rokath/tcobs) compressing framing the transmitted Trice packets do not increase much compared to 32-bit width.
 
-###  45.3. <a id='legacy-user-code-option-print-buffer-wrapping-and-framing'></a>Legacy User Code Option Print Buffer Wrapping and Framing 
+###  41.3. <a id='legacy-user-code-option-print-buffer-wrapping-and-framing'></a>Legacy User Code Option Print Buffer Wrapping and Framing 
 
 > **Trice >= v1.1 feature**, see also issue [\#550](https://github.com/rokath/trice/issues/550)
 
@@ -7164,7 +6442,7 @@ The Trice binary encoding uses states 1, 2, 3 of the 4 states, the 2 [Binary Enc
 
 If the Trice library and the user print both write to the same output, an easy modification would be, to prepend the user print output with a 2-byte count as long its size is < 16383, so that the 2 most significant bits are zero. Additionally, the this way counted buffer needs the same buffer framing as the Trice binary data.
 
-###  45.4. <a id='legacy-user-code-option-trice-aliases-adaption'></a>Legacy User Code Option Trice Aliases Adaption
+###  41.4. <a id='legacy-user-code-option-trice-aliases-adaption'></a>Legacy User Code Option Trice Aliases Adaption
 
 > **Trice >= v1.1 feature**, see also accepted pull requests [\#533](https://github.com/rokath/trice/pull/533) and [\#536](https://github.com/rokath/trice/pull/536)
 
@@ -7196,15 +6474,15 @@ Despite of these 2 CGO tests the real-world example [./examples/G0B1_inst](../ex
 
 The following sub-chapters are mainly written by [@srgg](https://github.com/srgg) as accompanying documentation to its pull requests.
 
-####  45.4.1. <a id='pr533-doc'></a>PR533 Doc
+####  41.4.1. <a id='pr533-doc'></a>PR533 Doc
 
-####  45.4.2. <a id='pr533-summary'></a>PR533 Summary
+####  41.4.2. <a id='pr533-summary'></a>PR533 Summary
 
 This PR introduces support for treating user-defined macros as aliases to trice and triceS within the Trice CLI toolchain. The goal is to enable project-specific logging macros to be processed just like built-in Trice macros — including ID generation, decoding, and binary format support — without requiring projects to directly call `trice()` or `triceS()` in their source code.
 
 PR leverages the `-exclude` source feature added in [\#529](https://github.com/rokath/trice/pull/529).
 
-####  45.4.3. <a id='pr533-motivation'></a>PR533 Motivation
+####  41.4.3. <a id='pr533-motivation'></a>PR533 Motivation
 
 Trice uses a source-scanning and ID generation approach, where the toolchain scans for `trice(...)` and `triceS(...)` calls, injects numeric trace IDs, and builds a mapping database. However, it currently only supports built-in(hardcoded) macros and allows only global on/off control via compile-time flags.
 
@@ -7214,11 +6492,11 @@ This makes it difficult to:
 - Redirect trace/logging behavior to other backends (e.g., MicroSD, raw printf, no-op).
 - Change behavior per module or configuration without losing Trice tooling support.
 
-####  45.4.4. <a id='what-this-pr533-adds'></a>What This PR533 Adds
+####  41.4.4. <a id='what-this-pr533-adds'></a>What This PR533 Adds
 
 **CLI-level aliasing**: Developers can now declare custom macros to be treated as `trice` or `triceS` equivalents. These user-defined macros will be recognized during scanning, ID injection, and decoding. 
 
-####  45.4.5. <a id='pr533-example'></a>PR533 Example
+####  41.4.5. <a id='pr533-example'></a>PR533 Example
 
 *print_macro.h*:
 
@@ -7279,7 +6557,7 @@ trice clean -alias DEBUG_PRINT -salias DEBUG_PRINT_S  -exclude ./print_macro.h -
 
 Flash with `-DTRICE_OFF`.
 
-####  45.4.6. <a id='pr536-doc'></a>PR536 Doc
+####  41.4.6. <a id='pr536-doc'></a>PR536 Doc
 
 ##### What This PR536 Adds
 
@@ -7318,7 +6596,7 @@ Improving this would likely require Clang integration—adding complexity (e.g.,
 
 This approach simplifies the logic and allows the parser to skip invalid or partial matches without aborting, enabling continued scanning of the file for valid constructs.
 
-####  45.4.7. <a id='alias-example-project'></a>Alias Example Project
+####  41.4.7. <a id='alias-example-project'></a>Alias Example Project
 
 To use the Alias technique with `examples/G0B1_inst` the following adaptions where made:
 
@@ -7368,9 +6646,9 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptions whe
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  46. <a id='future-development'></a>Future Development
+##  42. <a id='future-development'></a>Future Development
 
-###  46.1. <a id='trice-log-level-control-specification-draft'></a>Trice Log-level Control Specification Draft
+###  42.1. <a id='trice-log-level-control-specification-draft'></a>Trice Log-level Control Specification Draft
 
 > Specification Draft
 
@@ -7378,7 +6656,7 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptions whe
 --> IMPORTANT: No breaking changes!
 ```
 
-####  46.1.1. <a id='what-log-levels-exist-in-general,-including-exotic-ones,-and-what-is-their-exact-weighting-relative-to-each-other?'></a>What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?
+####  42.1.1. <a id='what-log-levels-exist-in-general,-including-exotic-ones,-and-what-is-their-exact-weighting-relative-to-each-other?'></a>What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?
 
 🧭 **Basic principle**
 
@@ -7469,7 +6747,7 @@ Here’s a 7-level scheme, embedded-friendly yet compatible with syslog/log4j co
 * [x] Backward-compatible (old log constants still valid)
 * [x] Easily extendable (e.g., add NOTICE or ASSERT later)
 
-####  46.1.2. <a id='compile-time-log-level-control'></a>Compile-time Log-level Control
+####  42.1.2. <a id='compile-time-log-level-control'></a>Compile-time Log-level Control
 
 In [Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information) we see, how `trice insert ...` could modify (temporarily) the source code. With an additional *insert* switch like `-loglevel` the shown example could get changed in this way:
 
@@ -7517,7 +6795,7 @@ That results in no code generation for `trice("info:The answer is %d.\n", 42);` 
 * The user is free to add its own log-levels.
 * No run-time costs at all.
 
-####  46.1.3. <a id='run-time-log-level-control'></a>Run-time Log-level Control
+####  42.1.3. <a id='run-time-log-level-control'></a>Run-time Log-level Control
 
 Trice logs are very light-weight and usually is no need for their run-time control. Nevertheless there could be a need for that. The very first we need, is a control channel to tell the target device about a changing log-level. See for example chapter [Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart).
 
@@ -7542,7 +6820,7 @@ That implies a small Trice library extension, which gets active only with a `LOG
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  46.2. <a id='trice-structured-logging'></a>Trice Structured Logging
+###  42.2. <a id='trice-structured-logging'></a>Trice Structured Logging
 
 > **Specification Draft**
 
@@ -7550,23 +6828,23 @@ Structured logging, in contrast to unformatted logging, automatically adds compi
 
 Trice is considerable already a bit as a (very limited) structured logger, if we look at the file and line insertion capability and the timestamp options. The following is about how Trice could get full structured logging capability without making a breaking change.
 
-####  46.2.1. <a id='trice-structured-logging-compile-time-information'></a>Trice Structured Logging Compile-time Information
+####  42.2.1. <a id='trice-structured-logging-compile-time-information'></a>Trice Structured Logging Compile-time Information
 
 *file, line, function, compiler version, module, build time, firmware version, machine name, user name, locale, host OS version, log level, an (unstructured) format string, compiler flags, (locally) defined values...*
 
 These data can be strings or numbers.
 
-####  46.2.2. <a id='trice-structured-logging-runtime-information'></a>Trice Structured Logging Runtime Information
+####  42.2.2. <a id='trice-structured-logging-runtime-information'></a>Trice Structured Logging Runtime Information
 
 *uptime, timestamp, hw serial, task ID, stack depth, event count, core ID, position, variables values, parameter values ...*
 
 In an initial approach we assume, these data do not contain runtime generated strings. If really needed, a derived hash is usable instead for now. Despite of this, runtime generated strings are an important feature and therefore Trice supports `triceS`, capable to transmit a single string up to 32KB long, and `triceS` relatives like `triceB`. We could add compile-time data (as inserted fixed strings) but runtime information can only get as an additional part of the runtime generated string into the structured log. This should be acceptable and we will deal with this later.
 
-####  46.2.3. <a id='trice-structured-logging-limitations-and-special-cases'></a>Trice Structured Logging Limitations and Special Cases
+####  42.2.3. <a id='trice-structured-logging-limitations-and-special-cases'></a>Trice Structured Logging Limitations and Special Cases
 
 For performance reasons, Trice was designed to only transmit 0-12 (straight forward extendable) numbers of equal bit-width **OR** a single runtime generated string. Firstly we look at only "normal" Trice macros `trice`, `Trice`, `TRice` and exclude the special cases `triceS`, `TriceS`, `TRiceS`. Also we consider just trices without specified bit-width, assume 32-bit and exlude cases like `trice32_4` firstly.
 
-####  46.2.4. <a id='a-trice-structured-logging-example'></a>A Trice Structured Logging Example
+####  42.2.4. <a id='a-trice-structured-logging-example'></a>A Trice Structured Logging Example
 
 User may have written inside *val.c*:
 
@@ -7598,7 +6876,7 @@ void doStuff( void ){
 }
 ```
 
-####  46.2.5. <a id='trice-structured-logging-cli-switches-and-variables'></a>Trice Structured Logging CLI Switches and Variables
+####  42.2.5. <a id='trice-structured-logging-cli-switches-and-variables'></a>Trice Structured Logging CLI Switches and Variables
 
 To achieve that, 2 structured logging CLI switches `-stf` and `-stv` on `trice insert` and `trice clean` are usable:
 
@@ -7619,7 +6897,7 @@ Additionally the Trice tool uses these internal variables (no bash variables!) a
 | `$values` | `42`                  | The bare Trice statement values.                                                                                                                 |
 | `$usr0`   | `abc` \| ` ` \| `xyz` | A predefined string value with location dependent values (see below).                                                                            |
 
-####  46.2.6. <a id='trice-structured-logging-user-defined-values'></a>Trice Structured Logging User Defined Values
+####  42.2.6. <a id='trice-structured-logging-user-defined-values'></a>Trice Structured Logging User Defined Values
 
 This use case is not expected for most cases, but mentioned here to show the possibilities. Adding user specific values like `$usr0` can be done in this way:
 
@@ -7685,7 +6963,7 @@ The structured log output would be:
 {...}
 ```
 
-####  46.2.7. <a id='trice-structured-logging-cli-switches-usage-options'></a>Trice Structured Logging CLI Switches Usage Options
+####  42.2.7. <a id='trice-structured-logging-cli-switches-usage-options'></a>Trice Structured Logging CLI Switches Usage Options
 
 The in [A Trice Structured Logging Example](#a-trice-structured-logging-example) shown `trice insert` result is possible with
  
@@ -7796,7 +7074,7 @@ trice insert -stf="$STF" -stv="$STV"
 trice clean  -stf="$STF" -stv="$STV"
 ```
 
-####  46.2.8. <a id='trice-structured-logging-level-specific-configuration'></a>Trice Structured Logging Level Specific Configuration
+####  42.2.8. <a id='trice-structured-logging-level-specific-configuration'></a>Trice Structured Logging Level Specific Configuration
 
 Configure the Trice Structured Logging selectively in a way, to provide as much helpful diagnostic info as possible on `ERROR` level for example. Example script:
 
@@ -7832,15 +7110,15 @@ source make.sh # build process
 trice clean  $STL ...
 ```
 
-####  46.2.9. <a id='trice-structured-logging-assert-macros-(todo)'></a>Trice Structured Logging Assert Macros (TODO)
+####  42.2.9. <a id='trice-structured-logging-assert-macros-(todo)'></a>Trice Structured Logging Assert Macros (TODO)
 
 Configure `TriceAssert` like macros and this works also with the `-salias` switch.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  46.3. <a id='improving-the-trice-tool-internal-parser'></a>Improving the Trice Tool Internal Parser
+###  42.3. <a id='improving-the-trice-tool-internal-parser'></a>Improving the Trice Tool Internal Parser
 
-####  46.3.1. <a id='trice-internal-log-code-short-description'></a>Trice Internal Log Code Short Description
+####  42.3.1. <a id='trice-internal-log-code-short-description'></a>Trice Internal Log Code Short Description
 
 ##### Trice v1.0 Code
 
@@ -7877,7 +7155,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 * The format string has no newline inside anymore, but has one at the end (usually) or not.
 * The struct slice is cyclically passed to a line writer, which writes one line if it can find a format string ending with a newline.
 
-###  46.4. <a id='using-trice-on-servers'></a>Using Trice on Servers
+###  42.4. <a id='using-trice-on-servers'></a>Using Trice on Servers
 
 * The internet traffic causes many megabytes logfiles, which need storage and are also often transferred by themselves.
 * Of course it is possibe to compress them to save space and traffic.
@@ -7895,7 +7173,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  47. <a id='working-with-the-trice-git-repository'></a>Working with the Trice Git Repository
+##  43. <a id='working-with-the-trice-git-repository'></a>Working with the Trice Git Repository
 
 | Action                                    | Command                                                                                                                                                                                                 |
 |-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -7931,7 +7209,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 | Show all opencommit parameter             | `oco config describe`                                                                                                                                                                                   |
 | Show some config settings                 | `oco config get OCO_MODEL && oco config get OCO_PROMPT_MODULE && oco config get OCO_EMOJI`                                                                                                              |
 
-###  47.1. <a id='install-`opencommit`-on-macos'></a>Install `opencommit` on MacOS
+###  43.1. <a id='install-`opencommit`-on-macos'></a>Install `opencommit` on MacOS
 
 * * *
 
@@ -8023,7 +7301,7 @@ If OpenCommit says:
 
 * * *
 
-###  47.2. <a id='install-`opencommit`-on-windows'></a>Install `opencommit` on Windows
+###  43.2. <a id='install-`opencommit`-on-windows'></a>Install `opencommit` on Windows
 
 <h4>🧭 Overview</h4>
 
@@ -8121,9 +7399,616 @@ Generated commit message:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  48. <a id='trice-folder-maintenance'></a>Trice Folder Maintenance
+##  44. <a id='trice-maintenance'></a>Trice Maintenance
 
-###  48.1. <a id='trice-user-manual-maintenance-(or-any-`*.md`-file)'></a>Trice User Manual Maintenance (or any `*.md` file)
+###  44.1. <a id='trice-project-structure-(files-and-folders)'></a>Trice Project structure (Files and Folders)
+
+| Trice Root Folder File                                                                              | Details                                                                                                   |
+|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| [.clang-format](../.clang-format)                                                                   | See [Trice Code Formatting](#trice-code-formatting)                                                       |
+| [.clang-format-ignore](../.clang-format-ignore)                                                     | See [Trice Code Formatting](#trice-code-formatting)                                                       |
+| [.code_snippets](../.code_snippets)                                                                 | Some legacy helper code for copying where to use                                                          |
+| [.editorconfig](../.editorconfig)                                                                   | See [Trice Code Formatting](#trice-code-formatting)                                                       |
+| [.git](../.git)                                                                                     | version control data base                                                                                 |
+| [.gitattributes](../.gitattribute)                                                                  | See[Trice Code Formatting](#trice-code-formatting)                                                        |
+| [.github/](../.github/)                                                                             | [📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)             |
+| [.gitignore](../.gitignore)                                                                         | git ignores these files                                                                                   |
+| [.goreleaser.yaml](../.goreleaser.yaml)                                                             | goreleaser configuration                                                                                  |
+| [.idea/](../.idea/)                                                                                 | GoLand settings                                                                                           |
+| [.lycheeignore](../.lycheeignore)                                                                   | [Broken Links Check](#broken-links-check)                                                                 |
+| [.markdownlinkcheck.json](../.markdownlinkcheck.json)                                               | [Broken Links Check](#broken-links-check)                                                                 |
+| [.markdownlint.yaml](../.markdownlint.yaml)                                                         | [Cleaning the Sources](#cleaning-the-sources)                                                             |
+| [.markdownlintignore](../.markdownlintignore)                                                       | [Cleaning the Sources](#cleaning-the-sources)                                                             |
+| [.travis.yml](../.travis.yml)                                                                       | Travis CI configuration                                                                                   |
+| [.vscode/](../.vscode/)                                                                             | vsCode settings                                                                                           |
+| [AUTHORS.md](../AUTHORS.md)                                                                         | contributors                                                                                              |
+| [CHANGELOG.md](../CHANGELOG.md)                                                                     | History                                                                                                   |
+| [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)                                                         | How to communicate                                                                                        |
+| [CONTRIBUTING.md](../CONTRIBUTING.md)                                                               | Helper                                                                                                    |
+| [LICENSE.md](../LICENSE.md)                                                                         | [MIT](https://opensource.org/license/mit)                                                                 |
+| [README.md](../README.md)                                                                           | Github first page                                                                                         |
+| [_config.yml](../_config.yml)                                                                       | [jekyll configuration](https://jekyllrb.com/docs/configuration/)                                          |
+| [_test](../_test)                                                                                   | automatic target code tests                                                                               |
+| [buildTriceTool.sh](../buildTriceTool.sh)                                                           | [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)                                     |
+| [build_environment.sh](../build_environment.sh)                                                     | see inside                                                                                                |
+| [clang-format.sh](../clang-format.sh)                                                               | [Clang Format](#clang-format)                                                                             |
+| [clean-dsstore.sh](../clean-dsstore.sh)                                                             | Ru to remove MacOS artifacts                                                                              |
+| [coverage.out](../coverage.out)                                                                     | Go test coverage output                                                                                   |
+| [cmd/_cui/](../cmd/_cui)                                                                            | (do not use) command user interface tryout code                                                           |
+| [cmd/_stim/](../cmd/_stim)                                                                          | (do not use) target stimulation tool tryout code                                                          |
+| [cmd/clang-filter](../cmd/clang-filter)                                                             | [ReadMe](../cmd/clang-filter/ReadMe.md)                                                                   |
+| [cmd/trice](../cmd/trice)                                                                           | Trice tool command Go sources                                                                             |
+| [demoLI.json](../demoLI.json)                                                                       | location information example                                                                              |
+| [demoTIL.json](../demoTIL.json)                                                                     | Trice ID list example                                                                                     |
+| `dist/`                                                                                             | local distribution files folder created by goreleaser                                                     |
+| [docs](../docs)                                                                                     | documentation folder with link forwarding                                                                 |
+| [examples/](../examples)                                                                            | example target projects                                                                                   |
+| [format-dumeng-toc.sh](../format-dumeng-toc.sh)                                                     | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file)) |
+| [gitAddWorktreeFromGitLogLineData.sh](../gitAddWorktreeFromGitLogLineData.sh)                       | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside            |
+| [gitAddWorktreesBetween.sh](../gitAddWorktreesBetween.sh)                                           | helper to get easy git worktree folders from any time range                                               |
+| [gitLogWithBranches.sh](../gitLogWithBranches.sh)                                                   | helper to get easy a history view                                                                         |
+| [go.mod](../go.mod)                                                                                 | Go modules file                                                                                           |
+| [go.sum](../go.sum)                                                                                 | Go modules sums                                                                                           |
+| [index.md](../index.md)                                                                             |                                                                                                           |
+| [internal/](../internal)                                                                            | Trice tool internal Go packages                                                                           |
+| [pkg/](../pkg)                                                                                      | Trice tool common Go packages                                                                             |
+| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_test_folder.sh)               | renew all ID data                                                                                         |
+| [src/](../src)                                                                                      | C sources for trice instrumentation -> Add to target project                                              |
+| [super-linter.report/](../super-linter.report/)                                                     | super linter output                                                                                       |
+| [temp](../temp)                                                                                     | binary logfiles could appear here                                                                         |
+| [testAll.log](../testAll.log)                                                                       | Accumulated output of last `./testAll.sh` run                                                             |
+| [testAll.sh](../testAll.sh)                                                                         | run all tests                                                                                             |
+| [third_party/](../third_party)                                                                      | external components                                                                                       |
+| [trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh)   | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)  |
+| [trice_environment.sh](../trice_environment.sh)                                                     | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)  |
+| [trice_insertIDs_in_examples_and_test_folder.sh](../trice_insertIDs_in_examples_and_test_folder.sh) | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)  |
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+###  44.2. <a id='📁-the-.github-folder-—-purpose-and-contents'></a>📁 The .github Folder — Purpose and Contents
+
+GitHub automatically recognizes and uses everything contained inside the [.github/](../.github/) directory.
+This folder defines how the project behaves on GitHub: issue templates, automated workflows, labels, code scanning, greetings, and release automation. Details:
+
+####  44.2.1. <a id='📁-`.github`-root'></a>📁 `.github` Root
+
+It contains issue templates, labels, workflow automation, code scanning, linting, and the CI/CD release pipeline.
+
+* [ISSUE_TEMPLATE/](../ISSUE_TEMPLATE/) Used to create structured bug reports and feature requests.
+* [FUNDING.yml](../FUNDING.yml) Enables the GitHub “Sponsor” button.
+* [labeler.yml](../labeler.yml) configuration file consumed by actions/labeler. It defines the labeling rules.
+  * Because labeler.yml is configuration and not an executable workflow, it is placed directly under .github/, not under .github/workflows/.
+  * The actions/labeler action expects .github/labeler.yml as the default configuration path, which is why this layout is standard and correct.
+  * This is intentional and follows GitHub Actions conventions.
+    * .github/workflows/label.yml is a workflow. It defines when and how the GitHub Action runs (triggers, permissions, runner, action reference).
+    * .github/labeler.yml is not a workflow. It is a configuration file consumed by actions/labeler. It defines the labeling rules.
+* [workflows/]](../workflows/) Contains GitHub Actions automation
+
+<!--
+
+##### 🧩 Visual Architecture Diagram — Trice .github Automation System
+
+```pgsql
+                                       ┌───────────────────────────────────────┐
+                                       │               GitHub UI               │
+                                       │  (Issues, Pull Requests, Actions)     │
+                                       └───────────────────┬───────────────────┘
+                                                           │
+                                                           ▼
+                                       ┌───────────────────────────────────────┐
+                                       │               .github/                │
+                                       │  Project automation & CI/CD settings  │
+                                       └───────────────────┬───────────────────┘
+                                                           │
+     ┌─────────────────────────────────────────────────────┼──────────────────────────────────────────────────┐
+     │                                                     │                                                  │
+     ▼                                                     ▼                                                  ▼
+┌────────────────┐                                 ┌───────────────────┐                          ┌──────────────────────────┐
+│ ISSUE_TEMPLATE │                                 │   FUNDING.yml     │                          │        labeler.yml       │
+│  bug/feature   │                                 │ Sponsor settings  │                          │ Automatic PR labelling   │
+└───────┬────────┘                                 └───────────────────┘                          └───────────┬──────────────┘
+        │                                                                                                     │
+        ▼                                                                                                     ▼
+┌────────────────┐                                                                                ┌─────────────────────────┐
+│ New Issue form │   Contributors create issues → GitHub loads templates                          │ Labels added to PRs     │
+│ Guided inputs  │──────────────────────────────────────────────────────────────────────────────► │ based on files & title  │
+└────────────────┘                                                                                └─────────────────────────┘
+
+
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                   GITHUB ACTIONS WORKFLOWS (.github/workflows/)
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+                                           (Triggered by pushes, PRs, tags, or manually)
+        ┌─────────────────────────┬────────────────────────┬─────────────────────────┬──────────────────────────────┐
+        │                         │                        │                         │                              │
+        ▼                         ▼                        ▼                         ▼                              ▼
+┌────────────────────┐    ┌────────────────────┐   ┌──────────────────┐   ┌────────────────────────┐   ┌──────────────────────┐
+│     go.yml         │    │   codeql.yml       │   │ superlinter.yml  │   │    goreleaser.yml      │   │     stale.yml        │
+│ Build & test Go    │    │ Security scanning  │   │ Linting of code  │   │ Build+release pipeline │   │ Auto-close inactive  │
+│ on every push/PR   │    │ for vulnerabilities│   │ for consistency  │   │ for multi-platform     │   │ issues & PRs         │
+└─────────┬──────────┘    └──────────┬───────V─┘   └──────────┬───────┘   └────────────┬───────────┘   └───────────┬──────────┘
+          │                          │                        │                        │                           │
+          ▼                          ▼                        ▼                        ▼                           ▼
+┌────────────────┐     ┌───────────────────────┐   ┌────────────────────┐   ┌──────────────────────────┐   ┌─────────────────────┐
+│ CI test result │     │ Security report       │   │ Linter annotations │   │ Build artifacts (dist/)  │   │ Issues marked stale │
+│ pass/fail      │     │ shown in Security tab │   │ shown in PR checks │   │ GitHub Release published │   │ Closed after timeout│
+└────────────────┘     └───────────────────────┘   └────────────────────┘   └──────────────────────────┘   └─────────────────────┘
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                      COMMUNITY AUTOMATION (.github/workflows/)
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+                             ┌───────────────────────┬────────────────────────┐
+                             │                       │                        │
+                             ▼                       ▼                        ▼
+                    ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────────────┐
+                    │ greetings.yml   │     │ manual.yml       │     │ learn-github-actions.yml│
+                    │ Welcome message │     │ Run tasks manually│    │ Example workflow        │
+                    │ for new PR/issue│     │ on demand        │     │ for contributors        │
+                    └─────────────────┘     └──────────────────┘     └─────────────────────────┘
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                   SUPPORTING FILES (.github/properties/, icons/)
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+                       ┌──────────────────────────┐       ┌────────────────────────────┐
+                       │ properties/*.json        │       │ icons/* (e.g., go.svg)     │
+                       │ Metadata for workflows   │       │ Used in badges or UI       │
+                       │ (category, permissions)  │       │ decorations in README      │
+                       └──────────────────────────┘       └────────────────────────────┘
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                              GITHUB ACTIONS OUTPUT FLOW
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+                                               User pushes commit / PR / tag
+                                                       │
+                                                       ▼
+                                               GitHub triggers matching workflows
+                                                       │
+                                                       ▼
+                                               Workflows run in parallel:
+                                               - Build & test
+                                               - Security scan
+                                               - Linting
+                                               - Release packaging
+                                               - Labeling PRs
+                                               - Greetings
+                                               - Stale handling
+                                                       │
+                                                       ▼
+                                               Results appear in:
+                                               - Pull request checks
+                                               - Security dashboard
+                                               - GitHub Releases page
+                                               - Automated comments and labels
+```
+
+-#### Automatic Pull Request Labeling in Trice
+
+Trice uses GitHub’s **Labeler** workflow to automatically assign labels to pull requests.  
+These labels help maintainers and contributors quickly understand what a PR affects, without having to inspect every file manually.
+
+The labeling is triggered by two factors:
+
+1.  **Which files were changed** (file-based labeling)
+    
+2.  **What is written in the PR title or description** (text-based labeling)
+    
+
+This system ensures consistent categorization and improves the review workflow.
+
+```sql
+                           ┌───────────────────────────┐
+                           │   Contributor opens a     │
+                           │      Pull Request         │
+                           └──────────────┬────────────┘
+                                          │
+                                          ▼
+                          ┌─────────────────────────────────┐
+                          │ GitHub Action: "Labeler" starts │
+                          │ (.github/labeler.yml)           │
+                          └─────────────────┬───────────────┘
+                                            │
+                      ┌─────────────────────┼─────────────────────┐
+                      │                     │                     │
+                      ▼                     ▼                     ▼
+        ┌────────────────────┐  ┌──────────────────────┐ ┌──────────────────────┐
+        │ File-based rules   │  │ Title-based rules    │ │ Body-based rules     │
+        │(changed-files)     │  │(contains keywords)   │ │(contains keywords)   │
+        └──────────┬─────────┘  └───────────┬──────────┘ └──────────┬───────────┘
+                   │                        │                       │
+                   ▼                        ▼                       ▼
+       ┌───────────────────┐     ┌───────────────────┐     ┌───────────────────┐
+       │ Example outputs:  │     │ Example outputs:  │     │ Example outputs:  │
+       │  go, c, docs, ci  │     │  fix, feature     │     │  fix, feature     │
+       └──────────┬────────┘     └──────────┬────────┘     └──────────┬────────┘
+                  │                         │                         │
+                  └──────────────┬──────────┴──────────────┬──────────┘
+                                 │                         │
+                                 ▼                         ▼
+                        ┌────────────────────────────────────────┐
+                        │ Labels are attached to the PR          │
+                        │ automatically within seconds           │
+                        └────────────────────────────────────────┘
+```
+
+* * *
+
+##### File-based labels
+
+Github automatically applies specific labels depending on which files a pull request changes.  
+Below is an overview of the most relevant label categories.
+
+###### **`AnyChange`**
+
+Applied to **every** pull request that modifies at least one file.  
+Useful as a catch-all label for triggers or filtering.
+
+* * *
+
+###### **`go`**
+
+Applied when the PR changes any Go source file:
+
+`**/*.go`
+
+This marks PRs that affect Go code, modules, or logic.
+
+* * *
+
+###### **`c`**
+
+Applied when the PR touches C or header files inside:
+
+-   `src/`
+    
+-   `examples/`
+    
+-   `_test/`
+    
+
+Examples:
+
+`src/foo.c examples/demo.h _test/bar.c`
+
+This helps identify changes relevant to embedded/low-level components.
+
+* * *
+
+###### **`docs`**
+
+Applied when documentation is modified, including:
+
+-   any file in `docs/`
+    
+-   any Markdown file (`*.md`) anywhere in the repo
+    
+
+This is helpful for changes affecting documentation only.
+
+* * *
+
+###### **`tests`**
+
+Applied when the PR updates or adds tests:
+
+-   Go test files (`*_test.go`)
+    
+-   any files inside the `_test/` directory
+    
+
+* * *
+
+###### **`ci`**
+
+Applied when the PR modifies continuous integration or GitHub configuration files:
+
+`.github/**`
+
+This includes workflow files, templates, automation settings, and metadata.
+
+* * *
+
+##### Text-based labels
+
+Some labels are applied based on **keywords** in the pull request title or description.
+
+###### **`fix`**
+
+Applied when the PR title or body contains the keyword:
+
+`fix`
+
+This is useful when PRs follow conventional commit messages (e.g., `fix: prevent overflow`).
+
+* * *
+
+###### **`feature`**
+
+Applied when the title or description contains:
+
+`feat feature`
+
+This marks PRs that introduce new functionality.
+
+* * *
+
+##### Benefits of automatic labeling
+
+-   **Faster reviews**: reviewers instantly see what areas of the project are affected.
+    
+-   **Better filtering**: maintainers can filter for categories such as documentation, CI, features, etc.
+    
+-   **Consistent classification**: no need for contributors to manually apply labels.
+    
+-   **Supports larger workflows**: labels can trigger additional automations, such as notifications or CI behavior.
+    
+
+* * *
+
+##### How contributors can help
+
+Contributors can ensure correct labeling by:
+
+-   writing clear PR titles (e.g., `fix: handle invalid input`)
+    
+-   using structured commit messages
+    
+-   modifying files within appropriate directories
+    
+
+Labels will be applied automatically within seconds after opening or updating a pull request.
+
+-->
+
+####  44.2.2. <a id='📂-`.github/workflows`-—-github-actions-workflows'></a>📂 `.github/workflows` — GitHub Actions Workflows
+
+The [.github/workflows/](../.github/workflows/) folder contains YAML decriptions for various actions, which will be triggered automatically on certain events or are started manually.
+Every *yml* file in this directory defines an automated process. These processes run on GitHub’s servers (CI/CD).
+
+* [README.md](../.github/workflows/README.md): Documentation specifically for the /workflows folder.
+  * Can be useful for contributors who want to understand or modify CI behaviors.
+* **Additional Subdirectories**
+  * [icons/](../.github/workflows/icons/): Stores custom icons used inside workflows (e.g., for badges or reporting).
+    * Example: go.svg — used in the Go workflow or README badges.
+  * [properties/](../.github/workflows/properties/): Contains metadata files used by GitHub for configuration purposes such as:
+    * enabling/disabling features
+    * controlling workflow permissions
+    * defining workflow categories for the Actions UI
+
+These workflows run automatically on pushes and pull requests to main, and can also be triggered manually via the GitHub Actions UI.
+These files are not executed; they simply inform GitHub how certain workflows behave or should be displayed.
+ 
+| Github Action                                                             | About                                                                             |
+|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [clang-format.yml](../.github/workflows/clang-format.yml)                 | [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                |
+| [codeql.yml](../.github/workflows/codeql.yml)                             | [GitHub Action codeql.yml](#github-action-codeql.yml)                             |
+| [go.yml](../.github/workflows/go.yml)                                     | [GitHub Action go.yml](#github-action-go.yml)                                     |
+| [goreleaser.yml](../.github/workflows/goreleaser.yml)                     | [GitHub Action goreleaser.yml](#github-action-goreleaser.yml)                     |
+| [greetings.yml](../.github/workflows/greetings.yml)                       | [GitHub Action greetings.yml](#github-action-greetings.yml)                       |
+| [label.yml](../.github/workflows/label.yml)                               | [GitHub Action label.yml](#github-action-label.yml)                               |
+| [learn-github-actions.yml](../.github/workflows/learn-github-actions.yml) | [GitHub Action learn-github-actions.yml](#github-action-learn-github-actions.yml) |
+| [link-check.yml](../.github/workflows/link-check.yml)                     | [GitHub Action link-check.yml](#github-action-link-check.yml)                     |
+| [manual.yml](../.github/workflows/manual.yml)                             | [GitHub Action manual.ym](#github-action-manual.ym)                               |
+| [pages.yml](../.github/workflows/pages.yml)                               | [Github Action pages.yml](#-github-action-pages.yml)                              |
+| [shellcheck.yml](../.github/workflows/shellcheck.yml)                     | [GitHub Action shellcheck.yml](#github-action-shellcheck.yml)                     |
+| [shfmt.yml](../.github/workflows/shfmt.yml)                               | [GitHub Action shfmt.yml](#github-action-shfmt.yml)                               |
+| [stale.yml](../.github/workflows/stale.yml)                               | [GitHub Action stale.yml](#github-action-stale.yml)                               |
+| [superlinter.ym](../.github/workflows/superlinter.yml)                    | [GitHub Action superlinter.yml](#github-action-superlinter.yml)                   |
+| [test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)           | [Github Action test_goreleaser.yml](#-github-action-test_goreleaser.yml)          |
+
+####  44.2.3. <a id='-github-action-clang-format.yml'></a> GitHub Action clang-format.yml
+
+* **Local Action:** [./clang-format.sh](.././clang-format.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
+  > The file [./clang-format.sh](../clang-format.sh) is used to auto-format the Trice code.
+  > 
+  > File [.clang-format](../.clang-format)
+  > 
+  > *Contributor: [Sazerac4](https://github.com/Sazerac4)*
+  > 
+  > Sazerac4 commented Aug 29, 2024:
+  > I have a code formatter when I make changes to my application but I would like to keep the style of the library when modifying.
+  > I couldn't find a code formatter, is there a tool used? If not, I propose this to provide one as an example by using clang-format.
+  > 
+  > ```bash
+  > ## I have created a default style :
+  > clang-format -style=llvm -dump-config > .clang-format
+  > ## Then format the code:
+  > find ./src  -name '*.c' -o  -name '*.h'| xargs clang-format-18 -style=file -i
+  > ```
+  > 
+  > The style of the example does not correspond to the original one. Configurations are necessary for this to be the case. Tags can be placed to prevent certain macros from being formatted
+  > 
+  > ```C
+  > int formatted_code;
+  > // clang-format off
+  >     void    unformatted_code  ;
+  > // clang-format on
+  > void formatted_code_again;
+  > ```
+  > 
+  > I have tuned some settings for clang-format :
+  > 
+  > ```bash
+  > * IndentWidth: 4  // original code size indentation
+  > * ColumnLimit: 0  // avoid breaking long line (like macros)
+  > * PointerAlignment: Left  // like original files (mostly)
+  > ```
+  > 
+  > With preprocessor indentation, the result is a bit strange in some cases. It's possible with the option IndentPPDirectives ([doc](https://releases.llvm.org/18.1.6/tools/clang/docs/ClangFormatStyleOptions.html)).
+  > 
+  > Staying as close as possible to a default version (LLVM in this case) makes it easier to regenerate the style if necessary.
+  > 
+  > See also: https://github.com/rokath/trice/pull/487#issuecomment-2318003072
+  > 
+  > File [.clang-format-ignore](../.clang-format-ignore):
+  > 
+  > *Contributor: [Sazerac4](https://github.com/Sazerac4)*
+  > 
+  > Sazerac4 commented Aug 30, 2024:
+  > I have added .clang-format-ignore to ignore formatting for specific files
+  > 
+  > File [.editorconfig](../.editorconfig):
+  > 
+  > *Contributor: [Sazerac4](https://github.com/Sazerac4)*
+  > 
+  > The`.editorconfig` file allows to better identify the basic style for every files. (endline, charset, ...). It is a file accepted by a wide list of IDEs and editors : [link](https://editorconfig.org/#file-format-details)
+  > This addition is motivated by forgetting the end of line in the .gitattributes file.
+  > 
+  > File [.gitattributes](../.gitattributes)
+  > 
+  > *Contributor: [Sazerac4](https://github.com/Sazerac4)*
+  > 
+  > With the`.gitattributes` file avoid problems with "diff" and end of lines. [Here](https://www.aleksandrhovhannisyan.com/blog/crlf-vs-lf-normalizing-line-endings-in-git/) is an article that presents the problem.
+  > 
+  > To fill the`.gitattributes`, I used the command below to view all the extensions currently used.
+  > 
+  > ```bash
+  > git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort -u
+  > ```
+* **Github Action:** [.github/workflows/clang-format.yml](../.github/workflows/clang-format.yml) does not format, it only checks.
+
+####  44.2.4. <a id='github-action-codeql.yml'></a>GitHub Action codeql.yml
+
+* This workflow runs CodeQL, GitHub’s static code analysis tool. Purpose:
+  * scan the codebase for potential security vulnerabilities
+  * detect unsafe code patterns
+  * provide security alerts in the “Security” tab
+  * Runs automatically on pushes and pull requests.
+* **Github Action:** [.github/workflows/codeql.yml](../.github/workflows/codeql.yml)
+  * This workflow configures **GitHub CodeQL code scanning** for the repository. 
+  * This workflow continuously scans the codebase for security and quality problems using CodeQL.
+  * It performs **static code analysis** on source code.
+  * It looks for:
+    * Security vulnerabilities (e.g. injection flaws, unsafe API usage)
+    * Common programming errors
+    * Code quality issues     
+  *  It runs automatically:
+    * On pushes to `main`
+    * On pull requests targeting `main`
+    * Manually via the GitHub Actions UI 
+  * The results are uploaded to GitHub and appear under **Security → Code scanning alerts**.
+  * The “QL” is the same concept as SQL, but specialized for code analysis.
+
+####  44.2.5. <a id='github-action-go.yml'></a>GitHub Action go.yml
+
+* A workflow for building and testing Go code. It runs GitHub CodeQL for Go and C (cpp language pack), detecting security vulnerabilities and code issues.
+  * Typically includes steps such as:
+  * setting up the Go toolchain
+  * checking out the repository
+  * compiling the project
+  * running unit tests
+* **Local Action:** `go test ./...` or better `./testAll.sh full` (takes long)
+* **Github Action:** [.github/workflows/go.yml](../.github/workflows/go.yml)
+
+####  44.2.6. <a id='github-action-goreleaser.yml'></a>GitHub Action goreleaser.yml
+
+This workflow runs GoReleaser, the tool that builds and packages Trice for distribution.
+  * Purpose:
+    * create release binaries for all supported platforms
+    * generate archives (ZIP, tar.gz, etc.)
+    * compute checksums
+    * create a GitHub Release with all artifacts
+  * Triggers:
+    * manually from the GitHub UI (“Run workflow”)
+    * automatically when pushing a tag matching v* (e.g., v0.44.0)
+    * This is the workflow responsible for generating official Trice releases.
+* **Local Action:** `goreleaser`
+* **Github Action:** [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml)
+
+See also [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
+
+####  44.2.7. <a id='github-action-greetings.yml'></a>GitHub Action greetings.yml
+
+A small automation that posts a friendly greeting message when somebody:
+  * opens their first issue
+  * opens their first pull request
+  * Used to make new contributors feel welcome.
+
+####  44.2.8. <a id='github-action-label.yml'></a>GitHub Action label.yml
+
+* Defines automatic labeling rules for issues and PRs.
+  * For example, files in certain directories may automatically get category labels.
+  * This helps maintainers classify submissions more easily.
+* **Github Action:** [.github/workflows/label.yml](../.github/workflows/label.yml)
+
+####  44.2.9. <a id='github-action-learn-github-actions.yml'></a>GitHub Action learn-github-actions.yml
+
+An instructional workflow provided by GitHub. Purpose:
+  * demonstrate basic GitHub Actions usage
+  * serve as documentation or a teaching example for new contributors
+  * It does not affect the Trice build or release process.
+
+####  44.2.10. <a id='github-action-link-check.yml'></a>GitHub Action link-check.yml
+
+Broken Links Check
+
+* **Local Action:** `markdown-link-check ./docs/TriceUserManual.md `
+  * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
+  * Info: `[/] #%F0%9F%93%82-%60.github/workflows%60-%E2%80%94-github-actions-workflows` = skipped check
+* **Github Action:** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
+  * Exclude files: [.lycheeignore](../.lycheeignore)
+
+####  44.2.11. <a id='github-action-manual.ym'></a>GitHub Action manual.ym
+
+A workflow that is designed to be triggered manually (similar to _workflow_dispatch_ workflows). Common use cases:
+  * executing maintenance tasks
+  * running scripts on demand
+  * testing workflow behavior without making a commit
+  * This workflow does not run automatically.
+
+####  44.2.12. <a id='github-action-shellcheck.yml'></a>GitHub Action shellcheck.yml
+
+Runs ShellCheck on all *.sh files, catching common bugs in Bash scripts.
+
+* **Github Action:** [.github/workflows/shellcheck.yml](../.github/workflows/shellcheck.yml)
+
+####  44.2.13. <a id='github-action-shfmt.yml'></a>GitHub Action shfmt.yml
+
+Runs shfmt in diff mode on pull requests to ensure consistent formatting of shell scripts.
+
+* **Local Action:** `go test ./...` or better `./testAll.sh full` (takes long)
+* **Github Action:** [.github/workflows/shfmt.yml](../.github/workflows/shfmt.yml)
+
+####  44.2.14. <a id='github-action-stale.yml'></a>GitHub Action stale.yml
+
+Automates stale issue handling. Function:
+  * marks inactive issues or PRs as “stale”
+  * closes them after a configurable time period if there is no further activity
+  * eps the issue tracker manageable.
+
+Mark stale issues and pull requests
+
+* **Github Action:** [.github/workflows/stale.yml](../.github/workflows/stale.yml)
+
+####  44.2.15. <a id='github-action-superlinter.yml'></a>GitHub Action superlinter.yml
+
+* Runs GitHub Super Linter, a powerful linting suite. Purpose:
+  * ensure consistent code formatting
+  * detect stylistic issues
+  * catch potential errors in supported languages
+  * Helps maintain code quality across the entire repository.
+* **Github Action:** [.github/workflows/superlinter.yml](../.github/workflows/superlinter.yml)
+  * Checks YAML and Markdown files
+
+####  44.2.16. <a id='-github-action-pages.yml'></a> Github Action pages.yml
+
+This workflow creates the Trice github pages  avaliable under [rokath.github.io/trice/](https://rokath.github.io/trice/).
+
+* **Github Action:** [.github/workflows/pages.yml](../.github/workflows/pages.yml)
+
+####  44.2.17. <a id='-github-action-test_goreleaser.yml'></a> Github Action test_goreleaser.yml
+
+Test Goreleaser
+
+* **Github Action:** [.github/workflows/.yml](../.github/workflows/.yml)
+  * Checks if Goreleaser would succeed.
+
+###  44.3. <a id='trice-user-manual-maintenance-(or-any-`*.md`-file)'></a>Trice User Manual Maintenance (or any `*.md` file)
 
 * Recommended Tool: VS Code with some extensions:
   * Markdown All in One (Yu Zhang)
@@ -8154,7 +8039,7 @@ Generated commit message:
     * Use Shift-Command-P "markdown PDF:export" to generata a PDF
     * page break for PDF generation: `<div style="page-break-before: always;"></div>`
 
-###  48.2. <a id='cleaning-the-sources'></a>Cleaning the Sources
+###  44.4. <a id='cleaning-the-sources'></a>Cleaning the Sources
 
 In Github are some Actions defined. Some of them get triggered on a `git push` and perform some checks. To get no fail, some scripts should run before committing:
 
@@ -8163,124 +8048,249 @@ In Github are some Actions defined. Some of them get triggered on a `git push` a
 * [./clean-dsstore.sh](.././clean-dsstore.sh) - remove MacOS maintenance data. 
 * [./trice_cleanIDs_in_examples_and_test_folder.sh](.././trice_cleanIDs_in_examples_and_test_folder.sh) removes all IDs.
 
-###  48.3. <a id='github-maintenance'></a>Github Maintenance
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-The [.github/workflows/](../.github/workflows/) folder contains YAML decriptions for various actions, which will be triggered automatically on certain events or are started manually.
+##  45. <a id='build-and-release-the-trice-tool'></a>Build and Release the Trice Tool
 
-* not documented (yet):
-  * [.github/workflows/greetings.yml](../.github/workflows/greetings.yml)
-  * [.github/workflows/learn-github-actions.yml](../.github/workflows/learn-github-actions.yml)
-  * [.github/workflows/manual.yml](../.github/workflows/manual.yml)
+###  45.1. <a id='build-trice-tool-from-go-sources'></a>Build Trice tool from Go sources 
 
-####  48.3.1. <a id='clang-format'></a>Clang Format
+* Install [Go](https://golang.org/).
+* Run:
 
-* **Local Action:** [./clang-format.sh](.././clang-format.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
+  ```bash
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
+  $ bash ./buildTriceTool.sh # does internal do go install ./cmd/trice/...
+  ```
 
-* **Github Action:** [.github/workflows/clang-format.yml](../.github/workflows/clang-format.yml) does not format, it only checks.
+* Afterwards you should find an executable `trice` inside `~/go/bin`.
+* Extend PATH variable with `~/go/bin` **OR** copy the Trice binary from there into a folder of your path.
+* Check:
 
-####  48.3.2. <a id='codeql---query-language-and-analysis-engine'></a>CodeQL - query language and analysis engine
+  ```bash
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
+  $ ./buildTriceTool.sh
+  ----------------------------------------
+  Building trice with embedded Git metadata:
+    origin:     git@github.com:rokath/trice.git
+    branch:     main
+    version:    branch dirty
+    commit:     f7edcc51
+    date:       2025-11-27T13:59:50+01:00
+    git_state:  dirty
+    git_status:  M .vscode/launch.json  M docs/TriceUserManual.md  M internal/emitter/lineComposer.go
+  ----------------------------------------
+  Build complete.
+  
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
+  $ trice version
+  no version, branch=git@github.com:rokath/trice.git - main (local modifications at build time), commit=f7edcc51,   built at 2025-11-27T13:59:50+01:00
+  
+  ms@PaulPCWin11 MINGW64 ~/repos/trice (main)
+  ```
 
-* **Github Action:** [.github/workflows/codeql.yml](../.github/workflows/codeql.yml)
-  * This workflow configures **GitHub CodeQL code scanning** for the repository. 
-  * This workflow continuously scans the codebase for security and quality problems using CodeQL.
-  * It performs **static code analysis** on source code.
-  * It looks for:
-    * Security vulnerabilities (e.g. injection flaws, unsafe API usage)
-    * Common programming errors
-    * Code quality issues     
-  *  It runs automatically:
-    * On pushes to `main`
-    * On pull requests targeting `main`
-    * Manually via the GitHub Actions UI 
-  * The results are uploaded to GitHub and appear under **Security → Code scanning alerts**.
-  * The “QL” is the same concept as SQL, but specialized for code analysis.
+* Hints
+  * Use only the main branch. Other branches may be inconsistent.
+  * When using [./buildTriceTool.sh](../buildTriceTool.sh), the generated Trice image is significant smaller (about 30%), because the build script removes debugging information from the Trice binary. The Trice release images contain this additionally information for a more verbose error reporting, just in case.  
+  * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
+  * Use Goreleaser if you wish to create releases on your forked Trice repository.
+  * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
+    * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
+    * Recommendation: Minimal online installer.
+    * GCC is only needed to test the target C-code on the host.
+    * Make sure TDM-GCC is found first in the path, if you have several compilers installed.
+    * Other gcc variants could work also but not tested.
+  * Open a console inside the Trice directory, recommended is the git-bash, when using Windows.
+  * Tests:
 
-####  48.3.3. <a id='test-go'></a>Test Go
+  ```b
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
+  $ go clean -cache
+  
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
+  $ go vet ./...
+  
+  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
+  $ go test ./...
+  ?       github.com/rokath/trice/cmd/cui [no test files]
+  ok      github.com/rokath/trice/cmd/stim        0.227s
+  ok      github.com/rokath/trice/cmd/trice       0.577s
+  ok      github.com/rokath/trice/internal/args   0.232s
+  ok      github.com/rokath/trice/internal/charDecoder    0.407s
+  ok      github.com/rokath/trice/internal/com    1.148s
+  ok      github.com/rokath/trice/internal/decoder        0.412s [no tests to run]
+  ?       github.com/rokath/trice/internal/do     [no test files]
+  ok      github.com/rokath/trice/internal/dumpDecoder    0.388s
+  ok      github.com/rokath/trice/internal/emitter        0.431s
+  ok      github.com/rokath/trice/internal/id     0.421s
+  ok      github.com/rokath/trice/internal/keybcmd        0.431s
+  ok      github.com/rokath/trice/internal/link   0.404s
+  ok      github.com/rokath/trice/internal/receiver       0.409s
+  ok      github.com/rokath/trice/internal/tleDecoder     0.398s
+  ?       github.com/rokath/trice/internal/translator     [no test files]
+  ok      github.com/rokath/trice/internal/trexDecoder    0.391s
+  ok      github.com/rokath/trice/pkg/cipher      0.377s
+  ok      github.com/rokath/trice/pkg/endian      0.302s
+  ok      github.com/rokath/trice/pkg/msg 0.299s
+  ok      github.com/rokath/trice/pkg/tst 0.406s
+  ```
 
-* **Local Action:** `go test ./...` or better `./testAll.sh full` (takes long)
+To execute the target code tests, you can run `testAll.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
+The last tests can last quite a while, depending on your machine.
 
-* **Github Action:** [.github/workflows/go.yml](../.github/workflows/go.yml)
+```bash
+ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
+$ go install ./cmd/trice/
+```
 
-####  48.3.4. <a id='run-goreleaser'></a>Run GoReleaser
+Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
 
-* **Local Action:** `goreleaser`
+After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`. There is now a remommended script `./buildTriceTool.sh`. Using it, depending on your system you may need to enter `bash ./buildTriceTool.sh`, includes the actual Trice repository state into the Trice binary, which is shown with `trice version` then - useful in case of issues.
 
-* **Github Action:** [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml)
+###  45.2. <a id='prepare-a-release'></a>Prepare A Release
 
-####  48.3.5. <a id='labeler'></a>Labeler
+Prerequisite: Installed `goreleaser`.
 
-* **Github Action:** [.github/workflows/label.yml](../.github/workflows/label.yml)
+####  45.2.1. <a id='check-a-goreleaser-release-before-publishing'></a>Check a Goreleaser Release before Publishing
 
-####  48.3.6. <a id='broken-links-check'></a>Broken Links Check
+By cloning the Trice repo into an empty folder, you make sure no other files exist in the Trice folder.
 
-* **Local Action:** `markdown-link-check ./docs/TriceUserManual.md `
-  * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
-* Info: `[/] #%F0%9F%93%82-%60.github/workflows%60-%E2%80%94-github-actions-workflows` = skipped check
+```bash
+mkdir ./tmp
+cd /tmp
+git clone https://github.com/rokath/trice.git
+cd trice
+goreleaser release --clean --snapshot --skip=publish
+```
 
-* **Github Action:** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
-  * Exclude files: [.lycheeignore](../.lycheeignore)
+This just generates the artifacts locally in `/tmp/trice/dist` using the [./trice/.goreleaser.yaml](../.goreleaser.yaml) copy in `./temp/trice`.
 
-####  48.3.7. <a id='pages'></a>Pages
+Alternatively you can do in your local Trice clone directly, by removing everything not a part of the Trice repo, if you are sure not to loose any data:
 
-* **Github Action:** [.github/workflows/pages.yml](../.github/workflows/pages.yml)
+```bash
+git status
+git clean -xfd
+goreleaser release --clean --snapshot --skip=publish
+```
 
-####  48.3.8. <a id='shell-check'></a>Shell Check
+Explanation:
 
-* **Github Action:** [.github/workflows/shellcheck.yml](../.github/workflows/shellcheck.yml)
+* `release` – run the normal release pipeline (builds, archives, checksums, changelog, etc.).
+* `--clean` – delete the `dist/` folder first so no old artefacts are reused. 
+* `--snapshot` – build as a “snapshot” version, not a real tagged release.
+* `--skip=publish` – **do not upload** anything (no GitHub Releases, no Homebrew, no Docker, etc.).
 
-####  48.3.9. <a id='shell-format'></a>Shell Format
+What you should see:
 
-* **Local Action:** `go test ./...` or better `./testAll.sh full` (takes long)
+* GoReleaser building all your `builds:` targets from `.goreleaser.yaml`.
+* Creating archives in `dist/`.
+* Generating checksums.
+* No attempts to call the GitHub API for a real release.
 
-* **Github Action:** [.github/workflows/shfmt.yml](../.github/workflows/shfmt.yml)
+If this **succeeds**, you’ve already tested 90% of what CI will do for a real release.
+If it **fails**, fix the problem locally first (missing files, bad paths, etc.) – it would fail the same way in CI.
 
-####  48.3.10. <a id='mark-stale-issues-and-pull-requests'></a>Mark stale issues and pull requests
+###  45.3. <a id='trigger-a-**real**-trice-release-via-ci-(with-`git-tag`)'></a>Trigger a **real** Trice release via CI (with `git tag`)
 
-* **Github Action:** [.github/workflows/stale.yml](../.github/workflows/stale.yml)
+Letting CI build and publish an **official release**.
 
-####  48.3.11. <a id='super-linter'></a>Super Linter
+####  45.3.1. <a id='-make-sure-your-workflow-reacts-to-tags'></a> Make sure your workflow reacts to tags
 
-* **Github Action:** [.github/workflows/superlinter.yml](../.github/workflows/superlinter.yml)
-  * Checks YAML and Markdown files
+In [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml), you need `on:   workflow_dispatch:   push:     tags:       - 'v*'`.
 
-####  48.3.12. <a id='test-goreleaser'></a>Test Goreleaser
+* `workflow_dispatch` = you can still run it manually from the Actions tab.
+* `push -> tags: 'v*'` = whenever you push a tag like `v0.44.0`, this workflow will start automatically.
 
-* **Github Action:** [.github/workflows/.yml](../.github/workflows/.yml)
-  * Checks if Goreleaser would succeed.
+Commit & push this change (if you haven’t already):
 
-####  48.3.13. <a id='clean-macos-files'></a>Clean MacOS Files
+`git add .github/workflows/goreleaser.yml git commit -m "Configure GoReleaser workflow to run on tags" git push origin main`
 
-* **Local Action:** [clean-dsstore.sh](../clean-dsstore.sh)
+####  45.3.2. <a id='-final-checks-before-tagging'></a> Final checks before tagging
 
-<!--## Trice User Manual Changelog
+In your local `trice` repo:
+
+* Update to latest main:
+  * `git checkout main git pull origin main`
+  * Run your tests:
+  * `go test ./...` or better `./testAll.sh full`
+  * Optional but recommended: **run the snapshot dry run** again, just to be safe:
+* `goreleaser release --clean --snapshot --skip=publish`
+    
+If all of that is green, you’re ready to “bless” a version.
+
+####  45.3.3. <a id='-choose-a-version-and-create-a-`git-tag`'></a> Choose a version and create a `git tag`
+
+Decide on a version, for example:
+
+* `v0.44.0`
+* `v1.0.0`  
+    (Important: GoReleaser expects **SemVer-style tags** like `vX.Y.Z`.)
+
+Create an **annotated tag**:
+
+`git tag -a v0.44.0 -m "Trice v0.44.0"`
+
+Check your tags:
+
+`git tag`
+
+You should see `v0.44.0` in the list.
+
+> 💡 The **tag** is what GoReleaser uses as the release version (`.Tag`, `.Version`, etc.) in your `.goreleaser.yaml`.  
+> Your `ldflags` like `-X main.version={{ .Version }}` will use this.
+
+####  45.3.4. <a id='-push-the-tag-to-github-(this-triggers-ci)'></a> Push the tag to GitHub (this triggers CI)
+
+Now push the tag:
+
+`git push origin v0.44.0`
+
+This does **not** push all tags, only `v0.44.0`.
+
+Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts** the GoReleaser workflow in GitHub Actions.
+
+####  45.3.5. <a id='-watch-the-ci-release-run-on-github'></a> Watch the CI release run on GitHub
+
+1.  Open your browser and go to your repo:
+    
+    `https://github.com/rokath/trice`
+    
+2.  Click the **“Actions”** tab at the top.
+    
+3.  In the list of workflows, click on **“goreleaser”**.
+    
+4.  You should see a new run with something like:
+    
+* Event: `push`
+* Ref: `refs/tags/v0.44.0`
+* Status: in progress → green (hopefully)
+        
+5.  Click on that run, then on the job (e.g. `goreleaser`):
+    
+* Step “Check out repository”
+* Step “Set up Go”
+* Step “Run GoReleaser”
+
+If “Run GoReleaser” is green ✔, the CI release has succeeded.
+
+####  45.3.6. <a id='-check-the-github-release'></a> Check the GitHub Release
+
+Finally, verify the published release:
+
+1.  In your repo, click the **“Releases”** section (right side or under “Code”).
+    
+2.  You should see a new release **`v0.44.0`** created by GoReleaser.
+    
+3.  Inside it you’ll find:
+    
+* the generated archives (tar.gz/zip), 
+* checksums,
+* etc., as defined in your `.goreleaser.yaml`.
+        
+This is now your **official Trice release built by CI**.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<details><summary>Details (click to expand)</summary><ol>
-
-| Date        | Version | Comment                                                                                                                                                                                                                                                        |
-|-------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2024-DEC-01 | 0.0.0   | Initial Draft                                                                                                                                                                                                                                                  |
-| ...         | 1.0.0   | ...                                                                                                                                                                                                                                                            |
-| 2025-MAY-00 |         | ++ [UDP4 input (accepted pull request 529)](#udp4-input-(accepted-pull-request-529))                                                                                                                                                                           |
-| 2025-JUN-20 |         | ++ [Legacy Project Code Integration](#legacy-project-code-integration)                                                                                                                                                                                         |
-| 2025-JUN-20 |         | ++ [Alias Example Project](#alias-example-project)                                                                                                                                                                                                             |
-| 2025-JUN-21 |         | ++ [Trice Structured Logging](#trice-structured-logging)                                                                                                                                                                                                       |
-| 2025-JUN-23 |         | ++ [Trice Trouble Shooting Hints](#trice-trouble-shooting-hints) added/improved                                                                                                                                                                                |
-| 2025-JUN-30 |         | In [Target (Time)Stamps Formatting](#target-(time)stamps-formatting) -ts32 epoch better documented                                                                                                                                                             |
-| 2025-JUL-10 |         | ++ [Trice And Legacy User Code](#trice-and-legacy-user-code)                                                                                                                                                                                                   |
-| 2025-JUL-21 |         | ++ [typeX0 Trices](#typex0-trices)                                                                                                                                                                                                                             |
-| 2025-JUL-21 |         | ++ [[Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)                                                                                                                                                            |
-| 2025-NOV-04 |         | ++ [Trice version 1.0 Log-level Control](#trice-version-1.0-log-level-control) ++ [Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft)                                                                                  |
-| 2025-NOV-18 |         | restructured & extended: ++ [Future Development](#future-development) with log level, <br>structured logging, ++[Using Trice on Servers](#using-trice-on-servers), <br>++[Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser) |
-
-</ol></details>
-
--->
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-##  49. <a id='scratch-pad'></a>Scratch Pad
+##  46. <a id='scratch-pad'></a>Scratch Pad
 
 ```txt
 
@@ -8331,58 +8341,3 @@ DOWN-POINTING SMALL RED TRIANGLE (&#x1F53D;): 🔽
 
 https://apps.timwhitlock.info/emoji/tables/unicode
 -->
-.
-..
-.clang-format
-.clang-format-ignore
-.code_snippets
-.editorconfig
-.git
-.gitattributes
-.github
-.gitignore
-.goreleaser.yaml
-.idea
-.lycheeignore
-.markdownlinkcheck.json
-.markdownlint.yaml
-.markdownlintignore
-.travis.yml
-.vscode
-AUTHORS.md
-CHANGELOG.md
-CODE_OF_CONDUCT.md
-CONTRIBUTING.md
-LICENSE.md
-README.md
-_config.yml
-_test
-buildTriceTool.sh
-build_environment.sh
-clang-format.sh
-clean-dsstore.sh
-cmd
-demoLI.json
-demoTIL.json
-dist
-docs
-examples
-format-dumeng-toc.sh
-gitAddWorktreeFromGitLogLineData.sh
-gitAddWorktreesBetween.sh
-gitLogWithBranches.sh
-go.mod
-go.sum
-index.md
-internal
-pkg
-renewIDs_in_examples_and_refresh_test_folder.sh
-src
-super-linter.report
-temp
-testAll.log
-testAll.sh
-third_party
-trice_cleanIDs_in_examples_and_test_folder.sh
-trice_environment.sh
-trice_insertIDs_in_examples_and_test_folder.sh
