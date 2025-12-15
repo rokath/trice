@@ -4,7 +4,8 @@
 
 ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) **Hi, I am Trice.**
 
-[github.io/trice/](https://rokath.github.io/trice/)
+<!-- [github pages](https://rokath.github.io/trice/) -->
+[Trice User Manual](https://rokath.github.io/trice/docs/TriceUserManual.html)
 
 <!-- ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser) -->
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
