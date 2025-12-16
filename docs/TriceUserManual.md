@@ -7453,7 +7453,7 @@ Generated commit message:
 | [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_refresh_test_folder.sh)       | renew all ID data                                                                                         |
 | [src/](../src)                                                                                      | C sources for trice instrumentation -> Add to target project                                              |
 | [super-linter.report/](../super-linter.report/)                                                     | super linter output                                                                                       |
-| [temp](../temp)                                                                                     | binary logfiles could appear here                                                                         |
+| `temp/`                                                                                             | binary logfiles could appear here                                                                         |
 | [testAll.log](../testAll.log)                                                                       | Accumulated output of last `./testAll.sh` run                                                             |
 | [testAll.sh](../testAll.sh)                                                                         | run all tests                                                                                             |
 | [third_party/](../third_party)                                                                      | external components                                                                                       |
