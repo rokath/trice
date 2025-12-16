@@ -187,10 +187,10 @@ PDF Generation
   * [26.2. A configuration for maximum Trice execution speed with the L432_inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example)
   * [26.3. A configuration for normal Trice execution speed with the G0B1_inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example)
 * [27. Trice memory needs](#trice-memory-needs)
-  * [27.1. F030_bare Size](#f030_bare-size)
-  * [27.2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off=1)
-  * [27.3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
-  * [27.4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
+  * [27.1. F030_bare Size](#F030_bare-size)
+  * [27.2. F030_inst Size with TRICE_OFF=1](#F030_inst-size-with-trice_off=1)
+  * [27.3. F030_inst with ring buffer](#F030_inst-with-ring-buffer)
+  * [27.4. F030_inst with ring buffer](#F030_inst-with-ring-buffer-1)
   * [27.5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting,-only-enabling-segger_rtt)
   * [27.6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:)
   * [27.7. Settings Conclusion](#settings-conclusion)
@@ -207,7 +207,7 @@ PDF Generation
     * [28.4.3. GCC](#gcc)
     * [28.4.4. LLVM ARM Clang](#llvm-arm-clang)
     * [28.4.5. Other IDE´s and compilers](#other-ide´s-and-compilers)
-  * [28.5. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32f030-example-project---different-build-sizes)
+  * [28.5. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32F030-example-project---different-build-sizes)
     * [28.5.1. ARMCC compiler v5](#armcc-compiler-v5)
 * [29. Trice Tags and Color](#trice-tags-and-color)
   * [29.1. How to get](#how-to-get)
@@ -230,7 +230,7 @@ PDF Generation
   * [31.5. Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-(~800-eur)-option)
   * [31.6. Additional Notes (leftovers)](#additional-notes-(leftovers))
   * [31.7. Further development](#further-development)
-  * [31.8. NUCLEO-F030R8 example](#nucleo-f030r8-example)
+  * [31.8. NUCLEO-F030R8 example](#nucleo-F030r8-example)
     * [31.8.1. RTT with original on-board ST-LINK firmware](#rtt-with-original-on-board-st-link-firmware)
     * [31.8.2. Change to J-LINK onboard firmware](#change-to-j-link-onboard-firmware)
     * [31.8.3. RTT with J-LINK firmware on-board](#rtt-with-j-link-firmware-on-board)
@@ -299,9 +299,9 @@ PDF Generation
   * [35.12. Logging](#logging)
   * [35.13. Setting up a new project](#setting-up-a-new-project)
 * [36. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
-  * [36.1. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
-    * [36.1.1. F030_bare](#f030_bare)
-    * [36.1.2. F030_inst](#f030_inst)
+  * [36.1. Nucleo-F030R8 Examples](#nucleo-F030r8-examples)
+    * [36.1.1. F030_bare](#F030_bare)
+    * [36.1.2. F030_inst](#F030_inst)
   * [36.2. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
     * [36.2.1. G0B1_bare](#g0b1_bare)
     * [36.2.2. G0B1_inst](#g0b1_inst)
@@ -530,7 +530,7 @@ Making it facile for a user to use Trice was the driving point just to have
 * a project specific simple to use [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h)
 * and to get away with the one macro `trice` for most situations.
 
-Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](../til.json) was updated in an pre-build step, the Trice tool automatically reloads the new data during logging.
+Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](../demoTIL.json) was updated in an pre-build step, the Trice tool automatically reloads the new data during logging.
 
 The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. <small>In file [../internal/args/tricehelpall_test.go](../internal/args/tricehelpall_test.go) the expected test output contains this information as well.</small>
 
@@ -680,13 +680,13 @@ The Trice tool is written in the open source language [*Go*](https://go.dev/) an
 
 All C-compilers should be usable to compile the target Trice code and there is no hardware dependency despite the byte transmission. MCUs with 8-bit to 64-bit, little or big endian are supported.
 
-Any user program able to read a [JSON](../examples/F030_inst/til.json) file, can receive the [documented](#binary-encoding) Trice message format, look-up the ID and perform a printf-like action to translate into log strings. The Trice tool with its `log` switch is a working example.
+Any user program able to read a [JSON](../demoTIL.json) file, can receive the [documented](#binary-encoding) Trice message format, look-up the ID and perform a printf-like action to translate into log strings. The Trice tool with its `log` switch is a working example.
 
 Using no framing, [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) or [TCOBS](https://github.com/rokath/tcobs) packages starting with a [package descriptor](#package-format) allows alongside user protocols. The other way around is also implementable: In a user protocol embedded `Trice` messages.
 
 The Trice tool is expandable with several decoders. So it is possible to implement a minimal Trice encoding, if bandwidth matters heavily and control that with switches.
 
-When less RAM usage is more important the target double buffer is replaceable with a ring buffer. So the user will be able to decide at compile time about that. A ring buffer mode is selectable inside [triceConfig.h](../examples/F030_instCore/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
+When less RAM usage is more important the target double buffer is replaceable with a ring buffer. So the user will be able to decide at compile time about that. A ring buffer mode is selectable inside [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
 
 The Trice tool supports [many command line switches](../internal/args/tricehelpall_test.go).
 
@@ -1452,7 +1452,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
   * If the file is edited then without refreshing the view, that means with the shown Trice IDs, this is no problem, because after saving the edited file, it gets processed anyway, so no data loss is possible.
   * An automatic view refresh (close & open) for the editor could help here. But how to do that in an universal way?
 * A workaround is, at least for vsCode, to first run `trice clean` in the build script.
-  * See `trice/examples/G0B1_inst/build.sh` for an implementation.
+  * See [examples/G1B1_inst/build.sh](../examples/G0B1_inst/build.sh) for an implementation.
 
 ###  7.6. <a id='activating-the-trice-cache'></a>Activating the Trice Cache
 
@@ -1462,7 +1462,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 mkdir -p ~/.trice/cache
 ```
 
-* Apply `-cache` CLI switch on `trice insert` and `trice clean`. See [./trice_insertIDs_in_examples_and_test_folder.sh](./trice_insertIDs_in_examples_and_test_folder.sh) and [./trice_cleanIDs_in_examples_and_test_folder.sh](trice_cleanIDs_in_examples_and_test_folder.sh) which both call [./trice_environment.sh](./trice_environment.sh) and used for example in [./examples/G0B1_inst/build.sh](./examples/G0B1_inst/build.sh)
+* Apply `-cache` CLI switch on `trice insert` and `trice clean`. See [./trice_insertIDs_in_examples_and_test_folder.sh](../trice_insertIDs_in_examples_and_test_folder.sh) and [./trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh) which both call [./trice_environment.sh](../trice_environment.sh) and used for example in [./examples/G0B1_inst/build.sh](../examples/G0B1_inst/build.sh)
 
 * Do **NOT** add the Trice cache to the version control.
 * It is safe to `rm -rf ~/.trice/cache` and not to use the `-cache` CLI switch anymore.
@@ -2046,7 +2046,7 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 
 The user can insert any data with a well-defined structure into the Trice data stream. The Trice tool, when interpreting the Trice binary data, will behave on typeX0 Trices according to a passed CLI switch `-typeX0`.
 
-One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing). The user needs to prepend a generated **printi** buffer with its size as 16-bit count (<16384!) for example. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option.
+One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing). The user needs to prepend a generated **printi** buffer with its size as 16-bit count (<16384!) for example. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../_test/_userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option.
 
 ####  19.2.2. <a id='framing---none-or-with-cobs-or-tcobs-encoding'></a>Framing - NONE or with COBS or TCOBS encoding
 
@@ -2878,7 +2878,7 @@ Still fast enough for many cases but you hopefully have a good knowledge now how
 
 Depending on your target configuration the needed space can differ:
 
-###  27.1. <a id='f030_bare-size'></a>F030_bare Size
+###  27.1. <a id='F030_bare-size'></a>F030_bare Size
 
 * `./build.sh`:
 
@@ -2890,7 +2890,7 @@ arm-none-eabi-size build/F030_bare.elf
 
 That is the basic size of an empty generated project just containing some drivers.
 
-###  27.2. <a id='f030_inst-size-with-trice_off=1'></a>F030_inst Size with TRICE_OFF=1
+###  27.2. <a id='F030_inst-size-with-trice_off=1'></a>F030_inst Size with TRICE_OFF=1
 
 * `./build.sh TRICE_OFF=1` :
 
@@ -2902,7 +2902,7 @@ arm-none-eabi-size build/F030_inst.elf
 
 This is exactly the same result, proofing that `TRICE_OFF 1` is working correctly.
 
-###  27.3. <a id='f030_inst-with-ring-buffer'></a>F030_inst with ring buffer
+###  27.3. <a id='F030_inst-with-ring-buffer'></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -2978,7 +2978,7 @@ com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit time stamp
 ```
 
-###  27.4. <a id='f030_inst-with-ring-buffer-1'></a>F030_inst with ring buffer
+###  27.4. <a id='F030_inst-with-ring-buffer-1'></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -3283,7 +3283,7 @@ This compiler is much faster and creates the smallest images. Right now it uses 
 
 Please check the manuals and create a pull request or simply let me know.
 
-###  28.5. <a id='legacy-stm32f030-example-project---different-build-sizes'></a>Legacy STM32F030 Example Project - Different Build Sizes
+###  28.5. <a id='legacy-stm32F030-example-project---different-build-sizes'></a>Legacy STM32F030 Example Project - Different Build Sizes
 
 ####  28.5.1. <a id='armcc-compiler-v5'></a>ARMCC compiler v5
 
@@ -3373,7 +3373,7 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 
 * RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
 * Also ST-Link is usable for Trice logs, but maybe not parallel with debugging.
-* Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
+* Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
   * When using very high Trice loads over RTT for a long time, sometimes an on-board J-Link (re-flashed ST-Link) could get internally into an inconsistent state (probably internal buffer overrun), what needs a power cycle then.
 * You could consider RTT over open-OCD as an alternative.
 * The default SEGGER up-buffer size is 1024 bytes, good for most cases. If not, adapt it in your *triceConfig.h* file **AND** in the *SEGGER_RTT_Conf.h* file:
@@ -3572,7 +3572,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
               triceCheck.c    62        0,306 This is a message without values and a 16-bit stamp.
               triceCheck.c    63              This is a message without values and without stamp.
       ```
-      * See also the configuration in [./examples/G0B1_inst/Core/triceConfig.h](../examples/G0B1_inst/Core/triceConfig.h)
+      * See also the configuration in [./examples/G0B1_inst/Core/Inc/triceConfig.h](../examples/G0B1_inst/Core/Inc/triceConfig.h)
 
 * If you install the `tmux` command your life gets esier by using a shell script like [./examples/G0B1_inst/RTTLogTmux.sh](../examples/G0B1_inst/RTTLogTmux.sh):
 
@@ -3676,7 +3676,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 * Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
   * You may need to add `C:\Program Files\SEGGER\JLink` to the %PATH% variable.
-* Tested with [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html).
+* Tested with [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html).
 * For example: Compile and flash `../examples/F030_inst` project.
   * Check in [../examples/F030_inst/Core/Inc/triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) if `#define TRICE_RTT_CHANNEL 0` is set as output option.
 
@@ -3836,9 +3836,9 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  31.8. <a id='nucleo-f030r8-example'></a>NUCLEO-F030R8 example
+###  31.8. <a id='nucleo-F030r8-example'></a>NUCLEO-F030R8 example
 
-Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html)
+Info: [https://www.st.com/en/evaluation-tools/nucleo-F030r8.html](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html)
 
 ####  31.8.1. <a id='rtt-with-original-on-board-st-link-firmware'></a>RTT with original on-board ST-LINK firmware
 
@@ -4312,7 +4312,7 @@ The target does not even "know" about that, because it gets only the Trice IDs.
 
 ###  34.12. <a id='switch-the-language-without-changing-a-bit-inside-the-target-code'></a>Switch the language without changing a bit inside the target code
 
-Once the [til.json](../examples/F030_inst/til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
+Once the [til.json](../demoTIL.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
 ###  34.13. <a id='format-tags-prototype-specifier-examples'></a>Format tags prototype specifier examples
 
@@ -4959,9 +4959,9 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
     - `"runToMain": true`
   - Set the commas right.
 - Latest SVD Files can be found here: https://www.st.com/content/st_com/en/search.html#q=svd-t=resources-page=1
-- Download file [`./STM32G0B1.svd`](./STM32G0B1.svd) from https://www.st.com/resource/en/svd/stm32G0_svd.zip (example)
+- Download file `STM32G0B1.svd` from https://www.st.com/resource/en/svd/stm32G0_svd.zip (example)
   - Alternatively copy it from `"C:\ST\STM32CubeIDE_1.13.1\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.productdb.debug_2.1.0.202306151215\resources\cmsis\STMicroelectronics_CMSIS_SVD\STM32G0B1.svd"` if you have the STM32CubeIDE installed.
-  - Download file [`./STM32L4x2.svd`](./STM32L4x2.svd) from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
+  - Download file `STM32L4x2.svd` from https://www.st.com/resource/en/svd/stm32l4_svd.zip (example)
 - Installing the **Cortex Debug** extension allow you to debug the target code.
 
 ###  35.6. <a id='makefile-with-clang-too'></a>Makefile with Clang too
@@ -5026,28 +5026,26 @@ Extend the path variable:
 
 ##  36. <a id='example-projects-without-and-with-trice-instrumentation'></a>Example Projects without and with Trice Instrumentation
 
-| Project Name                                                     | Description                                                                                                                                                                                                                                                                      |
-|------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|                                                                  |                                                                                                                                                                                                                                                                                  |
-| [F030_bare](../examples/F030_bare)                               | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](../examples/F030_inst) so see quickly the needed instrumentation steps you need for your own project.                                        |
-| [F030_inst](../examples/F030_inst)                               | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](../examples/F030_bare) to see quickly how to instrument your project.                                           |
-|                                                                  |                                                                                                                                                                                                                                                                                  |
-| [G0B1_bare](../examples/G0B1_bare)                               | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.                                                                                                                                                                                      |
-| [G0B1_inst](../examples/G0B1_inst)                               | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
-|                                                                  |                                                                                                                                                                                                                                                                                  |
-| [L432_bare](../examples/L432_bare)                               | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
-| [L432_inst](../examples/L432_inst)                               | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
-|                                                                  |                                                                                                                                                                                                                                                                                  |
-| [OpenCM3_STM32F411_Nucleo](../examples/OpenCM3_STM32F411_Nucleo) | See the [Readme.md](../examples/OpenCM3_STM32F411_Nucleo/Readme.md) in this folder.                                                                                                                                                                                              |
-|                                                                  |                                                                                                                                                                                                                                                                                  |
+| Project Name                       | Description                                                                                                                                                                                                                                                                      |
+|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|                                    |                                                                                                                                                                                                                                                                                  |
+| [F030_bare](../examples/F030_bare) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](../examples/F030_inst) so see quickly the needed instrumentation steps you need for your own project.                                        |
+| [F030_inst](../examples/F030_inst) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](../examples/F030_bare) to see quickly how to instrument your project.                                           |
+|                                    |                                                                                                                                                                                                                                                                                  |
+| [G0B1_bare](../examples/G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.                                                                                                                                                                                      |
+| [G0B1_inst](../examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
+|                                    |                                                                                                                                                                                                                                                                                  |
+| [L432_bare](../examples/L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
+| [L432_inst](../examples/L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
+|                                    |                                                                                                                                                                                                                                                                                  |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  36.1. <a id='nucleo-f030r8-examples'></a>Nucleo-F030R8 Examples
+###  36.1. <a id='nucleo-F030r8-examples'></a>Nucleo-F030R8 Examples
 
-<img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-f030r8-stm32f030r8t6-arm-cortex-m0.jpg">
+<img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-F030r8-stm32F030r8t6-arm-cortex-m0.jpg">
 
-####  36.1.1. <a id='f030_bare'></a>F030_bare
+####  36.1.1. <a id='F030_bare'></a>F030_bare
 
 Folder: [../examples/F030_bare/](../examples/F030_bare/)
 
@@ -5081,8 +5079,8 @@ arm-none-eabi-gcc -c -mcpu=cortex-m0 -mthumb   -DUSE_FULL_LL_DRIVER -DHSE_VALUE=
 
 ...
 
-arm-none-eabi-gcc -x assembler-with-cpp -c -mcpu=cortex-m0 -mthumb   -DUSE_FULL_LL_DRIVER -DHSE_VALUE=8000000 -DHSE_STARTUP_TIMEOUT=100 -DLSE_STARTUP_TIMEOUT=5000 -DLSE_VALUE=32768 -DHSI_VALUE=8000000 -DLSI_VALUE=40000 -DVDD_VALUE=3300 -DPREFETCH_ENABLE=1 -DINSTRUCTION_CACHE_ENABLE=0 -DDATA_CACHE_ENABLE=0 -DSTM32F030x8 -ICore/Inc -IDrivers/STM32F0xx_HAL_Driver/Inc -IDrivers/CMSIS/Device/ST/STM32F0xx/Include -IDrivers/CMSIS/Include -Og -Wall -fdata-sections -ffunction-sections -g -gdwarf-2 -MMD -MP -MF"build/startup_stm32f030x8.d" startup_stm32f030x8.s -o build/startup_stm32f030x8.o
-arm-none-eabi-gcc build/main.o build/stm32f0xx_it.o build/stm32f0xx_ll_gpio.o build/stm32f0xx_ll_pwr.o build/stm32f0xx_ll_exti.o build/stm32f0xx_ll_usart.o build/stm32f0xx_ll_rcc.o build/stm32f0xx_ll_dma.o build/stm32f0xx_ll_utils.o build/system_stm32f0xx.o build/sysmem.o build/syscalls.o build/startup_stm32f030x8.o  -mcpu=cortex-m0 -mthumb   -specs=nano.specs -TSTM32F030R8Tx_FLASH.ld  -lc -lm -lnosys  -Wl,-Map=build/F030_bare.map,--cref -Wl,--gc-sections -o build/F030_bare.elf
+arm-none-eabi-gcc -x assembler-with-cpp -c -mcpu=cortex-m0 -mthumb   -DUSE_FULL_LL_DRIVER -DHSE_VALUE=8000000 -DHSE_STARTUP_TIMEOUT=100 -DLSE_STARTUP_TIMEOUT=5000 -DLSE_VALUE=32768 -DHSI_VALUE=8000000 -DLSI_VALUE=40000 -DVDD_VALUE=3300 -DPREFETCH_ENABLE=1 -DINSTRUCTION_CACHE_ENABLE=0 -DDATA_CACHE_ENABLE=0 -DSTM32F030x8 -ICore/Inc -IDrivers/STM32F0xx_HAL_Driver/Inc -IDrivers/CMSIS/Device/ST/STM32F0xx/Include -IDrivers/CMSIS/Include -Og -Wall -fdata-sections -ffunction-sections -g -gdwarf-2 -MMD -MP -MF"build/startup_stm32F030x8.d" startup_stm32F030x8.s -o build/startup_stm32F030x8.o
+arm-none-eabi-gcc build/main.o build/stm32f0xx_it.o build/stm32f0xx_ll_gpio.o build/stm32f0xx_ll_pwr.o build/stm32f0xx_ll_exti.o build/stm32f0xx_ll_usart.o build/stm32f0xx_ll_rcc.o build/stm32f0xx_ll_dma.o build/stm32f0xx_ll_utils.o build/system_stm32f0xx.o build/sysmem.o build/syscalls.o build/startup_stm32F030x8.o  -mcpu=cortex-m0 -mthumb   -specs=nano.specs -TSTM32F030R8Tx_FLASH.ld  -lc -lm -lnosys  -Wl,-Map=build/F030_bare.map,--cref -Wl,--gc-sections -o build/F030_bare.elf
 C:/bin/ArmGNUToolchain/bin/../lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: build/F030_bare.elf has a LOAD segment with RWX permissions
 arm-none-eabi-size build/F030_bare.elf
    text    data     bss     dec     hex filename
@@ -5135,18 +5133,18 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-####  36.1.2. <a id='f030_inst'></a>F030_inst
+####  36.1.2. <a id='F030_inst'></a>F030_inst
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
-This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](..examples/F030_inst/Core/Inc/triceConfig.h), you get also parallel direct out over RTT. For setup see [Trice over RTT](#trice-over-rtt) and adapt steps from [F030_bare](f030-bare).
+This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h), you get also parallel direct out over RTT. For setup see [Trice over RTT](#trice-over-rtt) and adapt steps from [F030_bare](../examples/F030_bare/).
 
 <h6>Intrumenting:</h6>
 
-- Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030R8_gen/](../F030R8_gen/).
+- Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030_bare/](../examples/F030_bare/).
 - Add *build.sh* and *clean.sh*.
-- Copy file *SEGGER_RTT_Conf.h* from *trice/third_party/segger.com/SEGGER_RTT_V760g.zip* to [./Core/Inc/](./Core/Inc/). Yu could also look for a newer version.
-- Copy and adapt a file [triceConfig.h](./Core/Inc/triceConfig.h) to [./Core/Inc/](./Core/Inc/). You can choose from an other example project or one of the test folders.
+- Copy file *SEGGER_RTT_Conf.h* from *trice/third_party/segger.com/SEGGER_RTT_V760g.zip* to [./Core/Inc/](../examples/F030_inst/Core/Inc/). Yu could also look for a newer version.
+- Copy and adapt a file [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) to [./Core/Inc/](../examples/F030_inst/Core/Inc/). You can choose from an other example project or one of the test folders.
 - Create 2 empty files: `touch til.json li.json`inside [./](./)
 - Run `build.sh`. This should build all.
 - Add `#include "trice.h"` to *main.c* and to *stm32f0xx_it.c* and edit these files according to diff.
@@ -5173,11 +5171,11 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
 - This is a working example with CLang and also GCC.
 - This is a STMCubeMX generated project. It was then manually adapted to Clang.
-- It is without TRICE instrumentation for easy compare with [../G0B1_inst](../G0B1_inst) to figure out the needed changes to set up trice.
+- It is without TRICE instrumentation for easy compare with [../G0B1_inst](../examples/G0B1_inst) to figure out the needed changes to set up trice.
 
 <a id='setting-up-g0b1_gen'></a><h5>Setting Up G0B1_bare</h5>
 
-- See and adapt steps from [F030_bare](#f030_bare).
+- See and adapt steps from [F030_bare](#F030_bare).
 - Then add/modify the files to reach this folder layot.
 
 ####  36.2.2. <a id='g0b1_inst'></a>G0B1_inst
@@ -5192,8 +5190,8 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <a id='instrumenting'></a><h5>Instrumenting</h5>
 
-- The steps are similar to the steps in [F030_bare](#f030_bare).
-- See comments in [triceConfig.h](../examples/G0B1_bare/Core/Inc/triceConfig.h) and commandlines in screenshot.
+- The steps are similar to the steps in [F030_bare](#F030_bare).
+- See comments in [triceConfig.h](../examples/G0B1_inst/Core/Inc/triceConfig.h) and commandlines in screenshot.
 
 <img src="./ref/2024-07-22.png" width="1000">
 
@@ -5208,9 +5206,9 @@ This is an example with direct out without framing over RTT and deferred out in 
 Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
 <!-- * [NUCLEO L432 User Manual](../../ref/dm00231744-stm32-nucleo32-boards-mb1180-stmicroelectronics.pdf) (example) -->
-* This example is without Trice istrumentation and serves for comparing with [L432_inst](../examples/L432-inst/) to see the needed instrumentation steps quickly.
+* This example is without Trice istrumentation and serves for comparing with [L432_inst](../examples/L432_inst/) to see the needed instrumentation steps quickly.
 * This is a STMCubeMX generated project.
-* See and adapt steps from [F030_bare](../examples/F030-bare) example.
+* See and adapt steps from [F030_bare](../examples/F030_bare) example.
 * It was then manually adapted additionally to Clang.
 * It was additionally configured for FreeRTOS.
 
@@ -5220,7 +5218,7 @@ Folder: [../examples/L432_inst/](../examples/L432_inst/)
 
 * This is the with Trice instrumented example project [L432_bare](../examples/L432_bare).
 * It is for easy compare to figure out the needed setup changes.
-* See and adapt steps in [F030_bare](../examples/F030-bare).
+* See and adapt steps in [F030_bare](../examples/F030_bare).
 * Then add/modify the files to reach this folder layout.
 
 <h5>Build:</h5>
@@ -5277,7 +5275,7 @@ $ trice l -p com8 -hs off -prefix off
 <a id='using-rtt-with-on-board-j-link-and-jlinkrttlogger'></a><h5>Using RTT with on-board J-Link and JLinkRTTLogger</h5>
 
 * You need to install the "J-Link Software and Documentation pack" for yout OS.
-* [./Core/Inc/triceConfig.h](./Core/Inc/triceConfig.h) contains example Trice log commands.
+* [./Core/Inc/triceConfig.h](../examples/L432_inst/Core/Inc/triceConfig.h) contains example Trice log commands.
 
 <a id='using-rtt-with-on-board-j-link-and-openocd'></a><h5>Using RTT with on-board J-Link and OpenOCD</h5>
 
@@ -5626,7 +5624,7 @@ All folders despite `testdata` are test folders and the name `tf` is used as a p
 
 To exclude a specific folder temporary, simply rename it to start with an underscore `_tf`.
 
-The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](./testdata/triceCheck.c) is the main file for most tests and serves also as example usage.
+The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](../_test/testdata/triceCheck.c) is the main file for most tests and serves also as example usage.
 
 [_test/testdata/cgoPackage.go](../_test/testdata/cgoPackage.go) is the common main for the `generated_cgoPackage.go` files and contains the common test code. 
 
@@ -7410,12 +7408,12 @@ Generated commit message:
 | [.code_snippets](../.code_snippets)                                                                 | Some legacy helper code for copying where to use                                                          |
 | [.editorconfig](../.editorconfig)                                                                   | See [Trice Code Formatting](#trice-code-formatting)                                                       |
 | [.git](../.git)                                                                                     | version control data base                                                                                 |
-| [.gitattributes](../.gitattribute)                                                                  | See[Trice Code Formatting](#trice-code-formatting)                                                        |
+| [.gitattributes](../.gitattributes)                                                                 | See[Trice Code Formatting](#trice-code-formatting)                                                        |
 | [.github/](../.github/)                                                                             | [📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)             |
 | [.gitignore](../.gitignore)                                                                         | git ignores these files                                                                                   |
 | [.goreleaser.yaml](../.goreleaser.yaml)                                                             | goreleaser configuration                                                                                  |
 | [.idea/](../.idea/)                                                                                 | GoLand settings                                                                                           |
-| [.lycheeignore](../.lycheeignore)                                                                   | [Broken Links Check](#broken-links-check)                                                                 |
+| [.lychee.toml](../.lychee.toml)                                                                     | [Broken Links Check](#broken-links-check)                                                                 |
 | [.markdownlinkcheck.json](../.markdownlinkcheck.json)                                               | [Broken Links Check](#broken-links-check)                                                                 |
 | [.markdownlint.yaml](../.markdownlint.yaml)                                                         | [Cleaning the Sources](#cleaning-the-sources)                                                             |
 | [.markdownlintignore](../.markdownlintignore)                                                       | [Cleaning the Sources](#cleaning-the-sources)                                                             |
@@ -7452,7 +7450,7 @@ Generated commit message:
 | [index.md](../index.md)                                                                             |                                                                                                           |
 | [internal/](../internal)                                                                            | Trice tool internal Go packages                                                                           |
 | [pkg/](../pkg)                                                                                      | Trice tool common Go packages                                                                             |
-| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_test_folder.sh)               | renew all ID data                                                                                         |
+| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_refresh_test_folder.sh)               | renew all ID data                                                                                         |
 | [src/](../src)                                                                                      | C sources for trice instrumentation -> Add to target project                                              |
 | [super-linter.report/](../super-linter.report/)                                                     | super linter output                                                                                       |
 | [temp](../temp)                                                                                     | binary logfiles could appear here                                                                         |
@@ -7474,9 +7472,9 @@ This folder defines how the project behaves on GitHub: issue templates, automate
 
 It contains issue templates, labels, workflow automation, code scanning, linting, and the CI/CD release pipeline.
 
-* [ISSUE_TEMPLATE/](../ISSUE_TEMPLATE/) Used to create structured bug reports and feature requests.
-* [FUNDING.yml](../FUNDING.yml) Enables the GitHub “Sponsor” button.
-* [labeler.yml](../labeler.yml) configuration file consumed by actions/labeler. It defines the labeling rules.
+* [ISSUE_TEMPLATE/](../.github/ISSUE_TEMPLATE/) Used to create structured bug reports and feature requests.
+* [FUNDING.yml](../.github/FUNDING.yml) Enables the GitHub “Sponsor” button.
+* [labeler.yml](../.github/labeler.yml) configuration file consumed by actions/labeler. It defines the labeling rules.
   * Because labeler.yml is configuration and not an executable workflow, it is placed directly under .github/, not under .github/workflows/.
   * The actions/labeler action expects .github/labeler.yml as the default configuration path, which is why this layout is standard and correct.
   * This is intentional and follows GitHub Actions conventions.
@@ -7803,7 +7801,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
 
 ####  44.2.3. <a id='-github-action-clang-format.yml'></a> GitHub Action clang-format.yml
 
-* **Local Action:** [./clang-format.sh](.././clang-format.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
+* **Local Action:** [./clang-format.sh](../clang-format.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
   > The file [./clang-format.sh](../clang-format.sh) is used to auto-format the Trice code.
   > 
   > File [.clang-format](../.clang-format)
@@ -7947,11 +7945,13 @@ An instructional workflow provided by GitHub. Purpose:
 
 Broken Links Check
 
-* **Local Action:** `markdown-link-check ./docs/TriceUserManual.md `
+* **Local Action:** (deprechiated) `markdown-link-check ./docs/TriceUserManual.md`
   * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
   * Info: `[/] #%F0%9F%93%82-%60.github/workflows%60-%E2%80%94-github-actions-workflows` = skipped check
+* **Local Action:** `lychee .`
+  * Uses [.lychee.toml](../.lychee.toml) as configuration
 * **Github Action:** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
-  * Exclude files: [.lycheeignore](../.lycheeignore)
+<!--  * Exclude files: [.lycheeignore](../.lycheeignore) -->
 
 ####  44.2.11. <a id='github-action-manual.ym'></a>GitHub Action manual.ym
 
@@ -8005,7 +8005,7 @@ This workflow creates the Trice github pages  avaliable under [rokath.github.io/
 
 Test Goreleaser
 
-* **Github Action:** [.github/workflows/.yml](../.github/workflows/.yml)
+* **Github Action:** [.github/workflows/test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)
   * Checks if Goreleaser would succeed.
 
 ###  44.3. <a id='trice-user-manual-maintenance-(or-any-`*.md`-file)'></a>Trice User Manual Maintenance (or any `*.md` file)
@@ -8045,8 +8045,8 @@ In Github are some Actions defined. Some of them get triggered on a `git push` a
 
 * `npx markdownlint *.md` (or just `markdownlint`) - uses [.markdownlint.yaml](../.markdownlint.yaml) to allow exeptions.
   * `npx markdownlint ./docs/TriceUserManual.md 2>&1 | awk '!seen[$2]++'` for example to reduce message count in case of errors. 
-* [./clean-dsstore.sh](.././clean-dsstore.sh) - remove MacOS maintenance data. 
-* [./trice_cleanIDs_in_examples_and_test_folder.sh](.././trice_cleanIDs_in_examples_and_test_folder.sh) removes all IDs.
+* [./clean-dsstore.sh](../clean-dsstore.sh) - remove MacOS maintenance data. 
+* [./trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh) removes all IDs.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

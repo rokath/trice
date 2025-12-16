@@ -1,0 +1,124 @@
+############################
+# .lychee.toml
+# Purpose:
+#   Centralize Lychee CLI options in a repo-local config file, so that
+#   local runs and CI runs behave identically.
+#
+# Notes:
+#   - Lychee automatically uses "lychee.toml" if present in the CWD.
+#   - You can also pass: lychee --config .lychee.toml ...
+############################
+
+
+############################
+# Display / Logging
+############################
+
+# Verbose program output.
+# Accepts log levels: "error", "warn", "info", "debug", "trace"
+# In CI and local use, "info" is a good balance.
+verbose = "info"
+
+# Disable interactive progress bar (cleaner logs, better CI output).
+no_progress = true
+
+# Output format:
+#   - "detailed" is human-friendly and works well in CI logs
+format = "detailed"
+
+
+############################
+# Request Behavior
+############################
+
+# Timeout per request (seconds).
+timeout = 15
+
+# Maximum number of redirects to follow.
+max_redirects = 5
+
+# Retry behavior for transient network failures.
+max_retries = 2
+retry_wait_time = 2
+
+# Only check HTTP(S) links.
+# This avoids "file://…" errors for local or generated artifacts.
+scheme = ["http", "https"]
+
+# Do not enforce HTTPS automatically.
+require_https = false
+
+
+############################
+# Accepted HTTP status codes
+############################
+
+# Treat these HTTP status codes as valid.
+#
+# Why include 403?
+#   Some sites (e.g. developer portals, OpenAI, vendor pages)
+#   block automated link checkers but are valid for humans.
+accept = [
+  200,  # OK
+  203,
+  206,
+  301,
+  302,
+  303,
+  307,
+  308,
+  403   # Forbidden (intentionally accepted)
+]
+
+
+############################
+# GitHub integration (rate limits)
+############################
+
+# If GITHUB_TOKEN is set in the environment, Lychee will
+# automatically use it for GitHub API requests.
+# Do NOT commit tokens here.
+# github_token = "DO_NOT_COMMIT_TOKENS"
+
+
+############################
+# Link exclusions (URLs)
+############################
+
+# Exclude URLs from checking (regex-based).
+# Use this for intentionally unreachable or flaky endpoints.
+exclude = [
+  # Localhost links in documentation
+  "^https?://localhost(:[0-9]+)?"
+]
+
+
+############################
+# Path exclusions (files / directories)
+############################
+
+# Exclude paths from being scanned entirely (regex-based).
+# This is the correct mechanism for path-level ignoring.
+#
+# Notes:
+#   - .gitignore is also respected by Lychee
+#   - Use this for generated output, vendored code, legacy docs, etc.
+exclude_path = [
+  # Legacy documentation
+  "(^|/)docs/_Legacy(/|$)",
+
+  # Vendored / third-party code
+  "(^|/)third_party(/|$)",
+
+  # Generated artifacts
+  "(^|/)dist(/|$)",
+
+  # Exclude any file that has an extension OTHER than md/html/htm.
+  #
+  # Explanation:
+  #   - (?i)              => case-insensitive
+  #   - \.                => literal dot before extension
+  #   - (?!md$|html$|htm$)=> negative lookahead (NOT md/html/htm)
+  #   - [a-z0-9]+$        => file extension
+  "(?i)\\.(?!md$|html$|htm$)[a-z0-9]+$"
+]
