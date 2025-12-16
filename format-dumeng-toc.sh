@@ -2,7 +2,7 @@
 
 
 # ==============================================================================
-# format_dumeng_toc.sh.sh
+# format_dumeng_toc.sh
 #
 # Purpose
 # -------
@@ -29,8 +29,8 @@
 #
 # Usage
 # -----
-#   tools/format_dumeng_toc.sh.sh
-#   tools/format_dumeng_toc.sh.sh path/to/file.md
+#   format_dumeng_toc.sh
+#   format_dumeng_toc.sh path/to/file.md
 # ==============================================================================
 
 set -euo pipefail

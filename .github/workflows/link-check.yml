@@ -35,11 +35,7 @@ jobs:
           #     in the repository, recursively.
           #   - You can later add more patterns (e.g. './**/*.html') if needed.
           args: >
-            --verbose
-            --no-progress
-            --timeout 15
-            --max-redirects 5
-            './**/*.md'
+            --config lychee.toml
           #
           # fail:
           #   - If true, the workflow will fail when lychee finds broken links.

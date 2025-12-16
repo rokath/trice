@@ -158,7 +158,7 @@ This is a major release hopefully not breaking too much!
 * To save space and bandwidth you can use the `*8` and `*16`, macro extensions like with the `TRICE*` macros.
 * The default bitwidth is 32-bit but that is changeable in the configuration.
 * The `*64` macro extensions are usable for 64-bit values, like `double`.
-* See [triceCheck.c](_test/testdata/triceCheck.c) for examples.
+* See [triceCheck.c](./_test/testdata/triceCheck.c) for examples.
 
 ### 2.3. <a id='common-improvements'></a>Common improvements
 
@@ -288,7 +288,7 @@ This is a major release hopefully not breaking too much!
 
 * `5af9c2bb664e11e5e2663e56116d842719ca6f8d` Issue \#431 solved
 * `430c6a4dde817bc39ec35d595341efbe069cf482` Issue \#466 solved
-* You can now use `trice8B( "msg: %02x\n", buffer, len);` functions and the like. See [triceCheck.c](../_test/testdata/triceCheck.c) for examples.
+* You can now use `trice8B( "msg: %02x\n", buffer, len);` functions and the like. See [triceCheck.c](./_test/testdata/triceCheck.c) for examples.
 
 ## 7. <a id='v0.66.0-changes'></a>v0.66.0 Changes
 
@@ -692,7 +692,7 @@ Used git log command: `git log --oneline` and less important lines removed
 | `fb28cc78` | TriceLogConfiguration function added to examples                                           |
 | `faba8336` | Fixed some seldom config variants                                                          |
 | `2d46233d` | minor Go lint action                                                                       |
-| `4d5f636e` | [triceCheck.c](./_test/testdata/triceCheck.c) now without IDs checked in                  |
+| `4d5f636e` | [triceCheck.c](./_test/testdata/triceCheck.c) now without IDs checked in                   |
 | `50a4dc18` | CYCLE changed to CYCLE_ERROR and reserved for the Trice tool exclusively                   |
 | `1cae53ad` | Update TriceOverRTT.md                                                                     |
 | `dc1cea13` | openocd automation wip                                                                     |
@@ -1052,7 +1052,7 @@ Used command: `./gitLogWithBranches.sh --since 2025-04-01` and unimportant lines
 * | |        67934b22 2025-06-20  deactivated PATH extension for objcopy
 * | |        8a4d019a 2025-06-19  wip after merging pr \#536
 * | |        7b41a67e 2025-06-16  Fix TestInsertWithBrackets by updating findClosingParentis to handle escaped quotes and parentheses in string literals.
-* | |        8f75007f 2025-06-16  Fix missing closing parenthesis in exampleOfManualJSONencoding() in [triceCheck.c](../_test/testdata/triceCheck.c)
+* | |        8f75007f 2025-06-16  Fix missing closing parenthesis in exampleOfManualJSONencoding() in [triceCheck.c](./_test/testdata/triceCheck.c)
 * | |        e88c25f6 2025-06-16  Add Homebrew check and dynamic gcc-arm-embedded version setup in build_environment.sh
 * | |        a248cd0d 2025-06-08  Updated G0B1_inst example to demonstrate the use of the Alias feature.
 * | |        2e90daa6 2025-06-08  Omit the Alias field from serialization to minimize the til.json size

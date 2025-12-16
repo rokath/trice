@@ -9,6 +9,15 @@ my_long_task() {
   #local arg1="${1:-default1}"
   #local arg2="${2:-default2}"
 
+  clean-dsstore.sh
+  clang-format.ch
+  buildTriceTool.sh
+  format_dumeng_toc.sh
+  markdownlint .
+  echo "Check links..."
+  lychee .
+  echo "Check links...done"
+
   echo "🟢 Starting Test: $(date)"
   #echo "Test parameters: arg1='$arg1', arg2='$arg2'"
 

@@ -1099,7 +1099,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 | [xtea.h](../src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
 | [xtea.c](../src/xtea.c)                             | XTEA message encryption/decryption code                                                                              |
 
-* The *tcobs\*.\** files are copied from [https://github.com/rokath/tcobs/tree/main/v1](https://github.com/rokath/tcobs/tree/main/v1). They are maintained there and extensively tested and probably not a matter of significant change.
+* The *tcobs\*.\** files are copied from [tcobs v1](https://github.com/rokath/tcobs). They are maintained there and extensively tested and probably not a matter of significant change.
 * The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -3946,7 +3946,7 @@ TODO: Working example with SEGGER_RTT J-Link and Open OCD
 
 ###  31.12. <a id='links'></a>Links
 
-* [https://www.codeinsideout.com/blog/stm32/j-link-rtt/](https://www.codeinsideout.com/blog/stm32/j-link-rtt/) (A good explanation of SEGGER J-Link Realtime Transfer - Fast Debug protocol: - only suitable for ASCII transfer)
+<!--* [https://www.codeinsideout.com/blog/stm32/j-link-rtt/](https://www.codeinsideout.com/blog/stm32/j-link-rtt/) (A good explanation of SEGGER J-Link Realtime Transfer - Fast Debug protocol: - only suitable for ASCII transfer) -->
 * [USB over WSL2?](https://twitter.com/beriberikix/status/1487127732190212102?s=20&t=NQVa27qvOqPi2uGz6pJNRA) (Maybe intersting for OpenOCD)
 * https://kickstartembedded.com/2024/03/26/openocd-one-software-to-rule-debug-them-all/?amp=1
 * https://mcuoneclipse.com/2021/10/03/visual-studio-code-for-c-c-with-arm-cortex-m-part-9-rtt/
@@ -7403,18 +7403,18 @@ Generated commit message:
 
 | Trice Root Folder File                                                                              | Details                                                                                                   |
 |-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| [.clang-format](../.clang-format)                                                                   | See [Trice Code Formatting](#trice-code-formatting)                                                       |
-| [.clang-format-ignore](../.clang-format-ignore)                                                     | See [Trice Code Formatting](#trice-code-formatting)                                                       |
+| [.clang-format](../.clang-format)                                                                   | See [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
+| [.clang-format-ignore](../.clang-format-ignore)                                                     | See [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
 | [.code_snippets](../.code_snippets)                                                                 | Some legacy helper code for copying where to use                                                          |
-| [.editorconfig](../.editorconfig)                                                                   | See [Trice Code Formatting](#trice-code-formatting)                                                       |
+| [.editorconfig](../.editorconfig)                                                                   | See [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
 | [.git](../.git)                                                                                     | version control data base                                                                                 |
-| [.gitattributes](../.gitattributes)                                                                 | See[Trice Code Formatting](#trice-code-formatting)                                                        |
+| [.gitattributes](../.gitattributes)                                                                 | See[[GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
 | [.github/](../.github/)                                                                             | [📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)             |
 | [.gitignore](../.gitignore)                                                                         | git ignores these files                                                                                   |
 | [.goreleaser.yaml](../.goreleaser.yaml)                                                             | goreleaser configuration                                                                                  |
 | [.idea/](../.idea/)                                                                                 | GoLand settings                                                                                           |
-| [.lychee.toml](../.lychee.toml)                                                                     | [Broken Links Check](#broken-links-check)                                                                 |
-| [.markdownlinkcheck.json](../.markdownlinkcheck.json)                                               | [Broken Links Check](#broken-links-check)                                                                 |
+| [lychee.toml](../lychee.toml)                                                                       | [GitHub Action link-check.yml](#github-action-link-check.yml)                                             |
+| [.markdownlinkcheck.json](../.markdownlinkcheck.json)                                               | [GitHub Action link-check.yml](#github-action-link-check.yml)                                             |
 | [.markdownlint.yaml](../.markdownlint.yaml)                                                         | [Cleaning the Sources](#cleaning-the-sources)                                                             |
 | [.markdownlintignore](../.markdownlintignore)                                                       | [Cleaning the Sources](#cleaning-the-sources)                                                             |
 | [.travis.yml](../.travis.yml)                                                                       | Travis CI configuration                                                                                   |
@@ -7429,9 +7429,9 @@ Generated commit message:
 | [_test](../_test)                                                                                   | automatic target code tests                                                                               |
 | [buildTriceTool.sh](../buildTriceTool.sh)                                                           | [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)                                     |
 | [build_environment.sh](../build_environment.sh)                                                     | see inside                                                                                                |
-| [clang-format.sh](../clang-format.sh)                                                               | [Clang Format](#clang-format)                                                                             |
+| [clang-format.sh](../clang-format.sh)                                                               | See [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
 | [clean-dsstore.sh](../clean-dsstore.sh)                                                             | Ru to remove MacOS artifacts                                                                              |
-| [coverage.out](../coverage.out)                                                                     | Go test coverage output                                                                                   |
+| `coverage.out`                                                                                      | Go test coverage output                                                                                   |
 | [cmd/_cui/](../cmd/_cui)                                                                            | (do not use) command user interface tryout code                                                           |
 | [cmd/_stim/](../cmd/_stim)                                                                          | (do not use) target stimulation tool tryout code                                                          |
 | [cmd/clang-filter](../cmd/clang-filter)                                                             | [ReadMe](../cmd/clang-filter/ReadMe.md)                                                                   |
@@ -7447,10 +7447,10 @@ Generated commit message:
 | [gitLogWithBranches.sh](../gitLogWithBranches.sh)                                                   | helper to get easy a history view                                                                         |
 | [go.mod](../go.mod)                                                                                 | Go modules file                                                                                           |
 | [go.sum](../go.sum)                                                                                 | Go modules sums                                                                                           |
-| [index.md](../index.md)                                                                             |                                                                                                           |
+| [index.md](../index.md)                                                                             | Jekyll index site for RERADME.md                                                                          |
 | [internal/](../internal)                                                                            | Trice tool internal Go packages                                                                           |
 | [pkg/](../pkg)                                                                                      | Trice tool common Go packages                                                                             |
-| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_refresh_test_folder.sh)               | renew all ID data                                                                                         |
+| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_refresh_test_folder.sh)       | renew all ID data                                                                                         |
 | [src/](../src)                                                                                      | C sources for trice instrumentation -> Add to target project                                              |
 | [super-linter.report/](../super-linter.report/)                                                     | super linter output                                                                                       |
 | [temp](../temp)                                                                                     | binary logfiles could appear here                                                                         |
@@ -7949,7 +7949,7 @@ Broken Links Check
   * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
   * Info: `[/] #%F0%9F%93%82-%60.github/workflows%60-%E2%80%94-github-actions-workflows` = skipped check
 * **Local Action:** `lychee .`
-  * Uses [.lychee.toml](../.lychee.toml) as configuration
+  * Uses [.lychee.toml](../lychee.toml) as configuration
 * **Github Action:** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
 <!--  * Exclude files: [.lycheeignore](../.lycheeignore) -->
 
@@ -7987,6 +7987,7 @@ Mark stale issues and pull requests
 
 ####  44.2.15. <a id='github-action-superlinter.yml'></a>GitHub Action superlinter.yml
 
+* **Local Action:** `markdownlint .`
 * Runs GitHub Super Linter, a powerful linting suite. Purpose:
   * ensure consistent code formatting
   * detect stylistic issues
@@ -8005,6 +8006,7 @@ This workflow creates the Trice github pages  avaliable under [rokath.github.io/
 
 Test Goreleaser
 
+* **Local Action:** `goreleaser release --clean --snapshot --skip=publish`
 * **Github Action:** [.github/workflows/test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)
   * Checks if Goreleaser would succeed.
 
