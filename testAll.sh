@@ -9,14 +9,6 @@ my_long_task() {
   #local arg1="${1:-default1}"
   #local arg2="${2:-default2}"
 
-  clean-dsstore.sh
-  clang-format.ch
-  buildTriceTool.sh
-  format_dumeng_toc.sh
-  markdownlint .
-  echo "Check links..."
-  lychee .
-  echo "Check links...done"
 
   echo "🟢 Starting Test: $(date)"
   #echo "Test parameters: arg1='$arg1', arg2='$arg2'"
@@ -24,9 +16,28 @@ my_long_task() {
   SELECTED=${1:-quick}
 
   triceFolder=$(pwd)
-  date 2>&1 | tee $triceFolder/testAll.log
-  echo This can take a while ... 2>&1 | tee -a $triceFolder/testAll.log
+  date                                       2>&1 | tee $triceFolder/testAll.log
+  echo This can take a while ...             2>&1 | tee -a $triceFolder/testAll.log
   t0=$(date +%s)
+
+  echo "Clean MacOS files..."                2>&1 | tee -a $triceFolder/testAll.log
+  ./clean-dsstore.sh                         2>&1 | tee -a $triceFolder/testAll.log
+  echo "Clean MacOS files...done"            2>&1 | tee -a $triceFolder/testAll.log
+  echo "Format C sources files..."           2>&1 | tee -a $triceFolder/testAll.log
+  ./clang-format.sh                          2>&1 | tee -a $triceFolder/testAll.log
+  echo "Format C sources files...done"       2>&1 | tee -a $triceFolder/testAll.log
+  echo "Build Trice tool..."                 2>&1 | tee -a $triceFolder/testAll.log
+  ./buildTriceTool.sh                        2>&1 | tee -a $triceFolder/testAll.log
+  echo "Build Trice tool...done"             2>&1 | tee -a $triceFolder/testAll.log
+  echo "Format TriceUserManual.md..."        2>&1 | tee -a $triceFolder/testAll.log
+  ./format-dumeng-toc.sh                     2>&1 | tee -a $triceFolder/testAll.log
+  echo "Format TriceUserManual.md...done"    2>&1 | tee -a $triceFolder/testAll.log
+  echo "Lint Markdown files..."              2>&1 | tee -a $triceFolder/testAll.log
+  markdownlint .                             2>&1 | tee -a $triceFolder/testAll.log
+  echo "Lint Markdown files...done"          2>&1 | tee -a $triceFolder/testAll.log
+  echo "Check links..."                      2>&1 | tee -a $triceFolder/testAll.log
+  lychee .                                   2>&1 | tee -a $triceFolder/testAll.log
+  echo "Check links...done"                  2>&1 | tee -a $triceFolder/testAll.log.
 
   # show environment and prepare
   echo "SELECTED: $SELECTED" 2>&1 | tee -a $triceFolder/testAll.log
