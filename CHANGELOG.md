@@ -64,69 +64,69 @@ Table of Contents Generation:
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-| date        | version | comment                                                                                                                                                                                                                                                                          |
-|-------------|--------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 2020-02-11  |     0.1 | initial version                                                                                                                                                                                                                                                                  |
-| 2020-02-14  |     0.2 | SHORT_MEMORY switch added                                                                                                                                                                                                                                                        |
-| 2020-02-18  |     0.3 | C macros renamed into TRICE                                                                                                                                                                                                                                                      |
-| 2020-02-20  |     0.4 | trice printf() adapter added                                                                                                                                                                                                                                                     |
-| 2020-02-22  |     0.5 | support for auto param count                                                                                                                                                                                                                                                     |
-| 2020-03-01  |     0.6 | encryption support, TRICE64_2 added                                                                                                                                                                                                                                              |
-| 2020-03-12  |     0.7 | `trice u -src dir1 -src file -src dir2` any now possible, -ts added, effective runtime strings                                                                                                                                                                                   |
-| 2020-03-29  |     0.8 | auto-logfile, remoteDisplay added, check issues!                                                                                                                                                                                                                                 |
-| 2020-04-07  |   0.8.2 | display server supports many receiver-clients, no line mixes, code partially restructured, line prefix                                                                                                                                                                           |
-| 2020-04-22  |     0.9 | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default log filename with timestamp, remote displayServer shutdown possible                                      |
-| 2020-05-12  |   0.9.1 | `SeggerRTT` & `SeggerRTTD` added, docs extended, more test examples, TRICE16_1 critical section bugfix                                                                                                                                                                           |
-| 2020-06-29  |   0.9.2 | CLI slightly changed (no more 'r'), doc extended, added: Tests, Examples, JLINK, RND, SIM, FILE, TRICE_SYNC, TRICE_VARIANT, TRICE_ASSERT, now no semi-colon after `TRICE` is tolerated (macros), several `TRICE` in one code line are now ok                                     |
-| ...         |         |                                                                                                                                                                                                                                                                                  |
-| 2022-FEB-11 |  0.48.0 | FILE & TCP4 input ports added                                                                                                                                                                                                                                                    |
-| 2022-APR-27 |  0.49.1 | FILEBUFFER support added                                                                                                                                                                                                                                                         |
-| 2022-APR-27 |  0.49.1 | Darwin binaries added                                                                                                                                                                                                                                                            |
-| 2022-MAY-14 |  0.49.2 | Legacy comport Tarm driver code deactivated, TRICE_S usage clarification, `\t` support inside format strings added, `TRICE` macro in one line demand added., FILEBUFFER issue fixed (workaround)                                                                                 |
-| 2022-MAY-16 |  0.50.0 | Switch `-tcp` added allowing trice TCP output for reception with 3rd party tools.                                                                                                                                                                                                |
-| 2022-MAY-17 |  0.51.0 | Switch `-binaryLogfile`added.                                                                                                                                                                                                                                                    |
-| 2022-MAY-22 |  0.51.1 | Display server works again. Simple Shell added.                                                                                                                                                                                                                                  |
-| 2022-JUN-05 |  0.52.0 | UART Command option added (MDK-ARM_STM32F030R8 example), Colors extended.                                                                                                                                                                                                        |
-| 2022-JUN-14 |  0.53.0 | Macros added: TRICE_B, TRICE8_B, TRICE16_B, TRICE32_B, TRICE64_B, TRICE8_F, TRICE16_F, TRICE32_F, TRICE64_F.                                                                                                                                                                     |
-| 2022-JUL-06 |  0.54.0 | Location information file `li.json` now generated with `trice u`. This makes the 4 bytes location information inside the binary data obsolete and reduces the transmitted data. You should adapt your `triceConfig.h` - disable `TRICE_LOCATION` there.                          |
-| 2022-JUL-07 |  0.54.1 | Test data adapted                                                                                                                                                                                                                                                                |
-| 2023-FEB-19 |  0.56.0 | Many changes - see below                                                                                                                                                                                                                                                         |
-| 2023-FEB-21 |  0.56.3 | Target Modbus Code deactivated (anyway not usable yet)                                                                                                                                                                                                                           |
-| 2023-MAR-05 |  0.56.4 | Maintenance release: all 3 modes work parallel over RTT0 and UARTA in MDK-ARM_STM32F030R8.                                                                                                                                                                                       |
-| 2023-MAY-04 |  0.57.0 | Target code reworked. Now 4 buffer types: `STACK`,`STATIC` for direct mode only and `DOUBLE`, `RING` for deferred plus optional direct mode. A RTT 32-bit write function allows direct SEGGER_RTT output within less 100 MCU clocks (^=1.5µs@64MHz).                             |
-| 2023-MAY-05 |  0.58.0 | Target files all now direct in src folder and need to be included all. Direct XTEA with RTT32 (experimental).                                                                                                                                                                    |
-| 2023-MAY-10 |  0.59.0 | Target code better structured. Automatic target tests working and now extendable with more configuration variants. Auxiliary support for direct and deferred. Common RTT Diagnostics for all RTT Modes as part of TRICE_DIAGNOSTICS.                                             |
-| 2023-MAY-14 |  0.60.0 | XTEA working with doubleBuffer in multi-pack mode and also with ringBuffer (safe-single mode). Tests for that added and also a test for twin mode (direct plus deferred output) is working. more target code tests                                                               |
-| 2023-MAY-15 |  0.60.1 | Trice Log enabled in https://github.com/rokath/trice/tree/master/examples/F030_inst as `triceConfig.h` example.                                                                                                                                                                  |
-| 2023-MAY-16 |  0.60.2 | Target code linted.                                                                                                                                                                                                                                                              |
-| 2023-JUN-09 |  0.60.3 | vsCode with Clang\|GCC examples added                                                                                                                                                                                                                                            |
-| 2023-JUL-24 |  0.61.0 | `trice insert` as new command is successor for `trice update`. With `trice zero` all IDs in source can be set to 0. A following `trice insert` will restore the IDs. Experimental `trice clean` command added. `trice insert` depreciated now and will be removed in the future. |
-| 2023-JUL-24 |  0.61.1 | Fixed [#407](https://github.com/rokath/trice/issues/407)                                                                                                                                                                                                                         |
-| 2023-JUL-24 |  0.61.2 | Fixed [#423](https://github.com/rokath/trice/issues/423)                                                                                                                                                                                                                         |
-| 2023-AUG-06 |  0.62.0 | Examples moved from ./test to ./examples. ReadMe.md and scripts adapted. This includes the movement of TriceDiagnostics() to [triceCheck.c](./_test/testdata/triceCheck.c) because this is more a user specific and no library functionality.                                    |
-| 2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.                                                                                                                                                                       |
-| 2023-SEP-10 |  0.62.2 | Fixes issue [#427](https://github.com/rokath/trice/issues/427). TCOBS decoder more robust against data garbage.                                                                                                                                                                  |
-| 2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.                                                                                                    |
-| 2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#v0.63.0-changes)                                                                                                                                                                                                                                         |
-| 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes](#v0.64.0-changes)                                                                                                                                                                                                                                       |
-| 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes](#v0.64.1-changes)                                                                                                                                                                                                                                          |
-| 2024-JUL-26 |  0.64.2 | minor cleanups                                                                                                                                                                                                                                                                   |
-| 2024-JUL-27 |  0.64.3 | ID management improved for special cases                                                                                                                                                                                                                                         |
-| 2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#v0.65.0-changes)                                                                                                                                                                                                                                       |
-| 2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#v0.66.0-changes)                                                                                                                                                                                                                                       |
-| 2024-AUG-18 |  0.66.1 | Documetation and tests improved                                                                                                                                                                                                                                                  |
-| 2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#v0.67.0-changes)                                                                                                                                                                                                                                       |
-| 2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#v0.68.0-changes)                                                                                                                                                                                                                                       |
-| 2024-AUG-23 |  0.69.0 | See [10. v0.69.0 Changes](#v0.69.0-changes)                                                                                                                                                                                                                                      |
-| 2024-OCT-09 |  0.70.0 | See [11. v0.70.0 Changes](#v0.70.0-changes)                                                                                                                                                                                                                                      |
-| 2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#v0.71.0-changes)                                                                                                                                                                                                                                      |
-| 2024-OCT-31 |  0.72.0 | See [13. v0.72.0 Changes](#v0.72.0-changes)                                                                                                                                                                                                                                      |
-| 2024-NOV-06 |  0.72.1 | See [14. v0.72.1 Changes](#v0.72.1-changes)                                                                                                                                                                                                                                      |
-| 2024-NOV-17 |  0.72.2 | See [15. v0.72.2 Changes](#v0.72.2-changes)                                                                                                                                                                                                                                      |
-| 2024-NOV-29 |  0.72.3 | See [16. v0.72.3 Changes](#v0.72.3-changes)                                                                                                                                                                                                                                      |
-| 2024-DEC-10 |  0.72.4 | See [17. v0.72.4 Changes](#v0.72.4-changes)                                                                                                                                                                                                                                      |
-| 2024-DEC-18 |  0.72.5 | See [18. v0.72.5 Changes](#v0.72.5-changes)                                                                                                                                                                                                                                      |
-| 2024-DEC-18 |  master | See [19. master branch changes](#master-branch-changes)                                                                                                                                                                                                                          |
+date        | version | comment
+------------|--------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2020-02-11  |     0.1 | initial version
+2020-02-14  |     0.2 | SHORT_MEMORY switch added
+2020-02-18  |     0.3 | C macros renamed into TRICE
+2020-02-20  |     0.4 | trice printf() adapter added
+2020-02-22  |     0.5 | support for auto param count
+2020-03-01  |     0.6 | encryption support, TRICE64_2 added
+2020-03-12  |     0.7 | `trice u -src dir1 -src file -src dir2` any now possible, -ts added, effective runtime strings
+2020-03-29  |     0.8 | auto-logfile, remoteDisplay added, check issues!
+2020-04-07  |   0.8.2 | display server supports many receiver-clients, no line mixes, code partially restructured, line prefix
+2020-04-22  |     0.9 | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default log filename with timestamp, remote displayServer shutdown possible
+2020-05-12  |   0.9.1 | `SeggerRTT` & `SeggerRTTD` added, docs extended, more test examples, TRICE16_1 critical section bugfix
+2020-06-29  |   0.9.2 | CLI slightly changed (no more 'r'), doc extended, added: Tests, Examples, JLINK, RND, SIM, FILE, TRICE_SYNC, TRICE_VARIANT, TRICE_ASSERT, now no semi-colon after `TRICE` is tolerated (macros), several `TRICE` in one code line are now ok
+...         |         |
+2022-FEB-11 |  0.48.0 | FILE & TCP4 input ports added
+2022-APR-27 |  0.49.1 | FILEBUFFER support added
+2022-APR-27 |  0.49.1 | Darwin binaries added
+2022-MAY-14 |  0.49.2 | Legacy comport Tarm driver code deactivated, TRICE_S usage clarification, `\t` support inside format strings added, `TRICE` macro in one line demand added., FILEBUFFER issue fixed (workaround)
+2022-MAY-16 |  0.50.0 | Switch `-tcp` added allowing trice TCP output for reception with 3rd party tools.
+2022-MAY-17 |  0.51.0 | Switch `-binaryLogfile`added.
+2022-MAY-22 |  0.51.1 | Display server works again. Simple Shell added.
+2022-JUN-05 |  0.52.0 | UART Command option added (MDK-ARM_STM32F030R8 example), Colors extended.
+2022-JUN-14 |  0.53.0 | Macros added: TRICE_B, TRICE8_B, TRICE16_B, TRICE32_B, TRICE64_B, TRICE8_F, TRICE16_F, TRICE32_F, TRICE64_F.
+2022-JUL-06 |  0.54.0 | Location information file `li.json` now generated with `trice u`. This makes the 4 bytes location information inside the binary data obsolete and reduces the transmitted data. You should adapt your `triceConfig.h` - disable `TRICE_LOCATION` there.
+2022-JUL-07 |  0.54.1 | Test data adapted
+2023-FEB-19 |  0.56.0 | Many changes - see below
+2023-FEB-21 |  0.56.3 | Target Modbus Code deactivated (anyway not usable yet)
+2023-MAR-05 |  0.56.4 | Maintenance release: all 3 modes work parallel over RTT0 and UARTA in MDK-ARM_STM32F030R8.
+2023-MAY-04 |  0.57.0 | Target code reworked. Now 4 buffer types: `STACK`,`STATIC` for direct mode only and `DOUBLE`, `RING` for deferred plus optional direct mode. A RTT 32-bit write function allows direct SEGGER_RTT output within less 100 MCU clocks (^=1.5µs@64MHz).
+2023-MAY-05 |  0.58.0 | Target files all now direct in src folder and need to be included all. Direct XTEA with RTT32 (experimental).
+2023-MAY-10 |  0.59.0 | Target code better structured. Automatic target tests working and now extendable with more configuration variants. Auxiliary support for direct and deferred. Common RTT Diagnostics for all RTT Modes as part of TRICE_DIAGNOSTICS.
+2023-MAY-14 |  0.60.0 | XTEA working with doubleBuffer in multi-pack mode and also with ringBuffer (safe-single mode). Tests for that added and also a test for twin mode (direct plus deferred output) is working. more target code tests
+2023-MAY-15 |  0.60.1 | Trice Log enabled in https://github.com/rokath/trice/tree/master/examples/F030_inst as `triceConfig.h` example.
+2023-MAY-16 |  0.60.2 | Target code linted.
+2023-JUN-09 |  0.60.3 | vsCode with Clang\|GCC examples added
+2023-JUL-24 |  0.61.0 | `trice insert` as new command is successor for `trice update`. With `trice zero` all IDs in source can be set to 0. A following `trice insert` will restore the IDs. Experimental `trice clean` command added. `trice insert` depreciated now and will be removed in the future.
+2023-JUL-24 |  0.61.1 | Fixed [#407](https://github.com/rokath/trice/issues/407)
+2023-JUL-24 |  0.61.2 | Fixed [#423](https://github.com/rokath/trice/issues/423)
+2023-AUG-06 |  0.62.0 | Examples moved from ./test to ./examples. ReadMe.md and scripts adapted. This includes the movement of TriceDiagnostics() to [triceCheck.c](./_test/testdata/triceCheck.c) because this is more a user specific and no library functionality.
+2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.
+2023-SEP-10 |  0.62.2 | Fixes issue [#427](https://github.com/rokath/trice/issues/427). TCOBS decoder more robust against data garbage.
+2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.
+2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#v0.63.0-changes)
+2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes](#v0.64.0-changes)
+2024-JUL-26 |  0.64.1 | See [v0.64.1 changes](#v0.64.1-changes)
+2024-JUL-26 |  0.64.2 | minor cleanups
+2024-JUL-27 |  0.64.3 | ID management improved for special cases
+2024-AUG-08 |  0.65.0 | See [6. v0.65.0 Changes](#v0.65.0-changes)
+2024-AUG-17 |  0.66.0 | See [7. v0.66.0 Changes](#v0.66.0-changes)
+2024-AUG-18 |  0.66.1 | Documetation and tests improved
+2024-AUG-23 |  0.67.0 | See [8. v0.67.0 Changes](#v0.67.0-changes)
+2024-AUG-30 |  0.68.0 | See [9. v0.68.0 Changes](#v0.68.0-changes)
+2024-AUG-23 |  0.69.0 | See [10. v0.69.0 Changes](#v0.69.0-changes)
+2024-OCT-09 |  0.70.0 | See [11. v0.70.0 Changes](#v0.70.0-changes)
+2024-OCT-17 |  0.71.0 | See [12. v0.71.0 Changes](#v0.71.0-changes)
+2024-OCT-31 |  0.72.0 | See [13. v0.72.0 Changes](#v0.72.0-changes)
+2024-NOV-06 |  0.72.1 | See [14. v0.72.1 Changes](#v0.72.1-changes)
+2024-NOV-17 |  0.72.2 | See [15. v0.72.2 Changes](#v0.72.2-changes)
+2024-NOV-29 |  0.72.3 | See [16. v0.72.3 Changes](#v0.72.3-changes)
+2024-DEC-10 |  0.72.4 | See [17. v0.72.4 Changes](#v0.72.4-changes)
+2024-DEC-18 |  0.72.5 | See [18. v0.72.5 Changes](#v0.72.5-changes)
+2024-DEC-18 |  master | See [19. master branch changes](#master-branch-changes)
 
 ## 1. <a id='v0.60.1-twice-log-screen-shot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -930,13 +930,74 @@ Used git log command: `git log --oneline v0.72.5..HEAD | grep -v wip >> CHANGELO
 * `trice version -verbose` now with list of local changed files and git hash during compile time
 * goreleaser now with linux arm 6/7 build to run `trice log` on embedded Linux platforms
 * Github Actions reworked including clang-format and bash format.
+* Github pages enabled
+* Link Check added to avoid broken links
+* Trice user manual enhanched
+* Go coverage tests updated
+* New Github Actions
+  * clang-format check
+  * YAML Linting
+  * Markdown Linting
+  * Link checks
+* Additional Trice Assert macros 
 
 ### v1.1.0 Git Log
 
 Used command: `./gitLogWithBranches.sh --since 2025-04-01` and unimportant lines and infos removed
 
 ```txt
-
+*            96032990 2025-12-17  go coverage stuff added/updated
+*            df9864b3 2025-12-16  `temp/` not as link - is does not exist on the server
+*            35e5f212 2025-12-16  scan repo added
+*            9e24daf7 2025-12-16  wip pages & repo check
+*            c788d578 2025-12-15  wip Trice User Manual
+*            3415f43c 2025-12-14  wrong triceAssertFail removed
+*            5b5493bb 2025-12-14  feat: 581 - allow to implement different Asserts functions. implement some more assert utility functions (#590)
+*            032ffc1b 2025-12-14  improved dumeng TOC patch
+*            4b9d0ae6 2025-12-14  Colons removed from headlines
+*            0dbd137a 2025-12-14  gh pages link enabled
+*            65246b79 2025-12-14  toc tweak script added
+*            aa5d223b 2025-12-13  Links corrected
+*            45822b71 2025-12-13  Links corrected, TOC syntax better GH Av´ctions Chapter extended
+*            c2a17c41 2025-12-13  minor link syntax correction
+*            e8070c52 2025-12-13  GH Action link check added
+*            e4c924c8 2025-12-13  Merge remote-tracking branch 'origin/rokath-patch-1'
+|\           1b013fb3 2025-12-13  Disable Jekyll build step in pages.yml
+| *          7942b411 2025-12-13  Disable Jekyll build step in pages.yml
+* |          e73b1808 2025-12-12  wip
+|/           73718905 2025-12-12  test
+*            a93de00f 2025-12-12  legacy file deleted
+*            7c15915f 2025-12-12  added MARKDOWN_CONFIG_FILE: .markdownlint.yaml
+*            efa7be28 2025-12-12  paths ./docs/... to docs/...
+*            e10f01e3 2025-12-12  anchor correction
+*            bd2337eb 2025-12-12  super linter forced to look into project root
+*            4a57315b 2025-12-12  </div> correction
+*            4121bd4e 2025-12-12  DEBUG for super linter enabled
+*            be452720 2025-12-12  minor re-ordeing for GH pages rendering
+*            27ac0850 2025-12-12  linted
+*            fd64bfdc 2025-12-12  GH action Pages workflow added
+*            df935394 2025-12-12  wip GH pages
+*            577337c2 2025-12-12  render GH pages
+*            61268035 2025-12-11  build_environment.sh again silent by default
+*            13976298 2025-12-11  AI generated improvement for build_environment.sh
+*            757455b6 2025-12-11  missing global vars added to test function Setup(t)
+*            8d9deb3d 2025-12-11  fix to pass packet tests
+*            a3b17d9e 2025-12-11  utf-8 idempotent tests added
+*            e4a05569 2025-12-11  \#579 fixed
+*            f761fa60 2025-12-10  Merge remote-tracking branch 'origin/main'
+*            37c1e9fb 2025-12-10  Issue \#584 solution incorporated
+*            82e04a4a 2025-12-09  feat(trice): 582 - Only includes XTEA if it is enabled
+|\           740284d0 2025-12-09  markdown linted
+| *          4378c496 2025-12-09  Ignore legacy vendor folders from markdownlint
+| *          a35c70a4 2025-12-09  comment added
+| *          fed394fb 2025-12-08  Chapter Trice Folder Maintenance added
+| *          a6be62cd 2025-12-08  markdown linted
+* |          0c97caea 2025-12-08  small readme added for cmd/clang-format
+|/           3baf5336 2025-12-08  TRICE_DEFERRED_AUXILIARY32 excluded until needed
+*            d689cece 2025-12-08  redundant newline removed
+*            62951d53 2025-12-08  TriceUserManual.md linted
+*            cb28b3f1 2025-12-07  first shot
+*            13efa3b4 2025-12-07  golreleaser CLI switch corrected
 *            b7ecdbd7 2025-12-07  wip clang-format-ignore
 *            7bccb8a6 2025-12-07  clang-filter Go code added
 *            7116cde5 2025-12-07  clang-format.sh with check CLI switch
