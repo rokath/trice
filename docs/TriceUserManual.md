@@ -187,10 +187,10 @@ PDF Generation
   * [26.2. A configuration for maximum Trice execution speed with the L432_inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example)
   * [26.3. A configuration for normal Trice execution speed with the G0B1_inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example)
 * [27. Trice memory needs](#trice-memory-needs)
-  * [27.1. F030_bare Size](#F030_bare-size)
-  * [27.2. F030_inst Size with TRICE_OFF=1](#F030_inst-size-with-trice_off=1)
-  * [27.3. F030_inst with ring buffer](#F030_inst-with-ring-buffer)
-  * [27.4. F030_inst with ring buffer](#F030_inst-with-ring-buffer-1)
+  * [27.1. F030_bare Size](#f030_bare-size)
+  * [27.2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off=1)
+  * [27.3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
+  * [27.4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
   * [27.5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting,-only-enabling-segger_rtt)
   * [27.6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting,-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-`./build.sh-trice_diagnostics=0-trice_protect=0`:)
   * [27.7. Settings Conclusion](#settings-conclusion)
@@ -207,7 +207,7 @@ PDF Generation
     * [28.4.3. GCC](#gcc)
     * [28.4.4. LLVM ARM Clang](#llvm-arm-clang)
     * [28.4.5. Other IDE´s and compilers](#other-ide´s-and-compilers)
-  * [28.5. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32F030-example-project---different-build-sizes)
+  * [28.5. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32f030-example-project---different-build-sizes)
     * [28.5.1. ARMCC compiler v5](#armcc-compiler-v5)
 * [29. Trice Tags and Color](#trice-tags-and-color)
   * [29.1. How to get](#how-to-get)
@@ -230,7 +230,7 @@ PDF Generation
   * [31.5. Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-(~800-eur)-option)
   * [31.6. Additional Notes (leftovers)](#additional-notes-(leftovers))
   * [31.7. Further development](#further-development)
-  * [31.8. NUCLEO-F030R8 example](#nucleo-F030r8-example)
+  * [31.8. NUCLEO-F030R8 example](#nucleo-f030r8-example)
     * [31.8.1. RTT with original on-board ST-LINK firmware](#rtt-with-original-on-board-st-link-firmware)
     * [31.8.2. Change to J-LINK onboard firmware](#change-to-j-link-onboard-firmware)
     * [31.8.3. RTT with J-LINK firmware on-board](#rtt-with-j-link-firmware-on-board)
@@ -299,9 +299,9 @@ PDF Generation
   * [35.12. Logging](#logging)
   * [35.13. Setting up a new project](#setting-up-a-new-project)
 * [36. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
-  * [36.1. Nucleo-F030R8 Examples](#nucleo-F030r8-examples)
-    * [36.1.1. F030_bare](#F030_bare)
-    * [36.1.2. F030_inst](#F030_inst)
+  * [36.1. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
+    * [36.1.1. F030_bare](#f030_bare)
+    * [36.1.2. F030_inst](#f030_inst)
   * [36.2. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
     * [36.2.1. G0B1_bare](#g0b1_bare)
     * [36.2.2. G0B1_inst](#g0b1_inst)
@@ -375,19 +375,20 @@ PDF Generation
     * [44.2.2. 📂 `.github/workflows` — GitHub Actions Workflows](#📂-`.github/workflows`-—-github-actions-workflows)
     * [44.2.3.  GitHub Action clang-format.yml](#-github-action-clang-format.yml)
     * [44.2.4. GitHub Action codeql.yml](#github-action-codeql.yml)
-    * [44.2.5. GitHub Action go.yml](#github-action-go.yml)
-    * [44.2.6. GitHub Action goreleaser.yml](#github-action-goreleaser.yml)
-    * [44.2.7. GitHub Action greetings.yml](#github-action-greetings.yml)
-    * [44.2.8. GitHub Action label.yml](#github-action-label.yml)
-    * [44.2.9. GitHub Action learn-github-actions.yml](#github-action-learn-github-actions.yml)
-    * [44.2.10. GitHub Action link-check.yml](#github-action-link-check.yml)
-    * [44.2.11. GitHub Action manual.ym](#github-action-manual.ym)
-    * [44.2.12. GitHub Action shellcheck.yml](#github-action-shellcheck.yml)
-    * [44.2.13. GitHub Action shfmt.yml](#github-action-shfmt.yml)
-    * [44.2.14. GitHub Action stale.yml](#github-action-stale.yml)
-    * [44.2.15. GitHub Action superlinter.yml](#github-action-superlinter.yml)
-    * [44.2.16.  Github Action pages.yml](#-github-action-pages.yml)
-    * [44.2.17.  Github Action test_goreleaser.yml](#-github-action-test_goreleaser.yml)
+    * [44.2.5. GitHub Action coverage.yml](#github-action-coverage.yml)
+    * [44.2.6. GitHub Action go.yml](#github-action-go.yml)
+    * [44.2.7. GitHub Action goreleaser.yml](#github-action-goreleaser.yml)
+    * [44.2.8. GitHub Action greetings.yml](#github-action-greetings.yml)
+    * [44.2.9. GitHub Action label.yml](#github-action-label.yml)
+    * [44.2.10. GitHub Action learn-github-actions.yml](#github-action-learn-github-actions.yml)
+    * [44.2.11. GitHub Action link-check.yml](#github-action-link-check.yml)
+    * [44.2.12. GitHub Action manual.ym](#github-action-manual.ym)
+    * [44.2.13. GitHub Action shellcheck.yml](#github-action-shellcheck.yml)
+    * [44.2.14. GitHub Action shfmt.yml](#github-action-shfmt.yml)
+    * [44.2.15. GitHub Action stale.yml](#github-action-stale.yml)
+    * [44.2.16. GitHub Action superlinter.yml](#github-action-superlinter.yml)
+    * [44.2.17.  Github Action pages.yml](#-github-action-pages.yml)
+    * [44.2.18.  Github Action test_goreleaser.yml](#-github-action-test_goreleaser.yml)
   * [44.3. Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
   * [44.4. Cleaning the Sources](#cleaning-the-sources)
 * [45. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
@@ -2878,7 +2879,7 @@ Still fast enough for many cases but you hopefully have a good knowledge now how
 
 Depending on your target configuration the needed space can differ:
 
-###  27.1. <a id='F030_bare-size'></a>F030_bare Size
+###  27.1. <a id='f030_bare-size'></a>F030_bare Size
 
 * `./build.sh`:
 
@@ -2890,7 +2891,7 @@ arm-none-eabi-size build/F030_bare.elf
 
 That is the basic size of an empty generated project just containing some drivers.
 
-###  27.2. <a id='F030_inst-size-with-trice_off=1'></a>F030_inst Size with TRICE_OFF=1
+###  27.2. <a id='f030_inst-size-with-trice_off=1'></a>F030_inst Size with TRICE_OFF=1
 
 * `./build.sh TRICE_OFF=1` :
 
@@ -2902,7 +2903,7 @@ arm-none-eabi-size build/F030_inst.elf
 
 This is exactly the same result, proofing that `TRICE_OFF 1` is working correctly.
 
-###  27.3. <a id='F030_inst-with-ring-buffer'></a>F030_inst with ring buffer
+###  27.3. <a id='f030_inst-with-ring-buffer'></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -2978,7 +2979,7 @@ com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit time stamp
 ```
 
-###  27.4. <a id='F030_inst-with-ring-buffer-1'></a>F030_inst with ring buffer
+###  27.4. <a id='f030_inst-with-ring-buffer-1'></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -3283,7 +3284,7 @@ This compiler is much faster and creates the smallest images. Right now it uses 
 
 Please check the manuals and create a pull request or simply let me know.
 
-###  28.5. <a id='legacy-stm32F030-example-project---different-build-sizes'></a>Legacy STM32F030 Example Project - Different Build Sizes
+###  28.5. <a id='legacy-stm32f030-example-project---different-build-sizes'></a>Legacy STM32F030 Example Project - Different Build Sizes
 
 ####  28.5.1. <a id='armcc-compiler-v5'></a>ARMCC compiler v5
 
@@ -3836,7 +3837,7 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  31.8. <a id='nucleo-F030r8-example'></a>NUCLEO-F030R8 example
+###  31.8. <a id='nucleo-f030r8-example'></a>NUCLEO-F030R8 example
 
 Info: [https://www.st.com/en/evaluation-tools/nucleo-F030r8.html](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html)
 
@@ -5041,11 +5042,11 @@ Extend the path variable:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  36.1. <a id='nucleo-F030r8-examples'></a>Nucleo-F030R8 Examples
+###  36.1. <a id='nucleo-f030r8-examples'></a>Nucleo-F030R8 Examples
 
 <img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-F030r8-stm32F030r8t6-arm-cortex-m0.jpg">
 
-####  36.1.1. <a id='F030_bare'></a>F030_bare
+####  36.1.1. <a id='f030_bare'></a>F030_bare
 
 Folder: [../examples/F030_bare/](../examples/F030_bare/)
 
@@ -5133,7 +5134,7 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-####  36.1.2. <a id='F030_inst'></a>F030_inst
+####  36.1.2. <a id='f030_inst'></a>F030_inst
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
@@ -7785,6 +7786,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
 |---------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 | [clang-format.yml](../.github/workflows/clang-format.yml)                 | [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                |
 | [codeql.yml](../.github/workflows/codeql.yml)                             | [GitHub Action codeql.yml](#github-action-codeql.yml)                             |
+| [coverage.yml](.github/workflows/coverage.yml)                            | [GitHub Action coverage.yml](#github-action-coverage.yml)                         |
 | [go.yml](../.github/workflows/go.yml)                                     | [GitHub Action go.yml](#github-action-go.yml)                                     |
 | [goreleaser.yml](../.github/workflows/goreleaser.yml)                     | [GitHub Action goreleaser.yml](#github-action-goreleaser.yml)                     |
 | [greetings.yml](../.github/workflows/greetings.yml)                       | [GitHub Action greetings.yml](#github-action-greetings.yml)                       |
@@ -7801,7 +7803,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
 
 ####  44.2.3. <a id='-github-action-clang-format.yml'></a> GitHub Action clang-format.yml
 
-* **Local Action:** [./clang-format.sh](../clang-format.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
+* **Local Action (developer machine):** [./clang-format.sh](../clang-format.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
   > The file [./clang-format.sh](../clang-format.sh) is used to auto-format the Trice code.
   > 
   > File [.clang-format](../.clang-format)
@@ -7868,7 +7870,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
   > ```bash
   > git ls-tree -r HEAD --name-only | perl -ne 'print $1 if m/\.([^.\/]+)$/' | sort -u
   > ```
-* **Github Action:** [.github/workflows/clang-format.yml](../.github/workflows/clang-format.yml) does not format, it only checks.
+* **Github Action (Continuous Integration):** [.github/workflows/clang-format.yml](../.github/workflows/clang-format.yml) does not format, it only checks.
 
 ####  44.2.4. <a id='github-action-codeql.yml'></a>GitHub Action codeql.yml
 
@@ -7877,7 +7879,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
   * detect unsafe code patterns
   * provide security alerts in the “Security” tab
   * Runs automatically on pushes and pull requests.
-* **Github Action:** [.github/workflows/codeql.yml](../.github/workflows/codeql.yml)
+* **Github Action (Continuous Integration):** [.github/workflows/codeql.yml](../.github/workflows/codeql.yml)
   * This workflow configures **GitHub CodeQL code scanning** for the repository. 
   * This workflow continuously scans the codebase for security and quality problems using CodeQL.
   * It performs **static code analysis** on source code.
@@ -7892,7 +7894,28 @@ These files are not executed; they simply inform GitHub how certain workflows be
   * The results are uploaded to GitHub and appear under **Security → Code scanning alerts**.
   * The “QL” is the same concept as SQL, but specialized for code analysis.
 
-####  44.2.5. <a id='github-action-go.yml'></a>GitHub Action go.yml
+####  44.2.5. <a id='github-action-coverage.yml'></a>GitHub Action coverage.yml - Test Coverage and Coveralls Integration
+
+Trice uses Go’s built-in coverage tooling to measure how much of the Go codebase is exercised by automated tests.
+
+* **Local Action (developer machine):** Generate a coverage profile locally with
+  `go test ./... -covermode=atomic -coverprofile=coverage.out go tool cover -func=coverage.out go tool cover -html=coverage.out`
+
+* **Github Action (Continuous Integration):**  
+On GitHub, the workflow `.github/workflows/coverage.yml` runs automatically for every pull request and also on a monthly schedule. The workflow:
+  1.  executes `go test` with coverage enabled,
+  2.  prints a coverage summary in the CI logs,
+  3.  uploads the raw `coverage.out` file as a workflow artifact, and
+  4.  publishes the coverage results to Coveralls (if configured).
+    
+**Coverage badge:**  
+The README displays the current coverage status for the default branch using the Coveralls badge:
+
+`[![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=master)](https://coveralls.io/github/rokath/trice?branch=master)`
+
+This badge is updated whenever the CI workflow successfully uploads a new coverage report for the `master` branch.
+
+####  44.2.6. <a id='github-action-go.yml'></a>GitHub Action go.yml
 
 * A workflow for building and testing Go code. It runs GitHub CodeQL for Go and C (cpp language pack), detecting security vulnerabilities and code issues.
   * Typically includes steps such as:
@@ -7900,10 +7923,10 @@ These files are not executed; they simply inform GitHub how certain workflows be
   * checking out the repository
   * compiling the project
   * running unit tests
-* **Local Action:** `go test ./...` or better `./testAll.sh full` (takes long)
-* **Github Action:** [.github/workflows/go.yml](../.github/workflows/go.yml)
+* **Local Action (developer machine):** `go test ./...` or better `./testAll.sh full` (takes long)
+* **Github Action (Continuous Integration):** [.github/workflows/go.yml](../.github/workflows/go.yml)
 
-####  44.2.6. <a id='github-action-goreleaser.yml'></a>GitHub Action goreleaser.yml
+####  44.2.7. <a id='github-action-goreleaser.yml'></a>GitHub Action goreleaser.yml
 
 This workflow runs GoReleaser, the tool that builds and packages Trice for distribution.
   * Purpose:
@@ -7915,45 +7938,45 @@ This workflow runs GoReleaser, the tool that builds and packages Trice for distr
     * manually from the GitHub UI (“Run workflow”)
     * automatically when pushing a tag matching v* (e.g., v0.44.0)
     * This is the workflow responsible for generating official Trice releases.
-* **Local Action:** `goreleaser`
-* **Github Action:** [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml)
+* **Local Action (developer machine):** `goreleaser`
+* **Github Action (Continuous Integration):** [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml)
 
 See also [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
 
-####  44.2.7. <a id='github-action-greetings.yml'></a>GitHub Action greetings.yml
+####  44.2.8. <a id='github-action-greetings.yml'></a>GitHub Action greetings.yml
 
 A small automation that posts a friendly greeting message when somebody:
   * opens their first issue
   * opens their first pull request
   * Used to make new contributors feel welcome.
 
-####  44.2.8. <a id='github-action-label.yml'></a>GitHub Action label.yml
+####  44.2.9. <a id='github-action-label.yml'></a>GitHub Action label.yml
 
 * Defines automatic labeling rules for issues and PRs.
   * For example, files in certain directories may automatically get category labels.
   * This helps maintainers classify submissions more easily.
-* **Github Action:** [.github/workflows/label.yml](../.github/workflows/label.yml)
+* **Github Action (Continuous Integration):** [.github/workflows/label.yml](../.github/workflows/label.yml)
 
-####  44.2.9. <a id='github-action-learn-github-actions.yml'></a>GitHub Action learn-github-actions.yml
+####  44.2.10. <a id='github-action-learn-github-actions.yml'></a>GitHub Action learn-github-actions.yml
 
 An instructional workflow provided by GitHub. Purpose:
   * demonstrate basic GitHub Actions usage
   * serve as documentation or a teaching example for new contributors
   * It does not affect the Trice build or release process.
 
-####  44.2.10. <a id='github-action-link-check.yml'></a>GitHub Action link-check.yml
+####  44.2.11. <a id='github-action-link-check.yml'></a>GitHub Action link-check.yml
 
 Broken Links Check
 
-* **Local Action:** (deprechiated) `markdown-link-check ./docs/TriceUserManual.md`
+* **Local Action (developer machine):** (deprechiated) `markdown-link-check ./docs/TriceUserManual.md`
   * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
   * Info: `[/] #%F0%9F%93%82-%60.github/workflows%60-%E2%80%94-github-actions-workflows` = skipped check
-* **Local Action:** `lychee .`
+* **Local Action (developer machine):** `lychee .`
   * Uses [.lychee.toml](../lychee.toml) as configuration
-* **Github Action:** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
+* **Github Action (Continuous Integration):** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
 <!--  * Exclude files: [.lycheeignore](../.lycheeignore) -->
 
-####  44.2.11. <a id='github-action-manual.ym'></a>GitHub Action manual.ym
+####  44.2.12. <a id='github-action-manual.ym'></a>GitHub Action manual.ym
 
 A workflow that is designed to be triggered manually (similar to _workflow_dispatch_ workflows). Common use cases:
   * executing maintenance tasks
@@ -7961,20 +7984,20 @@ A workflow that is designed to be triggered manually (similar to _workflow_dispa
   * testing workflow behavior without making a commit
   * This workflow does not run automatically.
 
-####  44.2.12. <a id='github-action-shellcheck.yml'></a>GitHub Action shellcheck.yml
+####  44.2.13. <a id='github-action-shellcheck.yml'></a>GitHub Action shellcheck.yml
 
 Runs ShellCheck on all *.sh files, catching common bugs in Bash scripts.
 
-* **Github Action:** [.github/workflows/shellcheck.yml](../.github/workflows/shellcheck.yml)
+* **Github Action (Continuous Integration):** [.github/workflows/shellcheck.yml](../.github/workflows/shellcheck.yml)
 
-####  44.2.13. <a id='github-action-shfmt.yml'></a>GitHub Action shfmt.yml
+####  44.2.14. <a id='github-action-shfmt.yml'></a>GitHub Action shfmt.yml
 
 Runs shfmt in diff mode on pull requests to ensure consistent formatting of shell scripts.
 
-* **Local Action:** `go test ./...` or better `./testAll.sh full` (takes long)
-* **Github Action:** [.github/workflows/shfmt.yml](../.github/workflows/shfmt.yml)
+* **Local Action (developer machine):** `go test ./...` or better `./testAll.sh full` (takes long)
+* **Github Action (Continuous Integration):** [.github/workflows/shfmt.yml](../.github/workflows/shfmt.yml)
 
-####  44.2.14. <a id='github-action-stale.yml'></a>GitHub Action stale.yml
+####  44.2.15. <a id='github-action-stale.yml'></a>GitHub Action stale.yml
 
 Automates stale issue handling. Function:
   * marks inactive issues or PRs as “stale”
@@ -7983,31 +8006,31 @@ Automates stale issue handling. Function:
 
 Mark stale issues and pull requests
 
-* **Github Action:** [.github/workflows/stale.yml](../.github/workflows/stale.yml)
+* **Github Action (Continuous Integration):** [.github/workflows/stale.yml](../.github/workflows/stale.yml)
 
-####  44.2.15. <a id='github-action-superlinter.yml'></a>GitHub Action superlinter.yml
+####  44.2.16. <a id='github-action-superlinter.yml'></a>GitHub Action superlinter.yml
 
-* **Local Action:** `markdownlint .`
+* **Local Action (developer machine):** `markdownlint .`
 * Runs GitHub Super Linter, a powerful linting suite. Purpose:
   * ensure consistent code formatting
   * detect stylistic issues
   * catch potential errors in supported languages
   * Helps maintain code quality across the entire repository.
-* **Github Action:** [.github/workflows/superlinter.yml](../.github/workflows/superlinter.yml)
+* **Github Action (Continuous Integration):** [.github/workflows/superlinter.yml](../.github/workflows/superlinter.yml)
   * Checks YAML and Markdown files
 
-####  44.2.16. <a id='-github-action-pages.yml'></a> Github Action pages.yml
+####  44.2.17. <a id='-github-action-pages.yml'></a> Github Action pages.yml
 
 This workflow creates the Trice github pages  avaliable under [rokath.github.io/trice/](https://rokath.github.io/trice/).
 
-* **Github Action:** [.github/workflows/pages.yml](../.github/workflows/pages.yml)
+* **Github Action (Continuous Integration):** [.github/workflows/pages.yml](../.github/workflows/pages.yml)
 
-####  44.2.17. <a id='-github-action-test_goreleaser.yml'></a> Github Action test_goreleaser.yml
+####  44.2.18. <a id='-github-action-test_goreleaser.yml'></a> Github Action test_goreleaser.yml
 
 Test Goreleaser
 
-* **Local Action:** `goreleaser release --clean --snapshot --skip=publish`
-* **Github Action:** [.github/workflows/test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)
+* **Local Action (developer machine):** `goreleaser release --clean --snapshot --skip=publish`
+* **Github Action (Continuous Integration):** [.github/workflows/test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)
   * Checks if Goreleaser would succeed.
 
 ###  44.3. <a id='trice-user-manual-maintenance-(or-any-`*.md`-file)'></a>Trice User Manual Maintenance (or any `*.md` file)

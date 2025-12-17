@@ -12,4 +12,4 @@
 **/.mxproject
 **/.DS_Store
 internal/receiver/trices.raw
-
+coverage.out
