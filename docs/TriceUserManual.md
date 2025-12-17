@@ -373,22 +373,22 @@ PDF Generation
   * [44.2. 📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)
     * [44.2.1. 📁 `.github` Root](#📁-`.github`-root)
     * [44.2.2. 📂 `.github/workflows` — GitHub Actions Workflows](#📂-`.github/workflows`-—-github-actions-workflows)
-    * [44.2.3.  GitHub Action clang-format.yml](#-github-action-clang-format.yml)
-    * [44.2.4. GitHub Action codeql.yml](#github-action-codeql.yml)
-    * [44.2.5. GitHub Action coverage.yml](#github-action-coverage.yml)
-    * [44.2.6. GitHub Action go.yml](#github-action-go.yml)
-    * [44.2.7. GitHub Action goreleaser.yml](#github-action-goreleaser.yml)
-    * [44.2.8. GitHub Action greetings.yml](#github-action-greetings.yml)
-    * [44.2.9. GitHub Action label.yml](#github-action-label.yml)
-    * [44.2.10. GitHub Action learn-github-actions.yml](#github-action-learn-github-actions.yml)
-    * [44.2.11. GitHub Action link-check.yml](#github-action-link-check.yml)
-    * [44.2.12. GitHub Action manual.ym](#github-action-manual.ym)
-    * [44.2.13. GitHub Action shellcheck.yml](#github-action-shellcheck.yml)
-    * [44.2.14. GitHub Action shfmt.yml](#github-action-shfmt.yml)
-    * [44.2.15. GitHub Action stale.yml](#github-action-stale.yml)
-    * [44.2.16. GitHub Action superlinter.yml](#github-action-superlinter.yml)
-    * [44.2.17.  Github Action pages.yml](#-github-action-pages.yml)
-    * [44.2.18.  Github Action test_goreleaser.yml](#-github-action-test_goreleaser.yml)
+    * [44.2.3. GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
+    * [44.2.4. GitHub Action codeql.yml - Static Code Analysis](#github-action-codeql.yml---static-code-analysis)
+    * [44.2.5. GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverage.yml---test-coverage-and-coveralls-integration)
+    * [44.2.6. GitHub Action go.yml - Building and Testing Go Code](#github-action-go.yml---building-and-testing-go-code)
+    * [44.2.7. GitHub Action goreleaser.yml - Build & Pack Trice Distribution](#github-action-goreleaser.yml---build-&-pack-trice-distribution)
+    * [44.2.8. GitHub Action greetings.yml - Greeting Message](#github-action-greetings.yml---greeting-message)
+    * [44.2.9. GitHub Action label.yml - Automatic Labeling Rules](#github-action-label.yml---automatic-labeling-rules)
+    * [44.2.10. GitHub Action learn-github-actions.yml - Instructional Workflow](#github-action-learn-github-actions.yml---instructional-workflow)
+    * [44.2.11. GitHub Action link-check.yml - Broken Links Check](#github-action-link-check.yml---broken-links-check)
+    * [44.2.12. GitHub Action manual.ym - To Be Triggered Manually](#github-action-manual.ym---to-be-triggered-manually)
+    * [44.2.13. GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs](#github-action-shellcheck.yml---catching-common-bash-scripts-bugs)
+    * [44.2.14. GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting](#github-action-shfmt.yml---ensure-consistent-shell-scripts-formatting)
+    * [44.2.15. GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-stale.yml---automatic-stale-issue-handling)
+    * [44.2.16. GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinter.yml---ensure-consistent-yaml-and-markdown-formatting)
+    * [44.2.17. Github Action pages.yml - Creates The Trice Github Pages](#github-action-pages.yml---creates-the-trice-github-pages)
+    * [44.2.18. Github Action test_goreleaser.yml - Checks If Goreleaser Would Succeed](#github-action-test_goreleaser.yml---checks-if-goreleaser-would-succeed)
   * [44.3. Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
   * [44.4. Cleaning the Sources](#cleaning-the-sources)
 * [45. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
@@ -396,12 +396,12 @@ PDF Generation
   * [45.2. Prepare A Release](#prepare-a-release)
     * [45.2.1. Check a Goreleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
   * [45.3. Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
-    * [45.3.1.  Make sure your workflow reacts to tags](#-make-sure-your-workflow-reacts-to-tags)
-    * [45.3.2.  Final checks before tagging](#-final-checks-before-tagging)
-    * [45.3.3.  Choose a version and create a `git tag`](#-choose-a-version-and-create-a-`git-tag`)
-    * [45.3.4.  Push the tag to GitHub (this triggers CI)](#-push-the-tag-to-github-(this-triggers-ci))
-    * [45.3.5.  Watch the CI release run on GitHub](#-watch-the-ci-release-run-on-github)
-    * [45.3.6.  Check the GitHub Release](#-check-the-github-release)
+    * [45.3.1. Make sure your workflow reacts to tags](#make-sure-your-workflow-reacts-to-tags)
+    * [45.3.2. Final checks before tagging](#final-checks-before-tagging)
+    * [45.3.3. Choose a version and create a `git tag`](#choose-a-version-and-create-a-`git-tag`)
+    * [45.3.4. Push the tag to GitHub (this triggers CI)](#push-the-tag-to-github-(this-triggers-ci))
+    * [45.3.5. Watch the CI release run on GitHub](#watch-the-ci-release-run-on-github)
+    * [45.3.6. Check the GitHub Release](#check-the-github-release)
 * [46. Scratch Pad](#scratch-pad)
 
 <!-- vscode-markdown-toc-config
@@ -5176,7 +5176,7 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
 <a id='setting-up-g0b1_gen'></a><h5>Setting Up G0B1_bare</h5>
 
-- See and adapt steps from [F030_bare](#F030_bare).
+- See and adapt steps from [F030_bare](#f030_bare).
 - Then add/modify the files to reach this folder layot.
 
 ####  36.2.2. <a id='g0b1_inst'></a>G0B1_inst
@@ -5191,7 +5191,7 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <a id='instrumenting'></a><h5>Instrumenting</h5>
 
-- The steps are similar to the steps in [F030_bare](#F030_bare).
+- The steps are similar to the steps in [F030_bare](#f030_bare).
 - See comments in [triceConfig.h](../examples/G0B1_inst/Core/Inc/triceConfig.h) and commandlines in screenshot.
 
 <img src="./ref/2024-07-22.png" width="1000">
@@ -7402,65 +7402,65 @@ Generated commit message:
 
 ###  44.1. <a id='trice-project-structure-(files-and-folders)'></a>Trice Project structure (Files and Folders)
 
-| Trice Root Folder File                                                                              | Details                                                                                                   |
-|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| [.clang-format](../.clang-format)                                                                   | See [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
-| [.clang-format-ignore](../.clang-format-ignore)                                                     | See [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
-| [.code_snippets](../.code_snippets)                                                                 | Some legacy helper code for copying where to use                                                          |
-| [.editorconfig](../.editorconfig)                                                                   | See [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
-| [.git](../.git)                                                                                     | version control data base                                                                                 |
-| [.gitattributes](../.gitattributes)                                                                 | See[[GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
-| [.github/](../.github/)                                                                             | [📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)             |
-| [.gitignore](../.gitignore)                                                                         | git ignores these files                                                                                   |
-| [.goreleaser.yaml](../.goreleaser.yaml)                                                             | goreleaser configuration                                                                                  |
-| [.idea/](../.idea/)                                                                                 | GoLand settings                                                                                           |
-| [lychee.toml](../lychee.toml)                                                                       | [GitHub Action link-check.yml](#github-action-link-check.yml)                                             |
-| [.markdownlinkcheck.json](../.markdownlinkcheck.json)                                               | [GitHub Action link-check.yml](#github-action-link-check.yml)                                             |
-| [.markdownlint.yaml](../.markdownlint.yaml)                                                         | [Cleaning the Sources](#cleaning-the-sources)                                                             |
-| [.markdownlintignore](../.markdownlintignore)                                                       | [Cleaning the Sources](#cleaning-the-sources)                                                             |
-| [.travis.yml](../.travis.yml)                                                                       | Travis CI configuration                                                                                   |
-| [.vscode/](../.vscode/)                                                                             | vsCode settings                                                                                           |
-| [AUTHORS.md](../AUTHORS.md)                                                                         | contributors                                                                                              |
-| [CHANGELOG.md](../CHANGELOG.md)                                                                     | History                                                                                                   |
-| [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)                                                         | How to communicate                                                                                        |
-| [CONTRIBUTING.md](../CONTRIBUTING.md)                                                               | Helper                                                                                                    |
-| [LICENSE.md](../LICENSE.md)                                                                         | [MIT](https://opensource.org/license/mit)                                                                 |
-| [README.md](../README.md)                                                                           | Github first page                                                                                         |
-| [_config.yml](../_config.yml)                                                                       | [jekyll configuration](https://jekyllrb.com/docs/configuration/)                                          |
-| [_test](../_test)                                                                                   | automatic target code tests                                                                               |
-| [buildTriceTool.sh](../buildTriceTool.sh)                                                           | [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)                                     |
-| [build_environment.sh](../build_environment.sh)                                                     | see inside                                                                                                |
-| [clang-format.sh](../clang-format.sh)                                                               | See [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                                    |
-| [clean-dsstore.sh](../clean-dsstore.sh)                                                             | Ru to remove MacOS artifacts                                                                              |
-| `coverage.out`                                                                                      | Go test coverage output                                                                                   |
-| [cmd/_cui/](../cmd/_cui)                                                                            | (do not use) command user interface tryout code                                                           |
-| [cmd/_stim/](../cmd/_stim)                                                                          | (do not use) target stimulation tool tryout code                                                          |
-| [cmd/clang-filter](../cmd/clang-filter)                                                             | [ReadMe](../cmd/clang-filter/ReadMe.md)                                                                   |
-| [cmd/trice](../cmd/trice)                                                                           | Trice tool command Go sources                                                                             |
-| [demoLI.json](../demoLI.json)                                                                       | location information example                                                                              |
-| [demoTIL.json](../demoTIL.json)                                                                     | Trice ID list example                                                                                     |
-| `dist/`                                                                                             | local distribution files folder created by goreleaser                                                     |
-| [docs](../docs)                                                                                     | documentation folder with link forwarding                                                                 |
-| [examples/](../examples)                                                                            | example target projects                                                                                   |
-| [format-dumeng-toc.sh](../format-dumeng-toc.sh)                                                     | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file)) |
-| [gitAddWorktreeFromGitLogLineData.sh](../gitAddWorktreeFromGitLogLineData.sh)                       | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside            |
-| [gitAddWorktreesBetween.sh](../gitAddWorktreesBetween.sh)                                           | helper to get easy git worktree folders from any time range                                               |
-| [gitLogWithBranches.sh](../gitLogWithBranches.sh)                                                   | helper to get easy a history view                                                                         |
-| [go.mod](../go.mod)                                                                                 | Go modules file                                                                                           |
-| [go.sum](../go.sum)                                                                                 | Go modules sums                                                                                           |
-| [index.md](../index.md)                                                                             | Jekyll index site for RERADME.md                                                                          |
-| [internal/](../internal)                                                                            | Trice tool internal Go packages                                                                           |
-| [pkg/](../pkg)                                                                                      | Trice tool common Go packages                                                                             |
-| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_refresh_test_folder.sh)       | renew all ID data                                                                                         |
-| [src/](../src)                                                                                      | C sources for trice instrumentation -> Add to target project                                              |
-| [super-linter.report/](../super-linter.report/)                                                     | super linter output                                                                                       |
-| `temp/`                                                                                             | binary logfiles could appear here                                                                         |
-| [testAll.log](../testAll.log)                                                                       | Accumulated output of last `./testAll.sh` run                                                             |
-| [testAll.sh](../testAll.sh)                                                                         | run all tests                                                                                             |
-| [third_party/](../third_party)                                                                      | external components                                                                                       |
-| [trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh)   | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)  |
-| [trice_environment.sh](../trice_environment.sh)                                                     | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)  |
-| [trice_insertIDs_in_examples_and_test_folder.sh](../trice_insertIDs_in_examples_and_test_folder.sh) | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)  |
+| Trice Root Folder File                                                                              | Details                                                                                                                   |
+|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| [.clang-format](../.clang-format)                                                                   | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting) |
+| [.clang-format-ignore](../.clang-format-ignore)                                                     | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting) |
+| [.code_snippets](../.code_snippets)                                                                 | Some legacy helper code for copying where to use                                                                          |
+| [.editorconfig](../.editorconfig)                                                                   | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting) |
+| [.git](../.git)                                                                                     | version control data base                                                                                                 |
+| [.gitattributes](../.gitattributes)                                                                 | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting) |
+| [.github/](../.github/)                                                                             | [📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)                             |
+| [.gitignore](../.gitignore)                                                                         | git ignores these files                                                                                                   |
+| [.goreleaser.yaml](../.goreleaser.yaml)                                                             | goreleaser configuration                                                                                                  |
+| [.idea/](../.idea/)                                                                                 | GoLand settings                                                                                                           |
+| [lychee.toml](../lychee.toml)                                                                       | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check.yml---broken-links-check)                   |
+| [.markdownlinkcheck.json](../.markdownlinkcheck.json)                                               | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check.yml---broken-links-check)                   |
+| [.markdownlint.yaml](../.markdownlint.yaml)                                                         | [Cleaning the Sources](#cleaning-the-sources)                                                                             |
+| [.markdownlintignore](../.markdownlintignore)                                                       | [Cleaning the Sources](#cleaning-the-sources)                                                                             |
+| [.travis.yml](../.travis.yml)                                                                       | Travis CI configuration                                                                                                   |
+| [.vscode/](../.vscode/)                                                                             | vsCode settings                                                                                                           |
+| [AUTHORS.md](../AUTHORS.md)                                                                         | contributors                                                                                                              |
+| [CHANGELOG.md](../CHANGELOG.md)                                                                     | History                                                                                                                   |
+| [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)                                                         | How to communicate                                                                                                        |
+| [CONTRIBUTING.md](../CONTRIBUTING.md)                                                               | Helper                                                                                                                    |
+| [LICENSE.md](../LICENSE.md)                                                                         | [MIT](https://opensource.org/license/mit)                                                                                 |
+| [README.md](../README.md)                                                                           | Github first page                                                                                                         |
+| [_config.yml](../_config.yml)                                                                       | [jekyll configuration](https://jekyllrb.com/docs/configuration/)                                                          |
+| [_test](../_test)                                                                                   | automatic target code tests                                                                                               |
+| [buildTriceTool.sh](../buildTriceTool.sh)                                                           | [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)                                                     |
+| [build_environment.sh](../build_environment.sh)                                                     | see inside                                                                                                                |
+| [clang-format.sh](../clang-format.sh)                                                               | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting) |
+| [clean-dsstore.sh](../clean-dsstore.sh)                                                             | Ru to remove MacOS artifacts                                                                                              |
+| `coverage.out`                                                                                      | Go test coverage output                                                                                                   |
+| [cmd/_cui/](../cmd/_cui)                                                                            | (do not use) command user interface tryout code                                                                           |
+| [cmd/_stim/](../cmd/_stim)                                                                          | (do not use) target stimulation tool tryout code                                                                          |
+| [cmd/clang-filter](../cmd/clang-filter)                                                             | [ReadMe](../cmd/clang-filter/ReadMe.md)                                                                                   |
+| [cmd/trice](../cmd/trice)                                                                           | Trice tool command Go sources                                                                                             |
+| [demoLI.json](../demoLI.json)                                                                       | location information example                                                                                              |
+| [demoTIL.json](../demoTIL.json)                                                                     | Trice ID list example                                                                                                     |
+| `dist/`                                                                                             | local distribution files folder created by goreleaser                                                                     |
+| [docs](../docs)                                                                                     | documentation folder with link forwarding                                                                                 |
+| [examples/](../examples)                                                                            | example target projects                                                                                                   |
+| [format-dumeng-toc.sh](../format-dumeng-toc.sh)                                                     | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))                 |
+| [gitAddWorktreeFromGitLogLineData.sh](../gitAddWorktreeFromGitLogLineData.sh)                       | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside                            |
+| [gitAddWorktreesBetween.sh](../gitAddWorktreesBetween.sh)                                           | helper to get easy git worktree folders from any time range                                                               |
+| [gitLogWithBranches.sh](../gitLogWithBranches.sh)                                                   | helper to get easy a history view                                                                                         |
+| [go.mod](../go.mod)                                                                                 | Go modules file                                                                                                           |
+| [go.sum](../go.sum)                                                                                 | Go modules sums                                                                                                           |
+| [index.md](../index.md)                                                                             | Jekyll index site for RERADME.md                                                                                          |
+| [internal/](../internal)                                                                            | Trice tool internal Go packages                                                                                           |
+| [pkg/](../pkg)                                                                                      | Trice tool common Go packages                                                                                             |
+| [renewIDs_in_examples_and_test_folder.sh](../renewIDs_in_examples_and_refresh_test_folder.sh)       | renew all ID data                                                                                                         |
+| [src/](../src)                                                                                      | C sources for trice instrumentation -> Add to target project                                                              |
+| [super-linter.report/](../super-linter.report/)                                                     | super linter output                                                                                                       |
+| `temp/`                                                                                             | binary logfiles could appear here                                                                                         |
+| [testAll.log](../testAll.log)                                                                       | Accumulated output of last `./testAll.sh` run                                                                             |
+| [testAll.sh](../testAll.sh)                                                                         | run all tests                                                                                                             |
+| [third_party/](../third_party)                                                                      | external components                                                                                                       |
+| [trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh)   | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                  |
+| [trice_environment.sh](../trice_environment.sh)                                                     | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                  |
+| [trice_insertIDs_in_examples_and_test_folder.sh](../trice_insertIDs_in_examples_and_test_folder.sh) | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                  |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -7782,26 +7782,26 @@ Every *yml* file in this directory defines an automated process. These processes
 These workflows run automatically on pushes and pull requests to main, and can also be triggered manually via the GitHub Actions UI.
 These files are not executed; they simply inform GitHub how certain workflows behave or should be displayed.
  
-| Github Action                                                             | About                                                                             |
-|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| [clang-format.yml](../.github/workflows/clang-format.yml)                 | [GitHub Action clang-format.yml](#-github-action-clang-format.yml)                |
-| [codeql.yml](../.github/workflows/codeql.yml)                             | [GitHub Action codeql.yml](#github-action-codeql.yml)                             |
-| [coverage.yml](.github/workflows/coverage.yml)                            | [GitHub Action coverage.yml](#github-action-coverage.yml)                         |
-| [go.yml](../.github/workflows/go.yml)                                     | [GitHub Action go.yml](#github-action-go.yml)                                     |
-| [goreleaser.yml](../.github/workflows/goreleaser.yml)                     | [GitHub Action goreleaser.yml](#github-action-goreleaser.yml)                     |
-| [greetings.yml](../.github/workflows/greetings.yml)                       | [GitHub Action greetings.yml](#github-action-greetings.yml)                       |
-| [label.yml](../.github/workflows/label.yml)                               | [GitHub Action label.yml](#github-action-label.yml)                               |
-| [learn-github-actions.yml](../.github/workflows/learn-github-actions.yml) | [GitHub Action learn-github-actions.yml](#github-action-learn-github-actions.yml) |
-| [link-check.yml](../.github/workflows/link-check.yml)                     | [GitHub Action link-check.yml](#github-action-link-check.yml)                     |
-| [manual.yml](../.github/workflows/manual.yml)                             | [GitHub Action manual.ym](#github-action-manual.ym)                               |
-| [pages.yml](../.github/workflows/pages.yml)                               | [Github Action pages.yml](#-github-action-pages.yml)                              |
-| [shellcheck.yml](../.github/workflows/shellcheck.yml)                     | [GitHub Action shellcheck.yml](#github-action-shellcheck.yml)                     |
-| [shfmt.yml](../.github/workflows/shfmt.yml)                               | [GitHub Action shfmt.yml](#github-action-shfmt.yml)                               |
-| [stale.yml](../.github/workflows/stale.yml)                               | [GitHub Action stale.yml](#github-action-stale.yml)                               |
-| [superlinter.ym](../.github/workflows/superlinter.yml)                    | [GitHub Action superlinter.yml](#github-action-superlinter.yml)                   |
-| [test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)           | [Github Action test_goreleaser.yml](#-github-action-test_goreleaser.yml)          |
+| Github Action                                                             | About                                                                                                                                                             |
+|---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [clang-format.yml](../.github/workflows/clang-format.yml)                 | [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)                                             |
+| [codeql.yml](../.github/workflows/codeql.yml)                             | [GitHub Action codeql.yml - Static Code Analysis](#github-action-codeql.yml---static-code-analysis)                                                               |
+| [coverage.yml](.github/workflows/coverage.yml)                            | [GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverage.yml---test-coverage-and-coveralls-integration)                     |
+| [go.yml](../.github/workflows/go.yml)                                     | [GitHub Action go.yml - Building and Testing Go Code](#github-action-go.yml---building-and-testing-go-code)                                                       |
+| [goreleaser.yml](../.github/workflows/goreleaser.yml)                     | [GitHub Action goreleaser.yml - Build & Pack Trice Distribution](#github-action-goreleaser.yml---build-&-pack-trice-distribution)                                 |
+| [greetings.yml](../.github/workflows/greetings.yml)                       | [GitHub Action greetings.yml - Greeting Message](#github-action-greetings.yml---greeting-message)                                                                 |
+| [label.yml](../.github/workflows/label.yml)                               | [GitHub Action label.yml - Automatic Labeling Rules](#github-action-label.yml---automatic-labeling-rules)                                                         |
+| [learn-github-actions.yml](../.github/workflows/learn-github-actions.yml) | [GitHub Action learn-github-actions.yml - Instructional Workflow](#github-action-learn-github-actions.yml---instructional-workflow)                               |
+| [link-check.yml](../.github/workflows/link-check.yml)                     | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check.yml---broken-links-check)                                                           |
+| [manual.yml](../.github/workflows/manual.yml)                             | [GitHub Action manual.ym - To Be Triggered Manually](#github-action-manual.ym---to-be-triggered-manually)                                                         |
+| [shellcheck.yml](../.github/workflows/shellcheck.yml)                     | [GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs](#github-action-shellcheck.yml---catching-common-bash-scripts-bugs)                             |
+| [shfmt.yml](../.github/workflows/shfmt.yml)                               | [GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting](#github-action-shfmt.yml---ensure-consistent-shell-scripts-formatting)                     |
+| [stale.yml](../.github/workflows/stale.yml)                               | [GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-stale.yml---automatic-stale-issue-handling)                                             |
+| [superlinter.ym](../.github/workflows/superlinter.yml)                    | [GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinter.yml---ensure-consistent-yaml-and-markdown-formatting) |
+| [pages.yml](../.github/workflows/pages.yml)                               | [Github Action pages.yml - Creates The Trice Github Pages](#github-action-pages.yml---creates-the-trice-github-pages)                                             |
+| [test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)           | [Github Action test_goreleaser.yml - Checks If Goreleaser Would Succeed](#github-action-test_goreleaser.yml---checks-if-goreleaser-would-succeed)                 |
 
-####  44.2.3. <a id='-github-action-clang-format.yml'></a> GitHub Action clang-format.yml
+####  44.2.3. <a id='github-action-clang-format.yml---check-c-code-formatting'></a>GitHub Action clang-format.yml - Check C Code Formatting
 
 * **Local Action (developer machine):** [./clang-format.sh](../clang-format.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
   > The file [./clang-format.sh](../clang-format.sh) is used to auto-format the Trice code.
@@ -7872,7 +7872,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
   > ```
 * **Github Action (Continuous Integration):** [.github/workflows/clang-format.yml](../.github/workflows/clang-format.yml) does not format, it only checks.
 
-####  44.2.4. <a id='github-action-codeql.yml'></a>GitHub Action codeql.yml
+####  44.2.4. <a id='github-action-codeql.yml---static-code-analysis'></a>GitHub Action codeql.yml - Static Code Analysis 
 
 * This workflow runs CodeQL, GitHub’s static code analysis tool. Purpose:
   * scan the codebase for potential security vulnerabilities
@@ -7894,7 +7894,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
   * The results are uploaded to GitHub and appear under **Security → Code scanning alerts**.
   * The “QL” is the same concept as SQL, but specialized for code analysis.
 
-####  44.2.5. <a id='github-action-coverage.yml'></a>GitHub Action coverage.yml - Test Coverage and Coveralls Integration
+####  44.2.5. <a id='github-action-coverage.yml---test-coverage-and-coveralls-integration'></a>GitHub Action coverage.yml - Test Coverage and Coveralls Integration
 
 Trice uses Go’s built-in coverage tooling to measure how much of the Go codebase is exercised by automated tests.
 
@@ -7915,7 +7915,7 @@ The README displays the current coverage status for the default branch using the
 
 This badge is updated whenever the CI workflow successfully uploads a new coverage report for the `master` branch.
 
-####  44.2.6. <a id='github-action-go.yml'></a>GitHub Action go.yml
+####  44.2.6. <a id='github-action-go.yml---building-and-testing-go-code'></a>GitHub Action go.yml - Building and Testing Go Code
 
 * A workflow for building and testing Go code. It runs GitHub CodeQL for Go and C (cpp language pack), detecting security vulnerabilities and code issues.
   * Typically includes steps such as:
@@ -7926,7 +7926,7 @@ This badge is updated whenever the CI workflow successfully uploads a new covera
 * **Local Action (developer machine):** `go test ./...` or better `./testAll.sh full` (takes long)
 * **Github Action (Continuous Integration):** [.github/workflows/go.yml](../.github/workflows/go.yml)
 
-####  44.2.7. <a id='github-action-goreleaser.yml'></a>GitHub Action goreleaser.yml
+####  44.2.7. <a id='github-action-goreleaser.yml---build-&-pack-trice-distribution'></a>GitHub Action goreleaser.yml - Build & Pack Trice Distribution
 
 This workflow runs GoReleaser, the tool that builds and packages Trice for distribution.
   * Purpose:
@@ -7943,30 +7943,28 @@ This workflow runs GoReleaser, the tool that builds and packages Trice for distr
 
 See also [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
 
-####  44.2.8. <a id='github-action-greetings.yml'></a>GitHub Action greetings.yml
+####  44.2.8. <a id='github-action-greetings.yml---greeting-message'></a>GitHub Action greetings.yml - Greeting Message
 
 A small automation that posts a friendly greeting message when somebody:
   * opens their first issue
   * opens their first pull request
   * Used to make new contributors feel welcome.
 
-####  44.2.9. <a id='github-action-label.yml'></a>GitHub Action label.yml
+####  44.2.9. <a id='github-action-label.yml---automatic-labeling-rules'></a>GitHub Action label.yml - Automatic Labeling Rules 
 
 * Defines automatic labeling rules for issues and PRs.
   * For example, files in certain directories may automatically get category labels.
   * This helps maintainers classify submissions more easily.
 * **Github Action (Continuous Integration):** [.github/workflows/label.yml](../.github/workflows/label.yml)
 
-####  44.2.10. <a id='github-action-learn-github-actions.yml'></a>GitHub Action learn-github-actions.yml
+####  44.2.10. <a id='github-action-learn-github-actions.yml---instructional-workflow'></a>GitHub Action learn-github-actions.yml - Instructional Workflow
 
 An instructional workflow provided by GitHub. Purpose:
   * demonstrate basic GitHub Actions usage
   * serve as documentation or a teaching example for new contributors
   * It does not affect the Trice build or release process.
 
-####  44.2.11. <a id='github-action-link-check.yml'></a>GitHub Action link-check.yml
-
-Broken Links Check
+####  44.2.11. <a id='github-action-link-check.yml---broken-links-check'></a>GitHub Action link-check.yml - Broken Links Check
 
 * **Local Action (developer machine):** (deprechiated) `markdown-link-check ./docs/TriceUserManual.md`
   * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
@@ -7976,7 +7974,7 @@ Broken Links Check
 * **Github Action (Continuous Integration):** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
 <!--  * Exclude files: [.lycheeignore](../.lycheeignore) -->
 
-####  44.2.12. <a id='github-action-manual.ym'></a>GitHub Action manual.ym
+####  44.2.12. <a id='github-action-manual.ym---to-be-triggered-manually'></a>GitHub Action manual.ym - To Be Triggered Manually
 
 A workflow that is designed to be triggered manually (similar to _workflow_dispatch_ workflows). Common use cases:
   * executing maintenance tasks
@@ -7984,20 +7982,20 @@ A workflow that is designed to be triggered manually (similar to _workflow_dispa
   * testing workflow behavior without making a commit
   * This workflow does not run automatically.
 
-####  44.2.13. <a id='github-action-shellcheck.yml'></a>GitHub Action shellcheck.yml
+####  44.2.13. <a id='github-action-shellcheck.yml---catching-common-bash-scripts-bugs'></a>GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs
 
 Runs ShellCheck on all *.sh files, catching common bugs in Bash scripts.
 
 * **Github Action (Continuous Integration):** [.github/workflows/shellcheck.yml](../.github/workflows/shellcheck.yml)
 
-####  44.2.14. <a id='github-action-shfmt.yml'></a>GitHub Action shfmt.yml
+####  44.2.14. <a id='github-action-shfmt.yml---ensure-consistent-shell-scripts-formatting'></a>GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting
 
 Runs shfmt in diff mode on pull requests to ensure consistent formatting of shell scripts.
 
 * **Local Action (developer machine):** `go test ./...` or better `./testAll.sh full` (takes long)
 * **Github Action (Continuous Integration):** [.github/workflows/shfmt.yml](../.github/workflows/shfmt.yml)
 
-####  44.2.15. <a id='github-action-stale.yml'></a>GitHub Action stale.yml
+####  44.2.15. <a id='github-action-stale.yml---automatic-stale-issue-handling'></a>GitHub Action stale.yml - Automatic Stale Issue Handling
 
 Automates stale issue handling. Function:
   * marks inactive issues or PRs as “stale”
@@ -8008,7 +8006,7 @@ Mark stale issues and pull requests
 
 * **Github Action (Continuous Integration):** [.github/workflows/stale.yml](../.github/workflows/stale.yml)
 
-####  44.2.16. <a id='github-action-superlinter.yml'></a>GitHub Action superlinter.yml
+####  44.2.16. <a id='github-action-superlinter.yml---ensure-consistent-yaml-and-markdown-formatting'></a>GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting
 
 * **Local Action (developer machine):** `markdownlint .`
 * Runs GitHub Super Linter, a powerful linting suite. Purpose:
@@ -8019,13 +8017,13 @@ Mark stale issues and pull requests
 * **Github Action (Continuous Integration):** [.github/workflows/superlinter.yml](../.github/workflows/superlinter.yml)
   * Checks YAML and Markdown files
 
-####  44.2.17. <a id='-github-action-pages.yml'></a> Github Action pages.yml
+####  44.2.17. <a id='github-action-pages.yml---creates-the-trice-github-pages'></a>Github Action pages.yml - Creates The Trice Github Pages
 
-This workflow creates the Trice github pages  avaliable under [rokath.github.io/trice/](https://rokath.github.io/trice/).
+This workflow creates the Trice github pages avaliable under [rokath.github.io/trice/](https://rokath.github.io/trice/).
 
 * **Github Action (Continuous Integration):** [.github/workflows/pages.yml](../.github/workflows/pages.yml)
 
-####  44.2.18. <a id='-github-action-test_goreleaser.yml'></a> Github Action test_goreleaser.yml
+####  44.2.18. <a id='github-action-test_goreleaser.yml---checks-if-goreleaser-would-succeed'></a>Github Action test_goreleaser.yml - Checks If Goreleaser Would Succeed
 
 Test Goreleaser
 
@@ -8218,7 +8216,7 @@ If it **fails**, fix the problem locally first (missing files, bad paths, etc.) 
 
 Letting CI build and publish an **official release**.
 
-####  45.3.1. <a id='-make-sure-your-workflow-reacts-to-tags'></a> Make sure your workflow reacts to tags
+####  45.3.1. <a id='make-sure-your-workflow-reacts-to-tags'></a>Make sure your workflow reacts to tags
 
 In [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml), you need `on:   workflow_dispatch:   push:     tags:       - 'v*'`.
 
@@ -8229,7 +8227,7 @@ Commit & push this change (if you haven’t already):
 
 `git add .github/workflows/goreleaser.yml git commit -m "Configure GoReleaser workflow to run on tags" git push origin main`
 
-####  45.3.2. <a id='-final-checks-before-tagging'></a> Final checks before tagging
+####  45.3.2. <a id='final-checks-before-tagging'></a>Final checks before tagging
 
 In your local `trice` repo:
 
@@ -8242,7 +8240,7 @@ In your local `trice` repo:
     
 If all of that is green, you’re ready to “bless” a version.
 
-####  45.3.3. <a id='-choose-a-version-and-create-a-`git-tag`'></a> Choose a version and create a `git tag`
+####  45.3.3. <a id='choose-a-version-and-create-a-`git-tag`'></a>Choose a version and create a `git tag`
 
 Decide on a version, for example:
 
@@ -8263,7 +8261,7 @@ You should see `v0.44.0` in the list.
 > 💡 The **tag** is what GoReleaser uses as the release version (`.Tag`, `.Version`, etc.) in your `.goreleaser.yaml`.  
 > Your `ldflags` like `-X main.version={{ .Version }}` will use this.
 
-####  45.3.4. <a id='-push-the-tag-to-github-(this-triggers-ci)'></a> Push the tag to GitHub (this triggers CI)
+####  45.3.4. <a id='push-the-tag-to-github-(this-triggers-ci)'></a>Push the tag to GitHub (this triggers CI)
 
 Now push the tag:
 
@@ -8273,7 +8271,7 @@ This does **not** push all tags, only `v0.44.0`.
 
 Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts** the GoReleaser workflow in GitHub Actions.
 
-####  45.3.5. <a id='-watch-the-ci-release-run-on-github'></a> Watch the CI release run on GitHub
+####  45.3.5. <a id='watch-the-ci-release-run-on-github'></a>Watch the CI release run on GitHub
 
 1.  Open your browser and go to your repo:
     
@@ -8297,7 +8295,7 @@ Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts
 
 If “Run GoReleaser” is green ✔, the CI release has succeeded.
 
-####  45.3.6. <a id='-check-the-github-release'></a> Check the GitHub Release
+####  45.3.6. <a id='check-the-github-release'></a>Check the GitHub Release
 
 Finally, verify the published release:
 

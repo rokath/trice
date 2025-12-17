@@ -92,4 +92,3 @@ jobs:
         # If you need a repo token, uncomment the env block:
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-‚
