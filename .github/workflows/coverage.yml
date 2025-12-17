@@ -56,7 +56,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           set -euo pipefail
-          go test ./... -covermode=atomic -coverprofile=coverage.out
+          go test ./... -covermode=atomic -coverprofile=coverage.out -coverpkg=./...
 
       # 4) Print a human-readable summary into the workflow logs
       # This uses Go’s built-in cover tool. :contentReference[oaicite:3]{index=3}

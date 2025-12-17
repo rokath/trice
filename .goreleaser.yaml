@@ -87,6 +87,49 @@ builds:
         -X main.date={{ .Date }}
         -X main.builtBy=goreleaser
 
+checksum:
+  # You can change the name of the checksums file.
+  # Default is `{{ .ProjectName }}_{{ .Version }}_checksums.txt`.
+  #name_template: "{{ .ProjectName }}_checksums.txt"
+  #name_template: 'checksums.txt'
+  # Algorithm to be used.
+  # Accepted options are sha256, sha512, sha1, crc32, md5, sha224 and sha384.
+  # Default is sha256.
+  #algorithm: sha256
+
+snapshot:
+  # Allows you to change the name of the generated snapshot
+  #
+  # Note that some pipes require this to be semantic version compliant (nfpm,
+  # for example).
+  #
+  # Default is `{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}`.
+  #name_template: 1.2.3-SNAPSHOT-{{.Commit}}
+  #name_template: "{{ .Tag }}-next"
+  #name_template: "{{ incpatch .Version }}-next"
+
+# You can customize how the changelog is generated using the changelog section in the config file
+changelog:
+  # set it to true if you wish to skip the changelog generation
+  #skip: false
+  # could either be asc, desc or empty
+  # Default is empty
+  sort: asc
+  filters:
+    # commit messages matching the regexp listed here will be removed from
+    # the changelog
+    # Default is empty
+    exclude:
+      - '^typo$'
+      - '^minor$'
+      - '^update$'
+      - '^wip$'
+
+# The lines beneath this are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
 archives:
   - 
     #rlcp: true
@@ -132,7 +175,6 @@ archives:
     # `README*` and `CHANGELOG*` (case-insensitive).
     # This list excludes the Go sources and git related files but includes the target source code.
     files:
-      - "demo*.json"
       - "**/launch.json"
       - "**/settings.json"
       - "**/c_cpp_properties.json"
@@ -193,70 +235,38 @@ archives:
       - third_party/**/*.zip
       - third_party/*.zip
       - _config.yml
+      - _test
       - .clang-format
       - .clang-format-ignore
       - .editorconfig
     # - .gitattributes
+    # - .github
     # - .gitignore
       - .goreleaser.yaml
-      - .travis.yml
+    # - .idea
+      - .markdownlinkcheck.json
+      - .markdownlint.yaml
+      - .markdownlintignore
+      - .vscode
       - build_environment.sh
       - buildTriceTool.sh
       - clean-dsstore.sh
     # - build.sh
       - clang-format.sh
-    # - clean-dsstore.sh
+      - clean-dsstore.sh
+      - demoLI.json
+      - demoTIL.json
+      - format-dumeng-toc.sh
     # - gitAddWorktreeFromGitLogLineData.sh
     # - gitAddWorktreesBetween.sh
     # - gitLogWithBranches.sh
     # - go.mod
     # - go.sum
+    # - index.md
+    # - lychee.toml
       - renewIDs_in_examples_and_refresh_test_folder.sh
       - testAll.log
     # - testAll.sh
       - trice_cleanIDs_in_examples_and_test_folder.sh
       - trice_environment.sh
       - trice_insertIDs_in_examples_and_test_folder.sh
-
-checksum:
-  # You can change the name of the checksums file.
-  # Default is `{{ .ProjectName }}_{{ .Version }}_checksums.txt`.
-  #name_template: "{{ .ProjectName }}_checksums.txt"
-  #name_template: 'checksums.txt'
-  # Algorithm to be used.
-  # Accepted options are sha256, sha512, sha1, crc32, md5, sha224 and sha384.
-  # Default is sha256.
-  #algorithm: sha256
-
-snapshot:
-  # Allows you to change the name of the generated snapshot
-  #
-  # Note that some pipes require this to be semantic version compliant (nfpm,
-  # for example).
-  #
-  # Default is `{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}`.
-  #name_template: 1.2.3-SNAPSHOT-{{.Commit}}
-  #name_template: "{{ .Tag }}-next"
-  #name_template: "{{ incpatch .Version }}-next"
-
-# You can customize how the changelog is generated using the changelog section in the config file
-changelog:
-  # set it to true if you wish to skip the changelog generation
-  #skip: false
-  # could either be asc, desc or empty
-  # Default is empty
-  sort: asc
-  filters:
-    # commit messages matching the regexp listed here will be removed from
-    # the changelog
-    # Default is empty
-    exclude:
-      - '^typo$'
-      - '^minor$'
-      - '^update$'
-      - '^wip$'
-
-# The lines beneath this are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/use them.
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
