@@ -37,7 +37,14 @@ my_long_task() {
   echo "Lint Markdown files...done"          2>&1 | tee -a $triceFolder/testAll.log
   echo "Check links..."                      2>&1 | tee -a $triceFolder/testAll.log
   lychee .                                   2>&1 | tee -a $triceFolder/testAll.log
-  echo "Check links...done"                  2>&1 | tee -a $triceFolder/testAll.log.
+  echo "Check links...done"                  2>&1 | tee -a $triceFolder/testAll.log
+
+  echo "Check Go coverage..."                                2>&1 | tee -a $triceFolder/testAll.log
+  go test ./... -covermode=atomic -coverprofile=coverage.out -coverpkg=./...
+  go tool cover -func=coverage.out                           2>&1 | tee -a $triceFolder/testAll.log
+  echo "to analyze call 'go tool cover -html=coverage.out'"  2>&1 | tee -a $triceFolder/testAll.log
+  go tool cover -html=coverage.out                           2>&1 | tee -a $triceFolder/testAll.log
+  echo "Check Go coverage...done"                            2>&1 | tee -a $triceFolder/testAll.log
 
   # show environment and prepare
   echo "SELECTED: $SELECTED" 2>&1 | tee -a $triceFolder/testAll.log

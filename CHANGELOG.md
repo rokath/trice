@@ -78,7 +78,7 @@ date        | version | comment
 2020-04-22  |     0.9 | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default log filename with timestamp, remote displayServer shutdown possible
 2020-05-12  |   0.9.1 | `SeggerRTT` & `SeggerRTTD` added, docs extended, more test examples, TRICE16_1 critical section bugfix
 2020-06-29  |   0.9.2 | CLI slightly changed (no more 'r'), doc extended, added: Tests, Examples, JLINK, RND, SIM, FILE, TRICE_SYNC, TRICE_VARIANT, TRICE_ASSERT, now no semi-colon after `TRICE` is tolerated (macros), several `TRICE` in one code line are now ok
-...         |   ...   |
+...         |   ...   | ...
 2022-FEB-11 |  0.48.0 | FILE & TCP4 input ports added
 2022-APR-27 |  0.49.1 | FILEBUFFER support added
 2022-APR-27 |  0.49.1 | Darwin binaries added

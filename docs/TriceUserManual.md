@@ -7764,7 +7764,7 @@ Labels will be applied automatically within seconds after opening or updating a 
 
 ####  44.2.2. <a id='📂-`.github/workflows`-—-github-actions-workflows'></a>📂 `.github/workflows` — GitHub Actions Workflows
 
-The [.github/workflows/](../.github/workflows/) folder contains YAML decriptions for various actions, which will be triggered automatically on certain events or are started manually.
+The [.github/workflows/](../.github/workflows/) folder contains YAML descriptions for various actions, which will be triggered automatically on certain events or are started manually.
 Every *yml* file in this directory defines an automated process. These processes run on GitHub’s servers (CI/CD).
 
 * [README.md](../.github/workflows/README.md): Documentation specifically for the /workflows folder.
