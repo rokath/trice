@@ -1,0 +1,59 @@
+name: TRICE Library CI (Nightly Full)
+
+on:
+  schedule:
+    # Run nightly full sweep at 03:15 UTC (staggered to avoid overlap).
+    - cron: "15 3 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  guard_activity:
+    name: Guard - skip if no commits in last 24h
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.decide.outputs.should_run }}
+    steps:
+      - name: Checkout (for git log)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether to run heavy CI
+        id: decide
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git show-ref --verify --quiet refs/remotes/origin/main; then
+            DEFAULT_BRANCH="origin/main"
+          else
+            DEFAULT_BRANCH="origin/master"
+          fi
+
+          COMMIT_COUNT="$(git log --since="24 hours ago" --pretty=oneline "${DEFAULT_BRANCH}" | wc -l | tr -d ' ')"
+          echo "Commits in last 24h: ${COMMIT_COUNT}"
+
+          if [ "${COMMIT_COUNT}" = "0" ]; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  heavy_ci:
+    name: Heavy CI (full)
+    needs: guard_activity
+    if: ${{ needs.guard_activity.outputs.should_run == 'true' }}
+    uses: ./.github/workflows/trice_lib_reusable.yml
+    with:
+      # Full configuration sweep: 0..100
+      configs_mode: full
+
+      toolchain_gcc_trice_on: true
+      toolchain_gcc_trice_off: true
+      toolchain_clang: true
+
+      upload_artifacts: true

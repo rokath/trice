@@ -1,0 +1,66 @@
+name: TRICE Library CI (Nightly Quick)
+
+on:
+  schedule:
+    # Run nightly at 02:15 UTC (adjust to your preference).
+    - cron: "15 2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  guard_activity:
+    name: Guard - skip if no commits in last 24h
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.decide.outputs.should_run }}
+    steps:
+      - name: Checkout (for git log)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether to run heavy CI
+        id: decide
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Determine default branch (main/master). We check remote refs.
+          if git show-ref --verify --quiet refs/remotes/origin/main; then
+            DEFAULT_BRANCH="origin/main"
+          else
+            DEFAULT_BRANCH="origin/master"
+          fi
+
+          echo "Default branch assumed: ${DEFAULT_BRANCH}"
+
+          # Count commits in the last 24 hours on the default branch.
+          COMMIT_COUNT="$(git log --since="24 hours ago" --pretty=oneline "${DEFAULT_BRANCH}" | wc -l | tr -d ' ')"
+          echo "Commits in last 24h: ${COMMIT_COUNT}"
+
+          if [ "${COMMIT_COUNT}" = "0" ]; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  heavy_ci:
+    name: Heavy CI (quick)
+    needs: guard_activity
+    if: ${{ needs.guard_activity.outputs.should_run == 'true' }}
+    uses: ./.github/workflows/trice_lib_reusable.yml
+    with:
+      # Quick mode: keep runtime bounded
+      configs_mode: quick
+      configs_start: 0
+      configs_end: 10
+
+      # Keep your standard checks:
+      toolchain_gcc_trice_on: true
+      toolchain_gcc_trice_off: true
+      toolchain_clang: true
+
+      upload_artifacts: true

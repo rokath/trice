@@ -1,0 +1,138 @@
+name: TRICE Library CI (Reusable)
+
+on:
+  # This workflow is not triggered directly by pushes or schedules.
+  # It is meant to be called from other workflows via "workflow_call".
+  workflow_call:
+    inputs:
+      toolchain_gcc_trice_on:
+        description: "Run gcc build for all targets with TRICE enabled"
+        required: false
+        type: boolean
+        default: true
+      toolchain_gcc_trice_off:
+        description: "Run gcc build for all targets with TRICE disabled (TRICE_OFF=1)"
+        required: false
+        type: boolean
+        default: true
+      toolchain_clang:
+        description: "Run clang build(s) that exist (currently only G0B1_inst/build_with_clang.sh via ci_build.sh)"
+        required: false
+        type: boolean
+        default: true
+
+      configs_mode:
+        description: "Configuration sweep mode: none|quick|full"
+        required: false
+        type: string
+        default: "none"
+
+      configs_start:
+        description: "Start configuration for quick mode (inclusive)"
+        required: false
+        type: number
+        default: 0
+      configs_end:
+        description: "End configuration for quick mode (inclusive)"
+        required: false
+        type: number
+        default: 10
+
+      upload_artifacts:
+        description: "Upload .elf/.hex/.bin as workflow artifacts"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Heavy build & compile checks
+    runs-on: ubuntu-latest
+
+    # Concurrency prevents multiple heavy builds for the same branch from running
+    # in parallel, which can waste significant CI minutes.
+    concurrency:
+      group: trice-lib-ci-${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history makes it easier to debug "what changed", and allows git-based
+          # checks if you ever add them inside the build scripts.
+          fetch-depth: 0
+
+      - name: Install toolchains and build tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y \
+            make \
+            python3 \
+            gcc-arm-none-eabi \
+            binutils-arm-none-eabi \
+            clang \
+            llvm \
+            lld
+
+      - name: Print tool versions
+        shell: bash
+        run: |
+          set -euxo pipefail
+          arm-none-eabi-gcc --version || true
+          arm-none-eabi-objcopy --version || true
+          clang --version || true
+          llvm-objcopy --version || true
+          make --version
+
+      - name: Run build orchestrator (ci_build.sh)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          chmod +x ./ci_build.sh
+
+          # Make objcopy deterministic in CI.
+          # This helps avoid failures caused by missing llvm-objcopy in PATH,
+          # and matches the typical embedded toolchain expectation.
+          export OBJCOPY=arm-none-eabi-objcopy
+
+          # 1) GCC all-target builds (TRICE ON/OFF)
+          if [ "${{ inputs.toolchain_gcc_trice_on }}" = "true" ]; then
+            ./ci_build.sh \
+              --toolchain=gcc \
+              --trice=on \
+              --configs=${{ inputs.configs_mode }} \
+              --configs-start=${{ inputs.configs_start }} \
+              --configs-end=${{ inputs.configs_end }}
+          fi
+
+          if [ "${{ inputs.toolchain_gcc_trice_off }}" = "true" ]; then
+            ./ci_build.sh \
+              --toolchain=gcc \
+              --trice=off \
+              --configs=none
+          fi
+
+          # 2) Clang build(s) (as implemented in ci_build.sh)
+          if [ "${{ inputs.toolchain_clang }}" = "true" ]; then
+            ./ci_build.sh \
+              --toolchain=clang \
+              --trice=on \
+              --configs=none
+          fi
+
+      - name: Upload build artifacts
+        if: ${{ inputs.upload_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: trice-lib-artifacts
+          path: |
+            examples/**/out.*/*.elf
+            examples/**/out.*/*.hex
+            examples/**/out.*/*.bin
+          if-no-files-found: warn

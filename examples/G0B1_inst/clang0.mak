@@ -6,7 +6,7 @@ VERSION = # -17 # When a default version is used, this should be empty.
 
 CLANG_CC = clang$(VERSION)
 CLANG_AS = clang$(VERSION) -x assembler-with-cpp
-CLANG_CP = llvm-objcopy$(VERSION)
+CLANG_CP = arm-none-eabi-objcopy #llvm-objcopy$(VERSION)
 #CLANG_CP = objcopy
 CLANG_SZ = llvm-size$(VERSION)
 CLANG_HEX = $(CLANG_CP) -O ihex
