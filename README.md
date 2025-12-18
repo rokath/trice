@@ -120,7 +120,7 @@ Trice is full usable and there are no known bugs (see [issues](https://github.co
 
 ```diff
 + Please use v1.0 or v1.1 or branch main if you intend to build from the sources.
-- Do not expect a well working Trice binary in branch "dev" right now. (2026-DEC)
+- Do not expect a well working Trice binary in branch "dev" right now. (2025-DEC)
 ```
 
 ## Future 
