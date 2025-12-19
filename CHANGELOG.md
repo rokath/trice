@@ -946,6 +946,14 @@ Used git log command: `git log --oneline v0.72.5..HEAD | grep -v wip >> CHANGELO
 Used command: `./gitLogWithBranches.sh --since 2025-04-01` and unimportant lines and infos removed
 
 ```txt
+*            3fc39014 2025-12-19  Adaptions for clang
+*            c101f177 2025-12-19  trice build & install steps added
+*            9e17252f 2025-12-19  improved detect_arm_include_dir()
+*            61e3bd36 2025-12-19  trice lib build scripts hardened for CI
+*            e9b283bc 2025-12-18  trice lib build ci workflow added
+*            6a440bc3 2025-12-18  go test coverage added to testAll.sh
+*            42400a4a 2025-12-17  Create SECURITY.md for security policy (#593)
+*            96032990 2025-12-17  go coverage stuff added/updated
 *            96032990 2025-12-17  go coverage stuff added/updated
 *            df9864b3 2025-12-16  `temp/` not as link - is does not exist on the server
 *            35e5f212 2025-12-16  scan repo added

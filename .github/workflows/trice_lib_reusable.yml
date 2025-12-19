@@ -76,6 +76,8 @@ jobs:
             python3 \
             gcc-arm-none-eabi \
             binutils-arm-none-eabi \
+            libnewlib-dev \
+            libnewlib-arm-none-eabi \
             clang \
             llvm \
             lld
@@ -155,7 +157,18 @@ jobs:
 
           # On Ubuntu runners the Newlib headers are installed by the gcc-arm-none-eabi package.
           # We locate the directory containing stdlib.h via dpkg to avoid hardcoded paths.
-          NEWLIB_STDLIB="$(dpkg -L gcc-arm-none-eabi | grep -E '/include/stdlib\.h$' | head -n 1)"
+
+          # NEWLIB_STDLIB="$(dpkg -L gcc-arm-none-eabi | grep -E '/include/stdlib\.h$' | head -n 1)"
+          # Find Newlib's stdlib.h on Ubuntu runners (package split varies by distro/version).
+
+          # Locate stdlib.h provided by Newlib headers (works even if the package name differs).
+          NEWLIB_STDLIB="$(dpkg -L libnewlib-dev 2>/dev/null | grep -E '/stdlib\.h$' | head -n 1 || true)"
+
+          # Fallback: search all installed packages (slower, but very robust in CI).
+          if [ -z "${NEWLIB_STDLIB}" ]; then
+            NEWLIB_STDLIB="$(dpkg -L $(dpkg -l | awk '/^ii/{print $2}') 2>/dev/null | grep -E '/newlib/stdlib\.h$' | head -n 1 || true)"
+          fi
+
           NEWLIB_INC="$(dirname "${NEWLIB_STDLIB}")"
 
           # Fail early with a clear error if paths are missing.
