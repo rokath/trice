@@ -85,29 +85,33 @@ detect_arm_include_dir() {
     return 1
   fi
 
-  # Ask the compiler for its sysroot (where its libraries and headers live)
+  # 1) Try sysroot-based detection first (works for some packaged toolchains)
   local sysroot
   sysroot=$(arm-none-eabi-gcc -print-sysroot 2>/dev/null || true)
 
-  # Some packaged toolchains may return empty or "/" if they do not use a sysroot.
-  if [ -z "$sysroot" ] || [ "$sysroot" = "/" ]; then
-    # We do not guess further here to avoid wrong paths.
-    # The user can always override C_INCLUDE_PATH manually if needed.
-    return 1
+  if [ -n "$sysroot" ] && [ "$sysroot" != "/" ]; then
+    if [ -d "$sysroot/include" ]; then
+      echo "$sysroot/include"
+      return 0
+    fi
+    if [ -d "$sysroot/arm-none-eabi/include" ]; then
+      echo "$sysroot/arm-none-eabi/include"
+      return 0
+    fi
   fi
 
-  # Common header locations, tested in order.
-  if [ -d "$sysroot/include" ]; then
-    echo "$sysroot/include"
+  # 2) Fallback: ask GCC directly for its internal include directory.
+  # On many Linux distributions, -print-sysroot is empty for bare-metal toolchains,
+  # but -print-file-name=include still returns a valid include path.
+  local gcc_include
+  gcc_include=$(arm-none-eabi-gcc -print-file-name=include 2>/dev/null || true)
+
+  if [ -n "$gcc_include" ] && [ "$gcc_include" != "include" ] && [ -d "$gcc_include" ]; then
+    echo "$gcc_include"
     return 0
   fi
 
-  if [ -d "$sysroot/arm-none-eabi/include" ]; then
-    echo "$sysroot/arm-none-eabi/include"
-    return 0
-  fi
-
-  # No known include directory found under sysroot.
+  # Nothing usable found.
   return 1
 }
 
@@ -138,7 +142,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
       export C_INCLUDE_PATH="${arm_inc_dir}"
     fi
   else
-    log_warn "Could not auto-detect ARM include directory on Linux. You may need to set C_INCLUDE_PATH manually for your toolchain."
+    log_warn "Could not auto-detect ARM include directory on Linux (sysroot may be empty for this toolchain). You may need to set C_INCLUDE_PATH manually."
   fi
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
