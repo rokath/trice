@@ -128,10 +128,6 @@ jobs:
           # and matches the typical embedded toolchain expectation.
           export OBJCOPY=arm-none-eabi-objcopy
 
-          # Tell clang where the ARM GCC toolchain is located (CI only).
-          # On ubuntu-latest with gcc-arm-none-eabi from apt, this is /usr.
-          export CLANG_GCC_TOOLCHAIN=/usr
-
           # 1) GCC all-target builds (TRICE ON/OFF)
           if [ "${{ inputs.toolchain_gcc_trice_on }}" = "true" ]; then
             ./ci_build.sh \
@@ -151,6 +147,20 @@ jobs:
 
           # 2) Clang build(s) (as implemented in ci_build.sh)
           if [ "${{ inputs.toolchain_clang }}" = "true" ]; then
+
+            # Provide Newlib + GCC internal headers to clang (cross).
+            # This is required for stdlib.h, stdint.h, etc. in bare-metal builds.
+            NEWLIB_INC="/usr/arm-none-eabi/include"
+            GCC_INC="$(arm-none-eabi-gcc -print-file-name=include)"
+
+            # Fail early with a clear error if paths are missing.
+            test -d "${NEWLIB_INC}"
+            test -d "${GCC_INC}"
+
+            # Makefile will append this to clang flags (see clang0.mak change).
+            export CLANG_SYS_INCLUDES="-isystem ${NEWLIB_INC} -isystem ${GCC_INC}"
+            echo "CLANG_SYS_INCLUDES=${CLANG_SYS_INCLUDES}"
+
             ./ci_build.sh \
               --toolchain=clang \
               --trice=on \

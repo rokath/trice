@@ -22,5 +22,11 @@ CLANG_ONLY_FLAGS = #
 ifneq ($(strip $(CLANG_GCC_TOOLCHAIN)),)
   CLANG_ONLY_FLAGS += --gcc-toolchain=$(CLANG_GCC_TOOLCHAIN)
 endif
+
+# Optional extra include dirs for clang cross builds (provided by CI/environment).
+# Example:
+#   CLANG_SYS_INCLUDES="-isystem /usr/arm-none-eabi/include -isystem /usr/lib/gcc/arm-none-eabi/..."
+CLANG_ONLY_FLAGS += $(CLANG_SYS_INCLUDES)
+
 #CLANG_CC_FLAGS += -Wa,-a,-ad,-alms=$(CLANG_BUILD)/$(notdir $(<:.c=.lst))
 #CLANG_ONLY_FLAGS += -Wa,--noexecstack
