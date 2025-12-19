@@ -15,5 +15,12 @@ CLANG_BIN = $(CLANG_CP) -O binary -S
 CLANG_ONLY_FLAGS = #
 #CLANG_ONLY_FLAGS += -Weverything #           # clang only: enable the warning but liberally disable warnings from it that are not useful.
  CLANG_ONLY_FLAGS += --target=arm-none-eabi #
+ 
+# CLANG_ONLY_FLAGS += --gcc-toolchain=/usr
+# Optional: allow the environment/CI to provide the GCC toolchain root for clang.
+# Example for GitHub Actions Ubuntu: export CLANG_GCC_TOOLCHAIN=/usr
+ifneq ($(strip $(CLANG_GCC_TOOLCHAIN)),)
+  CLANG_ONLY_FLAGS += --gcc-toolchain=$(CLANG_GCC_TOOLCHAIN)
+endif
 #CLANG_CC_FLAGS += -Wa,-a,-ad,-alms=$(CLANG_BUILD)/$(notdir $(<:.c=.lst))
 #CLANG_ONLY_FLAGS += -Wa,--noexecstack

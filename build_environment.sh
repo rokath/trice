@@ -142,7 +142,43 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
       export C_INCLUDE_PATH="${arm_inc_dir}"
     fi
   else
-    log_warn "Could not auto-detect ARM include directory on Linux (sysroot may be empty for this toolchain). You may need to set C_INCLUDE_PATH manually."
+    # log_warn "Could not auto-detect ARM include directory on Linux (sysroot may be empty for this toolchain). You may need to set C_INCLUDE_PATH manually."
+    # now:
+
+    # ---------------------------------------------------------------------------
+    # Clang cross builds need a C library include directory (e.g. Newlib) to find
+    # headers like stdlib.h. GCC usually finds these internally, but clang does not
+    # unless we provide a sysroot/toolchain or additional include paths.
+    #
+    # On Ubuntu (apt: gcc-arm-none-eabi), Newlib headers are typically here:
+    #   /usr/arm-none-eabi/include
+    #
+    # Additionally, GCC has an internal include directory that is useful for both
+    # gcc and clang setups:
+    #   arm-none-eabi-gcc -print-file-name=include
+    # ---------------------------------------------------------------------------
+    newlib_inc="/usr/arm-none-eabi/include"
+    gcc_inc="$(arm-none-eabi-gcc -print-file-name=include 2>/dev/null || true)"
+  
+    if [ -d "$newlib_inc" ]; then
+      if [ -n "${C_INCLUDE_PATH:-}" ]; then
+        export C_INCLUDE_PATH="${newlib_inc}:${C_INCLUDE_PATH}"
+      else
+        export C_INCLUDE_PATH="${newlib_inc}"
+      fi
+    else
+      log_warn "Expected Newlib include directory not found: ${newlib_inc} (clang cross may fail to find stdlib.h)."
+    fi
+
+    if [ -n "$gcc_inc" ] && [ "$gcc_inc" != "include" ] && [ -d "$gcc_inc" ]; then
+      if [ -n "${C_INCLUDE_PATH:-}" ]; then
+        export C_INCLUDE_PATH="${gcc_inc}:${C_INCLUDE_PATH}"
+      else
+        export C_INCLUDE_PATH="${gcc_inc}"
+      fi
+    else
+      log_warn "GCC internal include directory not found via: arm-none-eabi-gcc -print-file-name=include"
+    fi
   fi
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
