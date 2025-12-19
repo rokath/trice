@@ -80,6 +80,33 @@ jobs:
             llvm \
             lld
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+          cache: true
+
+      - name: Build and install trice CLI
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          # Build the trice CLI from repository sources and put it on PATH.
+          #
+          # NOTE:
+          # - Adjust the package path (./cmd/trice) to match your repo layout.
+          # - If your main package is elsewhere, change accordingly.
+
+          go version
+          go env GOPATH
+
+          # Option A (most common): main package under ./cmd/trice
+          go build -o /usr/local/bin/trice ./cmd/trice
+
+          # Verify availability
+          command -v trice
+          trice --help || true
+
       - name: Print tool versions
         shell: bash
         run: |
