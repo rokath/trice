@@ -307,14 +307,16 @@ extern uint32_t* TriceBufferWritePosition;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __cplusplus // see \#571
+#ifdef __GNUC__ // see \#594
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+#endif // __GNUC__
 #endif
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
-#define TRICE_PUT16(x)                                                 \
-	do {                                                               \
+#define TRICE_PUT16(x)                                             \
+	do {                                                             \
 		uint16_t* p_TRICE_PUT16 = (uint16_t*)TriceBufferWritePosition; \
 		*p_TRICE_PUT16++ = TRICE_HTOTS(x);                             \
-		TriceBufferWritePosition = p_TRICE_PUT16;                      \
+		TriceBufferWritePosition = (uint32_t*)p_TRICE_PUT16;           \
 	} while (0)
 #include "trice8.h"
 #include "trice16.h"
