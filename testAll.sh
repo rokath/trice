@@ -145,26 +145,31 @@ my_long_task() {
     echo "############################################" 2>&1 | tee -a $triceFolder/testAll.log
     echo "" 2>&1 | tee -a $triceFolder/testAll.log
   else
-    clang --version 2>&1 | tee -a $triceFolder/testAll.log
+    clang --version 2>&1 | tee $triceFolder/clang.log
     if ! command -v arm-none-eabi-gcc; then
-      echo "" 2>&1 | tee -a $triceFolder/testAll.log
-      echo "############################################" 2>&1 | tee -a $triceFolder/testAll.log
-      echo "WARNING:    arm-none-eabi-gcc not installed" 2>&1 | tee -a $triceFolder/testAll.log
-      echo "Skipping clang arm target G0B1 translation." 2>&1 | tee -a $triceFolder/testAll.log
-      echo "The arm-none-eabi-gcc libraries are needed." 2>&1 | tee -a $triceFolder/testAll.log
-      echo "############################################" 2>&1 | tee -a $triceFolder/testAll.log
-      echo "" 2>&1 | tee -a $triceFolder/testAll.log
+      echo "" 2>&1 | tee -a $triceFolder/clang.log
+      echo "############################################" 2>&1 | tee -a $triceFolder/clang.log
+      echo "WARNING:    arm-none-eabi-gcc not installed" 2>&1 | tee -a $triceFolder/clang.log
+      echo "Skipping clang arm target G0B1 translation." 2>&1 | tee -a $triceFolder/clang.log
+      echo "The arm-none-eabi-gcc libraries are needed." 2>&1 | tee -a $triceFolder/clang.log
+      echo "############################################" 2>&1 | tee -a $triceFolder/clang.log
+      echo "" 2>&1 | tee -a $triceFolder/clang.log
+      cat $triceFolder/clang.log 2>&1 | tee -a $triceFolder/testAll.log
+      rm $triceFolder/clang.log
     else
-      echo "---" 2>&1 | tee -a $triceFolder/testAll.log
-      echo "Translating G0B1_inst with clang..." 2>&1 | tee -a $triceFolder/testAll.log
+      echo "---" 2>&1 | tee -a $triceFolder/clang.log
+      echo "Translating G0B1_inst with clang..." 2>&1 | tee -a $triceFolder/clang.log
       cd examples/G0B1_inst || exit 1
-      make clean 2>&1 | tee -a $triceFolder/testAll.log
-      ./build_with_clang.sh 2>&1 | tee -a $triceFolder/testAll.log
+      make clean 2>&1 | tee -a $triceFolder/clang.log
+      ./build_with_clang.sh 2>&1 | tee -a $triceFolder/clang.log
       cd - >/dev/null || exit
-      if cat $triceFolder/testAll.log | grep -q -e warning -e error; then
+      cat $triceFolder/clang.log 2>&1 | tee -a $triceFolder/testAll.log
+      if cat $triceFolder/clang.log | grep -q -e warning -e error; then
         echo "Translating G0B1_inst with clang...failed" | tee -a $triceFolder/testAll.log
+        rm $triceFolder/clang.log
         exit 2
       fi
+      rm $triceFolder/clang.log
       echo "Translating G0B1_inst with clang...pass" 2>&1 | tee -a $triceFolder/testAll.log
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
     fi
@@ -191,39 +196,55 @@ my_long_task() {
     cd examples || exit 1
     ./cleanAllTargets.sh 2>&1 | tee -a $triceFolder/testAll.log
     echo "---" 2>&1 | tee -a $triceFolder/testAll.log
-    echo "Translating all examples with TRICE_OFF..." 2>&1 | tee -a $triceFolder/testAll.log
-    ./buildAllTargets_TRICE_OFF.sh 2>&1 | tee -a $triceFolder/testAll.log
-    if cat $triceFolder/testAll.log | grep -q -e warning -e error; then
+
+    echo "Translating all examples with TRICE_OFF..." 2>&1 | tee $triceFolder/triceOff.log
+    ./buildAllTargets_TRICE_OFF.sh 2>&1 | tee -a $triceFolder/triceOff.log
+    if cat $triceFolder/triceOff.log | grep -q -e warning -e error; then
+      cat $triceFolder/triceOff.log 2>&1 >> $triceFolder/testAll.log
+      rm $triceFolder/triceOff.log
       echo "Translating all examples with TRICE_OFF...failed" | tee -a $triceFolder/testAll.log
       cd - >/dev/null || exit
       exit 2
     fi
-    echo "Translating all examples with TRICE_OFF...pass" 2>&1 | tee -a $triceFolder/testAll.log
+    echo "Translating all examples with TRICE_OFF...pass" 2>&1 | tee -a $triceFolder/triceOff.log
+    cat $triceFolder/triceOff.log 2>&1 >> $triceFolder/testAll.log
+    rm $triceFolder/triceOff.log
+
     echo "---" 2>&1 | tee -a $triceFolder/testAll.log
     ./cleanAllTargets.sh 2>&1 | tee -a $triceFolder/testAll.log
     echo "---" 2>&1 | tee -a $triceFolder/testAll.log
-    echo "Translating all examples with TRICE_ON..." 2>&1 | tee -a $triceFolder/testAll.log
-    ./buildAllTargets_TRICE_ON.sh 2>&1 | tee -a $triceFolder/testAll.log
-    if cat $triceFolder/testAll.log | grep -q -e warning -e error; then
+
+    echo "Translating all examples with TRICE_ON..." 2>&1 | tee $triceFolder/triceOn.log
+    ./buildAllTargets_TRICE_ON.sh 2>&1 | tee -a $triceFolder/triceOn.log
+    if cat $triceFolder/triceOn.log | grep -q -e warning -e error; then
+      cat $triceFolder/triceOn.log 2>&1 >> $triceFolder/testAll.log
+      rm $triceFolder/triceOn.log
       echo "Translating all examples with TRICE_ON...failed" | tee -a $triceFolder/testAll.log
       cd - >/dev/null || exit
       exit 2
     fi
-    echo "Translating all examples with TRICE_ON...pass" 2>&1 | tee -a $triceFolder/testAll.log
+    echo "Translating all examples with TRICE_ON...pass" 2>&1 | tee -a $triceFolder/triceOn.log
+    cat $triceFolder/triceOn.log 2>&1 >> $triceFolder/testAll.log
+    rm $triceFolder/triceOn.log
+
     echo "---" 2>&1 | tee -a $triceFolder/testAll.log
     ./cleanAllTargets.sh 2>&1 | tee -a $triceFolder/testAll.log
     cd - >/dev/null || exit
     if [ $SELECTED = "full" ] || [ $SELECTED = "config" ]; then
       cd examples/L432_inst || exit 1
-      echo "---" 2>&1 | tee -a $triceFolder/testAll.log
-      echo "Translating all L432 configurations..." 2>&1 | tee -a $triceFolder/testAll.log
-      ./all_configs_build.sh 2>&1 | tee -a $triceFolder/testAll.log
-      if cat $triceFolder/testAll.log | grep -q -e warning -e error; then
-        echo "Translating all L432 configurations...failed" | tee -a $triceFolder/testAll.log
+      echo "---" 2>&1 | tee $triceFolder/L432.log
+      echo "Translating all L432 configurations..." 2>&1 | tee -a $triceFolder/L432.log
+      ./all_configs_build.sh 2>&1 | tee -a $triceFolder/L432.log
+      if cat $triceFolder/L432.log | grep -q -e warning -e error; then
+        echo "Translating all L432 configurations...failed" | tee -a $triceFolder/L432.log
+        cat $triceFolder/L432.log 2>&1 >> $triceFolder/testAll.log
+        rm $triceFolder/L432.log
         cd - >/dev/null || exit
         exit 2
       fi
-      echo "Translating all L432 configurations...pass" 2>&1 | tee -a $triceFolder/testAll.log
+      echo "Translating all L432 configurations...pass" 2>&1 | tee -a $triceFolder/L432.log
+      cat $triceFolder/L432.log 2>&1 >> $triceFolder/testAll.log
+      rm $triceFolder/L432.log
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
       cd - >/dev/null || exit
     fi
