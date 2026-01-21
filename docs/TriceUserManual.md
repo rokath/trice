@@ -1328,7 +1328,7 @@ If you do not succeed initially, you can try this:
 int main( void) {
     // system init...
     TriceInit();
-    TRice(iD(255), "Fun %x!\n", 0xadded ); // with "fixed" iD(255), 32-bit stamp, and with `\n`
+    TRice(iD(170), "Fun %x!\n", 0xadded ); // with "fixed" iD(170), 32-bit stamp, and with `\n`
     // system run ...
 }
 ```
@@ -1369,6 +1369,7 @@ Problem                        | Hint
 Missing `objcopy` in MacOS     | `brew install bunutils`
 Small GUI Editor for MacOs     | `brew install cotedit` Usage: `cot` (not as root)
 Small In-Terminal Editor Linux | https://cte.e10labs.com/, tilde, micro, joe, https://craigbarnes.gitlab.io/dte/ (also as root)
+Nothing shown with `trice -s`  | Check that format strings end with `\n` and/or use `-addNL`
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
