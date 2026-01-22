@@ -200,14 +200,14 @@ my_long_task() {
     echo "Translating all examples with TRICE_OFF..." 2>&1 | tee $triceFolder/triceOff.log
     ./buildAllTargets_TRICE_OFF.sh 2>&1 | tee -a $triceFolder/triceOff.log
     if cat $triceFolder/triceOff.log | grep -q -e warning -e error; then
-      { cat $triceFolder/triceOff.log >> $triceFolder/testAll.log } 2>&1 
+      cat $triceFolder/triceOff.log >> 2>&1 $triceFolder/testAll.log 
       rm $triceFolder/triceOff.log
       echo "Translating all examples with TRICE_OFF...failed" | tee -a $triceFolder/testAll.log
       cd - >/dev/null || exit
       exit 2
     fi
     echo "Translating all examples with TRICE_OFF...pass" 2>&1 | tee -a $triceFolder/triceOff.log
-    { cat $triceFolder/triceOff.log >> $triceFolder/testAll.log } 2>&1
+    cat $triceFolder/triceOff.log >> 2>&1 $triceFolder/testAll.log
     rm $triceFolder/triceOff.log
 
     echo "---" 2>&1 | tee -a $triceFolder/testAll.log
@@ -217,14 +217,14 @@ my_long_task() {
     echo "Translating all examples with TRICE_ON..." 2>&1 | tee $triceFolder/triceOn.log
     ./buildAllTargets_TRICE_ON.sh 2>&1 | tee -a $triceFolder/triceOn.log
     if cat $triceFolder/triceOn.log | grep -q -e warning -e error; then
-      { cat $triceFolder/triceOn.log >> $triceFolder/testAll.log } 2>&1 
+      cat $triceFolder/triceOn.log >> 2>&1 $triceFolder/testAll.log
       rm $triceFolder/triceOn.log
       echo "Translating all examples with TRICE_ON...failed" | tee -a $triceFolder/testAll.log
       cd - >/dev/null || exit
       exit 2
     fi
     echo "Translating all examples with TRICE_ON...pass" 2>&1 | tee -a $triceFolder/triceOn.log
-    { cat $triceFolder/triceOn.log >> $triceFolder/testAll.log } 2>&1
+    cat $triceFolder/triceOn.log >> 2>&1 $triceFolder/testAll.log
     rm $triceFolder/triceOn.log
 
     echo "---" 2>&1 | tee -a $triceFolder/testAll.log
@@ -237,13 +237,13 @@ my_long_task() {
       ./all_configs_build.sh 2>&1 | tee -a $triceFolder/L432.log
       if cat $triceFolder/L432.log | grep -q -e warning -e error; then
         echo "Translating all L432 configurations...failed" | tee -a $triceFolder/L432.log
-        { cat $triceFolder/L432.log >> $triceFolder/testAll.log } 2>&1
+        cat $triceFolder/L432.log >> 2>&1 $triceFolder/testAll.log
         rm $triceFolder/L432.log
         cd - >/dev/null || exit
         exit 2
       fi
       echo "Translating all L432 configurations...pass" 2>&1 | tee -a $triceFolder/L432.log
-      { cat $triceFolder/L432.log >> $triceFolder/testAll.log } 2>&1
+      cat $triceFolder/L432.log >> 2>&1 $triceFolder/testAll.log
       rm $triceFolder/L432.log
       echo "---" 2>&1 | tee -a $triceFolder/testAll.log
       cd - >/dev/null || exit
