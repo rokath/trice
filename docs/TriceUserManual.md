@@ -502,7 +502,7 @@ Trice performs **no** [costly](#trice-similarities-and-differences-to-printf-usa
 
 To achieve that, a pre-compile step is needed, executing a `trice insert` command on the PC. This is fast enough not to disturb the build process. The Trice tool parses then the source tree for macros like `trice( "msg: %d Kelvin\n", k );` and patches them to `trice( iD(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 14-bit identifier (ID) copied into a [**T**rice **I**D **L**ist](https://github.com/rokath/trice/blob/main/demoTIL.json). During compilation than, the Trice macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
 
-The target code is [project specific](https://github.com/rokath/trice/blob/main/examples/F030_inst/Core/Inc/triceConfig.h) configurable.  In **direct mode** the the stack or a static buffer is used as Trice buffer and the Trice macro execution includes optionally the quick [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding and the data transfer. This more straightforward and slower architecture can be interesting for many cases because it is anyway much faster than printf-like functions calls. Especially when using [Trice over RTT](#trice-over-rtt) a single Trice is executable within ~100 processor clocks. See `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` inside [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) and look into the [examples](https://github.com/rokath/trice/blob/main/examples) folder. In **deferred mode** a service swaps the Trice double buffer or reads the Trice ring buffer periodically, the configured encoding, default is TCOBS, takes part and with the filled buffer the background transfer is triggered. Out buffer and Trice buffer share the same memory for efficiency.
+The target code is [project specific](https://github.com/rokath/trice/blob/main/examples/F030_inst/Core/Inc/triceConfig.h) configurable.  In **direct mode** the the stack or a static buffer is used as Trice buffer and the Trice macro execution includes optionally the quick [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding and the data transfer. This more straightforward and slower architecture can be interesting for many cases because it is anyway much faster than printf-like functions calls. Especially when using [Trice over RTT](#trice-over-rtt) a single Trice is executable within ~100 processor clocks. See `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` inside [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) and look into the [examples](https://github.com/rokath/trice/blob/main/examples) folder. In **deferred mode** a service swaps the Trice double buffer or reads the Trice ring buffer periodically, the configured encoding, default is TCOBS, takes part and with the filled buffer the background transfer is triggered. Out buffer and Trice buffer share the same memory for efficiency.
 
 During runtime the PC Trice tool receives all what happened in the last ~100ms as a package from the UART port. The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the bit width information. Now the Trice tool can write target timestamp, set msg color and execute `printf("%d Kelvin\n", 0x0000000e);`
 
@@ -527,7 +527,7 @@ Target code and PC tool are open source. The MIT license gives full usage freedo
 Making it facile for a user to use Trice was the driving point just to have
 
 * one Trice tool
-* one additional [target code](https://github.com/rokath/trice/blob/main/thomasthomassrc/) source folder
+* one additional [target code](https://github.com/rokath/trice/blob/main/src/) source folder
 * a project specific simple to use [triceConfig.h](https://github.com/rokath/trice/blob/main/examples/F030_inst/Core/Inc/triceConfig.h)
 * and to get away with the one macro `trice` for most situations.
 
@@ -792,7 +792,7 @@ When it comes to instrument a legacy project with Trice or to intergrate legacy 
 
 * Place the extracted Trice [binary](https://github.com/rokath/trice/releases/latest) somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
 * Copy the src folder into your project and add all files.
-* Copy a triceConfig.h from a subfolder in the examples or test folder and optionally adapt it. See file [*triceDefaultConfig.h*](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) for help.
+* Copy a triceConfig.h from a subfolder in the examples or test folder and optionally adapt it. See file [*triceDefaultConfig.h*](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) for help.
   * Inside the triceConfig.h file you can control, if Trice works in direct or deferred mode or both parallel.
 
 ###  5.3. <a id='try-it'></a>Try it
@@ -1059,46 +1059,46 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 | File                                                             | description                                                                                                                                  |
 |------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| [trice.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice.h) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `./src` to your compiler include path. |
-| `triceConfig.h`                                                  | Create this file to overwrite  [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) as needed.         |
+| [trice.h](https://github.com/rokath/trice/blob/main/src/trice.h) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `./src` to your compiler include path. |
+| `triceConfig.h`                                                  | Create this file to overwrite  [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) as needed.         |
 
 * `./src`: **Internal Components** (only partially needed, add all to your project - the configuration selects automatically)
 
 | File                                                                                       | description                                                                                                          |
 |--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| [cobs.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/cobs.h)                             | message packaging, alternatively for tcobs                                                                           |
-| [cobsEncode.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/cobsEncode.c)                 | message encoding, alternatively for tcobs                                                                            |
-| [cobsDecode.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/cobsDecode.c)                 | message decoding, normally not needed                                                                                |
-| [trice.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice.c)                           | trice core lib                                                                                                       |
-| [trice8McuOrder.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice8McuOrder.h)         | trice MCU endianness lib                                                                                             |
-| [trice8McuReverse.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice8McuReverse.h)     | trice MCU reverse endianness lib                                                                                     |
-| [trice16McuOrder.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice16McuOrder.h)       | trice MCU endianness lib                                                                                             |
-| [trice16McuReverse.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice16McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
-| [trice32McuOrder.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice32McuOrder.h)       | trice MCU endianness lib                                                                                             |
-| [trice32McuReverse.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice32McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
-| [trice64McuOrder.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice64McuOrder.h)       | trice MCU endianness lib                                                                                             |
-| [trice64McuReverse.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice64McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
-| [SEGGER_RTT.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/SEGGER_RTT.h)                 | Segger RTT code interface                                                                                            |
-| [SEGGER_RTT.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/SEGGER_RTT.c)                 | Segger RTT code                                                                                                      |
-| [tcobs.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/tcobs.h)                           | message compression and packaging interface                                                                          |
-| [tcobsv1Encode.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/tcobsv1Encode.c)           | message encoding and packaging                                                                                       |
-| [tcobsv1Decode.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/tcobsv1Decode.c)           | message decoding and packaging, normally not needed                                                                  |
-| [tcobsv1Internal.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/tcobsv1Internal.h)       | message decoding and packaging internal interface                                                                    |
-| [trice8.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice8.h)                         | 8-bit trice code interface                                                                                           |
-| [trice8.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice8.c)                         | 8-bit trice code                                                                                                     |
-| [trice16.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice16.h)                       | 16-bit trice code interface                                                                                          |
-| [trice16.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice16.c)                       | 16-bit trice code                                                                                                    |
-| [trice32.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice32.h)                       | 32-bit trice code interface                                                                                          |
-| [trice32.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice32.c)                       | 32-bit trice code                                                                                                    |
-| [trice64.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice64.h)                       | 64-bit trice code interface                                                                                          |
-| [trice64.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/trice64.c)                       | 64-bit trice code                                                                                                    |
-| [triceAuxiliary.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceAuxiliary.c)         | trice code for auxiliary interfaces                                                                                  |
-| [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h* |
-| [triceDoubleBuffer.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode                                                         |
-| [triceStackBuffer.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode                                                                   |
-| [triceRingBuffer.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode                                                     |
-| [xtea.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
-| [xtea.c](https://github.com/rokath/trice/blob/main/thomasthomassrc/xtea.c)                             | XTEA message encryption/decryption code                                                                              |
+| [cobs.h](https://github.com/rokath/trice/blob/main/src/cobs.h)                             | message packaging, alternatively for tcobs                                                                           |
+| [cobsEncode.c](https://github.com/rokath/trice/blob/main/src/cobsEncode.c)                 | message encoding, alternatively for tcobs                                                                            |
+| [cobsDecode.c](https://github.com/rokath/trice/blob/main/src/cobsDecode.c)                 | message decoding, normally not needed                                                                                |
+| [trice.c](https://github.com/rokath/trice/blob/main/src/trice.c)                           | trice core lib                                                                                                       |
+| [trice8McuOrder.h](https://github.com/rokath/trice/blob/main/src/trice8McuOrder.h)         | trice MCU endianness lib                                                                                             |
+| [trice8McuReverse.h](https://github.com/rokath/trice/blob/main/src/trice8McuReverse.h)     | trice MCU reverse endianness lib                                                                                     |
+| [trice16McuOrder.h](https://github.com/rokath/trice/blob/main/src/trice16McuOrder.h)       | trice MCU endianness lib                                                                                             |
+| [trice16McuReverse.h](https://github.com/rokath/trice/blob/main/src/trice16McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
+| [trice32McuOrder.h](https://github.com/rokath/trice/blob/main/src/trice32McuOrder.h)       | trice MCU endianness lib                                                                                             |
+| [trice32McuReverse.h](https://github.com/rokath/trice/blob/main/src/trice32McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
+| [trice64McuOrder.h](https://github.com/rokath/trice/blob/main/src/trice64McuOrder.h)       | trice MCU endianness lib                                                                                             |
+| [trice64McuReverse.h](https://github.com/rokath/trice/blob/main/src/trice64McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
+| [SEGGER_RTT.h](https://github.com/rokath/trice/blob/main/src/SEGGER_RTT.h)                 | Segger RTT code interface                                                                                            |
+| [SEGGER_RTT.c](https://github.com/rokath/trice/blob/main/src/SEGGER_RTT.c)                 | Segger RTT code                                                                                                      |
+| [tcobs.h](https://github.com/rokath/trice/blob/main/src/tcobs.h)                           | message compression and packaging interface                                                                          |
+| [tcobsv1Encode.c](https://github.com/rokath/trice/blob/main/src/tcobsv1Encode.c)           | message encoding and packaging                                                                                       |
+| [tcobsv1Decode.c](https://github.com/rokath/trice/blob/main/src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed                                                                  |
+| [tcobsv1Internal.h](https://github.com/rokath/trice/blob/main/src/tcobsv1Internal.h)       | message decoding and packaging internal interface                                                                    |
+| [trice8.h](https://github.com/rokath/trice/blob/main/src/trice8.h)                         | 8-bit trice code interface                                                                                           |
+| [trice8.c](https://github.com/rokath/trice/blob/main/src/trice8.c)                         | 8-bit trice code                                                                                                     |
+| [trice16.h](https://github.com/rokath/trice/blob/main/src/trice16.h)                       | 16-bit trice code interface                                                                                          |
+| [trice16.c](https://github.com/rokath/trice/blob/main/src/trice16.c)                       | 16-bit trice code                                                                                                    |
+| [trice32.h](https://github.com/rokath/trice/blob/main/src/trice32.h)                       | 32-bit trice code interface                                                                                          |
+| [trice32.c](https://github.com/rokath/trice/blob/main/src/trice32.c)                       | 32-bit trice code                                                                                                    |
+| [trice64.h](https://github.com/rokath/trice/blob/main/src/trice64.h)                       | 64-bit trice code interface                                                                                          |
+| [trice64.c](https://github.com/rokath/trice/blob/main/src/trice64.c)                       | 64-bit trice code                                                                                                    |
+| [triceAuxiliary.c](https://github.com/rokath/trice/blob/main/src/triceAuxiliary.c)         | trice code for auxiliary interfaces                                                                                  |
+| [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h* |
+| [triceDoubleBuffer.c](https://github.com/rokath/trice/blob/main/src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode                                                         |
+| [triceStackBuffer.c](https://github.com/rokath/trice/blob/main/src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode                                                                   |
+| [triceRingBuffer.c](https://github.com/rokath/trice/blob/main/src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode                                                     |
+| [xtea.h](https://github.com/rokath/trice/blob/main/src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
+| [xtea.c](https://github.com/rokath/trice/blob/main/src/xtea.c)                             | XTEA message encryption/decryption code                                                                              |
 
 * The *tcobs\*.\** files are copied from [tcobs v1](https://github.com/rokath/tcobs). They are maintained there and extensively tested and probably not a matter of significant change.
 * The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
@@ -1224,7 +1224,7 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
 
 ####  5.9.9. <a id='trice-parameter-bit-widths'></a>Trice Parameter Bit Widths
 
-* The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside [src/triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) to change that.
+* The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside [src/triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) to change that.
 * If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
 
   ```C
@@ -1473,7 +1473,7 @@ mkdir -p ~/.trice/cache
 
 ##  8. <a id='embedded-system-code-configuration'></a>Embedded system code configuration
 
-Check comments inside [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) and adapt your project configuration like shown in [triceConfig.h](https://github.com/rokath/trice/blob/main/examples/F030_inst/Core/Inc/triceConfig.h) as example.
+Check comments inside [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) and adapt your project configuration like shown in [triceConfig.h](https://github.com/rokath/trice/blob/main/examples/F030_inst/Core/Inc/triceConfig.h) as example.
 
 A Trice macro is avoiding all the `printf()` internal overhead (space and time) but is nearly as easy to use. For example instead of writing
 
@@ -1811,7 +1811,7 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
   *  [../examples/G0B1_inst/Core/Inc/triceConfig.h](https://github.com/rokath/trice/blob/main/examples/G0B1_inst/Core/Inc/triceConfig.h)
   *  [../examples/L432_inst/Core/Inc/triceConfig.h](https://github.com/rokath/trice/blob/main/examples/L432_inst/Core/Inc/triceConfig.h)
 * Comparing them and understandig the differences helps quick starting.
-* The file [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) contains all possible config keys with descriptions.
+* The file [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) contains all possible config keys with descriptions.
 
 ###  13.3. <a id='setting-up-the-very-first-connection'></a>Setting up the very first connection
 
@@ -3384,7 +3384,7 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
   ```C
   #define BUFFER_SIZE_UP (128)  // "TRICE_DIRECT_BUFFER_SIZE"
   ```
-* Inside the [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) you can find some other settings recommended for the *SEGGER_RTT_Conf.h* file. You have to set them manually in the *SEGGER_RTT_Conf.h* because the SEGGER target sources do not include *trice.h* (and implicit [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/thomasthomassrc/triceDefaultConfig.h) and *triceConfig.h*).
+* Inside the [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) you can find some other settings recommended for the *SEGGER_RTT_Conf.h* file. You have to set them manually in the *SEGGER_RTT_Conf.h* because the SEGGER target sources do not include *trice.h* (and implicit [triceDefaultConfig.h](https://github.com/rokath/trice/blob/main/src/triceDefaultConfig.h) and *triceConfig.h*).
 * **Possible:** Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([\#446](https://github.com/rokath/trice/issues/446))
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -4941,7 +4941,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Accept and Accept
   - 1: Upgrade to J-Link
   - 0: Quit
-- Download, extract & start https://github.com/rokath/trice/blob/main/thomasthomasthird_party/segger.com/STLinkReflash_190812.zip
+- Download, extract & start https://github.com/rokath/trice/blob/main/third_party/segger.com/STLinkReflash_190812.zip
   - Re-Flash onboard debugger.
     - You can undo this step anytime.
 
