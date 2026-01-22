@@ -1,69 +1,116 @@
-# Workflow name as shown in the GitHub Actions UI
 name: "CodeQL"
 
-# Define when this workflow should run
 on:
-  # Run CodeQL analysis on every push to the main branch
   push:
     branches: [ "main" ]
-
-  # Run CodeQL analysis for pull requests targeting main
   pull_request:
     branches: [ "main" ]
-
-  # Allow the workflow to be triggered manually from the Actions tab
   workflow_dispatch:
 
-jobs:
-  analyze:
-    # Job name as displayed in GitHub Actions
-    name: Analyze (CodeQL)
+# DESIGN NOTES
+# ------------
+# 1) Split jobs by language to avoid coupling:
+#    - Go can usually be analyzed without complex build tooling.
+#    - C/C++ CodeQL benefits from observing *actual* compilation commands.
+#
+# 2) Avoid running ./testAll.sh inside CodeQL:
+#    testAll.sh is a full QA pipeline (formatting, markdown linting, link checks,
+#    coverage, ID regeneration, cross-toolchains). That increases runtime and
+#    failure surface and can cause C/C++ builds to be skipped depending on
+#    tool availability on the runner.
+#
+# 3) Instead, run the build scripts that actually compile the C/C++ targets.
+#    This provides CodeQL with clean, deterministic compilation observability.
 
-    # Use the latest Ubuntu runner provided by GitHub
+jobs:
+  analyze-go:
+    name: "Analyze (CodeQL) - Go"
     runs-on: ubuntu-latest
 
-    # Matrix strategy allows running the same job for multiple languages
-    strategy:
-      # Do not cancel other matrix jobs if one fails
-      fail-fast: false
-
-      matrix:
-        # Languages to analyze with CodeQL
-        # - "go": analyzes Go source code
-        # - "cpp": would analyze C/C++ code (disabled here)
-        language: [ "go" ] # , "cpp" ] no build for C code here
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
 
     steps:
-      # Step 1: Check out the repository so CodeQL can access the source code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Initialize the CodeQL analysis environment
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: Initialize CodeQL (Go)
+        uses: github/codeql-action/init@v4
         with:
-          # Specify which language from the matrix should be analyzed
-          languages: ${{ matrix.language }}
-
-          # Optional: You could specify custom query packs here
+          languages: go
+          # Optional: broader queries
           # queries: security-and-quality
 
-      # Step 3: Automatically build the project (if applicable)
-      #
-      # - For Go projects, CodeQL can usually analyze the source without
-      #   a traditional build step.
-      # - For C/C++ projects, CodeQL attempts to build the code to better
-      #   understand compilation units and binaries.
-      #
-      # If autobuild fails (especially for C/C++), you may need to:
-      #   - Remove this step
-      #   - Add a manual build command (e.g. make, cmake, etc.)
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      # Optional: build the trice tool exactly as you do locally.
+      # If buildTriceTool.sh expects extra tooling, add it here.
+      - name: Build trice tool (optional)
+        shell: bash
+        run: |
+          chmod +x ./buildTriceTool.sh
+          ./buildTriceTool.sh
 
-      # Step 4: Run the CodeQL analysis and upload results to GitHub
-      #
-      # The findings will appear under:
-      #   Security -> Code scanning alerts
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      # Alternatively (or additionally), run tests:
+      # - name: Go tests
+      #   run: go test ./...
+
+      - name: Perform CodeQL Analysis (Go)
+        uses: github/codeql-action/analyze@v4
+
+  analyze-cpp:
+    name: "Analyze (CodeQL) - C/C++"
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Initialize CodeQL (C/C++)
+        uses: github/codeql-action/init@v4
+        with:
+          languages: cpp
+          # Manual mode: we provide the build commands explicitly.
+          build-mode: manual
+          # Optional: query suite
+          # queries: security-and-quality
+
+      # Install baseline build tooling.
+      # Add packages as needed to satisfy your scripts.
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential make
+
+      # Manual build step: run only the scripts that compile C/C++.
+      # Start minimal; add toolchain-specific scripts only if needed.
+      - name: Build C/C++ targets (manual)
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x \
+            ./examples/buildAllTargets_TRICE_OFF.sh \
+            ./examples/buildAllTargets_TRICE_ON.sh
+
+          # These two builds typically give good coverage of conditional compilation:
+          ./examples/buildAllTargets_TRICE_OFF.sh
+          ./examples/buildAllTargets_TRICE_ON.sh
+
+          # Optional (enable later if it works reliably on ubuntu-latest):
+          # chmod +x ./examples/L432_inst/all_configs_build.sh
+          # ./examples/L432_inst/all_configs_build.sh
+          #
+          # Optional clang-based build (enable later if desired):
+          # sudo apt-get install -y clang
+          # chmod +x ./examples/G0B1_inst/build_with_clang.sh
+          # (cd ./examples/G0B1_inst && ./build_with_clang.sh)
+
+      - name: Perform CodeQL Analysis (C/C++)
+        uses: github/codeql-action/analyze@v4
