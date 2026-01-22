@@ -97,7 +97,7 @@ date        | version | comment
 2023-MAY-05 |  0.58.0 | Target files all now direct in src folder and need to be included all. Direct XTEA with RTT32 (experimental).
 2023-MAY-10 |  0.59.0 | Target code better structured. Automatic target tests working and now extendable with more configuration variants. Auxiliary support for direct and deferred. Common RTT Diagnostics for all RTT Modes as part of TRICE_DIAGNOSTICS.
 2023-MAY-14 |  0.60.0 | XTEA working with doubleBuffer in multi-pack mode and also with ringBuffer (safe-single mode). Tests for that added and also a test for twin mode (direct plus deferred output) is working. more target code tests
-2023-MAY-15 |  0.60.1 | Trice Log enabled in https://github.com/rokath/trice/tree/master/examples/F030_inst as `triceConfig.h` example.
+2023-MAY-15 |  0.60.1 | Trice Log enabled in [F030_inst](https://github.com/rokath/trice/tree/master/examples/F030_inst) as `triceConfig.h` example.
 2023-MAY-16 |  0.60.2 | Target code linted.
 2023-JUN-09 |  0.60.3 | vsCode with Clang\|GCC examples added
 2023-JUL-24 |  0.61.0 | `trice insert` as new command is successor for `trice update`. With `trice zero` all IDs in source can be set to 0. A following `trice insert` will restore the IDs. Experimental `trice clean` command added. `trice insert` depreciated now and will be removed in the future.
@@ -106,7 +106,7 @@ date        | version | comment
 2023-AUG-06 |  0.62.0 | Examples moved from ./test to ./examples. ReadMe.md and scripts adapted. This includes the movement of TriceDiagnostics() to [triceCheck.c](./_test/testdata/triceCheck.c) because this is more a user specific and no library functionality.
 2023-AUG-06 |  0.62.1 | In some cases, when Trice16() returned a 32-bit value the cycle counter got disturbed. This is solved now.
 2023-SEP-10 |  0.62.2 | Fixes issue [#427](https://github.com/rokath/trice/issues/427). TCOBS decoder more robust against data garbage.
-2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/issues/433) && [#435](https://github.com/rokath/trice/issues/435). Minor clarification in trice user guide.
+2023-SEP-22 |  0.62.3 | Incorporated pull requests [#433](https://github.com/rokath/trice/pull/433) && [#435](https://github.com/rokath/trice/pull/435). Minor clarification in trice user guide.
 2024-Mar-17 |  0.63.0 | See [3. v063. Changes](#v0.63.0-changes)
 2024-JUL-18 |  0.64.0 | See [4. v0.64.0 Changes](#v0.64.0-changes)
 2024-JUL-26 |  0.64.1 | See [v0.64.1 changes](#v0.64.1-changes)

@@ -35,7 +35,8 @@ even inside **↯ interrupts** in less than 1 µs❗
 
   ```diff
   - No version mismatch hassle❗
-  + The Trice ID List accumulates the log strings -> the latest version can decode all former versions as well❗
+  + The Trice ID List accumulates all log strings, so the
+  + latest version can decode all former versions as well❗
   ```
 
 - *Trice* consists of 2 parts:
