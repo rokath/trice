@@ -97,7 +97,7 @@ jobs:
       - name: Perform CodeQL Analysis (Go)
         uses: github/codeql-action/analyze@v4
 
-  analyze-cpp:
+  analyze:
     # Job name as displayed in GitHub Actions
     name: "Analyze (CodeQL) - C/C++"
 
