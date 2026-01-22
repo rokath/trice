@@ -1,100 +1,196 @@
+# Workflow name as shown in the GitHub Actions UI
 name: "CodeQL"
 
+# Define when this workflow should run
 on:
+  # Run CodeQL analysis on every push to the main branch
   push:
     branches: [ "main" ]
+
+  # Run CodeQL analysis for pull requests targeting main
   pull_request:
     branches: [ "main" ]
+
+  # Allow the workflow to be triggered manually from the Actions tab
   workflow_dispatch:
 
 # DESIGN NOTES
 # ------------
-# 1) Split jobs by language to avoid coupling:
-#    - Go can usually be analyzed without complex build tooling.
-#    - C/C++ CodeQL benefits from observing *actual* compilation commands.
+# This repository contains:
+# - Go code (the "trice" tool)
+# - C/C++ code (the embedded/library/examples)
 #
-# 2) Avoid running ./testAll.sh inside CodeQL:
-#    testAll.sh is a full QA pipeline (formatting, markdown linting, link checks,
-#    coverage, ID regeneration, cross-toolchains). That increases runtime and
-#    failure surface and can cause C/C++ builds to be skipped depending on
-#    tool availability on the runner.
+# CodeQL works best if it can observe real compiler invocations for C/C++.
+# The previous C/C++ CodeQL run failed because:
+#   1) arm-none-eabi-gcc was not installed on ubuntu-latest
+#   2) some example build scripts call `trice` (Go tool), but `trice` was not on PATH
 #
-# 3) Instead, run the build scripts that actually compile the C/C++ targets.
-#    This provides CodeQL with clean, deterministic compilation observability.
+# Therefore, this workflow:
+# - Upgrades CodeQL Action from v3 to v4 (v3 is scheduled for deprecation in 2026)
+# - Splits analysis into two independent jobs (Go and C/C++)
+# - Uses build-mode: manual for C/C++ and runs your known-good build scripts explicitly
+# - Installs the ARM embedded toolchain + newlib headers on the Ubuntu runner
+# - Builds/installs `trice` before running the C/C++ build scripts that require it
+#
+# Rationale for NOT calling ./testAll.sh in CodeQL:
+# - testAll.sh is a full QA pipeline (formatting, markdown linting, link checks, coverage, ID regeneration,
+#   optional cross-toolchain checks, etc.). That increases runtime and failure surface for CodeQL.
+# - CodeQL only needs a build that compiles the C/C++ translation units of interest.
 
 jobs:
   analyze-go:
+    # Job name as displayed in GitHub Actions
     name: "Analyze (CodeQL) - Go"
+
+    # Use the latest Ubuntu runner provided by GitHub
     runs-on: ubuntu-latest
 
+    # Required permissions for uploading CodeQL results to the Security tab
     permissions:
       security-events: write
       actions: read
       contents: read
 
     steps:
+      # Step 1: Check out the repository so CodeQL can access the source code
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Set up Go for deterministic tooling
+      # - "stable" follows the current stable Go release on GitHub Actions runners.
+      # - If you need strict reproducibility, pin a specific version (e.g. "1.23.x").
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      # Step 3: Initialize the CodeQL analysis environment (v4)
       - name: Initialize CodeQL (Go)
         uses: github/codeql-action/init@v4
         with:
+          # Analyze Go source code
           languages: go
-          # Optional: broader queries
+
+          # Optional query selection:
+          # - security-and-quality: common default
+          # - security-extended: broader security coverage
           # queries: security-and-quality
 
-      # Optional: build the trice tool exactly as you do locally.
-      # If buildTriceTool.sh expects extra tooling, add it here.
-      - name: Build trice tool (optional)
+      # Step 4 (Optional but recommended): build the Go tool in the same way as your local workflow.
+      # This helps ensure CodeQL sees the same module/build constraints used in CI.
+      - name: Build trice tool (Go)
         shell: bash
         run: |
+          set -euo pipefail
           chmod +x ./buildTriceTool.sh
           ./buildTriceTool.sh
 
-      # Alternatively (or additionally), run tests:
-      # - name: Go tests
-      #   run: go test ./...
+          # If buildTriceTool.sh installs into $HOME/go/bin, ensure it is on PATH for later steps.
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
 
+          # Sanity check
+          command -v trice
+          trice version
+
+      # Step 5: Run the CodeQL analysis and upload results to GitHub
+      # Findings appear under: Security -> Code scanning alerts
       - name: Perform CodeQL Analysis (Go)
         uses: github/codeql-action/analyze@v4
 
   analyze-cpp:
+    # Job name as displayed in GitHub Actions
     name: "Analyze (CodeQL) - C/C++"
+
+    # Use the latest Ubuntu runner provided by GitHub
     runs-on: ubuntu-latest
 
+    # Required permissions for uploading CodeQL results to the Security tab
     permissions:
       security-events: write
       actions: read
       contents: read
 
     steps:
+      # Step 1: Check out the repository so CodeQL can access the source code
+      # Keep submodules if your examples/vendor code relies on them.
       - name: Checkout repository (with submodules)
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
+      # Step 2: Initialize the CodeQL analysis environment (v4)
+      #
+      # For C/C++ we use "manual" build mode because CodeQL autobuild previously failed,
+      # and because manual mode ensures CodeQL can observe the exact compile commands
+      # produced by your scripts.
       - name: Initialize CodeQL (C/C++)
         uses: github/codeql-action/init@v4
         with:
           languages: cpp
-          # Manual mode: we provide the build commands explicitly.
           build-mode: manual
-          # Optional: query suite
+
+          # Optional query selection:
           # queries: security-and-quality
 
-      # Install baseline build tooling.
-      # Add packages as needed to satisfy your scripts.
-      - name: Install build dependencies
+      # Step 3: Install build dependencies on ubuntu-latest
+      #
+      # Your scripts invoke arm-none-eabi-gcc for cross-compilation and also expect newlib headers.
+      # - gcc-arm-none-eabi provides arm-none-eabi-gcc
+      # - binutils-arm-none-eabi provides linker/objcopy/size tools commonly used by Makefiles
+      # - libnewlib-arm-none-eabi provides standard headers (e.g., stdlib.h) for embedded builds
+      #
+      # If later logs show missing tools (cmake, ninja, clang, etc.), extend this list.
+      - name: Install build dependencies (ARM toolchain + newlib)
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential make
+          sudo apt-get install -y \
+            build-essential \
+            make \
+            gcc-arm-none-eabi \
+            binutils-arm-none-eabi \
+            libnewlib-arm-none-eabi
 
-      # Manual build step: run only the scripts that compile C/C++.
-      # Start minimal; add toolchain-specific scripts only if needed.
+      # Step 4: Provide `trice` on PATH for scripts that call it
+      #
+      # Some example build scripts call:
+      #   trice_cleanIDs_in_examples_and_test_folder.sh
+      #   trice_insertIDs_in_examples_and_test_folder.sh
+      # and those scripts expect the `trice` executable to be available.
+      #
+      # We build/install trice here (again) because jobs are isolated: the Go job's artifacts/PATH
+      # do not automatically carry over to the C/C++ job.
+      - name: Set up Go (needed for trice tool)
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Build and install trice tool into PATH
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x ./buildTriceTool.sh
+          ./buildTriceTool.sh
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
+
+          # Sanity check
+          command -v trice
+          trice version
+
+      # Step 5: Manual build step (THIS REPLACES AUTOBUILD FOR C/C++)
+      #
+      # CodeQL will observe the compilation happening here and use it to create the database.
+      #
+      # Start with the two scripts that typically cover core conditional compilation paths:
+      # - TRICE_OFF
+      # - TRICE_ON
+      #
+      # If you later decide to include additional configurations (e.g., L432 all configs),
+      # add them here once they are stable on ubuntu-latest.
       - name: Build C/C++ targets (manual)
         shell: bash
         run: |
           set -euo pipefail
+
           chmod +x \
             ./examples/buildAllTargets_TRICE_OFF.sh \
             ./examples/buildAllTargets_TRICE_ON.sh
@@ -105,12 +201,13 @@ jobs:
 
           # Optional (enable later if it works reliably on ubuntu-latest):
           # chmod +x ./examples/L432_inst/all_configs_build.sh
-          # ./examples/L432_inst/all_configs_build.sh
+          # (cd ./examples/L432_inst && ./all_configs_build.sh)
           #
           # Optional clang-based build (enable later if desired):
           # sudo apt-get install -y clang
           # chmod +x ./examples/G0B1_inst/build_with_clang.sh
           # (cd ./examples/G0B1_inst && ./build_with_clang.sh)
 
+      # Step 6: Run the CodeQL analysis and upload results to GitHub
       - name: Perform CodeQL Analysis (C/C++)
         uses: github/codeql-action/analyze@v4
