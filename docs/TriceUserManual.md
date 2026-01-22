@@ -7409,7 +7409,7 @@ Trice Root Folder File                                                          
 [.clang-format-ignore](https://github.com/rokath/trice/blob/main/.clang-format-ignore)                                                     | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
 [.code_snippets](https://github.com/rokath/trice/blob/main/.code_snippets)                                                                 | Some legacy helper code for copying where to use
 [.editorconfig](https://github.com/rokath/trice/blob/main/.editorconfig)                                                                   | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
-[.git](https://github.com/rokath/trice/blob/main/.git)                                                                                     | version control data base
+`.git/`                                                                                                                                    | Git repository metadata (exists locally after cloning; not part of the repository content)
 [.gitattributes](https://github.com/rokath/trice/blob/main/.gitattributes)                                                                 | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
 [.github/](https://github.com/rokath/trice/blob/main/.github/)                                                                             | [📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)
 [.gitignore](https://github.com/rokath/trice/blob/main/.gitignore)                                                                         | git ignores these files
@@ -7480,7 +7480,7 @@ It contains issue templates, labels, workflow automation, code scanning, linting
   * This is intentional and follows GitHub Actions conventions.
     * .github/workflows/label.yml is a workflow. It defines when and how the GitHub Action runs (triggers, permissions, runner, action reference).
     * .github/labeler.yml is not a workflow. It is a configuration file consumed by actions/labeler. It defines the labeling rules.
-* [workflows/]](https://github.com/rokath/trice/blob/main/workflows/) Contains GitHub Actions automation
+* [.github/workflows/](https://github.com/rokath/trice/tree/main/.github/workflows) Contains GitHub Actions automation
 
 <!--
 
