@@ -96,6 +96,13 @@ jobs:
       # Findings appear under: Security -> Code scanning alerts
       - name: Perform CodeQL Analysis (Go)
         uses: github/codeql-action/analyze@v4
+        with:
+          # IMPORTANT:
+          # This workflow uploads *two* different CodeQL result sets (Go and C/C++).
+          # If no category is set, one SARIF upload can overwrite the other for the same commit,
+          # which can lead to confusing "No code scanning results" / stale tool status.
+          # Therefore, we set a stable category per language.
+          category: "/language:go"
 
   analyze:
     # Job name as displayed in GitHub Actions
@@ -211,3 +218,10 @@ jobs:
       # Step 6: Run the CodeQL analysis and upload results to GitHub
       - name: Perform CodeQL Analysis (C/C++)
         uses: github/codeql-action/analyze@v4
+        with:
+          # IMPORTANT:
+          # This workflow uploads *two* different CodeQL result sets (Go and C/C++).
+          # If no category is set, one SARIF upload can overwrite the other for the same commit,
+          # which can lead to confusing "No code scanning results" / stale tool status.
+          # Therefore, we set a stable category per language.
+          category: "/language:cpp"
