@@ -4197,6 +4197,34 @@ static inline uint64_t aDouble( double x ){
    triceS("A runtime string %20s\n", s);
   ```
 
+Trice was designed mainly for speed. An universal `trice` like `printf` would cost too much runtime and destroy this main Trice advantage.
+
+If you need several `%s`, like in 
+
+```C
+char* n = "Ann";
+char* f = "Fox";
+uint8_t dd = 22;
+uint8_t mm = 11;
+uint16_t yyyy = 1988;
+// ...
+print( "Name: %12s, Family: %s, Birthday %2u-%02u-%4u\n",  n, f, dd, mm, yyyy );
+```
+you can do:
+
+```C
+// ...
+triceS( "Name: %12s, ",  n );
+triceS( "Family: %s, ", f );
+trice( "Birthday %2u-%02u-%4u\n", dd, mm, yyyy );
+```
+ or also
+
+```C
+// ...
+triceS( "Name: %12s, ",  n ); triceS( "Family: %s, ", f ); trice( "Birthday %2u-%02u-%4u\n", dd, mm, yyyy );
+```
+
 ###  34.7. <a id='runtime-generated-counted-strings-transfer-with-tricen'></a>Runtime Generated counted Strings Transfer with  triceN
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
