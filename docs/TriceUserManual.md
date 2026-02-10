@@ -2044,6 +2044,18 @@ After the year 2106 the Trice tool needs a small modification to correctly compu
 * use ID to get parameters width `W`=8,16,32,64 from file *til.json* and and parameters count and convert appropriate.
   * Within one trice message the parameter bit width `W` does not change.
 
+> Example for Trices without timestamps
+
+* The ([T]COBS decoded) binary Trice data start alway with a little endian u16 Trice ID value.
+* All following values are encoded in the known endianness.
+
+value   | byte offset | type              | comment
+--------|------------:|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IdLo    |           0 | byte              | The first byte are always the Trice ID lower 8 bits.
+IdHi    |           1 | byte              | The second byte 2 most significant bits are `01` and the 6 least significat bits are the Trice ID upper 6 bits.
+NC      |           2 | u16               | The most significant bit is the count selector bit `z` and usually **0**, telling, that the following 7 bits are the payload byte count and that the 8 least significant bits are the cycle counter. If `z`is **1**, the current Trice contains no cycle counter and hat a 15-bit payload count instead (for payloads > 127).
+payload |           4 | u8\|u16\|u32\|u64 | The payload contains a number of equal size values.
+
 ####  19.2.1. <a id='typex0-trices'></a>typeX0 Trices
 
 The user can insert any data with a well-defined structure into the Trice data stream. The Trice tool, when interpreting the Trice binary data, will behave on typeX0 Trices according to a passed CLI switch `-typeX0`.
