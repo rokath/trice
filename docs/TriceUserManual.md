@@ -6443,6 +6443,9 @@ When it comes to use legacy sources together with Trice, there are several ways 
   * `double x` needs wrapping with `aDouble(x)`.
   * `int64` and `double` need `trice64` instead of `trice` or generally use 64-bit width `trice`.
 * Not applicable for a large legacy code basis.
+  * It is (probably) already tested code.
+  * It is maybe used "as is" in other projects.
+  * It needs a lot of manual editing work. -> This nowadays is expected to be easier with AI.
 
 *Details:*
 
