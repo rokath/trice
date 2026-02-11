@@ -107,9 +107,9 @@ PDF Generation
     * [11.2.2. Some Log examples](#some-log-examples)
     * [11.2.3. Logging over a display server](#logging-over-a-display-server)
     * [11.2.4. Binary Logfile](#binary-logfile)
-    * [11.2.5. TCP output](#tcp-output)
+    * [11.2.5. TCP4 output](#tcp4-output)
     * [11.2.6. TCP4 input](#tcp4-input)
-    * [11.2.7. UDP4 input (accepted pull request 529)](#udp4-input-(accepted-pull-request-529))
+    * [11.2.7. UDP4 input](#udp4-input)
     * [11.2.8. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
     * [11.2.9. Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
     * [11.2.10. Location Information](#location-information)
@@ -1635,7 +1635,7 @@ Binary logfiles are handy in the field for long data recordings.
 
 When using RTT, the data are exchanged over a file interface. These binary logfiles are stored in the project [./temp] folder and accessable for later view: `trice l -p FILEBUFFER -args ./temp/logfileName.bin`. Of course the host timestamps are the playing time then.
 
-####  11.2.5. <a id='tcp-output'></a>TCP output
+####  11.2.5. <a id='tcp4-output'></a>TCP4 output
 
 ```bash
 trice l -p COM3 -tcp 127.0.0.1:23
@@ -1654,7 +1654,7 @@ trice l -p TCP4 -args "192.168.2.3:45678"
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
 
-####  11.2.7. <a id='udp4-input-(accepted-pull-request-529)'></a>UDP4 input (accepted pull request 529)
+####  11.2.7. <a id='udp4-input'></a>UDP4 input
 
 The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
 

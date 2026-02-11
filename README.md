@@ -26,120 +26,148 @@ Log in (a) trice ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif
 
 even inside **↯ interrupts** in less than 1 µs❗
 
-## About
+## What is Trice?
 
-- Replace `printf` or `log` in **C**-code for getting:
-  - **[Speed](./docs/TriceUserManual.md#trice-speed)**, to be usable also **inside interrupts**,
-  - **[Space](./docs/TriceUserManual.md#trice-memory-needs)**, to reduce needed FLASH memory size,
-  - **[Features](./docs/TriceUserManual.md#trice-features-(overview))** delighting the developers heart.
-- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserManual.md#port-it).
+Trice replaces `printf` or `log` in **C** code and gives you three main benefits:
 
-  ```diff
-  - No version mismatch hassle❗
-  + The Trice ID List accumulates all log strings, so the
-  + latest version can decode all former versions as well❗
-  ```
+- **[Speed](./docs/TriceUserManual.md#trice-speed)** - Fast enough to use inside interrupts
+- **[Small Size](./docs/TriceUserManual.md#trice-memory-needs)** - Uses less FLASH memory
+- **[More Features](./docs/TriceUserManual.md#trice-features-(overview))** - Extra options that help developers
 
-- *Trice* consists of 2 parts:
-  1. **C** code `trice` macros, similar usable like `printf`, generating tiny & super-fast embedded device real-time trace/log code.
-  2. Tool **trice** for managing and visualization.
-      - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
-      - You can also use your own environment to receive the *Trice* packages, exchange the carried IDs with the format string and print out.
-- [Trice User Manual](./docs/TriceUserManual.md)
-- Trice Status: **_Trice is ready to be used!_**
+### Main Idea
 
-## Possible Use Cases
+Instead of storing log strings on your embedded device, Trice keeps them on your PC. This makes logging faster and uses less memory on your device.
 
-- Using *Trice* not only for **printf debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./demoTIL.json) is the key to read all output if your devices in the field for 10 or more years.
-  - Optionally add [til.json](./demoTIL.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html). Or simply provide a download link.
-- You can see *Trice* also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
-- [Storing *Trice* messages in FLASH memory](./docs/TriceUserManual.md#writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output)) for later log analysis saves memory because a typical `TRICE` occupies only 4 bytes independently of the format string length plus optional values.
-- Also, it is possible to **encrypt** the *Trice* transfer packets to get a reasonable protection for many cases.
-  - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./demoTIL.json).
-  - [XTEA](https://en.m.wikipedia.org/wiki/XTEA) is implemented as one option.
-- You can even translate the [til.json](./demoTIL.json) file in **different languages**, so changing a language is just changing the [til.json](./demoTIL.json) file without touching the target binary.
-- With *Trice* it is easy to do **timing analysis** on distributed embedded systems. Host and target timestamps are supported.
+```diff
+- No version mismatch problems❗
++ The Trice ID List stores all log strings, so the
++ newest version can read logs from all older versions❗
+```
 
-## How it approximately works (UART example)
+### Two Parts of Trice
 
-This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TriceUserManual.md#how-it-works---the-main-idea)
+1. **C code macros** - Works like `printf` but creates very fast trace and log code for your embedded device
+2. **Trice tool** - Manages and displays the logs
+   - Written in [Go](https://golang.org/) - works on all platforms that Go supports
+   - You can also build your own tool to receive Trice packages, replace IDs with text, and display the output
+
+- [Read the Trice User Manual](./docs/TriceUserManual.md)
+- Current Status: **_Trice is ready to use!_**
+
+## When to Use Trice
+
+### Logging and Debugging
+You can use Trice for `printf` debugging and as a logging system. The advantage is very short messages (no strings) for data transfer. Remember that the file [til.json](./demoTIL.json) is needed to read all output from devices in the field for 10+ years.
+
+- **Optional:** Add [til.json](./demoTIL.json) as a compressed resource to your target image. You can use [SRecord](http://srecord.sourceforge.net/download.html) or provide a download link.
+
+### Data Compression
+Trice looks like data compression (IDs instead of strings), which is useful for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) devices, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT) with very low data rates.
+
+### FLASH Memory Storage
+[Store Trice messages in FLASH memory](./docs/TriceUserManual.md#writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output)) for later analysis. A typical `trice` uses only 4 bytes, no matter how long the format string is.
+
+### Encryption
+You can **encrypt** Trice transfer packets for security.
+
+- Deliver firmware images with encrypted Trice output that only works with the right key and [til.json](./demoTIL.json)
+- [XTEA](https://en.m.wikipedia.org/wiki/XTEA) encryption is available
+
+### Translation
+Translate the [til.json](./demoTIL.json) file into **different languages**. Change the language by changing the [til.json](./demoTIL.json) file without changing the target binary.
+
+### Timing Analysis
+Trice makes **timing analysis** easy on distributed embedded systems. It supports both host and target timestamps.
+
+## How Trice Works (UART Example)
+
+This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice works. [Read the detailed explanation here](./docs/TriceUserManual.md#how-it-works---the-main-idea).
 
 ![trice](docs/ref/triceCOBSBlockDiagram.svg)
 
-## Data Transfer
+## Data Transfer Options
 
-- Implemented:
-  - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) connectable to virtual UART over USB
-  - [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) over [J-Link](./third_party/segger.com/ReadMe.md) and [RTT over ST-Link](./third_party/goST/ReadMe.md)
-  - TCP4 
-  - UDP4 (currently as PR #529)
-- A small separate microcontroller is always usable as interfaces bridge from [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ... to UART.
-- With a Chip from FTDI, check for example [Adafruit FT232H Breakout](https://learn.adafruit.com/adafruit-ft232h-breakout), GPIO, I2C and SPI are easy accessable.
+### Implemented Transfer Methods
 
-## Display server option
+- [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) - Can connect to virtual UART over USB
+- [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) - Works with [J-Link](./third_party/segger.com/ReadMe.md) and [ST-Link](./third_party/goST/ReadMe.md)
+- TCP4 ([TCP4 input](./docs/TriceUserManual.md#tcp4-input) and [TCP4 output](./docs/TriceUserManual.md#tcp4-output))
+- UDP4 ([UDP4 input](./docs/TriceUserManual.md#udp4-input))
 
-Start `trice ds` inside a console, option: [third_party/alacritty](./third_party/alacritty), locally or on a remote PC and connect with several **trice** tool instances like with `trice log -p COM15 -ds` for example.
+### Other Transfer Options
+
+- Use a small separate microcontroller as a bridge from [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network) to UART
+- Use FTDI chips like [Adafruit FT232H Breakout](https://learn.adafruit.com/adafruit-ft232h-breakout) for easy GPIO, I2C, and SPI access
+
+## Display Server
+
+- Start `trice ds` in a console on your local PC or a remote PC. Then connect several **trice** tool instances using commands like `trice log -p COM15 -ds`
+- This allows to see the Trice logs of several devices line-by-line intermixed in one terminal.
 
 ## Documentation
 
-- [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice) (a bit outdated)
-- [Trice User Manual](./docs/TriceUserManual.md) (covers also the interrupt blog actualized information)
-- Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions) including the closed items.
+- [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice) (slightly outdated)
+- [Trice User Manual](./docs/TriceUserManual.md) (includes updated information from the interrupt blog)
+- Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions), including closed items
 - Read the target source code, especially [triceDefaultConfig.h](./src/triceDefaultConfig.h)
-- View the [CLI](https://en.wikipedia.org/wiki/Command-line_interface) options by executing `trice help -all` in a terminal or reading [tricehelpall_test.go](./internal/args/tricehelpall_test.go)
-- Look into and optionally modify [./internal/emitter/lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) (Needs `go install ./cmd/trice/...` afterwards.)
+- View [CLI](https://en.wikipedia.org/wiki/Command-line_interface) options by running `trice help -all` in a terminal or reading [tricehelpall_test.go](./internal/args/tricehelpall_test.go)
+- Look at and modify [./internal/emitter/lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) if needed (requires running `go install ./cmd/trice/...` afterwards)
 
-## Debugging using VS-Code and Clang for a Trice-instrumented Project in Direct-Out Mode over SEGGER-RTT
+## Debugging with VS-Code and Clang
 
-(See chapter [Development Environment Setup](./docs/TriceUserManual.md#development-environment-setup) for more details.)
+Debug a Trice project in Direct-Out Mode over SEGGER-RTT. (See [Development Environment Setup](./docs/TriceUserManual.md#development-environment-setup) for details.)
 
 <img src="docs/ref/Animation.gif" width="1200">
 
 ## Trice Cache
 
-Starting with Trice version 0.70.0 it is possible to use additionally the Trice `-cache` CLI switch for the commands `trice insert` and `trice clean`. This switch will have only effect when the user creates in his home directory the **`.trice/cache`** folder. ([Trice Cache Spec](./docs/TriceUserManual.md#trice-cache-for-compilation-speed))
+You can use the `-cache` CLI switch with `trice insert` and `trice clean` commands. This only works when you create the **`.trice/cache`** folder in your home directory. ([Trice Cache Details](./docs/TriceUserManual.md#trice-cache-for-compilation-speed))
 
-### When to use it
+### When to Use Cache
 
-When you use `trice i` as a pre-compile step and `trice c` as a post-compile step to have the IDs not in the project source code when you work on it, therefore only during compilation time, and wish to speed-up the whole thing.
+Use cache when you:
+- Use `trice i ...` before compiling
+- Use `trice c ...` after compiling
+- Want to keep IDs out of your source code when working
+- Want faster compilation
 
-### How it works
+### How Cache Works
 
-The Trice cache keeps copies of all to `trice i` or `trice c` passed files after processing them, to avoid repeatedly ID inserting and cleaning. **The copies are used to get the same results as with `trice i` or `trice c` for all files not edited inbetween.** Edited files are processed normally and the cache is updated afterwards. Because the file copies are done without changing the file modification time, **a build system does not process unchanged files again even the IDs have been temporarily removed from the files**.
+The Trice cache saves copies of all files after processing them with `trice i` or `trice c`. This avoids inserting and removing IDs repeatedly. **The copies are used to get the same results for files that have not been edited.** Edited files are processed normally and the cache updates afterwards. File modification times do not change, so **the build system does not reprocess unchanged files even when IDs are temporarily removed**.
 
-### Hint
+### Important Note
 
-> **<span style="color:red"> Special care is needed, when the build system modifies source files as well!</span>**
+> **<span style="color:red">Be careful when your build system also modifies source files!</span>**
 
-For example an auto-formatter should get active **before** the `tice insert` command.
+For example, run an auto-formatter **before** the `trice insert` command.
 
-## Wich mode to use?
+## Which Mode Should You Use?
 
-- For the development direct mode with SEGGER_RTT is recommended.
-- Most use cases are coverable in deferred mode with TRICE_BUFFER == TRICE_RING_BUFFER (less RAM needs) in TRICE_MULTI_PACK_MODE (less transfer data).
+- **For development:** Direct mode with SEGGER_RTT is recommended
+- **For most use cases:** Deferred mode with TRICE_BUFFER == TRICE_RING_BUFFER (uses less RAM) in TRICE_MULTI_PACK_MODE (transfers less data)
 
 ## Project Status
 
-Trice is full usable and there are no known bugs (see [issues](https://github.com/rokath/trice/issues)).
+Trice is fully usable. There are no known bugs (see [issues](https://github.com/rokath/trice/issues)).
 
 ```diff
-+ Please use v1.0 or v1.1 or branch main if you intend to build from the sources.
-- Do not expect a well working Trice binary in branch "dev" right now. (2025-DEC)
++ Please use v1.0, v1.1, or the main branch if you want to build from source.
+- Do not use the "dev" branch right now (December 2025) - it may not work properly.
 ```
 
-## Future 
+## Future Plans
 
-The documentation could get improved, for example by adding a quick start help. Additional features like remote procedure calls could be described and a separate tlog, maybe written in C, would allow logging on any platforms - not only **Go** supported ones.
+The documentation could be improved. We could add features like remote procedure calls. Or create a separate tlog tool written in C or Python (with AI help). This would allow logging on any platform, not just platforms supported by **Go**.
 
 ## Structured Logging
 
-Trice will (hopefully soon) suppport structured logging. Triggered by [#531](https://github.com/rokath/trice/discussions/531) there is now a [specifcation draft](./docs/TriceUserManual.md#trice-structured-logging). Please provide some critical feedback before the implementaion starts.
+Trice will soon support structured logging. Based on feedback from [#531](https://github.com/rokath/trice/discussions/531), there is now a [specification draft](./docs/TriceUserManual.md#trice-structured-logging). Please provide feedback before implementation starts.
 
-## Support?
+## Support the Project
 
-* Yes please - Trice takes a lot of my spare time and I wish to keep it MIT licensed in the future as well.
-* If you make profit using Trice in your products, donations would convince my family to proceed with Trice and also secure future improvements. 
-* :star: it. ☺  
+- Trice takes a lot of my free time. I want to keep it MIT licensed in the future.
+- If you make profit using Trice in your products, donations help convince my family to continue improving Trice.
+- :star: Star this project! ☺
 
 [Become a Sponsor with your Github Account](https://github.com/sponsors/rokath/)
 
@@ -155,19 +183,18 @@ OR
   </a>
 </p>
 
-
-Cloning the repo:
+## Clone the Repository
 
 ```bash
 git clone https://github.com/rokath/trice.git
 ```
 
-## Similar projects
+## Similar Projects
 
 - ARM ITM/SWO (hardware-native)
 - ARM Keil Event Recorder (hardware-native)
 - [baical.net](http://baical.net/up7.html) (C)
-- [call stack logger function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a) (a way to trace programs flow of execution)
+- [call stack logger function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a) (trace program execution flow)
 - [Debugging with Dynamic Printf Breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/) (Eclipse IDE option)
 - [defmt (Rust)](https://github.com/knurling-rs/defmt)
 - [Diagnostic Log and Trace](https://github.com/COVESA/dlt-daemon) (AUTOSAR)
@@ -177,19 +204,19 @@ git clone https://github.com/rokath/trice.git
 - [MCUViewer](https://github.com/klonyyy/MCUViewer)
 - [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding) (part of firmware SDK)
 <!-- - [Metal Serial Library](https://github.com/metal-ci/_test/tree/master/doc/metal.serial.md) -->
-- [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
+- [Minimal Structured Logging for Autonomous Vehicles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog (C++11)](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [Percepio Tracealyzer (with TraceRecorder)](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
 - [Pigweed Trace Tokenized](https://pigweed.dev/pw_trace_tokenized/)
-- [Postform](https://github.com/Javier-varez/Postform) (Postponed formatting experiments with string interning in C++. Inspired by the defmt Rust crate )
+- [Postform](https://github.com/Javier-varez/Postform) (Postponed formatting experiments with string interning in C++, inspired by the defmt Rust crate)
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Real-time binary data logging/tracing toolkit](https://github.com/RTEdbg/RTEdbg)
 - [SEGGER System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
-- [Tonbandgerät](https://github.com/schilkp/Tonbandgeraet) (A small embedded systems tracer with support for bare-metal and FreeRTOS-based targets)
-- [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications
+- [Tonbandgerät](https://github.com/schilkp/Tonbandgeraet) (Small embedded systems tracer with support for bare-metal and FreeRTOS-based targets)
+- [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications)
 - [uLog (RD Poor)](https://github.com/rdpoor/ulog)
-- [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
+- [Zephyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 
 [ChatGPT Trice Compare (2025-05-26)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/ChatGPTo4-mini-high_TriceCompare.html)
 
