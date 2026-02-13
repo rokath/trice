@@ -1153,4 +1153,4 @@ Used command: `./gitLogWithBranches.sh --since 2025-04-01` and unimportant lines
 
 ## 21. <a id='master-branch-changes'></a>master branch changes
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<p align="right">(<a href="#top">back to top</a>)</p></div>
