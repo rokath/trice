@@ -30,34 +30,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bae45038-ada8-4d9b-9e34-7bc0bcd7a77f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.clang-format" beforeDir="false" afterPath="$PROJECT_DIR$/.clang-format" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/_userprint_dblB_de_tcobs_ua/TargetActivity.c" beforeDir="false" afterPath="$PROJECT_DIR$/_test/_userprint_dblB_de_tcobs_ua/TargetActivity.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/alias_dblB_de_tcobs_ua/TargetActivity.c" beforeDir="false" afterPath="$PROJECT_DIR$/_test/alias_dblB_de_tcobs_ua/TargetActivity.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c" beforeDir="false" afterPath="$PROJECT_DIR$/_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/dblB_de_protect_tcobs_ua/TargetActivity.c" beforeDir="false" afterPath="$PROJECT_DIR$/_test/dblB_de_protect_tcobs_ua/TargetActivity.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/modify_for_debug/TargetActivity.c" beforeDir="false" afterPath="$PROJECT_DIR$/_test/modify_for_debug/TargetActivity.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/ringB_de_protect_tcobs_ua/TargetActivity.c" beforeDir="false" afterPath="$PROJECT_DIR$/_test/ringB_de_protect_tcobs_ua/TargetActivity.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/stackB_di_nopf_aux32_specific/TargetActivity.c" beforeDir="false" afterPath="$PROJECT_DIR$/_test/stackB_di_nopf_aux32_specific/TargetActivity.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/testdata/triceCheck.c" beforeDir="false" afterPath="$PROJECT_DIR$/_test/testdata/triceCheck.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demoLI.json" beforeDir="false" afterPath="$PROJECT_DIR$/demoLI.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demoTIL.json" beforeDir="false" afterPath="$PROJECT_DIR$/demoTIL.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/ChatGPTo4-mini-high_TriceCompare.html" beforeDir="false" afterPath="$PROJECT_DIR$/docs/ChatGPTo4-mini-high_TriceCompare.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_Legacy/ReadMe.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_Legacy/ReadMe.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_Legacy/TriceConfigFile.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_Legacy/TriceConfigFile.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_Legacy/TriceMessagesEncoding.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_Legacy/TriceMessagesEncoding.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/_Legacy/TriceObsoleteEncodings.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/_Legacy/TriceObsoleteEncodings.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/F030_inst/Core/Inc/triceConfig.h" beforeDir="false" afterPath="$PROJECT_DIR$/examples/F030_inst/Core/Inc/triceConfig.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/F030_inst/Core/Src/stm32f0xx_it.c" beforeDir="false" afterPath="$PROJECT_DIR$/examples/F030_inst/Core/Src/stm32f0xx_it.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/G0B1_inst/Core/Inc/triceConfig.h" beforeDir="false" afterPath="$PROJECT_DIR$/examples/G0B1_inst/Core/Inc/triceConfig.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/G0B1_inst/Core/Src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/examples/G0B1_inst/Core/Src/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/G0B1_inst/Core/Src/stm32g0xx_it.c" beforeDir="false" afterPath="$PROJECT_DIR$/examples/G0B1_inst/Core/Src/stm32g0xx_it.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/L432_inst/Core/Inc/triceConfig.h" beforeDir="false" afterPath="$PROJECT_DIR$/examples/L432_inst/Core/Inc/triceConfig.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/L432_inst/Core/Src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/examples/L432_inst/Core/Src/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/L432_inst/Core/Src/stm32l4xx_it.c" beforeDir="false" afterPath="$PROJECT_DIR$/examples/L432_inst/Core/Src/stm32l4xx_it.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/exampleData/triceExamples.c" beforeDir="false" afterPath="$PROJECT_DIR$/examples/exampleData/triceExamples.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/exampleData/triceLogDiagData.c" beforeDir="false" afterPath="$PROJECT_DIR$/examples/exampleData/triceLogDiagData.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,7 +79,7 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.scopes&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -127,6 +100,8 @@
       <workItem from="1770911798929" duration="4359000" />
       <workItem from="1770974491529" duration="334000" />
       <workItem from="1770974843488" duration="564000" />
+      <workItem from="1770977994101" duration="541000" />
+      <workItem from="1770978554918" duration="399000" />
     </task>
     <servers />
   </component>
