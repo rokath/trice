@@ -1,0 +1,49 @@
+<component name="NamedScopeManager">
+  <!--
+    Scope name shown in CLion/IntelliJ UI:
+      "TriceReview"
+
+    Purpose:
+      Run "Inspect Code..." over the whole repository (project root),
+      while excluding selected folders that should not be reviewed (e.g. legacy docs).
+
+    Where this file must live:
+      <repo-root>/.idea/scopes/any_name.xml
+
+    Usage in CLion:
+      Code → Inspect Code… → Scope: TriceReview
+
+    Notes:
+    - This scope only affects tools that support "Scope" selection (Inspect Code, Find in Files, etc.).
+    - It does NOT affect compilation/build.
+    - Paths are relative to the opened project root (here: trice/).
+    - The scope is identified by the attribute name="TriceReview".
+      The filename itself is irrelevant.
+      It does NOT change the build, does NOT remove files from the project tree,
+      and does NOT stop indexing unless you additionally mark directories as "Excluded".
+    - This scope only affects features that accept a "Scope" selection, e.g.:
+        Code → Inspect Code... → Scope: TriceFullReview
+    - Path patterns are relative to the opened project root (here: <repo-root>/trice).
+      So "docs/_legacy//*" matches:
+        <repo-root>/trice/docs/_legacy/<anything>
+    - The pattern language supports boolean operators:
+        &&  (AND)
+        ||  (OR)
+        !   (NOT)
+    - Keep the scope name stable. Other CLion settings may refer to it by name.
+      The filename is arbitrary; CLion uses the scope's "name=" attribute.
+    - Customization:
+      Add more exclusions by appending more "&& !file:...//*" clauses, e.g.:
+        && !file:src/vendor//*         (exclude vendor code)
+        && !file:_test/testdata//*     (exclude generated test data)
+  -->
+  <scope
+    name="TriceReview"
+    pattern="
+      file:*//* 
+      && !file:.git//* 
+      && !file:docs/_Legacy//* 
+      && !file:third_party//* 
+      && !file:src/SEGGER_RTT.*
+    " />
+</component>
