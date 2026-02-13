@@ -1,23 +1,41 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# -----------------------------------------------------------------------------
+# Normalize all text files to LF in the repository.
+# This avoids mixed CRLF/LF line endings across Windows/Linux/macOS and prevents
+# IDE warnings like "Inconsistent line separators".
+# -----------------------------------------------------------------------------
+* text=auto eol=lf
 
-# Consider theses extensions as binary
+# -----------------------------------------------------------------------------
+# Explicit binary files (never normalize, never treat as text)
+# -----------------------------------------------------------------------------
 *.bin binary
-*.a binary
-*.7z binary
+*.a   binary
+*.7z  binary
 *.zip binary
 *.png binary
 *.PNG binary
 *.jpg binary
 *.gif binary
 
-# This is a text file format but because we don't want to see text diff on a file which is basically an image.
+# SVG is technically text, but often used like an image. Mark as binary to avoid noisy diffs.
 *.svg binary
 *.SVG binary
 
+# -----------------------------------------------------------------------------
+# Office / document formats (avoid useless diffs)
 # Source: https://medium.com/@mbrehin/git-advanced-diff-odt-pdf-doc-xls-ppt-25afbf4f1105
+# -----------------------------------------------------------------------------
 *.doc diff=doc
 *.xls diff=xls
 *.ppt diff=ppt
 *.odt diff=odt
 *.pdf diff=pdf
+
+# -----------------------------------------------------------------------------
+# Windows-only script formats should remain CRLF
+# -----------------------------------------------------------------------------
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.sh  text eol=lf
