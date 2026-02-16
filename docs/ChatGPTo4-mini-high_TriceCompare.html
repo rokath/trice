@@ -1,92 +1,198 @@
 <!-- 2025-05-26 Chat result with model ChatGPTTo4-mini-high asking for Trice comparable technical solutions -->
 
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Comparable Logging and Tracing Solutions for Embedded Systems</title>
+</head>
+<body>
 
 <h1 data-start="0" data-end="63">Comparable Logging and Tracing Solutions for Embedded Systems</h1>
 <h2 data-start="65" data-end="106">Open-Source Solutions (C/C++ and Rust)</h2>
 <p data-start="108" data-end="622"><strong data-start="108" data-end="129">Trice (Reference)</strong>
- – License: MIT. Trice is an open-source C logging and tracing library 
-providing printf-like macros. At runtime it replaces format strings with
- 16-bit IDs, keeping the firmware image under 1 KB and achieving very 
-low execution overhead. Trace data is COBS-encoded and sent via UART or 
-SEGGER RTT; a Go-based host tool decodes the IDs back into 
-human-readable messages. Trice is safe to use in interrupts (ISR-safe) 
-and supports log levels via channels with optional colored output on the
- host.</p>
+    – License: MIT. Trice is an open-source C logging and tracing library
+    providing printf-like macros. At runtime it replaces format strings with
+    16-bit IDs, keeping the firmware image under 1 KB and achieving very
+    low execution overhead. Trace data is COBS-encoded and sent via UART or
+    SEGGER RTT; a Go-based host tool decodes the IDs back into
+    human-readable messages. Trice is safe to use in interrupts (ISR-safe)
+    and supports log levels via channels with optional colored output on the
+    host.</p>
 <p data-start="624" data-end="1039"><strong data-start="624" data-end="650">Embedded Logger (elog)</strong>
- – License: MIT. Elog offloads all format strings from the firmware 
-binary: at runtime only an identifier plus parameters are stored in RAM,
- while the actual format strings reside separately and are excluded from
- the final image. A host-side decoder then reconstructs the original 
-messages. This approach minimizes both Flash and RAM usage and supports 
-custom transports for log retrieval.</p>
+    – License: MIT. Elog offloads all format strings from the firmware
+    binary: at runtime only an identifier plus parameters are stored in RAM,
+    while the actual format strings reside separately and are excluded from
+    the final image. A host-side decoder then reconstructs the original
+    messages. This approach minimizes both Flash and RAM usage and supports
+    custom transports for log retrieval.</p>
 <p data-start="1041" data-end="1518"><strong data-start="1041" data-end="1057">defmt (Rust)</strong>
- – License: MIT/Apache 2.0 dual license. Defmt (“deferred formatting”) 
-is a Rust-native framework that shifts all string formatting to the 
-host. Macros like <code data-start="1214" data-end="1230">defmt::info!()</code> emit binary-encoded logs (e.g., over RTT), and a host tool (often via <code data-start="1301" data-end="1312">probe-run</code>)
- uses the ELF symbols to decode them. It achieves very low footprint 
-(e.g., ~1.6 KB Flash for panic logging vs. ~13.8 KB with printf) and 
-supports log levels. <em data-start="1472" data-end="1485">Limitation:</em> only available for Rust targets.</p>
+    – License: MIT/Apache 2.0 dual license. Defmt (“deferred formatting”)
+    is a Rust-native framework that shifts all string formatting to the
+    host. Macros like <code data-start="1214" data-end="1230">defmt::info!()</code> emit binary-encoded logs (e.g., over RTT), and a host tool (often via <code data-start="1301" data-end="1312">probe-run</code>)
+    uses the ELF symbols to decode them. It achieves very low footprint
+    (e.g., ~1.6 KB Flash for panic logging vs. ~13.8 KB with printf) and
+    supports log levels. <em data-start="1472" data-end="1485">Limitation:</em> only available for Rust targets.</p>
 <p data-start="1520" data-end="1935"><strong data-start="1520" data-end="1539">NanoLog (C++11)</strong>
- – License: Apache 2.0. Originally designed for high-performance server 
-environments, NanoLog uses compile-time extraction of log metadata so 
-that at runtime only an ID and variables are emitted. Offline tools then
- format the messages. It demonstrates nanosecond-scale latencies (≈7 ns)
- and tens of millions of logs per second, but is more suited to powerful
- systems rather than constrained MCUs.</p>
+    – License: Apache 2.0. Originally designed for high-performance server
+    environments, NanoLog uses compile-time extraction of log metadata so
+    that at runtime only an ID and variables are emitted. Offline tools then
+    format the messages. It demonstrates nanosecond-scale latencies (≈7 ns)
+    and tens of millions of logs per second, but is more suited to powerful
+    systems rather than constrained MCUs.</p>
 <p data-start="1937" data-end="2305"><strong data-start="1937" data-end="1962">McuLog (McuOnEclipse)</strong> – License: BSD 3-Clause. A C-based logger offering traditional printf formatting with log levels (<code data-start="2061" data-end="2068">TRACE</code> to <code data-start="2072" data-end="2079">FATAL</code>).
- Supports multiple outputs simultaneously (UART with ANSI colors, SEGGER
- RTT, or logging to an SD card via FAT). Around 6 KB Flash footprint and
- moderate CPU overhead, but no external tools required beyond a host RTT
- viewer.</p>
+    Supports multiple outputs simultaneously (UART with ANSI colors, SEGGER
+    RTT, or logging to an SD card via FAT). Around 6 KB Flash footprint and
+    moderate CPU overhead, but no external tools required beyond a host RTT
+    viewer.</p>
 <p data-start="2307" data-end="2630"><strong data-start="2307" data-end="2325">uLog (RD Poor)</strong>
- – License: MIT. A minimalist single-file C logger inspired by Log4c: 
-configurable log levels, pluggable back ends via callbacks (UART, 
-memory, etc.), and full compile-time disabling of all logging code. It 
-formats messages on the target (using <code data-start="2570" data-end="2581">vsnprintf</code>) but remains extremely lightweight and portable.</p>
+    – License: MIT. A minimalist single-file C logger inspired by Log4c:
+    configurable log levels, pluggable back ends via callbacks (UART,
+    memory, etc.), and full compile-time disabling of all logging code. It
+    formats messages on the target (using <code data-start="2570" data-end="2581">vsnprintf</code>) but remains extremely lightweight and portable.</p>
 <hr data-start="2632" data-end="2635">
 <h2 data-start="2637" data-end="2671">Commercial Tools and Frameworks</h2>
 <p data-start="2673" data-end="3008"><strong data-start="2673" data-end="2694">SEGGER SystemView</strong>
- – Free from SEGGER (closed source). Includes a small C library (~2 KB 
-ROM, 600 B RAM) that streams timed events and user logs via SEGGER RTT 
-to a PC GUI. It visualizes interrupts, task switches, and custom events 
-with cycle-level timestamps, with under 1% CPU overhead at 10 000 
-events/s on a Cortex-M4 @ 200 MHz.</p>
+    – Free from SEGGER (closed source). Includes a small C library (~2 KB
+    ROM, 600 B RAM) that streams timed events and user logs via SEGGER RTT
+    to a PC GUI. It visualizes interrupts, task switches, and custom events
+    with cycle-level timestamps, with under 1% CPU overhead at 10 000
+    events/s on a Cortex-M4 @ 200 MHz.</p>
 <p data-start="3010" data-end="3256"><strong data-start="3010" data-end="3055">Percepio Tracealyzer (with TraceRecorder)</strong>
- – Commercial (~1 700 USD/user). Provides deep trace and log analysis 
-for RTOS or bare-metal systems. The TraceRecorder library (2–3 KB 
-footprint) captures events and logs in a ring buffer, supporting:</p>
+    – Commercial (~1 700 USD/user). Provides deep trace and log analysis
+    for RTOS or bare-metal systems. The TraceRecorder library (2–3 KB
+    footprint) captures events and logs in a ring buffer, supporting:</p>
 <ul data-start="3257" data-end="3638">
-<li data-start="3257" data-end="3297">
-<p data-start="3259" data-end="3297"><strong data-start="3259" data-end="3274">Printf mode</strong> (on-target formatting)</p>
-</li>
-<li data-start="3298" data-end="3363">
-<p data-start="3300" data-end="3363"><strong data-start="3300" data-end="3324">Offloaded formatting</strong> (parameters sent to PC for formatting)</p>
-</li>
-<li data-start="3364" data-end="3638">
-<p data-start="3366" data-end="3638"><strong data-start="3366" data-end="3382">Compact mode</strong> (ID + parameters, with format strings read from the ELF file).<br data-start="3445" data-end="3448">
-Compact mode reduces overhead by ~99.8% (from 1.9 ms to ≈3 µs per log) 
-and is safe in IRQs. The PC software offers timeline views, CPU load, 
-heap usage, and correlates logs with RTOS events.</p>
-</li>
+    <li data-start="3257" data-end="3297">
+        <p data-start="3259" data-end="3297"><strong data-start="3259" data-end="3274">Printf mode</strong> (on-target formatting)</p>
+    </li>
+    <li data-start="3298" data-end="3363">
+        <p data-start="3300" data-end="3363"><strong data-start="3300" data-end="3324">Offloaded formatting</strong> (parameters sent to PC for formatting)</p>
+    </li>
+    <li data-start="3364" data-end="3638">
+        <p data-start="3366" data-end="3638"><strong data-start="3366" data-end="3382">Compact mode</strong> (ID + parameters, with format strings read from the ELF file).<br data-start="3445" data-end="3448">
+            Compact mode reduces overhead by ~99.8% (from 1.9 ms to ≈3 µs per log)
+            and is safe in IRQs. The PC software offers timeline views, CPU load,
+            heap usage, and correlates logs with RTOS events.</p>
+    </li>
 </ul>
 <p data-start="3640" data-end="4131"><strong data-start="3640" data-end="3652">Memfault</strong>
- – SaaS platform (firmware SDK free; cloud subscription per device). Its
- “Compact Log” feature replaces format strings with IDs on the device 
-(4.5 KB Flash, 1.5 KB RAM) and uploads logs or crash dumps to the cloud,
- where they’re reconstructed using debug symbols. Achieves ~88% data 
-reduction and offloads CPU formatting. Includes log levels, 
-time-stamping, remote configuration, and OTA updates. Ideal for fleet 
-monitoring but requires Internet connectivity and a cloud service.</p>
+    – SaaS platform (firmware SDK free; cloud subscription per device). Its
+    “Compact Log” feature replaces format strings with IDs on the device
+    (4.5 KB Flash, 1.5 KB RAM) and uploads logs or crash dumps to the cloud,
+    where they’re reconstructed using debug symbols. Achieves ~88% data
+    reduction and offloads CPU formatting. Includes log levels,
+    time-stamping, remote configuration, and OTA updates. Ideal for fleet
+    monitoring but requires Internet connectivity and a cloud service.</p>
 <p data-start="4133" data-end="4172"><strong data-start="4133" data-end="4170">Other Hardware-Native Approaches:</strong></p>
 <ul data-start="4173" data-end="4391">
-<li data-start="4173" data-end="4270">
-<p data-start="4175" data-end="4270"><strong data-start="4175" data-end="4202">ARM Keil Event Recorder</strong> (proprietary in MDK) uses ITM/SWO for low-overhead event tracing.</p>
-</li>
-<li data-start="4271" data-end="4391">
-<p data-start="4273" data-end="4391"><strong data-start="4273" data-end="4288">ARM ITM/SWO</strong> can stream trace data with minimal CPU impact; custom protocols can shift formatting off the target.</p>
-</li>
+    <li data-start="4173" data-end="4270">
+        <p data-start="4175" data-end="4270"><strong data-start="4175" data-end="4202">ARM Keil Event Recorder</strong> (proprietary in MDK) uses ITM/SWO for low-overhead event tracing.</p>
+    </li>
+    <li data-start="4271" data-end="4391">
+        <p data-start="4273" data-end="4391"><strong data-start="4273" data-end="4288">ARM ITM/SWO</strong> can stream trace data with minimal CPU impact; custom protocols can shift formatting off the target.</p>
+    </li>
 </ul>
 <hr data-start="4393" data-end="4396">
 <h2 data-start="4398" data-end="4430">Comparison Table of Solutions</h2>
-<div class="_tableContainer_16hzy_1"><div tabindex="-1" class="_tableWrapper_16hzy_14 group flex w-fit flex-col-reverse"><table data-start="4432" data-end="7849" class="w-fit min-w-(--thread-content-width)"><thead data-start="4432" data-end="4744"><tr data-start="4432" data-end="4744"><th data-start="4432" data-end="4458" data-col-size="sm"><strong data-start="4434" data-end="4442">Name</strong></th><th data-start="4458" data-end="4503" data-col-size="sm"><strong data-start="4460" data-end="4478">License / Type</strong></th><th data-start="4503" data-end="4563" data-col-size="md"><strong data-start="4505" data-end="4525">Logging Approach</strong></th><th data-start="4563" data-end="4630" data-col-size="md"><strong data-start="4565" data-end="4589">Overhead &amp; Resources</strong></th><th data-start="4630" data-end="4667" data-col-size="sm"><strong data-start="4632" data-end="4651">Output Channels</strong></th><th data-start="4667" data-end="4744" data-col-size="md"><strong data-start="4669" data-end="4689">Special Features</strong></th></tr></thead><tbody data-start="5058" data-end="7849"><tr data-start="5058" data-end="5344"><td data-start="5058" data-end="5084" data-col-size="sm"><strong data-start="5060" data-end="5069">Trice</strong></td><td data-col-size="sm" data-start="5084" data-end="5116">Open Source (MIT)</td><td data-col-size="md" data-start="5116" data-end="5177">Compile-time IDs, host formatting</td><td data-col-size="md" data-start="5177" data-end="5231">&lt; 1 KB Flash; very low runtime overhead</td><td data-col-size="sm" data-start="5231" data-end="5268">UART, RTT (COBS binary)</td><td data-col-size="md" data-start="5268" data-end="5344">ISR-safe; Go host tool; log levels via channels; colored host output</td></tr><tr data-start="5345" data-end="5658"><td data-start="5345" data-end="5371" data-col-size="sm"><strong data-start="5347" data-end="5366">Embedded Logger</strong></td><td data-col-size="sm" data-start="5371" data-end="5416">Open Source (MIT)</td><td data-col-size="md" data-start="5416" data-end="5477">Offloaded format strings; ID + args in target</td><td data-col-size="md" data-start="5477" data-end="5543">Minimal Flash/RAM (strings excluded)</td><td data-col-size="sm" data-start="5543" data-end="5580">Custom transport</td><td data-col-size="md" data-start="5580" data-end="5658">Very low resource use; host decoder required</td></tr><tr data-start="5659" data-end="5971"><td data-start="5659" data-end="5685" data-col-size="sm"><strong data-start="5661" data-end="5670">defmt</strong> (Rust)</td><td data-col-size="sm" data-start="5685" data-end="5730">Open Source (MIT/Apache)</td><td data-col-size="md" data-start="5730" data-end="5791">Deferred formatting; host decoding</td><td data-col-size="md" data-start="5791" data-end="5858">~ 1.6 KB Flash vs. ~13.8 KB with printf; low runtime impact</td><td data-col-size="sm" data-start="5858" data-end="5895">RTT, other transports</td><td data-col-size="md" data-start="5895" data-end="5971">Rust only; integrated in <code data-start="5922" data-end="5933">probe-run</code>; active ecosystem</td></tr><tr data-start="5972" data-end="6283"><td data-start="5972" data-end="5998" data-col-size="sm"><strong data-start="5974" data-end="5985">NanoLog</strong> (C++11)</td><td data-col-size="sm" data-start="5998" data-end="6043">Open Source (Apache 2.0)</td><td data-col-size="md" data-start="6043" data-end="6104">Compile-time extraction; offline formatting</td><td data-col-size="md" data-start="6104" data-end="6170">≈ 7 ns latency; tens of millions log entries/s</td><td data-col-size="sm" data-start="6170" data-end="6207">File post-processing</td><td data-col-size="md" data-start="6207" data-end="6283">Ultra-high throughput; less common in MCU contexts</td></tr><tr data-start="6284" data-end="6596"><td data-start="6284" data-end="6310" data-col-size="sm"><strong data-start="6286" data-end="6296">McuLog</strong></td><td data-col-size="sm" data-start="6310" data-end="6355">Open Source (BSD 3-Clause)</td><td data-col-size="md" data-start="6355" data-end="6416">On-target printf formatting with log levels</td><td data-col-size="md" data-start="6416" data-end="6482">~ 6 KB Flash; moderate CPU load</td><td data-col-size="sm" data-start="6482" data-end="6519">UART (ANSI color), RTT, FAT file</td><td data-col-size="md" data-start="6519" data-end="6596">Multiple concurrent outputs; easy integration; configurable</td></tr><tr data-start="6597" data-end="6909"><td data-start="6597" data-end="6623" data-col-size="sm"><strong data-start="6599" data-end="6607">uLog</strong></td><td data-col-size="sm" data-start="6623" data-end="6668">Open Source (MIT)</td><td data-col-size="md" data-start="6668" data-end="6729">On-target <code data-start="6680" data-end="6691">vsnprintf</code>; hierarchical log levels</td><td data-col-size="md" data-start="6729" data-end="6795">Tiny footprint; overhead only when enabled</td><td data-col-size="sm" data-start="6795" data-end="6832">Any via callbacks</td><td data-col-size="md" data-start="6832" data-end="6909">Single file; fully disable logging via compiler flag</td></tr><tr data-start="6910" data-end="7221"><td data-start="6910" data-end="6936" data-col-size="sm"><strong data-start="6912" data-end="6926">SystemView</strong> (SEGGER)</td><td data-col-size="sm" data-start="6936" data-end="6981">Closed Source (free with J-Link)</td><td data-col-size="md" data-start="6981" data-end="7042">Binary events + optional user logs</td><td data-col-size="md" data-start="7042" data-end="7108">~ 2 KB ROM, 600 B RAM; &lt; 1% CPU @10 k events/s</td><td data-col-size="sm" data-start="7108" data-end="7145">RTT (J-Link)</td><td data-col-size="md" data-start="7145" data-end="7221">Real-time timeline; multi-thread tracing; precise timestamps</td></tr><tr data-start="7222" data-end="7537"><td data-start="7222" data-end="7248" data-col-size="sm"><strong data-start="7224" data-end="7239">Tracealyzer</strong></td><td data-col-size="sm" data-start="7248" data-end="7293">Commercial (~ 1 700 USD/user)</td><td data-col-size="md" data-start="7293" data-end="7355">On-target or host formatting (compact mode: ID + args)</td><td data-col-size="md" data-start="7355" data-end="7424">~ 2–3 KB Flash; 3 µs/log (compact) vs. 1.9 ms UART</td><td data-col-size="sm" data-start="7424" data-end="7461">RTT, ITM, USB, RAM buffer</td><td data-col-size="md" data-start="7461" data-end="7537">Extensive visualization; RTOS support; higher cost</td></tr><tr data-start="7538" data-end="7849"><td data-start="7538" data-end="7564" data-col-size="sm"><strong data-start="7540" data-end="7552">Memfault</strong></td><td data-col-size="sm" data-start="7564" data-end="7609">Commercial SaaS (SDK free; cloud paid)</td><td data-col-size="md" data-start="7609" data-end="7669">Compact log (ID + args) with cloud decoding</td><td data-col-size="md" data-start="7669" data-end="7736">~ 4.5 KB Flash; 1.5 KB RAM; ~ 88% data reduction</td><td data-col-size="sm" data-start="7736" data-end="7773">UART, network upload</td><td data-col-size="md" data-start="7773" data-end="7849">Fleet monitoring; cloud dashboard; requires connectivity</td></tr></tbody></table><div class="sticky end-(--thread-content-margin) h-0 self-end select-none"><div class="absolute end-0 flex items-end" style="height: 49px;"><span class="" data-state="closed">
+<div class="_tableContainer_16hzy_1">
+    <div tabindex="-1" class="_tableWrapper_16hzy_14 group flex w-fit flex-col-reverse">
+        <table data-start="4432" data-end="7849" class="w-fit min-w-(--thread-content-width)">
+            <thead data-start="4432" data-end="4744">
+            <tr data-start="4432" data-end="4744">
+                <th data-start="4432" data-end="4458" data-col-size="sm"><strong data-start="4434" data-end="4442">Name</strong></th>
+                <th data-start="4458" data-end="4503" data-col-size="sm"><strong data-start="4460" data-end="4478">License / Type</strong></th>
+                <th data-start="4503" data-end="4563" data-col-size="md"><strong data-start="4505" data-end="4525">Logging Approach</strong></th>
+                <th data-start="4563" data-end="4630" data-col-size="md"><strong data-start="4565" data-end="4589">Overhead &amp; Resources</strong></th>
+                <th data-start="4630" data-end="4667" data-col-size="sm"><strong data-start="4632" data-end="4651">Output Channels</strong></th>
+                <th data-start="4667" data-end="4744" data-col-size="md"><strong data-start="4669" data-end="4689">Special Features</strong></th>
+            </tr>
+            </thead>
+            <tbody data-start="5058" data-end="7849">
+            <tr data-start="5058" data-end="5344">
+                <td data-start="5058" data-end="5084" data-col-size="sm"><strong data-start="5060" data-end="5069">Trice</strong></td>
+                <td data-col-size="sm" data-start="5084" data-end="5116">Open Source (MIT)</td>
+                <td data-col-size="md" data-start="5116" data-end="5177">Compile-time IDs, host formatting</td>
+                <td data-col-size="md" data-start="5177" data-end="5231">&lt; 1 KB Flash; very low runtime overhead</td>
+                <td data-col-size="sm" data-start="5231" data-end="5268">UART, RTT (COBS binary)</td>
+                <td data-col-size="md" data-start="5268" data-end="5344">ISR-safe; Go host tool; log levels via channels; colored host output</td>
+            </tr>
+            <tr data-start="5345" data-end="5658">
+                <td data-start="5345" data-end="5371" data-col-size="sm"><strong data-start="5347" data-end="5366">Embedded Logger</strong></td>
+                <td data-col-size="sm" data-start="5371" data-end="5416">Open Source (MIT)</td>
+                <td data-col-size="md" data-start="5416" data-end="5477">Offloaded format strings; ID + args in target</td>
+                <td data-col-size="md" data-start="5477" data-end="5543">Minimal Flash/RAM (strings excluded)</td>
+                <td data-col-size="sm" data-start="5543" data-end="5580">Custom transport</td>
+                <td data-col-size="md" data-start="5580" data-end="5658">Very low resource use; host decoder required</td>
+            </tr>
+            <tr data-start="5659" data-end="5971">
+                <td data-start="5659" data-end="5685" data-col-size="sm"><strong data-start="5661" data-end="5670">defmt</strong> (Rust)</td>
+                <td data-col-size="sm" data-start="5685" data-end="5730">Open Source (MIT/Apache)</td>
+                <td data-col-size="md" data-start="5730" data-end="5791">Deferred formatting; host decoding</td>
+                <td data-col-size="md" data-start="5791" data-end="5858">~ 1.6 KB Flash vs. ~13.8 KB with printf; low runtime impact</td>
+                <td data-col-size="sm" data-start="5858" data-end="5895">RTT, other transports</td>
+                <td data-col-size="md" data-start="5895" data-end="5971">Rust only; integrated in <code data-start="5922" data-end="5933">probe-run</code>; active ecosystem</td>
+            </tr>
+            <tr data-start="5972" data-end="6283">
+                <td data-start="5972" data-end="5998" data-col-size="sm"><strong data-start="5974" data-end="5985">NanoLog</strong> (C++11)</td>
+                <td data-col-size="sm" data-start="5998" data-end="6043">Open Source (Apache 2.0)</td>
+                <td data-col-size="md" data-start="6043" data-end="6104">Compile-time extraction; offline formatting</td>
+                <td data-col-size="md" data-start="6104" data-end="6170">≈ 7 ns latency; tens of millions log entries/s</td>
+                <td data-col-size="sm" data-start="6170" data-end="6207">File post-processing</td>
+                <td data-col-size="md" data-start="6207" data-end="6283">Ultra-high throughput; less common in MCU contexts</td>
+            </tr>
+            <tr data-start="6284" data-end="6596">
+                <td data-start="6284" data-end="6310" data-col-size="sm"><strong data-start="6286" data-end="6296">McuLog</strong></td>
+                <td data-col-size="sm" data-start="6310" data-end="6355">Open Source (BSD 3-Clause)</td>
+                <td data-col-size="md" data-start="6355" data-end="6416">On-target printf formatting with log levels</td>
+                <td data-col-size="md" data-start="6416" data-end="6482">~ 6 KB Flash; moderate CPU load</td>
+                <td data-col-size="sm" data-start="6482" data-end="6519">UART (ANSI color), RTT, FAT file</td>
+                <td data-col-size="md" data-start="6519" data-end="6596">Multiple concurrent outputs; easy integration; configurable</td>
+            </tr>
+            <tr data-start="6597" data-end="6909">
+                <td data-start="6597" data-end="6623" data-col-size="sm"><strong data-start="6599" data-end="6607">uLog</strong></td>
+                <td data-col-size="sm" data-start="6623" data-end="6668">Open Source (MIT)</td>
+                <td data-col-size="md" data-start="6668" data-end="6729">On-target <code data-start="6680" data-end="6691">vsnprintf</code>; hierarchical log levels</td>
+                <td data-col-size="md" data-start="6729" data-end="6795">Tiny footprint; overhead only when enabled</td>
+                <td data-col-size="sm" data-start="6795" data-end="6832">Any via callbacks</td>
+                <td data-col-size="md" data-start="6832" data-end="6909">Single file; fully disable logging via compiler flag</td>
+            </tr>
+            <tr data-start="6910" data-end="7221">
+                <td data-start="6910" data-end="6936" data-col-size="sm"><strong data-start="6912" data-end="6926">SystemView</strong> (SEGGER)</td>
+                <td data-col-size="sm" data-start="6936" data-end="6981">Closed Source (free with J-Link)</td>
+                <td data-col-size="md" data-start="6981" data-end="7042">Binary events + optional user logs</td>
+                <td data-col-size="md" data-start="7042" data-end="7108">~ 2 KB ROM, 600 B RAM; &lt; 1% CPU @10 k events/s</td>
+                <td data-col-size="sm" data-start="7108" data-end="7145">RTT (J-Link)</td>
+                <td data-col-size="md" data-start="7145" data-end="7221">Real-time timeline; multi-thread tracing; precise timestamps</td>
+            </tr>
+            <tr data-start="7222" data-end="7537">
+                <td data-start="7222" data-end="7248" data-col-size="sm"><strong data-start="7224" data-end="7239">Tracealyzer</strong></td>
+                <td data-col-size="sm" data-start="7248" data-end="7293">Commercial (~ 1 700 USD/user)</td>
+                <td data-col-size="md" data-start="7293" data-end="7355">On-target or host formatting (compact mode: ID + args)</td>
+                <td data-col-size="md" data-start="7355" data-end="7424">~ 2–3 KB Flash; 3 µs/log (compact) vs. 1.9 ms UART</td>
+                <td data-col-size="sm" data-start="7424" data-end="7461">RTT, ITM, USB, RAM buffer</td>
+                <td data-col-size="md" data-start="7461" data-end="7537">Extensive visualization; RTOS support; higher cost</td>
+            </tr>
+            <tr data-start="7538" data-end="7849">
+                <td data-start="7538" data-end="7564" data-col-size="sm"><strong data-start="7540" data-end="7552">Memfault</strong></td>
+                <td data-col-size="sm" data-start="7564" data-end="7609">Commercial SaaS (SDK free; cloud paid)</td>
+                <td data-col-size="md" data-start="7609" data-end="7669">Compact log (ID + args) with cloud decoding</td>
+                <td data-col-size="md" data-start="7669" data-end="7736">~ 4.5 KB Flash; 1.5 KB RAM; ~ 88% data reduction</td>
+                <td data-col-size="sm" data-start="7736" data-end="7773">UART, network upload</td>
+                <td data-col-size="md" data-start="7773" data-end="7849">Fleet monitoring; cloud dashboard; requires connectivity</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="sticky end-(--thread-content-margin) h-0 self-end select-none">
+            <div class="absolute end-0 flex items-end" style="height: 49px;">
+                <span class="" data-state="closed"></span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
