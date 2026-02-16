@@ -32,8 +32,8 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 //! If your compiler uses a pre-C99 C dialect and does not know The "__restrict" keyword, you can define it in the project settings.
 int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict input, size_t length);
 
-#define OUT_BUFFER_TOO_SMALL -1000000 //!< OUT_BUFFER_TOO_SMALL is TCOBSDecode return error code.
-#define INPUT_DATA_CORRUPTED -2000000 //!< INPUT_DATA_CORRUPTED is TCOBSDecode return error code.
+#define OUT_BUFFER_TOO_SMALL (-1000000) //!< OUT_BUFFER_TOO_SMALL is TCOBSDecode return error code.
+#define INPUT_DATA_CORRUPTED (-2000000) //!< INPUT_DATA_CORRUPTED is TCOBSDecode return error code.
 
 #ifdef __cplusplus
 }

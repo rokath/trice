@@ -362,7 +362,7 @@ static size_t triceIDAndLen(uint32_t* pBuf, uint8_t** ppStart, int* triceID) {
 size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t* buf, size_t len) {
 
 #if TRICE_DIAGNOSTICS == 1
-	int distance = buf - dst;
+	int distance = (int)(buf - dst);
 	if (distance < 4) {
 		TriceErrorCount++;
 	}

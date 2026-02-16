@@ -47,16 +47,15 @@ static uint32_t* TriceBufferWritePositionLimit = TRICE_WRITE_LIMIT_HALF_BUFFER_0
 //! \retval 1, when enough space
 int TriceEnoughSpace(void) {
 	// space32 is the writable 32-bit value count in the current write buffer.
-	int space32 = TriceBufferWritePositionLimit - TriceBufferWritePosition;
+	int const space32 = (int)(TriceBufferWritePositionLimit - TriceBufferWritePosition);
 	// there need to be at least TRICE_SINGLE_MAX_SIZE bytes space in the current write buffer.
 	if (space32 >= (TRICE_SINGLE_MAX_SIZE >> 2)) {
 		return 1;
-	} else {
-#if TRICE_DIAGNOSTICS == 1
-		TriceDeferredOverflowCount++;
-#endif
-		return 0;
 	}
+#if TRICE_DIAGNOSTICS == 1
+	TriceDeferredOverflowCount++;
+#endif
+	return 0;
 }
 
 #endif // #if TRICE_PROTECT == 1
@@ -71,15 +70,14 @@ static uint32_t* triceBufferSwap(void) {
 		TriceBufferWritePositionLimit = triceWriteLimitHalfBuffer1;
 #endif
 		return triceWriteStartHalfBuffer0;
-	} else {
-		triceActiveHalfBuffer = 0;
-		TriceBufferWritePositionStart = triceWriteStartHalfBuffer0;
-		TriceBufferWritePosition = TriceBufferWritePositionStart;
-#if TRICE_PROTECT == 1
-		TriceBufferWritePositionLimit = triceWriteLimitHalfBuffer0;
-#endif
-		return triceWriteStartHalfBuffer1;
 	}
+	triceActiveHalfBuffer = 0;
+	TriceBufferWritePositionStart = triceWriteStartHalfBuffer0;
+	TriceBufferWritePosition = TriceBufferWritePositionStart;
+#if TRICE_PROTECT == 1
+	TriceBufferWritePositionLimit = triceWriteLimitHalfBuffer0;
+#endif
+	return triceWriteStartHalfBuffer1;
 }
 
 #if TRICE_DIAGNOSTICS == 1
@@ -122,13 +120,12 @@ void TriceTransfer(void) {
 //! \li after:     ^- pStart    (is input buf or input buf + 2)
 //! \li after:     <- pLen ->   (maybe 1-3 bytes shorter)
 static int TriceNext(uint8_t** buf, size_t* pSize, const uint8_t** pStart, size_t* pLen) {
-	uint16_t* pTID = (uint16_t*)*buf;  // lint !e826, get TID address
-	unsigned TID = TRICE_TTOHS(*pTID); // type and id
-	int triceID = 0x3FFF & TID;
-	int triceType = TID >> 14;
+	uint16_t const * pTID = (uint16_t*)*buf;  // lint !e826, get TID address
+	unsigned const TID = TRICE_TTOHS(*pTID); // type and id
+	int const triceID = (int)(0x3FFF & TID);
+	int const triceType = (int)(TID >> 14);
 	unsigned offset;
 	size_t size = *pSize;
-	size_t triceSize;
 	size_t len;
 	switch (triceType) {
 	case TRICE_TYPE_S0: // S0 = no stamp
@@ -153,9 +150,9 @@ static int TriceNext(uint8_t** buf, size_t* pSize, const uint8_t** pStart, size_
 		TriceErrorCount++;
 		*pStart = 0;
 		*pLen = 0;
-		return -__LINE__; // extended trices not supported (yet)
+		return -__LINE__; // extended Trices not supported (yet)
 	}
-	triceSize = (len + offset + 3) & ~3;
+	size_t const triceSize = (len + offset + 3) & ~3;
 	// S16 case example:            triceSize  len   t-0-3   t-o
 	// 80id 80id 1616 00cc                8     6      3      6
 	// 80id 80id 1616 01cc dd            12     7      7     10
@@ -176,7 +173,7 @@ static int TriceNext(uint8_t** buf, size_t* pSize, const uint8_t** pStart, size_
 uint8_t* firstNotModifiedAddress;
 int distance;
 
-//! TriceOut encodes trices and writes them in one step to the output.
+//! TriceOut encodes Trices and writes them in one step to the output.
 //! This function is called only, when the slowest deferred output device has finished its last buffer.
 //! At the half buffer start tb are TRICE_DATA_OFFSET bytes space followed by a number of trice messages which all contain
 //! 0-3 padding bytes and therefore have a length of a multiple of 4. There is no additional space between these trice messages.
@@ -184,8 +181,8 @@ int distance;
 //! \param tLen is total length of several trice data. It is always a multiple of 4 because of 32-bit alignment and padding bytes.
 static void TriceOut(uint32_t* tb, size_t tLen) {
 	uint8_t* enc = (uint8_t*)tb;            // This is the later encoded data starting address.
-	uint8_t* dat = enc + TRICE_DATA_OFFSET; // This is the start of      32-bit aligned trices.
-	uint8_t* nxt = dat;                     // This is the start of next 32-bit aligned trices.
+	uint8_t* dat = enc + TRICE_DATA_OFFSET; // This is the start of      32-bit aligned Trices.
+	uint8_t* nxt = dat;                     // This is the start of next 32-bit aligned Trices.
 	size_t encLen = 0;
 #if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) && ((TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1))
 	uint8_t* dst = enc; // This value dst must not get > nxt to avoid overwrites.
@@ -193,14 +190,14 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
 #if TRICE_DIAGNOSTICS == 1
 	int triceDataOffsetDepth;
-	unsigned depth = tLen + TRICE_DATA_OFFSET;
+	unsigned const depth = tLen + TRICE_DATA_OFFSET;
 	TriceHalfBufferDepthMax = depth < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : depth;
 #endif
 
 	while (tLen) { // loop begin
 #if TRICE_DIAGNOSTICS == 1
 		firstNotModifiedAddress = enc + encLen;
-		distance = nxt - firstNotModifiedAddress;
+		distance = (int)(nxt - firstNotModifiedAddress);
 		triceDataOffsetDepth = TRICE_DATA_OFFSET - distance; // distance can get > TRICE_DATA_OFFSET, but that is no problem.
 		TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
 #endif // #if TRICE_DIAGNOSTICS == 1
@@ -274,7 +271,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 #elif TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 		// pack data
 		uint8_t* packed = dat + encLen;                  // After the loop, the packed data start at dat.
-		memmove(packed, triceNettoStart, triceNettoLen); // This action removes all padding bytes of the trices, compacting their sequence this way
+		memmove(packed, triceNettoStart, triceNettoLen); // This action removes all padding bytes of the Trices, compacting their sequence this way
 		encLen += triceNettoLen;
 #endif // #elif  TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 
@@ -292,7 +289,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 
 #if (TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1)
 		dst = enc + encLen;                           // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
-		int triceDataOffsetSpaceRemained = nxt - dst; // THe begin of unprocessed data MINUS next dst must not be negative.
+		int const triceDataOffsetSpaceRemained = (int)(nxt - dst); // The beginning of unprocessed data MINUS next dst must not be negative.
 #endif
 #if (TRICE_PROTECT == 1)
 		if (triceDataOffsetSpaceRemained < 0) {
@@ -349,7 +346,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	// Mostly eLen < encLen, but it could be eLen = encLen + 1 + (encLen>>5) in TCOBS worst case.
 	// dat - enc = TRICE_DATA_OFFSET
 	// if eLen > encLen, then TriceDataOffsetDepth = eLen - encLen
-	/*int*/ triceDataOffsetDepth = eLen - encLen; // usually negative
+	/*int*/ triceDataOffsetDepth =(int)(eLen - encLen); // usually negative
 	TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
 #endif
 	encLen = eLen;

@@ -231,11 +231,11 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 				if ((zeroCount | fullCount | reptCount) == 0) { // , xx yy.
 					if (b_1 == 0 && b == 0) {                   // , 00 00.
 						*o++ = Z2 | offset;                     // Z2, -- --.
-						return o - out;
+						return (int)(o - out);
 					}
 					if (b_1 == 0xFF && b == 0xFF) { // , FF FF.
 						*o++ = F2 | offset;         // F2, -- --.
-						return o - out;
+						return (int)(o - out);
 					}
 					if (b_1 == 0) {    // , 00 xx.
 						zeroCount = 1; // , z1 -- xx.
@@ -262,7 +262,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 					}
 					if (b == 0) {           // , z1 00 00.
 						*o++ = Z3 | offset; // Z3, -- --.
-						return o - out;
+						return (int)(o - out);
 					}
 					ASSERT(0)
 				}
@@ -284,7 +284,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 					if (b == 0xFF) { // , f1 FF FF.
 						ASSERT(offset <= 31);
 						*o++ = F3 | offset; // F3, -- --.
-						return o - out;
+						return (int)(o - out);
 					}
 					fullCount = 2; // , f2 -- yy.
 					OUT_fullSigil  // F2, -- yy.
@@ -298,7 +298,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 					if (b == 0xFF) { // , f2 FF FF.
 						ASSERT(offset <= 31);
 						*o++ = F4 | offset; // F4, -- --.
-						return o - out;
+						return (int)(o - out);
 					}
 					// , f2 FF !FF
 					fullCount++;  // , f3 -- !FF.
@@ -314,7 +314,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 						OUT_fullSigil // F3, FF FF.
 						    ASSERT(offset <= 31);
 						*o++ = F2 | offset; // F3 F2, -- --.
-						return o - out;     // option: F4 FF, -- --. is also right
+						return (int)(o - out);     // option: F4 FF, -- --. is also right
 					}
 					// , f3 FF !FF.
 					fullCount = 4; // , f4 -- xx.
@@ -335,7 +335,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 							offset = 0;
 						}
 						*o++ = R2 | offset; // aa R2, -- --.
-						return o - out;
+						return (int)(o - out);
 					}
 					OUTB(b_1) // aa, r0 aa -- yy.
 					OUTB(b_1) // aa aa, -- yy.
@@ -354,7 +354,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 							offset = 0;
 						}
 						*o++ = R3 | offset; // aa R3, -- --.
-						return o - out;
+						return (int)(o - out);
 					}
 					OUTB(b_1)     // aa, r2 -- yy.
 					OUT_reptSigil // aa R2, -- xx.
@@ -373,7 +373,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 							offset = 0;
 						}
 						*o++ = R4 | offset; // aa R4, -- --.
-						return o - out;
+						return (int)(o - out);
 					}
 					// aa, r3 -- yy.
 					OUT_reptSigil // aa R3, -- xx.
@@ -396,12 +396,12 @@ lastByte:         // , -- xx.
 	if (b == 0) { // , -- 00.
 		ASSERT(offset <= 31);
 		*o++ = Z1 | offset; // Z1, -- --.
-		return o - out;
+		return (int)(o - out);
 	} else {      // , -- aa.
 		*o++ = b; // aa|ff, -- --.
 		offset++;
 		ASSERT(offset <= 31);
 		*o++ = N | offset; // aa Nn, -- --.
-		return o - out;
+		return (int)(o - out);
 	}
 }

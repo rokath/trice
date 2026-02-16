@@ -2639,7 +2639,7 @@ static int serializePoint(char* dst, const Point_t* src) {
 	SCOPY(y)
 	SCOPY(rgb)
 
-	return p - dst;
+	return (int)(p - dst);
 }
 
 static int deserializePoint(Point_t* const dst, const char* src) {
@@ -2649,7 +2649,7 @@ static int deserializePoint(Point_t* const dst, const char* src) {
 	DCOPY(y)
 	DCOPY(rgb)
 
-	return p - src;
+	return (int)(p - src);
 }
 
 #endif
@@ -2681,7 +2681,7 @@ static int serializeTryout(char* dst, const Tryout_t* src) {
 	p += serializePoint(p, src->point);
 	SCOPY(bitmask)
 
-	return p - dst;
+	return (int)(p - dst);
 }
 
 static int deserializeTryout(Tryout_t* const dst, const char* src) {
@@ -2697,7 +2697,7 @@ static int deserializeTryout(Tryout_t* const dst, const char* src) {
 	p += deserializePoint(dst->point, p);
 	DCOPY(bitmask)
 
-	return p - src;
+	return (int)(p - src);
 }
 
 #endif // #i !TRICE_OFF

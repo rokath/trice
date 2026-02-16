@@ -114,7 +114,6 @@ static int sigilAndOffset(uint8_t* sigil, uint8_t b) {
 static uint8_t repeatByte(int offset, uint8_t* in, int len) {
 	if (offset == 0) {      // left byte of Ri is a sigil byte (probably N)
 		return in[len - 2]; // a buffer cannot start with Ri
-	} else {
-		return in[len - 1];
 	}
+	return in[len - 1];
 }
