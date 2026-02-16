@@ -34,7 +34,7 @@ func init() {
 	specificTest = caseSpecificTest
 }
 
-// caseSpecificTest executes function triceLog. It creates more logs than fit into buffer and then silently supresses the not fitting log.
+// caseSpecificTest executes function triceLog. It creates more logs than fit into buffer and then silently suppresses the not fitting log.
 func caseSpecificTest(t *testing.T, triceLog logF) {
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	out := make([]byte, 32768)

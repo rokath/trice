@@ -31,11 +31,11 @@ func setup(t *testing.T) func() {
 func TestTriceLog(t *testing.T) {
 	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
 	switch targetMode {
-	case "deferredModeLinebyLineAndBulk":
+	case "deferredModeLineByLineAndBulk":
 		assert.NotNil(t, triceLog)
 		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
 		triceLogBulk(t, triceLog, testLines, targetActivityC)
-	case "deferredModeLinebyLine":
+	case "deferredModeLineByLine":
 		assert.NotNil(t, triceLog)
 		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
 	case "deferredModeBulk":
