@@ -6,4 +6,24 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$/_test/clion-review">
     <contentRoot DIR="$PROJECT_DIR$" />
   </component>
+  <component name="CidrRootsConfiguration">
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/docs/_Legacy" />
+      <file path="$PROJECT_DIR$/examples" />
+      <file path="$PROJECT_DIR$/examples/F030_bare/Drivers" />
+      <file path="$PROJECT_DIR$/examples/F030_inst/Drivers" />
+      <file path="$PROJECT_DIR$/examples/G0B1_bare/Drivers" />
+      <file path="$PROJECT_DIR$/examples/G0B1_bare/Middlewares" />
+      <file path="$PROJECT_DIR$/examples/G0B1_inst/Drivers" />
+      <file path="$PROJECT_DIR$/examples/G0B1_inst/Middlewares" />
+      <file path="$PROJECT_DIR$/examples/L432_bare/Drivers" />
+      <file path="$PROJECT_DIR$/examples/L432_bare/Middlewares" />
+      <file path="$PROJECT_DIR$/examples/L432_inst/Drivers" />
+      <file path="$PROJECT_DIR$/examples/L432_inst/Middlewares" />
+      <file path="$PROJECT_DIR$/examples/L432_inst/out.gcc" />
+      <file path="$PROJECT_DIR$/internal" />
+      <file path="$PROJECT_DIR$/pkg" />
+      <file path="$PROJECT_DIR$/third_party" />
+    </excludeRoots>
+  </component>
 </project>
