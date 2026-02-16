@@ -46,16 +46,16 @@ jobs:
           version: latest
           # "release --clean" is the modern equivalent of "--rm-dist":
           # it removes the dist/ directory before building, so you never
-          # accidentally ship stale artefacts from a previous run.
+          # accidentally ship stale artifacts from a previous run.
           #
           # Additionally, we use "--snapshot" and "--skip=publish" here so this
-          # workflow only creates test artefacts and never creates or updates
+          # workflow only creates test artifacts and never creates or updates
           # a real GitHub Release.
           args: release --clean --snapshot --skip=publish
         env:
           # GitHub automatically provides this token.
           # GoReleaser uses it to create or update the GitHub Release and
-          # upload the build artefacts (archives, checksums, etc.).
+          # upload the build artifacts (archives, checksums, etc.).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # You previously had DEFAULT_BRANCH here; GoReleaser does not
           # need it by default, so it is omitted for clarity.
