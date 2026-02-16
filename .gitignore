@@ -13,3 +13,4 @@
 **/.DS_Store
 internal/receiver/trices.raw
 coverage.out
+.idea/workspace.xml
