@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Embedded Logging & Tracing Solutions (Trice-focused comparison)</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #121823;
+      --panel2: #0f1520;
+      --text: #e6edf3;
+      --muted: #a5b3c2;
+      --accent: #7aa2f7;
+      --good: #2dd4bf;
+      --warn: #fbbf24;
+      --bad: #fb7185;
+      --border: rgba(255,255,255,.12);
+      --shadow: 0 8px 24px rgba(0,0,0,.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f7f8fb;
+        --panel: #ffffff;
+        --panel2: #f2f5fb;
+        --text: #0b1220;
+        --muted: #4a5568;
+        --accent: #2563eb;
+        --border: rgba(10,20,40,.15);
+        --shadow: 0 10px 22px rgba(15,23,42,.12);
+      }
+    }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      padding: 28px 18px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(122,162,247,.14), transparent 55%);
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: .2px; }
+    .sub { color: var(--muted); font-size: 14px; }
+    .chips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      font-size: 12px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,.03);
+    }
+    main { padding: 18px; }
+    section { margin: 18px 0 26px; }
+    h2 { margin: 0 0 10px; font-size: 18px; }
+    h3 { margin: 16px 0 8px; font-size: 15px; }
+    p { margin: 10px 0; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px;
+      box-shadow: var(--shadow);
+    }
+    .grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 14px; }
+    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+    .callout {
+      background: var(--panel2);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      color: var(--muted);
+    }
+    .kpi {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 720px) { .kpi { grid-template-columns: 1fr; } }
+    .kpi .box {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .kpi .big { font-size: 16px; font-weight: 650; }
+    .kpi .small { color: var(--muted); font-size: 12px; }
+    code, pre { font-family: var(--mono); }
+    pre {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      overflow: auto;
+      font-size: 12.5px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin: 10px 0 12px;
+    }
+    .toolbar input {
+      width: min(420px, 100%);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      outline: none;
+    }
+    .toolbar .hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.01);
+    }
+    th, td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      font-size: 13px;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      background: var(--panel);
+      cursor: pointer;
+      user-select: none;
+      text-align: left;
+      font-size: 12px;
+      letter-spacing: .25px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    tr:last-child td { border-bottom: 0; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      margin-right: 6px;
+      margin-top: 3px;
+      white-space: nowrap;
+      background: rgba(255,255,255,.03);
+    }
+    .score {
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      display: inline-block;
+      font-size: 12px;
+    }
+    .s5 { color: var(--good); }
+    .s4 { color: #9ee6d8; }
+    .s3 { color: var(--warn); }
+    .s2 { color: #ff9f80; }
+    .s1 { color: var(--bad); }
+    details {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.02);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 650;
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .cols2 { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 860px) { .cols2 { grid-template-columns: 1fr; } }
+    ul { margin: 8px 0 8px 20px; }
+    .muted { color: var(--muted); }
+    .footnotes { font-size: 12px; color: var(--muted); }
+    .pilllist { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pilllist .pill {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      background: rgba(255,255,255,.02);
+    }
+    .ok { color: var(--good); font-weight: 650; }
+    .no { color: var(--bad); font-weight: 650; }
+    footer {
+      padding: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <h1>Logging & Tracing Solutions for Embedded Systems</h1>
+    <div class="sub">
+      Trice-focused comparison • generated 2026-02-16 • audience: firmware developers & tech leads
+    </div>
+    <div class="chips">
+      <span class="chip">Tokenized logging</span>
+      <span class="chip">Deferred vs direct modes</span>
+      <span class="chip">RTOS/system tracing</span>
+      <span class="chip">Production & in-field constraints</span>
+      <span class="chip">Decision aid</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="grid">
+    <div class="panel">
+      <h2>What this document helps you decide</h2>
+      <p>
+        Embedded logging/tracing is usually a three-way trade-off between
+        <b>CPU overhead</b> (real-time behavior), <b>bandwidth/storage</b> (UART/flash/telemetry),
+        and <b>developer experience</b> (human-readable logs, tooling, workflows).
+      </p>
+      <p>
+        This comparison is centered on <b>Trice</b> (highly configurable, with <b>direct</b> and <b>deferred</b> modes),
+        then contrasts it with the most relevant alternatives for similar goals:
+        tokenized/deferred-format logging (Pigweed, Zephyr dictionary logging, Memfault compact logs, defmt)
+        and “system trace” tools (SEGGER SystemView, Percepio Tracealyzer).
+      </p>
+
+      <div class="kpi" aria-label="Quick heuristics">
+        <div class="box">
+          <div class="big">Need minimal hot‑path overhead?</div>
+          <div class="small">Prioritize deferred/tokenized logging: Trice (deferred), Pigweed, Memfault, defmt</div>
+        </div>
+        <div class="box">
+          <div class="big">Need RTOS timeline & profiling?</div>
+          <div class="small">Prefer SystemView / Tracealyzer; add Trice-style logs for “what” context</div>
+        </div>
+        <div class="box">
+          <div class="big">Need in‑field decoding later?</div>
+          <div class="small">Ensure a robust dictionary retention story (Trice: one cumulative <code>til.json</code>; others: retain per‑build dictionaries/ELF/token DB)</div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:12px">
+        <b>Important framing:</b> transport (UART/RTT/ITM/SWO) and formatting strategy (printf vs tokenized/deferred)
+        are separate concerns. A fast transport alone does not remove <i>formatting cost</i>.
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Quick recommendation (if you just need a starting point)</h2>
+      <ul>
+        <li><b>Choose Trice</b> if you want <b>very low overhead</b> in C projects and you can accept
+            a build step that manages a stable ID dictionary.</li>
+        <li><b>Choose Pigweed tokenized logging</b> if you want tokenization without source rewriting and you’re OK with
+            hash-based tokens (manage collisions/domains).</li>
+        <li><b>Choose Zephyr logging (dictionary mode)</b> if you’re already on Zephyr and want a built-in solution with log levels,
+            compile/runtime filtering, and an offline parser.</li>
+        <li><b>Choose Memfault compact logs</b> if you want a production workflow with cloud decoding/telemetry
+            (and accept commercial dependency), or use their local decoding tools.</li>
+        <li><b>Choose SystemView / Tracealyzer</b> if you need timeline tracing, scheduling analysis, and performance profiling.</li>
+      </ul>
+      <p class="muted">
+        The rest of this document explains why, and what you pay (CPU/RAM/complexity/tooling) for each approach.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Comparison table (sortable)</h2>
+    <div class="toolbar">
+      <input id="filter" type="text" placeholder="Filter… (e.g. 'tokenized', 'UART', 'trace', 'Zephyr')" aria-label="Filter tools"/>
+      <div class="hint">Tip: click column headers to sort</div>
+    </div>
+
+    <table id="cmp">
+      <thead>
+        <tr>
+          <th data-k="name">Tool / approach</th>
+          <th data-k="type">Type</th>
+          <th data-k="cost">Cost</th>
+          <th data-k="speed">Hot‑path overhead</th>
+          <th data-k="band">Bandwidth efficiency</th>
+          <th data-k="field">In‑field suitability</th>
+          <th data-k="ease">Ease of integration</th>
+          <th data-k="notes">Notes (what to watch)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Trice</b><br/><span class="muted">ID-based, configurable, direct + deferred</span></td>
+          <td><span class="tag">Tokenized</span><span class="tag">C</span></td>
+          <td>Non‑commercial (open-source project)</td>
+          <td><span class="score s5">5</span> (deferred); <span class="score s4">4</span> (direct RTT)</td>
+          <td><span class="score s5">5</span></td>
+          <td><span class="score s5">5</span></td>
+          <td><span class="score s3">3</span></td>
+          <td>Single cumulative <code>til.json</code> avoids per‑build mismatch (latest list can decode older firmware logs). Must preserve <code>til.json</code>, manage merges/ID conflicts, and watch the ~65k ID space.</td>
+        </tr>
+
+        <tr>
+          <td><b>Pigweed pw_tokenizer</b><br/><span class="muted">hash tokens + varint args; detokenize from DB/ELF</span></td>
+          <td><span class="tag">Tokenized</span><span class="tag">C/C++</span></td>
+          <td>Non‑commercial (open-source)</td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s5">5</span></td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s3">3</span></td>
+          <td>Tokens are hashes ⇒ collision risk; needs token DB retention; best when you already use Pigweed modules.</td>
+        </tr>
+
+        <tr>
+          <td><b>Zephyr logging</b><br/><span class="muted">deferred logging + dictionary-based binary format option</span></td>
+          <td><span class="tag">RTOS logging</span><span class="tag">C</span></td>
+          <td>Non‑commercial (open-source)</td>
+          <td><span class="score s3">3</span></td>
+          <td><span class="score s4">4</span> (dictionary mode)</td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s4">4</span> (if on Zephyr)</td>
+          <td>Dictionary DB is build-specific; offline parser required; watch deferred‑logging lifetime issues.</td>
+        </tr>
+
+        <tr>
+          <td><b>Memfault Compact Logs</b><br/><span class="muted">ID-based logs for cloud (or local) decoding</span></td>
+          <td><span class="tag">Tokenized</span><span class="tag">C</span></td>
+          <td>Commercial platform (SDK + tools available)</td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s5">5</span></td>
+          <td><span class="score s5">5</span></td>
+          <td><span class="score s3">3</span></td>
+          <td>Great for fleet/telemetry workflows; requires linker/ELF section management and symbol retention.</td>
+        </tr>
+
+        <tr>
+          <td><b>defmt</b><br/><span class="muted">Rust deferred formatting; string table + host decode</span></td>
+          <td><span class="tag">Tokenized</span><span class="tag">Rust</span></td>
+          <td>Non‑commercial (open-source)</td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s3">3</span></td>
+          <td><span class="score s2">2</span></td>
+          <td>Requires ELF output + custom linking; mostly best for Embedded Rust; transport via RTT/ITM etc.</td>
+        </tr>
+
+        <tr>
+          <td><b>SEGGER RTT + printf</b><br/><span class="muted">fast debug I/O transport; formatting still on target</span></td>
+          <td><span class="tag">Transport</span><span class="tag">C/C++</span></td>
+          <td>Commercial hardware ecosystem (J‑Link)</td>
+          <td><span class="score s2">2</span></td>
+          <td><span class="score s2">2</span></td>
+          <td><span class="score s1">1</span></td>
+          <td><span class="score s5">5</span></td>
+          <td>Excellent dev UX; in-field limited (needs debug probe); can be blocking or drop data depending on mode.</td>
+        </tr>
+
+        <tr>
+          <td><b>SEGGER SystemView</b><br/><span class="muted">timeline tracing + profiling; user events optional</span></td>
+          <td><span class="tag">System trace</span><span class="tag">Commercial tool</span></td>
+          <td>Commercial tooling (often used with J‑Link)</td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s2">2</span></td>
+          <td><span class="score s3">3</span></td>
+          <td>Best for timing/RTOS analysis. Not a replacement for text logs; complementary “why/when” view.</td>
+        </tr>
+
+        <tr>
+          <td><b>Percepio Tracealyzer</b><br/><span class="muted">RTOS trace; snapshot/streaming; user events</span></td>
+          <td><span class="tag">System trace</span><span class="tag">Commercial tool</span></td>
+          <td>Commercial tooling</td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s4">4</span></td>
+          <td><span class="score s2">2</span></td>
+          <td><span class="score s3">3</span></td>
+          <td>Strong RTOS integrations; great for scheduling/mutex/latency issues; textual logs still useful beside it.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="footnotes">
+      Ratings are relative heuristics (1–5) intended for quick comparison; actual performance and fit depend heavily
+      on configuration (log level, argument types, transport speed, concurrency model, buffering policy, etc.).
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Deep dive: Trice (what makes it different)</h2>
+
+    <div class="cols2">
+      <div>
+        <h3>Core idea</h3>
+        <p>
+          Trice logs look like <code>printf</code>, but the device does <b>not</b> format strings at runtime.
+          Instead, each call site is mapped to an <b>ID</b>, and only the <b>ID + encoded arguments</b> are emitted.
+          Human-readable reconstruction happens on the host using the stored ID dictionary.
+        </p>
+
+        <h3>Why it matters</h3>
+        <ul>
+          <li><b>Real-time friendly:</b> avoids costly <code>printf/snprintf</code> formatting in the hot path.</li>
+          <li><b>Low bandwidth:</b> binary ID + compact arg encoding is much smaller than text logs.</li>
+          <li><b>String hygiene:</b> format strings can be excluded from the device binary, reducing flash use and
+              limiting leakage of sensitive strings.</li>
+        </ul>
+
+        <h3>Trice’s “killer feature”: direct <span class="muted">and</span> deferred modes</h3>
+        <p>
+          Many logging systems are either “immediate” (format and transmit now) or “deferred” (store now, format/transmit later).
+          Trice makes this a first-class configuration choice:
+        </p>
+        <ul>
+          <li><b>Direct</b>: emit immediately (great with very fast transports like RTT).</li>
+          <li><b>Deferred</b>: enqueue quickly into a buffer; transmit later from a known context
+              (recommended for slow links like UART).</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <h3 style="margin-top:0">Trice gotchas (you must plan for these)</h3>
+        <ul>
+          <li><b>Dictionary lifecycle:</b> Trice is designed to avoid per‑build “version mismatch”: <code>til.json</code> accumulates IDs/strings, so the latest list can decode older firmware logs. Keep it under source control and do not reset/lose it.</li>
+          <li><b>Build integration:</b> Trice typically uses a host tool that inserts/manages IDs as a build step.</li>
+          <li><b>Concurrency:</b> the fastest configurations use critical sections; understand ISR latency impact.</li>
+          <li><b>Transport disruptions:</b> choose framing (and pack strategy) for robustness vs throughput.</li>
+        </ul>
+      </div>
+    </div>
+
+    <details open>
+      <summary>Direct vs deferred mode — practical guidance</summary>
+      <div class="cols2">
+        <div>
+          <h3>Direct mode</h3>
+          <ul>
+            <li><b>Best for:</b> development with a debug probe (e.g., RTT) where bandwidth is plentiful.</li>
+            <li><b>Benefit:</b> immediate output, low latency.</li>
+            <li><b>Risk:</b> if transport is slow or blocking, you can stall critical code paths.</li>
+          </ul>
+          <p class="muted">
+            Trice’s documentation notes that direct output via RTT can be on the order of ~100 CPU clocks
+            for a 32-bit write in one configuration, and warns that polling UART would be far slower for small packets.
+          </p>
+        </div>
+        <div>
+          <h3>Deferred mode</h3>
+          <ul>
+            <li><b>Best for:</b> production-like behavior, ISRs, and slow transports (UART/flash/network).</li>
+            <li><b>Benefit:</b> constant-time-ish “enqueue” in the hot path; send later from a safe context.</li>
+            <li><b>Risk:</b> you must size buffers and define overflow policy (drop/overwrite/block).</li>
+          </ul>
+          <p class="muted">
+            Deferred modes are explicitly recommended as faster in the hot path (transfer is decoupled)
+            and can be tuned aggressively — at the cost of stricter assumptions about usage context.
+          </p>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Configurability highlights (what you can tune)</summary>
+      <div class="cols2">
+        <div>
+          <h3>Target-side</h3>
+          <ul>
+            <li><b>Buffering:</b> ring buffer vs double buffer (trade RAM vs speed).</li>
+            <li><b>Transfer strategy:</b> direct or deferred; transport abstraction.</li>
+            <li><b>Framing:</b> robust framing/compression (TCOBS default) vs simpler framing.</li>
+            <li><b>Optional encryption:</b> XTEA option exists (requires specific framing mode).</li>
+            <li><b>Timestamping/stamps:</b> configurable stamp size and user-provided time functions.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Host-side</h3>
+          <ul>
+            <li><b>Filtering:</b> pick/ban sets, tag-based routing to different outputs.</li>
+            <li><b>Decoding:</b> ID list lookup + formatting; optional display features (color, timestamps, etc.).</li>
+            <li><b>Build workflows:</b> choose whether IDs live in source control or are inserted/cleaned as part of builds (cache support exists).</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Risk & safety notes (real-time behavior, robustness)</summary>
+      <ul>
+        <li><b>Interrupt latency:</b> The fastest configurations may disable interrupts in the Trice critical section;
+            audit maximum ISR latency and ensure it’s acceptable for your system’s safety requirements.</li>
+        <li><b>Overflow policy:</b> Decide how you handle bursts: drop newest, drop oldest, block, or trigger backpressure.</li>
+        <li><b>Line disruption:</b> If your transport can drop bytes, choose framing designed for resynchronization.</li>
+        <li><b>Dictionary retention:</b> without the correct mapping for a firmware build, logs are not decodable.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Suggested Trice configurations by scenario</summary>
+      <div class="cols2">
+        <div>
+          <h3>Development (J-Link/RTT available)</h3>
+          <div class="pilllist">
+            <span class="pill">Mode: <b>Direct</b></span>
+            <span class="pill">Transport: RTT</span>
+            <span class="pill">Goal: immediate, rich debug</span>
+          </div>
+          <ul>
+            <li>Prefer direct mode for “interactive debugging”.</li>
+            <li>Keep messages short; use tags to separate subsystems; filter aggressively to prevent flooding.</li>
+            <li>If you need determinism even during debug, use deferred mode with RTT as a transport.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Production-like test / in-field capture</h3>
+          <div class="pilllist">
+            <span class="pill">Mode: <b>Deferred</b></span>
+            <span class="pill">Transport: UART/Flash/Telemetry</span>
+            <span class="pill">Goal: minimal jitter</span>
+          </div>
+          <ul>
+            <li>Use deferred mode with adequate buffer sizing and a robust flush strategy (task/idle hook/periodic tick).</li>
+            <li>Pick a framing strategy that tolerates disconnects and partial packets.</li>
+            <li>Keep the (cumulative) <code>til.json</code> available for decoding (treat it like a critical artifact; you typically don’t need per‑build versions if the list is monotonic).</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section class="panel">
+    <h2>Trice vs. the closest alternatives</h2>
+
+    <details open>
+      <summary>Trice vs Pigweed pw_tokenizer (most similar in concept for C/C++)</summary>
+      <div class="cols2">
+        <div>
+          <h3>Where they match</h3>
+          <ul>
+            <li>Both aim to eliminate runtime formatting cost by emitting a compact token/ID plus arguments.</li>
+            <li>Both require an external “dictionary” to detokenize and format logs later.</li>
+            <li>Both can dramatically reduce bandwidth and storage compared to plain text logs.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Where Trice differs</h3>
+          <ul>
+            <li><b>ID management:</b> Trice manages explicit IDs per call site (no hash collisions, but needs tooling).</li>
+            <li><b>Direct/deferred built-in:</b> Trice makes buffering/transfer mode a central configuration.</li>
+            <li><b>Framing/compression options:</b> Trice emphasizes robust serial framing (and optional encryption).</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Decision heuristic</h3>
+      <ul>
+        <li><span class="ok">Prefer Trice</span> if you want explicit per-call-site IDs, a mature “direct vs deferred” story, and you’re OK with ID tooling.</li>
+        <li><span class="ok">Prefer Pigweed</span> if you want tokenization without source rewriting and can manage hash token domains/collisions.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Trice vs Zephyr dictionary logging (when you’re on Zephyr)</summary>
+      <div class="cols2">
+        <div>
+          <h3>Zephyr strengths</h3>
+          <ul>
+            <li>Integrated module log levels, compile-time and runtime filtering.</li>
+            <li>Deferred logging is default and designed to minimize time in the caller context.</li>
+            <li>Dictionary logging outputs binary with an auto-generated JSON dictionary for offline parsing.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Trice strengths</h3>
+          <ul>
+            <li>RTOS-agnostic and can be used in non-Zephyr projects.</li>
+            <li>Very low overhead possible with aggressive configuration.</li>
+            <li>Host-side tooling around tags/routing and high configurability.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Decision heuristic</h3>
+      <ul>
+        <li><span class="ok">Prefer Zephyr logging</span> if you already use Zephyr and want the simplest integration with standard log levels.</li>
+        <li><span class="ok">Prefer Trice</span> if you need maximal speed and want Trice’s direct/deferred + framing toolchain.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Trice vs Memfault compact logs (production fleets & post-mortem workflows)</summary>
+      <div class="cols2">
+        <div>
+          <h3>Memfault strengths</h3>
+          <ul>
+            <li>Production workflow: store logs in RAM, flush to slower media, decode in cloud or locally.</li>
+            <li>Compact logs replace format strings with IDs at compile time; example docs show large size reductions.</li>
+            <li>Build artifacts (symbols/build IDs) are first-class in the platform.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Trice strengths</h3>
+          <ul>
+            <li>Pure developer-driven workflow (no required cloud), flexible for custom pipelines.</li>
+            <li>Direct RTT mode is extremely convenient for development.</li>
+            <li>Optional encryption/framing focus for unreliable links.</li>
+          </ul>
+        </div>
+      </div>
+      <h3>Decision heuristic</h3>
+      <ul>
+        <li><span class="ok">Prefer Memfault</span> if your core need is fleet observability (logs attached to coredumps, remote capture, etc.).</li>
+        <li><span class="ok">Prefer Trice</span> if you want an open toolchain for local workflows or bespoke backends.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Trice vs defmt (Embedded Rust)</summary>
+      <p>
+        If you’re in Rust, <b>defmt</b> is the closest analogue: deferred formatting + compile-time string table.
+        Trice is most relevant when your project is primarily C/C++ or mixed-language and you want a C-native solution.
+      </p>
+    </details>
+
+    <details>
+      <summary>Trice vs System trace tools (SystemView / Tracealyzer)</summary>
+      <p>
+        These solve a different class of problems: they provide a <b>timeline</b> of scheduling, interrupts, and events,
+        typically with high-resolution timestamps and powerful visual analysis.
+        They do <b>not</b> replace textual logs; most teams use them together:
+      </p>
+      <ul>
+        <li>System trace answers: <b>when</b> did it happen, <b>who</b> ran, <b>where</b> time went.</li>
+        <li>Trice-style logs answer: <b>what</b> happened and <b>which state/values</b> were present.</li>
+      </ul>
+    </details>
+  </section>
+
+  <section class="panel">
+    <h2>Implementation checklist (regardless of tool)</h2>
+    <div class="cols2">
+      <div>
+        <h3>Engineering checklist</h3>
+        <ul>
+          <li><b>Decide policy:</b> what can be logged in production (PII/keys/secrets)?</li>
+          <li><b>Decide overflow behavior:</b> drop vs overwrite vs block; validate worst-case bursts.</li>
+          <li><b>Measure jitter:</b> benchmark log calls inside critical control loops and ISRs.</li>
+          <li><b>Define flushing:</b> dedicated thread/task/idle hook; ensure panic/exception flush if required.</li>
+          <li><b>Version & symbols:</b> store dictionaries with the same rigor as symbol files (Trice: long‑lived cumulative <code>til.json</code>; others: per‑build dictionaries/ELF/token DB).</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Process checklist</h3>
+        <ul>
+          <li><b>CI enforcement:</b> protect your dictionary artifacts (Trice: preserve a monotonic <code>til.json</code>; others: archive per‑build dictionaries/ELF/token DB).</li>
+          <li><b>Reproducibility:</b> verify you can decode logs from an older firmware version.</li>
+          <li><b>Security review:</b> confirm what data is emitted and whether link encryption is necessary.</li>
+          <li><b>Developer UX:</b> define how developers view logs (terminal, IDE, web UI) and automate it.</li>
+          <li><b>Fallback plan:</b> keep a minimal “panic logger” that works even when scheduling is broken.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>References (primary sources)</h2>
+    <p class="muted">These are the main docs used to compile the factual statements in this comparison.</p>
+    <ul>
+      <li>Trice documentation (user manual / project pages): <span class="muted">rokath.github.io/trice</span></li>
+      <li class="muted">Trice explicitly highlights “no version mismatch” because the Trice ID List stores all log strings and accumulates across versions.</li>
+      <li>Pigweed pw_tokenizer / pw_log_tokenized docs: <span class="muted">pigweed.dev</span></li>
+      <li>Zephyr logging + dictionary-based logging docs: <span class="muted">docs.zephyrproject.org</span></li>
+      <li>Memfault MCU logging + compact logs docs: <span class="muted">docs.memfault.com</span></li>
+      <li>defmt book: <span class="muted">defmt.ferrous-systems.com</span></li>
+      <li>SEGGER RTT + SystemView docs: <span class="muted">segger.com</span></li>
+      <li>Percepio TraceRecorder/Tracealyzer docs: <span class="muted">percepio.com</span></li>
+    </ul>
+
+    <p class="footnotes">
+      If you need this document adapted for a specific MCU/RTOS/transport constraint (e.g., “UART-only, 115200 baud, hard real-time ISR budget 2µs”),
+      treat the ratings as a first pass and verify by microbenchmarking your hot paths.
+    </p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Generated 2026-02-16 • This is a decision aid, not a benchmark report. Verify claims by measuring on your target MCU/toolchain.
+  </div>
+</footer>
+
+<script>
+(function() {
+  // Simple table sort + filter. Self-contained, no external dependencies.
+  const table = document.getElementById('cmp');
+  const tbody = table.querySelector('tbody');
+  const filter = document.getElementById('filter');
+  let sortCol = 0;
+  let sortAsc = true;
+
+  function normalize(text) {
+    return (text || '').toString().toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  function getCellText(tr, idx) {
+    const td = tr.children[idx];
+    return td ? normalize(td.innerText) : '';
+  }
+
+  function parseScore(text) {
+    // Find first digit 1-5 in cell (for score columns)
+    const m = (text || '').match(/\b([1-5])\b/);
+    return m ? parseInt(m[1], 10) : NaN;
+  }
+
+  function sortByColumn(idx) {
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort((a, b) => {
+      const aText = getCellText(a, idx);
+      const bText = getCellText(b, idx);
+
+      // Prefer numeric sort when possible (score columns)
+      const aNum = parseScore(aText);
+      const bNum = parseScore(bText);
+      const bothNums = !Number.isNaN(aNum) && !Number.isNaN(bNum);
+
+      let cmp = 0;
+      if (bothNums) cmp = aNum - bNum;
+      else cmp = aText.localeCompare(bText);
+
+      return sortAsc ? cmp : -cmp;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+  }
+
+  function applyFilter() {
+    const q = normalize(filter.value);
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.forEach(r => {
+      const hay = normalize(r.innerText);
+      r.style.display = (q === '' || hay.includes(q)) ? '' : 'none';
+    });
+  }
+
+  table.querySelectorAll('th').forEach((th, idx) => {
+    th.addEventListener('click', () => {
+      if (sortCol === idx) sortAsc = !sortAsc;
+      else { sortCol = idx; sortAsc = true; }
+      sortByColumn(idx);
+    });
+  });
+
+  filter.addEventListener('input', applyFilter);
+})();
+</script>
+</body>
+</html>
