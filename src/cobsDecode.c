@@ -12,8 +12,8 @@
 size_t COBSDecode(void* __restrict out, const void* __restrict in, size_t length) {
 	uint8_t* data = out;
 	const uint8_t* buffer = in;
-	const uint8_t* byte = buffer;     // Encoded input byte pointer
-	uint8_t* decode = (uint8_t*)data; // Decoded output byte pointer
+	const uint8_t* byte = buffer; // Encoded input byte pointer
+	uint8_t* decode = data;       // Decoded output byte pointer
 
 	for (uint8_t code = 0xff, block = 0; byte < buffer + length; --block) {
 		if (block) { // Decode block byte

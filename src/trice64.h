@@ -1,6 +1,9 @@
-/*! \file internalTrice64.h
+/*! \file trice64.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
+
+#ifndef TRICE64_H_
+#define TRICE64_H_
 
 #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 64
 
@@ -70,7 +73,7 @@
 //!  It is usable for showing n 64-bit values.
 #define TRICE64_B(id, pFmt, buf, n)    \
 	do {                               \
-		TRICE_N(id, pFmt, buf, 8 * n); \
+		TRICE_N(id, pFmt, buf, 8 * (n)); \
 	} while (0)
 
 //! TRICE64_F expects inside pFmt just a string which is assumed to be a remote function name.
@@ -299,3 +302,5 @@
 	TRICE_CNTC(96);                                                            \
 	TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)           \
 	TRICE_LEAVE
+
+#endif // #ifndef TRICE64_H_

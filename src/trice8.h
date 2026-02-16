@@ -1,6 +1,9 @@
-/*! \file Trice8.h
+/*! \file trice8.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
+
+#ifndef TRICE8_H_
+#define TRICE8_H_
 
 #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 8
 
@@ -246,3 +249,5 @@
 	TRICE_CNTC(12);                                                            \
 	TRICE_PUT8_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)            \
 	TRICE_LEAVE
+
+#endif // #ifndef TRICE8_H_

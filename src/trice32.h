@@ -1,6 +1,9 @@
-/*! \file internalTrice32.h
+/*! \file trice32.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
+
+#ifndef TRICE32_H_
+#define TRICE32_H_
 
 #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 32
 
@@ -70,7 +73,7 @@
 //!  It is usable for showing n 32-bit values.
 #define TRICE32_B(id, pFmt, buf, n)    \
 	do {                               \
-		TRICE_N(id, pFmt, buf, 4 * n); \
+		TRICE_N(id, pFmt, buf, 4 * (n)); \
 	} while (0)
 
 //! TRICE32_F expects inside pFmt just a string which is assumed to be a remote function name.
@@ -299,3 +302,5 @@
 	TRICE_CNTC(48);                                                             \
 	TRICE_PUT32_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)            \
 	TRICE_LEAVE
+
+#endif // #ifndef TRICE32_H_

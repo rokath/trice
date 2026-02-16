@@ -2,6 +2,9 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#ifndef TRICE64_MCU_REVERSE_H_
+#define TRICE64_MCU_REVERSE_H_
+
 #define trice64m_0(tid)                      \
 	TRICE_ENTER                              \
 	TRICE_PUT(((TRICE_CYCLE) << 24) | idLH); \
@@ -284,3 +287,5 @@
 	TRICE_PUT((TRICE_CYCLE << 24) | (96 << 16) | TRICE32_LL_BYTE(ts_TRice64m_) | TRICE32_LH_BYTE(ts_TRice64m_)) \
 	TRICE_PUT64_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)                                            \
 	TRICE_LEAVE
+
+#endif // #ifndef TRICE64_MCU_REVERSE_H_

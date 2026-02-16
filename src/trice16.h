@@ -1,6 +1,9 @@
-/*! \file internalTrice16.h
+/*! \file trice16.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
+
+#ifndef TRICE16_H_
+#define TRICE16_H_
 
 #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 16
 
@@ -73,7 +76,7 @@
 //!  It is usable for showing n 16-bit values.
 #define TRICE16_B(id, pFmt, buf, n)    \
 	do {                               \
-		TRICE_N(id, pFmt, buf, 2 * n); \
+		TRICE_N(id, pFmt, buf, 2 * (n)); \
 	} while (0)
 
 //! TRICE16_F expects inside pFmt just a string which is assumed to be a remote function name.
@@ -265,3 +268,5 @@
 	TRICE_CNTC(24);                                                            \
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)           \
 	TRICE_LEAVE
+
+#endif // #ifndef TRICE16_H_

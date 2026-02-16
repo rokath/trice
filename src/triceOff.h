@@ -2,6 +2,9 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#ifndef TRICE_OFF_H_
+#define TRICE_OFF_H_
+
 #include "triceVariadic.h"
 
 // global function prototypes: (not all always used)
@@ -19,7 +22,7 @@
 #define TriceInit()
 #define TriceLogDiagnosticData()
 #define TriceLogSeggerDiagnostics()
-#define TriceNonBlockingDeferredWrite8(ticeID, enc, encLen) TRICE_UNUSED(ticeID) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
+#define TriceNonBlockingDeferredWrite8(triceID, enc, encLen) TRICE_UNUSED(ticeID) TRICE_UNUSED(enc) TRICE_UNUSED(encLen)
 #define TriceTransfer()
 #define triceDataLen(p)
 #define TriceEnoughSpace()
@@ -451,3 +454,5 @@
 #define TRice64_11(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, ...) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10)
 #define TRice64_12(fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, ...) TRICE_UNUSED(v0) TRICE_UNUSED(v1) TRICE_UNUSED(v2) TRICE_UNUSED(v3) TRICE_UNUSED(v4) TRICE_UNUSED(v5) TRICE_UNUSED(v6) TRICE_UNUSED(v7) TRICE_UNUSED(v8) TRICE_UNUSED(v9) TRICE_UNUSED(v10) TRICE_UNUSED(v11)
 // clang-format on
+
+#endif // #ifndef TRICE_OFF_H_

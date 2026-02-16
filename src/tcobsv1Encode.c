@@ -224,7 +224,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 				// , aa xx. yy ...
 				ASSERT(1 <= b_1 && b_1 <= 0xFE)
 				OUTB(b_1) // aa, -- xx. yy ...
-				continue;
+				// continue;
 
 			} else { // last 2 bytes
 				// , zn|fn|rn xx yy.
@@ -389,7 +389,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 	}
 	if (length == 1) { // , . xx
 		b = *i;        // , -- xx.
-		goto lastByte;
+		// goto lastByte;
 	}
 
 lastByte:         // , -- xx.

@@ -2,6 +2,9 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#ifndef TRICE_ON_H_
+#define TRICE_ON_H_
+
 #include "triceVariadic.h"
 
 // clang-format off
@@ -46,7 +49,7 @@ void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count)
 void TriceInit(void);
 void TriceLogDiagnosticData(void);
 void TriceLogSeggerDiagnostics(void);
-void TriceNonBlockingDeferredWrite8(int ticeID, const uint8_t* enc, size_t encLen);
+void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encLen);
 void TriceTransfer(void);
 size_t triceDataLen(const uint8_t* p);
 int TriceEnoughSpace(void);
@@ -408,3 +411,5 @@ void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 #define TRice64_10(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRice64fn_10(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9))                                             //!< TRice64_10 is a macro calling a function to reduce code size.
 #define TRice64_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice64fn_11(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10))                       //!< TRice64_11 is a macro calling a function to reduce code size.
 #define TRice64_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice64fn_12(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11)) //!< TRice64_12 is a macro calling a function to reduce code size.
+
+#endif // #ifndef TRICE_ON_H_

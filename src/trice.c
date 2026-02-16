@@ -421,7 +421,7 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8
 		dst[encLen++] = 0; // Add zero as package delimiter.
 		return encLen;
 	case TRICE_FRAMING_COBS:
-		encLen = (size_t)COBSEncode(dst, dat, len);
+		encLen = /* (size_t) */ COBSEncode(dst, dat, len);
 		dst[encLen++] = 0; // Add zero as package delimiter.
 		return encLen;
 	case TRICE_FRAMING_NONE:
@@ -687,7 +687,7 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 //! TriceNonBlockingDirectWrite copies a single trice from triceStart to output.
 //! This is the time critical part, executed inside TRICE_LEAVE.
 //! The trice data start at triceStart and include wordCount values with 1-3 padding bytes at the end.
-//! In front of triceStart are TRICE_DATA_OFFSET bytes space usable for optional in-buffer encoding. ??????? todo
+//! In front of triceStart are TRICE_DATA_OFFSET bytes space usable for optional in-buffer encoding.
 //! This is NOT the case, when using direct and deferred modes parallel, because for efficient RAM usage
 //! there is no gap between the Trices in double or ring buffer. Therefore, when enabling
 //! TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE together with a deferred mode, for efficiency the RTT output can only be unframed.

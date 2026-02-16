@@ -335,7 +335,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	size_t eLen = TCOBSEncode(enc, dat, encLen);
 	enc[eLen++] = 0; // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)  // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
-	size_t eLen = (size_t)COBSEncode(enc, dat, encLen);
+	size_t eLen = /* (size_t) */ COBSEncode(enc, dat, encLen);
 	enc[eLen++] = 0; // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)  // && (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE)
 	enc = dat;

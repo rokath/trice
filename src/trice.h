@@ -600,8 +600,8 @@ extern uint32_t* TriceBufferWritePosition;
 	#define TRICE_PUT_BUFFER(buf, len)                                                               \
 		do {                                                                                         \
 			memcpy(TriceBufferWritePosition, buf, len);                                              \
-			unsigned len4 = ((unsigned)len + 3u) & ~3u;                                                \
-			memset((uint8_t*)TriceBufferWritePosition + len, 0, len4 - len); /*clear padding space*/ \
+			unsigned len4 = ((unsigned)(len) + 3u) & ~3u;                                            \
+			memset((uint8_t*)TriceBufferWritePosition + (len), 0, len4 - (len)); /*clear padding space*/ \
 			TriceBufferWritePosition += len4 >> 2;                                                   \
 		} while (0)
 

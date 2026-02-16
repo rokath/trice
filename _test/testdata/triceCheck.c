@@ -34,7 +34,7 @@ void TriceCheck(int index); // Avoid noise with option -Wmissing-prototypes.
 //! Each trice line needs to have a commented // "string" with its expected output.
 //! The ID values must be in file triceCheck.c, because it is compiled first and trice update runs later.
 // This function is also called from Go for tests.
-void TriceCheck(int n) {
+void TriceCheck(int index) {
 #ifdef TRICE_CHECK_MIN
     TRice("\rTriceCheck %4d", n);
 #else // #ifdef TRICE_CHECK_MIN
@@ -57,7 +57,7 @@ void TriceCheck(int n) {
     static int64_t b64[4] = { 0, -1, -2, 0x3344555566666666 };
     int anchorLine = __LINE__ + 20; // The offset value here must point to the first test line containing `anchorLine`.
 
-    switch( n ){ 
+    switch( index ){ 
         default:
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
 

@@ -2,6 +2,9 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#ifndef TRICE_MCU_REVERSE_H_
+#define TRICE_MCU_REVERSE_H_
+
 //! Note:  https://gcc.gnu.org/onlinedocs/cpp/_005f_005fhas_005finclude.html
 #if defined __has_include //! __has_include is a macro defined in several compilers including GCC and integrated into the C23 standard (Note N2799)
 #if __has_include(<byteswap.h>)
@@ -86,3 +89,5 @@ TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
 #define TRICE32_HL_BYTE(x32) ((0x00FF0000 & x32) << 8) // was #define tsHL ((0x00FF0000 & ts) << 8)
 #define TRICE32_LH_BYTE(x32) ((0x0000FF00 & x32) >> 8) // was #define tsLH ((0x0000FF00 & ts) >> 8)
 #define TRICE32_LL_BYTE(x32) ((0x000000FF & x32) << 8) // was #define tsLL ((0x000000FF & ts) << 8)
+
+#endif // #ifndef TRICE_MCU_REVERSE_H_

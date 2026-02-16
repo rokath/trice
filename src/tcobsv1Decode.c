@@ -90,7 +90,7 @@ int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict inpu
 		memcpy(to, from, (size_t)offset); // n += copy(d[to:], in[from:])
 		olen += offset;
 		ilen -= offset; // in = in[:len(in)-offset] // remove copied bytes
-		continue;
+		// continue;
 	}
 	}
 	return olen;

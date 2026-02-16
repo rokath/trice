@@ -2,6 +2,9 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#ifndef TRICE_MCU_ORDER_H_
+#define TRICE_MCU_ORDER_H_
+
 #if !defined(TRICE_HTOTS) && !defined(TRICE_HTOTL) && !defined(TRICE_TTOHS)
 
 #define TRICE_HTOTS(x) ((uint16_t)(x)) //! TRICE_HTOTS reorders short values from host order into trice transfer order.
@@ -43,3 +46,5 @@
 	TRICE_PUT((uint32_t)(x)); // big endian
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
+
+#endif // #ifndef TRICE_MCU_ORDER_H_

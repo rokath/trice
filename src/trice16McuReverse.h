@@ -2,6 +2,9 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+#ifndef TRICE16_MCU_REVERSE_H_
+#define TRICE16_MCU_REVERSE_H_
+
 //! trice16m_0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define trice16m_0(tid)                      \
@@ -296,3 +299,5 @@
 	TRICE_PUT((TRICE_CYCLE << 24) | (24 << 16) | TRICE32_LL_BYTE(ts_TRice16m_) | TRICE32_LH_BYTE(ts_TRice16m_)) \
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)                                            \
 	TRICE_LEAVE
+
+#endif // #ifndef TRICE16_MCU_REVERSE_H_

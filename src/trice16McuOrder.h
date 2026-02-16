@@ -1,6 +1,8 @@
 /*! \file trice16McuOrder.h
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
+#ifndef TRICE16_MCU_ORDER_H_
+#define TRICE16_MCU_ORDER_H_
 
 #define trice16m_0(tid)                                              \
 	TRICE_ENTER                                                      \
@@ -284,3 +286,6 @@
 	TRICE_PUT(24 << 24 | (TRICE_CYCLE << 16) | (ts >> 16));                \
 	TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11)       \
 	TRICE_LEAVE
+
+#endif // #ifndef TRICE16_MCU_ORDER_H_
+
