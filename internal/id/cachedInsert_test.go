@@ -281,8 +281,8 @@ func TestInsert_On_valid_iCache_valid_cCache_inserted_file_not_edited(t *testing
 	assert.Nil(t, CopyFileWithMTime(FSys, CCache, SFName))            // not edited
 	cT := mTime(t, FSys, CCache)
 
-	for time.Time.Equal(cT, mTime(t, FSys, SFName) ){ // Loop, to ensure the file mtimes are different.
-		time.Sleep((10 * time.Microsecond))
+	for time.Time.Equal(cT, mTime(t, FSys, SFName)) { // Loop, to ensure the file mtimes are different.
+		time.Sleep(10 * time.Microsecond)
 		assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted file
 	}
 	sT := mTime(t, FSys, SFName)
@@ -308,8 +308,8 @@ func TestInsert_On_valid_iCache_valid_cCache_clean_file_not_edited(t *testing.T)
 	assert.Nil(t, CopyFileWithMTime(FSys, ICache, SFName))                     // not edited
 	iT := mTime(t, FSys, ICache)
 
-	for time.Time.Equal(iT, mTime(t, FSys, SFName) ){ // Loop, to ensure the file mtimes are different.
-		time.Sleep((10 * time.Microsecond))
+	for time.Time.Equal(iT, mTime(t, FSys, SFName)) { // Loop, to ensure the file mtimes are different.
+		time.Sleep(10 * time.Microsecond)
 		assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`) // inserted file
 	}
 
@@ -334,8 +334,8 @@ func TestInsert_On_valid_iCache_valid_cCache_inserted_file_edited(t *testing.T) 
 	assert.Nil(t, CopyFileWithMTime(FSys, CCache, SFName))            // not edited
 	cT := mTime(t, FSys, CCache)
 
-	for time.Time.Equal(cT, mTime(t, FSys, SFName) ){ // Loop, to ensure the file mtimes are different.
-		time.Sleep((10 * time.Microsecond))
+	for time.Time.Equal(cT, mTime(t, FSys, SFName)) { // Loop, to ensure the file mtimes are different.
+		time.Sleep(10 * time.Microsecond)
 		assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted file
 	}
 	assert.Nil(t, CopyFileWithMTime(FSys, ICache, SFName)) // not edited
@@ -367,8 +367,8 @@ func TestInsert_On_valid_iCache_valid_cCache_clean_file_edited(t *testing.T) {
 	assert.Nil(t, CopyFileWithMTime(FSys, ICache, SFName))                     // not edited
 	iT := mTime(t, FSys, ICache)
 
-	for time.Time.Equal(iT, mTime(t, FSys, SFName) ){ // Loop, to ensure the file mtimes are different.
-		time.Sleep((10 * time.Microsecond))
+	for time.Time.Equal(iT, mTime(t, FSys, SFName)) { // Loop, to ensure the file mtimes are different.
+		time.Sleep(10 * time.Microsecond)
 		assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`) // inserted file
 	}
 

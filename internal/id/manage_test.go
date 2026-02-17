@@ -6,8 +6,9 @@ package id
 
 import (
 	"fmt"
-	"github.com/rokath/trice/pkg/tst"
 	"testing"
+
+	"github.com/rokath/trice/pkg/tst"
 
 	"github.com/tj/assert"
 )

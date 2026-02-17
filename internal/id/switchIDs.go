@@ -96,7 +96,7 @@ common:
 			log.Fatalf("%+v\n%+v\nRemaining IDSpace = is empty, check til.json. (You could re-create it or change -IDMin, -IDMax)", e, t)
 		}
 
-		switch(SearchMethod){
+		switch SearchMethod {
 		case "random":
 			index := rand.Intn(len(e.iDSpace))
 			id = e.iDSpace[index]                          // use random

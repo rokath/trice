@@ -26,7 +26,7 @@ package id
 // - nil
 func matchTrice(s string) (loc []int) {
 	var offset int
-	var clpIndex int = -1
+	var clpIndex = -1
 
 	for {
 		triceStartloc := matchAnyTriceStart.FindStringIndex(s)

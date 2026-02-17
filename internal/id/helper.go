@@ -299,7 +299,7 @@ func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result st
 		if loc[3] != loc[4] {
 			idName = s[offset+loc[3]:offset+loc[3]+2] + "("
 		} else {
-			switch(DefaultStampSize){
+			switch DefaultStampSize {
 			case 32:
 				idName = "ID("
 			case 16:
