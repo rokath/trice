@@ -20,6 +20,7 @@ root = true
 ###############################################
 [*]
 charset = utf-8
+end_of_line = lf
 trim_trailing_whitespace = true     # Remove trailing whitespace unless overridden
 insert_final_newline = true         # Ensure all files end with a newline
 
