@@ -170,9 +170,9 @@ var (
 )
 
 func fmtFMessage(w io.Writer, pc uintptr, fn string, line int, ok bool, err error) {
-	funcName := runtime.FuncForPC(pc).Name()
-	fileName := filepath.Base(fn)
 	if ok {
+		funcName := runtime.FuncForPC(pc).Name()
+		fileName := filepath.Base(fn)
 		fmt.Fprintf(w, formatString+"\n", fileName, line, funcName, err)
 	} else {
 		fmt.Fprintln(w, seriousError)
@@ -184,9 +184,9 @@ func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
 }
 
 func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
-	funcName := runtime.FuncForPC(pc).Name()
-	fileName := filepath.Base(fn)
 	if ok {
+		funcName := runtime.FuncForPC(pc).Name()
+		fileName := filepath.Base(fn)
 		logFatalf(formatString, fileName, line, funcName, err)
 	} else {
 		logFatalf("%s", seriousError)
