@@ -34,6 +34,12 @@ func TestEqualLines(t *testing.T) {
 	tst.EqualLines(t, exp, act)
 }
 
+func TestEqualLinesIgnoresWhitespaceNoise(t *testing.T) {
+	exp := " Hello\tworld \n"
+	act := "Hello  world\n"
+	tst.EqualLines(t, exp, act)
+}
+
 func TestEqualTextFiles(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
 	fd0, e0 := afero.TempFile(fSys, "", "*.txt")
@@ -59,4 +65,10 @@ func TestEqualTextFiles(t *testing.T) {
 
 func TestEqualFiles(t *testing.T) {
 	tst.EqualLines(t, os.Args[0], os.Args[0])
+}
+
+func TestNormalizeMapString(t *testing.T) {
+	in := "map[12:{ t11 s11 } 13:{ t13 s13 }]"
+	exp := "map[12:{t11 s11} 13:{t13 s13}]"
+	assert.Equal(t, exp, tst.NormalizeMapString(in))
 }

@@ -72,7 +72,7 @@ func createCipher(w io.Writer) (*xtea.Cipher, bool, error) {
 	return c, e, nil
 }
 
-//! tested with little endian embedded device
+// tested with little endian embedded device
 func swap8Bytes(src []byte) []byte {
 	b := make([]byte, 8)
 	copy(b, src)
@@ -81,8 +81,7 @@ func swap8Bytes(src []byte) []byte {
 
 // Encrypt8 translates a byte slice in a protected slice of length 8.
 //
-// Shorter slices are extended with 0x16 until length 8.
-// Longer slices are truncated to length 8.
+// The input must be exactly 8 bytes; otherwise the function logs an info message.
 func Encrypt8(b []byte) (e []byte) {
 	msg.InfoOnFalse(8 == len(b), "Buffer len is not 8.")
 	if enabled {
@@ -98,8 +97,7 @@ func Encrypt8(b []byte) (e []byte) {
 
 // Decrypt8 translates an encryption protected byte slice back in a slice of length 8.
 //
-// Shorter slices are extended with 0 until length 8.
-// Longer slices are truncated to length 8.
+// The input must be exactly 8 bytes; otherwise the function logs an info message.
 func Decrypt8(b []byte) (d []byte) {
 	msg.InfoOnFalse(8 == len(b), "Buffer len is not 8.")
 	if enabled {
@@ -115,8 +113,7 @@ func Decrypt8(b []byte) (d []byte) {
 
 // decrypt8 translates src, an encryption protected byte slice, back in dst, a byte slice of length 8.
 //
-// Shorter slices are extended with 0 until length 8.
-// Longer slices are truncated to length 8.
+// src and dst are expected to be exactly 8 bytes long.
 func decrypt8(dst, src []byte) {
 	swap := src
 	if enabled {
@@ -129,8 +126,7 @@ func decrypt8(dst, src []byte) {
 
 // encrypt8 translates byte slice src, in an encryption protected byte slice dst.
 //
-// Shorter slices are extended with 0 until length 8.
-// Longer slices are truncated to length 8.
+// src and dst are expected to be exactly 8 bytes long.
 func encrypt8(dst, src []byte) {
 	swap := src
 	if enabled {

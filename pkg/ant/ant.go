@@ -34,8 +34,35 @@ type Admin struct {
 	errorCount       int                       // errorCount gets incremented by each started go routine on an error.
 }
 
+func (p *Admin) addError() {
+	p.Mutex.Lock()
+	p.errorCount++
+	p.Mutex.Unlock()
+}
+
+func (p *Admin) getErrorCount() int {
+	p.Mutex.RLock()
+	defer p.Mutex.RUnlock()
+	return p.errorCount
+}
+
 // Walk performs p.action on each file in passed srcs and all sub trees.
 func (p *Admin) Walk(w io.Writer, fSys *afero.Afero) error {
+	if fSys == nil {
+		return errors.New("nil filesystem")
+	}
+	if w == nil {
+		w = io.Discard
+	}
+	if p.MatchingFileName == nil {
+		p.MatchingFileName = func(_ os.FileInfo) bool { return true }
+	}
+	if p.Action == nil {
+		return errors.New("nil action")
+	}
+	p.Mutex.Lock()
+	p.errorCount = 0
+	p.Mutex.Unlock()
 
 	// processing tree list ...
 	for _, path := range p.Trees {
@@ -45,8 +72,10 @@ func (p *Admin) Walk(w io.Writer, fSys *afero.Afero) error {
 			go func() {
 				defer p.wg.Done()
 				err := fSys.Walk(path, visit(w, fSys, p))
-				//msg.FatalInfoOnErr(err, "failed to walk tree")
-				msg.InfoOnErr(err, "failed to walk tree")
+				if err != nil {
+					msg.InfoOnErr(err, "failed to walk tree")
+					p.addError()
+				}
 			}()
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Fprintln(w, path, "does not exist!")
@@ -60,8 +89,8 @@ func (p *Admin) Walk(w io.Writer, fSys *afero.Afero) error {
 	// ...waiting
 	p.wg.Wait()
 
-	if p.errorCount > 0 {
-		return errors.New(fmt.Sprint(p.errorCount, " walk errors"))
+	if c := p.getErrorCount(); c > 0 {
+		return errors.New(fmt.Sprint(c, " walk errors"))
 	}
 	return nil
 }
@@ -111,8 +140,13 @@ func visit(w io.Writer, fSys *afero.Afero, jalan *Admin) filepath.WalkFunc {
 			}
 		}
 
+		matching := jalan.MatchingFileName
+		if matching == nil {
+			matching = func(_ os.FileInfo) bool { return true }
+		}
+
 		// Skip directories and files that don't match the pattern
-		if fileInfo.IsDir() || !jalan.MatchingFileName(fileInfo) {
+		if fileInfo.IsDir() || !matching(fileInfo) {
 			return nil
 		}
 
@@ -122,11 +156,7 @@ func visit(w io.Writer, fSys *afero.Afero, jalan *Admin) filepath.WalkFunc {
 			err := jalan.Action(w, fSys, path, fileInfo, jalan)
 			if err != nil {
 				fmt.Fprintln(w, path, err)
-
-				// Safely increment errorCount
-				jalan.Mutex.Lock()
-				jalan.errorCount++
-				jalan.Mutex.Unlock()
+				jalan.addError()
 			}
 		}()
 
