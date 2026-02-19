@@ -2,49 +2,77 @@ package charDecoder
 
 import (
 	"bytes"
-	"fmt"
 	"io"
-	"io/ioutil"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/rokath/trice/internal/decoder"
-	"github.com/tj/assert"
+	"github.com/rokath/trice/internal/id"
+	"github.com/stretchr/testify/assert"
 )
 
-// doTableTest is the universal decoder test sequence.
-func doCHARableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool, teTa decoder.TestTable) {
-	buf := make([]byte, decoder.DefaultSize)
-	dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance
-	for _, x := range teTa {
-		in := ioutil.NopCloser(bytes.NewBuffer(x.In))
-		dec.SetInput(in)
-		lineStart := true
-		var err error
-		var n int
-		var act string
-		for err == nil {
-			n, err = dec.Read(buf)
-			if n == 0 {
-				break
-			}
-			if decoder.ShowID != "" && lineStart {
-				act += fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)
-			}
-			act += fmt.Sprint(string(buf[:n]))
-			lineStart = false
+func readAllViaDecoder(t *testing.T, dec decoder.Decoder, chunkSize int) string {
+	t.Helper()
+	buf := make([]byte, chunkSize)
+	var out strings.Builder
+	for {
+		n, err := dec.Read(buf)
+		if n > 0 {
+			out.Write(buf[:n])
 		}
-		act = strings.TrimSuffix(act, "\\n")
-		act = strings.TrimSuffix(act, "\n")
-		assert.Equal(t, x.Exp, act)
+		if err == io.EOF {
+			return out.String()
+		}
+		assert.NoError(t, err)
 	}
 }
 
-func TestCHAR(t *testing.T) {
-	tt := decoder.TestTable{ // little endian
-		{[]byte{'A', 'B', 'C', '0', '1', '2'}, `ABC012`},
-		{[]byte{'a', 'b', '3', '4'}, `ab34`},
-	}
+func TestNewInitializesDecoderData(t *testing.T) {
 	var out bytes.Buffer
-	doCHARableTest(t, &out, New, decoder.LittleEndian, tt)
+	in := strings.NewReader("abc")
+	lut := id.TriceIDLookUp{1: id.TriceFmt{Type: "trice", Strg: "hello"}}
+	li := id.TriceIDLookUpLI{1: id.TriceLI{File: "f.c", Line: 3}}
+	m := &sync.RWMutex{}
+
+	dec := New(&out, lut, m, li, in, decoder.BigEndian)
+	p, ok := dec.(*char)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", dec)
+	}
+
+	assert.Same(t, &out, p.W)
+	assert.Same(t, in, p.In)
+	assert.Equal(t, decoder.DefaultSize, cap(p.IBuf))
+	assert.Equal(t, lut, p.Lut)
+	assert.Same(t, m, p.LutMutex)
+	assert.Equal(t, decoder.BigEndian, p.Endian)
+}
+
+func TestReadPassThrough(t *testing.T) {
+	var out bytes.Buffer
+	in := strings.NewReader("ABC012")
+	dec := New(&out, nil, nil, nil, in, decoder.LittleEndian)
+
+	assert.Equal(t, "ABC012", readAllViaDecoder(t, dec, 2))
+}
+
+func TestSetInputSwitchesReader(t *testing.T) {
+	var out bytes.Buffer
+	dec := New(&out, nil, nil, nil, strings.NewReader("first"), decoder.LittleEndian)
+
+	assert.Equal(t, "first", readAllViaDecoder(t, dec, 8))
+
+	dec.SetInput(strings.NewReader("second"))
+	assert.Equal(t, "second", readAllViaDecoder(t, dec, 8))
+}
+
+func TestReadWithoutInputReturnsEOF(t *testing.T) {
+	var out bytes.Buffer
+	dec := New(&out, nil, nil, nil, nil, decoder.LittleEndian)
+
+	b := make([]byte, 8)
+	n, err := dec.Read(b)
+	assert.Equal(t, 0, n)
+	assert.Equal(t, io.EOF, err)
 }
