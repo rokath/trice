@@ -6,6 +6,7 @@
 package com
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -34,6 +35,9 @@ var (
 
 	// Verbose shows additional information if set true.
 	Verbose = false
+
+	openSerial   = serial.Open
+	getPortsList = serial.GetPortsList
 )
 
 // COMport is the comport interface type to use different COMports.
@@ -53,8 +57,12 @@ type port struct {
 	w            io.Writer
 }
 
-// NewPort creates an instance of a serial device type trice receiver
+// NewPort creates an instance of a serial receiver.
 func NewPort(w io.Writer, comPortName string, verbose bool) *port {
+	if w == nil {
+		w = io.Discard
+	}
+
 	var parity serial.Parity
 	switch strings.ToLower(Parity) {
 	case "n", "no", "none":
@@ -101,20 +109,27 @@ func NewPort(w io.Writer, comPortName string, verbose bool) *port {
 	return r
 }
 
-// Read blocks until (at least) one byte is received from
-// the serial port or an error occurs.
-// It stores data received from the serial port into the provided byte array
-// buffer. The function returns the number of bytes read.
+// Read reads bytes from the serial port into buf.
 func (p *port) Read(buf []byte) (int, error) {
+	if p == nil || p.serialHandle == nil {
+		return 0, errors.New("serial port not open")
+	}
 	return p.serialHandle.Read(buf)
 }
 
+// Write writes buf to the serial port.
 func (p *port) Write(buf []byte) (int, error) {
+	if p == nil || p.serialHandle == nil {
+		return 0, errors.New("serial port not open")
+	}
 	return p.serialHandle.Write(buf)
 }
 
-// Close releases port.
+// Close releases the serial port handle.
 func (p *port) Close() error {
+	if p == nil || p.serialHandle == nil {
+		return errors.New("serial port not open")
+	}
 	if p.verbose {
 		fmt.Fprintln(p.w, "Closing COM port")
 	}
@@ -126,7 +141,7 @@ func (p *port) Close() error {
 // It opens a serial port.
 func (p *port) Open() bool {
 	var err error
-	p.serialHandle, err = serial.Open(p.port, &p.serialMode)
+	p.serialHandle, err = openSerial(p.port, &p.serialMode)
 	if err != nil {
 		if p.verbose {
 			fmt.Fprintln(p.w, err, "try '", os.Args[0], "s' to check for serial ports")
@@ -138,7 +153,10 @@ func (p *port) Open() bool {
 
 // GetSerialPorts scans for serial ports.
 func GetSerialPorts(w io.Writer) ([]string, error) {
-	ports, err := serial.GetPortsList()
+	if w == nil {
+		w = io.Discard
+	}
+	ports, err := getPortsList()
 
 	if err != nil {
 		fmt.Fprintln(w, err)
@@ -164,7 +182,7 @@ func GetSerialPorts(w io.Writer) ([]string, error) {
 				fmt.Fprintln(w, "Found port: ", port, "(used)")
 			}
 		}()
-		wg.Wait()
 	}
+	wg.Wait()
 	return ports, err
 }
