@@ -43,6 +43,10 @@ var (
 	DisableCycleErrors           bool
 )
 
+func init() {
+	decoder.Register("TREX", New)
+}
+
 // trexDec is the Decoding instance for trex encoded trices.
 type trexDec struct {
 	decoder.DecoderData
@@ -60,18 +64,18 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	// Todo: rewrite using the TCOBS Reader. The provided in io.Reader provides a raw data stream.
 	// https://github.com/rokath/tcobs/blob/master/TCOBSv1/read.go -> use NewDecoder ...
 
-	p := &trexDec{}
-	p.cycle = 0xc0 // start value
-	p.W = w
-	p.In = in
-	p.IBuf = make([]byte, 0, decoder.DefaultSize)     // len 0
-	p.B = make([]byte, 0, decoder.DefaultSize)        // len 0
-	p.B0 = make([]byte, decoder.DefaultSize)          // len max
-	p.InnerBuffer = make([]byte, decoder.DefaultSize) // len max
-	p.Lut = lut
-	p.LutMutex = m
-	p.Endian = endian
-	p.Li = li
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Out:         w,
+			LUT:         lut,
+			LUTMutex:    m,
+			LI:          li,
+			In:          in,
+			Endian:      endian,
+			NeedBuffers: true,
+		}),
+		cycle: 0xc0, // start value
+	}
 
 	switch strings.ToLower(decoder.PackageFraming) {
 	case "cobs":

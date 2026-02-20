@@ -44,3 +44,19 @@ func TestDUMP(t *testing.T) {
 	var out bytes.Buffer
 	doDUMPtableTest(t, &out, New, decoder.LittleEndian, tt)
 }
+
+func TestReadWithoutInputReturnsEOF(t *testing.T) {
+	dec := New(io.Discard, nil, nil, nil, nil, decoder.LittleEndian)
+	buf := make([]byte, 16)
+	n, err := dec.Read(buf)
+	assert.Equal(t, 0, n)
+	assert.Equal(t, io.EOF, err)
+}
+
+func TestReadWithTooSmallBufferFails(t *testing.T) {
+	dec := New(io.Discard, nil, nil, nil, bytes.NewBufferString("x"), decoder.LittleEndian)
+	buf := make([]byte, 3)
+	n, err := dec.Read(buf)
+	assert.Equal(t, 0, n)
+	assert.NotNil(t, err)
+}

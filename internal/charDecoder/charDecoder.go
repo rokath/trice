@@ -15,6 +15,10 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
+func init() {
+	decoder.Register("CHAR", New)
+}
+
 // char is the decoding instance for plain character streams.
 type char struct {
 	decoder.DecoderData
@@ -25,13 +29,16 @@ type char struct {
 // The returned decoder forwards input bytes as-is. The LUT and endianness
 // fields are stored for API consistency with other decoders.
 func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder {
-	p := &char{}
-	p.W = w
-	p.In = in
-	p.IBuf = make([]byte, 0, decoder.DefaultSize)
-	p.Lut = lut
-	p.LutMutex = m
-	p.Endian = endian
+	p := &char{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Out:      w,
+			LUT:      lut,
+			LUTMutex: m,
+			LI:       li,
+			In:       in,
+			Endian:   endian,
+		}),
+	}
 	return p
 }
 
