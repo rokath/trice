@@ -1,6 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-//                basti@blackoutcloud.de
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
 // Package com reads from COM port.
 package com
