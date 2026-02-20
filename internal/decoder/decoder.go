@@ -143,6 +143,17 @@ func init() {
 // New abstracts the function type for a new decoder.
 type New func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder
 
+// Config contains common constructor parameters for all decoders.
+type Config struct {
+	Out         io.Writer
+	LUT         id.TriceIDLookUp
+	LUTMutex    *sync.RWMutex
+	LI          id.TriceIDLookUpLI
+	In          io.Reader
+	Endian      bool
+	NeedBuffers bool // NeedBuffers allocates B, B0 and InnerBuffer for framed decoders.
+}
+
 // Decoder is providing a byte reader returning decoded trice's.
 // SetInput allows switching the input stream to a different source.
 type Decoder interface {
@@ -166,6 +177,33 @@ type DecoderData struct {
 	LutMutex    *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
 	Li          id.TriceIDLookUpLI // location information map
 	Trice       id.TriceFmt        // id.TriceFmt // received trice
+}
+
+// NewDecoderData initializes the common base fields for a decoder.
+//
+// Callers can request pre-allocated internal working buffers with NeedBuffers.
+func NewDecoderData(c Config) DecoderData {
+	if c.Out == nil {
+		c.Out = io.Discard
+	}
+	if c.LUTMutex == nil {
+		c.LUTMutex = new(sync.RWMutex)
+	}
+	d := DecoderData{
+		W:        c.Out,
+		In:       c.In,
+		IBuf:     make([]byte, 0, DefaultSize),
+		Endian:   c.Endian,
+		Lut:      c.LUT,
+		LutMutex: c.LUTMutex,
+		Li:       c.LI,
+	}
+	if c.NeedBuffers {
+		d.B = make([]byte, 0, DefaultSize)
+		d.B0 = make([]byte, DefaultSize)
+		d.InnerBuffer = make([]byte, DefaultSize)
+	}
+	return d
 }
 
 // SetInput allows switching the input stream to a different source.
