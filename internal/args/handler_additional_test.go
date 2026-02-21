@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
@@ -186,5 +187,34 @@ func TestHandlerVersionSubcommands(t *testing.T) {
 		err := Handler(&out, fSys, []string{"trice", cmd})
 		assert.Nil(t, err)
 		assert.True(t, strings.Contains(out.String(), "version=1.0.0"))
+	}
+}
+
+func TestHandlerGenerateWithoutParameters(t *testing.T) {
+	FlagsInit()
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	var out bytes.Buffer
+	err := Handler(&out, fSys, []string{"trice", "generate"})
+	assert.Nil(t, err)
+	assert.Contains(t, out.String(), `The "trice generate" command needs at least one parameter.`)
+}
+
+func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	assert.Nil(t, fSys.WriteFile("til.json", []byte("{}"), 0o644))
+	assert.Nil(t, fSys.WriteFile("li.json", []byte("{}"), 0o644))
+	id.FnJSON = "til.json"
+	id.LIFnJSON = "li.json"
+	tests := [][]string{
+		{"trice", "add", "-src", "missing-source-tree"},
+		{"trice", "insert", "-src", "missing-source-tree"},
+		{"trice", "clean", "-src", "missing-source-tree"},
+	}
+	for _, args := range tests {
+		FlagsInit() // reset global flag sets before each parse
+		var out bytes.Buffer
+		err := Handler(&out, fSys, args)
+		assert.Nil(t, err)
+		assert.Contains(t, out.String(), "missing-source-tree does not exist!")
 	}
 }
