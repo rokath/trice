@@ -741,7 +741,7 @@ func (p *trexDec) triceS(b []byte, _ int, _ int) int {
 // triceB converts dynamic buffers.
 func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
+		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
@@ -761,7 +761,7 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 // trice16B converts dynamic buffers.
 func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
+		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
@@ -782,7 +782,7 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 // trice32B converts dynamic buffers.
 func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
+		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
@@ -802,7 +802,7 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 // trice64B converts dynamic buffers.
 func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
+		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
@@ -822,7 +822,7 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 // trice8F display function call with 8-bit parameters.
 func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
+		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
 	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
@@ -836,7 +836,7 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 // trice16F display function call with 16-bit parameters.
 func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
+		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
 	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
@@ -850,7 +850,7 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 // trice32F display function call with 32-bit parameters.
 func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
+		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
 	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
@@ -864,7 +864,7 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 // trice64F display function call with 64-bit parameters.
 func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
+		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
 	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
