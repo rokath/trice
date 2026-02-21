@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-// Package tst provides some helper functions for testing.
 package tst
 
 import (

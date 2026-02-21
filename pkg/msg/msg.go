@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-// Package msg provides common message functions.
 package msg
 
 import (
@@ -14,6 +13,7 @@ import (
 	"sync"
 )
 
+// Verbose controls additional optional output for Tell.
 var Verbose bool
 
 // Info prints info with location info.

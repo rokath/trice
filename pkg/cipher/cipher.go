@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-// Package cipher provides an encryption and decryption interface.
-//
-// It abstracts from the used cipher algorithm
 package cipher
 
 import (
@@ -14,7 +11,6 @@ import (
 	"golang.org/x/crypto/xtea"
 )
 
-// local config values
 var (
 	// Password is the key one needs to decrypt trice logs if encrypted
 	Password string
@@ -24,7 +20,7 @@ var (
 
 	key []byte
 
-	// cipher is a pointer to the crypto struct filled during initialization
+	// ci is the configured XTEA cipher instance.
 	ci *xtea.Cipher
 
 	// enabled set to true if a -password other than "" was given
