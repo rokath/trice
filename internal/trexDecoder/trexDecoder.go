@@ -244,13 +244,14 @@ func isZero(bytes []byte) bool {
 func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 	// The package interpreter does not know the number of padding zeroes, so it needs to discard them one by one.
 	// If they are not zero, this is an error.
-	if p.Endian == decoder.BigEndian {
+	switch p.Endian {
+	case decoder.BigEndian:
 		// Big endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> still typeX0 -> AA AA C0 00 -> ok next package
 		if s[0] != 0 {
 			fmt.Println("unexpected case in line 273", s)
 		}
 		r = s[1:]
-	} else if p.Endian == decoder.LittleEndian {
+	case decoder.LittleEndian:
 		// Little endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> AA00 signals a valid Trice, but it is not! -> We need to remove the HI byte!
 		if s[1] != 0 {
 			//log.Fatal("unexpected case", s)
@@ -258,7 +259,7 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 			// BUT: deferred package framing NONE does not work
 		}
 		r = append(s[:1], s[2:]...)
-	} else {
+	default:
 		fmt.Println("unexpected case 927346193377", s)
 	}
 	return
