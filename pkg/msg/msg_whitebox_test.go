@@ -144,3 +144,53 @@ func TestOsExitDisallowFormatsVarArgs(t *testing.T) {
 		t.Fatalf("expected formatted output, got %q", out)
 	}
 }
+
+func TestOsExitDisallowFormatsWithoutArgs(t *testing.T) {
+	o := OsExitDisallow()
+	defer OsExitAllow(o)
+
+	out := captureStdout(t, func() {
+		logFatalf("plain")
+	})
+	if !strings.Contains(out, "plain") {
+		t.Fatalf("expected plain output, got %q", out)
+	}
+}
+
+func TestOnErrFAndOnErrFv(t *testing.T) {
+	var b bytes.Buffer
+	OnErrF(&b, nil)
+	if b.Len() != 0 {
+		t.Fatalf("expected no output for nil error, got %q", b.String())
+	}
+
+	err := errors.New("boom")
+	OnErrF(&b, err)
+	if !strings.Contains(b.String(), "boom") {
+		t.Fatalf("expected error output, got %q", b.String())
+	}
+
+	b.Reset()
+	got := OnErrFv(&b, err)
+	if got == nil || got.Error() != "boom" {
+		t.Fatalf("expected returned error boom, got %v", got)
+	}
+	if !strings.Contains(b.String(), "boom") {
+		t.Fatalf("expected error output, got %q", b.String())
+	}
+}
+
+func TestTellRespectsVerbose(t *testing.T) {
+	var b bytes.Buffer
+	Verbose = false
+	Tell(&b, "hidden")
+	if b.Len() != 0 {
+		t.Fatalf("expected no output when verbose is false, got %q", b.String())
+	}
+	Verbose = true
+	Tell(&b, "shown")
+	if !strings.Contains(b.String(), "shown") {
+		t.Fatalf("expected output when verbose is true, got %q", b.String())
+	}
+	Verbose = false
+}

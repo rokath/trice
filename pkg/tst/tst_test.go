@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// Package assert_test contains blackbox tests.
+// Package tst_test contains black-box tests for pkg/tst helpers.
 package tst_test
 
 import (
@@ -70,4 +70,23 @@ func TestNormalizeMapString(t *testing.T) {
 	in := "map[12:{ t11 s11 } 13:{ t13 s13 }]"
 	exp := "map[12:{t11 s11} 13:{t13 s13}]"
 	assert.Equal(t, exp, tst.NormalizeMapString(in))
+}
+
+func TestCaptureStdOut(t *testing.T) {
+	out := tst.CaptureStdOut(func() {
+		_, _ = os.Stdout.WriteString("captured")
+	})
+	assert.Equal(t, "captured", out)
+}
+
+func TestAssertEqualFiles(t *testing.T) {
+	f0 := tst.TempFileName("equal0-*.txt")
+	f1 := tst.TempFileName("equal1-*.txt")
+	assert.Nil(t, os.WriteFile(f0, []byte("same"), 0o644))
+	assert.Nil(t, os.WriteFile(f1, []byte("same"), 0o644))
+	defer func() {
+		_ = os.Remove(f0)
+		_ = os.Remove(f1)
+	}()
+	tst.AssertEqualFiles(t, f0, f1)
 }
