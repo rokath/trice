@@ -275,3 +275,93 @@ func TestPrintTestTableLine(t *testing.T) {
 	assert.Contains(t, string(out), "  1,")
 	assert.Contains(t, string(out), "  2,")
 }
+
+func TestSprintTriceErrorPaths(t *testing.T) {
+	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
+	b := make([]byte, 256)
+
+	p.Trice = id.TriceFmt{Type: "BADTYPE", Strg: "%d"}
+	p.B = []byte{1}
+	p.ParamSpace = 1
+	n := p.sprintTrice(b)
+	assert.Contains(t, string(b[:n]), "ConstructFullTriceInfo failed")
+
+	p.Trice = id.TriceFmt{Type: "TRICE8_2", Strg: "%d %d"}
+	p.B = []byte{1}
+	p.ParamSpace = 2
+	n = p.sprintTrice(b)
+	assert.Contains(t, string(b[:n]), "len(p.B) = 1 < p.ParamSpace =  2")
+
+	p.Trice = id.TriceFmt{Type: "TRICE16_1", Strg: "%d"}
+	p.B = []byte{1}
+	p.ParamSpace = 1
+	n = p.sprintTrice(b)
+	assert.Contains(t, string(b[:n]), "not matching with bitWidth")
+}
+
+func TestReadNoneFramingKnownTrice(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldInitial := decoder.InitialCycle
+	oldDisable := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.InitialCycle = oldInitial
+		DisableCycleErrors = oldDisable
+	})
+
+	decoder.PackageFraming = "none"
+	decoder.InitialCycle = true
+	DisableCycleErrors = false
+
+	// typeS0/id=1 (0x4001), nc=0x01c0 (count=1, cycle=0xc0), payload=42
+	in := bytes.NewBuffer([]byte{0x01, 0x40, 0xc0, 0x01, 0x2a, 0x00, 0x00, 0x00})
+	lut := id.TriceIDLookUp{
+		1: {Type: "TRICE8_1", Strg: "v=%d"},
+	}
+	dec := New(io.Discard, lut, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+
+	buf := make([]byte, 128)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "v=42", string(buf[:n]))
+}
+
+func TestReadCOBSFramingUnknownID(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	t.Cleanup(func() { decoder.PackageFraming = oldFraming })
+
+	decoder.PackageFraming = "cobs"
+	// COBS frame without zero bytes: [06 payload(5 bytes)] 00
+	in := bytes.NewBuffer([]byte{0x06, 0x01, 0x40, 0xc0, 0x01, 0x2a, 0x00})
+	dec := New(io.Discard, id.TriceIDLookUp{}, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+
+	buf := make([]byte, 256)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "unknown ID")
+}
+
+func TestReadNoneFramingTypeX0Resync(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldVerbose := decoder.Verbose
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.Verbose = oldVerbose
+	})
+
+	decoder.PackageFraming = "none"
+	decoder.Verbose = false
+
+	in := bytes.NewBuffer([]byte{0x01, 0x00, 0xaa})
+	decI := New(io.Discard, nil, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+
+	buf := make([]byte, 64)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
+	assert.Equal(t, []byte{0x01, 0xaa}, dec.B)
+}
