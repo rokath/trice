@@ -490,6 +490,37 @@ func TestSprintTriceErrorPaths(t *testing.T) {
 	assert.Contains(t, string(b[:n]), "not matching with bitWidth")
 }
 
+func TestSprintTriceSAliasPath(t *testing.T) {
+	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
+	b := make([]byte, 256)
+
+	p.Trice = id.TriceFmt{
+		Type: "TRICE_S",
+		Strg: id.SAliasStrgPrefix + `false, "ignored"` + id.SAliasStrgSuffix,
+	}
+	p.B = []byte("abc")
+	p.ParamSpace = 3
+
+	n := p.sprintTrice(b)
+	assert.Equal(t, "abc", string(b[:n]))
+}
+
+func TestSprintTriceAssertTypeNormalization(t *testing.T) {
+	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
+	b := make([]byte, 256)
+
+	p.Trice = id.TriceFmt{
+		Type: "TriceAssertTrue",
+		Strg: "%d",
+	}
+	p.B = []byte{7, 0, 0, 0}
+	p.ParamSpace = 4
+
+	n := p.sprintTrice(b)
+	assert.Equal(t, "7", string(b[:n]))
+	assert.Equal(t, "Trice", p.Trice.Type)
+}
+
 func TestReadNoneFramingKnownTrice(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldInitial := decoder.InitialCycle
@@ -746,4 +777,53 @@ func TestReadNoneFramingUnknownIDResync(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 0, n)
 	assert.True(t, len(dec.B) < 8)
+}
+
+func TestReadNoneFramingTooShortForHeader(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	t.Cleanup(func() { decoder.PackageFraming = oldFraming })
+	decoder.PackageFraming = "none"
+
+	in := bytes.NewBuffer([]byte{0x01}) // shorter than tyIdSize
+	decI := New(io.Discard, nil, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+
+	buf := make([]byte, 32)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
+	assert.Equal(t, 1, len(dec.B))
+}
+
+func TestReadNoneFramingResyncWhenTriceSizeExceedsPackage(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldVerbose := decoder.Verbose
+	oldInitial := decoder.InitialCycle
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.Verbose = oldVerbose
+		decoder.InitialCycle = oldInitial
+	})
+	decoder.PackageFraming = "none"
+	decoder.Verbose = false
+	decoder.InitialCycle = false
+
+	// typeS0 id=1 + nc=0x7fff (ParamSpace=127), no payload => TriceSize > packageSize
+	in := bytes.NewBuffer([]byte{0x01, 0x40, 0xff, 0x7f})
+	lut := id.TriceIDLookUp{1: {Type: "TRICE8_1", Strg: "v=%d"}}
+	decI := New(io.Discard, lut, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+
+	buf := make([]byte, 128)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
+	// none-mode resync drops first byte from the preserved buffer.
+	assert.Equal(t, 3, len(dec.B))
 }
