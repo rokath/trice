@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+// Package do wires parsed command arguments into cooperating runtime packages.
 package do
 
 import (
@@ -26,9 +27,16 @@ var (
 	Verbose    bool
 )
 
-// distributeArgs is distributing values used in several packages.
-// It must not be called before the appropriate arg parsing.
+// DistributeArgs distributes argument-derived values to collaborating packages.
+// It must be called after argument parsing.
 func DistributeArgs(w io.Writer, fSys *afero.Afero, logfileName string, verbose bool) io.Writer {
+	if w == nil {
+		w = io.Discard
+	}
+	if fSys == nil {
+		fSys = &afero.Afero{Fs: afero.NewOsFs()}
+	}
+
 	Verbose = verbose
 	id.Verbose = verbose
 	msg.Verbose = verbose
@@ -56,7 +64,8 @@ func DistributeArgs(w io.Writer, fSys *afero.Afero, logfileName string, verbose 
 	return w
 }
 
-// triceOutput returns w as a a optional combined io.Writer. If fileName is given the returned io.Writer write a copy into the given file.
+// triceOutput returns an io.Writer that mirrors writes to output targets.
+// If fileName is not "none" or "off", the returned writer appends to that log file.
 func triceOutput(w io.Writer, fSys *afero.Afero, fileName string, verbose bool) io.Writer {
 	ioWriter := tcpWriter()
 
@@ -85,7 +94,7 @@ func triceOutput(w io.Writer, fSys *afero.Afero, fileName string, verbose bool) 
 	return io.MultiWriter(w, ioWriter, lfHandle)
 }
 
-// evaluateColorPalette
+// evaluateColorPalette validates emitter.ColorPalette and falls back to "default".
 func evaluateColorPalette(w io.Writer) {
 	switch emitter.ColorPalette {
 	case "off", "none", "default", "color":
@@ -96,6 +105,10 @@ func evaluateColorPalette(w io.Writer) {
 	}
 }
 
+// tcpWriter returns a connected TCP writer for TCPOutAddr.
+// It listens, accepts a single connection, reads one incoming frame, and
+// optionally sends a greeting when Verbose is true. If TCPOutAddr is empty,
+// io.Discard is returned.
 func tcpWriter() io.Writer {
 	if TCPOutAddr == "" {
 		return io.Discard
