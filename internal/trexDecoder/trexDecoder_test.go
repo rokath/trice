@@ -89,6 +89,7 @@ func TestNewSelectsPackageFraming(t *testing.T) {
 		{name: "cobs", framing: "cobs", want: packageFramingCOBS},
 		{name: "tcobs alias", framing: "tcobs", want: packageFramingTCOBS},
 		{name: "tcobsv1 alias", framing: "tcobsv1", want: packageFramingTCOBS},
+		{name: "tcobsv2", framing: "tcobsv2", want: packageFramingTCOBSv2},
 		{name: "none", framing: "none", want: packageFramingNone},
 	}
 	for _, tc := range tt {
@@ -144,6 +145,49 @@ func TestNextPackageCOBS(t *testing.T) {
 	assert.Equal(t, 0, len(p.IBuf))
 }
 
+func TestNextPackageTCOBSPaths(t *testing.T) {
+	t.Run("success empty payload", func(t *testing.T) {
+		p := &trexDec{
+			DecoderData: decoder.NewDecoderData(decoder.Config{
+				NeedBuffers: true,
+			}),
+			packageFraming: packageFramingTCOBS,
+		}
+		// TCOBS N sigil with offset 0 -> empty payload.
+		p.IBuf = []byte{0xA0, 0x00}
+		p.nextPackage()
+		assert.Equal(t, 0, len(p.B))
+		assert.Equal(t, 0, len(p.IBuf))
+	})
+
+	t.Run("error path", func(t *testing.T) {
+		p := &trexDec{
+			DecoderData: decoder.NewDecoderData(decoder.Config{
+				NeedBuffers: true,
+			}),
+			packageFraming: packageFramingTCOBS,
+		}
+		// R2 with offset 0 but without preceding data -> decode error.
+		p.IBuf = []byte{0x08, 0x00}
+		p.nextPackage()
+		assert.Equal(t, 0, len(p.B))
+		assert.Equal(t, 0, len(p.IBuf))
+	})
+
+	t.Run("read from input when ibuf incomplete", func(t *testing.T) {
+		p := &trexDec{
+			DecoderData: decoder.NewDecoderData(decoder.Config{
+				NeedBuffers: true,
+				In:          bytes.NewBuffer([]byte{0xA0, 0x00}),
+			}),
+			packageFraming: packageFramingTCOBS,
+		}
+		p.nextPackage()
+		assert.Equal(t, 0, len(p.B))
+		assert.Equal(t, 0, len(p.IBuf))
+	})
+}
+
 func TestTriceStringAndBufferConverters(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
@@ -178,6 +222,12 @@ func TestTriceStringAndBufferConverters(t *testing.T) {
 	p.ParamSpace = 8
 	n = p.trice64B(b, 0, 0)
 	assert.Equal(t, "CH:1\n", string(b[:n]))
+
+	p.Trice.Strg = "%d"
+	p.B = []byte{7}
+	p.ParamSpace = 1
+	n = p.trice8B(b, 0, 0)
+	assert.Equal(t, "7", string(b[:n]))
 }
 
 func TestTriceFunctionStyleConvertersAndTrice0(t *testing.T) {
@@ -247,6 +297,24 @@ func TestUnsignedOrSignedOut(t *testing.T) {
 	p.B = []byte{1}
 	n = p.unSignedOrSignedOut(b, 8, 2)
 	assert.Contains(t, string(b[:n]), "Invalid format specifier count")
+
+	p.Trice.Type = "TRICE16_2"
+	p.Trice.Strg = "%d %t"
+	p.pFmt = "%d %t"
+	p.u = []int{decoder.SignedFormatSpecifier, decoder.BooleanFormatSpecifier}
+	p.B = []byte{0xfe, 0xff, 0x01, 0x00} // -2, true
+	n = p.unSignedOrSignedOut(b, 16, 2)
+	assert.Equal(t, "-2 true", string(b[:n]))
+
+	p.Trice.Type = "TRICE64_2"
+	p.Trice.Strg = "%f %d"
+	p.pFmt = "%.1f %d"
+	p.u = []int{decoder.FloatFormatSpecifier, decoder.SignedFormatSpecifier}
+	p.B = make([]byte, 16)
+	binary.LittleEndian.PutUint64(p.B[0:], math.Float64bits(2.5))
+	binary.LittleEndian.PutUint64(p.B[8:], uint64(^uint64(1))) // -2 as int64
+	n = p.unSignedOrSignedOut(b, 64, 2)
+	assert.Equal(t, "2.5 -2", string(b[:n]))
 }
 
 func TestPrintTestTableLine(t *testing.T) {
@@ -372,7 +440,7 @@ func TestReadCOBSFramingUnknownID(t *testing.T) {
 	in := bytes.NewBuffer([]byte{0x06, 0x01, 0x40, 0xc0, 0x01, 0x2a, 0x00})
 	dec := New(io.Discard, id.TriceIDLookUp{}, new(sync.RWMutex), nil, in, decoder.LittleEndian)
 
-	buf := make([]byte, 256)
+	buf := make([]byte, 2048)
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
 	assert.Contains(t, string(buf[:n]), "unknown ID")
@@ -418,4 +486,80 @@ func TestReadTypeX0NotImplementedForFramedData(t *testing.T) {
 	n, err := p.Read(buf)
 	assert.NoError(t, err)
 	assert.Contains(t, string(buf[:n]), "typeX0 not implemented")
+}
+
+func TestReadSingleFramingAndCycleError(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldInitial := decoder.InitialCycle
+	oldVerbose := decoder.Verbose
+	oldSingle := SingleFraming
+	oldDisable := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.InitialCycle = oldInitial
+		decoder.Verbose = oldVerbose
+		SingleFraming = oldSingle
+		DisableCycleErrors = oldDisable
+	})
+
+	decoder.PackageFraming = "none"
+	decoder.InitialCycle = false
+	decoder.Verbose = true
+	SingleFraming = true
+	DisableCycleErrors = false
+
+	in := bytes.NewBuffer([]byte{0x01, 0x40, 0x10, 0x01, 0x2a, 0x00, 0x00, 0x00})
+	lut := id.TriceIDLookUp{
+		1: {Type: "TRICE8_1", Strg: "v=%d"},
+	}
+	decI := New(io.Discard, lut, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+	dec.cycle = 0x11 // force mismatch against cycle 0x10
+
+	buf := make([]byte, 256)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	out := string(buf[:n])
+	assert.Contains(t, out, "single framed package size")
+}
+
+func TestReadCycleErrorMessage(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldInitial := decoder.InitialCycle
+	oldVerbose := decoder.Verbose
+	oldSingle := SingleFraming
+	oldDisable := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.InitialCycle = oldInitial
+		decoder.Verbose = oldVerbose
+		SingleFraming = oldSingle
+		DisableCycleErrors = oldDisable
+	})
+
+	decoder.PackageFraming = "none"
+	decoder.InitialCycle = false
+	decoder.Verbose = false
+	SingleFraming = false
+	DisableCycleErrors = false
+
+	// exact-size package: tyId(2) + nc(2) + payload(1)
+	in := bytes.NewBuffer([]byte{0x01, 0x40, 0x10, 0x01, 0x2a})
+	lut := id.TriceIDLookUp{
+		1: {Type: "TRICE8_1", Strg: "v=%d"},
+	}
+	decI := New(io.Discard, lut, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+	dec.cycle = 0x11 // force mismatch
+
+	buf := make([]byte, 1024)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "CYCLE_ERROR")
 }
