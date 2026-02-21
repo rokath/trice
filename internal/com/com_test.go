@@ -131,6 +131,72 @@ func TestOpenReadWriteClose(t *testing.T) {
 	}
 }
 
+func TestOpenModeOddOnePointFiveStopBits(t *testing.T) {
+	oldOpen := openSerial
+	t.Cleanup(func() { openSerial = oldOpen })
+
+	BaudRate = 9600
+	DataBits = 7
+	Parity = "odd"
+	StopBits = "1.5"
+
+	openSerial = func(portName string, mode *serial.Mode) (serial.Port, error) {
+		if portName != "ttyS1" {
+			t.Fatalf("unexpected port name: %s", portName)
+		}
+		if mode.BaudRate != 9600 || mode.DataBits != 7 || mode.Parity != serial.OddParity || mode.StopBits != serial.OnePointFiveStopBits {
+			t.Fatalf("unexpected mode: %+v", *mode)
+		}
+		return &fakeSerialPort{}, nil
+	}
+
+	p := NewPort(io.Discard, "ttyS1", false)
+	if !p.Open() {
+		t.Fatal("expected open success")
+	}
+}
+
+func TestOpenFailureVerbose(t *testing.T) {
+	oldOpen := openSerial
+	t.Cleanup(func() { openSerial = oldOpen })
+
+	BaudRate = 115200
+	DataBits = 8
+	Parity = "none"
+	StopBits = "1"
+
+	openSerial = func(string, *serial.Mode) (serial.Port, error) {
+		return nil, errors.New("open failed")
+	}
+
+	var out bytes.Buffer
+	p := NewPort(&out, "ttyS0", true)
+	if p.Open() {
+		t.Fatal("expected open failure")
+	}
+	if !strings.Contains(out.String(), "open failed") {
+		t.Fatalf("missing open error output: %q", out.String())
+	}
+}
+
+func TestCloseVerbose(t *testing.T) {
+	BaudRate = 115200
+	DataBits = 8
+	Parity = "none"
+	StopBits = "1"
+
+	var out bytes.Buffer
+	p := NewPort(&out, "COM1", true)
+	p.serialHandle = &fakeSerialPort{}
+
+	if err := p.Close(); err != nil {
+		t.Fatalf("close failed: %v", err)
+	}
+	if !strings.Contains(out.String(), "Closing COM port") {
+		t.Fatalf("missing close message: %q", out.String())
+	}
+}
+
 func TestGetSerialPortsDeterministic(t *testing.T) {
 	oldOpen := openSerial
 	oldList := getPortsList
@@ -190,5 +256,26 @@ func TestGetSerialPortsVerboseNoPorts(t *testing.T) {
 	}
 	if !strings.Contains(out.String(), "No serial ports found!") {
 		t.Fatalf("missing verbose message: %q", out.String())
+	}
+}
+
+func TestGetSerialPortsErrorFromList(t *testing.T) {
+	oldList := getPortsList
+	t.Cleanup(func() { getPortsList = oldList })
+
+	getPortsList = func() ([]string, error) {
+		return nil, errors.New("enumeration failed")
+	}
+
+	var out bytes.Buffer
+	ports, err := GetSerialPorts(&out)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if len(ports) != 0 {
+		t.Fatalf("expected no ports, got %d", len(ports))
+	}
+	if !strings.Contains(out.String(), "enumeration failed") {
+		t.Fatalf("missing error output: %q", out.String())
 	}
 }
