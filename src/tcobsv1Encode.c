@@ -1,7 +1,4 @@
-/*! \file tcobsv1Encode.c
-\author Thomas.Hoehenleitner [at] seerose.net
-\details See ./TCOBSv1Specification.md.
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
 
 #include <stdint.h>
 #include <stddef.h>

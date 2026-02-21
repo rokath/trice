@@ -1,6 +1,5 @@
-//! \file trice8.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! ///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: MIT
+
 #include "trice.h"
 
 // lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced

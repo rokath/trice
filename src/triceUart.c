@@ -1,6 +1,5 @@
-//! \file triceUart.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! //////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: MIT
+
 #include "trice.h"
 #include <stdint.h>
 #include <stdlib.h>

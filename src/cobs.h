@@ -1,5 +1,4 @@
-//! \file cobs.h
-//! \author Thomas.Hoehenleitner [at] seerose.net
+// SPDX-License-Identifier: MIT
 
 #ifndef COBS_H_
 #define COBS_H_

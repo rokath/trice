@@ -1,7 +1,4 @@
-/*! \file tcobs.h
-\author thomas.hoehenleitner [at] seerose.net
-\details See ./TCOBSv1Specification.md.
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
 
 #ifndef TCOBS_H_
 #define TCOBS_H_

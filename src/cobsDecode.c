@@ -1,5 +1,4 @@
-//! \file cobsDecode.c copied from https://github.com/rokath/cobs
-//! \author Thomas.Hoehenleitner [at] seerose.net
+// SPDX-License-Identifier: MIT
 
 #include "cobs.h"
 

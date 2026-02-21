@@ -1,6 +1,4 @@
-/*! \file triceDefaultConfig.h
-\author Thomas.Hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
 
 #ifndef TRICE_DEFAULT_CONFIG_H_
 #define TRICE_DEFAULT_CONFIG_H_

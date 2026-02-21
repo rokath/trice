@@ -1,6 +1,4 @@
-/*! \file triceOff.h
-\author thomas.hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
 
 #ifndef TRICE_OFF_H_
 #define TRICE_OFF_H_

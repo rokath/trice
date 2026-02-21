@@ -1,6 +1,4 @@
-/*! \file xtea.c
-\author Thomas.Hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
 
 #include "xtea.h"
 #include "trice.h"

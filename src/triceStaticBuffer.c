@@ -1,6 +1,5 @@
-//! \file triceStaticBuffer.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! //////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: MIT
+
 #include "trice.h"
 
 #if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_OFF == 0

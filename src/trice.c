@@ -1,6 +1,4 @@
-//! \file trice.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! ///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: MIT
 
 #include "trice.h"
 #include "cobs.h"

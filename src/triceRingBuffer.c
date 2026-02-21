@@ -1,6 +1,5 @@
-//! \file triceRingBuffer.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! //////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: MIT
+
 #include "cobs.h"
 #include "tcobs.h"
 #include "trice.h"

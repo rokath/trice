@@ -1,6 +1,4 @@
-/*! \file trice64.h
-\author thomas.hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
 
 #ifndef TRICE64_H_
 #define TRICE64_H_
