@@ -62,3 +62,22 @@ func TestReadWithTooSmallBufferFails(t *testing.T) {
 	assert.Equal(t, 0, n)
 	assert.NotNil(t, err)
 }
+
+func TestReadKeepsLineCounterAcrossReads(t *testing.T) {
+	decoder.DumpLineByteCount = 4
+	in := bytes.NewBuffer([]byte{0x01, 0x02, 0x03, 0x04, 0x05})
+	dec := New(io.Discard, nil, nil, nil, in, decoder.LittleEndian)
+
+	buf := make([]byte, 8)
+	n1, err1 := dec.Read(buf)
+	assert.NoError(t, err1)
+	assert.Equal(t, "01 02 ", string(buf[:n1]))
+
+	n2, err2 := dec.Read(buf)
+	assert.NoError(t, err2)
+	assert.Equal(t, "03 04 \\n", string(buf[:n2]))
+
+	n3, err3 := dec.Read(buf)
+	assert.True(t, err3 == nil || err3 == io.EOF)
+	assert.Equal(t, "05 ", string(buf[:n3]))
+}

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+// Package trexDecoder decodes framed TREX trice byte streams.
 package trexDecoder
 
 import (
@@ -36,17 +37,24 @@ const (
 )
 
 var (
-	Doubled16BitID               bool
+	// Doubled16BitID enables acceptance of 16-bit IDs repeated twice in the header.
+	Doubled16BitID bool
+
+	// AddNewlineToEachTriceMessage appends a newline to each decoded Trice message when needed.
 	AddNewlineToEachTriceMessage bool
-	SingleFraming                bool // SingleFraming demands, that each received package contains not more than a singe Trice message.
-	DisableCycleErrors           bool
+
+	// SingleFraming demands that each received package contains at most one Trice message.
+	SingleFraming bool
+
+	// DisableCycleErrors suppresses cycle counter mismatch diagnostics.
+	DisableCycleErrors bool
 )
 
 func init() {
 	decoder.Register("TREX", New)
 }
 
-// trexDec is the Decoding instance for trex encoded trices.
+// trexDec is the decoder instance for TREX-encoded Trices.
 type trexDec struct {
 	decoder.DecoderData
 	cycle          uint8  // cycle date: c0...bf
@@ -57,8 +65,7 @@ type trexDec struct {
 
 // New provides a TREX decoder instance.
 //
-// l is the trice id list in slice of struct format.
-// in is the usable reader for the input bytes.
+// in is the input byte stream source.
 func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder {
 	// Todo: rewrite using the TCOBS Reader. The provided in io.Reader provides a raw data stream.
 	// https://github.com/rokath/tcobs/blob/master/TCOBSv1/read.go -> use NewDecoder ...
@@ -93,7 +100,7 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 
 // nextData reads with an inner reader a raw byte stream.
 //
-// When less 4 bytes found in the incoming bytes nextPackage nextData without action.
+// When fewer than 4 bytes are available, nextData returns without processing.
 // That means the incoming data stream is exhausted and a next try should be started a bit later.
 // Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
 // Afterwards 0 or at least 4 bytes are inside p.B
@@ -213,6 +220,7 @@ func (p *trexDec) nextPackage() {
 	}
 }
 
+// isZero reports whether all bytes in the slice are zero.
 func isZero(bytes []byte) bool {
 	b := byte(0)
 	for _, s := range bytes {
@@ -221,6 +229,9 @@ func isZero(bytes []byte) bool {
 	return b == 0
 }
 
+// removeZeroHiByte discards one high-order padding zero byte from a candidate frame.
+//
+// The removed byte depends on configured endianness.
 func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 	// The package interpreter does not know the number of padding zeroes, so it needs to discard them one by one.
 	// If they are not zero, this is an error.

@@ -79,3 +79,53 @@ func TestNewForEncodingUnknown(t *testing.T) {
 		t.Fatal("expected error for unknown encoding")
 	}
 }
+
+func TestRegisterPanicsForInvalidInput(t *testing.T) {
+	assertPanic := func(name string, fn func()) {
+		t.Helper()
+		defer func() {
+			if recover() == nil {
+				t.Fatalf("expected panic for %s", name)
+			}
+		}()
+		fn()
+	}
+
+	assertPanic("empty name", func() {
+		Register("  ", func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder {
+			return &fakeDecoder{}
+		})
+	})
+	assertPanic("nil constructor", func() { Register("X", nil) })
+}
+
+func TestNewForEncodingTrimsAndNormalizesCase(t *testing.T) {
+	const enc = "UNIT_TEST_DECODER_TRIM"
+	Register(enc, func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder {
+		return &fakeDecoder{
+			DecoderData: NewDecoderData(Config{
+				Out:      out,
+				LUT:      lut,
+				LUTMutex: m,
+				LI:       li,
+				In:       in,
+				Endian:   endian,
+			}),
+		}
+	})
+
+	in := strings.NewReader("ok")
+	var out bytes.Buffer
+	dec, err := NewForEncoding("  unit_test_decoder_trim  ", &out, nil, nil, nil, in, LittleEndian)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	buf := make([]byte, 8)
+	n, rerr := dec.Read(buf)
+	if rerr != nil && rerr != io.EOF {
+		t.Fatalf("unexpected read error: %v", rerr)
+	}
+	if string(buf[:n]) != "ok" {
+		t.Fatalf("unexpected decoder output: %q", string(buf[:n]))
+	}
+}

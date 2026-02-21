@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// Package dumpDecoder provides a decoder dumping encoded trice stream.
+// Package dumpDecoder provides a decoder that hex-dumps an encoded trice stream.
 package dumpDecoder
 
 import (
@@ -17,13 +17,13 @@ func init() {
 	decoder.Register("DUMP", New)
 }
 
-// dumpDec is the Decoding instance for dumpDec encoded trices.
+// dumpDec is the decoder instance for dump-formatted output.
 type dumpDec struct {
 	decoder.DecoderData
 	dumpCnt int // dumped bytes per line
 }
 
-// New provides a hex dump option for incoming bytes.
+// New creates a decoder that converts incoming bytes to a hexadecimal dump.
 func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder {
 	p := &dumpDec{
 		DecoderData: decoder.NewDecoderData(decoder.Config{
@@ -39,6 +39,10 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	return p
 }
 
+// Read converts raw input bytes to hex dump text and writes it into b.
+//
+// A minimum output buffer size of 4 bytes is required, because Read uses the
+// last quarter of b as a temporary read buffer.
 func (p *dumpDec) Read(b []byte) (n int, err error) {
 	if p.In == nil {
 		return 0, io.EOF

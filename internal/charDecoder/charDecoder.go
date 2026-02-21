@@ -18,7 +18,7 @@ func init() {
 	decoder.Register("CHAR", New)
 }
 
-// char is the decoding instance for plain character streams.
+// char is the decoder instance for plain character streams.
 type char struct {
 	decoder.DecoderData
 }
