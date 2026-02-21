@@ -283,7 +283,7 @@ func scVersion(w io.Writer) error {
 			fmt.Fprintf(w, "branch=%s%s, ", Branch, dirtyText)
 		}
 		if Commit != "" {
-			fmt.Fprintf(w, "commit=%s, ", Date)
+			fmt.Fprintf(w, "commit=%s, ", Commit)
 		}
 		fmt.Fprintf(w, "built at %s\n", Date)
 	}

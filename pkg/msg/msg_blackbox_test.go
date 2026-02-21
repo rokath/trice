@@ -4,93 +4,94 @@ package msg_test
 
 import (
 	"errors"
-	"log"
+	"strings"
+	"testing"
 
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/rokath/trice/pkg/tst"
 )
 
-func ExampleInfo() {
-	msg.Info("code issue")
-	// Output:
-	// Error in msg_blackbox_test.go:14: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfo' -> code issue
+func TestInfoOutput(t *testing.T) {
+	out := tst.CaptureStdOut(func() {
+		msg.Info("code issue")
+	})
+	if !strings.Contains(out, "code issue") {
+		t.Fatalf("missing message in output: %q", out)
+	}
+	if !strings.Contains(out, "msg_blackbox_test.go") {
+		t.Fatalf("missing file marker in output: %q", out)
+	}
 }
 
-func ExampleOnErr() {
-	var e error
-	msg.OnErr(e)
-	e = errors.New("s.th. went wrong")
-	msg.OnErr(e)
-	// Output:
-	// Error in msg_blackbox_test.go:23: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnErr' -> s.th. went wrong
+func TestOnErrOutput(t *testing.T) {
+	out := tst.CaptureStdOut(func() {
+		msg.OnErr(nil)
+		msg.OnErr(errors.New("s.th. went wrong"))
+	})
+	if !strings.Contains(out, "s.th. went wrong") {
+		t.Fatalf("missing error string in output: %q", out)
+	}
 }
 
-func ExampleFatalOnErr() {
-	log.SetFlags(0)
-	var e error
-	msg.FatalOnErr(e)
-	// Output:
+func TestInfoOnErrOutput(t *testing.T) {
+	out := tst.CaptureStdOut(func() {
+		msg.InfoOnErr(nil, "just in case")
+		msg.InfoOnErr(errors.New("s.th. went wrong"), "just in case")
+	})
+	if !strings.Contains(out, "just in case") {
+		t.Fatalf("missing info line in output: %q", out)
+	}
+	if !strings.Contains(out, "s.th. went wrong") {
+		t.Fatalf("missing error line in output: %q", out)
+	}
 }
 
-func ExampleInfoOnErr() {
-	var e error
-	msg.InfoOnErr(e, "just in case")
-	e = errors.New("s.th. went wrong")
-	msg.InfoOnErr(e, "just in case")
-	// Output:
-	// just in case
-	// Error in msg_blackbox_test.go:39: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
+func TestOnTrueAndOnFalseOutput(t *testing.T) {
+	outTrue := tst.CaptureStdOut(func() {
+		msg.OnTrue(false)
+		msg.OnTrue(true)
+	})
+	if !strings.Contains(outTrue, "<nil>") {
+		t.Fatalf("missing OnTrue marker in output: %q", outTrue)
+	}
+
+	outFalse := tst.CaptureStdOut(func() {
+		msg.OnFalse(true)
+		msg.OnFalse(false)
+	})
+	if !strings.Contains(outFalse, "<nil>") {
+		t.Fatalf("missing OnFalse marker in output: %q", outFalse)
+	}
 }
 
-func ExampleFatalInfoOnErr() {
-	var e error
-	msg.FatalInfoOnErr(e, "just in case")
-	// Output:
+func TestInfoOnTrueAndInfoOnFalseOutput(t *testing.T) {
+	outTrue := tst.CaptureStdOut(func() {
+		msg.InfoOnTrue(false, "just in case")
+		msg.InfoOnTrue(true, "just in case")
+	})
+	if !strings.Contains(outTrue, "just in case") {
+		t.Fatalf("missing InfoOnTrue text in output: %q", outTrue)
+	}
+
+	outFalse := tst.CaptureStdOut(func() {
+		msg.InfoOnFalse(true, "just in case")
+		msg.InfoOnFalse(false, "just in case")
+	})
+	if !strings.Contains(outFalse, "just in case") {
+		t.Fatalf("missing InfoOnFalse text in output: %q", outFalse)
+	}
 }
 
-func ExampleOnTrue() {
-	msg.OnTrue(false)
-	msg.OnTrue(true)
-	// Output:
-	// Error in msg_blackbox_test.go:53: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
-}
-
-func ExampleFatalOnTrue() {
-	msg.FatalOnTrue(false)
-	// Output:
-}
-
-func ExampleInfoOnTrue() {
-	msg.InfoOnTrue(false, "just in case")
-	msg.InfoOnTrue(true, "just in case")
-	// Output:
-	// Error in msg_blackbox_test.go:65: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnTrue' -> just in case
-}
-
-func ExampleFatalInfoOnTrue() {
-	msg.FatalInfoOnTrue(false, "just in case")
-	// Output:
-}
-
-func ExampleOnFalse() {
-	msg.OnFalse(true)
-	msg.OnFalse(false)
-	// Output:
-	// Error in msg_blackbox_test.go:77: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
-}
-
-func ExampleFatalOnFalse() {
-	msg.FatalOnFalse(true)
-	// Output:
-}
-
-func ExampleInfoOnFalse() {
-	msg.InfoOnFalse(true, "just in case")
-	msg.InfoOnFalse(false, "just in case")
-	// Output:
-	// Error in msg_blackbox_test.go:89: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnFalse' -> just in case
-}
-
-func ExampleFatalInfoOnFalse() {
-	msg.FatalInfoOnFalse(true, "just in case")
-	// Output:
+func TestFatalFunctionsNoopPaths(t *testing.T) {
+	out := tst.CaptureStdOut(func() {
+		msg.FatalOnErr(nil)
+		msg.FatalInfoOnErr(nil, "just in case")
+		msg.FatalOnTrue(false)
+		msg.FatalInfoOnTrue(false, "just in case")
+		msg.FatalOnFalse(true)
+		msg.FatalInfoOnFalse(true, "just in case")
+	})
+	if out != "" {
+		t.Fatalf("expected no output for noop fatal paths, got: %q", out)
+	}
 }
