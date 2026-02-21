@@ -4,8 +4,11 @@ package args
 
 import (
 	"bytes"
+	"io"
+	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
@@ -113,4 +116,75 @@ func TestIsLogFlagPassed(t *testing.T) {
 	assert.True(t, isLogFlagPassed("ts32"))
 	assert.True(t, isLogFlagPassed("encoding"))
 	assert.False(t, isLogFlagPassed("ts16"))
+}
+
+func TestInfoHelpersWriteText(t *testing.T) {
+	FlagsInit()
+	tt := []struct {
+		name   string
+		fn     func(io.Writer) error
+		marker string
+	}{
+		{"versionInfo", versionInfo, "sub-command 'ver|version'"},
+		{"helpInfo", helpInfo, "sub-command 'h|help'"},
+		{"logInfo", logInfo, "sub-command 'l|log'"},
+		{"scanInfo", scanInfo, "sub-command 's|scan'"},
+		{"displayServerInfo", displayServerInfo, "sub-command 'ds|displayServer'"},
+		{"shutdownInfo", shutdownInfo, "sub-command 'sd|shutdown'"},
+		{"insertIDsInfo", insertIDsInfo, "sub-command 'i|insert'"},
+		{"cleanIDsInfo", cleanIDsInfo, "sub-command 'c|clean'"},
+		{"addInfo", addInfo, "sub-command 'a|add'"},
+		{"generateInfo", generateInfo, "sub-command 'g|gen|generate'"},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			var out bytes.Buffer
+			err := tc.fn(&out)
+			assert.Nil(t, err)
+			assert.Contains(t, out.String(), tc.marker)
+		})
+	}
+}
+
+func TestScHelpWithSelectedSections(t *testing.T) {
+	FlagsInit()
+	allHelp = false
+	displayServerHelp = true
+	helpHelp = true
+	defer func() {
+		allHelp = false
+		displayServerHelp = false
+		helpHelp = false
+	}()
+
+	var out bytes.Buffer
+	err := scHelp(&out)
+	assert.Nil(t, err)
+	s := out.String()
+	assert.Contains(t, s, "syntax: 'trice sub-command' [params]")
+	assert.Contains(t, s, "sub-command 'ds|displayServer'")
+	assert.Contains(t, s, "sub-command 'h|help'")
+}
+
+func TestHandlerVersionSubcommands(t *testing.T) {
+	old := snapshotVersionState()
+	defer restoreVersionState(old)
+
+	FlagsInit()
+	Version = "1.0.0"
+	Commit = "abc1234"
+	Date = "2026-02-21T12:00:00Z"
+	Branch = ""
+	GitState = "clean"
+	GitStatus = ""
+	BuiltBy = ""
+	Verbose = false
+
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	for _, cmd := range []string{"ver", "version"} {
+		var out bytes.Buffer
+		err := Handler(&out, fSys, []string{"trice", cmd})
+		assert.Nil(t, err)
+		assert.True(t, strings.Contains(out.String(), "version=1.0.0"))
+	}
 }
