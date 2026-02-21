@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// Package com reads from COM port.
+// Package com provides serial COM-port helpers for opening, reading, and writing.
 package com
 
 import (
@@ -38,7 +38,7 @@ var (
 	getPortsList = serial.GetPortsList
 )
 
-// COMport is the comport interface type to use different COMports.
+// COMport abstracts serial COM-port operations.
 type COMport interface {
 	Open() bool
 	Read(buf []byte) (int, error)
@@ -46,7 +46,7 @@ type COMport interface {
 	Close() error
 }
 
-// port is a serial device trice receiver
+// port is a serial-device receiver for Trice data.
 type port struct {
 	verbose      bool
 	port         string
