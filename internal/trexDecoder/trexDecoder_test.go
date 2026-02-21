@@ -189,6 +189,33 @@ func TestNextPackageTCOBSPaths(t *testing.T) {
 	})
 }
 
+func TestNextPackageWithPasswordShowsDecryptDebugStage(t *testing.T) {
+	oldPassword := cipher.Password
+	oldDebug := decoder.DebugOut
+	t.Cleanup(func() {
+		cipher.Password = oldPassword
+		decoder.DebugOut = oldDebug
+	})
+
+	cipher.Password = "pw"
+	decoder.DebugOut = true
+
+	var out bytes.Buffer
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Out:         &out,
+			NeedBuffers: true,
+		}),
+		packageFraming: packageFramingCOBS,
+	}
+	// Empty COBS payload.
+	p.IBuf = []byte{0x01, 0x00}
+	p.nextPackage()
+
+	assert.Contains(t, out.String(), "->TRICE:")
+	assert.Contains(t, out.String(), "-> DEC:")
+}
+
 func TestTriceStringAndBufferConverters(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
