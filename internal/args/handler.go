@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-// Package args implements the commandline interface and calls the appropriate commands.
 package args
 
 import (
@@ -27,8 +26,10 @@ import (
 	"github.com/spf13/afero"
 )
 
-// Handler is called in main, evaluates args and calls the appropriate functions.
-// It returns for program exit.
+// Handler parses args and executes the selected sub-command.
+//
+// args is expected in os.Args form where args[0] is the executable name and
+// args[1] is the sub-command.
 func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	// Trim leading and trailing whitespace
 	//for i := range args {

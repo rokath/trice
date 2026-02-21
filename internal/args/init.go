@@ -39,6 +39,7 @@ func init() {
 	FlagsInit()
 }
 
+// FlagsInit initializes all sub-command flag sets.
 func FlagsInit() {
 	helpInit()
 	logInit()

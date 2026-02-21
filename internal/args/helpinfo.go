@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-// Package args implements the commandline interface and calls the appropriate commands.
 package args
 
 import (
@@ -10,7 +9,7 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-// scHelp is sub-command help. It prints usage to stdout.
+// scHelp handles the help sub-command and prints usage information.
 func scHelp(w io.Writer) error {
 	if Verbose {
 		fmt.Fprintf(w, "\n*** https://github.com/rokath/trice ***\n\n")
