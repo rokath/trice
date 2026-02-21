@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file trice64McuReverse.h
+//! \brief trice 64 Mcu Reverse declarations and macros.
+
+
 #ifndef TRICE64_MCU_REVERSE_H_
 #define TRICE64_MCU_REVERSE_H_
 

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 
+//! \file cobsDecode.c
+//! \brief cobs Decode implementation.
+
+
 #include "cobs.h"
 
-//! COBSDecode decodes data from in buffer.
-//! @param in Pointer to encoded input bytes.
-//! @param length Number of bytes to decode.
-//! @param out Pointer to decoded output data.
-//! @return Number of bytes successfully decoded.
-//! @note Stops decoding if delimiter byte is found. Code taken from Wikipedia and slightly modified.
+// Public API is documented in cobs.h.
+// Implementation adapted from the Wikipedia COBS reference.
 size_t COBSDecode(void* __restrict out, const void* __restrict in, size_t length) {
 	uint8_t* data = out;
 	const uint8_t* buffer = in;

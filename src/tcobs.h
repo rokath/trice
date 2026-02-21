@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file tcobs.h
+//! \brief tcobs declarations and macros.
+
+
 #ifndef TCOBS_H_
 #define TCOBS_H_
 
@@ -9,28 +13,41 @@ extern "C" {
 
 #include <stddef.h>
 
-//! TCOBSEncode stuffs "length" bytes of data beginning at the location pointed to by "input" and writes the output to the
-//! location pointed to by "output". Returns the number of bytes written to "output" or a negative value in error case.
-//! A 0-delimiter is NOT added as last byte allowing concatenating TCOBS encoded buffers to one bigger buffer before the
-//! 00-byte delimiting. Buffer overlapping is allowed, when input lays inside output with a sufficient offset. The offset
-//! should be >= next large whole number of length/31. because in the worst case for each 31 bytes an additional sigil byte
-//! is inserted. The provided output buffer size should be >= length + next large whole number of length/31. This is a
-//! responsibility of the caller and not checked for efficiency.
-//! If your compiler uses a pre-C99 C dialect and does not know The "__restrict" keyword, you can define it in the project settings.
+//! \brief Encode a raw byte stream with TCOBSv1.
+//! \param output Destination buffer for encoded data.
+//! \param input Source buffer with raw data to encode.
+//! \param length Number of bytes in \p input.
+//! \return Number of bytes written to \p output, or a negative value on error.
+//! \details
+//! A zero delimiter byte is not appended, so multiple encoded payloads can be concatenated
+//! before adding a final `0x00` delimiter.
+//! Buffer overlap is allowed when input lies inside output with sufficient positive offset.
+//! In worst case, one sigil byte is inserted per 31 input bytes. Therefore provide at least
+//! `length + ceil(length/31)` bytes in \p output.
+//! \note If your compiler uses a pre-C99 dialect and does not support "__restrict",
+//! define it in project settings.
 int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t length);
 
-//! TCOBSDecode decodes data ending at the location pointed to by "input" backwards (starting with the last byte)
-//! and writes the output also backwards to the location pointed to by "output" with a maximum size of max.
-//! Returns the number of bytes written to "output". Only max bytes are written. If the returned value is
-//! > max, this is an error "output buffer too small". In case of an error, a negative value is returned.
-//! THIS IS **IMPORTANT**: The decoded data start at output+max-returned, because output is filled from the end.
-//! Buffer overlapping is partially possible if output limit is _behind_ input limit with sufficient distance,
-//! but data can get much longer.
-//! If your compiler uses a pre-C99 C dialect and does not know The "__restrict" keyword, you can define it in the project settings.
+//! \brief Decode a TCOBSv1 payload.
+//! \param output Destination buffer written backwards from `output + max`.
+//! \param max Capacity of \p output in bytes.
+//! \param input Source buffer with encoded payload (without delimiter).
+//! \param length Number of bytes in \p input.
+//! \return Number of decoded bytes, or a negative value on error.
+//! \details
+//! Decoding runs backwards from the end of \p input and writes backwards into \p output.
+//! The decoded payload starts at `output + max - return_value`.
+//! If the (positive) return value is larger than \p max, the output buffer was too small.
+//! Partial overlap can work only when output is sufficiently behind input, because decoded
+//! data can be longer than encoded data.
+//! \note If your compiler uses a pre-C99 dialect and does not support "__restrict",
+//! define it in project settings.
 int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict input, size_t length);
 
-#define OUT_BUFFER_TOO_SMALL (-1000000) //!< OUT_BUFFER_TOO_SMALL is TCOBSDecode return error code.
-#define INPUT_DATA_CORRUPTED (-2000000) //!< INPUT_DATA_CORRUPTED is TCOBSDecode return error code.
+//! \brief Error code from TCOBSDecode when output capacity is insufficient.
+#define OUT_BUFFER_TOO_SMALL (-1000000)
+//! \brief Error code from TCOBSDecode when encoded input data is invalid.
+#define INPUT_DATA_CORRUPTED (-2000000)
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file triceDoubleBuffer.c
+//! \brief trice Double Buffer implementation.
+
+
 #include "cobs.h"
 #include "tcobs.h"
 #include "trice.h"

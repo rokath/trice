@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file trice.h
+//! \brief trice declarations and macros.
+
+
 #ifndef TRICE_H_
 #define TRICE_H_
 

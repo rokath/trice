@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file trice.c
+//! \brief trice implementation.
+
+
 #include "trice.h"
 #include "cobs.h"
 #include "tcobs.h"
@@ -563,6 +567,9 @@ static unsigned directXEncode32(uint32_t* enc, const void* buf, unsigned count) 
 
 #endif // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) ||  (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
+//! \brief Encode and write a 32-bit word stream to the active output device.
+//! \param buf Source word buffer.
+//! \param count Number of 32-bit words in \p buf.
 static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 
 #if TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1
@@ -642,6 +649,9 @@ static size_t directXEncode8(void* enc, const void* buf, unsigned len) {
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
+//! \brief Send already encoded bytes to RTT channel 0.
+//! \param enc Pointer to encoded bytes.
+//! \param encLen Byte count to write.
 static void TriceWriteDeviceRtt0(const uint8_t* enc, size_t encLen) {
 
 #if TRICE_CGO == 1 // automated tests
@@ -668,6 +678,9 @@ static void TriceWriteDeviceRtt0(const uint8_t* enc, size_t encLen) {
 
 #endif // #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
+//! \brief Send encoded bytes via the configured direct write backend.
+//! \param enc Pointer to encoded bytes.
+//! \param encLen Byte count to write.
 static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 #if TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1
 	TriceWriteDeviceRtt0(enc, encLen);

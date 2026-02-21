@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file tcobsv1Encode.c
+//! \brief tcobsv 1 Encode implementation.
+
+
 #include <stdint.h>
 #include <stddef.h>
 #include "tcobs.h"
@@ -67,13 +71,8 @@
 		reptCount = 0;                                     \
 	}
 
-//! TCOBSEncode encodes input buffer data into output. The output buffer and input buffer are allowed to overlap.
-//! It is user responsibility to guarantee that output-input >= length/31 for cases where compression is inpossible.
-//! To put it easy: With 16 bytes distance input legths up to 496 are covered.
-//! \param length input buffer length
-//! \param input source buffer
-//! \param output destination
-//! \retval length of encoded data in output
+// Public API is documented in tcobs.h.
+// The overlap assumptions are implemented according to the encoder state machine below.
 int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t length) {
 	uint8_t* o = output; // write pointer
 	uint8_t* out = output;

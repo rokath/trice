@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: MIT
 
+//! \file triceUart.c
+//! \brief trice Uart implementation.
+
+
 #include "trice.h"
 #include <stdint.h>
 #include <stdlib.h>
 
 #if TRICE_DEFERRED_UARTA == 1 && TRICE_OFF == 0
 
-#include "triceUart.h" // User has to provide this hardeware specific file, see examples folders.
+#include "triceUart.h" // User has to provide this hardware-specific file, see examples folders.
 
 //! triceOutBufferUartA points into the double or ring buffer to the next (encoded) trice package.
 static const uint8_t* triceOutBufferUartA;
@@ -85,12 +89,12 @@ void triceServeTransmitUartA(void) {
 
 #if TRICE_DEFERRED_UARTB == 1
 
-#include "triceUart.h" // User has to provide this hardeware specific file, see examples folders.
+#include "triceUart.h" // User has to provide this hardware-specific file, see examples folders.
 
 //! triceOutBufferUartB holds the uart out buffer address.
 static const uint8_t* triceOutBufferUartB;
 
-//! triceOutCountUartB holds th uarts out buffer size.
+//! triceOutCountUartB holds the UARTB output buffer size.
 static size_t triceOutCountUartB = 0;
 
 //! triceOutIndexUartB is the next to transmit byte index.
@@ -131,7 +135,7 @@ void triceServeTransmitUartB(void) {
 	}
 }
 
-// triceTriggerTransmitUartB must be called cyclically to initialize write out.
+//! \brief Trigger UARTB transmission when data is pending and the TX register is empty.
 void triceTriggerTransmitUartB(void) {
 	if (TriceOutDepthUartB() && triceTxDataRegisterEmptyUartB()) {
 		triceEnableTxEmptyInterruptUartB(); // next bytes

@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file triceOff.h
+//! \brief trice Off declarations and macros.
+
+
 #ifndef TRICE_OFF_H_
 #define TRICE_OFF_H_
 

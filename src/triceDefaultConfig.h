@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file triceDefaultConfig.h
+//! \brief trice Default Config declarations and macros.
+
+
 #ifndef TRICE_DEFAULT_CONFIG_H_
 #define TRICE_DEFAULT_CONFIG_H_
 

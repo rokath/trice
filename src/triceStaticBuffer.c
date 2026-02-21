@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file triceStaticBuffer.c
+//! \brief trice Static Buffer implementation.
+
+
 #include "trice.h"
 
 #if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_OFF == 0
@@ -10,6 +14,7 @@ uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE >> 2];
 //! triceSingleBufferStartWritePosition points to trice data start before a single trice message is generated.
 uint32_t* triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET >> 2];
 
+//! \brief No-op transfer function for static-buffer mode.
 void TriceTransfer(void) {}
 
 #endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_OFF == 0

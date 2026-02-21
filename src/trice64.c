@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file trice64.c
+//! \brief trice 64 implementation.
+
+
 #include "trice.h"
 
 // lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
@@ -323,6 +327,7 @@
 #endif
 #endif
 
+//! \brief Wrapper family forwarding lowercase trice64fn_* calls to trice64m_* macros.
 #if ENABLE_trice64fn_0
 void trice64fn_0(uint16_t tid) {
 	trice64m_0(tid);
@@ -401,6 +406,7 @@ void trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 }
 #endif
 
+//! \brief Wrapper family forwarding camel-case Trice64fn_* calls to Trice64m_* macros.
 #if ENABLE_Trice64fn_0
 void Trice64fn_0(uint16_t tid) {
 	Trice64m_0(tid);
@@ -479,6 +485,7 @@ void Trice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 }
 #endif
 
+//! \brief Wrapper family forwarding upper-case TRice64fn_* calls to TRice64m_* macros.
 #if ENABLE_TRice64fn_0
 void TRice64fn_0(uint16_t tid) {
 	TRice64m_0(tid);

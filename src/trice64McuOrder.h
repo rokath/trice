@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+//! \file trice64McuOrder.h
+//! \brief trice 64 Mcu Order declarations and macros.
+
+
 #ifndef TRICE64_MCU_ORDER_H_
 #define TRICE64_MCU_ORDER_H_
 
