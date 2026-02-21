@@ -216,6 +216,36 @@ func TestNextPackageWithPasswordShowsDecryptDebugStage(t *testing.T) {
 	assert.Contains(t, out.String(), "-> DEC:")
 }
 
+func TestNextPackageDebugOutWithoutPassword(t *testing.T) {
+	oldPassword := cipher.Password
+	oldDebug := decoder.DebugOut
+	oldFraming := decoder.PackageFraming
+	t.Cleanup(func() {
+		cipher.Password = oldPassword
+		decoder.DebugOut = oldDebug
+		decoder.PackageFraming = oldFraming
+	})
+
+	cipher.Password = ""
+	decoder.DebugOut = true
+	decoder.PackageFraming = "cobs"
+
+	var out bytes.Buffer
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Out:         &out,
+			NeedBuffers: true,
+		}),
+		packageFraming: packageFramingCOBS,
+	}
+	p.IBuf = []byte{0x01, 0x00}
+	p.nextPackage()
+
+	assert.Contains(t, out.String(), "cobs:")
+	assert.Contains(t, out.String(), "->TRICE:")
+	assert.NotContains(t, out.String(), "-> DEC:")
+}
+
 func TestTriceStringAndBufferConverters(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
@@ -256,6 +286,34 @@ func TestTriceStringAndBufferConverters(t *testing.T) {
 	p.ParamSpace = 1
 	n = p.trice8B(b, 0, 0)
 	assert.Equal(t, "7", string(b[:n]))
+}
+
+func TestTriceConvertersDebugOut(t *testing.T) {
+	oldDebug := decoder.DebugOut
+	t.Cleanup(func() { decoder.DebugOut = oldDebug })
+	decoder.DebugOut = true
+
+	var dbg bytes.Buffer
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Out: &dbg,
+		}),
+	}
+	b := make([]byte, 256)
+
+	p.Trice.Strg = "C:%d\\n"
+	p.B = []byte{1, 2}
+	p.ParamSpace = 2
+	n := p.trice8B(b, 0, 0)
+	assert.Equal(t, "C:12\n", string(b[:n]))
+	assert.NotEqual(t, "", dbg.String())
+
+	p.Trice.Strg = "F"
+	p.B = []byte{0x01}
+	p.ParamSpace = 1
+	n = p.trice8F(b, 0, 0)
+	assert.Equal(t, "F(01)\n", string(b[:n]))
+	assert.NotEqual(t, "", dbg.String())
 }
 
 func TestTriceFunctionStyleConvertersAndTrice0(t *testing.T) {
