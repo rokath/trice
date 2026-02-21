@@ -248,7 +248,7 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 	case decoder.BigEndian:
 		// Big endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> still typeX0 -> AA AA C0 00 -> ok next package
 		if s[0] != 0 {
-			fmt.Println("unexpected case in line 273", s)
+			fmt.Println("unexpected case in line 273", string(s))
 		}
 		r = s[1:]
 	case decoder.LittleEndian:
@@ -260,7 +260,7 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 		}
 		r = append(s[:1], s[2:]...)
 	default:
-		fmt.Println("unexpected case 927346193377", s)
+		fmt.Println("unexpected case 927346193377", string(s))
 	}
 	return
 }
