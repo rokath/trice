@@ -50,6 +50,15 @@ var (
 	DisableCycleErrors bool
 )
 
+var specialCaseTriceTypes = map[string]struct{}{
+	"TRICES": {}, "TRICEN": {}, "TRICEB": {}, "TRICEF": {},
+	"TRICE8B": {}, "TRICE16B": {}, "TRICE32B": {}, "TRICE64B": {},
+	"TRICE8F": {}, "TRICE16F": {}, "TRICE32F": {}, "TRICE64F": {},
+	"TRICE_S": {}, "TRICE_N": {}, "TRICE_B": {}, "TRICE_F": {},
+	"TRICE8_B": {}, "TRICE16_B": {}, "TRICE32_B": {}, "TRICE64_B": {},
+	"TRICE8_F": {}, "TRICE16_F": {}, "TRICE32_F": {}, "TRICE64_F": {},
+}
+
 func init() {
 	decoder.Register("TREX", New)
 }
@@ -586,48 +595,14 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 				return
 			}
 			if p.ParamSpace != (s.bitWidth>>3)*s.paramCount {
-				specialCases := []string{
-					"TRICES", "TRICEN", "TRICEB", "TRICEF",
-					"TRICE8B", "TRICE16B", "TRICE32B", "TRICE64B",
-					"TRICE8F", "TRICE16F", "TRICE32F", "TRICE64F",
-
-					"TRICE_S", "TRICE_N", "TRICE_B", "TRICE_F",
-					"TRICE8_B", "TRICE16_B", "TRICE32_B", "TRICE64_B",
-					"TRICE8_F", "TRICE16_F", "TRICE32_F", "TRICE64_F",
+				if !isSpecialCaseTriceType(s.triceType) {
+					n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package:"))
+					n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
+					n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+					return
 				}
-				tt := strings.ToUpper(s.triceType)
-				for _, casus := range specialCases {
-					if tt == casus {
-						goto ignoreSpecialCase
-					}
-				}
-				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package:"))
-				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
-				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-				return
 			}
-		ignoreSpecialCase:
-			ss := strings.Split(p.pFmt, `\n`)
-			if len(ss) >= 3 { // at least one "\n" before "\n" line end
-				if decoder.NewlineIndent == -1 { // auto sense
-					decoder.NewlineIndent = 12 + 1 // todo: strings.SplitN & len(decoder.TargetStamp0) // 12
-					if !(id.LIFnJSON == "off" || id.LIFnJSON == "none") {
-						decoder.NewlineIndent += 28 /* todo: length(decoder.LocationInformationFormatString), see https://stackoverflow.com/questions/32987215/find-numbers-in-string-using-golang-regexp*/
-						// todo: split channel info with format specifiers too, example: ["msg:%d\nsignal:%x %u\n", p0, p1, p2] -> ["msg:%d\n", p0] && ["signal:%x %u\n", p1, p2]
-					}
-					if decoder.ShowID != "" {
-						decoder.NewlineIndent += 5 // todo: automatic
-					}
-				}
-				skip := `\n`
-				spaces := decoder.NewlineIndent
-				for spaces > 0 {
-					skip += " "
-					spaces--
-				}
-				p.pFmt = strings.Join(ss[:], skip)
-				p.pFmt = strings.TrimRight(p.pFmt, " ")
-			}
+			p.pFmt = applyMultilineIndent(p.pFmt)
 
 			n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
 			return
@@ -636,6 +611,41 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data:"))
 	n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:p.ParamSpace])))
 	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+	return
+}
+
+func isSpecialCaseTriceType(triceType string) bool {
+	_, ok := specialCaseTriceTypes[strings.ToUpper(triceType)]
+	return ok
+}
+
+func applyMultilineIndent(format string) string {
+	segments := strings.Split(format, `\n`)
+	if len(segments) < 3 {
+		return format
+	}
+	if decoder.NewlineIndent == -1 {
+		decoder.NewlineIndent = 12 + 1
+		if !(id.LIFnJSON == "off" || id.LIFnJSON == "none") {
+			decoder.NewlineIndent += 28
+		}
+		if decoder.ShowID != "" {
+			decoder.NewlineIndent += 5
+		}
+	}
+	skip := `\n` + strings.Repeat(" ", decoder.NewlineIndent)
+	return strings.TrimRight(strings.Join(segments, skip), " ")
+}
+
+func splitChannelFormat(format string) (prefix string, itemFormat string, hadTrailingNewline bool) {
+	before, after, found := strings.Cut(format, ":")
+	if found {
+		prefix = before + ":"
+	} else {
+		after = format
+	}
+	itemFormat = strings.TrimSuffix(after, `\n`)
+	hadTrailingNewline = len(itemFormat) < len(after)
 	return
 }
 
@@ -733,20 +743,16 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-	before, after, found := strings.Cut(p.Trice.Strg, ":")
-	if found {
-		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
-	} else {
-		after = p.Trice.Strg
+	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
+	if prefix != "" {
+		n += copy(b[n:], prefix)
 	}
-
-	noNewline := strings.TrimSuffix(after, `\n`)
 
 	for i := 0; i < len(s); i++ {
-		n += copy(b[n:], fmt.Sprintf(noNewline, s[i]))
+		n += copy(b[n:], fmt.Sprintf(itemFormat, s[i]))
 	}
-	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
-		n += copy(b[n:], fmt.Sprintln()) // so add it finally
+	if addLineBreak {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -757,21 +763,16 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-
-	before, after, found := strings.Cut(p.Trice.Strg, ":")
-	if found {
-		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
-	} else {
-		after = p.Trice.Strg
+	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
+	if prefix != "" {
+		n += copy(b[n:], prefix)
 	}
-
-	noNewline := strings.TrimSuffix(after, `\n`)
 
 	for i := 0; i < len(s); i += 2 {
-		n += copy(b[n:], fmt.Sprintf(noNewline, binary.LittleEndian.Uint16(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(itemFormat, binary.LittleEndian.Uint16(s[i:])))
 	}
-	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
-		n += copy(b[n:], fmt.Sprintln()) // so add it finally
+	if addLineBreak {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 
 	return
@@ -783,21 +784,16 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-
-	before, after, found := strings.Cut(p.Trice.Strg, ":")
-	if found {
-		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
-	} else {
-		after = p.Trice.Strg
+	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
+	if prefix != "" {
+		n += copy(b[n:], prefix)
 	}
-
-	noNewline := strings.TrimSuffix(after, `\n`)
 
 	for i := 0; i < len(s); i += 4 {
-		n += copy(b[n:], fmt.Sprintf(noNewline, binary.LittleEndian.Uint32(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(itemFormat, binary.LittleEndian.Uint32(s[i:])))
 	}
-	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
-		n += copy(b[n:], fmt.Sprintln()) // so add it finally
+	if addLineBreak {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -808,21 +804,16 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, p.B)
 	}
 	s := p.B[:p.ParamSpace]
-
-	before, after, found := strings.Cut(p.Trice.Strg, ":")
-	if found {
-		n += copy(b[n:], fmt.Sprint(before+":")) // print channel
-	} else {
-		after = p.Trice.Strg
+	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
+	if prefix != "" {
+		n += copy(b[n:], prefix)
 	}
-
-	noNewline := strings.TrimSuffix(after, `\n`)
 
 	for i := 0; i < len(s); i += 8 {
-		n += copy(b[n:], fmt.Sprintf(noNewline, binary.LittleEndian.Uint64(s[i:])))
+		n += copy(b[n:], fmt.Sprintf(itemFormat, binary.LittleEndian.Uint64(s[i:])))
 	}
-	if len(noNewline) < len(after) { // strings.TrimSuffix removed a newline
-		n += copy(b[n:], fmt.Sprintln()) // so add it finally
+	if addLineBreak {
+		n += copy(b[n:], fmt.Sprintln())
 	}
 	return
 }

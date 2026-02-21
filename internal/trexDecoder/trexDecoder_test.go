@@ -276,6 +276,43 @@ func TestPrintTestTableLine(t *testing.T) {
 	assert.Contains(t, string(out), "  2,")
 }
 
+func TestSpecialCaseHelpers(t *testing.T) {
+	assert.True(t, isSpecialCaseTriceType("trice8_b"))
+	assert.False(t, isSpecialCaseTriceType("trice16_2"))
+
+	prefix, itemFmt, addNL := splitChannelFormat("CH:%d\\n")
+	assert.Equal(t, "CH:", prefix)
+	assert.Equal(t, "%d", itemFmt)
+	assert.True(t, addNL)
+
+	prefix, itemFmt, addNL = splitChannelFormat("%x")
+	assert.Equal(t, "", prefix)
+	assert.Equal(t, "%x", itemFmt)
+	assert.False(t, addNL)
+}
+
+func TestApplyMultilineIndent(t *testing.T) {
+	oldIndent := decoder.NewlineIndent
+	oldShowID := decoder.ShowID
+	oldLIFnJSON := id.LIFnJSON
+	t.Cleanup(func() {
+		decoder.NewlineIndent = oldIndent
+		decoder.ShowID = oldShowID
+		id.LIFnJSON = oldLIFnJSON
+	})
+
+	decoder.NewlineIndent = -1
+	decoder.ShowID = ""
+	id.LIFnJSON = "off"
+
+	got := applyMultilineIndent("a\\nb\\nc")
+	assert.Equal(t, "a\\n             b\\n             c", got)
+	assert.Equal(t, 13, decoder.NewlineIndent)
+
+	// Two segments only: unchanged.
+	assert.Equal(t, "a\\nb", applyMultilineIndent("a\\nb"))
+}
+
 func TestSprintTriceErrorPaths(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
@@ -364,4 +401,21 @@ func TestReadNoneFramingTypeX0Resync(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 0, n)
 	assert.Equal(t, []byte{0x01, 0xaa}, dec.B)
+}
+
+func TestReadTypeX0NotImplementedForFramedData(t *testing.T) {
+	oldTargetTS := decoder.TargetTimestampSize
+	t.Cleanup(func() { decoder.TargetTimestampSize = oldTargetTS })
+	decoder.TargetTimestampSize = 0
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+	}
+	// typeX0 + enough bytes for header/count check.
+	p.B = []byte{0x01, 0x00, 0x00, 0x00}
+	buf := make([]byte, 128)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "typeX0 not implemented")
 }
