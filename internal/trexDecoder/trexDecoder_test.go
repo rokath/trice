@@ -16,6 +16,7 @@ import (
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/pkg/cipher"
 	"github.com/tj/assert"
 )
 
@@ -562,4 +563,102 @@ func TestReadCycleErrorMessage(t *testing.T) {
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
 	assert.Contains(t, string(buf[:n]), "CYCLE_ERROR")
+}
+
+func TestReadFramedDiscardTrailingEncryptedZeroes(t *testing.T) {
+	oldPassword := cipher.Password
+	t.Cleanup(func() { cipher.Password = oldPassword })
+	cipher.Password = "x"
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{In: bytes.NewBuffer(nil), NeedBuffers: true}),
+		packageFraming: packageFramingCOBS,
+	}
+	p.B = []byte{0, 0, 0, 0}
+
+	buf := make([]byte, 64)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
+	assert.Equal(t, 0, len(p.B))
+}
+
+func TestReadFramedDiscardSingleLeftoverByte(t *testing.T) {
+	oldVerbose := decoder.Verbose
+	t.Cleanup(func() { decoder.Verbose = oldVerbose })
+	decoder.Verbose = true
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{In: bytes.NewBuffer(nil), NeedBuffers: true}),
+		packageFraming: packageFramingCOBS,
+	}
+	p.B = []byte{0xaa}
+
+	buf := make([]byte, 64)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
+	assert.Equal(t, 0, len(p.B))
+}
+
+func TestReadTypeS2DoubledIDIncomplete(t *testing.T) {
+	oldDouble := Doubled16BitID
+	t.Cleanup(func() { Doubled16BitID = oldDouble })
+	Doubled16BitID = true
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+	}
+	// typeS2 + id1 only.
+	p.B = []byte{0x01, 0x80}
+
+	buf := make([]byte, 64)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
+	assert.Equal(t, 0, len(p.B))
+}
+
+func TestReadTypeS2DoubledIDConsumesSecondID(t *testing.T) {
+	oldDouble := Doubled16BitID
+	t.Cleanup(func() { Doubled16BitID = oldDouble })
+	Doubled16BitID = true
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+	}
+	// typeS2 + second id copy + minimal bytes.
+	p.B = []byte{0x01, 0x80, 0x01, 0x80, 0x00, 0x00}
+
+	buf := make([]byte, 64)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
+	assert.True(t, len(p.B) <= 2)
+}
+
+func TestReadNoneFramingUnknownIDResync(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldVerbose := decoder.Verbose
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.Verbose = oldVerbose
+	})
+	decoder.PackageFraming = "none"
+	decoder.Verbose = false
+
+	in := bytes.NewBuffer([]byte{0x01, 0x40, 0xc0, 0x01, 0x2a, 0x00, 0x00, 0x00})
+	decI := New(io.Discard, id.TriceIDLookUp{}, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+
+	buf := make([]byte, 64)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
+	assert.True(t, len(dec.B) < 8)
 }
