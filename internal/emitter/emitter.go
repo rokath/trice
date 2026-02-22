@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/rokath/trice/internal/receiver"
@@ -14,86 +15,87 @@ import (
 )
 
 var (
-	// Verbose gives more information on output if set. The value is injected from main packages.
+	// Verbose enables optional diagnostic output.
 	Verbose bool
 
-	// HostStamp is used for line timestamps.
-	// off = no timestamp
-	// none = no timestamp
+	// HostStamp configures line timestamps.
+	// off/none = no timestamp
 	// LOCmicro = local time with microseconds
-	// UTCmicro = universal time with microseconds
+	// UTCmicro = UTC time with microseconds
 	// zero = fixed "2006-01-02_1504-05" timestamp (for tests)
 	HostStamp string
 
-	// Prefix starts lines. It follows line timestamp, if any.
+	// Prefix is written before the first payload fragment of each line.
 	Prefix string
 
-	// Suffix lollows lines. Usually empty.
+	// Suffix is written when a line is completed. Usually empty.
 	Suffix string
 
-	// ColorPalette determines the way color is handled.
+	// ColorPalette controls tag-prefix handling.
 	// off = no color handling at all. Lower case color prefixes are not removed. Use with care.
 	// none = no colors. Lower case color prefixes are removed.
 	// default = color codes added (TODO: change to ANSI)
 	ColorPalette string
 
-	// IPAddr ist the remote display IP address.
+	// IPAddr is the remote display server IP address.
 	IPAddr string
 
-	// IPPort ist the remote display port number.
+	// IPPort is the remote display server TCP port.
 	IPPort string
 
-	// DisplayRemote if set, sends trice lines over TCP.
+	// DisplayRemote sends lines to a remote RPC display server when true.
 	DisplayRemote bool
 
-	// TestTableMode is set externally to avoid Prefix overwrite
+	// TestTableMode avoids Prefix rewrites in New.
 	TestTableMode bool
 
-	// NextLine is set true as help for decoder.TestTableMode, where it is clreared at line start.
+	// NextLine is set when a line is completed.
+	// It is used by decoder table-mode output coordination.
 	NextLine bool
 
-	// Ban is a string slice containing all channel descriptors to suppress
+	// Ban contains channel tags to suppress.
 	Ban channelArrayFlag
 
-	// Pick is a string slice containing all channel descriptors only to display
+	// Pick contains channel tags to display exclusively.
 	Pick channelArrayFlag
 
-	// UserLabel is a string slice containing all additional channel descriptors
+	// UserLabel adds user-defined tag names at runtime.
 	UserLabel ArrayFlag
 )
 
-// ArrayFlag is a slice type for multi flag
+// ArrayFlag supports repeated CLI values.
 type ArrayFlag []string
 
-// String method is the needed for interface satisfaction.
+// String implements flag.Value.
 func (i *ArrayFlag) String() string {
 	return ""
 }
 
-// Set is a needed method for multi flags.
+// Set implements flag.Value.
 func (i *ArrayFlag) Set(value string) error {
 	*i = append(*i, value)
 	return nil
 }
 
+// channelArrayFlag stores canonical and alias tag names used by -ban/-pick.
 type channelArrayFlag []string
 
-// String method is the needed for interface satisfaction.
+// String implements flag.Value.
 func (i *channelArrayFlag) String() string {
 	return fmt.Sprintf("%v", *i)
 }
 
-// https://stackoverflow.com/questions/9251234/go-append-if-unique
-func appendIfMissing(slice []string, i string) []string {
+// appendIfMissing appends item only when not already present.
+func appendIfMissing(slice []string, item string) []string {
 	for _, ele := range slice {
-		if ele == i {
+		if ele == item {
 			return slice
 		}
 	}
-	return append(slice, i)
+	return append(slice, item)
 }
 
-// Set is a needed method for multi flags.
+// Set expands known tag aliases and appends unique entries.
 func (i *channelArrayFlag) Set(value string) error {
 	ss := strings.Split(value, ":")
 	for _, s := range ss {
@@ -112,7 +114,7 @@ type LineWriter interface {
 	WriteLine([]string)
 }
 
-// newLineWriter provides a lineWriter which can be a remote Display or the local console.
+// newLineWriter creates either a remote or local line writer.
 func newLineWriter(w io.Writer) (lwD LineWriter) {
 	if DisplayRemote {
 		p := newRemoteDisplay(w, os.Args)
@@ -134,7 +136,7 @@ func New(w io.Writer) *TriceLineComposer {
 	return newLineComposer(newLineWriter(w))
 }
 
-// setPrefix changes "source:" to e.g., "JLINK:".
+// setPrefix rewrites the default "source:" prefix to "<receiver.Port>:".
 func setPrefix() {
 	defaultPrefix := "source:"
 	if strings.HasPrefix(Prefix, defaultPrefix) {
@@ -144,7 +146,7 @@ func setPrefix() {
 	}
 }
 
-// BanOrPickFilter returns len of b if b ist not filtered out, otherwise 0.
+// BanOrPickFilter returns len(b) when b passes filtering, otherwise 0.
 // If Ban and Pick are nil nothing is filtered out.
 // If Ban and Pick are both not nil this is a fatal error (os.Exit).
 // If b starts with a known channel specifier existent in Ban 0, is returned.
@@ -153,31 +155,28 @@ func BanOrPickFilter(b []byte) (n int) {
 	return banOrPickFilter(Ban, Pick, b)
 }
 
+// banOrPickFilter applies the -ban/-pick channel rules.
 func banOrPickFilter(ban, pick channelArrayFlag, b []byte) int {
 	if ban == nil && pick == nil {
 		return len(b) // nothing to filter
 	}
-	msg.FatalInfoOnTrue(nil != Ban && nil != Pick, "switches -ban and -pick cannot be used together")
+	msg.FatalInfoOnTrue(ban != nil && pick != nil, "switches -ban and -pick cannot be used together")
 	s := string(b)
 	sc := strings.SplitN(s, ":", 2) // example: "deb" -> []string{ "deb"} "deb:" -> []string{ "deb", "" }
-	if nil != Ban {
+	if ban != nil {
 		if len(sc) < 2 { // no color separator
 			return len(b) // nothing to filter
 		}
-		for _, c := range Ban {
-			if sc[0] == c {
-				return 0 // filter match
-			}
+		if slices.Contains(ban, sc[0]) {
+			return 0 // filter match
 		}
 		return len(b) // no filter match
 	} else { // Pick is set
 		if len(sc) < 2 { // no color separator
 			return 0 // filter out
 		}
-		for _, c := range Pick {
-			if sc[0] == c {
-				return len(b) // filter match
-			}
+		if slices.Contains(pick, sc[0]) {
+			return len(b) // filter match
 		}
 		return 0 // no filter match
 	}
