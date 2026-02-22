@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
 
-// This file contains the server code.
-
 package emitter
 
 import (
@@ -21,9 +19,9 @@ import (
 // "4 - another way is using "net/rpc", this is the best way for calling another function from another program."
 //
 
-// DisplayServer is the RPC struct for registered DisplayServer functions. Its methods must be exported.
+// DisplayServer exposes RPC methods for remote line rendering.
 type DisplayServer struct { // must be exported for rpc.Register
-	Display colorDisplay // todo: lineWriter?
+	Display colorDisplay
 }
 
 // WriteLine is the exported server method for string display, if trice tool acts as display server.
@@ -42,7 +40,7 @@ func (p *DisplayServer) ColorPalette(s []string, reply *int64) error {
 	return nil
 }
 
-// LogSetFlags is called remotely to ...
+// LogSetFlags updates the process log package flags remotely.
 func (p *DisplayServer) LogSetFlags(f []int64, r *int64) error {
 	flags := int(f[0])
 	log.SetFlags(flags)
@@ -50,7 +48,7 @@ func (p *DisplayServer) LogSetFlags(f []int64, r *int64) error {
 	return nil
 }
 
-// Shutdown is called remotely to shut down display server
+// Shutdown emits a shutdown marker and closes the server listener.
 func (p *DisplayServer) Shutdown(ts []int64, _ *int64) error {
 	timeStamp := ts[0]
 	p.Display.WriteLine([]string{""})
@@ -63,25 +61,26 @@ func (p *DisplayServer) Shutdown(ts []int64, _ *int64) error {
 	p.Display.WriteLine([]string{""})
 	p.Display.WriteLine([]string{""})
 	defer func() {
-		msg.OnErr(listener.Close())
+		if listener != nil {
+			msg.OnErr(listener.Close())
+		}
 		exit = true // do not set true before closing listener, otherwise panic!
 	}()
 	return nil
 }
 
 var (
-	// exit is usually false, when true the display server exits
+	// exit terminates ScDisplayServer accept loop after listener close.
 	exit = false
 
-	// conn is used only inside ScDisplayServer but here for Shutdown() trials
+	// conn stores the last accepted connection.
 	conn net.Conn
 
-	// listener is needed for shutdown
+	// listener is closed by Shutdown.
 	listener net.Listener
 )
 
-// ScDisplayServer is the endless function called when trice tool acts as remote display.
-// All in Server struct registered RPC functions are reachable, when displayServer runs.
+// ScDisplayServer serves RPC display requests until the listener is closed.
 func ScDisplayServer(w io.Writer) error {
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Fprintln(w, "displayServer @", a)

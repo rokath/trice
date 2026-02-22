@@ -11,15 +11,13 @@ import (
 	"strings"
 )
 
-// localDisplay is an object used for displaying.
-// localDisplay implements the Linewriter interface.
+// localDisplay writes completed lines to an io.Writer.
 type localDisplay struct {
 	w   io.Writer
 	Err error
 }
 
-// newLocalDisplay creates a LocalDisplay. It provides a Linewriter.
-// It uses internally
+// newLocalDisplay creates a local LineWriter implementation.
 func newLocalDisplay(w io.Writer) *localDisplay {
 
 	// display lwD implements the Linewriter interface needed by lineTransformer.
@@ -38,23 +36,20 @@ func (p *localDisplay) errorFatal() {
 	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
-// WriteLine is the implemented Linewriter interface for localDisplay.
+// WriteLine implements LineWriter.
 func (p *localDisplay) WriteLine(line []string) {
 	p.errorFatal()
 	s := strings.Join(line, "")
 	_, p.Err = fmt.Fprintln(p.w, s)
 }
 
-// colorDisplay is an object used for displaying.
-// It implements the Linewriter interface.
-// It embeds a local display and a line transformer
+// colorDisplay composes local display output with optional ANSI transformation.
 type colorDisplay struct {
 	display *localDisplay
 	lw      LineWriter
 }
 
-// newColorDisplay creates a ColorDisplay. It provides a Linewriter.
-// It uses internally a local display combined with a line transformer.
+// newColorDisplay creates a local display with tag-aware ANSI transformation.
 func newColorDisplay(w io.Writer, colorPalette string) *colorDisplay {
 
 	// display lD implements the Linewriter interface needed by lineTransformer.
@@ -68,9 +63,9 @@ func newColorDisplay(w io.Writer, colorPalette string) *colorDisplay {
 	return cD
 }
 
-// WriteLine is the implemented Linewriter interface for localDisplay.
+// WriteLine implements LineWriter.
 func (p *colorDisplay) WriteLine(line []string) {
 
-	// calling p.lw WriteLine method activates here: func (p *lineTransformerANSI) WriteLine(line []string)
+	// Delegates to lineTransformerANSI.WriteLine.
 	p.lw.WriteLine(line)
 }
