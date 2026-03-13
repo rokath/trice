@@ -1329,6 +1329,7 @@ int main( void) {
     // system init...
     TriceInit();
     TRice(iD(170), "Fun %x!\n", 0xadded ); // with "fixed" iD(170), 32-bit stamp, and with `\n`
+    TriceTransfer(); // call cyclically for deferred mde
     // system run ...
 }
 ```
