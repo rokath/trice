@@ -10,8 +10,8 @@
 //! @return Number of bytes successfully decoded.
 //! @note Stops decoding if delimiter byte is found. Code taken from Wikipedia and slightly modified.
 size_t COBSDecode(void* __restrict out, const void* __restrict in, size_t length) {
-	uint8_t* data = out;
-	const uint8_t* buffer = in;
+	uint8_t* data = (uint8_t*) out;
+	const uint8_t* buffer = (const uint8_t*) in;
 	const uint8_t* byte = buffer; // Encoded input byte pointer
 	uint8_t* decode = data;       // Decoded output byte pointer
 

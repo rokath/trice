@@ -5,6 +5,9 @@
 #ifndef TRICE_H_
 #define TRICE_H_
 
+#include <stdint.h>
+#include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -86,8 +89,6 @@ extern "C" {
 //! TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
 #define TRICE_FRAMING_NONE 787U
 
-#include <stdint.h>
-#include <string.h>
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
 
@@ -387,7 +388,9 @@ extern uint32_t* TriceBufferWritePosition;
 #include "trice8McuOrder.h"
 #include "trice16McuOrder.h"
 #include "trice32McuOrder.h"
+#if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64McuOrder.h"
+#endif // (TRICE_64_BIT_SUPPORT == 1)
 
 #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
@@ -396,7 +399,9 @@ extern uint32_t* TriceBufferWritePosition;
 #include "trice8McuReverse.h"
 #include "trice16McuReverse.h"
 #include "trice32McuReverse.h"
+#if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64McuReverse.h"
+#endif // (TRICE_64_BIT_SUPPORT == 1)
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 

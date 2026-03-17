@@ -78,9 +78,9 @@
 //! \param output destination
 //! \retval length of encoded data in output
 int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t length) {
-	uint8_t* o = output; // write pointer
-	uint8_t* out = output;
-	uint8_t const* i = input;                        // read pointer
+	uint8_t* o = (uint8_t*) output; // write pointer
+	uint8_t* out = (uint8_t*) output;
+	uint8_t const* i = (uint8_t const*) input;       // read pointer
 	uint8_t const* limit = (uint8_t*)input + length; // read limit
 	uint8_t zeroCount = 0;                           // counts zero bytes 1-3 for Z1-Z3
 	uint8_t fullCount = 0;                           // counts 0xFF bytes 1-4 for FF and F2-F4
