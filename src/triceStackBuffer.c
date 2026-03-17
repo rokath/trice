@@ -7,6 +7,6 @@
 
 void TriceTransfer(void) {}
 
-uint32_t* triceSingleBufferStartWritePosition = (void*)0;
+uint32_t* triceSingleBufferStartWritePosition = (uint32_t*)0;
 
 #endif // #if TRICE_BUFFER == TRICE_STACK_BUFFER && TRICE_OFF == 0

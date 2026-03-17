@@ -5,6 +5,9 @@
 #ifndef TRICE_H_
 #define TRICE_H_
 
+#include <stdint.h>
+#include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -86,8 +89,6 @@ extern "C" {
 //! TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
 #define TRICE_FRAMING_NONE 787U
 
-#include <stdint.h>
-#include <string.h>
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
 
