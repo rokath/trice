@@ -1022,6 +1022,7 @@ void TRice32B(int tid, char const* fmt, void* buf, uint32_t n) {
 	TRICE32_B(ID(tid), fmt, buf, n);
 }
 
+#if (TRICE_64_BIT_SUPPORT == 1)
 void trice64B(int tid, char const* fmt, void* buf, uint32_t n) {
 	TRICE64_B(id(tid), fmt, buf, n);
 }
@@ -1033,6 +1034,7 @@ void Trice64B(int tid, char const* fmt, void* buf, uint32_t n) {
 void TRice64B(int tid, char const* fmt, void* buf, uint32_t n) {
 	TRICE64_B(ID(tid), fmt, buf, n);
 }
+#endif // (TRICE_64_BIT_SUPPORT == 1)
 
 void trice8F(int tid, char const* fmt, void* buf, uint32_t n) {
 	TRICE8_F(id(tid), fmt, buf, n);
@@ -1070,6 +1072,7 @@ void TRice32F(int tid, char const* fmt, void* buf, uint32_t n) {
 	TRICE32_F(ID(tid), fmt, buf, n);
 }
 
+#if (TRICE_64_BIT_SUPPORT == 1)
 void trice64F(int tid, char const* fmt, void* buf, uint32_t n) {
 	TRICE64_F(id(tid), fmt, buf, n);
 }
@@ -1081,6 +1084,7 @@ void Trice64F(int tid, char const* fmt, void* buf, uint32_t n) {
 void TRice64F(int tid, char const* fmt, void* buf, uint32_t n) {
 	TRICE64_F(ID(tid), fmt, buf, n);
 }
+#endif // (TRICE_64_BIT_SUPPORT == 1)
 
 #endif // #ifdef TRICE_N
 
