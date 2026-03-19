@@ -211,7 +211,7 @@ extern uint32_t* triceSingleBufferStartWritePosition;
 extern unsigned TricesCountRingBuffer;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
-extern uint8_t TriceCycle;
+extern uint_fast32_t TriceCycle;
 extern unsigned RTT0_writeDepthMax;
 extern unsigned TriceErrorCount;
 
@@ -279,11 +279,11 @@ extern uint32_t* TriceBufferWritePosition;
 
 #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE TriceCycle++ //!< TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
+#define TRICE_CYCLE (TriceCycle++ & 0xFF) //!< TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
 
 #else // #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE 0xC0 //!< TRICE_CYCLE is no trice cycle counter, just a static value.
+#define TRICE_CYCLE ((uint_fast32_t) 0xC0) //!< TRICE_CYCLE is no trice cycle counter, just a static value.
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 

@@ -244,7 +244,7 @@ int triceCommandFlag = 0; // updated
 #if TRICE_CYCLE_COUNTER == 1
 
 //! TriceCycle is increased and transmitted with each trice message, if enabled.
-uint8_t TriceCycle = 0xc0;
+uint_fast32_t TriceCycle = 0xc0;
 
 #endif
 
