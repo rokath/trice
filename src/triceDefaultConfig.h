@@ -402,7 +402,7 @@ extern "C" {
 #endif
 
 #ifndef TRICE_64_BIT_SUPPORT
-//! TRICE_32_BIT_SUPPORT enables/disables all 64-bit Trice macros.
+//! TRICE_64_BIT_SUPPORT enables/disables all 64-bit Trice macros. That also disables the aDouble macro.
 #define TRICE_64_BIT_SUPPORT 1
 #endif
 

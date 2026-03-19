@@ -5,6 +5,9 @@
 #ifndef TRICE_H_
 #define TRICE_H_
 
+#include <stdint.h>
+#include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -50,44 +53,42 @@ extern "C" {
 // lint -emacro( 717, DCOPY, SCOPY )
 // lint -emacro( 732, DCOPY )
 
-// helper macros (the numbers are 32-bit random values)
+// helper macros (the numbers are 16-bit random values)
 
 //! TRICE_SINGLE_PACK_MODE is the recommended TRICE_DEFERRED_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte.
 //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
-#define TRICE_SINGLE_PACK_MODE 787345706U
+#define TRICE_SINGLE_PACK_MODE 5706U
 
 //! TRICE_MULTI_PACK_MODE packs all trices of a buffer in a single TCOBS package and a following 0-delimiter byte.
 //! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
 //! Olny relevant when TRICE_DOUBLE_BUFFER is selected
-#define TRICE_MULTI_PACK_MODE 3987862482U
+#define TRICE_MULTI_PACK_MODE 2482U
 
 //! With TRICE_BUFFER == TRICE_STACK_BUFFER  the internal macro TRICE_PUT writes to the stack.
 //! This is direct logging. This reduces memory needs if only one stack is used.
-#define TRICE_STACK_BUFFER 2645382063U
+#define TRICE_STACK_BUFFER 2063U
 
 //! With TRICE_BUFFER == TRICE_STATIC_BUFFER the internal macro TRICE_PUT writes to a static buffer.
 //! This reduces memory needs if many stacks are used.
-#define TRICE_STATIC_BUFFER 1763551404U
+#define TRICE_STATIC_BUFFER 1404U
 
 //! With TRICE_BUFFER == TRICE_DOUBLE_BUFFER the internal macro TRICE_PUT writes to a double buffer half.
 //! This is deferred logging using more space but the TRICE macros are executed faster.
-#define TRICE_DOUBLE_BUFFER 1950870368U
+#define TRICE_DOUBLE_BUFFER 368U
 
 //! With TRICE_BUFFER == TRICE_RING_BUFFER the internal macro TRICE_PUT writes to a ring buffer segment.
 //! This is deferred logging using less space but the TRICE macros are executed a bit slower.
-#define TRICE_RING_BUFFER 2237719049U
+#define TRICE_RING_BUFFER 9049U
 
 //! TRICE_FRAMING_TCOBS is recommended for trice transfer over UART.
-#define TRICE_FRAMING_TCOBS 3745917584U
+#define TRICE_FRAMING_TCOBS 7584U
 
 //! TRICE_FRAMING_COBS is recommended for encrypted trices.
-#define TRICE_FRAMING_COBS 2953804234U
+#define TRICE_FRAMING_COBS 4234U
 
 //! TRICE_FRAMING_NONE is recommended for RTT in direct mode. One trice costs about 100 clocks and is completely done.
-#define TRICE_FRAMING_NONE 1431860787U
+#define TRICE_FRAMING_NONE 787U
 
-#include <stdint.h>
-#include <string.h>
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
 
@@ -141,6 +142,7 @@ TRICE_INLINE uint32_t aFloat(float f) {
 	return pun.to;
 }
 
+#if (TRICE_64_BIT_SUPPORT == 1)
 // aDouble returns passed double value x as bit pattern in a uint64_t type.
 TRICE_INLINE uint64_t aDouble(double x) {
 	union {
@@ -150,6 +152,7 @@ TRICE_INLINE uint64_t aDouble(double x) {
 	t_aDouble.d = x;
 	return t_aDouble.u;
 }
+#endif // #if (TRICE_64_BIT_SUPPORT == 1)
 
 // Just in case you are receiving Trice messages containing uint32_t values to be interpreted as float:
 //
@@ -208,7 +211,7 @@ extern uint32_t* triceSingleBufferStartWritePosition;
 extern unsigned TricesCountRingBuffer;
 extern char triceCommandBuffer[];
 extern int triceCommandFlag;
-extern uint8_t TriceCycle;
+extern uint_fast32_t TriceCycle;
 extern unsigned RTT0_writeDepthMax;
 extern unsigned TriceErrorCount;
 
@@ -276,11 +279,11 @@ extern uint32_t* TriceBufferWritePosition;
 
 #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE TriceCycle++ //!< TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
+#define TRICE_CYCLE (TriceCycle++ & 0xFF) //!< TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
 
 #else // #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE 0xC0 //!< TRICE_CYCLE is no trice cycle counter, just a static value.
+#define TRICE_CYCLE ((uint_fast32_t) 0xC0) //!< TRICE_CYCLE is no trice cycle counter, just a static value.
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
@@ -321,7 +324,9 @@ extern uint32_t* TriceBufferWritePosition;
 #include "trice8.h"
 #include "trice16.h"
 #include "trice32.h"
+#if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64.h"
+#endif // (TRICE_64_BIT_SUPPORT == 1)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Endian dependent macros and code:
@@ -383,7 +388,9 @@ extern uint32_t* TriceBufferWritePosition;
 #include "trice8McuOrder.h"
 #include "trice16McuOrder.h"
 #include "trice32McuOrder.h"
+#if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64McuOrder.h"
+#endif // (TRICE_64_BIT_SUPPORT == 1)
 
 #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
@@ -392,7 +399,9 @@ extern uint32_t* TriceBufferWritePosition;
 #include "trice8McuReverse.h"
 #include "trice16McuReverse.h"
 #include "trice32McuReverse.h"
+#if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64McuReverse.h"
+#endif // (TRICE_64_BIT_SUPPORT == 1)
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 

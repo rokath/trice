@@ -24,10 +24,13 @@
 #define trice32(tid, fmt, ...) TRICE_CONCAT2(trice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define Trice32(tid, fmt, ...) TRICE_CONCAT2(Trice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define TRice32(tid, fmt, ...) TRICE_CONCAT2(TRice32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#if (TRICE_64_BIT_SUPPORT == 1)
 #define TRICE64(tid, fmt, ...) TRICE_CONCAT2(TRICE64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define trice64(tid, fmt, ...) TRICE_CONCAT2(trice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define Trice64(tid, fmt, ...) TRICE_CONCAT2(Trice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define TRice64(tid, fmt, ...) TRICE_CONCAT2(TRice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#endif // (TRICE_64_BIT_SUPPORT == 1)
+
 // clang-format on
 
 //
@@ -202,6 +205,8 @@ void TRice32fn_10(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 void TRice32fn_11(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10);
 void TRice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11);
 
+
+#if (TRICE_64_BIT_SUPPORT == 1)
 void trice64fn_0(uint16_t tid);
 void trice64fn_1(uint16_t tid, uint64_t v0);
 void trice64fn_2(uint16_t tid, uint64_t v0, uint64_t v1);
@@ -243,6 +248,7 @@ void TRice64fn_9(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v
 void TRice64fn_10(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9);
 void TRice64fn_11(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10);
 void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11);
+#endif // #if (TRICE_64_BIT_SUPPORT == 1)
 
 #define trice8_0(tid, fmt) trice8fn_0(tid)                                                                                                                                                                                                                                           //!< trice8_0 is a macro calling a function to reduce code size, this way avoiding code inlining.
 #define trice8_1(tid, fmt, v0) trice8fn_1(tid, (uint8_t)(v0))                                                                                                                                                                                                                        //!< trice8_1 is a macro calling a function to reduce code size, this way avoiding code inlining.
@@ -370,6 +376,7 @@ void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 #define TRice32_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice32fn_11(tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10))                       //!< TRice32_11 is a macro calling a function to reduce code size.
 #define TRice32_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice32fn_12(tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10), (uint32_t)(v11)) //!< TRice32_12 is a macro calling a function to reduce code size.
 
+#if (TRICE_64_BIT_SUPPORT == 1)
 #define trice64_0(tid, fmt) trice64fn_0(tid)                                                                                                                                                                                                                                                       //!< trice64_1 is a macro calling a function to reduce code size.
 #define trice64_1(tid, fmt, v0) trice64fn_1(tid, (uint64_t)(v0))                                                                                                                                                                                                                                   //!< trice64_1 is a macro calling a function to reduce code size.
 #define trice64_2(tid, fmt, v0, v1) trice64fn_2(tid, (uint64_t)(v0), (uint64_t)(v1))                                                                                                                                                                                                               //!< trice64_2 is a macro calling a function to reduce code size.
@@ -411,5 +418,7 @@ void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 #define TRice64_10(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) TRice64fn_10(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9))                                             //!< TRice64_10 is a macro calling a function to reduce code size.
 #define TRice64_11(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) TRice64fn_11(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10))                       //!< TRice64_11 is a macro calling a function to reduce code size.
 #define TRice64_12(tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) TRice64fn_12(tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11)) //!< TRice64_12 is a macro calling a function to reduce code size.
+#endif // (TRICE_64_BIT_SUPPORT == 1)
+
 
 #endif // #ifndef TRICE_ON_H_
