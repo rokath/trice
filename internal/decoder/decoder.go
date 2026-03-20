@@ -121,10 +121,16 @@ var (
 	TargetStamp32                   string         // ShowTargetStamp32 is the format string for target timestamps.
 	TargetStamp16                   string         // ShowTargetStamp16 is the format string for target timestamps.
 	TargetStamp0                    string         // ShowTargetStamp0 is the format string for target timestamps.
+	TargetStamp32Delta              string         // TargetStamp32Delta is the format string for 32-bit target timestamp deltas.
+	TargetStamp16Delta              string         // TargetStamp16Delta is the format string for 16-bit target timestamp deltas.
+	TargetStamp0Delta               string         // TargetStamp0Delta is the format string for delta column alignment without target timestamps.
 	TargetTimeStampUnitPassed       bool           // TargetTimeStampUnitPassed is true when flag was TargetTimeStampUnit passed.
 	ShowTargetStamp32Passed         bool           // ShowTargetStamp32Passed is true when flag was TargetTimeStamp32 passed.
 	ShowTargetStamp16Passed         bool           // ShowTargetStamp16Passed is true when flag was TargetTimeStamp16 passed.
 	ShowTargetStamp0Passed          bool           // ShowTargetStamp0Passed is true when flag was TargetTimeStamp0 passed.
+	ShowTargetStamp32DeltaPassed    bool           // ShowTargetStamp32DeltaPassed is true when flag TargetStamp32Delta was passed.
+	ShowTargetStamp16DeltaPassed    bool           // ShowTargetStamp16DeltaPassed is true when flag TargetStamp16Delta was passed.
+	ShowTargetStamp0DeltaPassed     bool           // ShowTargetStamp0DeltaPassed is true when flag TargetStamp0Delta was passed.
 	LocationInformationFormatString = LiFmtDefault // LocationInformationFormatString is the format string for target location: line number and file name.
 	LiFmtDefaultLen                 int            // Compute as var from LocationInformationFormatString.
 	TargetLocationExists            bool           // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)

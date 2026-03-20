@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -98,11 +99,14 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 
 const DefaultTargetStamp0 = "time:            "
 
-// decodeAndComposeLoop does not return.
-func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI) error {
-	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
-	bufferReadStartTime := time.Now()
-	sleepCounter := 0
+type targetStampState struct {
+	prev16    uint16
+	prev32    uint32
+	hasPrev16 bool
+	hasPrev32 bool
+}
+
+func prepareTargetStampFormats() error {
 	switch decoder.TargetStamp {
 	case "", "off", "none":
 		if !decoder.ShowTargetStamp0Passed {
@@ -137,6 +141,233 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	default:
 		return fmt.Errorf("invalid value '%s' for CLI switch -ts. Please run 'trice help -log' and check the -ts options", decoder.TargetStamp)
 	}
+	if strings.HasPrefix(decoder.TargetStamp16Delta, "epoch") {
+		return fmt.Errorf(`invalid value '%s' for CLI switch -ts16delta. "epoch..." is only supported for -ts32 absolute timestamps`, decoder.TargetStamp16Delta)
+	}
+	if strings.HasPrefix(decoder.TargetStamp32Delta, "epoch") {
+		return fmt.Errorf(`invalid value '%s' for CLI switch -ts32delta. "epoch..." is only supported for -ts32 absolute timestamps`, decoder.TargetStamp32Delta)
+	}
+	autoTargetStamp0Delta()
+	return nil
+}
+
+func autoTargetStamp0Delta() {
+	if decoder.ShowTargetStamp0DeltaPassed || decoder.TargetStamp0Delta != "" {
+		return
+	}
+	widths := make([]int, 0, 2)
+	for _, cfg := range []struct {
+		size   int
+		format string
+	}{
+		{2, decoder.TargetStamp16Delta},
+		{4, decoder.TargetStamp32Delta},
+	} {
+		if cfg.format == "" {
+			continue
+		}
+		widths = append(widths, targetStampWidth(cfg.size, cfg.format))
+	}
+	if len(widths) == 0 {
+		return
+	}
+	width := widths[0]
+	for _, w := range widths[1:] {
+		if w != width {
+			return
+		}
+	}
+	decoder.TargetStamp0Delta = strings.Repeat(" ", width)
+}
+
+func targetStampWidth(size int, format string) int {
+	return len(formatTargetStamp(size, format, 0))
+}
+
+func renderTargetStampColumns(size int, timestamp uint64, state *targetStampState) string {
+	var absoluteFormat, deltaFormat string
+	switch size {
+	case 4:
+		absoluteFormat = decoder.TargetStamp32
+		deltaFormat = decoder.TargetStamp32Delta
+	case 2:
+		absoluteFormat = decoder.TargetStamp16
+		deltaFormat = decoder.TargetStamp16Delta
+	case 0:
+		absoluteFormat = decoder.TargetStamp0
+		deltaFormat = decoder.TargetStamp0Delta
+	default:
+		return ""
+	}
+	return formatTargetStamp(size, absoluteFormat, timestamp) + formatTargetDelta(size, deltaFormat, timestamp, state)
+}
+
+func formatTargetDelta(size int, format string, timestamp uint64, state *targetStampState) string {
+	if format == "" {
+		return ""
+	}
+	switch size {
+	case 0:
+		return formatTargetStamp(0, format, 0)
+	case 2:
+		current := uint16(timestamp)
+		if !state.hasPrev16 {
+			state.prev16 = current
+			state.hasPrev16 = true
+			return formatMissingTargetDelta(format)
+		}
+		delta := uint16(current - state.prev16)
+		state.prev16 = current
+		return formatTargetStamp(size, format, uint64(delta))
+	case 4:
+		current := uint32(timestamp)
+		if !state.hasPrev32 {
+			state.prev32 = current
+			state.hasPrev32 = true
+			return formatMissingTargetDelta(format)
+		}
+		delta := uint32(current - state.prev32)
+		state.prev32 = current
+		return formatTargetStamp(size, format, uint64(delta))
+	default:
+		return ""
+	}
+}
+
+func formatTargetStamp(size int, format string, timestamp uint64) string {
+	switch size {
+	case 4:
+		return formatTargetStamp32(format, timestamp)
+	case 2:
+		return formatTargetStamp16(format, timestamp)
+	case 0:
+		if format != "" {
+			return fmt.Sprint(format)
+		}
+	}
+	return ""
+}
+
+func formatTargetStamp32(format string, timestamp uint64) string {
+	switch format {
+	case "ms", "hh:mm:ss,ms":
+		ms := timestamp % 1000
+		sec := (timestamp - ms) / 1000 % 60
+		min := (timestamp - ms - 1000*sec) / 60000 % 60
+		hour := (timestamp - ms - 1000*sec - 60000*min) / 3600000
+		return fmt.Sprintf("time:%2d:%02d:%02d,%03d", hour, min, sec, ms)
+	case "us", "µs", "ssss,ms_µs":
+		us := timestamp % 1000
+		ms := (timestamp - us) / 1000 % 1000
+		sd := (timestamp - 1000*ms) / 1000000
+		return fmt.Sprintf("time:%4d,%03d_%03d", sd, ms, us)
+	case "epoch":
+		t := time.Unix(int64(timestamp), 0).UTC()
+		s := t.Format("2006-01-02 15:04:05 UTC")
+		c := correctWrappedTimestamp(uint32(timestamp))
+		if !t.Equal(c) {
+			s += "-->" + c.Format("2006-01-02 15:04:05 UTC")
+		}
+		return s
+	case "":
+		return ""
+	default:
+		after, found := strings.CutPrefix(format, "epoch")
+		if found {
+			t := time.Unix(int64(timestamp), 0).UTC()
+			s := t.Format(after)
+			c := correctWrappedTimestamp(uint32(timestamp))
+			if !t.Equal(c) {
+				s += "-->" + c.Format(after)
+			}
+			return s
+		}
+		return fmt.Sprintf(format, timestamp)
+	}
+}
+
+func formatTargetStamp16(format string, timestamp uint64) string {
+	switch format {
+	case "ms", "s,ms":
+		ms := timestamp % 1000
+		sec := (timestamp - ms) / 1000
+		return fmt.Sprintf("time:      %2d,%03d", sec, ms)
+	case "us", "µs", "ms_µs":
+		us := timestamp % 1000
+		ms := (timestamp - us) / 1000 % 1000
+		return fmt.Sprintf("time:      %2d_%03d", ms, us)
+	case "":
+		return ""
+	default:
+		return fmt.Sprintf(format, timestamp)
+	}
+}
+
+func formatMissingTargetDelta(format string) string {
+	prefix, width, leftAlign, suffix, ok := splitSingleFormatDirective(format)
+	if !ok {
+		return "-"
+	}
+	marker := "-"
+	if width > 0 {
+		if leftAlign {
+			marker = fmt.Sprintf("%-*s", width, marker)
+		} else {
+			marker = fmt.Sprintf("%*s", width, marker)
+		}
+	}
+	return prefix + marker + suffix
+}
+
+func splitSingleFormatDirective(format string) (prefix string, width int, leftAlign bool, suffix string, ok bool) {
+	for i := 0; i < len(format); i++ {
+		if format[i] != '%' {
+			continue
+		}
+		if i+1 < len(format) && format[i+1] == '%' {
+			i++
+			continue
+		}
+		j := i + 1
+		for j < len(format) && strings.ContainsRune("+-# 0", rune(format[j])) {
+			if format[j] == '-' {
+				leftAlign = true
+			}
+			j++
+		}
+		widthStart := j
+		for j < len(format) && format[j] >= '0' && format[j] <= '9' {
+			j++
+		}
+		if widthStart != j {
+			width, _ = strconv.Atoi(format[widthStart:j])
+		}
+		if j < len(format) && format[j] == '.' {
+			j++
+			for j < len(format) && format[j] >= '0' && format[j] <= '9' {
+				j++
+			}
+		}
+		if j >= len(format) {
+			return "", 0, false, "", false
+		}
+		if !strings.ContainsRune("bdoOxXUeEfFgGcqpvTt", rune(format[j])) {
+			return "", 0, false, "", false
+		}
+		return format[:i], width, leftAlign, format[j+1:], true
+	}
+	return "", 0, false, "", false
+}
+
+// decodeAndComposeLoop does not return.
+func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI) error {
+	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
+	bufferReadStartTime := time.Now()
+	sleepCounter := 0
+	if err := prepareTargetStampFormats(); err != nil {
+		return err
+	}
+	state := targetStampState{}
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
 
@@ -186,74 +417,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 
 			var s string
 			if logLineStart {
-				switch decoder.TargetTimestampSize {
-				case 4:
-					switch decoder.TargetStamp32 {
-					case "ms", "hh:mm:ss,ms":
-						ms := decoder.TargetTimestamp % 1000
-						sec := (decoder.TargetTimestamp - ms) / 1000 % 60
-						min := (decoder.TargetTimestamp - ms - 1000*sec) / 60000 % 60
-						hour := (decoder.TargetTimestamp - ms - 1000*sec - 60000*min) / 3600000
-						s = fmt.Sprintf("time:%2d:%02d:%02d,%03d", hour, min, sec, ms)
-					case "us", "µs", "ssss,ms_µs":
-						us := decoder.TargetTimestamp % 1000
-						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-						sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
-						s = fmt.Sprintf("time:%4d,%03d_%03d", sd, ms, us)
-					case "epoch":
-						t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
-						s = t.Format("2006-01-02 15:04:05 UTC")
-						c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
-						if !t.Equal(c) {
-							s += "-->" + c.Format("2006-01-02 15:04:05 UTC")
-						}
-					case "":
-						// Suppressing ts32 output is desired.
-					default:
-						after, found := strings.CutPrefix(decoder.TargetStamp32, "epoch")
-						if found { // Assume a -ts32="epoch2006-01-02 15:04:05 UTC" like value.
-							t := time.Unix(int64(decoder.TargetTimestamp), 0).UTC()
-							s = t.Format(after) // examples for after:
-							// s = t.Format("Mon Jan _2 15:04:05 2006")            //ANSIC
-							// s = t.Format("Mon Jan _2 15:04:05 MST 2006")        //UnixDate
-							// s = t.Format("Mon Jan 02 15:04:05 -0700 2006")      //RubyDate
-							// s = t.Format("02 Jan 06 15:04 MST")                 //RFC822
-							// s = t.Format("02 Jan 06 15:04 -0700")               //RFC822Z     (RFC822 with numeric zone)
-							// s = t.Format("Monday, 02-Jan-06 15:04:05 MST")      //RFC850
-							// s = t.Format("Mon, 02 Jan 2006 15:04:05 MST")       //RFC1123
-							// s = t.Format("Mon, 02 Jan 2006 15:04:05 -0700")     //RFC1123Z    (RFC1123 with numeric zone)
-							// s = t.Format("2006-01-02T15:04:05Z07:00")           //RFC3339
-							// s = t.Format("2006-01-02T15:04:05.999999999Z07:00") //RFC3339Nano
-							// s = t.Format("3:04PM")                              //Kitchen
-							// Assumed usage example: trice log -ts32='epoch"Mon, 02 Jan 2006 15:04:05 MST"'
-							c := correctWrappedTimestamp(uint32(decoder.TargetTimestamp))
-							if !t.Equal(c) {
-								s += "-->" + c.Format(after)
-							}
-
-						} else { // Assume a string containing a single %d like format specification.
-							s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
-						}
-					}
-				case 2:
-					switch decoder.TargetStamp16 {
-					case "ms", "s,ms":
-						ms := decoder.TargetTimestamp % 1000
-						sec := (decoder.TargetTimestamp - ms) / 1000
-						s = fmt.Sprintf("time:      %2d,%03d", sec, ms)
-					case "us", "µs", "ms_µs":
-						us := decoder.TargetTimestamp % 1000
-						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-						s = fmt.Sprintf("time:      %2d_%03d", ms, us)
-					case "":
-					default:
-						s = fmt.Sprintf(decoder.TargetStamp16, decoder.TargetTimestamp)
-					}
-				case 0:
-					if decoder.TargetStamp0 != "" {
-						s = fmt.Sprint(decoder.TargetStamp0)
-					}
-				}
+				s = renderTargetStampColumns(decoder.TargetTimestampSize, decoder.TargetTimestamp, &state)
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
 				_, err = sw.Write([]byte("default: "))

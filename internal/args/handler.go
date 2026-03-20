@@ -134,6 +134,9 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
 		decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")
 		decoder.ShowTargetStamp0Passed = isLogFlagPassed("ts0")
+		decoder.ShowTargetStamp32DeltaPassed = isLogFlagPassed("ts32delta")
+		decoder.ShowTargetStamp16DeltaPassed = isLogFlagPassed("ts16delta")
+		decoder.ShowTargetStamp0DeltaPassed = isLogFlagPassed("ts0delta")
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		logLoop(w, fSys) // endless loop
 		return nil

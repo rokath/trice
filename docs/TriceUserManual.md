@@ -1984,6 +1984,169 @@ trice log -port FILEBUFFER -args myLogs.bin -ts32='"3:04PM")'                   
 
 After the year 2106 the Trice tool needs a small modification to correctly compute the epoch time then. Probably I will not be alive anymore to do that then, but, hey, Trice is Open Source!
 
+###  18.2. <a id='target-(time)stamp-delta-columns'></a>Target (Time)Stamp Delta Columns
+
+`trice` can display target timestamps not only as absolute values, but also as deltas to the previous target timestamp of the same size. For that purpose the CLI provides three additional switches:
+
+* `-ts0delta`
+* `-ts16delta`
+* `-ts32delta`
+
+These switches are delta variants of `-ts0`, `-ts16`, and `-ts32`. All three default to `""`, which means disabled.
+
+#### Purpose
+
+The delta switches add a second, independent timestamp column. This makes it possible to show:
+
+* only absolute timestamps
+* only delta timestamps
+* both absolute and delta timestamps side by side
+* differently formatted absolute and delta columns
+
+This is useful when absolute time is needed for long-term orientation, while delta time is needed for short-term timing analysis.
+
+#### General Behavior
+
+`-ts16delta` and `-ts32delta` behave like the corresponding absolute timestamp switches, except that they print the difference to the previous timestamp of the same type:
+
+* `-ts16delta` prints `current ts16 - previous ts16`
+* `-ts32delta` prints `current ts32 - previous ts32`
+
+Wraparound is handled naturally:
+
+* 16-bit deltas wrap modulo `2^16`
+* 32-bit deltas wrap modulo `2^32`
+
+If no previous timestamp of that type exists yet, the delta column shows `-`.
+
+`-ts0delta` does not calculate a delta value. It exists only to generate a matching placeholder column for trices without target timestamps, so absolute and delta columns can stay aligned independently.
+
+#### Column Order
+
+When both absolute and delta timestamps are enabled, the output order is:
+
+1. absolute timestamp column
+2. delta timestamp column
+3. message text
+
+This applies independently for `ts0`, `ts16`, and `ts32`.
+
+#### Independence from `-ts`
+
+The general switch `-ts` still sets defaults only for:
+
+* `-ts0`
+* `-ts16`
+* `-ts32`
+
+It does not set defaults for:
+
+* `-ts0delta`
+* `-ts16delta`
+* `-ts32delta`
+
+Delta columns are therefore always explicit and opt-in.
+
+#### Formatting Rules
+
+The delta switches use the same general formatting logic as the corresponding absolute timestamp switches, but independently from them. Examples:
+
+* `-ts16delta="ms"`
+* `-ts32delta="time:%8d"`
+* `-ts16delta="dt:%6d"`
+
+This means the absolute column and the delta column can use different formats and widths.
+
+For the first delta value, `trice` prints `-` instead of a number. If possible, the marker is aligned to the width implied by the format string.
+
+#### Special Case: `-ts32 epoch`
+
+`-ts32` supports epoch-based formatting for absolute 32-bit timestamps, for example:
+
+```bash
+-ts32=epoch
+-ts32=epoch2006-01-02 15:04:05 UTC
+```
+
+This is intended only for absolute timestamps.
+
+For `-ts32delta`, the input values are still treated as plain numeric 32-bit values, and the delta is computed from those raw values before any epoch formatting would apply. Therefore `-ts32delta` accepts numeric formats, not epoch formats.
+
+Typical usage with epoch-based absolute timestamps is:
+
+```bash
+trice log -ts32=epoch -ts32delta="dt:%8d"
+```
+
+Here the absolute column shows human-readable UTC time, while the delta column shows the difference in seconds between consecutive 32-bit timestamps.
+
+#### Automatic `-ts0delta` Placeholder
+
+If `-ts0delta` is not passed explicitly, `trice` can derive it automatically.
+
+This happens when:
+
+* `-ts16delta` and/or `-ts32delta` are enabled, and
+* their implied output widths match
+
+In that case `trice` generates a blank `-ts0delta` placeholder of the same width.
+
+If the implied widths do not match, no automatic `-ts0delta` is generated and it remains `""`.
+
+This mechanism helps keep the delta column aligned for messages without target timestamps.
+
+#### Typical Use Cases
+
+Show only delta values instead of absolute 16-bit timestamps:
+
+```bash
+trice log -ts16="" -ts16delta="dt:%6d"
+```
+
+This suppresses absolute `ts16` output and shows only the delta to the previous 16-bit timestamp.
+
+Show both absolute and delta 16-bit timestamps in separate columns:
+
+```bash
+trice log -ts16="t:%6d " -ts16delta="dt:%6d "
+```
+
+Show absolute 32-bit timestamps as UTC epoch time and the delta in seconds:
+
+```bash
+trice log -ts32=epoch -ts32delta="dt:%8d "
+```
+
+Show absolute timestamps for all messages, but add a delta column only for 32-bit timestamps:
+
+```bash
+trice log -ts0="time:            " -ts16="time:%6d " -ts32=epoch -ts32delta="dt:%8d "
+```
+
+If alignment for messages without target timestamps should follow the delta column too, add `-ts0delta` explicitly:
+
+```bash
+trice log -ts0="time:            " -ts0delta="           " -ts16="time:%6d " -ts32=epoch -ts32delta="dt:%8d "
+```
+
+Use only a delta column and keep no-stamp lines aligned:
+
+```bash
+trice log -ts0="" -ts16="" -ts32="" -ts16delta="dt:%6d "
+```
+
+If the delta width is unique, `trice` can derive `-ts0delta` automatically.
+
+#### Summary
+
+The `tsdelta` switches make timestamp display more flexible by separating:
+
+* absolute time representation
+* delta time representation
+* alignment of messages without target timestamps
+
+This allows `trice` output to be tailored for debugging, profiling, timing analysis, and mixed absolute/delta log views without changing the target-side encoding.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  19. <a id='binary-encoding'></a>Binary Encoding
