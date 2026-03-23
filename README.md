@@ -110,7 +110,8 @@ This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice work
 - [Trice User Manual](./docs/TriceUserManual.md) (includes updated information from the interrupt blog)
 - Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions), including closed items
 - Read the target source code, especially [triceDefaultConfig.h](./src/triceDefaultConfig.h)
-- View [CLI](https://en.wikipedia.org/wiki/Command-line_interface) options by running `trice help -all` in a terminal or reading [tricehelpall_test.go](./internal/args/tricehelpall_test.go)
+- View [CLI](https://en.wikipedia.org/wiki/Command-line_interface) options by running `trice help -all` in a terminal or reading the generated file [trice-help-all.txt](./docs/ref/trice-help-all.txt)
+- Refresh the checked-in CLI help documentation with `go generate ./internal/args`
 - Look at and modify [./internal/emitter/lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) if needed (requires running `go install ./cmd/trice/...` afterwards)
 
 ## Debugging with VS-Code and Clang
