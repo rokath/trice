@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package cgot
 
 // For some reason inside the trice_test.go an 'import "C"' is not possible.

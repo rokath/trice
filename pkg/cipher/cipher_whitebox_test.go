@@ -1,5 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
 // blackbox test
 package cipher
@@ -65,4 +64,23 @@ func checkSmall(t *testing.T) {
 	dst := make([]byte, 8)
 	decrypt8(dst, enc)
 	assert.Equal(t, src, dst)
+}
+
+func TestDecryptBufferBoundaries(t *testing.T) {
+	Password = "aSecret"
+	assert.Nil(t, SetUp(os.Stdout))
+
+	src := []byte{0, 1, 2, 3, 4, 5, 6, 7, 9, 9, 9}
+	enc := make([]byte, len(src))
+	encrypt8(enc[:8], src[:8])
+	copy(enc[8:], src[8:]) // trailing bytes should stay untouched by Decrypt
+
+	dst := make([]byte, 5) // smaller than one block
+	n := Decrypt(dst, enc)
+	assert.Equal(t, 0, n)
+
+	dst = make([]byte, 8)
+	n = Decrypt(dst, enc)
+	assert.Equal(t, 8, n)
+	assert.Equal(t, src[:8], dst)
 }

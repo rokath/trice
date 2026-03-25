@@ -1,5 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
 package args
 
@@ -40,6 +39,7 @@ func init() {
 	FlagsInit()
 }
 
+// FlagsInit initializes all sub-command flag sets.
 func FlagsInit() {
 	helpInit()
 	logInit()

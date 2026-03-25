@@ -1,6 +1,8 @@
-/*! \file trice16.h
-\author thomas.hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file trice16.h
+//! \brief trice 16 declarations and macros.
+
 
 #ifndef TRICE16_H_
 #define TRICE16_H_

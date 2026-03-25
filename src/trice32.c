@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: MIT
+
 //! \file trice32.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! ///////////////////////////////////////////////////////////////////////////
+//! \brief trice 32 implementation.
+
+
 #include "trice.h"
 
 // lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
@@ -323,6 +326,7 @@
 #endif
 #endif
 
+//! \brief Wrapper family forwarding lowercase trice32fn_* calls to trice32m_* macros.
 #if ENABLE_trice32fn_0
 void trice32fn_0(uint16_t tid) {
 	trice32m_0(tid);
@@ -401,6 +405,7 @@ void trice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 }
 #endif
 
+//! \brief Wrapper family forwarding camel-case Trice32fn_* calls to Trice32m_* macros.
 #if ENABLE_Trice32fn_0
 void Trice32fn_0(uint16_t tid) {
 	Trice32m_0(tid);
@@ -479,6 +484,7 @@ void Trice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 }
 #endif
 
+//! \brief Wrapper family forwarding upper-case TRice32fn_* calls to TRice32m_* macros.
 #if ENABLE_TRice32fn_0
 void TRice32fn_0(uint16_t tid) {
 	TRice32m_0(tid);

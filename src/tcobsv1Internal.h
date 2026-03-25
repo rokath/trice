@@ -1,7 +1,8 @@
-/*! \file tcobsInternal.h
-\author Thomas.Hoehenleitner [at] seerose.net
-\details See ./TCOBSv1Specification.md. Only internal usage.
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file tcobsv1Internal.h
+//! \brief tcobsv 1 Internal declarations and macros.
+
 
 #ifndef TCOBS_INTERNAL_H_
 #define TCOBS_INTERNAL_H_

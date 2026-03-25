@@ -1,7 +1,8 @@
-/*! \file tcobsv1Decode.c
-\author Thomas.Hoehenleitner [at] seerose.net
-\details See ./TCOBSv1Specification.md.
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file tcobsv1Decode.c
+//! \brief tcobsv 1 Decode implementation.
+
 
 #include <stdint.h>
 #include <stddef.h>
@@ -14,6 +15,7 @@ static uint8_t repeatByte(int offset, uint8_t* in, int len);
 
 #pragma GCC diagnostic ignored "-Wstrict-overflow"
 
+// Public API is documented in tcobs.h.
 int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict input, size_t length) {
 	uint8_t* in = (uint8_t*)input;
 	int ilen = (int)length; // remaining input length
@@ -96,8 +98,11 @@ int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict inpu
 	return olen;
 }
 
-// sigilAndOffset interprets b as sigil byte with offset, fills sigil and returns offset.
-// For details see TCOBSv1Specification.md.
+//! \brief Split a packed sigil byte into sigil class and offset.
+//! \param sigil Output sigil class.
+//! \param b Encoded sigil byte.
+//! \return Offset value extracted from \p b.
+//! \note For details see TCOBSv1Specification.md.
 static int sigilAndOffset(uint8_t* sigil, uint8_t b) {
 	int offset;
 	*sigil = b & 0xE0; // 0x11100000
@@ -110,7 +115,11 @@ static int sigilAndOffset(uint8_t* sigil, uint8_t b) {
 	return offset;
 }
 
-// repeatByte returns the value to repeat
+//! \brief Get the repeated byte value for R2/R3/R4 sigils.
+//! \param offset Sigil offset.
+//! \param in Input buffer pointer.
+//! \param len Current readable input length.
+//! \return Byte value to repeat.
 static uint8_t repeatByte(int offset, uint8_t* in, int len) {
 	if (offset == 0) {      // left byte of Ri is a sigil byte (probably N)
 		return in[len - 2]; // a buffer cannot start with Ri

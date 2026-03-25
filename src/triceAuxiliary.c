@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: MIT
+
 //! \file triceAuxiliary.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! //////////////////////////////////////////////////////////////////////////
+//! \brief trice Auxiliary implementation.
+
+
 #include "trice.h"
 #include <stdint.h>
 #include <stdlib.h>

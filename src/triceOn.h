@@ -1,6 +1,8 @@
-/*! \file triceOn.h
-\author thomas.hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file triceOn.h
+//! \brief trice On declarations and macros.
+
 
 #ifndef TRICE_ON_H_
 #define TRICE_ON_H_

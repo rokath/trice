@@ -1,14 +1,13 @@
-//! \file cobsEncode.c copied from https://github.com/rokath/cobs
-//! \author Thomas.Hoehenleitner [at] seerose.net
+// SPDX-License-Identifier: MIT
+
+//! \file cobsEncode.c
+//! \brief cobs Encode implementation.
+
 
 #include "cobs.h"
 
-//! COBSEncode encodes data at in to out.
-//! @param in Pointer to input data to encode.
-//! @param length Number of bytes to encode.
-//! @param out Pointer to encoded output buffer.
-//! @return Encoded buffer length in bytes.
-//! @note Does not output delimiter byte. Code taken from Wikipedia and slightly adapted.
+// Public API is documented in cobs.h.
+// Implementation adapted from the Wikipedia COBS reference.
 size_t COBSEncode(void* __restrict out, const void* __restrict in, size_t length) {
 	uint8_t* buffer = out;     // (uint8_t*)out;
 	uint8_t* encode = buffer;  // Encoded byte pointer

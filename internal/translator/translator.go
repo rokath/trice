@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package translator
 
 import (
@@ -13,14 +15,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rokath/trice/internal/charDecoder"
+	_ "github.com/rokath/trice/internal/charDecoder"
 	"github.com/rokath/trice/internal/decoder"
-	"github.com/rokath/trice/internal/dumpDecoder"
+	_ "github.com/rokath/trice/internal/dumpDecoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/trexDecoder"
+	_ "github.com/rokath/trice/internal/trexDecoder"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -55,15 +57,9 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	default:
 		log.Fatal(fmt.Sprintln("unknown endianness", TriceEndianness, "- accepting litteEndian or bigEndian."))
 	}
-	switch strings.ToUpper(Encoding) {
-	case "TREX":
-		dec = trexDecoder.New(w, lut, m, li, rwc, endian)
-	case "CHAR":
-		dec = charDecoder.New(w, lut, m, li, rwc, endian)
-	case "DUMP":
-		dec = dumpDecoder.New(w, lut, m, li, rwc, endian)
-	default:
-		log.Fatal(fmt.Sprintln("unknown encoding ", Encoding))
+	dec, err := decoder.NewForEncoding(Encoding, w, lut, m, li, rwc, endian)
+	if err != nil {
+		log.Fatal(err)
 	}
 	if emitter.DisplayRemote {
 		keybcmd.ReadInput(rwc)

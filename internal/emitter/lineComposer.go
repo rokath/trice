@@ -1,5 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
 package emitter
 
@@ -8,7 +7,7 @@ import (
 	"time"
 )
 
-// SyncPacketPattern is used if a sync packet arrives
+// SyncPacketPattern is reserved for sync-packet handling.
 // const SyncPacketPattern = "inf:[TRICE_SYNC_PACKET 0x89abcdef]"
 
 // TriceLineComposer collects all partial strings forming one line.
@@ -21,9 +20,7 @@ type TriceLineComposer struct {
 	err             error
 }
 
-// newLineComposer constructs log lines according to these rules:...
-// It provides an io.StringWriter interface which is used for the reception of (trice) strings.
-// It uses lw for writing the generated lines.
+// newLineComposer creates a line composer using lw for finalized lines.
 func newLineComposer(lw LineWriter) *TriceLineComposer {
 	p := &TriceLineComposer{
 		lw,                      // initialize p.lw with lw
@@ -36,7 +33,7 @@ func newLineComposer(lw LineWriter) *TriceLineComposer {
 	return p
 }
 
-// timestamp returns local time as string according var p.timeStampFormat
+// timestamp returns the timestamp prefix for the configured format.
 func (p *TriceLineComposer) timestamp() string {
 	var s string
 	switch p.timestampFormat {
@@ -130,5 +127,5 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 func (p *TriceLineComposer) completeLine() {
 	p.lw.WriteLine(p.Line)
 	p.Line = p.Line[:0]
-	NextLine = true
+	NextLine = true // consumed by decoder table mode to detect completed output lines
 }

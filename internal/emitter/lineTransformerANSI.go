@@ -1,5 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
 package emitter
 
@@ -16,6 +15,7 @@ import (
 
 var userLabelsAdded bool
 
+// AddUserLabels appends user-defined labels to Tags once per process.
 func AddUserLabels() {
 	if userLabelsAdded {
 		return
@@ -38,6 +38,7 @@ type lineTransformerANSI struct {
 	colorPalette string
 }
 
+// ShowAllColors prints all foreground/background style combinations.
 func ShowAllColors() {
 	var i int
 	fgStyles := []string{"", "+b", "+B", "+u", "+i", "+s", "+h"}
@@ -118,7 +119,7 @@ func isLower(s string) bool {
 
 type tag struct {
 	count    int                 // count counts each occurance of the trice tag.
-	Names    []string            // name contains all usable names fo a specific tag.
+	Names    []string            // Names contains all aliases for one tag.
 	colorize func(string) string // colorize is the function called for each tag.
 }
 
@@ -157,6 +158,7 @@ var Tags = []tag{
 	{0, []string{"cfg", "config"}, colorizeDEFAULT},
 }
 
+// FindTagName maps any tag alias to its canonical name.
 func FindTagName(name string) (tagName string, err error) {
 	for _, t := range Tags {
 		for _, tn := range t.Names {
@@ -202,8 +204,7 @@ func PrintTagStatistics(w io.Writer) {
 	}
 }
 
-// tagVariants returns all variants of ch as string slice.
-// If ch is not inside ansiSel nil is returned.
+// tagVariants returns all known aliases for ch, or nil if unknown.
 func tagVariants(ch string) []string {
 	for _, s := range Tags {
 		for _, c := range s.Names {
@@ -221,7 +222,7 @@ func isTag(tag string) bool {
 	return cv != nil
 }
 
-// colorize prefixes s with an ansi color code according to these conditions:
+// colorize transforms s according to tag and palette configuration:
 // If p.colorPalette is "off", do nothing.
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is start of string add ANSI color code according to COL:
@@ -284,6 +285,7 @@ func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 // Additionally, if global variable LogLevel is not the default "all", but found inside
 // ColorChannels, logs with higher index positions are suppressed.
 // As special case LogLevel == "off" does not output anything.
+// Colorize applies global tag/palette rules to s.
 func Colorize(s string) (r string) {
 	if LogLevel == "off" {
 		return // do not log at all, return empty string
