@@ -533,7 +533,7 @@ Making it facile for a user to use Trice was the driving point just to have
 
 Trice understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the Trice tool. When [til.json](https://github.com/rokath/trice/blob/main/demoTIL.json) was updated in a pre-build step, the Trice tool automatically reloads the new data during logging.
 
-The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. <small>The generated file [../docs/ref/trice-help-all.txt](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt) contains this information as well.</small>
+The Trice tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. <small>The generated file [ref/trice-help-all.txt](ref/trice-help-all.txt) contains this information as well.</small>
 
 Normal Trice tool usage is:
 * [./build.sh](https://github.com/rokath/trice/blob/main/examples/L432_inst/build.sh) containing `trice insert -cache`, `make` and `trice clean -cache`
@@ -689,7 +689,7 @@ The Trice tool is expandable with several decoders. So it is possible to impleme
 
 When less RAM usage is more important the target double buffer is replaceable with a ring buffer. So the user will be able to decide at compile time about that. A ring buffer mode is selectable inside [triceConfig.h](https://github.com/rokath/trice/blob/main/examples/F030_inst/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
 
-The Trice tool supports [many command line switches](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt).
+The Trice tool supports [many command line switches](ref/trice-help-all.txt).
 
 ###  4.16. <a id='optional-trice-messages-encryption'></a>Optional Trice messages encryption
 
@@ -1966,7 +1966,7 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
 
 ###  18.1. <a id='target-(time)stamps-formatting'></a>Target (Time)Stamps Formatting
 
-To get a short overview run `trice help -log` and read about the CLI switches `ts`, `ts0`, `ts16`, `ts32` in the generated [CLI help file](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt). The `ts32` switch supports also "epoch" now as format. That is useful for example, if the binary logs are stored internally in the device flash and read out later. Such usage assumes 1 second as ts32 unit in `uint32_t` format and the Trice tool displays the UTC time. It is also possible to adapt the displayed format like this for example: `trice log -ts32='epoch"06-01-02_15:04:05"'`. The additional passed string must match the Go time package capabilities. A few examples:
+To get a short overview run `trice help -log` and read about the CLI switches `ts`, `ts0`, `ts16`, `ts32` in the generated [CLI help file](ref/trice-help-all.txt). The `ts32` switch supports also "epoch" now as format. That is useful for example, if the binary logs are stored internally in the device flash and read out later. Such usage assumes 1 second as ts32 unit in `uint32_t` format and the Trice tool displays the UTC time. It is also possible to adapt the displayed format like this for example: `trice log -ts32='epoch"06-01-02_15:04:05"'`. The additional passed string must match the Go time package capabilities. A few examples:
 
 ```bash
 trice log -port FILEBUFFER -args myLogs.bin -ts32='"Mon Jan _2 15:04:05 2006"'             # ANSIC   
