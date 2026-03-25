@@ -174,7 +174,7 @@ func TestAutoTargetStamp0Delta(t *testing.T) {
 	decoder.TargetStamp32Delta = ""
 	autoTargetStamp0Delta()
 
-	if decoder.TargetStamp0Delta != strings.Repeat(" ", len("dt:   0")) {
+	if decoder.TargetStamp0Delta != strings.Repeat(" ", len("   0")) {
 		t.Fatalf("unexpected auto ts0delta width: %q", decoder.TargetStamp0Delta)
 	}
 
@@ -192,7 +192,7 @@ func TestAutoTargetStamp0Delta(t *testing.T) {
 	decoder.TargetStamp32Delta = "dt:%5d"
 	autoTargetStamp0Delta()
 
-	if decoder.TargetStamp0Delta != strings.Repeat(" ", len("dt:    0")) {
+	if decoder.TargetStamp0Delta != strings.Repeat(" ", len("    0")) {
 		t.Fatalf("ts0delta should use widest mismatched width, got %q", decoder.TargetStamp0Delta)
 	}
 }
