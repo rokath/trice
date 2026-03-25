@@ -170,13 +170,16 @@ var (
 )
 
 func fmtFMessage(w io.Writer, pc uintptr, fn string, line int, ok bool, err error) {
-	if ok {
-		funcName := runtime.FuncForPC(pc).Name()
-		fileName := filepath.Base(fn)
-		fmt.Fprintf(w, formatString+"\n", fileName, line, funcName, err)
-	} else {
+	if !ok {
 		fmt.Fprintln(w, seriousError)
+		return
 	}
+	fileName := filepath.Base(fn)
+	funcName := "<unknown>"
+	if f := runtime.FuncForPC(pc); f != nil {
+		funcName = f.Name()
+	}
+	fmt.Fprintf(w, formatString+"\n", fileName, line, funcName, err)
 }
 
 func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
@@ -184,13 +187,16 @@ func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
 }
 
 func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
-	if ok {
-		funcName := runtime.FuncForPC(pc).Name()
-		fileName := filepath.Base(fn)
-		logFatalf(formatString, fileName, line, funcName, err)
-	} else {
+	if !ok {
 		logFatalf("%s", seriousError)
+		return
 	}
+	fileName := filepath.Base(fn)
+	funcName := "<unknown>"
+	if f := runtime.FuncForPC(pc); f != nil {
+		funcName = f.Name()
+	}
+	logFatalf(formatString, fileName, line, funcName, err)
 }
 
 // -----------------------------------------------
@@ -210,7 +216,7 @@ func OsExitDisallow() (o OrigLogFatalf) {
 
 	logFatalf = func(format string, args ...interface{}) {
 		if len(args) > 0 {
-			fmt.Printf(format, args)
+			fmt.Printf(format, args...)
 		} else {
 			fmt.Print(format)
 		}
