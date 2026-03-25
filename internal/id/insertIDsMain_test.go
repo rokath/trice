@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package id_test
 
 // The tests in this file cannot run concurrently!

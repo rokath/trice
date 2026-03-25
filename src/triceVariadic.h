@@ -1,6 +1,8 @@
-/*! \file triceVariadic.h
-\author thomas.hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file triceVariadic.h
+//! \brief trice Variadic declarations and macros.
+
 
 #ifndef TRICE_VARIADIC_H
 #define TRICE_VARIADIC_H

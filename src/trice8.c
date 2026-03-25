@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: MIT
+
 //! \file trice8.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! ///////////////////////////////////////////////////////////////////////////
+//! \brief trice 8 implementation.
+
+
 #include "trice.h"
 
 // lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
@@ -323,6 +326,7 @@
 #endif
 #endif
 
+//! \brief Wrapper family forwarding lowercase trice8fn_* calls to trice8m_* macros.
 #if ENABLE_trice8fn_0
 void trice8fn_0(uint16_t tid) {
 	trice8m_0(tid);
@@ -401,6 +405,7 @@ void trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 }
 #endif
 
+//! \brief Wrapper family forwarding camel-case Trice8fn_* calls to Trice8m_* macros.
 #if ENABLE_Trice8fn_0
 void Trice8fn_0(uint16_t tid) {
 	Trice8m_0(tid);
@@ -479,6 +484,7 @@ void Trice8fn_12(uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, u
 }
 #endif
 
+//! \brief Wrapper family forwarding upper-case TRice8fn_* calls to TRice8m_* macros.
 #if ENABLE_TRice8fn_0
 void TRice8fn_0(uint16_t tid) {
 	TRice8m_0(tid);

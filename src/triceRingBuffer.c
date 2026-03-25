@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: MIT
+
 //! \file triceRingBuffer.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! //////////////////////////////////////////////////////////////////////////
+//! \brief trice Ring Buffer implementation.
+
+
 #include "cobs.h"
 #include "tcobs.h"
 #include "trice.h"
@@ -161,8 +164,8 @@ int TriceEnoughSpace(void) {
 
 #endif // #if TRICE_PROTECT == 1
 
-// triceIncrementRingBufferReadPosition sets TriceRingBufferReadPosition forward by wordCount.
-//! \param lastWordCount is the u32 count of the last read trice including padding bytes.
+//! \brief Move ring-buffer read position forward and wrap at the protect limit.
+//! \param wordCount U32 count of the last read Trice including padding bytes.
 TRICE_INLINE void triceIncrementRingBufferReadPosition(int wordCount) {
 	TriceRingBufferReadPosition += wordCount;
 	if (TriceRingBufferReadPosition > TriceRingBufferProtectLimit) {
@@ -170,7 +173,7 @@ TRICE_INLINE void triceIncrementRingBufferReadPosition(int wordCount) {
 	}
 }
 
-// triceRingBufferDiagnostics computes and tracks TriceRingBufferDepthMax
+//! \brief Update ring-buffer depth diagnostics.
 TRICE_INLINE void triceRingBufferDiagnostics(void) {
 #if TRICE_DIAGNOSTICS == 1
 	int depth = (TriceBufferWritePosition - TriceRingBufferReadPosition) << 2; // lint !e845 Info 845: The left argument to operator '<<' is certain to be 0
@@ -372,9 +375,13 @@ static void triceSingleDeferredOut(int* wordCount) {
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 
-// triceMultiDeferredOut packs Trices until the Ring Buffer end and returns their count and total length in words.
-// These 2 values are used later, after the transmission is finished, for advancing.
-// The value TricesCountRingBuffer is evaluated internally but not modified.
+//! \brief Pack multiple queued Trices from ring buffer into a single transfer chunk.
+//! \param triceCount Output count of packed Trices.
+//! \param multiWordCount Output total 32-bit word count of packed Trices.
+//! \details
+//! Packs Trices until the ring-buffer end and returns their count and total length in words.
+//! These values are used after transmission finishes to advance the read position.
+//! TricesCountRingBuffer is inspected internally but not modified.
 static void triceMultiDeferredOut(int* triceCount, int* multiWordCount) {
 	*triceCount = 0;
 	*multiWordCount = 0;
@@ -448,6 +455,7 @@ static void triceMultiDeferredOut(int* triceCount, int* multiWordCount) {
 
 #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
+//! \brief Initialize overflow-watch margin sentinels around the ring buffer.
 void TriceInitRingBufferMargins(void) {
 	for (int i = 0; i < TRICE_RING_BUFFER_LOWER_MARGIN; i++) {
 		triceRingBuffer[i] = TRICE_RING_BUFFER_MARGIN_FILL_VALUE;
@@ -457,6 +465,7 @@ void TriceInitRingBufferMargins(void) {
 	}
 }
 
+//! \brief Check lower and upper ring-buffer margins for corruption.
 void WatchRingBufferMargins(void) {
 	for (int i = 0; i < TRICE_RING_BUFFER_LOWER_MARGIN; i++) {
 		if (triceRingBuffer[i] != TRICE_RING_BUFFER_MARGIN_FILL_VALUE) {

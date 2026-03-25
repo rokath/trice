@@ -1,6 +1,8 @@
-/*! \file triceMcuOrder.h
-\author Thomas.Hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file triceMcuOrder.h
+//! \brief trice Mcu Order declarations and macros.
+
 
 #ifndef TRICE_MCU_ORDER_H_
 #define TRICE_MCU_ORDER_H_

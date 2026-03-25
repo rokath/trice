@@ -1,6 +1,8 @@
-/*! \file trice16McuReverse.h
-\author thomas.hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file trice16McuReverse.h
+//! \brief trice 16 Mcu Reverse declarations and macros.
+
 
 #ifndef TRICE16_MCU_REVERSE_H_
 #define TRICE16_MCU_REVERSE_H_

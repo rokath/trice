@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: MIT
+
 //! \file triceDoubleBuffer.c
-//! \author Thomas.Hoehenleitner [at] seerose.net
-//! //////////////////////////////////////////////////////////////////////////
+//! \brief trice Double Buffer implementation.
+
+
 #include "cobs.h"
 #include "tcobs.h"
 #include "trice.h"

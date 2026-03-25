@@ -1,6 +1,8 @@
-/*! \file xtea.c
-\author Thomas.Hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file xtea.c
+//! \brief xtea implementation.
+
 
 #include "xtea.h"
 #include "trice.h"
@@ -19,8 +21,8 @@ static const uint32_t delta = 0x9E3779B9;
 //! precomputed values for faster execution
 static uint32_t table[64];
 
-//! XTEAInitTable precalculates the table.
-//! It is possible to put this table completely into FLASH by precomputing it during compile time.
+// Public API is documented in xtea.h.
+// The table can be precomputed at compile time if desired.
 void XTEAInitTable(void) {
 	uint32_t sum = 0;
 	unsigned i;
@@ -36,7 +38,7 @@ void XTEAInitTable(void) {
 
 // encipher converts 64 bits.
 //! Code taken and adapted from xtea\block.go
-//!\param v 64 bits of data in v[0] and v[1] are encoded in place
+//! \param v 64 bits of data in v[0] and v[1] are encoded in place
 static void encipher(uint32_t v[2]) {
 	uint32_t v0 = v[0], v1 = v[1];
 	unsigned i;
@@ -53,7 +55,7 @@ static void encipher(uint32_t v[2]) {
 #if XTEA_DECRYPT == 1
 //! decipher reverses encipher action.
 //! Code taken and adapted from xtea\block.go
-//!\param v 64 bits of data in v[0] and v[1] are decoded in place
+//! \param v 64 bits of data in v[0] and v[1] are decoded in place
 static void decipher(uint32_t v[2]) {
 	uint32_t v0 = v[0], v1 = v[1];
 	for (int i = numRounds; i > 0;) {
@@ -66,9 +68,7 @@ static void decipher(uint32_t v[2]) {
 	v[1] = v1;
 }
 
-//! XTEADecrypt re-converts from xtea cipher.
-//! \param p pointer to 8 byte buffer
-//! \param count is expected to be an even number.
+// Public API is documented in xtea.h.
 void XTEADecrypt(uint32_t* p, unsigned count) {
 	for (int i = 0; i < count; i += 2) {
 		decipher(&p[i]); // byte swapping is done inside receiver according to endianness.
@@ -76,9 +76,7 @@ void XTEADecrypt(uint32_t* p, unsigned count) {
 }
 #endif // #if XTEA_DECRYPT == 1
 
-//! XTEAEncrypt converts to xtea cipher.
-//! \param p pointer to 8 byte buffer.
-//! count is expected to be an even number.
+// Public API is documented in xtea.h.
 void XTEAEncrypt(uint32_t* p, unsigned count) {
 	unsigned i;
 	for (i = 0; i < count; i += 2) {

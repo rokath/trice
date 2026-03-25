@@ -1,5 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
 package emitter
 
@@ -15,15 +14,15 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-// remoteDisplay is transferring to a remote display object.
+// remoteDisplay forwards lines to a remote RPC display server.
 type remoteDisplay struct {
-	w      io.Writer   // os.Stdout
+	w      io.Writer   // status output destination (usually stdout)
 	Err    error       // stored error
-	Cmd    string      // remote server executable
-	Params string      // remote server additional parameters (despite "ds -ipa a.b.c.d -ipp nnnn")
-	IPAddr string      // IP addr
-	IPPort string      // IP port
-	PtrRPC *rpc.Client // PtrRPC is a pointer for remote calls valid after a successful rpc.Dial()
+	Cmd    string      // remote server executable (reserved)
+	Params string      // remote server additional parameters (reserved)
+	IPAddr string      // server IP address
+	IPPort string      // server TCP port
+	PtrRPC *rpc.Client // valid after successful rpc.Dial
 }
 
 // newRemoteDisplay creates a connection to a remote Display and implements the Linewriter interface.
@@ -59,7 +58,7 @@ func (p *remoteDisplay) errorFatal() {
 	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
-// WriteLine is implementing the Linewriter interface for RemoteDisplay.
+// WriteLine implements LineWriter.
 func (p *remoteDisplay) WriteLine(line []string) {
 	p.errorFatal()
 	p.Err = p.PtrRPC.Call("DisplayServer.WriteLine", line, nil)
@@ -76,9 +75,8 @@ func (p *remoteDisplay) WriteLine(line []string) {
 //  	time.Sleep(1000 * time.Millisecond)
 //  }
 
-// connect is called by the client and tries to dial.
-// On success PtrRpc is valid afterwards and the output is re-directed.
-// Otherwise, an error code is stored inside remoteDisplay.
+// connect dials the configured RPC endpoint once.
+// On success PtrRPC is valid afterwards and line output is redirected there.
 func (p *remoteDisplay) connect() {
 	addr := p.IPAddr + ":" + p.IPPort
 	if nil != p.PtrRPC {

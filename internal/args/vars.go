@@ -1,8 +1,5 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
-// Package args implements the commandline interface and calls the appropriate commands.
-// Its function Handler is called in package main as entry point.
 package args
 
 import (
@@ -10,28 +7,28 @@ import (
 )
 
 var (
-	// Version is the program version number and is injected from main package.
+	// Version is injected at build time (typically by goreleaser).
 	Version string
 
-	// Commit is the program checksum and injected from main package.
+	// Commit is the VCS revision hash injected at build time.
 	Commit string
 
-	// Date is the compilation time and injected from main package.
+	// Date is the build timestamp injected at build time.
 	Date string
 
-	// Verbose gives more information on output if set. This variable is copied into the appropriate packages.
+	// Verbose enables additional informational output.
 	Verbose bool
 
-	// Branch is the during compile time active git repo branch.
-	Branch    string
+	// Branch is the Git branch name at build time.
+	Branch string
 
-	// GitState is "clean" or "dirty"
-	GitState  string 
+	// GitState indicates repository state at build time ("clean" or "dirty").
+	GitState string
 
-	// GitStatus during build.sh, with | divided
+	// GitStatus contains a '|' separated summary of modified files at build time.
 	GitStatus string
 
-	// BuiltBy is an optiona usable value. See .goreleaser.yaml.
+	// BuiltBy is an optional builder identifier (see .goreleaser.yaml).
 	BuiltBy string
 
 	// fsScAdd is flag set for sub command 'add' for updating ID list without touching the sources.

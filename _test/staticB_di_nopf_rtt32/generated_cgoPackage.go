@@ -1,5 +1,4 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
 // Package cgot is a helper for testing the target C-code.
 // Each C function gets a Go wrapper which is tested in appropriate test functions.

@@ -1,7 +1,5 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
-// Package msg provides common message functions.
 package msg
 
 import (
@@ -15,6 +13,7 @@ import (
 	"sync"
 )
 
+// Verbose controls additional optional output for Tell.
 var Verbose bool
 
 // Info prints info with location info.

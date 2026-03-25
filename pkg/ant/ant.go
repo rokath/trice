@@ -1,10 +1,6 @@
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// Use of this source code is governed by a license that can be found in the LICENSE file.
+// SPDX-License-Identifier: MIT
 
-// package ant performs a function of type Processing on each file in several files, folders and sub-folders.
 package ant
-
-// source tree management
 
 import (
 	"errors"
@@ -34,12 +30,14 @@ type Admin struct {
 	errorCount       int                       // errorCount gets incremented by each started go routine on an error.
 }
 
+// addError increments the internal walk error counter.
 func (p *Admin) addError() {
 	p.Mutex.Lock()
 	p.errorCount++
 	p.Mutex.Unlock()
 }
 
+// getErrorCount returns a snapshot of accumulated processing errors.
 func (p *Admin) getErrorCount() int {
 	p.Mutex.RLock()
 	defer p.Mutex.RUnlock()
