@@ -280,6 +280,7 @@ extern uint32_t* TriceBufferWritePosition;
 #if TRICE_CYCLE_COUNTER == 1
 
 #define TRICE_CYCLE (TriceCycle++ & 0xFF) //!< TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
+#define TRICE_CYCLE_INCREMENT (TriceCycle++)
 
 #else // #if TRICE_CYCLE_COUNTER == 1
 
@@ -757,7 +758,7 @@ void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString);
 //! TRICE_LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
 #define TRICE_LCNT(count)            \
 	TRICE_PUT16((0x8000 | (count))); \
-	TRICE_CYCLE // increment TRICE_CYCLE but do not transmit it
+	TRICE_CYCLE_INCREMENT // increment TRICE_CYCLE but do not transmit it
 
 #else
 
