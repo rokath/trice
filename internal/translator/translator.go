@@ -166,15 +166,15 @@ func autoTargetStamp0Delta() {
 		if cfg.format == "" {
 			continue
 		}
-		widths = append(widths, targetStampWidth(cfg.size, cfg.format))
+		widths = append(widths, targetStampDisplayWidth(cfg.size, cfg.format))
 	}
 	if len(widths) == 0 {
 		return
 	}
 	width := widths[0]
 	for _, w := range widths[1:] {
-		if w != width {
-			return
+		if w > width {
+			width = w
 		}
 	}
 	decoder.TargetStamp0Delta = strings.Repeat(" ", width)
@@ -184,22 +184,65 @@ func targetStampWidth(size int, format string) int {
 	return len(formatTargetStamp(size, format, 0))
 }
 
-func renderTargetStampColumns(size int, timestamp uint64, state *targetStampState) string {
-	var absoluteFormat, deltaFormat string
-	switch size {
-	case 4:
-		absoluteFormat = decoder.TargetStamp32
-		deltaFormat = decoder.TargetStamp32Delta
-	case 2:
-		absoluteFormat = decoder.TargetStamp16
-		deltaFormat = decoder.TargetStamp16Delta
-	case 0:
-		absoluteFormat = decoder.TargetStamp0
-		deltaFormat = decoder.TargetStamp0Delta
-	default:
+func targetStampDisplayWidth(size int, format string) int {
+	s := formatTargetStamp(size, format, 0)
+	tag, rest, found := strings.Cut(s, ":")
+	if found && tag != "" {
+		return len(rest)
+	}
+	return len(s)
+}
+
+func commonTargetDeltaPlaceholder() string {
+	if decoder.TargetStamp0Delta != "" {
+		return decoder.TargetStamp0Delta
+	}
+	width := 0
+	for _, cfg := range []struct {
+		size   int
+		format string
+	}{
+		{2, decoder.TargetStamp16Delta},
+		{4, decoder.TargetStamp32Delta},
+	} {
+		if cfg.format == "" {
+			continue
+		}
+		w := targetStampDisplayWidth(cfg.size, cfg.format)
+		if w > width {
+			width = w
+		}
+	}
+	if width == 0 {
 		return ""
 	}
-	return formatTargetStamp(size, absoluteFormat, timestamp) + formatTargetDelta(size, deltaFormat, timestamp, state)
+	return strings.Repeat(" ", width)
+}
+
+func targetStampFormats(size int) (absoluteFormat, deltaFormat string) {
+	switch size {
+	case 4:
+		return decoder.TargetStamp32, decoder.TargetStamp32Delta
+	case 2:
+		return decoder.TargetStamp16, decoder.TargetStamp16Delta
+	case 0:
+		return decoder.TargetStamp0, decoder.TargetStamp0Delta
+	default:
+		return "", ""
+	}
+}
+
+func renderTargetStamp(size int, timestamp uint64) string {
+	absoluteFormat, _ := targetStampFormats(size)
+	return formatTargetStamp(size, absoluteFormat, timestamp)
+}
+
+func renderTargetDelta(size int, timestamp uint64, state *targetStampState) string {
+	_, deltaFormat := targetStampFormats(size)
+	if deltaFormat == "" {
+		return commonTargetDeltaPlaceholder()
+	}
+	return formatTargetDelta(size, deltaFormat, timestamp, state)
 }
 
 func formatTargetDelta(size int, format string, timestamp uint64, state *targetStampState) string {
@@ -214,7 +257,7 @@ func formatTargetDelta(size int, format string, timestamp uint64, state *targetS
 		if !state.hasPrev16 {
 			state.prev16 = current
 			state.hasPrev16 = true
-			return formatMissingTargetDelta(format)
+			return formatMissingTargetDelta(size, format)
 		}
 		delta := uint16(current - state.prev16)
 		state.prev16 = current
@@ -224,7 +267,7 @@ func formatTargetDelta(size int, format string, timestamp uint64, state *targetS
 		if !state.hasPrev32 {
 			state.prev32 = current
 			state.hasPrev32 = true
-			return formatMissingTargetDelta(format)
+			return formatMissingTargetDelta(size, format)
 		}
 		delta := uint32(current - state.prev32)
 		state.prev32 = current
@@ -232,6 +275,45 @@ func formatTargetDelta(size int, format string, timestamp uint64, state *targetS
 	default:
 		return ""
 	}
+}
+
+func formatTargetDeltaValue(size int, timestampFormat string, timestamp uint64) string {
+	switch size {
+	case 4:
+		switch timestampFormat {
+		case "ms", "hh:mm:ss,ms":
+			ms := timestamp % 1000
+			sec := (timestamp - ms) / 1000 % 60
+			min := (timestamp - ms - 1000*sec) / 60000 % 60
+			hour := (timestamp - ms - 1000*sec - 60000*min) / 3600000
+			return fmt.Sprintf("%2d:%02d:%02d,%03d", hour, min, sec, ms)
+		case "us", "Âµs", "ssss,ms_Âµs":
+			us := timestamp % 1000
+			ms := (timestamp - us) / 1000 % 1000
+			sd := (timestamp - 1000*ms) / 1000000
+			return fmt.Sprintf("%4d,%03d_%03d", sd, ms, us)
+		default:
+			return fmt.Sprintf(timestampFormat, timestamp)
+		}
+	case 2:
+		switch timestampFormat {
+		case "ms", "s,ms":
+			ms := timestamp % 1000
+			sec := (timestamp - ms) / 1000
+			return fmt.Sprintf("      %2d,%03d", sec, ms)
+		case "us", "Âµs", "ms_Âµs":
+			us := timestamp % 1000
+			ms := (timestamp - us) / 1000 % 1000
+			return fmt.Sprintf("      %2d_%03d", ms, us)
+		default:
+			return fmt.Sprintf(timestampFormat, timestamp)
+		}
+	case 0:
+		if timestampFormat != "" {
+			return fmt.Sprint(timestampFormat)
+		}
+	}
+	return ""
 }
 
 func formatTargetStamp(size int, format string, timestamp uint64) string {
@@ -303,10 +385,13 @@ func formatTargetStamp16(format string, timestamp uint64) string {
 	}
 }
 
-func formatMissingTargetDelta(format string) string {
+func formatMissingTargetDelta(size int, format string) string {
 	prefix, width, leftAlign, suffix, ok := splitSingleFormatDirective(format)
 	if !ok {
-		return "-"
+		if isBuiltinTargetStampFormat(size, format) {
+			return strings.Repeat(" ", targetStampDisplayWidth(size, format))
+		}
+		return formatTargetStamp(size, format, 0)
 	}
 	marker := "-"
 	if width > 0 {
@@ -317,6 +402,22 @@ func formatMissingTargetDelta(format string) string {
 		}
 	}
 	return prefix + marker + suffix
+}
+
+func isBuiltinTargetStampFormat(size int, format string) bool {
+	switch size {
+	case 4:
+		switch format {
+		case "ms", "hh:mm:ss,ms", "us", "Âµs", "ssss,ms_Âµs":
+			return true
+		}
+	case 2:
+		switch format {
+		case "ms", "s,ms", "us", "Âµs", "ms_Âµs":
+			return true
+		}
+	}
+	return false
 }
 
 func splitSingleFormatDirective(format string) (prefix string, width int, leftAlign bool, suffix string, ok bool) {
@@ -417,11 +518,20 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 
 			var s string
 			if logLineStart {
-				s = renderTargetStampColumns(decoder.TargetTimestampSize, decoder.TargetTimestamp, &state)
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-				_, err = sw.Write([]byte("default: "))
-				msg.OnErr(err)
+				s = renderTargetStamp(decoder.TargetTimestampSize, decoder.TargetTimestamp)
+				if s != "" {
+					_, err := sw.Write([]byte(s))
+					msg.OnErr(err)
+					_, err = sw.Write([]byte("default: "))
+					msg.OnErr(err)
+				}
+				s = renderTargetDelta(decoder.TargetTimestampSize, decoder.TargetTimestamp, &state)
+				if s != "" {
+					_, err := sw.Write([]byte(s))
+					msg.OnErr(err)
+					_, err = sw.Write([]byte("default: "))
+					msg.OnErr(err)
+				}
 			}
 			// write ID only if enabled and line start.
 			if logLineStart && decoder.ShowID != "" {
