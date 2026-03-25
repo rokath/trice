@@ -21,7 +21,7 @@ func TestFatalInfoOnFalse(t *testing.T) {
 	var e []string
 	logFatalf = func(format string, args ...interface{}) {
 		if len(args) > 0 {
-			e = append(e, fmt.Sprintf(format, args))
+			e = append(e, fmt.Sprintf(format, args...))
 		} else {
 			e = append(e, format)
 		}
