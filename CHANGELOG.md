@@ -56,7 +56,10 @@ Table of Contents Generation:
 * 20. [v0.73.1 Changes](#v0.73.1-changes)
         * 20.1. [v0.73.0 Overview](#v0.73.0-overview-1)
         * 20.2. [v0.73.0 Git Log](#v0.73.0-git-log-1)
-* 21. [master branch changes](#master-branch-changes)
+* 21. [v1.2.0 Changes](#v1.2.0-changes)
+        * 21.1. [v1.2.0 Overview](#v1.2.0-overview)
+        * 21.2. [v1.2.0 Git Log](#v1.2.0-git-log)
+* 22. [master branch changes](#master-branch-changes)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -126,7 +129,9 @@ date        | version | comment
 2024-NOV-29 |  0.72.3 | See [16. v0.72.3 Changes](#v0.72.3-changes)
 2024-DEC-10 |  0.72.4 | See [17. v0.72.4 Changes](#v0.72.4-changes)
 2024-DEC-18 |  0.72.5 | See [18. v0.72.5 Changes](#v0.72.5-changes)
-2024-DEC-18 |  master | See [19. master branch changes](#master-branch-changes)
+2026-JAN-26 |   1.1.1 | See [v1.1.1 Changes](#v1.1.1-changes)
+2026-MAR-26 |   1.2.0 | See [21. v1.2.0 Changes](#v1.2.0-changes)
+2024-DEC-18 |  master | See [22. master branch changes](#master-branch-changes)
 
 ## 1. <a id='v0.60.1-twice-log-screen-shot'></a>v0.60.1 Twice Log Screen Shot
 
@@ -1151,6 +1156,111 @@ Used command: `./gitLogWithBranches.sh --since 2025-04-01` and unimportant lines
 *            ef6f3046 2025-04-25  Release 1.0
 ```
 
-## 21. <a id='master-branch-changes'></a>master branch changes
+## <a id='v1.1.1-changes'></a>v1.1.1 Changes
+
+* Maintenance release with no intentional breaking changes.
+* Target-side warning cleanup and portability improvements:
+  * pointer type warnings/errors fixed in target code
+  * CI setup extended for `arm-none-eabi-gcc`
+* Documentation and release artifact improvements:
+  * Trice User Manual improved and PDF re-generated
+  * README links corrected and relative links replaced where needed to keep generated PDF links valid
+* CI and repository maintenance:
+  * CodeQL workflow refreshed and extended
+  * `testAll.sh` hardened
+  * smaller test and script corrections
+
+### v1.1.1 Git Log
+
+Used command: `./gitLogWithBranches.sh --since 2025-12-22` and unimportant lines and infos removed
+
+```txt
+*            f4e4022e 2026-01-26  user manual PDF re-generated
+*            b99f5ea3 2026-01-26  codeQL status badge added
+*            2839f32c 2026-01-26  re-add CodeQL workflow after reset
+*            17cb59c8 2026-01-26  temporarily remove CodeQL workflow to reset configuration
+*            3bba2a35 2026-01-26  codeQL script extended to fight security issue message
+*            930078e8 2026-01-22  job name analyze-cpp changed to analyze
+*            b8316ade 2026-01-22  arm-none-eabi-gcc CI setup added
+*            3587e3dc 2026-01-22  codeql.yml updated: use v4 and manual builds
+*            f77c5610 2026-01-22  2 links corrected
+*            1c1337e8 2026-01-22  testAll.sh script hardened
+*            256e6a9b 2026-01-22  case in links corrected
+*            0f9c509c 2026-01-22  script correction
+*            195ccfb0 2026-01-22  Relative links replaced with absolute links, to keep them valid also in the generated TriceUserManusl.pdf
+*            4848d6a1 2026-01-21  tests corrected
+*            7ad70399 2026-01-21  Fix pointer type warnings/errors. Fixes rokath/trice#594 (#597)
+*            8eee86e2 2026-01-21  Improvements to Trice User Manual. Fixes rokath/trice#595 (#598)
+*            536c7b12 2025-12-22  Update README.md
+```
+
+## 21. <a id='v1.2.0-changes'></a>v1.2.0 Changes
+
+### 21.1. <a id='v1.2.0-overview'></a>v1.2.0 Overview
+
+* New CLI support for target timestamp delta columns, including width handling, explicit disable semantics and documentation updates (Issue [#611](https://github.com/rokath/trice/issues/611) solved)
+* Compile as C++ now possible (Issue [#610](https://github.com/rokath/trice/issues/610) solved with accepted PR [#609](https://github.com/rokath/trice/pull/609))
+* Support for compilers without 64-bit integers (Issue [#607](https://github.com/rokath/trice/issues/607) solved with accepted PR [#609](https://github.com/rokath/trice/pull/609))
+* Support for architecture with 16-bit integers (Issue [#608](https://github.com/rokath/trice/issues/608) solved with accepted PR [#609](https://github.com/rokath/trice/pull/609))
+* Decoder initialization was reworked around a shared registry and constructor path, reducing duplication across char, dump and trex decoders.
+* Testing and maintainability were improved significantly:
+  * broader coverage in `args`, `emitter`, `com`, `do`, `decoder`, `trexDecoder` and several package-level tests
+  * source and package comments normalized and expanded
+  * SPDX headers and include-block formatting cleaned up across the code base
+* Target-side and formatting robustness were improved:
+  * deferred transfer path cleanup
+  * variadic formatting fix in `msg` tests
+  * clearer debug-buffer rendering in `trexDecoder`
+* Repository and CI polish:
+  * PR template added
+  * generated help links refreshed
+  * markdown lint fixes
+  * lychee link check tuned to ignore a flaky `circuitcellar.com` response
+
+This release is primarily a quality and maintainability release. No intentional breaking CLI or target API changes are documented here.
+
+### 21.2. <a id='v1.2.0-git-log'></a>v1.2.0 Git Log
+
+Used command: `./gitLogWithBranches.sh --since 2026-02-09` and unimportant lines and infos removed
+
+```txt
+*            502faf29 2026-03-26  ci: exclude flaky circuitcellar link from lychee
+*            726a9dfd 2026-03-26  docs: fix markdown lint issues
+*            a4254eb2 2026-03-26  Make ant verbose exclude test path-portable
+*            4aca9335 2026-03-26  Document tsdelta disable semantics and examples
+*            345b6447 2026-03-26  Treat explicit empty tsdelta flags as disabled
+*            5f6193be 2026-03-26  Extend ANSI time tag aliases
+*            2719b918 2026-03-26  Keep uppercase timestamp tags in width calculation
+*            2494f1b5 2026-03-26  Merge branch 'codexRefactoring'
+|\           e1ccdeab 2026-02-22  test(emitter): increase coverage across filters, RPC paths, and helpers
+| *          8d9925b5 2026-02-22  refactor(emitter): simplify banOrPickFilter with slices.Contains
+| *          5638a6a2 2026-02-22  docs(emitter): add package doc and improve code comments
+| *          2f642de0 2026-02-21  test(do): improve docs and add tcpWriter coverage
+| *          7ff365ed 2026-02-21  test(com): cover open/close verbose and list-error paths
+| *          d7019131 2026-02-21  refactor(trexDecoder): stringify removeZeroHiByte debug bytes
+| *          b734ae72 2026-02-21  test(trexDecoder): add none-framing edge-case coverage
+| *          98f78d9a 2026-02-21  test(trexDecoder): cover password-enabled decrypt stage
+| *          29661f35 2026-02-21  refactor(trexDecoder): extract formatting helpers and raise coverage
+| *          413f5550 2026-02-21  test(decoders): improve coverage and tighten decoder comments
+| *          40e66f5b 2026-02-21  docs(src): refine doxygen API docs and remove duplicate impl comments
+| *          a4238939 2026-02-21  chore(src): normalize SPDX headers and include-block spacing
+| *          dc9e54c5 2026-02-21  tests(pkg): expand ant/cipher/msg/tst coverage
+| *          514a9143 2026-02-21  tests(args): increase handler branch coverage to 88%
+| *          18f12875 2026-02-21  tests(args): increase help and subcommand coverage
+| *          a662e47a 2026-02-21  args: add package docs and improve CLI comments
+| *          c2a431ae 2026-02-20  decoder: migrate char/dump/trex packages to shared init path
+| *          b30e146e 2026-02-20  decoder: add shared registry and constructor infrastructure
+| *          3dda3aaf 2026-02-20  docs: add PR template and refine contributing guide
+* |          380e11ab 2026-03-26  docs: fix generated help links
+* |          1b61ea54 2026-03-25  Adjust target delta column spacing
+* |          6c1082cb 2026-03-25  Fix variadic formatting in msg whitebox test
+* |          0017f2a4 2026-03-23  docs: link manuals to generated CLI help
+* |          db4c87b7 2026-03-23  test(docs): generate and verify help-all output
+* |          b29d0e8d 2026-03-20  feat(cli): add target timestamp delta columns
+|/           46f94c9b 2026-03-19  Compile without (u)int64 and with 16-bit (u)int, solving rokath/trice#607 and rokath/trice#608 (#609)
+*            8c0394ba 2026-03-11  Add TriceTransfer call for deferred mode
+```
+
+## 22. <a id='master-branch-changes'></a>master branch changes
 
 <p align="right">(<a href="#top">back to top</a>)</p></div>
