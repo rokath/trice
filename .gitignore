@@ -6,6 +6,7 @@
 **/out.gcc/
 **/out.clang/
 **/temp/
+.gocache/
 
 # files
 **/gccLinksClangWarning.txt
