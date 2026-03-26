@@ -324,6 +324,7 @@ PDF Generation
 * [36. Endianness](#endianness)
 * [37. Trice (Time)Stamps](#trice-(time)stamps)
   * [37.1. Target (Time)Stamps Formatting](#target-(time)stamps-formatting)
+  * [37.2. Target (Time)Stamp Delta Columns](#target-(time)stamp-delta-columns)
 * [38. Binary Encoding](#binary-encoding)
   * [38.1. Symbols](#symbols)
   * [38.2. Package Format](#package-format)
@@ -6580,7 +6581,7 @@ It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp3
 
 ###  37.1. <a id='target-(time)stamps-formatting'></a>Target (Time)Stamps Formatting
 
-To get a short overview run `trice help -log` and read about the CLI switches `ts`, `ts0`, `ts16`, `ts32` in the generated [CLI help file](ref/trice-help-all.txt). The `ts32` switch supports also "epoch" now as format. That is useful for example, if the binary logs are stored internally in the device flash and read out later. Such usage assumes 1 second as ts32 unit in `uint32_t` format and the Trice tool displays the UTC time. It is also possible to adapt the displayed format like this for example: `trice log -ts32='epoch"06-01-02_15:04:05"'`. The additional passed string must match the Go time package capabilities. A few examples:
+To get a short overview run `trice help -log` and read about the CLI switches `ts`, `ts0`, `ts16`, `ts32`, `ts0delta`, `ts16delta`, `ts32delta` in the generated [CLI help file](ref/trice-help-all.txt). The `ts32` switch supports also "epoch" now as format. That is useful for example, if the binary logs are stored internally in the device flash and read out later. Such usage assumes 1 second as ts32 unit in `uint32_t` format and the Trice tool displays the UTC time. It is also possible to adapt the displayed format like this for example: `trice log -ts32='epoch"06-01-02_15:04:05"'`. The additional passed string must match the Go time package capabilities. A few examples:
 
 ```bash
 trice log -port FILEBUFFER -args myLogs.bin -ts32='"Mon Jan _2 15:04:05 2006"'             # ANSIC   
@@ -6597,6 +6598,115 @@ trice log -port FILEBUFFER -args myLogs.bin -ts32='"3:04PM")'                   
 ```
 
 After the year 2106 the Trice tool needs a small modification to correctly compute the epoch time then. Probably I will not be alive anymore to do that then, but, hey, Trice is Open Source!
+
+###  37.2. <a id='target-(time)stamp-delta-columns'></a>Target (Time)Stamp Delta Columns
+
+In addition to absolute target timestamp columns, `trice` can show delta columns with:
+
+* `-ts0delta`
+* `-ts16delta`
+* `-ts32delta`
+
+These switches are independent from `-ts0`, `-ts16`, and `-ts32`. All three default to `""`, which means disabled.
+
+`-ts16delta` and `-ts32delta` show the difference to the previous displayed timestamp of the same size:
+
+* `-ts16delta`: `current ts16 - previous ts16`
+* `-ts32delta`: `current ts32 - previous ts32`
+
+Wraparound is handled modulo `2^16` and `2^32` respectively.
+
+For the first displayed timestamp of a given size there is no previous value yet, so `trice` prints an aligned placeholder instead:
+
+* for simple numeric formats like `dt:%6d`, the placeholder is `-`
+* for built-in delta formats like `"us"` or `"ms"`, the placeholder is blank space with the same display width as later delta values
+
+`-ts0delta` does not calculate a delta. It exists only as a placeholder column for lines without target timestamps, so mixed log output stays aligned.
+
+The delta column is printed after the absolute timestamp column and before the message text.
+
+An explicitly passed empty delta switch is treated as a hard disable for that stamp size:
+
+* `-ts16delta ""` means no delta output and no auto-placeholder on 16-bit stamp lines
+* `-ts32delta ""` means no delta output and no auto-placeholder on 32-bit stamp lines
+* `-ts0delta ""` means no delta placeholder on no-stamp lines
+
+Typical examples:
+
+```bash
+trice log -ts16="" -ts16delta="dt:%6d"
+trice log -ts16="t:%6d " -ts16delta="dt:%6d "
+trice log -ts32=epoch -ts32delta="dt:%8d "
+```
+
+`-ts32delta` does not support `epoch...` formats. The delta is computed from the raw 32-bit numeric values, while `epoch...` formatting is reserved for absolute `-ts32` output.
+
+If `-ts0delta` is not passed explicitly at all, `trice` derives a blank placeholder automatically from the widest active `-ts16delta` or `-ts32delta` display width.
+
+For that width derivation:
+
+* lowercase-only tag prefixes ending with `:` such as `time:` or `dt:` are treated as cosmetic and ignored
+* mixed-case or uppercase prefixes such as `Time:` or `timeStamp:` remain part of the width, because they are rendered later too
+
+If `-ts0delta ""` is passed explicitly, this automatic placeholder generation is disabled.
+
+Examples with screenshots:
+
+1. Add a column to show just the ts16 delta values (microseconds).
+
+```bash
+trice log -p jlink -args "-Device STM32G0B1RE" -pf none -prefix off -hs off -d16 -i ../../demoTIL.json -li ../../demoLI.json -ts16delta "uS:%6d"
+```
+
+![Screenshot_2026-03-26_142458.png](./ref/Screenshot_2026-03-26_142458.png)
+
+2. Same as 1, but with a continuous colored row.
+
+```bash
+trice log -p jlink -args "-Device STM32G0B1RE" -pf none -prefix off -hs off -d16 -i ../../demoTIL.json -li ../../demoLI.json -ts16delta "uS:%6d" -ts0delta "time:         "
+```
+
+![Screenshot_2026-03-26_143209.png](./ref/Screenshot_2026-03-26_143209.png)
+
+3. Add a column to show just the ts32 delta values.
+
+```bash
+trice log -p jlink -args "-Device STM32G0B1RE" -pf none -prefix off -hs off -d16 -i ../../demoTIL.json -li ../../demoLI.json -ts32delta "att:%4d"
+```
+
+![Screenshot_2026-03-26_144857.png](./ref/Screenshot_2026-03-26_144857.png)
+
+4. Show only ts16 absolute values in microseconds together with ts32delta values. Because `-ts16delta ""` is passed explicitly, ts16 lines get no delta placeholder. Lines without timestamps are decorated explicitly to show formatting options.
+
+```bash
+trice log -p jlink -args "-Device STM32G0B1RE" -pf none -prefix off -hs off -d16 -i ../../demoTIL.json -li ../../demoLI.json -ts32 "" -ts32delta "deb:%12d" -ts16 us -ts16delta "" -ts0 "rd:~~~~~~" -ts0delta "att:_____"
+```
+
+![Screenshot_2026-03-26_140426.png](./ref/Screenshot_2026-03-26_140426.png)
+
+5. Show ts16 absolute values together with ts32delta values and explicit no-stamp separators. Again, `-ts16delta ""` suppresses any automatic placeholder on ts16 lines.
+
+```bash
+trice log -p jlink -args "-Device STM32G0B1RE" -pf none -prefix off -hs off -d16 -i ../../demoTIL.json -li ../../demoLI.json -ts32 "" -ts32delta "att:%12d" -ts16 us -ts16delta "" -ts0 "|    " -ts0delta "     |"
+```
+
+![Screenshot_2026-03-26_150038.png](./ref/Screenshot_2026-03-26_150038.png)
+
+6. Show ts32 as epoch followed by ts32delta in seconds.
+
+```bash
+trice log -p jlink -args "-Device STM32G0B1RE" -pf none -prefix off -hs off -d16 -i ../../demoTIL.json -li ../../demoLI.json -ts32 "epoch2006-01-02_15:04:05" -ts32delta "note:%4d" -ts0delta "           "
+```
+
+![Screenshot_2026-03-26_152743.png](./ref/Screenshot_2026-03-26_152743.png)
+
+7. Like 6, but additionally show ts16delta in microseconds.
+
+```bash
+trice log -p jlink -args "-Device STM32G0B1RE" -pf none -prefix off -hs off -d16 -i ../../demoTIL.json -li ../../demoLI.json -ts32 "epoch2006-01-02_15:04:05" -ts32delta "note:%5d" -ts16delta us -ts0delta "            "
+```
+
+![Screenshot_2026-03-26_153316.png](./ref/Screenshot_2026-03-26_153316.png)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

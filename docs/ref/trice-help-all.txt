@@ -273,15 +273,15 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -ts0 string
     	Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "time:            ")
   -ts0delta string
-    	Target stamp delta placeholder format string at start of each line, if no target stamps existent (configured). Use it to align a separate delta column. If omitted, trice derives a blank placeholder automatically when ts16delta and/or ts32delta imply the same width.
+    	Target stamp delta placeholder format string at start of each line, if no target stamps existent (configured). Use it to align a separate delta column. If omitted, trice derives a blank placeholder automatically from the widest active ts16delta/ts32delta display width. Lowercase-only tag prefixes like "time:" are ignored for that width, mixed/uppercase prefixes stay part of it. Use "" explicitly to suppress the no-stamp delta placeholder completely.
   -ts16 string
     	16-bit Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
   -ts16delta string
-    	16-bit Target stamp delta format string at start of each line, if 16-bit target stamps existent (configured). Shows the delta to the previous displayed 16-bit target stamp with wraparound support. Use "" to suppress. Use "µs" (or "us"), "ms", or a format string like "...%d...".
+    	16-bit Target stamp delta format string at start of each line, if 16-bit target stamps existent (configured). Shows the delta to the previous displayed 16-bit target stamp with wraparound support. On the first value, trice prints an aligned placeholder ("-" for simple numeric formats, blanks for built-in "µs"/"us"/"ms"). Use "" to suppress this delta column completely for 16-bit stamp lines. Use "µs" (or "us"), "ms", or a format string like "...%d...".
   -ts32 string
     	32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" (or "us"), "ms", "epoch060102150405" like, use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
   -ts32delta string
-    	32-bit Target stamp delta format string at start of each line, if 32-bit target stamps existent (configured). Shows the delta to the previous displayed 32-bit target stamp with wraparound support. Use "" to suppress. Use "µs" (or "us"), "ms", or a format string like "...%d...". "epoch..." is not supported for deltas.
+    	32-bit Target stamp delta format string at start of each line, if 32-bit target stamps existent (configured). Shows the delta to the previous displayed 32-bit target stamp with wraparound support. On the first value, trice prints an aligned placeholder ("-" for simple numeric formats, blanks for built-in "µs"/"us"/"ms"). Use "" to suppress this delta column completely for 32-bit stamp lines. Use "µs" (or "us"), "ms", or a format string like "...%d...". "epoch..." is not supported for deltas.
   -u	Short for '-unsigned'. (default true)
   -ulabel value
     	Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.
