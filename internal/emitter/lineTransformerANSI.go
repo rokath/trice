@@ -137,7 +137,7 @@ var Tags = []tag{
 	{0, []string{"tr", "Trace", "trace", "TRACE"}, colorizeTRACE},
 
 	// user modes
-	{0, []string{"tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp", "Timestamp"}, colorizeTIME},
+	{0, []string{"tim", "time", "Time", "TIM", "TIME", "TIMESTAMP", "timestamp", "Timestamp"}, colorizeTIME},
 	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE", "OK"}, colorizeMESSAGE},
 	{0, []string{"r", "rx", "rd", "read", "rd_", "RD", "RD_", "READ"}, colorizeREAD},
 	{0, []string{"w", "tx", "wr", "write", "wr_", "WR", "WR_", "WRITE"}, colorizeWRITE},
@@ -156,6 +156,9 @@ var Tags = []tag{
 	{0, []string{"CYCLE_ERROR"}, colorizeCYCLE}, // not for user code!
 	{0, []string{"v", "Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
 	{0, []string{"cfg", "config"}, colorizeDEFAULT},
+	{0, []string{"us", "µs", "uS", "µS", "uSec", "µSec", "uSEC", "µSEC", "MicroSec", "Microsecond", "Microseconds"}, colorizeTIME},
+	{0, []string{"ms", "mS", "mSec", "mSEC", "MSEC", "MilliSec", "Millisecond", "Milliseconds"}, colorizeTIME},
+	{0, []string{"s", "S", "Sec", "SEC", "SECOND", "SECONDS", "Second", "Seconds"}, colorizeTIME},
 }
 
 // FindTagName maps any tag alias to its canonical name.
