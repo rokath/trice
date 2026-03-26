@@ -159,6 +159,7 @@ var Tags = []tag{
 	{0, []string{"us", "µs", "uS", "µS", "uSec", "µSec", "uSEC", "µSEC", "MicroSec", "Microsecond", "Microseconds"}, colorizeTIME},
 	{0, []string{"ms", "mS", "mSec", "mSEC", "MSEC", "MilliSec", "Millisecond", "Milliseconds"}, colorizeTIME},
 	{0, []string{"s", "S", "Sec", "SEC", "SECOND", "SECONDS", "Second", "Seconds"}, colorizeTIME},
+	{0, []string{"dt", "delta", "dT", "deltaTime", "delta-time"}, colorizeTIME},
 }
 
 // FindTagName maps any tag alias to its canonical name.

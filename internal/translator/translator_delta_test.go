@@ -126,21 +126,93 @@ func TestRenderTargetDeltaComputesCommonPlaceholderWithoutTs0Delta(t *testing.T)
 	saved0Delta := decoder.TargetStamp0Delta
 	saved16Delta := decoder.TargetStamp16Delta
 	saved32Delta := decoder.TargetStamp32Delta
+	saved16Passed := decoder.ShowTargetStamp16DeltaPassed
+	saved32Passed := decoder.ShowTargetStamp32DeltaPassed
 	defer func() {
 		decoder.TargetStamp0Delta = saved0Delta
 		decoder.TargetStamp16Delta = saved16Delta
 		decoder.TargetStamp32Delta = saved32Delta
+		decoder.ShowTargetStamp16DeltaPassed = saved16Passed
+		decoder.ShowTargetStamp32DeltaPassed = saved32Passed
 	}()
 
 	decoder.TargetStamp0Delta = ""
 	decoder.TargetStamp16Delta = "us"
 	decoder.TargetStamp32Delta = ""
+	decoder.ShowTargetStamp16DeltaPassed = false
+	decoder.ShowTargetStamp32DeltaPassed = false
 
 	state := targetStampState{}
 	got := renderTargetDelta(4, 123, &state)
 	want := strings.Repeat(" ", len(strings.TrimPrefix("time:       0_000", "time:")))
 	if got != want {
 		t.Fatalf("expected computed placeholder delta for ts32 line, got %q", got)
+	}
+}
+
+func TestRenderTargetDeltaExplicitEmptyDisablesTs16Placeholder(t *testing.T) {
+	saved16Delta := decoder.TargetStamp16Delta
+	saved32Delta := decoder.TargetStamp32Delta
+	saved16Passed := decoder.ShowTargetStamp16DeltaPassed
+	saved32Passed := decoder.ShowTargetStamp32DeltaPassed
+	defer func() {
+		decoder.TargetStamp16Delta = saved16Delta
+		decoder.TargetStamp32Delta = saved32Delta
+		decoder.ShowTargetStamp16DeltaPassed = saved16Passed
+		decoder.ShowTargetStamp32DeltaPassed = saved32Passed
+	}()
+
+	decoder.TargetStamp16Delta = ""
+	decoder.TargetStamp32Delta = "dt:%5d"
+	decoder.ShowTargetStamp16DeltaPassed = true
+	decoder.ShowTargetStamp32DeltaPassed = true
+
+	state := targetStampState{}
+	if got := renderTargetDelta(2, 123, &state); got != "" {
+		t.Fatalf("expected explicit empty ts16delta to suppress placeholder, got %q", got)
+	}
+}
+
+func TestRenderTargetDeltaExplicitEmptyDisablesTs32Placeholder(t *testing.T) {
+	saved16Delta := decoder.TargetStamp16Delta
+	saved32Delta := decoder.TargetStamp32Delta
+	saved16Passed := decoder.ShowTargetStamp16DeltaPassed
+	saved32Passed := decoder.ShowTargetStamp32DeltaPassed
+	defer func() {
+		decoder.TargetStamp16Delta = saved16Delta
+		decoder.TargetStamp32Delta = saved32Delta
+		decoder.ShowTargetStamp16DeltaPassed = saved16Passed
+		decoder.ShowTargetStamp32DeltaPassed = saved32Passed
+	}()
+
+	decoder.TargetStamp16Delta = "dt:%4d"
+	decoder.TargetStamp32Delta = ""
+	decoder.ShowTargetStamp16DeltaPassed = true
+	decoder.ShowTargetStamp32DeltaPassed = true
+
+	state := targetStampState{}
+	if got := renderTargetDelta(4, 123, &state); got != "" {
+		t.Fatalf("expected explicit empty ts32delta to suppress placeholder, got %q", got)
+	}
+}
+
+func TestRenderTargetDeltaExplicitEmptyDisablesTs0Placeholder(t *testing.T) {
+	saved0Delta := decoder.TargetStamp0Delta
+	saved16Delta := decoder.TargetStamp16Delta
+	saved0Passed := decoder.ShowTargetStamp0DeltaPassed
+	defer func() {
+		decoder.TargetStamp0Delta = saved0Delta
+		decoder.TargetStamp16Delta = saved16Delta
+		decoder.ShowTargetStamp0DeltaPassed = saved0Passed
+	}()
+
+	decoder.TargetStamp0Delta = ""
+	decoder.TargetStamp16Delta = "dt:%4d"
+	decoder.ShowTargetStamp0DeltaPassed = true
+
+	state := targetStampState{}
+	if got := renderTargetDelta(0, 0, &state); got != "" {
+		t.Fatalf("expected explicit empty ts0delta to suppress placeholder, got %q", got)
 	}
 }
 

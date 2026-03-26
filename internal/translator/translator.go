@@ -246,9 +246,25 @@ func renderTargetStamp(size int, timestamp uint64) string {
 func renderTargetDelta(size int, timestamp uint64, state *targetStampState) string {
 	_, deltaFormat := targetStampFormats(size)
 	if deltaFormat == "" {
+		if targetDeltaExplicitlyDisabled(size) {
+			return ""
+		}
 		return commonTargetDeltaPlaceholder()
 	}
 	return formatTargetDelta(size, deltaFormat, timestamp, state)
+}
+
+func targetDeltaExplicitlyDisabled(size int) bool {
+	switch size {
+	case 0:
+		return decoder.ShowTargetStamp0DeltaPassed
+	case 2:
+		return decoder.ShowTargetStamp16DeltaPassed
+	case 4:
+		return decoder.ShowTargetStamp32DeltaPassed
+	default:
+		return false
+	}
 }
 
 func formatTargetDelta(size int, format string, timestamp uint64, state *targetStampState) string {
