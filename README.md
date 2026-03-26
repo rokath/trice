@@ -57,26 +57,32 @@ Instead of storing log strings on your embedded device, Trice keeps them on your
 ## When to Use Trice
 
 ### Logging and Debugging
+
 You can use Trice for `printf` debugging and as a logging system. The advantage is very short messages (no strings) for data transfer. Remember that the file [til.json](./demoTIL.json) is needed to read all output from devices in the field for 10+ years.
 
 - **Optional:** Add [til.json](./demoTIL.json) as a compressed resource to your target image. You can use [SRecord](http://srecord.sourceforge.net/download.html) or provide a download link.
 
 ### Data Compression
+
 Trice looks like data compression (IDs instead of strings), which is useful for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) devices, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT) with very low data rates.
 
 ### FLASH Memory Storage
+
 [Store Trice messages in FLASH memory](./docs/TriceUserManual.md#writing-the-trice-logs-into-an-sd-card-(or-a-user-specific-output)) for later analysis. A typical `trice` uses only 4 bytes, no matter how long the format string is.
 
 ### Encryption
+
 You can **encrypt** Trice transfer packets for security.
 
 - Deliver firmware images with encrypted Trice output that only works with the right key and [til.json](./demoTIL.json)
 - [XTEA](https://en.m.wikipedia.org/wiki/XTEA) encryption is available
 
 ### Translation
+
 Translate the [til.json](./demoTIL.json) file into **different languages**. Change the language by changing the [til.json](./demoTIL.json) file without changing the target binary.
 
 ### Timing Analysis
+
 Trice makes **timing analysis** easy on distributed embedded systems. It supports both host and target timestamps.
 
 ## How Trice Works (UART Example)

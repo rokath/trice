@@ -454,7 +454,7 @@ This is the fastest path if you have a Segger J-Link and can use RTT:
 
 4. **Insert IDs and build**
    * Run `trice insert` (or `trice i ...`), then build your firmware.  
-     See: [Insert IDs](#insert-ids).
+     <!-- See: [Insert IDs](#insert-ids). -->
 
 5. **View logs via RTT**
    * Start the Trice host tool and connect via RTT.  
@@ -475,7 +475,7 @@ Use this if you have a serial port connected to your target (or a USB CDC ACM po
 
 4. **View logs via UART**
    * Start `trice log` and connect to the COM/tty port.  
-     See: [Trice tool in logging action](#trice-tool-in-logging-action) and [Trice tool CLI usage examples](#trice-tool-cli-usage-examples).
+     See: [Trice tool in logging action](#trice-tool-in-logging-action). <!-- and [Trice tool CLI usage examples](#trice-tool-cli-usage-examples). -->
 
 ###  1.3. <a id='where-to-go-next'></a>Where to go next
 
