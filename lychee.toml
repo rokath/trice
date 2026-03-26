@@ -76,7 +76,11 @@ exclude = [
   # Local development links in documentation
   "^https?://localhost(:[0-9]+)?",
   "^https://www\\.st\\.com/.*",
-  "^https://st\\.com/.*"
+  "^https://st\\.com/.*",
+
+  # This site intermittently answers automated checks with HTTP 202
+  # although the article is reachable for normal users in a browser.
+  "^https://circuitcellar\\.com/.*"
 ]
 
 
