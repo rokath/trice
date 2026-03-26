@@ -14,6 +14,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"unicode"
 
 	_ "github.com/rokath/trice/internal/charDecoder"
 	"github.com/rokath/trice/internal/decoder"
@@ -183,10 +184,19 @@ func targetStampWidth(size int, format string) int {
 func targetStampDisplayWidth(size int, format string) int {
 	s := formatTargetStamp(size, format, 0)
 	tag, rest, found := strings.Cut(s, ":")
-	if found && tag != "" {
+	if found && tag != "" && !containsUppercase(tag) {
 		return len(rest)
 	}
 	return len(s)
+}
+
+func containsUppercase(s string) bool {
+	for _, r := range s {
+		if unicode.IsUpper(r) {
+			return true
+		}
+	}
+	return false
 }
 
 func commonTargetDeltaPlaceholder() string {

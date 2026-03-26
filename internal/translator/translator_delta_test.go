@@ -156,6 +156,15 @@ func TestTargetStampDisplayWidthUsesGenericTagPrefix(t *testing.T) {
 	}
 }
 
+func TestTargetStampDisplayWidthKeepsUppercaseTagPrefix(t *testing.T) {
+	if got := targetStampDisplayWidth(4, "Time:%12d"); got != len("Time:")+12 {
+		t.Fatalf("unexpected display width for uppercase tag: %d", got)
+	}
+	if got := targetStampDisplayWidth(4, "timeStamp:%12d"); got != len("timeStamp:")+12 {
+		t.Fatalf("unexpected display width for mixed-case tag: %d", got)
+	}
+}
+
 func TestAutoTargetStamp0Delta(t *testing.T) {
 	saved0Delta := decoder.TargetStamp0Delta
 	saved16Delta := decoder.TargetStamp16Delta
