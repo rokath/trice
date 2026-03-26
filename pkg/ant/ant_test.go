@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -211,7 +212,8 @@ func TestWalkVerboseExcludeMessage(t *testing.T) {
 	if err := a.Walk(&out, fSys); err != nil {
 		t.Fatalf("walk failed: %v", err)
 	}
-	if !strings.Contains(out.String(), "exclude: root/skip/") {
+	want := "exclude: " + filepath.Join("root", "skip") + "/"
+	if !strings.Contains(out.String(), want) {
 		t.Fatalf("expected verbose exclude output, got: %q", out.String())
 	}
 }
