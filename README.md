@@ -1,11 +1,10 @@
 # 🅃🅁ace 🄸d's 🄲 🄴mbedded
 
+[View Github pages](https://rokath.github.io/trice/)
+
 <a id="top"> </a>
 
-![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) **Hi, I am Trice.**
-
-<!-- [github pages](https://rokath.github.io/trice/) -->
-[Trice User Manual](https://rokath.github.io/trice/docs/TriceUserManual.html)
+## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
 
 <!-- ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser) -->
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
@@ -25,6 +24,10 @@
 Log in (a) trice ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif)
 
 even inside **↯ interrupts** in less than 1 µs❗
+
+
+| **Trice User Manual:** | [Github](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) | [Github pages](https://rokath.github.io/trice/docs/TriceUserManual.html) | [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf) |
+| - | - | - | - |
 
 ## What is Trice?
 
@@ -111,6 +114,10 @@ This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice work
 - This allows to see the Trice logs of several devices line-by-line intermixed in one terminal.
 
 ## Documentation
+
+
+| **Trice User Manual:** | [Github](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) | [Github pages](https://rokath.github.io/trice/docs/TriceUserManual.html) | [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf) |
+| - | - | - | - |
 
 - [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice) (slightly outdated)
 - [Trice User Manual](./docs/TriceUserManual.md) (includes updated information from the interrupt blog)
