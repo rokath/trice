@@ -123,6 +123,7 @@ Used git range: v1.1.1..v1.2.0
 * 502faf29d 2026-03-26 ci: exclude flaky circuitcellar link from lychee
 * 8329dc5e2 2026-03-26 docs: update changelog for v1.1.1 and v1.2.0
 ```
+
 ## <a id='v1.1.1-changes'></a>v1.1.1 Changes (2026-01-26)
 
 ### <a id='v1.1.1-overview'></a>v1.1.1 Overview
