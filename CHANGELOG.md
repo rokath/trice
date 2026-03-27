@@ -1174,6 +1174,82 @@ Used git range: v0.69.0..v0.70.0
 * indentiation manually changed for readability
 * TRICE_BUFFER_SIZE now with 4 additional scratch bytes
 
+* Test results (`be_dblB_de_tcobs_ua` is the "big-endian" test using `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN == 1` setting and `trice log ...   -triceEndianness bigEndian`):
+
+```bash
+ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (master)
+$ go clean -cache && time go test ./...
+?       github.com/rokath/trice/internal/do     [no test files]
+?       github.com/rokath/trice/internal/translator     [no test files]
+?       github.com/rokath/trice/pkg/ant [no test files]
+ok      github.com/rokath/trice/cmd/trice       1.456s
+ok      github.com/rokath/trice/internal/args   0.380s
+ok      github.com/rokath/trice/internal/charDecoder    0.296s
+ok      github.com/rokath/trice/internal/com    16.145s
+ok      github.com/rokath/trice/internal/decoder        0.216s [no tests to run]
+ok      github.com/rokath/trice/internal/dumpDecoder    0.265s
+ok      github.com/rokath/trice/internal/emitter        0.276s
+ok      github.com/rokath/trice/internal/id     0.488s
+ok      github.com/rokath/trice/internal/keybcmd        0.324s
+ok      github.com/rokath/trice/internal/link   0.276s
+ok      github.com/rokath/trice/internal/receiver       0.311s
+ok      github.com/rokath/trice/internal/trexDecoder    0.454s
+ok      github.com/rokath/trice/pkg/cipher      0.372s
+ok      github.com/rokath/trice/pkg/endian      0.318s
+ok      github.com/rokath/trice/pkg/msg 0.330s
+ok      github.com/rokath/trice/pkg/tst 0.511s
+ok      github.com/rokath/trice/test/be_dblB_de_tcobs_ua        181.798s
+ok      github.com/rokath/trice/test/dblB_de_cobs_ua    181.500s
+ok      github.com/rokath/trice/test/dblB_de_multi_cobs_ua      181.854s
+ok      github.com/rokath/trice/test/dblB_de_multi_nopf_ua      181.942s
+ok      github.com/rokath/trice/test/dblB_de_multi_tcobs_ua     181.803s
+ok      github.com/rokath/trice/test/dblB_de_multi_xtea_cobs_ua 181.545s
+ok      github.com/rokath/trice/test/dblB_de_multi_xtea_tcobs_ua        181.492s
+ok      github.com/rokath/trice/test/dblB_de_nopf_ua    181.424s
+ok      github.com/rokath/trice/test/dblB_de_tcobs_ua   181.532s
+ok      github.com/rokath/trice/test/dblB_de_xtea_cobs_ua       181.414s
+ok      github.com/rokath/trice/test/dblB_de_xtea_tcobs_ua      182.096s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_cobs_ua     369.640s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_multi_cobs_ua       368.721s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_multi_tcobs_ua      369.936s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_tcobs_ua    368.893s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt32__de_xtea_cobs_ua        369.048s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt8__de_cobs_ua      365.871s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt8__de_multi_cobs_ua        365.722s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt8__de_multi_tcobs_ua       365.961s
+ok      github.com/rokath/trice/test/dblB_di_nopf_rtt8__de_tcobs_ua     365.561s
+ok      github.com/rokath/trice/test/protect_dblB_de_tcobs_ua   0.529s
+ok      github.com/rokath/trice/test/ringB_de_cobs_ua   183.393s
+ok      github.com/rokath/trice/test/ringB_de_nopf_ua   183.600s
+ok      github.com/rokath/trice/test/ringB_de_tcobs_ua  183.679s
+ok      github.com/rokath/trice/test/ringB_de_xtea_cobs_ua      183.259s
+ok      github.com/rokath/trice/test/ringB_de_xtea_tcobs_ua     183.558s
+ok      github.com/rokath/trice/test/ringB_di_cobs_rtt32__de_tcobs_ua   365.939s
+ok      github.com/rokath/trice/test/ringB_di_cobs_rtt8__de_tcobs_ua    366.267s
+ok      github.com/rokath/trice/test/ringB_di_nopf_rtt32__de_tcobs_ua   365.590s
+ok      github.com/rokath/trice/test/ringB_di_nopf_rtt32__de_xtea_cobs_ua       365.096s
+ok      github.com/rokath/trice/test/ringB_di_nopf_rtt8__de_tcobs_ua    365.035s
+ok      github.com/rokath/trice/test/ringB_di_tcobs_rtt32__de_tcobs_ua  365.350s
+ok      github.com/rokath/trice/test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua  365.447s
+ok      github.com/rokath/trice/test/ringB_protect_de_tcobs_ua  0.513s
+ok      github.com/rokath/trice/test/stackB_di_nopf_aux32       183.045s
+ok      github.com/rokath/trice/test/stackB_di_nopf_aux8        182.956s
+ok      github.com/rokath/trice/test/stackB_di_nopf_rtt32       183.280s
+ok      github.com/rokath/trice/test/stackB_di_nopf_rtt8        183.130s
+ok      github.com/rokath/trice/test/stackB_di_xtea_cobs_rtt8   183.119s
+ok      github.com/rokath/trice/test/staticB_di_nopf_aux32      181.814s
+ok      github.com/rokath/trice/test/staticB_di_nopf_aux8       181.779s
+ok      github.com/rokath/trice/test/staticB_di_nopf_rtt32      181.849s
+ok      github.com/rokath/trice/test/staticB_di_nopf_rtt8       181.717s
+ok      github.com/rokath/trice/test/staticB_di_tcobs_rtt32     181.645s
+ok      github.com/rokath/trice/test/staticB_di_tcobs_rtt8      181.081s
+ok      github.com/rokath/trice/test/staticB_di_xtea_cobs_rtt32 180.932s
+
+real    16m1.486s
+user    0m0.000s
+sys     0m0.000s
+```
+
 ### <a id='v0.69.0-git-log'></a>v0.69.0 Git Log
 
 Used git range: v0.68.0..v0.69.0
@@ -2033,7 +2109,10 @@ Used git range: v0.60.1..v0.60.2
 
 ### <a id='v0.60.1-overview'></a>v0.60.1 Overview
 
-* v0.60.1 with twice log example
+* v0.60.1 with twice log example Please look at the used command lines carefully, expecially the `-d16` switch
+
+<img src="./docs/ref/v0.60.1TwiceLog.png" width="800">
+
 * Trice Log enabled in [F030_inst](https://github.com/rokath/trice/tree/master/examples/F030_inst) as `triceConfig.h` example.
 
 ### <a id='v0.60.1-git-log'></a>v0.60.1 Git Log
@@ -2325,6 +2404,8 @@ Used git range: v0.56.0..v0.56.1
 
 ## <a id='v0.56.0-changes'></a>v0.56.0 Changes (2023-02-20)
 
+This is a major release hopefully not breaking too much!
+
 ### <a id='v0.56.0-overview'></a>v0.56.0 Overview
 
 * li.json is empty && no target time stamps
@@ -2332,6 +2413,59 @@ Used git range: v0.56.0..v0.56.1
 * Update TriceV1.0Specification.md
 * Update TriceUserGuide.md
 * Many changes - see below
+
+#### <a id='legacy-`trice*`-macros'></a>Legacy `TRICE*` macros
+
+* Using the `TRICE*` macros generally is not recommended anymore, but they are still supported.
+* `TRICE*` macros with an `Id(n)` inside are now with 16-bit stamps. To have 32-bit stamps use `ID(n)` instead and `id(n)` is for no stamps. The ID numbers can stay the same.
+* The very little time advantage of code inlining will not count in most cases.
+* The `TRICE_*` macros, like `TRICE_S` are still needed.
+
+#### <a id='function-call-macros-`trice`,-`trice`-and-`trice`'></a>Function call macros `TRice`, `Trice` and `trice`
+
+* The `TRICE*` macros are inlining the trice code, what could lead to significant memory usage if you use these MACROs heavily.
+
+* `TRice*` macros insert a 32-bit stamp.
+* `Trice*` macros insert a 16-bit stamp.
+* `trice*` macros insert no stamp.
+* ATTENTION: For some reason these macros cause with CGO issues when used with parameters, but they work fine with ARM6 and ARM CLANG6 (Select the g11 option). If your compiler has issues, use the bit width extension: Write `trice32( "%u", 1)` instead of `trice( "%u", 1)` for example or stay with `TRICE*`.
+* These macros are function call macros. They call internally a trice function incrementing the code amount like a usual function call.
+* You can write them down like the `TRICE*` macros, but do not insert `ID(0)`, `Id(0)` or `id(0)`! After executing `trice u` they get an `iD(n)` inserted automatically.
+* To save space and bandwidth you can use the `*8` and `*16`, macro extensions like with the `TRICE*` macros.
+* The default bitwidth is 32-bit but that is changeable in the configuration.
+* The `*64` macro extensions are usable for 64-bit values, like `double`.
+* See [triceCheck.c](./_test/testdata/triceCheck.c) for examples.
+
+#### <a id='common-improvements'></a>Common improvements
+
+* Target time stamps now better formatted, Default is `µs`, `ms` is selectable.
+* A new document TriceConfigProjectImageSizeOptimization.md was written. (Now part of TriceUserManual.md)
+* Trice messages containing several `\n` are better formatted.
+* Multiple physical channels parallel usable now, like RTT and UART.
+* A space after ShowID inserted, also after target stamp for better visibility.
+* `triceConfig.h` was heavily restructured.
+* Target code split in several files now, but only `trice.c` needs to be added to the target project.
+
+#### <a id='cli-changes'></a>CLI changes
+
+* `ts` ist now target stamp. Host stamps are switchable with `-hs`.
+* `-packageFraming` is new.
+* Switch `-newlineIndent` added.
+* `li off` is now possible.
+* `trice s` now shows if a port is used already.
+* `my/path/auto` now possible with log files.
+
+#### <a id='changes-under-the-hood'></a>Changes under the hood
+
+* MemFs `afero.Afero` is used now, what is for better tests.
+* A `til.json.c|h` is generated when `trice u` is called with `-v` switch.
+* Trices over Modbus are prepared (not usable yet).
+* Better protection against panic, when data garbage is fed to the trice tool (wrong til.json for example).
+* RTT log file file access rights in Windows11 solved. They are now collected in a project temp folder (you can play them later again).
+* Complete target code test over CGO.
+* `cobs` & `tcobs` now external packages.
+* False positive windows vet warning removed.
+* Endianness updated and tested.
 
 ### <a id='v0.56.0-git-log'></a>v0.56.0 Git Log
 
