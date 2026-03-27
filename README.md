@@ -115,12 +115,10 @@ This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice work
 
 ## Documentation
 
-
 | **Trice User Manual:** | [Github](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) | [Github pages](https://rokath.github.io/trice/docs/TriceUserManual.html) | [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf) |
 | - | - | - | - |
 
-- [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice) (slightly outdated)
-- [Trice User Manual](./docs/TriceUserManual.md) (includes updated information from the interrupt blog)
+The Trice User Manual includes all information from the [Memfault Interrupt Blog](https://interrupt.memfault.com/blog/trice) which is slightly outdated.
 - Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions), including closed items
 - Read the target source code, especially [triceDefaultConfig.h](./src/triceDefaultConfig.h)
 - View [CLI](https://en.wikipedia.org/wiki/Command-line_interface) options by running `trice help -all` in a terminal or reading the generated file [trice-help-all.txt](./docs/ref/trice-help-all.txt)
