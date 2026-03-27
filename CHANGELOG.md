@@ -1,10 +1,29 @@
-# Changelog
+﻿# Changelog
 
 
 ## <a id='v1.2.0-changes'></a>v1.2.0 Changes (2026-03-26)
 
 ### <a id='v1.2.0-overview'></a>v1.2.0 Overview
 
+* New CLI support for target timestamp delta columns, including width handling, explicit disable semantics and documentation updates (Issue [#611](https://github.com/rokath/trice/issues/611) solved)
+* Compile as C++ now possible (Issue [#610](https://github.com/rokath/trice/issues/610) solved with accepted PR [#609](https://github.com/rokath/trice/pull/609))
+* Support for compilers without 64-bit integers (Issue [#607](https://github.com/rokath/trice/issues/607) solved with accepted PR [#609](https://github.com/rokath/trice/pull/609))
+* Support for architecture with 16-bit integers (Issue [#608](https://github.com/rokath/trice/issues/608) solved with accepted PR [#609](https://github.com/rokath/trice/pull/609))
+* Decoder initialization was reworked around a shared registry and constructor path, reducing duplication across char, dump and trex decoders.
+* Testing and maintainability were improved significantly:
+  * broader coverage in `args`, `emitter`, `com`, `do`, `decoder`, `trexDecoder` and several package-level tests
+  * source and package comments normalized and expanded
+  * SPDX headers and include-block formatting cleaned up across the code base
+* Target-side and formatting robustness were improved:
+  * deferred transfer path cleanup
+  * variadic formatting fix in `msg` tests
+  * clearer debug-buffer rendering in `trexDecoder`
+* Repository and CI polish:
+  * PR template added
+  * generated help links refreshed
+  * markdown lint fixes
+  * lychee link check tuned to ignore a flaky `circuitcellar.com` response
+This release is primarily a quality and maintainability release. No intentional breaking CLI or target API changes are documented here.
 * triceS chapter extended
 * Binary data example for Trices without timestamps added
 * Bump super-linter/super-linter from 8.3.0 to 8.3.1 in /.github/workflows (#605)
@@ -108,6 +127,17 @@ Used git range: v1.1.1..v1.2.0
 
 ### <a id='v1.1.1-overview'></a>v1.1.1 Overview
 
+* Maintenance release with no intentional breaking changes.
+* Target-side warning cleanup and portability improvements:
+  * pointer type warnings/errors fixed in target code
+  * CI setup extended for `arm-none-eabi-gcc`
+* Documentation and release artifact improvements:
+  * Trice User Manual improved and PDF re-generated
+  * README links corrected and relative links replaced where needed to keep generated PDF links valid
+* CI and repository maintenance:
+  * CodeQL workflow refreshed and extended
+  * `testAll.sh` hardened
+  * smaller test and script corrections
 * Update README.md
 * Improvements to Trice User Manual. Fixes rokath/trice#595 (#598)
 * Fix pointer type warnings/errors. Fixes rokath/trice#594 (#597)
@@ -142,6 +172,46 @@ Used git range: v1.1.0..v1.1.1
 
 ### <a id='v1.1.0-overview'></a>v1.1.0 Overview
 
+* Thanks to some contributions
+  * Trice now supports aliases. That means, you can use legacy user code with the Trice technology without changing it or the adaptions are marginal.
+  * We also can have additional tags "user labels" without changing the Trice tool source code and the need to re-build it.
+  * When filtering Trices in the target with enabled cycle counter in target code, the Trice tool complains about cycle errors because of the missing Trices. Those false positive error messages you now can suppress.
+  * Some users want to have the 32-bit target time stamps as a epoch second counter. The Trice tool can now display the epoch seconds as human readable time. 
+  * Some traget devices use UDP for Trice message transfer. Trice can that handle now too.
+* No breaking changes!
+* New CLI switches / switches extensions:
+  * `-exclude`
+  * `-ulabel`
+  * `-noCycleCheck` Add flag to disable CYCLE_ERROR in log
+  * `-ts32 epoch` option added
+  * `-alias`
+  * `trice version` now with git hash during compile time and `-verbose` gives list of local changed files
+  * `-port` supports now also IPv4 UDP receiver
+* Issue fixing:
+  * \#526
+  * \#529
+  * \#536
+  * \#538
+  * \#539
+  * \#553
+* Improved Testing
+  * Global vars saved and restored
+  * Inhibit system sleep during test execution
+* Slightly restructured, enhanced and reworked TriceUserManual
+  * Chapter *Future Development* contains now specification draft for structured logging and log level logging 
+* `trice version -verbose` now with list of local changed files and git hash during compile time
+* goreleaser now with linux arm 6/7 build to run `trice log` on embedded Linux platforms
+* Github Actions reworked including clang-format and bash format.
+* Github pages enabled
+* Link Check added to avoid broken links
+* Trice user manual enhanched
+* Go coverage tests updated
+* New Github Actions
+  * clang-format check
+  * YAML Linting
+  * Markdown Linting
+  * Link checks
+* Additional Trice Assert macros 
 * triceSingleBufferStartWritePosition now a global variable for all 4 buffer variants
 * all tests pass
 * clang-format
@@ -551,9 +621,11 @@ Used git range: v0.73.1..0.74.0
 
 ### <a id='v0.73.1-overview'></a>v0.73.1 Overview
 
+* legacy debug log removed
+* [Issue \#517](https://github.com/rokath/trice/issues/517) solved
+* TriceUserManual extended
 * Update trice.h
 * 2 chapters added: library? and possible variadic macros issue
-* legacy debug log removed
 * v0.73.1 changes added
 
 ### <a id='v0.73.1-git-log'></a>v0.73.1 Git Log
@@ -572,6 +644,9 @@ Used git range: v0.73.0..v0.73.1
 
 ### <a id='v0.73.0-overview'></a>v0.73.0 Overview
 
+* RTT Log support for Linux and Darwin improved
+* Trice User Manual extended
+* Example improved
 * empty lines added
 * Chapters Protect, Diag and Acoid False-Positives added
 * Update TriceUserManual.md
@@ -646,6 +721,8 @@ Used git range: v0.72.5..v0.73.0
 
 ### <a id='v0.72.5-overview'></a>v0.72.5 Overview
 
+* All documents merged into [Trice User Manual](./docs/TriceUserManual.md)
+* The `trice generate` now checks format soecifier count in Trices against their values count.
 * Update TriceUserManual.md
 * typo corrected
 * special test for debugging added
@@ -675,6 +752,12 @@ Used git range: v0.72.4..v0.72.5
 
 ### <a id='v0.72.4-overview'></a>v0.72.4 Overview
 
+* A new `trice generate` command added.
+* A statistics switch `trice log -stat` added to display, how often each Trice message occurred. 
+* Documentation extended and improved
+  * `./examples folder`
+  *  All documentation moved to TriceUserManual.md
+  *  Previous documentation locations link into approriate places inside the TriceUserManual.md
 * TOC improved
 * image sizes adapted
 * Markdown doc files formatting improved
@@ -750,6 +833,7 @@ Used git range: v0.72.3..v0.72.4
 
 ### <a id='v0.72.3-overview'></a>v0.72.3 Overview
 
+Minor bug fix release. `trice insert` CLI `-spacing` renamed into `spaceInsideParenthesis` and added t0 `trice clean`.
 * empty lines added
 * CLI switch -spaceAfterOpeningBrace added to `tice clean`
 * exec mode added to scripts
@@ -780,6 +864,7 @@ Used git range: v0.72.2..v0.72.3
 
 ### <a id='v0.72.2-overview'></a>v0.72.2 Overview
 
+Maintenance release, more build variants tests in L432 project, OpenOCD experiments
 * In build.s args handling improved
 * error messages improved
 * Update README.md
@@ -842,6 +927,7 @@ Used git range: v0.72.1..v0.72.2
 
 ### <a id='v0.72.1-overview'></a>v0.72.1 Overview
 
+* Issue \#509 fixed (better `TRICE_OFF` handling)
 * Update ReadMe.md
 * ignore MacOS specific files
 * Option for MacOS added
@@ -870,6 +956,9 @@ Used git range: v0.72.0..v0.72.1
 
 ### <a id='v0.72.0-overview'></a>v0.72.0 Overview
 
+* Trice cache folders now with correct permissions.
+* Trice deferred mode for ring buffer now also supports multi pack mode.
+* Multi pack mode now as default setting for deferred modes.
 * Trice cache Issue chapter added
 * Scripts adapted to better work with the Trice cache.
 * Issue #508 solved
@@ -928,6 +1017,7 @@ Used git range: v0.71.0..v0.72.0
 
 ### <a id='v0.71.0-overview'></a>v0.71.0 Overview
 
+* A new CLI switch for `trice insert` is invented: `-IDRange`. See `trice help -insert` for details.
 * CHANGELOG.md minor correction
 * Doubled used ID test added
 * array flag IDPolicy added (wip)
@@ -971,6 +1061,13 @@ Used git range: v0.70.0..v0.71.0
 
 ### <a id='v0.70.0-overview'></a>v0.70.0 Overview
 
+* Trice cache option added
+* Trice commands `trice update` and `trice zero` removed
+* Better handling of target MCU endianness - now mostly automatically detected (Special thanks to [Sazerac4](https://github.com/Sazerac4))
+* TRICE_OFF switch without warnings: unused parameter
+* Tests changed to hexadecimal stamps to see issues easier
+* spacing CLI switch added to `trice insert`
+* Target code test folder `test` renamed into `_test` to avoid vsCode slowdown. To execute these tests rename this folder temporary back and run `go test ./test/...`.
 * comment extended
 * Trice Cache Specification Draft added
 * ./updateTestData.sh run result
@@ -1070,6 +1167,8 @@ Used git range: v0.69.0..v0.70.0
 
 ### <a id='v0.69.0-overview'></a>v0.69.0 Overview
 
+* Big-endian MCUs should now be usable with the complete Trice macro set (automatic test added).
+* Trice code auto-formatted with `clang-format.sh`. (Special thanks to @Sazerac)
 * Update README.md
 * formatting and comments changed slightly
 * indentiation manually changed for readability
@@ -1139,6 +1238,8 @@ Used git range: v0.68.0..v0.69.0
 
 ### <a id='v0.68.0-overview'></a>v0.68.0 Overview
 
+* Formatting and repository hygiene were tightened, especially around SEGGER sources and shared style configuration.
+* The detailed commit list is preserved in the following git log table.
 * Automatic TRICE_CLEAN modification added.
 * minor update
 * add .gitattibutes to avoid problem in git diff with end of line
@@ -1182,6 +1283,8 @@ Used git range: v0.67.0..v0.68.0
 
 ### <a id='v0.67.0-overview'></a>v0.67.0 Overview
 
+* CLI checking, parameter parsing and transport support were extended further in this release.
+* The detailed commit list is preserved in the following git log table.
 * founding
 * donate
 * Update README.md
@@ -1252,6 +1355,7 @@ Used git range: v0.66.0..v0.66.1
 
 ### <a id='v0.66.0-overview'></a>v0.66.0 Overview
 
+* Selected changes summarized from the release log are listed below.
 * Testig slightly improved
 * folder renamed
 * function signature more universal
@@ -1281,6 +1385,8 @@ Used git range: v0.65.0..v0.66.0
 
 ### <a id='v0.65.0-overview'></a>v0.65.0 Overview
 
+* Two tracked issues were closed and byte-buffer helper logging was extended.
+* The preserved per-commit notes are listed below.
 * Issue #466 fixed
 * Issue #466 solved
 * Update ReadMe.md
@@ -1347,6 +1453,8 @@ Used git range: v0.64.1..v0.64.2
 
 ### <a id='v0.64.1-overview'></a>v0.64.1 Overview
 
+* Buffer sizing, diagnostics and ID-management details were tightened in this maintenance release.
+* The preserved per-commit notes are listed below.
 * minor
 * ReadMe.md added to some examples
 * hint added
@@ -1397,10 +1505,64 @@ Used git range: v0.64.0..v0.64.1
 
 ### <a id='v0.64.0-overview'></a>v0.64.0 Overview
 
+* additional configuration checks 
+* TriceNonBlockingDirectWrite re-coded 
+* auxiliary output 32bit support
+* example projects folder re-worked
+* According issue \#456 inside trice.h some renaming to avoid name clashes with other libraries. Only ID, Id, id and iD stayed the same for user code readability and compability.
+* BuildInfo added to self-compiled Trice compiled binary.
+* CGO test documentation extended.
+* CYCLE error now with sound in Trice tool.
+* Chapter "Trice Limitations" re-worked.
+* FreeRTOS example added
+* Merge pull request \#454 from hugobpontes/master
+* More checks for dynamic strings
+* More descriptive  error  messages when running out of IDs
+* Naming for TRICE_DEFERRED_TRANSFER_MODE improved
+* New test cases added
+* Now only one common TriceEncode Function. (Code clean-up)
+* Overflow checks successful
+* SEGGER_RTT_32BIT now also with framing possible
+* TRICE_CONFIG_WARNINGS switch added
+* TRICE_PROTECT test added
+* TRICE_PROTRCT switch added
+* TriceEnoughSpace() better commented for ring buffer.
+* TriceEnoughSpace() corrected and commented for ring buffer.
+* TriceOvewrflowCount added as diagnostics value
+* Undefine ID, Id, id, iD at the trice.h start to avoid name clashes just in case a previous header file used them (see issue \#456)
+* Update README.md
+* Update TriceUserGuide.md
+* Update cgo_test.go
+* Update trice.c
+* Update triceConfig.h
+* triceDefaultConfig.h file added.
+* additional id processing methods
+* additional test cases
+* automated tests now with all test lines
+* automatic tests extended and adapted
+* code cleanup, formatting, comments updated
+* cycle error message compacted
+* dead code removed
+* Test for double buffer multi packaging now ok with encryption
+* encryption code improved
+* test folder names adapted to pattern
+* example folder names unified
+* full build info displayed (only) with *trice version  -verbose*
+* improved id management and testing
+* "no package framing" fix
+* trice configuration switches added
+* triceAsssertTrue and triceAssertFalse are now covered by TRICE_CLEAN too.
+* triceDefaultConfig.h eases settings now
+* "simulated" UART 
+* Most config switches with 0 or 1 only (removed #ifdef) 
+* +triceUart.c (User provides triceUart.h)
+* better id procesing
+* compiler switches variants
+* improved id testing
+* triceDefaultConfig.h
 * Minor help test correcion. The build time is visible now always.
 * BuildInfo added to self-compiled compiled binary.
 * Fixed constness of TriceNonBlockingDeferredWriteAuxiliary
-* triceAsssertTrue and triceAssertFalse are now covered by TRICE_CLEAN too.
 
 ### <a id='v0.64.0-git-log'></a>v0.64.0 Git Log
 
@@ -1521,6 +1683,17 @@ Used git range: v0.63.0..v0.64.0
 
 ### <a id='v0.63.0-overview'></a>v0.63.0 Overview
 
+* Issue [#436](https://github.com/rokath/trice/issues/436) done (faster now).
+* Issue [#438](https://github.com/rokath/trice/issues/438) done (minor). 
+* Issue [#439](https://github.com/rokath/trice/issues/439) done (no more trice macros inside header files).
+* Now unified `__restrict` keyword. `RESTRICT` keyword removed and `#include <stdint.h>` into all **triceConfig.h** files. Obsolete 'RESTRICT' code removed.
+* Code cleanup, tests now ok with `-race`. **Added: `triceAssertTrue` and `triceAssertFalse`**.
+* CLI switch `-d16` better documented. 
+* **`UserNonBlockingDirectWrite8AuxiliaryFn` and `UserNonBlockingDeferredWrite8AuxiliaryFn` invented for a cleaner auxiliary interface adaption**.
+* Doc updated in `TriceUserGuide.md`, `TriceVsPrintfSimilaritiesAndDifferences.md`, `TriceTargetCode.md` (now in TriceUserManual.md), `TriceColor.md` and preface extended. 
+* Folder `examples` fixed. 
+* Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
+* Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
 * #436 issue done
 * Update TriceUserGuide.md
 * Add do while (0) to Id and ID macros
