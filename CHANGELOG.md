@@ -26,7 +26,7 @@
 This release is primarily a quality and maintainability release. No intentional breaking CLI or target API changes are documented here.
 * triceS chapter extended
 * Binary data example for Trices without timestamps added
-* Bump super-linter/super-linter from 8.3.0 to 8.3.1 in /.github/workflows (#605)
+* Bump super-linter/super-linter from 8.3.0 to 8.3.1 in /.github/workflows ([#605](https://github.com/rokath/trice/pull/605))
 * Reasons added for "Not applicable for a large legacy code basis."
 
 ### <a id='v1.2.0-git-log'></a>v1.2.0 Git Log
@@ -139,8 +139,8 @@ Used git range: v1.1.1..v1.2.0
   * `testAll.sh` hardened
   * smaller test and script corrections
 * Update README.md
-* Improvements to Trice User Manual. Fixes rokath/trice#595 (#598)
-* Fix pointer type warnings/errors. Fixes rokath/trice#594 (#597)
+* Improvements to Trice User Manual. Fixes [#595](https://github.com/rokath/trice/issues/595) ([#598](https://github.com/rokath/trice/pull/598))
+* Fix pointer type warnings/errors. Fixes [#594](https://github.com/rokath/trice/issues/594) ([#597](https://github.com/rokath/trice/pull/597))
 * tests corrected
 
 ### <a id='v1.1.1-git-log'></a>v1.1.1 Git Log
@@ -188,12 +188,12 @@ Used git range: v1.1.0..v1.1.1
   * `trice version` now with git hash during compile time and `-verbose` gives list of local changed files
   * `-port` supports now also IPv4 UDP receiver
 * Issue fixing:
-  * \#526
-  * \#529
-  * \#536
-  * \#538
-  * \#539
-  * \#553
+  * [#526](https://github.com/rokath/trice/issues/526)
+  * [#529](https://github.com/rokath/trice/issues/529)
+  * [#536](https://github.com/rokath/trice/issues/536)
+  * [#538](https://github.com/rokath/trice/issues/538)
+  * [#539](https://github.com/rokath/trice/issues/539)
+  * [#553](https://github.com/rokath/trice/issues/553)
 * Improved Testing
   * Global vars saved and restored
   * Inhibit system sleep during test execution
@@ -591,7 +591,7 @@ Used git range: 0.74.0..v1.0.0
 
 * Upper-Lower case adaptions in some comments.
 * Update README.md
-* Issue #519 fix
+* Issue [#519](https://github.com/rokath/trice/issues/519) fix
 * Update LICENSE.md
 
 ### <a id='v0.74.0-git-log'></a>v0.74.0 Git Log
@@ -622,7 +622,7 @@ Used git range: v0.73.1..0.74.0
 ### <a id='v0.73.1-overview'></a>v0.73.1 Overview
 
 * legacy debug log removed
-* [Issue \#517](https://github.com/rokath/trice/issues/517) solved
+* [#517](https://github.com/rokath/trice/issues/517) solved
 * TriceUserManual extended
 * Update trice.h
 * 2 chapters added: library? and possible variadic macros issue
@@ -927,7 +927,7 @@ Used git range: v0.72.1..v0.72.2
 
 ### <a id='v0.72.1-overview'></a>v0.72.1 Overview
 
-* Issue \#509 fixed (better `TRICE_OFF` handling)
+* Issue [#509](https://github.com/rokath/trice/issues/509) fixed (better `TRICE_OFF` handling)
 * Update ReadMe.md
 * ignore MacOS specific files
 * Option for MacOS added
@@ -961,7 +961,7 @@ Used git range: v0.72.0..v0.72.1
 * Multi pack mode now as default setting for deferred modes.
 * Trice cache Issue chapter added
 * Scripts adapted to better work with the Trice cache.
-* Issue #508 solved
+* Issue [#508](https://github.com/rokath/trice/issues/508) solved
 * fileWatcher enabled again, Verbose Logging extended, 100ms sleep added before re-reading til.json & li.json
 
 ### <a id='v0.72.0-git-log'></a>v0.72.0 Git Log
@@ -1435,7 +1435,7 @@ Used git range: v0.66.0..v0.66.1
 * Testig slightly improved
 * folder renamed
 * function signature more universal
-* issue #478 solved
+* issue [#478](https://github.com/rokath/trice/issues/478) solved
 
 ### <a id='v0.66.0-git-log'></a>v0.66.0 Git Log
 
@@ -1463,8 +1463,8 @@ Used git range: v0.65.0..v0.66.0
 
 * Two tracked issues were closed and byte-buffer helper logging was extended.
 * The preserved per-commit notes are listed below.
-* Issue #466 fixed
-* Issue #466 solved
+* Issue [#466](https://github.com/rokath/trice/issues/466) fixed
+* Issue [#466](https://github.com/rokath/trice/issues/466) solved
 * Update ReadMe.md
 * tests ok
 
@@ -1585,13 +1585,13 @@ Used git range: v0.64.0..v0.64.1
 * TriceNonBlockingDirectWrite re-coded 
 * auxiliary output 32bit support
 * example projects folder re-worked
-* According issue \#456 inside trice.h some renaming to avoid name clashes with other libraries. Only ID, Id, id and iD stayed the same for user code readability and compability.
+* According issue [#456](https://github.com/rokath/trice/issues/456) inside trice.h some renaming to avoid name clashes with other libraries. Only ID, Id, id and iD stayed the same for user code readability and compability.
 * BuildInfo added to self-compiled Trice compiled binary.
 * CGO test documentation extended.
 * CYCLE error now with sound in Trice tool.
 * Chapter "Trice Limitations" re-worked.
 * FreeRTOS example added
-* Merge pull request \#454 from hugobpontes/master
+* Merge pull request [#454](https://github.com/rokath/trice/pull/454) from [hugobpontes](https://github.com/hugobpontes)
 * More checks for dynamic strings
 * More descriptive  error  messages when running out of IDs
 * Naming for TRICE_DEFERRED_TRANSFER_MODE improved
@@ -1605,7 +1605,7 @@ Used git range: v0.64.0..v0.64.1
 * TriceEnoughSpace() better commented for ring buffer.
 * TriceEnoughSpace() corrected and commented for ring buffer.
 * TriceOvewrflowCount added as diagnostics value
-* Undefine ID, Id, id, iD at the trice.h start to avoid name clashes just in case a previous header file used them (see issue \#456)
+* Undefine ID, Id, id, iD at the trice.h start to avoid name clashes just in case a previous header file used them (see issue [#456](https://github.com/rokath/trice/issues/456))
 * Update README.md
 * Update TriceUserGuide.md
 * Update cgo_test.go
@@ -1770,7 +1770,7 @@ Used git range: v0.63.0..v0.64.0
 * Folder `examples` fixed. 
 * Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
 * Merge pull request [#437](https://github.com/rokath/trice/pull/437) from hugobpontes/fix_ID_Id_compiler_warnings (add  `do ... while (0)` to Id and ID macros.
-* #436 issue done
+* [#436](https://github.com/rokath/trice/issues/436) issue done
 * Update TriceUserGuide.md
 * Add do while (0) to Id and ID macros
 * TriceAssert experimental implementation
@@ -3755,8 +3755,8 @@ Used git range: v0.32.0..v0.33.0
 
 * Update TriceEncodings.md
 * TDM-GCC info added
-* bugfix for issue #129
-* bugfix for issue #125
+* bugfix for issue [#129](https://github.com/rokath/trice/issues/129)
+* bugfix for issue [#125](https://github.com/rokath/trice/issues/125)
 
 ### <a id='v0.32.0-git-log'></a>v0.32.0 Git Log
 
