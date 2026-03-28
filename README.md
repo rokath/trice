@@ -1,6 +1,8 @@
-# 🅃🅁ace 🄸d's 🄲 🄴mbedded
+# Trice - Trace IDs for C Embedded 
 
-[View Github pages](https://rokath.github.io/trice/)
+> 🅃🅁ace 🄸d's for 🄲 🄴mbedded
+
+[View Github Pages](https://rokath.github.io/trice/)
 
 <a id="top"> </a>
 
@@ -21,13 +23,9 @@
 <!-- [![Sponsor rokath](https://github.com/sponsors/rokath/button)](https://github.com/sponsors/rokath) -->
 <!-- [![test](https://github.com/shogo82148/actions-goveralls/workflows/_test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice) -->
 
-Log in (a) trice ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif)
+Log in (a) trice ([S>G](https://www.screentogif.com/)) even inside **↯ interrupts** in less than 1 µs❗ ![ ](./docs/ref/life0.gif)
 
-even inside **↯ interrupts** in less than 1 µs❗
-
-
-| **Trice User Manual:** | [Github](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) | [Github pages](https://rokath.github.io/trice/docs/TriceUserManual.html) | [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf) |
-| - | - | - | - |
+**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
 
 ## What is Trice?
 
@@ -51,11 +49,10 @@ Instead of storing log strings on your embedded device, Trice keeps them on your
 
 1. **C code macros** - Works like `printf` but creates very fast trace and log code for your embedded device
 2. **Trice tool** - Manages and displays the logs
-   - Written in [Go](https://golang.org/) - works on all platforms that Go supports
+   - Written in [Go](https://go.dev/) - works on all platforms that Go supports
    - You can also build your own tool to receive Trice packages, replace IDs with text, and display the output
 
-- [Read the Trice User Manual](./docs/TriceUserManual.md)
-- Current Status: **_Trice is ready to use!_**
+***Ready to use:*** [Start with Trice](./docs/TriceUserManual.md#start-with-trice)
 
 ## When to Use Trice
 
@@ -115,8 +112,7 @@ This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice work
 
 ## Documentation
 
-| **Trice User Manual:** | [Github](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) | [Github pages](https://rokath.github.io/trice/docs/TriceUserManual.html) | [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf) |
-| - | - | - | - |
+**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
 
 The Trice User Manual includes all information from the [Memfault Interrupt Blog](https://interrupt.memfault.com/blog/trice) which is slightly outdated.
 - Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions), including closed items
@@ -125,7 +121,7 @@ The Trice User Manual includes all information from the [Memfault Interrupt Blog
 - Refresh the checked-in CLI help documentation with `go generate ./internal/args`
 - Look at and modify [./internal/emitter/lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) if needed (requires running `go install ./cmd/trice/...` afterwards)
 
-## Debugging with VS-Code and Clang
+## Debugging with VS Code and Clang
 
 Debug a Trice project in Direct-Out Mode over SEGGER-RTT. (See [Development Environment Setup](./docs/TriceUserManual.md#development-environment-setup) for details.)
 
@@ -149,7 +145,9 @@ The Trice cache saves copies of all files after processing them with `trice i` o
 
 ### Important Note
 
-> **<span style="color:red">Be careful when your build system also modifies source files!</span>**
+```diff
+-> Be careful when your build system also modifies source files!
+```
 
 For example, run an auto-formatter **before** the `trice insert` command.
 
@@ -163,7 +161,7 @@ For example, run an auto-formatter **before** the `trice insert` command.
 Trice is fully usable. There are no known bugs (see [issues](https://github.com/rokath/trice/issues)).
 
 ```diff
-+ Please use v1.0, v1.1, or the main branch if you want to build from source.
++ Please use the latest release or the main branch if you want to build from source.
 - Do not use the "dev" branch right now (December 2025) - it may not work properly.
 ```
 
@@ -180,20 +178,10 @@ Trice will soon support structured logging. Based on feedback from [#531](https:
 - Trice takes a lot of my free time. I want to keep it MIT licensed in the future.
 - If you make profit using Trice in your products, donations help convince my family to continue improving Trice.
 - :star: Star this project! ☺
-
-[Become a Sponsor with your Github Account](https://github.com/sponsors/rokath/)
-
-OR
-
-<a href="https://www.buymeacoffee.com/rokath" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="120"></a>
-
-OR
-
-<p>
-  <a href="https://www.paypal.me/rolfkarlthomas">
-      <img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="paypal" height="40" width="120">
-  </a>
-</p>
+- Support options:
+  - [Become a Sponsor with your GitHub account](https://github.com/sponsors/rokath/)
+  - <a href="https://www.buymeacoffee.com/rokath" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="120"></a>
+  - <a href="https://www.paypal.me/rolfkarlthomas"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="PayPal" height="40" width="120"></a>
 
 ## Clone the Repository
 
@@ -230,8 +218,12 @@ git clone https://github.com/rokath/trice.git
 - [uLog (RD Poor)](https://github.com/rdpoor/ulog)
 - [Zephyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 
-[Trice Compare (generated 2025-05-26)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/ChatGPTo4-mini-high_TriceCompare.html)
+Additional comparison material:
 
-[Logging & Tracing Solutions for Embedded Systems (generated 2026-02-16)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html)
+- [Trice Compare (generated 2025-05-26)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/ChatGPTo4-mini-high_TriceCompare.html) - compact generated comparison with related tools
+- [Logging & Tracing Solutions for Embedded Systems (generated 2026-02-16)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html) - longer generated overview of the broader tool landscape
+
+
+**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
