@@ -7,6 +7,8 @@
 - Preserve file encoding exactly. Treat UTF-8 and Unicode content as fragile.
 - If a file contains non-ASCII characters, emojis, or other encoding-sensitive content, do not perform mechanical rewrites without checking the diff first.
 - For changes affecting more than 5 files, show a sample diff before continuing.
+- Communication with Codex may be in German or English.
+- All file comments must always be written in English.
 
 ## Commits
 
