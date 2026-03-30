@@ -12,6 +12,8 @@
 
 - If asked to "commit first", create only the requested safety commit and stop for confirmation before further edits.
 - Keep unrelated changes out of the same commit.
+- If asked to commit and the work contains multiple distinct changes, split them into sensible separate commits instead of one combined commit.
+- A sensible commit may span multiple files, but only when those files belong to the same cohesive change.
 
 ## Tests
 
