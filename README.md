@@ -158,11 +158,11 @@ For example, run an auto-formatter **before** the `trice insert` command.
 
 ## Project Status
 
-Trice is fully usable. There are no known bugs (see [issues](https://github.com/rokath/trice/issues)).
+Trice is fully usable.
 
 ```diff
-+ Please use the latest release or the main branch if you want to build from source.
-- Do not use the "dev" branch right now (December 2025) - it may not work properly.
++ Use the latest release or main branch to build from source.
+- Do not use the "dev" branch. It may not work properly.
 ```
 
 ## Future Plans
