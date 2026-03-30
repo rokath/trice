@@ -1,336 +1,191 @@
 #!/usr/bin/env bash
+#
+# Public entry point for test orchestration.
+#
+# The historical interface intentionally remains unchanged:
+# - ./testAll.sh
+# - ./testAll.sh quick
+# - ./testAll.sh config
+# - ./testAll.sh full
+#
+# Selection:
+# - quick
+#   Standard run with the normal steps, but without the additional
+#   L432 configuration loop.
+# - config
+#   Skips the Go and PC target tests, but still runs the preparation,
+#   build and configuration checks including the L432 configuration step.
+# - full
+#   Runs all steps.
+#
+# Structure:
+# - testAll.sh resolves the CLI mode and only calls the steps needed for that mode.
+# - Individual step scripts only accept arguments when they actually need them.
+# - Each step has its own name, its own log file, and can be run separately,
+#   for example:
+#   - ./_testAll_05_MarkdownLint.sh
+#   - ./_testAll_06_LinkCheck.sh
+#   - ./_testAll_10_PcTargetTests.sh full
+#
+# Logging:
+# - Each step writes to ./temp/testAll/<scriptname>.log
+# - testAll.sh assembles ./testAll.log from those files at the end.
+#
+# Sleep prevention:
+# - On Linux, systemd-inhibit is used when available.
+# - On macOS, caffeinate is used when available.
+# - Otherwise the script runs directly.
+# - --internal-run is only an internal wrapper argument.
 
-# test quick:          ./testAll.sh
-# test config compile: ./testAll.sh config
-# test full:           ./testAll.sh full
+set -u
 
-# === Define your long-running task ===
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_PATH="$SCRIPT_DIR/$(basename -- "${BASH_SOURCE[0]}")"
+# shellcheck source=./_testAll_00_common.sh
+source "$SCRIPT_DIR/_testAll_00_common.sh"
+
+validate_selection() {
+  case "${1:-quick}" in
+    quick | config | full) return 0 ;;
+    *)
+      printf 'Unsupported test selection: %s\n' "${1:-}" >&2
+      printf 'Usage: ./testAll.sh [quick|config|full]\n' >&2
+      return 2
+      ;;
+  esac
+}
+
+run_stage() {
+  local step_script="$1"
+  shift
+  "$SCRIPT_DIR/$step_script" "$@"
+}
+
+selected_steps() {
+  cat <<'EOF'
+_testAll_01_CleanDsStore.sh
+_testAll_02_ClangFormat.sh
+_testAll_03_BuildTriceTool.sh
+_testAll_04_FormatManual.sh
+_testAll_05_MarkdownLint.sh
+_testAll_06_LinkCheck.sh
+_testAll_07_GoCoverage.sh
+_testAll_08_RuntimePrepare.sh
+EOF
+  case "$1" in
+    quick)
+      cat <<'EOF'
+_testAll_09_GoTests.sh
+_testAll_10_PcTargetTests.sh quick
+EOF
+      ;;
+    config)
+      :
+      ;;
+    full)
+      cat <<'EOF'
+_testAll_09_GoTests.sh
+_testAll_10_PcTargetTests.sh full
+EOF
+      ;;
+  esac
+  cat <<'EOF'
+_testAll_11_ClangTranslation.sh
+_testAll_12_GccExampleBuilds.sh
+EOF
+  case "$1" in
+    config | full)
+      cat <<'EOF'
+_testAll_13_L432Configs.sh
+EOF
+      ;;
+  esac
+}
+
 my_long_task() {
-  #local arg1="${1:-default1}"
-  #local arg2="${2:-default2}"
+  local selected="${1:-quick}"
+  local t0
+  local t1
+  local runtime
+  local rc=0
+  local summary_log
+  local step_line
+  local step_script
+  local step_args=()
+  local log_files=()
 
+  validate_selection "$selected" || return $?
 
-  echo "🟢 Starting Test: $(date)"
-  #echo "Test parameters: arg1='$arg1', arg2='$arg2'"
+  ensure_testall_dirs
+  prepare_shared_env "$selected"
 
-  SELECTED=${1:-quick}
+  summary_log="$(step_log_path_from_name "testAll_summary")"
+  : >"$summary_log"
 
-  triceFolder=$(pwd)
-  if [ -z "${GOCACHE:-}" ]; then
-    export GOCACHE="$triceFolder/.gocache"
-  fi
-  mkdir -p "$GOCACHE"
-  date                                       2>&1 | tee "$triceFolder/testAll.log"
-  echo This can take a while ...             2>&1 | tee -a "$triceFolder/testAll.log"
   t0=$(date +%s)
+  printf 'Starting testAll.sh at %s\n' "$(date)" | tee -a "$summary_log"
+  printf 'Selection: %s\n' "$selected" | tee -a "$summary_log"
 
-  echo "Clean MacOS files..."                2>&1 | tee -a "$triceFolder/testAll.log"
-  ./clean-dsstore.sh                         2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Clean MacOS files...done"            2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Format C sources files..."           2>&1 | tee -a "$triceFolder/testAll.log"
-  ./clang-format.sh                          2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Format C sources files...done"       2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Build Trice tool..."                 2>&1 | tee -a "$triceFolder/testAll.log"
-  ./buildTriceTool.sh                        2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Build Trice tool...done"             2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Format TriceUserManual.md..."        2>&1 | tee -a "$triceFolder/testAll.log"
-  ./format-dumeng-toc.sh                     2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Format TriceUserManual.md...done"    2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Lint Markdown files..."              2>&1 | tee -a "$triceFolder/testAll.log"
-  markdownlint .                             2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Lint Markdown files...done"          2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Check links..."                      2>&1 | tee -a "$triceFolder/testAll.log"
-  lychee .                                   2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Check links...done"                  2>&1 | tee -a "$triceFolder/testAll.log"
-
-  echo "Check Go coverage..."                                2>&1 | tee -a "$triceFolder/testAll.log"
-  go test ./... -covermode=atomic -coverprofile=coverage.out -coverpkg=./...
-  go tool cover -func=coverage.out                           2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "to analyze call 'go tool cover -html=coverage.out'"  2>&1 | tee -a "$triceFolder/testAll.log"
-  go tool cover -html=coverage.out                           2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "Check Go coverage...done"                            2>&1 | tee -a "$triceFolder/testAll.log"
-
-  # show environment and prepare
-  echo "SELECTED: $SELECTED" 2>&1 | tee -a "$triceFolder/testAll.log"
-  echo \$OSTYPE=$OSTYPE 2>&1 | tee -a "$triceFolder/testAll.log"
-  echo \$GOCACHE=$GOCACHE 2>&1 | tee -a "$triceFolder/testAll.log"
-  if command -v uname; then
-    uname -a 2>&1 | tee -a "$triceFolder/testAll.log"
-  fi
-  if command -v go; then
-    go version 2>&1 | tee -a "$triceFolder/testAll.log"
-    go install ./... 2>&1 | tee -a "$triceFolder/testAll.log"
-  fi
-  which trice 2>&1 | tee -a "$triceFolder/testAll.log"
-  trice version 2>&1 | tee -a "$triceFolder/testAll.log"
-  export TRICE_TMP_DIR=./temp/testAll
-  export TRICE_TIL_JSON="$TRICE_TMP_DIR/demoTIL.json"
-  export TRICE_LI_JSON="$TRICE_TMP_DIR/demoLI.json"
-  mkdir -p "$TRICE_TMP_DIR" 2>&1 | tee -a "$triceFolder/testAll.log"
-  ./trice_cleanIDs_in_examples_and_test_folder.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-  rm -f "$TRICE_TIL_JSON" "$TRICE_LI_JSON" 2>&1 | tee -a "$triceFolder/testAll.log"
-  touch "$TRICE_TIL_JSON" "$TRICE_LI_JSON" 2>&1 | tee -a "$triceFolder/testAll.log"
-  ./renewIDs_in_examples_and_refresh_test_folder.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-
-  if [ "$SELECTED" != "config" ]; then
-    if command -v go; then
-      # Go code tests
-      echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "Testing the Go code..." 2>&1 | tee -a "$triceFolder/testAll.log"
-      go clean -cache -testcache 2>&1 | tee -a "$triceFolder/testAll.log"
-      go test ./... 2>&1 | tee -a "$triceFolder/testAll.log"
+  while IFS= read -r step_line; do
+    [ -n "$step_line" ] || continue
+    # Split the orchestrator line into script name plus optional script args.
+    read -r -a step_args <<<"$step_line"
+    step_script="${step_args[0]}"
+    log_files+=("$(step_log_path_from_name "$(basename "$step_script" .sh)")")
+    run_stage "$step_script" "${step_args[@]:1}" || {
       rc=$?
-      if [ $rc -ne 0 ]; then
-        echo "Testing the Go code...failed" | tee -a "$triceFolder/testAll.log"
-        exit $rc
-      fi
-      if cat "$triceFolder/testAll.log" | grep -q FAIL; then
-        echo "Testing the Go code...FAILed" | tee -a "$triceFolder/testAll.log"
-        exit $rc
-      fi
-      echo "Testing the Go code...pass" 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-
-      # Target code inside PC tests
-      echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "Testing the Target code inside PC..." 2>&1 | tee -a "$triceFolder/testAll.log"
-      ./trice_insertIDs_in_examples_and_test_folder.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-      cd _test || exit 1
-      if [ "$C_INCLUDE_PATH" != "" ]; then
-        echo It is important, that C_INLUDE_PATH is not set for the CGO tests. Clearing it temporarily.
-        export C_INCLUDE_PATH=""
-      fi
-      if [ "$SELECTED" = "quick" ]; then
-        echo "go test ./be_dblB_de_tcobs_ua/..." 2>&1 | tee -a "$triceFolder/testAll.log"
-        go test ./be_dblB_de_tcobs_ua/... 2>&1 | tee -a "$triceFolder/testAll.log"
-        rc=$?
-        if [ $rc -ne 0 ]; then
-          echo "Testing the Target code inside PC...failed" | tee -a "$triceFolder/testAll.log"
-          exit $rc
-        fi
-        # On build errors rc can be still 0, so we check the log file for FAIL
-        if cat "$triceFolder/testAll.log" | grep -q FAIL; then
-          echo "Testing the Target code inside PC...failed" | tee -a "$triceFolder/testAll.log"
-          echo "In case of CGO build errors check the PATH variable too." | tee -a "$triceFolder/testAll.log"
-          exit 2
-        fi
-      fi
-      if [ "$SELECTED" = "full" ]; then
-        echo "go test ./..." 2>&1 | tee -a "$triceFolder/testAll.log"
-        go test ./... 2>&1 | tee -a "$triceFolder/testAll.log"
-        rc=$?
-        if [ $rc -ne 0 ]; then
-          echo "Testing the Target code inside PC...failed" | tee -a "$triceFolder/testAll.log"
-          exit $rc
-        fi
-        # On build errors rc can be still 0, so we check the log file for FAIL
-        if cat "$triceFolder/testAll.log" | grep -q FAIL; then
-          echo "Testing the Target code inside PC...failed" | tee -a "$triceFolder/testAll.log"
-          echo "In case of CGO build errors check the PATH variable too." | tee -a "$triceFolder/testAll.log"
-          exit 2
-        fi
-      fi
-      cd - >/dev/null || exit
-      ./trice_cleanIDs_in_examples_and_test_folder.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "Testing the Target code inside PC...pass" 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-    else
-      echo "############################################" 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "WARNING:     Go not installed." 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "Skipping Go code and PC target code tests." 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "############################################" 2>&1 | tee -a "$triceFolder/testAll.log"
-    fi
-  fi
-
-  # set build environment
-  source ./build_environment.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-
-  # clang translation test
-  if ! command -v clang; then
-    echo "" 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "############################################" 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "WARNING:     clang not installed" 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "Skipping clang arm target G0B1 translation." 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "############################################" 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "" 2>&1 | tee -a "$triceFolder/testAll.log"
-  else
-    clang --version 2>&1 | tee "$triceFolder/clang.log"
-    if ! command -v arm-none-eabi-gcc; then
-      echo "" 2>&1 | tee -a "$triceFolder/clang.log"
-      echo "############################################" 2>&1 | tee -a "$triceFolder/clang.log"
-      echo "WARNING:    arm-none-eabi-gcc not installed" 2>&1 | tee -a "$triceFolder/clang.log"
-      echo "Skipping clang arm target G0B1 translation." 2>&1 | tee -a "$triceFolder/clang.log"
-      echo "The arm-none-eabi-gcc libraries are needed." 2>&1 | tee -a "$triceFolder/clang.log"
-      echo "############################################" 2>&1 | tee -a "$triceFolder/clang.log"
-      echo "" 2>&1 | tee -a "$triceFolder/clang.log"
-      cat "$triceFolder/clang.log" 2>&1 | tee -a "$triceFolder/testAll.log"
-      rm "$triceFolder/clang.log"
-    else
-      echo "---" 2>&1 | tee -a "$triceFolder/clang.log"
-      echo "Translating G0B1_inst with clang..." 2>&1 | tee -a "$triceFolder/clang.log"
-      cd examples/G0B1_inst || exit 1
-      make clean 2>&1 | tee -a "$triceFolder/clang.log"
-      ./build_with_clang.sh 2>&1 | tee -a "$triceFolder/clang.log"
-      cd - >/dev/null || exit
-      cat "$triceFolder/clang.log" 2>&1 | tee -a "$triceFolder/testAll.log"
-      if cat "$triceFolder/clang.log" | grep -q -e warning -e error; then
-        echo "Translating G0B1_inst with clang...failed" | tee -a "$triceFolder/testAll.log"
-        rm "$triceFolder/clang.log"
-        exit 2
-      fi
-      rm "$triceFolder/clang.log"
-      echo "Translating G0B1_inst with clang...pass" 2>&1 | tee -a "$triceFolder/testAll.log"
-      echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-    fi
-  fi
-
-  # gcc translation tests
-  # We need the C_INCLUDE_PATH to point to the arm-none-eabi-gcc include files folder.
-  if command -v arm-none-eabi-gcc; then
-    arm-none-eabi-gcc --version | grep gcc 2>&1 | tee -a "$triceFolder/testAll.log"
-  fi
-  echo "C_INCLUDE_PATH=$C_INCLUDE_PATH" 2>&1 | tee -a "$triceFolder/testAll.log"
-  echo arm-none-eabi-gcc location in next line: 2>&1 | tee -a "$triceFolder/testAll.log"
-  which arm-none-eabi-gcc 2>&1 | tee -a "$triceFolder/testAll.log"
-  if ! command -v arm-none-eabi-gcc; then
-    echo "" 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "############################################" 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "WARNING:     arm-none-eabi-gcc not installed" 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "skipping gcc arm target examples translation"
-    echo "############################################" 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "" 2>&1 | tee -a "$triceFolder/testAll.log"
-  else
-    # translate gcc arm target examples
-    ./trice_insertIDs_in_examples_and_test_folder.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-    cd examples || exit 1
-    ./cleanAllTargets.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-
-    echo "Translating all examples with TRICE_OFF..." 2>&1 | tee "$triceFolder/triceOff.log"
-    ./buildAllTargets_TRICE_OFF.sh 2>&1 | tee -a "$triceFolder/triceOff.log"
-    if cat "$triceFolder/triceOff.log" | grep -q -e warning -e error; then
-      cat "$triceFolder/triceOff.log" >> "$triceFolder/testAll.log" 2>&1
-      rm "$triceFolder/triceOff.log"
-      echo "Translating all examples with TRICE_OFF...failed" | tee -a "$triceFolder/testAll.log"
-      cd - >/dev/null || exit
-      exit 2
-    fi
-    echo "Translating all examples with TRICE_OFF...pass" 2>&1 | tee -a "$triceFolder/triceOff.log"
-    cat "$triceFolder/triceOff.log" >> "$triceFolder/testAll.log" 2>&1
-    rm "$triceFolder/triceOff.log"
-
-    echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-    ./cleanAllTargets.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-    echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-
-    echo "Translating all examples with TRICE_ON..." 2>&1 | tee "$triceFolder/triceOn.log"
-    ./buildAllTargets_TRICE_ON.sh 2>&1 | tee -a "$triceFolder/triceOn.log"
-    if cat "$triceFolder/triceOn.log" | grep -q -e warning -e error; then
-      cat "$triceFolder/triceOn.log" >> "$triceFolder/testAll.log" 2>&1
-      rm "$triceFolder/triceOn.log"
-      echo "Translating all examples with TRICE_ON...failed" | tee -a "$triceFolder/testAll.log"
-      cd - >/dev/null || exit
-      exit 2
-    fi
-    echo "Translating all examples with TRICE_ON...pass" 2>&1 | tee -a "$triceFolder/triceOn.log"
-    cat "$triceFolder/triceOn.log" >> "$triceFolder/testAll.log" 2>&1
-    rm "$triceFolder/triceOn.log"
-
-    echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-    ./cleanAllTargets.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-    cd - >/dev/null || exit
-    if [ $SELECTED = "full" ] || [ $SELECTED = "config" ]; then
-      cd examples/L432_inst || exit 1
-      echo "---" 2>&1 | tee "$triceFolder/L432.log"
-      echo "Translating all L432 configurations..." 2>&1 | tee -a "$triceFolder/L432.log"
-      ./all_configs_build.sh 2>&1 | tee -a "$triceFolder/L432.log"
-      if cat "$triceFolder/L432.log" | grep -q -e warning -e error; then
-        echo "Translating all L432 configurations...failed" | tee -a "$triceFolder/L432.log"
-        cat "$triceFolder/L432.log" >> "$triceFolder/testAll.log" 2>&1
-        rm "$triceFolder/L432.log"
-        cd - >/dev/null || exit
-        exit 2
-      fi
-      echo "Translating all L432 configurations...pass" 2>&1 | tee -a "$triceFolder/L432.log"
-      cat "$triceFolder/L432.log" >> "$triceFolder/testAll.log" 2>&1
-      rm "$triceFolder/L432.log"
-      echo "---" 2>&1 | tee -a "$triceFolder/testAll.log"
-      cd - >/dev/null || exit
-    fi
-    ./trice_cleanIDs_in_examples_and_test_folder.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-  fi
+      break
+    }
+  done <<EOF
+$(selected_steps "$selected")
+EOF
 
   t1=$(date +%s)
   runtime=$((t1 - t0))
-  echo Script run $runtime seconds. 2>&1 | tee -a "$triceFolder/testAll.log"
-  echo "✅ Test completed at: $(date)"
+  if [ "$rc" -eq 0 ]; then
+    printf 'PASS: testAll.sh completed successfully in %s seconds.\n' "$runtime" | tee -a "$summary_log"
+  else
+    printf 'FAIL: testAll.sh stopped with exit code %s after %s seconds.\n' "$rc" "$runtime" | tee -a "$summary_log"
+  fi
+  printf 'Finished at %s\n' "$(date)" | tee -a "$summary_log"
+
+  combine_logs "$TESTALL_MAIN_LOG" "$summary_log" "${log_files[@]}"
+  return "$rc"
 }
 
-# === Inject the function and arguments into subshell ===
-get_function_with_call() {
-  declare -f my_long_task
-  printf "my_long_task %q %q\n" "$1" "$2"
-}
-
-# === Linux: systemd-inhibit ===
 run_with_inhibit_linux() {
-  echo "🧪 Detected Linux."
-  if command -v systemd-inhibit >/dev/null; then
-    echo "🔒 Using systemd-inhibit..."
-    systemd-inhibit --what=sleep:shutdown --who="$(whoami)" --why="Running long task" --mode=block \
-      bash -c "$(get_function_with_call "$1" "$2")"
+  if command -v systemd-inhibit >/dev/null 2>&1; then
+    systemd-inhibit --what=sleep:shutdown --who="$(whoami)" --why="Running testAll.sh" --mode=block \
+      bash "$SCRIPT_PATH" --internal-run "$@"
   else
-    echo "⚠️ systemd-inhibit not found. Running without inhibition."
-    my_long_task "$1" "$2"
+    my_long_task "$@"
   fi
 }
 
-# === macOS: caffeinate ===
 run_with_inhibit_macos() {
-  echo "🍎 Detected macOS."
-  if command -v caffeinate >/dev/null; then
-    echo "🔒 Using caffeinate..."
-    caffeinate -dimsu zsh -c "$(get_function_with_call "$1" "$2")"
+  if command -v caffeinate >/dev/null 2>&1; then
+    caffeinate -dimsu bash "$SCRIPT_PATH" --internal-run "$@"
   else
-    echo "⚠️ caffeinate not found. Running without inhibition."
-    my_long_task "$1" "$2"
+    my_long_task "$@"
   fi
 }
 
-# === Windows (Git Bash): PowerShell inhibit ===
-# To be honest, this is ChatGPT generated and I do not understand this function. Do you? Then please add comments.
-run_with_inhibit_windows() {
-  echo "🪟 Detected Windows (Git Bash). Using PowerShell inhibit."
-
-  powershell -Command "
-    Add-Type -Namespace Sleep -Name Preventer -MemberDefinition '
-        [DllImport(\"kernel32.dll\", SetLastError=true)]
-        public static extern uint SetThreadExecutionState(uint esFlags);
-    ';
-    [Sleep.Preventer]::SetThreadExecutionState(0x80000000 -bor 0x00000001);
-    " >/dev/null
-
-  TMP_SCRIPT="/tmp/my_task_win.sh"
-  get_function_with_call "$1" "$2" >"$TMP_SCRIPT"
-  chmod +x "$TMP_SCRIPT"
-  bash "$TMP_SCRIPT"
-
-  powershell -Command "[Sleep.Preventer]::SetThreadExecutionState(0x80000000);" >/dev/null
-}
-
-# === Fallback for unknown systems ===
 run_without_inhibit() {
-  echo "⚠️ Running without sleep prevention."
-  my_long_task "$1" "$2"
+  my_long_task "$@"
 }
 
-# === Main dispatcher ===
-OS_TYPE="$(uname -s)"
-case "$OS_TYPE" in
-Linux*) run_with_inhibit_linux "$@" ;;
-Darwin*) run_with_inhibit_macos "$@" ;;
-  #MINGW*|MSYS*|CYGWIN*) run_with_inhibit_windows "$@" ;;
-*) run_without_inhibit "$@" ;;
-esac
+main() {
+  if [ "${1:-}" = "--internal-run" ]; then
+    shift
+    my_long_task "$@"
+    exit $?
+  fi
 
-echo "🏁 $(date) Done."
+  case "$(uname -s)" in
+    Linux*) run_with_inhibit_linux "$@" ;;
+    Darwin*) run_with_inhibit_macos "$@" ;;
+    *) run_without_inhibit "$@" ;;
+  esac
+}
+
+main "$@"
