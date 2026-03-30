@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestBUFFERReceiver tests the NewReadWriteCloser BUFFER functionality.

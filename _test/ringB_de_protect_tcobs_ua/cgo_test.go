@@ -12,7 +12,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 //                                  expected: "time:feed3322default: Hello World!\ntime:feed3322default: msg:Twelve 64-bit values: -1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12"

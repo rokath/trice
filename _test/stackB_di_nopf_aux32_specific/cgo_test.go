@@ -10,7 +10,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -37,7 +37,7 @@ func init() {
 	specificTest = caseSpecificTest
 }
 
-func caseSpecificTest(t *testing.T, triceLog logF){
+func caseSpecificTest(t *testing.T, triceLog logF) {
 	triceLogSpecialTestLineByLine(t, triceLog, -1)
 	triceLogSpecialTestBulk(t, triceLog, -1)
 }

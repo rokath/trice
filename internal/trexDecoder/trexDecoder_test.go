@@ -17,7 +17,7 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // doTableTest is the universal decoder test sequence.

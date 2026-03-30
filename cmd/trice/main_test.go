@@ -14,7 +14,7 @@ import (
 	"github.com/rokath/trice/internal/do"
 	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // setupTest - look for "This is the greatest answer in this thread" in  https://stackoverflow.com/questions/23729790/how-can-i-do-test-setup-using-the-testing-package-in-go

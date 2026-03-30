@@ -10,7 +10,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	. "github.com/rokath/trice/internal/id"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestInsertIDsFromSingleFileIntoNonEmptyJSONWithDoubledIDinsideLi ...

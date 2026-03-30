@@ -8,7 +8,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	. "github.com/rokath/trice/internal/id"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestCleanOnCleanedWithoutCacheFolder checks if no cache folder is created automatically.

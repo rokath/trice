@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/pkg/cipher"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 type testTable struct {

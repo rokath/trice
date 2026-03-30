@@ -13,7 +13,7 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_UReplaceN(t *testing.T) {
