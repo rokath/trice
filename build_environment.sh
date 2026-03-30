@@ -66,53 +66,176 @@ if ! command -v clang >/dev/null 2>&1; then
 fi
 
 ###############################################################################
-# Helper: derive include path for ARM toolchain from GCC's sysroot
-#
-# We intentionally avoid fragile string slicing on the compiler path and
-# instead ask the compiler where its sysroot is. Typical layouts place the
-# C headers under:
-#   <sysroot>/include
-# or
-#   <sysroot>/arm-none-eabi/include
-#
-# If we can determine a usable include directory, we echo it to stdout so
-# that callers can capture it.
+# ARM bare-metal toolchain helpers
 ###############################################################################
 
-detect_arm_include_dir() {
-  # Require arm-none-eabi-gcc to be present
-  if ! command -v arm-none-eabi-gcc >/dev/null 2>&1; then
-    return 1
+append_unique_dir() {
+  local var_name="$1"
+  local candidate="$2"
+  local current
+  local entry
+
+  [ -n "$candidate" ] || return 0
+  [ -d "$candidate" ] || return 0
+
+  eval "current=\${$var_name:-}"
+  for entry in $current; do
+    [ "$entry" = "$candidate" ] && return 0
+  done
+
+  if [ -n "$current" ]; then
+    eval "$var_name=\"\$current \$candidate\""
+  else
+    eval "$var_name=\"\$candidate\""
+  fi
+}
+
+join_as_isystem_flags() {
+  local result=""
+  local dir
+
+  for dir in "$@"; do
+    [ -n "$dir" ] || continue
+    if [ -n "$result" ]; then
+      result="$result -isystem $dir"
+    else
+      result="-isystem $dir"
+    fi
+  done
+
+  printf '%s\n' "$result"
+}
+
+detect_arm_gcc_path() {
+  command -v arm-none-eabi-gcc 2>/dev/null || true
+}
+
+detect_arm_sysroot() {
+  arm-none-eabi-gcc -print-sysroot 2>/dev/null || true
+}
+
+detect_arm_gcc_include() {
+  arm-none-eabi-gcc -print-file-name=include 2>/dev/null || true
+}
+
+detect_arm_toolchain_root() {
+  local gcc_path
+  local sysroot
+  local parent
+
+  gcc_path=$(detect_arm_gcc_path)
+  sysroot=$(detect_arm_sysroot)
+
+  if [ -n "$sysroot" ] && [ "$sysroot" != "/" ] && [ -d "$sysroot" ]; then
+    case "$sysroot" in
+      */arm-none-eabi)
+        parent=$(cd "$sysroot/.." && pwd)
+        [ -d "$parent" ] && {
+          printf '%s\n' "$parent"
+          return 0
+        }
+        ;;
+    esac
   fi
 
-  # 1) Try sysroot-based detection first (works for some packaged toolchains)
+  if [ -n "$gcc_path" ]; then
+    parent=$(cd "$(dirname "$gcc_path")/.." && pwd)
+    [ -d "$parent" ] && {
+      printf '%s\n' "$parent"
+      return 0
+    }
+  fi
+
+  return 1
+}
+
+collect_arm_clang_include_dirs() {
   local sysroot
-  sysroot=$(arm-none-eabi-gcc -print-sysroot 2>/dev/null || true)
+  local gcc_include
+  local toolchain_root
+  local dirs=""
+
+  sysroot=$(detect_arm_sysroot)
+  gcc_include=$(detect_arm_gcc_include)
+  toolchain_root=$(detect_arm_toolchain_root || true)
+
+  append_unique_dir dirs "$gcc_include"
 
   if [ -n "$sysroot" ] && [ "$sysroot" != "/" ]; then
-    if [ -d "$sysroot/include" ]; then
-      echo "$sysroot/include"
-      return 0
-    fi
-    if [ -d "$sysroot/arm-none-eabi/include" ]; then
-      echo "$sysroot/arm-none-eabi/include"
-      return 0
-    fi
+    append_unique_dir dirs "$sysroot/include"
+    append_unique_dir dirs "$sysroot/arm-none-eabi/include"
   fi
 
-  # 2) Fallback: ask GCC directly for its internal include directory.
-  # On many Linux distributions, -print-sysroot is empty for bare-metal toolchains,
-  # but -print-file-name=include still returns a valid include path.
-  local gcc_include
-  gcc_include=$(arm-none-eabi-gcc -print-file-name=include 2>/dev/null || true)
+  if [ -n "$toolchain_root" ]; then
+    append_unique_dir dirs "$toolchain_root/arm-none-eabi/include"
+  fi
 
-  if [ -n "$gcc_include" ] && [ "$gcc_include" != "include" ] && [ -d "$gcc_include" ]; then
-    echo "$gcc_include"
+  printf '%s\n' "$dirs"
+}
+
+prepend_colon_path_list() {
+  local existing="$1"
+  shift
+  local result=""
+  local dir
+
+  for dir in "$@"; do
+    [ -n "$dir" ] || continue
+    [ -d "$dir" ] || continue
+    if [ -n "$result" ]; then
+      result="$result:$dir"
+    else
+      result="$dir"
+    fi
+  done
+
+  if [ -n "$existing" ]; then
+    if [ -n "$result" ]; then
+      printf '%s:%s\n' "$result" "$existing"
+    else
+      printf '%s\n' "$existing"
+    fi
+  else
+    printf '%s\n' "$result"
+  fi
+}
+
+export_clang_cross_env() {
+  local allow_gcc_toolchain="${1:-1}"
+  local toolchain_root
+  local include_dirs
+  local clang_sys_includes
+
+  if ! command -v clang >/dev/null 2>&1; then
+    return 0
+  fi
+  if ! command -v arm-none-eabi-gcc >/dev/null 2>&1; then
     return 0
   fi
 
-  # Nothing usable found.
-  return 1
+  toolchain_root=$(detect_arm_toolchain_root || true)
+  include_dirs=$(collect_arm_clang_include_dirs)
+
+  if [ "$allow_gcc_toolchain" = "1" ] && [ -n "$toolchain_root" ]; then
+    export CLANG_GCC_TOOLCHAIN="$toolchain_root"
+    log_info "Set CLANG_GCC_TOOLCHAIN=$CLANG_GCC_TOOLCHAIN"
+  elif [ "$allow_gcc_toolchain" = "1" ]; then
+    log_warn "Could not auto-detect the ARM GCC toolchain root for clang."
+  else
+    unset CLANG_GCC_TOOLCHAIN
+    log_info "Leaving CLANG_GCC_TOOLCHAIN unset on this platform."
+  fi
+
+  if [ -n "$include_dirs" ]; then
+    # shellcheck disable=SC2086
+    clang_sys_includes=$(join_as_isystem_flags $include_dirs)
+    export CLANG_SYS_INCLUDES="$clang_sys_includes"
+    # shellcheck disable=SC2086
+    export C_INCLUDE_PATH="$(prepend_colon_path_list "${C_INCLUDE_PATH:-}" $include_dirs)"
+    log_info "Set CLANG_SYS_INCLUDES=$CLANG_SYS_INCLUDES"
+  else
+    log_warn "Could not auto-detect ARM include directories for clang."
+  fi
 }
 
 ###############################################################################
@@ -130,56 +253,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 
   # On Linux we usually want to enable parallel builds.
   export MAKE_JOBS="-j"
-
-  # Derive an include directory for the ARM toolchain and feed it into C_INCLUDE_PATH.
-  arm_inc_dir=$(detect_arm_include_dir || true)
-  if [ -n "$arm_inc_dir" ]; then
-    # Prepend the ARM include directory. If C_INCLUDE_PATH was already set,
-    # we append the old value to keep user customisation.
-    if [ -n "${C_INCLUDE_PATH:-}" ]; then
-      export C_INCLUDE_PATH="${arm_inc_dir}:${C_INCLUDE_PATH}"
-    else
-      export C_INCLUDE_PATH="${arm_inc_dir}"
-    fi
-  else
-    # log_warn "Could not auto-detect ARM include directory on Linux (sysroot may be empty for this toolchain). You may need to set C_INCLUDE_PATH manually."
-    # now:
-
-    # ---------------------------------------------------------------------------
-    # Clang cross builds need a C library include directory (e.g. Newlib) to find
-    # headers like stdlib.h. GCC usually finds these internally, but clang does not
-    # unless we provide a sysroot/toolchain or additional include paths.
-    #
-    # On Ubuntu (apt: gcc-arm-none-eabi), Newlib headers are typically here:
-    #   /usr/arm-none-eabi/include
-    #
-    # Additionally, GCC has an internal include directory that is useful for both
-    # gcc and clang setups:
-    #   arm-none-eabi-gcc -print-file-name=include
-    # ---------------------------------------------------------------------------
-    newlib_inc="/usr/arm-none-eabi/include"
-    gcc_inc="$(arm-none-eabi-gcc -print-file-name=include 2>/dev/null || true)"
-  
-    if [ -d "$newlib_inc" ]; then
-      if [ -n "${C_INCLUDE_PATH:-}" ]; then
-        export C_INCLUDE_PATH="${newlib_inc}:${C_INCLUDE_PATH}"
-      else
-        export C_INCLUDE_PATH="${newlib_inc}"
-      fi
-    else
-      log_warn "Expected Newlib include directory not found: ${newlib_inc} (clang cross may fail to find stdlib.h)."
-    fi
-
-    if [ -n "$gcc_inc" ] && [ "$gcc_inc" != "include" ] && [ -d "$gcc_inc" ]; then
-      if [ -n "${C_INCLUDE_PATH:-}" ]; then
-        export C_INCLUDE_PATH="${gcc_inc}:${C_INCLUDE_PATH}"
-      else
-        export C_INCLUDE_PATH="${gcc_inc}"
-      fi
-    else
-      log_warn "GCC internal include directory not found via: arm-none-eabi-gcc -print-file-name=include"
-    fi
-  fi
+  export_clang_cross_env 1
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   log_info "Detected platform: macOS (OSTYPE=$OSTYPE)"
@@ -210,40 +284,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS builds are usually fine with parallel jobs
   export MAKE_JOBS="-j"
 
-  # Prefer to use the same sysroot-based detection as on Linux.
-  arm_inc_dir=$(detect_arm_include_dir || true)
-  if [ -n "$arm_inc_dir" ]; then
-    if [ -n "${C_INCLUDE_PATH:-}" ]; then
-      export C_INCLUDE_PATH="${arm_inc_dir}:${C_INCLUDE_PATH}"
-    else
-      export C_INCLUDE_PATH="${arm_inc_dir}"
-    fi
-  else
-    log_warn "Could not auto-detect ARM include directory via arm-none-eabi-gcc on macOS."
-
-    # Fallback for the legacy ARM GNU Toolchain installed under /Applications.
-    # This is *not* guaranteed to be present and may need manual adjustment.
-    if command -v brew >/dev/null 2>&1 && brew list --cask >/dev/null 2>&1; then
-      if brew list --cask | grep -q "^gcc-arm-embedded$"; then
-        version=$(brew list --cask --versions gcc-arm-embedded | awk '{print $2}' | head -n1)
-        log_info "Found Homebrew cask gcc-arm-embedded, version: $version"
-
-        # Typical layout for the ARM GNU Toolchain GUI installer on macOS.
-        candidate="/Applications/ArmGNUToolchain/${version}/arm-none-eabi/arm-none-eabi/include"
-        if [ -d "$candidate" ]; then
-          if [ -n "${C_INCLUDE_PATH:-}" ]; then
-            export C_INCLUDE_PATH="${candidate}:${C_INCLUDE_PATH}"
-          else
-            export C_INCLUDE_PATH="${candidate}"
-          fi
-        else
-          log_warn "ARM include directory not found at: $candidate. You may need to adjust C_INCLUDE_PATH manually."
-        fi
-      else
-        log_info "Homebrew cask gcc-arm-embedded is not installed."
-      fi
-    fi
-  fi
+  export_clang_cross_env 1
 
 elif [[ "$OSTYPE" == "cygwin" ]]; then
   log_info "Detected platform: Cygwin on Windows (OSTYPE=$OSTYPE)"
@@ -251,37 +292,15 @@ elif [[ "$OSTYPE" == "cygwin" ]]; then
   # Under Cygwin, aggressive parallel builds (-j) are known to cause blocking
   # or instability on some setups. We therefore disable it by default.
   export MAKE_JOBS=""
+  export_clang_cross_env 0
 
-  # Attempt to detect the ARM include directory exactly as on Linux.
-  arm_inc_dir=$(detect_arm_include_dir || true)
-  if [ -n "$arm_inc_dir" ]; then
-    if [ -n "${C_INCLUDE_PATH:-}" ]; then
-      export C_INCLUDE_PATH="${arm_inc_dir}:${C_INCLUDE_PATH}"
-    else
-      export C_INCLUDE_PATH="${arm_inc_dir}"
-    fi
-  else
-    log_warn "Could not auto-detect ARM include directory on Cygwin. You may need to set C_INCLUDE_PATH manually."
-  fi
-
-elif [[ "$OSTYPE" == "msys" ]]; then
+elif [[ "$OSTYPE" == "msys"* ]]; then
   log_info "Detected platform: MSYS / MinGW on Windows (OSTYPE=$OSTYPE)"
 
   # Same reasoning as for Cygwin: parallel make can be problematic; keep it off
   # by default to avoid hard-to-debug hangs.
   export MAKE_JOBS=""
-
-  # Again, try the sysroot-based detection first.
-  arm_inc_dir=$(detect_arm_include_dir || true)
-  if [ -n "$arm_inc_dir" ]; then
-    if [ -n "${C_INCLUDE_PATH:-}" ]; then
-      export C_INCLUDE_PATH="${arm_inc_dir}:${C_INCLUDE_PATH}"
-    else
-      export C_INCLUDE_PATH="${arm_inc_dir}"
-    fi
-  else
-    log_warn "Could not auto-detect ARM include directory on MSYS. You may need to set C_INCLUDE_PATH manually."
-  fi
+  export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "win32" ]]; then
   # This branch is rarely seen with modern bash installations. It is kept
@@ -289,31 +308,20 @@ elif [[ "$OSTYPE" == "win32" ]]; then
   log_info "Detected platform: Windows (OSTYPE=$OSTYPE)"
   log_info "No default configuration implemented for plain win32."
   export MAKE_JOBS=""
-  # We do not attempt to detect C_INCLUDE_PATH here because the installation
-  # paths vary widely on native Windows environments.
+  export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
   log_info "Detected platform: FreeBSD (OSTYPE=$OSTYPE)"
 
   # FreeBSD is closer to Linux in behaviour; enable parallel builds by default.
   export MAKE_JOBS="-j"
-
-  arm_inc_dir=$(detect_arm_include_dir || true)
-  if [ -n "$arm_inc_dir" ]; then
-    if [ -n "${C_INCLUDE_PATH:-}" ]; then
-      export C_INCLUDE_PATH="${arm_inc_dir}:${C_INCLUDE_PATH}"
-    else
-      export C_INCLUDE_PATH="${arm_inc_dir}"
-    fi
-  else
-    log_warn "Could not auto-detect ARM include directory on FreeBSD. You may need to set C_INCLUDE_PATH manually."
-  fi
+  export_clang_cross_env 1
 
 else
   log_info "Detected platform: Unknown (OSTYPE=$OSTYPE)"
   log_info "No platform-specific configuration available."
   export MAKE_JOBS=""
-  # We do not attempt C_INCLUDE_PATH auto-detection here.
+  export_clang_cross_env 1
 fi
 
 ###############################################################################
@@ -334,6 +342,8 @@ if [ "$VERBOSE" -eq 1 ]; then
   else
     echo "clang         : NOT FOUND"
   fi
+  echo "CLANG_GCC_TOOLCHAIN: ${CLANG_GCC_TOOLCHAIN:-<unset>}"
+  echo "CLANG_SYS_INCLUDES : ${CLANG_SYS_INCLUDES:-<unset>}"
   echo "C_INCLUDE_PATH: ${C_INCLUDE_PATH:-<unset>}"
   echo "MAKE_JOBS     : ${MAKE_JOBS:-<unset>}"
   echo "====================================="
