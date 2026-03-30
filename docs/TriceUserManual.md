@@ -5898,9 +5898,10 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 
 * In `_trice` folder first execute `go clean -cache` after editing C-files. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can lead to confusing results.
 * Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
+* To run direct Go tests from the repository root, use a repo-local Go cache if needed: `GOCACHE="$PWD/.gocache" go test ./...` on POSIX shells, or `$env:GOCACHE = "$PWD/.gocache"; go test ./...` in PowerShell. The `.gocache/` folder is ignored by Git.
 * To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` fom there. It is more handy to run `trice_insertIDs_in_examples_and_test_folder.sh` from the Trice root folder.
 * It is convenient to run `testAll.sh` from the Trice root folder to perform this.
-* `testAll.sh` creates its local helper artifacts inside the ignored `./temp/testAll` folder. The versioned `demoTIL.json` and `demoLI.json` files in the repository root stay available as example reference files.
+* `testAll.sh` creates its local helper artifacts inside the ignored `./temp/testAll` folder. The versioned `demoTIL.json` and `demoLI.json` files in the repository root stay available as example reference files. When `GOCACHE` is unset, `testAll.sh` also uses the ignored repo-local cache folder `./.gocache`.
 * It is possible to start the tests individually, but for some the default `-timeout 30s` maybe too short.
 
 ###  38.3. <a id='tests-details'></a>Tests Details

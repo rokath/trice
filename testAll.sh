@@ -16,6 +16,10 @@ my_long_task() {
   SELECTED=${1:-quick}
 
   triceFolder=$(pwd)
+  if [ -z "${GOCACHE:-}" ]; then
+    export GOCACHE="$triceFolder/.gocache"
+  fi
+  mkdir -p "$GOCACHE"
   date                                       2>&1 | tee "$triceFolder/testAll.log"
   echo This can take a while ...             2>&1 | tee -a "$triceFolder/testAll.log"
   t0=$(date +%s)
@@ -49,6 +53,7 @@ my_long_task() {
   # show environment and prepare
   echo "SELECTED: $SELECTED" 2>&1 | tee -a "$triceFolder/testAll.log"
   echo \$OSTYPE=$OSTYPE 2>&1 | tee -a "$triceFolder/testAll.log"
+  echo \$GOCACHE=$GOCACHE 2>&1 | tee -a "$triceFolder/testAll.log"
   if command -v uname; then
     uname -a 2>&1 | tee -a "$triceFolder/testAll.log"
   fi
