@@ -622,6 +622,41 @@ func TestInsertWithTickInComment(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
+func TestInsertAssertAliasesAndReturnVariants(t *testing.T) {
+	defer Setup(t)()
+
+	sFn1 := "file1.c"
+	src1 := `
+	triceAssert("x", flag );
+	TriceAssert("x", flag );
+	TRiceAssert("x", flag );
+	triceAssertOrReturn("x", flag );
+	TriceAssertOrReturn("x", flag );
+	TRiceAssertOrReturn("x", flag );
+	triceAssertOrReturnValue("x", flag, 0 );
+	TriceAssertOrReturnValue("x", flag, 0 );
+	TRiceAssertOrReturnValue("x", flag, 0 );
+	`
+	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
+
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+
+	expSrc1 := `
+	triceAssert(iD(999), "x", flag );
+	TriceAssert(iD(998), "x", flag );
+	TRiceAssert(iD(997), "x", flag );
+	triceAssertOrReturn(iD(996), "x", flag );
+	TriceAssertOrReturn(iD(995), "x", flag );
+	TRiceAssertOrReturn(iD(994), "x", flag );
+	triceAssertOrReturnValue(iD(993), "x", flag, 0 );
+	TriceAssertOrReturnValue(iD(992), "x", flag, 0 );
+	TRiceAssertOrReturnValue(iD(991), "x", flag, 0 );
+	`
+	actSrc1, e := FSys.ReadFile(sFn1)
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc1, string(actSrc1))
+}
+
 // TestInsertIDsIntoTilJSONFromFileWithLi ...
 // IDs 1200 & 1201 are exist, so they are expected to go into til.json.
 func TestInsertIDsIntoTilJSONFromFileWithLi(t *testing.T) {
