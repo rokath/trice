@@ -5899,7 +5899,8 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 * In `_trice` folder first execute `go clean -cache` after editing C-files. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can lead to confusing results.
 * Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
 * To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` fom there. It is more handy to run `trice_insertIDs_in_examples_and_test_folder.sh` from the Trice root folder.
-* It is convenient to run  `testAll.sh` from the Trice root folder to perform this.
+* It is convenient to run `testAll.sh` from the Trice root folder to perform this.
+* `testAll.sh` creates its local helper artifacts inside the ignored `./temp/testAll` folder. The versioned `demoTIL.json` and `demoLI.json` files in the repository root stay available as example reference files.
 * It is possible to start the tests individually, but for some the default `-timeout 30s` maybe too short.
 
 ###  38.3. <a id='tests-details'></a>Tests Details
@@ -7738,8 +7739,8 @@ Trice Root Folder File                                                          
 [pkg/](https://github.com/rokath/trice/blob/main/pkg)                                                                                      | Trice tool common Go packages
 [renewIDs_in_examples_and_test_folder.sh](https://github.com/rokath/trice/blob/main/renewIDs_in_examples_and_refresh_test_folder.sh)       | renew all ID data
 [src/](https://github.com/rokath/trice/blob/main/src)                                                                                      | C sources for trice instrumentation -> Add to target project
-`temp/`                                                                                                                                    | binary logfiles could appear here
-[testAll.log](https://github.com/rokath/trice/blob/main/testAll.log)                                                                       | Accumulated output of last `./testAll.sh` run
+`temp/`                                                                                                                                    | ignored local workspace for binary logfiles and other runtime artifacts like `testAll.sh` helper files
+`testAll.log`                                                                                                                              | ignored local output of the last `./testAll.sh` run
 [testAll.sh](https://github.com/rokath/trice/blob/main/testAll.sh)                                                                         | run all tests
 [third_party/](https://github.com/rokath/trice/blob/main/third_party)                                                                      | external components
 [trice_cleanIDs_in_examples_and_test_folder.sh](https://github.com/rokath/trice/blob/main/trice_cleanIDs_in_examples_and_test_folder.sh)   | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)

@@ -58,9 +58,13 @@ my_long_task() {
   fi
   which trice 2>&1 | tee -a "$triceFolder/testAll.log"
   trice version 2>&1 | tee -a "$triceFolder/testAll.log"
+  export TRICE_TMP_DIR=./temp/testAll
+  export TRICE_TIL_JSON="$TRICE_TMP_DIR/demoTIL.json"
+  export TRICE_LI_JSON="$TRICE_TMP_DIR/demoLI.json"
+  mkdir -p "$TRICE_TMP_DIR" 2>&1 | tee -a "$triceFolder/testAll.log"
   ./trice_cleanIDs_in_examples_and_test_folder.sh 2>&1 | tee -a "$triceFolder/testAll.log"
-  rm -f demoTIL.json demoLI.json 2>&1 | tee -a "$triceFolder/testAll.log"
-  touch demoTIL.json demoLI.json 2>&1 | tee -a "$triceFolder/testAll.log"
+  rm -f "$TRICE_TIL_JSON" "$TRICE_LI_JSON" 2>&1 | tee -a "$triceFolder/testAll.log"
+  touch "$TRICE_TIL_JSON" "$TRICE_LI_JSON" 2>&1 | tee -a "$triceFolder/testAll.log"
   ./renewIDs_in_examples_and_refresh_test_folder.sh 2>&1 | tee -a "$triceFolder/testAll.log"
 
   if [ "$SELECTED" != "config" ]; then
