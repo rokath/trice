@@ -77,6 +77,9 @@ exclude = [
   "^https?://localhost(:[0-9]+)?",
   "^https://www\\.st\\.com/.*",
   "^https://st\\.com/.*",
+  # GitHub search is valid for humans, but automated checks may hit rate limits
+  # and return HTTP 429.
+  "^https://github\\.com/search\\?q=gostlink$",
 
   # This site intermittently answers automated checks with HTTP 202
   # although the article is reachable for normal users in a browser.
@@ -91,22 +94,21 @@ exclude = [
 # Exclude paths from being scanned (regex-based).
 #
 # Regex notes:
-#   - "(^|/)" matches either the start of the path or a directory separator
-#   - "(/|$)" ensures we match a directory boundary (or end of path)
+#   - "(^|[\\/])" matches either the start of the path or a directory separator
+#   - "([\\/]|$)" ensures we match a directory boundary (or end of path)
 exclude_path = [
   # Legacy documentation directory (your current pain point)
-  "(^|/)docs/_Legacy(/|$)",
+  "(^|[\\\\/])docs[\\\\/]_Legacy([\\\\/]|$)",
 
   # Exclude "Drivers" directories anywhere under examples/
-  # (macOS paths and repo paths are typically normalized with "/")
-  "(^|/)examples/.*/Drivers(/|$)",
+  "(^|[\\\\/])examples[\\\\/].*[\\\\/]Drivers([\\\\/]|$)",
 
   # Vendored / third-party content
-  "(^|/)third_party(/|$)",
+  "(^|[\\\\/])third_party([\\\\/]|$)",
 
   # Generated artifacts
-  "(^|/)dist(/|$)",
+  "(^|[\\\\/])dist([\\\\/]|$)",
 
   # Git metadata (usually unnecessary, but harmless to exclude explicitly)
-  "(^|/)\\.git(/|$)"
+  "(^|[\\\\/])\\.git([\\\\/]|$)"
 ]
