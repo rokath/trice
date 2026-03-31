@@ -12,7 +12,9 @@
 # - GOCACHE
 #   If unset, a repo-local cache under ./.gocache is used.
 # - TRICE_TMP_DIR, TRICE_TIL_JSON, TRICE_LI_JSON
-#   Shared temp files used by the existing Trice helper scripts.
+#   Shared paths used by the existing Trice helper scripts. The default JSON
+#   files stay in the repository root to match the CGO tests and the manual
+#   workflows.
 #
 # Goal of the split:
 # - Each actual action lives in its own directly executable script.
@@ -97,6 +99,6 @@ get_mode() {
 export SELECTED="${SELECTED:-quick}"
 export GOCACHE="${GOCACHE:-$ROOT/.gocache}"
 export TRICE_TMP_DIR="${TRICE_TMP_DIR:-$ROOT/temp/testAll}"
-export TRICE_TIL_JSON="${TRICE_TIL_JSON:-$TRICE_TMP_DIR/demoTIL.json}"
-export TRICE_LI_JSON="${TRICE_LI_JSON:-$TRICE_TMP_DIR/demoLI.json}"
+export TRICE_TIL_JSON="${TRICE_TIL_JSON:-$ROOT/demoTIL.json}"
+export TRICE_LI_JSON="${TRICE_LI_JSON:-$ROOT/demoLI.json}"
 mkdir -p "$GOCACHE" "$TRICE_TMP_DIR"

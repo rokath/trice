@@ -21,10 +21,8 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 select_pc_test_json_paths() {
   # The CGO tests read demoTIL.json and demoLI.json from the repository root.
   # Therefore the insert/clean helper scripts in this step must target the same
-  # files by default.
+  # files by default, while still honoring explicit outer overrides.
   #
-  # At the same time we still want to respect an explicit outer override, for
-  # example from CI or from a developer invoking the step with custom paths.
   if [ "${TRICE_TIL_JSON+x}" = "x" ]; then
     pc_trice_til_json="$TRICE_TIL_JSON"
   else

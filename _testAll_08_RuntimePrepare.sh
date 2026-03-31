@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Step 08: Writes environment information to the log and prepares shared temp files.
+# Step 08: Writes environment information to the log and prepares the shared JSON files.
 #
 # Direct invocation:
 # - ./_testAll_08_RuntimePrepare.sh
