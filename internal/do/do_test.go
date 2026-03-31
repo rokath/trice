@@ -6,7 +6,9 @@ import (
 	"bytes"
 	"io"
 	"net"
+	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -20,6 +22,26 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
+
+func requireWindowsTCPTestsEnabled(t *testing.T) {
+	t.Helper()
+	// These TCP listener tests intentionally open a local server socket.
+	// On Windows, Defender Firewall may show interactive prompts for the
+	// temporary go test binaries that host these listeners. The binaries live in
+	// changing go-build paths, so allowing them once does not reliably suppress
+	// later prompts. That makes routine local test runs noisy and disruptive for
+	// developers who mostly work on Windows.
+	//
+	// We therefore skip these tests on Windows by default and require an
+	// explicit opt-in when someone actually wants to verify the listener-based
+	// behavior there.
+	//
+	// Enable with:
+	//   TRICE_RUN_WINDOWS_TCP_TESTS=1 go test ./...
+	if runtime.GOOS == "windows" && os.Getenv("TRICE_RUN_WINDOWS_TCP_TESTS") == "" {
+		t.Skip("skipping TCP listener test on Windows; set TRICE_RUN_WINDOWS_TCP_TESTS=1 to enable")
+	}
+}
 
 type doGlobalsSnapshot struct {
 	tcpOutAddr        string
@@ -245,6 +267,8 @@ func connectWithRetry(t *testing.T, addr string) net.Conn {
 }
 
 func TestTCPWriterWithAddressReturnsConnAndForwardsWrites(t *testing.T) {
+	requireWindowsTCPTestsEnabled(t)
+
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
 
@@ -282,6 +306,8 @@ func TestTCPWriterWithAddressReturnsConnAndForwardsWrites(t *testing.T) {
 }
 
 func TestTCPWriterVerboseSendsGreeting(t *testing.T) {
+	requireWindowsTCPTestsEnabled(t)
+
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
 
