@@ -24,7 +24,7 @@
 #
 # Logging:
 # - Each step writes to ./temp/testAll/<scriptname>.log
-# - Each step writes one status line into ./testAll.log.
+# - The runner writes a compact summary to ./temp/testAll/testAll_summary.log.
 #
 # Sleep prevention:
 # - On Linux, systemd-inhibit is used when available.
