@@ -201,7 +201,7 @@ prepend_colon_path_list() {
 }
 
 export_clang_cross_env() {
-  local allow_gcc_toolchain="${1:-1}"
+  local allow_auto_gcc_toolchain="${1:-1}"
   local toolchain_root
   local include_dirs
   local clang_sys_includes
@@ -216,14 +216,34 @@ export_clang_cross_env() {
   toolchain_root=$(detect_arm_toolchain_root || true)
   include_dirs=$(collect_arm_clang_include_dirs)
 
-  if [ "$allow_gcc_toolchain" = "1" ] && [ -n "$toolchain_root" ]; then
+  # Only auto-export CLANG_GCC_TOOLCHAIN on platforms where that setup is
+  # known to be helpful. On macOS and Windows hosts we keep it unset by
+  # default because auto-injecting --gcc-toolchain caused noisy multilib
+  # warnings although the build itself was otherwise valid.
+  #
+  # Rationale:
+  # - The Clang build already gets the required ARM headers via CLANG_SYS_INCLUDES.
+  # - Auto-injecting --gcc-toolchain caused host-specific warnings such as
+  #   "-Wmultilib-not-found" although the build itself was otherwise valid.
+  # - The Makefiles still support an explicit CLANG_GCC_TOOLCHAIN override from the
+  #   outer environment or CI when a setup really needs it.
+  #
+  # So the behaviour is now:
+  # - respect an already provided CLANG_GCC_TOOLCHAIN value
+  # - otherwise auto-detect it only when the caller explicitly allows that
+  # - in all cases still compute CLANG_SYS_INCLUDES below
+  if [ -n "${CLANG_GCC_TOOLCHAIN:-}" ]; then
+    log_info "Using pre-set CLANG_GCC_TOOLCHAIN=$CLANG_GCC_TOOLCHAIN"
+  elif [ "$allow_auto_gcc_toolchain" = "1" ] && [ -n "$toolchain_root" ]; then
     export CLANG_GCC_TOOLCHAIN="$toolchain_root"
-    log_info "Set CLANG_GCC_TOOLCHAIN=$CLANG_GCC_TOOLCHAIN"
-  elif [ "$allow_gcc_toolchain" = "1" ]; then
-    log_warn "Could not auto-detect the ARM GCC toolchain root for clang."
+    log_info "Auto-set CLANG_GCC_TOOLCHAIN=$CLANG_GCC_TOOLCHAIN"
   else
     unset CLANG_GCC_TOOLCHAIN
-    log_info "Leaving CLANG_GCC_TOOLCHAIN unset on this platform."
+    if [ -n "$toolchain_root" ]; then
+      log_info "Leaving CLANG_GCC_TOOLCHAIN unset; detected toolchain root is $toolchain_root"
+    else
+      log_info "Leaving CLANG_GCC_TOOLCHAIN unset; no explicit override provided."
+    fi
   fi
 
   if [ -n "$include_dirs" ]; then
@@ -284,7 +304,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   # macOS builds are usually fine with parallel jobs
   export MAKE_JOBS="-j"
 
-  export_clang_cross_env 1
+  export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "cygwin" ]]; then
   log_info "Detected platform: Cygwin on Windows (OSTYPE=$OSTYPE)"

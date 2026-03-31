@@ -16,7 +16,6 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
   local rc
-  local filtered_log
   ensure_testall_dirs
   prepare_shared_env quick
   init_step_log "${BASH_SOURCE[0]}"
@@ -43,11 +42,15 @@ main() {
     fail "clang translation failed" "$rc"
   fi
 
-  filtered_log="$(step_log_path_from_name "$(step_name_from_path "${BASH_SOURCE[0]}")_filtered")"
-  grep -Eiv 'clang: warning: no multilib structure encoded for Arm, Aarch64 and PPC targets \[-Wmultilib-not-found\]' \
-    "$TESTALL_STEP_LOG" >"$filtered_log"
-
-  if grep_log '(warning|error)' "$filtered_log"; then
+  # At this point the build already completed successfully.
+  # We still scan the captured log for warnings or errors because the
+  # underlying make/clang calls may report issues without returning a hard
+  # non-zero exit code in every case.
+  #
+  # Intentionally do not filter specific warnings here.
+  # The build environment is expected to be configured cleanly enough that the
+  # Clang translation runs without known benign warnings.
+  if grep_log '(warning|error)' "$TESTALL_STEP_LOG"; then
     fail "clang translation reported warnings or errors" 2
   fi
 }
