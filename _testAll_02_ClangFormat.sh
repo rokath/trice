@@ -13,11 +13,18 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
-  ensure_testall_dirs
-  prepare_shared_env quick
-  init_step_log "${BASH_SOURCE[0]}"
-  log "Starting $(step_name_from_path "${BASH_SOURCE[0]}") at $(date)"
-  run_cmd "$TESTALL_ROOT/clang-format.sh" || fail "clang-format.sh failed"
+  init_logfile
+  if ! has_command clang-format; then
+    log "MISSING TOOL: clang-format"
+    log "SKIP: clang-format not installed"
+    exit 0
+  fi
+  if ! has_command go; then
+    log "MISSING TOOL: go"
+    log "SKIP: Go not installed (required by clang-format.sh)"
+    exit 0
+  fi
+  run_cmd "$ROOT/clang-format.sh" || { log "FAIL: clang-format.sh failed"; exit 1; }
 }
 
 main "$@"

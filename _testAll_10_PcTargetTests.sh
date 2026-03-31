@@ -4,10 +4,10 @@
 #
 # Direct invocation:
 # - ./_testAll_10_PcTargetTests.sh
-# - ./_testAll_10_PcTargetTests.sh quick
 # - ./_testAll_10_PcTargetTests.sh full
 #
 # Selection:
+# - direct invocation default: full test set under ./_test/...
 # - quick: only the smaller subset ./be_dblB_de_tcobs_ua/...
 # - full: the full test set under ./_test/...
 #
@@ -26,27 +26,27 @@ select_pc_test_json_paths() {
   # At the same time we still want to respect an explicit outer override, for
   # example from CI or from a developer invoking the step with custom paths.
   if [ "${TRICE_TIL_JSON+x}" = "x" ]; then
-    TESTALL_PC_TRICE_TIL_JSON="$TRICE_TIL_JSON"
+    pc_trice_til_json="$TRICE_TIL_JSON"
   else
-    TESTALL_PC_TRICE_TIL_JSON="$TESTALL_ROOT/demoTIL.json"
+    pc_trice_til_json="$ROOT/demoTIL.json"
   fi
 
   if [ "${TRICE_LI_JSON+x}" = "x" ]; then
-    TESTALL_PC_TRICE_LI_JSON="$TRICE_LI_JSON"
+    pc_trice_li_json="$TRICE_LI_JSON"
   else
-    TESTALL_PC_TRICE_LI_JSON="$TESTALL_ROOT/demoLI.json"
+    pc_trice_li_json="$ROOT/demoLI.json"
   fi
 }
 
 cleanup_step() {
-  cd "$TESTALL_ROOT" >/dev/null 2>&1 || true
-  if [ "${TESTALL_IDS_INSERTED:-0}" -eq 1 ]; then
-    TRICE_TIL_JSON="$TESTALL_PC_TRICE_TIL_JSON" \
-      TRICE_LI_JSON="$TESTALL_PC_TRICE_LI_JSON" \
-      "$TESTALL_ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" >>"$TESTALL_STEP_LOG" 2>&1 || true
+  cd "$ROOT" >/dev/null 2>&1 || true
+  if [ "${ids_inserted:-0}" -eq 1 ]; then
+    TRICE_TIL_JSON="$pc_trice_til_json" \
+      TRICE_LI_JSON="$pc_trice_li_json" \
+      "$ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" >>"$LOGFILE" 2>&1 || true
   fi
-  if [ "${TESTALL_C_INCLUDE_PATH_SAVED+x}" = "x" ]; then
-    export C_INCLUDE_PATH="$TESTALL_C_INCLUDE_PATH_SAVED"
+  if [ "${saved_c_include_path+x}" = "x" ]; then
+    export C_INCLUDE_PATH="$saved_c_include_path"
   else
     unset C_INCLUDE_PATH || true
   fi
@@ -54,40 +54,37 @@ cleanup_step() {
 
 main() {
   local selected
-  selected="$(require_mode_or_default "${1:-quick}")"
-  ensure_testall_dirs
-  prepare_shared_env "$selected"
+  selected="$(get_mode "${1:-full}")"
+  export SELECTED="$selected"
   select_pc_test_json_paths
-  init_step_log "${BASH_SOURCE[0]}"
+  init_logfile
   trap cleanup_step EXIT
-  log "Starting $(step_name_from_path "${BASH_SOURCE[0]}") at $(date)"
   if ! has_command go; then
-    skip "Go not installed"
+    log "MISSING TOOL: go"
+    log "SKIP: Go not installed"
     exit 0
   fi
-  if [ "$selected" = "config" ]; then
-    fail "Unsupported selection 'config'. Use quick or full." 2
-  fi
   run_cmd env \
-    TRICE_TIL_JSON="$TESTALL_PC_TRICE_TIL_JSON" \
-    TRICE_LI_JSON="$TESTALL_PC_TRICE_LI_JSON" \
-    "$TESTALL_ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || fail "insert IDs failed"
-  TESTALL_IDS_INSERTED=1
+    TRICE_TIL_JSON="$pc_trice_til_json" \
+    TRICE_LI_JSON="$pc_trice_li_json" \
+    "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || { log "FAIL: insert IDs failed"; exit 1; }
+  ids_inserted=1
   if [ "${C_INCLUDE_PATH:-}" != "" ]; then
-    TESTALL_C_INCLUDE_PATH_SAVED="$C_INCLUDE_PATH"
-    warn "Clearing C_INCLUDE_PATH temporarily for CGO tests"
+    saved_c_include_path="$C_INCLUDE_PATH"
+    log "WARN: Clearing C_INCLUDE_PATH temporarily for CGO tests"
     export C_INCLUDE_PATH=""
   fi
-  cd "$TESTALL_ROOT/_test" || fail "cannot enter _test directory"
+  cd "$ROOT/_test" || { log "FAIL: cannot enter _test directory"; exit 1; }
   if [ "$selected" = "quick" ]; then
-    run_cmd go test ./be_dblB_de_tcobs_ua/... || fail "quick PC target tests failed"
+    run_cmd go test ./be_dblB_de_tcobs_ua/... || { log "FAIL: quick PC target tests failed"; exit 1; }
   else
-    run_cmd go test ./... || fail "full PC target tests failed"
+    run_cmd go test ./... || { log "FAIL: full PC target tests failed"; exit 1; }
   fi
-  if grep_log '(^|[[:space:]])FAIL([[:space:]:]|$)' "$TESTALL_STEP_LOG"; then
-    fail "PC target test log contains FAIL markers" 2
+  if grep_log '(^|[[:space:]])FAIL([[:space:]:]|$)' "$LOGFILE"; then
+    log "FAIL: PC target test log contains FAIL markers"
+    exit 2
   fi
 }
 
-TESTALL_IDS_INSERTED=0
+ids_inserted=0
 main "$@"

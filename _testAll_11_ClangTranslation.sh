@@ -16,30 +16,30 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
   local rc
-  ensure_testall_dirs
-  prepare_shared_env quick
-  init_step_log "${BASH_SOURCE[0]}"
-  log "Starting $(step_name_from_path "${BASH_SOURCE[0]}") at $(date)"
-  source "$TESTALL_ROOT/build_environment.sh" >>"$TESTALL_STEP_LOG" 2>&1 || fail "build_environment.sh failed"
+  init_logfile
+  source "$ROOT/build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: build_environment.sh failed"; exit 1; }
   if ! has_command clang; then
-    skip "clang not installed"
+    log "MISSING TOOL: clang"
+    log "SKIP: clang not installed"
     exit 0
   fi
   if ! has_command arm-none-eabi-gcc; then
-    warn "arm-none-eabi-gcc not installed"
-    skip "Skipping clang translation because ARM GCC libraries are needed"
+    log "MISSING TOOL: arm-none-eabi-gcc"
+    log "WARN: arm-none-eabi-gcc not installed"
+    log "SKIP: Skipping clang translation because ARM GCC libraries are needed"
     exit 0
   fi
   (
-    cd "$TESTALL_ROOT/examples/G0B1_inst" || exit 1
+    cd "$ROOT/examples/G0B1_inst" || exit 1
     printf 'clang --version\n'
     clang --version
     make clean
     ./build_with_clang.sh
-  ) 2>&1 | tee -a "$TESTALL_STEP_LOG"
+  ) 2>&1 | tee -a "$LOGFILE"
   rc=${PIPESTATUS[0]}
   if [ "$rc" -ne 0 ]; then
-    fail "clang translation failed" "$rc"
+    log "FAIL: clang translation failed"
+    exit "$rc"
   fi
 
   # At this point the build already completed successfully.
@@ -50,8 +50,9 @@ main() {
   # Intentionally do not filter specific warnings here.
   # The build environment is expected to be configured cleanly enough that the
   # Clang translation runs without known benign warnings.
-  if grep_log '(warning|error)' "$TESTALL_STEP_LOG"; then
-    fail "clang translation reported warnings or errors" 2
+  if grep_log '(warning|error)' "$LOGFILE"; then
+    log "FAIL: clang translation reported warnings or errors"
+    exit 2
   fi
 }
 

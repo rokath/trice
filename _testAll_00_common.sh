@@ -7,11 +7,8 @@
 #   _testAll_XX_*.sh scripts.
 #
 # Important environment variables:
-# - TESTALL_LOG_DIR
+# - LOG_DIR
 #   Target directory for per-step logs. Default: ./temp/testAll
-# - TESTALL_MAIN_LOG
-#   Target file for the combined log assembled by testAll.sh.
-#   Default: ./testAll.log
 # - GOCACHE
 #   If unset, a repo-local cache under ./.gocache is used.
 # - TRICE_TMP_DIR, TRICE_TIL_JSON, TRICE_LI_JSON
@@ -20,52 +17,46 @@
 # Goal of the split:
 # - Each actual action lives in its own directly executable script.
 # - testAll.sh only orchestrates those steps.
-# - Each step writes its own log into ./temp/testAll/.
+# - Each step writes its own detailed log into ./temp/testAll/.
 
 set -u
 
-TESTALL_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-TESTALL_LOG_DIR="${TESTALL_LOG_DIR:-$TESTALL_ROOT/temp/testAll}"
-TESTALL_MAIN_LOG="${TESTALL_MAIN_LOG:-$TESTALL_ROOT/testAll.log}"
+# ROOT points to the directory that contains this helper script.
+# In this repository that is also the project root, because _testAll_00_common.sh
+# lives next to testAll.sh and the individual _testAll_XX_*.sh step scripts.
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
-ensure_testall_dirs() {
-  mkdir -p "$TESTALL_LOG_DIR"
-}
+# Allow outer callers to override the log paths, but provide sensible defaults
+# for normal local runs.
+LOG_DIR="${LOG_DIR:-$ROOT/temp/testAll}"
 
-step_name_from_path() {
-  basename "$1" .sh
-}
-
-step_log_path_from_name() {
-  printf '%s/%s.log\n' "$TESTALL_LOG_DIR" "$1"
-}
-
-init_step_log() {
-  TESTALL_STEP_NAME="$(step_name_from_path "$1")"
-  TESTALL_STEP_LOG="$(step_log_path_from_name "$TESTALL_STEP_NAME")"
-  : >"$TESTALL_STEP_LOG"
-}
+# Create the detailed step log directory immediately when this file is sourced.
+# mkdir -p does nothing if the directory already exists.
+mkdir -p "$LOG_DIR"
 
 log() {
-  printf '%s\n' "$*" | tee -a "$TESTALL_STEP_LOG"
+  # Write one line to the terminal and append it to the current step log.
+  # "$*" joins all function arguments into one text line.
+  printf '%s\n' "$*" | tee -a "$LOGFILE"
 }
 
-warn() {
-  log "WARN: $*"
-}
-
-skip() {
-  log "SKIP: $*"
-}
-
-fail() {
-  log "FAIL: $*"
-  exit "${2:-1}"
+init_logfile() {
+  # Initialize the per-step log file from the current script name and add a
+  # timestamped start line at the top of that log.
+  LOGFILE="$LOG_DIR/$(basename "${BASH_SOURCE[1]}" .sh).log"
+  : >"$LOGFILE"
+  log "Starting $(basename "${BASH_SOURCE[1]}" .sh) at $(date)"
 }
 
 run_cmd() {
+  # Log the command first so the step log shows what was attempted.
   log "+ $*"
-  "$@" 2>&1 | tee -a "$TESTALL_STEP_LOG"
+  # Run the command, merge stderr into stdout, and append everything to the
+  # step log.
+  "$@" 2>&1 | tee -a "$LOGFILE"
+  # In a pipeline, "$?" would only return the exit code of the last command
+  # (here: tee). PIPESTATUS[0] gives us the exit code of the first command,
+  # which is the actual command we wanted to run.
   local rc=${PIPESTATUS[0]}
   if [ "$rc" -ne 0 ]; then
     log "Command failed with exit code $rc: $*"
@@ -74,65 +65,38 @@ run_cmd() {
 }
 
 has_command() {
+  # command -v checks whether a tool name exists in PATH.
   command -v "$1" >/dev/null 2>&1
 }
 
-prepare_shared_env() {
-  local selected="${1:-quick}"
-  export TESTALL_SELECTED="$selected"
-  export GOCACHE="${GOCACHE:-$TESTALL_ROOT/.gocache}"
-  export TRICE_TMP_DIR="${TRICE_TMP_DIR:-$TESTALL_ROOT/temp/testAll}"
-  export TRICE_TIL_JSON="${TRICE_TIL_JSON:-$TRICE_TMP_DIR/demoTIL.json}"
-  export TRICE_LI_JSON="${TRICE_LI_JSON:-$TRICE_TMP_DIR/demoLI.json}"
-  mkdir -p "$GOCACHE" "$TRICE_TMP_DIR"
-}
-
-log_environment() {
-  log "SELECTED: ${TESTALL_SELECTED:-unknown}"
-  log "OSTYPE: ${OSTYPE:-unknown}"
-  log "GOCACHE: ${GOCACHE:-unset}"
-  log "TRICE_TMP_DIR: ${TRICE_TMP_DIR:-unset}"
-  log "TRICE_TIL_JSON: ${TRICE_TIL_JSON:-unset}"
-  log "TRICE_LI_JSON: ${TRICE_LI_JSON:-unset}"
-  if has_command uname; then
-    run_cmd uname -a || true
-  fi
-  if has_command go; then
-    run_cmd go version || true
-  fi
-}
-
 grep_log() {
+  # Case-insensitive extended regex search in a log file.
+  # Return code:
+  # - 0: pattern found
+  # - 1: pattern not found
   local pattern="$1"
   local file="$2"
   grep -Eiq "$pattern" "$file"
 }
 
-require_mode_or_default() {
+get_mode() {
+  # Accept only the supported selection values and normalize "no argument" to "quick".
   case "${1:-quick}" in
-    quick | config | full) printf '%s\n' "${1:-quick}" ;;
+    quick | full) printf '%s\n' "${1:-quick}" ;;
     *)
       printf 'Unsupported selection: %s\n' "${1:-}" >&2
-      printf 'Allowed: quick, config, full\n' >&2
+      printf 'Allowed: quick, full\n' >&2
       exit 2
       ;;
   esac
 }
 
-combine_logs() {
-  local output="$1"
-  shift
-  : >"$output"
-  local first=1
-  local file
-  for file in "$@"; do
-    if [ ! -f "$file" ]; then
-      continue
-    fi
-    if [ "$first" -eq 0 ]; then
-      printf '\n' >>"$output"
-    fi
-    first=0
-    cat "$file" >>"$output"
-  done
-}
+# Every step sources this file, so initialize the shared environment here.
+# Direct step calls default to quick mode. Callers such as _testAll_run.sh can
+# export SELECTED beforehand to override that default for the whole run.
+export SELECTED="${SELECTED:-quick}"
+export GOCACHE="${GOCACHE:-$ROOT/.gocache}"
+export TRICE_TMP_DIR="${TRICE_TMP_DIR:-$ROOT/temp/testAll}"
+export TRICE_TIL_JSON="${TRICE_TIL_JSON:-$TRICE_TMP_DIR/demoTIL.json}"
+export TRICE_LI_JSON="${TRICE_LI_JSON:-$TRICE_TMP_DIR/demoLI.json}"
+mkdir -p "$GOCACHE" "$TRICE_TMP_DIR"

@@ -14,25 +14,25 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
   local rc
-  ensure_testall_dirs
-  prepare_shared_env quick
-  init_step_log "${BASH_SOURCE[0]}"
-  log "Starting $(step_name_from_path "${BASH_SOURCE[0]}") at $(date)"
-  source "$TESTALL_ROOT/build_environment.sh" >>"$TESTALL_STEP_LOG" 2>&1 || fail "build_environment.sh failed"
+  init_logfile
+  source "$ROOT/build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: build_environment.sh failed"; exit 1; }
   if ! has_command arm-none-eabi-gcc; then
-    skip "arm-none-eabi-gcc not installed"
+    log "MISSING TOOL: arm-none-eabi-gcc"
+    log "SKIP: arm-none-eabi-gcc not installed"
     exit 0
   fi
   (
-    cd "$TESTALL_ROOT/examples/L432_inst" || exit 1
+    cd "$ROOT/examples/L432_inst" || exit 1
     ./all_configs_build.sh
-  ) 2>&1 | tee -a "$TESTALL_STEP_LOG"
+  ) 2>&1 | tee -a "$LOGFILE"
   rc=${PIPESTATUS[0]}
   if [ "$rc" -ne 0 ]; then
-    fail "L432 configuration builds failed" "$rc"
+    log "FAIL: L432 configuration builds failed"
+    exit "$rc"
   fi
-  if grep_log '(warning|error)' "$TESTALL_STEP_LOG"; then
-    fail "L432 configuration builds reported warnings or errors" 2
+  if grep_log '(warning|error)' "$LOGFILE"; then
+    log "FAIL: L432 configuration builds reported warnings or errors"
+    exit 2
   fi
 }
 

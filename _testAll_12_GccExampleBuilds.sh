@@ -14,54 +14,56 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 cleanup_step() {
-  cd "$TESTALL_ROOT" >/dev/null 2>&1 || true
-  if [ "${TESTALL_IDS_INSERTED:-0}" -eq 1 ]; then
-    "$TESTALL_ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" >>"$TESTALL_STEP_LOG" 2>&1 || true
+  cd "$ROOT" >/dev/null 2>&1 || true
+  if [ "${ids_inserted:-0}" -eq 1 ]; then
+    "$ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" >>"$LOGFILE" 2>&1 || true
   fi
 }
 
 main() {
   local rc
-  ensure_testall_dirs
-  prepare_shared_env quick
-  init_step_log "${BASH_SOURCE[0]}"
+  init_logfile
   trap cleanup_step EXIT
-  log "Starting $(step_name_from_path "${BASH_SOURCE[0]}") at $(date)"
-  source "$TESTALL_ROOT/build_environment.sh" >>"$TESTALL_STEP_LOG" 2>&1 || fail "build_environment.sh failed"
+  source "$ROOT/build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: build_environment.sh failed"; exit 1; }
   if ! has_command arm-none-eabi-gcc; then
-    skip "arm-none-eabi-gcc not installed"
+    log "MISSING TOOL: arm-none-eabi-gcc"
+    log "SKIP: arm-none-eabi-gcc not installed"
     exit 0
   fi
   run_cmd arm-none-eabi-gcc --version || true
   run_cmd which arm-none-eabi-gcc || true
-  run_cmd "$TESTALL_ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || fail "insert IDs failed"
-  TESTALL_IDS_INSERTED=1
-  run_cmd "$TESTALL_ROOT/examples/cleanAllTargets.sh" || fail "cleanAllTargets.sh failed before TRICE_OFF"
+  run_cmd "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || { log "FAIL: insert IDs failed"; exit 1; }
+  ids_inserted=1
+  run_cmd "$ROOT/examples/cleanAllTargets.sh" || { log "FAIL: cleanAllTargets.sh failed before TRICE_OFF"; exit 1; }
   (
-    cd "$TESTALL_ROOT/examples" || exit 1
+    cd "$ROOT/examples" || exit 1
     ./buildAllTargets_TRICE_OFF.sh
-  ) 2>&1 | tee -a "$TESTALL_STEP_LOG"
+  ) 2>&1 | tee -a "$LOGFILE"
   rc=${PIPESTATUS[0]}
   if [ "$rc" -ne 0 ]; then
-    fail "TRICE_OFF builds failed" "$rc"
+    log "FAIL: TRICE_OFF builds failed"
+    exit "$rc"
   fi
-  if grep_log '(warning|error)' "$TESTALL_STEP_LOG"; then
-    fail "TRICE_OFF builds reported warnings or errors" 2
+  if grep_log '(warning|error)' "$LOGFILE"; then
+    log "FAIL: TRICE_OFF builds reported warnings or errors"
+    exit 2
   fi
-  run_cmd "$TESTALL_ROOT/examples/cleanAllTargets.sh" || fail "cleanAllTargets.sh failed after TRICE_OFF"
+  run_cmd "$ROOT/examples/cleanAllTargets.sh" || { log "FAIL: cleanAllTargets.sh failed after TRICE_OFF"; exit 1; }
   (
-    cd "$TESTALL_ROOT/examples" || exit 1
+    cd "$ROOT/examples" || exit 1
     ./buildAllTargets_TRICE_ON.sh
-  ) 2>&1 | tee -a "$TESTALL_STEP_LOG"
+  ) 2>&1 | tee -a "$LOGFILE"
   rc=${PIPESTATUS[0]}
   if [ "$rc" -ne 0 ]; then
-    fail "TRICE_ON builds failed" "$rc"
+    log "FAIL: TRICE_ON builds failed"
+    exit "$rc"
   fi
-  if grep_log '(warning|error)' "$TESTALL_STEP_LOG"; then
-    fail "TRICE_ON builds reported warnings or errors" 2
+  if grep_log '(warning|error)' "$LOGFILE"; then
+    log "FAIL: TRICE_ON builds reported warnings or errors"
+    exit 2
   fi
-  run_cmd "$TESTALL_ROOT/examples/cleanAllTargets.sh" || fail "cleanAllTargets.sh failed after TRICE_ON"
+  run_cmd "$ROOT/examples/cleanAllTargets.sh" || { log "FAIL: cleanAllTargets.sh failed after TRICE_ON"; exit 1; }
 }
 
-TESTALL_IDS_INSERTED=0
+ids_inserted=0
 main "$@"

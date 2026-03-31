@@ -14,17 +14,15 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
-  ensure_testall_dirs
-  prepare_shared_env quick
-  init_step_log "${BASH_SOURCE[0]}"
-  log "Starting $(step_name_from_path "${BASH_SOURCE[0]}") at $(date)"
+  init_logfile
   if ! has_command go; then
-    skip "Go not installed"
+    log "MISSING TOOL: go"
+    log "SKIP: Go not installed"
     exit 0
   fi
-  run_cmd go test ./... -covermode=atomic -coverprofile=coverage.out -coverpkg=./... || fail "go coverage test failed"
-  run_cmd go tool cover -func=coverage.out || fail "go tool cover -func failed"
-  run_cmd go install ./... || fail "go install ./... failed"
+  run_cmd go test ./... -covermode=atomic -coverprofile=coverage.out -coverpkg=./... || { log "FAIL: go coverage test failed"; exit 1; }
+  run_cmd go tool cover -func=coverage.out || { log "FAIL: go tool cover -func failed"; exit 1; }
+  run_cmd go install ./... || { log "FAIL: go install ./... failed"; exit 1; }
 }
 
 main "$@"

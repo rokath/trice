@@ -15,15 +15,13 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
-  ensure_testall_dirs
-  prepare_shared_env quick
-  init_step_log "${BASH_SOURCE[0]}"
-  log "Starting $(step_name_from_path "${BASH_SOURCE[0]}") at $(date)"
+  init_logfile
   if ! has_command markdownlint; then
-    skip "markdownlint not installed"
+    log "MISSING TOOL: markdownlint"
+    log "SKIP: markdownlint not installed"
     exit 0
   fi
-  run_cmd markdownlint . || fail "markdownlint failed"
+  run_cmd markdownlint . || { log "FAIL: markdownlint failed"; exit 1; }
 }
 
 main "$@"

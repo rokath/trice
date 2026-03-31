@@ -15,15 +15,13 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
-  ensure_testall_dirs
-  prepare_shared_env quick
-  init_step_log "${BASH_SOURCE[0]}"
-  log "Starting $(step_name_from_path "${BASH_SOURCE[0]}") at $(date)"
+  init_logfile
   if ! has_command lychee; then
-    skip "lychee not installed"
+    log "MISSING TOOL: lychee"
+    log "SKIP: lychee not installed"
     exit 0
   fi
-  run_cmd lychee . || fail "lychee failed"
+  run_cmd lychee . || { log "FAIL: lychee failed"; exit 1; }
 }
 
 main "$@"
