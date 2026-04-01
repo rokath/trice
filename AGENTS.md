@@ -6,6 +6,10 @@
 - Do not rewrite text files with PowerShell or shell commands such as `Set-Content`, `Out-File`, `WriteAllText`, or similar bulk replacement methods.
 - Preserve file encoding exactly. Treat UTF-8 and Unicode content as fragile.
 - If a file contains non-ASCII characters, emojis, or other encoding-sensitive content, do not perform mechanical rewrites without checking the diff first.
+- Do not use absolute filesystem paths in repository files, scripts, or build/test commands. Keep project paths relative so the repository can be checked out anywhere.
+- In scripts, prefer stabilizing the working directory once near the top, then use consistent relative project paths for the rest of the script.
+- In documentation, links to files and folders inside this repository must be relative and must not use absolute GitHub URLs.
+- Absolute web URLs are allowed in documentation only for truly external resources outside this repository.
 - For changes affecting more than 5 files, show a sample diff before continuing.
 - Communication with Codex may be in German or English.
 - All file comments must always be written in English.

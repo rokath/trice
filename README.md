@@ -25,7 +25,7 @@
 
 Log in (a) trice ([S>G](https://www.screentogif.com/)) even inside **↯ interrupts** in less than 1 µs❗ ![ ](./docs/ref/life0.gif)
 
-**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
+**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](./docs/TriceUserManual.pdf)
 
 ## What is Trice?
 
@@ -112,7 +112,7 @@ This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice work
 
 ## Documentation
 
-**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
+**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](./docs/TriceUserManual.pdf)
 
 The Trice User Manual includes all information from the [Memfault Interrupt Blog](https://interrupt.memfault.com/blog/trice) which is slightly outdated.
 - Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions), including closed items
@@ -224,6 +224,6 @@ Additional comparison material:
 - [Logging & Tracing Solutions for Embedded Systems (generated 2026-02-16)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html) - longer generated overview of the broader tool landscape
 
 
-**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
+**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](./docs/TriceUserManual.pdf)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
