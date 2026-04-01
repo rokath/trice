@@ -6,7 +6,7 @@
 # - ./_testAll_02_ClangFormat.sh
 #
 # Log file:
-# - ./temp/testAll/_testAll_02_ClangFormat.log
+# - ./temp/log/_testAll_02_ClangFormat.log
 
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -21,10 +21,10 @@ main() {
   fi
   if ! has_command go; then
     log "MISSING TOOL: go"
-    log "SKIP: Go not installed (required by clang-format.sh)"
+    log "SKIP: Go not installed (required by format_c_code.sh)"
     exit 0
   fi
-  run_cmd "$ROOT/clang-format.sh" || { log "FAIL: clang-format.sh failed"; exit 1; }
+  run_cmd "$SCRIPTS_DIR/format_c_code.sh" || { log "FAIL: format_c_code.sh failed"; exit 1; }
 }
 
 main "$@"

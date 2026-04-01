@@ -8,7 +8,7 @@
 #
 # Important environment variables:
 # - LOG_DIR
-#   Target directory for per-step logs. Default: ./temp/testAll
+#   Target directory for per-step logs. Default: ./temp/log
 # - GOCACHE
 #   If unset, a repo-local cache under ./.gocache is used.
 # - TRICE_TMP_DIR, TRICE_TIL_JSON, TRICE_LI_JSON
@@ -19,27 +19,48 @@
 # Goal of the split:
 # - Each actual action lives in its own directly executable script.
 # - testAll.sh only orchestrates those steps.
-# - Each step writes its own detailed log into ./temp/testAll/.
+# - Each step writes its own detailed log into ./temp/log/.
 
 set -u
 
-# ROOT points to the directory that contains this helper script.
-# In this repository that is also the project root, because _testAll_00_common.sh
-# lives next to testAll.sh and the individual _testAll_XX_*.sh step scripts.
-ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# ROOT points to the repository root. The helper scripts themselves live in
+# ./scripts/, so derive the project root from the parent directory.
+SCRIPTS_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd -- "$SCRIPTS_DIR/.." && pwd)"
+cd "$ROOT" || exit 1
 
 # Allow outer callers to override the log paths, but provide sensible defaults
 # for normal local runs.
-LOG_DIR="${LOG_DIR:-$ROOT/temp/testAll}"
+mkdir -p "./temp/log" "./.gocache"
+LOG_DIR="${LOG_DIR:-$(cd "./temp/log" && pwd)}"
 
-# Create the detailed step log directory immediately when this file is sourced.
-# mkdir -p does nothing if the directory already exists.
-mkdir -p "$LOG_DIR"
+# Support a quiet mode for aggregated testAll runs:
+# - direct step invocation: keep terminal output plus logfile output
+# - ./scripts/testAll.sh: only write full details to the logfile
+QUIET=0
+for arg in "$@"; do
+  if [ "$arg" = "--quiet" ]; then
+    QUIET=1
+  fi
+done
+if [ "$QUIET" -eq 1 ]; then
+  filtered_args=()
+  for arg in "$@"; do
+    if [ "$arg" != "--quiet" ]; then
+      filtered_args+=("$arg")
+    fi
+  done
+  set -- "${filtered_args[@]}"
+fi
 
 log() {
   # Write one line to the terminal and append it to the current step log.
   # "$*" joins all function arguments into one text line.
-  printf '%s\n' "$*" | tee -a "$LOGFILE"
+  if [ "$QUIET" -eq 1 ]; then
+    printf '%s\n' "$*" >>"$LOGFILE"
+  else
+    printf '%s\n' "$*" | tee -a "$LOGFILE"
+  fi
 }
 
 init_logfile() {
@@ -55,15 +76,30 @@ run_cmd() {
   log "+ $*"
   # Run the command, merge stderr into stdout, and append everything to the
   # step log.
-  "$@" 2>&1 | tee -a "$LOGFILE"
-  # In a pipeline, "$?" would only return the exit code of the last command
-  # (here: tee). PIPESTATUS[0] gives us the exit code of the first command,
-  # which is the actual command we wanted to run.
-  local rc=${PIPESTATUS[0]}
+  local rc
+  if [ "$QUIET" -eq 1 ]; then
+    "$@" >>"$LOGFILE" 2>&1
+    rc=$?
+  else
+    "$@" 2>&1 | tee -a "$LOGFILE"
+    # In a pipeline, "$?" would only return the exit code of the last command
+    # (here: tee). PIPESTATUS[0] gives us the exit code of the first command,
+    # which is the actual command we wanted to run.
+    rc=${PIPESTATUS[0]}
+  fi
   if [ "$rc" -ne 0 ]; then
     log "Command failed with exit code $rc: $*"
   fi
   return "$rc"
+}
+
+log_pipe() {
+  # Mirror pipeline output into the logfile and optionally into the terminal.
+  if [ "$QUIET" -eq 1 ]; then
+    cat >>"$LOGFILE"
+  else
+    tee -a "$LOGFILE"
+  fi
 }
 
 has_command() {
@@ -97,8 +133,8 @@ get_mode() {
 # Direct step calls default to quick mode. Callers such as _testAll_run.sh can
 # export SELECTED beforehand to override that default for the whole run.
 export SELECTED="${SELECTED:-quick}"
-export GOCACHE="${GOCACHE:-$ROOT/.gocache}"
-export TRICE_TMP_DIR="${TRICE_TMP_DIR:-$ROOT/temp/testAll}"
-export TRICE_TIL_JSON="${TRICE_TIL_JSON:-$ROOT/demoTIL.json}"
-export TRICE_LI_JSON="${TRICE_LI_JSON:-$ROOT/demoLI.json}"
-mkdir -p "$GOCACHE" "$TRICE_TMP_DIR"
+export TRICE_TMP_DIR="${TRICE_TMP_DIR:-$LOG_DIR}"
+export TRICE_TIL_JSON="${TRICE_TIL_JSON:-./demoTIL.json}"
+export TRICE_LI_JSON="${TRICE_LI_JSON:-./demoLI.json}"
+mkdir -p "$TRICE_TMP_DIR"
+export GOCACHE="${GOCACHE:-$(cd "./.gocache" && pwd)}"

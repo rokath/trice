@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# file name: renewIDs_in_examples_and_refresh_test_folder.sh
+# file name: _renewIDs_in_examples_and_refresh_test_folder.sh
 
-source ./trice_environment.sh
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT" || exit 1
+source "$SCRIPT_DIR/_setup_trice_environment.sh"
 TD="./_test/testdata"
 
 mkdir -p "$(dirname "$TRICE_TIL_JSON")" "$(dirname "$TRICE_LI_JSON")"
@@ -29,8 +32,8 @@ trice clean $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES # IDs are now inside
 # os agnostic links would be better.
 
 # To update $CGOTESTDIRS do inside _test:
-#    ls -l _test | grep -v testdata | grep -v -i ReadMe | cut -c 40- >> ./renewIDs_in_examples_and_refresh_test_folder.sh
-#    "/c/Program Files/Notepad++/notepad++.exe" ../renewIDs_in_examples_and_refresh_test_folder.sh
+#    ls -l _test | grep -v testdata | grep -v -i ReadMe | cut -c 40- >> ./_renewIDs_in_examples_and_refresh_test_folder.sh
+#    "/c/Program Files/Notepad++/notepad++.exe" ../_renewIDs_in_examples_and_refresh_test_folder.sh
 #    move generated lines and remove trash
 CGOTESTDIRS="
  alias_dblB_de_tcobs_ua/

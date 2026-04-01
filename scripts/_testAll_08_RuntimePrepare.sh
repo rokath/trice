@@ -6,7 +6,7 @@
 # - ./_testAll_08_RuntimePrepare.sh
 #
 # Log file:
-# - ./temp/testAll/_testAll_08_RuntimePrepare.log
+# - ./temp/log/_testAll_08_RuntimePrepare.log
 
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -42,7 +42,7 @@ main() {
   run_cmd "$ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" || { log "FAIL: initial clean IDs failed"; exit 1; }
   run_cmd rm -f "$TRICE_TIL_JSON" "$TRICE_LI_JSON" || { log "FAIL: failed to reset shared json files"; exit 1; }
   run_cmd touch "$TRICE_TIL_JSON" "$TRICE_LI_JSON" || { log "FAIL: failed to create shared json files"; exit 1; }
-  run_cmd "$ROOT/renewIDs_in_examples_and_refresh_test_folder.sh" || { log "FAIL: renew IDs failed"; exit 1; }
+  run_cmd "$SCRIPTS_DIR/_renewIDs_in_examples_and_refresh_test_folder.sh" || { log "FAIL: renew IDs failed"; exit 1; }
 }
 
 main "$@"

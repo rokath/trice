@@ -12,7 +12,7 @@
 # - full: the full test set under ./_test/...
 #
 # Log file:
-# - ./temp/testAll/_testAll_10_PcTargetTests.log
+# - ./temp/log/_testAll_10_PcTargetTests.log
 
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,13 +26,13 @@ select_pc_test_json_paths() {
   if [ "${TRICE_TIL_JSON+x}" = "x" ]; then
     pc_trice_til_json="$TRICE_TIL_JSON"
   else
-    pc_trice_til_json="$ROOT/demoTIL.json"
+    pc_trice_til_json="./demoTIL.json"
   fi
 
   if [ "${TRICE_LI_JSON+x}" = "x" ]; then
     pc_trice_li_json="$TRICE_LI_JSON"
   else
-    pc_trice_li_json="$ROOT/demoLI.json"
+    pc_trice_li_json="./demoLI.json"
   fi
 }
 

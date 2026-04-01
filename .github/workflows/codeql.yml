@@ -32,8 +32,8 @@ on:
 # - Installs the ARM embedded toolchain + newlib headers on the Ubuntu runner
 # - Builds/installs `trice` before running the C/C++ build scripts that require it
 #
-# Rationale for NOT calling ./testAll.sh in CodeQL:
-# - testAll.sh is a full QA pipeline (formatting, markdown linting, link checks, coverage, ID regeneration,
+# Rationale for NOT calling ./scripts/testAll.sh in CodeQL:
+# - scripts/testAll.sh is a full QA pipeline (formatting, markdown linting, link checks, coverage, ID regeneration,
 #   optional cross-toolchain checks, etc.). That increases runtime and failure surface for CodeQL.
 # - CodeQL only needs a build that compiles the C/C++ translation units of interest.
 
@@ -82,10 +82,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          chmod +x ./buildTriceTool.sh
-          ./buildTriceTool.sh
+          chmod +x ./scripts/buildTriceTool.sh
+          ./scripts/buildTriceTool.sh
 
-          # If buildTriceTool.sh installs into $HOME/go/bin, ensure it is on PATH for later steps.
+          # If scripts/buildTriceTool.sh installs into $HOME/go/bin, ensure it is on PATH for later steps.
           echo "$HOME/go/bin" >> "$GITHUB_PATH"
 
           # Sanity check
@@ -175,8 +175,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          chmod +x ./buildTriceTool.sh
-          ./buildTriceTool.sh
+          chmod +x ./scripts/buildTriceTool.sh
+          ./scripts/buildTriceTool.sh
           echo "$HOME/go/bin" >> "$GITHUB_PATH"
 
           # Sanity check

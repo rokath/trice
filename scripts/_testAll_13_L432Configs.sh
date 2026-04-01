@@ -6,7 +6,7 @@
 # - ./_testAll_13_L432Configs.sh
 #
 # Log file:
-# - ./temp/testAll/_testAll_13_L432Configs.log
+# - ./temp/log/_testAll_13_L432Configs.log
 
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -15,7 +15,7 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 main() {
   local rc
   init_logfile
-  source "$ROOT/build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: build_environment.sh failed"; exit 1; }
+  source "$SCRIPTS_DIR/_setup_build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: _setup_build_environment.sh failed"; exit 1; }
   if ! has_command arm-none-eabi-gcc; then
     log "MISSING TOOL: arm-none-eabi-gcc"
     log "SKIP: arm-none-eabi-gcc not installed"
@@ -24,7 +24,7 @@ main() {
   (
     cd "$ROOT/examples/L432_inst" || exit 1
     ./all_configs_build.sh
-  ) 2>&1 | tee -a "$LOGFILE"
+  ) 2>&1 | log_pipe
   rc=${PIPESTATUS[0]}
   if [ "$rc" -ne 0 ]; then
     log "FAIL: L432 configuration builds failed"

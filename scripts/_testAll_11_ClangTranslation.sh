@@ -8,7 +8,7 @@
 # instead of failing immediately due to the environment.
 #
 # Log file:
-# - ./temp/testAll/_testAll_11_ClangTranslation.log
+# - ./temp/log/_testAll_11_ClangTranslation.log
 
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,7 +17,7 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 main() {
   local rc
   init_logfile
-  source "$ROOT/build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: build_environment.sh failed"; exit 1; }
+  source "$SCRIPTS_DIR/_setup_build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: _setup_build_environment.sh failed"; exit 1; }
   if ! has_command clang; then
     log "MISSING TOOL: clang"
     log "SKIP: clang not installed"
@@ -35,7 +35,7 @@ main() {
     clang --version
     make clean
     ./build_with_clang.sh
-  ) 2>&1 | tee -a "$LOGFILE"
+  ) 2>&1 | log_pipe
   rc=${PIPESTATUS[0]}
   if [ "$rc" -ne 0 ]; then
     log "FAIL: clang translation failed"

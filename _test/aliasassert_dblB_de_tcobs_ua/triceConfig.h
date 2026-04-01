@@ -17,7 +17,7 @@ extern "C" {
 #define TRICE_SINGLE_MAX_SIZE (104 + 100)
 
 //////////////////////////////////////////////////////////////////////////////
-// aliases - we have to exclude this in trice_environment.sh
+// aliases - we have to exclude this in _setup_trice_environment.sh
 //
 #include "nanoprintf.h"
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# build_environment.sh
+# _setup_build_environment.sh
 #
 # This script prepares a build environment for an ARM bare-metal toolchain.
-# It is intended to be *sourced* (". ./build_environment.sh") so that the
+# It is intended to be *sourced* (". ./_setup_build_environment.sh") so that the
 # environment variables (PATH, C_INCLUDE_PATH, MAKE_JOBS, …) persist in
 # the current shell.
 #
@@ -12,8 +12,8 @@
 #   - If called with -v or --verbose, it prints additional informational output.
 #
 # Example:
-#   . ./build_environment.sh          # quiet, only errors/warnings
-#   . ./build_environment.sh -v       # verbose
+#   . ./_setup_build_environment.sh          # quiet, only errors/warnings
+#   . ./_setup_build_environment.sh -v       # verbose
 
 ###############################################################################
 # Verbosity handling
@@ -23,7 +23,7 @@ VERBOSE=0
 
 # Look for -v / --verbose in the current shell's positional parameters.
 # Note: when sourced, this inspects the caller's "$@", which usually is what
-# you passed to ". ./build_environment.sh ...".
+# you passed to ". ./_setup_build_environment.sh ...".
 for arg in "$@"; do
   case "$arg" in
     -v|--verbose)

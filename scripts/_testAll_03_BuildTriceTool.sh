@@ -6,7 +6,7 @@
 # - ./_testAll_03_BuildTriceTool.sh
 #
 # Log file:
-# - ./temp/testAll/_testAll_03_BuildTriceTool.log
+# - ./temp/log/_testAll_03_BuildTriceTool.log
 
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,7 +19,7 @@ main() {
     log "SKIP: Go not installed"
     exit 0
   fi
-  run_cmd "$ROOT/buildTriceTool.sh" || { log "FAIL: buildTriceTool.sh failed"; exit 1; }
+  run_cmd "$SCRIPTS_DIR/buildTriceTool.sh" || { log "FAIL: buildTriceTool.sh failed"; exit 1; }
 }
 
 main "$@"

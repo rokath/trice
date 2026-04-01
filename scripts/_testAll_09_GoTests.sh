@@ -6,7 +6,7 @@
 # - ./_testAll_09_GoTests.sh
 #
 # Log file:
-# - ./temp/testAll/_testAll_09_GoTests.log
+# - ./temp/log/_testAll_09_GoTests.log
 
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"

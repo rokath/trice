@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# file name: trice_environment.sh
+# file name: _setup_trice_environment.sh
 
 TRICE_TIL_JSON=${TRICE_TIL_JSON:-./demoTIL.json}
 TRICE_LI_JSON=${TRICE_LI_JSON:-./demoLI.json}

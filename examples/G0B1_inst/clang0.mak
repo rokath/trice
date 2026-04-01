@@ -18,7 +18,7 @@ CLANG_ONLY_FLAGS = #
  
 # CLANG_ONLY_FLAGS += --gcc-toolchain=/usr
 # Optional: allow the environment/CI to provide the GCC toolchain root for clang.
-# This is intentionally no longer auto-filled by build_environment.sh because
+# This is intentionally no longer auto-filled by _setup_build_environment.sh because
 # some host setups emit noisy multilib warnings although the compile and link
 # steps work fine without it.
 # Example for a CI setup that really needs it: export CLANG_GCC_TOOLCHAIN=/usr

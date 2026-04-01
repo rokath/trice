@@ -14,8 +14,8 @@ void TriceCheckSpecial( int n ) {
                 default:
 
                 break; case __LINE__: TRice("Hello World!\n" );          //exp: Time:feed3322default: Hello World!
-                // 'printi' is declared as -alias  in ./trice_environment.sh and defined here in triceConfig.h which is excluded from parsing in ./trice_environment.sh.
-                // 'prints' is declared as -salias in ./trice_environment.sh and defined here in triceConfig.h which is excluded from parsing in ./trice_environment.sh.
+                // 'printi' is declared as -alias  in ./_setup_trice_environment.sh and defined here in triceConfig.h which is excluded from parsing in ./_setup_trice_environment.sh.
+                // 'prints' is declared as -salias in ./_setup_trice_environment.sh and defined here in triceConfig.h which is excluded from parsing in ./_setup_trice_environment.sh.
                 break; case __LINE__: prints("att:%s.\n", "" );          //exp: Time:        default: att:.
                 break; case __LINE__: prints("att:%s.\n", "g" );         //exp: Time:        default: att:g.
                 break; case __LINE__: prints("att:%s.\n", "gg" );        //exp: Time:        default: att:gg.

@@ -3,9 +3,9 @@
 # Public entry point for test orchestration.
 #
 # The historical interface intentionally remains unchanged:
-# - ./testAll.sh
-# - ./testAll.sh quick
-# - ./testAll.sh full
+# - ./scripts/testAll.sh
+# - ./scripts/testAll.sh quick
+# - ./scripts/testAll.sh full
 #
 # Selection:
 # - quick
@@ -14,17 +14,17 @@
 #   Runs the additional full PC target tests and the L432 configuration loop.
 #
 # Structure:
-# - testAll.sh resolves the CLI mode and only calls the steps needed for that mode.
+# - scripts/testAll.sh resolves the CLI mode and only calls the steps needed for that mode.
 # - Individual step scripts only accept arguments when they actually need them.
 # - Each step has its own name, its own log file, and can be run separately,
 #   for example:
-#   - ./_testAll_05_MarkdownLint.sh
-#   - ./_testAll_06_LinkCheck.sh
-#   - ./_testAll_10_PcTargetTests.sh full
+#   - ./scripts/_testAll_05_MarkdownLint.sh
+#   - ./scripts/_testAll_06_LinkCheck.sh
+#   - ./scripts/_testAll_10_PcTargetTests.sh full
 #
 # Logging:
-# - Each step writes to ./temp/testAll/<scriptname>.log
-# - The runner writes a compact summary to ./temp/testAll/testAll_summary.log.
+# - Each step writes to ./temp/log/<scriptname>.log
+# - The runner writes a compact summary to ./temp/log/testAll_summary.log.
 #
 # Sleep prevention:
 # - On Linux, systemd-inhibit is used when available.
@@ -34,27 +34,36 @@
 set -u
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR" || exit 1
-
 run_with_inhibit_linux() {
+  local rc
   if command -v systemd-inhibit >/dev/null 2>&1; then
     systemd-inhibit --what=sleep:shutdown --who="$(whoami)" --why="Running testAll.sh" --mode=block \
-      bash "./_testAll_run.sh" "$@"
+      bash "$SCRIPT_DIR/_testAll_run.sh" "$@"
+    rc=$?
   else
-    bash "./_testAll_run.sh" "$@"
+    bash "$SCRIPT_DIR/_testAll_run.sh" "$@"
+    rc=$?
   fi
+  return "$rc"
 }
 
 run_with_inhibit_macos() {
+  local rc
   if command -v caffeinate >/dev/null 2>&1; then
-    caffeinate -dimsu bash "./_testAll_run.sh" "$@"
+    caffeinate -dimsu bash "$SCRIPT_DIR/_testAll_run.sh" "$@"
+    rc=$?
   else
-    bash "./_testAll_run.sh" "$@"
+    bash "$SCRIPT_DIR/_testAll_run.sh" "$@"
+    rc=$?
   fi
+  return "$rc"
 }
 
 run_without_inhibit() {
-  bash "./_testAll_run.sh" "$@"
+  local rc
+  bash "$SCRIPT_DIR/_testAll_run.sh" "$@"
+  rc=$?
+  return "$rc"
 }
 
 main() {

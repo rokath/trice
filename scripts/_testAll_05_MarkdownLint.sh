@@ -8,7 +8,7 @@
 # instead of failing.
 #
 # Log file:
-# - ./temp/testAll/_testAll_05_MarkdownLint.log
+# - ./temp/log/_testAll_05_MarkdownLint.log
 
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
