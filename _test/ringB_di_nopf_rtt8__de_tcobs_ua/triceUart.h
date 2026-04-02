@@ -1,6 +1,5 @@
-/*! \file triceUart.h
-\author Thomas.Hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+//! \file triceUart.h
 
 #ifndef TRICE_UART_H_
 #define TRICE_UART_H_

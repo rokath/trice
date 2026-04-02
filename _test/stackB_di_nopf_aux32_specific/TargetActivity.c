@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+//! \file TargetActivity.c
+
 #include "trice.h"
 
 // clang-format off
