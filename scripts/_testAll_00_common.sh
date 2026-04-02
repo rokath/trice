@@ -11,10 +11,10 @@
 #   Target directory for per-step logs. Default: ./temp/log
 # - GOCACHE
 #   If unset, a repo-local cache under ./.gocache is used.
-# - TRICE_TMP_DIR, TRICE_TIL_JSON, TRICE_LI_JSON
+# - TRICE_TMP_DIR, TRICE_TIL_JSON, TRICE_LI_JSON, TRICE_BIN_DIR
 #   Shared paths used by the existing Trice helper scripts. The default JSON
 #   files stay in the repository root to match the CGO tests and the manual
-#   workflows.
+#   workflows. The test-built trice binary lives under TRICE_BIN_DIR.
 #
 # Goal of the split:
 # - Each actual action lives in its own directly executable script.
@@ -136,5 +136,7 @@ export SELECTED="${SELECTED:-quick}"
 export TRICE_TMP_DIR="${TRICE_TMP_DIR:-$LOG_DIR}"
 export TRICE_TIL_JSON="${TRICE_TIL_JSON:-./demoTIL.json}"
 export TRICE_LI_JSON="${TRICE_LI_JSON:-./demoLI.json}"
-mkdir -p "$TRICE_TMP_DIR"
+export TRICE_BIN_DIR="${TRICE_BIN_DIR:-$(cd "./temp" && pwd)/bin}"
+mkdir -p "$TRICE_TMP_DIR" "$TRICE_BIN_DIR"
+export PATH="$TRICE_BIN_DIR:$PATH"
 export GOCACHE="${GOCACHE:-$(cd "./.gocache" && pwd)}"

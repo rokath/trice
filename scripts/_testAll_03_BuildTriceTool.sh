@@ -19,7 +19,8 @@ main() {
     log "SKIP: Go not installed"
     exit 0
   fi
-  run_cmd "$SCRIPTS_DIR/buildTriceTool.sh" || { log "FAIL: buildTriceTool.sh failed"; exit 1; }
+  log "TRICE_BIN_DIR: ${TRICE_BIN_DIR:-unset}"
+  run_cmd env GOBIN="$TRICE_BIN_DIR" "$SCRIPTS_DIR/buildTriceTool.sh" || { log "FAIL: buildTriceTool.sh failed"; exit 1; }
 }
 
 main "$@"

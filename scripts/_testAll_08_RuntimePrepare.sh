@@ -19,6 +19,7 @@ log_runtime_context() {
   log "OSTYPE: ${OSTYPE:-unknown}"
   log "GOCACHE: ${GOCACHE:-unset}"
   log "TRICE_TMP_DIR: ${TRICE_TMP_DIR:-unset}"
+  log "TRICE_BIN_DIR: ${TRICE_BIN_DIR:-unset}"
   log "TRICE_TIL_JSON: ${TRICE_TIL_JSON:-unset}"
   log "TRICE_LI_JSON: ${TRICE_LI_JSON:-unset}"
   if has_command uname; then
