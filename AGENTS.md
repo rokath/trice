@@ -13,6 +13,9 @@
 - For changes affecting more than 5 files, show a sample diff before continuing.
 - Communication with Codex may be in German or English.
 - All file comments must always be written in English.
+- New `.c`, `.h`, and `.go` files must start with `// SPDX-License-Identifier: MIT` as the first line unless the file is clearly external or vendored.
+- When editing internal `.c`, `.h`, or `.go` files that are missing the SPDX header, prefer adding `// SPDX-License-Identifier: MIT` as the first line unless there is clear evidence the file is external, vendored, or governed by a different license.
+- If a user message looks accidentally truncated or cut off by an unintended Enter key press, ask a brief clarifying question before acting on it.
 
 ## Commits
 
