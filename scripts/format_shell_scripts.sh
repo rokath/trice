@@ -34,17 +34,17 @@ VERBOSE=0
 
 for arg in "$@"; do
   case "$arg" in
-    format|check)
-      MODE="$arg"
-      ;;
-    -v|--verbose)
-      VERBOSE=1
-      ;;
-    *)
-      echo "Unknown argument: '$arg'"
-      echo "Usage: $0 [format|check] [--verbose]"
-      exit 2
-      ;;
+  format | check)
+    MODE="$arg"
+    ;;
+  -v | --verbose)
+    VERBOSE=1
+    ;;
+  *)
+    echo "Unknown argument: '$arg'"
+    echo "Usage: $0 [format|check] [--verbose]"
+    exit 2
+    ;;
   esac
 done
 
@@ -86,15 +86,13 @@ if [ "$MODE" = "format" ]; then
     printf "  %s\n" "${NEEDS_FORMAT[@]}"
   fi
 
-  shfmt -w "${NEEDS_FORMAT[@]}"
-
   LOG_DIR="$REPO_ROOT/temp/log"
   LOG_FILE="$LOG_DIR/format_shell_scripts.log"
   mkdir -p "$LOG_DIR"
-  {
-    echo "shfmt format run changed these files:"
-    printf "%s\n" "${NEEDS_FORMAT[@]}"
-  } > "$LOG_FILE"
+  if ! shfmt -d "${NEEDS_FORMAT[@]}" >"$LOG_FILE"; then
+    :
+  fi
+  shfmt -w "${NEEDS_FORMAT[@]}"
 
   if [ "$VERBOSE" -eq 1 ]; then
     echo
