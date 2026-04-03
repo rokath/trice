@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// handleConnection serves a single test TCP connection with predefined data.
 func handleConnection(conn net.Conn) {
 	// Close the connection when we're done
 	defer conn.Close()
@@ -96,6 +97,7 @@ func TestTCP4Reception(t *testing.T) {
 
 }
 
+// TestHEX verifies the expected behavior.
 func TestHEX(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -125,6 +127,7 @@ func TestHEX(t *testing.T) {
 	tst.EqualLines(t, expect, act)
 }
 
+// TestDUMP verifies the expected behavior.
 func TestDUMP(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -154,6 +157,7 @@ func TestDUMP(t *testing.T) {
 	tst.EqualLines(t, expect, act)
 }
 
+// TestBUFFER verifies the expected behavior.
 func TestBUFFER(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -183,6 +187,7 @@ func TestBUFFER(t *testing.T) {
 	tst.EqualLines(t, expect, act)
 }
 
+// TestDEC verifies the expected behavior.
 func TestDEC(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -212,6 +217,7 @@ func TestDEC(t *testing.T) {
 	tst.EqualLines(t, expect, act)
 }
 
+// TestHEXToTCP verifies the expected behavior.
 func TestHEXToTCP(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}

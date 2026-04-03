@@ -61,6 +61,7 @@ func setupTest(t *testing.T, fSys *afero.Afero) func() {
 	}
 }
 
+// TestTriceVersion1 verifies the expected behavior.
 func TestTriceVersion1(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -76,6 +77,7 @@ func TestTriceVersion1(t *testing.T) {
 	assert.Equal(t, "version=1.2.3, commit=myCommit, built at 2006-01-02_1504-05\n", b.String())
 }
 
+// TestTriceWrong1 verifies the expected behavior.
 func TestTriceWrong1(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}

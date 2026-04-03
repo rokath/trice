@@ -138,6 +138,7 @@ func TestUpdateSet0(t *testing.T) { // Anti-Virus issue
 	}
 }
 
+// TestUpdateLegacy0 verifies the expected behavior.
 func TestUpdateLegacy0(t *testing.T) { // Anti-Virus issue
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}

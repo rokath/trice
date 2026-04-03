@@ -21,6 +21,7 @@ func init() {
 	m = new(sync.RWMutex)
 }
 
+// TestWrongSwitch verifies the expected behavior.
 func TestWrongSwitch(t *testing.T) {
 	os.Args = []string{"stim", "wrong"}
 	expect := `unknown sub-command 'wrong'. try: 'stim help|h'
@@ -28,6 +29,7 @@ func TestWrongSwitch(t *testing.T) {
 	mainExecHelper(t, expect)
 }
 
+// TestVersion verifies the expected behavior.
 func TestVersion(t *testing.T) {
 	version = "1.2.3"
 	commit = "myCommit"
@@ -41,6 +43,7 @@ func TestVersion(t *testing.T) {
 	date = ""
 }
 
+// mainExecHelper runs the main command helper and checks the resulting output.
 func mainExecHelper(t *testing.T, expect string) {
 	m.Lock()
 	defer m.Unlock()
