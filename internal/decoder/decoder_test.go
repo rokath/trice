@@ -49,7 +49,7 @@ func TestNewDecoderDataWithoutBuffers(t *testing.T) {
 	assert.Nil(t, d.InnerBuffer)
 }
 
-// TestSetInput confirms SetInput swaps the underlying reader instance. 
+// TestSetInput confirms SetInput swaps the underlying reader instance.
 func TestSetInput(t *testing.T) {
 	d := NewDecoderData(Config{})
 	r := strings.NewReader("abc")

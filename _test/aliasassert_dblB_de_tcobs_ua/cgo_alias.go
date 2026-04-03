@@ -37,7 +37,7 @@ func triceLogSpecialTest(t *testing.T, triceLog logF, maxTestlines int) {
 	for i, r := range result {
 		fmt.Println(i, r)
 		targetSpecialActivity(r.line) // triceCheck would compile but not wat we want here
-		triceTransfer() // This is only for deferred modes needed, but direct modes contain this as empty function.
+		triceTransfer()               // This is only for deferred modes needed, but direct modes contain this as empty function.
 		length := triceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i in r.line
 		buf := fmt.Sprint(bin)
