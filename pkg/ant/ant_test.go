@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/afero"
 )
 
+// TestWalkRejectsNilAction verifies the expected behavior.
 func TestWalkRejectsNilAction(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	if err := fSys.MkdirAll("root", 0o755); err != nil {
@@ -31,6 +32,7 @@ func TestWalkRejectsNilAction(t *testing.T) {
 	}
 }
 
+// TestWalkRejectsNilFileSystem verifies the expected behavior.
 func TestWalkRejectsNilFileSystem(t *testing.T) {
 	a := &Admin{
 		Trees:  []string{"root"},
@@ -42,6 +44,7 @@ func TestWalkRejectsNilFileSystem(t *testing.T) {
 	}
 }
 
+// TestWalkUsesDefaultMatcher verifies the expected behavior.
 func TestWalkUsesDefaultMatcher(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	if err := fSys.MkdirAll("root/sub", 0o755); err != nil {
@@ -74,6 +77,7 @@ func TestWalkUsesDefaultMatcher(t *testing.T) {
 	}
 }
 
+// TestWalkWithNilWriterUsesDiscard verifies the expected behavior.
 func TestWalkWithNilWriterUsesDiscard(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	if err := fSys.MkdirAll("root", 0o755); err != nil {
@@ -98,6 +102,7 @@ func TestWalkWithNilWriterUsesDiscard(t *testing.T) {
 	}
 }
 
+// TestWalkIgnoresMissingTrees verifies the expected behavior.
 func TestWalkIgnoresMissingTrees(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	a := &Admin{
@@ -112,6 +117,7 @@ func TestWalkIgnoresMissingTrees(t *testing.T) {
 	}
 }
 
+// TestWalkResetsErrorCountPerRun verifies the expected behavior.
 func TestWalkResetsErrorCountPerRun(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	if err := fSys.MkdirAll("root", 0o755); err != nil {
@@ -137,6 +143,7 @@ func TestWalkResetsErrorCountPerRun(t *testing.T) {
 	}
 }
 
+// TestWalkAggregatesActionErrors verifies the expected behavior.
 func TestWalkAggregatesActionErrors(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	if err := fSys.MkdirAll("root", 0o755); err != nil {
@@ -163,6 +170,7 @@ func TestWalkAggregatesActionErrors(t *testing.T) {
 	}
 }
 
+// TestWalkExcludeTreeSkipsNestedFiles verifies the expected behavior.
 func TestWalkExcludeTreeSkipsNestedFiles(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	if err := fSys.MkdirAll("root/keep", 0o755); err != nil {
@@ -197,6 +205,7 @@ func TestWalkExcludeTreeSkipsNestedFiles(t *testing.T) {
 	}
 }
 
+// TestWalkVerboseExcludeMessage verifies the expected behavior.
 func TestWalkVerboseExcludeMessage(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	if err := fSys.MkdirAll("root/skip", 0o755); err != nil {
