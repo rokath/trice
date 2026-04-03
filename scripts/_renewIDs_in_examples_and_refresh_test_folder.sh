@@ -1,15 +1,19 @@
 #!/bin/bash
 
-# file name: renewIDs_in_examples_and_refresh_test_folder.sh
+# file name: _renewIDs_in_examples_and_refresh_test_folder.sh
 
-source ./trice_environment.sh
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT" || exit 1
+source "$SCRIPT_DIR/_setup_trice_environment.sh"
 TD="./_test/testdata"
 
-rm -f demoTIL.json demoLI.json                              # forget history (users usually should not do that in their projects, deleted here to avoid potential ID conflict messages)
-touch demoTIL.json demoLI.json                              # new life
+mkdir -p "$(dirname "$TRICE_TIL_JSON")" "$(dirname "$TRICE_LI_JSON")"
+rm -f "$TRICE_TIL_JSON" "$TRICE_LI_JSON"                    # forget history (users usually should not do that in their projects, deleted here to avoid potential ID conflict messages)
+touch "$TRICE_TIL_JSON" "$TRICE_LI_JSON"                    # new life
 trice clean $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES # wipe out all IDs from the sources
-rm -f demoTIL.json demoLI.json                              # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
-touch demoTIL.json demoLI.json                              # new life
+rm -f "$TRICE_TIL_JSON" "$TRICE_LI_JSON"                    # forget history (in case the sources contained IDs, these are now removed from there, but are kept in the *.json files, so delete them again.)
+touch "$TRICE_TIL_JSON" "$TRICE_LI_JSON"                    # new life
 
 # Next steps are done separately to get the same IDs continuously, in case we deleted the history - normally all files and folders can be done parallel in one shot.
 # We do not use -cache here to force the li.json generation.
@@ -28,8 +32,8 @@ trice clean $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES # IDs are now inside
 # os agnostic links would be better.
 
 # To update $CGOTESTDIRS do inside _test:
-#    ls -l _test | grep -v testdata | grep -v -i ReadMe | cut -c 40- >> ./renewIDs_in_examples_and_refresh_test_folder.sh
-#    "/c/Program Files/Notepad++/notepad++.exe" ../renewIDs_in_examples_and_refresh_test_folder.sh
+#    ls -l _test | grep -v testdata | grep -v -i ReadMe | cut -c 40- >> ./_renewIDs_in_examples_and_refresh_test_folder.sh
+#    "/c/Program Files/Notepad++/notepad++.exe" ../_renewIDs_in_examples_and_refresh_test_folder.sh
 #    move generated lines and remove trash
 CGOTESTDIRS="
  alias_dblB_de_tcobs_ua/

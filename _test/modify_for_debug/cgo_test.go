@@ -12,7 +12,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -53,7 +53,7 @@ func caseSpecificTest(t *testing.T, triceLog logF) {
 	length := triceOutDepth()
 	bin := out[:length] // bin contains the binary trice data of trice message.
 
-	buf := fmt.Sprint(bin) // convert into number string enclosed in brackets []
+	buf := fmt.Sprint(bin)        // convert into number string enclosed in brackets []
 	buffer := buf[1 : len(buf)-1] // remove brackets []
 
 	act := triceLog(t, osFSys, buffer) // convert binary buffer into result string

@@ -52,18 +52,19 @@ jobs:
           cache: true
 
       # 3) Run tests and generate a coverage profile (Go native format)
-      # coverage.out is a common convention; it matches what you saw locally.
+      # Store runtime artifacts under ./temp/log to keep the workspace root clean.
       - name: Run tests with coverage
         run: |
           set -euo pipefail
-          go test ./... -covermode=atomic -coverprofile=coverage.out -coverpkg=./...
+          mkdir -p ./temp/log
+          go test ./... -covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=./...
 
       # 4) Print a human-readable summary into the workflow logs
       # This uses Go’s built-in cover tool. :contentReference[oaicite:3]{index=3}
       - name: Coverage summary (log)
         run: |
           set -euo pipefail
-          go tool cover -func=coverage.out
+          go tool cover -func=./temp/log/coverage.out
 
       # 5) Upload coverage.out as an artifact for later inspection/download
       # Useful for debugging and auditing. Artifact v4 is the current major. :contentReference[oaicite:4]{index=4}
@@ -71,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-out
-          path: coverage.out
+          path: ./temp/log/coverage.out
           if-no-files-found: error
 
       # 6) Send coverage to Coveralls
@@ -87,7 +88,7 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          file: coverage.out
+          file: ./temp/log/coverage.out
           format: golang
         # If you need a repo token, uncomment the env block:
         env:

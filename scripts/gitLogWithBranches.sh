@@ -104,48 +104,48 @@ color_mode="auto"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --since)
-      if [[ $# -lt 2 ]]; then
-        echo "Error: --since requires a date argument." >&2
-        exit 1
-      fi
-      since_arg="--since=$2"
-      shift 2
-      ;;
-    --until)
-      if [[ $# -lt 2 ]]; then
-        echo "Error: --until requires a date argument." >&2
-        exit 1
-      fi
-      until_arg="--until=$2"
-      shift 2
-      ;;
-    --range)
-      if [[ $# -lt 2 ]]; then
-        echo "Error: --range requires a Git revision range argument." >&2
-        exit 1
-      fi
-      range_arg="$2"
-      shift 2
-      ;;
-    --color)
-      color_mode="always"
-      shift
-      ;;
-    --no-color)
-      color_mode="never"
-      shift
-      ;;
-    -h|--help)
-      show_usage
-      exit 0
-      ;;
-    *)
-      echo "Error: unknown argument '$1'." >&2
-      echo >&2
-      show_usage >&2
+  --since)
+    if [[ $# -lt 2 ]]; then
+      echo "Error: --since requires a date argument." >&2
       exit 1
-      ;;
+    fi
+    since_arg="--since=$2"
+    shift 2
+    ;;
+  --until)
+    if [[ $# -lt 2 ]]; then
+      echo "Error: --until requires a date argument." >&2
+      exit 1
+    fi
+    until_arg="--until=$2"
+    shift 2
+    ;;
+  --range)
+    if [[ $# -lt 2 ]]; then
+      echo "Error: --range requires a Git revision range argument." >&2
+      exit 1
+    fi
+    range_arg="$2"
+    shift 2
+    ;;
+  --color)
+    color_mode="always"
+    shift
+    ;;
+  --no-color)
+    color_mode="never"
+    shift
+    ;;
+  -h | --help)
+    show_usage
+    exit 0
+    ;;
+  *)
+    echo "Error: unknown argument '$1'." >&2
+    echo >&2
+    show_usage >&2
+    exit 1
+    ;;
   esac
 done
 
@@ -155,17 +155,17 @@ done
 # - "auto":   enable colors only when stdout is an interactive terminal
 use_color=0
 case "$color_mode" in
-  always)
+always)
+  use_color=1
+  ;;
+never)
+  use_color=0
+  ;;
+auto)
+  if [[ -t 1 ]]; then
     use_color=1
-    ;;
-  never)
-    use_color=0
-    ;;
-  auto)
-    if [[ -t 1 ]]; then
-      use_color=1
-    fi
-    ;;
+  fi
+  ;;
 esac
 
 if [[ "$use_color" -eq 1 ]]; then

@@ -20,12 +20,23 @@
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice?branch=main)
 [![CodeQL](https://github.com/rokath/trice/actions/workflows/codeql.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/codeql.yml)
 
+[![TRICE Library CI (Nightly Quick)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml)
+
+[![TRICE Library CI (Nightly Full)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml)
+
+[![Mark stale issues and pull requests](https://github.com/rokath/trice/actions/workflows/stale.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/stale.yml)
+
+[![Clang-Format Check](https://github.com/rokath/trice/actions/workflows/clang-format.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/clang-format.yml)
+
+[![Go Coverage (PR + Monthly)](https://github.com/rokath/trice/actions/workflows/coverage.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/coverage.yml)
+
+
 <!-- [![Sponsor rokath](https://github.com/sponsors/rokath/button)](https://github.com/sponsors/rokath) -->
 <!-- [![test](https://github.com/shogo82148/actions-goveralls/workflows/_test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice) -->
 
 Log in (a) trice ([S>G](https://www.screentogif.com/)) even inside **↯ interrupts** in less than 1 µs❗ ![ ](./docs/ref/life0.gif)
 
-**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
+**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](./docs/TriceUserManual.pdf)
 
 ## What is Trice?
 
@@ -112,7 +123,7 @@ This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice work
 
 ## Documentation
 
-**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
+**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](./docs/TriceUserManual.pdf)
 
 The Trice User Manual includes all information from the [Memfault Interrupt Blog](https://interrupt.memfault.com/blog/trice) which is slightly outdated.
 - Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions), including closed items
@@ -158,11 +169,11 @@ For example, run an auto-formatter **before** the `trice insert` command.
 
 ## Project Status
 
-Trice is fully usable. There are no known bugs (see [issues](https://github.com/rokath/trice/issues)).
+Trice is fully usable.
 
 ```diff
-+ Please use the latest release or the main branch if you want to build from source.
-- Do not use the "dev" branch right now (December 2025) - it may not work properly.
++ Use the latest release or main branch to build from source.
+- Do not use the "dev" branch. It may not work properly.
 ```
 
 ## Future Plans
@@ -224,6 +235,6 @@ Additional comparison material:
 - [Logging & Tracing Solutions for Embedded Systems (generated 2026-02-16)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html) - longer generated overview of the broader tool landscape
 
 
-**Trice User Manual:** [GitHub](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.pdf)
+**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](./docs/TriceUserManual.pdf)
 
 <p align="right">(<a href="#top">back to top</a>)</p>

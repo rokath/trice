@@ -9,7 +9,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUpdate0(t *testing.T) { // Anti-Virus issue

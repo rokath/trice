@@ -9,7 +9,7 @@ import (
 
 	"github.com/rokath/trice/pkg/tst"
 
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // sampleLut0 is a test helper function, which returns a lookup map.

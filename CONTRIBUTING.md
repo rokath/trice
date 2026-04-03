@@ -14,6 +14,10 @@ Contributions are welcome, especially:
 3. Add or update tests when behavior changes.
 4. Open a pull request with a clear description of what and why.
 
+## Tests
+
+Use `github.com/stretchr/testify/assert` for new assertion-style Go tests to keep the test style consistent across the repository.
+
 ## License of contributions
 
 By submitting a pull request to this repository, you agree that your contribution is provided under the project's MIT License (`LICENSE.md`).

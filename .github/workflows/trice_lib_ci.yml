@@ -1,6 +1,8 @@
 name: TRICE Library CI (Nightly Quick)
 
 on:
+  pull_request:
+    branches: [ "main" ]
   schedule:
     # Run nightly at 02:15 UTC (adjust to your preference).
     - cron: "15 2 * * *"

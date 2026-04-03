@@ -10,7 +10,7 @@ import (
 
 	"github.com/rokath/trice/pkg/tst"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestLutFileTransfer checks lut file transfer.

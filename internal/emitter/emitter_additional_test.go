@@ -9,10 +9,31 @@ import (
 	"net"
 	"net/rpc"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
 )
+
+func requireWindowsTCPTestsEnabled(t *testing.T) {
+	t.Helper()
+	// These TCP listener tests intentionally open a local server socket.
+	// On Windows, Defender Firewall may show interactive prompts for the
+	// temporary go test binaries that host these listeners. The binaries live in
+	// changing go-build paths, so allowing them once does not reliably suppress
+	// later prompts. That makes routine local test runs noisy and disruptive for
+	// developers who mostly work on Windows.
+	//
+	// We therefore skip these tests on Windows by default and require an
+	// explicit opt-in when someone actually wants to verify the listener-based
+	// behavior there.
+	//
+	// Enable with:
+	//   TRICE_RUN_WINDOWS_TCP_TESTS=1 go test ./...
+	if runtime.GOOS == "windows" && os.Getenv("TRICE_RUN_WINDOWS_TCP_TESTS") == "" {
+		t.Skip("skipping TCP listener test on Windows; set TRICE_RUN_WINDOWS_TCP_TESTS=1 to enable")
+	}
+}
 
 type rpcWriteLineStub struct {
 	lines chan []string
@@ -384,6 +405,8 @@ func TestRemoteDisplayConnectAlreadyConnected(t *testing.T) {
 }
 
 func TestRemoteDisplayWriteLineOverRPC(t *testing.T) {
+	requireWindowsTCPTestsEnabled(t)
+
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
 
@@ -460,6 +483,8 @@ func TestShowAllColorsSmoke(t *testing.T) {
 }
 
 func TestScDisplayServerStartAndShutdown(t *testing.T) {
+	requireWindowsTCPTestsEnabled(t)
+
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
 

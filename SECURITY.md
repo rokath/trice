@@ -2,24 +2,23 @@
 
 ## Supported Versions
 
-These versions of Trice are currently being supported with security updates.
+Security fixes are applied on a best-effort basis to the `main` branch and to the latest released version.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.1.x   | :white_check_mark: |
-| 1.0.0   | :white_check_mark: |
-| < 1.0.0 | :x:                |
+Older releases may not receive security updates.
+
+## Reporting a Vulnerability
+
+If you believe you have found a security vulnerability, please open a GitHub issue and clearly mark it as a security report.
+
+Include:
+
+- affected version or commit
+- impact and expected risk
+- reproduction steps or a minimal example
+- possible mitigation, if known
+
+The maintainers will review the report and decide on the appropriate fix and disclosure process.
 
 ## Known Vulnerabilities
 
-none
-
-<!--
-
-Use this section to tell people how to report a vulnerability.
-
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
-
--->
+No publicly tracked security vulnerabilities are currently documented in this repository.

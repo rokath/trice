@@ -1,6 +1,5 @@
-/*! \file triceLogDiagData.c
-\author Thomas.Hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+//! \file triceLogDiagData.c
 
 #include "trice.h"
 

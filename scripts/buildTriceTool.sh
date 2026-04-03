@@ -21,7 +21,8 @@
 set -euo pipefail
 
 # Ensure we always operate in the repository root.
-cd "$(dirname "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.." || exit 1
 
 ##############################################
 # Collect Git information

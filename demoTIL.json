@@ -9,27 +9,27 @@
 	},
 	"13002": {
 		"Type": "trice",
-		"Strg": "Fun %x!\\n"
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
 	},
 	"13003": {
 		"Type": "trice",
-		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+		"Strg": "Fun %x!\\n"
 	},
 	"13004": {
-		"Type": "triceS",
-		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
+		"Type": "trice",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
 	},
 	"13005": {
 		"Type": "triceS",
-		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
 	},
 	"13006": {
 		"Type": "triceS",
-		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)\"'%s' Am, it is %d\"')SAlias_Strg"
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
 	},
 	"13007": {
-		"Type": "trice",
-		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)\"'%s' Am, it is %d\"')SAlias_Strg"
 	},
 	"13008": {
 		"Type": "TRice",
@@ -56,24 +56,24 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13014": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"13015": {
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13016": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"13017": {
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13018": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13019": {
 		"Type": "trice8",
@@ -8992,28 +8992,28 @@
 		"Strg": "A user printi call with integer and float values: %u, %d, %x, %2.1f\\n"
 	},
 	"15248": {
-		"Type": "TRice",
-		"Strg": "Hello World!\\n"
-	},
-	"15249": {
-		"Type": "trice",
-		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
-	},
-	"15250": {
-		"Type": "triceS",
-		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
-	},
-	"15251": {
 		"Type": "triceS",
 		"Strg": "SAlias_Strg('\"A user prints call with integer and float values: %u, %d, %x, %2.1f\\n\"')SAlias_Strg"
 	},
+	"15249": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user ... with string, integer and float values: %u, %d, %x, %2.1f, %s and %s\\n\"')SAlias_Strg"
+	},
+	"15250": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"15251": {
+		"Type": "trice",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+	},
 	"15252": {
 		"Type": "triceS",
-		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
 	},
 	"15253": {
 		"Type": "triceS",
-		"Strg": "SAlias_Strg('\"A user ... with string, integer and float values: %u, %d, %x, %2.1f, %s and %s\\n\"')SAlias_Strg"
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
 	},
 	"15254": {
 		"Type": "triceS",

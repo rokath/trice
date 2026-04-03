@@ -18,8 +18,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Repo root is two levels above: <repo>/examples/<target>/build.sh -> <repo>
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-
 # Ensure we build from the example directory (where the Makefile is expected).
 cd "${SCRIPT_DIR}"
 
@@ -29,9 +27,9 @@ cd "${SCRIPT_DIR}"
 
 # Source the environment file from repo root (absolute path).
 # shellcheck disable=SC1090
-source "${REPO_ROOT}/build_environment.sh"
+source ../../scripts/_setup_build_environment.sh
 
-# Optional: provide a default if build_environment.sh does not set MAKE_JOBS.
+# Optional: provide a default if _setup_build_environment.sh does not set MAKE_JOBS.
 # : "${MAKE_JOBS:=-j2}"
 
 make ${MAKE_JOBS}

@@ -1,7 +1,7 @@
-/*! \file triceCheck.c
-\brief trices for tool evaluation
-\author thomas.hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+//! \file triceCheck.c
+//! \brief trices for tool evaluation
+
 #if 1 // !TRICE_OFF - We do not exclude this file globally for TRICE_OFF == 1, to check if TRICE_OFF works well.
 #include <float.h>
 #include "trice.h"

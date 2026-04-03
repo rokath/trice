@@ -10,7 +10,7 @@ import (
 
 	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 type versionState struct {

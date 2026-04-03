@@ -1,6 +1,5 @@
-/*! \file triceConfig.h
-\author Thomas.Hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+//! \file triceConfig.h
 
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
@@ -16,7 +15,7 @@ extern "C" {
 #define TRICE_CYCLE_COUNTER 0
 
 //////////////////////////////////////////////////////////////////////////////
-// aliases - we have to exclude this in trice_environment.sh
+// aliases - we have to exclude this in _setup_trice_environment.sh
 //
 #include "nanoprintf.h"
 

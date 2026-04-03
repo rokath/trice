@@ -10,7 +10,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestUpdateSet1 allows to test many test vectors by extending the testVector slice.

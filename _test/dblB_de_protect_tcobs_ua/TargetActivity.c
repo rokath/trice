@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+//! \file TargetActivity.c
+
 #include "trice.h"
 
 // Needed safety space is TRICE_SINGLE_MAX_SIZE = 104

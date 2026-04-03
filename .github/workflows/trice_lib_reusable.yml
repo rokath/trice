@@ -16,7 +16,7 @@ on:
         type: boolean
         default: true
       toolchain_clang:
-        description: "Run clang build(s) that exist (currently only G0B1_inst/build_with_clang.sh via ci_build.sh)"
+        description: "Run clang build(s) that exist (currently only G0B1_inst/build_with_clang.sh via scripts/_ci_build.sh)"
         required: false
         type: boolean
         default: true
@@ -119,11 +119,11 @@ jobs:
           llvm-objcopy --version || true
           make --version
 
-      - name: Run build orchestrator (ci_build.sh)
+      - name: Run build orchestrator (scripts/_ci_build.sh)
         shell: bash
         run: |
           set -euxo pipefail
-          chmod +x ./ci_build.sh
+          chmod +x ./scripts/_ci_build.sh
 
           # Make objcopy deterministic in CI.
           # This helps avoid failures caused by missing llvm-objcopy in PATH,
@@ -132,7 +132,7 @@ jobs:
 
           # 1) GCC all-target builds (TRICE ON/OFF)
           if [ "${{ inputs.toolchain_gcc_trice_on }}" = "true" ]; then
-            ./ci_build.sh \
+            ./scripts/_ci_build.sh \
               --toolchain=gcc \
               --trice=on \
               --configs=${{ inputs.configs_mode }} \
@@ -141,13 +141,13 @@ jobs:
           fi
 
           if [ "${{ inputs.toolchain_gcc_trice_off }}" = "true" ]; then
-            ./ci_build.sh \
+            ./scripts/_ci_build.sh \
               --toolchain=gcc \
               --trice=off \
               --configs=none
           fi
 
-          # 2) Clang build(s) (as implemented in ci_build.sh)
+          # 2) Clang build(s) (as implemented in scripts/_ci_build.sh)
           if [ "${{ inputs.toolchain_clang }}" = "true" ]; then
 
           # Provide Newlib + GCC internal headers to clang (cross).

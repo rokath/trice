@@ -10,7 +10,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLogs(t *testing.T) {
@@ -20,15 +20,15 @@ func TestLogs(t *testing.T) {
 		var o bytes.Buffer
 		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log",
 			"-pf=none",
-			"-doubled16BitID", 
-			"-i", path.Join(triceDir, "/demoTIL.json"), 
-			"-p=BUFFER", "-args", buffer, 
-			"-hs=off", 
-			"-prefix=off", 
-			"-li=off", 
-			"-color=off", 
-			"-ts0", "Time:        ", 
-			"-ts16", "Time:    %04x", 
+			"-doubled16BitID",
+			"-i", path.Join(triceDir, "/demoTIL.json"),
+			"-p=BUFFER", "-args", buffer,
+			"-hs=off",
+			"-prefix=off",
+			"-li=off",
+			"-color=off",
+			"-ts0", "Time:        ",
+			"-ts16", "Time:    %04x",
 			"-ts32", "Time:%08x"}))
 		return o.String()
 	}

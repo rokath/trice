@@ -36,7 +36,7 @@ for d in "${targets[@]}"; do
   }
 done
 
-if (( failCount != 0 )); then
+if ((failCount != 0)); then
   echo "${failCount} times FAIL"
   exit 1
 fi

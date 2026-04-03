@@ -1,7 +1,7 @@
-/*! \file cgoTrice.c
-\brief wrapper for tests
-\author thomas.hoehenleitner [at] seerose.net
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+//! \file cgoTrice.c
+//! \brief wrapper for tests
+
 #include <stdint.h>
 #include <string.h>
 

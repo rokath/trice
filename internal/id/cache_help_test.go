@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 // assertFileNotExists asserts, that fn does not exist
@@ -36,7 +36,7 @@ func assertEqualMTimes(t *testing.T, FSys *afero.Afero, fn0, fn1 string) {
 	assert.Nil(t, err)
 	fn1Stat, err := FSys.Stat(fn1)
 	assert.Nil(t, err)
-	assert.True(t,time.Time.Equal( fn0Stat.ModTime(), fn1Stat.ModTime()))
+	assert.True(t, time.Time.Equal(fn0Stat.ModTime(), fn1Stat.ModTime()))
 }
 
 // assertEqualMTimes comparesfn0 and fn1 modification times to be equal.
@@ -45,7 +45,7 @@ func assertNotEqualMTimes(t *testing.T, FSys *afero.Afero, fn0, fn1 string) {
 	assert.Nil(t, err)
 	fn1Stat, err := FSys.Stat(fn1)
 	assert.Nil(t, err)
-	assert.False(t,time.Time.Equal( fn0Stat.ModTime(), fn1Stat.ModTime()))
+	assert.False(t, time.Time.Equal(fn0Stat.ModTime(), fn1Stat.ModTime()))
 }
 
 func assertFileContent(t *testing.T, FSys *afero.Afero, fName, exp string) {

@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMySecret1(t *testing.T) {

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+//! \file main.c
+
 #include "trice.h"
 
 void TriceCheck(int index);

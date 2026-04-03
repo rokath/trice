@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! \file TargetActivity.c
 //! \brief This file gets compiled into the cgot package only because it exists in the cgot folder.
 //! \details Go func triceLogSpecialTest parses additionally this file to collect the expected results line by line for later test execution.

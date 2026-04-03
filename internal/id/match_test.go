@@ -5,7 +5,7 @@ package id
 import (
 	"testing"
 
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMatchTrice(t *testing.T) {

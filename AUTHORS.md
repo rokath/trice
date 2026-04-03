@@ -13,3 +13,5 @@
   - designed the lovely Trice
 - Rico Herlt [@rherlt](https://2cld.de/)
   - Discussed with me several ideas
+
+See also the contributors on the Github repository.
