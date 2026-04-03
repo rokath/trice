@@ -7691,7 +7691,7 @@ Trice Root Folder File                                                          
 [scripts/_renewIDs_in_examples_and_refresh_test_folder.sh](../scripts/_renewIDs_in_examples_and_refresh_test_folder.sh) | renew all ID data
 [src/](../src)                                                                                      | C sources for trice instrumentation -> Add to target project
 `temp/`                                                                                                                                    | binary logfiles and test logs could appear here, for example under `./temp/log`
-[temp/log/testAll_summary.log](../temp/log/testAll_summary.log)                                     | Summary output of the last `./scripts/testAll.sh` run
+`temp/log/testAll_summary.log`                                                                      | Summary output of the last `./scripts/testAll.sh` run
 [scripts/testAll.sh](../scripts/testAll.sh)                                                                                                 | run all tests
 [third_party/](../third_party)                                                                      | external components
 [trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh)   | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)
