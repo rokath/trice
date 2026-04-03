@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestAliasesInsertion verifies the expected behavior.
 func TestAliasesInsertion(t *testing.T) {
 	defer Setup(t)()
 
@@ -125,6 +126,7 @@ func TestAliasesInsertion(t *testing.T) {
 	assert.Equal(t, expLi, string(actLi))
 }
 
+// TestInsertKnownID verifies the expected behavior.
 func TestInsertKnownID(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -260,6 +262,7 @@ func TestInsertKnownID2(t *testing.T) {
 	FSys.RemoveAll(UserHomeDir)
 }
 
+// TestInsertExistingID_A verifies the expected behavior.
 func TestInsertExistingID_A(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -300,6 +303,7 @@ func TestInsertExistingID_A(t *testing.T) {
 	assert.Equal(t, expLi, string(actLi))
 }
 
+// TestInsertExistingID_B verifies the expected behavior.
 func TestInsertExistingID_B(t *testing.T) {
 
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
@@ -341,6 +345,7 @@ func TestInsertExistingID_B(t *testing.T) {
 	assert.Equal(t, expLi, string(actLi))
 }
 
+// TestInsert99 verifies the expected behavior.
 func TestInsert99(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 	DefaultStampSize = 32
@@ -381,6 +386,7 @@ func TestInsert99(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
+// TestInsert99w verifies the expected behavior.
 func TestInsert99w(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 	DefaultStampSize = 32
@@ -421,6 +427,7 @@ func TestInsert99w(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
+// TestInsert11 verifies the expected behavior.
 func TestInsert11(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -443,6 +450,7 @@ func TestInsert11(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
+// TestInsert2 verifies the expected behavior.
 func TestInsert2(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -498,6 +506,7 @@ func TestInsert2(t *testing.T) {
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
+// TestInsert1 verifies the expected behavior.
 func TestInsert1(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -539,6 +548,7 @@ func TestInsert1(t *testing.T) {
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
+// TestInsert0 verifies the expected behavior.
 func TestInsert0(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -580,6 +590,7 @@ func TestInsert0(t *testing.T) {
 	assert.Equal(t, expTIL, string(actTIL))
 }
 
+// TestInsertWithTickInComment verifies the expected behavior.
 func TestInsertWithTickInComment(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -622,6 +633,7 @@ func TestInsertWithTickInComment(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
+// TestInsertAssertAliasesAndReturnVariants verifies the expected behavior.
 func TestInsertAssertAliasesAndReturnVariants(t *testing.T) {
 	defer Setup(t)()
 
@@ -1245,6 +1257,7 @@ func _TestInsertIDsForNewTrice_Issue_523(t *testing.T) {
 }
 */
 
+// TestInsertWithBrackets verifies the expected behavior.
 func TestInsertWithBrackets(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

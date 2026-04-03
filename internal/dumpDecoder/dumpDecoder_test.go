@@ -37,6 +37,7 @@ func doDUMPtableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool
 	}
 }
 
+// TestDUMP verifies the expected behavior.
 func TestDUMP(t *testing.T) {
 	decoder.DumpLineByteCount = 8
 	tt := decoder.TestTable{ // little endian
@@ -47,6 +48,7 @@ func TestDUMP(t *testing.T) {
 	doDUMPtableTest(t, &out, New, decoder.LittleEndian, tt)
 }
 
+// TestReadWithoutInputReturnsEOF verifies the expected behavior.
 func TestReadWithoutInputReturnsEOF(t *testing.T) {
 	dec := New(io.Discard, nil, nil, nil, nil, decoder.LittleEndian)
 	buf := make([]byte, 16)
@@ -55,6 +57,7 @@ func TestReadWithoutInputReturnsEOF(t *testing.T) {
 	assert.Equal(t, io.EOF, err)
 }
 
+// TestReadWithTooSmallBufferFails verifies the expected behavior.
 func TestReadWithTooSmallBufferFails(t *testing.T) {
 	dec := New(io.Discard, nil, nil, nil, bytes.NewBufferString("x"), decoder.LittleEndian)
 	buf := make([]byte, 3)
@@ -63,6 +66,7 @@ func TestReadWithTooSmallBufferFails(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+// TestReadKeepsLineCounterAcrossReads verifies the expected behavior.
 func TestReadKeepsLineCounterAcrossReads(t *testing.T) {
 	decoder.DumpLineByteCount = 4
 	in := bytes.NewBuffer([]byte{0x01, 0x02, 0x03, 0x04, 0x05})

@@ -10,6 +10,7 @@ import (
 	"github.com/rokath/trice/internal/decoder"
 )
 
+// TestRenderTargetStampColumns16DeltaWraparound verifies the expected behavior.
 func TestRenderTargetStampColumns16DeltaWraparound(t *testing.T) {
 	saved16 := decoder.TargetStamp16
 	saved16Delta := decoder.TargetStamp16Delta
@@ -39,6 +40,7 @@ func TestRenderTargetStampColumns16DeltaWraparound(t *testing.T) {
 	}
 }
 
+// TestRenderBuiltinTargetDeltaUsesTimePrefix verifies the expected behavior.
 func TestRenderBuiltinTargetDeltaUsesTimePrefix(t *testing.T) {
 	saved16Delta := decoder.TargetStamp16Delta
 	saved32Delta := decoder.TargetStamp32Delta
@@ -74,6 +76,7 @@ func TestRenderBuiltinTargetDeltaUsesTimePrefix(t *testing.T) {
 	}
 }
 
+// TestRenderTargetStampColumns32EpochAndDelta verifies the expected behavior.
 func TestRenderTargetStampColumns32EpochAndDelta(t *testing.T) {
 	saved32 := decoder.TargetStamp32
 	saved32Delta := decoder.TargetStamp32Delta
@@ -103,6 +106,7 @@ func TestRenderTargetStampColumns32EpochAndDelta(t *testing.T) {
 	}
 }
 
+// TestRenderTargetDeltaFallsBackToCommonPlaceholder verifies the expected behavior.
 func TestRenderTargetDeltaFallsBackToCommonPlaceholder(t *testing.T) {
 	saved0Delta := decoder.TargetStamp0Delta
 	saved16Delta := decoder.TargetStamp16Delta
@@ -124,6 +128,7 @@ func TestRenderTargetDeltaFallsBackToCommonPlaceholder(t *testing.T) {
 	}
 }
 
+// TestRenderTargetDeltaComputesCommonPlaceholderWithoutTs0Delta verifies the expected behavior.
 func TestRenderTargetDeltaComputesCommonPlaceholderWithoutTs0Delta(t *testing.T) {
 	saved0Delta := decoder.TargetStamp0Delta
 	saved16Delta := decoder.TargetStamp16Delta
@@ -152,6 +157,7 @@ func TestRenderTargetDeltaComputesCommonPlaceholderWithoutTs0Delta(t *testing.T)
 	}
 }
 
+// TestRenderTargetDeltaExplicitEmptyDisablesTs16Placeholder verifies the expected behavior.
 func TestRenderTargetDeltaExplicitEmptyDisablesTs16Placeholder(t *testing.T) {
 	saved16Delta := decoder.TargetStamp16Delta
 	saved32Delta := decoder.TargetStamp32Delta
@@ -175,6 +181,7 @@ func TestRenderTargetDeltaExplicitEmptyDisablesTs16Placeholder(t *testing.T) {
 	}
 }
 
+// TestRenderTargetDeltaExplicitEmptyDisablesTs32Placeholder verifies the expected behavior.
 func TestRenderTargetDeltaExplicitEmptyDisablesTs32Placeholder(t *testing.T) {
 	saved16Delta := decoder.TargetStamp16Delta
 	saved32Delta := decoder.TargetStamp32Delta
@@ -198,6 +205,7 @@ func TestRenderTargetDeltaExplicitEmptyDisablesTs32Placeholder(t *testing.T) {
 	}
 }
 
+// TestRenderTargetDeltaExplicitEmptyDisablesTs0Placeholder verifies the expected behavior.
 func TestRenderTargetDeltaExplicitEmptyDisablesTs0Placeholder(t *testing.T) {
 	saved0Delta := decoder.TargetStamp0Delta
 	saved16Delta := decoder.TargetStamp16Delta
@@ -218,6 +226,7 @@ func TestRenderTargetDeltaExplicitEmptyDisablesTs0Placeholder(t *testing.T) {
 	}
 }
 
+// TestTargetStampDisplayWidthUsesGenericTagPrefix verifies the expected behavior.
 func TestTargetStampDisplayWidthUsesGenericTagPrefix(t *testing.T) {
 	if got := targetStampDisplayWidth(4, "time:%12d"); got != 12 {
 		t.Fatalf("unexpected display width for time tag: %d", got)
@@ -230,6 +239,7 @@ func TestTargetStampDisplayWidthUsesGenericTagPrefix(t *testing.T) {
 	}
 }
 
+// TestTargetStampDisplayWidthKeepsUppercaseTagPrefix verifies the expected behavior.
 func TestTargetStampDisplayWidthKeepsUppercaseTagPrefix(t *testing.T) {
 	if got := targetStampDisplayWidth(4, "Time:%12d"); got != len("Time:")+12 {
 		t.Fatalf("unexpected display width for uppercase tag: %d", got)
@@ -239,6 +249,7 @@ func TestTargetStampDisplayWidthKeepsUppercaseTagPrefix(t *testing.T) {
 	}
 }
 
+// TestAutoTargetStamp0Delta verifies the expected behavior.
 func TestAutoTargetStamp0Delta(t *testing.T) {
 	saved0Delta := decoder.TargetStamp0Delta
 	saved16Delta := decoder.TargetStamp16Delta

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestCleanAndInsert verifies the expected behavior.
 func TestCleanAndInsert(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -71,6 +72,7 @@ func TestCleanAndInsert(t *testing.T) {
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
+// TestCleanAndInsertPackedTrices verifies the expected behavior.
 func TestCleanAndInsertPackedTrices(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -125,6 +127,7 @@ TRice(iD(9), "");`
 	assert.Equal(t, expSrc1, string(actSrc1))
 }
 
+// TestCleanAndInsert2Files verifies the expected behavior.
 func TestCleanAndInsert2Files(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

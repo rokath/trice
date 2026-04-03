@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 package link
 
 import (
@@ -24,6 +26,7 @@ func (r removingFs) Remove(name string) error {
 	return fmt.Errorf("removed %s", filepath.Base(name))
 }
 
+// TestNewDeviceJLinkDefaults verifies the default JLink constructor fills required arguments and cleans up temporary files.
 func TestNewDeviceJLinkDefaults(t *testing.T) {
 	t.Helper()
 
@@ -82,6 +85,7 @@ func TestNewDeviceJLinkDefaults(t *testing.T) {
 	}
 }
 
+// hasArg reports whether the argument list contains the named option.
 func hasArg(args []string, name string) bool {
 	for _, arg := range args {
 		if strings.EqualFold(arg, name) {

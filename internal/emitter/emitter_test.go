@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestSetPrefixCOMn verifies the expected behavior.
 func TestSetPrefixCOMn(t *testing.T) {
 	Prefix = "source:"
 	receiver.Port = "COM3"
@@ -19,6 +20,7 @@ func TestSetPrefixCOMn(t *testing.T) {
 	assert.Equal(t, "COM3:", Prefix)
 }
 
+// TestSetPrefix2 verifies the expected behavior.
 func TestSetPrefix2(t *testing.T) {
 	Prefix = "MySpecialDevice:"
 	receiver.Port = "COM3"
@@ -26,6 +28,7 @@ func TestSetPrefix2(t *testing.T) {
 	assert.Equal(t, "MySpecialDevice:", Prefix)
 }
 
+// TestSetPrefixNone verifies the expected behavior.
 func TestSetPrefixNone(t *testing.T) {
 	Prefix = "none"
 	receiver.Port = "COM3"
@@ -33,6 +36,7 @@ func TestSetPrefixNone(t *testing.T) {
 	assert.Equal(t, "", Prefix)
 }
 
+// TestNew verifies the expected behavior.
 func TestNew(t *testing.T) {
 	var out bytes.Buffer
 	_ = New(&out)

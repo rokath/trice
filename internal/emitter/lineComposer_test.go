@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Test2LineComposer verifies the expected behavior.
 func Test2LineComposer(t *testing.T) {
 	// prepare
 	lw := newCheckDisplay()
@@ -40,6 +41,7 @@ func Test2LineComposer(t *testing.T) {
 	lw.lines = lw.lines[:0]
 }
 
+// TestLineComposer verifies the expected behavior.
 func TestLineComposer(t *testing.T) {
 	// prepare
 	lw := newCheckDisplay()

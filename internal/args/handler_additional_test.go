@@ -24,6 +24,7 @@ type versionState struct {
 	Verbose   bool
 }
 
+// snapshotVersionState captures version-related global state so tests can restore it afterwards.
 func snapshotVersionState() versionState {
 	return versionState{
 		Version:   Version,
@@ -37,6 +38,7 @@ func snapshotVersionState() versionState {
 	}
 }
 
+// restoreVersionState restores version-related global state from a saved snapshot.
 func restoreVersionState(s versionState) {
 	Version = s.Version
 	Commit = s.Commit
@@ -48,6 +50,7 @@ func restoreVersionState(s versionState) {
 	Verbose = s.Verbose
 }
 
+// TestScVersionDevFallback verifies the expected behavior.
 func TestScVersionDevFallback(t *testing.T) {
 	old := snapshotVersionState()
 	defer restoreVersionState(old)
@@ -67,6 +70,7 @@ func TestScVersionDevFallback(t *testing.T) {
 	assert.Equal(t, "version=dev (no build info)\n", out.String())
 }
 
+// TestScVersionReleaseOutput verifies the expected behavior.
 func TestScVersionReleaseOutput(t *testing.T) {
 	old := snapshotVersionState()
 	defer restoreVersionState(old)
@@ -86,6 +90,7 @@ func TestScVersionReleaseOutput(t *testing.T) {
 	assert.Equal(t, "version=1.2.3, commit=abc1234, built at 2026-02-21T12:00:00Z (built by ci)\n", out.String())
 }
 
+// TestScVersionBranchFallbackAndDirtyList verifies the expected behavior.
 func TestScVersionBranchFallbackAndDirtyList(t *testing.T) {
 	old := snapshotVersionState()
 	defer restoreVersionState(old)
@@ -110,6 +115,7 @@ func TestScVersionBranchFallbackAndDirtyList(t *testing.T) {
 	assert.Contains(t, s, "  ?? internal/args/new_test.go\n")
 }
 
+// TestIsLogFlagPassed verifies the expected behavior.
 func TestIsLogFlagPassed(t *testing.T) {
 	FlagsInit()
 	err := fsScLog.Parse([]string{"-ts32", "ms", "-encoding", "CHAR"})
@@ -119,6 +125,7 @@ func TestIsLogFlagPassed(t *testing.T) {
 	assert.False(t, isLogFlagPassed("ts16"))
 }
 
+// TestInfoHelpersWriteText verifies the expected behavior.
 func TestInfoHelpersWriteText(t *testing.T) {
 	FlagsInit()
 	tt := []struct {
@@ -147,6 +154,7 @@ func TestInfoHelpersWriteText(t *testing.T) {
 	}
 }
 
+// TestScHelpWithSelectedSections verifies the expected behavior.
 func TestScHelpWithSelectedSections(t *testing.T) {
 	FlagsInit()
 	allHelp = false
@@ -167,6 +175,7 @@ func TestScHelpWithSelectedSections(t *testing.T) {
 	assert.Contains(t, s, "sub-command 'h|help'")
 }
 
+// TestHandlerVersionSubcommands verifies the expected behavior.
 func TestHandlerVersionSubcommands(t *testing.T) {
 	old := snapshotVersionState()
 	defer restoreVersionState(old)
@@ -190,6 +199,7 @@ func TestHandlerVersionSubcommands(t *testing.T) {
 	}
 }
 
+// TestHandlerGenerateWithoutParameters verifies the expected behavior.
 func TestHandlerGenerateWithoutParameters(t *testing.T) {
 	FlagsInit()
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -199,6 +209,7 @@ func TestHandlerGenerateWithoutParameters(t *testing.T) {
 	assert.Contains(t, out.String(), `The "trice generate" command needs at least one parameter.`)
 }
 
+// TestHandlerAddInsertCleanOnMissingSource verifies the expected behavior.
 func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	assert.Nil(t, fSys.WriteFile("til.json", []byte("{}"), 0o644))

@@ -15,6 +15,7 @@ import (
 	"time"
 )
 
+// requireWindowsTCPTestsEnabled skips the test unless the Windows TCP test environment is enabled.
 func requireWindowsTCPTestsEnabled(t *testing.T) {
 	t.Helper()
 	// These TCP listener tests intentionally open a local server socket.
@@ -73,6 +74,7 @@ type emitterSnapshot struct {
 	logFlags        int
 }
 
+// cloneTags copies the current tag state into a stable snapshot for restoration.
 func cloneTags(src []tag) []tagSnapshot {
 	dst := make([]tagSnapshot, len(src))
 	for i := range src {
@@ -85,6 +87,7 @@ func cloneTags(src []tag) []tagSnapshot {
 	return dst
 }
 
+// restoreTags restores tag state from a saved snapshot.
 func restoreTags(src []tagSnapshot) {
 	Tags = make([]tag, len(src))
 	for i := range src {
@@ -96,6 +99,7 @@ func restoreTags(src []tagSnapshot) {
 	}
 }
 
+// snapshotEmitterState captures emitter package globals so tests can restore them afterwards.
 func snapshotEmitterState() emitterSnapshot {
 	return emitterSnapshot{
 		verbose:         Verbose,
@@ -119,6 +123,7 @@ func snapshotEmitterState() emitterSnapshot {
 	}
 }
 
+// restoreEmitterState restores emitter package globals from a saved snapshot.
 func restoreEmitterState(s emitterSnapshot) {
 	Verbose = s.verbose
 	HostStamp = s.hostStamp
@@ -140,6 +145,7 @@ func restoreEmitterState(s emitterSnapshot) {
 	log.SetFlags(s.logFlags)
 }
 
+// pickLoopbackAddr returns an available loopback address for TCP-based tests.
 func pickLoopbackAddr(t *testing.T) string {
 	t.Helper()
 	l, err := net.Listen("tcp", "127.0.0.1:0")
@@ -151,6 +157,7 @@ func pickLoopbackAddr(t *testing.T) string {
 	return addr
 }
 
+// waitForTCPListener waits until the TCP listener is ready to accept connections.
 func waitForTCPListener(t *testing.T, addr string) {
 	t.Helper()
 	deadline := time.Now().Add(2 * time.Second)
@@ -167,6 +174,7 @@ func waitForTCPListener(t *testing.T, addr string) {
 	}
 }
 
+// TestAppendIfMissing verifies the expected behavior.
 func TestAppendIfMissing(t *testing.T) {
 	got := appendIfMissing([]string{"a", "b"}, "c")
 	if len(got) != 3 || got[2] != "c" {
@@ -179,6 +187,7 @@ func TestAppendIfMissing(t *testing.T) {
 	}
 }
 
+// TestChannelArrayFlagSetAddsUniqueVariants verifies the expected behavior.
 func TestChannelArrayFlagSetAddsUniqueVariants(t *testing.T) {
 	var f channelArrayFlag
 	if err := f.Set("msg:msg:inf"); err != nil {
@@ -196,6 +205,7 @@ func TestChannelArrayFlagSetAddsUniqueVariants(t *testing.T) {
 	}
 }
 
+// TestArrayFlagSetAndString verifies the expected behavior.
 func TestArrayFlagSetAndString(t *testing.T) {
 	var f ArrayFlag
 	if err := f.Set("first"); err != nil {
@@ -212,6 +222,7 @@ func TestArrayFlagSetAndString(t *testing.T) {
 	}
 }
 
+// TestChannelArrayFlagString verifies the expected behavior.
 func TestChannelArrayFlagString(t *testing.T) {
 	f := channelArrayFlag{"a", "b"}
 	if got := f.String(); got != "[a b]" {
@@ -219,6 +230,7 @@ func TestChannelArrayFlagString(t *testing.T) {
 	}
 }
 
+// TestBanOrPickFilterWrapper verifies the expected behavior.
 func TestBanOrPickFilterWrapper(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -231,6 +243,7 @@ func TestBanOrPickFilterWrapper(t *testing.T) {
 	}
 }
 
+// TestBanOrPickFilterUsesFunctionArgs verifies the expected behavior.
 func TestBanOrPickFilterUsesFunctionArgs(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -244,6 +257,7 @@ func TestBanOrPickFilterUsesFunctionArgs(t *testing.T) {
 	}
 }
 
+// TestAddUserLabelsIsIdempotent verifies the expected behavior.
 func TestAddUserLabelsIsIdempotent(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -265,6 +279,7 @@ func TestAddUserLabelsIsIdempotent(t *testing.T) {
 	}
 }
 
+// TestColorizeGlobalFunctionPaths verifies the expected behavior.
 func TestColorizeGlobalFunctionPaths(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -286,6 +301,7 @@ func TestColorizeGlobalFunctionPaths(t *testing.T) {
 	}
 }
 
+// TestPrintTagStatisticsGuardAndContent verifies the expected behavior.
 func TestPrintTagStatisticsGuardAndContent(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -306,6 +322,7 @@ func TestPrintTagStatisticsGuardAndContent(t *testing.T) {
 	}
 }
 
+// TestTagEvents verifies the expected behavior.
 func TestTagEvents(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -321,6 +338,7 @@ func TestTagEvents(t *testing.T) {
 	}
 }
 
+// TestLineComposerWriteAndTimestampFormats verifies the expected behavior.
 func TestLineComposerWriteAndTimestampFormats(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -351,6 +369,7 @@ func TestLineComposerWriteAndTimestampFormats(t *testing.T) {
 	}
 }
 
+// TestDisplayServerRPCMethodsDirect verifies the expected behavior.
 func TestDisplayServerRPCMethodsDirect(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -385,6 +404,7 @@ func TestDisplayServerRPCMethodsDirect(t *testing.T) {
 	}
 }
 
+// TestRemoteDisplayConnectAlreadyConnected verifies the expected behavior.
 func TestRemoteDisplayConnectAlreadyConnected(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -404,6 +424,7 @@ func TestRemoteDisplayConnectAlreadyConnected(t *testing.T) {
 	}
 }
 
+// TestRemoteDisplayWriteLineOverRPC verifies the expected behavior.
 func TestRemoteDisplayWriteLineOverRPC(t *testing.T) {
 	requireWindowsTCPTestsEnabled(t)
 
@@ -455,6 +476,7 @@ func TestRemoteDisplayWriteLineOverRPC(t *testing.T) {
 	}
 }
 
+// TestShowAllColorsSmoke verifies the expected behavior.
 func TestShowAllColorsSmoke(t *testing.T) {
 	origStdout := os.Stdout
 	r, w, err := os.Pipe()
@@ -482,6 +504,7 @@ func TestShowAllColorsSmoke(t *testing.T) {
 	}
 }
 
+// TestScDisplayServerStartAndShutdown verifies the expected behavior.
 func TestScDisplayServerStartAndShutdown(t *testing.T) {
 	requireWindowsTCPTestsEnabled(t)
 

@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Test_computeValues verifies the expected behavior.
 func Test_computeValues(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -59,6 +60,7 @@ func Test_computeValues(t *testing.T) {
 
 }
 
+// TestConstructFullTriceInfo verifies the expected behavior.
 func TestConstructFullTriceInfo(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

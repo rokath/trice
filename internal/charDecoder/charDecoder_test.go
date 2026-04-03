@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// readAllViaDecoder reads all available decoder output using the provided chunk size.
 func readAllViaDecoder(t *testing.T, dec decoder.Decoder, chunkSize int) string {
 	t.Helper()
 	buf := make([]byte, chunkSize)
@@ -30,6 +31,7 @@ func readAllViaDecoder(t *testing.T, dec decoder.Decoder, chunkSize int) string 
 	}
 }
 
+// TestNewInitializesDecoderData verifies the expected behavior.
 func TestNewInitializesDecoderData(t *testing.T) {
 	var out bytes.Buffer
 	in := strings.NewReader("abc")
@@ -51,6 +53,7 @@ func TestNewInitializesDecoderData(t *testing.T) {
 	assert.Equal(t, decoder.BigEndian, p.Endian)
 }
 
+// TestReadPassThrough verifies the expected behavior.
 func TestReadPassThrough(t *testing.T) {
 	var out bytes.Buffer
 	in := strings.NewReader("ABC012")
@@ -59,6 +62,7 @@ func TestReadPassThrough(t *testing.T) {
 	assert.Equal(t, "ABC012", readAllViaDecoder(t, dec, 2))
 }
 
+// TestSetInputSwitchesReader verifies the expected behavior.
 func TestSetInputSwitchesReader(t *testing.T) {
 	var out bytes.Buffer
 	dec := New(&out, nil, nil, nil, strings.NewReader("first"), decoder.LittleEndian)
@@ -69,6 +73,7 @@ func TestSetInputSwitchesReader(t *testing.T) {
 	assert.Equal(t, "second", readAllViaDecoder(t, dec, 8))
 }
 
+// TestReadWithoutInputReturnsEOF verifies the expected behavior.
 func TestReadWithoutInputReturnsEOF(t *testing.T) {
 	var out bytes.Buffer
 	dec := New(&out, nil, nil, nil, nil, decoder.LittleEndian)

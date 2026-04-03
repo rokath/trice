@@ -23,6 +23,7 @@ import (
 	"github.com/spf13/afero"
 )
 
+// requireWindowsTCPTestsEnabled skips the test unless the Windows TCP test environment is enabled.
 func requireWindowsTCPTestsEnabled(t *testing.T) {
 	t.Helper()
 	// These TCP listener tests intentionally open a local server socket.
@@ -62,6 +63,7 @@ type doGlobalsSnapshot struct {
 	colorPalette      string
 }
 
+// snapshotDoGlobals captures do package globals so a test can restore them afterwards.
 func snapshotDoGlobals() doGlobalsSnapshot {
 	return doGlobalsSnapshot{
 		tcpOutAddr:        TCPOutAddr,
@@ -83,6 +85,7 @@ func snapshotDoGlobals() doGlobalsSnapshot {
 	}
 }
 
+// restoreDoGlobals restores do package globals from a saved snapshot.
 func restoreDoGlobals(s doGlobalsSnapshot) {
 	TCPOutAddr = s.tcpOutAddr
 	Verbose = s.verbose
@@ -102,11 +105,13 @@ func restoreDoGlobals(s doGlobalsSnapshot) {
 	emitter.ColorPalette = s.colorPalette
 }
 
+// setupValidIDRange prepares a valid ID range for tests that depend on global ID settings.
 func setupValidIDRange() {
 	id.Min = 1
 	id.Max = 10
 }
 
+// TestDistributeArgsSetsGlobalFlagsAndStampID verifies the expected behavior.
 func TestDistributeArgsSetsGlobalFlagsAndStampID(t *testing.T) {
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
@@ -135,6 +140,7 @@ func TestDistributeArgsSetsGlobalFlagsAndStampID(t *testing.T) {
 	}
 }
 
+// TestDistributeArgsFallsBackForNilWriterAndNilFs verifies the expected behavior.
 func TestDistributeArgsFallsBackForNilWriterAndNilFs(t *testing.T) {
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
@@ -150,6 +156,7 @@ func TestDistributeArgsFallsBackForNilWriterAndNilFs(t *testing.T) {
 	}
 }
 
+// TestEvaluateColorPaletteUnknownFallsBackToDefault verifies the expected behavior.
 func TestEvaluateColorPaletteUnknownFallsBackToDefault(t *testing.T) {
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
@@ -166,6 +173,7 @@ func TestEvaluateColorPaletteUnknownFallsBackToDefault(t *testing.T) {
 	}
 }
 
+// TestTriceOutputOffSkipsLogfileCreation verifies the expected behavior.
 func TestTriceOutputOffSkipsLogfileCreation(t *testing.T) {
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
@@ -187,6 +195,7 @@ func TestTriceOutputOffSkipsLogfileCreation(t *testing.T) {
 	}
 }
 
+// TestTriceOutputAutoCreatesTimestampedLogfile verifies the expected behavior.
 func TestTriceOutputAutoCreatesTimestampedLogfile(t *testing.T) {
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
@@ -223,6 +232,7 @@ func TestTriceOutputAutoCreatesTimestampedLogfile(t *testing.T) {
 	}
 }
 
+// TestTCPWriterWithoutAddressReturnsDiscardWriter verifies the expected behavior.
 func TestTCPWriterWithoutAddressReturnsDiscardWriter(t *testing.T) {
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
@@ -238,6 +248,7 @@ func TestTCPWriterWithoutAddressReturnsDiscardWriter(t *testing.T) {
 	}
 }
 
+// pickLoopbackAddr returns an available loopback address for TCP-based tests.
 func pickLoopbackAddr(t *testing.T) string {
 	t.Helper()
 	l, err := net.Listen("tcp", "127.0.0.1:0")
@@ -251,6 +262,7 @@ func pickLoopbackAddr(t *testing.T) string {
 	return addr
 }
 
+// connectWithRetry connects to the TCP endpoint with retries until it becomes reachable.
 func connectWithRetry(t *testing.T, addr string) net.Conn {
 	t.Helper()
 	deadline := time.Now().Add(2 * time.Second)
@@ -266,6 +278,7 @@ func connectWithRetry(t *testing.T, addr string) net.Conn {
 	}
 }
 
+// TestTCPWriterWithAddressReturnsConnAndForwardsWrites verifies the expected behavior.
 func TestTCPWriterWithAddressReturnsConnAndForwardsWrites(t *testing.T) {
 	requireWindowsTCPTestsEnabled(t)
 
@@ -305,6 +318,7 @@ func TestTCPWriterWithAddressReturnsConnAndForwardsWrites(t *testing.T) {
 	}
 }
 
+// TestTCPWriterVerboseSendsGreeting verifies the expected behavior.
 func TestTCPWriterVerboseSendsGreeting(t *testing.T) {
 	requireWindowsTCPTestsEnabled(t)
 

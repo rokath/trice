@@ -8,6 +8,7 @@ import (
 	"testing"
 )
 
+// TestHelpAll verifies the expected behavior.
 func TestHelpAll(t *testing.T) {
 	got, err := RenderHelpText("-all")
 	if err != nil {
@@ -31,6 +32,7 @@ func TestHelpAll(t *testing.T) {
 	}
 }
 
+// TestGeneratedHelpAllDocIsUpToDate verifies the expected behavior.
 func TestGeneratedHelpAllDocIsUpToDate(t *testing.T) {
 	got, err := RenderHelpText("-all")
 	if err != nil {
