@@ -18,9 +18,11 @@
 #   - Simple integration into GitHub Actions
 #
 # Usage:
-#   ./clang-format.sh           # defaults to CHECK mode
-#   ./clang-format.sh check     # explicit CHECK mode
-#   ./clang-format.sh format    # FORMAT mode (modify files)
+#   ./scripts/_format_c_code.sh                 # defaults to FORMAT mode
+#   ./scripts/_format_c_code.sh check           # explicit CHECK mode
+#   ./scripts/_format_c_code.sh format          # FORMAT mode (modify files)
+#   ./scripts/_format_c_code.sh check --verbose
+#   ./scripts/_format_c_code.sh format --verbose
 #
 # Environment:
 #   CLANG_FILTER_CMD can override how clang-filter is invoked.
@@ -38,16 +40,24 @@ cd "$REPO_ROOT" || exit 1
 ###############################################################################
 # 1. Decide which mode we run in — FORMAT or CHECK
 ###############################################################################
-MODE="${1:-check}" # default mode is CHECK if no argument is given
+MODE="format"
+VERBOSE=0
 
-case "$MODE" in
-format | check) ;;
-*)
-  echo "Unknown mode: '$MODE'"
-  echo "Usage: $0 [format|check]"
-  exit 2
-  ;;
-esac
+for arg in "$@"; do
+  case "$arg" in
+  format | check)
+    MODE="$arg"
+    ;;
+  -v | --verbose)
+    VERBOSE=1
+    ;;
+  *)
+    echo "Unknown argument: '$arg'"
+    echo "Usage: $0 [format|check] [--verbose]"
+    exit 2
+    ;;
+  esac
+done
 
 ###############################################################################
 # 2. Define how clang-filter should be invoked.
@@ -83,7 +93,6 @@ ALL_FILES="$(
 )"
 
 if [ -z "$ALL_FILES" ]; then
-  echo "clang-format: No tracked C/C++ files found."
   exit 0
 fi
 
@@ -99,17 +108,12 @@ FILTERED_FILES=()
 
 while IFS= read -r f; do
   # Skip empty lines (just in case)
-  [ -n "$f" ] && FILTERED_FILES+=("$f")
+  [ -n "$f" ] && [ -e "$f" ] && FILTERED_FILES+=("$f")
 done < <(printf '%s\n' "$ALL_FILES" | $CLANG_FILTER_CMD)
 
 if [ "${#FILTERED_FILES[@]}" -eq 0 ]; then
-  echo "clang-format: No files remain after applying .clang-format-ignore."
   exit 0
 fi
-
-echo "clang-format: The following files will be processed:"
-printf "  %s\n" "${FILTERED_FILES[@]}"
-echo
 
 ###############################################################################
 # 5. FORMAT MODE — apply clang-format in-place (-i)
@@ -117,9 +121,19 @@ echo
 # Used locally before committing changes.
 ###############################################################################
 if [ "$MODE" = "format" ]; then
-  echo "clang-format: Running in FORMAT mode (in-place changes)."
+  if [ "${#FILTERED_FILES[@]}" -eq 0 ]; then
+    exit 0
+  fi
+  if [ "$VERBOSE" -eq 1 ]; then
+    echo "clang-format: The following files will be processed:"
+    printf "  %s\n" "${FILTERED_FILES[@]}"
+    echo
+    echo "clang-format: Running in FORMAT mode (in-place changes)."
+  fi
   clang-format -style=file -i "${FILTERED_FILES[@]}"
-  echo "clang-format: Formatting completed."
+  if [ "$VERBOSE" -eq 1 ]; then
+    echo "clang-format: Formatting completed."
+  fi
   exit 0
 fi
 
@@ -132,13 +146,10 @@ fi
 #   - Print GitHub Actions annotations via "::error file=..."
 #   - Exit with code 1 if any file fails (so CI fails properly)
 ###############################################################################
-echo "clang-format: Running in CHECK mode (no changes)."
 FORMAT_ERRORS=0
 NEEDS_FORMAT=()
 
 for f in "${FILTERED_FILES[@]}"; do
-  echo "Checking $f"
-
   # clang-format outputs an XML diff where <replacement> tags represent
   # formatting operations that *would* be applied. If any are found,
   # the file is not correctly formatted.
@@ -150,16 +161,14 @@ for f in "${FILTERED_FILES[@]}"; do
   fi
 done
 
-echo
-
 if [ "$FORMAT_ERRORS" -ne 0 ]; then
-  echo "clang-format: The following files require formatting:"
+  echo "not ok - C/C++ files require formatting"
   printf "  %s\n" "${NEEDS_FORMAT[@]}"
-  echo
-  echo "To fix them locally, run:"
-  echo "  ./clang-format.sh format"
+  if [ "$VERBOSE" -eq 1 ]; then
+    echo
+  fi
+  echo "To fix them locally, run: ./scripts/_format_c_code.sh format"
   exit 1
 fi
 
-echo "clang-format: All files are correctly formatted."
 exit 0

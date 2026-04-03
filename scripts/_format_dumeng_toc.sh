@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-# format_dumeng_toc.sh
+# _format_dumeng_toc.sh
 #
 # Purpose
 # -------
@@ -28,13 +28,28 @@
 #
 # Usage
 # -----
-#   format_dumeng_toc.sh
-#   format_dumeng_toc.sh path/to/file.md
+#   _format_dumeng_toc.sh
+#   _format_dumeng_toc.sh check
+#   _format_dumeng_toc.sh format
+#   _format_dumeng_toc.sh check path/to/file.md
+#   _format_dumeng_toc.sh format path/to/file.md
 # ==============================================================================
 
 set -euo pipefail
 
-FILE="${1:-docs/TriceUserManual.md}"
+MODE="format"
+FILE="docs/TriceUserManual.md"
+
+for arg in "$@"; do
+  case "$arg" in
+  format | check)
+    MODE="$arg"
+    ;;
+  *)
+    FILE="$arg"
+    ;;
+  esac
+done
 
 if [[ ! -f "$FILE" ]]; then
   echo "ERROR: File not found: $FILE" >&2
@@ -132,5 +147,16 @@ function move_number_into_link(line,    leadLen, lead, rest, cut, num, afterNum,
 }
 ' "$FILE" >"$TMP"
 
+if cmp -s "$FILE" "$TMP"; then
+  rm -f "$TMP"
+  exit 0
+fi
+
+if [[ "$MODE" == "check" ]]; then
+  echo "not ok - file requires TOC/anchor normalization: $FILE"
+  echo "To fix it locally, run: ./scripts/_format_dumeng_toc.sh format $FILE"
+  rm -f "$TMP"
+  exit 1
+fi
+
 mv "$TMP" "$FILE"
-echo "Updated: $FILE"
