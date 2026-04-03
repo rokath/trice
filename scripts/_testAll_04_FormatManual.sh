@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Step 04: Updates the manual TOC.
+# Step 04: Checks the manual TOC formatting.
 #
 # Direct invocation:
 # - ./_testAll_04_FormatManual.sh
@@ -14,8 +14,8 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
   init_logfile
-  run_cmd "$SCRIPTS_DIR/format_dumeng_toc.sh" || {
-    log "FAIL: format_dumeng_toc.sh failed"
+  run_cmd "$SCRIPTS_DIR/_format_dumeng_toc.sh" check || {
+    log "FAIL: _format_dumeng_toc.sh check failed"
     exit 1
   }
 }

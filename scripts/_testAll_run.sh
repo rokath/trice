@@ -51,10 +51,13 @@ main() {
   local finished_at
   local duration
   local failed=0
+  local initial_tracked_status
+  local final_tracked_status
   selected="$(get_mode "${1:-quick}")"
   export SELECTED="$selected"
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
   started_at=$(date +%s)
+  initial_tracked_status="$(tracked_worktree_status)"
 
   : >"$SUMMARY_LOG"
   summary_line "Starting testAll at $(date)"
@@ -74,6 +77,20 @@ main() {
   run_step "_testAll_12_GccExampleBuilds.sh" || failed=1
   if [ "$selected" = "full" ]; then
     run_step "_testAll_13_L432Configs.sh" || failed=1
+  fi
+
+  final_tracked_status="$(tracked_worktree_status)"
+  if [ "$final_tracked_status" != "$initial_tracked_status" ]; then
+    failed=1
+    summary_line "Result detail: tracked worktree changed during testAll"
+    if [ -n "$final_tracked_status" ]; then
+      summary_line "Tracked status after run:"
+      while IFS= read -r line; do
+        [ -n "$line" ] && summary_line "  $line"
+      done <<EOF
+$final_tracked_status
+EOF
+    fi
   fi
 
   finished_at=$(date +%s)
