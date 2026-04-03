@@ -251,7 +251,8 @@ export_clang_cross_env() {
     clang_sys_includes=$(join_as_isystem_flags $include_dirs)
     export CLANG_SYS_INCLUDES="$clang_sys_includes"
     # shellcheck disable=SC2086
-    export C_INCLUDE_PATH="$(prepend_colon_path_list "${C_INCLUDE_PATH:-}" $include_dirs)"
+    C_INCLUDE_PATH="$(prepend_colon_path_list "${C_INCLUDE_PATH:-}" $include_dirs)"
+    export C_INCLUDE_PATH
     log_info "Set CLANG_SYS_INCLUDES=$CLANG_SYS_INCLUDES"
   else
     log_warn "Could not auto-detect ARM include directories for clang."
