@@ -4,7 +4,7 @@
 # 
 # Developers can fix formatting locally by running:
 # 
-# shfmt -w .
+# ./scripts/format_shell_scripts.sh format
 
 name: "shfmt (Shell Formatting)"
 
@@ -27,9 +27,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y shfmt
 
-      - name: Run shfmt in diff mode
+      - name: Run shfmt in check mode
         run: |
-          # Check formatting of all shell scripts.
-          # -d prints a diff if formatting does not match.
-          # This does NOT change files, it only fails the job if formatting is off.
-          shfmt -d .
+          chmod +x ./scripts/format_shell_scripts.sh
+          ./scripts/format_shell_scripts.sh check

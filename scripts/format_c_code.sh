@@ -38,16 +38,15 @@ cd "$REPO_ROOT" || exit 1
 ###############################################################################
 # 1. Decide which mode we run in — FORMAT or CHECK
 ###############################################################################
-MODE="${1:-check}"   # default mode is CHECK if no argument is given
+MODE="${1:-check}" # default mode is CHECK if no argument is given
 
 case "$MODE" in
-  format|check)
-    ;;
-  *)
-    echo "Unknown mode: '$MODE'"
-    echo "Usage: $0 [format|check]"
-    exit 2
-    ;;
+format | check) ;;
+*)
+  echo "Unknown mode: '$MODE'"
+  echo "Usage: $0 [format|check]"
+  exit 2
+  ;;
 esac
 
 ###############################################################################

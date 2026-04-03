@@ -24,7 +24,10 @@ main() {
   local rc
   init_logfile
   trap cleanup_step EXIT
-  source "$SCRIPTS_DIR/_setup_build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: _setup_build_environment.sh failed"; exit 1; }
+  source "$SCRIPTS_DIR/_setup_build_environment.sh" >>"$LOGFILE" 2>&1 || {
+    log "FAIL: _setup_build_environment.sh failed"
+    exit 1
+  }
   if ! has_command arm-none-eabi-gcc; then
     log "MISSING TOOL: arm-none-eabi-gcc"
     log "SKIP: arm-none-eabi-gcc not installed"
@@ -32,9 +35,15 @@ main() {
   fi
   run_cmd arm-none-eabi-gcc --version || true
   run_cmd which arm-none-eabi-gcc || true
-  run_cmd "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || { log "FAIL: insert IDs failed"; exit 1; }
+  run_cmd "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || {
+    log "FAIL: insert IDs failed"
+    exit 1
+  }
   ids_inserted=1
-  run_cmd "$ROOT/examples/cleanAllTargets.sh" || { log "FAIL: cleanAllTargets.sh failed before TRICE_OFF"; exit 1; }
+  run_cmd "$ROOT/examples/cleanAllTargets.sh" || {
+    log "FAIL: cleanAllTargets.sh failed before TRICE_OFF"
+    exit 1
+  }
   (
     cd "$ROOT/examples" || exit 1
     ./buildAllTargets_TRICE_OFF.sh
@@ -48,7 +57,10 @@ main() {
     log "FAIL: TRICE_OFF builds reported warnings or errors"
     exit 2
   fi
-  run_cmd "$ROOT/examples/cleanAllTargets.sh" || { log "FAIL: cleanAllTargets.sh failed after TRICE_OFF"; exit 1; }
+  run_cmd "$ROOT/examples/cleanAllTargets.sh" || {
+    log "FAIL: cleanAllTargets.sh failed after TRICE_OFF"
+    exit 1
+  }
   (
     cd "$ROOT/examples" || exit 1
     ./buildAllTargets_TRICE_ON.sh
@@ -62,7 +74,10 @@ main() {
     log "FAIL: TRICE_ON builds reported warnings or errors"
     exit 2
   fi
-  run_cmd "$ROOT/examples/cleanAllTargets.sh" || { log "FAIL: cleanAllTargets.sh failed after TRICE_ON"; exit 1; }
+  run_cmd "$ROOT/examples/cleanAllTargets.sh" || {
+    log "FAIL: cleanAllTargets.sh failed after TRICE_ON"
+    exit 1
+  }
 }
 
 ids_inserted=0

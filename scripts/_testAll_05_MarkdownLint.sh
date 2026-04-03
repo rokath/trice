@@ -21,7 +21,10 @@ main() {
     log "SKIP: markdownlint not installed"
     exit 0
   fi
-  run_cmd markdownlint . || { log "FAIL: markdownlint failed"; exit 1; }
+  run_cmd markdownlint . || {
+    log "FAIL: markdownlint failed"
+    exit 1
+  }
 }
 
 main "$@"

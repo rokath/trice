@@ -38,11 +38,11 @@ cd "$REPO_ROOT" || exit 1
 ###############################################################################
 # Defaults
 ###############################################################################
-TOOLCHAIN="gcc"        # gcc | clang
-TRICE="on"             # on | off
-CONFIGS_MODE="none"    # none | quick | full
-CONFIGS_START=0        # used only for quick/full mode
-CONFIGS_END=100        # used only for quick/full mode (inclusive)
+TOOLCHAIN="gcc"     # gcc | clang
+TRICE="on"          # on | off
+CONFIGS_MODE="none" # none | quick | full
+CONFIGS_START=0     # used only for quick/full mode
+CONFIGS_END=100     # used only for quick/full mode (inclusive)
 EXAMPLES_DIR="examples"
 
 ###############################################################################
@@ -139,31 +139,31 @@ run_with_status() {
 ###############################################################################
 for arg in "$@"; do
   case "$arg" in
-    --toolchain=*)
-      TOOLCHAIN="${arg#*=}"
-      ;;
-    --trice=*)
-      TRICE="${arg#*=}"
-      ;;
-    --configs=*)
-      CONFIGS_MODE="${arg#*=}"
-      ;;
-    --configs-start=*)
-      CONFIGS_START="${arg#*=}"
-      ;;
-    --configs-end=*)
-      CONFIGS_END="${arg#*=}"
-      ;;
-    --examples-dir=*)
-      EXAMPLES_DIR="${arg#*=}"
-      ;;
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    *)
-      die "Unknown argument: $arg (use --help)"
-      ;;
+  --toolchain=*)
+    TOOLCHAIN="${arg#*=}"
+    ;;
+  --trice=*)
+    TRICE="${arg#*=}"
+    ;;
+  --configs=*)
+    CONFIGS_MODE="${arg#*=}"
+    ;;
+  --configs-start=*)
+    CONFIGS_START="${arg#*=}"
+    ;;
+  --configs-end=*)
+    CONFIGS_END="${arg#*=}"
+    ;;
+  --examples-dir=*)
+    EXAMPLES_DIR="${arg#*=}"
+    ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  *)
+    die "Unknown argument: $arg (use --help)"
+    ;;
   esac
 done
 
@@ -171,18 +171,18 @@ done
 # Validate options
 ###############################################################################
 case "$TOOLCHAIN" in
-  gcc|clang) ;;
-  *) die "--toolchain must be gcc or clang (got: $TOOLCHAIN)" ;;
+gcc | clang) ;;
+*) die "--toolchain must be gcc or clang (got: $TOOLCHAIN)" ;;
 esac
 
 case "$TRICE" in
-  on|off) ;;
-  *) die "--trice must be on or off (got: $TRICE)" ;;
+on | off) ;;
+*) die "--trice must be on or off (got: $TRICE)" ;;
 esac
 
 case "$CONFIGS_MODE" in
-  none|quick|full) ;;
-  *) die "--configs must be none, quick, or full (got: $CONFIGS_MODE)" ;;
+none | quick | full) ;;
+*) die "--configs must be none, quick, or full (got: $CONFIGS_MODE)" ;;
 esac
 
 if [[ ! -d "$EXAMPLES_DIR" ]]; then
@@ -284,7 +284,7 @@ if [[ "$CONFIGS_MODE" != "none" ]]; then
     # We replicate the loop with a configurable range.
     log "Running QUICK configuration sweep in $cfg_dir: CONFIGURATION=$CONFIGS_START..$CONFIGS_END"
 
-    for ((i=CONFIGS_START; i<=CONFIGS_END; i++)); do
+    for ((i = CONFIGS_START; i <= CONFIGS_END; i++)); do
       log "CONFIGURATION=$i"
       if ! run_with_status bash -lc "cd '$cfg_dir' && make clean && ./build.sh CONFIGURATION=$i"; then
         fail_count=$((fail_count + 1))

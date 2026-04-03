@@ -68,14 +68,14 @@ run_without_inhibit() {
 
 main() {
   case "$(uname -s)" in
-    Linux*) run_with_inhibit_linux "$@" ;;
-    Darwin*) run_with_inhibit_macos "$@" ;;
-    # A Windows-specific inhibit function could use PowerShell plus the Win32
-    # API SetThreadExecutionState to keep the system awake while
-    # ./_testAll_run.sh is running. That is possible, but more environment-
-    # specific and therefore currently not enabled here.
-    MINGW* | MSYS* | CYGWIN*) run_without_inhibit "$@" ;;
-    *) run_without_inhibit "$@" ;;
+  Linux*) run_with_inhibit_linux "$@" ;;
+  Darwin*) run_with_inhibit_macos "$@" ;;
+  # A Windows-specific inhibit function could use PowerShell plus the Win32
+  # API SetThreadExecutionState to keep the system awake while
+  # ./_testAll_run.sh is running. That is possible, but more environment-
+  # specific and therefore currently not enabled here.
+  MINGW* | MSYS* | CYGWIN*) run_without_inhibit "$@" ;;
+  *) run_without_inhibit "$@" ;;
   esac
 }
 

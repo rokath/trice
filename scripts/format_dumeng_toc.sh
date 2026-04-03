@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 # ==============================================================================
 # format_dumeng_toc.sh
 #
@@ -131,7 +130,7 @@ function move_number_into_link(line,    leadLen, lead, rest, cut, num, afterNum,
 
   print line
 }
-' "$FILE" > "$TMP"
+' "$FILE" >"$TMP"
 
 mv "$TMP" "$FILE"
 echo "Updated: $FILE"

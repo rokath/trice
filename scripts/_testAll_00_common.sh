@@ -120,12 +120,12 @@ grep_log() {
 get_mode() {
   # Accept only the supported selection values and normalize "no argument" to "quick".
   case "${1:-quick}" in
-    quick | full) printf '%s\n' "${1:-quick}" ;;
-    *)
-      printf 'Unsupported selection: %s\n' "${1:-}" >&2
-      printf 'Allowed: quick, full\n' >&2
-      exit 2
-      ;;
+  quick | full) printf '%s\n' "${1:-quick}" ;;
+  *)
+    printf 'Unsupported selection: %s\n' "${1:-}" >&2
+    printf 'Allowed: quick, full\n' >&2
+    exit 2
+    ;;
   esac
 }
 

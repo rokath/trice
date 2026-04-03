@@ -8,7 +8,7 @@ TRICE_LI_JSON=${TRICE_LI_JSON:-./demoLI.json}
 # trice command line common part
 TRICE_DEFAULTS+="-i ${TRICE_TIL_JSON} " # Use a common til.json for all examples and tests.
 TRICE_DEFAULTS+="-li ${TRICE_LI_JSON} " # Use a common  li.json for all examples and tests.
-TRICE_DEFAULTS+="-liPath relative "  # Prefix base filenames in li.json with relative path for new IDs.
+TRICE_DEFAULTS+="-liPath relative "     # Prefix base filenames in li.json with relative path for new IDs.
 #TRICE_DEFAULTS+="-cache "                # Do not forget to create ~/.trice/cache folder, if the Trice cache should work or disable this line.
 
 # trice user aliases

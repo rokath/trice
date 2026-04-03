@@ -21,10 +21,19 @@ main() {
     log "SKIP: Go not installed"
     exit 0
   fi
-  run_cmd go test ./... -covermode=atomic -coverprofile="$coverage_file" -coverpkg=./... || { log "FAIL: go coverage test failed"; exit 1; }
-  run_cmd go tool cover -func="$coverage_file" || { log "FAIL: go tool cover -func failed"; exit 1; }
+  run_cmd go test ./... -covermode=atomic -coverprofile="$coverage_file" -coverpkg=./... || {
+    log "FAIL: go coverage test failed"
+    exit 1
+  }
+  run_cmd go tool cover -func="$coverage_file" || {
+    log "FAIL: go tool cover -func failed"
+    exit 1
+  }
   log "TRICE_BIN_DIR: ${TRICE_BIN_DIR:-unset}"
-  run_cmd env GOBIN="$TRICE_BIN_DIR" go install ./... || { log "FAIL: temp-local go install ./... failed"; exit 1; }
+  run_cmd env GOBIN="$TRICE_BIN_DIR" go install ./... || {
+    log "FAIL: temp-local go install ./... failed"
+    exit 1
+  }
 }
 
 main "$@"

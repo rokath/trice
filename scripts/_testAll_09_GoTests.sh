@@ -19,8 +19,14 @@ main() {
     log "SKIP: Go not installed"
     exit 0
   fi
-  run_cmd go clean -cache -testcache || { log "FAIL: go clean failed"; exit 1; }
-  run_cmd go test ./... || { log "FAIL: go test ./... failed"; exit 1; }
+  run_cmd go clean -cache -testcache || {
+    log "FAIL: go clean failed"
+    exit 1
+  }
+  run_cmd go test ./... || {
+    log "FAIL: go test ./... failed"
+    exit 1
+  }
   if grep_log '(^|[[:space:]])FAIL([[:space:]:]|$)' "$LOGFILE"; then
     log "FAIL: go test log contains FAIL markers"
     exit 2

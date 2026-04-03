@@ -26,9 +26,9 @@ VERBOSE=0
 # you passed to ". ./_setup_build_environment.sh ...".
 for arg in "$@"; do
   case "$arg" in
-    -v|--verbose)
-      VERBOSE=1
-      ;;
+  -v | --verbose)
+    VERBOSE=1
+    ;;
   esac
 done
 
@@ -128,13 +128,13 @@ detect_arm_toolchain_root() {
 
   if [ -n "$sysroot" ] && [ "$sysroot" != "/" ] && [ -d "$sysroot" ]; then
     case "$sysroot" in
-      */arm-none-eabi)
-        parent=$(cd "$sysroot/.." && pwd)
-        [ -d "$parent" ] && {
-          printf '%s\n' "$parent"
-          return 0
-        }
-        ;;
+    */arm-none-eabi)
+      parent=$(cd "$sysroot/.." && pwd)
+      [ -d "$parent" ] && {
+        printf '%s\n' "$parent"
+        return 0
+      }
+      ;;
     esac
   fi
 

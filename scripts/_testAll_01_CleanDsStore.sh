@@ -14,7 +14,10 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
   init_logfile
-  run_cmd "$SCRIPTS_DIR/_clean-dsstore.sh" || { log "FAIL: _clean-dsstore.sh failed"; exit 1; }
+  run_cmd "$SCRIPTS_DIR/_clean-dsstore.sh" || {
+    log "FAIL: _clean-dsstore.sh failed"
+    exit 1
+  }
 }
 
 main "$@"

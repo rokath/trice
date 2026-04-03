@@ -14,7 +14,10 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
   init_logfile
-  run_cmd "$SCRIPTS_DIR/format-dumeng-toc.sh" || { log "FAIL: format-dumeng-toc.sh failed"; exit 1; }
+  run_cmd "$SCRIPTS_DIR/format_dumeng_toc.sh" || {
+    log "FAIL: format_dumeng_toc.sh failed"
+    exit 1
+  }
 }
 
 main "$@"

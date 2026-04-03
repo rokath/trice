@@ -24,7 +24,10 @@ main() {
     log "SKIP: Go not installed (required by format_c_code.sh)"
     exit 0
   fi
-  run_cmd "$SCRIPTS_DIR/format_c_code.sh" || { log "FAIL: format_c_code.sh failed"; exit 1; }
+  run_cmd "$SCRIPTS_DIR/format_c_code.sh" || {
+    log "FAIL: format_c_code.sh failed"
+    exit 1
+  }
 }
 
 main "$@"

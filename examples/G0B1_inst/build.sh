@@ -34,7 +34,7 @@ triceOFF="0"
 for arg in "$@"; do
   if [ "${arg}" = "TRICE_OFF=1" ]; then
     triceOFF="1"
-    export triceOFF="1"   # keep compatibility with existing scripts/env if needed
+    export triceOFF="1" # keep compatibility with existing scripts/env if needed
   fi
   flags="${flags}-D${arg} "
 done
@@ -45,12 +45,12 @@ done
 
 # Trice is called here and not within make, to guarantee, it is finished
 # before any other job starts.
-bash ../../trice_cleanIDs_in_examples_and_test_folder.sh \
-  # Run this first to trigger the used editor to show the Trice IDs cleaned state.
+bash ../../trice_cleanIDs_in_examples_and_test_folder.sh
+# Run this first to trigger the used editor to show the Trice IDs cleaned state.
 
 if [ "${triceOFF}" != "1" ]; then
-  bash ../../trice_insertIDs_in_examples_and_test_folder.sh \
-    # custom aliases should be excluded or without IDs, when translating with TRICE_OFF=1
+  bash ../../trice_insertIDs_in_examples_and_test_folder.sh
+  # custom aliases should be excluded or without IDs, when translating with TRICE_OFF=1
 fi
 
 # ------------------------------------------------------------------------------
@@ -66,8 +66,8 @@ source ../../scripts/_setup_build_environment.sh
 # We translate here with inserted IDs, even in the triceOff case and expect no warnings.
 make ${MAKE_JOBS} TRICE_FLAGS="${flags}" gcc
 
-bash ../../trice_cleanIDs_in_examples_and_test_folder.sh \
-  # Run this again to get the Trice IDs cleaned state.
+bash ../../trice_cleanIDs_in_examples_and_test_folder.sh
+# Run this again to get the Trice IDs cleaned state.
 
 # ------------------------------------------------------------------------------
 # 5) Additional triceOff verification build (without IDs)

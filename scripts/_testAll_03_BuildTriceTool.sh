@@ -20,7 +20,10 @@ main() {
     exit 0
   fi
   log "TRICE_BIN_DIR: ${TRICE_BIN_DIR:-unset}"
-  run_cmd env GOBIN="$TRICE_BIN_DIR" "$SCRIPTS_DIR/buildTriceTool.sh" || { log "FAIL: buildTriceTool.sh failed"; exit 1; }
+  run_cmd env GOBIN="$TRICE_BIN_DIR" "$SCRIPTS_DIR/buildTriceTool.sh" || {
+    log "FAIL: buildTriceTool.sh failed"
+    exit 1
+  }
 }
 
 main "$@"

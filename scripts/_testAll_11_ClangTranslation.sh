@@ -17,7 +17,10 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 main() {
   local rc
   init_logfile
-  source "$SCRIPTS_DIR/_setup_build_environment.sh" >>"$LOGFILE" 2>&1 || { log "FAIL: _setup_build_environment.sh failed"; exit 1; }
+  source "$SCRIPTS_DIR/_setup_build_environment.sh" >>"$LOGFILE" 2>&1 || {
+    log "FAIL: _setup_build_environment.sh failed"
+    exit 1
+  }
   if ! has_command clang; then
     log "MISSING TOOL: clang"
     log "SKIP: clang not installed"

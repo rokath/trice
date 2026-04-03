@@ -65,18 +65,30 @@ main() {
   run_cmd env \
     TRICE_TIL_JSON="$pc_trice_til_json" \
     TRICE_LI_JSON="$pc_trice_li_json" \
-    "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || { log "FAIL: insert IDs failed"; exit 1; }
+    "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || {
+    log "FAIL: insert IDs failed"
+    exit 1
+  }
   ids_inserted=1
   if [ "${C_INCLUDE_PATH:-}" != "" ]; then
     saved_c_include_path="$C_INCLUDE_PATH"
     log "WARN: Clearing C_INCLUDE_PATH temporarily for CGO tests"
     export C_INCLUDE_PATH=""
   fi
-  cd "$ROOT/_test" || { log "FAIL: cannot enter _test directory"; exit 1; }
+  cd "$ROOT/_test" || {
+    log "FAIL: cannot enter _test directory"
+    exit 1
+  }
   if [ "$selected" = "quick" ]; then
-    run_cmd go test ./be_dblB_de_tcobs_ua/... || { log "FAIL: quick PC target tests failed"; exit 1; }
+    run_cmd go test ./be_dblB_de_tcobs_ua/... || {
+      log "FAIL: quick PC target tests failed"
+      exit 1
+    }
   else
-    run_cmd go test ./... || { log "FAIL: full PC target tests failed"; exit 1; }
+    run_cmd go test ./... || {
+      log "FAIL: full PC target tests failed"
+      exit 1
+    }
   fi
   if grep_log '(^|[[:space:]])FAIL([[:space:]:]|$)' "$LOGFILE"; then
     log "FAIL: PC target test log contains FAIL markers"

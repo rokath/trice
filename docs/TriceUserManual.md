@@ -7729,7 +7729,7 @@ Trice Root Folder File                                                          
 `dist/`                                                                                                                 | local distribution files folder created by goreleaser
 [docs](../docs)                                                                                                         | documentation folder with link forwarding
 [examples/](../examples)                                                                                                | example target projects
-[scripts/format-dumeng-toc.sh](../scripts/format-dumeng-toc.sh)                                                         | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
+[scripts/format_dumeng_toc.sh](../scripts/format_dumeng_toc.sh)                                                         | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
 [scripts/gitAddWorktreeFromGitLogLineData.sh](../scripts/gitAddWorktreeFromGitLogLineData.sh)                           | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside
 [scripts/gitAddWorktreesBetween.sh](../scripts/gitAddWorktreesBetween.sh)                                               | helper to get easy git worktree folders from any time range
 [scripts/gitLogWithBranches.sh](../scripts/gitLogWithBranches.sh)                                                       | helper to get easy a history view
@@ -8342,7 +8342,7 @@ Test Goreleaser
     * Use Shift-Command-P and select `markdownTOC:generate` to get the TOC with automatic numbering.
       * If you do not place any configuration, the TOC is build at the document start.
     * There are other TOC generators, but this one creates numbers for all headlines.
-    * We need to tweak the TOC a bit afterwards with `./scripts/format-dumeng-toc.sh`, which also exhanges `<a name` with `<a id`.
+    * We need to tweak the TOC a bit afterwards with `./scripts/format_dumeng_toc.sh`, which also exhanges `<a name` with `<a id`.
   * Markdown Paste (telesoho)
     * Helpful to get web site content preformatted as Markdown. Use mouse context menu.
   * markdownlint (David Anson)

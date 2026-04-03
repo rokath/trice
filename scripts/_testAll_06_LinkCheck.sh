@@ -21,7 +21,10 @@ main() {
     log "SKIP: lychee not installed"
     exit 0
   fi
-  run_cmd lychee . || { log "FAIL: lychee failed"; exit 1; }
+  run_cmd lychee . || {
+    log "FAIL: lychee failed"
+    exit 1
+  }
 }
 
 main "$@"
