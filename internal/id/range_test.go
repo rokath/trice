@@ -12,6 +12,7 @@ import (
 
 // source tree management
 
+// TestRange0 verifies the expected behavior.
 func TestRange0(t *testing.T) {
 	defer Setup(t)()
 
@@ -32,6 +33,7 @@ func TestRange0(t *testing.T) {
 	assert.Equal(t, expSrc, string(actSrc))
 }
 
+// TestRange1 verifies the expected behavior.
 func TestRange1(t *testing.T) {
 	defer Setup(t)()
 

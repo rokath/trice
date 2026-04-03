@@ -32,7 +32,7 @@ jobs:
       #    - scripts/format_c_code.sh
       #########################################################################
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # Full git history is not strictly required for formatting,
           # but some tools or future changes might rely on it.
@@ -59,10 +59,10 @@ jobs:
       # gitignore-style rules for .clang-format-ignore.
       #########################################################################
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
-          # Use a reasonably recent Go version. Adjust as needed.
-          go-version: '1.22.x'
+          go-version-file: go.mod
+          cache: false
 
       # Optional but recommended: download all Go module dependencies up front.
       # This avoids doing network fetches during `go run` and can speed up CI.

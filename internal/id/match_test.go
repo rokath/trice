@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestMatchTrice verifies the expected behavior.
 func TestMatchTrice(t *testing.T) {
 	// Register custom aliases
 	triceAliasesPtr := &TriceAliases

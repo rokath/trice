@@ -37,6 +37,7 @@ func TestInsertOnInsertedWithoutCacheFolder(t *testing.T) {
 	assertFileNotExists(t, FSys, ICache)                                        // check for not existing iCache
 }
 
+// Test_16_17_1000X_insert_on_invalid_cCache_invalid_iCache_cleaned_file verifies the expected behavior.
 func Test_16_17_1000X_insert_on_invalid_cCache_invalid_iCache_cleaned_file(t *testing.T) {
 	defer Setup(t)()                                                  // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`) // cleaned, edit
@@ -49,6 +50,7 @@ func Test_16_17_1000X_insert_on_invalid_cCache_invalid_iCache_cleaned_file(t *te
 	assertEqualMTimes(t, FSys, SFName, ICache)                                  // check for correct updated iCache
 }
 
+// Test_18_19_1001X_insert_on_invalid_cCache_invalid_iCache_inserted_edited_file verifies the expected behavior.
 func Test_18_19_1001X_insert_on_invalid_cCache_invalid_iCache_inserted_edited_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // inserted, edit
@@ -62,6 +64,7 @@ func Test_18_19_1001X_insert_on_invalid_cCache_invalid_iCache_inserted_edited_fi
 	assertEqualMTimes(t, FSys, SFName, ICache)                                  // check for correct updated iCache
 }
 
+// Test_20_21_1010X_insert_on_invalid_cCache_valid_iCache_cleaned_file verifies the expected behavior.
 func Test_20_21_1010X_insert_on_invalid_cCache_valid_iCache_cleaned_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // create inserted file
@@ -77,6 +80,7 @@ func Test_20_21_1010X_insert_on_invalid_cCache_valid_iCache_cleaned_file(t *test
 	assert.NotEqual(t, iT0, mTime(t, FSys, ICache))                             // check for updated iCache, because the file is edited, the iCache was invalidated and re-created
 }
 
+// Test_22_10100_insert_on_invalid_cCache_valid_iCache_inserted_not_edited_file verifies the expected behavior.
 func Test_22_10100_insert_on_invalid_cCache_valid_iCache_inserted_not_edited_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // create inserted file
@@ -92,6 +96,7 @@ func Test_22_10100_insert_on_invalid_cCache_valid_iCache_inserted_not_edited_fil
 	assert.Equal(t, iT0, mTime(t, FSys, ICache))                                // check for untouched iCache
 }
 
+// Test_23_10101_insert_on_invalid_cCache_valid_iCache_inserted_edited_file verifies the expected behavior.
 func Test_23_10101_insert_on_invalid_cCache_valid_iCache_inserted_edited_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // create inserted file
@@ -107,6 +112,7 @@ func Test_23_10101_insert_on_invalid_cCache_valid_iCache_inserted_edited_file(t 
 	assert.NotEqual(t, iT0, mTime(t, FSys, ICache))                             // check for updated iCache, because the file is edited, the iCache was invalidated and re-created
 }
 
+// Test_24_11000_insert_on_valid_cCache_invalid_iCache_cleaned_not_edited_file verifies the expected behavior.
 func Test_24_11000_insert_on_valid_cCache_invalid_iCache_cleaned_not_edited_file(t *testing.T) {
 	defer Setup(t)()                                                  // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`) // create src file
@@ -123,6 +129,7 @@ func Test_24_11000_insert_on_valid_cCache_invalid_iCache_cleaned_not_edited_file
 	assertEqualMTimes(t, FSys, SFName, ICache)                                  // check for correct iCache
 }
 
+// Test_25_11001_insert_on_valid_cCache_invalid_iCache_cleaned_edited_file verifies the expected behavior.
 func Test_25_11001_insert_on_valid_cCache_invalid_iCache_cleaned_edited_file(t *testing.T) {
 	defer Setup(t)()                                                  // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`) // create src file
@@ -141,6 +148,7 @@ func Test_25_11001_insert_on_valid_cCache_invalid_iCache_cleaned_edited_file(t *
 	assertEqualMTimes(t, FSys, SFName, ICache)                                  // check for correct iCache
 }
 
+// Test_26_27_1010X_insert_on_invalid_cCache_valid_iCache_cleaned_file verifies the expected behavior.
 func Test_26_27_1010X_insert_on_invalid_cCache_valid_iCache_cleaned_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // create inserted file
@@ -158,6 +166,7 @@ func Test_26_27_1010X_insert_on_invalid_cCache_valid_iCache_cleaned_file(t *test
 	assert.NotEqual(t, iT0, mTime(t, FSys, ICache))                             // check for touched iCache
 }
 
+// Test_28_11100_insert_on_valid_cCache_valid_iCache_cleaned_not_edited_file verifies the expected behavior.
 func Test_28_11100_insert_on_valid_cCache_valid_iCache_cleaned_not_edited_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`)          // create cleaned file
@@ -181,6 +190,7 @@ func Test_28_11100_insert_on_valid_cCache_valid_iCache_cleaned_not_edited_file(t
 	assert.Equal(t, iT0, mTime(t, FSys, ICache))                                // check for touched iCache
 }
 
+// Test_29_11100_insert_on_valid_cCache_valid_iCache_cleaned_edited_file verifies the expected behavior.
 func Test_29_11100_insert_on_valid_cCache_valid_iCache_cleaned_edited_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`)          // create cleaned file
@@ -203,6 +213,7 @@ func Test_29_11100_insert_on_valid_cCache_valid_iCache_cleaned_edited_file(t *te
 	assertFileNotExists(t, FSys, CCache)                                        // check for invalid cCache
 }
 
+// Test_30_11110_insert_on_valid_cCache_valid_iCache_inserted_not_edited_file verifies the expected behavior.
 func Test_30_11110_insert_on_valid_cCache_valid_iCache_inserted_not_edited_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`)          // create cleaned file
@@ -226,6 +237,7 @@ func Test_30_11110_insert_on_valid_cCache_valid_iCache_inserted_not_edited_file(
 	assert.Equal(t, iT0, mTime(t, FSys, ICache))                                // check for touched iCache
 }
 
+// Test_31_11111_insert_on_valid_cCache_valid_iCache_inserted_edited_file verifies the expected behavior.
 func Test_31_11111_insert_on_valid_cCache_valid_iCache_inserted_edited_file(t *testing.T) {
 	defer Setup(t)()                                                           // This executes Setup(t) and puts the returned function into the defer list.
 	assertFileCreate(t, FSys, SFName, `trice("msg:value=%d\n", -1);`)          // create cleaned file
@@ -276,6 +288,7 @@ func TestInsertOnInsertedFileWithValidCCache(t *testing.T) {
 	assertFileNotExists(t, FSys, CCache)                                        // check for not existing cCache
 }
 
+// TestInsert_On_valid_iCache_valid_cCache_inserted_file_not_edited verifies the expected behavior.
 func TestInsert_On_valid_iCache_valid_cCache_inserted_file_not_edited(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -303,6 +316,7 @@ func TestInsert_On_valid_iCache_valid_cCache_inserted_file_not_edited(t *testing
 	assertEqualMTimes(t, FSys, ICache, SFName) // check for valid iCache
 }
 
+// TestInsert_On_valid_iCache_valid_cCache_clean_file_not_edited verifies the expected behavior.
 func TestInsert_On_valid_iCache_valid_cCache_clean_file_not_edited(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -329,6 +343,7 @@ func TestInsert_On_valid_iCache_valid_cCache_clean_file_not_edited(t *testing.T)
 	assertEqualMTimes(t, FSys, ICache, SFName) // check for valid iCache
 }
 
+// TestInsert_On_valid_iCache_valid_cCache_inserted_file_edited verifies the expected behavior.
 func TestInsert_On_valid_iCache_valid_cCache_inserted_file_edited(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -362,6 +377,7 @@ func TestInsert_On_valid_iCache_valid_cCache_inserted_file_edited(t *testing.T) 
 	assertNotMTime(t, FSys, iT, ICache)                                         // check for touched iCache
 }
 
+// TestInsert_On_valid_iCache_valid_cCache_clean_file_edited verifies the expected behavior.
 func TestInsert_On_valid_iCache_valid_cCache_clean_file_edited(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

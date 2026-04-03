@@ -27,6 +27,7 @@ var testSet = []struct {
 		b"`},
 }
 
+// TestFmatchStringLiteral verifies the expected behavior.
 func TestFmatchStringLiteral(t *testing.T) {
 	for _, s := range testSet {
 		loc := matchStringLiteral(s.text)
@@ -34,6 +35,7 @@ func TestFmatchStringLiteral(t *testing.T) {
 	}
 }
 
+// TestFcountColonsUntilClosingBracket verifies the expected behavior.
 func TestFcountColonsUntilClosingBracket(t *testing.T) {
 	var testTable = []struct {
 		text string
@@ -54,6 +56,7 @@ func TestFcountColonsUntilClosingBracket(t *testing.T) {
 	}
 }
 
+// TestFmatchBracketLiteral verifies the expected behavior.
 func TestFmatchBracketLiteral(t *testing.T) {
 	var testTable = []struct {
 		text string

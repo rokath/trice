@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestHelp verifies the expected behavior.
 func TestHelp(t *testing.T) {
 	args := []string{"trice", "help"}
 	expect := `syntax: 'trice sub-command' [params]
@@ -18,24 +19,28 @@ Example 'trice h -help': Print help for help.
 	execHelper(t, args, expect)
 }
 
+// TestXyz verifies the expected behavior.
 func TestXyz(t *testing.T) {
 	args := []string{"trice", "xyz"}
 	expect := `unknown sub-command 'xyz'. try: 'trice help|h'`
 	execHelper(t, args, expect)
 }
 
+// TestXyzStim verifies the expected behavior.
 func TestXyzStim(t *testing.T) {
 	args := []string{"stim", "xyz"}
 	expect := `unknown sub-command 'xyz'. try: 'stim help|h'`
 	execHelper(t, args, expect)
 }
 
+// TestNoArgs verifies the expected behavior.
 func TestNoArgs(t *testing.T) {
 	args := []string{"trice"}
 	expect := `no args, try: 'trice help'`
 	execHelper(t, args, expect)
 }
 
+// TestComX verifies the expected behavior.
 func TestComX(t *testing.T) {
 	args := []string{"trice", "log", "-p", "COMX", "-idlist", "emptyFile"}
 	expect := `can not open COMX
@@ -43,6 +48,7 @@ func TestComX(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
+// TestScan verifies the expected behavior.
 func TestScan(t *testing.T) {
 	var act bytes.Buffer
 	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")

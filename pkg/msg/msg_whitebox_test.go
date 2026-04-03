@@ -12,6 +12,7 @@ import (
 	"testing"
 )
 
+// TestFatalInfoOnFalse verifies the expected behavior.
 func TestFatalInfoOnFalse(t *testing.T) {
 	origLogFatalf := logFatalf
 	// After this test, replace the original fatal function
@@ -90,6 +91,7 @@ func TestFatalInfoOnFalse(t *testing.T) {
 
 }
 
+// captureStdout captures stdout produced while the supplied function runs.
 func captureStdout(tb testing.TB, f func()) string {
 	tb.Helper()
 	old := os.Stdout
@@ -110,6 +112,7 @@ func captureStdout(tb testing.TB, f func()) string {
 	return <-done
 }
 
+// TestFmtFMessageHandlesMissingCallerInfo verifies the expected behavior.
 func TestFmtFMessageHandlesMissingCallerInfo(t *testing.T) {
 	var b bytes.Buffer
 	fmtFMessage(&b, 0, "", 0, false, errors.New("x"))
@@ -118,6 +121,7 @@ func TestFmtFMessageHandlesMissingCallerInfo(t *testing.T) {
 	}
 }
 
+// TestLogMessageHandlesMissingCallerInfo verifies the expected behavior.
 func TestLogMessageHandlesMissingCallerInfo(t *testing.T) {
 	origLogFatalf := logFatalf
 	defer func() { logFatalf = origLogFatalf }()
@@ -133,6 +137,7 @@ func TestLogMessageHandlesMissingCallerInfo(t *testing.T) {
 	}
 }
 
+// TestOsExitDisallowFormatsVarArgs verifies the expected behavior.
 func TestOsExitDisallowFormatsVarArgs(t *testing.T) {
 	o := OsExitDisallow()
 	defer OsExitAllow(o)
@@ -145,6 +150,7 @@ func TestOsExitDisallowFormatsVarArgs(t *testing.T) {
 	}
 }
 
+// TestOsExitDisallowFormatsWithoutArgs verifies the expected behavior.
 func TestOsExitDisallowFormatsWithoutArgs(t *testing.T) {
 	o := OsExitDisallow()
 	defer OsExitAllow(o)
@@ -157,6 +163,7 @@ func TestOsExitDisallowFormatsWithoutArgs(t *testing.T) {
 	}
 }
 
+// TestOnErrFAndOnErrFv verifies the expected behavior.
 func TestOnErrFAndOnErrFv(t *testing.T) {
 	var b bytes.Buffer
 	OnErrF(&b, nil)
@@ -180,6 +187,7 @@ func TestOnErrFAndOnErrFv(t *testing.T) {
 	}
 }
 
+// TestTellRespectsVerbose verifies the expected behavior.
 func TestTellRespectsVerbose(t *testing.T) {
 	var b bytes.Buffer
 	Verbose = false

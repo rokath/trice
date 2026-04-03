@@ -11,6 +11,7 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
+// TestInfoOutput verifies the expected behavior.
 func TestInfoOutput(t *testing.T) {
 	out := tst.CaptureStdOut(func() {
 		msg.Info("code issue")
@@ -23,6 +24,7 @@ func TestInfoOutput(t *testing.T) {
 	}
 }
 
+// TestOnErrOutput verifies the expected behavior.
 func TestOnErrOutput(t *testing.T) {
 	out := tst.CaptureStdOut(func() {
 		msg.OnErr(nil)
@@ -33,6 +35,7 @@ func TestOnErrOutput(t *testing.T) {
 	}
 }
 
+// TestInfoOnErrOutput verifies the expected behavior.
 func TestInfoOnErrOutput(t *testing.T) {
 	out := tst.CaptureStdOut(func() {
 		msg.InfoOnErr(nil, "just in case")
@@ -46,6 +49,7 @@ func TestInfoOnErrOutput(t *testing.T) {
 	}
 }
 
+// TestOnTrueAndOnFalseOutput verifies the expected behavior.
 func TestOnTrueAndOnFalseOutput(t *testing.T) {
 	outTrue := tst.CaptureStdOut(func() {
 		msg.OnTrue(false)
@@ -64,6 +68,7 @@ func TestOnTrueAndOnFalseOutput(t *testing.T) {
 	}
 }
 
+// TestInfoOnTrueAndInfoOnFalseOutput verifies the expected behavior.
 func TestInfoOnTrueAndInfoOnFalseOutput(t *testing.T) {
 	outTrue := tst.CaptureStdOut(func() {
 		msg.InfoOnTrue(false, "just in case")
@@ -82,6 +87,7 @@ func TestInfoOnTrueAndInfoOnFalseOutput(t *testing.T) {
 	}
 }
 
+// TestFatalFunctionsNoopPaths verifies the expected behavior.
 func TestFatalFunctionsNoopPaths(t *testing.T) {
 	out := tst.CaptureStdOut(func() {
 		msg.FatalOnErr(nil)

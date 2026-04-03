@@ -19,6 +19,11 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice?branch=main)
 [![CodeQL](https://github.com/rokath/trice/actions/workflows/codeql.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/codeql.yml)
+[![TRICE Library CI (Nightly Quick)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml)
+[![TRICE Library CI (Nightly Full)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml)
+[![Mark stale issues and pull requests](https://github.com/rokath/trice/actions/workflows/stale.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/stale.yml)
+[![Clang-Format Check](https://github.com/rokath/trice/actions/workflows/clang-format.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/clang-format.yml)
+[![Go Coverage (PR + Monthly)](https://github.com/rokath/trice/actions/workflows/coverage.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/coverage.yml)
 
 [![TRICE Library CI (Nightly Quick)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml)
 

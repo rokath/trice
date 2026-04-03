@@ -5,6 +5,7 @@ package emitter
 
 import "os"
 
+// Example_newLocalDisplay demonstrates typical usage.
 func Example_newLocalDisplay() {
 	p := newLocalDisplay(os.Stdout)
 	l1 := []string{"This is ", "the 1st ", "line"}
@@ -16,6 +17,7 @@ func Example_newLocalDisplay() {
 	// This is the 2nd line
 }
 
+// Example_newColorDisplay demonstrates typical usage.
 func Example_newColorDisplay() {
 	p := newColorDisplay(os.Stdout, "none")
 	l1 := []string{"msg:This is ", "the 1st ", "line"}

@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Test_UReplaceN verifies that unsigned specifiers are replaced while keeping surrounding tokens intact.
 func Test_UReplaceN(t *testing.T) {
 	tt := []struct {
 		fmt string // fmt is the Trice format string written by the user in the target source code.
@@ -37,6 +38,7 @@ func Test_UReplaceN(t *testing.T) {
 	}
 }
 
+// TestNewDecoderDataWithoutBuffers ensures the base decoder initializes helper buffers only when requested.
 func TestNewDecoderDataWithoutBuffers(t *testing.T) {
 	d := NewDecoderData(Config{})
 	assert.NotNil(t, d.W)
@@ -47,6 +49,7 @@ func TestNewDecoderDataWithoutBuffers(t *testing.T) {
 	assert.Nil(t, d.InnerBuffer)
 }
 
+// TestSetInput confirms SetInput swaps the underlying reader instance. 
 func TestSetInput(t *testing.T) {
 	d := NewDecoderData(Config{})
 	r := strings.NewReader("abc")
@@ -54,6 +57,7 @@ func TestSetInput(t *testing.T) {
 	assert.Same(t, r, d.In)
 }
 
+// TestReadUXEndianess exercises U16/U32/U64 reading in both endiannesses.
 func TestReadUXEndianess(t *testing.T) {
 	dLittle := NewDecoderData(Config{Endian: LittleEndian})
 	dBig := NewDecoderData(Config{Endian: BigEndian})
@@ -68,9 +72,10 @@ func TestReadUXEndianess(t *testing.T) {
 	assert.EqualValues(t, 0x0102030405060708, dBig.ReadU64([]byte{1, 2, 3, 4, 5, 6, 7, 8}))
 }
 
+// TestSetInputAffectsRead proves that changing the reader affects subsequent reads.
 func TestSetInputAffectsRead(t *testing.T) {
 	d := NewDecoderData(Config{In: strings.NewReader("old")})
-	fd := fakeDecoder{DecoderData: d}
+	fd := fakeDecoder{data: &d}
 
 	fd.SetInput(bytes.NewBufferString("new"))
 	b := make([]byte, 8)
@@ -79,12 +84,14 @@ func TestSetInputAffectsRead(t *testing.T) {
 	assert.Equal(t, "new", string(b[:n]))
 }
 
+// TestDump asserts the hex formatting outputs space-separated hex bytes.
 func TestDump(t *testing.T) {
 	var out bytes.Buffer
 	Dump(&out, []byte{0x00, 0x1f, 0xa0})
 	assert.Equal(t, "00 1f a0 \n", out.String())
 }
 
+// TestRecordForStatisticsDisabled checks that recorded statistics stay empty when globally disabled.
 func TestRecordForStatisticsDisabled(t *testing.T) {
 	oldTriceStatistics := TriceStatistics
 	oldAllStatistics := emitter.AllStatistics
@@ -102,6 +109,7 @@ func TestRecordForStatisticsDisabled(t *testing.T) {
 	assert.Equal(t, 0, IDStat[7])
 }
 
+// TestRecordAndPrintTriceStatistics ensures counter increments and the printed report contains expected data.
 func TestRecordAndPrintTriceStatistics(t *testing.T) {
 	oldTriceStatistics := TriceStatistics
 	oldAllStatistics := emitter.AllStatistics
@@ -139,6 +147,7 @@ func TestRecordAndPrintTriceStatistics(t *testing.T) {
 	assert.Contains(t, s, "2 Trice messsges")
 }
 
+// TestLocationInformation validates location string formatting with and without verbose/lookup data.
 func TestLocationInformation(t *testing.T) {
 	oldFmt := LocationInformationFormatString
 	oldVerbose := Verbose
@@ -163,6 +172,7 @@ func TestLocationInformation(t *testing.T) {
 	assert.Equal(t, "no li", LocationInformation(12, li))
 }
 
+// TestLocationInformationWidth exercises the regex-based width calculator to ensure consistent output lengths.
 func TestLocationInformationWidth(t *testing.T) {
 	oldFmt := LocationInformationFormatString
 	t.Cleanup(func() { LocationInformationFormatString = oldFmt })
@@ -171,6 +181,7 @@ func TestLocationInformationWidth(t *testing.T) {
 	assert.Equal(t, 28, locationInformationWidth())
 }
 
+// TestCorrectWrappedTimestamp verifies timestamp wrap handling returns future-corrected times inside reasonablen range.
 func TestCorrectWrappedTimestamp(t *testing.T) {
 	// Valid range: unchanged.
 	valid := uint32(time.Date(2005, 1, 1, 0, 0, 0, 0, time.UTC).Unix())
@@ -182,6 +193,7 @@ func TestCorrectWrappedTimestamp(t *testing.T) {
 	assert.Equal(t, 2106, tw.Year())
 }
 
+// TestCorrectWrappedTimestampFallback ensures fallback branch logs a warning and returns transformed time for invalid input.
 func TestCorrectWrappedTimestampFallback(t *testing.T) {
 	// Silence warning output from fallback path.
 	oldStdout := os.Stdout

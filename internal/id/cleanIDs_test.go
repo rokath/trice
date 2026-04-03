@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestClean verifies the expected behavior.
 func TestClean(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -31,6 +32,7 @@ func TestClean(t *testing.T) {
 	assert.Equal(t, expSrc, string(actSrc))
 }
 
+// TestCleanWithSpace verifies the expected behavior.
 func TestCleanWithSpace(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -51,6 +53,7 @@ func TestCleanWithSpace(t *testing.T) {
 	assert.Equal(t, expSrc, string(actSrc))
 }
 
+// TestCleanWithSpace2 verifies the expected behavior.
 func TestCleanWithSpace2(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -71,6 +74,7 @@ func TestCleanWithSpace2(t *testing.T) {
 	assert.Equal(t, expSrc, string(actSrc))
 }
 
+// TestCleanWithLIExtension verifies the expected behavior.
 func TestCleanWithLIExtension(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestInsertIDsAndJSONDownward verifies the expected behavior.
 func TestInsertIDsAndJSONDownward(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -65,6 +66,7 @@ func TestInsertIDsAndJSONDownward(t *testing.T) {
 	assert.Equal(t, expLI, string(actLI))
 }
 
+// TestInsertIDsAndJSONUpward verifies the expected behavior.
 func TestInsertIDsAndJSONUpward(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -119,6 +121,7 @@ func TestInsertIDsAndJSONUpward(t *testing.T) {
 	assert.Equal(t, expLI, string(actLI))
 }
 
+// TestInsertIDsIntoTilJSONFromFileWithEmptyLi verifies the expected behavior.
 func TestInsertIDsIntoTilJSONFromFileWithEmptyLi(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -162,6 +165,7 @@ func TestInsertIDsIntoTilJSONFromFileWithEmptyLi(t *testing.T) {
 	assert.Equal(t, expTil, string(actTil))
 }
 
+// TestInsertLineDuplicates verifies the expected behavior.
 func TestInsertLineDuplicates(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -216,6 +220,7 @@ func TestInsertLineDuplicates(t *testing.T) {
 	assert.Equal(t, expLI, string(actLI))
 }
 
+// TestChangeIDAfterStringModification verifies the expected behavior.
 func TestChangeIDAfterStringModification(t *testing.T) {
 	tearDown := Setup(t)
 
@@ -350,6 +355,7 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 	assert.Equal(t, expLI, string(actLI))
 }
 
+// TestChangeIDAfterStringModification2 verifies the expected behavior.
 func TestChangeIDAfterStringModification2(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

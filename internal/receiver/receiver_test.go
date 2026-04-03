@@ -3,6 +3,7 @@
 package receiver
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net"
@@ -14,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// requireWindowsTCPTestsEnabled skips the test unless the Windows TCP test environment is enabled.
 func requireWindowsTCPTestsEnabled(t *testing.T) {
 	t.Helper()
 	// These TCP listener tests intentionally open a local server socket.
@@ -86,6 +88,41 @@ func TestFILEReceiver(t *testing.T) {
 	assert.True(t, b[0] == 115)
 	assert.True(t, b[4] == 10)
 	rc.Close()
+}
+
+// TestSpaceStringsBuilder verifies the expected behavior.
+func TestSpaceStringsBuilder(t *testing.T) {
+	got := spaceStringsBuilder(" a b\tc\n")
+	if got != "abc" {
+		t.Fatalf("unexpected result: %q", got)
+	}
+}
+
+// TestRemoveWhitespaces verifies the expected behavior.
+func TestRemoveWhitespaces(t *testing.T) {
+	if removeWhitespaces("x y z") != "xyz" {
+		t.Fatalf("removeWhitespaces failed")
+	}
+}
+
+// TestScanHexDump verifies the expected behavior.
+func TestScanHexDump(t *testing.T) {
+	data, err := scanHexDump("09 a1 fe")
+	if err != nil {
+		t.Fatalf("scanHexDump: %v", err)
+	}
+	if !bytes.Equal(data, []byte{0x09, 0xa1, 0xfe}) {
+		t.Fatalf("unexpected data: %#v", data)
+	}
+}
+
+// TestScanBytes verifies the expected behavior.
+func TestScanBytes(t *testing.T) {
+	got := scanBytes("10 11,12\n13")
+	expected := []byte{10, 11, 12, 13}
+	if !bytes.Equal(got, expected) {
+		t.Fatalf("unexpected bytes: %#v", got)
+	}
 }
 
 // TestTCP4Receiver tests the NewReadWriteCloser TCP4 functionality.

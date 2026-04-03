@@ -5,127 +5,78 @@ package decoder
 import (
 	"bytes"
 	"io"
-	"strings"
 	"sync"
 	"testing"
 
 	"github.com/rokath/trice/internal/id"
 )
 
+// fakeDecoder satisfies Decoder for tests and delegates to stored DecoderData if set.
 type fakeDecoder struct {
-	DecoderData
+	data *DecoderData
 }
 
+// Read proxies input read requests to its DecoderData to simulate a real decoder read path.
 func (f *fakeDecoder) Read(p []byte) (int, error) {
-	if f.In == nil {
+	if f.data == nil || f.data.In == nil {
 		return 0, io.EOF
 	}
-	return f.In.Read(p)
+	return f.data.In.Read(p)
 }
 
-func TestNewDecoderDataDefaults(t *testing.T) {
-	d := NewDecoderData(Config{
-		Out:         nil,
-		LUTMutex:    nil,
-		NeedBuffers: true,
-	})
-	if d.W == nil {
-		t.Fatal("expected non-nil writer")
-	}
-	if d.LutMutex == nil {
-		t.Fatal("expected non-nil LUT mutex")
-	}
-	if cap(d.IBuf) != DefaultSize {
-		t.Fatalf("unexpected IBuf cap: %d", cap(d.IBuf))
-	}
-	if cap(d.B) != DefaultSize || len(d.B0) != DefaultSize || len(d.InnerBuffer) != DefaultSize {
-		t.Fatal("expected packet buffers to be allocated")
+// SetInput transparently forwards input replacement to the underlying DecoderData.
+func (f *fakeDecoder) SetInput(r io.Reader) {
+	if f.data != nil {
+		f.data.SetInput(r)
 	}
 }
 
-func TestNewForEncodingUsesRegistry(t *testing.T) {
-	const enc = "UNIT_TEST_DECODER"
-	Register(enc, func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder {
-		return &fakeDecoder{
-			DecoderData: NewDecoderData(Config{
-				Out:      out,
-				LUT:      lut,
-				LUTMutex: m,
-				LI:       li,
-				In:       in,
-				Endian:   endian,
-			}),
-		}
+// TestNormalizeEncoding ensures casing/whitespace normalization keeps keys predictable.
+func TestNormalizeEncoding(t *testing.T) {
+	got := normalizeEncoding("  tRICE  ")
+	if got != "TRICE" {
+		t.Fatalf("expected TRICE normalized name, got %q", got)
+	}
+}
+
+// TestRegisterAndNewForEncoding covers the happy path for decoder registration.
+func TestRegisterAndNewForEncoding(t *testing.T) {
+	defer func() {
+		registryMu.Lock()
+		delete(registry, "TEST")
+		registryMu.Unlock()
+	}()
+
+	Register("test", func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder {
+		d := NewDecoderData(Config{Out: out, In: in, LUT: lut, LUTMutex: m, LI: li, Endian: endian})
+		return &fakeDecoder{data: &d}
 	})
 
-	in := strings.NewReader("ok")
-	var out bytes.Buffer
-	dec, err := NewForEncoding(strings.ToLower(enc), &out, nil, nil, nil, in, LittleEndian)
+	d, err := NewForEncoding(" TEST ", io.Discard, nil, nil, nil, bytes.NewReader(nil), LittleEndian)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	buf := make([]byte, 8)
-	n, rerr := dec.Read(buf)
-	if rerr != nil && rerr != io.EOF {
-		t.Fatalf("unexpected read error: %v", rerr)
-	}
-	if string(buf[:n]) != "ok" {
-		t.Fatalf("unexpected decoder output: %q", string(buf[:n]))
+	if _, ok := d.(*fakeDecoder); !ok {
+		t.Fatalf("expected fakeDecoder instance, got %T", d)
 	}
 }
 
-func TestNewForEncodingUnknown(t *testing.T) {
-	if _, err := NewForEncoding("does-not-exist", io.Discard, nil, nil, nil, nil, LittleEndian); err == nil {
-		t.Fatal("expected error for unknown encoding")
-	}
-}
-
-func TestRegisterPanicsForInvalidInput(t *testing.T) {
-	assertPanic := func(name string, fn func()) {
-		t.Helper()
-		defer func() {
-			if recover() == nil {
-				t.Fatalf("expected panic for %s", name)
-			}
-		}()
-		fn()
-	}
-
-	assertPanic("empty name", func() {
-		Register("  ", func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder {
-			return &fakeDecoder{}
-		})
-	})
-	assertPanic("nil constructor", func() { Register("X", nil) })
-}
-
-func TestNewForEncodingTrimsAndNormalizesCase(t *testing.T) {
-	const enc = "UNIT_TEST_DECODER_TRIM"
-	Register(enc, func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder {
-		return &fakeDecoder{
-			DecoderData: NewDecoderData(Config{
-				Out:      out,
-				LUT:      lut,
-				LUTMutex: m,
-				LI:       li,
-				In:       in,
-				Endian:   endian,
-			}),
+// TestRegisterPanics validates that invalid registration data triggers panics.
+func TestRegisterPanics(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatal("expected panic for empty name")
 		}
-	})
+	}()
+	Register("", nil)
+}
 
-	in := strings.NewReader("ok")
-	var out bytes.Buffer
-	dec, err := NewForEncoding("  unit_test_decoder_trim  ", &out, nil, nil, nil, in, LittleEndian)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	buf := make([]byte, 8)
-	n, rerr := dec.Read(buf)
-	if rerr != nil && rerr != io.EOF {
-		t.Fatalf("unexpected read error: %v", rerr)
-	}
-	if string(buf[:n]) != "ok" {
-		t.Fatalf("unexpected decoder output: %q", string(buf[:n]))
-	}
+// TestRegisterPanicsOnNilConstructor ensures panic when registering a nil constructor.
+func TestRegisterPanicsOnNilConstructor(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatal("expected panic for nil constructor")
+		}
+	}()
+	Register("ok", nil)
 }

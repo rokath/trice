@@ -81,6 +81,7 @@ func TestTREX(t *testing.T) {
 	assert.Equal(t, "", out.String())
 }
 
+// TestNewSelectsPackageFraming verifies the expected behavior.
 func TestNewSelectsPackageFraming(t *testing.T) {
 	tt := []struct {
 		name    string
@@ -106,11 +107,13 @@ func TestNewSelectsPackageFraming(t *testing.T) {
 	}
 }
 
+// TestIsZero verifies the expected behavior.
 func TestIsZero(t *testing.T) {
 	assert.True(t, isZero([]byte{0, 0, 0}))
 	assert.False(t, isZero([]byte{0, 1, 0}))
 }
 
+// TestRemoveZeroHiByte verifies the expected behavior.
 func TestRemoveZeroHiByte(t *testing.T) {
 	d := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.BigEndian})}
 	assert.Equal(t, []byte{0x11, 0x22}, d.removeZeroHiByte([]byte{0x00, 0x11, 0x22}))
@@ -119,6 +122,7 @@ func TestRemoveZeroHiByte(t *testing.T) {
 	assert.Equal(t, []byte{0x11, 0x22}, d.removeZeroHiByte([]byte{0x11, 0x00, 0x22}))
 }
 
+// TestNextDataAppendsToBuffer verifies the expected behavior.
 func TestNextDataAppendsToBuffer(t *testing.T) {
 	p := &trexDec{
 		DecoderData: decoder.NewDecoderData(decoder.Config{
@@ -131,6 +135,7 @@ func TestNextDataAppendsToBuffer(t *testing.T) {
 	assert.Equal(t, []byte{9, 1, 2, 3}, p.B)
 }
 
+// TestNextPackageCOBS verifies the expected behavior.
 func TestNextPackageCOBS(t *testing.T) {
 	p := &trexDec{
 		DecoderData: decoder.NewDecoderData(decoder.Config{
@@ -146,6 +151,7 @@ func TestNextPackageCOBS(t *testing.T) {
 	assert.Equal(t, 0, len(p.IBuf))
 }
 
+// TestNextPackageTCOBSPaths verifies the expected behavior.
 func TestNextPackageTCOBSPaths(t *testing.T) {
 	t.Run("success empty payload", func(t *testing.T) {
 		p := &trexDec{
@@ -189,6 +195,7 @@ func TestNextPackageTCOBSPaths(t *testing.T) {
 	})
 }
 
+// TestNextPackageWithPasswordShowsDecryptDebugStage verifies the expected behavior.
 func TestNextPackageWithPasswordShowsDecryptDebugStage(t *testing.T) {
 	oldPassword := cipher.Password
 	oldDebug := decoder.DebugOut
@@ -216,6 +223,7 @@ func TestNextPackageWithPasswordShowsDecryptDebugStage(t *testing.T) {
 	assert.Contains(t, out.String(), "-> DEC:")
 }
 
+// TestNextPackageDebugOutWithoutPassword verifies the expected behavior.
 func TestNextPackageDebugOutWithoutPassword(t *testing.T) {
 	oldPassword := cipher.Password
 	oldDebug := decoder.DebugOut
@@ -246,6 +254,7 @@ func TestNextPackageDebugOutWithoutPassword(t *testing.T) {
 	assert.NotContains(t, out.String(), "-> DEC:")
 }
 
+// TestTriceStringAndBufferConverters verifies the expected behavior.
 func TestTriceStringAndBufferConverters(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
@@ -288,6 +297,7 @@ func TestTriceStringAndBufferConverters(t *testing.T) {
 	assert.Equal(t, "7", string(b[:n]))
 }
 
+// TestTriceConvertersDebugOut verifies the expected behavior.
 func TestTriceConvertersDebugOut(t *testing.T) {
 	oldDebug := decoder.DebugOut
 	t.Cleanup(func() { decoder.DebugOut = oldDebug })
@@ -316,6 +326,7 @@ func TestTriceConvertersDebugOut(t *testing.T) {
 	assert.NotEqual(t, "", dbg.String())
 }
 
+// TestTriceFunctionStyleConvertersAndTrice0 verifies the expected behavior.
 func TestTriceFunctionStyleConvertersAndTrice0(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{})}
 	b := make([]byte, 256)
@@ -347,6 +358,7 @@ func TestTriceFunctionStyleConvertersAndTrice0(t *testing.T) {
 	assert.Equal(t, "plain", string(b[:n]))
 }
 
+// TestUnsignedOrSignedOut verifies the expected behavior.
 func TestUnsignedOrSignedOut(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
@@ -403,6 +415,7 @@ func TestUnsignedOrSignedOut(t *testing.T) {
 	assert.Equal(t, "2.5 -2", string(b[:n]))
 }
 
+// TestPrintTestTableLine verifies the expected behavior.
 func TestPrintTestTableLine(t *testing.T) {
 	oldStdout := os.Stdout
 	oldNextLine := emitter.NextLine
@@ -430,6 +443,7 @@ func TestPrintTestTableLine(t *testing.T) {
 	assert.Contains(t, string(out), "  2,")
 }
 
+// TestSpecialCaseHelpers verifies the expected behavior.
 func TestSpecialCaseHelpers(t *testing.T) {
 	assert.True(t, isSpecialCaseTriceType("trice8_b"))
 	assert.False(t, isSpecialCaseTriceType("trice16_2"))
@@ -445,6 +459,7 @@ func TestSpecialCaseHelpers(t *testing.T) {
 	assert.False(t, addNL)
 }
 
+// TestApplyMultilineIndent verifies the expected behavior.
 func TestApplyMultilineIndent(t *testing.T) {
 	oldIndent := decoder.NewlineIndent
 	oldShowID := decoder.ShowID
@@ -467,6 +482,7 @@ func TestApplyMultilineIndent(t *testing.T) {
 	assert.Equal(t, "a\\nb", applyMultilineIndent("a\\nb"))
 }
 
+// TestSprintTriceErrorPaths verifies the expected behavior.
 func TestSprintTriceErrorPaths(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
@@ -490,6 +506,7 @@ func TestSprintTriceErrorPaths(t *testing.T) {
 	assert.Contains(t, string(b[:n]), "not matching with bitWidth")
 }
 
+// TestSprintTriceSAliasPath verifies the expected behavior.
 func TestSprintTriceSAliasPath(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
@@ -505,6 +522,7 @@ func TestSprintTriceSAliasPath(t *testing.T) {
 	assert.Equal(t, "abc", string(b[:n]))
 }
 
+// TestSprintTriceAssertTypeNormalization verifies the expected behavior.
 func TestSprintTriceAssertTypeNormalization(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
@@ -521,6 +539,7 @@ func TestSprintTriceAssertTypeNormalization(t *testing.T) {
 	assert.Equal(t, "Trice", p.Trice.Type)
 }
 
+// TestReadNoneFramingKnownTrice verifies the expected behavior.
 func TestReadNoneFramingKnownTrice(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldInitial := decoder.InitialCycle
@@ -548,6 +567,7 @@ func TestReadNoneFramingKnownTrice(t *testing.T) {
 	assert.Equal(t, "v=42", string(buf[:n]))
 }
 
+// TestReadCOBSFramingUnknownID verifies the expected behavior.
 func TestReadCOBSFramingUnknownID(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	t.Cleanup(func() { decoder.PackageFraming = oldFraming })
@@ -563,6 +583,7 @@ func TestReadCOBSFramingUnknownID(t *testing.T) {
 	assert.Contains(t, string(buf[:n]), "unknown ID")
 }
 
+// TestReadNoneFramingTypeX0Resync verifies the expected behavior.
 func TestReadNoneFramingTypeX0Resync(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldVerbose := decoder.Verbose
@@ -588,6 +609,7 @@ func TestReadNoneFramingTypeX0Resync(t *testing.T) {
 	assert.Equal(t, []byte{0x01, 0xaa}, dec.B)
 }
 
+// TestReadTypeX0NotImplementedForFramedData verifies the expected behavior.
 func TestReadTypeX0NotImplementedForFramedData(t *testing.T) {
 	oldTargetTS := decoder.TargetTimestampSize
 	t.Cleanup(func() { decoder.TargetTimestampSize = oldTargetTS })
@@ -605,6 +627,7 @@ func TestReadTypeX0NotImplementedForFramedData(t *testing.T) {
 	assert.Contains(t, string(buf[:n]), "typeX0 not implemented")
 }
 
+// TestReadSingleFramingAndCycleError verifies the expected behavior.
 func TestReadSingleFramingAndCycleError(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldInitial := decoder.InitialCycle
@@ -643,6 +666,7 @@ func TestReadSingleFramingAndCycleError(t *testing.T) {
 	assert.Contains(t, out, "single framed package size")
 }
 
+// TestReadCycleErrorMessage verifies the expected behavior.
 func TestReadCycleErrorMessage(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldInitial := decoder.InitialCycle
@@ -681,6 +705,7 @@ func TestReadCycleErrorMessage(t *testing.T) {
 	assert.Contains(t, string(buf[:n]), "CYCLE_ERROR")
 }
 
+// TestReadFramedDiscardTrailingEncryptedZeroes verifies the expected behavior.
 func TestReadFramedDiscardTrailingEncryptedZeroes(t *testing.T) {
 	oldPassword := cipher.Password
 	t.Cleanup(func() { cipher.Password = oldPassword })
@@ -699,6 +724,7 @@ func TestReadFramedDiscardTrailingEncryptedZeroes(t *testing.T) {
 	assert.Equal(t, 0, len(p.B))
 }
 
+// TestReadFramedDiscardSingleLeftoverByte verifies the expected behavior.
 func TestReadFramedDiscardSingleLeftoverByte(t *testing.T) {
 	oldVerbose := decoder.Verbose
 	t.Cleanup(func() { decoder.Verbose = oldVerbose })
@@ -717,6 +743,7 @@ func TestReadFramedDiscardSingleLeftoverByte(t *testing.T) {
 	assert.Equal(t, 0, len(p.B))
 }
 
+// TestReadTypeS2DoubledIDIncomplete verifies the expected behavior.
 func TestReadTypeS2DoubledIDIncomplete(t *testing.T) {
 	oldDouble := Doubled16BitID
 	t.Cleanup(func() { Doubled16BitID = oldDouble })
@@ -736,6 +763,7 @@ func TestReadTypeS2DoubledIDIncomplete(t *testing.T) {
 	assert.Equal(t, 0, len(p.B))
 }
 
+// TestReadTypeS2DoubledIDConsumesSecondID verifies the expected behavior.
 func TestReadTypeS2DoubledIDConsumesSecondID(t *testing.T) {
 	oldDouble := Doubled16BitID
 	t.Cleanup(func() { Doubled16BitID = oldDouble })
@@ -755,6 +783,7 @@ func TestReadTypeS2DoubledIDConsumesSecondID(t *testing.T) {
 	assert.True(t, len(p.B) <= 2)
 }
 
+// TestReadNoneFramingUnknownIDResync verifies the expected behavior.
 func TestReadNoneFramingUnknownIDResync(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldVerbose := decoder.Verbose
@@ -779,6 +808,7 @@ func TestReadNoneFramingUnknownIDResync(t *testing.T) {
 	assert.True(t, len(dec.B) < 8)
 }
 
+// TestReadNoneFramingTooShortForHeader verifies the expected behavior.
 func TestReadNoneFramingTooShortForHeader(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	t.Cleanup(func() { decoder.PackageFraming = oldFraming })
@@ -798,6 +828,7 @@ func TestReadNoneFramingTooShortForHeader(t *testing.T) {
 	assert.Equal(t, 1, len(dec.B))
 }
 
+// TestReadNoneFramingResyncWhenTriceSizeExceedsPackage verifies the expected behavior.
 func TestReadNoneFramingResyncWhenTriceSizeExceedsPackage(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldVerbose := decoder.Verbose

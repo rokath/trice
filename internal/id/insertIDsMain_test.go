@@ -689,6 +689,7 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 	} // We do not know, which file is processed first.
 }
 
+// TestInsertIDsIntoCleanFilesWithEmptyTilJSON verifies the expected behavior.
 func TestInsertIDsIntoCleanFilesWithEmptyTilJSON(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

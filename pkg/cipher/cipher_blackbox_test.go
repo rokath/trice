@@ -16,6 +16,7 @@ type testTable struct {
 	pattern  []byte
 }
 
+// Test12345678 verifies the expected behavior.
 func Test12345678(t *testing.T) {
 	list := []testTable{
 		{"", []byte{1, 2, 3, 4, 5, 6, 7, 8}},
@@ -30,6 +31,7 @@ func Test12345678(t *testing.T) {
 	}
 }
 
+// check12345678 verifies the expected cipher output for the 12345678 test vector.
 func check12345678(t *testing.T, password string, exp []byte) {
 	cipher.Password = password
 	cipher.ShowKey = true

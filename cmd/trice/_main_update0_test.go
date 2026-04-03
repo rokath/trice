@@ -12,7 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUpdate0(t *testing.T) { // Anti-Virus issue
+// TestUpdate0 exercises the Update0 command path to ensure the ID generator rewrites sources and list files.
+func TestUpdate0(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	defer setupTest(t, fSys)()

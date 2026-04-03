@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestFformatSpecifierCount verifies the expected behavior.
 func TestFformatSpecifierCount(t *testing.T) {
 	type testVector struct {
 		fmt   string
@@ -29,6 +30,7 @@ func TestFformatSpecifierCount(t *testing.T) {
 	}
 }
 
+// TestNewID verifies the expected behavior.
 func TestNewID(t *testing.T) {
 	var id, mi, ma TriceID
 	lut := make(TriceIDLookUp)
@@ -49,6 +51,7 @@ func TestNewID(t *testing.T) {
 	assert.True(t, mi <= id && id <= ma)
 }
 
+// TestNewUpwardID verifies the expected behavior.
 func TestNewUpwardID(t *testing.T) {
 	min := TriceID(97)
 	max := TriceID(100)
@@ -67,6 +70,7 @@ func TestNewUpwardID(t *testing.T) {
 	assert.True(t, id == 98)
 }
 
+// TestNewDownwardID verifies the expected behavior.
 func TestNewDownwardID(t *testing.T) {
 	min := TriceID(97)
 	max := TriceID(100)
@@ -85,6 +89,7 @@ func TestNewDownwardID(t *testing.T) {
 	assert.True(t, id == 99)
 }
 
+// TestNewRandomID verifies the expected behavior.
 func TestNewRandomID(t *testing.T) {
 	mi := TriceID(50)
 	ma := TriceID(100)

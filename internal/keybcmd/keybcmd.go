@@ -13,6 +13,8 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 )
 
+var shutdownFn = emitter.ScShutdownRemoteDisplayServer
+
 func loopAction(reader *bufio.Reader, target io.Writer, ipa, ipp string) {
 	fmt.Print("-> ")
 	text, _ := reader.ReadString('\n')
@@ -22,7 +24,7 @@ func loopAction(reader *bufio.Reader, target io.Writer, ipa, ipp string) {
 	case "q", "quit":
 		os.Exit(0)
 	case "sd", "shutdown":
-		err := emitter.ScShutdownRemoteDisplayServer(os.Stdout, 1, ipa, ipp)
+		err := shutdownFn(os.Stdout, 1, ipa, ipp)
 		if nil != err {
 			fmt.Println(err)
 		}

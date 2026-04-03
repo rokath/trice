@@ -27,6 +27,7 @@ func TestLutFileTransfer(t *testing.T) { // Anti-Virus issue
 	assert.Equal(t, exp, act)
 }
 
+// TestBasePath verifies the expected behavior.
 func TestBasePath(t *testing.T) { // Anti-Virus issue
 	baseFs := &afero.MemMapFs{}
 	baseFs.MkdirAll("/base/path/tmp", 0777)
@@ -41,6 +42,7 @@ func TestBasePath(t *testing.T) { // Anti-Virus issue
 	}
 }
 
+// TestRefresh verifies the expected behavior.
 func TestRefresh(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 

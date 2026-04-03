@@ -10,35 +10,42 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestMySecret1 verifies the expected behavior.
 func TestMySecret1(t *testing.T) {
 	Password = ""
 	checkBig(t)
 }
 
+// TestMySecret2 verifies the expected behavior.
 func TestMySecret2(t *testing.T) {
 	Password = "aSecret"
 	checkBig(t)
 }
 
+// TestMySecret3 verifies the expected behavior.
 func TestMySecret3(t *testing.T) {
 	Password = ""
 	checkMix(t)
 }
 
+// TestMySecret4 verifies the expected behavior.
 func TestMySecret4(t *testing.T) {
 	Password = "aSecret"
 	checkMix(t)
 }
 
+// TestMySecret5 verifies the expected behavior.
 func TestMySecret5(t *testing.T) {
 	Password = ""
 	checkSmall(t)
 }
+// TestMySecret6 verifies the expected behavior.
 func TestMySecret6(t *testing.T) {
 	Password = "aSecret"
 	checkSmall(t)
 }
 
+// checkBig verifies decryption for the large white-box cipher test vector.
 func checkBig(t *testing.T) {
 	assert.Nil(t, SetUp(os.Stdout))
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
@@ -47,6 +54,7 @@ func checkBig(t *testing.T) {
 	assert.Equal(t, src, dst)
 }
 
+// checkMix verifies decryption for the mixed white-box cipher test vector.
 func checkMix(t *testing.T) {
 	assert.Nil(t, SetUp(os.Stdout))
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
@@ -56,6 +64,7 @@ func checkMix(t *testing.T) {
 	assert.Equal(t, src, dst)
 }
 
+// checkSmall verifies decryption for the small white-box cipher test vector.
 func checkSmall(t *testing.T) {
 	assert.Nil(t, SetUp(os.Stdout))
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
@@ -66,6 +75,7 @@ func checkSmall(t *testing.T) {
 	assert.Equal(t, src, dst)
 }
 
+// TestDecryptBufferBoundaries verifies the expected behavior.
 func TestDecryptBufferBoundaries(t *testing.T) {
 	Password = "aSecret"
 	assert.Nil(t, SetUp(os.Stdout))

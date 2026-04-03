@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Test1colorize verifies the expected behavior.
 func Test1colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "none")
@@ -21,6 +22,7 @@ func Test1colorize(t *testing.T) {
 	}
 }
 
+// Test2colorize verifies the expected behavior.
 func Test2colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "none")
@@ -29,6 +31,7 @@ func Test2colorize(t *testing.T) {
 	assert.Equal(t, "de", c)
 }
 
+// Test3colorize verifies the expected behavior.
 func Test3colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "off")
@@ -67,6 +70,7 @@ func _Test5colorize(t *testing.T) {
 	assert.Equal(t, b, []byte(c))
 }
 
+// Test1WriteLine verifies the expected behavior.
 func Test1WriteLine(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "none")

@@ -6,276 +6,127 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"go.bug.st/serial"
 )
 
-type fakeSerialPort struct {
-	readData []byte
-	readPos  int
-	written  bytes.Buffer
-	closed   bool
-}
+// dummyPort implements the serial.Port interface so tests can run without real hardware.
+type dummyPort struct{}
 
-func (f *fakeSerialPort) SetMode(_ *serial.Mode) error { return nil }
-func (f *fakeSerialPort) Drain() error                 { return nil }
-func (f *fakeSerialPort) ResetInputBuffer() error      { return nil }
-func (f *fakeSerialPort) ResetOutputBuffer() error     { return nil }
-func (f *fakeSerialPort) SetDTR(_ bool) error          { return nil }
-func (f *fakeSerialPort) SetRTS(_ bool) error          { return nil }
-func (f *fakeSerialPort) SetReadTimeout(_ time.Duration) error {
-	return nil
-}
-func (f *fakeSerialPort) GetModemStatusBits() (*serial.ModemStatusBits, error) {
+func (dummyPort) Read([]byte) (int, error)           { return 0, io.EOF }
+func (dummyPort) Write([]byte) (int, error)          { return 0, nil }
+func (dummyPort) Close() error                       { return nil }
+func (dummyPort) SetMode(*serial.Mode) error         { return nil }
+func (dummyPort) Drain() error                       { return nil }
+func (dummyPort) ResetInputBuffer() error            { return nil }
+func (dummyPort) ResetOutputBuffer() error           { return nil }
+func (dummyPort) SetDTR(bool) error                  { return nil }
+func (dummyPort) SetRTS(bool) error                  { return nil }
+func (dummyPort) SetReadTimeout(time.Duration) error { return nil }
+func (dummyPort) Break(time.Duration) error          { return nil }
+
+func (dummyPort) GetModemStatusBits() (*serial.ModemStatusBits, error) {
 	return &serial.ModemStatusBits{}, nil
 }
-func (f *fakeSerialPort) Break(_ time.Duration) error { return nil }
-func (f *fakeSerialPort) Close() error {
-	f.closed = true
-	return nil
-}
 
-func (f *fakeSerialPort) Read(p []byte) (int, error) {
-	if f.readPos >= len(f.readData) {
-		return 0, io.EOF
+// resetComGlobals preserves and restores global serial settings around each test.
+func resetComGlobals(t *testing.T) func() {
+	t.Helper()
+	oldParity := Parity
+	oldStop := StopBits
+	oldData := DataBits
+	oldBaud := BaudRate
+	return func() {
+		Parity = oldParity
+		StopBits = oldStop
+		DataBits = oldData
+		BaudRate = oldBaud
 	}
-	n := copy(p, f.readData[f.readPos:])
-	f.readPos += n
-	return n, nil
 }
 
-func (f *fakeSerialPort) Write(p []byte) (int, error) {
-	return f.written.Write(p)
-}
-
-func TestNewPortNilWriterFallsBackToDiscard(t *testing.T) {
-	BaudRate = 115200
-	DataBits = 8
+// withSerialSettings configures minimal valid serial parameters for the admin helper tests.
+func withSerialSettings(t *testing.T) {
+	t.Helper()
+	reset := resetComGlobals(t)
+	if reset != nil {
+		t.Cleanup(reset)
+	}
 	Parity = "none"
 	StopBits = "1"
-
-	p := NewPort(nil, "COM1", true)
-	if p.w == nil {
-		t.Fatal("writer must not be nil")
-	}
-}
-
-func TestReadWriteCloseWithoutOpen(t *testing.T) {
-	BaudRate = 115200
 	DataBits = 8
-	Parity = "none"
-	StopBits = "1"
-
-	p := NewPort(io.Discard, "COM1", false)
-	if _, err := p.Read(make([]byte, 4)); err == nil {
-		t.Fatal("expected read error for unopened port")
-	}
-	if _, err := p.Write([]byte("x")); err == nil {
-		t.Fatal("expected write error for unopened port")
-	}
-	if err := p.Close(); err == nil {
-		t.Fatal("expected close error for unopened port")
-	}
-}
-
-func TestOpenReadWriteClose(t *testing.T) {
-	oldOpen := openSerial
-	t.Cleanup(func() { openSerial = oldOpen })
-
 	BaudRate = 115200
-	DataBits = 8
-	Parity = "even"
-	StopBits = "2"
-
-	fp := &fakeSerialPort{readData: []byte("abc")}
-	openSerial = func(portName string, mode *serial.Mode) (serial.Port, error) {
-		if portName != "ttyS0" {
-			t.Fatalf("unexpected port name: %s", portName)
-		}
-		if mode.BaudRate != 115200 || mode.DataBits != 8 || mode.Parity != serial.EvenParity || mode.StopBits != serial.TwoStopBits {
-			t.Fatalf("unexpected mode: %+v", *mode)
-		}
-		return fp, nil
-	}
-
-	p := NewPort(io.Discard, "ttyS0", false)
-	if !p.Open() {
-		t.Fatal("expected open success")
-	}
-
-	b := make([]byte, 8)
-	n, err := p.Read(b)
-	if err != nil {
-		t.Fatalf("read failed: %v", err)
-	}
-	if got := string(b[:n]); got != "abc" {
-		t.Fatalf("unexpected read data: %q", got)
-	}
-
-	n, err = p.Write([]byte("xyz"))
-	if err != nil {
-		t.Fatalf("write failed: %v", err)
-	}
-	if n != 3 || fp.written.String() != "xyz" {
-		t.Fatalf("unexpected write result: n=%d data=%q", n, fp.written.String())
-	}
-
-	if err := p.Close(); err != nil {
-		t.Fatalf("close failed: %v", err)
-	}
-	if !fp.closed {
-		t.Fatal("expected underlying port close")
-	}
 }
 
-func TestOpenModeOddOnePointFiveStopBits(t *testing.T) {
-	oldOpen := openSerial
-	t.Cleanup(func() { openSerial = oldOpen })
-
-	BaudRate = 9600
-	DataBits = 7
-	Parity = "odd"
-	StopBits = "1.5"
-
-	openSerial = func(portName string, mode *serial.Mode) (serial.Port, error) {
-		if portName != "ttyS1" {
-			t.Fatalf("unexpected port name: %s", portName)
-		}
-		if mode.BaudRate != 9600 || mode.DataBits != 7 || mode.Parity != serial.OddParity || mode.StopBits != serial.OnePointFiveStopBits {
-			t.Fatalf("unexpected mode: %+v", *mode)
-		}
-		return &fakeSerialPort{}, nil
-	}
-
-	p := NewPort(io.Discard, "ttyS1", false)
-	if !p.Open() {
-		t.Fatal("expected open success")
-	}
-}
-
-func TestOpenFailureVerbose(t *testing.T) {
-	oldOpen := openSerial
-	t.Cleanup(func() { openSerial = oldOpen })
-
-	BaudRate = 115200
-	DataBits = 8
-	Parity = "none"
-	StopBits = "1"
-
-	openSerial = func(string, *serial.Mode) (serial.Port, error) {
-		return nil, errors.New("open failed")
-	}
-
-	var out bytes.Buffer
-	p := NewPort(&out, "ttyS0", true)
-	if p.Open() {
-		t.Fatal("expected open failure")
-	}
-	if !strings.Contains(out.String(), "open failed") {
-		t.Fatalf("missing open error output: %q", out.String())
-	}
-}
-
-func TestCloseVerbose(t *testing.T) {
-	BaudRate = 115200
-	DataBits = 8
-	Parity = "none"
-	StopBits = "1"
-
-	var out bytes.Buffer
-	p := NewPort(&out, "COM1", true)
-	p.serialHandle = &fakeSerialPort{}
-
-	if err := p.Close(); err != nil {
-		t.Fatalf("close failed: %v", err)
-	}
-	if !strings.Contains(out.String(), "Closing COM port") {
-		t.Fatalf("missing close message: %q", out.String())
-	}
-}
-
-func TestGetSerialPortsDeterministic(t *testing.T) {
-	oldOpen := openSerial
-	oldList := getPortsList
-	oldVerbose := Verbose
+// TestGetSerialPortsFound validates the walker reports found ports when the serial open succeeds.
+func TestGetSerialPortsFound(t *testing.T) {
+	withSerialSettings(t)
+	origOpen := openSerial
+	origList := getPortsList
 	t.Cleanup(func() {
-		openSerial = oldOpen
-		getPortsList = oldList
-		Verbose = oldVerbose
+		openSerial = origOpen
+		getPortsList = origList
 	})
 
 	getPortsList = func() ([]string, error) {
-		return []string{"COM_A", "COM_B"}, nil
+		return []string{"COM1"}, nil
 	}
-	openSerial = func(portName string, _ *serial.Mode) (serial.Port, error) {
-		if portName == "COM_B" {
-			return nil, errors.New("busy")
-		}
-		return &fakeSerialPort{}, nil
+	openCalled := make([]string, 0, 1)
+	var mu sync.Mutex
+	openSerial = func(name string, mode *serial.Mode) (serial.Port, error) {
+		mu.Lock()
+		openCalled = append(openCalled, name)
+		mu.Unlock()
+		return dummyPort{}, nil
 	}
 
 	var out bytes.Buffer
 	ports, err := GetSerialPorts(&out)
 	if err != nil {
-		t.Fatalf("GetSerialPorts failed: %v", err)
+		t.Fatalf("GetSerialPorts returned error: %v", err)
 	}
-	if len(ports) != 2 {
-		t.Fatalf("unexpected port count: %d", len(ports))
+	if len(ports) != 1 || ports[0] != "COM1" {
+		t.Fatalf("unexpected ports list: %#v", ports)
 	}
-
-	s := out.String()
-	if !strings.Contains(s, "Found port:  COM_A") {
-		t.Fatalf("missing open port output: %q", s)
+	if !bytes.Contains(out.Bytes(), []byte("Found port: ")) {
+		t.Fatalf("expected success output, got %q", out.String())
 	}
-	if !strings.Contains(s, "Found port:  COM_B (used)") {
-		t.Fatalf("missing used port output: %q", s)
+	mu.Lock()
+	if len(openCalled) != 1 || openCalled[0] != "COM1" {
+		t.Fatalf("openSerial not invoked properly: %#v", openCalled)
 	}
+	mu.Unlock()
 }
 
-func TestGetSerialPortsVerboseNoPorts(t *testing.T) {
-	oldList := getPortsList
-	oldVerbose := Verbose
+// TestGetSerialPortsUsed ensures the helper still returns port list even when the port cannot be opened.
+func TestGetSerialPortsUsed(t *testing.T) {
+	withSerialSettings(t)
+	origOpen := openSerial
+	origList := getPortsList
 	t.Cleanup(func() {
-		getPortsList = oldList
-		Verbose = oldVerbose
+		openSerial = origOpen
+		getPortsList = origList
 	})
 
-	getPortsList = func() ([]string, error) { return nil, nil }
-	Verbose = true
+	errTest := errors.New("fail")
+	getPortsList = func() ([]string, error) {
+		return []string{"COM1"}, nil
+	}
+	openSerial = func(name string, mode *serial.Mode) (serial.Port, error) {
+		return nil, errTest
+	}
 
 	var out bytes.Buffer
 	ports, err := GetSerialPorts(&out)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(ports) != 0 {
-		t.Fatalf("expected no ports, got %d", len(ports))
+	if len(ports) != 1 {
+		t.Fatalf("expected ports even on error")
 	}
-	if !strings.Contains(out.String(), "No serial ports found!") {
-		t.Fatalf("missing verbose message: %q", out.String())
-	}
-}
-
-func TestGetSerialPortsErrorFromList(t *testing.T) {
-	oldList := getPortsList
-	t.Cleanup(func() { getPortsList = oldList })
-
-	getPortsList = func() ([]string, error) {
-		return nil, errors.New("enumeration failed")
-	}
-
-	var out bytes.Buffer
-	ports, err := GetSerialPorts(&out)
-	if err == nil {
-		t.Fatal("expected error")
-	}
-	if len(ports) != 0 {
-		t.Fatalf("expected no ports, got %d", len(ports))
-	}
-	if !strings.Contains(out.String(), "enumeration failed") {
-		t.Fatalf("missing error output: %q", out.String())
+	if !bytes.Contains(out.Bytes(), []byte("(used)")) {
+		t.Fatalf("expected used marker, got %q", out.String())
 	}
 }

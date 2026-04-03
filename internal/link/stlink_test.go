@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestStLink verifies the expected behavior.
 func TestStLink(t *testing.T) {
 	link.Port = "STLINK"
 	link.SetLinkCommandName()
