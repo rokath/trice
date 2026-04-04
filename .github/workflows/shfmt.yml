@@ -4,7 +4,7 @@
 # 
 # Developers can fix formatting locally by running:
 # 
-# ./scripts/format_shell_scripts.sh format
+# ./scripts/_format_shell_scripts.sh format
 
 name: "shfmt (Shell Formatting)"
 
@@ -29,5 +29,5 @@ jobs:
 
       - name: Run shfmt in check mode
         run: |
-          chmod +x ./scripts/format_shell_scripts.sh
-          ./scripts/format_shell_scripts.sh check
+          chmod +x ./scripts/_format_shell_scripts.sh
+          ./scripts/_format_shell_scripts.sh check

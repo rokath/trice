@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Step 09: Runs the normal Go tests.
+# Step 09: Checks Go formatting and runs the normal Go tests.
 #
 # Direct invocation:
 # - ./_testAll_09_GoTests.sh
@@ -19,6 +19,15 @@ main() {
     log "SKIP: Go not installed"
     exit 0
   fi
+  if ! has_command gofmt; then
+    log "MISSING TOOL: gofmt"
+    log "SKIP: gofmt not installed"
+    exit 0
+  fi
+  run_cmd "$SCRIPTS_DIR/_format_go_code.sh" check || {
+    log "FAIL: _format_go_code.sh check failed"
+    exit 1
+  }
   run_cmd go clean -cache -testcache || {
     log "FAIL: go clean failed"
     exit 1

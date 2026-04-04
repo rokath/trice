@@ -117,6 +117,11 @@ grep_log() {
   grep -Eiq "$pattern" "$file"
 }
 
+tracked_worktree_status() {
+  # Return tracked worktree/index changes without untracked temp/log files.
+  git status --short --untracked-files=no
+}
+
 get_mode() {
   # Accept only the supported selection values and normalize "no argument" to "quick".
   case "${1:-quick}" in

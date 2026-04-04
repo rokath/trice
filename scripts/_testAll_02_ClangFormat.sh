@@ -21,11 +21,11 @@ main() {
   fi
   if ! has_command go; then
     log "MISSING TOOL: go"
-    log "SKIP: Go not installed (required by format_c_code.sh)"
+    log "SKIP: Go not installed (required by _format_c_code.sh)"
     exit 0
   fi
-  run_cmd "$SCRIPTS_DIR/format_c_code.sh" || {
-    log "FAIL: format_c_code.sh failed"
+  run_cmd "$SCRIPTS_DIR/_format_c_code.sh" || {
+    log "FAIL: _format_c_code.sh failed"
     exit 1
   }
 }

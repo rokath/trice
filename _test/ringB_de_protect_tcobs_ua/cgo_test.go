@@ -15,7 +15,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//                                  expected: "time:feed3322default: Hello World!\ntime:feed3322default: msg:Twelve 64-bit values: -1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12"
+//	expected: "time:feed3322default: Hello World!\ntime:feed3322default: msg:Twelve 64-bit values: -1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12"
+//
 // -color=off"                      actual  : "time:feed3322default: Hello World!\ntime:feed3322default: msg:Twelve 64-bit values: -1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12"
 // -color=none"                     actual  : "feed3322 Hello World!\nfeed3322 Twelve 64-bit values: -1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12"
 func init() {

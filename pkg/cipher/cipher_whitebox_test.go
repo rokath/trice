@@ -39,6 +39,7 @@ func TestMySecret5(t *testing.T) {
 	Password = ""
 	checkSmall(t)
 }
+
 // TestMySecret6 verifies the expected behavior.
 func TestMySecret6(t *testing.T) {
 	Password = "aSecret"

@@ -64,7 +64,7 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 			}
 
 			// If path content equals insertedCachePath content, we are nearly done.
-			if time.Time.Equal(fileInfo.ModTime(), iCache.ModTime()){
+			if time.Time.Equal(fileInfo.ModTime(), iCache.ModTime()) {
 				msg.Tell(w, "trice i was executed before, nothing to do")
 				return msg.OnErrFv(w, p.err) // `trice i File`: File == iCache ? done
 			}
