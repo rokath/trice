@@ -1,7 +1,6 @@
-/*! \file triceConfig.h
-\author Thomas.Hoehenleitner [at] seerose.net
-\details This file serves as example just for CONFIGURATION == 0. All other configurations are only alternatives.
-*******************************************************************************/
+// SPDX-License-Identifier: MIT
+
+//! \file triceConfig.h
 
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_

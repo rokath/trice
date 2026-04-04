@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 //! \file triceExamples.c
 
 #include "trice.h"

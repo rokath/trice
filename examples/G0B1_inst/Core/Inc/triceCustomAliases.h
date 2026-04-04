@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: MIT
+
+//! \file triceCustomAliases.h
+
 #ifndef TRICE_CUSTOM_ALIASES_H_
 #define TRICE_CUSTOM_ALIASES_H_
 
