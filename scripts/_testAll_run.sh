@@ -51,13 +51,13 @@ main() {
   local finished_at
   local duration
   local failed=0
-  local initial_tracked_status
-  local final_tracked_status
+  # local initial_tracked_status
+  # local final_tracked_status
   selected="$(get_mode "${1:-quick}")"
   export SELECTED="$selected"
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
   started_at=$(date +%s)
-  initial_tracked_status="$(tracked_worktree_status)"
+  # initial_tracked_status="$(tracked_worktree_status)"
 
   : >"$SUMMARY_LOG"
   summary_line "Starting testAll at $(date)"

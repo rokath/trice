@@ -6,7 +6,7 @@ name: Clang-Format Check
 # It uses:
 #   - clang-format (installed via apt)
 #   - a Go-based helper (cmd/clang-filter) via `go run`
-#   - the shell script `./scripts/format_c_code.sh` to orchestrate everything
+#   - the shell script `./scripts/_format_c_code.sh` to orchestrate everything
 #
 # The workflow runs:
 #   - on every push to any branch
@@ -29,7 +29,7 @@ jobs:
       #    - .clang-format
       #    - .clang-format-ignore
       #    - cmd/clang-filter
-      #    - scripts/format_c_code.sh
+      #    - scripts/_format_c_code.sh
       #########################################################################
       - name: Check out repository
         uses: actions/checkout@v5
@@ -81,5 +81,5 @@ jobs:
       #########################################################################
       - name: Run clang-format in check mode
         run: |
-          chmod +x ./scripts/format_c_code.sh
-          ./scripts/format_c_code.sh check
+          chmod +x ./scripts/_format_c_code.sh
+          ./scripts/_format_c_code.sh check
