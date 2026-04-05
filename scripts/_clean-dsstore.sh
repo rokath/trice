@@ -1,38 +1,46 @@
 #!/bin/bash
 
-# ================================================
-# clean-dsstore-advanced.sh
-# Deletes .DS_Store files recursively
+# Recursively remove stray macOS .DS_Store files.
+# Usage:
+#   ./scripts/_clean-dsstore.sh [TARGET_DIR] [--dry-run] [--silent]
 #
-# 📌 Usage:
-#   ./clean-dsstore-advanced.sh [TARGET_DIR] [--dry-run]
+# Options:
+#   TARGET_DIR  Optional scan root. Defaults to the current directory.
+#   --dry-run   Print matches without deleting them.
+#   --silent    Suppress normal progress output. Errors still go to stderr.
 #
-# ✅ Examples:
-#   ./clean-dsstore-advanced.sh                  # cleans current directory
-#   ./clean-dsstore-advanced.sh ~/Documents      # cleans specific directory
-#   ./clean-dsstore-advanced.sh --dry-run        # shows what would be deleted
-#
-# ⚠️ Notes:
-# - Excludes system-protected macOS folders
-# - Quits and restarts Finder only if it was running
-# ================================================
-
-# === Terminal colors ===
-# RED='\033[0;31m'
-# GREEN='\033[0;32m'
-# YELLOW='\033[1;33m'
-# BLUE='\033[1;34m'
-# NC='\033[0m' # No color
+# Notes:
+# - Excludes selected macOS system folders from the search.
+# - Quits and restarts Finder only if it was running before the cleanup.
 
 # === Default settings ===
 TARGET_DIR="."
 DRY_RUN=false
+SILENT=false
+
+log_info() {
+  if [ "$SILENT" = false ]; then
+    printf '%s\n' "$1"
+  fi
+}
+
+log_error() {
+  printf '%s\n' "$1" >&2
+}
 
 # === Parse arguments ===
 for arg in "$@"; do
   case "$arg" in
   --dry-run) DRY_RUN=true ;;
-  /*) TARGET_DIR="$arg" ;;
+  --silent) SILENT=true ;;
+  --*)
+    log_error "Unknown option: $arg"
+    log_error "Usage: ./scripts/_clean-dsstore.sh [TARGET_DIR] [--dry-run] [--silent]"
+    exit 1
+    ;;
+  *)
+    TARGET_DIR="$arg"
+    ;;
   esac
 done
 
@@ -44,37 +52,47 @@ if [[ $OS_TYPE == "Darwin" ]]; then
   FINDER_WAS_RUNNING=false
   if pgrep -xq "Finder"; then
     FINDER_WAS_RUNNING=true
-    echo -e "${YELLOW}🛑 Quitting Finder to prevent interference...${NC}"
+    log_info "🛑 Quitting Finder to prevent interference..."
     osascript -e 'tell application "Finder" to quit'
   fi
 fi
 
-echo -e "${BLUE}🔍 Scanning for .DS_Store files...${NC}"
+if [ ! -d "$TARGET_DIR" ]; then
+  log_error "Target directory does not exist: $TARGET_DIR"
+  exit 1
+fi
+
+log_info "🔍 Scanning for .DS_Store files..."
 
 # === Main find/delete loop ===
-find "$TARGET_DIR" \
-  -path "*/.Spotlight-V100" -prune -o \
-  -path "*/.DocumentRevisions-V100" -prune -o \
-  -path "*/.TemporaryItems" -prune -o \
-  -name '.DS_Store' -type f -print | while read -r file; do
-  echo -e "${YELLOW}🗑️  Found: $file${NC}"
+while read -r file; do
+  [ -z "$file" ] && continue
+  log_info "🗑️  Found: $file"
   if [ "$DRY_RUN" = false ]; then
-    rm -f "$file" && ((COUNT++)) &&
-      echo -e "${GREEN}✔️  Deleted${NC}"
+    if rm -f "$file"; then
+      ((COUNT++))
+      log_info "✔️  Deleted"
+    else
+      log_error "Failed to delete: $file"
+    fi
   else
     ((COUNT++))
   fi
-done
+done < <(find "$TARGET_DIR" \
+  -path "*/.Spotlight-V100" -prune -o \
+  -path "*/.DocumentRevisions-V100" -prune -o \
+  -path "*/.TemporaryItems" -prune -o \
+  -name '.DS_Store' -type f -print)
 
 # === Summary ===
-echo -e "${BLUE}✅ Done. Processed $COUNT file(s).${NC}"
+log_info "✅ Done. Processed $COUNT file(s)."
 
 if [[ $OS_TYPE == "Darwin" ]]; then
   # === Restart Finder if it was previously running ===
   if [ "$FINDER_WAS_RUNNING" = true ]; then
-    echo -e "${YELLOW}🔄 Restarting Finder...${NC}"
+    log_info "🔄 Restarting Finder..."
     open -a Finder
   else
-    echo -e "${BLUE}📎 Finder was not running before – not restarted.${NC}"
+    log_info "📎 Finder was not running before; not restarted."
   fi
 fi
