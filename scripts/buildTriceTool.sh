@@ -20,6 +20,7 @@
 #
 # Install behaviour:
 # - The script now resolves the final install target before running go install.
+# - A custom output target can be specified explicitly for isolated test builds.
 # - If a trice binary already exists there, it is no longer replaced silently.
 # - By default, an existing binary is backed up before it is overwritten.
 # - Use --no-backup to opt out of that default.
@@ -47,11 +48,12 @@ BACKUP_EXPLICIT=false
 FORCE=false
 SILENT=false
 VERBOSE=false
+CUSTOM_TARGET_FILE=""
 
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/buildTriceTool.sh [--force] [--backup|--no-backup] [--silent] [--verbose]
+  ./scripts/buildTriceTool.sh [--force] [--backup|--no-backup] [--silent] [--verbose] [--target-file <path>]
 
 Options:
   --force      Overwrite an existing target without interactive confirmation.
@@ -59,6 +61,9 @@ Options:
   --no-backup  Do not create a backup before overwriting an existing target.
   --silent     Suppress normal progress messages.
   --verbose    Print additional diagnostic details.
+  --target-file
+               Write the built trice binary to the given file path instead of
+               using go install's GOBIN/GOPATH target resolution.
   --help       Show this help text.
 
 Notes:
@@ -89,9 +94,10 @@ log_always() {
 }
 
 # Parse only the global behaviour flags here.
-# The script intentionally does not add positional parameters because the
-# existing functional build content has no need for them.
-for arg in "$@"; do
+# The script intentionally keeps the functional build parameters fixed and only
+# adds switches for install/output behaviour.
+while [ "$#" -gt 0 ]; do
+  arg="$1"
   case "$arg" in
   --backup)
     BACKUP=true
@@ -104,6 +110,15 @@ for arg in "$@"; do
   --force) FORCE=true ;;
   --silent) SILENT=true ;;
   --verbose) VERBOSE=true ;;
+  --target-file)
+    shift
+    if [ "$#" -eq 0 ]; then
+      log_error "Missing value for --target-file"
+      usage >&2
+      exit 1
+    fi
+    CUSTOM_TARGET_FILE="$1"
+    ;;
   --help)
     usage
     exit 0
@@ -114,6 +129,7 @@ for arg in "$@"; do
     exit 1
     ;;
   esac
+  shift
 done
 
 ##############################################
@@ -182,31 +198,51 @@ log_info "----------------------------------------"
 # Resolve the final install target
 ##############################################
 #
-# go install writes to:
+# By default, go install writes to:
 #   1. GOBIN, when set, otherwise
 #   2. the first GOPATH entry plus /bin
 #
-# We resolve that target explicitly so the user can see which installation
-# would be affected before any overwrite happens.
+# For test automation we also support --target-file, which bypasses go install
+# target resolution completely and writes to an explicit file path via go build.
+# This keeps disposable test binaries clearly separated from any user install.
 #
-go_bin_dir="${GOBIN:-}"
-if [ -z "$go_bin_dir" ]; then
-  go_bin_dir="$(go env GOBIN)"
-fi
-
-if [ -z "$go_bin_dir" ]; then
-  go_path="$(go env GOPATH)"
-  go_bin_dir="${go_path%%:*}/bin"
-fi
-
 go_exe_suffix="$(go env GOEXE)"
-target_name="trice${go_exe_suffix}"
-install_target="$go_bin_dir/$target_name"
+if [ -n "$CUSTOM_TARGET_FILE" ]; then
+  install_target="$CUSTOM_TARGET_FILE"
+else
+  go_bin_dir="${GOBIN:-}"
+  if [ -z "$go_bin_dir" ]; then
+    go_bin_dir="$(go env GOBIN)"
+  fi
+
+  if [ -z "$go_bin_dir" ]; then
+    go_path="$(go env GOPATH)"
+    go_bin_dir="${go_path%%:*}/bin"
+  fi
+
+  target_name="trice${go_exe_suffix}"
+  install_target="$go_bin_dir/$target_name"
+fi
+
+install_dir="$(cd -- "$(dirname -- "$install_target")" 2>/dev/null && pwd || true)"
+if [ -z "$install_dir" ]; then
+  install_dir="$(dirname -- "$install_target")"
+fi
+
+if [ -n "$CUSTOM_TARGET_FILE" ]; then
+  target_name="$(basename -- "$install_target")"
+else
+  target_name="trice${go_exe_suffix}"
+fi
+
 backup_target=""
 
 log_info "Install target: $install_target"
 log_verbose "Resolved GOBIN: ${GOBIN:-<unset>}"
 log_verbose "Resolved GOEXE: ${go_exe_suffix:-<none>}"
+if [ -n "$CUSTOM_TARGET_FILE" ]; then
+  log_verbose "Custom target file: $CUSTOM_TARGET_FILE"
+fi
 
 ##############################################
 # Protect an existing installation
@@ -280,7 +316,7 @@ if [ -e "$install_target" ]; then
 
   if [ "$BACKUP" = true ]; then
     timestamp="$(date +%Y%m%d-%H%M%S)"
-    backup_target="$go_bin_dir/Backup-${timestamp}_${target_name}"
+    backup_target="$install_dir/Backup-${timestamp}_${target_name}"
     log_info "Creating backup: $backup_target"
     cp -p "$install_target" "$backup_target"
   else
@@ -308,7 +344,20 @@ fi
 #   -s —> strip the symbol table
 #   -w —> strip DWARF debugging info
 #
-go install -ldflags "\
+if [ -n "$CUSTOM_TARGET_FILE" ]; then
+  mkdir -p "$install_dir"
+  go build -o "$install_target" -ldflags "\
+  -X 'main.version=$version' \
+  -X 'main.commit=$commit' \
+  -X 'main.date=$date' \
+  -X 'main.branch=$origin - $branch' \
+  -X 'main.gitState=$git_state' \
+  -X 'main.gitStatus=$git_status' \
+  -s \
+  -w \
+" ./cmd/trice
+else
+  go install -ldflags "\
   -X 'main.version=$version' \
   -X 'main.commit=$commit' \
   -X 'main.date=$date' \
@@ -318,6 +367,7 @@ go install -ldflags "\
   -s \
   -w \
 " ./cmd/trice/...
+fi
 
 ##############################################
 # Final summary
