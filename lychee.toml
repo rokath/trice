@@ -83,7 +83,15 @@ exclude = [
 
   # This site intermittently answers automated checks with HTTP 202
   # although the article is reachable for normal users in a browser.
-  "^https://circuitcellar\\.com/.*"
+  "^https://circuitcellar\\.com/.*",
+
+  # These sites are valid for human readers but flaky or hostile to CI bots.
+  "^https://cte\\.e10labs\\.com/.*",
+  "^https://www2\\.keil\\.com/mdk5/uvision/.*",
+  "^https://developer\\.arm\\.com/downloads/-/arm-gnu-toolchain-downloads.*",
+  "^https://developer\\.arm\\.com/documentation/ka004054/latest.*",
+  "^https://developer\\.arm\\.com/Tools%20and%20Software/GNU%20Toolchain.*",
+  "^https://www\\.babynamespedia\\.com/meaning/Trice.*"
 ]
 
 

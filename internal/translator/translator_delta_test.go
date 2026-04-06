@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/id"
 )
 
 // TestRenderTargetStampColumns16DeltaWraparound verifies the expected behavior.
@@ -288,5 +289,99 @@ func TestAutoTargetStamp0Delta(t *testing.T) {
 
 	if decoder.TargetStamp0Delta != strings.Repeat(" ", len("    0")) {
 		t.Fatalf("ts0delta should use widest mismatched width, got %q", decoder.TargetStamp0Delta)
+	}
+}
+
+// TestPrepareTargetStampFormats validates defaulting and invalid epoch delta combinations.
+func TestPrepareTargetStampFormats(t *testing.T) {
+	savedTargetStamp := decoder.TargetStamp
+	saved16 := decoder.TargetStamp16
+	saved32 := decoder.TargetStamp32
+	saved0 := decoder.TargetStamp0
+	saved16Delta := decoder.TargetStamp16Delta
+	saved32Delta := decoder.TargetStamp32Delta
+	saved16Passed := decoder.ShowTargetStamp16Passed
+	saved32Passed := decoder.ShowTargetStamp32Passed
+	saved0Passed := decoder.ShowTargetStamp0Passed
+	defer func() {
+		decoder.TargetStamp = savedTargetStamp
+		decoder.TargetStamp16 = saved16
+		decoder.TargetStamp32 = saved32
+		decoder.TargetStamp0 = saved0
+		decoder.TargetStamp16Delta = saved16Delta
+		decoder.TargetStamp32Delta = saved32Delta
+		decoder.ShowTargetStamp16Passed = saved16Passed
+		decoder.ShowTargetStamp32Passed = saved32Passed
+		decoder.ShowTargetStamp0Passed = saved0Passed
+	}()
+
+	decoder.TargetStamp = "ms"
+	decoder.TargetStamp16 = ""
+	decoder.TargetStamp32 = ""
+	decoder.TargetStamp0 = ""
+	decoder.TargetStamp16Delta = ""
+	decoder.TargetStamp32Delta = ""
+	decoder.ShowTargetStamp16Passed = false
+	decoder.ShowTargetStamp32Passed = false
+	decoder.ShowTargetStamp0Passed = false
+	if err := prepareTargetStampFormats(); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if decoder.TargetStamp16 != "ms" || decoder.TargetStamp32 != "ms" || decoder.TargetStamp0 != DefaultTargetStamp0 {
+		t.Fatalf("unexpected default formats: %q %q %q", decoder.TargetStamp0, decoder.TargetStamp16, decoder.TargetStamp32)
+	}
+
+	decoder.TargetStamp = "us"
+	decoder.TargetStamp16Delta = "epoch"
+	if err := prepareTargetStampFormats(); err == nil {
+		t.Fatalf("expected invalid ts16delta error")
+	}
+
+	decoder.TargetStamp16Delta = ""
+	decoder.TargetStamp32Delta = "epoch+1"
+	if err := prepareTargetStampFormats(); err == nil {
+		t.Fatalf("expected invalid ts32delta error")
+	}
+}
+
+// TestCorrectWrappedTimestamp verifies plausible timestamps are corrected into a future epoch window.
+func TestCorrectWrappedTimestamp(t *testing.T) {
+	got := correctWrappedTimestamp(1)
+	if got.Year() <= 2038 {
+		t.Fatalf("expected wrapped timestamp beyond 2038, got %v", got)
+	}
+
+	plain := correctWrappedTimestamp(uint32(time.Date(2024, 1, 2, 3, 4, 5, 0, time.UTC).Unix()))
+	if plain.Year() != 2024 {
+		t.Fatalf("expected unchanged plausible timestamp, got %v", plain)
+	}
+}
+
+// TestLocationInformation verifies lookup, fallback, and verbose-disabled behavior.
+func TestLocationInformation(t *testing.T) {
+	savedFormat := decoder.LocationInformationFormatString
+	savedVerbose := Verbose
+	defer func() {
+		decoder.LocationInformationFormatString = savedFormat
+		Verbose = savedVerbose
+	}()
+
+	decoder.LocationInformationFormatString = "%s:%d "
+	Verbose = false
+	li := id.TriceIDLookUpLI{
+		17: {File: "/tmp/demo/main.c", Line: 42},
+	}
+
+	if got := locationInformation(17, li); got != "main.c:42 " {
+		t.Fatalf("unexpected location info %q", got)
+	}
+	if got := locationInformation(18, li); got != ":0 " {
+		t.Fatalf("unexpected missing location fallback %q", got)
+	}
+
+	decoder.LocationInformationFormatString = "off"
+	Verbose = true
+	if got := locationInformation(17, li); got != "no li" {
+		t.Fatalf("unexpected verbose fallback %q", got)
 	}
 }

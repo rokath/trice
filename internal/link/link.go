@@ -51,8 +51,7 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 	case "OPENOCD", "OPEN-OCD", "OOCD", "OCD":
 		p.Exec = "openocd"
 		p.Lib = "libusb-1.0"
-		p.args[0] = "-f"
-		p.args[1] = "openocd.cfg"
+		p.args = []string{"-f", "openocd.cfg"}
 		p.tempLogFileName = ""
 		return p
 	case "JLINK", "J-LINK":
@@ -112,11 +111,11 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 	lastArgExt := filepath.Ext(lastArg)
 
 	if lastArgExt == ".bin" {
+		p.tempLogFileName, _ = filepath.Abs(lastArg)
 		if Verbose {
-			p.tempLogFileName, _ = filepath.Abs(lastArg)
 			fmt.Printf("An intermediate log file name \"%s\" is specified inside p.args, so use that.\n", lastArg)
-			p.args[len(p.args)-1] = p.tempLogFileName
 		}
+		p.args[len(p.args)-1] = p.tempLogFileName
 	} else {
 		// create temp folder if not exists
 		tempDir := "./temp" // filepath.Join(dir, "temp")

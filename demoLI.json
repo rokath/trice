@@ -41,19 +41,19 @@
 	},
 	"13010": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 44
+		"Line": 43
 	},
 	"13011": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 72
+		"Line": 71
 	},
 	"13012": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 62
+		"Line": 61
 	},
 	"13013": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 82
+		"Line": 81
 	},
 	"13014": {
 		"File": "examples/L432_inst/Core/Src/stm32l4xx_it.c",
@@ -61,7 +61,7 @@
 	},
 	"13015": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 92
+		"Line": 91
 	},
 	"13016": {
 		"File": "examples/L432_inst/Core/Src/stm32l4xx_it.c",
@@ -69,19 +69,19 @@
 	},
 	"13017": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 102
+		"Line": 101
 	},
 	"13018": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 112
+		"Line": 111
 	},
 	"13019": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 122
+		"Line": 121
 	},
 	"13020": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 132
+		"Line": 131
 	},
 	"13021": {
 		"File": "examples/L432_inst/Core/Src/main.c",
@@ -93,23 +93,23 @@
 	},
 	"13023": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 950
+		"Line": 949
 	},
 	"13024": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 960
+		"Line": 959
 	},
 	"13025": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 977
+		"Line": 976
 	},
 	"13026": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 986
+		"Line": 985
 	},
 	"13027": {
 		"File": "examples/L432_inst/Core/Inc/triceConfig.h",
-		"Line": 1003
+		"Line": 1002
 	},
 	"13028": {
 		"File": "_test/testdata/triceCheck.c",
@@ -8929,203 +8929,203 @@
 	},
 	"15232": {
 		"File": "_test/_userprint_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 15
+		"Line": 16
 	},
 	"15233": {
 		"File": "_test/_userprint_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 19
+		"Line": 20
 	},
 	"15234": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 16
+		"Line": 17
 	},
 	"15235": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 19
+		"Line": 20
 	},
 	"15236": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 20
+		"Line": 21
 	},
 	"15237": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 21
+		"Line": 22
 	},
 	"15238": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 22
+		"Line": 23
 	},
 	"15239": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 23
+		"Line": 24
 	},
 	"15240": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 24
+		"Line": 25
 	},
 	"15241": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 25
+		"Line": 26
 	},
 	"15242": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 26
+		"Line": 27
 	},
 	"15243": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 27
+		"Line": 28
 	},
 	"15244": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 29
+		"Line": 30
 	},
 	"15245": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 30
+		"Line": 31
 	},
 	"15246": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 31
+		"Line": 32
 	},
 	"15247": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 32
+		"Line": 33
 	},
 	"15248": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 33
+		"Line": 34
 	},
 	"15249": {
 		"File": "_test/alias_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 34
+		"Line": 35
 	},
 	"15250": {
 		"File": "_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 22
+		"Line": 23
 	},
 	"15251": {
 		"File": "_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 25
+		"Line": 26
 	},
 	"15252": {
 		"File": "_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 28
+		"Line": 29
 	},
 	"15253": {
 		"File": "_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 31
+		"Line": 32
 	},
 	"15254": {
 		"File": "_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c",
-		"Line": 34
+		"Line": 35
 	},
 	"15255": {
 		"File": "_test/dblB_de_protect_tcobs_ua/TargetActivity.c",
-		"Line": 6
+		"Line": 9
 	},
 	"15256": {
 		"File": "_test/dblB_de_protect_tcobs_ua/TargetActivity.c",
-		"Line": 7
+		"Line": 10
 	},
 	"15257": {
 		"File": "_test/dblB_de_protect_tcobs_ua/TargetActivity.c",
-		"Line": 8
+		"Line": 11
 	},
 	"15258": {
 		"File": "_test/dblB_de_protect_tcobs_ua/TargetActivity.c",
-		"Line": 10
+		"Line": 13
 	},
 	"15259": {
 		"File": "_test/modify_for_debug/TargetActivity.c",
-		"Line": 7
+		"Line": 8
 	},
 	"15260": {
 		"File": "_test/modify_for_debug/TargetActivity.c",
-		"Line": 8
+		"Line": 9
 	},
 	"15261": {
 		"File": "_test/ringB_de_protect_tcobs_ua/TargetActivity.c",
-		"Line": 7
+		"Line": 10
 	},
 	"15262": {
 		"File": "_test/ringB_de_protect_tcobs_ua/TargetActivity.c",
-		"Line": 8
+		"Line": 11
 	},
 	"15263": {
 		"File": "_test/ringB_de_protect_tcobs_ua/TargetActivity.c",
-		"Line": 9
+		"Line": 12
 	},
 	"15264": {
 		"File": "_test/ringB_de_protect_tcobs_ua/TargetActivity.c",
-		"Line": 11
+		"Line": 14
 	},
 	"15265": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 13
+		"Line": 16
 	},
 	"15266": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 14
+		"Line": 17
 	},
 	"15267": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 15
+		"Line": 18
 	},
 	"15268": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 16
+		"Line": 19
 	},
 	"15269": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 17
+		"Line": 20
 	},
 	"15270": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 18
+		"Line": 21
 	},
 	"15271": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 19
+		"Line": 22
 	},
 	"15272": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 20
+		"Line": 23
 	},
 	"15273": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 21
+		"Line": 24
 	},
 	"15274": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 22
+		"Line": 25
 	},
 	"15275": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 23
+		"Line": 26
 	},
 	"15276": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 24
+		"Line": 27
 	},
 	"15277": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 25
+		"Line": 28
 	},
 	"15278": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 26
+		"Line": 29
 	},
 	"15279": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 27
+		"Line": 30
 	},
 	"15280": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 28
+		"Line": 31
 	},
 	"15281": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 29
+		"Line": 32
 	},
 	"16326": {
 		"File": "examples/exampleData/triceExamples.c",

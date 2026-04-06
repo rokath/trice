@@ -12,28 +12,42 @@ import (
 
 const outputFile = "docs/ref/trice-help-all.txt"
 
-func main() {
-	text, err := args.RenderHelpText("-all")
+var (
+	renderHelpText = args.RenderHelpText
+	getWorkingDir  = os.Getwd
+	mkdirAll       = os.MkdirAll
+	writeFile      = os.WriteFile
+)
+
+func run() error {
+	text, err := renderHelpText("-all")
 	if err != nil {
-		fail("render help text", err)
+		return fmt.Errorf("render help text: %w", err)
 	}
 
 	root, err := repoRoot()
 	if err != nil {
-		fail("locate repository root", err)
+		return fmt.Errorf("locate repository root: %w", err)
 	}
 	targetFile := filepath.Join(root, outputFile)
 
-	if err := os.MkdirAll(filepath.Dir(targetFile), 0o755); err != nil {
-		fail("create output directory", err)
+	if err := mkdirAll(filepath.Dir(targetFile), 0o755); err != nil {
+		return fmt.Errorf("create output directory: %w", err)
 	}
-	if err := os.WriteFile(targetFile, []byte(text), 0o644); err != nil {
-		fail("write help output", err)
+	if err := writeFile(targetFile, []byte(text), 0o644); err != nil {
+		return fmt.Errorf("write help output: %w", err)
+	}
+	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		fail(err)
 	}
 }
 
 func repoRoot() (string, error) {
-	wd, err := os.Getwd()
+	wd, err := getWorkingDir()
 	if err != nil {
 		return "", err
 	}
@@ -42,7 +56,7 @@ func repoRoot() (string, error) {
 	return filepath.Clean(filepath.Join(wd, "..", "..")), nil
 }
 
-func fail(step string, err error) {
-	fmt.Fprintf(os.Stderr, "%s: %v\n", step, err)
+func fail(err error) {
+	fmt.Fprintln(os.Stderr, err)
 	os.Exit(1)
 }

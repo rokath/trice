@@ -23,6 +23,10 @@
 - Keep unrelated changes out of the same commit.
 - If asked to commit and the work contains multiple distinct changes, split them into sensible separate commits instead of one combined commit.
 - A sensible commit may span multiple files, but only when those files belong to the same cohesive change.
+- If the user asks for `commit` without explicitly requesting a single combined commit, prefer multiple topic-based commits over one broad commit.
+- Group commits by change intent, for example tests/coverage, script behavior, documentation, or generated data, and keep those groups separate unless the documentation change is required to explain the exact same code change.
+- Before committing, quickly inspect the worktree for mixed concerns and exclude unrelated or suspicious files until the grouping is clear.
+- When a documentation file is modified independently of the code change, treat it as its own commit unless the user explicitly asks to bundle it.
 
 ## Tests
 

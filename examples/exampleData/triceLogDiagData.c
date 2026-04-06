@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 //! \file triceLogDiagData.c
 
 #include "trice.h"

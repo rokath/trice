@@ -4,8 +4,10 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -29,8 +31,8 @@ import (
 //
 
 // printHelpAndExit prints a short usage help and exits with code 0.
-func printHelpAndExit() {
-	fmt.Print(`clang-filter – filter file lists using .clang-format-ignore
+func printHelp(w io.Writer) {
+	fmt.Fprint(w, `clang-filter – filter file lists using .clang-format-ignore
 
 Usage:
   git ls-files '*.c' '*.h' | clang-filter [options]
@@ -49,7 +51,6 @@ Description:
     2) Pipe them into clang-filter to apply .clang-format-ignore.
     3) Use the resulting list as input for tools like clang-format.
 `)
-	os.Exit(0)
 }
 
 // inputAvailable returns true if there is data coming from stdin,
@@ -58,7 +59,11 @@ Description:
 // This is used to decide whether to show the help text by default
 // when the tool is invoked without parameters and without piped input.
 func inputAvailable() bool {
-	info, err := os.Stdin.Stat()
+	return inputAvailableFrom(os.Stdin)
+}
+
+func inputAvailableFrom(r *os.File) bool {
+	info, err := r.Stat()
 	if err != nil {
 		return false
 	}
@@ -67,31 +72,44 @@ func inputAvailable() bool {
 	return (info.Mode() & os.ModeCharDevice) == 0
 }
 
-func main() {
+var errHelpRequested = errors.New("help requested")
+
+func run(args []string, stdin io.Reader, stdout, stderr io.Writer) error {
+	fs := flag.NewFlagSet("clang-filter", flag.ContinueOnError)
+
 	// Define command-line flags with default values.
-	ignoreFile := flag.String("ignore-file", ".clang-format-ignore", "Path to ignore file (gitignore syntax)")
-	verbose := flag.Bool("v", false, "Enable verbose logging to stderr")
+	ignoreFile := fs.String("ignore-file", ".clang-format-ignore", "Path to ignore file (gitignore syntax)")
+	verbose := fs.Bool("v", false, "Enable verbose logging to stderr")
 
 	// Override the default usage function to show our custom help text.
-	flag.Usage = func() {
-		printHelpAndExit()
+	fs.SetOutput(stderr)
+	fs.Usage = func() {
+		printHelp(stdout)
 	}
 
 	// Parse command-line flags (e.g. -ignore-file, -v, -h).
-	flag.Parse()
+	if err := fs.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			printHelp(stdout)
+			return errHelpRequested
+		}
+		return err
+	}
 
 	// If the user explicitly asks for "--help", we show help and exit.
-	for _, arg := range os.Args[1:] {
+	for _, arg := range args {
 		if arg == "--help" {
-			printHelpAndExit()
+			printHelp(stdout)
+			return errHelpRequested
 		}
 	}
 
 	// If there are no arguments AND no piped input, show help by default.
 	// This makes the tool user-friendly when someone just runs "./clang-filter"
 	// manually without knowing how to use it.
-	if !inputAvailable() && len(os.Args) == 1 {
-		printHelpAndExit()
+	if !inputAvailable() && len(args) == 0 {
+		printHelp(stdout)
+		return errHelpRequested
 	}
 
 	//---------------------------------------------------------------------------
@@ -111,22 +129,21 @@ func main() {
 		ign = compiled
 
 		if *verbose {
-			fmt.Fprintf(os.Stderr, "Using ignore file: %s\n", *ignoreFile)
+			fmt.Fprintf(stderr, "Using ignore file: %s\n", *ignoreFile)
 		}
 	} else if os.IsNotExist(err) {
 		if *verbose {
-			fmt.Fprintf(os.Stderr, "Ignore file %s not found, no paths will be ignored.\n", *ignoreFile)
+			fmt.Fprintf(stderr, "Ignore file %s not found, no paths will be ignored.\n", *ignoreFile)
 		}
 		// ign remains nil: no ignores
 	} else {
-		// Some other error occurred when checking the ignore file.
-		log.Fatalf("Cannot stat ignore file %s: %v", *ignoreFile, err)
+		return fmt.Errorf("cannot stat ignore file %s: %w", *ignoreFile, err)
 	}
 
 	//---------------------------------------------------------------------------
 	// 2) Read file paths from stdin, one per line, and filter them
 	//---------------------------------------------------------------------------
-	scanner := bufio.NewScanner(os.Stdin)
+	scanner := bufio.NewScanner(stdin)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -144,18 +161,28 @@ func main() {
 		// we skip printing it (i.e., the file is considered "ignored").
 		if ign != nil && ign.MatchesPath(normPath) {
 			if *verbose {
-				fmt.Fprintf(os.Stderr, "Ignoring %s\n", normPath)
+				fmt.Fprintf(stderr, "Ignoring %s\n", normPath)
 			}
 			continue
 		}
 
 		// Otherwise, we print the original line (not the normalized one),
 		// because the calling script may prefer the exact file name format.
-		fmt.Println(line)
+		fmt.Fprintln(stdout, line)
 	}
 
 	// Check for scanner errors (e.g. I/O problems on stdin).
 	if err := scanner.Err(); err != nil {
-		log.Fatalf("Error reading from stdin: %v", err)
+		return fmt.Errorf("error reading from stdin: %w", err)
+	}
+	return nil
+}
+
+func main() {
+	if err := run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr); err != nil {
+		if errors.Is(err, errHelpRequested) {
+			os.Exit(0)
+		}
+		log.Fatal(err)
 	}
 }

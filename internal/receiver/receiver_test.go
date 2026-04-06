@@ -13,6 +13,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // requireWindowsTCPTestsEnabled skips the test unless the Windows TCP test environment is enabled.
@@ -123,6 +124,112 @@ func TestScanBytes(t *testing.T) {
 	if !bytes.Equal(got, expected) {
 		t.Fatalf("unexpected bytes: %#v", got)
 	}
+}
+
+// TestFileReadWriterDiscard verifies FILE readers read existing content and discard writes.
+func TestFileReadWriterDiscard(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.WriteFile("trace.bin", []byte("abc"), 0o644))
+
+	r := newFileReader(fs, "trace.bin")
+	buf := make([]byte, 3)
+	n, err := r.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, "abc", string(buf[:n]))
+
+	n, err = r.Write([]byte("ignored"))
+	require.NoError(t, err)
+	assert.Equal(t, len("ignored"), n)
+
+	data, err := fs.ReadFile("trace.bin")
+	require.NoError(t, err)
+	assert.Equal(t, "abc", string(data))
+}
+
+// TestNewReadWriteCloserUsesDefaultArguments verifies default aliases produce readable closers.
+func TestNewReadWriteCloserUsesDefaultArguments(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fSys.WriteFile(DefaultFileArgs, []byte("xy"), 0o644))
+
+	rc, err := NewReadWriteCloser(nil, fSys, false, "FILEBUFFER", "default")
+	require.NoError(t, err)
+	defer rc.Close()
+
+	buf := make([]byte, 4)
+	n, err := rc.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, "xy", string(buf[:n]))
+}
+
+type stubReadWriteCloser struct {
+	readData []byte
+	readErr  error
+	writes   [][]byte
+}
+
+func (s *stubReadWriteCloser) Read(buf []byte) (int, error) {
+	n := copy(buf, s.readData)
+	return n, s.readErr
+}
+
+func (s *stubReadWriteCloser) Write(buf []byte) (int, error) {
+	cp := append([]byte(nil), buf...)
+	s.writes = append(s.writes, cp)
+	return len(buf), nil
+}
+
+func (s *stubReadWriteCloser) Close() error { return nil }
+
+// TestNewBinaryLoggerAutoFileNameAndRead verifies auto log naming and binary mirroring.
+func TestNewBinaryLoggerAutoFileNameAndRead(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	source := &stubReadWriteCloser{readData: []byte{0x01, 0x02, 0x03}}
+	previous := BinaryLogfileName
+	BinaryLogfileName = "auto"
+	t.Cleanup(func() { BinaryLogfileName = previous })
+
+	logger := NewBinaryLogger(io.Discard, fs, source)
+	bl, ok := logger.(*binaryLogger)
+	require.True(t, ok)
+
+	buf := make([]byte, 8)
+	n, err := logger.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x01, 0x02, 0x03}, buf[:n])
+
+	files, err := afero.ReadDir(fs, ".")
+	require.NoError(t, err)
+	require.Len(t, files, 1)
+	assert.Contains(t, files[0].Name(), "_trice.bin")
+
+	logged, err := afero.ReadFile(fs, files[0].Name())
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x01, 0x02, 0x03}, logged)
+	assert.NotNil(t, bl.w)
+}
+
+// TestNewBinaryLoggerDisabledReturnsSource verifies disabled logfile settings are pass-through.
+func TestNewBinaryLoggerDisabledReturnsSource(t *testing.T) {
+	source := &stubReadWriteCloser{}
+	previous := BinaryLogfileName
+	BinaryLogfileName = "off"
+	t.Cleanup(func() { BinaryLogfileName = previous })
+
+	got := NewBinaryLogger(io.Discard, &afero.Afero{Fs: afero.NewMemMapFs()}, source)
+	assert.Same(t, source, got)
+}
+
+// TestNewBytesViewerReadFormatsHex verifies the debug wrapper prints incoming bytes.
+func TestNewBytesViewerReadFormatsHex(t *testing.T) {
+	source := &stubReadWriteCloser{readData: []byte{0x0a, 0xbc}}
+	var out bytes.Buffer
+
+	viewer := NewBytesViewer(&out, source)
+	buf := make([]byte, 8)
+	n, err := viewer.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x0a, 0xbc}, buf[:n])
+	assert.Equal(t, "Input(0a bc)\n", out.String())
 }
 
 // TestTCP4Receiver tests the NewReadWriteCloser TCP4 functionality.

@@ -20,7 +20,10 @@ main() {
   "$SCRIPT_DIR/_format_dumeng_toc.sh" "$@"
   "$SCRIPT_DIR/_format_shell_scripts.sh" "$@"
   "$SCRIPT_DIR/_format_go_code.sh" "$@"
+  "$SCRIPT_DIR/../trice_cleanIDs_in_examples_and_test_folder.sh"
   "$SCRIPT_DIR/_format_c_code.sh" "$@"
+  "$SCRIPT_DIR/../examples/cleanAllTargets.sh"
+  "$SCRIPT_DIR/_clean-dsstore.sh" "$SCRIPT_DIR/.." --silent
 }
 
 main "$@"

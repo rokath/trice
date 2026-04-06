@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/rokath/trice/internal/emitter"
 )
@@ -75,6 +76,74 @@ func TestLoopActionShutdown(t *testing.T) {
 		t.Fatalf("shutdownFn was not invoked")
 	}
 	mu.Unlock()
+}
+
+// TestKeyboardInputStartsShellAndProcessesCommands verifies the async shell banner and forwarding behavior.
+func TestKeyboardInputStartsShellAndProcessesCommands(t *testing.T) {
+	reader := bufio.NewReader(strings.NewReader("hello\n"))
+	target := &signalWriter{done: make(chan []byte, 1)}
+	out := captureStdout(t, func() {
+		keyboardInput(reader, target)
+		_, _ = waitForWrite(t, target.done)
+	})
+
+	if !strings.Contains(out, "Simple Shell (try 'help'):") {
+		t.Fatalf("missing shell banner: %q", out)
+	}
+}
+
+// TestReadInputUsesOsStdin verifies ReadInput consumes commands from os.Stdin.
+func TestReadInputUsesOsStdin(t *testing.T) {
+	oldStdin := os.Stdin
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	os.Stdin = r
+	t.Cleanup(func() {
+		os.Stdin = oldStdin
+		_ = r.Close()
+		_ = w.Close()
+	})
+
+	var target bytes.Buffer
+	signalled := &signalWriter{done: make(chan []byte, 1)}
+	captureStdout(t, func() {
+		ReadInput(signalled)
+		_, _ = io.WriteString(w, "ping\n")
+		got, err := waitForWrite(t, signalled.done)
+		if err != nil {
+			t.Fatal(err)
+		}
+		target.Write(got)
+	})
+
+	if !bytes.Equal(target.Bytes(), append([]byte("ping"), 0)) {
+		t.Fatalf("ReadInput did not forward command from stdin: %q", target.Bytes())
+	}
+}
+
+type signalWriter struct {
+	done chan []byte
+}
+
+func (s *signalWriter) Write(p []byte) (int, error) {
+	cp := append([]byte(nil), p...)
+	select {
+	case s.done <- cp:
+	default:
+	}
+	return len(p), nil
+}
+
+func waitForWrite(t *testing.T, done <-chan []byte) ([]byte, error) {
+	t.Helper()
+	select {
+	case got := <-done:
+		return got, nil
+	case <-time.After(200 * time.Millisecond):
+		return nil, io.EOF
+	}
 }
 
 // captureStdout captures stdout produced while the supplied function runs.
