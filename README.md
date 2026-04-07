@@ -1,4 +1,4 @@
-# Trice - Trace IDs for C Embedded 
+# Trice - Trace IDs for Embedded C/C++ 
 
 > 🅃🅁ace 🄸d's for 🄲 🄴mbedded
 
