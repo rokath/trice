@@ -3,6 +3,7 @@
 package id_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -59,4 +60,23 @@ func TestAddWithLIExtension(t *testing.T) {
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
 	assert.Equal(t, expLI, string(actLI))
+}
+
+// TestToLIPath verifies the expected behavior.
+func TestToLIPath(t *testing.T) {
+	defer Setup(t)()
+
+	LIPathKind = "base"
+	assert.Equal(t, "demo.c", ToLIPath(filepath.Join("dir", "demo.c")))
+
+	LIPathKind = filepath.Join("root", "relative")
+	assert.Equal(t, filepath.ToSlash(filepath.Join("sub", "demo.c")), ToLIPath(filepath.Join("root", "sub", "demo.c")))
+
+	LIPathKind = "full"
+	got := ToLIPath("demo.c")
+	assert.True(t, filepath.IsAbs(got))
+	assert.Equal(t, "demo.c", filepath.Base(got))
+
+	LIPathKind = "weird"
+	assert.Equal(t, "demo.c", ToLIPath(filepath.Join("dir", "demo.c")))
 }

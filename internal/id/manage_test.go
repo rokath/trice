@@ -199,3 +199,49 @@ func TestLutFileTransferMemMap(t *testing.T) {
 	require.NoError(t, rd.fromFile(fs, "lut.json"))
 	assert.Equal(t, tst.NormalizeMapString(sampleLutMap0), tst.NormalizeMapString(fmt.Sprint(rd)))
 }
+
+// TestResolveTriceAlias verifies the expected behavior.
+func TestResolveTriceAlias(t *testing.T) {
+	defer Setup(t)()
+
+	TriceAliases = ArrayFlag{"LogX", "MixS"}
+	TriceSAliases = ArrayFlag{"PrintS", "MixS"}
+
+	alias := TriceFmt{Type: "LogX"}
+	resolveTriceAlias(&alias)
+	assert.Equal(t, "trice", alias.Type)
+	assert.Equal(t, "LogX", alias.Alias)
+
+	sAlias := TriceFmt{Type: "PrintS"}
+	resolveTriceAlias(&sAlias)
+	assert.Equal(t, "triceS", sAlias.Type)
+	assert.Equal(t, "PrintS", sAlias.Alias)
+
+	shared := TriceFmt{Type: "MixS"}
+	resolveTriceAlias(&shared)
+	assert.Equal(t, "triceS", shared.Type)
+	assert.Equal(t, "MixS", shared.Alias)
+}
+
+// TestIDSpaceHelpers verifies the expected behavior.
+func TestIDSpaceHelpers(t *testing.T) {
+	defer Setup(t)()
+
+	IDData.TagList = []TagEntry{
+		{tagName: "", min: 10, max: 12, iDSpace: []TriceID{10, 11, 12}},
+		{tagName: "err", min: 100, max: 102, iDSpace: []TriceID{100, 101, 102}},
+	}
+	assert.True(t, IDData.IDIsPartOfIDSpace(100))
+	assert.False(t, IDData.IDIsPartOfIDSpace(999))
+
+	IDData.TagList = nil
+	IDRange = ArrayFlag{"e:100,102"}
+	Min = 10
+	Max = 12
+	require.NoError(t, EvaluateIDRangeStrings())
+	require.Len(t, IDData.TagList, 1)
+
+	IDData.TagList = nil
+	IDRange = ArrayFlag{"e:100,102", "err:101,103"}
+	assert.Error(t, EvaluateIDRangeStrings())
+}
