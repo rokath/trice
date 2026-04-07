@@ -3,10 +3,14 @@
 package id
 
 import (
+	"bytes"
 	"fmt"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Test_computeValues verifies the expected behavior.
@@ -297,5 +301,100 @@ func TestConstructFullTriceInfo(t *testing.T) {
 		} else {
 			assert.Equal(t, x.exp, act)
 		}
+	}
+}
+
+// TestGeneratorFileOutputs verifies the expected behavior.
+func TestGeneratorFileOutputs(t *testing.T) {
+	defer Setup(t)()
+
+	lu := TriceIDLookUp{
+		1000: {Type: "TRICE", Strg: "msg:%d"},
+		1001: {Type: "TRICE_F", Strg: "rpc:DoThing"},
+	}
+
+	require.NoError(t, ToFileTilH(FSys, "til.h"))
+	require.NoError(t, lu.ToFileTilC(FSys, "til.c"))
+	require.NoError(t, lu.ToFileTilCSharp(FSys.Fs, "til.cs"))
+	require.NoError(t, lu.ToFileTriceRpcH(FSys.Fs, "tilRpc.h"))
+	require.NoError(t, lu.ToFileRpcC(FSys.Fs, "tilRpc.c"))
+
+	content, err := FSys.ReadFile("til.h")
+	require.NoError(t, err)
+	assert.Contains(t, string(content), "triceFormatStringList_t")
+
+	content, err = FSys.ReadFile("til.c")
+	require.NoError(t, err)
+	assert.Contains(t, string(content), `#include "til.h"`)
+	assert.Contains(t, string(content), `"msg:%d"`)
+
+	content, err = FSys.ReadFile("til.cs")
+	require.NoError(t, err)
+	assert.Contains(t, string(content), "namespace TriceIDList;")
+	assert.Contains(t, string(content), `new TilItem(`)
+
+	content, err = FSys.ReadFile("tilRpc.h")
+	require.NoError(t, err)
+	assert.Contains(t, string(content), "typedef void (*triceRpcHandler_t)")
+	assert.Contains(t, string(content), "void DoThing( int32_t* p, int cnt );")
+
+	content, err = FSys.ReadFile("tilRpc.c")
+	require.NoError(t, err)
+	assert.Contains(t, string(content), `#include "tilRpc.h"`)
+	assert.Contains(t, string(content), "{  1001, DoThing }")
+	assert.Contains(t, string(content), "void DoThing( int32_t* p, int cnt) __attribute__((weak)) {}")
+}
+
+// TestSubCmdGenerate verifies the expected behavior.
+func TestSubCmdGenerate(t *testing.T) {
+	defer Setup(t)()
+
+	previousGenerateTilH := GenerateTilH
+	previousGenerateTilC := GenerateTilC
+	previousGenerateTilCS := GenerateTilCS
+	previousGenerateRpcH := GenerateRpcH
+	previousGenerateRpcC := GenerateRpcC
+	previousWriteAllColors := WriteAllColors
+	previousVerbose := Verbose
+	t.Cleanup(func() {
+		GenerateTilH = previousGenerateTilH
+		GenerateTilC = previousGenerateTilC
+		GenerateTilCS = previousGenerateTilCS
+		GenerateRpcH = previousGenerateRpcH
+		GenerateRpcC = previousGenerateRpcC
+		WriteAllColors = previousWriteAllColors
+		Verbose = previousVerbose
+	})
+
+	lu := TriceIDLookUp{
+		1000: {Type: "TRICE", Strg: "msg:%d"},
+		1001: {Type: "TRICE_F", Strg: "rpc:DoThing"},
+	}
+	require.NoError(t, lu.toFile(FSys.Fs, FnJSON))
+
+	GenerateTilH = false
+	GenerateTilC = false
+	GenerateTilCS = false
+	GenerateRpcH = false
+	GenerateRpcC = false
+	WriteAllColors = false
+
+	var w bytes.Buffer
+	require.NoError(t, SubCmdGenerate(&w, FSys))
+	assert.Contains(t, w.String(), `needs at least one parameter`)
+
+	w.Reset()
+	GenerateTilH = true
+	GenerateTilC = true
+	GenerateTilCS = true
+	GenerateRpcH = true
+	GenerateRpcC = true
+	Verbose = true
+
+	require.NoError(t, SubCmdGenerate(&w, FSys))
+	base := strings.TrimSuffix(FnJSON, filepath.Ext(FnJSON))
+	for _, fn := range []string{base + ".h", base + ".c", base + ".cs", base + "Rpc.h", base + "Rpc.c"} {
+		assert.True(t, fileExists(FSys, fn), fn)
+		assert.Contains(t, w.String(), "generated "+fn)
 	}
 }
