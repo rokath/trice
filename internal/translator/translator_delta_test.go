@@ -9,6 +9,7 @@ import (
 
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/id"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestRenderTargetStampColumns16DeltaWraparound verifies the expected behavior.
@@ -384,4 +385,47 @@ func TestLocationInformation(t *testing.T) {
 	if got := locationInformation(17, li); got != "no li" {
 		t.Fatalf("unexpected verbose fallback %q", got)
 	}
+}
+
+// TestFormatTargetDeltaValueBuiltinFormats verifies the expected behavior.
+func TestFormatTargetDeltaValueBuiltinFormats(t *testing.T) {
+	assert.Equal(t, " 1:02:03,004", formatTargetDeltaValue(4, "ms", 3723004))
+	assert.Equal(t, "   4,005_006", formatTargetDeltaValue(4, "us", 4005006))
+	assert.Equal(t, "       7,008", formatTargetDeltaValue(2, "ms", 7008))
+	assert.Equal(t, "       9_010", formatTargetDeltaValue(2, "us", 9010))
+	assert.Equal(t, "raw", formatTargetDeltaValue(0, "raw", 123))
+	assert.Equal(t, "delta:11", formatTargetDeltaValue(4, "delta:%d", 11))
+}
+
+// TestSplitSingleFormatDirective verifies the expected behavior.
+func TestSplitSingleFormatDirective(t *testing.T) {
+	prefix, width, leftAlign, suffix, ok := splitSingleFormatDirective("dt:%-6d us")
+	assert.True(t, ok)
+	assert.Equal(t, "dt:", prefix)
+	assert.Equal(t, 6, width)
+	assert.True(t, leftAlign)
+	assert.Equal(t, " us", suffix)
+
+	prefix, width, leftAlign, suffix, ok = splitSingleFormatDirective("literal %% %04x done")
+	assert.True(t, ok)
+	assert.Equal(t, "literal %% ", prefix)
+	assert.Equal(t, 4, width)
+	assert.False(t, leftAlign)
+	assert.Equal(t, " done", suffix)
+
+	_, _, _, _, ok = splitSingleFormatDirective("missing-%")
+	assert.False(t, ok)
+
+	_, _, _, _, ok = splitSingleFormatDirective("unsupported:%s")
+	assert.False(t, ok)
+}
+
+// TestFormatMissingTargetDelta verifies the expected behavior.
+func TestFormatMissingTargetDelta(t *testing.T) {
+	assert.Equal(t, "dt:     - us", formatMissingTargetDelta(4, "dt:%6d us"))
+	assert.Equal(t, "dt:-       us", formatMissingTargetDelta(4, "dt:%-7d us"))
+
+	got := formatMissingTargetDelta(2, "us")
+	want := strings.Repeat(" ", targetStampDisplayWidth(2, "us"))
+	assert.Equal(t, want, got)
 }

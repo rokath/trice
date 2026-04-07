@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"os"
+	"os/exec"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -73,4 +74,73 @@ func TestDoitReturnsHandlerError(t *testing.T) {
 	err := doit(&bytes.Buffer{}, fSys)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "unknown sub-command")
+}
+
+func TestMainSuccess(t *testing.T) {
+	cmd := exec.Command(os.Args[0], "-test.run=TestHelperProcessTriceMain")
+	cmd.Env = append(os.Environ(),
+		"GO_WANT_HELPER_PROCESS=1",
+		"TRICE_MAIN_HELPER_ACTION=success",
+	)
+
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	err := cmd.Run()
+	require.NoError(t, err)
+	assert.NotEmpty(t, stdout.String())
+}
+
+func TestMainFailure(t *testing.T) {
+	cmd := exec.Command(os.Args[0], "-test.run=TestHelperProcessTriceMain")
+	cmd.Env = append(os.Environ(),
+		"GO_WANT_HELPER_PROCESS=1",
+		"TRICE_MAIN_HELPER_ACTION=failure",
+	)
+
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	require.Error(t, err)
+
+	var exitErr *exec.ExitError
+	require.ErrorAs(t, err, &exitErr)
+	assert.Equal(t, 1, exitErr.ExitCode())
+	assert.Contains(t, stderr.String(), "unknown sub-command")
+}
+
+func TestHelperProcessTriceMain(t *testing.T) {
+	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
+		return
+	}
+
+	previousArgs := os.Args
+	previousVersion := version
+	previousCommit := commit
+	previousDate := date
+	previousBranch := branch
+	previousGitState := gitState
+	previousGitStatus := gitStatus
+	previousBuiltBy := builtBy
+	defer func() {
+		os.Args = previousArgs
+		version = previousVersion
+		commit = previousCommit
+		date = previousDate
+		branch = previousBranch
+		gitState = previousGitState
+		gitStatus = previousGitStatus
+		builtBy = previousBuiltBy
+	}()
+
+	switch os.Getenv("TRICE_MAIN_HELPER_ACTION") {
+	case "success":
+		version = "v9.9.9"
+		os.Args = []string{"trice", "version"}
+		main()
+	case "failure":
+		os.Args = []string{"trice", "definitely-not-a-command"}
+		main()
+	default:
+		os.Exit(2)
+	}
 }

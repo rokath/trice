@@ -482,6 +482,41 @@ func TestApplyMultilineIndent(t *testing.T) {
 	assert.Equal(t, "a\\nb", applyMultilineIndent("a\\nb"))
 }
 
+// TestApplyMultilineIndentIncludesLocationAndIDColumns verifies the expected behavior.
+func TestApplyMultilineIndentIncludesLocationAndIDColumns(t *testing.T) {
+	oldIndent := decoder.NewlineIndent
+	oldShowID := decoder.ShowID
+	oldLIFnJSON := id.LIFnJSON
+	t.Cleanup(func() {
+		decoder.NewlineIndent = oldIndent
+		decoder.ShowID = oldShowID
+		id.LIFnJSON = oldLIFnJSON
+	})
+
+	decoder.NewlineIndent = -1
+	decoder.ShowID = "%5d"
+	id.LIFnJSON = "demoLI.json"
+
+	got := applyMultilineIndent("a\\nb\\nc")
+	assert.Equal(t, "a\\n                                              b\\n                                              c", got)
+	assert.Equal(t, 46, decoder.NewlineIndent)
+}
+
+// TestNextPackageConsumesInputUntilDelimiter verifies the expected behavior.
+func TestNextPackageConsumesInputUntilDelimiter(t *testing.T) {
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			NeedBuffers: true,
+			In:          bytes.NewBuffer([]byte{0x01, 0x00, 0xff}),
+		}),
+		packageFraming: packageFramingCOBS,
+	}
+
+	p.nextPackage()
+	assert.Empty(t, p.B)
+	assert.Equal(t, []byte{0xff}, p.IBuf)
+}
+
 // TestSprintTriceErrorPaths verifies the expected behavior.
 func TestSprintTriceErrorPaths(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}

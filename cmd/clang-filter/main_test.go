@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -75,4 +76,56 @@ func TestRunHelpRequested(t *testing.T) {
 	err := run([]string{"--help"}, strings.NewReader(""), &stdout, &stderr)
 	require.ErrorIs(t, err, errHelpRequested)
 	assert.Contains(t, stdout.String(), "Usage:")
+}
+
+func TestMainHelpExitCodeZero(t *testing.T) {
+	cmd := exec.Command(os.Args[0], "-test.run=TestHelperProcessClangFilterMain")
+	cmd.Env = append(os.Environ(),
+		"GO_WANT_HELPER_PROCESS=1",
+		"TRICE_CLANG_FILTER_HELPER_ACTION=help",
+	)
+
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	err := cmd.Run()
+	require.NoError(t, err)
+	assert.Contains(t, stdout.String(), "Usage:")
+}
+
+func TestMainFailureExitCodeOne(t *testing.T) {
+	cmd := exec.Command(os.Args[0], "-test.run=TestHelperProcessClangFilterMain")
+	cmd.Env = append(os.Environ(),
+		"GO_WANT_HELPER_PROCESS=1",
+		"TRICE_CLANG_FILTER_HELPER_ACTION=failure",
+	)
+
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	require.Error(t, err)
+
+	var exitErr *exec.ExitError
+	require.ErrorAs(t, err, &exitErr)
+	assert.Equal(t, 1, exitErr.ExitCode())
+	assert.Contains(t, stderr.String(), "cannot stat ignore file")
+}
+
+func TestHelperProcessClangFilterMain(t *testing.T) {
+	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
+		return
+	}
+
+	previousArgs := os.Args
+	defer func() { os.Args = previousArgs }()
+
+	switch os.Getenv("TRICE_CLANG_FILTER_HELPER_ACTION") {
+	case "help":
+		os.Args = []string{"clang-filter", "--help"}
+		main()
+	case "failure":
+		os.Args = []string{"clang-filter", "-ignore-file", string([]byte{0})}
+		main()
+	default:
+		os.Exit(2)
+	}
 }

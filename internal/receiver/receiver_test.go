@@ -232,6 +232,52 @@ func TestNewBytesViewerReadFormatsHex(t *testing.T) {
 	assert.Equal(t, "Input(0a bc)\n", out.String())
 }
 
+// TestUDP4ConnectionReceivesPackets verifies the expected behavior.
+func TestUDP4ConnectionReceivesPackets(t *testing.T) {
+	conn := newUDPConnection("127.0.0.1:0")
+	defer conn.Close()
+
+	peer, err := net.DialUDP("udp4", nil, conn.conn.LocalAddr().(*net.UDPAddr))
+	require.NoError(t, err)
+	defer peer.Close()
+
+	_, err = peer.Write([]byte{0x11, 0x22, 0x33})
+	require.NoError(t, err)
+
+	buf := make([]byte, 8)
+	n, err := conn.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x11, 0x22, 0x33}, buf[:n])
+}
+
+// TestUDP4WritePanics verifies the expected behavior.
+func TestUDP4WritePanics(t *testing.T) {
+	conn := &udp4{}
+	assert.PanicsWithValue(t, "udp4.Write not implemented", func() {
+		_, _ = conn.Write([]byte{0x01})
+	})
+}
+
+// TestBinaryLoggerWriteAndClose verifies the expected behavior.
+func TestBinaryLoggerWriteAndClose(t *testing.T) {
+	logger := &binaryLogger{}
+
+	n, err := logger.Write([]byte("ignored"))
+	require.NoError(t, err)
+	assert.Zero(t, n)
+	assert.NoError(t, logger.Close())
+}
+
+// TestBytesViewerWriteAndClose verifies the expected behavior.
+func TestBytesViewerWriteAndClose(t *testing.T) {
+	viewer := &bytesViewer{}
+
+	n, err := viewer.Write([]byte("ignored"))
+	require.NoError(t, err)
+	assert.Zero(t, n)
+	assert.NoError(t, viewer.Close())
+}
+
 // TestTCP4Receiver tests the NewReadWriteCloser TCP4 functionality.
 func TestTCP4Receiver(t *testing.T) {
 	requireWindowsTCPTestsEnabled(t)
