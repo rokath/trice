@@ -3,14 +3,130 @@
 package translator
 
 import (
+	"bytes"
+	"io"
+	"os"
+	"os/exec"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/receiver"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+type scriptedDecoderStep struct {
+	data              string
+	err               error
+	lastTriceID       id.TriceID
+	targetTimestamp   uint64
+	targetStampSize   int
+}
+
+type scriptedDecoder struct {
+	steps []scriptedDecoderStep
+	index int
+}
+
+func (d *scriptedDecoder) Read(buf []byte) (int, error) {
+	if d.index >= len(d.steps) {
+		return 0, io.EOF
+	}
+	step := d.steps[d.index]
+	d.index++
+	decoder.LastTriceID = step.lastTriceID
+	decoder.TargetTimestamp = step.targetTimestamp
+	decoder.TargetTimestampSize = step.targetStampSize
+	return copy(buf, step.data), step.err
+}
+
+func (*scriptedDecoder) SetInput(io.Reader) {}
+
+func configureTranslatorLoopTest(t *testing.T) {
+	t.Helper()
+
+	savedPort := receiver.Port
+	savedHostStamp := emitter.HostStamp
+	savedPrefix := emitter.Prefix
+	savedSuffix := emitter.Suffix
+	savedColorPalette := emitter.ColorPalette
+	savedDisplayRemote := emitter.DisplayRemote
+	savedTestTableMode := emitter.TestTableMode
+	savedBan := emitter.Ban
+	savedPick := emitter.Pick
+	savedLIFnJSON := id.LIFnJSON
+	savedShowID := decoder.ShowID
+	savedTargetStamp := decoder.TargetStamp
+	savedTargetStamp16 := decoder.TargetStamp16
+	savedTargetStamp16Delta := decoder.TargetStamp16Delta
+	savedTargetStamp0 := decoder.TargetStamp0
+	savedTargetStamp0Delta := decoder.TargetStamp0Delta
+	savedShowTargetStamp0Passed := decoder.ShowTargetStamp0Passed
+	savedShowTargetStamp16Passed := decoder.ShowTargetStamp16Passed
+	savedShowTargetStamp0DeltaPassed := decoder.ShowTargetStamp0DeltaPassed
+	savedShowTargetStamp16DeltaPassed := decoder.ShowTargetStamp16DeltaPassed
+	savedLocationFmt := decoder.LocationInformationFormatString
+	savedLastTriceID := decoder.LastTriceID
+	savedTargetTimestamp := decoder.TargetTimestamp
+	savedTargetTimestampSize := decoder.TargetTimestampSize
+
+	t.Cleanup(func() {
+		receiver.Port = savedPort
+		emitter.HostStamp = savedHostStamp
+		emitter.Prefix = savedPrefix
+		emitter.Suffix = savedSuffix
+		emitter.ColorPalette = savedColorPalette
+		emitter.DisplayRemote = savedDisplayRemote
+		emitter.TestTableMode = savedTestTableMode
+		emitter.Ban = savedBan
+		emitter.Pick = savedPick
+		id.LIFnJSON = savedLIFnJSON
+		decoder.ShowID = savedShowID
+		decoder.TargetStamp = savedTargetStamp
+		decoder.TargetStamp16 = savedTargetStamp16
+		decoder.TargetStamp16Delta = savedTargetStamp16Delta
+		decoder.TargetStamp0 = savedTargetStamp0
+		decoder.TargetStamp0Delta = savedTargetStamp0Delta
+		decoder.ShowTargetStamp0Passed = savedShowTargetStamp0Passed
+		decoder.ShowTargetStamp16Passed = savedShowTargetStamp16Passed
+		decoder.ShowTargetStamp0DeltaPassed = savedShowTargetStamp0DeltaPassed
+		decoder.ShowTargetStamp16DeltaPassed = savedShowTargetStamp16DeltaPassed
+		decoder.LocationInformationFormatString = savedLocationFmt
+		decoder.LastTriceID = savedLastTriceID
+		decoder.TargetTimestamp = savedTargetTimestamp
+		decoder.TargetTimestampSize = savedTargetTimestampSize
+	})
+
+	receiver.Port = "BUFFER"
+	emitter.HostStamp = "off"
+	emitter.Prefix = ""
+	emitter.Suffix = ""
+	emitter.ColorPalette = "none"
+	emitter.DisplayRemote = false
+	emitter.TestTableMode = true
+	emitter.Ban = nil
+	emitter.Pick = nil
+	id.LIFnJSON = "off"
+	decoder.ShowID = ""
+	decoder.TargetStamp = "off"
+	decoder.TargetStamp16 = ""
+	decoder.TargetStamp16Delta = ""
+	decoder.TargetStamp0 = ""
+	decoder.TargetStamp0Delta = ""
+	decoder.ShowTargetStamp0Passed = false
+	decoder.ShowTargetStamp16Passed = false
+	decoder.ShowTargetStamp0DeltaPassed = false
+	decoder.ShowTargetStamp16DeltaPassed = false
+	decoder.LocationInformationFormatString = "%s:%d "
+	decoder.LastTriceID = 0
+	decoder.TargetTimestamp = 0
+	decoder.TargetTimestampSize = 0
+}
 
 // TestRenderTargetStampColumns16DeltaWraparound verifies the expected behavior.
 func TestRenderTargetStampColumns16DeltaWraparound(t *testing.T) {
@@ -428,4 +544,146 @@ func TestFormatMissingTargetDelta(t *testing.T) {
 	got := formatMissingTargetDelta(2, "us")
 	want := strings.Repeat(" ", targetStampDisplayWidth(2, "us"))
 	assert.Equal(t, want, got)
+}
+
+// TestTargetStampWidthAndFormatFallbacks verifies direct width helpers and fallback formatting.
+func TestTargetStampWidthAndFormatFallbacks(t *testing.T) {
+	assert.Equal(t, len("ts:0007"), targetStampWidth(4, "ts:%04d"))
+	assert.Equal(t, "stamp:7", formatTargetStamp(4, "stamp:%d", 7))
+	assert.Equal(t, "stamp:7", formatTargetStamp(2, "stamp:%d", 7))
+	assert.Equal(t, "marker", formatTargetStamp(0, "marker", 99))
+	assert.Equal(t, "", formatTargetStamp(99, "stamp:%d", 7))
+	assert.Equal(t, "", renderTargetStamp(99, 7))
+
+	abs, delta := targetStampFormats(99)
+	assert.Equal(t, "", abs)
+	assert.Equal(t, "", delta)
+	assert.False(t, targetDeltaExplicitlyDisabled(99))
+}
+
+// TestDecodeAndComposeLoopPrependsMetadataOncePerLine verifies that line-start metadata is emitted only once.
+func TestDecodeAndComposeLoopPrependsMetadataOncePerLine(t *testing.T) {
+	configureTranslatorLoopTest(t)
+
+	id.LIFnJSON = "on"
+	decoder.ShowID = "ID:%d "
+	decoder.TargetStamp = "off"
+	decoder.TargetStamp16 = "TS:%d "
+	decoder.TargetStamp16Delta = "DT:%d "
+	decoder.ShowTargetStamp16Passed = true
+	decoder.ShowTargetStamp16DeltaPassed = true
+
+	li := id.TriceIDLookUpLI{
+		17: {File: "/tmp/demo/main.c", Line: 42},
+	}
+	dec := &scriptedDecoder{
+		steps: []scriptedDecoderStep{
+			{data: "message", lastTriceID: 17, targetTimestamp: 1234, targetStampSize: 2},
+			{data: " end\n", lastTriceID: 99, targetTimestamp: 5678, targetStampSize: 2},
+		},
+	}
+	var out bytes.Buffer
+	sw := emitter.New(&out)
+
+	err := decodeAndComposeLoop(&out, sw, dec, id.TriceIDLookUp{}, li)
+	require.ErrorIs(t, err, io.EOF)
+	assert.Equal(t, "main.c:42 TS:1234  DT:-  ID:17  message end\n", out.String())
+}
+
+// TestDecodeAndComposeLoopFlushesPartialBufferLine verifies that buffered ports flush an unfinished line on EOF.
+func TestDecodeAndComposeLoopFlushesPartialBufferLine(t *testing.T) {
+	configureTranslatorLoopTest(t)
+
+	dec := &scriptedDecoder{
+		steps: []scriptedDecoderStep{
+			{data: "partial", lastTriceID: 3},
+		},
+	}
+	var out bytes.Buffer
+	sw := emitter.New(&out)
+
+	err := decodeAndComposeLoop(io.Discard, sw, dec, nil, nil)
+	require.ErrorIs(t, err, io.EOF)
+	assert.Equal(t, "partial\n", out.String())
+}
+
+// TestDecodeAndComposeLoopHonorsBanFilter verifies that filtered lines are suppressed before metadata is written.
+func TestDecodeAndComposeLoopHonorsBanFilter(t *testing.T) {
+	configureTranslatorLoopTest(t)
+
+	emitter.Ban = []string{"dbg"}
+	dec := &scriptedDecoder{
+		steps: []scriptedDecoderStep{
+			{data: "dbg:hidden\n", lastTriceID: 23},
+		},
+	}
+	var out bytes.Buffer
+	sw := emitter.New(&out)
+
+	err := decodeAndComposeLoop(io.Discard, sw, dec, nil, nil)
+	require.ErrorIs(t, err, io.EOF)
+	assert.Empty(t, out.String())
+}
+
+// TestFormatTargetStampEpochAndBuiltinVariants verifies additional built-in timestamp branches.
+func TestFormatTargetStampEpochAndBuiltinVariants(t *testing.T) {
+	assert.Equal(t, "", formatTargetStamp32("", 123))
+	assert.Equal(t, "time:   4,005_006", formatTargetStamp32("us", 4005006))
+	assert.Equal(t, "time:       7,008", formatTargetStamp16("ms", 7008))
+	assert.Equal(t, "time:       9_010", formatTargetStamp16("us", 9010))
+
+	ts := uint64(1700000000)
+	assert.Equal(t,
+		time.Unix(int64(ts), 0).UTC().Format("2006-01-02 15:04:05 UTC"),
+		formatTargetStamp32("epoch", ts),
+	)
+	assert.Equal(t,
+		time.Unix(int64(ts), 0).UTC().Format("15:04"),
+		formatTargetStamp32("epoch15:04", ts),
+	)
+}
+
+// TestTranslateInvalidEndiannessExits verifies the early fatal path in Translate.
+func TestTranslateInvalidEndiannessExits(t *testing.T) {
+	if os.Getenv("TRICE_TRANSLATE_INVALID_ENDIANNESS") == "1" {
+		TriceEndianness = "invalid"
+		Translate(io.Discard, nil, nil, nil, nil, nil)
+		return
+	}
+
+	cmd := exec.Command(os.Args[0], "-test.run=TestTranslateInvalidEndiannessExits")
+	cmd.Env = append(os.Environ(), "TRICE_TRANSLATE_INVALID_ENDIANNESS=1")
+	err := cmd.Run()
+	require.Error(t, err)
+
+	exitErr, ok := err.(*exec.ExitError)
+	require.True(t, ok)
+	assert.NotZero(t, exitErr.ExitCode())
+}
+
+type closeRecorder struct {
+	closed bool
+}
+
+func (c *closeRecorder) Read([]byte) (int, error) { return 0, io.EOF }
+
+func (c *closeRecorder) Close() error {
+	c.closed = true
+	return nil
+}
+
+// TestHandleSIGTERMExitsAndCloses verifies the shutdown path in a subprocess.
+func TestHandleSIGTERMExitsAndCloses(t *testing.T) {
+	if os.Getenv("TRICE_HANDLE_SIGTERM") == "1" {
+		Verbose = true
+		handleSIGTERM(io.Discard, &closeRecorder{})
+		return
+	}
+
+	cmd := exec.Command(os.Args[0], "-test.run=TestHandleSIGTERMExitsAndCloses")
+	cmd.Env = append(os.Environ(), "TRICE_HANDLE_SIGTERM=1")
+	require.NoError(t, cmd.Start())
+	time.Sleep(150 * time.Millisecond)
+	require.NoError(t, cmd.Process.Signal(syscall.SIGTERM))
+	require.NoError(t, cmd.Wait())
 }
