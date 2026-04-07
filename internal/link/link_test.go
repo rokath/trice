@@ -80,7 +80,7 @@ func TestNewDeviceJLinkDefaults(t *testing.T) {
 	}
 
 	err = dev.Close()
-	if err != nil {
+	if err == nil || !strings.Contains(err.Error(), "removed") {
 		t.Fatalf("close: %v", err)
 	}
 
@@ -203,6 +203,48 @@ func TestCloseReportsVerboseMessage(t *testing.T) {
 
 	require.Error(t, dev.Close())
 	assert.Contains(t, out.String(), "Closing link device.")
+}
+
+// TestCloseRemovesExistingTempFile verifies the expected behavior.
+func TestCloseRemovesExistingTempFile(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.WriteFile("trace.bin", []byte("abc"), 0o644))
+
+	dev := &Device{w: io.Discard, fSys: fs, tempLogFileName: "trace.bin"}
+	require.NoError(t, dev.Close())
+
+	_, err := fs.Stat("trace.bin")
+	require.Error(t, err)
+	assert.True(t, os.IsNotExist(err))
+}
+
+// TestCloseCombinesExistingAndRemoveError verifies the expected behavior.
+func TestCloseCombinesExistingAndRemoveError(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	dev := &Device{
+		w:               io.Discard,
+		fSys:            fs,
+		tempLogFileName: "missing.bin",
+		Err:             errors.New("previous"),
+	}
+
+	err := dev.Close()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "previous")
+	assert.Contains(t, err.Error(), "missing.bin")
+}
+
+// TestCloseWithoutTempFileReturnsStoredError verifies the expected behavior.
+func TestCloseWithoutTempFileReturnsStoredError(t *testing.T) {
+	dev := &Device{
+		w:    io.Discard,
+		fSys: &afero.Afero{Fs: afero.NewMemMapFs()},
+		Err:  errors.New("previous"),
+	}
+
+	err := dev.Close()
+	require.Error(t, err)
+	assert.EqualError(t, err, "previous")
 }
 
 // TestErrorFatalExitsForStoredError verifies the expected behavior.

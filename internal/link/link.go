@@ -7,6 +7,7 @@
 package link
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -16,7 +17,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
@@ -165,7 +165,11 @@ func (p *Device) Close() error {
 	}
 	// CTRL-C sends SIGTERM also to the started command. It closes the temporary file and terminates itself.
 	// Todo: If trice is terminated not with CTRL-C kill automatically.
-	p.Err = errors.Wrap(p.Err, p.fSys.Remove(p.tempLogFileName).Error())
+	if p.tempLogFileName == "" {
+		return p.Err
+	}
+	removeErr := p.fSys.Remove(p.tempLogFileName)
+	p.Err = errors.Join(p.Err, removeErr)
 	return p.Err
 }
 
