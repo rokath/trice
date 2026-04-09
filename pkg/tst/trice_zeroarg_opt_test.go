@@ -45,7 +45,59 @@ void zero_arg_explicit(void) {
 }
 `
 
-type zeroArgCompileCase struct {
+const stringArgExplicitSource = `// SPDX-License-Identifier: MIT
+#include "trice.h"
+static char runtimeGeneratedBuffer[] = "runtime-payload";
+void string_arg_explicit(void) {
+	triceS(iD(0x1301), "STRINGARG_triceS_EXPLICIT", runtimeGeneratedBuffer);
+	TriceS(iD(0x1302), "STRINGARG_TriceS_EXPLICIT", runtimeGeneratedBuffer);
+	TRiceS(iD(0x1303), "STRINGARG_TRiceS_EXPLICIT", runtimeGeneratedBuffer);
+}
+`
+
+// stringArgLegacyWrapperSource intentionally reconstructs the old problematic
+// design locally inside the test translation unit.
+//
+// Why this source exists although the production headers no longer expose this
+// pattern:
+// - We want one regression test that exercises the fixed production path.
+// - We also want one contrast test that proves the former wrapper structure is
+//   indeed the thing that made optimization harder.
+// - Rebuilding the old wrapper form here keeps that historical behavior
+//   testable without reintroducing it into the actual library headers.
+//
+// The `#undef` lines are required because the current header deliberately
+// defines `triceS`, `TriceS` and `TRiceS` as macros. For the contrast case we
+// need plain function symbols with the old `fmt` parameter again.
+//
+// In other words:
+// - `stringArgExplicitSource` models the fixed production path
+// - `stringArgLegacyWrapperSource` models the old wrapper-based path
+// Comparing both in the same test file gives a stable proof that the source
+// structure, not just incidental compiler behavior, is what changed.
+const stringArgLegacyWrapperSource = `// SPDX-License-Identifier: MIT
+#include "trice.h"
+#undef triceS
+#undef TriceS
+#undef TRiceS
+static char runtimeGeneratedBuffer[] = "runtime-payload";
+void triceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
+	TRICE_S(id(tid), fmt, runtimeGeneratedString);
+}
+void TriceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
+	TRICE_S(Id(tid), fmt, runtimeGeneratedString);
+}
+void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
+	TRICE_S(ID(tid), fmt, runtimeGeneratedString);
+}
+void string_arg_legacy_wrapper(void) {
+	triceS(iD(0x1301), "STRINGARG_triceS_LEGACY", runtimeGeneratedBuffer);
+	TriceS(iD(0x1302), "STRINGARG_TriceS_LEGACY", runtimeGeneratedBuffer);
+	TRiceS(iD(0x1303), "STRINGARG_TRiceS_LEGACY", runtimeGeneratedBuffer);
+}
+`
+
+type triceCompileCase struct {
 	name           string
 	std            string
 	source         string
@@ -76,18 +128,18 @@ func availableCCompilers() []string {
 	return found
 }
 
-// compileZeroArgSample compiles one small C translation unit and returns both
-// the raw object bytes and the assembler text.
+// compileTriceSample compiles one small C translation unit and returns both the
+// raw object bytes and the assembler text.
 //
 // We inspect both artifacts:
-// - the object file proves whether the string literal survived in readonly data
-// - the assembler proves whether the compiler still emits calls to the old
-//   wrapper names such as trice0/Trice0/TRice0
+//   - the object file proves whether the string literal survived in readonly data
+//   - the assembler proves whether the compiler still emits calls to the old
+//     wrapper names such as trice0/Trice0/TRice0 or triceS/TriceS/TRiceS
 //
 // The temporary triceConfig.h keeps the sample self-contained and stable. It
 // enables only the minimum TRICE configuration that is needed to compile the
 // zero-value paths without depending on a full example project.
-func compileZeroArgSample(t *testing.T, compiler string, tc zeroArgCompileCase) ([]byte, string) {
+func compileTriceSample(t *testing.T, compiler string, tc triceCompileCase) ([]byte, string) {
 	t.Helper()
 
 	tempDir := t.TempDir()
@@ -148,7 +200,7 @@ func TestZeroArgDispatcherElidesFormatStrings(t *testing.T) {
 		t.Skip("no supported C compiler found")
 	}
 
-	tc := zeroArgCompileCase{
+	tc := triceCompileCase{
 		name:   "dispatcher-gnu11",
 		std:    "gnu11",
 		source: zeroArgDispatcherSource,
@@ -161,7 +213,7 @@ func TestZeroArgDispatcherElidesFormatStrings(t *testing.T) {
 
 	for _, compiler := range compilers {
 		t.Run(compiler, func(t *testing.T) {
-			objBytes, asmText := compileZeroArgSample(t, compiler, tc)
+			objBytes, asmText := compileTriceSample(t, compiler, tc)
 			for _, needle := range tc.mustNotContain {
 				assert.NotContains(t, string(objBytes), needle)
 				assert.NotContains(t, asmText, needle)
@@ -186,7 +238,7 @@ func TestExplicitZeroArgMacrosElideFormatStrings(t *testing.T) {
 		t.Skip("no supported C compiler found")
 	}
 
-	tc := zeroArgCompileCase{
+	tc := triceCompileCase{
 		name:   "explicit-c11",
 		std:    "c11",
 		source: zeroArgExplicitSource,
@@ -199,13 +251,109 @@ func TestExplicitZeroArgMacrosElideFormatStrings(t *testing.T) {
 
 	for _, compiler := range compilers {
 		t.Run(compiler, func(t *testing.T) {
-			objBytes, asmText := compileZeroArgSample(t, compiler, tc)
+			objBytes, asmText := compileTriceSample(t, compiler, tc)
 			for _, needle := range tc.mustNotContain {
 				assert.NotContains(t, string(objBytes), needle)
 				assert.NotContains(t, asmText, needle)
 			}
 			lowerAsm := strings.ToLower(asmText)
 			assert.NotContains(t, lowerAsm, "trice0")
+		})
+	}
+}
+
+// TestExplicitStringArgMacrosElideFormatStrings guards the fixed-arity source
+// forms `triceS(...)`, `TriceS(...)` and `TRiceS(...)`.
+//
+// These calls must continue to pass the runtime-generated payload string into
+// the backend, but they must not preserve the format string merely because it
+// appeared in a wrapper call. The regression originally showed up on toolchains
+// without LTO, so this test inspects the emitted object and assembler directly.
+//
+// What this test proves:
+// - the unique format literals do not survive in the object data
+// - the generated assembler does not expose the old wrapper symbols
+//   `triceS`, `TriceS` or `TRiceS`
+// - helper functions such as `triceSfn` are acceptable and expected because
+//   they centralize the runtime-string work without carrying a `fmt` argument
+func TestExplicitStringArgMacrosElideFormatStrings(t *testing.T) {
+	compilers := availableCCompilers()
+	if len(compilers) == 0 {
+		t.Skip("no supported C compiler found")
+	}
+
+	tc := triceCompileCase{
+		name:   "string-arg-c11",
+		std:    "c11",
+		source: stringArgExplicitSource,
+		mustNotContain: []string{
+			"STRINGARG_triceS_EXPLICIT",
+			"STRINGARG_TriceS_EXPLICIT",
+			"STRINGARG_TRiceS_EXPLICIT",
+		},
+	}
+
+	for _, compiler := range compilers {
+		t.Run(compiler, func(t *testing.T) {
+			objBytes, asmText := compileTriceSample(t, compiler, tc)
+			for _, needle := range tc.mustNotContain {
+				assert.NotContains(t, string(objBytes), needle)
+				assert.NotContains(t, asmText, needle)
+			}
+			assert.NotContains(t, asmText, "\n.global\ttriceS\n")
+			assert.NotContains(t, asmText, "\n.global\tTriceS\n")
+			assert.NotContains(t, asmText, "\n.global\tTRiceS\n")
+			assert.NotContains(t, asmText, "\t.globl\t_triceS ")
+			assert.NotContains(t, asmText, "\t.globl\t_TriceS ")
+			assert.NotContains(t, asmText, "\t.globl\t_TRiceS ")
+		})
+	}
+}
+
+// TestLegacyStringArgWrappersKeepFormatStrings documents the pre-fix behavior:
+// wrapper functions that accept `const char* fmt` keep the less-optimizable
+// call structure alive.
+//
+// This test is intentionally the mirror image of the passing macro regression
+// test above. Keeping it green proves that the optimized path is better
+// because the macro structure changed, not because the toolchain suddenly got
+// smarter.
+//
+// The expectations are intentionally split:
+// - on all supported compilers we require the legacy wrapper symbols to remain
+//   visible in assembler, because that is the structural difference
+// - on the ARM GCC toolchain that originally triggered the issue we additionally
+//   require the unique format literals to survive, which reproduces the user-
+//   visible symptom from the issue report
+func TestLegacyStringArgWrappersKeepFormatStrings(t *testing.T) {
+	compilers := availableCCompilers()
+	if len(compilers) == 0 {
+		t.Skip("no supported C compiler found")
+	}
+
+	tc := triceCompileCase{
+		name:   "string-arg-legacy-c11",
+		std:    "c11",
+		source: stringArgLegacyWrapperSource,
+		mustNotContain: []string{
+			"STRINGARG_triceS_LEGACY",
+			"STRINGARG_TriceS_LEGACY",
+			"STRINGARG_TRiceS_LEGACY",
+		},
+	}
+
+	for _, compiler := range compilers {
+		t.Run(compiler, func(t *testing.T) {
+			objBytes, asmText := compileTriceSample(t, compiler, tc)
+			assert.Contains(t, asmText, "triceS")
+			assert.Contains(t, asmText, "TriceS")
+			assert.Contains(t, asmText, "TRiceS")
+			if compiler == "arm-none-eabi-gcc" {
+				for _, needle := range tc.mustNotContain {
+					assert.Contains(t, string(objBytes), needle)
+					assert.Contains(t, asmText, needle)
+				}
+			}
 		})
 	}
 }

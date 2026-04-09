@@ -760,9 +760,36 @@ void TRice64F(int tid, char const* fmt, void* buf, uint32_t n);
 		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
 
-void triceS(int tid, const char* fmt, const char* runtimeGeneratedString);
-void TriceS(int tid, const char* fmt, const char* runtimeGeneratedString);
-void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString);
+// These fixed-arity source-level forms are intentionally macros instead of
+// wrapper functions taking `fmt`.
+//
+// Why this matters:
+// - The runtime string itself must stay visible to the compiler because it is
+//   transmitted as payload and therefore affects both code and data generation.
+// - The format string, however, is only tool metadata and should disappear as
+//   early as possible.
+// - If `triceS(...)`, `TriceS(...)` or `TRiceS(...)` called a real function
+//   taking `const char* fmt`, some compilers without LTO would still keep the
+//   format literal in readonly data just because it appeared as a call
+//   argument.
+// - A pure macro expansion fixes that optimization issue, but it also repeats
+//   the full runtime-string encoding sequence at every call site.
+// - The compromise used here is therefore:
+//   1. the public spelling stays a macro so `fmt` vanishes before code
+//      generation
+//   2. the macro forwards only `tid` and the runtime string to a compact helper
+//      function that does not take `fmt`
+//
+// The `fmt` parameter is therefore accepted for source compatibility and tool
+// processing, but it is intentionally not forwarded through a wrapper symbol
+// or helper signature.
+void triceSfn(uint16_t tid, const char* runtimeGeneratedString);
+void TriceSfn(uint16_t tid, const char* runtimeGeneratedString);
+void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
+
+#define triceS(tid, fmt, runtimeGeneratedString) triceSfn((uint16_t)(tid), runtimeGeneratedString)
+#define TriceS(tid, fmt, runtimeGeneratedString) TriceSfn((uint16_t)(tid), runtimeGeneratedString)
+#define TRiceS(tid, fmt, runtimeGeneratedString) TRiceSfn((uint16_t)(tid), runtimeGeneratedString)
 
 #endif // #ifndef TRICE_S
 
