@@ -5258,7 +5258,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
 
 ####  35.7.1. <a id='clang'></a>Clang
 
-https://releases.llvm.org/download.html -> https://github.com/llvm/llvm-project/releases/tag/llvmorg-16.0.0 (example)
+https://releases.llvm.org/download.html -> https://github.com/llvm/llvm-project/releases/ (example)
 
 ####  35.7.2. <a id='gcc-1'></a>GCC
 
@@ -8262,7 +8262,9 @@ An instructional workflow provided by GitHub. Purpose:
   * Info: `[/] #%F0%9F%93%82-%60.github/workflows%60-%E2%80%94-github-actions-workflows` = skipped check
 * **Local Action (developer machine):** `lychee .`
   * Uses [.lychee.toml](../lychee.toml) as configuration
+  * For GitHub URLs, set `GITHUB_TOKEN` or `GH_TOKEN` locally as well to reduce API throttling and timeouts during checks
 * **Github Action (Continuous Integration):** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
+  * The workflow already provides `GITHUB_TOKEN` to the Lychee action for GitHub-hosted links
 <!--  * Exclude files: [.lycheeignore](../.lycheeignore) -->
 
 ####  44.2.12. <a id='github-action-manual.ym---to-be-triggered-manually'></a>GitHub Action manual.ym - To Be Triggered Manually
