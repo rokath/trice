@@ -21,11 +21,11 @@ import (
 )
 
 type scriptedDecoderStep struct {
-	data              string
-	err               error
-	lastTriceID       id.TriceID
-	targetTimestamp   uint64
-	targetStampSize   int
+	data            string
+	err             error
+	lastTriceID     id.TriceID
+	targetTimestamp uint64
+	targetStampSize int
 }
 
 type scriptedDecoder struct {
