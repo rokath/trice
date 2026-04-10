@@ -848,13 +848,29 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-void triceAssertTrue(int idN, const char* msg, int flag);
-void TriceAssertTrue(int idN, const char* msg, int flag);
-void TRiceAssertTrue(int idN, const char* msg, int flag);
+// The Assert spellings follow the same hybrid pattern as the string helpers:
+// - the public source form stays a macro so `msg` disappears before a real
+//   function call is formed
+// - compact helper functions keep the generated code centralized
+//
+// This avoids leaving assertion message literals in object data on compilers
+// that do not optimize away unused function parameters aggressively unless LTO
+// is enabled.
+void triceAssertTrueFn(uint16_t idN, int flag);
+void TriceAssertTrueFn(uint16_t idN, int flag);
+void TRiceAssertTrueFn(uint16_t idN, int flag);
 
-void triceAssertFalse(int idN, const char* msg, int flag);
-void TriceAssertFalse(int idN, const char* msg, int flag);
-void TRiceAssertFalse(int idN, const char* msg, int flag);
+void triceAssertFalseFn(uint16_t idN, int flag);
+void TriceAssertFalseFn(uint16_t idN, int flag);
+void TRiceAssertFalseFn(uint16_t idN, int flag);
+
+#define triceAssertTrue(idN, msg, flag) triceAssertTrueFn((uint16_t)(idN), flag)
+#define TriceAssertTrue(idN, msg, flag) TriceAssertTrueFn((uint16_t)(idN), flag)
+#define TRiceAssertTrue(idN, msg, flag) TRiceAssertTrueFn((uint16_t)(idN), flag)
+
+#define triceAssertFalse(idN, msg, flag) triceAssertFalseFn((uint16_t)(idN), flag)
+#define TriceAssertFalse(idN, msg, flag) TriceAssertFalseFn((uint16_t)(idN), flag)
+#define TRiceAssertFalse(idN, msg, flag) TRiceAssertFalseFn((uint16_t)(idN), flag)
 
 #define triceAssert(idN, msg, flag) triceAssertTrue(idN, msg, flag)
 #define TriceAssert(idN, msg, flag) TriceAssertTrue(idN, msg, flag)

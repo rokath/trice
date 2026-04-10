@@ -60,11 +60,11 @@ void string_arg_explicit(void) {
 //
 // Why this source exists although the production headers no longer expose this
 // pattern:
-// - We want one regression test that exercises the fixed production path.
-// - We also want one contrast test that proves the former wrapper structure is
-//   indeed the thing that made optimization harder.
-// - Rebuilding the old wrapper form here keeps that historical behavior
-//   testable without reintroducing it into the actual library headers.
+//   - We want one regression test that exercises the fixed production path.
+//   - We also want one contrast test that proves the former wrapper structure is
+//     indeed the thing that made optimization harder.
+//   - Rebuilding the old wrapper form here keeps that historical behavior
+//     testable without reintroducing it into the actual library headers.
 //
 // The `#undef` lines are required because the current header deliberately
 // defines `triceS`, `TriceS` and `TRiceS` as macros. For the contrast case we
@@ -94,6 +94,106 @@ void string_arg_legacy_wrapper(void) {
 	triceS(iD(0x1301), "STRINGARG_triceS_LEGACY", runtimeGeneratedBuffer);
 	TriceS(iD(0x1302), "STRINGARG_TriceS_LEGACY", runtimeGeneratedBuffer);
 	TRiceS(iD(0x1303), "STRINGARG_TRiceS_LEGACY", runtimeGeneratedBuffer);
+}
+`
+
+// assertExplicitSource models the fixed production path for the Assert family.
+//
+// The source intentionally covers:
+// - the explicit `*AssertTrue(...)` spellings
+// - the explicit `*AssertFalse(...)` spellings
+// - the `*Assert(...)` aliases that forward to the `True` variants
+//
+// Volatile flags prevent the compiler from folding the whole condition away at
+// compile time. That keeps the emitted code representative for the real-world
+// case where an assertion decision is made from runtime state.
+const assertExplicitSource = `// SPDX-License-Identifier: MIT
+#include "trice.h"
+volatile int flagTrueZero = 0;
+volatile int flagFalseOne = 1;
+void assert_explicit(void) {
+	triceAssertTrue(iD(0x1401), "ASSERT_triceAssertTrue_EXPLICIT", flagTrueZero);
+	TriceAssertTrue(iD(0x1402), "ASSERT_TriceAssertTrue_EXPLICIT", flagTrueZero);
+	TRiceAssertTrue(iD(0x1403), "ASSERT_TRiceAssertTrue_EXPLICIT", flagTrueZero);
+	triceAssertFalse(iD(0x1404), "ASSERT_triceAssertFalse_EXPLICIT", flagFalseOne);
+	TriceAssertFalse(iD(0x1405), "ASSERT_TriceAssertFalse_EXPLICIT", flagFalseOne);
+	TRiceAssertFalse(iD(0x1406), "ASSERT_TRiceAssertFalse_EXPLICIT", flagFalseOne);
+	triceAssert(iD(0x1407), "ASSERT_triceAssert_ALIAS", flagTrueZero);
+	TriceAssert(iD(0x1408), "ASSERT_TriceAssert_ALIAS", flagTrueZero);
+	TRiceAssert(iD(0x1409), "ASSERT_TRiceAssert_ALIAS", flagTrueZero);
+}
+`
+
+// assertLegacyWrapperSource reconstructs the former wrapper-based Assert design.
+//
+// The legacy form accepted `msg` as a real function argument and then silenced
+// the unused-parameter warning with `TRICE_UNUSED(msg)`. That warning handling
+// is valid and still important, but it also created the optimization issue:
+// some compilers kept the assertion text literal because it had appeared as an
+// actual call argument. The contrast test below preserves that historical
+// pattern without keeping it in production code.
+const assertLegacyWrapperSource = `// SPDX-License-Identifier: MIT
+#include "trice.h"
+#undef triceAssertTrue
+#undef TriceAssertTrue
+#undef TRiceAssertTrue
+#undef triceAssertFalse
+#undef TriceAssertFalse
+#undef TRiceAssertFalse
+#undef triceAssert
+#undef TriceAssert
+#undef TRiceAssert
+// The historical wrapper implementation in trice.c used this private helper
+// macro locally. The contrast test recreates that exact structure here.
+#define TRICE_ASSERT(tid) \
+	TRICE_ENTER tid;      \
+	TRICE_CNTC(0);        \
+	TRICE_LEAVE
+volatile int flagTrueZero = 0;
+volatile int flagFalseOne = 1;
+void triceAssertTrue(int idN, const char* msg, int flag) {
+	TRICE_UNUSED(msg)
+	if (!flag) {
+		TRICE_ASSERT(id(idN));
+	}
+}
+void TriceAssertTrue(int idN, const char* msg, int flag) {
+	TRICE_UNUSED(msg)
+	if (!flag) {
+		TRICE_ASSERT(Id(idN));
+	}
+}
+void TRiceAssertTrue(int idN, const char* msg, int flag) {
+	TRICE_UNUSED(msg)
+	if (!flag) {
+		TRICE_ASSERT(ID(idN));
+	}
+}
+void triceAssertFalse(int idN, const char* msg, int flag) {
+	TRICE_UNUSED(msg)
+	if (flag) {
+		TRICE_ASSERT(id(idN));
+	}
+}
+void TriceAssertFalse(int idN, const char* msg, int flag) {
+	TRICE_UNUSED(msg)
+	if (flag) {
+		TRICE_ASSERT(Id(idN));
+	}
+}
+void TRiceAssertFalse(int idN, const char* msg, int flag) {
+	TRICE_UNUSED(msg)
+	if (flag) {
+		TRICE_ASSERT(ID(idN));
+	}
+}
+void assert_legacy_wrapper(void) {
+	triceAssertTrue(iD(0x1401), "ASSERT_triceAssertTrue_LEGACY", flagTrueZero);
+	TriceAssertTrue(iD(0x1402), "ASSERT_TriceAssertTrue_LEGACY", flagTrueZero);
+	TRiceAssertTrue(iD(0x1403), "ASSERT_TRiceAssertTrue_LEGACY", flagTrueZero);
+	triceAssertFalse(iD(0x1404), "ASSERT_triceAssertFalse_LEGACY", flagFalseOne);
+	TriceAssertFalse(iD(0x1405), "ASSERT_TriceAssertFalse_LEGACY", flagFalseOne);
+	TRiceAssertFalse(iD(0x1406), "ASSERT_TRiceAssertFalse_LEGACY", flagFalseOne);
 }
 `
 
@@ -186,6 +286,19 @@ func compileTriceSample(t *testing.T, compiler string, tc triceCompileCase) ([]b
 	return objBytes, string(asmBytes)
 }
 
+// containsAny reports whether at least one candidate string is present.
+//
+// The helper keeps the contrast tests readable when a toolchain-dependent
+// symptom is not stable enough to require every single literal individually.
+func containsAny(text string, needles []string) bool {
+	for _, needle := range needles {
+		if strings.Contains(text, needle) {
+			return true
+		}
+	}
+	return false
+}
+
 // TestZeroArgDispatcherElidesFormatStrings guards the primary user-facing case:
 // the inserted source form `trice(iD(...), "msg")`, `Trice(iD(...), "msg")`
 // and `TRice(iD(...), "msg")`.
@@ -271,11 +384,11 @@ func TestExplicitZeroArgMacrosElideFormatStrings(t *testing.T) {
 // without LTO, so this test inspects the emitted object and assembler directly.
 //
 // What this test proves:
-// - the unique format literals do not survive in the object data
-// - the generated assembler does not expose the old wrapper symbols
-//   `triceS`, `TriceS` or `TRiceS`
-// - helper functions such as `triceSfn` are acceptable and expected because
-//   they centralize the runtime-string work without carrying a `fmt` argument
+//   - the unique format literals do not survive in the object data
+//   - the generated assembler does not expose the old wrapper symbols
+//     `triceS`, `TriceS` or `TRiceS`
+//   - helper functions such as `triceSfn` are acceptable and expected because
+//     they centralize the runtime-string work without carrying a `fmt` argument
 func TestExplicitStringArgMacrosElideFormatStrings(t *testing.T) {
 	compilers := availableCCompilers()
 	if len(compilers) == 0 {
@@ -320,11 +433,11 @@ func TestExplicitStringArgMacrosElideFormatStrings(t *testing.T) {
 // smarter.
 //
 // The expectations are intentionally split:
-// - on all supported compilers we require the legacy wrapper symbols to remain
-//   visible in assembler, because that is the structural difference
-// - on the ARM GCC toolchain that originally triggered the issue we additionally
-//   require the unique format literals to survive, which reproduces the user-
-//   visible symptom from the issue report
+//   - on all supported compilers we require the legacy wrapper symbols to remain
+//     visible in assembler, because that is the structural difference
+//   - on the ARM GCC toolchain that originally triggered the issue we additionally
+//     require the unique format literals to survive, which reproduces the user-
+//     visible symptom from the issue report
 func TestLegacyStringArgWrappersKeepFormatStrings(t *testing.T) {
 	compilers := availableCCompilers()
 	if len(compilers) == 0 {
@@ -354,6 +467,96 @@ func TestLegacyStringArgWrappersKeepFormatStrings(t *testing.T) {
 					assert.Contains(t, asmText, needle)
 				}
 			}
+		})
+	}
+}
+
+// TestAssertMacrosElideMessageStrings verifies that the Assert family uses the
+// same optimized structure as the fixed zero-arg and string-arg helpers:
+// message strings are accepted in source for tooling purposes, but they are
+// removed before any real helper call is emitted.
+func TestAssertMacrosElideMessageStrings(t *testing.T) {
+	compilers := availableCCompilers()
+	if len(compilers) == 0 {
+		t.Skip("no supported C compiler found")
+	}
+
+	tc := triceCompileCase{
+		name:   "assert-macro-c11",
+		std:    "c11",
+		source: assertExplicitSource,
+		mustNotContain: []string{
+			"ASSERT_triceAssertTrue_EXPLICIT",
+			"ASSERT_TriceAssertTrue_EXPLICIT",
+			"ASSERT_TRiceAssertTrue_EXPLICIT",
+			"ASSERT_triceAssertFalse_EXPLICIT",
+			"ASSERT_TriceAssertFalse_EXPLICIT",
+			"ASSERT_TRiceAssertFalse_EXPLICIT",
+			"ASSERT_triceAssert_ALIAS",
+			"ASSERT_TriceAssert_ALIAS",
+			"ASSERT_TRiceAssert_ALIAS",
+		},
+	}
+
+	for _, compiler := range compilers {
+		t.Run(compiler, func(t *testing.T) {
+			objBytes, asmText := compileTriceSample(t, compiler, tc)
+			for _, needle := range tc.mustNotContain {
+				assert.NotContains(t, string(objBytes), needle)
+				assert.NotContains(t, asmText, needle)
+			}
+			assert.NotContains(t, asmText, "\n.global\ttriceAssertTrue\n")
+			assert.NotContains(t, asmText, "\n.global\tTriceAssertTrue\n")
+			assert.NotContains(t, asmText, "\n.global\tTRiceAssertTrue\n")
+			assert.NotContains(t, asmText, "\n.global\ttriceAssertFalse\n")
+			assert.NotContains(t, asmText, "\n.global\tTriceAssertFalse\n")
+			assert.NotContains(t, asmText, "\n.global\tTRiceAssertFalse\n")
+			assert.NotContains(t, asmText, "\t.globl\t_triceAssertTrue ")
+			assert.NotContains(t, asmText, "\t.globl\t_TriceAssertTrue ")
+			assert.NotContains(t, asmText, "\t.globl\t_TRiceAssertTrue ")
+			assert.NotContains(t, asmText, "\t.globl\t_triceAssertFalse ")
+			assert.NotContains(t, asmText, "\t.globl\t_TriceAssertFalse ")
+			assert.NotContains(t, asmText, "\t.globl\t_TRiceAssertFalse ")
+		})
+	}
+}
+
+// TestLegacyAssertWrappersKeepMessageStrings documents the old Assert wrapper
+// shape that used `TRICE_UNUSED(msg)` to silence compiler warnings.
+//
+// That warning suppression remains a valid technique, so the contrast test
+// deliberately keeps it. The point here is only that carrying `msg` as a real
+// function argument preserves the less-optimizable wrapper structure and keeps
+// the historical `TRICE_UNUSED(msg)` pattern visible for comparison.
+func TestLegacyAssertWrappersKeepMessageStrings(t *testing.T) {
+	compilers := availableCCompilers()
+	if len(compilers) == 0 {
+		t.Skip("no supported C compiler found")
+	}
+
+	tc := triceCompileCase{
+		name:   "assert-legacy-c11",
+		std:    "c11",
+		source: assertLegacyWrapperSource,
+		mustNotContain: []string{
+			"ASSERT_triceAssertTrue_LEGACY",
+			"ASSERT_TriceAssertTrue_LEGACY",
+			"ASSERT_TRiceAssertTrue_LEGACY",
+			"ASSERT_triceAssertFalse_LEGACY",
+			"ASSERT_TriceAssertFalse_LEGACY",
+			"ASSERT_TRiceAssertFalse_LEGACY",
+		},
+	}
+
+	for _, compiler := range compilers {
+		t.Run(compiler, func(t *testing.T) {
+			_, asmText := compileTriceSample(t, compiler, tc)
+			assert.Contains(t, asmText, "triceAssertTrue")
+			assert.Contains(t, asmText, "TriceAssertTrue")
+			assert.Contains(t, asmText, "TRiceAssertTrue")
+			assert.Contains(t, asmText, "triceAssertFalse")
+			assert.Contains(t, asmText, "TriceAssertFalse")
+			assert.Contains(t, asmText, "TRiceAssertFalse")
 		})
 	}
 }

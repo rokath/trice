@@ -937,43 +937,44 @@ unsigned TriceOutDepth(void) {
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-void triceAssertTrue(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+// These helpers intentionally do not accept the assertion message string.
+//
+// The public `triceAssert*` spellings are macros in the header that discard
+// `msg` before any real function call is formed. That keeps compiler warning
+// suppression simple without needing `TRICE_UNUSED(msg)` in production and it
+// avoids preserving assertion message literals in object code on toolchains
+// that otherwise keep unused call arguments around.
+void triceAssertTrueFn(uint16_t idN, int flag) {
 	if (!flag) {
 		TRICE_ASSERT(id(idN));
 	}
 }
 
-void TriceAssertTrue(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void TriceAssertTrueFn(uint16_t idN, int flag) {
 	if (!flag) {
 		TRICE_ASSERT(Id(idN));
 	}
 }
 
-void TRiceAssertTrue(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void TRiceAssertTrueFn(uint16_t idN, int flag) {
 	if (!flag) {
 		TRICE_ASSERT(ID(idN));
 	}
 }
 
-void triceAssertFalse(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void triceAssertFalseFn(uint16_t idN, int flag) {
 	if (flag) {
 		TRICE_ASSERT(id(idN));
 	}
 }
 
-void TriceAssertFalse(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void TriceAssertFalseFn(uint16_t idN, int flag) {
 	if (flag) {
 		TRICE_ASSERT(Id(idN));
 	}
 }
 
-void TRiceAssertFalse(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void TRiceAssertFalseFn(uint16_t idN, int flag) {
 	if (flag) {
 		TRICE_ASSERT(ID(idN));
 	}
