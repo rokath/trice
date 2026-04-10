@@ -48,6 +48,13 @@ func TestTriceFmtParseAndTriceParse(t *testing.T) {
 	assert.EqualValues(t, idTypeS2, found)
 }
 
+// TestTriceFmtParseRejectsNonTriceInput verifies the expected behavior.
+func TestTriceFmtParseRejectsNonTriceInput(t *testing.T) {
+	tf, ok := triceFmtParse(`printf("value=%d", 7)`)
+	assert.False(t, ok)
+	assert.Equal(t, TriceFmt{}, tf)
+}
+
 // TestReadFileAndRefreshIDs verifies source scanning and conflicting ID handling.
 func TestReadFileAndRefreshIDs(t *testing.T) {
 	defer Setup(t)()
@@ -109,6 +116,28 @@ func TestRefreshListCollectsSourceFiles(t *testing.T) {
 
 	assert.Equal(t, TriceFmt{Type: "TRICE8_1", Strg: "demo=%d\\n"}, ilu[321])
 	assert.Equal(t, "demo.c", lim[321].File)
+}
+
+// TestRefreshListVerbose verifies the expected behavior.
+func TestRefreshListVerbose(t *testing.T) {
+	dir := t.TempDir()
+	srcDir := filepath.Join(dir, "src")
+	require.NoError(t, os.MkdirAll(srcDir, 0o755))
+	require.NoError(t, os.WriteFile(filepath.Join(srcDir, "demo.c"), []byte("break; case __LINE__: TRICE8_1( Id(321), \"demo=%d\\n\", -7 );"), 0o644))
+
+	oldVerbose := Verbose
+	oldFnJSON := FnJSON
+	Verbose = true
+	FnJSON = "til.json"
+	t.Cleanup(func() {
+		Verbose = oldVerbose
+		FnJSON = oldFnJSON
+	})
+
+	var out bytes.Buffer
+	refreshList(&out, &afero.Afero{Fs: afero.NewOsFs()}, srcDir, TriceIDLookUp{}, triceFmtLookUp{}, TriceIDLookUpLI{})
+	assert.Contains(t, out.String(), "dir=")
+	assert.Contains(t, out.String(), "List= til.json")
 }
 
 type ioDiscard struct{}

@@ -3,9 +3,11 @@
 package id
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testSet = []struct {
@@ -75,4 +77,50 @@ func TestFmatchBracketLiteral(t *testing.T) {
 		assert.Nil(t, err)
 		assert.EqualValues(t, x.exp, act)
 	}
+}
+
+// TestEvaluateTriceParameterCount verifies the expected behavior.
+func TestEvaluateTriceParameterCount(t *testing.T) {
+	tt := []struct {
+		name string
+		tf   TriceFmt
+		rest string
+		ok   bool
+	}{
+		{name: "regular ok", tf: TriceFmt{Type: "TRICE", Strg: "%d"}, rest: `, value);`, ok: true},
+		{name: "regular mismatch", tf: TriceFmt{Type: "TRICE", Strg: "%d%d"}, rest: `, value);`, ok: false},
+		{name: "string ok", tf: TriceFmt{Type: "TRICES", Strg: "%s"}, rest: `, "abc");`, ok: true},
+		{name: "buffer ok", tf: TriceFmt{Type: "TRICE8B", Strg: "%d"}, rest: `, buf, sizeof(buf));`, ok: true},
+		{name: "function ok", tf: TriceFmt{Type: "TRICE16F", Strg: "rpc:Call"}, rest: `, buf, sizeof(buf));`, ok: true},
+		{name: "assert ok", tf: TriceFmt{Type: "TRICEAssertTrue", Strg: ""}, rest: `, value);`, ok: true},
+		{name: "assert mismatch", tf: TriceFmt{Type: "TRICEAssertTrue", Strg: "%d"}, rest: `, value);`, ok: false},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			err := evaluateTriceParameterCount(tc.tf, 7, tc.rest)
+			if tc.ok {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+			}
+		})
+	}
+}
+
+// TestHelperUtilities verifies the expected behavior.
+func TestHelperUtilities(t *testing.T) {
+	defer Setup(t)()
+
+	require.NoError(t, FSys.WriteFile(SFName, []byte("demo"), 0o777))
+	assert.True(t, fileExists(FSys, SFName))
+	assert.False(t, fileExists(FSys, Proj+"missing.c"))
+
+	p := &idData{}
+	func() {
+		p.join(errors.New("boom"))
+	}()
+	require.Error(t, p.err)
+	assert.Contains(t, p.err.Error(), "boom")
+	assert.Contains(t, p.err.Error(), "TestHelperUtilities")
 }

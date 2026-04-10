@@ -3,15 +3,19 @@
 package link
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type removingFs struct {
@@ -76,7 +80,7 @@ func TestNewDeviceJLinkDefaults(t *testing.T) {
 	}
 
 	err = dev.Close()
-	if err != nil {
+	if err == nil || !strings.Contains(err.Error(), "removed") {
 		t.Fatalf("close: %v", err)
 	}
 
@@ -161,6 +165,154 @@ func TestDeviceReadWriteDelegateToTempLogHandle(t *testing.T) {
 	}
 	if n != 1 {
 		t.Fatalf("unexpected write count %d", n)
+	}
+}
+
+// TestOpenStartsProcessAndOpensTempLog verifies the expected behavior.
+func TestOpenStartsProcessAndOpensTempLog(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.WriteFile("trace.bin", []byte("abc"), 0o644))
+
+	dev := &Device{
+		w:               io.Discard,
+		fSys:            fs,
+		Exec:            "sh",
+		args:            []string{"-c", "exit 0"},
+		tempLogFileName: "trace.bin",
+	}
+
+	require.NoError(t, dev.Open())
+	require.NotNil(t, dev.cmd)
+	require.NotNil(t, dev.tempLogFileHandle)
+
+	buf := make([]byte, 3)
+	n, err := dev.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, "abc", string(buf[:n]))
+}
+
+// TestCloseReportsVerboseMessage verifies the expected behavior.
+func TestCloseReportsVerboseMessage(t *testing.T) {
+	oldVerbose := Verbose
+	Verbose = true
+	t.Cleanup(func() { Verbose = oldVerbose })
+
+	var out bytes.Buffer
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	dev := &Device{w: &out, fSys: fs, tempLogFileName: "missing.bin", Err: errors.New("previous")}
+
+	require.Error(t, dev.Close())
+	assert.Contains(t, out.String(), "Closing link device.")
+}
+
+// TestCloseRemovesExistingTempFile verifies the expected behavior.
+func TestCloseRemovesExistingTempFile(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.WriteFile("trace.bin", []byte("abc"), 0o644))
+
+	dev := &Device{w: io.Discard, fSys: fs, tempLogFileName: "trace.bin"}
+	require.NoError(t, dev.Close())
+
+	_, err := fs.Stat("trace.bin")
+	require.Error(t, err)
+	assert.True(t, os.IsNotExist(err))
+}
+
+// TestCloseCombinesExistingAndRemoveError verifies the expected behavior.
+func TestCloseCombinesExistingAndRemoveError(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	dev := &Device{
+		w:               io.Discard,
+		fSys:            fs,
+		tempLogFileName: "missing.bin",
+		Err:             errors.New("previous"),
+	}
+
+	err := dev.Close()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "previous")
+	assert.Contains(t, err.Error(), "missing.bin")
+}
+
+// TestCloseWithoutTempFileReturnsStoredError verifies the expected behavior.
+func TestCloseWithoutTempFileReturnsStoredError(t *testing.T) {
+	dev := &Device{
+		w:    io.Discard,
+		fSys: &afero.Afero{Fs: afero.NewMemMapFs()},
+		Err:  errors.New("previous"),
+	}
+
+	err := dev.Close()
+	require.Error(t, err)
+	assert.EqualError(t, err, "previous")
+}
+
+// TestErrorFatalExitsForStoredError verifies the expected behavior.
+func TestErrorFatalExitsForStoredError(t *testing.T) {
+	cmd := exec.Command(os.Args[0], "-test.run=TestHelperProcessLink")
+	cmd.Env = append(os.Environ(),
+		"GO_WANT_HELPER_PROCESS=1",
+		"TRICE_LINK_HELPER_ACTION=error-fatal",
+	)
+
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	err := cmd.Run()
+	require.Error(t, err)
+
+	var exitErr *exec.ExitError
+	require.ErrorAs(t, err, &exitErr)
+	assert.Equal(t, 1, exitErr.ExitCode())
+	assert.Contains(t, stdout.String(), "p.err=boom")
+	assert.Contains(t, stdout.String(), "p.Exec=tool")
+}
+
+// TestOpenExitsForStartFailure verifies the expected behavior.
+func TestOpenExitsForStartFailure(t *testing.T) {
+	cmd := exec.Command(os.Args[0], "-test.run=TestHelperProcessLink")
+	cmd.Env = append(os.Environ(),
+		"GO_WANT_HELPER_PROCESS=1",
+		"TRICE_LINK_HELPER_ACTION=open-fail",
+	)
+
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+	err := cmd.Run()
+	require.Error(t, err)
+
+	var exitErr *exec.ExitError
+	require.ErrorAs(t, err, &exitErr)
+	assert.Equal(t, 1, exitErr.ExitCode())
+	assert.Contains(t, stdout.String(), "p.Exec=this-command-does-not-exist")
+}
+
+func TestHelperProcessLink(t *testing.T) {
+	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
+		return
+	}
+
+	switch os.Getenv("TRICE_LINK_HELPER_ACTION") {
+	case "error-fatal":
+		dev := &Device{
+			Exec:            "tool",
+			Lib:             "lib",
+			args:            []string{"-flag"},
+			tempLogFileName: "trace.bin",
+			Err:             errors.New("boom"),
+		}
+		dev.errorFatal()
+	case "open-fail":
+		fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+		dev := &Device{
+			w:               io.Discard,
+			fSys:            fs,
+			Exec:            "this-command-does-not-exist",
+			args:            []string{"-flag"},
+			tempLogFileName: "",
+		}
+		_ = dev.Open()
+	default:
+		os.Exit(2)
 	}
 }
 

@@ -937,43 +937,44 @@ unsigned TriceOutDepth(void) {
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-void triceAssertTrue(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+// These helpers intentionally do not accept the assertion message string.
+//
+// The public `triceAssert*` spellings are macros in the header that discard
+// `msg` before any real function call is formed. That keeps compiler warning
+// suppression simple without needing `TRICE_UNUSED(msg)` in production and it
+// avoids preserving assertion message literals in object code on toolchains
+// that otherwise keep unused call arguments around.
+void triceAssertTrueFn(uint16_t idN, int flag) {
 	if (!flag) {
 		TRICE_ASSERT(id(idN));
 	}
 }
 
-void TriceAssertTrue(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void TriceAssertTrueFn(uint16_t idN, int flag) {
 	if (!flag) {
 		TRICE_ASSERT(Id(idN));
 	}
 }
 
-void TRiceAssertTrue(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void TRiceAssertTrueFn(uint16_t idN, int flag) {
 	if (!flag) {
 		TRICE_ASSERT(ID(idN));
 	}
 }
 
-void triceAssertFalse(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void triceAssertFalseFn(uint16_t idN, int flag) {
 	if (flag) {
 		TRICE_ASSERT(id(idN));
 	}
 }
 
-void TriceAssertFalse(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void TriceAssertFalseFn(uint16_t idN, int flag) {
 	if (flag) {
 		TRICE_ASSERT(Id(idN));
 	}
 }
 
-void TRiceAssertFalse(int idN, const char* msg, int flag) {
-	TRICE_UNUSED(msg)
+void TRiceAssertFalseFn(uint16_t idN, int flag) {
 	if (flag) {
 		TRICE_ASSERT(ID(idN));
 	}
@@ -1101,33 +1102,29 @@ void TRice64F(int tid, char const* fmt, void* buf, uint32_t n) {
 
 #ifdef TRICE_S
 
-void triceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
-	TRICE_S(id(tid), fmt, runtimeGeneratedString);
+// These compact helpers intentionally accept only the stamped ID value and the
+// runtime-generated payload string.
+//
+// The public source forms `triceS(...)`, `TriceS(...)` and `TRiceS(...)` are
+// macros in the header that discard `fmt` before a real function call is
+// formed. That keeps the format literal out of many object files on compilers
+// without LTO while still centralizing the runtime-string handling code here.
+//
+// Passing `0` as the format argument is correct for the runtime path because
+// the TRICE backend does not read that value while encoding the payload. The
+// format string is only relevant to offline tooling at source-processing time.
+void triceSfn(uint16_t tid, const char* runtimeGeneratedString) {
+	TRICE_S(id(tid), 0, runtimeGeneratedString);
 }
 
-void TriceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
-	TRICE_S(Id(tid), fmt, runtimeGeneratedString);
+void TriceSfn(uint16_t tid, const char* runtimeGeneratedString) {
+	TRICE_S(Id(tid), 0, runtimeGeneratedString);
 }
 
-void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString) {
-	TRICE_S(ID(tid), fmt, runtimeGeneratedString);
+void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString) {
+	TRICE_S(ID(tid), 0, runtimeGeneratedString);
 }
 
 #endif // #ifdef TRICE_S
-
-void trice0(uint16_t tid, const char* pFmt) {
-	trice32m_0(tid);
-	TRICE_UNUSED(pFmt)
-}
-
-void Trice0(uint16_t tid, const char* pFmt) {
-	Trice32m_0(tid);
-	TRICE_UNUSED(pFmt)
-}
-
-void TRice0(uint16_t tid, const char* pFmt) {
-	TRice32m_0(tid);
-	TRICE_UNUSED(pFmt)
-}
 
 #endif // #if !TRICE_OFF

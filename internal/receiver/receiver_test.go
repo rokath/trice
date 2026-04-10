@@ -161,6 +161,26 @@ func TestNewReadWriteCloserUsesDefaultArguments(t *testing.T) {
 	assert.Equal(t, "xy", string(buf[:n]))
 }
 
+// TestNewReadWriteCloserVerboseFileDefaults verifies the default FILE logging path.
+func TestNewReadWriteCloserVerboseFileDefaults(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.WriteFile(DefaultFileArgs, []byte("xy"), 0o644))
+
+	savedVerbose := Verbose
+	Verbose = true
+	t.Cleanup(func() { Verbose = savedVerbose })
+
+	var out bytes.Buffer
+	rc, err := NewReadWriteCloser(&out, fs, false, "FILE", "default")
+	require.NoError(t, err)
+	require.IsType(t, &file{}, rc)
+	rc.(*file).w = &out
+	defer rc.Close()
+
+	assert.Contains(t, out.String(), "Assigning default arguments for port FILE")
+	assert.Contains(t, out.String(), "PortArguments= trices.raw")
+}
+
 type stubReadWriteCloser struct {
 	readData []byte
 	readErr  error
@@ -185,10 +205,16 @@ func TestNewBinaryLoggerAutoFileNameAndRead(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
 	source := &stubReadWriteCloser{readData: []byte{0x01, 0x02, 0x03}}
 	previous := BinaryLogfileName
+	savedVerbose := Verbose
 	BinaryLogfileName = "auto"
-	t.Cleanup(func() { BinaryLogfileName = previous })
+	Verbose = true
+	t.Cleanup(func() {
+		BinaryLogfileName = previous
+		Verbose = savedVerbose
+	})
 
-	logger := NewBinaryLogger(io.Discard, fs, source)
+	var out bytes.Buffer
+	logger := NewBinaryLogger(&out, fs, source)
 	bl, ok := logger.(*binaryLogger)
 	require.True(t, ok)
 
@@ -206,6 +232,7 @@ func TestNewBinaryLoggerAutoFileNameAndRead(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, []byte{0x01, 0x02, 0x03}, logged)
 	assert.NotNil(t, bl.w)
+	assert.Contains(t, out.String(), "Writing trice input to binary logfile")
 }
 
 // TestNewBinaryLoggerDisabledReturnsSource verifies disabled logfile settings are pass-through.
@@ -230,6 +257,146 @@ func TestNewBytesViewerReadFormatsHex(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, []byte{0x0a, 0xbc}, buf[:n])
 	assert.Equal(t, "Input(0a bc)\n", out.String())
+}
+
+// TestNewBytesViewerReadSkipsPureEOF verifies that no debug output is emitted for an immediate EOF.
+func TestNewBytesViewerReadSkipsPureEOF(t *testing.T) {
+	source := &stubReadWriteCloser{readErr: io.EOF}
+	var out bytes.Buffer
+
+	viewer := NewBytesViewer(&out, source)
+	buf := make([]byte, 8)
+	n, err := viewer.Read(buf)
+	assert.Equal(t, io.EOF, err)
+	assert.Zero(t, n)
+	assert.Empty(t, out.String())
+}
+
+// TestBinaryLoggerReadSkipsPureEOF verifies that EOF-only reads do not append to the logfile.
+func TestBinaryLoggerReadSkipsPureEOF(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	source := &stubReadWriteCloser{readErr: io.EOF}
+	savedLogfileName := BinaryLogfileName
+	BinaryLogfileName = "trace.bin"
+	t.Cleanup(func() { BinaryLogfileName = savedLogfileName })
+
+	logger := NewBinaryLogger(io.Discard, fs, source)
+	buf := make([]byte, 8)
+	n, err := logger.Read(buf)
+	assert.Equal(t, io.EOF, err)
+	assert.Zero(t, n)
+
+	data, readErr := fs.ReadFile("trace.bin")
+	require.NoError(t, readErr)
+	assert.Empty(t, data)
+}
+
+// TestUDP4ConnectionReceivesPackets verifies the expected behavior.
+func TestUDP4ConnectionReceivesPackets(t *testing.T) {
+	conn := newUDPConnection("127.0.0.1:0")
+	defer conn.Close()
+
+	peer, err := net.DialUDP("udp4", nil, conn.conn.LocalAddr().(*net.UDPAddr))
+	require.NoError(t, err)
+	defer peer.Close()
+
+	_, err = peer.Write([]byte{0x11, 0x22, 0x33})
+	require.NoError(t, err)
+
+	buf := make([]byte, 8)
+	n, err := conn.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x11, 0x22, 0x33}, buf[:n])
+}
+
+// TestNewReadWriteCloserHexAndDecAliases verifies the readable alias ports.
+func TestNewReadWriteCloserHexAndDecAliases(t *testing.T) {
+	hexRC, err := NewReadWriteCloser(nil, nil, false, "HEX", "0a 0b")
+	require.NoError(t, err)
+	defer hexRC.Close()
+
+	decRC, err := NewReadWriteCloser(nil, nil, false, "DEC", "10 11")
+	require.NoError(t, err)
+	defer decRC.Close()
+
+	buf := make([]byte, 4)
+	n, err := hexRC.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x0a, 0x0b}, buf[:n])
+
+	n, err = decRC.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{10, 11}, buf[:n])
+}
+
+// TestUDP4WritePanics verifies the expected behavior.
+func TestUDP4WritePanics(t *testing.T) {
+	conn := &udp4{}
+	assert.PanicsWithValue(t, "udp4.Write not implemented", func() {
+		_, _ = conn.Write([]byte{0x01})
+	})
+}
+
+// TestBinaryLoggerWriteAndClose verifies the expected behavior.
+func TestBinaryLoggerWriteAndClose(t *testing.T) {
+	logger := &binaryLogger{}
+
+	n, err := logger.Write([]byte("ignored"))
+	require.NoError(t, err)
+	assert.Zero(t, n)
+	assert.NoError(t, logger.Close())
+}
+
+// TestBytesViewerWriteAndClose verifies the expected behavior.
+func TestBytesViewerWriteAndClose(t *testing.T) {
+	viewer := &bytesViewer{}
+
+	n, err := viewer.Write([]byte("ignored"))
+	require.NoError(t, err)
+	assert.Zero(t, n)
+	assert.NoError(t, viewer.Close())
+}
+
+// TestBufferCloseResetsContent verifies the expected behavior.
+func TestBufferCloseResetsContent(t *testing.T) {
+	buf := &buffer{}
+	_, err := buf.Write([]byte("abc"))
+	require.NoError(t, err)
+
+	assert.NoError(t, buf.Close())
+	assert.Zero(t, buf.Len())
+}
+
+// TestFileCloseVerbose verifies the verbose close message for file readers.
+func TestFileCloseVerbose(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.WriteFile("trace.bin", []byte("abc"), 0o644))
+	fh, err := fs.Open("trace.bin")
+	require.NoError(t, err)
+
+	savedVerbose := Verbose
+	Verbose = true
+	t.Cleanup(func() { Verbose = savedVerbose })
+
+	var out bytes.Buffer
+	r := &file{w: &out, fn: "trace.bin", fh: fh}
+	assert.NoError(t, r.Close())
+	assert.Contains(t, out.String(), "Closing file trace.bin")
+}
+
+// TestUDP4CloseVerbose verifies the verbose close message for UDP readers.
+func TestUDP4CloseVerbose(t *testing.T) {
+	conn, err := net.ListenUDP("udp4", &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: 0})
+	require.NoError(t, err)
+
+	savedVerbose := Verbose
+	Verbose = true
+	t.Cleanup(func() { Verbose = savedVerbose })
+
+	var out bytes.Buffer
+	r := &udp4{w: &out, conn: conn}
+	assert.NoError(t, r.Close())
+	assert.Contains(t, out.String(), "Closing udp4 device.")
 }
 
 // TestTCP4Receiver tests the NewReadWriteCloser TCP4 functionality.
@@ -267,6 +434,36 @@ func TestTCP4Receiver(t *testing.T) {
 	n, err := rc.Read(b)
 	assert.Nil(t, err)
 	assert.Equal(t, []byte{0x01, 0x7f, 0xFF}, b[:n])
+}
+
+// TestTCP4CloseVerbose verifies the verbose close message for TCP readers.
+func TestTCP4CloseVerbose(t *testing.T) {
+	requireWindowsTCPTestsEnabled(t)
+
+	listener, err := net.Listen("tcp4", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer listener.Close()
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		conn, acceptErr := listener.Accept()
+		if acceptErr == nil {
+			_ = conn.Close()
+		}
+	}()
+
+	client := newTCP4Connection(listener.Addr().String())
+	<-done
+
+	savedVerbose := Verbose
+	Verbose = true
+	t.Cleanup(func() { Verbose = savedVerbose })
+
+	var out bytes.Buffer
+	client.w = &out
+	assert.NoError(t, client.Close())
+	assert.Contains(t, out.String(), "Closing tcp4 device.")
 }
 
 // handleRequest handles incoming requests.

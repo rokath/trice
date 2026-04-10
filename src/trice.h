@@ -625,10 +625,55 @@ extern uint32_t* TriceBufferWritePosition;
 // TRICE macros
 //
 
-#define TRICE_0 TRICE0 //!< Only the format string without parameter values.
-#define TRice_0 TRice0 //!< Only the format string without parameter values.
-#define Trice_0 Trice0 //!< Only the format string without parameter values.
-#define trice_0 trice0 //!< Only the format string without parameter values.
+// The zero-value dispatcher paths deliberately forward to the compact 32-bit
+// helper macros instead of passing the format string through wrapper functions.
+//
+// Why this is done:
+// - In inserted source files the usual spelling is `trice(iD(...), "msg")`,
+//   `Trice(iD(...), "msg")` or `TRice(iD(...), "msg")`.
+// - If these forms call a real function taking `const char* pFmt`, the caller
+//   must still materialize the string literal as an argument.
+// - Without LTO or other strong interprocedural optimization, some compilers
+//   then keep the string literal in the object file although the callee does
+//   not use it semantically.
+// - Routing the `_0` dispatcher directly to `*32_0` keeps the code-size
+//   advantage of shared helpers while letting the compiler discard the format
+//   string at the call site.
+//
+// Why the 32-bit helpers are used:
+// - `trice`, `Trice` and `TRice` only differ in the stamp-producing `tid`
+//   expression, not in the payload layout for a zero-value message.
+// - The existing `trice32_0`, `Trice32_0` and `TRice32_0` helpers already
+//   encode the desired no-value payload compactly.
+//
+// A deliberate consequence of this design is that the public `trice0`,
+// `Trice0` and `TRice0` spellings are no longer emitted as linker-visible
+// symbols. That is acceptable here because their compatibility role is served
+// by fixed-arity macros below, which work in strict non-GNU C modes as well.
+#define TRICE_0 TRICE32_0 //!< Only the format string without parameter values.
+#define TRice_0 TRice32_0 //!< Only the format string without parameter values.
+#define Trice_0 Trice32_0 //!< Only the format string without parameter values.
+#define trice_0 trice32_0 //!< Only the format string without parameter values.
+
+// These explicit zero-value spellings are kept as fixed-arity macros.
+//
+// Why keep them:
+// - In strict C modes (`-std=c11`, `-std=c99`, ...), empty variadic argument
+//   lists are notoriously fragile across older or non-GNU-compatible compilers.
+// - The explicit `trice0(...)`, `Trice0(...)`, `TRice0(...)` forms therefore
+//   remain useful as a portable source-level fallback.
+//
+// Why these are macros instead of functions:
+// - The format string must disappear before the compiler sees a function call.
+// - If a real function with signature `(uint16_t tid, const char* pFmt)` were
+//   called here, the caller would again have to preserve the string literal as
+//   a call argument and the original optimization problem would reappear.
+//
+// The `pFmt` parameter is intentionally accepted for source compatibility but
+// ignored by the expansion.
+#define trice0(tid, pFmt) trice32_0(tid, pFmt)
+#define Trice0(tid, pFmt) Trice32_0(tid, pFmt)
+#define TRice0(tid, pFmt) TRice32_0(tid, pFmt)
 
 #ifndef TRICE_N
 
@@ -715,9 +760,36 @@ void TRice64F(int tid, char const* fmt, void* buf, uint32_t n);
 		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
 
-void triceS(int tid, const char* fmt, const char* runtimeGeneratedString);
-void TriceS(int tid, const char* fmt, const char* runtimeGeneratedString);
-void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString);
+// These fixed-arity source-level forms are intentionally macros instead of
+// wrapper functions taking `fmt`.
+//
+// Why this matters:
+// - The runtime string itself must stay visible to the compiler because it is
+//   transmitted as payload and therefore affects both code and data generation.
+// - The format string, however, is only tool metadata and should disappear as
+//   early as possible.
+// - If `triceS(...)`, `TriceS(...)` or `TRiceS(...)` called a real function
+//   taking `const char* fmt`, some compilers without LTO would still keep the
+//   format literal in readonly data just because it appeared as a call
+//   argument.
+// - A pure macro expansion fixes that optimization issue, but it also repeats
+//   the full runtime-string encoding sequence at every call site.
+// - The compromise used here is therefore:
+//   1. the public spelling stays a macro so `fmt` vanishes before code
+//      generation
+//   2. the macro forwards only `tid` and the runtime string to a compact helper
+//      function that does not take `fmt`
+//
+// The `fmt` parameter is therefore accepted for source compatibility and tool
+// processing, but it is intentionally not forwarded through a wrapper symbol
+// or helper signature.
+void triceSfn(uint16_t tid, const char* runtimeGeneratedString);
+void TriceSfn(uint16_t tid, const char* runtimeGeneratedString);
+void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
+
+#define triceS(tid, fmt, runtimeGeneratedString) triceSfn((uint16_t)(tid), runtimeGeneratedString)
+#define TriceS(tid, fmt, runtimeGeneratedString) TriceSfn((uint16_t)(tid), runtimeGeneratedString)
+#define TRiceS(tid, fmt, runtimeGeneratedString) TRiceSfn((uint16_t)(tid), runtimeGeneratedString)
 
 #endif // #ifndef TRICE_S
 
@@ -776,17 +848,29 @@ void TRiceS(int tid, const char* fmt, const char* runtimeGeneratedString);
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
 
-void trice0(uint16_t tid, const char* pFmt);
-void Trice0(uint16_t tid, const char* pFmt);
-void TRice0(uint16_t tid, const char* pFmt);
+// The Assert spellings follow the same hybrid pattern as the string helpers:
+// - the public source form stays a macro so `msg` disappears before a real
+//   function call is formed
+// - compact helper functions keep the generated code centralized
+//
+// This avoids leaving assertion message literals in object data on compilers
+// that do not optimize away unused function parameters aggressively unless LTO
+// is enabled.
+void triceAssertTrueFn(uint16_t idN, int flag);
+void TriceAssertTrueFn(uint16_t idN, int flag);
+void TRiceAssertTrueFn(uint16_t idN, int flag);
 
-void triceAssertTrue(int idN, const char* msg, int flag);
-void TriceAssertTrue(int idN, const char* msg, int flag);
-void TRiceAssertTrue(int idN, const char* msg, int flag);
+void triceAssertFalseFn(uint16_t idN, int flag);
+void TriceAssertFalseFn(uint16_t idN, int flag);
+void TRiceAssertFalseFn(uint16_t idN, int flag);
 
-void triceAssertFalse(int idN, const char* msg, int flag);
-void TriceAssertFalse(int idN, const char* msg, int flag);
-void TRiceAssertFalse(int idN, const char* msg, int flag);
+#define triceAssertTrue(idN, msg, flag) triceAssertTrueFn((uint16_t)(idN), flag)
+#define TriceAssertTrue(idN, msg, flag) TriceAssertTrueFn((uint16_t)(idN), flag)
+#define TRiceAssertTrue(idN, msg, flag) TRiceAssertTrueFn((uint16_t)(idN), flag)
+
+#define triceAssertFalse(idN, msg, flag) triceAssertFalseFn((uint16_t)(idN), flag)
+#define TriceAssertFalse(idN, msg, flag) TriceAssertFalseFn((uint16_t)(idN), flag)
+#define TRiceAssertFalse(idN, msg, flag) TRiceAssertFalseFn((uint16_t)(idN), flag)
 
 #define triceAssert(idN, msg, flag) triceAssertTrue(idN, msg, flag)
 #define TriceAssert(idN, msg, flag) TriceAssertTrue(idN, msg, flag)
