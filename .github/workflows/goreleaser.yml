@@ -41,18 +41,6 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Generate Trice User Manual PDF
-        run: |
-          # The PDF is intentionally not stored in git.
-          # It is generated here so GoReleaser can attach it as a
-          # release asset alongside the platform-specific tool archives
-          # and the target-source package.
-          npx -y md-to-pdf@5.2.4 \
-            docs/TriceUserManual.md \
-            --basedir . \
-            --launch-options '{"args":["--no-sandbox"]}' \
-            --pdf-options '{"format":"A4","printBackground":true}'
-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
@@ -70,5 +58,8 @@ jobs:
           # GoReleaser uses it to create or update the GitHub Release and
           # upload the build artifacts (archives, checksums, etc.).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Node.js is installed above because the GoReleaser "before" hook now
+          # generates the manual PDF headlessly via temp/ and writes the final
+          # release artifact to dist/ before packaging.
           # You previously had DEFAULT_BRANCH here; GoReleaser does not
           # need it by default, so it is omitted for clarity.
