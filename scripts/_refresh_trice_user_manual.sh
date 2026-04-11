@@ -152,7 +152,7 @@ run_vscode_palette_command() {
     return 0
   }
 
-  if ! osascript - "$command_title" "$description" <<'APPLESCRIPT' >/dev/null 2>&1
+  if ! osascript - "$command_title" "$description" <<'APPLESCRIPT' >/dev/null 2>&1; then
 on run argv
 	set commandTitle to item 1 of argv
 
@@ -170,7 +170,6 @@ on run argv
 	end tell
 end run
 APPLESCRIPT
-  then
     log_warn "Skipping ${description}: VS Code command palette automation failed. Check macOS Accessibility permissions for Terminal/VS Code."
     return 0
   fi
@@ -207,22 +206,22 @@ wait_for_file_update() {
 
   started_at="$(date +%s)"
 
-  while (( "$(date +%s)" - started_at < timeout_seconds )); do
+  while (("$(date +%s)" - started_at < timeout_seconds)); do
     if [[ -f "$file_path" ]]; then
       current_mtime="$(get_file_mtime "$file_path" || true)"
       current_size="$(wc -c <"$file_path" | tr -d '[:space:]')"
 
       if [[ -n "$current_mtime" ]] && [[ "$current_mtime" != "$previous_mtime" || "$current_size" != "$previous_size" ]]; then
-        if (( seen_update == 0 )); then
+        if ((seen_update == 0)); then
           log_verbose "Detected PDF update for '$file_path'. Waiting for file size to settle..."
         fi
         seen_update=1
         stable_rounds=0
         previous_mtime="$current_mtime"
         previous_size="$current_size"
-      elif (( seen_update == 1 )); then
+      elif ((seen_update == 1)); then
         stable_rounds=$((stable_rounds + 1))
-        if (( stable_rounds >= 3 )); then
+        if ((stable_rounds >= 3)); then
           log_verbose "PDF export finished: '$file_path'"
           return 0
         fi
