@@ -25,11 +25,13 @@
   * `_clean-dsstore.sh` gained `--silent` support while preserving expected status behavior
   * repository formatting and shell-format workflows were reworked and aligned
   * manual maintenance now includes a best-effort VS Code TOC/PDF refresh wrapper with non-fatal fallback behavior
+  * local `testAll full` runs can now generate the complete GoReleaser snapshot asset set into `dist/`, including the release manual PDF
 * CI and documentation polish:
   * link-check configuration was tuned further for flaky external sites
   * badge ordering and README presentation were cleaned up
   * changelog, workflow notes, and repository guidance were clarified and normalized
   * release assets were split more clearly into tool archives, target sources, and the generated user manual PDF
+  * the tracked `docs/TriceUserManual.pdf` file was removed from git and is now treated as a generated artifact
   * the generated user manual PDF and several referenced manual images were reduced in size without intended visible quality loss
 * Example and header housekeeping:
   * SPDX/file-header normalization was extended across Trice-owned example files
@@ -40,6 +42,11 @@
 Used git range: v1.2.0..v1.2.1
 
 ```txt
+* 0268c58a 2026-04-12 build(release): generate local release assets via goreleaser
+* fb088e7d 2026-04-12 build(release): generate manual pdf as release artifact
+* 72e76675 2026-04-12 ci(link-check): skip flaky repo-internal github discussion links
+* 4571a231 2026-04-12 style(scripts): format manual refresh helper
+* 5f78e6a0 2026-04-12 docs(changelog): include goreleaser check in v1.2.1 notes
 * 6dcb0297 2026-04-11 test(scripts): add goreleaser config check step
 * 0cab5a4b 2026-04-11 docs(changelog): mention smaller manual assets
 * d2cf051f 2026-04-11 docs(changelog): refresh v1.2.1 release notes
