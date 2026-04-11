@@ -29,6 +29,7 @@
   * badge ordering and README presentation were cleaned up
   * changelog, workflow notes, and repository guidance were clarified and normalized
   * release assets were split more clearly into tool archives, target sources, and the generated user manual PDF
+  * the generated user manual PDF and several referenced manual images were reduced in size without intended visible quality loss
 * Example and header housekeeping:
   * SPDX/file-header normalization was extended across Trice-owned example files
   * a link-temp-file panic in `internal/id`/`link` cleanup code was fixed
