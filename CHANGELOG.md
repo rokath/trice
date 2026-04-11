@@ -23,10 +23,12 @@
   * explicit target-file builds were added for test workflows so local installations stay untouched
   * `_clean-dsstore.sh` gained `--silent` support while preserving expected status behavior
   * repository formatting and shell-format workflows were reworked and aligned
+  * manual maintenance now includes a best-effort VS Code TOC/PDF refresh wrapper with non-fatal fallback behavior
 * CI and documentation polish:
   * link-check configuration was tuned further for flaky external sites
   * badge ordering and README presentation were cleaned up
   * changelog, workflow notes, and repository guidance were clarified and normalized
+  * release assets were split more clearly into tool archives, target sources, and the generated user manual PDF
 * Example and header housekeeping:
   * SPDX/file-header normalization was extended across Trice-owned example files
   * a link-temp-file panic in `internal/id`/`link` cleanup code was fixed
@@ -36,13 +38,12 @@
 Used git range: v1.2.0..v1.2.1
 
 ```txt
+* 4fee5729 2026-04-11 docs(release): prepare assets and manual workflow
+* 046ca826 2026-04-11 docs(changelog): prepare v1.2.1 release notes
 * 47b7fb18 2026-04-10 fix(trice): elide assert message strings before codegen
 * 1098adf4 2026-04-10 docs(link-check): stabilize llvm link guidance
 * 616762e3 2026-04-10 fix(trice): preserve triceS string elision with compact helpers
 * a2729578 2026-04-09 Badges formatted differently
-* ab8b921c 2026-04-09 Badges formatted differently
-* 6352d7a6 2026-04-09 Badges formatted differently
-* 41598975 2026-04-09 Badges formatted differently
 * 42c0677b 2026-04-09 empty lines added for better formatting
 * be3263db 2026-04-09 docs(readme): regroup and streamline project badges
 * 9e5c845d 2026-04-09 fix(trice): drop zero-arg format strings before codegen
