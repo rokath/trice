@@ -36,6 +36,23 @@ jobs:
           # Alternatively you could hard-code a version:
           # go-version: '1.22'
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Generate Trice User Manual PDF
+        run: |
+          # The PDF is intentionally not stored in git.
+          # It is generated here so GoReleaser can attach it as a
+          # release asset alongside the platform-specific tool archives
+          # and the target-source package.
+          npx -y md-to-pdf@5.2.4 \
+            docs/TriceUserManual.md \
+            --basedir . \
+            --launch-options '{"args":["--no-sandbox"]}' \
+            --pdf-options '{"format":"A4","printBackground":true}'
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
