@@ -6,7 +6,6 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/kr/pretty v0.1.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
-	github.com/pkg/errors v0.9.1
 	github.com/rokath/cobs v0.0.0-20230425030040-4ebbe9b903b9
 	github.com/rokath/tcobs v0.9.1
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
