@@ -18,6 +18,7 @@
   * focused coverage increases across `cmd`, `receiver`, `translator`, `link`, `com`, `keybcmd` and `id`
   * new compiler-artifact regression tests now verify that unwanted format/message strings are not retained in representative object code
   * file watcher logic in `internal/id` was refactored for deterministic tests and broader package coverage
+  * `testAll` now optionally validates `.goreleaser.yaml` as part of the scripted repository checks when a local `goreleaser` installation is available
 * Build and repository scripts were hardened:
   * `buildTriceTool.sh` no longer silently overwrites an existing installed tool
   * explicit target-file builds were added for test workflows so local installations stay untouched
@@ -39,6 +40,9 @@
 Used git range: v1.2.0..v1.2.1
 
 ```txt
+* 6dcb0297 2026-04-11 test(scripts): add goreleaser config check step
+* 0cab5a4b 2026-04-11 docs(changelog): mention smaller manual assets
+* d2cf051f 2026-04-11 docs(changelog): refresh v1.2.1 release notes
 * 4fee5729 2026-04-11 docs(release): prepare assets and manual workflow
 * 046ca826 2026-04-11 docs(changelog): prepare v1.2.1 release notes
 * 47b7fb18 2026-04-10 fix(trice): elide assert message strings before codegen
