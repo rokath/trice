@@ -25,7 +25,7 @@
   * `_clean-dsstore.sh` gained `--silent` support while preserving expected status behavior
   * repository formatting and shell-format workflows were reworked and aligned
   * manual maintenance now includes a best-effort VS Code TOC/PDF refresh wrapper with non-fatal fallback behavior
-  * local `testAll full` runs can now generate the complete GoReleaser snapshot asset set into `dist/`, including the release manual PDF
+  * local `testAll full` runs can now generate the complete GoReleaser snapshot asset set into `dist/`, including the release manual PDF staged separately from `docs/`
 * CI and documentation polish:
   * link-check configuration was tuned further for flaky external sites
   * badge ordering and README presentation were cleaned up
@@ -42,6 +42,7 @@
 Used git range: v1.2.0..v1.2.1
 
 ```txt
+* e1036097 2026-04-12 build(release): stage manual pdf via temp during snapshots
 * 0268c58a 2026-04-12 build(release): generate local release assets via goreleaser
 * fb088e7d 2026-04-12 build(release): generate manual pdf as release artifact
 * 72e76675 2026-04-12 ci(link-check): skip flaky repo-internal github discussion links
