@@ -31,6 +31,8 @@
   * badge ordering and README presentation were cleaned up
   * changelog, workflow notes, and repository guidance were clarified and normalized
   * release assets were split more clearly into tool archives, target sources, and the generated user manual PDF
+  * the release PDF path now uses a dedicated temp staging tree so the generated asset keeps visible TOC, images, page margins, and header/footer metadata without touching local comparison PDFs
+  * README PDF links now point to the latest release asset instead of a tracked repository file
   * the tracked `docs/TriceUserManual.pdf` file was removed from git and is now treated as a generated artifact
   * the generated user manual PDF and several referenced manual images were reduced in size without intended visible quality loss
 * Example and header housekeeping:
@@ -42,6 +44,7 @@
 Used git range: v1.2.0..v1.2.1
 
 ```txt
+* 22eb1df9 2026-04-12 build(release): improve generated manual pdf output
 * e1036097 2026-04-12 build(release): stage manual pdf via temp during snapshots
 * 0268c58a 2026-04-12 build(release): generate local release assets via goreleaser
 * fb088e7d 2026-04-12 build(release): generate manual pdf as release artifact
