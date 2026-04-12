@@ -329,12 +329,119 @@ func TestNewReadWriteCloserHexAndDecAliases(t *testing.T) {
 	assert.Equal(t, []byte{10, 11}, buf[:n])
 }
 
+// TestNewReadWriteCloserDefaultDumpAndBuffer verifies the default argument
+// paths for the in-memory ports and keeps their verbose logging covered.
+func TestNewReadWriteCloserDefaultDumpAndBuffer(t *testing.T) {
+	savedVerbose := Verbose
+	Verbose = true
+	t.Cleanup(func() { Verbose = savedVerbose })
+
+	var dumpOut bytes.Buffer
+	dumpRC, err := NewReadWriteCloser(&dumpOut, nil, false, "DUMP", "default")
+	require.NoError(t, err)
+	defer dumpRC.Close()
+	assert.Contains(t, dumpOut.String(), "Assigning default arguments for port DUMP")
+	assert.Contains(t, dumpOut.String(), "PortArguments=")
+
+	buf := make([]byte, 4)
+	n, err := dumpRC.Read(buf)
+	assert.Equal(t, io.EOF, err)
+	assert.Zero(t, n)
+
+	var bufferOut bytes.Buffer
+	bufferRC, err := NewReadWriteCloser(&bufferOut, nil, false, "BUFFER", "default")
+	require.NoError(t, err)
+	defer bufferRC.Close()
+	assert.Contains(t, bufferOut.String(), "Assigning default arguments for port BUFFER")
+	assert.Contains(t, bufferOut.String(), "PortArguments= 0 0 0 0")
+
+	n, err = bufferRC.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0, 0, 0, 0}, buf[:n])
+}
+
+// TestNewReadWriteCloserUDP4Default verifies the default UDP configuration path.
+func TestNewReadWriteCloserUDP4Default(t *testing.T) {
+	savedVerbose := Verbose
+	savedDefaultArgs := DefaultUDP4Args
+	Verbose = true
+	DefaultUDP4Args = "127.0.0.1:0"
+	t.Cleanup(func() {
+		Verbose = savedVerbose
+		DefaultUDP4Args = savedDefaultArgs
+	})
+
+	var out bytes.Buffer
+	rc, err := NewReadWriteCloser(&out, nil, false, "UDP4", "default")
+	require.NoError(t, err)
+	udp, ok := rc.(*udp4)
+	require.True(t, ok)
+	udp.w = &out
+	defer rc.Close()
+
+	assert.Contains(t, out.String(), "Assigning default arguments for port UDP4")
+	assert.Contains(t, out.String(), "PortArguments= "+DefaultUDP4Args)
+
+	peer, err := net.DialUDP("udp4", nil, udp.conn.LocalAddr().(*net.UDPAddr))
+	require.NoError(t, err)
+	defer peer.Close()
+
+	_, err = peer.Write([]byte{0x21, 0x22})
+	require.NoError(t, err)
+
+	buf := make([]byte, 4)
+	n, err := rc.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x21, 0x22}, buf[:n])
+}
+
 // TestUDP4WritePanics verifies the expected behavior.
 func TestUDP4WritePanics(t *testing.T) {
 	conn := &udp4{}
 	assert.PanicsWithValue(t, "udp4.Write not implemented", func() {
 		_, _ = conn.Write([]byte{0x01})
 	})
+}
+
+// TestTCP4WriteAndDefaultArguments verifies both the tcp4 write wrapper and
+// the default-address branch in NewReadWriteCloser.
+func TestTCP4WriteAndDefaultArguments(t *testing.T) {
+	requireWindowsTCPTestsEnabled(t)
+
+	listener, err := net.Listen("tcp4", DefaultTCP4Args)
+	require.NoError(t, err)
+	defer listener.Close()
+
+	received := make(chan []byte, 1)
+	go func() {
+		conn, acceptErr := listener.Accept()
+		if acceptErr != nil {
+			received <- nil
+			return
+		}
+		defer conn.Close()
+		buf := make([]byte, 8)
+		n, _ := conn.Read(buf)
+		received <- append([]byte(nil), buf[:n]...)
+	}()
+
+	savedVerbose := Verbose
+	Verbose = true
+	t.Cleanup(func() { Verbose = savedVerbose })
+
+	var out bytes.Buffer
+	rc, err := NewReadWriteCloser(&out, nil, false, "TCP4", "default")
+	require.NoError(t, err)
+	rc.(*tcp4).w = &out
+	defer rc.Close()
+
+	assert.Contains(t, out.String(), "Assigning default arguments for port TCP4")
+	assert.Contains(t, out.String(), "PortArguments= "+DefaultTCP4Args)
+
+	n, err := rc.Write([]byte{0x31, 0x32, 0x33})
+	require.NoError(t, err)
+	assert.Equal(t, 3, n)
+	assert.Equal(t, []byte{0x31, 0x32, 0x33}, <-received)
 }
 
 // TestBinaryLoggerWriteAndClose verifies the expected behavior.
