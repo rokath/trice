@@ -208,4 +208,7 @@ release:
   # binaries while still giving the release workflow a standalone PDF asset.
   extra_files:
     - glob: "temp/release/TriceUserManual.pdf"
-      name_template: "TriceUserManual_{{ .Version }}.pdf"
+      # Keep the release asset name stable so README links can point to
+      # releases/latest/download/TriceUserManual.pdf without knowing the
+      # current version number.
+      name_template: "TriceUserManual.pdf"
