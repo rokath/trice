@@ -59,7 +59,6 @@ jobs:
           # upload the build artifacts (archives, checksums, etc.).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Node.js is installed above because the GoReleaser "before" hook now
-          # generates the manual PDF headlessly via temp/ and writes the final
-          # release artifact to dist/ before packaging.
+          # generates the manual PDF headlessly in temp/ before packaging.
           # You previously had DEFAULT_BRANCH here; GoReleaser does not
           # need it by default, so it is omitted for clarity.

@@ -11,6 +11,7 @@
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_testAll_00_common.sh"
+ROOT_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
 main() {
   init_logfile
@@ -30,6 +31,19 @@ main() {
     log "FAIL: local GoReleaser snapshot build failed"
     exit 1
   }
+
+  if [ -f "$ROOT_DIR/temp/release/TriceUserManual.pdf" ]; then
+    run_cmd mkdir -p "$ROOT_DIR/dist" || {
+      log "FAIL: could not ensure ./dist/ exists for the local manual PDF copy"
+      exit 1
+    }
+    run_cmd cp -f "$ROOT_DIR/temp/release/TriceUserManual.pdf" "$ROOT_DIR/dist/TriceUserManual.pdf" || {
+      log "FAIL: could not copy the generated manual PDF into ./dist/"
+      exit 1
+    }
+  else
+    log "WARN: temp/release/TriceUserManual.pdf was not generated; dist/ will not contain the manual PDF"
+  fi
 
   log "OK: local release artifacts generated under ./dist/"
 }
