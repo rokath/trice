@@ -1,6 +1,151 @@
 ﻿# Changelog
 
 
+## <a id='v1.2.1-changes'></a>v1.2.1 Changes (2026-04-11)
+
+### <a id='v1.2.1-overview'></a>v1.2.1 Overview
+
+* Patch release with no intentional breaking changes and no new user-facing feature set compared to `v1.2.0`.
+* Target-side string elimination robustness improved for compilers without LTO:
+  * zero-argument `trice`/`Trice`/`TRice` paths no longer keep format strings alive unnecessarily
+  * `triceS`/`TriceS`/`TRiceS` now discard format strings before code generation while keeping runtime-string handling compact
+  * Assert message strings are likewise removed earlier from the generated path
+* These target-side fixes were added in response to user reports around compiler optimization behavior:
+  * [#618](https://github.com/rokath/trice/issues/618)
+  * [#619](https://github.com/rokath/trice/issues/619)
+  * [#620](https://github.com/rokath/trice/issues/620)
+* Test coverage and regression protection were expanded substantially:
+  * focused coverage increases across `cmd`, `receiver`, `translator`, `link`, `com`, `keybcmd` and `id`
+  * new compiler-artifact regression tests now verify that unwanted format/message strings are not retained in representative object code
+  * file watcher logic in `internal/id` was refactored for deterministic tests and broader package coverage
+  * `testAll` now optionally validates `.goreleaser.yaml` as part of the scripted repository checks when a local `goreleaser` installation is available
+* Build and repository scripts were hardened:
+  * `buildTriceTool.sh` no longer silently overwrites an existing installed tool
+  * explicit target-file builds were added for test workflows so local installations stay untouched
+  * `_clean-dsstore.sh` gained `--silent` support while preserving expected status behavior
+  * repository formatting and shell-format workflows were reworked and aligned
+  * manual maintenance now includes a best-effort VS Code TOC/PDF refresh wrapper with non-fatal fallback behavior
+  * local `testAll full` runs can now generate the complete GoReleaser snapshot asset set into `dist/`, including the release manual PDF staged separately from `docs/`
+* CI and documentation polish:
+  * link-check configuration was tuned further for flaky external sites
+  * badge ordering and README presentation were cleaned up
+  * changelog, workflow notes, and repository guidance were clarified and normalized
+  * release assets were split more clearly into tool archives, target sources, and the generated user manual PDF
+  * the release PDF path now uses a dedicated temp staging tree so the generated asset keeps visible TOC, images, page margins, and header/footer metadata without touching local comparison PDFs
+  * README PDF links now point to the latest release asset instead of a tracked repository file
+  * the tracked `docs/TriceUserManual.pdf` file was removed from git and is now treated as a generated artifact
+  * the generated user manual PDF and several referenced manual images were reduced in size without intended visible quality loss
+* Example and header housekeeping:
+  * SPDX/file-header normalization was extended across Trice-owned example files
+  * a link-temp-file panic in `internal/id`/`link` cleanup code was fixed
+
+### <a id='v1.2.1-git-log'></a>v1.2.1 Git Log
+
+Used git range: v1.2.0..v1.2.1
+
+```txt
+* 22eb1df9 2026-04-12 build(release): improve generated manual pdf output
+* e1036097 2026-04-12 build(release): stage manual pdf via temp during snapshots
+* 0268c58a 2026-04-12 build(release): generate local release assets via goreleaser
+* fb088e7d 2026-04-12 build(release): generate manual pdf as release artifact
+* 72e76675 2026-04-12 ci(link-check): skip flaky repo-internal github discussion links
+* 4571a231 2026-04-12 style(scripts): format manual refresh helper
+* 5f78e6a0 2026-04-12 docs(changelog): include goreleaser check in v1.2.1 notes
+* 6dcb0297 2026-04-11 test(scripts): add goreleaser config check step
+* 0cab5a4b 2026-04-11 docs(changelog): mention smaller manual assets
+* d2cf051f 2026-04-11 docs(changelog): refresh v1.2.1 release notes
+* 4fee5729 2026-04-11 docs(release): prepare assets and manual workflow
+* 046ca826 2026-04-11 docs(changelog): prepare v1.2.1 release notes
+* 47b7fb18 2026-04-10 fix(trice): elide assert message strings before codegen
+* 1098adf4 2026-04-10 docs(link-check): stabilize llvm link guidance
+* 616762e3 2026-04-10 fix(trice): preserve triceS string elision with compact helpers
+* a2729578 2026-04-09 Badges formatted differently
+* 42c0677b 2026-04-09 empty lines added for better formatting
+* be3263db 2026-04-09 docs(readme): regroup and streamline project badges
+* 9e5c845d 2026-04-09 fix(trice): drop zero-arg format strings before codegen
+* 71d508a9 2026-04-09 style(test): align scripted translator decoder fields
+* 55dfd764 2026-04-09 test(coverage): expand translator and receiver coverage
+* 1960b46b 2026-04-09 docs: move local coverage examples into temp log
+* a5db0752 2026-04-09 test(id): keep deterministic insert repro disabled
+* 9ae74031 2026-04-09 test(id): refactor file watcher for deterministic tests
+* ccbf7055 2026-04-09 test(id): cover alias, path, and range helpers
+* 5570b42c 2026-04-09 test(id): expand generator and helper coverage
+* c1d8073c 2026-04-09 fix(id): avoid panic when closing link temp file
+* b3decc6e 2026-04-09 docs: refine repository title
+* 3f095de1 2026-04-09 test(go): extend coverage in non-id packages
+* 8ab9b512 2026-04-08 ci(link-check): exclude flaky external docs links
+* 8e7b6575 2026-04-08 docs: refine commit guidance and reorder badges
+* 70305904 2026-04-08 feat(scripts): isolate trice tool builds from local installs
+* 0b6bd7a4 2026-04-08 test(coverage): expand low-coverage package coverage
+* 39d7ecbb 2026-04-07 feat(scripts): protect existing trice install in build helper
+* d6353917 2026-04-07 chore(scripts): extend repository formatting workflow
+* 37eeff3f 2026-04-07 feat(scripts): add silent mode to dsstore cleanup
+* 586e4808 2026-04-07 chore(demoLI): refresh recorded line mappings
+* 82c62c2e 2026-04-07 chore(examples): normalize SPDX headers and file comments
+* 7f7402fe 2026-04-08 wip (#614)
+* ec9f8262 2026-04-07 ci(scripts): fix renamed formatter references
+* f5d00da2 2026-04-07 test(scripts): disable tracked-worktree guard for now
+* 29fb8626 2026-04-07 wip (#613)
+* e0ec5cd9 2026-04-07 test(scripts): keep testAll read-only
+* 9f6d6fb3 2026-04-07 refactor(scripts): rename formatter entrypoints
+* 055472db 2026-04-07 style(go): apply formatting cleanups
+* 0b7786d4 2026-04-07 ci(clang-format): update actions and disable go cache
+* f13996b6 2026-04-07 test(receiver): focus parser helper coverage
+* 8ae7d971 2026-04-07 test(keybcmd): cover loopAction behaviors
+* 8b569355 2026-04-07 test(decoder): refresh registry and helper coverage
+* 59218ecc 2026-04-07 test(com): simplify serial port tests
+* 7a9ea355 2026-04-07 test(internal): add missing comments in test helpers
+* 044160e5 2026-04-07 test(pkg): add missing test comments and SPDX headers
+* 60771f99 2026-04-07 test(cmd): add missing comments in test files
+* b1eb026f 2026-04-07 test(link): cover rtt default args
+* 71cd352f 2026-04-07 Removed empty lined between badges
+* ba5d3761 2026-04-07 wip (#612)
+* ca28acce 2026-04-07 fix(scripts): keep shell formatter changes and diff log
+* 1b3578d3 2026-04-07 style(scripts): add shfmt workflow and shell formatter
+* 6fa0afcd 2026-04-07 fix(scripts): avoid shellcheck SC2155 in build setup
+* b5fb8974 2026-04-07 docs: remove broken temp artifact link
+* 7fadb340 2026-04-07 docs(readme): add workflow badges
+* e50a1b36 2026-04-07 docs: update site theme and page metadata
+* eadfdb01 2026-04-07 style: unify SPDX and file header comments
+* bb19ef54 2026-04-07 docs(agents): add SPDX and truncated-input rules
+* 38e87c63 2026-04-07 test(scripts): avoid global go install in coverage step
+* 9ab3af4d 2026-04-07 test(scripts): build trice into temp bin for testAll
+* c107262d 2026-04-07 Normalize repository links in documentation
+* 78081c20 2026-04-07 Restore executable bits for shell scripts
+* e2ded074 2026-04-07 Reorganize scripts and update build flows
+* 3b6485c7 2026-04-07 fix(testAll): keep shared trice json defaults in repo root
+* 87b28bdd 2026-04-07 simplify testAll runner summary
+* 91d87144 2026-04-07 stabilize lychee checks on Windows
+* d0e52598 2026-04-07 skip listener tests on Windows by default
+* 5057bc59 2026-04-07 refactor testAll step scripts
+* c536ddc7 2026-04-07 fix(testAll): align PC target tests with repo JSON files
+* a09c57de 2026-04-07 fix(clang): stop auto-injecting gcc toolchain on darwin
+* aca457c2 2026-04-07 chmod(testAll): make step scripts directly executable
+* 12a6d97f 2026-04-07 wip: record local demoLI line updates
+* 3b245814 2026-04-06 wip: update agent collaboration rules
+* 967e28ae 2026-04-06 wip: add insert regression test for assert aliases
+* 0e3ce635 2026-04-06 wip: refine clang cross environment detection
+* 0bbd2046 2026-04-06 wip: split testAll into step scripts
+* 0518b0f4 2026-04-06 Use repo-local Go cache for test workflows
+* 6c373f84 2026-04-06 Clarify commit splitting in AGENTS
+* 52b37587 2026-04-06 Keep testAll artifacts out of tracked demo files
+* 62693c0a 2026-04-06 chore: remove tracked log files
+* 42efc296 2026-04-06 test: standardize assertions on testify
+* c4f7a824 2026-04-06 docs: clarify status, security policy, and agent rules
+* d1f6ed38 2026-04-06 docs: refine README presentation and links
+* a3f9203d 2026-04-06 docs: refine github pages wording
+* ab7a6b9f 2026-04-06 docs: update github pages wording
+* 5382ce43 2026-04-06 docs: update changelog markdown links
+* 9857dbe2 2026-04-06 docs: link changelog issue references
+* 902ebf8e 2026-04-06 docs: update changelog details
+* 4d4f5183 2026-04-06 docs: enrich changelog overviews from legacy notes
+* 1398f9a4 2026-04-06 docs: fix garbled changelog entries
+* b8b86b8c 2026-04-06 docs: add release dates to changelog headings
+* 1e63a6a4 2026-04-06 docs: reorder changelog by newest releases first
+* 4ba7a5f6 2026-04-06 fix: improve git log range resolution
+```
+
+
 ## <a id='v1.2.0-changes'></a>v1.2.0 Changes (2026-03-26)
 
 ### <a id='v1.2.0-overview'></a>v1.2.0 Overview
@@ -5987,4 +6132,3 @@ Used git range: v0.1.00
 * 43075f974 2020-02-11 Update README.md
 * 59ae9b922 2020-02-11 Update CHANGELOG.md
 ```
-

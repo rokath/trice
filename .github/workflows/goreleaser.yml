@@ -36,6 +36,11 @@ jobs:
           # Alternatively you could hard-code a version:
           # go-version: '1.22'
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
@@ -53,5 +58,7 @@ jobs:
           # GoReleaser uses it to create or update the GitHub Release and
           # upload the build artifacts (archives, checksums, etc.).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Node.js is installed above because the GoReleaser "before" hook now
+          # generates the manual PDF headlessly in temp/ before packaging.
           # You previously had DEFAULT_BRANCH here; GoReleaser does not
           # need it by default, so it is omitted for clarity.

@@ -69,6 +69,7 @@ main() {
   run_step "_testAll_04_FormatManual.sh" || failed=1
   run_step "_testAll_05_MarkdownLint.sh" || failed=1
   run_step "_testAll_06_LinkCheck.sh" || failed=1
+  run_step "_testAll_06a_GoReleaser.sh" || failed=1
   run_step "_testAll_07_GoCoverage.sh" || failed=1
   run_step "_testAll_08_RuntimePrepare.sh" || failed=1
   run_step "_testAll_09_GoTests.sh" || failed=1
@@ -77,6 +78,7 @@ main() {
   run_step "_testAll_12_GccExampleBuilds.sh" || failed=1
   if [ "$selected" = "full" ]; then
     run_step "_testAll_13_L432Configs.sh" || failed=1
+    run_step "_testAll_14_GoReleaserSnapshot.sh" || failed=1
   fi
 
   # Temporarily disabled until the remaining testAll steps are fully read-only again.

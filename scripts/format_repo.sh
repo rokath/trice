@@ -3,6 +3,9 @@
 # format_repo.sh
 #
 # Central wrapper for repository formatting and normalization scripts.
+# The Trice User Manual step delegates to a dedicated helper that first tries
+# best-effort VS Code automation for TOC/PDF refresh and then runs the
+# repository-owned normalization script.
 #
 # Usage:
 #   ./scripts/format_repo.sh                 # defaults to FORMAT mode
@@ -17,7 +20,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 main() {
-  "$SCRIPT_DIR/_format_dumeng_toc.sh" "$@"
+  "$SCRIPT_DIR/_refresh_trice_user_manual.sh" "$@"
   "$SCRIPT_DIR/_format_shell_scripts.sh" "$@"
   "$SCRIPT_DIR/_format_go_code.sh" "$@"
   "$SCRIPT_DIR/../trice_cleanIDs_in_examples_and_test_folder.sh"

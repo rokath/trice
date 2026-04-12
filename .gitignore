@@ -16,3 +16,7 @@ internal/receiver/trices.raw
 coverage.out
 *.log
 .idea/workspace.xml
+# The user manual PDF is treated as a generated artifact.
+# It is created locally on demand and in the release workflow,
+# but it is no longer versioned in git.
+docs/TriceUserManual.pdf
