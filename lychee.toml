@@ -89,6 +89,10 @@ exclude = [
   "^https://github\\.com/rokath/trice/issues/[0-9]+$",
   "^https://github\\.com/rokath/trice/discussions/[0-9]+$",
   "^https://github\\.com/rokath/trice/pull/[0-9]+#issuecomment-[0-9]+$",
+  # The README intentionally points to the latest release PDF asset. That file
+  # only exists after the next release is published, so PR-time link checks
+  # cannot validate it remotely yet.
+  "^https://github\\.com/rokath/trice/releases/latest/download/TriceUserManual\\.pdf$",
 
   # This site intermittently answers automated checks with HTTP 202
   # although the article is reachable for normal users in a browser.
