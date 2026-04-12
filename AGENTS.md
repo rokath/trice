@@ -16,6 +16,7 @@
 - New `.c`, `.h`, and `.go` files must start with `// SPDX-License-Identifier: MIT` as the first line unless the file is clearly external or vendored.
 - When editing internal `.c`, `.h`, or `.go` files that are missing the SPDX header, prefer adding `// SPDX-License-Identifier: MIT` as the first line unless there is clear evidence the file is external, vendored, or governed by a different license.
 - If a user message looks accidentally truncated or cut off by an unintended Enter key press, ask a brief clarifying question before acting on it.
+- Do not infer or autocomplete the intended remainder of an apparently truncated sentence. Ask one brief clarifying question first, even if a likely continuation seems obvious.
 
 ## Commits
 
