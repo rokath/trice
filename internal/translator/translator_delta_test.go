@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"syscall"
 	"testing"
@@ -674,6 +675,10 @@ func (c *closeRecorder) Close() error {
 
 // TestHandleSIGTERMExitsAndCloses verifies the shutdown path in a subprocess.
 func TestHandleSIGTERMExitsAndCloses(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("syscall.SIGTERM subprocess signaling is not supported on Windows")
+	}
+
 	if os.Getenv("TRICE_HANDLE_SIGTERM") == "1" {
 		Verbose = true
 		handleSIGTERM(io.Discard, &closeRecorder{})

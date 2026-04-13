@@ -38,14 +38,13 @@ func TestNewDeviceJLinkDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("getwd: %v", err)
 	}
-	t.Cleanup(func() {
-		_ = os.Chdir(wd)
-	})
-
 	tempDir := t.TempDir()
 	if err := os.Chdir(tempDir); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
+	t.Cleanup(func() {
+		_ = os.Chdir(wd)
+	})
 
 	base := removingFs{Fs: afero.NewOsFs()}
 	fs := &afero.Afero{Fs: base}
@@ -115,14 +114,13 @@ func TestNewDeviceUsesExplicitBinLogfile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("getwd: %v", err)
 	}
-	t.Cleanup(func() {
-		_ = os.Chdir(wd)
-	})
-
 	tempDir := t.TempDir()
 	if err := os.Chdir(tempDir); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
+	t.Cleanup(func() {
+		_ = os.Chdir(wd)
+	})
 
 	fs := &afero.Afero{Fs: afero.NewOsFs()}
 	dev := NewDevice(io.Discard, fs, "STLINK", "-Device STM32F030R8 -If SWD -Speed 4000 -RTTChannel 0 custom-output.bin")
