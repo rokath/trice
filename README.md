@@ -8,7 +8,7 @@
 
 ## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
 
-![License](https://img.shields.io/github/license/rokath/trice) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest) ![Downloads](https://img.shields.io/github/downloads/rokath/trice/total) ![GitHub issues](https://img.shields.io/github/issues/rokath/trice) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) ![Go Version](https://img.shields.io/github/go-mod/go-version/rokath/trice)  [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice) [![Coverage](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice?branch=main) [![TRICE Library CI (Nightly Full)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml) 
+![License](https://img.shields.io/github/license/rokath/trice) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest) ![Downloads](https://img.shields.io/github/downloads/rokath/trice/total) ![GitHub issues](https://img.shields.io/github/issues/rokath/trice) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) ![Go Version](https://img.shields.io/github/go-mod/go-version/rokath/trice)  [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice) [![Coverage](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice?branch=main) [![TRICE Library CI (Nightly Full)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml) 
 <!--
 [![Go Reference](https://pkg.go.dev/badge/github.com/rokath/trice.svg)](https://pkg.go.dev/github.com/rokath/trice) 
 [![Go Coverage (PR + Monthly)](https://github.com/rokath/trice/actions/workflows/coverage.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/coverage.yml) 
@@ -61,7 +61,7 @@ Instead of storing log strings on your embedded device, Trice keeps them on your
 
 You can use Trice for `printf` debugging and as a logging system. The advantage is very short messages (no strings) for data transfer. Remember that the file [til.json](./demoTIL.json) is needed to read all output from devices in the field for 10+ years.
 
-- **Optional:** Add [til.json](./demoTIL.json) as a compressed resource to your target image. You can use [SRecord](http://srecord.sourceforge.net/download.html) or provide a download link.
+- **Optional:** Add [til.json](./demoTIL.json) as a compressed resource to your target image. You can use [SRecord](https://srecord.sourceforge.net/download.html) or provide a download link.
 
 ### Data Compression
 
@@ -76,7 +76,7 @@ Trice looks like data compression (IDs instead of strings), which is useful for 
 You can **encrypt** Trice transfer packets for security.
 
 - Deliver firmware images with encrypted Trice output that only works with the right key and [til.json](./demoTIL.json)
-- [XTEA](https://en.m.wikipedia.org/wiki/XTEA) encryption is available
+- [XTEA](https://en.wikipedia.org/wiki/XTEA) encryption is available
 
 ### Translation
 
@@ -181,8 +181,8 @@ Trice will soon support structured logging. Based on feedback from [#531](https:
 - :star: Star this project! ☺
 - Support options:
   - [Become a Sponsor with your GitHub account](https://github.com/sponsors/rokath/)
-  - <a href="https://www.buymeacoffee.com/rokath" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="120"></a>
-  - <a href="https://www.paypal.me/rolfkarlthomas"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="PayPal" height="40" width="120"></a>
+  - <a href="https://buymeacoffee.com/rokath" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="120"></a>
+  - <a href="https://www.paypal.com/paypalme/rolfkarlthomas"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="PayPal" height="40" width="120"></a>
 
 ## Clone the Repository
 
@@ -194,7 +194,7 @@ git clone https://github.com/rokath/trice.git
 
 - ARM ITM/SWO (hardware-native)
 - ARM Keil Event Recorder (hardware-native)
-- [baical.net](http://baical.net/up7.html) (C)
+- [baical.net](https://baical.net/up7.html) (C)
 - [call stack logger function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a) (trace program execution flow)
 - [Debugging with Dynamic Printf Breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/) (Eclipse IDE option)
 - [defmt (Rust)](https://github.com/knurling-rs/defmt)
