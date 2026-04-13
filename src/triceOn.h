@@ -46,7 +46,7 @@ void TriceCheck(int index); //!< tests and examples
 void TriceDiagnostics(int index);
 void TriceNonBlockingWriteUartA(const void* buf, size_t nByte);
 void TriceNonBlockingWriteUartB(const void* buf, size_t nByte);
-void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount);
+void TriceNonBlockingDirectWrite(const uint32_t* triceStart, unsigned wordCount);
 void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen);
 void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen);
 void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count);

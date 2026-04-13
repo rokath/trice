@@ -100,6 +100,7 @@ exclude = [
 
   # These sites are valid for human readers but flaky or hostile to CI bots.
   "^https://cte\\.e10labs\\.com/.*",
+  "^https://winlibs\\.com/.*",
   "^https://www2\\.keil\\.com/mdk5/uvision/.*",
   "^https://developer\\.arm\\.com/downloads/-/arm-gnu-toolchain-downloads.*",
   "^https://developer\\.arm\\.com/documentation/ka004054/latest.*",
