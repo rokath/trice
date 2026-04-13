@@ -706,7 +706,10 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 //! Also in combined modes (direct plus deferred) this is allowed, under certain circumstances:
 //! - TRICE_DOUBLE_BUFFER: The current Trice could be the last one and could have filled the double buffer to the end. So additional 4 bytes at the end are needed as scratc pad.
 //! - TRICE_RING_BUFFER: The max depth is not allowed and at the end is 4 bytes space needed.
-void TriceNonBlockingDirectWrite(const uint32_t* triceStart, unsigned wordCount) {
+// cppcheck-suppress constParameterPointer
+// The direct XTEA path mutates the payload buffer in place, so this API must keep
+// a writable pointer even though some non-encrypted branches only read from it.
+void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 	// The 16-bit stamped trices start with 2-times 16-bit ID for align and speed reasons.
 	// The trice tool knows and expects that, when switch -packageFraming = NONE was applied.
@@ -719,6 +722,8 @@ void TriceNonBlockingDirectWrite(const uint32_t* triceStart, unsigned wordCount)
 #if TRICE_DIRECT32_ONLY // Space at triceStart + wordCount is usable and we can destroy the data.
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)    // in-place encryption
+	// The direct XTEA path pads and encrypts the payload in place, so triceStart
+	// must remain writable even if some non-encrypted branches only read from it.
 	triceStart[wordCount++] = 0;        // clear padding space
 	wordCount &= ~1;                    // only multiple of 8 can be encrypted
 	XTEAEncrypt(triceStart, wordCount); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
@@ -738,6 +743,8 @@ void TriceNonBlockingDirectWrite(const uint32_t* triceStart, unsigned wordCount)
 #elif TRICE_DIRECT8_ONLY // TRICE_DATA_OFFSET space in front of triceStart and after wordCount space is usable and we can destroy the data.
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
+	// The direct XTEA path pads and encrypts the payload in place, so triceStart
+	// must remain writable even if some non-encrypted branches only read from it.
 	triceStart[wordCount++] = 0;        // clear padding space
 	wordCount &= ~1;                    // only multiple of 8 can be encrypted
 	XTEAEncrypt(triceStart, wordCount); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)

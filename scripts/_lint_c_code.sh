@@ -16,6 +16,7 @@ BUFFER="ring"
 OUTPUT="deferred"
 ENDIAN="little"
 BUILTIN="0"
+XTEA="0"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -38,12 +39,16 @@ while [ "$#" -gt 0 ]; do
     BUILTIN="${2:-}"
     shift
     ;;
+  --xtea)
+    XTEA="${2:-}"
+    shift
+    ;;
   -v | --verbose)
     VERBOSE=1
     ;;
   *)
     echo "Unknown argument: '$1'"
-    echo "Usage: $0 [cppcheck] [--buffer ring|double|stack|static] [--output deferred|direct|both] [--endian little|big] [--builtin 0|1] [--verbose]"
+    echo "Usage: $0 [cppcheck] [--buffer ring|double|stack|static] [--output deferred|direct|both] [--endian little|big] [--builtin 0|1] [--xtea 0|1] [--verbose]"
     exit 2
     ;;
   esac
@@ -167,6 +172,15 @@ case "$BUILTIN" in
   ;;
 esac
 
+case "$XTEA" in
+0 | 1)
+  ;;
+*)
+  echo "Unsupported xtea mode: $XTEA" >&2
+  exit 2
+  ;;
+esac
+
 if { [ "$BUFFER" = "ring" ] || [ "$BUFFER" = "double" ]; } && [ "$OUTPUT" = "direct" ]; then
   echo "Invalid configuration: buffer '$BUFFER' requires output 'deferred' or 'both'" >&2
   exit 2
@@ -177,8 +191,23 @@ if { [ "$BUFFER" = "stack" ] || [ "$BUFFER" = "static" ]; } && [ "$OUTPUT" != "d
   exit 2
 fi
 
+case "$OUTPUT" in
+deferred)
+  TRICE_DIRECT_XTEA_ENCRYPT_DEFINE=0
+  TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE="$XTEA"
+  ;;
+direct)
+  TRICE_DIRECT_XTEA_ENCRYPT_DEFINE="$XTEA"
+  TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE=0
+  ;;
+both)
+  TRICE_DIRECT_XTEA_ENCRYPT_DEFINE="$XTEA"
+  TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE="$XTEA"
+  ;;
+esac
+
 if [ "$VERBOSE" -eq 1 ]; then
-  echo "Lint profile: buffer=$BUFFER output=$OUTPUT endian=$ENDIAN builtin=$BUILTIN"
+  echo "Lint profile: buffer=$BUFFER output=$OUTPUT endian=$ENDIAN builtin=$BUILTIN xtea=$XTEA"
 fi
 
 find_cppcheck() {
@@ -193,6 +222,64 @@ find_cppcheck() {
   fi
 
   return 1
+}
+
+find_c_compiler() {
+  if command -v clang >/dev/null 2>&1; then
+    command -v clang
+    return 0
+  fi
+
+  if command -v cc >/dev/null 2>&1; then
+    command -v cc
+    return 0
+  fi
+
+  if command -v gcc >/dev/null 2>&1; then
+    command -v gcc
+    return 0
+  fi
+
+  return 1
+}
+
+run_direct_xtea_compile_check() {
+  local c_compiler
+  local lint_tmp_dir
+
+  if [ "$TRICE_DIRECT_OUTPUT_DEFINE" != "1" ] || [ "$TRICE_DIRECT_XTEA_ENCRYPT_DEFINE" != "1" ]; then
+    return 0
+  fi
+
+  if ! c_compiler="$(find_c_compiler)"; then
+    if [ "$VERBOSE" -eq 1 ]; then
+      echo "SKIP: no C compiler available for direct XTEA syntax check"
+    fi
+    return 0
+  fi
+
+  lint_tmp_dir="temp/lint"
+  mkdir -p "$lint_tmp_dir"
+  : >"$lint_tmp_dir/triceConfig.h"
+
+  # The direct XTEA path mutates the payload buffer in place. Compile one
+  # direct/XTEA profile explicitly so const-incorrect API changes fail here
+  # instead of showing up later in the heavier target build matrix.
+  "$c_compiler" \
+    -std=c99 \
+    -fsyntax-only \
+    -I"$lint_tmp_dir" \
+    -Isrc \
+    -D"TRICE_BUFFER=$TRICE_BUFFER_DEFINE" \
+    -D"TRICE_DEFERRED_OUTPUT=$TRICE_DEFERRED_OUTPUT_DEFINE" \
+    -D"TRICE_DIRECT_OUTPUT=$TRICE_DIRECT_OUTPUT_DEFINE" \
+    -D"TRICE_DEFERRED_AUXILIARY8=$TRICE_DEFERRED_AUXILIARY8_DEFINE" \
+    -D"TRICE_DIRECT_AUXILIARY32=$TRICE_DIRECT_AUXILIARY32_DEFINE" \
+    -D"TRICE_MCU_IS_BIG_ENDIAN=$TRICE_MCU_IS_BIG_ENDIAN_DEFINE" \
+    -D"TRICE_DIRECT_XTEA_ENCRYPT=$TRICE_DIRECT_XTEA_ENCRYPT_DEFINE" \
+    -D"TRICE_DEFERRED_XTEA_ENCRYPT=$TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE" \
+    -D"TRICE_DIRECT_OUT_FRAMING=TRICE_FRAMING_COBS" \
+    src/trice.c
 }
 
 run_cppcheck() {
@@ -220,10 +307,14 @@ run_cppcheck() {
     -D"TRICE_DEFERRED_AUXILIARY8=$TRICE_DEFERRED_AUXILIARY8_DEFINE" \
     -D"TRICE_DIRECT_AUXILIARY32=$TRICE_DIRECT_AUXILIARY32_DEFINE" \
     -D"TRICE_MCU_IS_BIG_ENDIAN=$TRICE_MCU_IS_BIG_ENDIAN_DEFINE" \
+    -D"TRICE_DIRECT_XTEA_ENCRYPT=$TRICE_DIRECT_XTEA_ENCRYPT_DEFINE" \
+    -D"TRICE_DEFERRED_XTEA_ENCRYPT=$TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE" \
     --suppress=badBitmaskCheck:src/tcobsv1Encode.c \
     --suppress=missingIncludeSystem \
     -Isrc \
     "${LINT_FILES[@]}"
+
+  run_direct_xtea_compile_check
 }
 
 case "$TOOL" in

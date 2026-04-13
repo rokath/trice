@@ -29,7 +29,7 @@ main() {
 
   run_profile() {
     if [ "$verbose" -eq 1 ]; then
-      log "$(printf 'Lint profile: buffer=%-6s output=%-8s endian=%-6s builtin=%s' "$2" "$4" "$6" "$8")"
+      log "$(printf 'Lint profile: buffer=%-6s output=%-8s endian=%-6s builtin=%s xtea=%s' "$2" "$4" "$6" "$8" "${10}")"
     fi
     "$SCRIPTS_DIR/_lint_c_code.sh" cppcheck "$@" >>"$LOGFILE" 2>&1 || {
       log "FAIL: _lint_c_code.sh cppcheck failed for profile: $*"
@@ -37,14 +37,16 @@ main() {
     }
   }
 
-  run_profile --buffer ring --output deferred --endian little --builtin 0
-  run_profile --buffer ring --output deferred --endian big --builtin 0
-  run_profile --buffer double --output deferred --endian little --builtin 0
-  run_profile --buffer ring --output both --endian little --builtin 0
-  run_profile --buffer double --output both --endian big --builtin 0
-  run_profile --buffer stack --output direct --endian little --builtin 0
-  run_profile --buffer static --output direct --endian little --builtin 0
-  run_profile --buffer ring --output deferred --endian little --builtin 1
+  run_profile --buffer ring --output deferred --endian little --builtin 0 --xtea 0
+  run_profile --buffer ring --output deferred --endian big --builtin 0 --xtea 0
+  run_profile --buffer double --output deferred --endian little --builtin 0 --xtea 0
+  run_profile --buffer ring --output both --endian little --builtin 0 --xtea 0
+  run_profile --buffer double --output both --endian big --builtin 0 --xtea 0
+  run_profile --buffer stack --output direct --endian little --builtin 0 --xtea 0
+  run_profile --buffer static --output direct --endian little --builtin 0 --xtea 0
+  run_profile --buffer ring --output deferred --endian little --builtin 1 --xtea 0
+  run_profile --buffer ring --output deferred --endian little --builtin 0 --xtea 1
+  run_profile --buffer static --output direct --endian little --builtin 0 --xtea 1
 }
 
 main "$@"

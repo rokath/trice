@@ -46,7 +46,9 @@ void TriceCheck(int index); //!< tests and examples
 void TriceDiagnostics(int index);
 void TriceNonBlockingWriteUartA(const void* buf, size_t nByte);
 void TriceNonBlockingWriteUartB(const void* buf, size_t nByte);
-void TriceNonBlockingDirectWrite(const uint32_t* triceStart, unsigned wordCount);
+// The direct XTEA branch pads and encrypts the payload in place, so this API
+// must keep a writable pointer even if other branches only read from it.
+void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount);
 void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen);
 void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen);
 void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count);
