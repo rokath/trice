@@ -326,6 +326,65 @@ func TestTriceConvertersDebugOut(t *testing.T) {
 	assert.NotEqual(t, "", dbg.String())
 }
 
+// TestWideTriceConvertersDebugOut verifies the debug-only branches of the
+// wider buffer and function-call converters.
+func TestWideTriceConvertersDebugOut(t *testing.T) {
+	oldDebug := decoder.DebugOut
+	t.Cleanup(func() { decoder.DebugOut = oldDebug })
+	decoder.DebugOut = true
+
+	var dbg bytes.Buffer
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Out: &dbg,
+		}),
+	}
+	b := make([]byte, 256)
+
+	p.Trice.Strg = "C:%d\\n"
+	p.B = []byte{0x34, 0x12}
+	p.ParamSpace = 2
+	n := p.trice16B(b, 0, 0)
+	assert.Equal(t, "C:4660\n", string(b[:n]))
+	assert.NotEqual(t, "", dbg.String())
+
+	dbg.Reset()
+	p.B = []byte{0x78, 0x56, 0x34, 0x12}
+	p.ParamSpace = 4
+	n = p.trice32B(b, 0, 0)
+	assert.Equal(t, "C:305419896\n", string(b[:n]))
+	assert.NotEqual(t, "", dbg.String())
+
+	dbg.Reset()
+	p.B = []byte{1, 0, 0, 0, 0, 0, 0, 0}
+	p.ParamSpace = 8
+	n = p.trice64B(b, 0, 0)
+	assert.Equal(t, "C:1\n", string(b[:n]))
+	assert.NotEqual(t, "", dbg.String())
+
+	dbg.Reset()
+	p.Trice.Strg = "F"
+	p.B = []byte{0x34, 0x12}
+	p.ParamSpace = 2
+	n = p.trice16F(b, 0, 0)
+	assert.Equal(t, "F(1234)\n", string(b[:n]))
+	assert.NotEqual(t, "", dbg.String())
+
+	dbg.Reset()
+	p.B = []byte{0x78, 0x56, 0x34, 0x12}
+	p.ParamSpace = 4
+	n = p.trice32F(b, 0, 0)
+	assert.Equal(t, "F(12345678)\n", string(b[:n]))
+	assert.NotEqual(t, "", dbg.String())
+
+	dbg.Reset()
+	p.B = []byte{1, 0, 0, 0, 0, 0, 0, 0}
+	p.ParamSpace = 8
+	n = p.trice64F(b, 0, 0)
+	assert.Equal(t, "F(0000000000000001)\n", string(b[:n]))
+	assert.NotEqual(t, "", dbg.String())
+}
+
 // TestTriceFunctionStyleConvertersAndTrice0 verifies the expected behavior.
 func TestTriceFunctionStyleConvertersAndTrice0(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{})}
@@ -413,6 +472,45 @@ func TestUnsignedOrSignedOut(t *testing.T) {
 	binary.LittleEndian.PutUint64(p.B[8:], uint64(^uint64(1))) // -2 as int64
 	n = p.unSignedOrSignedOut(b, 64, 2)
 	assert.Equal(t, "2.5 -2", string(b[:n]))
+}
+
+// TestUnsignedOrSignedOutAdditionalBranches verifies the remaining 16/32/64-bit
+// formatter cases that are not naturally covered by the mixed happy-path test.
+func TestUnsignedOrSignedOutAdditionalBranches(t *testing.T) {
+	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
+	b := make([]byte, 256)
+
+	p.Trice.Type = "TRICE16_1"
+	p.Trice.Strg = "%f"
+	p.pFmt = "%f"
+	p.u = []int{decoder.FloatFormatSpecifier}
+	p.B = []byte{0x34, 0x12}
+	n := p.unSignedOrSignedOut(b, 16, 1)
+	assert.Contains(t, string(b[:n]), "Invalid format specifier (float?)")
+
+	p.Trice.Type = "TRICE32_1"
+	p.Trice.Strg = "%t"
+	p.pFmt = "%t"
+	p.u = []int{decoder.BooleanFormatSpecifier}
+	p.B = []byte{0x01, 0x00, 0x00, 0x00}
+	n = p.unSignedOrSignedOut(b, 32, 1)
+	assert.Equal(t, "true", string(b[:n]))
+
+	p.Trice.Type = "TRICE32_1"
+	p.Trice.Strg = "%v"
+	p.pFmt = "%v"
+	p.u = []int{decoder.StringFormatSpecifier}
+	p.B = []byte{0x01, 0x00, 0x00, 0x00}
+	n = p.unSignedOrSignedOut(b, 32, 1)
+	assert.Contains(t, string(b[:n]), "Invalid format specifier inside")
+
+	p.Trice.Type = "TRICE64_1"
+	p.Trice.Strg = "%t"
+	p.pFmt = "%t"
+	p.u = []int{decoder.BooleanFormatSpecifier}
+	p.B = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+	n = p.unSignedOrSignedOut(b, 64, 1)
+	assert.Equal(t, "false", string(b[:n]))
 }
 
 // TestPrintTestTableLine verifies the expected behavior.
@@ -641,6 +739,33 @@ func TestReadNoneFramingTypeX0Resync(t *testing.T) {
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
 	assert.Equal(t, 0, n)
+	assert.Equal(t, []byte{0x01, 0xaa}, dec.B)
+}
+
+// TestReadNoneFramingTypeX0VerboseResync verifies the diagnostic branch that is
+// only taken in none-framing mode with verbose output enabled.
+func TestReadNoneFramingTypeX0VerboseResync(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldVerbose := decoder.Verbose
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.Verbose = oldVerbose
+	})
+
+	decoder.PackageFraming = "none"
+	decoder.Verbose = true
+
+	in := bytes.NewBuffer([]byte{0x01, 0x00, 0xaa})
+	decI := New(io.Discard, nil, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+
+	buf := make([]byte, 256)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "resync removing zero HI byte")
 	assert.Equal(t, []byte{0x01, 0xaa}, dec.B)
 }
 
@@ -892,4 +1017,30 @@ func TestReadNoneFramingResyncWhenTriceSizeExceedsPackage(t *testing.T) {
 	assert.Equal(t, 0, n)
 	// none-mode resync drops first byte from the preserved buffer.
 	assert.Equal(t, 3, len(dec.B))
+}
+
+// TestReadFramedPackageTooSmallVerboseError verifies the framed-package error
+// path that reports an impossible announced payload length.
+func TestReadFramedPackageTooSmallVerboseError(t *testing.T) {
+	oldVerbose := decoder.Verbose
+	oldInitial := decoder.InitialCycle
+	t.Cleanup(func() {
+		decoder.Verbose = oldVerbose
+		decoder.InitialCycle = oldInitial
+	})
+	decoder.Verbose = true
+	decoder.InitialCycle = false
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+	}
+	p.B = []byte{0x01, 0x40, 0xff, 0x7f}
+	p.Lut = id.TriceIDLookUp{1: {Type: "TRICE8_1", Strg: "v=%d"}}
+
+	buf := make([]byte, 512)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "package size 4 is <")
+	assert.Equal(t, 0, len(p.B))
 }

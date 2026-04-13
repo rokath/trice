@@ -165,6 +165,11 @@ func (p *Device) Close() error {
 	}
 	// CTRL-C sends SIGTERM also to the started command. It closes the temporary file and terminates itself.
 	// Todo: If trice is terminated not with CTRL-C kill automatically.
+	if p.tempLogFileHandle != nil {
+		closeErr := p.tempLogFileHandle.Close()
+		p.Err = errors.Join(p.Err, closeErr)
+		p.tempLogFileHandle = nil
+	}
 	if p.tempLogFileName == "" {
 		return p.Err
 	}

@@ -428,6 +428,7 @@ PDF Generation
 ---
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
+<p align="right"><small>(Animated GIFs appear as still images in PDFs.) </small></p>
 
 ---
 
@@ -7717,7 +7718,7 @@ Trice Root Folder File                                                          
 [_test](../_test)                                                                                                       | automatic target code tests
 [scripts/buildTriceTool.sh](../scripts/buildTriceTool.sh)                                                               | [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
 [scripts/_setup_build_environment.sh](../scripts/_setup_build_environment.sh)                                           | see inside
-[scripts/_format_c_code.sh](../scripts/_format_c_code.sh)                                                                 | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
+[scripts/_format_c_code.sh](../scripts/_format_c_code.sh)                                                               | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
 [scripts/_clean-dsstore.sh](../scripts/_clean-dsstore.sh)                                                               | Ru to remove macOS artifacts
 `temp/log/coverage.out`                                                                                                 | Go test coverage output
 [cmd/_cui/](../cmd/_cui)                                                                                                | (do not use) command user interface tryout code
@@ -7729,7 +7730,7 @@ Trice Root Folder File                                                          
 `dist/`                                                                                                                 | local distribution files folder created by goreleaser
 [docs](../docs)                                                                                                         | documentation folder with link forwarding
 [examples/](../examples)                                                                                                | example target projects
-[scripts/_format_dumeng_toc.sh](../scripts/_format_dumeng_toc.sh)                                                         | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
+[scripts/_format_dumeng_toc.sh](../scripts/_format_dumeng_toc.sh)                                                       | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
 [scripts/gitAddWorktreeFromGitLogLineData.sh](../scripts/gitAddWorktreeFromGitLogLineData.sh)                           | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside
 [scripts/gitAddWorktreesBetween.sh](../scripts/gitAddWorktreesBetween.sh)                                               | helper to get easy git worktree folders from any time range
 [scripts/gitLogWithBranches.sh](../scripts/gitLogWithBranches.sh)                                                       | helper to get easy a history view
