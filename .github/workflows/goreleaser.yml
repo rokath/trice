@@ -42,7 +42,7 @@ jobs:
           node-version: '22'
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           # Use the standard GoReleaser distribution.
           distribution: goreleaser
