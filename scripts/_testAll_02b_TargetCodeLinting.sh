@@ -37,6 +37,13 @@ main() {
     }
   }
 
+  # The default matrix keeps broad coverage of buffer/output/endian combinations
+  # without exploding into a full Cartesian product. XTEA is added only for two
+  # representative cases:
+  # - deferred + xtea=1 proves the deferred encryption path still parses cleanly
+  # - direct   + xtea=1 triggers the extra compiler check in _lint_c_code.sh,
+  #   which protects the in-place direct XTEA writer against accidental const
+  #   changes that cppcheck alone would miss
   run_profile --buffer ring --output deferred --endian little --builtin 0 --xtea 0
   run_profile --buffer ring --output deferred --endian big --builtin 0 --xtea 0
   run_profile --buffer double --output deferred --endian little --builtin 0 --xtea 0

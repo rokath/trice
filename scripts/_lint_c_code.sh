@@ -16,6 +16,13 @@ BUFFER="ring"
 OUTPUT="deferred"
 ENDIAN="little"
 BUILTIN="0"
+# XTEA is modeled as a profile flag on top of the selected output mode:
+# - output=deferred + xtea=1 => deferred XTEA only
+# - output=direct   + xtea=1 => direct XTEA only
+# - output=both     + xtea=1 => both encryption paths enabled
+#
+# This keeps the CLI compact while still making the relevant encryption profiles
+# visible in the lint log and reproducible on demand.
 XTEA="0"
 
 while [ "$#" -gt 0 ]; do
@@ -206,6 +213,11 @@ both)
   ;;
 esac
 
+# Why the explicit mapping above matters:
+# The Trice library has separate direct and deferred XTEA options. The lint
+# profile intentionally derives those defines from the selected output mode so a
+# single "--xtea 1" is enough to exercise the matching encryption branch.
+
 if [ "$VERBOSE" -eq 1 ]; then
   echo "Lint profile: buffer=$BUFFER output=$OUTPUT endian=$ENDIAN builtin=$BUILTIN xtea=$XTEA"
 fi
@@ -262,9 +274,15 @@ run_direct_xtea_compile_check() {
   mkdir -p "$lint_tmp_dir"
   : >"$lint_tmp_dir/triceConfig.h"
 
-  # The direct XTEA path mutates the payload buffer in place. Compile one
-  # direct/XTEA profile explicitly so const-incorrect API changes fail here
-  # instead of showing up later in the heavier target build matrix.
+  # cppcheck 2.20 reports the opposite of what we need on
+  # TriceNonBlockingDirectWrite(...): with XTEA disabled it suggests a const
+  # pointer, and with XTEA enabled it still does not diagnose the illegal write
+  # through a const-qualified pointer. The source therefore carries a local
+  # cppcheck suppression for constParameterPointer, and this explicit compiler
+  # syntax check closes the remaining gap for the direct/XTEA build path.
+  #
+  # The temporary triceConfig.h keeps the check self-contained and prevents the
+  # release/lint path from touching any developer-local docs artifacts.
   "$c_compiler" \
     -std=c99 \
     -fsyntax-only \
@@ -314,6 +332,8 @@ run_cppcheck() {
     -Isrc \
     "${LINT_FILES[@]}"
 
+  # Keep cppcheck as the main lint backend, but add the targeted compiler pass
+  # afterwards for the one configuration family that cppcheck misses.
   run_direct_xtea_compile_check
 }
 
