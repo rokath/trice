@@ -19,9 +19,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
-# PDF generation takes long and the PDF now is a release asset.
-# "$SCRIPT_DIR/_refresh_trice_user_manual.sh" "$@"
 main() {
+  "$SCRIPT_DIR/_refresh_trice_user_manual.sh" "$@"
   "$SCRIPT_DIR/_format_shell_scripts.sh" "$@"
   "$SCRIPT_DIR/_format_go_code.sh" "$@"
   "$SCRIPT_DIR/../trice_cleanIDs_in_examples_and_test_folder.sh"
