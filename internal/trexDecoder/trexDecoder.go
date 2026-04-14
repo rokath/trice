@@ -176,9 +176,7 @@ func (p *trexDec) nextPackage() {
 		n, e := tcobs.Decode(p.B, frame) // if index is 0, an empty buffer is decoded
 		// from merging: p.IBuf = p.IBuf[index+1:]        // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
-			fmt.Println("\ainconsistent TCOBSv1 buffer!")
-
-			// remove 3 lines if they exist
+			// remove 3 lines if they exist - see issue #403 for the reason.
 			s := strings.SplitN(strings.ReplaceAll(string(frame), "\r\n", "\n"), "\n", 4)
 			var bytesCount int
 			if len(s) >= 3 {
