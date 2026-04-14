@@ -65,6 +65,7 @@ main() {
 
   run_step "_testAll_01_CleanDsStore.sh" || failed=1
   run_step "_testAll_02_ClangFormat.sh" || failed=1
+  run_step "_testAll_02b_TargetCodeLinting.sh" || failed=1
   run_step "_testAll_03_BuildTriceTool.sh" || failed=1
   run_step "_testAll_04_FormatManual.sh" || failed=1
   run_step "_testAll_05_MarkdownLint.sh" || failed=1

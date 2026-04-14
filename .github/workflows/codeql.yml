@@ -54,7 +54,7 @@ jobs:
     steps:
       # Step 1: Check out the repository so CodeQL can access the source code
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Step 2: Set up Go for deterministic tooling
       # - "stable" follows the current stable Go release on GitHub Actions runners.
@@ -121,7 +121,7 @@ jobs:
       # Step 1: Check out the repository so CodeQL can access the source code
       # Keep submodules if your examples/vendor code relies on them.
       - name: Checkout repository (with submodules)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 

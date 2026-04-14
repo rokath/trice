@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Install and run ShellCheck using a maintained GitHub Action.
       - name: Run ShellCheck
@@ -34,4 +34,3 @@ jobs:
           # ignore_paths: "vendor"    # space-separated paths to ignore
           # ignore_names: "*.tmpl"    # ignore by filename pattern
           # version: stable           # ShellCheck version (default: stable)
-

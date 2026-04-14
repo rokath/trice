@@ -17,7 +17,9 @@
 
 // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
 TRICE_INLINE uint16_t TriceReverse16(uint16_t value) {
-#if (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)) || (defined(__clang__) && __has_builtin(__builtin_bswap16))
+#if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)
+	return __builtin_bswap16(value);
+#elif defined(__clang__) && defined(__has_builtin) && __has_builtin(__builtin_bswap16)
 	return __builtin_bswap16(value);
 #elif (defined(TRICE_LIBC_BYTESWAP) && TRICE_LIBC_BYTESWAP == 1)
 	return __bswap_16(value);
@@ -28,7 +30,9 @@ TRICE_INLINE uint16_t TriceReverse16(uint16_t value) {
 }
 // Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
 TRICE_INLINE uint32_t TriceReverse32(uint32_t value) {
-#if (defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)) || (defined(__clang__) && __has_builtin(__builtin_bswap32))
+#if defined(__GNUC__) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 403)
+	return __builtin_bswap32(value);
+#elif defined(__clang__) && defined(__has_builtin) && __has_builtin(__builtin_bswap32)
 	return __builtin_bswap32(value);
 #elif (defined(TRICE_LIBC_BYTESWAP) && TRICE_LIBC_BYTESWAP == 1)
 	return __bswap_32(value);

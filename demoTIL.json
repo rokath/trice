@@ -9,11 +9,11 @@
 	},
 	"13002": {
 		"Type": "trice",
-		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+		"Strg": "Fun %x!\\n"
 	},
 	"13003": {
 		"Type": "trice",
-		"Strg": "Fun %x!\\n"
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
 	},
 	"13004": {
 		"Type": "trice",
@@ -56,16 +56,16 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13014": {
-		"Type": "TRice",
-		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13015": {
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13016": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13017": {
 		"Type": "trice8",
@@ -76,12 +76,12 @@
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
 	"13019": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRice",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"13020": {
-		"Type": "trice8",
-		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
 	},
 	"13021": {
 		"Type": "TRice",
@@ -8932,12 +8932,12 @@
 		"Strg": "Hello World!\\n"
 	},
 	"15233": {
-		"Type": "Trice",
-		"Strg": "ok!\\n"
-	},
-	"15234": {
 		"Type": "TRice",
 		"Strg": "Hello World!\\n"
+	},
+	"15234": {
+		"Type": "Trice",
+		"Strg": "ok!\\n"
 	},
 	"15235": {
 		"Type": "triceS",
@@ -8976,44 +8976,44 @@
 		"Strg": "SAlias_Strg('\"att:%s....\\n\"')SAlias_Strg"
 	},
 	"15244": {
-		"Type": "triceS",
-		"Strg": "SAlias_Strg('\"att:'-alias' \u0026 '-salias' contributor is %s.\\n\"')SAlias_Strg"
-	},
-	"15245": {
-		"Type": "trice",
-		"Strg": "A user printi call without values.\\n"
-	},
-	"15246": {
-		"Type": "triceS",
-		"Strg": "SAlias_Strg('\"A user prints call without values.\\n\"')SAlias_Strg"
-	},
-	"15247": {
-		"Type": "trice",
-		"Strg": "A user printi call with integer and float values: %u, %d, %x, %2.1f\\n"
-	},
-	"15248": {
-		"Type": "triceS",
-		"Strg": "SAlias_Strg('\"A user prints call with integer and float values: %u, %d, %x, %2.1f\\n\"')SAlias_Strg"
-	},
-	"15249": {
-		"Type": "triceS",
-		"Strg": "SAlias_Strg('\"A user ... with string, integer and float values: %u, %d, %x, %2.1f, %s and %s\\n\"')SAlias_Strg"
-	},
-	"15250": {
 		"Type": "TRice",
 		"Strg": "Hello World!\\n"
 	},
-	"15251": {
+	"15245": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"att:'-alias' \u0026 '-salias' contributor is %s.\\n\"')SAlias_Strg"
+	},
+	"15246": {
 		"Type": "trice",
 		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
 	},
-	"15252": {
+	"15247": {
+		"Type": "trice",
+		"Strg": "A user printi call without values.\\n"
+	},
+	"15248": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user prints call without values.\\n\"')SAlias_Strg"
+	},
+	"15249": {
 		"Type": "triceS",
 		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
 	},
-	"15253": {
+	"15250": {
+		"Type": "trice",
+		"Strg": "A user printi call with integer and float values: %u, %d, %x, %2.1f\\n"
+	},
+	"15251": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user prints call with integer and float values: %u, %d, %x, %2.1f\\n\"')SAlias_Strg"
+	},
+	"15252": {
 		"Type": "triceS",
 		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
+	},
+	"15253": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('\"A user ... with string, integer and float values: %u, %d, %x, %2.1f, %s and %s\\n\"')SAlias_Strg"
 	},
 	"15254": {
 		"Type": "triceS",

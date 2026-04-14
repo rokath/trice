@@ -13,6 +13,7 @@ import (
 	"sync"
 	"testing"
 
+	tcobs "github.com/rokath/tcobs/v1"
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
@@ -179,6 +180,42 @@ func TestNextPackageTCOBSPaths(t *testing.T) {
 		p.nextPackage()
 		assert.Equal(t, 0, len(p.B))
 		assert.Equal(t, 0, len(p.IBuf))
+	})
+
+	t.Run("error path strips three leading lines before retry", func(t *testing.T) {
+		oldStdout := os.Stdout
+		devNull, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
+		assert.NoError(t, err)
+		os.Stdout = devNull
+		t.Cleanup(func() {
+			os.Stdout = oldStdout
+			_ = devNull.Close()
+		})
+
+		p := &trexDec{
+			DecoderData: decoder.NewDecoderData(decoder.Config{
+				NeedBuffers: true,
+			}),
+			packageFraming: packageFramingTCOBS,
+		}
+		validFrame := []byte{0x81, 0x8e, 0x09, 0x23, 0xc0, 0x02, 0xb8, 0x01, 0xa4}
+		expected := make([]byte, decoder.DefaultSize)
+		expectedLen, err := tcobs.Decode(expected, validFrame)
+		assert.NoError(t, err)
+		expected = expected[len(expected)-expectedLen:]
+
+		// The invalid frame starts with three SEGGER J-Link headline lines as
+		// reported in issue #403, followed by a valid TCOBS package.
+		header := []byte(
+			"SEGGER J-Link V7.86e - Real time terminal output\r\n" +
+				"J-Link STLink V21 compiled Aug 12 2019 10:29:20 V1.0, SN=775351129\r\n" +
+				"Process: JLinkGDBServer.exe\r\n",
+		)
+		p.IBuf = append(header, validFrame...)
+		p.IBuf = append(p.IBuf, 0x00)
+		p.nextPackage()
+
+		assert.Equal(t, expected, p.B)
 	})
 
 	t.Run("read from input when ibuf incomplete", func(t *testing.T) {
@@ -1043,4 +1080,109 @@ func TestReadFramedPackageTooSmallVerboseError(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, string(buf[:n]), "package size 4 is <")
 	assert.Equal(t, 0, len(p.B))
+}
+
+// TestReadLargeCountUsesStoredCycle verifies the 15-bit count path where the
+// cycle is not transmitted and ParamSpace comes from the lower 15 bits.
+func TestReadLargeCountUsesStoredCycle(t *testing.T) {
+	oldInitial := decoder.InitialCycle
+	oldDisable := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.InitialCycle = oldInitial
+		DisableCycleErrors = oldDisable
+	})
+	decoder.InitialCycle = false
+	DisableCycleErrors = false
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+		cycle:          0xc5,
+	}
+	p.B = []byte{0x01, 0x40, 0x01, 0x80, 'A'}
+	p.Lut = id.TriceIDLookUp{
+		1: {Type: "TRICE_N", Strg: "%s"},
+	}
+
+	buf := make([]byte, 64)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "A", string(buf[:n]))
+	assert.Equal(t, 1, p.ParamSpace)
+	assert.Equal(t, 0xc6, int(p.cycle))
+}
+
+// TestReadTargetResetWarningOnInitialCycle verifies the reset warning branch.
+func TestReadTargetResetWarningOnInitialCycle(t *testing.T) {
+	oldInitial := decoder.InitialCycle
+	oldDisable := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.InitialCycle = oldInitial
+		DisableCycleErrors = oldDisable
+	})
+	decoder.InitialCycle = true
+	DisableCycleErrors = false
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+		cycle:          0xc5,
+	}
+	p.B = []byte{0x01, 0x40, 0xc0, 0x01, 0x2a}
+	p.Lut = id.TriceIDLookUp{
+		1: {Type: "TRICE8_1", Strg: "v=%d"},
+	}
+
+	buf := make([]byte, 128)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "Target Reset?")
+	assert.Contains(t, string(buf[:n]), "v=42")
+	assert.False(t, decoder.InitialCycle)
+	assert.Equal(t, 0xc1, int(p.cycle))
+}
+
+// TestReadTargetResetWithoutInitialCycleStaysSilent verifies the follow-up
+// target reset branch that adjusts the cycle without emitting the warning.
+func TestReadTargetResetWithoutInitialCycleStaysSilent(t *testing.T) {
+	oldInitial := decoder.InitialCycle
+	oldDisable := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.InitialCycle = oldInitial
+		DisableCycleErrors = oldDisable
+	})
+	decoder.InitialCycle = false
+	DisableCycleErrors = false
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+		cycle:          0xc5,
+	}
+	p.B = []byte{0x01, 0x40, 0xc0, 0x01, 0x2a}
+	p.Lut = id.TriceIDLookUp{
+		1: {Type: "TRICE8_1", Strg: "v=%d"},
+	}
+
+	buf := make([]byte, 128)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.NotContains(t, string(buf[:n]), "Target Reset?")
+	assert.Equal(t, "v=42", string(buf[:n]))
+	assert.Equal(t, 0xc1, int(p.cycle))
+}
+
+// TestSprintTriceUnknownTypeFallback verifies the final error path when the
+// reconstructed type does not match any registered TREX handler.
+func TestSprintTriceUnknownTypeFallback(t *testing.T) {
+	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
+	b := make([]byte, 256)
+
+	p.Trice = id.TriceFmt{Type: "TRICE24", Strg: "%d"}
+	p.B = []byte{0x2a}
+	p.ParamSpace = 1
+	n := p.sprintTrice(b)
+
+	assert.Contains(t, string(b[:n]), "Unknown trice.Type: TRICE24")
+	assert.Contains(t, string(b[:n]), decoder.Hints)
 }

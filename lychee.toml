@@ -33,13 +33,13 @@ format = "detailed"
 
 # Per-request timeout in seconds.
 # Consider increasing if you see frequent timeouts on vendor sites.
-timeout = 30
+timeout = 45
 
 # Maximum number of redirects to follow.
 max_redirects = 5
 
 # Retries help with flaky endpoints and transient failures (DNS, CDN, etc.).
-max_retries = 2
+max_retries = 4
 retry_wait_time = 2
 
 # Check web links AND local file links (including anchors in local Markdown/HTML).
@@ -100,11 +100,26 @@ exclude = [
 
   # These sites are valid for human readers but flaky or hostile to CI bots.
   "^https://cte\\.e10labs\\.com/.*",
+  "^https://winlibs\\.com/.*",
   "^https://www2\\.keil\\.com/mdk5/uvision/.*",
   "^https://developer\\.arm\\.com/downloads/-/arm-gnu-toolchain-downloads.*",
   "^https://developer\\.arm\\.com/documentation/ka004054/latest.*",
   "^https://developer\\.arm\\.com/Tools%20and%20Software/GNU%20Toolchain.*",
-  "^https://www\\.babynamespedia\\.com/meaning/Trice.*"
+  "^https://www\\.babynamespedia\\.com/meaning/Trice.*",
+
+  # These sites intermittently return HTTP 503 to automated checks although the
+  # referenced content is intentionally kept as documentation links.
+  "^https://2cld\\.de/.*",
+  "^https://libopencm3\\.org/.*",
+  "^https://libusb\\.info/.*",
+
+  # htmlpreview.github.io is convenient for rendering checked-in HTML exports,
+  # but it intermittently answers CI checks with HTTP 503.
+  "^https://htmlpreview\\.github\\.io/.*",
+
+  # The Homebrew landing page is a useful human-facing reference but has shown
+  # intermittent HTTP 503 responses during CI link checks.
+  "^https://brew\\.sh/.*"
 ]
 
 
@@ -118,6 +133,11 @@ exclude = [
 #   - "(^|[\\/])" matches either the start of the path or a directory separator
 #   - "([\\/]|$)" ensures we match a directory boundary (or end of path)
 exclude_path = [
+  # Unreviewed working copy of the user manual. It duplicates the checked
+  # links from the reviewed manual and adds noise to CI without protecting
+  # shipped documentation.
+  "(^|[\\\\/])docs[\\\\/]TriceUserManual_AI_reworked_NOT_reviewed\\.md$",
+
   # Legacy documentation directory (your current pain point)
   "(^|[\\\\/])docs[\\\\/]_Legacy([\\\\/]|$)",
 

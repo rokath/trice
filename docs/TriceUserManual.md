@@ -3959,7 +3959,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
   * -SelectEmuBySN Connects to a J-Link with a specific S/N over USB
   * -SettingsFile Passes a SettingsFile to J-Link
   * -Speed Starts J-Link Commander with a given initial speed
-* Documentation: [https://wiki.segger.com/J-Link_Commander](https://wiki.segger.com/J-Link_Commander)
+* Documentation: [https://kb.segger.com/J-Link_Commander](https://kb.segger.com/J-Link_Commander)
 * If you run successful `jlink -device STM32F030R8 -if SWD -speed 4000 -autoconnect 1` the target is stopped.
   * To let in run you need manually execute `go` as command in the open jlink window.
   * To automate that create a text file named for example `jlink.go` containing the `go` command: `echo go > jlink.go` and do a `jlink -device STM32F030R8 -if SWD -speed 4000 -autoconnect 1 -CommandFile jlink.go`
@@ -4041,9 +4041,9 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 * Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 * The `trice -port JLINK` is ok for usage **as is** right now. However if you wish more comfort check here:
-* Question: [How-to-access-multiple-RTT-channels](https://forum.segger.com/index.php/Thread/6688-SOLVED-How-to-access-multiple-RTT-channels-from-Telnet)
+* Question: [How-to-access-multiple-RTT-channels](https://forum.segger.com/thread/6688-solved-how-to-access-multiple-rtt-channels-from-telnet/)
   * "Developer pack used to write your own program for the J-Link. Please be sure you agree to the terms of the associated license found on the Licensing Information tab before purchasing this SDK. You will benefit from six months of free email support from the time that this product is ordered."
-* The main [Segger J-Link SDK](https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/) disadvantage beside closed source and payment is: **One is not allowed to distribute binaries written with the SDK.** That makes it only interesting for company internal automatization.
+* The main [Segger J-Link SDK](https://www.segger.com/products/debug-probes/j-link/tools/j-link-sdk/) disadvantage beside closed source and payment is: **One is not allowed to distribute binaries written with the SDK.** That makes it only interesting for company internal automatization.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -4984,7 +4984,7 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
   - When installing toolchains, put them here then and avoid spaces in created paths.
 - Add `C:\bin` to PATH variable at the beginning.
   - This allows to copy tools like `trice.exe` simply into `C:\bin`.
-- Install "Git for windows" from https://git-scm.com/downloads to get the neat git bash.
+- Install "Git for windows" from https://git-scm.com/downloads/ to get the neat git bash.
   - Select the Standalone Installer. This gives you useful context menu entries in the Windows explorer.
 - BTW: For managing git repositories I like https://www.gitkraken.com/. Its free of charge for open source programs.
 - Install VS-Code
@@ -8371,7 +8371,7 @@ In Github are some Actions defined. Some of them get triggered on a `git push` a
 
 ###  45.1. <a id='build-trice-tool-from-go-sources'></a>Build Trice tool from Go sources 
 
-* Install [Go](https://golang.org/).
+* Install [Go](https://go.dev/).
 * Run:
 
   ```bash

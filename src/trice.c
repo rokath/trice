@@ -706,6 +706,9 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 //! Also in combined modes (direct plus deferred) this is allowed, under certain circumstances:
 //! - TRICE_DOUBLE_BUFFER: The current Trice could be the last one and could have filled the double buffer to the end. So additional 4 bytes at the end are needed as scratc pad.
 //! - TRICE_RING_BUFFER: The max depth is not allowed and at the end is 4 bytes space needed.
+// cppcheck-suppress constParameterPointer
+// The direct XTEA path mutates the payload buffer in place, so this API must keep
+// a writable pointer even though some non-encrypted branches only read from it.
 void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 	// The 16-bit stamped trices start with 2-times 16-bit ID for align and speed reasons.
@@ -719,13 +722,15 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 #if TRICE_DIRECT32_ONLY // Space at triceStart + wordCount is usable and we can destroy the data.
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)    // in-place encryption
+	// The direct XTEA path pads and encrypts the payload in place, so triceStart
+	// must remain writable even if some non-encrypted branches only read from it.
 	triceStart[wordCount++] = 0;        // clear padding space
 	wordCount &= ~1;                    // only multiple of 8 can be encrypted
 	XTEAEncrypt(triceStart, wordCount); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
 #endif
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
-	uint32_t* enc = triceStart;
+	const uint32_t* enc = triceStart;
 	unsigned count = wordCount;
 #else
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
@@ -738,6 +743,8 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 #elif TRICE_DIRECT8_ONLY // TRICE_DATA_OFFSET space in front of triceStart and after wordCount space is usable and we can destroy the data.
 
 #if (TRICE_DIRECT_XTEA_ENCRYPT == 1)
+	// The direct XTEA path pads and encrypts the payload in place, so triceStart
+	// must remain writable even if some non-encrypted branches only read from it.
 	triceStart[wordCount++] = 0;        // clear padding space
 	wordCount &= ~1;                    // only multiple of 8 can be encrypted
 	XTEAEncrypt(triceStart, wordCount); // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
@@ -769,7 +776,7 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 	wordCount &= ~1;                         // only multiple of 8 can be encrypted
 	XTEAEncrypt(dat, wordCount);             // in-buffer encryption (in direct-only mode is usable space bedind the Trice message.)
 #else
-	uint32_t* dat = triceStart;
+	uint32_t const * dat = triceStart;
 #endif
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
@@ -986,114 +993,114 @@ void TRiceAssertFalseFn(uint16_t idN, int flag) {
 
 #ifdef TRICE_N
 
-void triceN(int tid, char const* fmt, void* buf, uint32_t n) {
+void triceN(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE_N(id(tid), fmt, buf, n);
 }
 
-void TriceN(int tid, char const* fmt, void* buf, uint32_t n) {
+void TriceN(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE_N(Id(tid), fmt, buf, n);
 }
 
-void TRiceN(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRiceN(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE_N(ID(tid), fmt, buf, n);
 }
 
-void trice8B(int tid, char const* fmt, void* buf, uint32_t n) {
+void trice8B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_B(id(tid), fmt, buf, n);
 }
 
-void Trice8B(int tid, char const* fmt, void* buf, uint32_t n) {
+void Trice8B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_B(Id(tid), fmt, buf, n);
 }
 
-void TRice8B(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRice8B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_B(ID(tid), fmt, buf, n);
 }
 
-void trice16B(int tid, char const* fmt, void* buf, uint32_t n) {
+void trice16B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_B(id(tid), fmt, buf, n);
 }
 
-void Trice16B(int tid, char const* fmt, void* buf, uint32_t n) {
+void Trice16B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_B(Id(tid), fmt, buf, n);
 }
 
-void TRice16B(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRice16B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_B(ID(tid), fmt, buf, n);
 }
 
-void trice32B(int tid, char const* fmt, void* buf, uint32_t n) {
+void trice32B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_B(id(tid), fmt, buf, n);
 }
 
-void Trice32B(int tid, char const* fmt, void* buf, uint32_t n) {
+void Trice32B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_B(Id(tid), fmt, buf, n);
 }
 
-void TRice32B(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRice32B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_B(ID(tid), fmt, buf, n);
 }
 
 #if (TRICE_64_BIT_SUPPORT == 1)
-void trice64B(int tid, char const* fmt, void* buf, uint32_t n) {
+void trice64B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_B(id(tid), fmt, buf, n);
 }
 
-void Trice64B(int tid, char const* fmt, void* buf, uint32_t n) {
+void Trice64B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_B(Id(tid), fmt, buf, n);
 }
 
-void TRice64B(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRice64B(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_B(ID(tid), fmt, buf, n);
 }
 #endif // (TRICE_64_BIT_SUPPORT == 1)
 
-void trice8F(int tid, char const* fmt, void* buf, uint32_t n) {
+void trice8F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_F(id(tid), fmt, buf, n);
 }
 
-void Trice8F(int tid, char const* fmt, void* buf, uint32_t n) {
+void Trice8F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_F(Id(tid), fmt, buf, n);
 }
 
-void TRice8F(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRice8F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_F(ID(tid), fmt, buf, n);
 }
 
-void trice16F(int tid, char const* fmt, void* buf, uint32_t n) {
+void trice16F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_F(id(tid), fmt, buf, n);
 }
 
-void Trice16F(int tid, char const* fmt, void* buf, uint32_t n) {
+void Trice16F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_F(Id(tid), fmt, buf, n);
 }
 
-void TRice16F(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRice16F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_F(ID(tid), fmt, buf, n);
 }
 
-void trice32F(int tid, char const* fmt, void* buf, uint32_t n) {
+void trice32F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_F(id(tid), fmt, buf, n);
 }
 
-void Trice32F(int tid, char const* fmt, void* buf, uint32_t n) {
+void Trice32F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_F(Id(tid), fmt, buf, n);
 }
 
-void TRice32F(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRice32F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_F(ID(tid), fmt, buf, n);
 }
 
 #if (TRICE_64_BIT_SUPPORT == 1)
-void trice64F(int tid, char const* fmt, void* buf, uint32_t n) {
+void trice64F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_F(id(tid), fmt, buf, n);
 }
 
-void Trice64F(int tid, char const* fmt, void* buf, uint32_t n) {
+void Trice64F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_F(Id(tid), fmt, buf, n);
 }
 
-void TRice64F(int tid, char const* fmt, void* buf, uint32_t n) {
+void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_F(ID(tid), fmt, buf, n);
 }
 #endif // (TRICE_64_BIT_SUPPORT == 1)

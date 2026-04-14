@@ -60,7 +60,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # Full history makes it easier to debug "what changed", and allows git-based
           # checks if you ever add them inside the build scripts.
@@ -188,7 +188,7 @@ jobs:
 
       - name: Upload build artifacts
         if: ${{ inputs.upload_artifacts }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: trice-lib-artifacts
           path: |

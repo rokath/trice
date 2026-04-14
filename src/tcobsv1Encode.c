@@ -75,13 +75,13 @@
 // The overlap assumptions are implemented according to the encoder state machine below.
 int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t length) {
 	uint8_t* o = (uint8_t*) output; // write pointer
-	uint8_t* out = (uint8_t*) output;
+	uint8_t const* out = (uint8_t*) output;
 	uint8_t const* i = (uint8_t const*) input;       // read pointer
 	uint8_t const* limit = (uint8_t*)input + length; // read limit
 	uint8_t zeroCount = 0;                           // counts zero bytes 1-3 for Z1-Z3
 	uint8_t fullCount = 0;                           // counts 0xFF bytes 1-4 for FF and F2-F4
 	uint8_t reptCount = 0;                           // counts repeat bytes 1-4 for !00 and R2-R4,
-	uint8_t b_1 = 0;                                 // previous byte
+	uint8_t b_1;                                     // previous byte
 	uint8_t b = 0;                                   // current byte
 	uint8_t offset = 0;                              // link to next sigil or buffer start looking backwards
 	// comment syntax:
@@ -308,9 +308,9 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 					ASSERT(b_1 == 0xFF)
 					if (b == 0xFF) {  // , f3 FF FF.
 						OUT_fullSigil // F3, FF FF.
-						    ASSERT(offset <= 31);
-						*o++ = F2 | offset; // F3 F2, -- --.
-						return (int)(o - out);     // option: F4 FF, -- --. is also right
+						ASSERT(offset <= 31);
+						*o++ = F2 | offset;    // F3 F2, -- --.
+						return (int)(o - out); // option: F4 FF, -- --. is also right
 					}
 					// , f3 FF !FF.
 					fullCount = 4; // , f4 -- xx.
