@@ -138,6 +138,9 @@
 * Group commits by change intent (e.g., tests/coverage, script behavior, documentation, generated data) and keep those groups separate unless the documentation change is required to explain the exact same code change.
 * Before committing, inspect the worktree for mixed concerns and exclude unrelated or suspicious files until the grouping is clear.
 * When a documentation file is modified independently of the code change, treat it as its own commit unless the user explicitly asks to bundle it.
+* If the user asks for a `push`, stop first and ask whether `./scripts/format_repo.sh` should be run before pushing.
+* If `./scripts/format_repo.sh` is run for that purpose, ask whether the resulting formatting changes should be committed before the `push`.
+* Treat this formatting-and-commit step as an optional append-on to the requested push workflow, not as an automatic action.
 
 ---
 

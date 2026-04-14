@@ -171,8 +171,7 @@ big)
 esac
 
 case "$BUILTIN" in
-0 | 1)
-  ;;
+0 | 1) ;;
 *)
   echo "Unsupported builtin mode: $BUILTIN" >&2
   exit 2
@@ -180,8 +179,7 @@ case "$BUILTIN" in
 esac
 
 case "$XTEA" in
-0 | 1)
-  ;;
+0 | 1) ;;
 *)
   echo "Unsupported xtea mode: $XTEA" >&2
   exit 2
