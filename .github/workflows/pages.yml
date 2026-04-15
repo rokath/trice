@@ -109,7 +109,7 @@ jobs:
           ' /tmp/TriceUserManual.md > docs/TriceUserManual.md
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         # Prepares the environment (paths, tokens, etc.) for the Pages build.
 
       - name: Build with Jekyll
