@@ -22,6 +22,23 @@
 # because that is the environment used in this repository and because the
 # stock `code` CLI does not expose extension commands directly.
 #
+# Important workflow detail
+# -------------------------
+# The VS Code extensions are not treated as the final authority on repository
+# formatting. They are best-effort generators:
+#   - dumeng.markdown-toc refreshes the TOC
+#   - yzane.markdown-pdf exports a local comparison PDF
+#
+# After the TOC regeneration step, the repository-owned
+# ./scripts/_format_dumeng_toc.sh script always re-applies the checked-in house
+# rules. This is intentional, because the desired TOC shape in this repository
+# differs slightly from the raw dumeng output: numbering belongs inside the link
+# text, and legacy anchor tags are normalized to "<a id=...>".
+#
+# The local PDF generated here is only a developer-facing comparison artifact.
+# It may differ from the release PDF toolchain and is intentionally allowed to
+# stay local and git-ignored.
+#
 # Usage
 # -----
 #   ./scripts/_refresh_trice_user_manual.sh
