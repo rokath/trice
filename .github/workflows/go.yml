@@ -13,7 +13,7 @@ jobs:
   job1:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - uses: shogo82148/actions-goveralls@v1
       with:

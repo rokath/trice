@@ -32,7 +32,7 @@ jobs:
       #    - scripts/_format_c_code.sh
       #########################################################################
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           # Full git history is not strictly required for formatting,
           # but some tools or future changes might rely on it.
