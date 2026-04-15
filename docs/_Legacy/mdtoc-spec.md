@@ -25,12 +25,18 @@ Eigenschaft:
 
 ## 2. CLI Kommandos
 
-| Option                                  | Beschreibung                                   |
-|-----------------------------------------|------------------------------------------------|
-| `mdtoc --version`                       | Gibt Versionsinfo aus                          |
-| `mdtoc generate [--verbose] [OPTIONEN]` | generiert/updated ToC, numbers, anchors        |
-| `mdtoc strip    [--verbose] [--raw]`    | entfernt ToC, numbers, anchors und ggf. Config |
-| `mdtoc check    [--verbose]`            | prüft Config und ggf. ToC, numbers, anchors    |
+| Option                                  | Beschreibung                                     |
+|-----------------------------------------|--------------------------------------------------|
+| `mdtoc --version`                       | Gibt kurze Versionsinfo aus.                     |
+| `mdtoc --version --verbose`             | Gibt ausführliche Versionsinfo aus.              |
+| `mdtoc --help`                          | Gibt kurzen Help Text aus aus.                   |
+| `mdtoc --help --verbose`                | Gibt langen Help Text aus aus.                   |
+| `mdtoc generate  --help`                | Gibt langen Help Text speziell für generate aus. |
+| `mdtoc strip     --help`                | Gibt langen Help Text speziell für strip aus.    |
+| `mdtoc check     --help`                | Gibt langen Help Text speziell für check aus.    |
+| `mdtoc generate [--verbose] [OPTIONEN]` | generiert/updated ToC, numbers, anchors.         |
+| `mdtoc strip    [--verbose] [--raw]`    | entfernt ToC, numbers, anchors und ggf. Config.  |
+| `mdtoc check    [--verbose]`            | prüft Config und ggf. ToC, numbers, anchors.     |
 
 ## 3. Optionen (generate)
 
@@ -47,11 +53,14 @@ Eigenschaft:
 
 | Option          | Beschreibung                             |
 |-----------------|------------------------------------------|
-| `--file <name>` | Datei wird gelesen und überschrieben     |
-| (kein `--file`) | Eingabe von stdin, Ausgabe auf stdout    |
-| `--verbose`     | Gibt Log-Info aus, nutzbar für Debugging |
+| `--file <name>` | Datei wird gelesen und überschrieben.     |
+| (kein `--file`) | Eingabe von stdin, Ausgabe auf stdout.    |
+| `--version`     | Gibt Version-Info aus. |
+| `--help`     | Gibt Hilfe-Info aus.|
+| `--verbose`     | Gibt Log-Info aus, nutzbar für Debugging, bzw. liefert ausführlichere Informationen. |
 
-Ohne `--verbose` grundsätzlich keine Ausgabe, außer bei Fehlern, die dann über den Fehlerkanal stderr kommen.
+- Ohne `--verbose` bei Kommandos grundsätzlich keine Ausgabe, außer bei Fehlern, die dann über den Fehlerkanal stderr kommen.
+- `--help` und `--version` geben auch ohne `--verbose` Infos aus.
 
 ### Kurzformen
 
@@ -61,18 +70,53 @@ Ohne `--verbose` grundsätzlich keine Ausgabe, außer bei Fehlern, die dann übe
 | `--anchors`   | `-a`     |
 | `--file`      | `-f`     |
 | `--verbose`   | `-v`     |
+| `--help`      | `-h`     |
 
 ## 4. Processing/Parsing
 
-* Ignoriere alles zwischen Block-Quotes
-  * Beispiel: ```diff ... ```
+* Ignoriere alles zwischen Block-Quotes.
+  * Beispiel: 
+  
+  ```diff
+   # ignoriere dies
+  ```
+
+* Ignoriere alles zwischen zwei Back-Ticks.
+  * Beispiel: `Tue so als ob <!-- das hier -->` nicht da ist.
 * Ignoriere HTML-Kommentare 
-  * Ausnahme: <!-- mdtoc ... /mdtoc -->
-  * Ausnahme: <!-- mdtoc-config ... /mdtoc-config -->
+  * Ausnahme: 
+  
+  ```md
+  <!-- mdtoc-config 
+  Hier kommt die Config rein. 
+  /mdtoc-config -->
+  ```
+
+* Suche nach Zeile `<!-- mdtoc -->`
+* Suche nach Zeile `<!-- /mdtoc -->`
+* Auswertung:
+  * Beides nicht gefunden:
+    * Füge Zeile `<!-- mdtoc -->` am Dateianfang ein
+    * In den nachfolgenden Zeilen wird dann der ToC generiert.
+    * Füge Config-Block danach ein.
+    * Füge Zeile `<!-- /mdtoc -->` danach ein.
+  * `<!-- mdtoc -->` mehrfach gefunden: Parsing Fehler
+  * `<!-- /mdtoc -->` mehrfach gefunden: Parsing Fehler
+  * `<!-- mdtoc -->` Zeilennummer >= `<!-- mdtoc -->` mehrfach gefunden: Parsing Fehler
+  * Wenn gefunden, suche und parse Config-Block.
+    * Der Config-Block darf nur einmal existieren, sonst Fehler.
+    * Der Config-Block muss unmittelbar vor der Zeile `<!-- /mdtoc -->` sein.
+    * Der Config-Block muss konsistent sein.
+
+* Hinweise:
+  * Wenn noch kein ToC generiert wurde, wird der Dateianfang als Lokation genommen.
+  * Der User kann durch Verschieben des Toc-Bereiches bestimmen, wo das Inhaltsverzeichnis sein soll.
+  * Alles was zwischen Zeile `<!-- mdtoc -->` und dem Anfang des Config-Blocks gefunden wird wird als generierter ToC erwartet.
+  * Sollten dort andere Inhalte stehen, werden diese nicht gelöscht, sondern in HTML-Kommentar gekapselt (und damit zukünftig ignoriert).
 
 ## 5. Config-Block
 
-Der Config-Block wird am ToC-Ende eingefügt bzw. geupdatet. Beispiel:
+Der Config-Block wird am ToC-Ende, also nach der eingefügt bzw. geupdatet. Beispiel:
 
 ```html
 <!-- mdtoc-config
@@ -123,7 +167,7 @@ state: generated
 - Bestehenden generierten Zustand entfernen
 - TOC-Block ersetzen
 - generierte Heading-Nummern entfernen
-- generierte <a id=...>-Anker entfernen
+- generierte `<a id=...>`-Anker entfernen
 - Strukturmodell aufbauen
 - alle relevanten Überschriften extrahieren
 - Ebenen erkennen (#, ##, ###, ...)
@@ -160,7 +204,7 @@ Worauf du achten solltest
 
 1) Nur generierte Anker entfernen
 
-Beliebige handgeschriebene <a id="..."> im Dokument nicht blind alle entfernen.
+Beliebige handgeschriebene `<a id="...">` im Dokument nicht blind alle entfernen.
 
 Besser:
 
@@ -222,7 +266,7 @@ keine Setext-Headings nötig, falls ihr die nicht nutzt
 
 5) Logging
 
-- Success: keine Ausgabe
+- Success: keine Ausgabe (außer bei `--verbose`)
 - Fehler: Meldung auf stderr
   - Beispiel: `mdtoc: no mdtoc-config block found; file is not managed by mdtoc`
 - `--verbose`: Diagnose-/Ablaufmeldungen auf stderr
@@ -244,13 +288,13 @@ keine Setext-Headings nötig, falls ihr die nicht nutzt
 
 ```md
 ### 4.1. Open source
-````
+```
 
 →
 
 ```md
 ### 4.1. <a id="open-source"></a>Open source
-````
+```
 
 7) TOC-Verhalten
 
@@ -309,14 +353,14 @@ keine Setext-Headings nötig, falls ihr die nicht nutzt
 ```bash
 mdtoc generate
 mdtoc generate
-````
+```
 
 → keine Änderung beim zweiten Lauf
 
 ```bash
 mdtoc strip
 mdtoc strip
-````
+```
 
 → keine Änderung beim zweiten Lauf
 
@@ -454,3 +498,115 @@ mdtoc strip
 mdtoc generate, strip mehrfach → keine Änderung
 
 ---
+
+
+
+Überarbeite das Dokument direkt, lösche aber nichts. Restrukturiere. Kommentiere den alten Text (wenn auch komplett) stückweise mit HTML-Syntax aus, damit ich es beim review einfacher habe. gib mir einen Download-Link. Noch eins: Ist das hier nicht vielleicht leichter zu implementieren: hashes      := "# " | "## " | "### " | "#### " | "##### " | "###### ", also die Leerzeichen gleich in die hashes. Dein "<!-- mdtoc -->
+[TOC CONTENT]
+<!-- mdtoc-config -->
+...
+<!-- /mdtoc -->" muss sein "<!-- mdtoc -->
+[TOC CONTENT]
+<!-- mdtoc-config
+...
+-->
+<!-- /mdtoc -->" Eine explizite Strukturdefinition ist verständlicher.
+
+Wichtig: Wenn Anchor, dann zwischen Anchorende und ÜberschriftenText KEIN Space um mit dumeng-toc kompatibel zu bleiben. 
+
+Setze all deine Vorschläge um. 
+
+Wenn Du sehr formal wirst, erläutere es.
+
+Overdesigne nicht. Ziel ist Verständlichkei und Eindeutigkeit. Es geht um ein kleines Helper-Tool.
+
+Wenn noch entscheidungen offen sind äußere diese Fragen in Blockquotes an Ort und stelle im Dokument. Stelle anschließend einen Download-Link zur überarbeiteten Makrdown-Datei bereit.
+
+Nutze Die Blockquotes yntax auch für Anmerkungen von Deiner Seite direkt im Dokument.
+Überarbeitungshinweise (etwas zusammengestoppelt und nicht komplett):
+
+* Blockquotes: klar definieren und ins Parsing inkludieren
+
+Ignored regions:
+1. Fenced code blocks (``` ... ```)
+2. Inline code spans (`...`)
+3. HTML comments (<!-- ... -->) except mdtoc-config
+
+Not ignore regions:
+4. Blockquotes 
+
+Hinweis: Da Blockquotes mit optionalen Space und `>` anfangen könne sie auf keine Hedaline matchen. Siehe Headingt-Syntax
+
+Heading-Syntax:
+
+heading_line :=
+  hashes SP [number SP] [anchor SP] title
+
+hashes      := "# " | "## " | "### " | "#### " | "##### " | "###### "
+number      := DIGIT+ ("." DIGIT+)* "."
+anchor      := "<a id=\"" anchor_id "\"></a>"
+title       := NONEMPTY_TEXT
+SP          := exactly one U+0020 space
+
+Hinweise:
+
+nach den # muss genau ein Leerzeichen folgen
+zwischen allen Komponenten genau ein Leerzeichen
+keine führenden Spaces vor #
+
+Also besser:
+
+A managed heading line MUST match:
+^#{1,6} ...
+
+
+
+Es wird nur dieses Anchor-Format generiert: `<a id="..."></a>` Dann kann der Parser sagen:
+
+wenn Anchor exakt an dieser Stelle steht, ist er verwaltet
+wenn nicht, ist er normaler Dokumentinhalt
+
+Das Tool ist ja kein allgemeiner Markdown-Parser, sondern ein deterministisches Dokument-Transformationswerkzeug. Also darf die Spezifikation sagen:
+
+unterstützt nur ATX headings
+nur definierte Heading-Struktur
+keine Setext-Headings
+keine mehrdeutigen Sonderfälle
+
+X) Titel, die absichtlich mit Zahlen anfangen
+
+Das bleibt nur dann sauber lösbar, wenn du wirklich sagst:
+
+eine Nummer ist nur dann eine Nummer, wenn sie direkt nach den Hashes steht
+und exakt dem Muster x.y.z. entspricht
+und danach ein Leerzeichen folgt
+
+Dann ist das hier kein generierter Nummernblock:
+
+### 2024 roadmap
+### 3D graphics
+
+Das ist gut.
+
+Aber das hier wäre dann ein Nummernblock:
+
+Dieses Format darf nicht frei für normale Titel verwenden: Beispiel: `### 2.1. API`
+
+zwischen #, Nummer, Anchor und Titel: genau ein Leerzeichen
+innerhalb des Titels: beliebiger Text, unverändert erhalten
+
+Managed headings use this syntax:
+
+<hashes><space>[<number><space>][<anchor><space>]<title>
+
+Where:
+- <hashes> is 1 to 6 '#' characters followed by a space
+- <space> is exactly one ASCII space
+- <number> matches [0-9]+(\.[0-9]+)*\.
+- <anchor> matches <a id="..."></a>
+- <title> is non-empty text and is the only semantic source of truth
+
+Only headings matching this positional structure may be rewritten by mdtoc.
+
+„mdtoc verarbeitet nur Überschriften, die exakt diesem Syntaxschema entsprechen.“
+
