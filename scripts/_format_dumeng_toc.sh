@@ -33,6 +33,26 @@
 #   _format_dumeng_toc.sh format
 #   _format_dumeng_toc.sh check path/to/file.md
 #   _format_dumeng_toc.sh format path/to/file.md
+#
+# Repository contract
+# -------------------
+# This script intentionally treats the VS Code / dumeng output as a source that
+# may need repository-specific normalization afterwards.
+#
+# In this repository the desired TOC shape is:
+#   * [1. Title](#anchor)
+#   * [1.1. Subtitle](#anchor)
+#
+# not:
+#   * 1. [Title](#anchor)
+#
+# The script therefore moves the numbering into the link text while preserving
+# the outer bullet list and the existing anchor target. This keeps the manual
+# readable in Markdown viewers and stable for subsequent formatting checks.
+#
+# The same applies to anchor tags. Legacy "<a name=...>" forms are rewritten to
+# "<a id=...>" so the checked-in Markdown consistently uses the modern HTML
+# attribute form expected by current tooling.
 # ==============================================================================
 
 set -euo pipefail

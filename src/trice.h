@@ -629,8 +629,8 @@ extern uint32_t* TriceBufferWritePosition;
 // helper macros instead of passing the format string through wrapper functions.
 //
 // Why this is done:
-// - In inserted source files the usual spelling is `trice(iD(...), "msg")`,
-//   `Trice(iD(...), "msg")` or `TRice(iD(...), "msg")`.
+// - In inserted source files the usual spelling is `_trice(iD(...), "msg")`,
+//   `_Trice(iD(...), "msg")` or `_TRice(iD(...), "msg")`. (without _)
 // - If these forms call a real function taking `const char* pFmt`, the caller
 //   must still materialize the string literal as an argument.
 // - Without LTO or other strong interprocedural optimization, some compilers
