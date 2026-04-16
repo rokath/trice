@@ -18,7 +18,7 @@ jobs:
       should_run: ${{ steps.decide.outputs.should_run }}
     steps:
       - name: Checkout (for git log)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

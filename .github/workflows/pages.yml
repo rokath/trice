@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest      # Use the latest Ubuntu runner
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         # This checks out the repository so subsequent steps can read README.md,
         # docs/TriceUserManual.md, etc.
 
