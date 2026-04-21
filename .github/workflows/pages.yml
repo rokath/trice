@@ -124,7 +124,7 @@ jobs:
         # - Render docs/TriceUserManual.md (modified above) as a page.
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./_site          # Upload the generated site as an artifact
         # This artifact is what the deploy job will publish to GitHub Pages.
