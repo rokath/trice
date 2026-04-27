@@ -69,7 +69,7 @@ jobs:
       # 5) Upload coverage.out as an artifact for later inspection/download
       # Useful for debugging and auditing. Artifact v4 is the current major. :contentReference[oaicite:4]{index=4}
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-out
           path: ./temp/log/coverage.out
