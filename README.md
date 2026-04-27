@@ -8,6 +8,10 @@
 
 ## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
 
+---
+
+**Trice** is an ultra-low-overhead logging framework for embedded C/C++. It provides printf-like usability with only ~6–100 CPU cycles per log call, making logging practical even when used from interrupt handlers in real-time firmware systems.
+
 ![License](https://img.shields.io/github/license/rokath/trice) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest) ![Downloads](https://img.shields.io/github/downloads/rokath/trice/total) ![GitHub issues](https://img.shields.io/github/issues/rokath/trice) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) ![Go Version](https://img.shields.io/github/go-mod/go-version/rokath/trice)  [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice) [![Coverage](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice?branch=main) [![TRICE Library CI (Nightly Full)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml) 
 <!--
 [![Go Reference](https://pkg.go.dev/badge/github.com/rokath/trice.svg)](https://pkg.go.dev/github.com/rokath/trice) 
@@ -24,27 +28,45 @@
 
 -->
 
-Log in (a) trice ([S>G](https://www.screentogif.com/)) even inside **↯ interrupts** in less than 1 µs❗ ![ ](./docs/ref/life0.gif)
+*Log in a trice — with Trice, even from **↯ interrupt handlers** in less than 1 µs ❗*
+
+![ ](./docs/ref/life0.gif) <!-- ([S>G](https://www.screentogif.com/)) -->
 
 **Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)
 
 ## What is Trice?
 
-Trice replaces `printf` or `log` in **C** code and gives you three main benefits:
+Trice is designed for systems where traditional logging is too slow, too large, or not safe to use in interrupt or real-time contexts.
 
-- **[Speed](./docs/TriceUserManual.md#trice-speed)** - Fast enough to use inside interrupts
-- **[Small Size](./docs/TriceUserManual.md#trice-memory-needs)** - Uses less FLASH memory
-- **[More Features](./docs/TriceUserManual.md#trice-features-(overview))** - Extra options that help developers
+Trice replaces `printf`-style logging in embedded C/C++ systems with a much faster and more efficient approach.
 
-### Main Idea
+Instead of formatting and storing strings on the target, Trice encodes log messages as compact IDs and keeps the actual strings on the host. This reduces runtime overhead, memory usage, and data transfer size.
 
-Instead of storing log strings on your embedded device, Trice keeps them on your PC. This makes logging faster and uses less memory on your device.
+### Key Benefits
+
+* **[🚀 Speed](./docs/TriceUserManual.md#trice-speed)** – ~6–100 CPU cycles per log call. This makes logging practical even when used from interrupt handlers in real-time firmware systems.
+* **[📦 Small Size](./docs/TriceUserManual.md#trice-memory-needs)** – no format strings stored in target FLASH  
+* **[🧱 Version Stability](./docs/TriceUserManual.md#versions-and-variants-trice-stability)** – decode logs from older firmware without requiring matching tool versions
+* **[🛠 Easy Migration](./docs/TriceUserManual.md#trice-and-legacy-user-code)** – reuse existing `printf`-style code with minimal changes via the `-alias` option
+* **[➕ More Features](./docs/TriceUserManual.md#trice-features-(overview))** – flexible logging, transport options, and tooling  
+
+### How it works
+
+1. Use Trice macros instead of `printf` in your firmware  
+2. Each log message is replaced by a compact ID  
+3. The target sends only IDs and data  
+4. The host reconstructs the original messages using the Trice ID list  
 
 ```diff
-- No version mismatch problems❗
-+ The Trice ID List stores all log strings, so the
-+ newest version can read logs from all older versions❗
+- printf("Temperature: %d°C", t);
++ TRICE("Temperature: %d°C", t);   // fast, compact, ID-based
 ```
+
+### Result
+
+* Faster execution
+* Smaller binaries
+* Reliable logging in time-critical code paths
 
 ### Two Parts of Trice
 
