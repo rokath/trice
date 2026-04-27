@@ -60,7 +60,7 @@ jobs:
       # - "stable" follows the current stable Go release on GitHub Actions runners.
       # - If you need strict reproducibility, pin a specific version (e.g. "1.23.x").
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: stable
 
@@ -167,7 +167,7 @@ jobs:
       # We build/install trice here (again) because jobs are isolated: the Go job's artifacts/PATH
       # do not automatically carry over to the C/C++ job.
       - name: Set up Go (needed for trice tool)
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: stable
 
