@@ -70,7 +70,7 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ### Two Parts of Trice
 
-1. **C code macros** - Works like `printf` but creates very fast trace and log code for your embedded device
+1. **C code macros** - Provide a familiar `printf`-like interface at the application level, but internally send just ID and values instead of full format strings. The Trice tool maps these IDs back to readable text.
 2. **Trice tool** - Manages and displays the logs
    - Written in [Go](https://go.dev/) - works on all platforms that Go supports
    - You can also build your own tool to receive Trice packages, replace IDs with text, and display the output
