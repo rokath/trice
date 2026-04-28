@@ -52,7 +52,7 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ### How it works
 
-1. Use Trice macros instead of `printf` in your firmware  
+1. Use Trice macros instead of `printf` in your firmware (or use the `trice i -alias` option)
 2. Each log message is replaced by a compact ID  
 3. The target sends only IDs and data  
 4. The host reconstructs the original messages using the Trice ID list  
