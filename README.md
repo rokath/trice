@@ -79,12 +79,9 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ## Quickstart: First RTT Log with J-Link
 
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary>(click to expand)</summary>
+Install the `trice` tool. Use a [latest release binary](https://github.com/rokath/trice/releases/latest) and put it into your `PATH`.
 
----
-
-For a first setup, direct output over SEGGER RTT is usually the fastest path. It avoids MCU-specific UART driver work and uses the widely available J-Link debug interface.
+For a first setup, SEGGER RTT is usually fastest: it needs no MCU-specific UART driver and works via J-Link. Install the SEGGER J-Link software package so `JLinkRTTLogger` is in `PATH`.
 
 1. Add the complete [`src`](./src) folder to your target project unchanged and add `./src` to the compiler include path.
 2. Create a project-specific `triceConfig.h` file with this minimal direct RTT configuration:
@@ -101,20 +98,19 @@ For a first setup, direct output over SEGGER RTT is usually the fastest path. It
 #include "trice.h"
 
 int main(void) {
-    TriceInit(); // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
+    TriceInit(); // RTT-specific
     // ... system init
     trice("Hello world!\n");
     // ...
 }
 ```
 
-4. Create empty `til.json` and `li.json` files in your project root and run `trice insert` before compiling. This assigns IDs to your `trice(...)` calls and fills both JSON files.
+4. Create empty `til.json` and `li.json` files in your project root and run `trice insert -src ./` before compiling. This assigns IDs to your `trice(...)` calls and fills both JSON files.
 5. Build and flash your target.
-6. Install the SEGGER J-Link software package. Make sure JLinkRTTLogger in the path.
-7. Start logging with your device name (add `-v` for details)
+6. Start logging with your device name (add `-v` for details)
 
 ```bash
-trice log -p JLINK -args "-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -prefix off -hs off -d16  -i ./til.json -li ./li.json
+trice log -p JLINK -args "-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -prefix off -hs off -d16 -i ./til.json -li ./li.json
 ```
 
 Or use the file-based RTT logger workflow manually:
@@ -133,17 +129,13 @@ trice log -p FILE -args ./temp/trice.bin -pf none -prefix off -hs off -d16 -ts m
 
 For more setup details, see [Start with Trice](./docs/TriceUserManual.md#start-with-trice), [Configuration file triceConfig.h](./docs/TriceUserManual.md#configuration-file-triceconfig.h), and [Trice over RTT](./docs/TriceUserManual.md#trice-over-rtt).
 
----
-
-</details>
-
 ## When to Use Trice
 
 ### Logging and Debugging
 
-You can use Trice for `printf` debugging and as a logging system. The advantage is very short messages (no strings) for data transfer. Remember that the file [til.json](./demoTIL.json) is needed to read all output from devices in the field for 10+ years.
+You can use Trice for `printf` debugging and as a logging system. The advantage is very short messages (no strings) for data transfer. Keep your project-specific `til.json` file available to decode field logs later. The repository example file is [demoTIL.json](./demoTIL.json).
 
-- **Optional:** Add [til.json](./demoTIL.json) as a compressed resource to your target image. You can use [SRecord](https://srecord.sourceforge.net/download.html) or provide a download link.
+- **Optional:** Add your project-specific `til.json` as a compressed resource to your target image. You can use [SRecord](https://srecord.sourceforge.net/download.html) or provide a download link.
 
 ### Data Compression
 
@@ -157,12 +149,12 @@ Trice looks like data compression (IDs instead of strings), which is useful for 
 
 You can **encrypt** Trice transfer packets for security.
 
-- Deliver firmware images with encrypted Trice output that only works with the right key and [til.json](./demoTIL.json)
+- Deliver firmware images with encrypted Trice output that only works with the right key and the matching `til.json`
 - [XTEA](https://en.wikipedia.org/wiki/XTEA) encryption is available
 
 ### Translation
 
-Translate the [til.json](./demoTIL.json) file into **different languages**. Change the language by changing the [til.json](./demoTIL.json) file without changing the target binary.
+Translate the `til.json` file into **different languages**. Change the language by changing the `til.json` file without changing the target binary.
 
 ### Timing Analysis
 
@@ -195,9 +187,7 @@ This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice work
 
 ## Documentation
 
-**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)
-
-The Trice User Manual includes all information from the [Memfault Interrupt Blog](https://interrupt.memfault.com/blog/trice) which is slightly outdated.
+The [Trice User Manual](./docs/TriceUserManual.md) includes all information from the [Memfault Interrupt Blog](https://interrupt.memfault.com/blog/trice) which is slightly outdated.
 - Check [issues](https://github.com/rokath/trice/issues) and [discussions](https://github.com/rokath/trice/discussions), including closed items
 - Read the target source code, especially [triceDefaultConfig.h](./src/triceDefaultConfig.h)
 - View [CLI](https://en.wikipedia.org/wiki/Command-line_interface) options by running `trice help -all` in a terminal or reading the generated file [trice-help-all.txt](./docs/ref/trice-help-all.txt)
@@ -211,6 +201,11 @@ Debug a Trice project in Direct-Out Mode over SEGGER-RTT. (See [Development Envi
 <img src="docs/ref/Animation.gif" width="1200">
 
 ## Trice Cache
+
+<details markdown="1"> <!-- parse this block as markdown -->
+<summary>(click to expand)</summary>
+
+---
 
 You can use the `-cache` CLI switch with `trice insert` and `trice clean` commands. This only works when you create the **`.trice/cache`** folder in your home directory. ([Trice Cache Details](./docs/TriceUserManual.md#trice-cache-for-compilation-speed))
 
@@ -234,10 +229,15 @@ The Trice cache saves copies of all files after processing them with `trice i` o
 
 For example, run an auto-formatter **before** the `trice insert` command.
 
+---
+
+</details>
+
 ## Which Mode Should You Use?
 
 - **For development:** Direct mode with SEGGER_RTT is recommended
 - **For most use cases:** Deferred mode with TRICE_BUFFER == TRICE_RING_BUFFER (uses less RAM) in TRICE_MULTI_PACK_MODE (transfers less data)
+
 
 ## Project Status
 
@@ -250,11 +250,10 @@ Trice is fully usable.
 
 ## Future Plans
 
-The documentation could be improved. We could add features like remote procedure calls. Or create a separate tlog tool written in C or Python (with AI help). This would allow logging on any platform, not just platforms supported by **Go**.
-
-## Structured Logging
-
-Trice will soon support structured logging. Based on feedback from [#531](https://github.com/rokath/trice/discussions/531), there is now a [specification draft](./docs/TriceUserManual.md#trice-structured-logging). Please provide feedback before implementation starts.
+- The documentation could better explain advanced use cases, such as **deferred remote procedure calls**.
+- A **separate tlog tool** written in C or Python would allow logging on any platform, not just platforms supported by **Go**.
+- A [draft specification](./docs/TriceUserManual.md#trice-structured-logging) for **structured logging** in Trice is available, based on feedback from [#531](https://github.com/rokath/trice/discussions/531).
+- Proposals and feedback on these topics are welcome.
 
 ## Support the Project
 
@@ -266,13 +265,12 @@ Trice will soon support structured logging. Based on feedback from [#531](https:
   - <a href="https://buymeacoffee.com/rokath" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="120"></a>
   - <a href="https://www.paypal.com/paypalme/rolfkarlthomas"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="PayPal" height="40" width="120"></a>
 
-## Clone the Repository
-
-```bash
-git clone https://github.com/rokath/trice.git
-```
-
 ## Similar Projects
+
+<details markdown="1"> <!-- parse this block as markdown -->
+<summary>(click to expand)</summary>
+
+---
 
 - ARM ITM/SWO (hardware-native)
 - ARM Keil Event Recorder (hardware-native)
@@ -306,7 +304,6 @@ Additional comparison material:
 - [Trice Compare (generated 2025-05-26)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/ChatGPTo4-mini-high_TriceCompare.html) - compact generated comparison with related tools
 - [Logging & Tracing Solutions for Embedded Systems (generated 2026-02-16)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html) - longer generated overview of the broader tool landscape
 
-
-**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)
+</details>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
