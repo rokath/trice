@@ -59,7 +59,7 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ```diff
 - printf("Temperature: %d°C", t);
-+ TRICE("Temperature: %d°C", t);   // fast, compact, ID-based
++ trice("Temperature: %d°C", t);   // fast, compact, ID-based
 ```
 
 ### Result
