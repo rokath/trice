@@ -30,6 +30,30 @@ func TestFformatSpecifierCount(t *testing.T) {
 	}
 }
 
+// TestFormatSpecifierCountLengthModifiers verifies that valid C length modifiers
+// are still counted as exactly one format specifier by the source scanner.
+func TestFormatSpecifierCountLengthModifiers(t *testing.T) {
+	tt := []struct {
+		name  string
+		fmt   string
+		count int
+	}{
+		{name: "size_t unsigned", fmt: "count=%zu", count: 1},
+		{name: "unsigned long width", fmt: "count=%8lu", count: 1},
+		{name: "size_t signed", fmt: "count=%zd", count: 1},
+		{name: "size_t hex upper", fmt: "mask=%zX", count: 1},
+		{name: "long hex upper", fmt: "mask=%08lX", count: 1},
+		{name: "long long hex upper", fmt: "mask=%016llX", count: 1},
+		{name: "long double float", fmt: "value=%04Lf", count: 1},
+		{name: "escaped size_t unsigned", fmt: "%%zu", count: 0},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.count, formatSpecifierCount(tc.fmt))
+		})
+	}
+}
+
 // TestNewID verifies the expected behavior.
 func TestNewID(t *testing.T) {
 	var id, mi, ma TriceID
