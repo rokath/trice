@@ -119,7 +119,12 @@ exclude = [
 
   # The Homebrew landing page is a useful human-facing reference but has shown
   # intermittent HTTP 503 responses during CI link checks.
-  "^https://brew\\.sh/.*"
+  "^https://brew\\.sh/.*",
+
+  # Coveralls intermittently answers with HTTP 503 for the project landing page
+  # and badge although both links are intentionally used in README.md.
+  "^https://coveralls\\.io/github/rokath/trice\\?branch=main$",
+  "^https://coveralls\\.io/repos/github/rokath/trice/badge\\.svg\\?branch=main$"
 ]
 
 
