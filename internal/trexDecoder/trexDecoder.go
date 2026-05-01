@@ -18,6 +18,7 @@ import (
 	"github.com/rokath/tcobs/v1"
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
+	"github.com/rokath/trice/internal/fmtspec"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
 )
@@ -648,6 +649,74 @@ func splitChannelFormat(format string) (prefix string, itemFormat string, hadTra
 	return
 }
 
+func normalizeBufferItemFormat(format string) (normalized string, kind fmtspec.Kind) {
+	// Buffer-format decoding uses a single repeated item verb. Issue #649 added
+	// proper support for C length modifiers in the main decoder path, and the
+	// buffer path must apply the same normalization to avoid raw `%ld`, `%zx`,
+	// `%lx` or `%llx` reaching Go fmt unchanged.
+	normalized, specs := fmtspec.Normalize(format)
+	if len(specs) == 0 {
+		return format, fmtspec.KindSigned
+	}
+	return normalized, specs[0].Kind
+}
+
+func bufferValue8(v byte, kind fmtspec.Kind) interface{} {
+	switch kind {
+	case fmtspec.KindUnsigned:
+		return v
+	case fmtspec.KindBasedInteger:
+		if decoder.Unsigned {
+			return v
+		}
+		return int8(v)
+	default:
+		return int8(v)
+	}
+}
+
+func bufferValue16(v uint16, kind fmtspec.Kind) interface{} {
+	switch kind {
+	case fmtspec.KindUnsigned:
+		return v
+	case fmtspec.KindBasedInteger:
+		if decoder.Unsigned {
+			return v
+		}
+		return int16(v)
+	default:
+		return int16(v)
+	}
+}
+
+func bufferValue32(v uint32, kind fmtspec.Kind) interface{} {
+	switch kind {
+	case fmtspec.KindUnsigned:
+		return v
+	case fmtspec.KindBasedInteger:
+		if decoder.Unsigned {
+			return v
+		}
+		return int32(v)
+	default:
+		return int32(v)
+	}
+}
+
+func bufferValue64(v uint64, kind fmtspec.Kind) interface{} {
+	switch kind {
+	case fmtspec.KindUnsigned:
+		return v
+	case fmtspec.KindBasedInteger:
+		if decoder.Unsigned {
+			return v
+		}
+		return int64(v)
+	default:
+		return int64(v)
+	}
+}
+
 // triceTypeFn is the type for cobsFunctionPtrList elements.
 type triceTypeFn struct {
 	triceType  string                                              // triceType describes if parameters, the parameter bit width or if the parameter is a string.
@@ -743,12 +812,13 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 	}
 	s := p.B[:p.ParamSpace]
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
+	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
 		n += copy(b[n:], prefix)
 	}
 
 	for i := 0; i < len(s); i++ {
-		n += copy(b[n:], fmt.Sprintf(itemFormat, s[i]))
+		n += copy(b[n:], fmt.Sprintf(itemFormat, bufferValue8(s[i], itemKind)))
 	}
 	if addLineBreak {
 		n += copy(b[n:], fmt.Sprintln())
@@ -763,12 +833,14 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 	}
 	s := p.B[:p.ParamSpace]
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
+	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
 		n += copy(b[n:], prefix)
 	}
 
 	for i := 0; i < len(s); i += 2 {
-		n += copy(b[n:], fmt.Sprintf(itemFormat, binary.LittleEndian.Uint16(s[i:])))
+		nn := binary.LittleEndian.Uint16(s[i:])
+		n += copy(b[n:], fmt.Sprintf(itemFormat, bufferValue16(nn, itemKind)))
 	}
 	if addLineBreak {
 		n += copy(b[n:], fmt.Sprintln())
@@ -784,12 +856,14 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 	}
 	s := p.B[:p.ParamSpace]
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
+	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
 		n += copy(b[n:], prefix)
 	}
 
 	for i := 0; i < len(s); i += 4 {
-		n += copy(b[n:], fmt.Sprintf(itemFormat, binary.LittleEndian.Uint32(s[i:])))
+		nn := binary.LittleEndian.Uint32(s[i:])
+		n += copy(b[n:], fmt.Sprintf(itemFormat, bufferValue32(nn, itemKind)))
 	}
 	if addLineBreak {
 		n += copy(b[n:], fmt.Sprintln())
@@ -804,12 +878,14 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 	}
 	s := p.B[:p.ParamSpace]
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
+	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
 		n += copy(b[n:], prefix)
 	}
 
 	for i := 0; i < len(s); i += 8 {
-		n += copy(b[n:], fmt.Sprintf(itemFormat, binary.LittleEndian.Uint64(s[i:])))
+		nn := binary.LittleEndian.Uint64(s[i:])
+		n += copy(b[n:], fmt.Sprintf(itemFormat, bufferValue64(nn, itemKind)))
 	}
 	if addLineBreak {
 		n += copy(b[n:], fmt.Sprintln())
