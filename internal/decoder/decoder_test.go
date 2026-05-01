@@ -28,6 +28,7 @@ func Test_UReplaceN(t *testing.T) {
 		{"% x", "% x", []int{1}},
 		{"%u", "%d", []int{0}},
 		{"%d", "%d", []int{1}},
+		{"%i", "%d", []int{1}},
 		{"%d %u %f", "%d %d %f", []int{1, 0, 2}},
 	}
 	for i, x := range tt {
@@ -36,6 +37,46 @@ func Test_UReplaceN(t *testing.T) {
 		assert.Equal(t, x.exp, act)
 		assert.Equal(t, x.u, uct)
 	}
+}
+
+// Test_UReplaceNLengthModifiers verifies normalization of valid C length modifiers
+// into Go-compatible format strings for non-%u cases. Unsigned decimal handling is
+// covered separately because the %u -> %d rewrite and type conversion are a different concern.
+func Test_UReplaceNLengthModifiers(t *testing.T) {
+	tt := []struct {
+		name string
+		fmt  string
+		exp  string
+		u    []int
+	}{
+		{name: "long signed", fmt: "count=%ld", exp: "count=%d", u: []int{SignedFormatSpecifier}},
+		{name: "long signed i", fmt: "count=%li", exp: "count=%d", u: []int{SignedFormatSpecifier}},
+		{name: "size_t signed", fmt: "count=%zd", exp: "count=%d", u: []int{SignedFormatSpecifier}},
+		{name: "long long hex upper", fmt: "mask=%#016llX", exp: "mask=%#016X", u: []int{SignedFormatSpecifier}},
+		{name: "size_t hex lower", fmt: "mask=%zx", exp: "mask=%x", u: []int{SignedFormatSpecifier}},
+		{name: "long double float", fmt: "value=%04Lf", exp: "value=%04f", u: []int{FloatFormatSpecifier}},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			act, uct := UReplaceN(tc.fmt)
+			assert.Equal(t, tc.exp, act)
+			assert.Equal(t, tc.u, uct)
+		})
+	}
+}
+
+// TestUReplaceNDoesNotUnsignedifySignedDecimal protects the historic behavior
+// that the global Unsigned switch only affects base-changing verbs such as %x.
+// Decimal signed verbs like %d must stay signed, otherwise PC target tests emit
+// 4294967295 where "-1" is expected.
+func TestUReplaceNDoesNotUnsignedifySignedDecimal(t *testing.T) {
+	oldUnsigned := Unsigned
+	t.Cleanup(func() { Unsigned = oldUnsigned })
+
+	Unsigned = true
+	act, uct := UReplaceN("value=%d %x")
+	assert.Equal(t, "value=%d %x", act)
+	assert.Equal(t, []int{SignedFormatSpecifier, UnsignedFormatSpecifier}, uct)
 }
 
 // TestNewDecoderDataWithoutBuffers ensures the base decoder initializes helper buffers only when requested.

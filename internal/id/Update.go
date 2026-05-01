@@ -12,6 +12,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/rokath/trice/internal/fmtspec"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
@@ -27,10 +28,6 @@ const (
 	// patFmtString is a regex matching the first format string inside trice even containing newlines and \"
 	patFmtString = `"(?s)(.*)"` // https://stackoverflow.com/questions/159118/how-do-i-match-any-character-across-multiple-lines-in-a-regular-expression
 
-	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
-	// todo: unify with decoder.patNextFormatSpecifier
-	patNextFormatSpecifier = `(?:^|[^%])(%[\ +\-0-9\.#]*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|s|t|u|U|x|X))`
-
 	patID = `\s*\b(i|I)(d|D)\b\s*` // `\s*\b(I|i)d\b\s*`
 
 	patNb = `\d+` // // `[0-9]*`
@@ -41,18 +38,11 @@ const (
 
 // formatSpecifierCount parses s for format specifier and returns the found count.
 func formatSpecifierCount(s string) (count int) {
-	xs := "any"
-	for xs != "" {
-		lo := matchNextFormatSpecifier.FindStringIndex(s)
-		xs = matchNextFormatSpecifier.FindString(s)
-		if xs != "" { // found
-			count++
-			s = s[lo[1]:]
-		} else {
-			xs = ""
-		}
-	}
-	return
+	// Keep source scanning aligned with decoder-side normalization. This shared
+	// parser was added after Issue #649 because valid C modifiers such as %zu
+	// were not counted here and later reconstructed as TRICE_0 during decoding.
+	_, specs := fmtspec.Normalize(s)
+	return len(specs)
 }
 
 func isSourceFile(fi os.FileInfo) bool {

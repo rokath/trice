@@ -139,7 +139,7 @@ You can use Trice for `printf` debugging and as a logging system. The advantage 
 
 ### Data Compression
 
-Trice looks like data compression (IDs instead of strings), which is useful for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) devices, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT) with very low data rates.
+Replacing format strings with IDs at compile time acts like **strong data compression** for FLASH and transferred log data, while making target-side logging orders of magnitude faster at runtime.
 
 ### FLASH Memory Storage
 

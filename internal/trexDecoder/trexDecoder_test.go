@@ -334,6 +334,37 @@ func TestTriceStringAndBufferConverters(t *testing.T) {
 	assert.Equal(t, "7", string(b[:n]))
 }
 
+// TestTriceBufferConvertersLengthModifiers verifies that buffer item formats use
+// the same C length-modifier normalization as regular Trice messages.
+func TestTriceBufferConvertersLengthModifiers(t *testing.T) {
+	oldUnsigned := decoder.Unsigned
+	decoder.Unsigned = true
+	t.Cleanup(func() { decoder.Unsigned = oldUnsigned })
+
+	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
+	b := make([]byte, 256)
+
+	p.Trice.Strg = "%4ld\n"
+	p.B = []byte("abcde 12345")
+	p.ParamSpace = len(p.B)
+	n := p.trice8B(b, 0, 0)
+	assert.Equal(t, "  97\n  98\n  99\n 100\n 101\n  32\n  49\n  50\n  51\n  52\n  53\n", string(b[:n]))
+
+	p.Trice.Strg = " %02zx\n"
+	p.B = []byte{0x00, 0xff, 0xfe, 0x33}
+	p.ParamSpace = len(p.B)
+	n = p.trice8B(b, 0, 0)
+	assert.Equal(t, " 00\n ff\n fe\n 33\n", string(b[:n]))
+
+	p.Trice.Strg = " %02lx\n"
+	n = p.trice8B(b, 0, 0)
+	assert.Equal(t, " 00\n ff\n fe\n 33\n", string(b[:n]))
+
+	p.Trice.Strg = " %02llx\n"
+	n = p.trice8B(b, 0, 0)
+	assert.Equal(t, " 00\n ff\n fe\n 33\n", string(b[:n]))
+}
+
 // TestTriceConvertersDebugOut verifies the expected behavior.
 func TestTriceConvertersDebugOut(t *testing.T) {
 	oldDebug := decoder.DebugOut

@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/emitter"
+	"github.com/rokath/trice/internal/fmtspec"
 	"github.com/rokath/trice/internal/id"
 )
 
@@ -34,43 +35,6 @@ const (
 
 	// defaultSize is the beginning receive and sync buffer size.
 	DefaultSize = 64 * 1024
-
-	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and NOT ignoring %s
-	//
-	// https://regex101.com/r/BjiD5M/1
-	// Language C plus from language Go: %b, %F, %q
-	// Partial implemented: %hi, %hu, %ld, %li, %lf, %Lf, %Lu, %lli, %lld
-	// Not implemented: %s
-	//patNextFormatSpecifier =        `%([+\-#'0-9\.0-9])*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|s|t|u|U|x|X)` // assumes no `%%` inside string!
-	patNextFormatSpecifier = `(?:^|[^%])(%[\ +\-0-9\.#]*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|s|t|u|U|x|X))` // inside update.go
-
-	// patNextFormatSSpecifier is a regex to find next format s specifier in a string
-	// It does also match %%u positions!
-	patNextFormatSSpecifier = `%[0-9]*s` // assumes no `%%` inside string!
-
-	// patNextFormatUSpecifier is a regex to find next format u specifier in a string
-	// It does also match %%u positions!
-	patNextFormatUSpecifier = `%[0-9]*u` // assumes no `%%` inside string!
-
-	// patNextFormatISpecifier is a regex to find next format i specifier in a string
-	// It does also match %%i positions!
-	patNextFormatISpecifier = `%[0-9]*i` // assumes no `%%` inside string!
-
-	// patNextFormatXSpecifier is a regex to find next format x specifier in a string
-	// It does also match %%x positions!
-	patNextFormatXSpecifier = `%[0-9]*(l|o|O|x|X|b|p|t)` // assumes no `%%` inside string!
-
-	// patNextFormatFSpecifier is a regex to find next format f specifier in a string
-	// It does also match %%f positions!
-	patNextFormatFSpecifier = `%[(+\-0-9\.0-9#]*(e|E|f|F|g|G)` // assumes no `%%` inside string!
-
-	// patNextFormatBoolSpecifier is a regex to find next format f specifier in a string
-	// It does also match %%t positions!
-	patNextFormatBoolSpecifier = `%t` // assumes no `%%` inside string!
-
-	// patNextFormatPointerSpecifier is a regex to find next format f specifier in a string
-	// It does also match %%t positions!
-	patNextFormatPointerSpecifier = `%p` // assumes no `%%` inside string!
 
 	// hints is the help information in case of errors.
 	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Format specifier? Password? til.json? Version?"
@@ -101,15 +65,6 @@ var (
 
 	// Unsigned if true, forces hex and in values printed as unsigned values.
 	Unsigned bool
-
-	matchNextFormatSpecifier        = regexp.MustCompile(patNextFormatSpecifier)
-	matchNextFormatSSpecifier       = regexp.MustCompile(patNextFormatSSpecifier)
-	matchNextFormatUSpecifier       = regexp.MustCompile(patNextFormatUSpecifier)
-	matchNextFormatISpecifier       = regexp.MustCompile(patNextFormatISpecifier)
-	matchNextFormatXSpecifier       = regexp.MustCompile(patNextFormatXSpecifier)
-	matchNextFormatFSpecifier       = regexp.MustCompile(patNextFormatFSpecifier)
-	matchNextFormatBoolSpecifier    = regexp.MustCompile(patNextFormatBoolSpecifier)
-	matchNextFormatPointerSpecifier = regexp.MustCompile(patNextFormatPointerSpecifier)
 
 	DebugOut                        = false        // DebugOut enables debug information.
 	DumpLineByteCount               int            // DumpLineByteCount is the bytes per line for the dumpDec decoder.
@@ -251,68 +206,72 @@ func (p *DecoderData) ReadU64(b []byte) uint64 {
 // http://www.cplusplus.com/reference/cstdio/printf/
 // https://www.codingunit.com/printf-format-specifiers-format-conversions-and-formatted-output
 func UReplaceN(i string) (o string, u []int) {
-	o = i
-	i = strings.ReplaceAll(i, "%%", "__") // this makes regex easier and faster
-	var offset int
-	for {
-		s := i[offset:] // remove processed part
-		loc := matchNextFormatSpecifier.FindStringIndex(s)
-		if nil == loc { // no (more) fm found
-			return
-		}
-		offset += loc[1] // track position
-		fm := s[loc[0]:loc[1]]
-		locPointer := matchNextFormatPointerSpecifier.FindStringIndex(fm)
-		if nil != locPointer { // a %p found
+	// Normalize valid C length modifiers first so that both the source scanner and
+	// the runtime decoder share the same understanding. This fixes Issue #649 and
+	// related %l... cases without changing the original format string stored in til.json.
+	o, specs := fmtspec.Normalize(i)
+	for _, spec := range specs {
+		switch spec.Kind {
+		case fmtspec.KindPointer:
 			// This would require `unsafe.Pointer(uintptr(n))` inside unSignedOrSignedOut.
 			// There are false positive windows vet warnings:
 			// https://stackoverflow.com/questions/43767898/casting-a-int-to-a-pointer
 			// https://github.com/golang/go/issues/41205
 			// As workaround replace %p with %x in the format strings.
-			// Then trice64( "%p", -1 ) could be a problem when using `trice log -unsigned false`
-			// But that we simply ignore right now.
-			o = o[:offset-1] + "x" + o[offset:]   // replace %np -> %nx
-			u = append(u, PointerFormatSpecifier) // pointer value
-			continue
-		}
-		locBool := matchNextFormatBoolSpecifier.FindStringIndex(fm)
-		if nil != locBool { // a %t found
-			u = append(u, BooleanFormatSpecifier) // bool value
-			continue
-		}
-		locS := matchNextFormatSSpecifier.FindStringIndex(fm)
-		if nil != locS { // a %ns found
-			u = append(u, StringFormatSpecifier) // float value
-			continue
-		}
-		locF := matchNextFormatFSpecifier.FindStringIndex(fm)
-		if nil != locF { // a %nf found
-			u = append(u, FloatFormatSpecifier) // float value
-			continue
-		}
-		locU := matchNextFormatUSpecifier.FindStringIndex(fm)
-		if nil != locU { // a %nu found
-			o = o[:offset-1] + "d" + o[offset:]    // replace %nu -> %nd
-			u = append(u, UnsignedFormatSpecifier) // no negative values
-			continue
-		}
-		locI := matchNextFormatISpecifier.FindStringIndex(fm)
-		if nil != locI { // a %ni found
-			o = o[:offset-1] + "d" + o[offset:]  // replace %ni -> %nd
-			u = append(u, SignedFormatSpecifier) // also negative values
-			continue
-		}
-		locX := matchNextFormatXSpecifier.FindStringIndex(fm)
-		if nil != locX { // a %nx, %nX or, %no, %nO or %nb found
+			o = replaceNextConversion(o, 'p', 'x')
+			u = append(u, PointerFormatSpecifier)
+		case fmtspec.KindBool:
+			u = append(u, BooleanFormatSpecifier)
+		case fmtspec.KindString:
+			u = append(u, StringFormatSpecifier)
+		case fmtspec.KindFloat:
+			u = append(u, FloatFormatSpecifier)
+		case fmtspec.KindUnsigned:
+			// Keep the longstanding Trice behavior: Go fmt prints unsigned payloads
+			// via %d while the decoder chooses an unsigned Go integer type below.
+			o = replaceNextConversion(o, 'u', 'd')
+			u = append(u, UnsignedFormatSpecifier)
+		case fmtspec.KindBasedInteger:
+			// Keep `%d`/`%i` signed even when -unsigned is active. The historical
+			// `Unsigned` switch only affected the base-changing integer verbs handled
+			// by the old locX branch (%x/%X/%o/%O/%b/...). Issue #649 added the shared
+			// parser, but this behavior must stay intact to avoid changing `%d` into
+			// an unsigned decimal print, as seen in the intensive PC target tests.
 			if Unsigned {
-				u = append(u, 0) // no negative values
+				u = append(u, UnsignedFormatSpecifier)
 			} else {
-				u = append(u, 1) // also negative values
+				u = append(u, SignedFormatSpecifier)
 			}
+		case fmtspec.KindSigned:
+			u = append(u, SignedFormatSpecifier)
+		}
+	}
+	return
+}
+
+func replaceNextConversion(format string, from, to byte) string {
+	for i := 0; i < len(format); i++ {
+		if format[i] != '%' {
 			continue
 		}
-		u = append(u, 1) // keep sign in all other cases(also negative values)
+		if i+1 < len(format) && format[i+1] == '%' {
+			i++
+			continue
+		}
+		for j := i + 1; j < len(format); j++ {
+			if format[j] == from {
+				return format[:j] + string(to) + format[j+1:]
+			}
+			if isASCIIAlpha(format[j]) {
+				break
+			}
+		}
 	}
+	return format
+}
+
+func isASCIIAlpha(b byte) bool {
+	return ('a' <= b && b <= 'z') || ('A' <= b && b <= 'Z')
 }
 
 // Dump prints the byte slice as hex in one line
