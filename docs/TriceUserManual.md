@@ -459,7 +459,7 @@ Unhappy with this situation, the developer starts thinking of using digital pins
 
 The Trice technique tries to fill this gap, being minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
 
-Trice is an unusual software tracer-logger, using [internally](#how-it-works---the-main-idea) IDs instead of format strings to get maximum [speed](#execution-speed) but provides the user with a printf-like comfort:
+Trice is an unusual software tracer-logger, using [internally](#how-it-works-the-main-idea) IDs instead of format strings to get maximum [speed](#execution-speed) but provides the user with a printf-like comfort:
 
 ```C
 trice("Hello! 👋🙂");
@@ -2537,7 +2537,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 #### 22.1.4. <a id="id-routing"></a>ID Routing
 
-With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags,-color-and-log-levels) can get a specific ID range assigned and inside the project specific *triceConfig.h* the user can control, which ID range is routed to specific output channels. Search for `_MIN_ID` inside **triceDefaultConfig.h** and extend your search than for example `TRICE_UARTA_MIN_ID` to explore how to use.
+With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags-color-and-log-levels) can get a specific ID range assigned and inside the project specific *triceConfig.h* the user can control, which ID range is routed to specific output channels. Search for `_MIN_ID` inside **triceDefaultConfig.h** and extend your search than for example `TRICE_UARTA_MIN_ID` to explore how to use.
 
 #### 22.1.5. <a id="possibility-to-create-new-tags-without-modifying-trice-tool-source"></a>Possibility to create new tags without modifying trice tool source
 
@@ -3508,7 +3508,7 @@ Modern compilers are optimizing out unused code automatically, but you can help 
 ### 28.1. <a id="code-optimization-o3-or-oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
 
 For debugging it could be helpful to switch off code optimization what increases the code size. A good choice is `-o1`. See also
-[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization).
+[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#tricestackbuffer-could-cause-stack-overflow-with-o0-optimization).
 
 
 ### 28.2. <a id="compiler-independent-setting-a-bit-outdated"></a>Compiler Independent Setting (a bit outdated)
@@ -5674,7 +5674,7 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
 <a id='setting-up-g0b1_gen'></a><h5>Setting Up G0B1_bare</h5>
 
-- See and adapt steps from [F030_bare](#f030_bare).
+- See and adapt steps from [F030_bare](#f030bare).
 - Then add/modify the files to reach this folder layot.
 
 #### 36.2.2. <a id="g0b1inst"></a>G0B1_inst
@@ -5685,11 +5685,11 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <a id='setting-up-1'></a><h5>Setting Up</h5>
 
-- See and adapt steps from [G0B1_bare](#g0b1_bare).
+- See and adapt steps from [G0B1_bare](#g0b1bare).
 
 <a id='instrumenting'></a><h5>Instrumenting</h5>
 
-- The steps are similar to the steps in [F030_bare](#f030_bare).
+- The steps are similar to the steps in [F030_bare](#f030bare).
 - See comments in [triceConfig.h](../examples/G0B1_inst/Core/Inc/triceConfig.h) and commandlines in screenshot.
 
 <img src="./ref/2024-07-22.png" width="1000">
@@ -5845,8 +5845,8 @@ Nov 16 20:38:16.323665  TCP4:       triceExamples.c    19       46_536 2.718282 
 
 * [https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf](https://www.st.com/resource/en/user_manual/um2576-stm32cubeide-stlink-gdb-server-stmicroelectronics.pdf)
 * Downloaded and installed
-  * [en.stm32cubeprg-win64-v2-17-0.zip]()
-  * [en.st-link-server-v2-1-1.zip]()
+  * `en.stm32cubeprg-win64-v2-17-0.zip`
+  * `en.st-link-server-v2-1-1.zip`
     * PATH variable extended with `C:\Program Files (x86)\STMicroelectronics\stlink_server`
     * Copied
       * From: "C:\Program Files (x86)\STMicroelectronics\stlink_server\stlinkserver.exe"
@@ -7907,18 +7907,18 @@ Generated commit message:
 
 Trice Root Folder File                                                                                                  | Details
 ------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------
-[.clang-format](../.clang-format)                                                                                       | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
-[.clang-format-ignore](../.clang-format-ignore)                                                                         | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
+[.clang-format](../.clang-format)                                                                                       | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format-yml-check-c-code-formatting)
+[.clang-format-ignore](../.clang-format-ignore)                                                                         | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format-yml-check-c-code-formatting)
 [.code_snippets](../.code_snippets)                                                                                     | Some legacy helper code for copying where to use
-[.editorconfig](../.editorconfig)                                                                                       | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
+[.editorconfig](../.editorconfig)                                                                                       | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format-yml-check-c-code-formatting)
 `.git/`                                                                                                                 | Git repository metadata (exists locally after cloning; not part of the repository content)
-[.gitattributes](../.gitattributes)                                                                                     | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
-[.github/](../.github/)                                                                                                 | [📁 The .github Folder — Purpose and Contents](#📁-the-.github-folder-—-purpose-and-contents)
+[.gitattributes](../.gitattributes)                                                                                     | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format-yml-check-c-code-formatting)
+[.github/](../.github/)                                                                                                 | [📁 The .github Folder — Purpose and Contents](#the-github-folder-purpose-and-contents)
 [.gitignore](../.gitignore)                                                                                             | git ignores these files
 [.goreleaser.yaml](../.goreleaser.yaml)                                                                                 | goreleaser configuration
 [.idea/](../.idea/)                                                                                                     | GoLand settings
-[lychee.toml](../lychee.toml)                                                                                           | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check.yml---broken-links-check)
-[.markdownlinkcheck.json](../.markdownlinkcheck.json)                                                                   | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check.yml---broken-links-check)
+[lychee.toml](../lychee.toml)                                                                                           | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check-yml-broken-links-check)
+[.markdownlinkcheck.json](../.markdownlinkcheck.json)                                                                   | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check-yml-broken-links-check)
 [.markdownlint.yaml](../.markdownlint.yaml)                                                                             | [Cleaning the Sources](#cleaning-the-sources)
 [.markdownlintignore](../.markdownlintignore)                                                                           | [Cleaning the Sources](#cleaning-the-sources)
 [.vscode/](../.vscode/)                                                                                                 | VS Code settings
@@ -7932,7 +7932,7 @@ Trice Root Folder File                                                          
 [_test](../_test)                                                                                                       | automatic target code tests
 [scripts/buildTriceTool.sh](../scripts/buildTriceTool.sh)                                                               | [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
 [scripts/_setup_build_environment.sh](../scripts/_setup_build_environment.sh)                                           | see inside
-[scripts/_format_c_code.sh](../scripts/_format_c_code.sh)                                                               | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
+[scripts/_format_c_code.sh](../scripts/_format_c_code.sh)                                                               | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format-yml-check-c-code-formatting)
 [scripts/_clean-dsstore.sh](../scripts/_clean-dsstore.sh)                                                               | Ru to remove macOS artifacts
 `temp/log/coverage.out`                                                                                                 | Go test coverage output
 [cmd/_cui/](../cmd/_cui)                                                                                                | (do not use) command user interface tryout code
@@ -7944,7 +7944,7 @@ Trice Root Folder File                                                          
 `dist/`                                                                                                                 | local distribution files folder created by goreleaser
 [docs](../docs)                                                                                                         | documentation folder with link forwarding
 [examples/](../examples)                                                                                                | example target projects
-[scripts/_format_dumeng_toc.sh](../scripts/_format_dumeng_toc.sh)                                                       | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-(or-any-`*.md`-file))
+[scripts/_refresh_trice_user_manual.sh](../scripts/_refresh_trice_user_manual.sh)                                       | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-or-any-md-file)
 [scripts/gitAddWorktreeFromGitLogLineData.sh](../scripts/gitAddWorktreeFromGitLogLineData.sh)                           | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside
 [scripts/gitAddWorktreesBetween.sh](../scripts/gitAddWorktreesBetween.sh)                                               | helper to get easy git worktree folders from any time range
 [scripts/gitLogWithBranches.sh](../scripts/gitLogWithBranches.sh)                                                       | helper to get easy a history view
@@ -8285,22 +8285,22 @@ These files are not executed; they simply inform GitHub how certain workflows be
  
 Github Action                                                             | About
 --------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------
-[clang-format.yml](../.github/workflows/clang-format.yml)                 | [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format.yml---check-c-code-formatting)
-[codeql.yml](../.github/workflows/codeql.yml)                             | [GitHub Action codeql.yml - Static Code Analysis](#github-action-codeql.yml---static-code-analysis)
-[coverage.yml](../.github/workflows/coverage.yml)                         | [GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverage.yml---test-coverage-and-coveralls-integration)
-[go.yml](../.github/workflows/go.yml)                                     | [GitHub Action go.yml - Building and Testing Go Code](#github-action-go.yml---building-and-testing-go-code)
-[goreleaser.yml](../.github/workflows/goreleaser.yml)                     | [GitHub Action goreleaser.yml - Build & Pack Trice Distribution](#github-action-goreleaser.yml---build-&-pack-trice-distribution)
-[greetings.yml](../.github/workflows/greetings.yml)                       | [GitHub Action greetings.yml - Greeting Message](#github-action-greetings.yml---greeting-message)
-[label.yml](../.github/workflows/label.yml)                               | [GitHub Action label.yml - Automatic Labeling Rules](#github-action-label.yml---automatic-labeling-rules)
-[learn-github-actions.yml](../.github/workflows/learn-github-actions.yml) | [GitHub Action learn-github-actions.yml - Instructional Workflow](#github-action-learn-github-actions.yml---instructional-workflow)
-[link-check.yml](../.github/workflows/link-check.yml)                     | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check.yml---broken-links-check)
-[manual.yml](../.github/workflows/manual.yml)                             | [GitHub Action manual.ym - To Be Triggered Manually](#github-action-manual.ym---to-be-triggered-manually)
-[shellcheck.yml](../.github/workflows/shellcheck.yml)                     | [GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs](#github-action-shellcheck.yml---catching-common-bash-scripts-bugs)
-[shfmt.yml](../.github/workflows/shfmt.yml)                               | [GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting](#github-action-shfmt.yml---ensure-consistent-shell-scripts-formatting)
-[stale.yml](../.github/workflows/stale.yml)                               | [GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-stale.yml---automatic-stale-issue-handling)
-[superlinter.ym](../.github/workflows/superlinter.yml)                    | [GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinter.yml---ensure-consistent-yaml-and-markdown-formatting)
-[pages.yml](../.github/workflows/pages.yml)                               | [Github Action pages.yml - Creates The Trice Github Pages](#github-action-pages.yml---creates-the-trice-github-pages)
-[test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)           | [Github Action test_goreleaser.yml - Checks If Goreleaser Would Succeed](#github-action-test_goreleaser.yml---checks-if-goreleaser-would-succeed)
+[clang-format.yml](../.github/workflows/clang-format.yml)                 | [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-format-yml-check-c-code-formatting)
+[codeql.yml](../.github/workflows/codeql.yml)                             | [GitHub Action codeql.yml - Static Code Analysis](#github-action-codeql-yml-static-code-analysis)
+[coverage.yml](../.github/workflows/coverage.yml)                         | [GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverage-yml-test-coverage-and-coveralls-integration)
+[go.yml](../.github/workflows/go.yml)                                     | [GitHub Action go.yml - Building and Testing Go Code](#github-action-go-yml-building-and-testing-go-code)
+[goreleaser.yml](../.github/workflows/goreleaser.yml)                     | [GitHub Action goreleaser.yml - Build & Pack Trice Distribution](#github-action-goreleaser-yml-build-pack-trice-distribution)
+[greetings.yml](../.github/workflows/greetings.yml)                       | [GitHub Action greetings.yml - Greeting Message](#github-action-greetings-yml-greeting-message)
+[label.yml](../.github/workflows/label.yml)                               | [GitHub Action label.yml - Automatic Labeling Rules](#github-action-label-yml-automatic-labeling-rules)
+[learn-github-actions.yml](../.github/workflows/learn-github-actions.yml) | [GitHub Action learn-github-actions.yml - Instructional Workflow](#github-action-learn-github-actions-yml-instructional-workflow)
+[link-check.yml](../.github/workflows/link-check.yml)                     | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-check-yml-broken-links-check)
+[manual.yml](../.github/workflows/manual.yml)                             | [GitHub Action manual.ym - To Be Triggered Manually](#github-action-manual-ym-to-be-triggered-manually)
+[shellcheck.yml](../.github/workflows/shellcheck.yml)                     | [GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs](#github-action-shellcheck-yml-catching-common-bash-scripts-bugs)
+[shfmt.yml](../.github/workflows/shfmt.yml)                               | [GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting](#github-action-shfmt-yml-ensure-consistent-shell-scripts-formatting)
+[stale.yml](../.github/workflows/stale.yml)                               | [GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-stale-yml-automatic-stale-issue-handling)
+[superlinter.ym](../.github/workflows/superlinter.yml)                    | [GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinter-yml-ensure-consistent-yaml-and-markdown-formatting)
+[pages.yml](../.github/workflows/pages.yml)                               | [Github Action pages.yml - Creates The Trice Github Pages](#github-action-pages-yml-creates-the-trice-github-pages)
+[test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)           | [Github Action test_goreleaser.yml - Checks If Goreleaser Would Succeed](#github-action-testgoreleaser-yml-checks-if-goreleaser-would-succeed)
 
 #### 44.2.3. <a id="github-action-clang-format-yml-check-c-code-formatting"></a>GitHub Action clang-format.yml - Check C Code Formatting
 
@@ -8447,7 +8447,7 @@ This workflow runs GoReleaser, the tool that builds and packages Trice for distr
 * **Local Action (developer machine):** `goreleaser`
 * **Github Action (Continuous Integration):** [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml)
 
-See also [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-**real**-trice-release-via-ci-(with-`git-tag`))
+See also [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-real-trice-release-via-ci-with-git-tag)
 
 #### 44.2.8. <a id="github-action-greetings-yml-greeting-message"></a>GitHub Action greetings.yml - Greeting Message
 
@@ -8547,19 +8547,25 @@ Test Goreleaser
     * Click in mouse context menu the entry "Format Document" to adjust Markdown tables.
   * Markdown Preview Enhanced
     * Click the preview button in the top right.
-  * Markdown TOC (dumeng)
-    * Make sure to have `numbering=true` and place the following code to the place where the table of contend should be generated.
+  * `mdtoc`
+    * The checked-in manual already contains the managed TOC container and persisted config. Keep these markers in place where the table of contents should be generated.
     ```md
-    <!-- vscode-markdown-toc-config
-	  numbering=true
-	  autoSave=true
-	  /vscode-markdown-toc-config -->
-    <!-- /vscode-markdown-toc -->
+    <!-- mdtoc -->
+    <!-- mdtoc-config
+    container-version=v2
+    numbering=true
+    min-level=2
+    max-level=4
+    anchor=github
+    toc=true
+    bullets=auto
+    state=stripped
+    -->
+    <!-- /mdtoc -->
     ```
-    * Use Shift-Command-P and select `markdownTOC:generate` to get the TOC with automatic numbering.
-      * If you do not place any configuration, the TOC is build at the document start.
-    * There are other TOC generators, but this one creates numbers for all headlines.
-    * We need to tweak the TOC a bit afterwards with `./scripts/_format_dumeng_toc.sh`, which also exhanges `<a name` with `<a id`.
+    * Run `./scripts/_refresh_trice_user_manual.sh format docs/TriceUserManual.md` to regenerate the TOC, numbering, and anchors with `mdtoc`.
+    * Run `./scripts/_refresh_trice_user_manual.sh check docs/TriceUserManual.md` to verify that the checked-in manual matches the persisted `mdtoc` state.
+    * The repository no longer uses a VS Code TOC extension for manual maintenance.
   * Markdown Paste (telesoho)
     * Helpful to get web site content preformatted as Markdown. Use mouse context menu.
   * markdownlint (David Anson)

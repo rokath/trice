@@ -35,6 +35,7 @@ type Spec struct {
 //
 //	%zu   -> %u
 //	%8lu  -> %8u
+//	%li   -> %d
 //	%016llX -> %016X
 //	%04Lf -> %04f
 //
@@ -103,11 +104,12 @@ func parseSpecifier(s string) (normalized string, spec Spec, width int, ok bool)
 	if !ok {
 		return "", Spec{}, 0, false
 	}
+	goConv := normalizedConversion(conv)
 
 	var b strings.Builder
 	b.Grow(i + 1)
 	b.WriteString(s[:i-lengthWidth])
-	b.WriteByte(conv)
+	b.WriteByte(goConv)
 	return b.String(), spec, i + 1, true
 }
 
@@ -154,6 +156,16 @@ func classify(length string, conv byte) (Spec, bool) {
 	default:
 		return Spec{}, false
 	}
+}
+
+func normalizedConversion(conv byte) byte {
+	// Go fmt uses %d for signed decimal integers and does not accept C's %i.
+	// Normalize %i together with length-modified forms such as %hi, %li or %lli
+	// so decoder output stays valid while preserving the signed-integer semantics.
+	if conv == 'i' {
+		return 'd'
+	}
+	return conv
 }
 
 func isIntegerLength(length string) bool {

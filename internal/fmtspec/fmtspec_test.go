@@ -18,6 +18,7 @@ func TestNormalizeSupportedRemainingCases(t *testing.T) {
 		kinds []Kind
 	}{
 		{name: "short signed", in: "%hd", out: "%d", kinds: []Kind{KindSigned}},
+		{name: "long signed i", in: "%li", out: "%d", kinds: []Kind{KindSigned}},
 		{name: "char unsigned", in: "%hhu", out: "%u", kinds: []Kind{KindUnsigned}},
 		{name: "intmax signed", in: "%jd", out: "%d", kinds: []Kind{KindSigned}},
 		{name: "ptrdiff signed", in: "%td", out: "%d", kinds: []Kind{KindSigned}},

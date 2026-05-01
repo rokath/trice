@@ -28,6 +28,7 @@ func Test_UReplaceN(t *testing.T) {
 		{"% x", "% x", []int{1}},
 		{"%u", "%d", []int{0}},
 		{"%d", "%d", []int{1}},
+		{"%i", "%d", []int{1}},
 		{"%d %u %f", "%d %d %f", []int{1, 0, 2}},
 	}
 	for i, x := range tt {
@@ -49,6 +50,7 @@ func Test_UReplaceNLengthModifiers(t *testing.T) {
 		u    []int
 	}{
 		{name: "long signed", fmt: "count=%ld", exp: "count=%d", u: []int{SignedFormatSpecifier}},
+		{name: "long signed i", fmt: "count=%li", exp: "count=%d", u: []int{SignedFormatSpecifier}},
 		{name: "size_t signed", fmt: "count=%zd", exp: "count=%d", u: []int{SignedFormatSpecifier}},
 		{name: "long long hex upper", fmt: "mask=%#016llX", exp: "mask=%#016X", u: []int{SignedFormatSpecifier}},
 		{name: "size_t hex lower", fmt: "mask=%zx", exp: "mask=%x", u: []int{SignedFormatSpecifier}},
