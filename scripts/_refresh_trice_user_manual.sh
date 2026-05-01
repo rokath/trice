@@ -7,16 +7,15 @@
 # Best-effort maintenance wrapper for docs/TriceUserManual.md.
 #
 # In format mode this script tries to:
-#   1. Ask VS Code + dumeng.markdown-toc to regenerate the manual TOC.
-#   2. Run the repository-owned TOC/anchor normalization script afterwards.
-#   3. Ask VS Code + yzane.markdown-pdf to export the manual PDF.
+#   1. Regenerate the manual TOC, numbering, and anchors with mdtoc.
+#   2. Ask VS Code + yzane.markdown-pdf to export the manual PDF.
 #
-# The VS Code driven steps are intentionally non-fatal:
-#   - If VS Code is not installed, the required extensions are missing,
+# The PDF export step is intentionally non-fatal:
+#   - If VS Code is not installed, the required extension is missing,
 #     or GUI automation is not available, the script prints an informational
 #     message and continues.
-#   - The repository-owned normalization step remains the authoritative
-#     formatting step and still runs in both format and check mode.
+#   - The repository-owned mdtoc step remains the authoritative formatting
+#     step and still runs in both format and check mode.
 #
 # The script currently performs command-palette automation only on macOS,
 # because that is the environment used in this repository and because the
@@ -24,16 +23,13 @@
 #
 # Important workflow detail
 # -------------------------
-# The VS Code extensions are not treated as the final authority on repository
-# formatting. They are best-effort generators:
-#   - dumeng.markdown-toc refreshes the TOC
-#   - yzane.markdown-pdf exports a local comparison PDF
+# The repository does not rely on editor extensions for TOC generation anymore.
+# mdtoc is the authoritative formatter for the checked-in manual and owns:
+#   - the TOC block
+#   - heading numbering
+#   - generated fragment anchors
 #
-# After the TOC regeneration step, the repository-owned
-# ./scripts/_format_dumeng_toc.sh script always re-applies the checked-in house
-# rules. This is intentional, because the desired TOC shape in this repository
-# differs slightly from the raw dumeng output: numbering belongs inside the link
-# text, and legacy anchor tags are normalized to "<a id=...>".
+# The VS Code extension step is kept only for local PDF export convenience.
 #
 # The local PDF generated here is only a developer-facing comparison artifact.
 # It may differ from the release PDF toolchain and is intentionally allowed to
@@ -56,8 +52,8 @@ cd "$SCRIPT_DIR/.."
 MODE="format"
 VERBOSE=0
 MANUAL_FILE="docs/TriceUserManual.md"
-VSCODE_COMMAND_TRIGGERED=0
 PDF_WAIT_TIMEOUT_SECONDS="${TRICE_USER_MANUAL_PDF_WAIT_SECONDS:-300}"
+PDF_EXPORT_TRIGGERED=0
 
 log_info() {
   printf '%s\n' "$*"
@@ -136,6 +132,13 @@ have_vscode_extension() {
   code --list-extensions 2>/dev/null | grep -Fxq "$extension_id"
 }
 
+require_mdtoc() {
+  if ! command -v mdtoc >/dev/null 2>&1; then
+    log_warn "Required formatter 'mdtoc' is not installed or not in PATH."
+    exit 1
+  fi
+}
+
 can_automate_vscode() {
   [[ "$OSTYPE" == darwin* ]] && command -v osascript >/dev/null 2>&1
 }
@@ -146,7 +149,7 @@ run_vscode_palette_command() {
   local command_title="$3"
   local description="$4"
 
-  VSCODE_COMMAND_TRIGGERED=0
+  PDF_EXPORT_TRIGGERED=0
 
   if ! command -v code >/dev/null 2>&1; then
     log_warn "Skipping ${description}: VS Code CLI 'code' is not installed."
@@ -192,7 +195,8 @@ APPLESCRIPT
   fi
 
   log_verbose "Triggered '${command_title}' for '$file_path'."
-  VSCODE_COMMAND_TRIGGERED=1
+  PDF_EXPORT_TRIGGERED=1
+  return 0
 }
 
 get_file_mtime() {
@@ -253,11 +257,16 @@ wait_for_file_update() {
 }
 
 update_manual_toc() {
-  run_vscode_palette_command \
-    "$MANUAL_FILE" \
-    "dumeng.markdown-toc" \
-    "markdownToc: generate" \
-    "manual TOC regeneration"
+  require_mdtoc
+
+  if [[ "$MODE" == "check" ]]; then
+    log_verbose "Checking manual TOC, numbering, and anchors with mdtoc..."
+    mdtoc check --file "$MANUAL_FILE"
+    return
+  fi
+
+  log_verbose "Regenerating manual TOC, numbering, and anchors with mdtoc..."
+  mdtoc regen --file "$MANUAL_FILE"
 }
 
 export_manual_pdf() {
@@ -276,7 +285,7 @@ export_manual_pdf() {
     "Markdown PDF: Export (pdf)" \
     "manual PDF export"
 
-  if [[ "$VSCODE_COMMAND_TRIGGERED" -eq 1 ]]; then
+  if [[ "$PDF_EXPORT_TRIGGERED" -eq 1 ]]; then
     log_verbose "Waiting up to ${PDF_WAIT_TIMEOUT_SECONDS}s for '$pdf_file' to be regenerated..."
     wait_for_file_update "$pdf_file" "$previous_mtime" "$previous_size" "$PDF_WAIT_TIMEOUT_SECONDS"
   fi
@@ -286,11 +295,7 @@ main() {
   parse_args "$@"
   require_manual_file
 
-  if [[ "$MODE" == "format" ]]; then
-    update_manual_toc
-  fi
-
-  "$SCRIPT_DIR/_format_dumeng_toc.sh" "$MODE" "$MANUAL_FILE"
+  update_manual_toc
 
   if [[ "$MODE" == "format" ]]; then
     export_manual_pdf
