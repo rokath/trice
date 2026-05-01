@@ -14,6 +14,7 @@
 * Do not refactor, rename, or reorganize unrelated code.
 * Avoid "drive-by" improvements outside the requested scope.
 * If additional improvements seem beneficial, propose them separately instead of applying them automatically.
+* Changes to `demo*.json` at the repository root are usually generated or local-test artifacts. Unless the user explicitly asks for them, ignore such worktree changes silently and do not treat them as part of the task.
 
 ---
 
