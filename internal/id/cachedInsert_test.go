@@ -160,10 +160,10 @@ func Test_26_27_1010X_insert_on_invalid_cCache_valid_iCache_cleaned_file(t *test
 
 	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-cache", "-til", FnJSON, "-li", LIFnJSON, "-IDMin", "999", "-IDMax", "999", "-src", SFName}))
 
-	assertFileContent(t, FSys, SFName, `trice(iD(999), "msg:value=%d\n", -1);`) // check for modified src file
-	assertFileContent(t, FSys, ICache, `trice(iD(999), "msg:value=%d\n", -1);`) // check for unchanged iCache
-	assertFileNotExists(t, FSys, CCache)                                        // check for not existing cCache
-	assert.NotEqual(t, iT0, mTime(t, FSys, ICache))                             // check for touched iCache
+	assertFileContent(t, FSys, SFName, `trice( iD(999), "msg:value=%d\n", -1);`) // check for modified src file
+	assertFileContent(t, FSys, ICache, `trice( iD(999), "msg:value=%d\n", -1);`) // check for unchanged iCache
+	assertFileNotExists(t, FSys, CCache)                                         // check for not existing cCache
+	assert.NotEqual(t, iT0, mTime(t, FSys, ICache))                              // check for touched iCache
 }
 
 // Test_28_11100_insert_on_valid_cCache_valid_iCache_cleaned_not_edited_file verifies the expected behavior.

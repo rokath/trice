@@ -28,8 +28,8 @@ func TestInsertIDsAndJSONDownward(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice(iD(20), "Lo!" );
-	TRice(iD(19), "Hi!" );
+	TRice( iD(20), "Lo!" );
+	TRice( iD(19), "Hi!" );
 	`
 	actSrc0, e := FSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -83,8 +83,8 @@ func TestInsertIDsAndJSONUpward(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice(iD(10), "Hi!" );
-	TRice(iD(11), "Hi!" );
+	TRice( iD(10), "Hi!" );
+	TRice( iD(11), "Hi!" );
 	`
 	actSrc0, e := FSys.ReadFile(fn0)
 	assert.Nil(t, e)
