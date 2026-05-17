@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+// TRICE_INSERT_OFF - Trice parser exclusion marker
+
 //! \file triceVariadic.h
 //! \brief trice Variadic declarations and macros.
 

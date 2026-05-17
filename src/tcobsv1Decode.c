@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+// TRICE_INSERT_OFF - Trice parser exclusion marker
+
 //! \file tcobsv1Decode.c
 //! \brief tcobsv 1 Decode implementation.
 

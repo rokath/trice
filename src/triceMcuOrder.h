@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+// TRICE_INSERT_OFF - Trice parser exclusion marker
+
 //! \file triceMcuOrder.h
 //! \brief trice Mcu Order declarations and macros.
 
