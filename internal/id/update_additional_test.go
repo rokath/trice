@@ -86,10 +86,9 @@ func TestReadFileAndRefreshIDs(t *testing.T) {
 	assert.Contains(t, out.String(), "already used differently")
 	_, exists := lim[123]
 	assert.False(t, exists)
-	_, exists = ilu[124]
-	assert.False(t, exists)
-	_, exists = lim[124]
-	assert.False(t, exists)
+	assert.Contains(t, ilu, TriceID(124))
+	assert.Contains(t, lim, TriceID(124))
+	assert.Equal(t, 2, lim[124].Line)
 }
 
 // TestRefreshListCollectsSourceFiles verifies recursive source refresh ignores non-source files.

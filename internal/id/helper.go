@@ -25,6 +25,111 @@ import (
 
 var SkipAdditionalChecks bool
 
+const (
+	triceInsertOffMarker = "TRICE_INSERT_OFF"
+	triceInsertOnMarker  = "TRICE_INSERT_ON"
+)
+
+// maskTriceInsertDisabledRegions blanks source regions between TRICE_INSERT_OFF
+// and TRICE_INSERT_ON markers while preserving byte offsets and line numbers.
+func maskTriceInsertDisabledRegions(s string) string {
+	var (
+		disabled    bool
+		inBlockCmnt bool
+		inLineCmnt  bool
+		inString    bool
+		inChar      bool
+		escaped     bool
+	)
+	out := []byte(s)
+	for i := 0; i < len(s); i++ {
+		if !inString && !inChar {
+			if hasMarkerAt(s, i, triceInsertOffMarker) {
+				disabled = true
+				i += len(triceInsertOffMarker) - 1
+				continue
+			}
+			if hasMarkerAt(s, i, triceInsertOnMarker) {
+				disabled = false
+				i += len(triceInsertOnMarker) - 1
+				continue
+			}
+		}
+
+		c := s[i]
+		if disabled && c != '\n' && c != '\r' {
+			out[i] = ' '
+		}
+
+		switch {
+		case inLineCmnt:
+			if c == '\n' {
+				inLineCmnt = false
+			}
+		case inBlockCmnt:
+			if c == '*' && i+1 < len(s) && s[i+1] == '/' {
+				if disabled {
+					out[i+1] = ' '
+				}
+				inBlockCmnt = false
+				i++
+			}
+		case inString:
+			if escaped {
+				escaped = false
+			} else if c == '\\' {
+				escaped = true
+			} else if c == '"' {
+				inString = false
+			}
+		case inChar:
+			if escaped {
+				escaped = false
+			} else if c == '\\' {
+				escaped = true
+			} else if c == '\'' {
+				inChar = false
+			}
+		default:
+			if c == '/' && i+1 < len(s) {
+				switch s[i+1] {
+				case '/':
+					if disabled {
+						out[i+1] = ' '
+					}
+					inLineCmnt = true
+					i++
+				case '*':
+					if disabled {
+						out[i+1] = ' '
+					}
+					inBlockCmnt = true
+					i++
+				}
+			} else if c == '"' {
+				inString = true
+			} else if c == '\'' {
+				inChar = true
+			}
+		}
+	}
+	return string(out)
+}
+
+func hasMarkerAt(s string, pos int, marker string) bool {
+	if !strings.HasPrefix(s[pos:], marker) {
+		return false
+	}
+	before := pos > 0 && isCIdentifierByte(s[pos-1])
+	afterPos := pos + len(marker)
+	after := afterPos < len(s) && isCIdentifierByte(s[afterPos])
+	return !before && !after
+}
+
+func isCIdentifierByte(b byte) bool {
+	return b == '_' || '0' <= b && b <= '9' || 'A' <= b && b <= 'Z' || 'a' <= b && b <= 'z'
+}
+
 // findClosingParentis returns the index of the closing parenthesis ')' that matches
 // an assumed opening parenthesis before the given startAt index in the string s.
 // It skips parentheses that appear inside double-quoted strings and correctly handles

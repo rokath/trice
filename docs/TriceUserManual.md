@@ -167,10 +167,11 @@ PDF Generation
 * [22. Trice ID management](#trice-id-management)
   * [22.1. Trice inside source code](#trice-inside-source-code)
     * [22.1.1. Trice in source code comments](#trice-in-source-code-comments)
-    * [22.1.2. Different IDs for same Trices](#different-ids-for-same-trices)
-    * [22.1.3. Same IDs for different Trices](#same-ids-for-different-trices)
-    * [22.1.4. ID Routing](#id-routing)
-    * [22.1.5. Possibility to create new tags without modifying trice tool source](#possibility-to-create-new-tags-without-modifying-trice-tool-source)
+    * [22.1.2. Trice parser exclusion markers](#trice-parser-exclusion-markers)
+    * [22.1.3. Different IDs for same Trices](#different-ids-for-same-trices)
+    * [22.1.4. Same IDs for different Trices](#same-ids-for-different-trices)
+    * [22.1.5. ID Routing](#id-routing)
+    * [22.1.6. Possibility to create new tags without modifying trice tool source](#possibility-to-create-new-tags-without-modifying-trice-tool-source)
 * [23. Trice version 1.0 Log-level Control](#trice-version-1-0-log-level-control)
   * [23.1. Trice version 1.0 Compile-time Log-level Control](#trice-version-1-0-compile-time-log-level-control)
   * [23.2. Trice version 1.0 Run-time Log-level Control](#trice-version-1-0-run-time-log-level-control)
@@ -2523,11 +2524,23 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 * During `trice insert` commented out Trice macros, are treated in the same way as active Trice macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability across several firmware versions or variants.
 * The trice tool does treat trice statements inside comments or excluded by compiler switches also.
 
-#### 22.1.2. <a id="different-ids-for-same-trices"></a>Different IDs for same Trices
+#### 22.1.2. <a id="trice-parser-exclusion-markers"></a>Trice parser exclusion markers
+
+Use `TRICE_INSERT_OFF` and `TRICE_INSERT_ON` markers to exclude a source section from `trice insert`, `trice clean`, `trice add` and ID refresh parsing.
+
+```C
+// TRICE_INSERT_OFF
+TRice("This text is ignored by the trice tool.");
+// TRICE_INSERT_ON
+```
+
+The markers are case-sensitive, can be written as comments or empty macros, and affect only the Trice tool parser. `TRICE_INSERT_OFF` without a following `TRICE_INSERT_ON` disables Trice parsing until the end of the file. This is useful for Trice target sources or other source sections containing Trice-like comments or helper macros that should not create or change IDs.
+
+#### 22.1.3. <a id="different-ids-for-same-trices"></a>Different IDs for same Trices
 
 * When the same Trice is used several times with identical IDs, after copying, and `trice insert` is called, only one ID survives in the source code. The other Trices get assigned new IDs. Otherwise the location information would not be correct everywhere.
 
-#### 22.1.3. <a id="same-ids-for-different-trices"></a>Same IDs for different Trices
+#### 22.1.4. <a id="same-ids-for-different-trices"></a>Same IDs for different Trices
 
 * If duplicate ID's with different format strings found inside the source tree (case several developers or source code merging) one ID is replaced by a new ID. The probability for such case is low, because of the default random ID generation.
 * Also you can simply copy a Trice statement and modify it without dealing with the ID.
@@ -2535,11 +2548,11 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 * That is done silently for you during the next `trice insert`.
 * When you use the [Trice Cache](#trice-cache), the IDs are invisible and all happens in the background automatically.
 
-#### 22.1.4. <a id="id-routing"></a>ID Routing
+#### 22.1.5. <a id="id-routing"></a>ID Routing
 
 With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags-color-and-log-levels) can get a specific ID range assigned and inside the project specific *triceConfig.h* the user can control, which ID range is routed to specific output channels. Search for `_MIN_ID` inside **triceDefaultConfig.h** and extend your search than for example `TRICE_UARTA_MIN_ID` to explore how to use.
 
-#### 22.1.5. <a id="possibility-to-create-new-tags-without-modifying-trice-tool-source"></a>Possibility to create new tags without modifying trice tool source
+#### 22.1.6. <a id="possibility-to-create-new-tags-without-modifying-trice-tool-source"></a>Possibility to create new tags without modifying trice tool source
 
 According to the demand in [541](https://github.com/rokath/trice/issues/541) a CLI switch `-ulabel` exists now.
 
