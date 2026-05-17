@@ -253,20 +253,29 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 
 // toFile writes lut into file fn as indented JSON and in verbose mode helpers for third party.
 func (ilu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
-	var fJSON afero.File
-	fJSON, err = fSys.Create(fn)
-	msg.FatalOnErr(err)
-	defer func() {
-		err = fJSON.Close()
-		msg.FatalOnErr(err)
-	}()
 	var b []byte
 	b, err = ilu.toJSON()
-	msg.FatalOnErr(err)
-	_, err = fJSON.Write(b)
-	msg.FatalOnErr(err)
-	/////////
-	return
+	if err != nil {
+		return err
+	}
+	fJSON, err := fSys.Create(fn)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		closeErr := fJSON.Close()
+		if err == nil {
+			err = closeErr
+		}
+	}()
+	n, err := fJSON.Write(b)
+	if err != nil {
+		return err
+	}
+	if n != len(b) {
+		return io.ErrShortWrite
+	}
+	return nil
 }
 
 // reverseS returns a reversed map. If different triceID's assigned to several equal TriceFmt all of the TriceID gets it into flu.
@@ -288,18 +297,28 @@ func addID(tF TriceFmt, id TriceID, flu triceFmtLookUp) {
 
 // toFile writes lut into file fn as indented JSON.
 func (lim TriceIDLookUpLI) toFile(fSys afero.Fs, fn string) (err error) {
+	b, err := lim.toJSON()
+	if err != nil {
+		return err
+	}
 	f0, err := fSys.Create(fn)
-	msg.FatalOnErr(err)
+	if err != nil {
+		return err
+	}
 	defer func() {
-		err = f0.Close()
-		msg.FatalOnErr(err)
+		closeErr := f0.Close()
+		if err == nil {
+			err = closeErr
+		}
 	}()
 
-	b, err := lim.toJSON()
-	msg.FatalOnErr(err)
-
-	_, err = f0.Write(b)
-	msg.FatalOnErr(err)
+	n, err := f0.Write(b)
+	if err != nil {
+		return err
+	}
+	if n != len(b) {
+		return io.ErrShortWrite
+	}
 
 	return
 }
