@@ -14,7 +14,6 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/pkg/ant"
-	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
 
@@ -174,12 +173,14 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 	}
 }
 
-// postProcessing
-func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) {
+// postProcessing writes changed ID state after all source files were processed successfully.
+func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) error {
 	// til.json
 	idsAdded := len(p.idToTrice) - p.idInitialCount
 	if idsAdded > 0 && !DryRun {
-		msg.FatalOnErr(p.idToTrice.toFile(fSys, FnJSON))
+		if err := p.idToTrice.toFile(fSys, FnJSON); err != nil {
+			return err
+		}
 	}
 	if Verbose {
 		fmt.Fprintln(w, idsAdded, "ID's added, now", len(p.idToTrice), "ID's in", FnJSON, "file.")
@@ -191,16 +192,21 @@ func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) {
 		for k, v := range p.idToLocNew {
 			p.idToLocRef[k] = v
 		}
-		msg.FatalInfoOnErr(p.idToLocRef.toFile(fSys, LIFnJSON), "could not write LIFnJSON")
+		if err := p.idToLocRef.toFile(fSys, LIFnJSON); err != nil {
+			return fmt.Errorf("could not write %s: %w", LIFnJSON, err)
+		}
 	}
 	if Verbose {
 		fmt.Fprintln(w, len(p.idToLocRef), "ID's in source code and now in", LIFnJSON, "file.")
 	}
+	return nil
 }
 
 // cmdSwitchTriceIDs performs action (triceIDCleaning or triceIDInsertion) between preProcessing and postProcessing.
 // This is done implicit by calling a.Walk for all source tree files, each in a separate Go routine.
 func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) error {
+	p.err = nil
+
 	// initialize
 	a := new(ant.Admin)
 	a.Action = action
@@ -212,8 +218,13 @@ func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Pr
 	// process
 	p.PreProcessing(w, fSys)
 	err := a.Walk(w, fSys)
-	p.postProcessing(w, fSys)
-	return err
+	if err != nil {
+		return err
+	}
+	if p.err != nil {
+		return p.err
+	}
+	return p.postProcessing(w, fSys)
 }
 
 // EvaluateIDRangeStrings reads the -IDRange strings and fills the IDData.IDSpace accordingly.

@@ -2,7 +2,7 @@
 
 > 🅃🅁ace 🄸d's for 🄲 🄴mbedded
 
-[View Github Pages](https://rokath.github.io/trice/)
+[View GitHub Pages](https://rokath.github.io/trice/)
 
 <a id="top"> </a>
 
@@ -52,10 +52,10 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ### How it works
 
-1. Use Trice macros instead of `printf` in your firmware (or use the `trice i -alias` option)
-2. Each log message is replaced by a compact ID  
-3. The target sends only IDs and data  
-4. The host reconstructs the original messages using the Trice ID list  
+1. Use Trice macros instead of `printf` in your firmware (or use the `trice i -alias` option).
+2. At build time, Trice assigns each log message a compact ID while the user source code stays unchanged.
+3. The target device sends only IDs and data.
+4. The host reconstructs the original messages using the Trice ID list.
 
 ```diff
 - printf("Temperature: %d°C", t);
@@ -115,15 +115,17 @@ trice log -p JLINK -args "-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0"
 
 Or use the file-based RTT logger workflow manually:
 
+**Terminal 1** (remove any old log file and create the file):
+
 ```bash
-# Terminal 1
 rm -f ./temp/trice.bin
+touch ./temp/trice.bin
 JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
 ```
 
+**Terminal 2**:
+
 ```bash
-# Terminal 2
-touch ./temp/trice.bin
 trice log -p FILE -args ./temp/trice.bin -pf none -prefix off -hs off -d16 -ts ms -i ./til.json -li ./li.json
 ```
 
@@ -183,7 +185,7 @@ This simplified [diagram](https://github.com/jgraph/drawio) shows how Trice work
 ## Display Server
 
 - Start `trice ds` in a console on your local PC or a remote PC. Then connect several **trice** tool instances using commands like `trice log -p COM15 -ds`
-- This allows to see the Trice logs of several devices line-by-line intermixed in one terminal.
+- This allows you to see the Trice logs of several devices line-by-line intermixed in one terminal.
 
 ## Documentation
 

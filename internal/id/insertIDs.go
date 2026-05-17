@@ -148,7 +148,7 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 			err = evaluateTriceParameterCount(t, line+linesOffset, rest[loc[6]:])
 			if err != nil {
 				fmt.Fprintln(w, path, err)
-				os.Exit(-1) // return here for successful TestInsertIDsForNewTrice2 (but will let fail other tests)
+				return
 			}
 		}
 		if loc[3] != loc[4] { // iD(n) found

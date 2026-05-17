@@ -240,7 +240,7 @@ func TestInsertKnownID2(t *testing.T) {
 	expSrc1 := `
 	printk(iD(77), "%x", 123 );
 	log(iD(55), "msg:value=%d\n", 123 );
-	AST(iD(66), 0 == 1, "that is wrong" )
+	AST( iD(66), 0 == 1, "that is wrong" )
 	`
 	actSrc1, e := FSys.ReadFile("file1.c")
 	assert.Nil(t, e)
@@ -372,14 +372,14 @@ func TestInsert99(t *testing.T) {
 	expSrc1 := `
 	TRice(iD(999), "x" ); 
 	TRice(iD(998), "x" );
-	TRice(iD(997), "x" );
+	TRice( iD(997), "x" );
 	TRice(iD(996), "x" );
 	TRice(iD(995), "x" );
-	TRice(iD(994), "x" );
+	TRice( iD(994), "x" );
 	TRice(iD(993), "x" );
-	TRice(iD(992), "x" );
+	TRice(  iD(992), "x" );
 	TRICE(ID(991), "%x", 1)
-	TRICE(Id(990), "%x", 1)
+	TRICE(  Id(990), "%x", 1)
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -418,9 +418,9 @@ func TestInsert99w(t *testing.T) {
 	TRice( iD( 995 ), "x" );
 	TRice( iD( 994 ), "x" );
 	TRice( iD( 993 ), "x" );
-	TRice( iD( 992 ), "x" );
+	TRice(  iD( 992 ), "x" );
 	TRICE( ID( 991 ), "%x", 1)
-	TRICE( Id( 990 ), "%x", 1)
+	TRICE(  Id( 990 ), "%x", 1)
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -443,7 +443,7 @@ func TestInsert11(t *testing.T) {
 
 	// check modified src file1
 	expSrc1 := `
-	TRice(iD(999), "x" );TRice(iD(998), "x" );
+	TRice(   iD(999), "x" );TRice(iD(998), "x" );
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -468,7 +468,7 @@ func TestInsert2(t *testing.T) {
 
 	// check modified src file
 	expSrc := `
-	break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );
+	break; case __LINE__: TRice(  iD(999), "msg:value=%d\n", -1  );
 	break; case __LINE__: TRice(iD(998), "msg:value=%d\n", -1  );
 	`
 	actSrc, e := FSys.ReadFile(sFn)
