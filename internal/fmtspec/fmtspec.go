@@ -26,6 +26,7 @@ const (
 // Spec describes one parsed and normalized format specifier.
 type Spec struct {
 	Kind Kind
+	Verb byte
 }
 
 // Normalize rewrites valid C length-modified format specifiers to a length-free
@@ -104,6 +105,7 @@ func parseSpecifier(s string) (normalized string, spec Spec, width int, ok bool)
 	if !ok {
 		return "", Spec{}, 0, false
 	}
+	spec.Verb = conv
 	goConv := normalizedConversion(conv)
 
 	var b strings.Builder
