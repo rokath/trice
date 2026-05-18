@@ -352,6 +352,61 @@ func isSAliasEncodedString(s string) bool {
 	return strings.HasPrefix(s, SAliasStrgPrefix) && strings.HasSuffix(s, SAliasStrgSuffix)
 }
 
+func triceValueBitWidth(typeName string, paramCount int) int {
+	upper := strings.ToUpper(typeName)
+	for _, width := range []int{64, 32, 16, 8} {
+		if strings.Contains(upper, strconv.Itoa(width)) {
+			return width
+		}
+	}
+	if paramCount == 0 {
+		return 0
+	}
+	width, err := strconv.Atoi(DefaultTriceBitWidth)
+	if err != nil {
+		return 32
+	}
+	return width
+}
+
+func validateTriceFloatArguments(t TriceFmt, specs []fmtspec.Spec, args []string) error {
+	bitWidth := triceValueBitWidth(t.Type, len(specs))
+	for i, arg := range args {
+		if isTopLevelCall(arg, "aDouble") && bitWidth != 64 {
+			return fmt.Errorf("%v uses aDouble() argument %d with a non-64-bit Trice macro", t, i+1)
+		}
+	}
+	for i, spec := range specs {
+		if spec.Kind != fmtspec.KindFloat {
+			continue
+		}
+		arg := args[i]
+		switch {
+		case isTopLevelCall(arg, "aDouble"):
+			if bitWidth != 64 {
+				return fmt.Errorf("%v uses aDouble() argument %d with a non-64-bit Trice macro", t, i+1)
+			}
+		case isTopLevelCall(arg, "aFloat"):
+			if bitWidth < 32 {
+				return fmt.Errorf("%v uses aFloat() argument %d with a Trice macro below 32 bit", t, i+1)
+			}
+		default:
+			return fmt.Errorf("%v float format specifier %d requires aFloat() or aDouble()", t, i+1)
+		}
+	}
+	return nil
+}
+
+func isTopLevelCall(expr, name string) bool {
+	expr = strings.TrimSpace(expr)
+	prefix := name + "("
+	if !strings.HasPrefix(expr, prefix) {
+		return false
+	}
+	closing := findClosingParentis(expr, len(prefix))
+	return closing == len(expr)-1
+}
+
 // evaluateTriceParameterCount analyzes rest, if it has the correct parameter count according to t.
 // rest starts immediately after the trice format string and can be very long (the remaining file context),
 // but we check only until the trice end and return nil if the evaluation is ok.
@@ -367,10 +422,11 @@ func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) 
 	//     triceB( "dbg: %02X\n", buf, sizeof(buf));
 	//     trice16F( "rpc:AFunctionName", buf, sizeof(buf));
 	//     trice( "%d", SUM(3,4));
-	cnt, err := countColonsUntilClosingBracket(rest)
+	args, err := splitTriceParametersUntilClosingBracket(rest)
 	if err != nil {
 		return fmt.Errorf("malformed Trice parameter list after format string: %w", err)
 	}
+	cnt := len(args)
 	category := triceTypeCategory(t.Type)
 	switch category {
 	case "S": // expect one colon followed by a string and a closing bracket
@@ -429,6 +485,9 @@ func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) 
 		if fsc != cnt {
 			return fmt.Errorf("line %d format specifier count %d != parameter count %d for %v", line, fsc, cnt, t)
 		}
+		if err := validateTriceFloatArguments(t, specs, args); err != nil {
+			return fmt.Errorf("line %d %w", line, err)
+		}
 	}
 	return
 }
@@ -438,33 +497,73 @@ func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) 
 // If there is in rest a starting string, all until the string end is ignored.
 // If there is in rest a opening bracket, all until the next matching closing bracket is ignored.
 func countColonsUntilClosingBracket(rest string) (count int, e error) {
-	s := rest
-restart:
-	for i, c := range s {
+	args, err := splitTriceParametersUntilClosingBracket(rest)
+	return len(args), err
+}
+
+func splitTriceParametersUntilClosingBracket(rest string) (args []string, err error) {
+	start := -1
+	depth := 0
+	inString := false
+	inChar := false
+	escaped := false
+
+	for i := 0; i < len(rest); i++ {
+		c := rest[i]
+		switch {
+		case escaped:
+			escaped = false
+			continue
+		case inString:
+			if c == '\\' {
+				escaped = true
+			} else if c == '"' {
+				inString = false
+			}
+			continue
+		case inChar:
+			if c == '\\' {
+				escaped = true
+			} else if c == '\'' {
+				inChar = false
+			}
+			continue
+		}
+
 		switch c {
 		case '"':
-			loc := matchStringLiteral(s[i:])
-			if loc == nil {
-				return count, errors.New("invalid string literal before closing bracket")
-			}
-			s = s[i:]
-			s = s[loc[1]:]
-			goto restart
+			inString = true
+		case '\'':
+			inChar = true
 		case '(':
-			s = s[i+1:] // cut off including '('
-			pos, e := matchBracketLiteral(s)
-			if e != nil {
-				return count, errors.New("invalid nested parentheses before closing bracket")
-			}
-			s = s[pos+1:] // cut off including ')'
-			goto restart
-		case ',':
-			count++
+			depth++
 		case ')':
-			return count, nil
+			if depth > 0 {
+				depth--
+				continue
+			}
+			if start >= 0 {
+				args = append(args, strings.TrimSpace(rest[start:i]))
+			}
+			return args, nil
+		case ',':
+			if depth != 0 {
+				continue
+			}
+			if start >= 0 {
+				args = append(args, strings.TrimSpace(rest[start:i]))
+			}
+			start = i + 1
 		}
 	}
-	return count, errors.New("no matching closing bracket found")
+	switch {
+	case inString:
+		return args, errors.New("invalid string literal before closing bracket")
+	case depth > 0:
+		return args, errors.New("invalid nested parentheses before closing bracket")
+	default:
+		return args, errors.New("no matching closing bracket found")
+	}
 }
 
 func formatTriceInsertParseError(sourcePath, source string, line, contextStartLine int, err error) string {

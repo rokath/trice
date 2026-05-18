@@ -87,6 +87,30 @@ func TestIssue563EvaluateFormatAndCountMisuse(t *testing.T) {
 			rest:       `, buf, sizeof(buf));`,
 			wantErrSub: "string format specifier outside triceS/triceN",
 		},
+		{
+			name:       "float specifier requires helper",
+			tf:         TriceFmt{Type: "TRICE", Strg: "value=%f"},
+			rest:       `, value);`,
+			wantErrSub: "requires aFloat() or aDouble()",
+		},
+		{
+			name:       "float specifier rejects too small macro width",
+			tf:         TriceFmt{Type: "TRICE16_1", Strg: "value=%f"},
+			rest:       `, aFloat(value));`,
+			wantErrSub: "below 32 bit",
+		},
+		{
+			name:       "aDouble requires 64-bit macro",
+			tf:         TriceFmt{Type: "TRICE32_1", Strg: "value=%f"},
+			rest:       `, aDouble(value));`,
+			wantErrSub: "non-64-bit",
+		},
+		{
+			name:       "aDouble is rejected on non-float specifier in non-64-bit macro",
+			tf:         TriceFmt{Type: "TRICE32_1", Strg: "bits=%x"},
+			rest:       `, aDouble(value));`,
+			wantErrSub: "non-64-bit",
+		},
 	}
 
 	for _, tt := range tests {
@@ -113,6 +137,9 @@ func TestIssue563EvaluateFormatAndCountValidCases(t *testing.T) {
 		{name: "hex string macro", tf: TriceFmt{Type: "triceS", Strg: "msg=% x"}, rest: `, text);`},
 		{name: "counted string macro", tf: TriceFmt{Type: "TRICE_N", Strg: "msg=%s"}, rest: `, text, length);`},
 		{name: "buffer macro", tf: TriceFmt{Type: "TRICE8_B", Strg: "%02x"}, rest: `, buf, sizeof(buf));`},
+		{name: "float macro with aFloat", tf: TriceFmt{Type: "TRICE", Strg: "value=%f"}, rest: `, aFloat(value));`},
+		{name: "float macro with aDouble", tf: TriceFmt{Type: "TRICE64_1", Strg: "value=%g"}, rest: `, aDouble(value));`},
+		{name: "aFloat bit pattern output stays valid", tf: TriceFmt{Type: "TRICE32_1", Strg: "bits=%08x"}, rest: `, aFloat(value));`},
 	}
 
 	for _, tt := range tests {
@@ -160,4 +187,41 @@ func TestIssue563AliasInsertUsesRegularFormatChecks(t *testing.T) {
 	assert.Nil(t, out)
 	assert.False(t, modified)
 	assert.Contains(t, w.String(), "string format specifier outside triceS/triceN")
+}
+
+func TestIssue563SplitTriceParametersUntilClosingBracket(t *testing.T) {
+	tests := []struct {
+		name string
+		rest string
+		want []string
+	}{
+		{
+			name: "plain parameters",
+			rest: `, a, b);`,
+			want: []string{"a", "b"},
+		},
+		{
+			name: "nested calls and strings",
+			rest: `, aFloat(SUM(1, 2)), "a,b", call(")"));`,
+			want: []string{`aFloat(SUM(1, 2))`, `"a,b"`, `call(")")`},
+		},
+		{
+			name: "no parameters",
+			rest: `);`,
+			want: nil,
+		},
+		{
+			name: "legacy trailing comma count",
+			rest: `, a, b, );`,
+			want: []string{"a", "b", ""},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := splitTriceParametersUntilClosingBracket(tt.rest)
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }
