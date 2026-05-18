@@ -42,7 +42,7 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 	// msg.Tell(w, path)
 
 	lip := ToLIPath(path)
-	out, modified, err := p.insertTriceIDs(w, lip, in, a)
+	out, modified, err := p.insertTriceIDs(w, path, lip, in, a)
 	p.join(err)
 
 	if filepath.Base(path) == "triceConfig.h" && p.err == nil {
@@ -77,8 +77,8 @@ func removeIDFromSlice(ids []TriceID, id TriceID) []TriceID {
 
 // insertTriceIDs does the ID insertion task on in and returns the result in out with modified==true when out != in.
 //
-// in is the read file path content and out is the file content which needs to be written.
-// a is used for mutex access to IDData. path is needed for location information.
+// in is the read sourcePath content and out is the file content which needs to be written.
+// a is used for mutex access to IDData. sourcePath is needed for diagnostics, liPath for location information.
 // insertTriceIDs is intended to be used in several Go routines (one for each file) for faster ID insertion.
 // Data usage:
 // - p.idToTrice is the serialized til.json. It is extended with unknown and new IDs and written back to til.json finally.
@@ -93,15 +93,15 @@ func removeIDFromSlice(ids []TriceID, id TriceID) []TriceID {
 // insertTriceIDs parses the file content from the beginning for the next trice statement, deals with it and continues until the file content end.
 // When a trice statement was found, general cases are:
 // - idInSourceIsNonZero, id is inside p.idToTrice with matching trice and inside p.triceToId -> use ID (remove from p.triceToId)
-//   - If trice is assigned to several IDs, the location information consulted. If a matching path exists, its first occurrence is used.
+//   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
 //
 // - idInSourceIsNonZero, id is inside p.idToTrice with matching trice and not in p.triceToId -> used ID! -> create new ID && invalidate ID in source
 // - idInSourceIsNonZero, id is inside p.idToTrice with different trice                       -> used ID! -> create new ID && invalidate ID in source
 // - idInSourceIsNonZero, id is not inside p.idToTrice (cannot be inside p.triceToId)         -> add ID to p.idToTrice
 // - idInSourceIsZero,    trice is not inside p.triceToId                                     -> create new ID & add ID to p.idToTrice
 // - idInSourceIsZero,    trice is is inside p.triceToId                                      -> unused ID -> use ID (remove from p.triceToId)
-//   - If trice is assigned to several IDs, the location information consulted. If a matching path exists, its first occurrence is used.
-func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+//   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
+func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liPath string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID                              // idn is the last found id inside the source.
 	var idN TriceID                              // idN is the to be written id into the source.
 	var idS string                               // idS is the "iD(n)" statement, if found.
@@ -122,6 +122,7 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 		if loc == nil {
 			break // done
 		}
+		triceStartLine := line + strings.Count(rest[:loc[0]], "\n")
 		line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information. // issue # 523
 
 		t.Type = rest[loc[0]:loc[1]] // token is an alias or it can be the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
@@ -147,7 +148,7 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 			linesOffset := 0 //strings.Count(rest[:loc[6]], "\n") // issue # 523
 			err = evaluateTriceParameterCount(t, line+linesOffset, rest[loc[6]:])
 			if err != nil {
-				fmt.Fprintln(w, path, err)
+				fmt.Fprintln(w, formatTriceInsertParseError(sourcePath, string(in), line+linesOffset, triceStartLine, err))
 				return
 			}
 		}
@@ -180,7 +181,7 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 			}
 		}
 		if Verbose {
-			fmt.Fprintln(w, "Trice", t, "with ID", idn, "found in source file", path, ".")
+			fmt.Fprintln(w, "Trice", t, "with ID", idn, "found in source file", sourcePath, ".")
 		}
 		// Example cases are:
 		// - trice( "foo", ... );           --> idn =   0, loc[3] == loc[4]
@@ -231,7 +232,7 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 				}
 				break
 			}
-			filenameMatch = path == ToLIPath(li.File)
+			filenameMatch = liPath == ToLIPath(li.File)
 
 			if !filenameMatch {
 				if Verbose {
@@ -329,7 +330,7 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 		//line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information. // issue #523
 		if idN != idn {
 			if Verbose {
-				fmt.Fprintln(w, "Need to change source.", idn, " -> ", idN, " for ", t, "in file", path)
+				fmt.Fprintln(w, "Need to change source.", idn, " -> ", idN, " for ", t, "in file", sourcePath)
 			}
 			outs, delta = writeID(outs, offset, loc, t, idN)
 			offset += delta
@@ -337,9 +338,9 @@ func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admi
 		}
 		a.Mutex.Lock()
 		if Verbose {
-			fmt.Fprintln(w, "Add to new location information. ID:", idN, path, line)
+			fmt.Fprintln(w, "Add to new location information. ID:", idN, liPath, line)
 		}
-		p.idToLocNew[idN] = TriceLI{path, line}
+		p.idToLocNew[idN] = TriceLI{liPath, line}
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information. // issue #523
 		rest = rest[loc[6]:]

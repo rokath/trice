@@ -26,8 +26,10 @@ import (
 var SkipAdditionalChecks bool
 
 const (
-	triceInsertOffMarker = "TRICE_INSERT_OFF"
-	triceInsertOnMarker  = "TRICE_INSERT_ON"
+	triceInsertOffMarker        = "TRICE_INSERT_OFF"
+	triceInsertOnMarker         = "TRICE_INSERT_ON"
+	triceDiagnosticContextLines = 6
+	triceDiagnosticMaxLineRunes = 240
 )
 
 // maskTriceInsertDisabledRegions blanks source regions between TRICE_INSERT_OFF
@@ -310,7 +312,7 @@ func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) 
 	//     trice( "%d", SUM(3,4));
 	cnt, err := countColonsUntilClosingBracket(rest)
 	if err != nil {
-		return err
+		return fmt.Errorf("malformed Trice parameter list after format string: %w", err)
 	}
 	lastChar := t.Type[len(t.Type)-1:]
 	switch lastChar {
@@ -368,7 +370,7 @@ restart:
 		case '"':
 			loc := matchStringLiteral(s[i:])
 			if loc == nil {
-				return count, errors.New("invalid:" + rest)
+				return count, errors.New("invalid string literal before closing bracket")
 			}
 			s = s[i:]
 			s = s[loc[1]:]
@@ -377,7 +379,7 @@ restart:
 			s = s[i+1:] // cut off including '('
 			pos, e := matchBracketLiteral(s)
 			if e != nil {
-				return count, fmt.Errorf("invalid:%s", rest)
+				return count, errors.New("invalid nested parentheses before closing bracket")
 			}
 			s = s[pos+1:] // cut off including ')'
 			goto restart
@@ -387,7 +389,64 @@ restart:
 			return count, nil
 		}
 	}
-	return count, errors.New("no matching closing bracket found in: " + rest)
+	return count, errors.New("no matching closing bracket found")
+}
+
+func formatTriceInsertParseError(sourcePath, source string, line, contextStartLine int, err error) string {
+	if line < 1 {
+		line = 1
+	}
+	from, to, context := sourceLineContext(source, contextStartLine, triceDiagnosticContextLines)
+	if context == "" {
+		return fmt.Sprintf("%s:%d: %v", sourcePath, line, err)
+	}
+	if from == to {
+		return fmt.Sprintf("%s:%d: %v\n%s:%d:\n%s", sourcePath, line, err, sourcePath, from, context)
+	}
+	return fmt.Sprintf("%s:%d: %v\n%s:%d-%d:\n%s", sourcePath, line, err, sourcePath, from, to, context)
+}
+
+func sourceLineContext(source string, startLine, maxLines int) (from, to int, context string) {
+	if source == "" || maxLines <= 0 {
+		return 0, 0, ""
+	}
+	if startLine < 1 {
+		startLine = 1
+	}
+	lines := strings.Split(source, "\n")
+	if len(lines) > 1 && lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
+	}
+	if len(lines) == 0 {
+		return 0, 0, ""
+	}
+	if startLine > len(lines) {
+		startLine = len(lines)
+	}
+	endLine := startLine + maxLines - 1
+	if endLine > len(lines) {
+		endLine = len(lines)
+	}
+	width := len(strconv.Itoa(endLine))
+	var b strings.Builder
+	for line := startLine; line <= endLine; line++ {
+		if b.Len() > 0 {
+			b.WriteByte('\n')
+		}
+		fmt.Fprintf(&b, "%*d | %s", width, line, shortenDiagnosticLine(lines[line-1], triceDiagnosticMaxLineRunes))
+	}
+	return startLine, endLine, b.String()
+}
+
+func shortenDiagnosticLine(s string, maxRunes int) string {
+	if maxRunes <= 0 {
+		return ""
+	}
+	runes := []rune(s)
+	if len(runes) <= maxRunes {
+		return s
+	}
+	return string(runes[:maxRunes]) + " ..."
 }
 
 // writeID inserts id into s according to loc information and returns the result together with the changed len.

@@ -145,7 +145,7 @@ func TestEvaluateTriceParameterCountBranchErrors(t *testing.T) {
 			name:       "regular macro propagates parse errors",
 			tf:         TriceFmt{Type: "TRICE", Strg: "%d"},
 			rest:       `, fn(`,
-			wantErrSub: "invalid:",
+			wantErrSub: "invalid nested parentheses",
 		},
 	}
 
@@ -164,7 +164,7 @@ func TestEvaluateTriceParameterCountBranchErrors(t *testing.T) {
 func TestCountColonsUntilClosingBracketErrors(t *testing.T) {
 	_, err := countColonsUntilClosingBracket(`, "unterminated );`)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid:")
+	assert.Contains(t, err.Error(), "invalid string literal")
 
 	_, err = countColonsUntilClosingBracket(`, call(abc);`)
 	require.Error(t, err)
