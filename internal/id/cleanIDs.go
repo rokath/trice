@@ -65,15 +65,15 @@ func (p *idData) processTriceIDCleaning(w io.Writer, fSys *afero.Afero, path str
 // If an ID is inside til.json referencing to a different trice, it is set to 0 inside in.
 // All valid IDs are used to build a new li.json file.
 func (p *idData) cleanTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
-	var idn TriceID    // idn is the last found id inside the source.
-	var idS string     // idS is the "iD(n)" statement, if found.
-	var ignore bool    // ignore gets true if a found trice statement is skipped.
-	rest := string(in) // rest is the so far not processed part of the file.
-	outs := rest       // outs is the resulting string.
-	var offset int     // offset is incremented by n, when rest is reduced by n.
-	var delta int      // offset change cause by ID statement insertion
-	var t TriceFmt     // t is the actual located trice.
-	line := 1          // line counts source code lines, these start with 1.
+	var idn TriceID                              // idn is the last found id inside the source.
+	var idS string                               // idS is the "iD(n)" statement, if found.
+	var ignore bool                              // ignore gets true if a found trice statement is skipped.
+	outs := string(in)                           // outs is the resulting string.
+	rest := maskTriceInsertDisabledRegions(outs) // rest is the so far not processed part of the file.
+	var offset int                               // offset is incremented by n, when rest is reduced by n.
+	var delta int                                // offset change cause by ID statement insertion
+	var t TriceFmt                               // t is the actual located trice.
+	line := 1                                    // line counts source code lines, these start with 1.
 	if p.err != nil {
 		return
 	}

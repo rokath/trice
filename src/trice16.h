@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+// TRICE_INSERT_OFF - Trice parser exclusion marker
+
 //! \file trice16.h
 //! \brief trice 16 declarations and macros.
 

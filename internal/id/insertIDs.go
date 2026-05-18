@@ -102,15 +102,15 @@ func removeIDFromSlice(ids []TriceID, id TriceID) []TriceID {
 // - idInSourceIsZero,    trice is is inside p.triceToId                                      -> unused ID -> use ID (remove from p.triceToId)
 //   - If trice is assigned to several IDs, the location information consulted. If a matching path exists, its first occurrence is used.
 func (p *idData) insertTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
-	var idn TriceID    // idn is the last found id inside the source.
-	var idN TriceID    // idN is the to be written id into the source.
-	var idS string     // idS is the "iD(n)" statement, if found.
-	rest := string(in) // rest is the so far not processed part of the file.
-	outs := rest       // outs is the resulting string.
-	var offset int     // offset is incremented by n, when rest is reduced by n.
-	var delta int      // offset change cause by ID statement insertion
-	var t TriceFmt     // t is the actual located trice.
-	line := 1          // line counts source code lines, these start with 1.
+	var idn TriceID                              // idn is the last found id inside the source.
+	var idN TriceID                              // idN is the to be written id into the source.
+	var idS string                               // idS is the "iD(n)" statement, if found.
+	outs := string(in)                           // outs is the resulting string.
+	rest := maskTriceInsertDisabledRegions(outs) // rest is the so far not processed part of the file.
+	var offset int                               // offset is incremented by n, when rest is reduced by n.
+	var delta int                                // offset change cause by ID statement insertion
+	var t TriceFmt                               // t is the actual located trice.
+	line := 1                                    // line counts source code lines, these start with 1.
 	if p.err != nil {
 		return
 	}

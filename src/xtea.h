@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+// TRICE_INSERT_OFF - Trice parser exclusion marker
+
 //! \file xtea.h
 //! \brief xtea declarations and macros.
 

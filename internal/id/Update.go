@@ -153,22 +153,32 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found idType) {
 
 // refreshIDs parses text for valid trices tf and adds them to ilu & flu and updates location information map lim.
 func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu triceFmtLookUp, lim TriceIDLookUpLI) {
-	subs := text[:] // create a copy of text and assign it to subs
-	line := 1       // source code lines start with 1 for some reason
+	subs := maskTriceInsertDisabledRegions(text) // create a copy of text and assign it to subs
+	line := 1                                    // source code lines start with 1 for some reason
 	var li TriceLI
 	li.File = filepath.Base(fileName)
 	for {
-		loc := matchNbTRICE.FindStringSubmatchIndex(subs) // find the next TRICE location in file
+		loc := matchTrice(subs) // find the next TRICE location in file
 		if nil == loc {
 			return // done
 		}
 		line += strings.Count(subs[:loc[0]], "\n")
-		nbTRICE := subs[loc[0]:loc[1]] // full trice expression with Id(n)
-		// prepare subs for next loop
-		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
-		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
+		if loc[3] == loc[4] {
+			line += strings.Count(subs[loc[0]:loc[6]], "\n")
+			subs = subs[loc[6]:]
+			continue
+		}
 
-		_, id, tf, _ /*found*/ := triceParse(nbTRICE)
+		_, id, _ /*found*/ := triceIDParse(subs[loc[3]:loc[4]])
+		tf := TriceFmt{Type: subs[loc[0]:loc[1]]}
+		resolveTriceAlias(&tf)
+		if tf.isSAlias() {
+			tf.Strg = SAliasStrgPrefix + subs[loc[5]:loc[6]] + SAliasStrgSuffix
+		} else if loc[5] < loc[6] && subs[loc[5]] == '"' {
+			tf.Strg = subs[loc[5]+1 : loc[6]-1]
+		} else {
+			tf.Strg = subs[loc[5]:loc[6]]
+		}
 		tfS := tf
 
 		// In ilu id could point to a different tf. So we need to check that and invalidate id in that case.
@@ -190,6 +200,8 @@ func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu trice
 			ilu[id] = tf
 			addID(tfS, id, flu)
 		}
+		line += strings.Count(subs[loc[0]:loc[6]], "\n")
+		subs = subs[loc[6]:]
 	}
 }
 

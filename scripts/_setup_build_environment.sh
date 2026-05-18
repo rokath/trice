@@ -217,14 +217,15 @@ export_clang_cross_env() {
   include_dirs=$(collect_arm_clang_include_dirs)
 
   # Only auto-export CLANG_GCC_TOOLCHAIN on platforms where that setup is
-  # known to be helpful. On macOS and Windows hosts we keep it unset by
-  # default because auto-injecting --gcc-toolchain caused noisy multilib
-  # warnings although the build itself was otherwise valid.
+  # known to be helpful. Keep it unset by default because auto-injecting
+  # --gcc-toolchain can cause noisy host-specific Clang warnings although the
+  # build itself is otherwise valid.
   #
   # Rationale:
   # - The Clang build already gets the required ARM headers via CLANG_SYS_INCLUDES.
   # - Auto-injecting --gcc-toolchain caused host-specific warnings such as
-  #   "-Wmultilib-not-found" although the build itself was otherwise valid.
+  #   "-Wmultilib-not-found" or "-Wunused-command-line-argument" although the
+  #   build itself was otherwise valid.
   # - The Makefiles still support an explicit CLANG_GCC_TOOLCHAIN override from the
   #   outer environment or CI when a setup really needs it.
   #
@@ -274,7 +275,10 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 
   # On Linux we usually want to enable parallel builds.
   export MAKE_JOBS="-j"
-  export_clang_cross_env 1
+
+  # Clang receives the required ARM include paths separately. Let users or CI
+  # opt into CLANG_GCC_TOOLCHAIN explicitly if their Linux setup needs it.
+  export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   log_info "Detected platform: macOS (OSTYPE=$OSTYPE)"
