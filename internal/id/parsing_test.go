@@ -177,7 +177,7 @@ func TestInsertAndProcessEarlyErrorReturns(t *testing.T) {
 	expected := errors.New("stop early")
 	p := &idData{err: expected}
 
-	out, modified, err := p.insertTriceIDs(&bytes.Buffer{}, "demo.c", []byte(`TRICE("x");`), &ant.Admin{})
+	out, modified, err := p.insertTriceIDs(&bytes.Buffer{}, "demo.c", "demo.c", []byte(`TRICE("x");`), &ant.Admin{})
 	require.NoError(t, err)
 	assert.Nil(t, out)
 	assert.False(t, modified)
