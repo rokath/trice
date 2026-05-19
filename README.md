@@ -6,7 +6,7 @@
 
 <a id="top"> </a>
 
-## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
+ ## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
 
 ---
 
@@ -33,6 +33,46 @@
 ![ ](./docs/ref/life0.gif) <!-- ([S>G](https://www.screentogif.com/)) -->
 
 **Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)
+
+<details markdown="1"> <!-- parse this block as markdown -->
+<summary><strong style="font-size: 1.25em;">Overview</strong> <span style="font-size: 0.66em;">(click to expand)</span></summary>
+
+<!-- mdtoc -->
+
+- [What is Trice?](#what-is-trice)
+  - [Key Benefits](#key-benefits)
+  - [How it works](#how-it-works)
+  - [Result](#result)
+  - [Two Parts of Trice](#two-parts-of-trice)
+- [Quickstart: First RTT Log with J-Link](#quickstart-first-rtt-log-with-j-link)
+- [When to Use Trice](#when-to-use-trice)
+  - [Logging and Debugging](#logging-and-debugging)
+  - [Data Compression](#data-compression)
+  - [FLASH Memory Storage](#flash-memory-storage)
+  - [Encryption](#encryption)
+  - [Translation](#translation)
+  - [Timing Analysis](#timing-analysis)
+- [How Trice Works (UART Example)](#how-trice-works-uart-example)
+- [Data Transfer Options](#data-transfer-options)
+  - [Implemented Transfer Methods](#implemented-transfer-methods)
+  - [Other Transfer Options](#other-transfer-options)
+- [Display Server](#display-server)
+- [Documentation](#documentation)
+- [Debugging with VS Code and Clang](#debugging-with-vs-code-and-clang)
+- [Trice Cache](#trice-cache)
+  - [When to Use Cache](#when-to-use-cache)
+  - [How Cache Works](#how-cache-works)
+  - [Important Note](#important-note)
+- [Which Mode Should You Use?](#which-mode-should-you-use)
+- [Project Status](#project-status)
+- [Future Plans](#future-plans)
+- [Support the Project](#support-the-project)
+- [Similar Projects](#similar-projects)
+
+<!-- numbering=false min=2 max=4 slug=github anchor=false link=true toc=true bullets=auto -->
+<!-- /mdtoc -->
+
+</details>
 
 ## What is Trice?
 
@@ -77,7 +117,7 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ***Ready to use:*** [Start with Trice](./docs/TriceUserManual.md#start-with-trice)
 
-## Quickstart: First RTT Log with J-Link
+## Quickstart: First RTT Log with J-Link <img src="./docs/ref/trice_log_icon_128x128.png" width="64">
 
 Install the `trice` tool. Use a [latest release binary](https://github.com/rokath/trice/releases/latest) and put it into your `PATH`.
 
@@ -286,7 +326,6 @@ Trice is fully usable.
 - [McuLog (McuOnEclipse)](https://mcuoneclipse.com/2020/06/01/mculog-logging-framework-for-small-embedded-microcontroller-systems/)
 - [MCUViewer](https://github.com/klonyyy/MCUViewer)
 - [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding) (part of firmware SDK)
-<!-- - [Metal Serial Library](https://github.com/metal-ci/_test/tree/master/doc/metal.serial.md) -->
 - [Minimal Structured Logging for Autonomous Vehicles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog (C++11)](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [Percepio Tracealyzer (with TraceRecorder)](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
@@ -300,6 +339,8 @@ Trice is fully usable.
 - [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications)
 - [uLog (RD Poor)](https://github.com/rdpoor/ulog)
 - [Zephyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
+
+<!-- - [Metal Serial Library](https://github.com/metal-ci/_test/tree/master/doc/metal.serial.md) -->
 
 Additional comparison material:
 

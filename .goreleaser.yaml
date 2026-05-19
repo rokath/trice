@@ -1,5 +1,7 @@
 version: 2
 
+project_name: trice
+
 # This is an example .goreleaser.yaml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
 before:
@@ -199,6 +201,82 @@ archives:
         dst: src
         strip_parent: true
 
+brews:
+  - ids:
+      - trice-tool
+    name: trice
+    repository:
+      owner: rokath
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/rokath/trice
+    description: Embedded logging tool for low-overhead C/C++ target logs.
+    license: MIT
+    directory: Formula
+    commit_author:
+      name: github-actions[bot]
+      email: 41898282+github-actions[bot]@users.noreply.github.com
+    install: |
+      bin.install "trice"
+    test: |
+      system "#{bin}/trice", "version"
+
+nfpms:
+  - id: trice-deb
+    ids:
+      - trice-64bit
+    formats:
+      - deb
+    package_name: trice
+    file_name_template: "{{ .PackageName }}_{{ .Version }}_{{ .Arch }}"
+    vendor: rokath
+    homepage: https://github.com/rokath/trice
+    maintainer: rokath
+    description: >-
+      Embedded logging tool for low-overhead C/C++ target logs.
+    license: MIT
+    section: utils
+    priority: optional
+    bindir: /usr/bin
+    contents:
+      - src: LICENSE.md
+        dst: /usr/share/doc/trice/copyright
+  - id: trice-rpm
+    ids:
+      - trice-64bit
+    formats:
+      - rpm
+    package_name: trice
+    file_name_template: "{{ .PackageName }}_{{ .Version }}_{{ .Arch }}"
+    vendor: rokath
+    homepage: https://github.com/rokath/trice
+    maintainer: rokath
+    description: >-
+      Embedded logging tool for low-overhead C/C++ target logs.
+    license: MIT
+    bindir: /usr/bin
+    contents:
+      - src: LICENSE.md
+        dst: /usr/share/licenses/trice/LICENSE.md
+  - id: trice-apk
+    ids:
+      - trice-64bit
+    formats:
+      - apk
+    package_name: trice
+    file_name_template: "{{ .PackageName }}_{{ .Version }}_{{ .Arch }}"
+    vendor: rokath
+    homepage: https://github.com/rokath/trice
+    maintainer: rokath
+    description: >-
+      Embedded logging tool for low-overhead C/C++ target logs.
+    license: MIT
+    bindir: /usr/bin
+    contents:
+      - src: LICENSE.md
+        dst: /usr/share/licenses/trice/LICENSE.md
+
 release:
   # The generated PDF is uploaded as a standalone release asset so it stays
   # platform-independent and does not bloat every platform-specific tool archive.
@@ -207,6 +285,10 @@ release:
   # pipeline itself in temp/. That keeps the repository free of generated
   # binaries while still giving the release workflow a standalone PDF asset.
   footer: |
+    ### Homebrew
+
+    Install via Homebrew: `brew install rokath/tap/trice`
+
     ### macOS
 
     If Gatekeeper blocks the downloaded tool, remove the quarantine flag from

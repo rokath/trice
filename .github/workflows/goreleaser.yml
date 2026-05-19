@@ -12,6 +12,12 @@ on:
   #   tags:
   #     - 'v*'          # e.g. v0.1.0, v1.2.3
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: write
+
 jobs:
   goreleaser:
     name: Run GoReleaser
@@ -48,7 +54,7 @@ jobs:
           distribution: goreleaser
           # Install the latest GoReleaser release.
           # For fully reproducible builds you can pin a specific version here.
-          version: latest
+          version: "~> v2"
           # "release --clean" is the modern equivalent of "--rm-dist":
           # it removes the dist/ directory before building, so you never
           # accidentally ship stale artifacts from a previous run.
@@ -58,6 +64,9 @@ jobs:
           # GoReleaser uses it to create or update the GitHub Release and
           # upload the build artifacts (archives, checksums, etc.).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Cross-repository Homebrew tap publishing needs a dedicated token
+          # with contents:write on rokath/homebrew-tap.
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
           # Node.js is installed above because the GoReleaser "before" hook now
           # generates the manual PDF headlessly in temp/ before packaging.
           # You previously had DEFAULT_BRANCH here; GoReleaser does not
