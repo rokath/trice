@@ -118,7 +118,9 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ***Ready to use:*** [Start with Trice](./docs/TriceUserManual.md#start-with-trice)
 
-## Quickstart: First RTT Log with J-Link <img src="./docs/ref/trice_log_icon_128x128.png" width="64">
+## Quickstart: First RTT Log with J-Link
+
+![Trice log icon](./docs/ref/trice_log_icon_128x128.png)
 
 Install the `trice` tool. Use a [latest release binary](https://github.com/rokath/trice/releases/latest) and put it into your `PATH`.
 

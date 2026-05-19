@@ -71,6 +71,7 @@ main() {
   run_step "_testAll_05_MarkdownLint.sh" || failed=1
   run_step "_testAll_06_LinkCheck.sh" || failed=1
   run_step "_testAll_06a_GoReleaser.sh" || failed=1
+  run_step "_testAll_06b_ActionLint.sh" || failed=1
   run_step "_testAll_07_GoCoverage.sh" || failed=1
   run_step "_testAll_08_RuntimePrepare.sh" || failed=1
   run_step "_testAll_09_GoTests.sh" || failed=1

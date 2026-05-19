@@ -22,6 +22,16 @@ INPUT_MD="docs/TriceUserManual.md"
 
 cd "$REPO_ROOT"
 
+# Reuse an already-generated release PDF when it is newer than the source
+# manual. This keeps local snapshot checks working in offline environments
+# after the release PDF has been generated once. CI still regenerates from
+# scratch in a fresh workspace.
+if [[ -s "$TEMP_PDF" && "$TEMP_PDF" -nt "$INPUT_MD" ]]; then
+  mkdir -p -- "$TEMP_DOC_DIR"
+  cp -f -- "$TEMP_PDF" "$TEMP_DOC_PDF"
+  exit 0
+fi
+
 if ! command -v npx >/dev/null 2>&1; then
   echo "ERROR: npx is required to generate the release manual PDF." >&2
   echo "Install Node.js locally or run this step in the GitHub release workflow." >&2
