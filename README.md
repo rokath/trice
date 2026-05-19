@@ -6,8 +6,9 @@
 
 <a id="top"> </a>
 
- ## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
-
+<!-- mdtoc off -->
+## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
+<!-- mdtoc on -->
 ---
 
 **Trice** is an ultra-low-overhead logging framework for embedded C/C++. It provides printf-like usability with only ~6–100 CPU cycles per log call, making logging practical even when used from interrupt handlers in real-time firmware systems.
