@@ -113,7 +113,7 @@ snapshot:
   # Default is `{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}`.
   #name_template: 1.2.3-SNAPSHOT-{{.Commit}}
   #name_template: "{{ .Tag }}-next"
-  #name_template: "{{ incpatch .Version }}-next"
+  name_template: "{{ incpatch .Version }}-next"
 
 # You can customize how the changelog is generated using the changelog section in the config file
 changelog:

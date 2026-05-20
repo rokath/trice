@@ -27,6 +27,7 @@ cd "$REPO_ROOT"
 # after the release PDF has been generated once. CI still regenerates from
 # scratch in a fresh workspace.
 if [[ -s "$TEMP_PDF" && "$TEMP_PDF" -nt "$INPUT_MD" ]]; then
+  echo "Reusing existing release manual PDF: $TEMP_PDF ($(wc -c <"$TEMP_PDF") bytes)"
   mkdir -p -- "$TEMP_DOC_DIR"
   cp -f -- "$TEMP_PDF" "$TEMP_DOC_PDF"
   exit 0
@@ -38,6 +39,8 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
+echo "Generating release manual PDF from $INPUT_MD"
+echo "Output PDF: $TEMP_PDF"
 mkdir -p -- "$TEMP_DOC_DIR"
 cp -f -- "$INPUT_MD" "$TEMP_MD"
 ln -sfn "../../../docs/ref" "$TEMP_REF_LINK"
@@ -82,3 +85,9 @@ npx -y md-to-pdf@5.2.4 \
   --launch-options '{"args":["--no-sandbox"]}'
 
 cp -f -- "$TEMP_DOC_PDF" "$TEMP_PDF"
+if [[ ! -s "$TEMP_PDF" ]]; then
+  echo "ERROR: expected release manual PDF is missing or empty: $TEMP_PDF" >&2
+  find "$TEMP_ROOT" -maxdepth 4 -type f -print 2>/dev/null | sort >&2 || true
+  exit 1
+fi
+echo "Generated release manual PDF: $TEMP_PDF ($(wc -c <"$TEMP_PDF") bytes)"

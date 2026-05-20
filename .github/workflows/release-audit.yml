@@ -27,15 +27,57 @@ jobs:
           set -euo pipefail
           tag="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Auditing release tag: $tag"
           mkdir -p release-assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'trice_tool_linux_amd64.tar.gz' --dir release-assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'trice_tool_darwin_amd64.tar.gz' --dir release-assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'trice_tool_windows_amd64.zip' --dir release-assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'trice_target_sources_*.zip' --dir release-assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'trice_*_amd64.deb' --dir release-assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'trice_*_amd64.rpm' --dir release-assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'trice_*_amd64.apk' --dir release-assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'TriceUserManual.pdf' --dir release-assets
+
+          download_required() {
+            local pattern="$1"
+            echo "Downloading required release asset pattern: $pattern"
+            if ! gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern "$pattern" --dir release-assets; then
+              echo "::error::failed to download required release asset pattern: $pattern"
+              echo "::group::Assets visible on release $tag"
+              gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' || true
+              echo "::endgroup::"
+              exit 1
+            fi
+          }
+
+          require_glob() {
+            local pattern="$1"
+            local matches=()
+            shopt -s nullglob
+            matches=( release-assets/$pattern )
+            shopt -u nullglob
+            if [ "${#matches[@]}" -eq 0 ]; then
+              echo "::error::no downloaded release asset matches: $pattern"
+              find release-assets -maxdepth 1 -type f -printf '%s %p\n' | sort || true
+              exit 1
+            fi
+            printf 'OK downloaded: %s\n' "$pattern"
+            printf '  %s\n' "${matches[@]}"
+          }
+
+          download_required 'trice_tool_linux_amd64.tar.gz'
+          download_required 'trice_tool_darwin_amd64.tar.gz'
+          download_required 'trice_tool_windows_amd64.zip'
+          download_required 'trice_target_sources_*.zip'
+          download_required 'trice_*_amd64.deb'
+          download_required 'trice_*_amd64.rpm'
+          download_required 'trice_*_amd64.apk'
+          download_required 'TriceUserManual.pdf'
+
+          require_glob 'trice_tool_linux_amd64.tar.gz'
+          require_glob 'trice_tool_darwin_amd64.tar.gz'
+          require_glob 'trice_tool_windows_amd64.zip'
+          require_glob 'trice_target_sources_*.zip'
+          require_glob 'trice_*_amd64.deb'
+          require_glob 'trice_*_amd64.rpm'
+          require_glob 'trice_*_amd64.apk'
+          require_glob 'TriceUserManual.pdf'
+
+          echo "::group::Downloaded release assets"
+          find release-assets -maxdepth 1 -type f -printf '%s %p\n' | sort
+          echo "::endgroup::"
 
       - name: Upload release assets for audit jobs
         uses: actions/upload-artifact@v7
@@ -213,7 +255,12 @@ jobs:
         run: |
           set -euo pipefail
           package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.deb' -print -quit)"
-          test -n "$package"
+          if [ -z "$package" ]; then
+            echo "::error::missing Debian package artifact"
+            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+            exit 1
+          fi
+          echo "Installing Debian package: $package"
           sudo dpkg -i "$package"
           test -x /usr/bin/trice
 
@@ -267,7 +314,12 @@ jobs:
         run: |
           set -euo pipefail
           package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.rpm' -print -quit)"
-          test -n "$package"
+          if [ -z "$package" ]; then
+            echo "::error::missing RPM package artifact"
+            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+            exit 1
+          fi
+          echo "Installing RPM package: $package"
           dnf install -y "$package"
           test -x /usr/bin/trice
 
@@ -321,7 +373,12 @@ jobs:
         run: |
           set -eu
           package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.apk' -print -quit)"
-          test -n "$package"
+          if [ -z "$package" ]; then
+            echo "missing APK package artifact" >&2
+            find artifacts -maxdepth 2 -type f -print | sort || true
+            exit 1
+          fi
+          echo "Installing APK package: $package"
           apk add --allow-untrusted "$package"
           test -x /usr/bin/trice
 
@@ -398,10 +455,19 @@ jobs:
         run: |
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
-          test -n "$source_zip"
+          if [ -z "$source_zip" ]; then
+            echo "::error::missing target source archive"
+            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+            exit 1
+          fi
+          echo "Using target source archive: $source_zip"
           unzip -q "$source_zip" -d artifacts/target
           source_root="$(find artifacts/target -maxdepth 1 -type d -name 'trice_target_sources_*' -print -quit)"
-          test -n "$source_root"
+          if [ -z "$source_root" ]; then
+            echo "::error::could not locate unpacked target source root"
+            find artifacts/target -maxdepth 3 -type f -printf '%s %p\n' | sort || true
+            exit 1
+          fi
           test -s "$source_root/src/trice.h"
           test -s "$source_root/src/trice.c"
           cat > "$source_root/src/triceConfig.h" <<'EOF'
@@ -437,6 +503,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s artifacts/TriceUserManual.pdf
+          if [ ! -s artifacts/TriceUserManual.pdf ]; then
+            echo "::error::missing or empty TriceUserManual.pdf artifact"
+            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+            exit 1
+          fi
           size="$(wc -c < artifacts/TriceUserManual.pdf)"
-          test "$size" -gt 100000
+          echo "TriceUserManual.pdf size: $size bytes"
+          if [ "$size" -le 100000 ]; then
+            echo "::error::TriceUserManual.pdf looks too small: $size bytes"
+            exit 1
+          fi

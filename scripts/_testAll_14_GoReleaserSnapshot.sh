@@ -14,12 +14,49 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 ROOT_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
 
+dump_release_artifact_context() {
+  log "INFO: generated files under ./dist and ./temp/release:"
+  if [ -d "$DIST_DIR" ]; then
+    find "$DIST_DIR" -maxdepth 4 -type f -print 2>/dev/null | sort | while IFS= read -r line; do
+      log "INFO: $line"
+    done
+  else
+    log "INFO: ./dist does not exist"
+  fi
+  if [ -d "$ROOT_DIR/temp/release" ]; then
+    find "$ROOT_DIR/temp/release" -maxdepth 4 -type f -print 2>/dev/null | sort | while IFS= read -r line; do
+      log "INFO: $line"
+    done
+  else
+    log "INFO: ./temp/release does not exist"
+  fi
+}
+
 verify_release_artifact() {
   local artifact="$1"
   if [ ! -s "$artifact" ]; then
-    log "FAIL: missing release artifact: $artifact"
+    log "FAIL: missing or empty release artifact: $artifact"
+    dump_release_artifact_context
     exit 1
   fi
+  log "OK: $artifact ($(wc -c <"$artifact") bytes)"
+}
+
+verify_release_glob() {
+  local pattern="$1"
+  local matches=()
+  shopt -s nullglob
+  matches=( $pattern )
+  shopt -u nullglob
+  if [ "${#matches[@]}" -eq 0 ]; then
+    log "FAIL: no release artifact matches: $pattern"
+    dump_release_artifact_context
+    exit 1
+  fi
+  log "OK: $pattern"
+  printf '%s\n' "${matches[@]}" | while IFS= read -r match; do
+    log "OK:   $match"
+  done
 }
 
 verify_snapshot_layout() {
@@ -35,18 +72,9 @@ verify_snapshot_layout() {
     exit 1
   fi
 
-  if ! compgen -G "$DIST_DIR/trice_*_amd64.deb" >/dev/null; then
-    log "FAIL: missing Debian package in ./dist/"
-    exit 1
-  fi
-  if ! compgen -G "$DIST_DIR/trice_*_amd64.rpm" >/dev/null; then
-    log "FAIL: missing RPM package in ./dist/"
-    exit 1
-  fi
-  if ! compgen -G "$DIST_DIR/trice_*_amd64.apk" >/dev/null; then
-    log "FAIL: missing APK package in ./dist/"
-    exit 1
-  fi
+  verify_release_glob "$DIST_DIR/trice_*_amd64.deb"
+  verify_release_glob "$DIST_DIR/trice_*_amd64.rpm"
+  verify_release_glob "$DIST_DIR/trice_*_amd64.apk"
 }
 
 smoke_test_linux_archive() {
@@ -137,18 +165,20 @@ main() {
     exit 1
   }
 
-  if [ -f "$ROOT_DIR/temp/release/TriceUserManual.pdf" ]; then
-    run_cmd mkdir -p "$ROOT_DIR/dist" || {
-      log "FAIL: could not ensure ./dist/ exists for the local manual PDF copy"
-      exit 1
-    }
-    run_cmd cp -f "$ROOT_DIR/temp/release/TriceUserManual.pdf" "$ROOT_DIR/dist/TriceUserManual.pdf" || {
-      log "FAIL: could not copy the generated manual PDF into ./dist/"
-      exit 1
-    }
-  else
-    log "WARN: temp/release/TriceUserManual.pdf was not generated; dist/ will not contain the manual PDF"
+  if [ ! -s "$ROOT_DIR/temp/release/TriceUserManual.pdf" ]; then
+    log "FAIL: temp/release/TriceUserManual.pdf was not generated or is empty"
+    dump_release_artifact_context
+    exit 1
   fi
+
+  run_cmd mkdir -p "$ROOT_DIR/dist" || {
+    log "FAIL: could not ensure ./dist/ exists for the local manual PDF copy"
+    exit 1
+  }
+  run_cmd cp -f "$ROOT_DIR/temp/release/TriceUserManual.pdf" "$ROOT_DIR/dist/TriceUserManual.pdf" || {
+    log "FAIL: could not copy the generated manual PDF into ./dist/"
+    exit 1
+  }
 
   verify_snapshot_layout
   smoke_test_linux_archive
