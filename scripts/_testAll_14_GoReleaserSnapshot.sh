@@ -46,7 +46,7 @@ verify_release_glob() {
   local pattern="$1"
   local matches=()
   shopt -s nullglob
-  matches=( $pattern )
+  matches=($pattern)
   shopt -u nullglob
   if [ "${#matches[@]}" -eq 0 ]; then
     log "FAIL: no release artifact matches: $pattern"
