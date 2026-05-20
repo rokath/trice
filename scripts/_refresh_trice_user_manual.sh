@@ -266,7 +266,7 @@ update_manual_toc() {
   fi
 
   log_verbose "Regenerating manual TOC, numbering, and anchors with mdtoc..."
-  mdtoc regen --file "$MANUAL_FILE"
+  mdtoc generate --file "$MANUAL_FILE"
 }
 
 export_manual_pdf() {
