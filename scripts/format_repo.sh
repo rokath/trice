@@ -21,6 +21,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 main() {
   echo "$SCRIPT_DIR/_refresh_trice_user_manual.sh" "$@" && "$SCRIPT_DIR/_refresh_trice_user_manual.sh" "$@"
+  echo "$SCRIPT_DIR/_generate_trice_user_manual_release_pdf.sh" "$@" && "$SCRIPT_DIR/_generate_trice_user_manual_release_pdf.sh" "$@"
   echo "$SCRIPT_DIR/_format_shell_scripts.sh" "$@" && "$SCRIPT_DIR/_format_shell_scripts.sh" "$@"
   echo "$SCRIPT_DIR/_format_go_code.sh" "$@" && "$SCRIPT_DIR/_format_go_code.sh" "$@"
   echo "$SCRIPT_DIR/../trice_cleanIDs_in_examples_and_test_folder.sh" && "$SCRIPT_DIR/../trice_cleanIDs_in_examples_and_test_folder.sh"
