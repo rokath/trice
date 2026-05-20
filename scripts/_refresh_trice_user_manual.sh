@@ -165,8 +165,7 @@ parse_args() {
   done
 
   case "$PDF_ENGINE" in
-  cli | vscode | none)
-    ;;
+  cli | vscode | none) ;;
   *)
     log_error "Unsupported PDF engine: $PDF_ENGINE"
     log_error "Expected one of: cli, vscode, none."

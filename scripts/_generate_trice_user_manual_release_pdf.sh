@@ -1,56 +1,68 @@
 #!/usr/bin/env bash
 #
-# Generates the release PDF for the Trice user manual without touching
-# docs/TriceUserManual.pdf in the working tree. A dedicated temp/ tree is used
-# so the release-PDF preparation can adjust print-specific details such as an
-# expanded table of contents, header/footer, and image paths without modifying
-# the repository sources.
+# Build the release PDF for docs/TriceUserManual.md.
+#
+# The generated release asset is:
+#
+#   temp/release/TriceUserManual.pdf
+#
+# The script intentionally works in temp/release/ so it does not overwrite the
+# local comparison PDF docs/TriceUserManual.pdf.
 
-set -eu
+set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
+INPUT_MD="docs/TriceUserManual.md"
+INPUT_REF_DIR="docs/ref"
+
 TEMP_ROOT="temp/release"
 TEMP_DOC_DIR="$TEMP_ROOT/docs"
 TEMP_MD="$TEMP_DOC_DIR/TriceUserManual.md"
+TEMP_REF_DIR="$TEMP_DOC_DIR/ref"
 TEMP_DOC_PDF="$TEMP_DOC_DIR/TriceUserManual.pdf"
 TEMP_PDF="$TEMP_ROOT/TriceUserManual.pdf"
-TEMP_REF_LINK="$TEMP_DOC_DIR/ref"
 TEMP_CONFIG_JS="$TEMP_ROOT/md-to-pdf.config.js"
-INPUT_MD="docs/TriceUserManual.md"
 
 cd "$REPO_ROOT"
 
-# Reuse an already-generated release PDF when it is newer than the source
-# manual. This keeps local snapshot checks working in offline environments
-# after the release PDF has been generated once. CI still regenerates from
-# scratch in a fresh workspace.
-if [[ -s "$TEMP_PDF" && "$TEMP_PDF" -nt "$INPUT_MD" ]]; then
-  echo "Reusing existing release manual PDF: $TEMP_PDF ($(wc -c <"$TEMP_PDF") bytes)"
-  mkdir -p -- "$TEMP_DOC_DIR"
-  cp -f -- "$TEMP_PDF" "$TEMP_DOC_PDF"
-  exit 0
-fi
-
-if ! command -v npx >/dev/null 2>&1; then
-  echo "ERROR: npx is required to generate the release manual PDF." >&2
-  echo "Install Node.js locally or run this step in the GitHub release workflow." >&2
+die() {
+  echo "ERROR: $*" >&2
   exit 1
-fi
+}
 
-echo "Generating release manual PDF from $INPUT_MD"
-echo "Output PDF: $TEMP_PDF"
-mkdir -p -- "$TEMP_DOC_DIR"
-cp -f -- "$INPUT_MD" "$TEMP_MD"
-ln -sfn "../../../docs/ref" "$TEMP_REF_LINK"
+pdf_size() {
+  wc -c <"$1" | tr -d '[:space:]'
+}
 
-# The repository manual keeps the TOC collapsible for HTML reading. For the
-# generated release PDF the same TOC should be visible without user interaction.
-perl -0pi -e 's#<details markdown="1">#<details open markdown="1">#' "$TEMP_MD"
+require_file() {
+  local file="$1"
 
-GENERATED_AT="$(date '+%Y-%m-%d %H:%M %Z')"
-cat >"$TEMP_CONFIG_JS" <<EOF
+  if [[ ! -s "$file" ]]; then
+    die "missing or empty file: $file"
+  fi
+}
+
+prepare_manual_sources() {
+  rm -rf -- "$TEMP_DOC_DIR"
+  mkdir -p -- "$TEMP_DOC_DIR"
+
+  cp -f -- "$INPUT_MD" "$TEMP_MD"
+
+  if [[ -d "$INPUT_REF_DIR" ]]; then
+    cp -R -- "$INPUT_REF_DIR" "$TEMP_REF_DIR"
+  fi
+
+  # The repository manual keeps the TOC collapsible for HTML reading. In the
+  # release PDF the same TOC should be visible without user interaction.
+  perl -0pi -e 's#<details markdown="1">#<details open markdown="1">#' "$TEMP_MD"
+}
+
+write_pdf_config() {
+  local generated_at="$1"
+
+  cat >"$TEMP_CONFIG_JS" <<EOF
 module.exports = {
   css: [
     'details[open] > summary { display: none; }',
@@ -66,28 +78,45 @@ module.exports = {
       bottom: '18mm',
       left: '15mm',
     },
-    headerTemplate: '<div style="width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:space-between; align-items:center;"><span>TriceUserManual.md</span><span>${GENERATED_AT}</span></div>',
+    headerTemplate: '<div style="width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:space-between; align-items:center;"><span>TriceUserManual.md</span><span>${generated_at}</span></div>',
     footerTemplate: '<div style="width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:flex-end; align-items:center;"><span><span class="pageNumber"></span>/<span class="totalPages"></span></span></div>',
   },
 };
 EOF
+}
 
-# md-to-pdf is used here because it works in headless CI and does not require
-# VS Code or GUI automation. The repository keeps the VS Code based workflow for
-# local comparison PDFs in docs/, but release assets are generated
-# independently. The temp tree prevents accidental overwrites of any local,
-# git-ignored comparison PDF under docs/ while still allowing release-specific
-# print tuning.
+copy_finished_pdf() {
+  require_file "$TEMP_DOC_PDF"
+
+  cp -f -- "$TEMP_DOC_PDF" "$TEMP_PDF"
+  require_file "$TEMP_PDF"
+
+  echo "Generated release manual PDF: $TEMP_PDF ($(pdf_size "$TEMP_PDF") bytes)"
+}
+
+if [[ -s "$TEMP_PDF" && "$TEMP_PDF" -nt "$INPUT_MD" ]]; then
+  mkdir -p -- "$TEMP_DOC_DIR"
+  cp -f -- "$TEMP_PDF" "$TEMP_DOC_PDF"
+  echo "Reusing existing release manual PDF: $TEMP_PDF ($(pdf_size "$TEMP_PDF") bytes)"
+  exit 0
+fi
+
+command -v npx >/dev/null 2>&1 ||
+  die "npx is required. Install Node.js or run this in the GitHub release workflow."
+
+require_file "$INPUT_MD"
+
+echo "Generating release manual PDF from $INPUT_MD"
+echo "Output PDF: $TEMP_PDF"
+
+prepare_manual_sources
+write_pdf_config "$(date '+%Y-%m-%d %H:%M %Z')"
+
+# md-to-pdf works in headless CI and does not require VS Code or GUI automation.
 npx -y md-to-pdf@5.2.4 \
   "$TEMP_MD" \
   --basedir "$TEMP_ROOT" \
   --config-file "$TEMP_CONFIG_JS" \
   --launch-options '{"args":["--no-sandbox"]}'
 
-cp -f -- "$TEMP_DOC_PDF" "$TEMP_PDF"
-if [[ ! -s "$TEMP_PDF" ]]; then
-  echo "ERROR: expected release manual PDF is missing or empty: $TEMP_PDF" >&2
-  find "$TEMP_ROOT" -maxdepth 4 -type f -print 2>/dev/null | sort >&2 || true
-  exit 1
-fi
-echo "Generated release manual PDF: $TEMP_PDF ($(wc -c <"$TEMP_PDF") bytes)"
+copy_finished_pdf
