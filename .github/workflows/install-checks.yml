@@ -46,53 +46,28 @@ jobs:
 
       - name: Build snapshot artifacts
         shell: bash
-        run: |
-          set -euo pipefail
-
-          echo "::group::Build tool versions"
-          go version
-          node --version
-          npm --version
-          npx --version
-          goreleaser --version
-          echo "::endgroup::"
-
-          goreleaser release --snapshot --clean --skip=publish
-
-          if [ ! -s temp/release/TriceUserManual.pdf ]; then
-            echo "::error::GoReleaser finished, but temp/release/TriceUserManual.pdf is missing or empty."
-            echo "::group::Files after failed PDF lookup"
-            find dist temp -maxdepth 4 -type f -printf '%s %p\n' 2>/dev/null | sort || true
-            echo "::endgroup::"
-            exit 1
-          fi
-
-          # release.extra_files uploads the PDF from temp/release/. Copy it to
-          # dist/ as well so PR snapshot artifacts and install checks audit the
-          # same standalone PDF that will be part of the GitHub release.
-          mkdir -p dist
-          cp -f temp/release/TriceUserManual.pdf dist/TriceUserManual.pdf
+        run: >-
+          goreleaser release
+          --snapshot
+          --clean
+          --skip=publish
 
       - name: Verify expected snapshot artifacts exist
         shell: bash
         run: |
           set -euo pipefail
 
-          dump_artifact_context() {
-            echo "::group::dist/ files"
-            if [ -d dist ]; then
-              find dist -maxdepth 4 -type f -printf '%s %p\n' | sort
-            else
-              echo "dist/ does not exist"
-            fi
-            echo "::endgroup::"
-
-            echo "::group::temp/release/ files"
-            if [ -d temp/release ]; then
-              find temp/release -maxdepth 4 -type f -printf '%s %p\n' | sort
-            else
-              echo "temp/release/ does not exist"
-            fi
+          dump_context() {
+            echo "::group::Generated artifact context"
+            echo "dist/:"
+            find dist -maxdepth 3 -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            echo "docs/ manual files:"
+            find docs -maxdepth 2 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            echo "tool versions:"
+            go version || true
+            node --version || true
+            npm --version || true
+            npx --version || true
             echo "::endgroup::"
           }
 
@@ -100,31 +75,34 @@ jobs:
             local file="$1"
             if [ ! -s "$file" ]; then
               echo "::error::missing or empty required artifact: $file"
-              dump_artifact_context
+              dump_context
               exit 1
             fi
-            echo "OK file: $file ($(wc -c < "$file") bytes)"
+            printf 'OK file: %s (%s bytes)\n' "$file" "$(wc -c < "$file")"
           }
 
           require_glob() {
             local pattern="$1"
             local matches=()
-            shopt -s nullglob
-            matches=( $pattern )
-            shopt -u nullglob
+            mapfile -t matches < <(compgen -G "$pattern" | sort || true)
+
             if [ "${#matches[@]}" -eq 0 ]; then
               echo "::error::no artifact matches required pattern: $pattern"
-              dump_artifact_context
+              dump_context
               exit 1
             fi
+
             printf 'OK glob: %s\n' "$pattern"
             printf '  %s\n' "${matches[@]}"
           }
 
+          require_file docs/TriceUserManual.pdf
+          mkdir -p dist
+          cp -f docs/TriceUserManual.pdf dist/TriceUserManual.pdf
+
           require_file dist/trice_tool_linux_amd64.tar.gz
           require_file dist/trice_tool_darwin_amd64.tar.gz
           require_file dist/trice_tool_windows_amd64.zip
-          require_file temp/release/TriceUserManual.pdf
           require_file dist/TriceUserManual.pdf
           require_glob 'dist/trice_target_sources_*.zip'
           require_glob 'dist/trice_*_amd64.deb'
@@ -287,8 +265,8 @@ jobs:
           set -euo pipefail
           package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.deb' -print -quit)"
           if [ -z "$package" ]; then
-            echo "::error::missing Debian package artifact"
-            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+            echo "::error::missing Debian package artifact: trice_*_amd64.deb"
+            find artifacts -maxdepth 1 -type f -print | sort || true
             exit 1
           fi
           echo "Installing Debian package: $package"
@@ -335,8 +313,8 @@ jobs:
           set -euo pipefail
           package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.rpm' -print -quit)"
           if [ -z "$package" ]; then
-            echo "::error::missing RPM package artifact"
-            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+            echo "::error::missing RPM package artifact: trice_*_amd64.rpm"
+            find artifacts -maxdepth 1 -type f -print | sort || true
             exit 1
           fi
           echo "Installing RPM package: $package"
@@ -383,8 +361,8 @@ jobs:
           set -eu
           package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.apk' -print -quit)"
           if [ -z "$package" ]; then
-            echo "missing APK package artifact" >&2
-            find artifacts -maxdepth 2 -type f -print | sort || true
+            echo "::error::missing APK package artifact: trice_*_amd64.apk"
+            find artifacts -maxdepth 1 -type f -print | sort || true
             exit 1
           fi
           echo "Installing APK package: $package"
@@ -426,16 +404,16 @@ jobs:
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
           if [ -z "$source_zip" ]; then
-            echo "::error::missing target source archive"
-            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+            echo "::error::missing target source archive: trice_target_sources_*.zip"
+            find artifacts -maxdepth 1 -type f -print | sort || true
             exit 1
           fi
-          echo "Using target source archive: $source_zip"
+          echo "Unpacking target source archive: $source_zip"
           unzip -q "$source_zip" -d artifacts/target
           source_root="$(find artifacts/target -maxdepth 1 -type d -name 'trice_target_sources_*' -print -quit)"
           if [ -z "$source_root" ]; then
-            echo "::error::could not locate unpacked target source root"
-            find artifacts/target -maxdepth 3 -type f -printf '%s %p\n' | sort || true
+            echo "::error::could not locate unpacked target source directory"
+            find artifacts/target -maxdepth 2 -type d -print | sort || true
             exit 1
           fi
           test -s "$source_root/src/trice.h"
@@ -474,13 +452,14 @@ jobs:
         run: |
           set -euo pipefail
           if [ ! -s artifacts/TriceUserManual.pdf ]; then
-            echo "::error::missing or empty TriceUserManual.pdf artifact"
-            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+            echo "::error::missing or empty release PDF artifact: artifacts/TriceUserManual.pdf"
+            find artifacts -maxdepth 1 -type f -print | sort || true
             exit 1
           fi
           size="$(wc -c < artifacts/TriceUserManual.pdf)"
-          echo "TriceUserManual.pdf size: $size bytes"
           if [ "$size" -le 100000 ]; then
-            echo "::error::TriceUserManual.pdf looks too small: $size bytes"
+            echo "::error::release PDF looks too small: $size bytes"
+            find artifacts -maxdepth 1 -type f -print | sort || true
             exit 1
           fi
+          echo "OK release PDF: artifacts/TriceUserManual.pdf ($size bytes)"

@@ -15,7 +15,7 @@ ROOT_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
 
 dump_release_artifact_context() {
-  log "INFO: generated files under ./dist and ./temp/release:"
+  log "INFO: generated files under ./dist and ./docs:"
   if [ -d "$DIST_DIR" ]; then
     find "$DIST_DIR" -maxdepth 4 -type f -print 2>/dev/null | sort | while IFS= read -r line; do
       log "INFO: $line"
@@ -23,12 +23,12 @@ dump_release_artifact_context() {
   else
     log "INFO: ./dist does not exist"
   fi
-  if [ -d "$ROOT_DIR/temp/release" ]; then
-    find "$ROOT_DIR/temp/release" -maxdepth 4 -type f -print 2>/dev/null | sort | while IFS= read -r line; do
+  if [ -d "$ROOT_DIR/docs" ]; then
+    find "$ROOT_DIR/docs" -maxdepth 2 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -type f -print 2>/dev/null | sort | while IFS= read -r line; do
       log "INFO: $line"
     done
   else
-    log "INFO: ./temp/release does not exist"
+    log "INFO: ./docs does not exist"
   fi
 }
 
@@ -166,18 +166,21 @@ main() {
     exit 1
   }
 
-  if [ ! -s "$ROOT_DIR/temp/release/TriceUserManual.pdf" ]; then
-    log "FAIL: temp/release/TriceUserManual.pdf was not generated or is empty"
+  if [ ! -s "$ROOT_DIR/docs/TriceUserManual.pdf" ]; then
+    log "FAIL: docs/TriceUserManual.pdf was not generated or is empty"
     dump_release_artifact_context
     exit 1
   fi
 
+  # GoReleaser uploads docs/TriceUserManual.pdf as a release extra_file. The
+  # local snapshot check also copies it to ./dist so the expected artifact set
+  # is visible in one directory for smoke tests and CI artifact upload.
   run_cmd mkdir -p "$ROOT_DIR/dist" || {
     log "FAIL: could not ensure ./dist/ exists for the local manual PDF copy"
     exit 1
   }
-  run_cmd cp -f "$ROOT_DIR/temp/release/TriceUserManual.pdf" "$ROOT_DIR/dist/TriceUserManual.pdf" || {
-    log "FAIL: could not copy the generated manual PDF into ./dist/"
+  run_cmd cp -f "$ROOT_DIR/docs/TriceUserManual.pdf" "$ROOT_DIR/dist/TriceUserManual.pdf" || {
+    log "FAIL: could not copy docs/TriceUserManual.pdf into ./dist/"
     exit 1
   }
 

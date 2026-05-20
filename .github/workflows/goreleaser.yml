@@ -67,40 +67,28 @@ jobs:
           # Cross-repository Homebrew tap publishing needs a dedicated token
           # with contents:write on rokath/homebrew-tap.
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
-          # Node.js is installed above because the GoReleaser "before" hook now
-          # generates the manual PDF headlessly in temp/ before packaging.
+          # Node.js is installed above because the GoReleaser "before" hook
+          # generates docs/TriceUserManual.pdf headlessly before publishing.
           # You previously had DEFAULT_BRANCH here; GoReleaser does not
           # need it by default, so it is omitted for clarity.
 
+
       - name: Verify generated release artifacts
-        if: ${{ always() }}
         shell: bash
         run: |
           set -euo pipefail
 
-          echo "::group::Build tool versions"
-          go version || true
-          node --version || true
-          npm --version || true
-          npx --version || true
-          goreleaser --version || true
-          echo "::endgroup::"
-
-          dump_artifact_context() {
-            echo "::group::dist/ files"
-            if [ -d dist ]; then
-              find dist -maxdepth 4 -type f -printf '%s %p\n' | sort
-            else
-              echo "dist/ does not exist"
-            fi
-            echo "::endgroup::"
-
-            echo "::group::temp/release/ files"
-            if [ -d temp/release ]; then
-              find temp/release -maxdepth 4 -type f -printf '%s %p\n' | sort
-            else
-              echo "temp/release/ does not exist"
-            fi
+          dump_context() {
+            echo "::group::Generated release artifact context"
+            echo "dist/:"
+            find dist -maxdepth 3 -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            echo "docs/ manual files:"
+            find docs -maxdepth 2 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            echo "tool versions:"
+            go version || true
+            node --version || true
+            npm --version || true
+            npx --version || true
             echo "::endgroup::"
           }
 
@@ -108,37 +96,31 @@ jobs:
             local file="$1"
             if [ ! -s "$file" ]; then
               echo "::error::missing or empty required artifact: $file"
-              dump_artifact_context
+              dump_context
               exit 1
             fi
-            echo "OK file: $file ($(wc -c < "$file") bytes)"
+            printf 'OK file: %s (%s bytes)\n' "$file" "$(wc -c < "$file")"
           }
 
           require_glob() {
             local pattern="$1"
             local matches=()
-            shopt -s nullglob
-            matches=( $pattern )
-            shopt -u nullglob
+            mapfile -t matches < <(compgen -G "$pattern" | sort || true)
+
             if [ "${#matches[@]}" -eq 0 ]; then
               echo "::error::no artifact matches required pattern: $pattern"
-              dump_artifact_context
+              dump_context
               exit 1
             fi
+
             printf 'OK glob: %s\n' "$pattern"
             printf '  %s\n' "${matches[@]}"
           }
 
-          if [ -s temp/release/TriceUserManual.pdf ]; then
-            mkdir -p dist
-            cp -f temp/release/TriceUserManual.pdf dist/TriceUserManual.pdf
-          fi
-
+          require_file docs/TriceUserManual.pdf
           require_file dist/trice_tool_linux_amd64.tar.gz
           require_file dist/trice_tool_darwin_amd64.tar.gz
           require_file dist/trice_tool_windows_amd64.zip
-          require_file temp/release/TriceUserManual.pdf
-          require_file dist/TriceUserManual.pdf
           require_glob 'dist/trice_target_sources_*.zip'
           require_glob 'dist/trice_*_amd64.deb'
           require_glob 'dist/trice_*_amd64.rpm'
