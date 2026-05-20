@@ -20,6 +20,7 @@
 #   for example:
 #   - ./scripts/_testAll_05_MarkdownLint.sh
 #   - ./scripts/_testAll_06_LinkCheck.sh
+#   - ./scripts/_testAll_06b_ActionLint.sh
 #   - ./scripts/_testAll_10_PcTargetTests.sh full
 #
 # Logging:

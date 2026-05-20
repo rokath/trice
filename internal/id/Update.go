@@ -41,8 +41,12 @@ func formatSpecifierCount(s string) (count int) {
 	// Keep source scanning aligned with decoder-side normalization. This shared
 	// parser was added after Issue #649 because valid C modifiers such as %zu
 	// were not counted here and later reconstructed as TRICE_0 during decoding.
+	return len(formatSpecifierSpecs(s))
+}
+
+func formatSpecifierSpecs(s string) []fmtspec.Spec {
 	_, specs := fmtspec.Normalize(s)
-	return len(specs)
+	return specs
 }
 
 func isSourceFile(fi os.FileInfo) bool {

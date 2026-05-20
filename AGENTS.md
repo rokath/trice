@@ -148,6 +148,9 @@
 ## Tests
 
 * Prefer `github.com/stretchr/testify/assert` for new assertion-style Go tests.
+* For thorough routine validation, prefer `./scripts/testAll.sh` without arguments.
+* Use `./scripts/testAll.sh full` only as a final validation step or when C-code-relevant changes need broad compiler-switch coverage.
+* Do not run `./scripts/testAll.sh full` automatically for every step; it can take about an hour and is often better run manually by the user.
 
 ---
 

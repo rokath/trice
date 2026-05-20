@@ -1,0 +1,388 @@
+name: install-checks
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: install-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: read
+
+jobs:
+  build-artifacts:
+    name: Build snapshot artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Set up GoReleaser
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          install-only: true
+
+      - name: Build snapshot artifacts
+        shell: bash
+        run: >-
+          goreleaser release
+          --snapshot
+          --clean
+          --skip=publish
+
+      - name: Verify expected snapshot artifacts exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/trice_tool_linux_amd64.tar.gz
+          test -s dist/trice_tool_darwin_amd64.tar.gz
+          test -s dist/trice_tool_windows_amd64.zip
+          test -s dist/TriceUserManual.pdf
+          compgen -G 'dist/trice_target_sources_*.zip' >/dev/null
+          compgen -G 'dist/trice_*_amd64.deb' >/dev/null
+          compgen -G 'dist/trice_*_amd64.rpm' >/dev/null
+          compgen -G 'dist/trice_*_amd64.apk' >/dev/null
+
+      - name: Upload snapshot artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: |
+            dist/trice_tool_linux_amd64.tar.gz
+            dist/trice_tool_darwin_amd64.tar.gz
+            dist/trice_tool_windows_amd64.zip
+            dist/trice_target_sources_*.zip
+            dist/trice_*_amd64.deb
+            dist/trice_*_amd64.rpm
+            dist/trice_*_amd64.apk
+            dist/TriceUserManual.pdf
+          if-no-files-found: error
+
+  install-check-linux:
+    name: Install Check Linux Archive
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: artifacts
+
+      - name: Unpack archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -xzf artifacts/trice_tool_linux_amd64.tar.gz -C artifacts
+          test -x artifacts/trice_tool_linux_amd64/trice
+
+      - name: Verify binary and smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          trice=artifacts/trice_tool_linux_amd64/trice
+          "$trice" version
+          "$trice" help
+          output="$("$trice" log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
+          printf '%s\n' "$output"
+          case "$output" in
+            *"Hello!"*) ;;
+            *)
+              echo "decoded smoke output did not contain Hello!"
+              exit 1
+              ;;
+          esac
+
+  install-check-macos:
+    name: Install Check macOS Archive
+    runs-on: macos-latest
+    needs: build-artifacts
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: artifacts
+
+      - name: Unpack archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -xzf artifacts/trice_tool_darwin_amd64.tar.gz -C artifacts
+          test -x artifacts/trice_tool_darwin_amd64/trice
+
+      - name: Verify binary and smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          trice=artifacts/trice_tool_darwin_amd64/trice
+          "$trice" version
+          "$trice" help
+          output="$("$trice" log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
+          printf '%s\n' "$output"
+          case "$output" in
+            *"Hello!"*) ;;
+            *)
+              echo "decoded smoke output did not contain Hello!"
+              exit 1
+              ;;
+          esac
+
+  install-check-windows:
+    name: Install Check Windows Archive
+    runs-on: windows-latest
+    needs: build-artifacts
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: artifacts
+
+      - name: Unpack archive
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Expand-Archive -Path artifacts/trice_tool_windows_amd64.zip -DestinationPath artifacts/windows
+          if (-not (Test-Path artifacts/windows/trice_tool_windows_amd64/trice.exe)) {
+            throw 'Expected trice.exe was not found in the Windows archive.'
+          }
+
+      - name: Verify binary and smoke test
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $trice = './artifacts/windows/trice_tool_windows_amd64/trice.exe'
+          & $trice version
+          & $trice help
+          $output = & $trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json
+          $text = $output -join "`n"
+          Write-Output $text
+          if (-not $text.Contains('Hello!')) {
+            throw 'decoded smoke output did not contain Hello!'
+          }
+
+  install-check-debian:
+    name: Install Check Debian Package
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: artifacts
+
+      - name: Install Debian package
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.deb' -print -quit)"
+          test -n "$package"
+          sudo dpkg -i "$package"
+          test -x /usr/bin/trice
+
+      - name: Verify installed binary and smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/trice version
+          /usr/bin/trice help
+          output="$(/usr/bin/trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
+          printf '%s\n' "$output"
+          case "$output" in
+            *"Hello!"*) ;;
+            *)
+              echo "decoded smoke output did not contain Hello!"
+              exit 1
+              ;;
+          esac
+
+  install-check-rpm:
+    name: Install Check RPM Package
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    timeout-minutes: 10
+    container:
+      image: fedora:42
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: artifacts
+
+      - name: Install RPM package
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.rpm' -print -quit)"
+          test -n "$package"
+          dnf install -y "$package"
+          test -x /usr/bin/trice
+
+      - name: Verify installed binary and smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/trice version
+          /usr/bin/trice help
+          output="$(/usr/bin/trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
+          printf '%s\n' "$output"
+          case "$output" in
+            *"Hello!"*) ;;
+            *)
+              echo "decoded smoke output did not contain Hello!"
+              exit 1
+              ;;
+          esac
+
+  install-check-apk:
+    name: Install Check Alpine Package
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    timeout-minutes: 10
+    container:
+      image: alpine:3.22
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: artifacts
+
+      - name: Install APK package
+        shell: sh
+        run: |
+          set -eu
+          package="$(find artifacts -maxdepth 1 -name 'trice_*_amd64.apk' -print -quit)"
+          test -n "$package"
+          apk add --allow-untrusted "$package"
+          test -x /usr/bin/trice
+
+      - name: Verify installed binary and smoke test
+        shell: sh
+        run: |
+          set -eu
+          /usr/bin/trice version
+          /usr/bin/trice help
+          output="$(/usr/bin/trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
+          printf '%s\n' "$output"
+          case "$output" in
+            *"Hello!"*) ;;
+            *)
+              echo "decoded smoke output did not contain Hello!"
+              exit 1
+              ;;
+          esac
+
+  install-check-target-sources:
+    name: Install Check Target Sources
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    timeout-minutes: 10
+
+    steps:
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: artifacts
+
+      - name: Unpack and compile target sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
+          test -n "$source_zip"
+          unzip -q "$source_zip" -d artifacts/target
+          source_root="$(find artifacts/target -maxdepth 1 -type d -name 'trice_target_sources_*' -print -quit)"
+          test -n "$source_root"
+          test -s "$source_root/src/trice.h"
+          test -s "$source_root/src/trice.c"
+          cat > "$source_root/src/triceConfig.h" <<'EOF'
+          #ifndef TRICE_CONFIG_H_
+          #define TRICE_CONFIG_H_
+          #define TRICE_BUFFER TRICE_STACK_BUFFER
+          #define TRICE_DIRECT_OUTPUT 1
+          #define TRICE_DIRECT_AUXILIARY8 1
+          #define TRICE_CYCLE_COUNTER 0
+          #endif
+          EOF
+          for source_file in "$source_root"/src/*.c; do
+            case "$(basename "$source_file")" in
+              SEGGER_RTT.c|triceUart.c) continue ;;
+            esac
+            cc -I "$source_root/src" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
+          done
+
+  install-check-release-pdf:
+    name: Install Check Release PDF
+    runs-on: ubuntu-latest
+    needs: build-artifacts
+    timeout-minutes: 5
+
+    steps:
+      - name: Download snapshot artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: trice-snapshot-assets
+          path: artifacts
+
+      - name: Verify release PDF
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s artifacts/TriceUserManual.pdf
+          size="$(wc -c < artifacts/TriceUserManual.pdf)"
+          test "$size" -gt 100000

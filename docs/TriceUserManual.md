@@ -400,17 +400,14 @@ PDF Generation
     * [44.2.5. GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverageyml---test-coverage-and-coveralls-integration)
     * [44.2.6. GitHub Action go.yml - Building and Testing Go Code](#github-action-goyml---building-and-testing-go-code)
     * [44.2.7. GitHub Action goreleaser.yml - Build & Pack Trice Distribution](#github-action-goreleaseryml---build--pack-trice-distribution)
-    * [44.2.8. GitHub Action greetings.yml - Greeting Message](#github-action-greetingsyml---greeting-message)
-    * [44.2.9. GitHub Action label.yml - Automatic Labeling Rules](#github-action-labelyml---automatic-labeling-rules)
-    * [44.2.10. GitHub Action learn-github-actions.yml - Instructional Workflow](#github-action-learn-github-actionsyml---instructional-workflow)
-    * [44.2.11. GitHub Action link-check.yml - Broken Links Check](#github-action-link-checkyml---broken-links-check)
-    * [44.2.12. GitHub Action manual.ym - To Be Triggered Manually](#github-action-manualym---to-be-triggered-manually)
-    * [44.2.13. GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs](#github-action-shellcheckyml---catching-common-bash-scripts-bugs)
-    * [44.2.14. GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting](#github-action-shfmtyml---ensure-consistent-shell-scripts-formatting)
-    * [44.2.15. GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-staleyml---automatic-stale-issue-handling)
-    * [44.2.16. GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting)
-    * [44.2.17. Github Action pages.yml - Creates The Trice Github Pages](#github-action-pagesyml---creates-the-trice-github-pages)
-    * [44.2.18. Github Action testgoreleaser.yml - Checks If Goreleaser Would Succeed](#github-action-testgoreleaseryml---checks-if-goreleaser-would-succeed)
+    * [44.2.8. GitHub Action label.yml - Automatic Labeling Rules](#github-action-labelyml---automatic-labeling-rules)
+    * [44.2.9. GitHub Action link-check.yml - Broken Links Check](#github-action-link-checkyml---broken-links-check)
+    * [44.2.10. GitHub Action manual.ym - To Be Triggered Manually](#github-action-manualym---to-be-triggered-manually)
+    * [44.2.11. GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs](#github-action-shellcheckyml---catching-common-bash-scripts-bugs)
+    * [44.2.12. GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting](#github-action-shfmtyml---ensure-consistent-shell-scripts-formatting)
+    * [44.2.13. GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-staleyml---automatic-stale-issue-handling)
+    * [44.2.14. GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting)
+    * [44.2.15. Github Action pages.yml - Creates The Trice Github Pages](#github-action-pagesyml---creates-the-trice-github-pages)
   * [44.3. Trice User Manual Maintenance (or any *.md file)](#trice-user-manual-maintenance-or-any-md-file)
   * [44.4. Cleaning the Sources](#cleaning-the-sources)
 * [45. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
@@ -8299,17 +8296,13 @@ Github Action                                                             | Abou
 [coverage.yml](../.github/workflows/coverage.yml)                         | [GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverageyml---test-coverage-and-coveralls-integration)
 [go.yml](../.github/workflows/go.yml)                                     | [GitHub Action go.yml - Building and Testing Go Code](#github-action-goyml---building-and-testing-go-code)
 [goreleaser.yml](../.github/workflows/goreleaser.yml)                     | [GitHub Action goreleaser.yml - Build & Pack Trice Distribution](#github-action-goreleaseryml---build--pack-trice-distribution)
-[greetings.yml](../.github/workflows/greetings.yml)                       | [GitHub Action greetings.yml - Greeting Message](#github-action-greetingsyml---greeting-message)
 [label.yml](../.github/workflows/label.yml)                               | [GitHub Action label.yml - Automatic Labeling Rules](#github-action-labelyml---automatic-labeling-rules)
-[learn-github-actions.yml](../.github/workflows/learn-github-actions.yml) | [GitHub Action learn-github-actions.yml - Instructional Workflow](#github-action-learn-github-actionsyml---instructional-workflow)
 [link-check.yml](../.github/workflows/link-check.yml)                     | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-checkyml---broken-links-check)
-[manual.yml](../.github/workflows/manual.yml)                             | [GitHub Action manual.ym - To Be Triggered Manually](#github-action-manualym---to-be-triggered-manually)
 [shellcheck.yml](../.github/workflows/shellcheck.yml)                     | [GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs](#github-action-shellcheckyml---catching-common-bash-scripts-bugs)
 [shfmt.yml](../.github/workflows/shfmt.yml)                               | [GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting](#github-action-shfmtyml---ensure-consistent-shell-scripts-formatting)
 [stale.yml](../.github/workflows/stale.yml)                               | [GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-staleyml---automatic-stale-issue-handling)
 [superlinter.ym](../.github/workflows/superlinter.yml)                    | [GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting)
 [pages.yml](../.github/workflows/pages.yml)                               | [Github Action pages.yml - Creates The Trice Github Pages](#github-action-pagesyml---creates-the-trice-github-pages)
-[test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)           | [Github Action test_goreleaser.yml - Checks If Goreleaser Would Succeed](#github-action-testgoreleaseryml---checks-if-goreleaser-would-succeed)
 
 #### 44.2.3. <a id="github-action-clang-formatyml---check-c-code-formatting"></a>GitHub Action clang-format.yml - Check C Code Formatting
 
@@ -8458,28 +8451,14 @@ This workflow runs GoReleaser, the tool that builds and packages Trice for distr
 
 See also [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-real-trice-release-via-ci-with-git-tag)
 
-#### 44.2.8. <a id="github-action-greetingsyml---greeting-message"></a>GitHub Action greetings.yml - Greeting Message
-
-A small automation that posts a friendly greeting message when somebody:
-  * opens their first issue
-  * opens their first pull request
-  * Used to make new contributors feel welcome.
-
-#### 44.2.9. <a id="github-action-labelyml---automatic-labeling-rules"></a>GitHub Action label.yml - Automatic Labeling Rules
+#### 44.2.8. <a id="github-action-labelyml---automatic-labeling-rules"></a>GitHub Action label.yml - Automatic Labeling Rules
 
 * Defines automatic labeling rules for issues and PRs.
   * For example, files in certain directories may automatically get category labels.
   * This helps maintainers classify submissions more easily.
 * **Github Action (Continuous Integration):** [.github/workflows/label.yml](../.github/workflows/label.yml)
 
-#### 44.2.10. <a id="github-action-learn-github-actionsyml---instructional-workflow"></a>GitHub Action learn-github-actions.yml - Instructional Workflow
-
-An instructional workflow provided by GitHub. Purpose:
-  * demonstrate basic GitHub Actions usage
-  * serve as documentation or a teaching example for new contributors
-  * It does not affect the Trice build or release process.
-
-#### 44.2.11. <a id="github-action-link-checkyml---broken-links-check"></a>GitHub Action link-check.yml - Broken Links Check
+#### 44.2.9. <a id="github-action-link-checkyml---broken-links-check"></a>GitHub Action link-check.yml - Broken Links Check
 
 * **Local Action (developer machine):** (deprechiated) `markdown-link-check ./docs/TriceUserManual.md`
   * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
@@ -8491,7 +8470,7 @@ An instructional workflow provided by GitHub. Purpose:
   * The workflow already provides `GITHUB_TOKEN` to the Lychee action for GitHub-hosted links
 <!--  * Exclude files: [.lycheeignore](../.lycheeignore) -->
 
-#### 44.2.12. <a id="github-action-manualym---to-be-triggered-manually"></a>GitHub Action manual.ym - To Be Triggered Manually
+#### 44.2.10. <a id="github-action-manualym---to-be-triggered-manually"></a>GitHub Action manual.ym - To Be Triggered Manually
 
 A workflow that is designed to be triggered manually (similar to _workflow_dispatch_ workflows). Common use cases:
   * executing maintenance tasks
@@ -8499,20 +8478,20 @@ A workflow that is designed to be triggered manually (similar to _workflow_dispa
   * testing workflow behavior without making a commit
   * This workflow does not run automatically.
 
-#### 44.2.13. <a id="github-action-shellcheckyml---catching-common-bash-scripts-bugs"></a>GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs
+#### 44.2.11. <a id="github-action-shellcheckyml---catching-common-bash-scripts-bugs"></a>GitHub Action shellcheck.yml - Catching Common Bash Scripts Bugs
 
 Runs ShellCheck on all *.sh files, catching common bugs in Bash scripts.
 
 * **Github Action (Continuous Integration):** [.github/workflows/shellcheck.yml](../.github/workflows/shellcheck.yml)
 
-#### 44.2.14. <a id="github-action-shfmtyml---ensure-consistent-shell-scripts-formatting"></a>GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting
+#### 44.2.12. <a id="github-action-shfmtyml---ensure-consistent-shell-scripts-formatting"></a>GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting
 
 Runs shfmt in diff mode on pull requests to ensure consistent formatting of shell scripts.
 
 * **Local Action (developer machine):** `go test ./...` or better `./scripts/testAll.sh full` (takes long)
 * **Github Action (Continuous Integration):** [.github/workflows/shfmt.yml](../.github/workflows/shfmt.yml)
 
-#### 44.2.15. <a id="github-action-staleyml---automatic-stale-issue-handling"></a>GitHub Action stale.yml - Automatic Stale Issue Handling
+#### 44.2.13. <a id="github-action-staleyml---automatic-stale-issue-handling"></a>GitHub Action stale.yml - Automatic Stale Issue Handling
 
 Automates stale issue handling. Function:
   * marks inactive issues or PRs as “stale”
@@ -8523,7 +8502,7 @@ Mark stale issues and pull requests
 
 * **Github Action (Continuous Integration):** [.github/workflows/stale.yml](../.github/workflows/stale.yml)
 
-#### 44.2.16. <a id="github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting"></a>GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting
+#### 44.2.14. <a id="github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting"></a>GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting
 
 * **Local Action (developer machine):** `markdownlint .`
 * Runs GitHub Super Linter, a powerful linting suite. Purpose:
@@ -8534,19 +8513,11 @@ Mark stale issues and pull requests
 * **Github Action (Continuous Integration):** [.github/workflows/superlinter.yml](../.github/workflows/superlinter.yml)
   * Checks YAML and Markdown files
 
-#### 44.2.17. <a id="github-action-pagesyml---creates-the-trice-github-pages"></a>Github Action pages.yml - Creates The Trice Github Pages
+#### 44.2.15. <a id="github-action-pagesyml---creates-the-trice-github-pages"></a>Github Action pages.yml - Creates The Trice Github Pages
 
 This workflow creates the Trice github pages avaliable under [rokath.github.io/trice/](https://rokath.github.io/trice/).
 
 * **Github Action (Continuous Integration):** [.github/workflows/pages.yml](../.github/workflows/pages.yml)
-
-#### 44.2.18. <a id="github-action-testgoreleaseryml---checks-if-goreleaser-would-succeed"></a>Github Action test_goreleaser.yml - Checks If Goreleaser Would Succeed
-
-Test Goreleaser
-
-* **Local Action (developer machine):** `goreleaser release --clean --snapshot --skip=publish`
-* **Github Action (Continuous Integration):** [.github/workflows/test_goreleaser.yml](../.github/workflows/test_goreleaser.yml)
-  * Checks if Goreleaser would succeed.
 
 ### 44.3. <a id="trice-user-manual-maintenance-or-any-md-file"></a>Trice User Manual Maintenance (or any `*.md` file)
 

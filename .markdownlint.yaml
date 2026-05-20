@@ -46,6 +46,7 @@ MD033:
     - div
     - p
     - span
+    - strong
     - small
     - sub
     - br

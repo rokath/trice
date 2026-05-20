@@ -206,24 +206,45 @@ func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
 // see also ConstructFullTriceInfo
 func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 	for i, x := range ilu {
-		n := formatSpecifierCount(x.Strg)
+		specs := formatSpecifierSpecs(x.Strg)
+		n := len(specs)
 		if !(0 <= n && n <= 12) {
 			fmt.Fprintln(w, "Invalid format specifier count", n, "- please check", x)
 			continue
 		}
-		if strings.ContainsAny(x.Type, "S") || strings.ContainsAny(x.Type, "N") || strings.ContainsAny(x.Type, "B") {
-			if n != 1 {
-				if strings.HasPrefix(x.Strg, SAliasStrgPrefix) && strings.HasSuffix(x.Strg, SAliasStrgSuffix) {
-					continue // We do not check parameter count here.
-				}
-				fmt.Fprintf(w, "%+v <- Expected format specifier count is 1 but got %d", x, n)
-			}
-			continue
-		}
-		if strings.ContainsAny(x.Type, "F") {
+		switch triceTypeCategory(x.Type) {
+		case "Assert":
 			if n != 0 {
 				fmt.Fprintf(w, "%+v <- Expected format specifier count is 0 but got %d", x, n)
 			}
+			continue
+		case "S", "N", "B":
+			if n != 1 {
+				if isSAliasEncodedString(x.Strg) {
+					continue // We do not check parameter count here.
+				}
+				fmt.Fprintf(w, "%+v <- Expected format specifier count is 1 but got %d", x, n)
+				continue
+			}
+			if isSAliasEncodedString(x.Strg) {
+				continue // The wrapped argument list is not a real format string.
+			}
+			if err := validateTriceFormatSpecifierKinds(x, specs); err != nil {
+				fmt.Fprintf(w, "%+v <- %v", x, err)
+			}
+			continue
+		case "F":
+			if n != 0 {
+				fmt.Fprintf(w, "%+v <- Expected format specifier count is 0 but got %d", x, n)
+			}
+			continue
+		}
+		if err := validateTriceFormatSpecifierKinds(x, specs); err != nil {
+			fmt.Fprintf(w, "%+v <- %v", x, err)
+			continue
+		}
+		if err := validateRegularTriceFormatSpecifierCount(x.Type, n); err != nil {
+			fmt.Fprintln(w, "Unexpected Trice type - please check", x, err)
 			continue
 		}
 		s := strings.Split(x.Type, "_")

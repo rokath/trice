@@ -142,9 +142,9 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liPath string, in []byt
 			// - on ID management t.Strg with t.Strg content SAliasFrame prefix and suffix removed.
 		}
 
-		// Only check format specifiers(param count) for built-in trice macros with defined behavior;
-		// Alias/macros may alter formatting arbitrarily, making such checks unreliable.
-		if !SkipAdditionalChecks && !t.isAlias() {
+		// Only check format specifiers(param count) when the tool has a real format string.
+		// triceS aliases can wrap custom argument lists and store those verbatim in t.Strg.
+		if !SkipAdditionalChecks && !t.isSAlias() {
 			linesOffset := 0 //strings.Count(rest[:loc[6]], "\n") // issue # 523
 			err = evaluateTriceParameterCount(t, line+linesOffset, rest[loc[6]:])
 			if err != nil {
