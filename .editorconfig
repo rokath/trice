@@ -64,6 +64,12 @@ end_of_line = lf       # Go tools expect LF line endings
 indent_style = space
 indent_size = 2
 end_of_line = lf
+shell_variant = bash
+switch_case_indent = true
+binary_next_line = false
+space_redirects = false
+keep_padding = false
+function_next_line = false
 
 # shfmt-specific configuration keys:
 shfmt_case_indent = true

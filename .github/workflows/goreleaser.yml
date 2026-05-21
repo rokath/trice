@@ -67,7 +67,61 @@ jobs:
           # Cross-repository Homebrew tap publishing needs a dedicated token
           # with contents:write on rokath/homebrew-tap.
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
-          # Node.js is installed above because the GoReleaser "before" hook now
-          # generates the manual PDF headlessly in temp/ before packaging.
+          # Node.js is installed above because the GoReleaser "before" hook
+          # generates docs/TriceUserManual.pdf headlessly before publishing.
           # You previously had DEFAULT_BRANCH here; GoReleaser does not
           # need it by default, so it is omitted for clarity.
+
+
+      - name: Verify generated release artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          dump_context() {
+            echo "::group::Generated release artifact context"
+            echo "dist/:"
+            find dist -maxdepth 3 -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            echo "docs/ manual files:"
+            find docs -maxdepth 2 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            echo "tool versions:"
+            go version || true
+            node --version || true
+            npm --version || true
+            npx --version || true
+            echo "::endgroup::"
+          }
+
+          require_file() {
+            local file="$1"
+            if [ ! -s "$file" ]; then
+              echo "::error::missing or empty required artifact: $file"
+              dump_context
+              exit 1
+            fi
+            printf 'OK file: %s (%s bytes)\n' "$file" "$(wc -c < "$file")"
+          }
+
+          require_glob() {
+            local pattern="$1"
+            local matches=()
+            mapfile -t matches < <(compgen -G "$pattern" | sort || true)
+
+            if [ "${#matches[@]}" -eq 0 ]; then
+              echo "::error::no artifact matches required pattern: $pattern"
+              dump_context
+              exit 1
+            fi
+
+            printf 'OK glob: %s\n' "$pattern"
+            printf '  %s\n' "${matches[@]}"
+          }
+
+          require_file docs/TriceUserManual.pdf
+          require_file dist/trice_tool_linux_amd64.tar.gz
+          require_file dist/trice_tool_darwin_amd64.tar.gz
+          require_file dist/trice_tool_windows_amd64.zip
+          require_glob 'dist/trice_target_sources_*.zip'
+          require_glob 'dist/trice_*_amd64.deb'
+          require_glob 'dist/trice_*_amd64.rpm'
+          require_glob 'dist/trice_*_amd64.apk'

@@ -31,16 +31,16 @@ log_error() {
 # === Parse arguments ===
 for arg in "$@"; do
   case "$arg" in
-  --dry-run) DRY_RUN=true ;;
-  --silent) SILENT=true ;;
-  --*)
-    log_error "Unknown option: $arg"
-    log_error "Usage: ./scripts/_clean-dsstore.sh [TARGET_DIR] [--dry-run] [--silent]"
-    exit 1
-    ;;
-  *)
-    TARGET_DIR="$arg"
-    ;;
+    --dry-run) DRY_RUN=true ;;
+    --silent) SILENT=true ;;
+    --*)
+      log_error "Unknown option: $arg"
+      log_error "Usage: ./scripts/_clean-dsstore.sh [TARGET_DIR] [--dry-run] [--silent]"
+      exit 1
+      ;;
+    *)
+      TARGET_DIR="$arg"
+      ;;
   esac
 done
 

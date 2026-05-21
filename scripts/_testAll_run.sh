@@ -63,6 +63,7 @@ main() {
   summary_line "Starting testAll at $(date)"
   summary_line "Selection: $selected"
 
+  run_step "_testAll_00a_FormatShellScripts.sh" || failed=1
   run_step "_testAll_01_CleanDsStore.sh" || failed=1
   run_step "_testAll_02_ClangFormat.sh" || failed=1
   run_step "_testAll_02b_TargetCodeLinting.sh" || failed=1
@@ -80,8 +81,8 @@ main() {
   run_step "_testAll_12_GccExampleBuilds.sh" || failed=1
   if [ "$selected" = "full" ]; then
     run_step "_testAll_13_L432Configs.sh" || failed=1
-    run_step "_testAll_14_GoReleaserSnapshot.sh" || failed=1
   fi
+  run_step "_testAll_14_GoReleaserSnapshot.sh" || failed=1
 
   # Temporarily disabled until the remaining testAll steps are fully read-only again.
   # final_tracked_status="$(tracked_worktree_status)"

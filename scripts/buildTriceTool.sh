@@ -99,35 +99,35 @@ log_always() {
 while [ "$#" -gt 0 ]; do
   arg="$1"
   case "$arg" in
-  --backup)
-    BACKUP=true
-    BACKUP_EXPLICIT=true
-    ;;
-  --no-backup)
-    BACKUP=false
-    BACKUP_EXPLICIT=true
-    ;;
-  --force) FORCE=true ;;
-  --silent) SILENT=true ;;
-  --verbose) VERBOSE=true ;;
-  --target-file)
-    shift
-    if [ "$#" -eq 0 ]; then
-      log_error "Missing value for --target-file"
+    --backup)
+      BACKUP=true
+      BACKUP_EXPLICIT=true
+      ;;
+    --no-backup)
+      BACKUP=false
+      BACKUP_EXPLICIT=true
+      ;;
+    --force) FORCE=true ;;
+    --silent) SILENT=true ;;
+    --verbose) VERBOSE=true ;;
+    --target-file)
+      shift
+      if [ "$#" -eq 0 ]; then
+        log_error "Missing value for --target-file"
+        usage >&2
+        exit 1
+      fi
+      CUSTOM_TARGET_FILE="$1"
+      ;;
+    --help)
+      usage
+      exit 0
+      ;;
+    *)
+      log_error "Unknown option: $arg"
       usage >&2
       exit 1
-    fi
-    CUSTOM_TARGET_FILE="$1"
-    ;;
-  --help)
-    usage
-    exit 0
-    ;;
-  *)
-    log_error "Unknown option: $arg"
-    usage >&2
-    exit 1
-    ;;
+      ;;
   esac
   shift
 done
@@ -277,20 +277,20 @@ if [ -e "$install_target" ]; then
         log_always "Choose: [b]ackup and overwrite, overwrite [w]ithout backup, [a]bort"
         read -r -p "> " overwrite_choice
         case "${overwrite_choice:-b}" in
-        b | B | "")
-          BACKUP=true
-          ;;
-        w | W)
-          BACKUP=false
-          ;;
-        a | A)
-          log_always "Build cancelled."
-          exit 0
-          ;;
-        *)
-          log_error "Invalid choice. Build cancelled."
-          exit 1
-          ;;
+          b | B | "")
+            BACKUP=true
+            ;;
+          w | W)
+            BACKUP=false
+            ;;
+          a | A)
+            log_always "Build cancelled."
+            exit 0
+            ;;
+          *)
+            log_error "Invalid choice. Build cancelled."
+            exit 1
+            ;;
         esac
       else
         if [ "$BACKUP" = true ]; then
@@ -300,11 +300,11 @@ if [ -e "$install_target" ]; then
         fi
         read -r -p "Overwrite existing trice ${prompt_suffix}? [y/N] " overwrite_confirm
         case "${overwrite_confirm:-N}" in
-        y | Y) ;;
-        *)
-          log_always "Build cancelled."
-          exit 0
-          ;;
+          y | Y) ;;
+          *)
+            log_always "Build cancelled."
+            exit 0
+            ;;
         esac
       fi
     else

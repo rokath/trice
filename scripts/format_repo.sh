@@ -3,9 +3,9 @@
 # format_repo.sh
 #
 # Central wrapper for repository formatting and normalization scripts.
-# The Trice User Manual step delegates to a dedicated helper that first tries
-# best-effort VS Code automation for TOC/PDF refresh and then runs the
-# repository-owned normalization script.
+# The Trice User Manual step delegates to a dedicated helper that refreshes
+# the manual TOC, numbering, and anchors with mdtoc. PDF generation is handled
+# separately by scripts/_generate_trice_user_manual_pdf.sh and by GoReleaser.
 #
 # Usage:
 #   ./scripts/format_repo.sh                 # defaults to FORMAT mode
