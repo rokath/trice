@@ -139,31 +139,31 @@ run_with_status() {
 ###############################################################################
 for arg in "$@"; do
   case "$arg" in
-  --toolchain=*)
-    TOOLCHAIN="${arg#*=}"
-    ;;
-  --trice=*)
-    TRICE="${arg#*=}"
-    ;;
-  --configs=*)
-    CONFIGS_MODE="${arg#*=}"
-    ;;
-  --configs-start=*)
-    CONFIGS_START="${arg#*=}"
-    ;;
-  --configs-end=*)
-    CONFIGS_END="${arg#*=}"
-    ;;
-  --examples-dir=*)
-    EXAMPLES_DIR="${arg#*=}"
-    ;;
-  -h | --help)
-    usage
-    exit 0
-    ;;
-  *)
-    die "Unknown argument: $arg (use --help)"
-    ;;
+    --toolchain=*)
+      TOOLCHAIN="${arg#*=}"
+      ;;
+    --trice=*)
+      TRICE="${arg#*=}"
+      ;;
+    --configs=*)
+      CONFIGS_MODE="${arg#*=}"
+      ;;
+    --configs-start=*)
+      CONFIGS_START="${arg#*=}"
+      ;;
+    --configs-end=*)
+      CONFIGS_END="${arg#*=}"
+      ;;
+    --examples-dir=*)
+      EXAMPLES_DIR="${arg#*=}"
+      ;;
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    *)
+      die "Unknown argument: $arg (use --help)"
+      ;;
   esac
 done
 
@@ -171,18 +171,18 @@ done
 # Validate options
 ###############################################################################
 case "$TOOLCHAIN" in
-gcc | clang) ;;
-*) die "--toolchain must be gcc or clang (got: $TOOLCHAIN)" ;;
+  gcc | clang) ;;
+  *) die "--toolchain must be gcc or clang (got: $TOOLCHAIN)" ;;
 esac
 
 case "$TRICE" in
-on | off) ;;
-*) die "--trice must be on or off (got: $TRICE)" ;;
+  on | off) ;;
+  *) die "--trice must be on or off (got: $TRICE)" ;;
 esac
 
 case "$CONFIGS_MODE" in
-none | quick | full) ;;
-*) die "--configs must be none, quick, or full (got: $CONFIGS_MODE)" ;;
+  none | quick | full) ;;
+  *) die "--configs must be none, quick, or full (got: $CONFIGS_MODE)" ;;
 esac
 
 if [[ ! -d "$EXAMPLES_DIR" ]]; then

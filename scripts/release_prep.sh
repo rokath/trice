@@ -34,11 +34,11 @@ require_command() {
 }
 
 case "$MODE" in
-check | format) ;;
-*)
-  printf 'Unsupported mode: %s\nAllowed: check, format\n' "$MODE" >&2
-  exit 2
-  ;;
+  check | format) ;;
+  *)
+    printf 'Unsupported mode: %s\nAllowed: check, format\n' "$MODE" >&2
+    exit 2
+    ;;
 esac
 
 run_step() {

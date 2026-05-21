@@ -95,11 +95,11 @@ smoke_test_linux_archive() {
   output="$("$trice_bin" log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
   printf '%s\n' "$output"
   case "$output" in
-  *"Hello!"*) ;;
-  *)
-    log "FAIL: decoded smoke output did not contain Hello!"
-    exit 1
-    ;;
+    *"Hello!"*) ;;
+    *)
+      log "FAIL: decoded smoke output did not contain Hello!"
+      exit 1
+      ;;
   esac
 }
 
@@ -128,9 +128,9 @@ EOF
 
   for source_file in "$target_root"/src/*.c; do
     case "$(basename "$source_file")" in
-    SEGGER_RTT.c | triceUart.c)
-      continue
-      ;;
+      SEGGER_RTT.c | triceUart.c)
+        continue
+        ;;
     esac
     cc -I "$target_root/src" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
   done

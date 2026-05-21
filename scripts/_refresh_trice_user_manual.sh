@@ -46,19 +46,19 @@ die() {
 parse_args() {
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
-    format | check)
-      MODE="$1"
-      ;;
-    --verbose)
-      VERBOSE=1
-      ;;
-    -h | --help)
-      usage
-      exit 0
-      ;;
-    *)
-      die "unknown argument: $1"
-      ;;
+      format | check)
+        MODE="$1"
+        ;;
+      --verbose)
+        VERBOSE=1
+        ;;
+      -h | --help)
+        usage
+        exit 0
+        ;;
+      *)
+        die "unknown argument: $1"
+        ;;
     esac
     shift
   done

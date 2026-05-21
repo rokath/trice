@@ -37,17 +37,17 @@ SHFMT_BIN="$TOOLS_DIR/shfmt"
 
 for arg in "$@"; do
   case "$arg" in
-  format | check)
-    MODE="$arg"
-    ;;
-  -v | --verbose)
-    VERBOSE=1
-    ;;
-  *)
-    echo "Unknown argument: '$arg'"
-    echo "Usage: $0 [format|check] [--verbose]"
-    exit 2
-    ;;
+    format | check)
+      MODE="$arg"
+      ;;
+    -v | --verbose)
+      VERBOSE=1
+      ;;
+    *)
+      echo "Unknown argument: '$arg'"
+      echo "Usage: $0 [format|check] [--verbose]"
+      exit 2
+      ;;
   esac
 done
 

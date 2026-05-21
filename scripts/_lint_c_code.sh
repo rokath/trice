@@ -27,37 +27,37 @@ XTEA="0"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-  cppcheck)
-    TOOL="$1"
-    ;;
-  --buffer)
-    BUFFER="${2:-}"
-    shift
-    ;;
-  --output)
-    OUTPUT="${2:-}"
-    shift
-    ;;
-  --endian)
-    ENDIAN="${2:-}"
-    shift
-    ;;
-  --builtin)
-    BUILTIN="${2:-}"
-    shift
-    ;;
-  --xtea)
-    XTEA="${2:-}"
-    shift
-    ;;
-  -v | --verbose)
-    VERBOSE=1
-    ;;
-  *)
-    echo "Unknown argument: '$1'"
-    echo "Usage: $0 [cppcheck] [--buffer ring|double|stack|static] [--output deferred|direct|both] [--endian little|big] [--builtin 0|1] [--xtea 0|1] [--verbose]"
-    exit 2
-    ;;
+    cppcheck)
+      TOOL="$1"
+      ;;
+    --buffer)
+      BUFFER="${2:-}"
+      shift
+      ;;
+    --output)
+      OUTPUT="${2:-}"
+      shift
+      ;;
+    --endian)
+      ENDIAN="${2:-}"
+      shift
+      ;;
+    --builtin)
+      BUILTIN="${2:-}"
+      shift
+      ;;
+    --xtea)
+      XTEA="${2:-}"
+      shift
+      ;;
+    -v | --verbose)
+      VERBOSE=1
+      ;;
+    *)
+      echo "Unknown argument: '$1'"
+      echo "Usage: $0 [cppcheck] [--buffer ring|double|stack|static] [--output deferred|direct|both] [--endian little|big] [--builtin 0|1] [--xtea 0|1] [--verbose]"
+      exit 2
+      ;;
   esac
   shift
 done
@@ -114,76 +114,76 @@ if [ "$VERBOSE" -eq 1 ]; then
 fi
 
 case "$BUFFER" in
-ring)
-  TRICE_BUFFER_DEFINE="TRICE_RING_BUFFER"
-  ;;
-double)
-  TRICE_BUFFER_DEFINE="TRICE_DOUBLE_BUFFER"
-  ;;
-stack)
-  TRICE_BUFFER_DEFINE="TRICE_STACK_BUFFER"
-  ;;
-static)
-  TRICE_BUFFER_DEFINE="TRICE_STATIC_BUFFER"
-  ;;
-*)
-  echo "Unsupported buffer mode: $BUFFER" >&2
-  exit 2
-  ;;
+  ring)
+    TRICE_BUFFER_DEFINE="TRICE_RING_BUFFER"
+    ;;
+  double)
+    TRICE_BUFFER_DEFINE="TRICE_DOUBLE_BUFFER"
+    ;;
+  stack)
+    TRICE_BUFFER_DEFINE="TRICE_STACK_BUFFER"
+    ;;
+  static)
+    TRICE_BUFFER_DEFINE="TRICE_STATIC_BUFFER"
+    ;;
+  *)
+    echo "Unsupported buffer mode: $BUFFER" >&2
+    exit 2
+    ;;
 esac
 
 case "$OUTPUT" in
-deferred)
-  TRICE_DEFERRED_OUTPUT_DEFINE=1
-  TRICE_DIRECT_OUTPUT_DEFINE=0
-  TRICE_DEFERRED_AUXILIARY8_DEFINE=1
-  TRICE_DIRECT_AUXILIARY32_DEFINE=0
-  ;;
-direct)
-  TRICE_DEFERRED_OUTPUT_DEFINE=0
-  TRICE_DIRECT_OUTPUT_DEFINE=1
-  TRICE_DEFERRED_AUXILIARY8_DEFINE=0
-  TRICE_DIRECT_AUXILIARY32_DEFINE=1
-  ;;
-both)
-  TRICE_DEFERRED_OUTPUT_DEFINE=1
-  TRICE_DIRECT_OUTPUT_DEFINE=1
-  TRICE_DEFERRED_AUXILIARY8_DEFINE=1
-  TRICE_DIRECT_AUXILIARY32_DEFINE=1
-  ;;
-*)
-  echo "Unsupported output mode: $OUTPUT" >&2
-  exit 2
-  ;;
+  deferred)
+    TRICE_DEFERRED_OUTPUT_DEFINE=1
+    TRICE_DIRECT_OUTPUT_DEFINE=0
+    TRICE_DEFERRED_AUXILIARY8_DEFINE=1
+    TRICE_DIRECT_AUXILIARY32_DEFINE=0
+    ;;
+  direct)
+    TRICE_DEFERRED_OUTPUT_DEFINE=0
+    TRICE_DIRECT_OUTPUT_DEFINE=1
+    TRICE_DEFERRED_AUXILIARY8_DEFINE=0
+    TRICE_DIRECT_AUXILIARY32_DEFINE=1
+    ;;
+  both)
+    TRICE_DEFERRED_OUTPUT_DEFINE=1
+    TRICE_DIRECT_OUTPUT_DEFINE=1
+    TRICE_DEFERRED_AUXILIARY8_DEFINE=1
+    TRICE_DIRECT_AUXILIARY32_DEFINE=1
+    ;;
+  *)
+    echo "Unsupported output mode: $OUTPUT" >&2
+    exit 2
+    ;;
 esac
 
 case "$ENDIAN" in
-little)
-  TRICE_MCU_IS_BIG_ENDIAN_DEFINE=0
-  ;;
-big)
-  TRICE_MCU_IS_BIG_ENDIAN_DEFINE=1
-  ;;
-*)
-  echo "Unsupported endian mode: $ENDIAN" >&2
-  exit 2
-  ;;
+  little)
+    TRICE_MCU_IS_BIG_ENDIAN_DEFINE=0
+    ;;
+  big)
+    TRICE_MCU_IS_BIG_ENDIAN_DEFINE=1
+    ;;
+  *)
+    echo "Unsupported endian mode: $ENDIAN" >&2
+    exit 2
+    ;;
 esac
 
 case "$BUILTIN" in
-0 | 1) ;;
-*)
-  echo "Unsupported builtin mode: $BUILTIN" >&2
-  exit 2
-  ;;
+  0 | 1) ;;
+  *)
+    echo "Unsupported builtin mode: $BUILTIN" >&2
+    exit 2
+    ;;
 esac
 
 case "$XTEA" in
-0 | 1) ;;
-*)
-  echo "Unsupported xtea mode: $XTEA" >&2
-  exit 2
-  ;;
+  0 | 1) ;;
+  *)
+    echo "Unsupported xtea mode: $XTEA" >&2
+    exit 2
+    ;;
 esac
 
 if { [ "$BUFFER" = "ring" ] || [ "$BUFFER" = "double" ]; } && [ "$OUTPUT" = "direct" ]; then
@@ -197,18 +197,18 @@ if { [ "$BUFFER" = "stack" ] || [ "$BUFFER" = "static" ]; } && [ "$OUTPUT" != "d
 fi
 
 case "$OUTPUT" in
-deferred)
-  TRICE_DIRECT_XTEA_ENCRYPT_DEFINE=0
-  TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE="$XTEA"
-  ;;
-direct)
-  TRICE_DIRECT_XTEA_ENCRYPT_DEFINE="$XTEA"
-  TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE=0
-  ;;
-both)
-  TRICE_DIRECT_XTEA_ENCRYPT_DEFINE="$XTEA"
-  TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE="$XTEA"
-  ;;
+  deferred)
+    TRICE_DIRECT_XTEA_ENCRYPT_DEFINE=0
+    TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE="$XTEA"
+    ;;
+  direct)
+    TRICE_DIRECT_XTEA_ENCRYPT_DEFINE="$XTEA"
+    TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE=0
+    ;;
+  both)
+    TRICE_DIRECT_XTEA_ENCRYPT_DEFINE="$XTEA"
+    TRICE_DEFERRED_XTEA_ENCRYPT_DEFINE="$XTEA"
+    ;;
 esac
 
 # Why the explicit mapping above matters:
@@ -336,9 +336,9 @@ run_cppcheck() {
 }
 
 case "$TOOL" in
-cppcheck) run_cppcheck ;;
-*)
-  echo "Unsupported lint tool: $TOOL" >&2
-  exit 2
-  ;;
+  cppcheck) run_cppcheck ;;
+  *)
+    echo "Unsupported lint tool: $TOOL" >&2
+    exit 2
+    ;;
 esac
