@@ -78,22 +78,74 @@ verify_snapshot_layout() {
   verify_release_glob "$DIST_DIR/trice_*_amd64.apk"
 }
 
-smoke_test_linux_archive() {
+smoke_test_host_archive() {
   local unpack_dir="$ROOT_DIR/temp/testAll-release-archive"
+  local host_os
+  local host_arch
+  local archive
+  local archive_dir
   local trice_bin
-  rm -rf "$unpack_dir"
-  mkdir -p "$unpack_dir"
-  tar -xzf "$DIST_DIR/trice_tool_linux_amd64.tar.gz" -C "$unpack_dir"
-  trice_bin="$unpack_dir/trice_tool_linux_amd64/trice"
-  if [ ! -x "$trice_bin" ]; then
-    log "FAIL: unpacked Linux archive does not contain an executable trice binary"
+
+  case "$(uname -s)" in
+    Darwin)
+      host_os="darwin"
+      ;;
+    Linux)
+      host_os="linux"
+      ;;
+    *)
+      log "SKIP: unsupported host OS for release archive smoke test: $(uname -s)"
+      return 0
+      ;;
+  esac
+
+  case "$(uname -m)" in
+    x86_64 | amd64)
+      host_arch="amd64"
+      ;;
+    arm64 | aarch64)
+      host_arch="arm64"
+      ;;
+    armv7* | armv7l)
+      host_arch="arm7"
+      ;;
+    armv6* | armv6l)
+      host_arch="arm6"
+      ;;
+    *)
+      log "SKIP: unsupported host architecture for release archive smoke test: $(uname -m)"
+      return 0
+      ;;
+  esac
+
+  archive="$DIST_DIR/trice_tool_${host_os}_${host_arch}.tar.gz"
+  archive_dir="trice_tool_${host_os}_${host_arch}"
+
+  if [ ! -s "$archive" ]; then
+    log "FAIL: missing host release archive for smoke test: $archive"
+    dump_release_artifact_context
     exit 1
   fi
+
+  rm -rf "$unpack_dir"
+  mkdir -p "$unpack_dir"
+  tar -xzf "$archive" -C "$unpack_dir"
+
+  trice_bin="$unpack_dir/$archive_dir/trice"
+
+  if [ ! -x "$trice_bin" ]; then
+    log "FAIL: unpacked host archive does not contain an executable trice binary: $trice_bin"
+    exit 1
+  fi
+
   "$trice_bin" version
   "$trice_bin" help
+
   local output
   output="$("$trice_bin" log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
+
   printf '%s\n' "$output"
+
   case "$output" in
     *"Hello!"*) ;;
     *)
@@ -185,7 +237,7 @@ main() {
   }
 
   verify_snapshot_layout
-  smoke_test_linux_archive
+  smoke_test_host_archive
   compile_target_sources
   verify_release_pdf
 
