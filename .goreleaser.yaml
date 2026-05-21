@@ -13,7 +13,7 @@ before:
     # Generate the release manual PDF directly where the manual belongs.
     # docs/TriceUserManual.pdf is git-ignored and uploaded below as a
     # standalone release asset.
-    - ./scripts/_generate_trice_user_manual_pdf.sh
+    - bash ./scripts/_generate_trice_user_manual_pdf.sh
 # https://goreleaser.com/customization/#Builds
 
 builds:

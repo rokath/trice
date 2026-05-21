@@ -21,7 +21,7 @@ main() {
     log "SKIP: lychee not installed"
     exit 0
   fi
-  run_cmd lychee . || {
+  run_cmd lychee --config "$ROOT/lychee.toml" . || {
     log "FAIL: lychee failed"
     exit 1
   }

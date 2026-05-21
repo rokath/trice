@@ -5444,7 +5444,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Accept and Accept
   - 1: Upgrade to J-Link
   - 0: Quit
-- Download, extract & start https://github.com/rokath/trice/blob/main/third_party/segger.com/STLinkReflash_190812.zip
+- Download, extract & start https://raw.githubusercontent.com/rokath/trice/main/third_party/segger.com/STLinkReflash_190812.zip
   - Re-Flash onboard debugger.
     - You can undo this step anytime.
 

@@ -13,6 +13,8 @@ import (
 // TestInsertIsDeterministicAcrossRuns exposes that insert currently depends on
 // goroutine scheduling when multiple files contain the same trice and IDs are
 // assigned from an empty list.
+//
+// This test is diabled, because closed issue \#616 is not planned anymore.
 func _TestInsertIsDeterministicAcrossRuns(t *testing.T) {
 	defer Setup(t)()
 
