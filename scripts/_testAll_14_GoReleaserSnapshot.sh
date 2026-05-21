@@ -157,12 +157,23 @@ smoke_test_host_archive() {
 
 compile_target_sources() {
   local source_zip
+  local target_parent
   local target_root
   local source_file
 
   source_zip="$(find "$DIST_DIR" -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
-  unzip -q "$source_zip" -d "$ROOT_DIR/temp/testAll-target-sources"
-  target_root="$(find "$ROOT_DIR/temp/testAll-target-sources" -maxdepth 1 -type d -name 'trice_target_sources_*' -print -quit)"
+  if [ -z "$source_zip" ] || [ ! -s "$source_zip" ]; then
+    log "FAIL: missing target source archive in ./dist/"
+    exit 1
+  fi
+
+  target_parent="$ROOT_DIR/temp/testAll-target-sources"
+  rm -rf "$target_parent"
+  mkdir -p "$target_parent"
+
+  unzip -q "$source_zip" -d "$target_parent"
+
+  target_root="$(find "$target_parent" -maxdepth 1 -type d -name 'trice_target_sources_*' -print -quit)"
   if [ -z "$target_root" ]; then
     log "FAIL: could not locate unpacked target sources"
     exit 1
