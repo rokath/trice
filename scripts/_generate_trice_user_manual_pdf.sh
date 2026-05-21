@@ -79,7 +79,8 @@ css='details > summary { display: none; }
 details:not([open]) > :not(summary) { display: block; }
 img { max-width: 100%; height: auto; }'
 
-pdf_options="$(cat <<EOF_JSON
+pdf_options="$(
+  cat <<EOF_JSON
 {
   "format": "A4",
   "printBackground": true,
