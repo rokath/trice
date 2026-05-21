@@ -106,10 +106,10 @@ smoke_test_host_archive() {
     arm64 | aarch64)
       host_arch="arm64"
       ;;
-    armv7* | armv7l)
+    armv7*)
       host_arch="arm7"
       ;;
-    armv6* | armv6l)
+    armv6*)
       host_arch="arm6"
       ;;
     *)
