@@ -112,7 +112,7 @@ snapshot:
   # Default is `{{ .Tag }}-SNAPSHOT-{{.ShortCommit}}`.
   #name_template: 1.2.3-SNAPSHOT-{{.Commit}}
   #name_template: "{{ .Tag }}-next"
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 # You can customize how the changelog is generated using the changelog section in the config file
 changelog:
@@ -200,10 +200,12 @@ archives:
         dst: src
         strip_parent: true
 
-brews:
+homebrew_casks:
   - ids:
       - trice-tool
     name: trice
+    binaries:
+      - trice
     repository:
       owner: rokath
       name: homebrew-tap
@@ -212,14 +214,16 @@ brews:
     homepage: https://github.com/rokath/trice
     description: Embedded logging tool for low-overhead C/C++ target logs.
     license: MIT
-    directory: Formula
+    directory: Casks
     commit_author:
       name: github-actions[bot]
       email: 41898282+github-actions[bot]@users.noreply.github.com
-    install: |
-      bin.install "trice"
-    test: |
-      system "#{bin}/trice", "version"
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/trice"]
+          end
 
 nfpms:
   - id: trice-deb
