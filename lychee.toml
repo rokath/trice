@@ -31,6 +31,10 @@ format = "detailed"
 # Request Behavior
 ############################
 
+# Limit total parallel link checks. Lychee v0.22 does not support per-host
+# concurrency limits, so this is the portable way to reduce burstiness.
+max_concurrency = 16
+
 # Per-request timeout in seconds.
 # Consider increasing if you see frequent timeouts on vendor sites.
 timeout = 45
@@ -40,7 +44,7 @@ max_redirects = 5
 
 # Retries help with flaky endpoints and transient failures (DNS, CDN, etc.).
 max_retries = 4
-retry_wait_time = 2
+retry_wait_time = 3
 
 # Check web links AND local file links (including anchors in local Markdown/HTML).
 scheme = ["http", "https", "file"]

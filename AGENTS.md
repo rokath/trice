@@ -16,6 +16,15 @@
 * If additional improvements seem beneficial, propose them separately instead of applying them automatically.
 * Changes to `demo*.json` at the repository root are usually generated or local-test artifacts. Unless the user explicitly asks for them, ignore such worktree changes silently and do not treat them as part of the task.
 
+## Change scope and confirmation
+
+- Make only the changes needed for the task the user explicitly requested.
+- Do not perform opportunistic refactors, broad cleanups, renames, rewrites, or diagnostic-output removals unless the user explicitly asks for them.
+- Preserve existing comments, usage/help text, workflow steps, log output, and diagnostics unless changing them is required for the requested task.
+- If you see a useful improvement outside the requested scope, describe it and ask before implementing it.
+- Prefer focused patches over wholesale rewrites. Keep unrelated formatting churn out of the change.
+- In CI, release, and packaging scripts, prefer actionable failure messages over terse `test` failures. Missing files, empty files, and unmatched globs should report the expected path or pattern and print nearby context such as generated artifact lists and relevant tool versions.
+
 ---
 
 ## Editing Rules

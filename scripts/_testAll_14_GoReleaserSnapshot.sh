@@ -80,26 +80,39 @@ verify_snapshot_layout() {
 
 smoke_test_host_archive() {
   local unpack_dir="$ROOT_DIR/temp/testAll-release-archive"
+  local uname_s
+  local uname_m
   local host_os
   local host_arch
   local archive
   local archive_dir
   local trice_bin
+  local trice_name
+  local output
 
-  case "$(uname -s)" in
+  uname_s="$(uname -s)"
+  uname_m="$(uname -m)"
+
+  case "$uname_s" in
     Darwin)
       host_os="darwin"
+      trice_name="trice"
       ;;
     Linux)
       host_os="linux"
+      trice_name="trice"
+      ;;
+    MINGW* | MSYS* | CYGWIN*)
+      host_os="windows"
+      trice_name="trice.exe"
       ;;
     *)
-      log "SKIP: unsupported host OS for release archive smoke test: $(uname -s)"
+      log "SKIP: unsupported host OS for release archive smoke test: $uname_s"
       return 0
       ;;
   esac
 
-  case "$(uname -m)" in
+  case "$uname_m" in
     x86_64 | amd64)
       host_arch="amd64"
       ;;
@@ -113,13 +126,21 @@ smoke_test_host_archive() {
       host_arch="arm6"
       ;;
     *)
-      log "SKIP: unsupported host architecture for release archive smoke test: $(uname -m)"
+      log "SKIP: unsupported host architecture for release archive smoke test: $uname_m"
       return 0
       ;;
   esac
 
-  archive="$DIST_DIR/trice_tool_${host_os}_${host_arch}.tar.gz"
   archive_dir="trice_tool_${host_os}_${host_arch}"
+
+  case "$host_os" in
+    windows)
+      archive="$DIST_DIR/${archive_dir}.zip"
+      ;;
+    *)
+      archive="$DIST_DIR/${archive_dir}.tar.gz"
+      ;;
+  esac
 
   if [ ! -s "$archive" ]; then
     log "FAIL: missing host release archive for smoke test: $archive"
@@ -129,27 +150,51 @@ smoke_test_host_archive() {
 
   rm -rf "$unpack_dir"
   mkdir -p "$unpack_dir"
-  tar -xzf "$archive" -C "$unpack_dir"
 
-  trice_bin="$unpack_dir/$archive_dir/trice"
+  case "$host_os" in
+    windows)
+      unzip -q "$archive" -d "$unpack_dir"
+      ;;
+    *)
+      tar -xzf "$archive" -C "$unpack_dir"
+      ;;
+  esac
 
-  if [ ! -x "$trice_bin" ]; then
+  trice_bin="$unpack_dir/$archive_dir/$trice_name"
+
+  if [ ! -f "$trice_bin" ]; then
+    log "FAIL: unpacked host archive does not contain trice binary: $trice_bin"
+    exit 1
+  fi
+
+  if [ "$host_os" != "windows" ] && [ ! -x "$trice_bin" ]; then
     log "FAIL: unpacked host archive does not contain an executable trice binary: $trice_bin"
     exit 1
   fi
 
-  "$trice_bin" version
-  "$trice_bin" help
+  output="$("$trice_bin" version 2>&1)" || {
+    log "FAIL: smoke test failed: trice version"
+    log "$output"
+    exit 1
+  }
 
-  local output
-  output="$("$trice_bin" log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
+  output="$("$trice_bin" help 2>&1)" || {
+    log "FAIL: smoke test failed: trice help"
+    log "$output"
+    exit 1
+  }
 
-  printf '%s\n' "$output"
+  output="$("$trice_bin" log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json 2>&1)" || {
+    log "FAIL: smoke test failed: trice log"
+    log "$output"
+    exit 1
+  }
 
   case "$output" in
     *"Hello!"*) ;;
     *)
       log "FAIL: decoded smoke output did not contain Hello!"
+      log "$output"
       exit 1
       ;;
   esac
@@ -160,6 +205,7 @@ compile_target_sources() {
   local target_parent
   local target_root
   local source_file
+  local c_compiler
 
   source_zip="$(find "$DIST_DIR" -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
   if [ -z "$source_zip" ] || [ ! -s "$source_zip" ]; then
@@ -179,6 +225,23 @@ compile_target_sources() {
     exit 1
   fi
 
+  c_compiler="${CC:-}"
+  if [ -z "$c_compiler" ]; then
+    if command -v cc >/dev/null 2>&1; then
+      c_compiler="cc"
+    elif command -v gcc >/dev/null 2>&1; then
+      c_compiler="gcc"
+    elif command -v clang >/dev/null 2>&1; then
+      c_compiler="clang"
+    fi
+  fi
+
+  if [ -z "$c_compiler" ] || ! command -v "$c_compiler" >/dev/null 2>&1; then
+    log "FAIL: C compiler not found"
+    log "Hint: install gcc/clang or run with CC=gcc $0"
+    exit 1
+  fi
+
   cat >"$target_root/src/triceConfig.h" <<'EOF'
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
@@ -195,7 +258,7 @@ EOF
         continue
         ;;
     esac
-    cc -I "$target_root/src" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
+    "$c_compiler" -I "$target_root/src" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
   done
 }
 

@@ -47,15 +47,8 @@ main() {
     log "FAIL: initial clean IDs failed"
     exit 1
   }
-  run_cmd rm -f "$TRICE_TIL_JSON" "$TRICE_LI_JSON" || {
-    log "FAIL: failed to reset shared json files"
-    exit 1
-  }
-  run_cmd touch "$TRICE_TIL_JSON" "$TRICE_LI_JSON" || {
-    log "FAIL: failed to create shared json files"
-    exit 1
-  }
-  run_cmd "$SCRIPTS_DIR/_renewIDs_in_examples_and_refresh_test_folder.sh" || {
+  log "Keeping shared json files and reusing existing ID history"
+  run_cmd "$SCRIPTS_DIR/_renewIDs_in_examples_and_refresh_test_folder.sh" keepHistory || {
     log "FAIL: renew IDs failed"
     exit 1
   }
