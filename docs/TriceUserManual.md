@@ -28,6 +28,7 @@ PDF Generation
 <p align="right">(<a href="#bottom">go to bottom</a>)</p>
 
 ---
+
 <h2>Table of Contents</h2><!-- TABLE OF CONTENTS START -->
 
 <style>
