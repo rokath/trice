@@ -1,6 +1,135 @@
 ﻿# Changelog
 
 
+## <a id='v1.2.2-changes'></a>v1.2.2 Changes (2026-05-22)
+
+### <a id='v1.2.2overview'></a>v1.2.2 Overview
+
+* Better/Updated/Robuster Scripts Support for Darwin, Linux & Windows
+  * TriceUserManual.pdf generation automated
+  * goreleaser script
+  * Target code compilation
+  * More and more verbose release checks
+* Linux Trice Tool now per package manager installable
+* Darwin trice Tool now per brew installable
+* Several issues fixed
+  * [#632](https://github.com/rokath/trice/issues/632) Feature request: better info on "no matching closing bracket found in"
+  * [#636](https://github.com/rokath/trice/issues/636) trice insert does not flush? output when exists with error
+  * [#649](https://github.com/rokath/trice/issues/649) Trice support for length modifiers
+  * [#623](https://github.com/rokath/trice/issues/623) Windows: go test ./... fails in v1.2.1 due to Windows-specific test cleanup and signal handling
+* `README.md` reworked
+* `AGENTS.md` has now staighter rules
+
+### <a id='v1.2.2-git-log'></a>v1.2.2 Git Log
+
+```txt
+./gitLogWithBranches.fixed.sh --range v1.2.1..HEAD
+*               8272b896 2026-05-21 17:23 [wip                             ] minor maintenance changes
+*               5fa11531 2026-05-21 13:38 [wip~1                           ] goreleaser version demand included
+*               c4526832 2026-05-21 13:37 [wip~2                           ] more focus demanded
+*               e196354d 2026-05-21 12:15 [main~1^2                        ] more robust target sources compilation
+*               7147c65d 2026-05-21 12:10 [wip~4                           ] formatter change
+*               114ac651 2026-05-21 12:06 [wip~5                           ] shell bang added
+*               62c712f5 2026-05-21 12:02 [wip~6                           ] Test for shell scripts format added
+*               9c9f8b31 2026-05-21 11:38 [wip~7                           ] smoke test now OS agnostic
+*               67fac02b 2026-05-21 11:33 [wip~8                           ] brew handling updated
+*               f6c433d0 2026-05-21 11:02 [wip~9                           ] x flags set
+*               e92c3691 2026-05-21 10:50 [wip~10                          ] improved formatting rules
+*               5486d171 2026-05-21 10:47 [wip~11                          ] shfmt pinned to specific version to avoid cross-OS differences
+*               46b68c62 2026-05-20 21:26 [wip~12                          ] wip scripts simplification
+*               a54e98c2 2026-05-20 20:34 [wip~13                          ] wip
+*               b5301912 2026-05-20 19:20 [wip~14                          ] PDF generation now via CLI tool
+*               f909451b 2026-05-20 19:19 [wip~15                          ] glob pattern corrected
+*               65fb4d43 2026-05-20 19:18 [wip~16                          ] PDF generation now always
+*               a18971ee 2026-05-20 18:27 [wip~17                          ] linted
+*               e3b76524 2026-05-20 17:28 [wip~18                          ] More verbose release checks
+*               d1d633f6 2026-05-20 15:13 [main~2^2                        ] progress log added
+*               0139fd12 2026-05-20 15:12 [wip~20                          ] discarded - too much maintain effort
+*               666b6b49 2026-05-20 10:43 [wip~21                          ] wip minor adaptions to let link check pass
+*               0beeab98 2026-05-19 19:01 [wip~22                          ] scripts prepare actions better now
+*               82e11aa5 2026-05-19 12:02 [wip~23                          ] minor
+*               919c7fe4 2026-05-19 11:25 [wip~24                          ] Add trice release and install checks
+*               6e904093 2026-05-18 22:02 [wip~25                          ] fix(id): validate Trice float helpers
+*               c755e1a9 2026-05-18 17:15 [wip~26                          ] fix(id): validate Trice format misuse
+*               c1282311 2026-05-18 17:03 [wip~27                          ] test rule refined
+*               af7882d8 2026-05-18 13:49 [main~3^2                        ] Issue #632 fix
+*               3a530063 2026-05-17 22:58 [main~4^2                        ] build: avoid implicit clang GCC toolchain flag
+*               680d626a 2026-05-17 22:44 [wip~30                          ] docs: mark Trice library sources as insert-excluded
+*               9e5c94aa 2026-05-17 21:51 [wip~31                          ] feat(id): add Trice parser exclusion markers
+*               56dd84e7 2026-05-17 14:30 [main~5^2                        ] Issue #636 fix
+*               de43f5a3 2026-05-17 00:33 [wip~33                          ] docs: document Trice whitespace preservation
+*               f2493bac 2026-05-17 00:33 [wip~34                          ] fix(id): preserve Trice opening whitespace
+*               28d50471 2026-05-13 14:35 [wip~35                          ] README.md a bit clearer now.
+*               924339d7 2026-05-01 23:00 [main~6^2                        ] ToC generation now with mdtoc
+*               1ae5e450 2026-05-01 23:00 [wip~37                          ] instable external links excluded
+*               933506a4 2026-05-01 22:59 [wip~38                          ] Fix for issue #649
+*               8487cb03 2026-05-01 21:22 [wip~39                          ] docs(readme): tighten data compression wording
+*               b6fab091 2026-05-01 21:22 [wip~40                          ] test(fmtspec): cover remaining supported and invalid modifiers
+*               dc781358 2026-05-01 21:22 [wip~41                          ] docs(agents): ignore root demo json artifacts by default
+*               b01cede4 2026-05-01 21:21 [wip~42                          ] docs(trice-user-manual): document format specifier support limits
+*               94655bc4 2026-05-01 11:33 [wip~43                          ] fix(trexDecoder): normalize buffer format length modifiers
+*               9193ae43 2026-04-30 18:42 [wip~44                          ] Merge remote-tracking branch 'origin/wip' into wip
+|\              0bc0894d 2026-04-30 18:42 [wip~45                          ] issue #649 wip
+| *             f322cdc1 2026-04-29 01:16 [main~7^2                        ] more strict wording to avoid misinterpretation
+| *             aa5af649 2026-04-29 00:54 [main~7^2~1                      ] Improved README.md readability.
+| *             9eb0f743 2026-04-28 23:24 [main~8^2                        ] Quickstart: First RTT Log with J-Link added to README.md
+* |             d195cc78 2026-04-28 12:34 [wip~46                          ] `-alias` hint added to README.md
+|/              4f02da58 2026-04-28 12:25 [main                            ] Merge pull request #645 from rokath/rokath-patch-1
+*               51323b87 2026-04-28 10:28 [main^2                          ] Fix function name from TRICE to trice in README
+*               cb671a6f 2026-04-27 23:08 [main~1                          ] Merge pull request #644 from rokath/wip
+|\              0515cb99 2026-04-27 23:05 [main~2                          ] Merge pull request #641 from rokath/dependabot/github_actions/actions/upload-artifact-7
+| *             99b0c290 2026-04-27 23:04 [main~3                          ] Merge pull request #640 from rokath/dependabot/github_actions/actions/upload-pages-artifact-5
+|/              266cc705 2026-04-27 23:04 [main~4                          ] Merge pull request #639 from rokath/dependabot/github_actions/actions/first-interaction-3
+*               6882e84b 2026-04-27 23:03 [main~5                          ] Merge pull request #638 from rokath/dependabot/github_actions/actions/setup-go-6
+|\              1d373da9 2026-04-27 23:03 [main~6                          ] Merge pull request #637 from rokath/dependabot/github_actions/super-linter/super-linter-8.6.0
+| *             da87c0cb 2026-04-27 22:53 [main~1^2                        ] Merge remote-tracking branch 'origin/wip' into wip
+| |\            d6fa2b47 2026-04-27 22:53 [main~1^2~1                      ] ReadMe slightly reworked for better acceptance
+| * |           87d29e0d 2026-04-27 17:21 [main~7                          ] Merge pull request #643 from rokath/wip
+* | |           c941e58a 2026-04-27 17:16 [main~7^2                        ] zephyr link corrected
+|\ \ \          fed0a1c3 2026-04-27 16:45 [main~7^2~1                      ] Merge remote-tracking branch 'origin/main' into wip
+| * | |         8e6e21cd 2026-04-21 10:37 [main~2^2                        ] ci: bump actions/upload-artifact from 6 to 7
+* | | |           8ca9862d 2026-04-21 10:37 [main~3^2                        ] ci: bump actions/upload-pages-artifact from 3 to 5
+|\ \ \ \        fe05735e 2026-04-21 10:37 [main~4^2                        ] ci: bump actions/first-interaction from 1 to 3
+| * | | |         45b65c8a 2026-04-21 10:37 [main~5^2                        ] ci: bump actions/setup-go from 5 to 6
+| |/ / /        89cd0778 2026-04-21 10:37 [main~6^2                        ] ci: bump super-linter/super-linter from 8.3.1 to 8.6.0
+* | | |           8dab2f21 2026-04-17 00:18 [main~8                          ] Merge pull request #635 from rokath/wip
+|\ \ \ \        4d2c943c 2026-04-17 00:03 [main~8^2                        ] Comments in lines 632, 633 changed to not interfere with the Trice parser
+| * | | |         8fcc8a66 2026-04-16 13:52 [main~7^2~2                      ] Merge branch 'main' into wip
+| |/ / /        1b906373 2026-04-16 12:42 [main~8^2~1                      ] mdtoc-spec moved into separate gh project
+* | | |           d0fc821b 2026-04-15 23:50 [main~9                          ] Merge pull request #628 from rokath/dependabot/github_actions/actions/checkout-6
+|\ \ \ \        59875972 2026-04-15 19:14 [main~8^2~2                      ] Merge branch 'main' into wip
+| * | | |         47fc7117 2026-04-15 19:13 [main~8^2~3                      ] mdtoc-spec wip review
+| |/ / /        9e027543 2026-04-15 14:43 [main~9^2                        ] ci: bump actions/checkout from 5 to 6
+* | | |           8fdeecf1 2026-04-15 16:41 [main~10                         ] Merge pull request #629 from rokath/dependabot/github_actions/actions/configure-pages-6
+|\ \ \ \        744e7c55 2026-04-15 16:41 [main~11                         ] Merge pull request #627 from rokath/dependabot/github_actions/goreleaser/goreleaser-action-7
+| * | | |         54d92f10 2026-04-15 16:40 [main~12                         ] Merge pull request #626 from rokath/dependabot/github_actions/actions/setup-node-6
+| |/ / /        b048c245 2026-04-15 16:40 [main~13                         ] Merge pull request #630 from rokath/dependabot/github_actions/actions/deploy-pages-5
+* | | |           ee6edf91 2026-04-15 11:39 [main~8^2~4                      ] Infos in comment section added
+|\ \ \ \        d9de33c8 2026-04-15 11:29 [main~8^2~5                      ] docs(legacy): promote mdtoc spec as canonical file
+| |/ / /        c660d088 2026-04-14 23:15 [main~8^2~6                      ] first mdtoc spec update
+|/| | /         81dc19bd 2026-04-14 16:28 [main~13^2                       ] ci: bump actions/deploy-pages from 4 to 5
+| | |/          c40b98d6 2026-04-14 16:28 [main~10^2                       ] ci: bump actions/configure-pages from 5 to 6
+| |/|           736f5833 2026-04-14 16:28 [main~11^2                       ] ci: bump goreleaser/goreleaser-action from 6 to 7
+| * |           5cf0413b 2026-04-14 16:28 [main~12^2                       ] ci: bump actions/setup-node from 1 to 6
+| * |           7d40c1ac 2026-04-14 18:27 [main~14                         ] Merge pull request #625 from rokath/wip
+| |\ \          eb69fbc0 2026-04-14 18:25 [stash~2                         ] wip mdtoc spec
+| |/ /          7b2894bd 2026-04-14 15:22 [stash~3                         ] _refresh_trice_user_manual.sh again part of format_repo.sh
+|/| |           c364369b 2026-04-14 14:58 [stash~4                         ] ci: update workflows and repo automation
+* | |           e69e1bbc 2026-04-14 12:10 [stash~5                         ] test: cover trex decoder recovery paths
+|\ \ \          6a5ab400 2026-04-14 08:06 [stash~6                         ] docs(scripts): explain xtea lint profile handling
+| | |/          a5df44b7 2026-04-13 23:40 [stash~7                         ] chore(data): refresh demo trice mapping files
+| |/|           6ac32852 2026-04-13 23:40 [stash~8                         ] docs(link-check): stabilize external documentation links
+| * |           fa61b6d7 2026-04-13 23:39 [stash~9                         ] fix(lint): cover direct xtea write path
+| | *           4a88cd0f 2026-04-13 17:09 [stash~10                        ] build: add target code cppcheck profiles
+| |/|           e95c8a74 2026-04-13 13:02 [main~15                         ] Merge pull request #624 from rokath/wip
+| |/            8987c48d 2026-04-13 12:26 [stash~11                        ] PDF hint concerning animated GIFs added
+|/|             6f23a0c9 2026-04-13 12:15 [stash~12                        ] AGENTS.md extended for issue writing
+* |             b579917f 2026-04-13 12:14 [stash~13                        ] Fix for Issue #623
+|\ \            2526c1d0 2026-04-12 22:42 [stash~14                        ] docs(src): clarify manual release asset name
+| * |           c67830e0 2026-04-12 22:42 [stash~15                        ] docs(release): add install hints to release footer
+|/ /            7e3c75a8 2026-04-12 22:41 [stash~16                        ] test(coverage): improve id and receiver hotspots
+```
+
 ## <a id='v1.2.1-changes'></a>v1.2.1 Changes (2026-04-11)
 
 ### <a id='v1.2.1-overview'></a>v1.2.1 Overview
