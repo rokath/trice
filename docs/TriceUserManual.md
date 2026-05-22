@@ -30,9 +30,32 @@ PDF Generation
 ---
 <h2>Table of Contents</h2><!-- TABLE OF CONTENTS START -->
 
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary>(click to expand)</summary>
+<style>
+details.toc .toc-hide {
+  display: none;
+}
 
+details.toc[open] .toc-show {
+  display: none;
+}
+
+details.toc[open] .toc-hide {
+  display: inline;
+}
+
+/* Optional: im PDF den Klapp-Hinweis ganz ausblenden */
+@media print {
+  details.toc > summary {
+    display: none;
+  }
+}
+</style>
+
+<details open markdown="1" class="toc">
+<summary>
+  <span class="toc-show">Show</span>
+  <span class="toc-hide">Hide</span>
+</summary>
 <!-- mdtoc -->
 
 * [1. Abstract](#abstract)
