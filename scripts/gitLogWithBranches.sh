@@ -187,13 +187,16 @@ fi
 #   1. date filters
 #   2. optional Git revision range
 git_log_args=()
+git_log_arg_count=0
 
 if [[ -n "$since_arg" ]]; then
   git_log_args+=("$since_arg")
+  git_log_arg_count=$((git_log_arg_count + 1))
 fi
 
 if [[ -n "$until_arg" ]]; then
   git_log_args+=("$until_arg")
+  git_log_arg_count=$((git_log_arg_count + 1))
 fi
 
 if [[ -n "$range_arg" ]]; then
@@ -204,6 +207,7 @@ if [[ -n "$range_arg" ]]; then
     exit 1
   fi
   git_log_args+=("$range_arg")
+  git_log_arg_count=$((git_log_arg_count + 1))
 fi
 
 # The graph returned by "git log --graph" contains the abbreviated hashes in
@@ -214,13 +218,21 @@ fi
 GRAPH_LINES=()
 HASHES=()
 
+run_git_log() {
+  if [[ "$git_log_arg_count" -gt 0 ]]; then
+    git log "$@" "${git_log_args[@]}"
+  else
+    git log "$@"
+  fi
+}
+
 while IFS= read -r line; do
   GRAPH_LINES+=("${line//[0-9a-f]/ }")
-done < <(git log --graph --pretty=format:'%h' "${git_log_args[@]}")
+done < <(run_git_log --graph --pretty=format:'%h')
 
 while IFS= read -r hash; do
   HASHES+=("$hash")
-done < <(git log --pretty=format:'%H' "${git_log_args[@]}")
+done < <(run_git_log --pretty=format:'%H')
 
 # Print each line in a stable, easy-to-scan format:
 #   graph | short hash | commit date | nearest branch | subject
