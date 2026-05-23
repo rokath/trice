@@ -52,6 +52,7 @@ MD033:
     - br
     - hr
     - u
+    - style
 
     # Headings used as HTML
     - h1
