@@ -70,7 +70,9 @@
 
 * Read-only information gathering is generally approved and should not require additional user confirmation.
 * `gh` may be used for all read-only GitHub operations without asking for additional confirmation.
-* For reading issues in `rokath/trice`, live GitHub access is explicitly requested. If the sandbox blocks read-only issue commands, rerun them with the required platform escalation and a narrow read-only prefix rule such as `["rtk", "gh", "issue", "view"]`, `["rtk", "gh", "issue", "list"]`, or `["rtk", "gh", "search", "issues"]`; do not ask an additional chat question first.
+* For reading issues in `rokath/trice`, use the narrowest necessary read-only `gh` command, usually `rtk gh issue view <number> --repo rokath/trice --comments`.
+* Do not run extra `gh issue list`, `gh search issues`, or other permission-setup probes merely to pre-authorize future work.
+* Do not request repeated platform escalations for read-only issue access. If an exact required read command is blocked by the sandbox and no existing approval rule allows it, report that technical limitation once and continue with local or already fetched evidence unless the user explicitly asks to trigger another platform permission prompt.
 * If `gh` or another read-only shell command is blocked only because network access is restricted, do not automatically request escalated execution. Use non-blocking fallbacks first, such as local documentation, repository history, web search results, or already-cached issue references, and state the exact source limitation in the result.
 * Do not stop after reporting a blocked read-only network command. Continue with local evidence and produce a qualified result unless the user explicitly asks for live external data.
 * Avoid vague wording such as "expected failure" for blocked tooling. State the observed failure concretely, for example "GitHub API access is blocked by the current network sandbox."
