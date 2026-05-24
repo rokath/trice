@@ -4,15 +4,30 @@ package id
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/rokath/trice/pkg/ant"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+type renameFailFs struct {
+	// Fs is the wrapped filesystem that performs all operations except Rename.
+	// Tests use it to observe the real files left behind after a failed commit.
+	afero.Fs
+}
+
+// Rename always fails so tests can exercise the last and most important atomic
+// replacement error path without depending on operating-system-specific rename
+// failures.
+func (r renameFailFs) Rename(_, _ string) error {
+	return errors.New("rename failed")
+}
 
 // TestProcessTriceIDCleaningConfigSwitchAndDryRun verifies the triceConfig.h
 // special case independently from the broader source-tree walk integration.
@@ -226,6 +241,50 @@ func TestCopyFileWithMTimeSuccessAndSourceError(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, string(content), string(got))
 	assert.Equal(t, MTime(FSys, src), MTime(FSys, dst))
+}
+
+// TestAtomicWriteFileKeepsOriginalOnRenameError verifies the core safety
+// property of atomicWriteFile: a failure during the final commit step must not
+// corrupt or truncate the already existing destination file.
+func TestAtomicWriteFileKeepsOriginalOnRenameError(t *testing.T) {
+	base := afero.NewMemMapFs()
+	fs := &afero.Afero{Fs: base}
+	require.NoError(t, fs.MkdirAll("project", 0o755))
+	require.NoError(t, fs.WriteFile("project/file.c", []byte("original"), 0o644))
+
+	err := atomicWriteFile(renameFailFs{Fs: base}, "project/file.c", []byte("replacement"), 0o644)
+	require.Error(t, err)
+
+	got, readErr := fs.ReadFile("project/file.c")
+	require.NoError(t, readErr)
+	assert.Equal(t, "original", string(got))
+
+	// The helper should remove its temporary file after an ordinary write-back
+	// error, otherwise later Trice runs and users would see stale artifacts.
+	entries, readDirErr := fs.ReadDir("project")
+	require.NoError(t, readDirErr)
+	for _, entry := range entries {
+		assert.NotContains(t, entry.Name(), ".file.c.trice-tmp-")
+	}
+}
+
+// TestLookupToFileKeepsOriginalOnRenameError covers the til.json write path.
+//
+// The lookup writer is used after source processing has completed. If that
+// metadata write fails during the final rename, the previous ID list must remain
+// readable so users can recover by rerunning insert or clean.
+func TestLookupToFileKeepsOriginalOnRenameError(t *testing.T) {
+	base := afero.NewMemMapFs()
+	fs := &afero.Afero{Fs: base}
+	require.NoError(t, fs.WriteFile("til.json", []byte(`{"1":{"Type":"TRICE","Strg":"old"}}`), 0o644))
+
+	err := (TriceIDLookUp{2: TriceFmt{Type: "TRICE", Strg: "new"}}).toFile(renameFailFs{Fs: base}, "til.json")
+	require.Error(t, err)
+
+	got, readErr := fs.ReadFile("til.json")
+	require.NoError(t, readErr)
+	assert.Contains(t, string(got), "old")
+	assert.NotContains(t, string(got), "new")
 }
 
 // TestEvaluateIDRangeStringsAdditionalBranches covers the remaining validation
