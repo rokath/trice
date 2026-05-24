@@ -443,6 +443,7 @@ static void triceMultiDeferredOut(int* triceCount, int* multiWordCount) {
 	enc[len++] = 0; // Add zero as package delimiter.
 	size_t encLen = len;
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 0) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
+	enc = tmp;
 	size_t encLen = multiLen;
 #else
 #error configuration: TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE for ring buffer not implemented yet

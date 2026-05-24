@@ -254,23 +254,24 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liPath string, in []byt
 				idSmallestLineIndex = i
 			}
 		}
+
 		if idSmallestLineIndex < math.MaxInt {
 			id := fileIds[idSmallestLineIndex]
+
 			if idn == 0 { // This is the "src was cleaned before" case.
 				if Verbose {
 					fmt.Fprintln(w, "Even ID", id, "is maybe not part of the IDSpace, we use it again.")
 				}
-				idN = id
-				ids = removeIDFromSlice(ids, idN)
-				p.triceToId[t] = ids
 			}
+
 			if Verbose {
-				fmt.Fprintln(w, "ID", idn, "usable, so remove it from unused list.")
+				fmt.Fprintln(w, "ID", id, "usable, so remove it from unused list.")
 			}
-			idN = id              // ids[idSmallestLineIndex] // This gets into the source. No need to remove id from p.idToLocRef.
+
+			idN = id // This gets into the source. No need to remove id from p.idToLocRef.
+			ids = removeIDFromSlice(ids, idN)
 			fileIds = fileIds[:0] // discard fileIds values
 
-			// remove id from ids now
 			if len(ids) == 0 {
 				delete(p.triceToId, t)
 			} else {
