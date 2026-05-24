@@ -191,7 +191,7 @@ func TestHandlerVersionSubcommands(t *testing.T) {
 	Verbose = false
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	for _, cmd := range []string{"ver", "version"} {
+	for _, cmd := range []string{"ver", "version", "--version", "-version"} {
 		var out bytes.Buffer
 		err := Handler(&out, fSys, []string{"trice", cmd})
 		assert.Nil(t, err)
