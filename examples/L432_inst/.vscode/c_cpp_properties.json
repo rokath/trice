@@ -1,37 +1,28 @@
 {
     "configurations": [
         {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ],
-            "compilerPath": "C:\\bin\\TDM-GCC-64\\bin\\gcc.exe",
-            "cStandard": "c17",
-            "cppStandard": "gnu++14",
-            "intelliSenseMode": "windows-gcc-x64"
-        },
-        {
             "name": "Trice",
             "includePath": [
+                "${workspaceFolder}/Core/Inc",
+                "${workspaceFolder}/Drivers/STM32L4xx_HAL_Driver/Inc",
+                "${workspaceFolder}/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy",
+                "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/include",
+                "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
+                "${workspaceFolder}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F",
+                "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32L4xx/Include",
+                "${workspaceFolder}/Drivers/CMSIS/Include",
+                "${workspaceFolder}/../../src",
+                "${workspaceFolder}/../exampleData",
+                "${workspaceFolder}/../../_test/testdata",
                 "${workspaceFolder}/**"
             ],
             "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
+                "USE_FULL_LL_DRIVER",
+                "STM32L432xx",
+                "USE_HAL_DRIVER"
             ],
-            "compilerPath": "C:\\bin\\TDM-GCC-64\\bin\\gcc.exe",
             "cStandard": "c17",
-            "cppStandard": "gnu++14",
-            "intelliSenseMode": "windows-gcc-x64",
-            "compilerArgs": [
-                "C_INCLUDES += -I../../src"
-            ]
+            "cppStandard": "gnu++14"
         }
     ],
     "version": 4
