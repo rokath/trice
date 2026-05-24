@@ -272,31 +272,18 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 	return json.MarshalIndent(lu, "", "\t")
 }
 
-// toFile writes lut into file fn as indented JSON and in verbose mode helpers for third party.
+// toFile atomically writes the ID lookup table to fn as indented JSON.
+//
+// The ID list is part of the source-state transaction performed by insert and
+// clean. Writing it through atomicWriteFile prevents an interruption from
+// leaving til.json empty or half-written after the source tree was processed.
 func (ilu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
 	var b []byte
 	b, err = ilu.toJSON()
 	if err != nil {
 		return err
 	}
-	fJSON, err := fSys.Create(fn)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		closeErr := fJSON.Close()
-		if err == nil {
-			err = closeErr
-		}
-	}()
-	n, err := fJSON.Write(b)
-	if err != nil {
-		return err
-	}
-	if n != len(b) {
-		return io.ErrShortWrite
-	}
-	return nil
+	return atomicWriteFile(fSys, fn, b, fileWritePerm(fSys, fn, 0o666))
 }
 
 // reverseS returns a reversed map. If different triceID's assigned to several equal TriceFmt all of the TriceID gets it into flu.
@@ -316,32 +303,17 @@ func addID(tF TriceFmt, id TriceID, flu triceFmtLookUp) {
 	flu[tF] = idSlice
 }
 
-// toFile writes lut into file fn as indented JSON.
+// toFile atomically writes the location lookup table to fn as indented JSON.
+//
+// li.json is regenerated during insert and clean. It gets the same atomic
+// replacement semantics as til.json so both generated metadata files are
+// protected against partial write-back.
 func (lim TriceIDLookUpLI) toFile(fSys afero.Fs, fn string) (err error) {
 	b, err := lim.toJSON()
 	if err != nil {
 		return err
 	}
-	f0, err := fSys.Create(fn)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		closeErr := f0.Close()
-		if err == nil {
-			err = closeErr
-		}
-	}()
-
-	n, err := f0.Write(b)
-	if err != nil {
-		return err
-	}
-	if n != len(b) {
-		return io.ErrShortWrite
-	}
-
-	return
+	return atomicWriteFile(fSys, fn, b, fileWritePerm(fSys, fn, 0o666))
 }
 
 // toJSON converts lim into JSON byte slice in human-readable form.

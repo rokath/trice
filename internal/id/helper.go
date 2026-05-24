@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"slices"
@@ -247,37 +248,120 @@ func fileExists(fSys *afero.Afero, path string) bool {
 	}
 } // https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
 
-// CopyFileWithMTime copies file src into dst and sets dst mtime equal to src mtime.
+// fileWritePerm returns the permission bits to use for a replacement file.
+//
+// Existing destination permissions win because an atomic rename creates a fresh
+// inode and would otherwise silently replace user-chosen permissions. The
+// fallback is used for new files, where there is no existing destination from
+// which permissions can be inherited.
+func fileWritePerm(fSys afero.Fs, name string, fallback os.FileMode) os.FileMode {
+	if info, err := fSys.Stat(name); err == nil {
+		return info.Mode().Perm()
+	}
+	return fallback.Perm()
+}
+
+// atomicWriteFile replaces name with data without truncating the original file.
+//
+// The implementation writes to a hidden temporary file in the same directory as
+// the destination. Keeping the temporary file next to the destination is
+// important: a later rename then stays on the same filesystem, which is the
+// precondition for atomic replacement on the supported operating systems.
+//
+// A failed write, sync, chmod, or rename leaves the previous destination file in
+// place. Temporary files are removed on ordinary error paths so an interrupted
+// or denied replacement does not leave misleading source artifacts behind.
+func atomicWriteFile(fSys afero.Fs, name string, data []byte, perm os.FileMode) error {
+	if fSys == nil {
+		return errors.New("nil filesystem")
+	}
+	if info, err := fSys.Stat(name); err == nil && info.Mode().IsRegular() && info.Mode().Perm()&0o222 == 0 {
+		return &os.PathError{Op: "write", Path: name, Err: os.ErrPermission}
+	}
+
+	perm = perm.Perm()          // Strip file type bits; the replacement file is created as a regular file.
+	dir := filepath.Dir(name)   // Temporary files must stay in this directory for same-filesystem rename.
+	base := filepath.Base(name) // The base name makes temporary files recognizable during diagnostics.
+	for i := 0; i < 100; i++ {
+		// Include pid, timestamp, and retry index so parallel trice workers do
+		// not collide when they update different files in the same directory.
+		temp := filepath.Join(dir, fmt.Sprintf(".%s.trice-tmp-%d-%d-%d", base, os.Getpid(), time.Now().UnixNano(), i))
+		f, err := fSys.OpenFile(temp, os.O_WRONLY|os.O_CREATE|os.O_EXCL|os.O_TRUNC, 0o600)
+		if errors.Is(err, os.ErrExist) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+
+		if err = writeAndReplaceFile(fSys, f, temp, name, data, perm); err != nil {
+			_ = fSys.Remove(temp)
+			return err
+		}
+		return nil
+	}
+	return fmt.Errorf("could not create temporary file for %s", name)
+}
+
+// writeAndReplaceFile performs the ordered write-sync-close-chmod-rename steps.
+//
+// It is separated from atomicWriteFile so error cleanup can be tested without
+// duplicating the temporary-name retry loop. The destination path is touched
+// only by the final Rename call, after the new bytes are fully written and
+// flushed to the backing filesystem as far as afero exposes that operation.
+func writeAndReplaceFile(fSys afero.Fs, f afero.File, temp, name string, data []byte, perm os.FileMode) (err error) {
+	// closed records whether the explicit close before rename succeeded. Without
+	// this guard, the deferred close would run a second time and could hide the
+	// meaningful error returned by chmod or rename on some afero backends.
+	closed := false
+	defer func() {
+		if closed {
+			return
+		}
+		if closeErr := f.Close(); err == nil {
+			err = closeErr
+		}
+	}()
+
+	n, err := f.Write(data)
+	if err != nil {
+		return err
+	}
+	if n != len(data) {
+		return io.ErrShortWrite
+	}
+	if err = f.Sync(); err != nil {
+		return err
+	}
+	if err = f.Close(); err != nil {
+		return err
+	}
+	closed = true
+	if err = fSys.Chmod(temp, perm); err != nil {
+		return err
+	}
+	return fSys.Rename(temp, name)
+}
+
+// CopyFileWithMTime atomically copies src to dst and sets dst mtime to src mtime.
+//
+// Cache restore/update paths use this helper. Preserving the source mtime keeps
+// the existing cache contract intact: unchanged source files should not look
+// edited to build systems only because Trice restored them from its cache.
 func CopyFileWithMTime(fSys *afero.Afero, dst, src string) error {
-	srcMTime := MTime(fSys, src) // get mtime before opening src
-	source, err := fSys.Open(src)
+	srcInfo, err := fSys.Stat(src)
 	if err != nil {
 		return err
 	}
-	defer source.Close()
-
-	destination, err := fSys.Create(dst)
-	if err != nil {
-		return err
-	}
-	// No defer destination.Close() here because of following func fSys.Chtimes().
-
-	_, err = io.Copy(destination, source)
+	in, err := fSys.ReadFile(src)
 	if err != nil {
 		return err
 	}
 
-	err = destination.Sync() // Sync here to ensure file is written. (Maybe not needed and/or not working)
-	if err != nil {
+	if err = atomicWriteFile(fSys, dst, in, fileWritePerm(fSys, dst, srcInfo.Mode())); err != nil {
 		return err
 	}
-
-	err = destination.Close() // Close here because of following func fSys.Chtimes().
-	if err != nil {
-		return err
-	}
-
-	return fSys.Chtimes(dst, time.Time{}, srcMTime) // Copy src mtime.
+	return fSys.Chtimes(dst, time.Time{}, srcInfo.ModTime()) // Copy src mtime.
 }
 
 func MTime(fSys *afero.Afero, fName string) time.Time {

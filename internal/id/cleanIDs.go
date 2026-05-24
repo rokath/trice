@@ -54,7 +54,7 @@ func (p *idData) processTriceIDCleaning(w io.Writer, fSys *afero.Afero, path str
 			p.join(err)
 		}
 		if !DryRun {
-			err = fSys.WriteFile(path, out, fileInfo.Mode())
+			err = atomicWriteFile(fSys, path, out, fileInfo.Mode())
 			p.join(err)
 		}
 	}
