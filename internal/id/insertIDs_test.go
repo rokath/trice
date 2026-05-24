@@ -183,6 +183,158 @@ func TestInsertKnownID(t *testing.T) {
 	FSys.RemoveAll(UserHomeDir)
 }
 
+func TestInsertCopiedKnownIDGetsNewID(t *testing.T) {
+	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
+
+	// Existing ID 555 is known and belongs to line 2.
+	exsLI := `{
+	"555": {
+		"File": "file.c",
+		"Line": 2
+	}
+}`
+	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(exsLI), 0777))
+
+	exsTIL := `{
+	"555": {
+		"Type": "TRice",
+		"Strg": "copied\\n"
+	}
+}`
+	assert.Nil(t, FSys.WriteFile(FnJSON, []byte(exsTIL), 0777))
+
+	// The first line is the original one. The second line simulates a copy
+	// where the user copied the existing ID together with the Trice statement.
+	src := `
+	TRice(iD(555), "copied\n" );
+	TRice(iD(555), "copied\n" );
+`
+	assert.Nil(t, FSys.WriteFile("file.c", []byte(src), 0777))
+
+	// action
+	assert.Nil(t, args.Handler(W, FSys, []string{
+		"trice", "insert",
+		"-src", "file.c",
+		"-IDMin", "100",
+		"-IDMax", "999",
+		"-IDMethod", "downward",
+		"-til", FnJSON,
+		"-li", LIFnJSON,
+	}))
+
+	// The original location keeps ID 555. The copied occurrence must get a new ID.
+	expSrc := `
+	TRice(iD(555), "copied\n" );
+	TRice(iD(999), "copied\n" );
+`
+	actSrc, e := FSys.ReadFile("file.c")
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc, string(actSrc))
+
+	expTIL := `{
+	"555": {
+		"Type": "TRice",
+		"Strg": "copied\\n"
+	},
+	"999": {
+		"Type": "TRice",
+		"Strg": "copied\\n"
+	}
+}`
+	actTIL, e := FSys.ReadFile(FnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expTIL, string(actTIL))
+
+	expLI := `{
+	"555": {
+		"File": "file.c",
+		"Line": 2
+	},
+	"999": {
+		"File": "file.c",
+		"Line": 3
+	}
+}`
+	actLI, e := FSys.ReadFile(LIFnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expLI, string(actLI))
+}
+
+func TestInsertCopiedKnownIDInDifferentFileGetsNewID(t *testing.T) {
+	defer Setup(t)()
+
+	exsLI := `{
+	"555": {
+		"File": "file1.c",
+		"Line": 2
+	}
+}`
+	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(exsLI), 0777))
+
+	exsTIL := `{
+	"555": {
+		"Type": "TRice",
+		"Strg": "copied\\n"
+	}
+}`
+	assert.Nil(t, FSys.WriteFile(FnJSON, []byte(exsTIL), 0777))
+
+	src1 := `
+	TRice(iD(555), "copied\n" );
+`
+	assert.Nil(t, FSys.WriteFile("file1.c", []byte(src1), 0777))
+
+	src2 := `
+	TRice(iD(555), "copied\n" );
+`
+	assert.Nil(t, FSys.WriteFile("file2.c", []byte(src2), 0777))
+
+	assert.Nil(t, args.Handler(W, FSys, []string{
+		"trice", "insert",
+		"-src", "file2.c",
+		"-IDMin", "100",
+		"-IDMax", "999",
+		"-IDMethod", "downward",
+		"-til", FnJSON,
+		"-li", LIFnJSON,
+	}))
+
+	expSrc2 := `
+	TRice(iD(999), "copied\n" );
+`
+	actSrc2, e := FSys.ReadFile("file2.c")
+	assert.Nil(t, e)
+	assert.Equal(t, expSrc2, string(actSrc2))
+
+	expTIL := `{
+	"555": {
+		"Type": "TRice",
+		"Strg": "copied\\n"
+	},
+	"999": {
+		"Type": "TRice",
+		"Strg": "copied\\n"
+	}
+}`
+	actTIL, e := FSys.ReadFile(FnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expTIL, string(actTIL))
+
+	expLI := `{
+	"555": {
+		"File": "file1.c",
+		"Line": 2
+	},
+	"999": {
+		"File": "file2.c",
+		"Line": 2
+	}
+}`
+	actLI, e := FSys.ReadFile(LIFnJSON)
+	assert.Nil(t, e)
+	assert.Equal(t, expLI, string(actLI))
+}
+
 // TestInsertKnownID2 is TestInsertKnownID extended with the alias functionality and a check for the json files.
 func TestInsertKnownID2(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
