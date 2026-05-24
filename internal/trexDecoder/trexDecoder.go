@@ -792,6 +792,26 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE64B", (*trexDec).trice64B, -1, 0, 0},
 }
 
+func (p *trexDec) alignedParamBytes(b []byte, width int) (s []byte, n int, ok bool) {
+	if p.ParamSpace > len(p.B) {
+		n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package:"))
+		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		return nil, n, false
+	}
+	if p.ParamSpace%width != 0 {
+		dumpLen := p.ParamSpace
+		if dumpLen > len(p.B) {
+			dumpLen = len(p.B)
+		}
+		n += copy(b[n:], fmt.Sprintln("err:", p.Trice.Type, "ParamSpace =", p.ParamSpace, "is not aligned to", width, "byte values - ignoring package:"))
+		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:dumpLen])))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		return nil, n, false
+	}
+	return p.B[:p.ParamSpace], 0, true
+}
+
 // triceN converts dynamic strings.
 func (p *trexDec) triceN(b []byte, _ int, _ int) int {
 	s := string(p.B[:p.ParamSpace])
@@ -831,7 +851,10 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, string(p.B))
 	}
-	s := p.B[:p.ParamSpace]
+	s, n, ok := p.alignedParamBytes(b, 2)
+	if !ok {
+		return n
+	}
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
 	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
@@ -854,7 +877,10 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, string(p.B))
 	}
-	s := p.B[:p.ParamSpace]
+	s, n, ok := p.alignedParamBytes(b, 4)
+	if !ok {
+		return n
+	}
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
 	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
@@ -876,7 +902,10 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, string(p.B))
 	}
-	s := p.B[:p.ParamSpace]
+	s, n, ok := p.alignedParamBytes(b, 8)
+	if !ok {
+		return n
+	}
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
 	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
@@ -912,7 +941,10 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, string(p.B))
 	}
-	s := p.B[:p.ParamSpace]
+	s, n, ok := p.alignedParamBytes(b, 2)
+	if !ok {
+		return n
+	}
 	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
@@ -926,7 +958,10 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, string(p.B))
 	}
-	s := p.B[:p.ParamSpace]
+	s, n, ok := p.alignedParamBytes(b, 4)
+	if !ok {
+		return n
+	}
 	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
@@ -940,7 +975,10 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, string(p.B))
 	}
-	s := p.B[:p.ParamSpace]
+	s, n, ok := p.alignedParamBytes(b, 8)
+	if !ok {
+		return n
+	}
 	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
