@@ -68,18 +68,12 @@
 
 * Read-only information gathering is generally approved and should not require additional user confirmation.
 * `gh` may be used for all read-only GitHub operations without asking for additional confirmation.
-* If the sandbox blocks an already-approved read-only operation because network access is restricted, use the required escalation mechanism once and treat the existing read-only approval as the justification.
-* If that platform-level escalation is denied, interrupted, unavailable, or would cause the task to stall, do not ask repeatedly. Continue with the best available read-only fallback, such as local documentation, repository history, web search results, or already-cached issue references, and state the exact source limitation in the result.
+* If `gh` or another read-only command is blocked only because network access is restricted, do not automatically request escalated execution. Use non-blocking fallbacks first, such as local documentation, repository history, web search results, or already-cached issue references, and state the exact source limitation in the result.
+* Do not stop after reporting a blocked read-only network command. Continue with local evidence and produce a qualified result unless the user explicitly asks for live external data.
+* Avoid vague wording such as "expected failure" for blocked tooling. State the observed failure concretely, for example "GitHub API access is blocked by the current network sandbox."
+* Request escalated execution for read-only network access only when the user explicitly asks for live external data despite the platform approval prompt, or when no qualified answer can be produced from non-blocking sources.
 * Do not let missing external read access block a requested analysis when enough local context exists for a qualified estimate.
 * Ask before using `gh` or any other tool for write operations, such as creating, editing, closing, commenting, pushing, or changing repository state.
-
----
-
-## GitHub CLI Access
-
-* `gh` may be used for all read-only operations without asking for additional confirmation.
-* If the sandbox blocks an already-approved read-only `gh` operation because network access is restricted, rerun it using the required escalation mechanism and treat the existing read-only `gh` approval as the justification.
-* Ask before using `gh` for write operations, such as creating, editing, closing, commenting, pushing, or changing repository state.
 
 ---
 
