@@ -69,3 +69,45 @@ func TestDoitMapsArgsToLogCommand(t *testing.T) {
 	assert.Equal(t, gitStatus, args.GitStatus)
 	assert.Equal(t, builtBy, args.BuiltBy)
 }
+
+func TestDoitAcceptsVersionSwitch(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+
+	previousArgs := os.Args
+	previousVersion := version
+	previousCommit := commit
+	previousDate := date
+	previousBranch := branch
+	previousGitState := gitState
+	previousGitStatus := gitStatus
+	previousBuiltBy := builtBy
+	t.Cleanup(func() {
+		os.Args = previousArgs
+		version = previousVersion
+		commit = previousCommit
+		date = previousDate
+		branch = previousBranch
+		gitState = previousGitState
+		gitStatus = previousGitStatus
+		builtBy = previousBuiltBy
+	})
+
+	version = "v1.2.3"
+	commit = "abc1234"
+	date = "2026-04-05T23:00:00+02:00"
+	gitState = "clean"
+	builtBy = "unit-test"
+
+	for _, versionSwitch := range []string{"--version", "-version"} {
+		t.Run(versionSwitch, func(t *testing.T) {
+			args.FlagsInit()
+			os.Args = []string{"tlog", versionSwitch}
+			var out bytes.Buffer
+			require.NoError(t, doit(&out, fSys))
+
+			assert.Contains(t, out.String(), "version=v1.2.3")
+			assert.Contains(t, out.String(), "commit=abc1234")
+			assert.Contains(t, out.String(), "(built by unit-test)")
+		})
+	}
+}

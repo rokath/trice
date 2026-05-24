@@ -109,9 +109,12 @@ protect_existing_target() {
   log_info "Existing installation detected at: $target_path"
 
   # Version output is best-effort only. It must never block the build.
-  # tlog intentionally has no version sub-command, so only query trice.
-  if [ "$target_basename" = "trice${go_exe_suffix}" ] && [ -x "$target_path" ]; then
-    existing_version="$("$target_path" version -v 2>/dev/null || true)"
+  if [ -x "$target_path" ]; then
+    if [ "$target_basename" = "trice${go_exe_suffix}" ]; then
+      existing_version="$("$target_path" version -v 2>/dev/null || true)"
+    else
+      existing_version="$("$target_path" --version 2>/dev/null || true)"
+    fi
     if [ -n "$existing_version" ]; then
       log_verbose "Existing version information:"
       if [ "$SILENT" = false ] && [ "$VERBOSE" = true ]; then

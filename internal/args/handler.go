@@ -43,6 +43,9 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		m := "no args, try: '" + args[0] + " help'"
 		return errors.New(m)
 	}
+	if isVersionSwitch(args[1]) {
+		return versionHandler(w, fSys, args[2:])
+	}
 
 	// Switch on the sub-command. Parse the flags for appropriate FlagSet.
 	// FlagSet.Parse() requires a set of arguments to parse as input.
@@ -62,17 +65,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
-		msg.OnErr(fsScVersion.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		if Verbose {
-			bi, ok := debug.ReadBuildInfo()
-			if !ok {
-				fmt.Println("buildInfo not ok")
-			} else {
-				pretty.Println(bi)
-			}
-		}
-		return scVersion(w)
+		return versionHandler(w, fSys, subArgs)
 	case "a", "add":
 		msg.OnErr(fsScAdd.Parse(subArgs))
 		id.CompactSrcs()
@@ -128,7 +121,28 @@ func LogHandler(w io.Writer, fSys *afero.Afero, args []string) error {
 	if len(args) == 0 {
 		args = []string{"tlog"}
 	}
+	if len(args) > 1 && isVersionSwitch(args[1]) {
+		return versionHandler(w, fSys, args[2:])
+	}
 	return runLog(w, fSys, args[1:])
+}
+
+func isVersionSwitch(arg string) bool {
+	return arg == "--version" || arg == "-version"
+}
+
+func versionHandler(w io.Writer, fSys *afero.Afero, subArgs []string) error {
+	msg.OnErr(fsScVersion.Parse(subArgs))
+	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
+	if Verbose {
+		bi, ok := debug.ReadBuildInfo()
+		if !ok {
+			fmt.Println("buildInfo not ok")
+		} else {
+			pretty.Println(bi)
+		}
+	}
+	return scVersion(w)
 }
 
 func ensureDate(fSys *afero.Afero) {
