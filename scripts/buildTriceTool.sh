@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# buildTriceTool.ba – Local build helper for the trice tool
+# buildTriceTool.ba – Local build helper for the trice and tlog tools
 #
 # This script performs a local build and injects Git metadata into the
 # Go binary using -ldflags, similar to what GoReleaser does for release builds.
@@ -21,7 +21,7 @@
 # Install behaviour:
 # - The script now resolves the final install target before running go install.
 # - A custom output target can be specified explicitly for isolated test builds.
-# - If a trice binary already exists there, it is no longer replaced silently.
+# - If a trice or tlog binary already exists there, it is no longer replaced silently.
 # - By default, an existing binary is backed up before it is overwritten.
 # - Use --no-backup to opt out of that default.
 # - Use --force to skip the interactive overwrite prompt.
@@ -38,10 +38,8 @@ cd "$SCRIPT_DIR/.." || exit 1
 # Command line handling and logging helpers
 ##############################################
 #
-# The build logic below is intentionally kept unchanged as far as the
-# actual metadata collection and go install invocation are concerned.
-# The added logic only improves the global install behaviour around an
-# already existing trice binary.
+# The build logic below keeps metadata collection shared for trice and tlog.
+# The install protection applies to both binaries before either build starts.
 
 BACKUP=true
 BACKUP_EXPLICIT=false
@@ -63,11 +61,13 @@ Options:
   --verbose    Print additional diagnostic details.
   --target-file
                Write the built trice binary to the given file path instead of
-               using go install's GOBIN/GOPATH target resolution.
+               using go install's GOBIN/GOPATH target resolution. The tlog
+               binary is written next to it as tlog plus the current GOEXE
+               suffix.
   --help       Show this help text.
 
 Notes:
-  A backup is created by default when an existing trice binary would be replaced.
+  A backup is created by default when an existing trice or tlog binary would be replaced.
   The backup file name keeps the original executable name and prefixes it with
   Backup-<timestamp>_ so that trice.exe stays trice.exe on Windows.
 EOF
@@ -91,6 +91,93 @@ log_error() {
 
 log_always() {
   printf '%s\n' "$1"
+}
+
+protect_existing_target() {
+  target_path="$1"
+  target_basename="$2"
+
+  if [ ! -e "$target_path" ]; then
+    return 0
+  fi
+
+  target_dir="$(cd -- "$(dirname -- "$target_path")" 2>/dev/null && pwd || true)"
+  if [ -z "$target_dir" ]; then
+    target_dir="$(dirname -- "$target_path")"
+  fi
+
+  log_info "Existing installation detected at: $target_path"
+
+  # Version output is best-effort only. It must never block the build.
+  if [ -x "$target_path" ]; then
+    if [ "$target_basename" = "trice${go_exe_suffix}" ]; then
+      existing_version="$("$target_path" version -v 2>/dev/null || true)"
+    else
+      existing_version="$("$target_path" --version 2>/dev/null || true)"
+    fi
+    if [ -n "$existing_version" ]; then
+      log_verbose "Existing version information:"
+      if [ "$SILENT" = false ] && [ "$VERBOSE" = true ]; then
+        printf '%s\n' "$existing_version"
+      fi
+    fi
+  fi
+
+  if [ "$FORCE" = false ]; then
+    if [ -t 0 ] && [ -t 1 ]; then
+      if [ "$BACKUP_EXPLICIT" = false ]; then
+        log_always "An existing $target_basename installation would be overwritten:"
+        log_always "  $target_path"
+        log_always "Choose: [b]ackup and overwrite, overwrite [w]ithout backup, [a]bort"
+        read -r -p "> " overwrite_choice
+        case "${overwrite_choice:-b}" in
+          b | B | "")
+            BACKUP=true
+            ;;
+          w | W)
+            BACKUP=false
+            ;;
+          a | A)
+            log_always "Build cancelled."
+            exit 0
+            ;;
+          *)
+            log_error "Invalid choice. Build cancelled."
+            exit 1
+            ;;
+        esac
+      else
+        if [ "$BACKUP" = true ]; then
+          prompt_suffix="with backup"
+        else
+          prompt_suffix="without backup"
+        fi
+        read -r -p "Overwrite existing $target_basename ${prompt_suffix}? [y/N] " overwrite_confirm
+        case "${overwrite_confirm:-N}" in
+          y | Y) ;;
+          *)
+            log_always "Build cancelled."
+            exit 0
+            ;;
+        esac
+      fi
+    else
+      log_error "Refusing to overwrite existing target in non-interactive mode: $target_path"
+      log_error "Use --force to overwrite, optionally together with --no-backup."
+      exit 1
+    fi
+  fi
+
+  if [ "$BACKUP" = true ]; then
+    timestamp="$(date +%Y%m%d-%H%M%S)"
+    backup_target="$target_dir/Backup-${timestamp}_${target_basename}"
+    log_info "Creating backup: $backup_target"
+    cp -p "$target_path" "$backup_target"
+    backup_targets="${backup_targets}${backup_target}
+"
+  else
+    log_info "Overwriting existing installation without backup."
+  fi
 }
 
 # Parse only the global behaviour flags here.
@@ -182,7 +269,7 @@ fi
 ##############################################
 
 log_info "----------------------------------------"
-log_info "Building trice with embedded Git metadata:"
+log_info "Building trice and tlog with embedded Git metadata:"
 log_info "  origin:     $origin"
 log_info "  branch:     $branch"
 log_info "  version:    $version"
@@ -209,6 +296,11 @@ log_info "----------------------------------------"
 go_exe_suffix="$(go env GOEXE)"
 if [ -n "$CUSTOM_TARGET_FILE" ]; then
   install_target="$CUSTOM_TARGET_FILE"
+  install_dir="$(cd -- "$(dirname -- "$install_target")" 2>/dev/null && pwd || true)"
+  if [ -z "$install_dir" ]; then
+    install_dir="$(dirname -- "$install_target")"
+  fi
+  tlog_install_target="$install_dir/tlog${go_exe_suffix}"
 else
   go_bin_dir="${GOBIN:-}"
   if [ -z "$go_bin_dir" ]; then
@@ -222,6 +314,8 @@ else
 
   target_name="trice${go_exe_suffix}"
   install_target="$go_bin_dir/$target_name"
+  tlog_target_name="tlog${go_exe_suffix}"
+  tlog_install_target="$go_bin_dir/$tlog_target_name"
 fi
 
 install_dir="$(cd -- "$(dirname -- "$install_target")" 2>/dev/null && pwd || true)"
@@ -231,13 +325,16 @@ fi
 
 if [ -n "$CUSTOM_TARGET_FILE" ]; then
   target_name="$(basename -- "$install_target")"
+  tlog_target_name="tlog${go_exe_suffix}"
 else
   target_name="trice${go_exe_suffix}"
+  tlog_target_name="tlog${go_exe_suffix}"
 fi
 
-backup_target=""
+backup_targets=""
 
-log_info "Install target: $install_target"
+log_info "Install trice target: $install_target"
+log_info "Install tlog target:  $tlog_install_target"
 log_verbose "Resolved GOBIN: ${GOBIN:-<unset>}"
 log_verbose "Resolved GOEXE: ${go_exe_suffix:-<none>}"
 if [ -n "$CUSTOM_TARGET_FILE" ]; then
@@ -255,74 +352,8 @@ fi
 # - existing binary + interactive terminal: ask what to do
 # - existing binary + no terminal + no --force: abort with guidance
 #
-if [ -e "$install_target" ]; then
-  log_info "Existing installation detected at: $install_target"
-
-  # Version output is best-effort only. It must never block the build.
-  if [ -x "$install_target" ]; then
-    existing_version="$("$install_target" version -v 2>/dev/null || true)"
-    if [ -n "$existing_version" ]; then
-      log_verbose "Existing version information:"
-      if [ "$SILENT" = false ] && [ "$VERBOSE" = true ]; then
-        printf '%s\n' "$existing_version"
-      fi
-    fi
-  fi
-
-  if [ "$FORCE" = false ]; then
-    if [ -t 0 ] && [ -t 1 ]; then
-      if [ "$BACKUP_EXPLICIT" = false ]; then
-        log_always "An existing trice installation would be overwritten:"
-        log_always "  $install_target"
-        log_always "Choose: [b]ackup and overwrite, overwrite [w]ithout backup, [a]bort"
-        read -r -p "> " overwrite_choice
-        case "${overwrite_choice:-b}" in
-          b | B | "")
-            BACKUP=true
-            ;;
-          w | W)
-            BACKUP=false
-            ;;
-          a | A)
-            log_always "Build cancelled."
-            exit 0
-            ;;
-          *)
-            log_error "Invalid choice. Build cancelled."
-            exit 1
-            ;;
-        esac
-      else
-        if [ "$BACKUP" = true ]; then
-          prompt_suffix="with backup"
-        else
-          prompt_suffix="without backup"
-        fi
-        read -r -p "Overwrite existing trice ${prompt_suffix}? [y/N] " overwrite_confirm
-        case "${overwrite_confirm:-N}" in
-          y | Y) ;;
-          *)
-            log_always "Build cancelled."
-            exit 0
-            ;;
-        esac
-      fi
-    else
-      log_error "Refusing to overwrite existing target in non-interactive mode: $install_target"
-      log_error "Use --force to overwrite, optionally together with --no-backup."
-      exit 1
-    fi
-  fi
-
-  if [ "$BACKUP" = true ]; then
-    timestamp="$(date +%Y%m%d-%H%M%S)"
-    backup_target="$install_dir/Backup-${timestamp}_${target_name}"
-    log_info "Creating backup: $backup_target"
-    cp -p "$install_target" "$backup_target"
-  else
-    log_info "Overwriting existing installation without backup."
-  fi
-fi
+protect_existing_target "$install_target" "$target_name"
+protect_existing_target "$tlog_install_target" "$tlog_target_name"
 
 ##############################################
 # Build command
@@ -356,6 +387,16 @@ if [ -n "$CUSTOM_TARGET_FILE" ]; then
   -s \
   -w \
 " ./cmd/trice
+  go build -o "$tlog_install_target" -ldflags "\
+  -X 'main.version=$version' \
+  -X 'main.commit=$commit' \
+  -X 'main.date=$date' \
+  -X 'main.branch=$origin - $branch' \
+  -X 'main.gitState=$git_state' \
+  -X 'main.gitStatus=$git_status' \
+  -s \
+  -w \
+" ./cmd/tlog
 else
   go install -ldflags "\
   -X 'main.version=$version' \
@@ -366,7 +407,7 @@ else
   -X 'main.gitStatus=$git_status' \
   -s \
   -w \
-" ./cmd/trice/...
+" ./cmd/trice ./cmd/tlog
 fi
 
 ##############################################
@@ -378,6 +419,10 @@ fi
 # printed explicitly because it is the key result of the build.
 log_info "Build complete."
 log_info "Installed trice target: $install_target"
-if [ -n "$backup_target" ]; then
-  log_info "Backup created: $backup_target"
+log_info "Installed tlog target:  $tlog_install_target"
+if [ -n "$backup_targets" ]; then
+  log_info "Backups created:"
+  if [ "$SILENT" = false ]; then
+    printf '%s' "$backup_targets" | sed '/^$/d; s/^/  /'
+  fi
 fi
