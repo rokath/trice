@@ -1,22 +1,45 @@
 {
 	"folders": [
 		{
+			"name": "L432_inst",
 			"path": "."
 		},
 		{
+			"name": "exampleData",
 			"path": "../exampleData"
 		},
 		{
+			"name": "src",
 			"path": "../../src"
 		},
 		{
+			"name": "testdata",
 			"path": "../../_test/testdata"
 		},
 		{
+			"name": "docs",
 			"path": "../../docs"
 		}
 	],
 	"settings": {
+		"C_Cpp.default.defines": [
+			"USE_FULL_LL_DRIVER",
+			"STM32L432xx",
+			"USE_HAL_DRIVER"
+		],
+		"C_Cpp.default.includePath": [
+			"${workspaceFolder:L432_inst}/Core/Inc",
+			"${workspaceFolder:L432_inst}/Drivers/STM32L4xx_HAL_Driver/Inc",
+			"${workspaceFolder:L432_inst}/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy",
+			"${workspaceFolder:L432_inst}/Middlewares/Third_Party/FreeRTOS/Source/include",
+			"${workspaceFolder:L432_inst}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
+			"${workspaceFolder:L432_inst}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F",
+			"${workspaceFolder:L432_inst}/Drivers/CMSIS/Device/ST/STM32L4xx/Include",
+			"${workspaceFolder:L432_inst}/Drivers/CMSIS/Include",
+			"${workspaceFolder:src}",
+			"${workspaceFolder:exampleData}",
+			"${workspaceFolder:testdata}"
+		],
 		"files.associations": {
 			"stdint.h": "c"
 		}

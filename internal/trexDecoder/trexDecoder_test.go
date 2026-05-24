@@ -485,6 +485,40 @@ func TestTriceFunctionStyleConvertersAndTrice0(t *testing.T) {
 	assert.Equal(t, "plain", string(b[:n]))
 }
 
+// TestTriceWordStyleConvertersRejectMisalignedParamSpace verifies that stale
+// target IDs cannot make word-based buffer/function decoding panic.
+func TestTriceWordStyleConvertersRejectMisalignedParamSpace(t *testing.T) {
+	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{})}
+	p.B = []byte{0, 1, 2, 3, 4, 5, 6}
+	p.ParamSpace = len(p.B)
+
+	tests := []struct {
+		name string
+		typ  string
+		strg string
+		fn   func([]byte, int, int) int
+	}{
+		{"trice16B", "TRICE16B", "%04x", p.trice16B},
+		{"trice32B", "TRICE32B", "%08x", p.trice32B},
+		{"trice64B", "TRICE64B", "%016x", p.trice64B},
+		{"trice16F", "TRICE16F", "F", p.trice16F},
+		{"trice32F", "TRICE32F", "F", p.trice32F},
+		{"trice64F", "TRICE64F", "F", p.trice64F},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			p.Trice.Type = tc.typ
+			p.Trice.Strg = tc.strg
+			b := make([]byte, 512)
+			n := tc.fn(b, 0, 0)
+			s := string(b[:n])
+			assert.Contains(t, s, "ParamSpace = 7 is not aligned")
+			assert.Contains(t, s, decoder.Hints)
+		})
+	}
+}
+
 // TestUnsignedOrSignedOut verifies the expected behavior.
 func TestUnsignedOrSignedOut(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}

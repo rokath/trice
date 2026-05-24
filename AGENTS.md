@@ -64,6 +64,14 @@
 
 ---
 
+## GitHub CLI Access
+
+* `gh` may be used for all read-only operations without asking for additional confirmation.
+* If the sandbox blocks an already-approved read-only `gh` operation because network access is restricted, rerun it using the required escalation mechanism and treat the existing read-only `gh` approval as the justification.
+* Ask before using `gh` for write operations, such as creating, editing, closing, commenting, pushing, or changing repository state.
+
+---
+
 ## Script Portability
 
 - All shell scripts must run on Linux, macOS, and Windows (e.g., via standard POSIX-compatible environments).
