@@ -232,8 +232,8 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		memset(crypt + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
 		XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
 		size_t len = (size_t)TCOBSEncode(dst, crypt, len8); // encLen is re-used here
+		dst[len++] = 0; // Add zero as package delimiter.
 		encLen += len;
-		dst[encLen++] = 0; // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)
 		//! When XTEA enabled, (XTEA can encrypt only multiple of 8 length packages.) we need to copy th data first, because the 4 bytes
 		//! behind a trice messages could get changed, when the trice length is not a multiple of 8, but only of 4.
@@ -242,8 +242,8 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		memset((crypt) + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
 		XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
 		size_t len = (size_t)COBSEncode(dst, crypt, len8); // encLen is re-used here
+		dst[len++] = 0; // Add zero as package delimiter.
 		encLen += len;
-		dst[encLen++] = 0; // Add zero as package delimiter.
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
 #if TRICE_CONFIG_WARNINGS == 1
 #error configuration: The Trice tool does not support encryted data without COBS or TCOBS framing.
