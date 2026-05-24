@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Step 03: Builds the Trice tool.
+# Step 03: Builds the Trice and tlog tools.
 #
 # Direct invocation:
 # - ./_testAll_03_BuildTriceTool.sh
@@ -35,6 +35,10 @@ main() {
     log "FAIL: buildTriceTool.sh failed"
     exit 1
   }
+  if [ ! -x "$TRICE_BIN_DIR/tlog${goexe}" ]; then
+    log "FAIL: expected tlog binary was not built: $TRICE_BIN_DIR/tlog${goexe}"
+    exit 1
+  fi
 }
 
 main "$@"

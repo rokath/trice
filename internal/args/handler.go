@@ -36,24 +36,15 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	//	args[i] = strings.TrimSpace(args[i])
 	//}
 
-	if Date == "" { // goreleaser will set Date, otherwise use file info.
-		path, err := os.Executable()
-		if err != nil {
-			Date = fmt.Sprint(err) // just in case, simply show the error
-		} else {
-			fi, err := fSys.Stat(path)
-			if err == nil { // On running main tests file-info is invalid, so do not use it in that case.
-				Date = fi.ModTime().String()
-			} else {
-				Date = fmt.Sprint(err) // just in case, simply show the error
-			}
-		}
-	}
+	ensureDate(fSys)
 
 	// Verify that a sub-command has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the sub-command.
 	if len(args) < 2 {
 		m := "no args, try: '" + args[0] + " help'"
 		return errors.New(m)
+	}
+	if isVersionSwitch(args[1]) {
+		return versionHandler(w, fSys, args[2:])
 	}
 
 	// Switch on the sub-command. Parse the flags for appropriate FlagSet.
@@ -74,17 +65,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
-		msg.OnErr(fsScVersion.Parse(subArgs))
-		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		if Verbose {
-			bi, ok := debug.ReadBuildInfo()
-			if !ok {
-				fmt.Println("buildInfo not ok")
-			} else {
-				pretty.Println(bi)
-			}
-		}
-		return scVersion(w)
+		return versionHandler(w, fSys, subArgs)
 	case "a", "add":
 		msg.OnErr(fsScAdd.Parse(subArgs))
 		id.CompactSrcs()
@@ -126,21 +107,76 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
-		id.Logging = true
-		msg.OnErr(fsScLog.Parse(subArgs))
-		id.ProcessAliases()
-		emitter.AddUserLabels()
-		decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
-		decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
-		decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")
-		decoder.ShowTargetStamp0Passed = isLogFlagPassed("ts0")
-		decoder.ShowTargetStamp32DeltaPassed = isLogFlagPassed("ts32delta")
-		decoder.ShowTargetStamp16DeltaPassed = isLogFlagPassed("ts16delta")
-		decoder.ShowTargetStamp0DeltaPassed = isLogFlagPassed("ts0delta")
-		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		logLoop(w, fSys) // endless loop
-		return nil
+		return LogHandler(w, fSys, append([]string{args[0]}, subArgs...))
 	}
+}
+
+// LogHandler parses log args and executes the log command.
+//
+// args is expected in os.Args form where args[0] is the executable name and
+// args[1:] are the log command flags. This makes `tlog ...` use the same code
+// path as `trice log ...` without exposing the other trice sub-commands.
+func LogHandler(w io.Writer, fSys *afero.Afero, args []string) error {
+	ensureDate(fSys)
+	if len(args) == 0 {
+		args = []string{"tlog"}
+	}
+	if len(args) > 1 && isVersionSwitch(args[1]) {
+		return versionHandler(w, fSys, args[2:])
+	}
+	return runLog(w, fSys, args[1:])
+}
+
+func isVersionSwitch(arg string) bool {
+	return arg == "--version" || arg == "-version"
+}
+
+func versionHandler(w io.Writer, fSys *afero.Afero, subArgs []string) error {
+	msg.OnErr(fsScVersion.Parse(subArgs))
+	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
+	if Verbose {
+		bi, ok := debug.ReadBuildInfo()
+		if !ok {
+			fmt.Println("buildInfo not ok")
+		} else {
+			pretty.Println(bi)
+		}
+	}
+	return scVersion(w)
+}
+
+func ensureDate(fSys *afero.Afero) {
+	if Date != "" { // goreleaser will set Date, otherwise use file info.
+		return
+	}
+	path, err := os.Executable()
+	if err != nil {
+		Date = fmt.Sprint(err) // just in case, simply show the error
+		return
+	}
+	fi, err := fSys.Stat(path)
+	if err == nil { // On running main tests file-info is invalid, so do not use it in that case.
+		Date = fi.ModTime().String()
+		return
+	}
+	Date = fmt.Sprint(err) // just in case, simply show the error
+}
+
+func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
+	id.Logging = true
+	msg.OnErr(fsScLog.Parse(subArgs))
+	id.ProcessAliases()
+	emitter.AddUserLabels()
+	decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
+	decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
+	decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")
+	decoder.ShowTargetStamp0Passed = isLogFlagPassed("ts0")
+	decoder.ShowTargetStamp32DeltaPassed = isLogFlagPassed("ts32delta")
+	decoder.ShowTargetStamp16DeltaPassed = isLogFlagPassed("ts16delta")
+	decoder.ShowTargetStamp0DeltaPassed = isLogFlagPassed("ts0delta")
+	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
+	logLoop(w, fSys) // endless loop
+	return nil
 }
 
 // https://stackoverflow.com/questions/35809252/check-if-flag-was-provided-in-go
