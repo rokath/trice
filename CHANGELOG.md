@@ -1,6 +1,63 @@
 ﻿# Changelog
 
 
+## <a id='v1.2.3-changes'></a>v1.2.3 Changes (2026-05-24)
+
+### <a id='v1.2.3overview'></a>v1.2.3 Overview
+
+* ringbuffer de multi nopf fixed
+* Issue [#549](https://github.com/rokath/trice/issues/549) fixed
+* Issue [#587](https://github.com/rokath/trice/issues/587) fixed
+* Issue [#658](https://github.com/rokath/trice/issues/658) fixed
+* Separates tlog binary, `trice log ...` == `tlog ...`
+* CLI switch --version added to trice and tlog
+* buildTriceTool.sh extended to create tlog as well
+* Wrong ID on trice64* cannot panic anymore (now just an error)
+* UM Chapter Ctrl-C robust use of `trice insert/clean` added
+* test & build scripts improved (hardened) for CTRL-C interruption
+
+### <a id='v1.2.3-git-log'></a>v1.2.3 Git Log
+
+```txt
+th@Mac scripts % ./gitLogWithBranches.sh --range v1.2.1..
+*               13c532a9 2026-05-24 22:14 [tags/v1.2.3                     ] Merge pull request #667 from rokath/wip
+|\              57a8331a 2026-05-24 22:05 [tags/v1.2.3^2                   ] ringbuffer de multi nopf fixed, Issue #549 fixed
+| *             24ba0695 2026-05-24 21:33 [tags/v1.2.3~1                   ] Merge pull request #666 from rokath/wip
+* |             6d92480e 2026-05-24 21:28 [tags/v1.2.3~1^2                 ] Merge remote-tracking branch 'origin/wip' into wip
+|\|             bea94369 2026-05-24 21:28 [tags/v1.2.3~1^2~1               ] Issue #587 fixed
+| *             6b006521 2026-05-24 20:33 [tags/v1.2.3~1^2^2               ] Merge branch 'main' into wip
+| |\            481c4019 2026-05-24 20:14 [tags/v1.2.3~1^2~2               ] agents.md forcing read more
+| | *           0aed8f7e 2026-05-24 19:58 [tags/v1.2.3~1^2~3               ] wip
+| | |\          0a82c488 2026-05-24 19:57 [tags/v1.2.3~2                   ] Merge pull request #665 from rokath/tlog
+| |_|/          3a0f8c44 2026-05-24 19:49 [tags/v1.2.3~1^2~4               ] Merge branch 'main' into wip
+|/| |           c20d597e 2026-05-24 19:47 [tags/v1.2.3~2^2                 ] wip
+* | |           28462a3f 2026-05-24 19:42 [tags/v1.2.3~1^2~5               ] Merge remote-tracking branch 'origin/wip' into wip
+|\ \ \          08e31bcb 2026-05-24 19:41 [tags/v1.2.3~1^2~6               ] Fix for issue #658
+| * | |         013581c1 2026-05-24 19:40 [tags/v1.2.3~3                   ] Merge pull request #663 from rokath/tlog
+| | * |         eb8f4fad 2026-05-24 19:34 [tags/v1.2.3~3^2                 ] Merge branch 'main' into tlog
+| | |/          362c9528 2026-05-24 19:33 [tags/v1.2.3~4                   ] Merge pull request #664 from rokath/wip
+| | *           67b7633c 2026-05-24 19:18 [tags/v1.2.3~4^2                 ] Merge branch 'main' into wip
+| | *           acfa1f50 2026-05-24 19:14 [tags/v1.2.3~4^2~1               ] Merge remote-tracking branch 'origin/wip' into wip
+| | *           3c2a2007 2026-05-24 19:12 [tags/v1.2.3~4^2~2               ] ok
+| | |\          493eca98 2026-05-24 19:12 [tags/v1.2.3~4^2~1^2             ] ok
+| |_|/          2cbbedba 2026-05-24 19:10 [tags/v1.2.3~4^2~3               ] Merge branch 'main' into wip
+|/| |           44a9027d 2026-05-24 19:07 [tags/v1.2.3~3^2~1               ] Merge branch 'main' into tlog
+* | |           67226d9f 2026-05-24 18:50 [tags/v1.2.3~3^2~2               ] gh read access rule claryfied
+|\| |           bafc1b75 2026-05-24 14:19 [tags/v1.2.3~5                   ] Merge pull request #662 from rokath/tlog
+| * |           8a66a133 2026-05-24 11:25 [tags/v1.2.3~6                   ] Merge pull request #661 from rokath/wip
+| |\ \          76e1197f 2026-05-24 11:24 [tags/v1.2.3~5^2                 ] CLI switch --version added to trice and tlog
+| |/ /          6cb7ba26 2026-05-24 11:02 [tags/v1.2.3~5^2~1               ] buildTriceTool.sh extended to create tlog as well
+|/| |           e17acd36 2026-05-24 10:53 [tags/v1.2.3~5^2~2               ] tlog as separate binary (first shot)
+* | |           1ace29cf 2026-05-24 10:48 [tags/v1.2.3~6^2                 ] AGENTS.md allows gh to read always
+|\ \ \          c246bcb1 2026-05-24 10:47 [tags/v1.2.3~6^2~1               ] debug paths now for cross platform usage
+| | * \           04fff420 2026-05-24 10:19 [tags/v1.2.3~6^2~2               ] Wrong ID on trice64* cannot panic anymore
+| | |\ \        85d7d876 2026-05-23 23:44 [tags/v1.2.3~7                   ] Merge pull request #660 from rokath/wip
+| |_|/ /        f87842b2 2026-05-23 23:23 [tags/v1.2.3~7^2                 ] UM Chapter Ctrl-C robust use of `trice insert/clean` added
+|/| | |         9c8a3bea 2026-05-23 23:07 [tags/v1.2.3~7^2~1               ] test & build scripts improved (hardened) for CTRL-C interruption
+| | | *           6132e7a8 2026-05-22 19:05 [tags/v1.2.3~7^2~2               ] minor
+| | | |\        28a8376f 2026-05-22 19:01 [tags/v1.2.3~7^2~3               ] TriceUserManual.pdf with open TOC again
+````
+
 ## <a id='v1.2.2-changes'></a>v1.2.2 Changes (2026-05-22)
 
 ### <a id='v1.2.2overview'></a>v1.2.2 Overview
