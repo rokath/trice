@@ -110,7 +110,7 @@ CGOTESTDIRS="
  staticB_di_tcobs_rtt32/
  staticB_di_tcobs_rtt8/
  staticB_di_xtea_cobs_rtt32/
-_userprint_dblB_de_tcobs_ua/
+ userprint_dblB_de_tcobs_ua/
  "
 
 # Refresh test folders.
