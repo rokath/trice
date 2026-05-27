@@ -6,6 +6,8 @@
 #include "trice.h"
 #include "triceX0.h"
 
+#ifdef TRICE_X0_COUNTED_BUFFER_SUPPORT
+
 /*
  * Write a typeX0 counted user packet.
  *
@@ -124,3 +126,5 @@ void triceX0(const void* buf, uint16_t len) {
      */
     TRICE_LEAVE
 }
+
+#endif // #ifdef TRICE_X0_COUNTED_BUFFER_SUPPORT
