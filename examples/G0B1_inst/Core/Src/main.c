@@ -83,6 +83,12 @@ int main(void)
   trice("Fun %x!\n", 0xadded ); // with "fixed" iD(255), 32-bit stamp,  and with `\n`
   TriceHeadLine("  NUCLEO-G0B1RE   ");
   LogTriceConfiguration();
+  {
+    char buf[] = { 0, 1, 2, 3, 4, 0xff, 0xfe, 0xfd, 0xfc };
+    for( int i = 0; i < sizeof(buf); i++ ){
+        triceX0(buf, i);
+    }
+  }
 #endif
   /* USER CODE END 1 */
 

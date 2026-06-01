@@ -2704,6 +2704,12 @@ For projects or tests that want this helper, define in `triceConfig.h`:
 
 A project can also provide its own selector-0 writer. The counted helper is only the reference implementation for the initial `-typeX0=counted:<format>` use case.
 
+#### `typeX0` Usage in `./examples/G0B1_inst`
+
+![alt text](./ref/typeX0_example.png)
+
+The point here is, that with CLI switch `-tyeX0=ignore` the packages are invisible. On demand a `-typeX0=forward:<ADDRESS>` option is implementable.
+
 ### 20.5. <a id="go-implementation-layout"></a>Go implementation layout
 
 Keep the `typeX0` mode parsing and handling centralized so later modes can be added without spreading switch logic through the decoder.

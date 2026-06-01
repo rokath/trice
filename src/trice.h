@@ -320,8 +320,8 @@ extern uint32_t* TriceBufferWritePosition;
 #endif // __GNUC__
 #endif
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
-#define TRICE_PUT16(x)                                             \
-	do {                                                             \
+#define TRICE_PUT16(x)                                                 \
+	do {                                                               \
 		uint16_t* p_TRICE_PUT16 = (uint16_t*)TriceBufferWritePosition; \
 		*p_TRICE_PUT16++ = TRICE_HTOTS(x);                             \
 		TriceBufferWritePosition = (uint32_t*)p_TRICE_PUT16;           \
@@ -332,6 +332,7 @@ extern uint32_t* TriceBufferWritePosition;
 #if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64.h"
 #endif // (TRICE_64_BIT_SUPPORT == 1)
+#include "triceX0.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Endian dependent macros and code:
