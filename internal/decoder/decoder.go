@@ -57,6 +57,12 @@ var (
 	// ShowID is used as format string for displaying the first trice ID at the start of each line if not "".
 	ShowID string
 
+	// TypeX0 controls how selector-0 records are interpreted by decoders that support typeX0.
+	TypeX0 = "error"
+
+	// BlankMetadata requests metadata columns without their value content for the current decoded output.
+	BlankMetadata bool
+
 	// decoder.LastTriceID is last decoded ID. It is used for switch -showID.
 	LastTriceID id.TriceID
 

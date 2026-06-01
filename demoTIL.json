@@ -9191,6 +9191,14 @@
 		"Type": "trice64F",
 		"Strg": "Rpc:FunctionNameZd"
 	},
+	"15873": {
+		"Type": "TRice",
+		"Strg": "Hello World!\\n"
+	},
+	"16320": {
+		"Type": "Trice",
+		"Strg": "ok!\\n"
+	},
 	"16326": {
 		"Type": "trice",
 		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"

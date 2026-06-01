@@ -188,6 +188,47 @@ func TestRecordAndPrintTriceStatistics(t *testing.T) {
 	assert.Contains(t, s, "2 Trice messsges")
 }
 
+// TestHandleTypeX0 verifies the initial selector-0 handling modes and shorthand rules.
+func TestHandleTypeX0(t *testing.T) {
+	oldTypeX0 := TypeX0
+	t.Cleanup(func() { TypeX0 = oldTypeX0 })
+
+	tests := []struct {
+		name          string
+		option        string
+		record        []byte
+		endian        bool
+		noneFraming   bool
+		wantText      string
+		wantContains  string
+		wantConsumed  int
+		wantBlankMeta bool
+	}{
+		{name: "default error", option: "error", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: "typeX0 packet ignored", wantConsumed: 4, wantBlankMeta: true},
+		{name: "counted string shorthand", option: "%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "OK", wantConsumed: 4, wantBlankMeta: true},
+		{name: "counted explicit with colon format", option: "counted:sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "sig:OK", wantConsumed: 4, wantBlankMeta: true},
+		{name: "colon shorthand rejected", option: "sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: `unsupported typeX0 mode "sig"`, wantConsumed: 4, wantBlankMeta: true},
+		{name: "counted ignore", option: "ignore", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantConsumed: 4},
+		{name: "all ignore consumes package", option: "all:ignore", record: []byte{0x02, 0x00, 'O', 'K', 0x01, 0x40}, endian: LittleEndian, wantConsumed: 6},
+		{name: "big endian counted", option: "%s", record: []byte{0x00, 0x02, 'O', 'K'}, endian: BigEndian, wantText: "OK", wantConsumed: 4, wantBlankMeta: true},
+		{name: "none framing skips alignment", option: "%s", record: []byte{0x01, 0x00, 'A', 0x00}, endian: LittleEndian, noneFraming: true, wantText: "A", wantConsumed: 4, wantBlankMeta: true},
+		{name: "malformed ignore still errors", option: "ignore", record: []byte{0x04, 0x00, 'A'}, endian: LittleEndian, wantContains: "malformed counted typeX0 packet", wantConsumed: 3, wantBlankMeta: true},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			TypeX0 = tc.option
+			got := HandleTypeX0(tc.record, tc.endian, tc.noneFraming)
+			assert.Equal(t, tc.wantConsumed, got.Consumed)
+			assert.Equal(t, tc.wantBlankMeta, got.BlankMetadata)
+			if tc.wantContains != "" {
+				assert.Contains(t, got.Text, tc.wantContains)
+				return
+			}
+			assert.Equal(t, tc.wantText, got.Text)
+		})
+	}
+}
+
 // TestLocationInformation validates location string formatting with and without verbose/lookup data.
 func TestLocationInformation(t *testing.T) {
 	oldFmt := LocationInformationFormatString

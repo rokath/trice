@@ -286,13 +286,15 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 		offset = 0;
 		len = 8 + triceDataLen(pStart + 6); // tyId ts32
 		break;
-	default: // impossible case (triceType has only 2 bits)
-	         // fall thru
 	case TRICE_TYPE_X0:
+		offset = 0;
+		len = 2u + (size_t)triceID; // selector-0 counted X0 uses the lower 14 bits as payload byte count.
+		break;
+	default: // impossible case (triceType has only 2 bits)
 		TriceErrorCount++;
 		*ppTriceNetStart = pStart;
 		*pTriceNetLength = 0;
-		return -__LINE__; // extended trices not supported (yet)
+		return -__LINE__;
 	}
 	// S16 case example:            triceSize  len   t-0-3   t-o
 	// 80id 80id 1616 00cc                8     6      3      6
@@ -303,7 +305,7 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 	*pWordCount = (len + offset + 3) >> 2;
 	*ppTriceNetStart = pStart;
 	*pTriceNetLength = len;
-	return triceID;
+	return triceType == TRICE_TYPE_X0 ? 0 : triceID; // X0 has no Trice ID; do not route by its payload length.
 }
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
@@ -313,7 +315,7 @@ static int TriceIDAndBuffer(const uint32_t* const pData, int* pWordCount, uint8_
 //! This function is specific to the ring buffer, because the wordCount value needs to be reconstructed.
 //! \retval The returned value tells how many words where used by the transmitted trice and is usable for the memory management. See RingBuffer for example.
 //! The returned value is typically (TRICE_DATA_OFFSET/4) plus 1 (4 bytes) to 3 (9-12 bytes) but could go up to ((TRICE_DATA_OFFSET/4)+(TRICE_BUFFER_SIZE/4)).
-//! Return values <= 0 signal an error.
+//! Return values < 0 signal an error; 0 is used for X0 because it has no Trice ID.
 //! TriceRingBufferReadPosition points to the begin of a single trice.
 //! The data at TriceRingBufferReadPosition are getting destroyed, because buffer is used as scratch pad.
 static void triceSingleDeferredOut(int* wordCount) {

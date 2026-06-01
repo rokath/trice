@@ -29,7 +29,7 @@ const (
 	typeS0   = 1 // regular trice format without stamp     : 011iiiiiI NC ...
 	typeS2   = 2 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
 	typeS4   = 3 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
-	typeX0   = 0 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
+	typeX0   = 0 // selector-0 extension record without Trice ID, timestamp or cycle counter
 
 	packageFramingNone = iota
 	packageFramingCOBS
@@ -133,19 +133,26 @@ func (p *trexDec) nextData() {
 func (p *trexDec) nextPackage() {
 	// Here p.IBuf contains none or available bytes, what can be several trice messages.
 	// So first try to process p.IBuf.
-	index := bytes.IndexByte(p.IBuf, 0) // find terminating 0
-	if index == -1 {                    // p.IBuf has no complete COBS data, so try to read more input
-		m, err := p.In.Read(p.InnerBuffer)            // use p.InnerBuffer as bytes read buffer
-		p.IBuf = append(p.IBuf, p.InnerBuffer[:m]...) // merge with leftovers
-		if err != nil && err != io.EOF {              // some serious error
-			log.Fatal("ERROR:internal reader error\a", err) // exit
-		}
+	var index int
+	for {
 		index = bytes.IndexByte(p.IBuf, 0) // find terminating 0
-		if index == -1 {                   // p.IBuf has no complete COBS data, so leave
-			// Even err could be io.EOF, some valid data possibly in p.iBUf.
-			// In case of file input (J-LINK usage) a plug off is not detectable here.
-			return // no terminating 0, nothing to do
+		if index == -1 {                   // p.IBuf has no complete COBS data, so try to read more input
+			m, err := p.In.Read(p.InnerBuffer)            // use p.InnerBuffer as bytes read buffer
+			p.IBuf = append(p.IBuf, p.InnerBuffer[:m]...) // merge with leftovers
+			if err != nil && err != io.EOF {              // some serious error
+				log.Fatal("ERROR:internal reader error\a", err) // exit
+			}
+			index = bytes.IndexByte(p.IBuf, 0) // find terminating 0
+			if index == -1 {                   // p.IBuf has no complete COBS data, so leave
+				// Even err could be io.EOF, some valid data possibly in p.iBUf.
+				// In case of file input (J-LINK usage) a plug off is not detectable here.
+				return // no terminating 0, nothing to do
+			}
 		}
+		if index != 0 {
+			break
+		}
+		p.IBuf = p.IBuf[1:] // skip empty frames from 32-bit direct-output delimiter padding
 	}
 	if decoder.TestTableMode {
 		p.printTestTableLine(index + 1)
@@ -280,6 +287,7 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
+	decoder.BlankMetadata = false
 	if p.packageFraming == packageFramingNone {
 		p.nextData() // returns all unprocessed data inside p.B
 		p.B0 = p.B   // keep data for re-sync
@@ -287,18 +295,23 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if cipher.Password != "" && len(p.B) < 8 && isZero(p.B) {
 			p.B = p.B[:0] // Discard trailing zeroes. ATTENTION: incomplete trice messages containing many zeroes could be problematic here!
 		}
-		if len(p.B) == 1 { // last decoded package exhausted
-			if decoder.Verbose {
-				fmt.Println("Inconsistent data, discarding last single byte", p.B[0], "from:")
-				fmt.Println(hex.Dump(p.B))
-			}
+		if len(p.B) == 1 { // one leftover byte cannot form a supported framed record
+			n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short packet size 1 - ignoring package:"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			p.B = p.B[:0]
+			return n, nil
 		}
 		if len(p.B) == 0 { // last decoded package exhausted
 			p.nextPackage() // returns one decoded package inside p.B
 		}
 	}
 	packageSize := len(p.B)
+	if packageSize == 1 && p.packageFraming != packageFramingNone {
+		n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short packet size 1 - ignoring package:"))
+		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+		p.B = p.B[:0]
+		return n, nil
+	}
 	if packageSize < tyIdSize { // not enough data for a next package
 		return
 	}
@@ -307,11 +320,26 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.B = p.B[tyIdSize:]
 
 	triceType := int(tyId >> decoder.IDBits) // most significant bit are the triceType
-	triceID := id.TriceID(0x3FFF & tyId)     // 14 least significant bits are the ID
-	decoder.LastTriceID = triceID            // used for showID
-	decoder.RecordForStatistics(triceID)     // This is for the "trice log -stat" flag
+	if triceType == typeX0 {
+		x0 := decoder.HandleTypeX0(packed, p.Endian, p.packageFraming == packageFramingNone)
+		if x0.Consumed > len(packed) {
+			x0.Consumed = len(packed)
+		}
+		p.B = packed[x0.Consumed:]
+		decoder.LastTriceID = 0
+		decoder.TargetTimestamp = 0
+		decoder.TargetTimestampSize = 0
+		decoder.BlankMetadata = x0.BlankMetadata
+		if x0.Text == "" {
+			return
+		}
+		n += copy(b[n:], x0.Text)
+		return n, nil
+	}
 
-	//typeX0Handler := "countedString"
+	triceID := id.TriceID(0x3FFF & tyId) // 14 least significant bits are the ID
+	decoder.LastTriceID = triceID        // used for showID
+	decoder.RecordForStatistics(triceID) // This is for the "trice log -stat" flag
 
 	switch triceType {
 	case typeS0: // no timestamp
@@ -329,34 +357,19 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestampSize = 4
-	case typeX0: // extended trice type X0
-		if p.packageFraming == packageFramingNone {
-			// typeX0 is not supported (yet)
-			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:\aTo try to resync removing zero HI byte from:"))
-				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
-			}
-			p.B = p.removeZeroHiByte(p.B0)
-			return
-		}
-
-		//  decoder.TargetTimestampSize = 0
-		//  switch typeX0Handler {
-		//  case "countedString":
-		//  	len := triceID
-		//  	//n += copy(b[n:], "vintage:")
-		//  	n += copy(b[n:], fmt.Sprintln(string(p.B[:len])))
-		//  	p.B = p.B[len:]
-		//  default:
-		//  	n += copy(b[n:], fmt.Sprintln("ERROR:\aNo handler for triceType typeX0"))
-		//  }
-		//  return n, nil
-
-		// We can reach here in target TRICE_MULTI_PACK_MODE, when a trice message is followed by several zeroes (up to 7 possible with encryption).
-		p.B = p.removeZeroHiByte(packed)
+	default:
+		n += copy(b[n:], fmt.Sprintln("ERROR:\aunknown trice type", triceType, "(hint: IDBits value?)"))
+		p.B = p.B[:0]
+		return n, nil
 	}
 
 	if packageSize < tyIdSize+decoder.TargetTimestampSize+ncSize { // for non typeEX trices
+		if p.packageFraming != packageFramingNone {
+			n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short non-X0 packet size", packageSize, "- ignoring package:"))
+			n += copy(b[n:], fmt.Sprintln(hex.Dump(packed)))
+			p.B = p.B[:0]
+			return n, nil
+		}
 		return // not enough data
 	}
 
@@ -368,67 +381,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestamp = uint64(p.ReadU16(p.B))
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
-	default: // typeX0
-		//  switch typeX0Handler {
-		//  case "countedString":
-		//  	len := triceID
-		//  	n += copy(b[n:], "USER:")
-		//  	n += copy(b[n:], fmt.Sprintln(string(p.B[:len])))
-		//  	p.B = p.B[len:]
-		//  default:
-		n += copy(b[n:], fmt.Sprintln("ERROR:\atriceType typeX0 not implemented (hint: IDBits value?)"))
-		//  }
-		return n, nil
 	}
-	//		decoder.TargetTimestampSize = 0
-	//		switch typeX0Handler {
-	//		case "countedString":
-	//			len := triceID
-	//			//n += copy(b[n:], "vintage:")
-	//			n += copy(b[n:], fmt.Sprintln(string(p.B[:len])))
-	//			p.B = p.B[len:]
-	//		default:
-	//			n += copy(b[n:], fmt.Sprintln("ERROR:\aNo handler for triceType typeX0"))
-	//		}
-	//		return n, nil
-	//
-	//		//  if p.packageFraming == packageFramingNone {
-	//		//  	// typeX0 is not supported (yet)
-	//		//  	if decoder.Verbose {
-	//		//  		n += copy(b[n:], fmt.Sprintln("wrn:\aTo try to resync removing zero HI byte from:"))
-	//		//  		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
-	//		//  	}
-	//		//  	p.B = p.removeZeroHiByte(p.B0)
-	//		//  	return
-	//		//  }
-	//		// We can reach here in target TRICE_MULTI_PACK_MODE, when a trice message is followed by several zeroes (up to 7 possible with encryption).
-	//		// p.B = p.removeZeroHiByte(packed)
-	//	}
-	//
-	//	if packageSize < tyIdSize+decoder.TargetTimestampSize+ncSize { // for non typeEX trices
-	//		return // not enough data
-	//	}
-	//
-	//	// try to interpret
-	//	switch triceType {
-	//	case typeS0:
-	//		decoder.TargetTimestamp = 0
-	//	case typeS2: // 16-bit stamp
-	//		decoder.TargetTimestamp = uint64(p.ReadU16(p.B))
-	//	case typeS4: // 32-bit stamp
-	//		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
-	//	default: // typeX0
-	//		switch typeX0Handler {
-	//		case "countedString":
-	//			len := triceID
-	//			n += copy(b[n:], "USER:")
-	//			n += copy(b[n:], fmt.Sprintln(string(p.B[:len])))
-	//			p.B = p.B[len:]
-	//		default:
-	//			n += copy(b[n:], fmt.Sprintln("ERROR:\atriceType typeX0 not implemented (hint: IDBits value?)"))
-	//		}
-	//		return n, nil
-	//	}
 
 	p.B = p.B[decoder.TargetTimestampSize:]
 
@@ -548,10 +501,15 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	} else {
 		if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
 			p.B = p.B[p.ParamSpace:] // drop param info
+			if len(p.B) < 4 && isZero(p.B) {
+				p.B = p.B[:0] // drop framed direct-output word padding after the decoded Trice
+			}
 		} else { // no package framing
-			padding := (p.ParamSpace + 3) & ^3
-			if padding <= len(p.B) {
-				p.B = p.B[padding:]
+			alignedParamSpace := (p.ParamSpace + 3) & ^3
+			if alignedParamSpace <= len(p.B) && isZero(p.B[p.ParamSpace:alignedParamSpace]) {
+				p.B = p.B[alignedParamSpace:]
+			} else if p.ParamSpace <= len(p.B) {
+				p.B = p.B[p.ParamSpace:]
 			} else {
 				// n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes", ))
 			}

@@ -27,6 +27,7 @@ type scriptedDecoderStep struct {
 	lastTriceID     id.TriceID
 	targetTimestamp uint64
 	targetStampSize int
+	blankMetadata   bool
 }
 
 type scriptedDecoder struct {
@@ -43,6 +44,7 @@ func (d *scriptedDecoder) Read(buf []byte) (int, error) {
 	decoder.LastTriceID = step.lastTriceID
 	decoder.TargetTimestamp = step.targetTimestamp
 	decoder.TargetTimestampSize = step.targetStampSize
+	decoder.BlankMetadata = step.blankMetadata
 	return copy(buf, step.data), step.err
 }
 
@@ -75,6 +77,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 	savedLastTriceID := decoder.LastTriceID
 	savedTargetTimestamp := decoder.TargetTimestamp
 	savedTargetTimestampSize := decoder.TargetTimestampSize
+	savedBlankMetadata := decoder.BlankMetadata
 
 	t.Cleanup(func() {
 		receiver.Port = savedPort
@@ -101,6 +104,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 		decoder.LastTriceID = savedLastTriceID
 		decoder.TargetTimestamp = savedTargetTimestamp
 		decoder.TargetTimestampSize = savedTargetTimestampSize
+		decoder.BlankMetadata = savedBlankMetadata
 	})
 
 	receiver.Port = "BUFFER"
@@ -127,6 +131,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 	decoder.LastTriceID = 0
 	decoder.TargetTimestamp = 0
 	decoder.TargetTimestampSize = 0
+	decoder.BlankMetadata = false
 }
 
 // TestRenderTargetStampColumns16DeltaWraparound verifies the expected behavior.
@@ -589,6 +594,36 @@ func TestDecodeAndComposeLoopPrependsMetadataOncePerLine(t *testing.T) {
 	err := decodeAndComposeLoop(&out, sw, dec, id.TriceIDLookUp{}, li)
 	require.ErrorIs(t, err, io.EOF)
 	assert.Equal(t, "main.c:42 TS:1234  DT:-  ID:17  message end\n", out.String())
+}
+
+// TestDecodeAndComposeLoopBlanksMetadataWhenRequested verifies aligned metadata suppression for X0 output.
+func TestDecodeAndComposeLoopBlanksMetadataWhenRequested(t *testing.T) {
+	configureTranslatorLoopTest(t)
+
+	id.LIFnJSON = "on"
+	decoder.ShowID = "ID:%d "
+	decoder.TargetStamp0 = "TS:      "
+	decoder.ShowTargetStamp0Passed = true
+	decoder.LocationInformationFormatString = decoder.LiFmtDefault
+
+	li := id.TriceIDLookUpLI{
+		17: {File: "/tmp/demo/main.c", Line: 42},
+	}
+	dec := &scriptedDecoder{
+		steps: []scriptedDecoderStep{
+			{data: "x0\n", lastTriceID: 17, targetStampSize: 0, blankMetadata: true},
+		},
+	}
+	var out bytes.Buffer
+	sw := emitter.New(&out)
+
+	err := decodeAndComposeLoop(&out, sw, dec, id.TriceIDLookUp{}, li)
+	require.ErrorIs(t, err, io.EOF)
+	want := strings.Repeat(" ", len(locationInformation(17, li))) +
+		"TS:       " +
+		strings.Repeat(" ", len("ID:17 ")) +
+		" x0\n"
+	assert.Equal(t, want, out.String())
 }
 
 // TestDecodeAndComposeLoopFlushesPartialBufferLine verifies that buffered ports flush an unfinished line on EOF.

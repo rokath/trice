@@ -534,6 +534,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 
 			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
 				s := locationInformation(decoder.LastTriceID, li)
+				if decoder.BlankMetadata {
+					s = blankMetadataField(s)
+				}
 				_, err := sw.Write([]byte(s)) // todo: sw.WriteString(s) ?
 				msg.OnErr(err)
 			}
@@ -541,6 +544,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			var s string
 			if logLineStart {
 				s = renderTargetStamp(decoder.TargetTimestampSize, decoder.TargetTimestamp)
+				if decoder.BlankMetadata {
+					s = blankTaggedMetadataValue(s)
+				}
 				if s != "" {
 					_, err := sw.Write([]byte(s))
 					msg.OnErr(err)
@@ -548,6 +554,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 					msg.OnErr(err)
 				}
 				s = renderTargetDelta(decoder.TargetTimestampSize, decoder.TargetTimestamp, &state)
+				if decoder.BlankMetadata {
+					s = blankTaggedMetadataValue(s)
+				}
 				if s != "" {
 					_, err := sw.Write([]byte(s))
 					msg.OnErr(err)
@@ -558,6 +567,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			// write ID only if enabled and line start.
 			if logLineStart && decoder.ShowID != "" {
 				s := fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)
+				if decoder.BlankMetadata {
+					s = blankMetadataField(s)
+				}
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
 				_, err = sw.Write([]byte("default: ")) // add space as separator
@@ -572,6 +584,20 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
 	}
+}
+
+// blankMetadataField preserves the occupied metadata width while hiding its value.
+func blankMetadataField(s string) string {
+	return strings.Repeat(" ", len(s))
+}
+
+// blankTaggedMetadataValue preserves an optional label before the first colon and blanks the value part.
+func blankTaggedMetadataValue(s string) string {
+	tag, value, found := strings.Cut(s, ":")
+	if !found || tag == "" {
+		return blankMetadataField(s)
+	}
+	return tag + ":" + strings.Repeat(" ", len(value))
 }
 
 // correctWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
