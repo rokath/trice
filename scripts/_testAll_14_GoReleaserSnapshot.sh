@@ -45,8 +45,11 @@ verify_release_artifact() {
 verify_release_glob() {
   local pattern="$1"
   local matches=()
+  local match
 
-  mapfile -t matches < <(compgen -G "$pattern" | sort || true)
+  while IFS= read -r match; do
+    matches+=("$match")
+  done < <(compgen -G "$pattern" | sort || true)
 
   if [ "${#matches[@]}" -eq 0 ]; then
     log "FAIL: no release artifact matches: $pattern"

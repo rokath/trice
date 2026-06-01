@@ -50,7 +50,13 @@ if [ "$QUIET" -eq 1 ]; then
       filtered_args+=("$arg")
     fi
   done
-  set -- "${filtered_args[@]}"
+
+  if [ "${#filtered_args[@]}" -gt 0 ]; then
+    set -- "${filtered_args[@]}"
+  else
+    set --
+  fi
+
 fi
 
 log() {
