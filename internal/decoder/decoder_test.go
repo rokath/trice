@@ -212,6 +212,9 @@ func TestHandleTypeX0(t *testing.T) {
 		{name: "all ignore consumes package", option: "all:ignore", record: []byte{0x02, 0x00, 'O', 'K', 0x01, 0x40}, endian: LittleEndian, wantConsumed: 6},
 		{name: "big endian counted", option: "%s", record: []byte{0x00, 0x02, 'O', 'K'}, endian: BigEndian, wantText: "OK", wantConsumed: 4, wantBlankMeta: true},
 		{name: "none framing skips alignment", option: "%s", record: []byte{0x01, 0x00, 'A', 0x00}, endian: LittleEndian, noneFraming: true, wantText: "A", wantConsumed: 4, wantBlankMeta: true},
+		{name: "none framing allows compact empty payload", option: "%s", record: []byte{0x00, 0x00}, endian: LittleEndian, noneFraming: true, wantText: "", wantConsumed: 2, wantBlankMeta: true},
+		{name: "none framing keeps compact next record", option: "%s", record: []byte{0x01, 0x00, 'A', 0x01, 0x40}, endian: LittleEndian, noneFraming: true, wantText: "A", wantConsumed: 3, wantBlankMeta: true},
+		{name: "framed rejects non-zero alignment padding", option: "%s", record: []byte{0x01, 0x00, 'A', 'B'}, endian: LittleEndian, wantContains: "non-zero alignment padding", wantConsumed: 4, wantBlankMeta: true},
 		{name: "malformed ignore still errors", option: "ignore", record: []byte{0x04, 0x00, 'A'}, endian: LittleEndian, wantContains: "malformed counted typeX0 packet", wantConsumed: 3, wantBlankMeta: true},
 	}
 	for _, tc := range tests {

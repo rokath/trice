@@ -34,6 +34,7 @@ package cgot
 // #include "../../src/cobsEncode.c"
 // #include "../../src/tcobsv1Decode.c"
 // #include "../../src/tcobsv1Encode.c"
+// #include "../../src/triceX0.c"
 // #include "../testdata/triceCheck.c"
 // #include "../testdata/cgoTrice.c"
 import "C"
@@ -54,6 +55,12 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
+
+// testTypeX0 enables counted X0 payload decoding for the shared cgo checks.
+const testTypeX0 = `counted:sig:% x\n`
+
+// cgoTransferAttempts is high enough for test lines that intentionally emit several Trices.
+const cgoTransferAttempts = 8
 
 var (
 	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
@@ -85,6 +92,13 @@ func triceCheck(n int) {
 // triceTransfer performs the deferred trice output.
 func triceTransfer() {
 	C.TriceTransfer()
+}
+
+// transferPendingTrices drains deferred C test output after one test line.
+func transferPendingTrices() {
+	for range cgoTransferAttempts {
+		triceTransfer()
+	}
 }
 
 // triceOutDepth returns the actual out buffer depth.
@@ -181,7 +195,7 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 	result := getExpectedResults(osFSys, triceCheckC, testLines)
 	for i, v := range result {
 		triceCheck(v.line) // target activity
-		triceTransfer()    // This is only for deferred modes needed, but direct modes contain this as empty function.
+		transferPendingTrices()
 		length := triceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i in r.line
 		buf := fmt.Sprint(bin)
@@ -284,7 +298,7 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 			if false {
 
 			} else { // liny by line (slow)
-				triceTransfer()
+				transferPendingTrices()
 				length := triceOutDepth()
 				bin := out[:length] // bin contains the binary trice data of trice message i
 				buf := fmt.Sprint(bin)
@@ -329,5 +343,8 @@ func (p *globalDefaults) getGlobalVarsDefaults() {
 func (p *globalDefaults) setGlobalVarsDefaults() {
 	cipher.Password = p.defaultPassword
 	decoder.PackageFraming = p.defaultPackageFraming
+	// The generated package-local CLI argument lists intentionally stay unchanged.
+	// This master helper sets the decoder default before each args.Handler call.
+	decoder.TypeX0 = testTypeX0
 	trexDecoder.Doubled16BitID = p.defaultDoubled16BitID
 }

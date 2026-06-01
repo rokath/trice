@@ -889,6 +889,46 @@ func TestReadNoneFramingTypeX0Counted(t *testing.T) {
 	assert.True(t, decoder.BlankMetadata)
 }
 
+// TestReadNoneFramingTypeX0CompactThenRegular verifies compact deferred NONE X0 records before normal Trices.
+func TestReadNoneFramingTypeX0CompactThenRegular(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldTypeX0 := decoder.TypeX0
+	oldBlank := decoder.BlankMetadata
+	oldInitial := decoder.InitialCycle
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.TypeX0 = oldTypeX0
+		decoder.BlankMetadata = oldBlank
+		decoder.InitialCycle = oldInitial
+	})
+
+	decoder.PackageFraming = "none"
+	decoder.TypeX0 = "%s"
+	decoder.InitialCycle = true
+
+	in := bytes.NewBuffer([]byte{0x01, 0x00, 'A', 0x01, 0x40, 0xc0, 0x01, 0x2a})
+	lut := id.TriceIDLookUp{
+		1: {Type: "TRICE8_1", Strg: "v=%d"},
+	}
+	decI := New(io.Discard, lut, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+
+	buf := make([]byte, 128)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "A", string(buf[:n]))
+	assert.True(t, decoder.BlankMetadata)
+
+	n, err = dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "v=42", string(buf[:n]))
+	assert.Empty(t, dec.B)
+	assert.False(t, decoder.BlankMetadata)
+}
+
 // TestReadNoneFramingConsumesCompactPayload verifies that unpadded NONE streams do not leave payload bytes behind.
 func TestReadNoneFramingConsumesCompactPayload(t *testing.T) {
 	oldFraming := decoder.PackageFraming

@@ -118,19 +118,12 @@ func countedTypeX0Payload(record []byte, endian bool, noneFraming bool) ([]byte,
 	padding := align4(logicalLen) - logicalLen
 	if padding > 0 {
 		paddingEnd := logicalLen + padding
-		if noneFraming {
-			if len(record) < paddingEnd {
-				return nil, len(record), fmt.Errorf("available bytes %d < aligned length %d", len(record), paddingEnd)
-			}
-			if !isZeroBytes(record[logicalLen:paddingEnd]) {
-				return nil, len(record), fmt.Errorf("non-zero alignment padding")
-			}
+		if len(record) >= paddingEnd && isZeroBytes(record[logicalLen:paddingEnd]) {
+			// NONE streams can be direct and padded or deferred and compacted.
+			// Consume alignment bytes only when they are physically present.
 			consumed = paddingEnd
-		} else if len(record) == paddingEnd {
-			if !isZeroBytes(record[logicalLen:paddingEnd]) {
-				return nil, len(record), fmt.Errorf("non-zero alignment padding")
-			}
-			consumed = paddingEnd
+		} else if !noneFraming && len(record) == paddingEnd {
+			return nil, len(record), fmt.Errorf("non-zero alignment padding")
 		}
 	}
 	return record[2:logicalLen], consumed, nil

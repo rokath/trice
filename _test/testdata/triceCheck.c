@@ -52,6 +52,10 @@ void TriceCheck(int index) {
     char* s = "AAAAAAAAAAAA";
     char * five = "five";
     static int8_t b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
+#ifdef TRICE_X0_COUNTED_BUFFER_SUPPORT
+    // x0Payload uses ascending bytes so expected output exposes packet boundaries.
+    static uint8_t x0Payload[24] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
+#endif
     static int16_t b16[] = { 0, -1, -2, 0x3344 };
     static int32_t b32[] = { 0, -1, -2, 0x33445555};
     static int64_t b64[4] = { 0, -1, -2, 0x3344555566666666 };
@@ -140,6 +144,22 @@ void TriceCheck(int index) {
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: "time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n"
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: "time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.\n"
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: "time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,\n"
+
+#ifdef TRICE_X0_COUNTED_BUFFER_SUPPORT
+        break; case __LINE__: triceX0(x0Payload, 0);                                                                           //exp: "time:        default: sig:\n"
+        break; case __LINE__: triceX0(x0Payload, 1); trice("wr:X0 after 1\n");                                                 //exp: "time:        default: sig:00\ntime:        default: wr:X0 after 1\n"
+        break; case __LINE__: triceX0(x0Payload, 2); trice("wr:X0 before 2\n");                                                //exp: "time:        default: sig:00 01\ntime:        default: wr:X0 before 2\n"
+        break; case __LINE__: triceX0(x0Payload, 3); triceS("wr:X0-S:%s\n", five);                                             //exp: "time:        default: sig:00 01 02\ntime:        default: wr:X0-S:five\n"
+        break; case __LINE__: triceX0(x0Payload, 4); triceS("wr:X0-S:%s\n", sABCDE);                                           //exp: "time:        default: sig:00 01 02 03\ntime:        default: wr:X0-S:abcde 12345\n"
+        break; case __LINE__: triceX0(x0Payload, 5); trice8B("wr:X0-B: %02x\n", x0Payload, 5);                                 //exp: "time:        default: sig:00 01 02 03 04\ntime:        default: wr:X0-B: 00X0-B: 01X0-B: 02X0-B: 03X0-B: 04\n"
+        break; case __LINE__: triceX0(x0Payload, 8); trice8B("wr:X0-B: %02x\n", x0Payload, 7);                                 //exp: "time:        default: sig:00 01 02 03 04 05 06 07\ntime:        default: wr:X0-B: 00X0-B: 01X0-B: 02X0-B: 03X0-B: 04X0-B: 05X0-B: 06\n"
+        break; case __LINE__: triceX0(x0Payload, 9); TriceS("wr:X0-TriceS:%s\n", five);                                        //exp: "time:        default: sig:00 01 02 03 04 05 06 07 08\ntime:    be16default: wr:X0-TriceS:five\n"
+        break; case __LINE__: triceX0(x0Payload, 10); TRice8B("wr:X0-TRiceB: %02x\n", x0Payload, 3);                           //exp: "time:        default: sig:00 01 02 03 04 05 06 07 08 09\ntime:feed3322default: wr:X0-TRiceB: 00X0-TRiceB: 01X0-TRiceB: 02\n"
+        break; case __LINE__: triceX0(x0Payload, 15); Trice8B("wr:X0-TriceB: %02x\n", x0Payload, 6);                           //exp: "time:        default: sig:00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e\ntime:    be16default: wr:X0-TriceB: 00X0-TriceB: 01X0-TriceB: 02X0-TriceB: 03X0-TriceB: 04X0-TriceB: 05\n"
+        break; case __LINE__: triceX0(x0Payload, 23); triceS("wr:X0-S:%s\n", s);                                               //exp: "time:        default: sig:00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16\ntime:        default: wr:X0-S:AAAAAAAAAAAA\n"
+        break; case __LINE__: triceX0(x0Payload, sizeof(x0Payload)); trice8B("wr:X0-B: %02x\n", x0Payload, sizeof(x0Payload)); //exp: "time:        default: sig:00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12 13 14 15 16 17\ntime:        default: wr:X0-B: 00X0-B: 01X0-B: 02X0-B: 03X0-B: 04X0-B: 05X0-B: 06X0-B: 07X0-B: 08X0-B: 09X0-B: 0aX0-B: 0bX0-B: 0cX0-B: 0dX0-B: 0eX0-B: 0fX0-B: 10X0-B: 11X0-B: 12X0-B: 13X0-B: 14X0-B: 15X0-B: 16X0-B: 17\n"
+        break; case __LINE__: triceX0(x0Payload, 2); triceX0(x0Payload + 2, 4); trice("wr:X0 tail\n");                         //exp: "time:        default: sig:00 01\ntime:        default: sig:02 03 04 05\ntime:        default: wr:X0 tail\n"
+#endif
 
         break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", 0 );    //exp: "time:        default: ASSERT:flag not true!\n"
         break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", 0 );    //exp: "time:    be16default: ASSERT:flag not true!\n"
