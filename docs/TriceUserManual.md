@@ -186,6 +186,7 @@ details.toc[open] .toc-hide {
   * [20.3. CLI option -typeX0](#cli-option--typex0)
   * [20.4. Target Code](#target-code)
     * [20.4.1. Target-side counted helper](#target-side-counted-helper)
+    * [20.4.2. typeX0 Usage in ./examples/G0B1_inst](#typex0-usage-in-examplesg0b1_inst)
   * [20.5. Go implementation layout](#go-implementation-layout)
   * [20.6. Tests](#tests)
   * [20.7. Initial scope](#initial-scope)
@@ -2704,7 +2705,7 @@ For projects or tests that want this helper, define in `triceConfig.h`:
 
 A project can also provide its own selector-0 writer. The counted helper is only the reference implementation for the initial `-typeX0=counted:<format>` use case.
 
-#### `typeX0` Usage in `./examples/G0B1_inst`
+#### 20.4.2. <a id="typex0-usage-in-examplesg0b1_inst"></a>`typeX0` Usage in `./examples/G0B1_inst`
 
 ![alt text](./ref/typeX0_example.png)
 
