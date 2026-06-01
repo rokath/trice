@@ -601,7 +601,7 @@ func TestDecodeAndComposeLoopBlanksMetadataWhenRequested(t *testing.T) {
 	configureTranslatorLoopTest(t)
 
 	id.LIFnJSON = "on"
-	decoder.ShowID = "ID:%d "
+	decoder.ShowID = "deb:%5d"
 	decoder.TargetStamp0 = "TS:      "
 	decoder.ShowTargetStamp0Passed = true
 	decoder.LocationInformationFormatString = decoder.LiFmtDefault
@@ -619,9 +619,9 @@ func TestDecodeAndComposeLoopBlanksMetadataWhenRequested(t *testing.T) {
 
 	err := decodeAndComposeLoop(&out, sw, dec, id.TriceIDLookUp{}, li)
 	require.ErrorIs(t, err, io.EOF)
-	want := strings.Repeat(" ", len(locationInformation(17, li))) +
+	want := strings.Repeat(" ", visibleMetadataWidth(locationInformation(17, li))) +
 		"TS:       " +
-		strings.Repeat(" ", len("ID:17 ")) +
+		strings.Repeat(" ", visibleMetadataWidth("deb:   17")) +
 		" x0\n"
 	assert.Equal(t, want, out.String())
 }

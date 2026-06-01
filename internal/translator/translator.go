@@ -588,7 +588,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 
 // blankMetadataField preserves the occupied metadata width while hiding its value.
 func blankMetadataField(s string) string {
-	return strings.Repeat(" ", len(s))
+	return strings.Repeat(" ", visibleMetadataWidth(s))
 }
 
 // blankTaggedMetadataValue preserves an optional label before the first colon and blanks the value part.
@@ -598,6 +598,35 @@ func blankTaggedMetadataValue(s string) string {
 		return blankMetadataField(s)
 	}
 	return tag + ":" + strings.Repeat(" ", len(value))
+}
+
+// visibleMetadataWidth returns the display width after the emitter removes known lower-case tags.
+//
+// The blank metadata path must not call emitter.Colorize because that would add
+// ANSI escape sequences and update tag statistics. This helper mirrors only the
+// tag-stripping rule that affects column alignment.
+func visibleMetadataWidth(s string) int {
+	if emitter.ColorPalette == "off" {
+		return len(s)
+	}
+	tag, value, found := strings.Cut(s, ":")
+	if !found || tag == "" || !isLowerTag(tag) {
+		return len(s)
+	}
+	if _, err := emitter.FindTagName(tag); err != nil {
+		return len(s)
+	}
+	return len(value)
+}
+
+// isLowerTag matches the emitter rule for removable lower-case channel tags.
+func isLowerTag(s string) bool {
+	for _, r := range s {
+		if unicode.IsLetter(r) && !unicode.IsLower(r) {
+			return false
+		}
+	}
+	return true
 }
 
 // correctWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
