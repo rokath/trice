@@ -178,7 +178,7 @@ details.toc[open] .toc-hide {
 * [19. Binary Encoding](#binary-encoding)
   * [19.1. Symbols](#symbols)
   * [19.2. Package Format](#package-format)
-    * [19.2.1. typeX0 Trices](#typex0-trices)
+    * [19.2.1. typeX0 Records](#typex0-trices)
     * [19.2.2. Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
 * [20. typeX0 User Packets](#typex0-user-packets)
   * [20.1. Packet Classification](#packet-classification)
@@ -2304,8 +2304,8 @@ This allows `trice` output to be tailored for debugging, profiling, timing analy
 
 ### 19.2. <a id="package-format"></a>Package Format
 
-* Because of the **TCOBS** or **COBS** package framing, the package sizes are detectable by the Trice tool without additional length information in single packet framing mode.
-* A decoded frame of 0 bytes is ignored. A 1-byte frame is unsupported. Frames with 2 or 3 bytes can be counted `typeX0` records when their selector bits are `00`; otherwise they are unsupported short user data.
+* Because of **TCOBS** or **COBS** package framing, package sizes are detectable by the Trice tool without additional length information from the payload itself.
+* A decoded frame of 0 bytes is ignored. A 1-byte frame is unsupported. Frames with 2 or 3 bytes are selector-0 candidates when their selector bits are `00`; valid counted `typeX0` handling then still depends on the embedded count. Otherwise they are unsupported short user data.
 
   | bytes       | Comment                                                                                                       |
   | :---------- | ------------------------------------------------------------------------------------------------------------- |
@@ -2320,7 +2320,7 @@ This allows `trice` output to be tailored for debugging, profiling, timing analy
 
   | 16-bit groups                      | Selector (2 msb) | Comment                                                                                 | Endianness sizes                |
   | :--------------------------------- | :--------------: | --------------------------------------------------------------------------------------- | :------------------------------ |
-  | _________ `00xxxxxxX ...`          |        0         | [typeX0 Trice](#typex0-trices), >= 2-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
+  | _________ `00xxxxxxX ...`          |        0         | [typeX0 record](#typex0-trices), >= 2-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
   | _________ `01iiiiiiI NC  ...`      |        1         | >= 4-byte message, Trice format without     stamp                                       | ___ `u16 u16 [uW] ... [uW]`     |
   | _________ `10iiiiiiI TT NC ...`    |        2         | >= 4-byte message, Trice format with 16-bit stamp                                       | ___ `u16 u16 u16 [uW] ... [uW]` |
   | `10iiiiiiI 10iiiiiiI TT NC ...`    |        2         | First 16bit are doubled. Info over `-d16` trice switch.                                 | `u16 u16 u16 u16 [uW] ... [uW]` |
@@ -2328,32 +2328,32 @@ This allows `trice` output to be tailored for debugging, profiling, timing analy
 
 * The selector `2` encoding has 2 possibilities. When using `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The Trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
 * Default endianness is little endian as most MCUs use little endianness. Otherwise the `-triceEndianness=bigEndian` CLI switch is needed.
-* The receiving tool evaluates firstly the 2 stamp bits and follows some rules:
+* The receiving tool first evaluates the 2 selector bits and follows these rules:
   * 0: handle it according to `-typeX0` or report an error and ignore the whole package when no X0 handling is selected.
   * 1:                                    next 14 bits are the ID                                                              followed by 2 bytes u16=NC and optional parameter values. Package size is >= 4 bytes.
   * 2 and `-d16` CLI switch not provided: next 14 bits are the ID                            and convert then u16=TT=stamp16   followed by 2 bytes u16=NC and optional parameter values. Package size is >= 6 bytes.
   * 2 and `-d16` CLI switch     provided: next 14 bits are the ID, discard 2 following bytes and convert then u16=TT=stamp16   followed by 2 bytes u16=NC and optional parameter values. Package size is >= 8 bytes.
   * 3:                                    next 14 bits are the ID                            and convert then u32=TTTT=stamp32 followed by 2 bytes u16=NC and optional parameter values. Package size is >= 8 bytes.
-* use ID to get parameters width `W`=8,16,32,64 from file *til.json* and and parameters count and convert appropriate.
+* Use the ID to get parameter width `W`=8,16,32,64 and parameter count from file *til.json*, then convert the payload accordingly.
   * Within one trice message the parameter bit width `W` does not change.
 
 > Example for Trices without timestamps
 
-* The ([T]COBS decoded) binary Trice data start alway with a little endian u16 Trice ID value.
+* The ([T]COBS decoded) binary Trice data normally starts with a little endian u16 Trice ID value.
 * All following values are encoded in the known endianness.
 
 | value   | byte offset | type              | comment                                                                                                                                                                                                                                                                                                                       |
 | ------- | ----------: | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IdLo    |           0 | byte              | The first byte are always the Trice ID lower 8 bits.                                                                                                                                                                                                                                                                          |
-| IdHi    |           1 | byte              | The second byte 2 most significant bits are `01` and the 6 least significat bits are the Trice ID upper 6 bits.                                                                                                                                                                                                               |
-| NC      |           2 | u16               | The most significant bit is the count selector bit `z` and usually **0**, telling, that the following 7 bits are the payload byte count and that the 8 least significant bits are the cycle counter. If `z`is **1**, the current Trice contains no cycle counter and hat a 15-bit payload count instead (for payloads > 127). |
+| IdLo    |           0 | byte              | The first byte is always the Trice ID lower 8 bits.                                                                                                                                                                                                                                                                           |
+| IdHi    |           1 | byte              | The second byte 2 most significant bits are `01` and the 6 least significant bits are the Trice ID upper 6 bits.                                                                                                                                                                                                              |
+| NC      |           2 | u16               | The most significant bit is the count selector bit `z` and usually **0**, telling, that the following 7 bits are the payload byte count and that the 8 least significant bits are the cycle counter. If `z` is **1**, the current Trice contains no cycle counter and has a 15-bit payload count instead (for payloads > 127). |
 | payload |           4 | u8\|u16\|u32\|u64 | The payload contains a number of equal size values.                                                                                                                                                                                                                                                                           |
 
-#### 19.2.1. <a id="typex0-trices"></a>typeX0 Trices
+#### 19.2.1. <a id="typex0-trices"></a>typeX0 Records
 
-The user can insert any data with a well-defined structure into the Trice data stream. The Trice tool, when interpreting the Trice binary data, will behave on typeX0 Trices according to a passed CLI switch `-typeX0`.
+The user can insert any data with a well-defined structure into the Trice data stream. When interpreting the Trice binary data, the Trice tool handles selector-0/typeX0 records according to the CLI switch `-typeX0`.
 
-One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing). The user needs to prepend a generated **printi** buffer with its size as 16-bit count (<16384!) for example. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option. See chapter [20. typeX0 User Packets](#typex0-user-packets) for further details.
+One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)). For the counted typeX0 variant, the user prepends a generated **printi** buffer with its payload size as a 16-bit count smaller than `16384`. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option. See chapter [20. typeX0 User Packets](#typex0-user-packets) for further details.
 
 #### 19.2.2. <a id="framing---none-or-with-cobs-or-tcobs-encoding"></a>Framing - NONE or with COBS or TCOBS encoding
 
@@ -2365,13 +2365,13 @@ One possible use case is to have user **printi** statements parallel to Trices (
   * Counted `typeX0` records can occur together with normal Trices in one package because their length is checkable. X0 formats without length information need their own package framing.
 
 * With NONE framing:
-  * With XTEA encryption and `-pf=none`or `-pf=none64` 64-bit alignment: 0-7 zero bytes after a single Trice.
+  * With XTEA encryption and `-pf=none` or `-pf=none64` 64-bit alignment: 0-7 zero bytes after a single Trice.
   * Without encryption the stream is compact or 32-bit aligned. That does not change for one session and is detectable.
-    * `-pf=none` -> detect stream (depreciated, only for backward compability)
+    * `-pf=none` -> detect stream (deprecated, only for backward compatibility)
     * `-pf=none8` -> stream is compact
     * `-pf=none32` -> stream is 32-bit aligned
   * A stream with alignment is allowed to have only a single Trice between two alignments. An alignment is just a multiple of 4(8)-bytes distance.
-  * These combinations are forbidden, because we cannot safely know the actual padding count: `|TriceATriceB0|TriceC00|` <- Is the `0` after `TriceB` a padding zero or part of `TiceC`?
+  * These combinations are forbidden, because we cannot safely know the actual padding count: `|TriceATriceB0|TriceC00|` <- Is the `0` after `TriceB` a padding zero or part of `TriceC`?
     * Framing NONE && TRICE_MULTI_PACK_MODE && 32-bit write
     * Framing NONE && TRICE_MULTI_PACK_MODE && XTEA encryption
 
@@ -2381,7 +2381,7 @@ One possible use case is to have user **printi** statements parallel to Trices (
 * The macro `TRICE_LEAVE` and/or function `TriceTransfer` ([Trice Target Code Implementation](#trice-target-code-implementation)) are the Trice data output.
   * In **direct mode** each single message gets its own transfer buffer.
   * In **deferred mode** any count of Trice messages is in the transfer buffer.
-  * Additional counted **typeX0 Trices** can share a transfer buffer with normal Trices. Non-counted selector-0 user data needs a separate transfer buffer because its length is not checkable.
+  * Additional counted **typeX0 records** can share a transfer buffer with normal Trices. Non-counted selector-0 user data needs a separate transfer buffer because its length is not checkable.
 
 <!--
 * To create the transfer buffer, there are different policies possible:
@@ -2389,7 +2389,7 @@ One possible use case is to have user **printi** statements parallel to Trices (
      * When Trice is used without framing, the data stream interpretation is possible, but not 100% secure for 32-bit writes, because in some cases we do not know, if 1-3 zeroes after a Trice, part of those are padding bytes or not. We allow such configuration, but will issue a warning: *Combination TRICE_MULTI_PACK_MODE && framing NONE && 32-bit write is depreachiated.*
   2. **TRICE_SINGLE_PACK_MODE**: Encode each Trice separate as (T)COBS, append a 0-delimiter for each and pack them all together before transmitting. This increases the transmit data slightly but minimizes the amount of lost data in case of a data disruption.
      * When Trice is used without framing, the data stream interpretation is possible, but not 100% secure for 32-bit writes, because in some cases we do not know, if 1-3 zeroes after a Trice, part of those are padding bytes or not. To avoid that specify `-pf=none32`. We allow such configuration, because even with `pf=none` a one-time detection will work well in almost every case.
-  3. Additional **typeX0 Trices**: Those messages are not mixed into (T)COBS packages. They get their own (T)COBS packages.
+  3. Additional **typeX0 records**: Those messages are not mixed into (T)COBS packages. They get their own (T)COBS packages.
 -->
 
 *Framing NONE Overview Table:*
@@ -2425,7 +2425,7 @@ One possible use case is to have user **printi** statements parallel to Trices (
   * No Encryption with framing TCOBS: 0-3 padding zero bytes inside the decoded buffer only at its end possible.
   * *In short*:
     * Only inside at package end: 0-7 padding zeroes with encryption and 0-3 without encryption are possible.
-    * When package framing NONE 0-3 padding zeroes possible and typeX0 Trices are mixed with normal Trices.
+    * When package framing NONE 0-3 padding zeroes possible and typeX0 records are mixed with normal Trices.
   * Usually, when transmitting over UART unencrypted for example, there are no padding bytes at all.
   * But with `TRICE_LEAVE` is called `TriceNonBlockingDirectWrite`, what could add padding bytes inside the (T)COBS buffers at their end.
   * In deferred mode, padding bytes inside a (T)COBS package only possible together with encryption. After packing and when using a 32-bit write function, after (outside) the packages are 1-3 zero bytes possible. Those are treated as package delimiters.
@@ -2488,11 +2488,11 @@ One possible use case is to have user **printi** statements parallel to Trices (
 
 Trice already has buffer macros for transferring runtime data buffers. `triceN` transfers a byte buffer as a counted string, and `trice8B`, `trice16B`, `trice32B`, `trice64B` and `triceB` transfer buffers as sequences of equally sized values formatted on the host side. These macros are the preferred choice when the data belongs to a normal Trice message and should use the usual Trice ID, `til.json` entry and format string handling.
 
-`typeX0` is an additional, more decoupled way to move user data through the same Trice transport path. It uses selector bits `00` in the first 16-bit word (deault little endian) and therefore carries no 14-bit Trice ID. The host-side meaning is selected by the Trice tool option `-typeX0=...`. This makes it useful for user payloads that should share the same UART/RTT/file/framing interface as Trice messages, but should not require an ID, a `til.json` entry or a fixed Trice format string.
+`typeX0` is an additional, more decoupled way to move user data through the same Trice transport path. It uses selector bits `00` in the first 16-bit word, interpreted in the configured Trice byte order (default little endian), and therefore carries no 14-bit Trice ID. The host-side meaning is selected by the Trice tool option `-typeX0=...`. This makes it useful for user payloads that should share the same UART/RTT/file/framing interface as Trice messages, but should not require an ID, a `til.json` entry or a fixed Trice format string.
 
 Important: The `typeX0` packages do not influence the cycle counter and do not carry a cycle counter value (or you implement your own). They also do not carry a Trice ID, target timestamp or location information normally. If log metadata columns such as `-showID`, `-li` or target timestamps are enabled, X0 output keeps the column alignment but blanks the actual values.
 
-The initial implementation supports `-typeX0=counted:<formatstring>`. This is intentionally just one example implementation of the selector-0 extension space. Other interpretations, for example forwarding, extended counted buffers or application-specific binary formats, can be added later without changing regular Trice messages. The counted implementation is expected to cover most use cases.
+The current implementation supports `-typeX0=counted:<formatstring>`. This is intentionally just one example implementation of the selector-0 extension space. Other interpretations, for example forwarding, extended counted buffers or application-specific binary formats, can be added later without changing regular Trice messages. The counted implementation is expected to cover most use cases.
 
 ### 20.1. <a id="packet-classification"></a>Packet Classification
 
@@ -2529,9 +2529,9 @@ Summary:
 |        `>= 2` |      `0` | `typeX0`           | according `-typeX0` CLI |
 |        `>= 4` |   `!= 0` | regular Trice      | default                 |
 
-Packet length 0 is possible when framing like COBS is used and 2 delimiter bytes (usually 0) occure without a package inbetween.
+Packet length 0 is possible when framing like COBS is used and 2 delimiter bytes (usually 0) occur without a package in between.
 
-Short user packets such as user0B, ..., user3B are intentionally not supported. They can be added later if a concrete requirement appears. They do not carry length information and therefore are not capable to be framed in groups.
+Short user packets such as user0B, ..., user3B are intentionally not supported. They can be added later if a concrete requirement appears. They do not carry length information and therefore cannot safely share a framed group with following records.
 
 Short non-X0 user packets are not supported initially. They should be reported as errors and can be specified later if a real requirement appears.
 
@@ -2566,15 +2566,16 @@ The optional target helper `src/triceX0.c` writes into the normal Trice target b
 physicalRecordLen = align4(2 + count)
 ```
 
-The zero padding bytes are not part of the payload. A host decoder shall use the count field to determine the payload and shall skip alignment padding where required by the decoded Trice buffer stream. Padding bytes, if present, must be zero. Zero-only padding after a regular framed Trice message is removed before selector-0/typeX0 handling.
+The zero padding bytes are not part of the payload. A host decoder shall use the count field to determine the payload and shall skip alignment padding where required by the decoded Trice buffer stream. Padding bytes written by the target helper are zero. The decoder consumes alignment padding only when the expected bytes are present and zero; otherwise following bytes can be the next record in a mixed package. Zero-only padding after a regular framed Trice message is removed before selector-0/typeX0 handling.
 
 Malformed counted X0 examples are:
 
 ```text
 available bytes < 2 + count
-non-zero alignment padding
-unsupported typeX0 mode
+alignment padding is consumed but not zero
 ```
+
+Configuration errors such as an unsupported `-typeX0` mode are reported separately.
 
 ### 20.3. <a id="cli-option--typex0"></a>CLI Option `-typeX0`
 
@@ -2584,7 +2585,7 @@ The Trice tool option is:
 -typeX0=[mode:]<format>
 ```
 
-Supported initial values:
+Supported values:
 
 ```text
 -typeX0=error
@@ -2658,36 +2659,36 @@ Print the same payload twice, once as string and once as spaced hex.
 
 ### 20.4. <a id="typex0-target-code"></a>typeX0 Target Code 
 
-In fact `typeX0` is a free format, the user can define. The only requirement is, that the 2 most significant bits in the very first uint16_t word (in the known endianness) are zero. If anyhow a length information is coded, like in the `counted` example, multiple packages can be framed together intermixed with normal trice messages. If no length information is coded in the `typeX0` packages, they need individual framing (with COBS or TCOBS or s.th. else).
+`typeX0` is a free format selector-0 space the user can define. The only protocol requirement is that the 2 most significant bits in the very first `uint16_t` word, in the configured endianness, are zero. If the encoding carries length information, as the `counted` example does, multiple X0 records and normal Trice messages can be interleaved in one framed package. If no length information is encoded in the X0 record, each X0 record needs individual framing with COBS, TCOBS or another application-defined framing method.
 
-In `triceX0.c` an example implementation for the counted buffer is given. The Trice tool needs the CLI switch `-typeX0=[mode:]<format>` then, where `counted` is default for mode. Examples:
+`triceX0.c` contains the counted buffer reference implementation. The Trice tool then needs the CLI switch `-typeX0=[mode:]<format>`, where `counted` is the default mode for values without a colon. Examples:
 
-  | CLI switch `trice log ...`     | Meaning                                                             |
-  | ------------------------------ | ------------------------------------------------------------------- |
-  | `-typeX0=all:ignore`           | ignore the complete non-mixed X0 package without length checking    |
-  | `-typeX0=counted:ignore`       | just check for valid length and ignore                              |
-  | `-typeX0=ignore`               | just check for valid length and ignore (short for `counted:ignore`) |
-  | `-typeX0=counted:"sig:%60s\n"` | print right bound string with tag "sig:"                            |
-  | `-typeX0="%60s\n"`             | print right bound string without a tag (short form, no colon)       |
-  | `-typeX0="sig:%60s\n"`         | invalid `sig:` mode because shorthand cannot contain a colon        |
-  | `-typeX0=sig:"%60s\n"`         | invalid `sig:` mode                                                 |
-  | `-typeX0=forward:<ADDRESS>`    | send X0 package to ADDRESS (not implemented)                        |
+| CLI switch `trice log ...`     | Meaning                                                             |
+| ------------------------------ | ------------------------------------------------------------------- |
+| `-typeX0=all:ignore`           | ignore the complete non-mixed X0 package without length checking    |
+| `-typeX0=counted:ignore`       | just check for valid length and ignore                              |
+| `-typeX0=ignore`               | just check for valid length and ignore (short for `counted:ignore`) |
+| `-typeX0=counted:"sig:%60s\n"` | print a right-aligned string with tag `sig:`                        |
+| `-typeX0="%60s\n"`             | print a right-aligned string without a tag (short form, no colon)   |
+| `-typeX0="sig:%60s\n"`         | invalid `sig:` mode because shorthand cannot contain a colon        |
+| `-typeX0=sig:"%60s\n"`         | invalid `sig:` mode                                                 |
+| `-typeX0=forward:<ADDRESS>`    | send X0 package to ADDRESS (not implemented)                        |
 
-Hint: These forms are equivalent because the CLI parser does not distinguish between them:
+Hint: Depending on shell quoting, these forms can all pass the same raw option value `counted:sig:%60s\n` to the CLI parser:
 
-* `-typeX0=counted:"sig:%60s\n"` 
+* `-typeX0=counted:"sig:%60s\n"`
 * `-typeX0="counted:sig:%60s\n"`
 * `-typeX0=counted:sig:%60s\n`
 
-The `typeX0` CLI parser takes the string in front of the first colon as typeX0 mode. Therefore format strings containing a colon cannot given in the short form.
+The `typeX0` CLI parser takes the string in front of the first colon as typeX0 mode. Therefore format strings containing a colon cannot be given in the short form.
 
-Rule: Known modes are:
-- `error`: The Trice tool reports `typeX0` per default as error when no `-typeX0` CLI switch is given.
+Known modes are:
+- `error`: The Trice tool reports `typeX0` as an error by default when no `-typeX0` CLI switch is given.
 - `counted`: explicit mode for counted X0 records and default mode for `-typeX0=` values without a colon.
-- `all`: valid just for `ignore` verb as `<format>` and only for non-mixed X0 packages.
-- `forward`: possible extension for trice log functionality, not specified/implemented yet.
- 
-This is extendable in many ways. The `typeX0` is just a way to mix any binary data with Trice messages over the same output channel. Many cases probably already cover-able by using Trice macros `trice8B`, `trice16B`, `trice32B`, `trice64B`, `triceS`, `triceN`, ...
+- `all`: exact `all:ignore` mode for discarding a complete non-mixed X0 package.
+- `forward`: possible extension for `trice log` functionality, not specified or implemented yet.
+
+This can be extended in many ways. `typeX0` is just a way to mix application-defined binary data with Trice messages over the same output channel. Many cases are probably already covered by using Trice macros such as `trice8B`, `trice16B`, `trice32B`, `trice64B`, `triceS`, `triceN`, ...
 
 #### 20.4.1. <a id="target-side-counted-helper"></a>Target-side counted helper
 
@@ -2704,7 +2705,7 @@ The public function is intentionally small:
 void triceX0(const void* buf, uint16_t len);
 ```
 
- In the counted mode (default) it writes selector `00`, stores `len` in the lower 14 bits and appends `len` payload bytes. It uses the normal Trice critical-section model with `TRICE_ENTER` / `TRICE_LEAVE` and the normal Trice output path. It does not use `TRICE_PUT_BUFFER()` after `TRICE_PUT16()`, because X0 has only a 2-byte header and the physical record size must be aligned as `align4(2 + len)`.
+In the counted mode (default) it writes selector `00`, stores the resulting payload length in the lower 14 bits and appends that many payload bytes. If `len` exceeds the supported range, the helper truncates to the smaller limit of `TRICE_SINGLE_MAX_SIZE - 5` and `0x3fff`, increments the dynamic buffer truncation diagnostic counter, and sends the truncated payload. It uses the normal Trice critical-section model with `TRICE_ENTER` / `TRICE_LEAVE` and the normal Trice output path. It does not use `TRICE_PUT_BUFFER()` after `TRICE_PUT16()`, because X0 has only a 2-byte header and the physical record size must be aligned as `align4(2 + len)`.
 
 For projects or tests that want this helper, define in `triceConfig.h`:
 
@@ -2712,63 +2713,63 @@ For projects or tests that want this helper, define in `triceConfig.h`:
 #define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
 ```
 
-A project can also provide its own selector-0 writer. The counted helper is only the reference implementation for the initial `-typeX0=counted:<format>` use case.
+A project can also provide its own selector-0 writer. The counted helper is only the reference implementation for the `-typeX0=counted:<format>` use case.
 
 #### 20.4.2. <a id="typex0-build-switches"></a>typeX0 Build Switches
 
-  The counted typeX0 helper is controlled independently from the normal Trice macro switch:
+The counted typeX0 helper is controlled independently from the normal Trice macro switch:
 
-  ```c
-  #define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
-  ```
+```c
+#define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+```
 
-  When TRICE_X0_COUNTED_BUFFER_SUPPORT == 1, the target side function
+When `TRICE_X0_COUNTED_BUFFER_SUPPORT == 1`, the target-side function
 
-  ```c
-  void triceX0(const void* buf, uint16_t len);
-  ```
+```c
+void triceX0(const void* buf, uint16_t len);
+```
 
-  is a real function and writes counted selector-0 records into the configured Trice output backend. The project must then compile src/triceX0.c together with the other Trice target sources. When TRICE_X0_COUNTED_BUFFER_SUPPORT == 0, triceX0() is an inline no-op helpe and no X0 backend code is needed.
+is a real function and writes counted selector-0 records into the configured Trice output backend. The project must then compile `src/triceX0.c` together with the other Trice target sources. When `TRICE_X0_COUNTED_BUFFER_SUPPORT == 0`, `triceX0()` is an inline no-op helper and no X0 backend code is needed.
 
-  This switch is intentionally independent from TRICE_OFF:
+This switch is intentionally independent from `TRICE_OFF`:
 
-  `TRICE_OFF` | `TRICE_X0_COUNTED_BUFFER_SUPPORT` | Setting
-  ------------|-----------------------------------|----------------------------------------------------------------------
-  `== 0`      | `== 0`                            | normal Trice macros are active, `triceX0()` is a no-op
-  `== 0`      | `== 1`                            | normal Trice macros are active, `triceX0()` emits counted X0 records
-  `== 1`      | `== 0`                            | normal Trice macros are off, `triceX0()` is a no-op
-  `== 1`      | `== 1`                            | normal Trice macros are off, `triceX0()` still emits counted X0 records
+| `TRICE_OFF` | `TRICE_X0_COUNTED_BUFFER_SUPPORT` | Setting |
+| ----------- | --------------------------------- | ------- |
+| `== 0`      | `== 0`                            | normal Trice macros are active, `triceX0()` is a no-op |
+| `== 0`      | `== 1`                            | normal Trice macros are active, `triceX0()` emits counted X0 records |
+| `== 1`      | `== 0`                            | normal Trice macros are off, `triceX0()` is a no-op |
+| `== 1`      | `== 1`                            | normal Trice macros are off, `triceX0()` still emits counted X0 records |
 
-  The 2nd combination is useful for applications that want to use only selector-0 user packets while keeping all normal Trice statements compiled out. The Trice tool can still scan normal Trice statements in the source code for ID maintenance, but the compiler receives no normal Trice output code from them.
+The 4th combination is useful for applications that want to use only selector-0 user packets while keeping all normal Trice statements compiled out. The Trice tool can still scan normal Trice statements in the source code for ID maintenance, but the compiler receives no normal Trice output code from them.
 
-  TRICE_CLEAN is a tool-managed source state and should not be used as an application switch. trice clean may set it to 1 to make cleaned source files compile without inserted IDs and without editor warnings; trice insert sets it back to 0. With TRICE_X0_COUNTED_BUFFER_SUPPORT == 1, the counted X0 helper is intended to compile in both states. Normal Trice macros remain disabled while TRICE_CLEAN == 1, but triceX0() stays available as a real function.
+`TRICE_CLEAN` is a tool-managed source state and should not be used as an application switch. `trice clean` may set it to `1` to make cleaned source files compile without inserted IDs and without editor warnings; `trice insert` sets it back to `0`. With `TRICE_X0_COUNTED_BUFFER_SUPPORT == 1`, the counted X0 helper is intended to compile in both states. Normal Trice macros remain disabled while `TRICE_CLEAN == 1`, but `triceX0()` stays available as a real function.
 
-  In short:
+In short:
 
-  * **TRICE_OFF** controls normal Trice macro code generation.
-  * **TRICE_CLEAN** reflects the insert/clean source state.
-  * **TRICE_X0_COUNTED_BUFFER_SUPPORT** controls whether triceX0() is a real counted X0 writer.
+* `TRICE_OFF` controls normal Trice macro code generation.
+* `TRICE_CLEAN` reflects the insert/clean source state.
+* `TRICE_X0_COUNTED_BUFFER_SUPPORT` controls whether `triceX0()` is a real counted X0 writer.
 
-  A project configuration that wants counted X0 support and still allows command-line overrides can use:
+A project configuration that wants counted X0 support and still allows command-line overrides can use:
 
-  ```C
-  #ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT
-  #define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
-  #endif
-  ```
+```c
+#ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT
+#define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+#endif
+```
 
-  Then builds can explicitly test or select the behavior with compiler defines such as:
+Then builds can explicitly test or select the behavior with compiler defines such as:
 
-  ```bash
-  -DTRICE_OFF=1 -DTRICE_X0_COUNTED_BUFFER_SUPPORT=1
-  -DTRICE_OFF=1 -DTRICE_X0_COUNTED_BUFFER_SUPPORT=0
-  ```
+```bash
+-DTRICE_OFF=1 -DTRICE_X0_COUNTED_BUFFER_SUPPORT=1
+-DTRICE_OFF=1 -DTRICE_X0_COUNTED_BUFFER_SUPPORT=0
+```
 
 #### 20.4.3. <a id="typex0-usage-in-examplesg0b1_inst"></a>`typeX0` Usage in `./examples/G0B1_inst`
 
 ![alt text](./ref/typeX0_example.png)
 
-The point here is, that with CLI switch `-tyeX0=ignore` the packages are invisible. On demand a `-typeX0=forward:<ADDRESS>` option is implementable als trice log extension.
+The point here is that with CLI switch `-typeX0=ignore` the counted X0 packages are invisible after their length has been checked. A future `-typeX0=forward:<ADDRESS>` option could be implemented as a `trice log` extension.
 
 ### 20.5. <a id="go-implementation-layout"></a>Go implementation layout
 
@@ -2778,11 +2779,11 @@ Code layout:
 
 ```text
 internal/args/...
-    add CLI flag -typeX0 and help text
+    define CLI flag -typeX0 and help text
 
 internal/decoder/typeX0.go
     hold the configured TypeX0 value
-    parse error, ignore, counted:<format>, <format>
+    parse error, ignore, all:ignore, counted:<format>, <format>
     format counted payloads with Go fmt
     reject unsupported mode prefixes clearly
 
@@ -2790,7 +2791,7 @@ internal/trexDecoder/trexDecoder.go
     detect selector == 0
     pass the remaining record buffer to the typeX0 helper
     append returned output to the decoder result
-    consume the logical X0 record and its alignment padding
+    consume the logical X0 record and zero alignment padding when present
 ```
 
 Unsupported future modes shall fail with a clear diagnostic, for example:
@@ -2811,36 +2812,49 @@ could later forward valid X0 payload bytes to another sink instead of formatting
 
 The counted X0 path is tested through the existing `_test/testdata/triceCheck.c` mechanism, because these test lines are processed by many Trice configurations.
 
-Added the support define to each `_test/.../triceConfig.h` that builds `triceCheck.c`:
+The shared test configurations that build `triceCheck.c` define:
 
 ```c
 #define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
 ```
 
-Make sure `triceX0.c` is compiled into the CGO test target when this define is present.
+`src/triceX0.c` is compiled into the CGO test target through the master file `_test/testdata/cgoPackage.go`. Generated `generated_cgoPackage.go` copies are refreshed from that master file by `scripts/_renewIDs_in_examples_and_refresh_test_folder.sh`.
 
-Insert an X0 test line in `_test/testdata/triceCheck.c`, preferably before the assert tests:
+The X0 block in `_test/testdata/triceCheck.c` is guarded by the normalized value macro and intentionally mixes different counted X0 lengths with normal Trices:
 
 ```c
-#ifdef TRICE_X0_COUNTED_BUFFER_SUPPORT
-       break; case __LINE__: triceX0( b8, 24 ); //exp: "time: default: 00 ff fe 33 04 05 06 07 08 09 0a 0b 00 ff fe 33 04 05 06 07 08 09 0a 0b\n"
+#if TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1
+        break; case __LINE__: triceX0(x0Payload, 0);
+        break; case __LINE__: triceX0(x0Payload, 5); trice8B("wr:X0-B: %02x\n", x0Payload, 5);
+        break; case __LINE__: triceX0(x0Payload, 2); triceX0(x0Payload + 2, 4); trice("wr:X0 tail\n");
 #endif
 ```
 
-The expected payload corresponds to the existing `b8` test buffer formatted with:
+The current shared CGO test option formats the X0 payload with the `sig:` prefix:
 
 ```text
--typeX0="% x\n"
+counted:sig:% x\n
 ```
 
-All `_test/` tests using `triceCheck.c` shall pass this CLI option. The recommended implementation sequence is:
+For maintenance, keep these parts aligned:
 
-1. Add the X0 test to one test configuration and verify that it fails.
-2. Implement -typeX0 in the Go decoder.
+1. The master CGO file includes `../../src/triceX0.c`.
+2. `triceCheck.c` uses `TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1` as guard.
+3. The X0 test block uses different lengths and mixed packages with `trice`, `triceS`, `TriceS`, `trice8B`, `Trice8B` and `TRice8B`.
+4. `_test/.../triceConfig.h` files that build `triceCheck.c` enable `TRICE_X0_COUNTED_BUFFER_SUPPORT`.
+5. `_test` CGO checks set `decoder.TypeX0` to `counted:sig:% x\n`.
+6. The full `_test/` matrix remains the final coverage check.
+
+<!---
+When introducing or changing X0 behavior, a useful implementation sequence is:
+
+1. Add or adjust the X0 test in one test configuration and verify that it fails for the missing behavior.
+2. Implement or update `-typeX0` in the Go decoder.
 3. Make the single X0 test pass.
-4. Enable TRICE_X0_COUNTED_BUFFER_SUPPORT in all relevant _test triceConfig.h files.
-5. Add -typeX0="% x\n" to all tests using triceCheck.c.
-6. Run the full _test/ matrix.
+4. Enable `TRICE_X0_COUNTED_BUFFER_SUPPORT` in all relevant `_test/.../triceConfig.h` files.
+5. Add or update the shared `decoder.TypeX0` option for all tests using `triceCheck.c`.
+6. Run the full `_test/` matrix.
+-->
 
 Additional focused Go unit tests cover:
 
@@ -2848,6 +2862,7 @@ Additional focused Go unit tests cover:
 no -typeX0        -> X0 packet is an error
 -typeX0=error     -> X0 packet is an error
 -typeX0=ignore    -> valid X0 packet produces no output
+-typeX0=all:ignore -> complete selector-0 package is consumed without counted parsing
 -typeX0="%s"      -> payload is printed as string
 -typeX0="[%s]"    -> payload is printed with formatting
 -typeX0="% x"     -> payload is printed as spaced hex
@@ -2855,6 +2870,8 @@ no -typeX0        -> X0 packet is an error
 -typeX0=sig:%s   -> unsupported mode "sig"
 malformed X0      -> error, also with -typeX0=ignore
 unsupported mode  -> clear error
+mixed package     -> counted X0 can be followed by a regular Trice in framed data
+NONE framing      -> counted X0 consumes zero alignment padding when present
 ```
 
 ### 20.7. <a id="initial-scope"></a>Initial scope
