@@ -181,10 +181,10 @@ details.toc[open] .toc-hide {
     * [19.2.1. typeX0 Trices](#typex0-trices)
     * [19.2.2. Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
 * [20. typeX0 User Packets](#typex0-user-packets)
-  * [20.1. Packet classification](#packet-classification)
-  * [20.2. typeX0=counted:<format>](#typex0countedformat)
-  * [20.3. CLI option -typeX0](#cli-option--typex0)
-  * [20.4. Target Code](#target-code)
+  * [20.1. Packet Classification](#packet-classification)
+  * [20.2. The typeX0 Counted Format](#the-typex0-counted-format)
+  * [20.3. CLI Option -typeX0](#cli-option--typex0)
+  * [20.4. typeX0 Target Code](#typex0-target-code)
     * [20.4.1. Target-side counted helper](#target-side-counted-helper)
     * [20.4.2. typeX0 Usage in ./examples/G0B1_inst](#typex0-usage-in-examplesg0b1_inst)
   * [20.5. Go implementation layout](#go-implementation-layout)
@@ -2487,13 +2487,13 @@ One possible use case is to have user **printi** statements parallel to Trices (
 
 Trice already has buffer macros for transferring runtime data buffers. `triceN` transfers a byte buffer as a counted string, and `trice8B`, `trice16B`, `trice32B`, `trice64B` and `triceB` transfer buffers as sequences of equally sized values formatted on the host side. These macros are the preferred choice when the data belongs to a normal Trice message and should use the usual Trice ID, `til.json` entry and format string handling.
 
-`typeX0` is an additional, more decoupled way to move user data through the same Trice transport path. It uses selector bits `00` in the first 16-bit word and therefore carries no 14-bit Trice ID. The host-side meaning is selected by the Trice tool option `-typeX0=...`. This makes it useful for user payloads that should share the same UART/RTT/file/framing interface as Trice messages, but should not require an ID, a `til.json` entry or a fixed Trice format string.
+`typeX0` is an additional, more decoupled way to move user data through the same Trice transport path. It uses selector bits `00` in the first 16-bit word (deault little endian) and therefore carries no 14-bit Trice ID. The host-side meaning is selected by the Trice tool option `-typeX0=...`. This makes it useful for user payloads that should share the same UART/RTT/file/framing interface as Trice messages, but should not require an ID, a `til.json` entry or a fixed Trice format string.
 
-Important: The `typeX0` packages do not influence the cycle counter and do not carry a cycle counter value. They also do not carry a Trice ID, target timestamp or location information. If log metadata columns such as `-showID`, `-li` or target timestamps are enabled, X0 output keeps the column alignment but blanks the actual values.
+Important: The `typeX0` packages do not influence the cycle counter and do not carry a cycle counter value (or you implement your own). They also do not carry a Trice ID, target timestamp or location information normally. If log metadata columns such as `-showID`, `-li` or target timestamps are enabled, X0 output keeps the column alignment but blanks the actual values.
 
-The initial implementation supports `-typeX0=counted:<formatstring>`. This is intentionally just one example implementation of the selector-0 extension space. Other interpretations, for example forwarding, extended counted buffers or application-specific binary formats, can be added later without changing regular Trice messages. The counted implementation is expected to cover most simple use cases.
+The initial implementation supports `-typeX0=counted:<formatstring>`. This is intentionally just one example implementation of the selector-0 extension space. Other interpretations, for example forwarding, extended counted buffers or application-specific binary formats, can be added later without changing regular Trice messages. The counted implementation is expected to cover most use cases.
 
-### 20.1. <a id="packet-classification"></a>Packet classification
+### 20.1. <a id="packet-classification"></a>Packet Classification
 
 For each decoded record or package, the receiver first checks the available length:
 
@@ -2534,7 +2534,7 @@ Short user packets such as user0B, ..., user3B are intentionally not supported. 
 
 Short non-X0 user packets are not supported initially. They should be reported as errors and can be specified later if a real requirement appears.
 
-### 20.2. <a id="typex0countedformat"></a>`typeX0=counted:<format>`
+### 20.2. <a id="the-typex0-counted-format"></a>The typeX0 Counted Format
 
 A counted `typeX0` record starts with one 16-bit word:
 
@@ -2575,7 +2575,7 @@ non-zero alignment padding
 unsupported typeX0 mode
 ```
 
-### 20.3. <a id="cli-option--typex0"></a>CLI option `-typeX0`
+### 20.3. <a id="cli-option--typex0"></a>CLI Option `-typeX0`
 
 The Trice tool option is:
 
@@ -2655,7 +2655,7 @@ Print the payload quoted.
 
 Print the same payload twice, once as string and once as spaced hex.
 
-### 20.4. <a id="target-code"></a>Target Code 
+### 20.4. <a id="typex0-target-code"></a>typeX0 Target Code 
 
 In fact `typeX0` is a free format, the user can define. The only requirement is, that the 2 most significant bits in the very first uint16_t word (in the known endianness) are zero. If anyhow a length information is coded, like in the `counted` example, multiple packages can be framed together intermixed with normal trice messages. If no length information is coded in the `typeX0` packages, they need individual framing (with COBS or TCOBS or s.th. else).
 
@@ -2672,11 +2672,19 @@ In `triceX0.c` an example implementation for the counted buffer is given. The Tr
   | `-typeX0=sig:"%60s\n"`         | invalid `sig:` mode                                                 |
   | `-typeX0=forward:<ADDRESS>`    | send X0 package to ADDRESS (not implemented)                        |
 
+Hint: These forms are equivalent because the CLI parser does not distinguish between them:
+
+* `-typeX0=counted:"sig:%60s\n"` 
+* `-typeX0="counted:sig:%60s\n"`
+* `-typeX0=counted:sig:%60s\n`
+
+The `typeX0` CLI parser takes the string in front of the first colon as typeX0 mode. Therefore format strings containing a colon cannot given in the short form.
+
 Rule: Known modes are:
 - `error`: The Trice tool reports `typeX0` per default as error when no `-typeX0` CLI switch is given.
 - `counted`: explicit mode for counted X0 records and default mode for `-typeX0=` values without a colon.
 - `all`: valid just for `ignore` verb as `<format>` and only for non-mixed X0 packages.
-- `forward`: possible extension, not specified/implemented yet.
+- `forward`: possible extension for trice log functionality, not specified/implemented yet.
  
 This is extendable in many ways. The `typeX0` is just a way to mix any binary data with Trice messages over the same output channel. Many cases probably already cover-able by using Trice macros `trice8B`, `trice16B`, `trice32B`, `trice64B`, `triceS`, `triceN`, ...
 
