@@ -98,6 +98,11 @@ exclude = [
   # cannot validate it remotely yet.
   "^https://github\\.com/rokath/trice/releases/latest/download/TriceUserManual\\.pdf$",
 
+  # SourceForge project pages intermittently return Cloudflare HTTP 522 to
+  # automated checks while remaining useful human-facing references.
+  "^https://sourceforge\\.net/projects/ansifilter/?$",
+  "^https://sourceforge\\.net/projects/ezwinports/files/?$",
+
   # This site intermittently answers automated checks with HTTP 202
   # although the article is reachable for normal users in a browser.
   "^https://circuitcellar\\.com/.*",
