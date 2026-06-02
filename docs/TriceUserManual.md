@@ -178,7 +178,7 @@ details.toc[open] .toc-hide {
 * [19. Binary Encoding](#binary-encoding)
   * [19.1. Symbols](#symbols)
   * [19.2. Package Format](#package-format)
-    * [19.2.1. typeX0 Records](#typex0-trices)
+    * [19.2.1. typeX0 Records](#typex0-records)
     * [19.2.2. Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
 * [20. typeX0 User Packets](#typex0-user-packets)
   * [20.1. Packet Classification](#packet-classification)
@@ -2349,7 +2349,7 @@ This allows `trice` output to be tailored for debugging, profiling, timing analy
 | NC      |           2 | u16               | The most significant bit is the count selector bit `z` and usually **0**, telling, that the following 7 bits are the payload byte count and that the 8 least significant bits are the cycle counter. If `z` is **1**, the current Trice contains no cycle counter and has a 15-bit payload count instead (for payloads > 127). |
 | payload |           4 | u8\|u16\|u32\|u64 | The payload contains a number of equal size values.                                                                                                                                                                                                                                                                           |
 
-#### 19.2.1. <a id="typex0-trices"></a>typeX0 Records
+#### 19.2.1. <a id="typex0-records"></a>typeX0 Records
 
 The user can insert any data with a well-defined structure into the Trice data stream. When interpreting the Trice binary data, the Trice tool handles selector-0/typeX0 records according to the CLI switch `-typeX0`.
 
