@@ -1,6 +1,77 @@
 ﻿# Changelog
 
 
+## <a id='v1.2.4-changes'></a>v1.2.4 Changes (2026-06-02)
+
+### <a id='v1.2.4overview'></a>v1.2.4 Overview
+
+* CLI switch --version added to trice and tlog for more intuitive usage
+* Trice User Manual Chapter Ctrl-C robust use of `trice insert/clean` added
+* Issue [#550](https://github.com/rokath/trice/issues/550) implemented: TRICE_X0_COUNTED_BUFFER_SUPPORT added: The user can now mix its own protocol with trice messages over a single output channel.
+* Issue [#587](https://github.com/rokath/trice/issues/587) fixed
+* Issue [#549](https://github.com/rokath/trice/issues/549) fixed
+* Issue [#658](https://github.com/rokath/trice/issues/658) fixed
+
+### <a id='v1.2.4-git-log'></a>v1.2.4 Git Log
+
+```txt
+ms@Mac trice % ./scripts/gitLogWithBranches.sh --range v1.2.2..
+*               3b119718 2026-06-02 16:25 [wip                             ] docs: fix typeX0 record anchor link
+*               86160d5c 2026-06-02 16:18 [wip~1                           ] docs: refresh typeX0 manual anchors
+*               67e7ae77 2026-06-02 15:54 [wip~2                           ] typeX0 tests now pass all test modes and typeX0 is a separate selection option now.
+*               ed88fe32 2026-06-02 15:54 [wip~3                           ] typeX0 tests now pass all test modes and typeX0 is a separate selection option now.
+*               969b955f 2026-06-02 09:00 [wip~4                           ] 2 linkcheck extensions added
+*               5d90ccb6 2026-06-02 09:00 [wip~5                           ] Headings in chapter 20 slightly changed
+*               9d3c6000 2026-06-01 23:26 [wip~6                           ] typeX0 full tests and minor fix
+*               a570d306 2026-06-01 23:26 [wip~7                           ] typeX0 full tests and minor fix
+*               30a88a1f 2026-06-01 19:57 [wip~8                           ] typeX0 example added to G0B1_inst
+*               ea4caaa9 2026-06-01 19:57 [wip~9                           ] typeX0 log offset correcztion
+*               1507116d 2026-06-01 17:34 [wip~10                          ] Issue #550 (typeX0) implemented
+*               15adba87 2026-06-01 17:32 [wip~11                          ] test compatibility with older MacOS bash
+*               94a804ef 2026-05-31 16:10 [wip~12                          ] formatting changed a bit
+*               b71ecc7d 2026-05-31 16:09 [wip~13                          ] stop markdown-al-in-once creating a ToC automatically
+*               ed3df379 2026-05-27 19:20 [wip~14                          ] typeX0 user packets chapter added
+*               8114c29a 2026-05-27 19:20 [wip~15                          ] TRICE_X0_COUNTED_BUFFER_SUPPORT added to triceX0.c
+*               56e04cb5 2026-05-27 17:24 [wip~16                          ] link address updated
+*               4129d2fd 2026-05-27 16:38 [wip~17                          ] _userprint... againincluded (renamed)
+*               77626484 2026-05-27 15:41 [wip~18                          ] typeX0 demo implementation (counted buffer) added to Target code
+*               fd95cbf1 2026-05-25 23:28 [main^2                          ] CHANGELOG.md updated with v1.2.3 changes
+*               57a8331a 2026-05-24 22:05 [tags/v1.2.3^2                   ] ringbuffer de multi nopf fixed, Issue #549 fixed
+*               6d92480e 2026-05-24 21:28 [tags/v1.2.3~1^2                 ] Merge remote-tracking branch 'origin/wip' into wip
+|\              bea94369 2026-05-24 21:28 [tags/v1.2.3~1^2~1               ] Issue #587 fixed
+| *             6b006521 2026-05-24 20:33 [tags/v1.2.3~1^2^2               ] Merge branch 'main' into wip
+| |\            481c4019 2026-05-24 20:14 [tags/v1.2.3~1^2~2               ] agents.md forcing read more
+| | *           0aed8f7e 2026-05-24 19:58 [tags/v1.2.3~1^2~3               ] wip
+| | |\          0a82c488 2026-05-24 19:57 [tags/v1.2.3~2                   ] Merge pull request #665 from rokath/tlog
+| | | *         3a0f8c44 2026-05-24 19:49 [tags/v1.2.3~1^2~4               ] Merge branch 'main' into wip
+* | | |         c20d597e 2026-05-24 19:47 [tags/v1.2.3~2^2                 ] wip
+|/ / /          28462a3f 2026-05-24 19:42 [tags/v1.2.3~1^2~5               ] Merge remote-tracking branch 'origin/wip' into wip
+* | |           08e31bcb 2026-05-24 19:41 [tags/v1.2.3~1^2~6               ] Fix for issue #658
+* | |           013581c1 2026-05-24 19:40 [tags/v1.2.3~3                   ] Merge pull request #663 from rokath/tlog
+* | |           eb8f4fad 2026-05-24 19:34 [tags/v1.2.3~3^2                 ] Merge branch 'main' into tlog
+|\| |           362c9528 2026-05-24 19:33 [tags/v1.2.3~4                   ] Merge pull request #664 from rokath/wip
+| * |           67b7633c 2026-05-24 19:18 [tags/v1.2.3~4^2                 ] Merge branch 'main' into wip
+| |\|           acfa1f50 2026-05-24 19:14 [tags/v1.2.3~4^2~1               ] Merge remote-tracking branch 'origin/wip' into wip
+| | *           3c2a2007 2026-05-24 19:12 [tags/v1.2.3~4^2~2               ] ok
+| | |\          493eca98 2026-05-24 19:12 [tags/v1.2.3~4^2~1^2             ] ok
+| | |/          2cbbedba 2026-05-24 19:10 [tags/v1.2.3~4^2~3               ] Merge branch 'main' into wip
+| |/|           44a9027d 2026-05-24 19:07 [tags/v1.2.3~3^2~1               ] Merge branch 'main' into tlog
+| * |           67226d9f 2026-05-24 18:50 [tags/v1.2.3~3^2~2               ] gh read access rule claryfied
+| |\ \          bafc1b75 2026-05-24 14:19 [tags/v1.2.3~5                   ] Merge pull request #662 from rokath/tlog
+| | | *           8a66a133 2026-05-24 11:25 [tags/v1.2.3~6                   ] Merge pull request #661 from rokath/wip
+| | | |\        76e1197f 2026-05-24 11:24 [tags/v1.2.3~5^2                 ] CLI switch --version added to trice and tlog
+| | |_|/        6cb7ba26 2026-05-24 11:02 [tags/v1.2.3~5^2~1               ] buildTriceTool.sh extended to create tlog as well
+| |/| |         e17acd36 2026-05-24 10:53 [tags/v1.2.3~5^2~2               ] tlog as separate binary (first shot)
+* | | |           1ace29cf 2026-05-24 10:48 [tags/v1.2.3~6^2                 ] AGENTS.md allows gh to read always
+|\ \ \ \        c246bcb1 2026-05-24 10:47 [tags/v1.2.3~6^2~1               ] debug paths now for cross platform usage
+| | |/ /        04fff420 2026-05-24 10:19 [tags/v1.2.3~6^2~2               ] Wrong ID on trice64* cannot panic anymore
+| |/| |         85d7d876 2026-05-23 23:44 [tags/v1.2.3~7                   ] Merge pull request #660 from rokath/wip
+| * | |         f87842b2 2026-05-23 23:23 [tags/v1.2.3~7^2                 ] UM Chapter Ctrl-C robust use of `trice insert/clean` added
+| |\| |         9c8a3bea 2026-05-23 23:07 [tags/v1.2.3~7^2~1               ] test & build scripts improved (hardened) for CTRL-C interruption
+| | * |           6132e7a8 2026-05-22 19:05 [tags/v1.2.3~7^2~2               ] minor
+ms@Mac trice % 
+```
+
 ## <a id='v1.2.3-changes'></a>v1.2.3 Changes (2026-05-24)
 
 ### <a id='v1.2.3overview'></a>v1.2.3 Overview
@@ -56,7 +127,7 @@ th@Mac scripts % ./gitLogWithBranches.sh --range v1.2.1..
 |/| | |         9c8a3bea 2026-05-23 23:07 [tags/v1.2.3~7^2~1               ] test & build scripts improved (hardened) for CTRL-C interruption
 | | | *           6132e7a8 2026-05-22 19:05 [tags/v1.2.3~7^2~2               ] minor
 | | | |\        28a8376f 2026-05-22 19:01 [tags/v1.2.3~7^2~3               ] TriceUserManual.pdf with open TOC again
-````
+```
 
 ## <a id='v1.2.2-changes'></a>v1.2.2 Changes (2026-05-22)
 
