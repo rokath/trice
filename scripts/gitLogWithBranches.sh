@@ -8,7 +8,7 @@
 set -euo pipefail
 
 show_usage() {
-  cat <<'EOF'
+  cat <<'USAGE'
 Usage:
   ./gitLogWithBranches.sh [options]
 
@@ -26,7 +26,7 @@ Notes:
     stdout is connected to a terminal.
   - --range is combined with --since/--until if you provide both. This allows
     additional date trimming of a Git revision range if desired.
-EOF
+USAGE
 }
 
 resolve_revision_name() {
@@ -210,21 +210,25 @@ if [[ -n "$range_arg" ]]; then
   git_log_arg_count=$((git_log_arg_count + 1))
 fi
 
-# The graph returned by "git log --graph" contains the abbreviated hashes in
-# the same physical positions where the graph is drawn. To keep the graph
-# alignment intact, we first capture those lines and replace hexadecimal digits
-# with spaces. The commit hashes themselves are collected separately in a second
-# pass. Both result arrays have identical ordering.
-GRAPH_LINES=()
-HASHES=()
-
 run_git_log() {
+  # Bash 4.3 and older can raise an unbound-variable error when an empty array
+  # is expanded under "set -u". Avoid expanding git_log_args when it is empty.
   if [[ "$git_log_arg_count" -gt 0 ]]; then
     git log "$@" "${git_log_args[@]}"
   else
     git log "$@"
   fi
 }
+
+# The graph returned by "git log --graph" contains the abbreviated hashes in
+# the same physical positions where the graph is drawn. To keep the graph
+# alignment intact, we first capture those lines and replace hexadecimal digits
+# with spaces. The commit hashes themselves are collected separately in a second
+# pass. Both result arrays should have identical ordering, but the print loop
+# below is defensive because graph output can contain extra decoration lines in
+# some Git versions or option combinations.
+GRAPH_LINES=()
+HASHES=()
 
 while IFS= read -r line; do
   GRAPH_LINES+=("${line//[0-9a-f]/ }")
@@ -238,10 +242,10 @@ done < <(run_git_log --pretty=format:'%H')
 #   graph | short hash | commit date | nearest branch | subject
 for i in "${!GRAPH_LINES[@]}"; do
   graph="${GRAPH_LINES[$i]}"
-  fullhash="${HASHES[$i]}"
 
-  # Defensive guard: skip empty entries if Git ever returns an unexpected
-  # mismatch between graph lines and collected hashes.
+  # Under "set -u", directly reading an unset array element raises an error.
+  # Use a default value and skip the line if no matching hash exists.
+  fullhash="${HASHES[$i]:-}"
   [[ -z "$fullhash" ]] && continue
 
   short="${fullhash:0:8}"
