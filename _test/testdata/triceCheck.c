@@ -52,7 +52,7 @@ void TriceCheck(int index) {
     char* s = "AAAAAAAAAAAA";
     char * five = "five";
     static int8_t b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
-#ifdef TRICE_X0_COUNTED_BUFFER_SUPPORT
+#if TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1
     // x0Payload uses ascending bytes so expected output exposes packet boundaries.
     static uint8_t x0Payload[24] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
 #endif
@@ -145,7 +145,7 @@ void TriceCheck(int index) {
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: "time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.\n"
         break; case __LINE__: dynString(__LINE__ - anchorLine); //exp: "time:        default: wr:0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,\n"
 
-#ifdef TRICE_X0_COUNTED_BUFFER_SUPPORT
+#if TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1
         break; case __LINE__: triceX0(x0Payload, 0);                                                                           //exp: "time:        default: sig:\n"
         break; case __LINE__: triceX0(x0Payload, 1); trice("wr:X0 after 1\n");                                                 //exp: "time:        default: sig:00\ntime:        default: wr:X0 after 1\n"
         break; case __LINE__: triceX0(x0Payload, 2); trice("wr:X0 before 2\n");                                                //exp: "time:        default: sig:00 01\ntime:        default: wr:X0 before 2\n"

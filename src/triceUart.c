@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#if TRICE_DEFERRED_UARTA == 1 && TRICE_OFF == 0
+#if TRICE_DEFERRED_UARTA == 1 && TRICE_BACKEND_ACTIVE
 
 #include "triceUart.h" // User has to provide this hardware-specific file, see examples folders.
 
@@ -144,4 +144,4 @@ void triceTriggerTransmitUartB(void) {
 	}
 }
 
-#endif // #if TRICE_DEFERRED_UARTB == 1 && TRICE_OFF == 0
+#endif // #if TRICE_DEFERRED_UARTA == 1 && TRICE_BACKEND_ACTIVE

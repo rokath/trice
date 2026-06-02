@@ -63,7 +63,9 @@ void SomeExampleTrices(int burstCount);
 #define who triceS
 // #define who(iD(13002), id,...) triceS(id, __VA_ARGS__)
 
-#define TRICE_X0_COUNTED_BUFFER_SUPPORT
+#ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT
+#define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+#endif
 
 #ifdef __cplusplus
 }

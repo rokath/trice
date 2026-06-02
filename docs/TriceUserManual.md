@@ -186,7 +186,8 @@ details.toc[open] .toc-hide {
   * [20.3. CLI Option -typeX0](#cli-option--typex0)
   * [20.4. typeX0 Target Code](#typex0-target-code)
     * [20.4.1. Target-side counted helper](#target-side-counted-helper)
-    * [20.4.2. typeX0 Usage in ./examples/G0B1_inst](#typex0-usage-in-examplesg0b1_inst)
+    * [20.4.2. typeX0 Build Switches](#typex0-build-switches)
+    * [20.4.3. typeX0 Usage in ./examples/G0B1_inst](#typex0-usage-in-examplesg0b1_inst)
   * [20.5. Go implementation layout](#go-implementation-layout)
   * [20.6. Tests](#tests)
   * [20.7. Initial scope](#initial-scope)
@@ -2713,17 +2714,67 @@ For projects or tests that want this helper, define in `triceConfig.h`:
 
 A project can also provide its own selector-0 writer. The counted helper is only the reference implementation for the initial `-typeX0=counted:<format>` use case.
 
-#### 20.4.2. <a id="typex0-usage-in-examplesg0b1_inst"></a>`typeX0` Usage in `./examples/G0B1_inst`
+#### 20.4.2. <a id="typex0-build-switches"></a>typeX0 Build Switches
+
+  The counted typeX0 helper is controlled independently from the normal Trice macro switch:
+
+  ```c
+  #define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+  ```
+
+  When TRICE_X0_COUNTED_BUFFER_SUPPORT == 1, the target side function
+
+  ```c
+  void triceX0(const void* buf, uint16_t len);
+  ```
+
+  is a real function and writes counted selector-0 records into the configured Trice output backend. The project must then compile src/triceX0.c together with the other Trice target sources. When TRICE_X0_COUNTED_BUFFER_SUPPORT == 0, triceX0() is an inline no-op helpe and no X0 backend code is needed.
+
+  This switch is intentionally independent from TRICE_OFF:
+
+  `TRICE_OFF` | `TRICE_X0_COUNTED_BUFFER_SUPPORT` | Setting
+  ------------|-----------------------------------|----------------------------------------------------------------------
+  `== 0`      | `== 0`                            | normal Trice macros are active, `triceX0()` is a no-op
+  `== 0`      | `== 1`                            | normal Trice macros are active, `triceX0()` emits counted X0 records
+  `== 1`      | `== 0`                            | normal Trice macros are off, `triceX0()` is a no-op
+  `== 1`      | `== 1`                            | normal Trice macros are off, `triceX0()` still emits counted X0 records
+
+  The 2nd combination is useful for applications that want to use only selector-0 user packets while keeping all normal Trice statements compiled out. The Trice tool can still scan normal Trice statements in the source code for ID maintenance, but the compiler receives no normal Trice output code from them.
+
+  TRICE_CLEAN is a tool-managed source state and should not be used as an application switch. trice clean may set it to 1 to make cleaned source files compile without inserted IDs and without editor warnings; trice insert sets it back to 0. With TRICE_X0_COUNTED_BUFFER_SUPPORT == 1, the counted X0 helper is intended to compile in both states. Normal Trice macros remain disabled while TRICE_CLEAN == 1, but triceX0() stays available as a real function.
+
+  In short:
+
+  * **TRICE_OFF** controls normal Trice macro code generation.
+  * **TRICE_CLEAN** reflects the insert/clean source state.
+  * **TRICE_X0_COUNTED_BUFFER_SUPPORT** controls whether triceX0() is a real counted X0 writer.
+
+  A project configuration that wants counted X0 support and still allows command-line overrides can use:
+
+  ```C
+  #ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT
+  #define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+  #endif
+  ```
+
+  Then builds can explicitly test or select the behavior with compiler defines such as:
+
+  ```bash
+  -DTRICE_OFF=1 -DTRICE_X0_COUNTED_BUFFER_SUPPORT=1
+  -DTRICE_OFF=1 -DTRICE_X0_COUNTED_BUFFER_SUPPORT=0
+  ```
+
+#### 20.4.3. <a id="typex0-usage-in-examplesg0b1_inst"></a>`typeX0` Usage in `./examples/G0B1_inst`
 
 ![alt text](./ref/typeX0_example.png)
 
-The point here is, that with CLI switch `-tyeX0=ignore` the packages are invisible. On demand a `-typeX0=forward:<ADDRESS>` option is implementable.
+The point here is, that with CLI switch `-tyeX0=ignore` the packages are invisible. On demand a `-typeX0=forward:<ADDRESS>` option is implementable als trice log extension.
 
 ### 20.5. <a id="go-implementation-layout"></a>Go implementation layout
 
 Keep the `typeX0` mode parsing and handling centralized so later modes can be added without spreading switch logic through the decoder.
 
-Suggested layout:
+Code layout:
 
 ```text
 internal/args/...
@@ -2758,9 +2809,9 @@ could later forward valid X0 payload bytes to another sink instead of formatting
 
 ### 20.6. <a id="tests"></a>Tests
 
-The counted X0 path should be tested through the existing `_test/testdata/triceCheck.c` mechanism, because these test lines are processed by many Trice configurations.
+The counted X0 path is tested through the existing `_test/testdata/triceCheck.c` mechanism, because these test lines are processed by many Trice configurations.
 
-Add the support define to each `_test/.../triceConfig.h` that builds `triceCheck.c`:
+Added the support define to each `_test/.../triceConfig.h` that builds `triceCheck.c`:
 
 ```c
 #define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
@@ -2784,16 +2835,14 @@ The expected payload corresponds to the existing `b8` test buffer formatted with
 
 All `_test/` tests using `triceCheck.c` shall pass this CLI option. The recommended implementation sequence is:
 
-```text
 1. Add the X0 test to one test configuration and verify that it fails.
 2. Implement -typeX0 in the Go decoder.
 3. Make the single X0 test pass.
 4. Enable TRICE_X0_COUNTED_BUFFER_SUPPORT in all relevant _test triceConfig.h files.
 5. Add -typeX0="% x\n" to all tests using triceCheck.c.
 6. Run the full _test/ matrix.
-```
 
-Additional focused Go unit tests should cover:
+Additional focused Go unit tests cover:
 
 ```text
 no -typeX0        -> X0 packet is an error

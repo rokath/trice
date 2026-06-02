@@ -139,6 +139,27 @@ main() {
   build_phase_started=1
 
   run_cmd "$ROOT/examples/cleanAllTargets.sh" || {
+    log "FAIL: cleanAllTargets.sh failed before G0B1_inst X0 matrix"
+    exit 1
+  }
+
+  (
+    cd "$ROOT/examples/G0B1_inst" || exit 1
+    ./build.sh --x0-matrix
+  ) 2>&1 | log_pipe
+  rc=${PIPESTATUS[0]}
+
+  if [ "$rc" -ne 0 ]; then
+    log "FAIL: G0B1_inst X0 matrix failed"
+    exit "$rc"
+  fi
+
+  if grep_log '(warning|error)' "$LOGFILE"; then
+    log "FAIL: G0B1_inst X0 matrix reported warnings or errors"
+    exit 2
+  fi
+
+  run_cmd "$ROOT/examples/cleanAllTargets.sh" || {
     log "FAIL: cleanAllTargets.sh failed before TRICE_OFF"
     exit 1
   }

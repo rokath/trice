@@ -10,7 +10,7 @@
 #include "tcobs.h"
 #include "trice.h"
 
-#if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_OFF == 0
+#if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_BACKEND_ACTIVE
 
 uint32_t* triceSingleBufferStartWritePosition = (uint32_t*)0;
 
@@ -489,4 +489,4 @@ void WatchRingBufferMargins(void) {
 
 #endif // #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
 
-#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_OFF == 0
+#endif // #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_BACKEND_ACTIVE

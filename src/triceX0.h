@@ -8,6 +8,14 @@
 
 #include <stdint.h>
 
+#ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT
+#define TRICE_X0_COUNTED_BUFFER_SUPPORT 0
+#endif
+
+#ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE
+#define TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE (TRICE_X0_COUNTED_BUFFER_SUPPORT + 0)
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,7 +39,14 @@ extern "C" {
  * The function uses the normal Trice critical-section mechanism and is safe
  * against interleaving with other Trice writes.
  */
+#if TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1
 void triceX0(const void* buf, uint16_t len);
+#else
+static inline void triceX0(const void* buf, uint16_t len) {
+    (void)buf;
+    (void)len;
+}
+#endif
 
 #ifdef __cplusplus
 }

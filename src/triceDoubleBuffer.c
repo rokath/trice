@@ -10,7 +10,7 @@
 #include "tcobs.h"
 #include "trice.h"
 
-#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
+#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_BACKEND_ACTIVE
 
 uint32_t* triceSingleBufferStartWritePosition = (uint32_t*)0;
 
@@ -376,4 +376,4 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
        //////////////////////////////////////////////////////////////////////////////
 }
 
-#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
+#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_BACKEND_ACTIVE

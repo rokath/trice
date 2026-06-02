@@ -96,6 +96,13 @@ extern "C" {
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
 
+// Keep typeX0 output independent from the normal TRICE_OFF and TRICE_CLEAN
+// switches. Without typeX0, TRICE_CLEAN still disables the ordinary backend.
+// The "+ 0" form lets an empty legacy define evaluate as 0 in preprocessor
+// expressions.
+#define TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE (TRICE_X0_COUNTED_BUFFER_SUPPORT + 0)
+#define TRICE_BACKEND_ACTIVE (((TRICE_CLEAN == 0) && (TRICE_OFF == 0)) || (TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1))
+
 #ifndef TRICE_WEAK // user can define TRICE_WEAK for special cases
 #ifdef WEAK
 #define TRICE_WEAK WEAK // use existing weak
@@ -184,11 +191,15 @@ TRICE_INLINE uint64_t aDouble(double x) {
 #include "triceOff.h"
 
 #else // #if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
+
+#include "triceOn.h"
+
+#endif // #else // #if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
+
+#if TRICE_BACKEND_ACTIVE
 /***************************************************************************************************/
 /**/
 /**/
-
-#include "triceOn.h"
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
@@ -240,6 +251,45 @@ void WatchRingBufferMargins(void);
 #endif
 
 #endif // #if (TRICE_BUFFER == TRICE_RING_BUFFER)
+
+#if (TRICE_OFF != 0) || (TRICE_CLEAN != 0)
+// Backend prototypes are declared here because the typeX0-only path can compile
+// backend sources while keeping the public Trice macros switched off.
+void TriceInitRingBufferMargins(void);
+void WatchRingBufferMargins(void);
+void TriceCheck(int index);
+void TriceDiagnostics(int index);
+void TriceNonBlockingWriteUartA(const void* buf, size_t nByte);
+void TriceNonBlockingWriteUartB(const void* buf, size_t nByte);
+void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount);
+void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen);
+void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen);
+void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count);
+void TriceInit(void);
+void TriceLogDiagnosticData(void);
+void TriceLogSeggerDiagnostics(void);
+void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encLen);
+void TriceTransfer(void);
+size_t triceDataLen(const uint8_t* p);
+int TriceEnoughSpace(void);
+unsigned TriceOutDepth(void);
+size_t TriceDepth(void);
+size_t TriceDepthMax(void);
+size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t* buf, size_t len);
+void TriceWriteDeviceCgo(const void* buf, unsigned len);
+unsigned TriceOutDepthCGO(void);
+void TriceBlockingWriteUartA(const uint8_t* buf, unsigned len);
+void triceServeTransmitUartA(void);
+void triceTriggerTransmitUartA(void);
+unsigned TriceOutDepthUartA(void);
+void TriceBlockingWriteUartB(const uint8_t* buf, unsigned len);
+void triceServeTransmitUartB(void);
+void triceTriggerTransmitUartB(void);
+unsigned TriceOutDepthUartB(void);
+void XTEAEncrypt(uint32_t* p, unsigned count);
+void XTEADecrypt(uint32_t* p, unsigned count);
+void XTEAInitTable(void);
+#endif // #if (TRICE_OFF != 0) || (TRICE_CLEAN != 0)
 
 #if (TRICE_DIAGNOSTICS == 1)
 
@@ -302,9 +352,11 @@ extern uint32_t* TriceBufferWritePosition;
 #define TRICE_PUT64(x) TRICE_PUT64(x)
 #define TRICE_SWAPINT16(x) TRICE_SWAPINT16(x)
 #define TRICE_SWAPINT32(x) TRICE_SWAPINT32(x)
+#if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 #define idLH idLH
 #define IdLH IdLH
 #define IDLH IDLH
+#endif // #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 // #define tsL tsL
 // #define tsH tsH
 // #define tsHH tsHH
@@ -326,12 +378,14 @@ extern uint32_t* TriceBufferWritePosition;
 		*p_TRICE_PUT16++ = TRICE_HTOTS(x);                             \
 		TriceBufferWritePosition = (uint32_t*)p_TRICE_PUT16;           \
 	} while (0)
+#if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 #include "trice8.h"
 #include "trice16.h"
 #include "trice32.h"
 #if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64.h"
 #endif // (TRICE_64_BIT_SUPPORT == 1)
+#endif // #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 #include "triceX0.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -344,9 +398,11 @@ extern uint32_t* TriceBufferWritePosition;
 #undef TRICE_PUT64
 #undef TRICE_SWAPINT16
 #undef TRICE_SWAPINT32
+#if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 #undef idLH
 #undef IdLH
 #undef IDLH
+#endif // #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 // #undef tsL
 // #undef tsH
 // #undef tsHH
@@ -391,23 +447,27 @@ extern uint32_t* TriceBufferWritePosition;
 
 // TRICE_REVERSE == 0 uses no byte swapping inside the Trice macros resulting in less code and faster execution.
 #include "triceMcuOrder.h"
+#if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 #include "trice8McuOrder.h"
 #include "trice16McuOrder.h"
 #include "trice32McuOrder.h"
 #if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64McuOrder.h"
 #endif // (TRICE_64_BIT_SUPPORT == 1)
+#endif // #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 
 #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
 // TRICE_REVERSE == 1 causes byte swapping inside the Trice macros resulting in more code and slower execution.
 #include "triceMcuReverse.h"
+#if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 #include "trice8McuReverse.h"
 #include "trice16McuReverse.h"
 #include "trice32McuReverse.h"
 #if (TRICE_64_BIT_SUPPORT == 1)
 #include "trice64McuReverse.h"
 #endif // (TRICE_64_BIT_SUPPORT == 1)
+#endif // #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 
 #endif // #else // #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
@@ -623,6 +683,8 @@ extern uint32_t* TriceBufferWritePosition;
 #endif
 
 // clang-format on
+
+#if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -887,6 +949,8 @@ void TRiceAssertFalseFn(uint16_t idN, int flag);
 #define TriceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {Trice(idN, msg); return (value);}} while(0)
 #define TRiceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRice(idN, msg); return (value);}} while(0)
 
+#endif // #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
+
 typedef void (*Write8AuxiliaryFn_t)(const uint8_t* enc, size_t encLen);
 extern Write8AuxiliaryFn_t UserNonBlockingDirectWrite8AuxiliaryFn;
 extern Write8AuxiliaryFn_t UserNonBlockingDeferredWrite8AuxiliaryFn;
@@ -898,7 +962,7 @@ extern Write32AuxiliaryFn_t UserNonBlockingDeferredWrite32AuxiliaryFn;
 /**/
 /**/
 /***************************************************************************************************/
-#endif // #else // #if ((defined(TRICE_OFF) && TRICE_OFF == 1)) || ((defined(TRICE_CLEAN) && TRICE_CLEAN == 1))
+#endif // #if TRICE_BACKEND_ACTIVE
 
 #ifdef __cplusplus
 }

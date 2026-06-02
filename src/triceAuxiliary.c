@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#if !TRICE_OFF
+#if TRICE_BACKEND_ACTIVE
 
 #if TRICE_DIRECT_AUXILIARY8 == 1
 
@@ -87,4 +87,4 @@ void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count)
 //  
 //  #endif // #if TRICE_DEFERRED_AUXILIARY32 == 1
 
-#endif // #if !TRICE_OFF
+#endif // #if TRICE_BACKEND_ACTIVE
