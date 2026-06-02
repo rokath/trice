@@ -152,6 +152,22 @@ func TestNextPackageCOBS(t *testing.T) {
 	assert.Equal(t, 0, len(p.IBuf))
 }
 
+// TestNextPackageSkipsEmptyCOBSFrames verifies that 32-bit write padding delimiters are ignored.
+func TestNextPackageSkipsEmptyCOBSFrames(t *testing.T) {
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			NeedBuffers: true,
+		}),
+		packageFraming: packageFramingCOBS,
+	}
+	// The leading zeroes are empty frames left by aligned direct-output writes.
+	p.IBuf = []byte{0x00, 0x00, 0x02, 'A', 0x00}
+
+	p.nextPackage()
+	assert.Equal(t, []byte{'A'}, p.B)
+	assert.Equal(t, 0, len(p.IBuf))
+}
+
 // TestNextPackageTCOBSPaths verifies the expected behavior.
 func TestNextPackageTCOBSPaths(t *testing.T) {
 	t.Run("success empty payload", func(t *testing.T) {
@@ -818,19 +834,47 @@ func TestReadCOBSFramingUnknownID(t *testing.T) {
 	assert.Contains(t, string(buf[:n]), "unknown ID")
 }
 
-// TestReadNoneFramingTypeX0Resync verifies the expected behavior.
-func TestReadNoneFramingTypeX0Resync(t *testing.T) {
+// TestReadFramedUnsupportedShortPackets verifies errors for non-X0 packets that are too short.
+func TestReadFramedUnsupportedShortPackets(t *testing.T) {
+	tests := []struct {
+		name string
+		data []byte
+		want string
+	}{
+		{name: "one byte", data: []byte{0xaa}, want: "unsupported short packet size 1"},
+		{name: "short regular selector", data: []byte{0x01, 0x40}, want: "unsupported short non-X0 packet size 2"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			p := &trexDec{
+				DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+				packageFraming: packageFramingCOBS,
+			}
+			p.B = append([]byte(nil), tc.data...)
+			buf := make([]byte, 256)
+			n, err := p.Read(buf)
+			assert.NoError(t, err)
+			assert.Contains(t, string(buf[:n]), tc.want)
+			assert.Empty(t, p.B)
+		})
+	}
+}
+
+// TestReadNoneFramingTypeX0Counted verifies counted X0 consumption with 32-bit alignment padding.
+func TestReadNoneFramingTypeX0Counted(t *testing.T) {
 	oldFraming := decoder.PackageFraming
-	oldVerbose := decoder.Verbose
+	oldTypeX0 := decoder.TypeX0
+	oldBlank := decoder.BlankMetadata
 	t.Cleanup(func() {
 		decoder.PackageFraming = oldFraming
-		decoder.Verbose = oldVerbose
+		decoder.TypeX0 = oldTypeX0
+		decoder.BlankMetadata = oldBlank
 	})
 
 	decoder.PackageFraming = "none"
-	decoder.Verbose = false
+	decoder.TypeX0 = "%s"
 
-	in := bytes.NewBuffer([]byte{0x01, 0x00, 0xaa})
+	in := bytes.NewBuffer([]byte{0x01, 0x00, 'A', 0x00})
 	decI := New(io.Discard, nil, new(sync.RWMutex), nil, in, decoder.LittleEndian)
 	dec, ok := decI.(*trexDec)
 	if !ok {
@@ -840,25 +884,74 @@ func TestReadNoneFramingTypeX0Resync(t *testing.T) {
 	buf := make([]byte, 64)
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
-	assert.Equal(t, 0, n)
-	assert.Equal(t, []byte{0x01, 0xaa}, dec.B)
+	assert.Equal(t, "A", string(buf[:n]))
+	assert.Empty(t, dec.B)
+	assert.True(t, decoder.BlankMetadata)
 }
 
-// TestReadNoneFramingTypeX0VerboseResync verifies the diagnostic branch that is
-// only taken in none-framing mode with verbose output enabled.
-func TestReadNoneFramingTypeX0VerboseResync(t *testing.T) {
+// TestReadNoneFramingTypeX0CompactThenRegular verifies compact deferred NONE X0 records before normal Trices.
+func TestReadNoneFramingTypeX0CompactThenRegular(t *testing.T) {
 	oldFraming := decoder.PackageFraming
-	oldVerbose := decoder.Verbose
+	oldTypeX0 := decoder.TypeX0
+	oldBlank := decoder.BlankMetadata
+	oldInitial := decoder.InitialCycle
 	t.Cleanup(func() {
 		decoder.PackageFraming = oldFraming
-		decoder.Verbose = oldVerbose
+		decoder.TypeX0 = oldTypeX0
+		decoder.BlankMetadata = oldBlank
+		decoder.InitialCycle = oldInitial
 	})
 
 	decoder.PackageFraming = "none"
-	decoder.Verbose = true
+	decoder.TypeX0 = "%s"
+	decoder.InitialCycle = true
 
-	in := bytes.NewBuffer([]byte{0x01, 0x00, 0xaa})
-	decI := New(io.Discard, nil, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	in := bytes.NewBuffer([]byte{0x01, 0x00, 'A', 0x01, 0x40, 0xc0, 0x01, 0x2a})
+	lut := id.TriceIDLookUp{
+		1: {Type: "TRICE8_1", Strg: "v=%d"},
+	}
+	decI := New(io.Discard, lut, new(sync.RWMutex), nil, in, decoder.LittleEndian)
+	dec, ok := decI.(*trexDec)
+	if !ok {
+		t.Fatalf("unexpected decoder type %T", decI)
+	}
+
+	buf := make([]byte, 128)
+	n, err := dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "A", string(buf[:n]))
+	assert.True(t, decoder.BlankMetadata)
+
+	n, err = dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "v=42", string(buf[:n]))
+	assert.Empty(t, dec.B)
+	assert.False(t, decoder.BlankMetadata)
+}
+
+// TestReadNoneFramingConsumesCompactPayload verifies that unpadded NONE streams do not leave payload bytes behind.
+func TestReadNoneFramingConsumesCompactPayload(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldTypeX0 := decoder.TypeX0
+	oldInitial := decoder.InitialCycle
+	oldDisable := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.TypeX0 = oldTypeX0
+		decoder.InitialCycle = oldInitial
+		DisableCycleErrors = oldDisable
+	})
+
+	decoder.PackageFraming = "none"
+	decoder.TypeX0 = "error"
+	decoder.InitialCycle = true
+	DisableCycleErrors = true
+
+	in := bytes.NewBuffer([]byte{0x01, 0x40, 0xc0, 0x02, '0', '1'})
+	lut := id.TriceIDLookUp{
+		1: {Type: "TRICE8_2", Strg: "wr:%c%c\n"},
+	}
+	decI := New(io.Discard, lut, new(sync.RWMutex), nil, in, decoder.LittleEndian)
 	dec, ok := decI.(*trexDec)
 	if !ok {
 		t.Fatalf("unexpected decoder type %T", decI)
@@ -867,26 +960,119 @@ func TestReadNoneFramingTypeX0VerboseResync(t *testing.T) {
 	buf := make([]byte, 256)
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "resync removing zero HI byte")
-	assert.Equal(t, []byte{0x01, 0xaa}, dec.B)
+	assert.Equal(t, "wr:01\n", string(buf[:n]))
+	assert.Empty(t, dec.B)
+
+	n, err = dec.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, n)
 }
 
-// TestReadTypeX0NotImplementedForFramedData verifies the expected behavior.
-func TestReadTypeX0NotImplementedForFramedData(t *testing.T) {
+// TestReadFramedDiscardsRegularTriceWordPadding verifies that aligned target padding does not become X0.
+func TestReadFramedDiscardsRegularTriceWordPadding(t *testing.T) {
+	oldInitial := decoder.InitialCycle
+	oldDisable := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.InitialCycle = oldInitial
+		DisableCycleErrors = oldDisable
+	})
+	decoder.InitialCycle = true
+	DisableCycleErrors = true
+
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Endian: decoder.LittleEndian,
+			LUT: id.TriceIDLookUp{
+				1: {Type: "TRICE8_1", Strg: "v=%d"},
+			},
+		}),
+		packageFraming: packageFramingCOBS,
+		cycle:          0xc0,
+	}
+	p.B = []byte{0x01, 0x40, 0xc0, 0x01, 0x2a, 0x00, 0x00, 0x00}
+
+	buf := make([]byte, 128)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "v=42", string(buf[:n]))
+	assert.Empty(t, p.B)
+}
+
+// TestReadTypeX0DefaultErrorForFramedData verifies default error handling without ID/stat side effects.
+func TestReadTypeX0DefaultErrorForFramedData(t *testing.T) {
+	oldTypeX0 := decoder.TypeX0
 	oldTargetTS := decoder.TargetTimestampSize
-	t.Cleanup(func() { decoder.TargetTimestampSize = oldTargetTS })
-	decoder.TargetTimestampSize = 0
+	oldLastID := decoder.LastTriceID
+	oldBlank := decoder.BlankMetadata
+	oldStats := decoder.TriceStatistics
+	oldIDStat := decoder.IDStat
+	t.Cleanup(func() {
+		decoder.TypeX0 = oldTypeX0
+		decoder.TargetTimestampSize = oldTargetTS
+		decoder.LastTriceID = oldLastID
+		decoder.BlankMetadata = oldBlank
+		decoder.TriceStatistics = oldStats
+		decoder.IDStat = oldIDStat
+	})
+
+	decoder.TypeX0 = "error"
+	decoder.TargetTimestampSize = 2
+	decoder.LastTriceID = 123
+	decoder.TriceStatistics = true
+	decoder.IDStat = map[id.TriceID]int{}
 
 	p := &trexDec{
 		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
 		packageFraming: packageFramingCOBS,
 	}
-	// typeX0 + enough bytes for header/count check.
-	p.B = []byte{0x01, 0x00, 0x00, 0x00}
+	p.B = []byte{0x02, 0x00, 'O', 'K'}
 	buf := make([]byte, 128)
 	n, err := p.Read(buf)
 	assert.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "typeX0 not implemented")
+	assert.Contains(t, string(buf[:n]), "typeX0 packet ignored")
+	assert.Empty(t, p.B)
+	assert.Equal(t, id.TriceID(0), decoder.LastTriceID)
+	assert.Equal(t, 0, decoder.TargetTimestampSize)
+	assert.True(t, decoder.BlankMetadata)
+	assert.Empty(t, decoder.IDStat)
+}
+
+// TestReadTypeX0CountedThenRegularFramedData verifies counted X0 mixed with a regular Trice in one package.
+func TestReadTypeX0CountedThenRegularFramedData(t *testing.T) {
+	oldTypeX0 := decoder.TypeX0
+	oldBlank := decoder.BlankMetadata
+	oldInitial := decoder.InitialCycle
+	t.Cleanup(func() {
+		decoder.TypeX0 = oldTypeX0
+		decoder.BlankMetadata = oldBlank
+		decoder.InitialCycle = oldInitial
+	})
+
+	decoder.TypeX0 = "%s"
+	decoder.InitialCycle = true
+
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Endian: decoder.LittleEndian,
+			LUT: id.TriceIDLookUp{
+				1: {Type: "TRICE8_1", Strg: "v=%d"},
+			},
+		}),
+		packageFraming: packageFramingCOBS,
+		cycle:          0xc0,
+	}
+	p.B = []byte{0x02, 0x00, 'O', 'K', 0x01, 0x40, 0xc0, 0x01, 0x2a}
+	buf := make([]byte, 128)
+	n, err := p.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "OK", string(buf[:n]))
+	assert.True(t, decoder.BlankMetadata)
+
+	n, err = p.Read(buf)
+	assert.NoError(t, err)
+	assert.Equal(t, "v=42", string(buf[:n]))
+	assert.False(t, decoder.BlankMetadata)
+	assert.Equal(t, id.TriceID(1), decoder.LastTriceID)
 }
 
 // TestReadSingleFramingAndCycleError verifies the expected behavior.
@@ -986,8 +1172,8 @@ func TestReadFramedDiscardTrailingEncryptedZeroes(t *testing.T) {
 	assert.Equal(t, 0, len(p.B))
 }
 
-// TestReadFramedDiscardSingleLeftoverByte verifies the expected behavior.
-func TestReadFramedDiscardSingleLeftoverByte(t *testing.T) {
+// TestReadFramedReportsSingleLeftoverByte verifies unsupported short packet diagnostics.
+func TestReadFramedReportsSingleLeftoverByte(t *testing.T) {
 	oldVerbose := decoder.Verbose
 	t.Cleanup(func() { decoder.Verbose = oldVerbose })
 	decoder.Verbose = true
@@ -1001,7 +1187,7 @@ func TestReadFramedDiscardSingleLeftoverByte(t *testing.T) {
 	buf := make([]byte, 64)
 	n, err := p.Read(buf)
 	assert.NoError(t, err)
-	assert.Equal(t, 0, n)
+	assert.Contains(t, string(buf[:n]), "unsupported short packet size 1")
 	assert.Equal(t, 0, len(p.B))
 }
 

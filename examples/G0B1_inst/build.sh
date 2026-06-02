@@ -168,6 +168,33 @@ trap 'cleanup_and_exit 130' INT
 trap 'cleanup_and_exit 143' TERM
 
 # ------------------------------------------------------------------------------
+# 3a) Optional TRICE_OFF / typeX0 compilation matrix
+# ------------------------------------------------------------------------------
+
+if [ "$#" -eq 1 ] && [ "$1" = "--x0-matrix" ]; then
+  # The matrix deliberately reuses this script's normal one-build path. That
+  # keeps ID insertion, cleanup, build environment loading and TRICE_OFF
+  # verification behavior identical to the ordinary example build.
+  for off_value in 0 1; do
+    for x0_value in 0 1; do
+      echo "x0-matrix: TRICE_OFF=${off_value} TRICE_X0_COUNTED_BUFFER_SUPPORT=${x0_value}"
+      "${SCRIPT_DIR}/build.sh" "TRICE_OFF=${off_value}" "TRICE_X0_COUNTED_BUFFER_SUPPORT=${x0_value}"
+    done
+  done
+
+  trap - INT TERM EXIT
+  exit 0
+fi
+
+for arg in "$@"; do
+  if [ "$arg" = "--x0-matrix" ]; then
+    echo "usage: ./build.sh --x0-matrix" >&2
+    echo "       or pass compiler defines without --x0-matrix" >&2
+    exit 2
+  fi
+done
+
+# ------------------------------------------------------------------------------
 # 3) Build TRICE_FLAGS and detect TRICE_OFF
 # ------------------------------------------------------------------------------
 

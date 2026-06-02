@@ -282,6 +282,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" (or "us"), "ms", "epoch060102150405" like, use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
   -ts32delta string
     	32-bit Target stamp delta format string at start of each line, if 32-bit target stamps existent (configured). Shows the delta to the previous displayed 32-bit target stamp with wraparound support. On the first value, trice prints an aligned placeholder ("-" for simple numeric formats, blanks for built-in "µs"/"us"/"ms"). Use "" to suppress this delta column completely for 32-bit stamp lines. Use "µs" (or "us"), "ms", or a format string like "...%d...". "epoch..." is not supported for deltas.
+  -typeX0 string
+    	Selector-0/typeX0 handling for TREX logs. "error" reports X0 packets and is the default. "ignore" and "counted:ignore" silently discard valid counted X0 packets but still report malformed ones. "all:ignore" discards the complete selector-0 package without length checks and must only be used for non-mixed X0 packages. "counted:<format>" prints the counted payload with Go fmt. A value without ':' is shorthand for "counted:<format>". (default "error")
   -u	Short for '-unsigned'. (default true)
   -ulabel value
     	Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.

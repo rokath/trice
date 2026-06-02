@@ -410,6 +410,11 @@ extern "C" {
 #define TRICE_64_BIT_SUPPORT 1
 #endif
 
+#ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT
+//! TRICE_X0_COUNTED_BUFFER_SUPPORT enables/disables the counted typeX0 user packet function.
+#define TRICE_X0_COUNTED_BUFFER_SUPPORT 0
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // Trice time measurement
 // The SYSTICKVAL is not needed by the Trice code. It is only used inside triceCheck.c as example value.

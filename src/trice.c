@@ -14,7 +14,7 @@
 #include "xtea.h"
 #endif
 
-#if !TRICE_OFF
+#if TRICE_BACKEND_ACTIVE
 
 // check configuration:
 
@@ -929,6 +929,8 @@ unsigned TriceOutDepth(void) {
 	return depth;
 }
 
+#if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
+
 #ifdef __GNUC__
 // https://stackoverflow.com/questions/5080848/disable-gcc-may-be-used-uninitialized-on-a-particular-variable
 #pragma GCC diagnostic push // save the actual diag context
@@ -1136,4 +1138,6 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString) {
 
 #endif // #ifdef TRICE_S
 
-#endif // #if !TRICE_OFF
+#endif // #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
+
+#endif // #if TRICE_BACKEND_ACTIVE

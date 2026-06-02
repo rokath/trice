@@ -11,6 +11,12 @@
 
 #include "triceVariadic.h"
 
+#ifndef TRICE_BACKEND_ACTIVE
+#define TRICE_BACKEND_ACTIVE 0
+#endif
+
+#if !TRICE_BACKEND_ACTIVE
+
 // global function prototypes: (not all always used)
 
 #define TriceInitRingBufferMargins()
@@ -68,6 +74,24 @@
 #define TRICE_PUT16(n) TRICE_UNUSED(n)
 #define TRICE_PUT16_1616(x, n)
 #define PUT_BUFFER(p, n) TRICE_UNUSED(p) TRICE_UNUSED(n)
+
+#endif // #if !TRICE_BACKEND_ACTIVE
+
+#ifndef id
+#define id(n) (n)
+#endif
+
+#ifndef Id
+#define Id(n) (n)
+#endif
+
+#ifndef ID
+#define ID(n) (n)
+#endif
+
+#ifndef iD
+#define iD(n) (n)
+#endif
 
 #define TRICE0(...)
 #define trice0(...)

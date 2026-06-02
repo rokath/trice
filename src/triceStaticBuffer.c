@@ -8,7 +8,7 @@
 
 #include "trice.h"
 
-#if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_OFF == 0
+#if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_BACKEND_ACTIVE
 
 //! triceSingleBuffer holds a single trice during direct trice macro execution.
 uint32_t triceSingleBuffer[TRICE_BUFFER_SIZE >> 2];
@@ -19,4 +19,4 @@ uint32_t* triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OF
 //! \brief No-op transfer function for static-buffer mode.
 void TriceTransfer(void) {}
 
-#endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_OFF == 0
+#endif // #if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_BACKEND_ACTIVE

@@ -10,7 +10,7 @@
 #include "tcobs.h"
 #include "trice.h"
 
-#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
+#if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_BACKEND_ACTIVE
 
 uint32_t* triceSingleBufferStartWritePosition = (uint32_t*)0;
 
@@ -149,13 +149,16 @@ static int TriceNext(uint8_t** buf, size_t* pSize, const uint8_t** pStart, size_
 		offset = 0;
 		len = 8 + triceDataLen(*pStart + 6); // tyId ts32
 		break;
-	default: // impossible
-	         // fallthrugh
 	case TRICE_TYPE_X0:
+		*pStart = *buf;
+		offset = 0;
+		len = 2u + (size_t)triceID; // selector-0 counted X0 uses the lower 14 bits as payload byte count.
+		break;
+	default: // impossible
 		TriceErrorCount++;
 		*pStart = 0;
 		*pLen = 0;
-		return -__LINE__; // extended Trices not supported (yet)
+		return -__LINE__;
 	}
 	size_t const triceSize = (len + offset + 3) & ~3;
 	// S16 case example:            triceSize  len   t-0-3   t-o
@@ -168,11 +171,15 @@ static int TriceNext(uint8_t** buf, size_t* pSize, const uint8_t** pStart, size_
 		TriceErrorCount++;
 		return -__LINE__;
 	}
+	if (triceSize > size) { // corrupt data
+		TriceErrorCount++;
+		return -__LINE__;
+	}
 	size -= triceSize;
 	*buf += triceSize;
 	*pSize = size;
 	*pLen = len;
-	return triceID;
+	return triceType == TRICE_TYPE_X0 ? 0 : triceID; // X0 has no Trice ID; do not route by its payload length.
 }
 
 uint8_t* firstNotModifiedAddress;
@@ -215,7 +222,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 #endif
 		triceID = TriceNext(&nxt, &tLen, &triceNettoStart, &triceNettoLen);
 		// Now triceNettoStart, &triceNettoLen are the net data of the
-		if (triceID <= 0) { // on data error
+		if (triceID < 0) { // on data error
 			TriceErrorCount++;
 			break; // ignore following data
 		}
@@ -369,4 +376,4 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
        //////////////////////////////////////////////////////////////////////////////
 }
 
-#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_OFF == 0
+#endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_BACKEND_ACTIVE
