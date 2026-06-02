@@ -2320,7 +2320,7 @@ This allows `trice` output to be tailored for debugging, profiling, timing analy
 
   | 16-bit groups                      | Selector (2 msb) | Comment                                                                                 | Endianness sizes                |
   | :--------------------------------- | :--------------: | --------------------------------------------------------------------------------------- | :------------------------------ |
-  | _________ `00xxxxxxX ...`          |        0         | [typeX0 record](#typex0-trices), >= 2-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
+  | _________ `00xxxxxxX ...`          |        0         | [typeX0 record](#typex0-records), >= 2-byte message, reserved for extensions or user data | ___ `u16 ?...?`                 |
   | _________ `01iiiiiiI NC  ...`      |        1         | >= 4-byte message, Trice format without     stamp                                       | ___ `u16 u16 [uW] ... [uW]`     |
   | _________ `10iiiiiiI TT NC ...`    |        2         | >= 4-byte message, Trice format with 16-bit stamp                                       | ___ `u16 u16 u16 [uW] ... [uW]` |
   | `10iiiiiiI 10iiiiiiI TT NC ...`    |        2         | First 16bit are doubled. Info over `-d16` trice switch.                                 | `u16 u16 u16 u16 [uW] ... [uW]` |
