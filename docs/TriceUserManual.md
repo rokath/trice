@@ -5355,7 +5355,7 @@ receiver B: ID X -> local handler B, or no action
 receiver C: ID X -> local handler C, or no action
 ```
 
-A specific ID X is bound to a specific handler name, so read the shown model above in a way, that local handler A, B and C have exactly the same function name like`set_unix_time`: `triceC(iD(X) "set_unix_time", ...)` but their implementation may differ.
+A specific ID X is bound to a specific handler name, so read the shown model above in a way, that local handler A, B and C have exactly the same function name like`set_time`: `triceC(iD(X) "set_time", ...)` but their implementation may differ.
 
 Different receivers may associate the same Trice ID with the same action, with different actions, or with no action at all. A handler may send zero, one, or more Trice messages as responses. Those responses are ordinary Trice messages and may again be ABC messages.
 
