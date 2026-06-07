@@ -80,12 +80,14 @@
 		TRICE_N(id, pFmt, buf, 8 * (n)); \
 	} while (0)
 
+#if TRICE_LEGACY_RPC_SUPPORT == 1
 //! TRICE64_F expects inside pFmt just a string which is assumed to be a remote function name.
 //!  The trice tool displays the pFmt string followed by n times (64-bit value i).
 //!  The idea behind is to generate an id - function pointer referece list from the generated til.json file to
 //!  compile it into a remote device and execute the inside pFmt named function remotely.
 //!  Look for "TRICE64_F example" inside triceCheck.c.
 #define TRICE64_F TRICE64_B
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 
 #define TRICE_PUT64_1(v0) TRICE_PUT64(v0);
 

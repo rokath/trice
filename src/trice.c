@@ -1059,6 +1059,8 @@ void TRice64B(int tid, char const* fmt, const void* buf, uint32_t n) {
 }
 #endif // (TRICE_64_BIT_SUPPORT == 1)
 
+#if TRICE_LEGACY_RPC_SUPPORT == 1
+
 void trice8F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_F(id(tid), fmt, buf, n);
 }
@@ -1108,6 +1110,8 @@ void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_F(ID(tid), fmt, buf, n);
 }
 #endif // (TRICE_64_BIT_SUPPORT == 1)
+
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 
 #endif // #ifdef TRICE_N
 

@@ -439,7 +439,7 @@ void TriceCheck(int index) {
         break; case __LINE__: Trice64B(" %016x\n", b64, sizeof(b64) /sizeof(int64_t)  );         //exp: "time:    be16default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666\n"
         break; case __LINE__: trice64B(" %016x\n", b64, sizeof(b64) /sizeof(int64_t)  );         //exp: "time:        default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666\n"
         break; case __LINE__: trice64B("SIG: %016x\n", b64, sizeof(b64) /sizeof(int64_t)  );     //exp: "time:        default: SIG: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666\n"
-
+#if TRICE_LEGACY_RPC_SUPPORT == 1
         break; case __LINE__: TRICE8_F(ID(0), "info:FunctionNameWa", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:feed3322default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
         break; case __LINE__: TRice8F("call:FunctionNameWb", b8,  sizeof(b8) /sizeof(int8_t) );            //exp: "time:feed3322default: call:FunctionNameWb(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
         break; case __LINE__: Trice8F("call:FunctionNameWc", b8,  sizeof(b8) /sizeof(int8_t) );            //exp: "time:    be16default: call:FunctionNameWc(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
@@ -456,7 +456,7 @@ void TriceCheck(int index) {
         break; case __LINE__: TRice64F("call:FunctionNameZb", b64, sizeof(b64)/sizeof(int64_t) );          //exp: "time:feed3322default: call:FunctionNameZb(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
         break; case __LINE__: Trice64F("RPC:FunctionNameZc", b64, sizeof(b64)/sizeof(int64_t) );           //exp: "time:    be16default: RPC:FunctionNameZc(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
         break; case __LINE__: trice64F("RPC:FunctionNameZd", b64, sizeof(b64)/sizeof(int64_t) );           //exp: "time:        default: RPC:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
-        
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1        
         break; case __LINE__: TRiceS("msg:Hi %s!\n", five );                     //exp: "time:feed3322default: msg:Hi five!\n"
         break; case __LINE__: TriceS("msg:Hi %s!\n", five );                     //exp: "time:    be16default: msg:Hi five!\n"
         break; case __LINE__: triceS("msg:Hi %s!\n", five );                     //exp: "time:        default: msg:Hi five!\n"
@@ -2796,8 +2796,11 @@ static void exampleOfManualSerialization(void) {
 	TRICE(Id(0), "\n");
 
 	TRICE(Id(0), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
+
+        #if TRICE_LEGACY_RPC_SUPPORT == 1
 	TRICE8_F(Id(0), "info:TryoutStructFunction", &tx, sizeof(tx));
 	TRICE8_F(Id(0), "info:TryoutBufferFunction", dst, len); // lint !e670
+        #endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 }
 
 static void exampleOfManualJSONencoding(void) {
