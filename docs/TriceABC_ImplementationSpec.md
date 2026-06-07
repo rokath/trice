@@ -16,6 +16,54 @@ C  // Command
 
 This specification updates the earlier ABC draft to the simplified `trice generate -abc=<target>` workflow and keeps the existing `triceF` / `-rpcH` / `-rpcC` legacy path unchanged.
 
+<h2>Table of Contents</h2>
+
+<!-- mdtoc -->
+
+- [1. Goal](#1-goal)
+- [2. Existing legacy path](#2-existing-legacy-path)
+- [3. Terminology](#3-terminology)
+  - [3.1. ABC command](#31-abc-command)
+  - [3.2. ABC Trice ID](#32-abc-trice-id)
+  - [3.3. ABC command name](#33-abc-command-name)
+  - [3.4. ABC tag / prefix](#34-abc-tag--prefix)
+  - [3.5. ABC stamp](#35-abc-stamp)
+  - [3.6. ABC handler](#36-abc-handler)
+- [4. Configuration switches](#4-configuration-switches)
+- [5. Public ABC send macros](#5-public-abc-send-macros)
+  - [5.1. Clean user source forms](#51-clean-user-source-forms)
+  - [5.2. Inserted source forms](#52-inserted-source-forms)
+  - [5.3. Explicit-ID uppercase forms](#53-explicit-id-uppercase-forms)
+- [6. Target-side ABC stamp writing](#6-target-side-abc-stamp-writing)
+- [7. Host-side parser and TIL behavior](#7-host-side-parser-and-til-behavior)
+- [8. Generator CLI](#8-generator-cli)
+- [9. <target>_abc.h selection file](#9-target_abch-selection-file)
+  - [9.1. First run](#91-first-run)
+  - [9.2. Later runs](#92-later-runs)
+  - [9.3. Declaration syntax](#93-declaration-syntax)
+  - [9.4. Missing-ID warning](#94-missing-id-warning)
+- [10. <target>_abc.c generated file](#10-target_abcc-generated-file)
+  - [10.1. Runtime types](#101-runtime-types)
+  - [10.2. Generated source shape](#102-generated-source-shape)
+  - [10.3. Link behavior](#103-link-behavior)
+- [11. Generator matching and conflict rules](#11-generator-matching-and-conflict-rules)
+- [12. ABC receive runtime](#12-abc-receive-runtime)
+- [13. Current ABC stamp context](#13-current-abc-stamp-context)
+- [14. Multiple devices and TIL management](#14-multiple-devices-and-til-management)
+- [15. Security boundary](#15-security-boundary)
+- [16. Tests](#16-tests)
+  - [16.1. Parser and TIL tests](#161-parser-and-til-tests)
+  - [16.2. Send encoding tests](#162-send-encoding-tests)
+  - [16.3. -abc=<target> generator tests](#163--abctarget-generator-tests)
+  - [16.4. Receive runtime tests](#164-receive-runtime-tests)
+  - [16.5. Legacy tests](#165-legacy-tests)
+- [17. Recommended implementation order](#17-recommended-implementation-order)
+- [18. Open decisions](#18-open-decisions)
+- [19. Non-negotiable constraints](#19-non-negotiable-constraints)
+
+<!-- numbering=true min=2 max=4 slug=github anchor=false link=true toc=true bullets=auto -->
+<!-- /mdtoc -->
+
 ## 1. Goal
 
 Implement an optional Trice ABC feature that allows selected Trice messages to be interpreted by receiving devices as asynchronous broadcast commands.
@@ -78,15 +126,15 @@ This switch must not change the host-side `-rpcH` / `-rpcC` generator behavior.
 
 ## 3. Terminology
 
-### ABC command
+### 3.1. ABC command
 
 A Trice message emitted through a `triceC` macro family and intended to be interpretable as a command by receivers.
 
-### ABC Trice ID
+### 3.2. ABC Trice ID
 
 The normal 14-bit Trice ID associated with an ABC command. It is the primary receive-table key.
 
-### ABC command name
+### 3.3. ABC command name
 
 The C handler name extracted from the ABC format string. The generator uses the part after the last colon:
 
@@ -98,15 +146,15 @@ a:b:c:d:e:f             -> f
 
 The command name must be a valid C identifier.
 
-### ABC tag / prefix
+### 3.4. ABC tag / prefix
 
 Everything before the last colon is display/filter metadata. It may be used for normal Trice tag behavior such as coloring, ID ranges, `-pick`, or `-ban`. It is not ABC addressing and must not define ABC semantics.
 
-### ABC stamp
+### 3.5. ABC stamp
 
 A user-provided correlation value transported in the existing Trice stamp field for ABC messages. ABC stamps are not necessarily timestamps.
 
-### ABC handler
+### 3.6. ABC handler
 
 A locally compiled application function selected by `<target>_abc.h` and referenced through the generated `<target>_abc.c` table.
 
@@ -123,8 +171,8 @@ Add defaults to `triceDefaultConfig.h` or the equivalent default configuration l
 #define TRICE_ABC_RECEIVE_SUPPORT 0
 #endif
 
-#ifndef TRICE_RPC
-#define TRICE_RPC 0 // depreciated, only for legacy projects
+#ifndef TRICE_LEGACY_RPC_SUPPORT
+#define TRICE_LEGACY_RPC_SUPPORT 0 // depreciated, only for legacy projects
 #endif
 ```
 
@@ -132,75 +180,96 @@ Meaning:
 
 - `TRICE_ABC_TRANSMIT_SUPPORT == 1`: enables ABC send macros.
 - `TRICE_ABC_RECEIVE_SUPPORT == 1`: enables ABC receive runtime declarations and helper functions.
-- `TRICE_RPC == 1`: enables deprecated legacy `triceF` target code.
+- `TRICE_LEGACY_RPC_SUPPORT == 1`: enables deprecated legacy `triceF` target code.
 
 Do not use a single `TRICE_ABC_SUPPORT` switch unless it is only a convenience alias. Transmit and receive support are independent.
 
 ## 5. Public ABC send macros
 
-### 5.1 Clean user source forms
+The with `C` ending Trice macros should be a very similar set to the legacy with `F` ending macros. Mainly the explicit stamps differ. That means the C code behind differs and also the Trice parser needs an adaption.
+
+### 5.1. Clean user source forms
 
 No payload:
 
 ```c
 triceC("cmd:motor_stop");
-TriceC(stamp16, "cmd:motor_stop");
-TRiceC(stamp32, "cmd:motor_stop");
+TriceC("cmd:motor_stop", stamp16);
+TRiceC("cmd:motor_stop", stamp32);
+TRIce_C(iD(0), "cmd:motor_stop" );
+TRICe_C(iD(0), "cmd:motor_stop", stamp16);
+TRICE_C(iD(0), "cmd:motor_stop", stamp32);
 ```
 
 8-bit payload:
 
 ```c
 trice8C("cmd:set_leds", p8, cnt);
-Trice8C(stamp16, "cmd:set_leds", p8, cnt);
-TRice8C(stamp32, "cmd:set_leds", p8, cnt);
+Trice8C("cmd:set_leds", stamp16, p8, cnt);
+TRice8C("cmd:set_leds", stamp32, p8, cnt);
+TRIce8_C(iD(0), "cmd:set_leds", p8, cnt );
+TRICe8_C(iD(0), "cmd:set_leds", stamp16, p8, cnt);
+TRICE8_C(iD(0), "cmd:set_leds", stamp32, p8, cnt);
 ```
 
 16-bit payload:
 
 ```c
 trice16C("cmd:set_pwm", p16, cnt);
-Trice16C(stamp16, "cmd:set_pwm", p16, cnt);
-TRice16C(stamp32, "cmd:set_pwm", p16, cnt);
+Trice16C("cmd:set_pwm", stamp16, p16, cnt);
+TRice16C("cmd:set_pwm", stamp32, p16, cnt);
+TRIce16_C(iD(0), "cmd:set_leds", p16, cnt );
+TRICe16_C(iD(0), "cmd:set_leds", stamp16, p16, cnt);
+TRICE16_C(iD(0), "cmd:set_leds", stamp32, p16, cnt);
 ```
 
 32-bit payload:
 
 ```c
 trice32C("cmd:set_time", p32, cnt);
-Trice32C(stamp16, "cmd:set_time", p32, cnt);
-TRice32C(stamp32, "cmd:set_time", p32, cnt);
+Trice32C("cmd:set_time", stamp16, p32, cnt);
+TRice32C("cmd:set_time", stamp32, p32, cnt);
+TRIce32_C(iD(0), "cmd:set_leds", p32, cnt );
+TRICe32_C(iD(0), "cmd:set_leds", stamp16, p32, cnt);
+TRICE32_C(iD(0), "cmd:set_leds", stamp32, p32, cnt);
 ```
 
 64-bit payload:
 
 ```c
 trice64C("cmd:set_epoch", p64, cnt);
-Trice64C(stamp16, "cmd:set_epoch", p64, cnt);
-TRice64C(stamp32, "cmd:set_epoch", p64, cnt);
+Trice64C("cmd:set_epoch", stamp16, p64, cnt);
+TRice64C("cmd:set_epoch", stamp32, p64, cnt);
+TRIce64_C(iD(0), "cmd:set_leds", p64, cnt );
+TRICe64_C(iD(0), "cmd:set_leds", stamp16, p64, cnt);
+TRICE64_C(iD(0), "cmd:set_leds", stamp32, p64, cnt);
 ```
 
 The default-width `triceC` payload form, if implemented, follows the same default-width mechanism as other Trice default-width macros. User documentation should recommend width-specific forms when payload exists.
 
-### 5.2 Inserted source forms
+### 5.2. Inserted source forms
 
 `trice insert` adds a raw Trice ID argument to ABC macro calls. For ABC macros, the inserted ID argument must not be `ID(n)` or `Id(n)`, because those macros inject normal Trice timestamp sources.
 
 Recommended inserted form:
 
 ```c
-TRice32C(iD(12345), stamp32, "cmd:set_time", p32, cnt);
-Trice16C(iD(12346), stamp16, "cmd:set_pwm", p16, cnt);
-triceC(iD(12347), "cmd:motor_stop");
+triceC(iD(12345), "cmd:motor_stop");
+Trice16C(iD(12346), "cmd:set_pwm", stamp16, p16, cnt);
+TRice32C(iD(12347), "cmd:set_time", stamp32, p32, cnt);
+TRIce64_C(iD(12348), "cmd:set_leds", p64, cnt );
+TRICe64_C(iD(12349), "cmd:set_leds", stamp16, p64, cnt);
+TRICE64_C(iD(12350), "cmd:set_leds", stamp32, p64, cnt);
 ```
 
 `iD(n)` is preferred over a bare numeric literal for consistency with existing Trice parser/helper conventions.
+The Trice macro names `TRI..._C` (first 3 letters upper case) are mainly helper macros like `TRICE32` for example. The Trice names `..ice.._C` (lower case "ice") normally are funcion calls like `Trice16`. 
 
-### 5.3 Explicit-ID uppercase forms
+### 5.3. Explicit-ID uppercase forms
 
-If explicit-ID `_C` forms are implemented, they must also use user-supplied ABC stamps. They require `ID(n)` or `Id(n)` for stamped ABC messages and `id(n)` for unstamped ABC messages.
+If explicit-ID `_C` forms are implemented, they must also use user-supplied ABC stamps. They cannot use `ID(n)` or `Id(n)` for stamped ABC messages but maybe use `id(n)` for unstamped ABC messages.
 
-This spelling may be finalized during implementation review. It is acceptable to implement lower/mixed-case ABC forms first and add explicit-ID `_C` forms later. Look at the `_F` forms as an example.
+The spelling may be finalized during implementation review. It is acceptable to implement lower/mixed-case ABC forms for Trice macros as shown in [5.2. Inserted source forms](#52-inserted-source-forms). The stamp size influences directly the 2 stamp selector bits.
 
 ## 6. Target-side ABC stamp writing
 
@@ -231,13 +300,26 @@ No-stamp ABC messages may reuse existing no-stamp counted-buffer code if the bin
 
 Recognize the new `C` macro family:
 
-```text
-triceC, TriceC, TRiceC
-trice8C, Trice8C, TRice8C
-trice16C, Trice16C, TRice16C
-trice32C, Trice32C, TRice32C
-trice64C, Trice64C, TRice64C
-```
+Functions:
+
+0-bit stamp | 16-bit stamp | 32-bit stamp
+------------|--------------|-------------
+`triceC`    | `TriceC`     | `TRiceC`
+`trice8C`   | `Trice8C`    | `TRice8C`
+`trice16C`  | `Trice16C`   | `TRice16C`
+`trice32C`  | `Trice32C`   | `TRice32C`
+`trice64C`  | `Trice64C`   | `TRice64C`
+
+Macros:
+
+0-bit stamp | 16-bit stamp | 32-bit stamp
+------------|--------------|-------------
+`TRIce_C`   | `TRICe_C`    | `TRICE_C`
+`TRIce8_C`  | `TRICe8_C`   | `TRICE8_C`
+`TRIce16_C` | `TRICe16_C`  | `TRICE16_C`
+`TRIce32_C` | `TRICe32_C`  | `TRICE32_C`
+`TRIce64_C` | `TRICe64_C`  | `TRICE64_C`
+
 
 The TIL entry must preserve the original macro type string so ABC entries can be distinguished from normal Trices, buffer Trices, and deprecated `F` entries.
 
@@ -245,14 +327,14 @@ Do not classify `F` entries as ABC.
 
 Bit width rules:
 
-| Macro family | bitWidth |
-| --- | --- |
-| `triceC` no payload | 0 |
+| Macro family                        | bitWidth                 |
+|-------------------------------------|--------------------------|
+| `triceC` no payload                 | 0                        |
 | default-width `triceC` with payload | configured default width |
-| `trice8C` | 8 |
-| `trice16C` | 16 |
-| `trice32C` | 32 |
-| `trice64C` | 64 |
+| `trice8C`                           | 8                        |
+| `trice16C`                          | 16                       |
+| `trice32C`                          | 32                       |
+| `trice64C`                          | 64                       |
 
 Payload count is runtime-sized, analogous to existing buffer-style `B` / `F` behavior.
 
@@ -260,6 +342,7 @@ Display behavior:
 
 - ABC payload display can use the current command/function style, for example `cmd:set_time(00000001)`.
 - Stamped ABC output should use `stamp:` rather than `time:` unless the user explicitly configures otherwise.
+  - This is a currently unimportent refinement and should be done late during the implementation.
 - Existing tag behavior remains unchanged.
 
 ## 8. Generator CLI
@@ -283,13 +366,13 @@ deviceA_abc.h
 deviceA_abc.c
 ```
 
-Do not add `-abcH` / `-abcC` as the primary workflow. If they exist from earlier drafts or experiments, keep them internal or remove them before release.
+Do not add `-abcH` / `-abcC` as the primary workflow. 
 
 ## 9. `<target>_abc.h` selection file
 
 `<target>_abc.h` is a user-editable selection file.
 
-### 9.1 First run
+### 9.1. First run
 
 If the file does not exist, generate it from all ABC commands found in `til.json`:
 
@@ -315,7 +398,7 @@ The file must not contain weak definitions. It contains declarations only.
 
 The generated selection header shall use classic include guards, not `#pragma once`, to keep ABC headers independent of non-standard compiler extensions. The guard name is derived from `<target>_abc.h`, converted to uppercase C identifier form, for example `DEVICEA_ABC_H_`.
 
-### 9.2 Later runs
+### 9.2. Later runs
 
 If `<target>_abc.h` exists, use it as input and do not overwrite it.
 
@@ -323,7 +406,9 @@ Active, non-commented declarations define the target-local receive set. Deleted 
 
 New ABC commands added to `til.json` later are not automatically activated for an existing target. The user may add the corresponding declaration manually or delete/regenerate the selection header.
 
-### 9.3 Declaration syntax
+Commenting out declarations should be done using `\\` or `/* ...*/`. Compiler switches are not supported here.
+
+### 9.3. Declaration syntax
 
 Initial parser support shall handle these canonical forms:
 
@@ -339,7 +424,7 @@ Whitespace differences should be tolerated. Additional forms may be supported la
 
 Canonical generated declarations use `intN_t*`. The signedness is not semantically significant in the Trice binary encoding; applications can cast or copy as needed.
 
-### 9.4 Missing-ID warning
+### 9.4. Missing-ID warning
 
 If `<target>_abc.h` declares a handler for which no matching ABC command exists in `til.json`, print exactly a warning and do not emit a table entry for it.
 
@@ -364,7 +449,7 @@ Behavior:
 
 This read-only behavior is best effort and must not make generation fail on platforms where file attributes are unavailable.
 
-### 10.1 Runtime types
+### 10.1. Runtime types
 
 Define shared ABC runtime types in the Trice target library, preferably via `trice.h` when receive support is enabled:
 
@@ -383,7 +468,7 @@ extern const unsigned triceAbcElements;
 
 `<target>_abc.h` should not be the only owner of these types, because it is user-editable.
 
-### 10.2 Generated source shape
+### 10.2. Generated source shape
 
 Example:
 
@@ -415,7 +500,7 @@ const unsigned triceAbcElements = sizeof(triceAbc) / sizeof(triceAbc[0]);
 
 Use wrappers so the table has one uniform function-pointer type. Do not store typed handlers directly in a `void (*)(void*, int)` table.
 
-### 10.3 Link behavior
+### 10.3. Link behavior
 
 The generator does not generate weak no-op handlers for ABC.
 
@@ -431,15 +516,15 @@ ABC entries in til.json  ∩  active declarations in <target>_abc.h
 
 Rules:
 
-| Case | Result |
-| --- | --- |
-| TIL ABC command exists and declaration exists with matching signature | emit table entry |
-| Declaration exists but no TIL ABC command exists | warning, no table entry |
-| TIL ABC command exists but no declaration exists | silently ignore |
-| Same command name, same signature, multiple IDs | emit multiple entries using the same wrapper |
-| Same command name, different payload signature | error |
-| Same ID, different command name or signature | error |
-| Invalid command name extracted from ABC format string | error |
+| Case                                                                  | Result                                       |
+|-----------------------------------------------------------------------|----------------------------------------------|
+| TIL ABC command exists and declaration exists with matching signature | emit table entry                             |
+| Declaration exists but no TIL ABC command exists                      | warning, no table entry                      |
+| TIL ABC command exists but no declaration exists                      | silently ignore                              |
+| Same command name, same signature, multiple IDs                       | emit multiple entries using the same wrapper |
+| Same command name, different payload signature                        | error                                        |
+| Same ID, different command name or signature                          | error                                        |
+| Invalid command name extracted from ABC format string                 | error                                        |
 
 Deduplicate generated wrappers. Multiple IDs may point to the same wrapper if the command name and signature are identical.
 
@@ -480,13 +565,13 @@ Expected behavior:
 
 Payload validation:
 
-| bitWidth | valid payload |
-| --- | --- |
-| 0 | `payloadBytes == 0` |
-| 8 | any payload byte count |
-| 16 | `payloadBytes % 2 == 0` |
-| 32 | `payloadBytes % 4 == 0` |
-| 64 | `payloadBytes % 8 == 0` |
+| bitWidth | valid payload           |
+|----------|-------------------------|
+| 0        | `payloadBytes == 0`     |
+| 8        | any payload byte count  |
+| 16       | `payloadBytes % 2 == 0` |
+| 32       | `payloadBytes % 4 == 0` |
+| 64       | `payloadBytes % 8 == 0` |
 
 If a transport receives data in a context where handler execution is not appropriate, the integration layer or the user handler must defer work explicitly by copying values and setting flags.
 
@@ -526,7 +611,7 @@ Applications using ABC on untrusted transports must provide their own trust boun
 
 ## 16. Tests
 
-### 16.1 Parser and TIL tests
+### 16.1. Parser and TIL tests
 
 - Recognize all clean `triceC` macro families.
 - Insert `iD(n)` into ABC macros.
@@ -535,14 +620,14 @@ Applications using ABC on untrusted transports must provide their own trust boun
 - Reject invalid C handler names.
 - Do not classify `F` entries as ABC.
 
-### 16.2 Send encoding tests
+### 16.2. Send encoding tests
 
 - No-stamp ABC output is binary-compatible with the existing no-stamp counted-buffer format.
 - Stamped ABC output writes the user-supplied stamp, not `TriceStamp16` or `TriceStamp32`.
 - Payload byte length equals element count times element width.
 - `TRICE_ABC_TRANSMIT_SUPPORT == 0` disables ABC send code.
 
-### 16.3 `-abc=<target>` generator tests
+### 16.3. `-abc=<target>` generator tests
 
 - Missing `<target>_abc.h` is generated from all ABC TIL entries.
 - Existing `<target>_abc.h` is not overwritten.
@@ -555,7 +640,7 @@ Applications using ABC on untrusted transports must provide their own trust boun
 - Duplicate wrappers are deduplicated.
 - Signature conflicts are errors.
 
-### 16.4 Receive runtime tests
+### 16.4. Receive runtime tests
 
 - Unknown ID is ignored.
 - Known ID calls the correct wrapper.
@@ -564,7 +649,7 @@ Applications using ABC on untrusted transports must provide their own trust boun
 - Bad payload size returns `TRICE_ABC_RX_BAD_PAYLOAD`.
 - Current stamp helpers report the stamp during handler execution and zero outside.
 
-### 16.5 Legacy tests
+### 16.5. Legacy tests
 
 - Existing `triceF` macro behavior is unchanged when `TRICE_RPC == 1`.
 - `triceF` target code is disabled when `TRICE_RPC == 0`.
