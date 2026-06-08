@@ -9009,35 +9009,35 @@
 	},
 	"15252": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2799
+		"Line": 2801
 	},
 	"15253": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2800
+		"Line": 2802
 	},
 	"15254": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2811
+		"Line": 2814
 	},
 	"15255": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2819
+		"Line": 2822
 	},
 	"15256": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2820
+		"Line": 2823
 	},
 	"15257": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2824
+		"Line": 2827
 	},
 	"15258": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2830
+		"Line": 2833
 	},
 	"15259": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2836
+		"Line": 2839
 	},
 	"15260": {
 		"File": "_test/aliasassert_dblB_de_tcobs_ua/TargetActivity.c",
@@ -9165,71 +9165,71 @@
 	},
 	"15291": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 16
+		"Line": 18
 	},
 	"15292": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 17
+		"Line": 19
 	},
 	"15293": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 18
+		"Line": 20
 	},
 	"15294": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 19
+		"Line": 21
 	},
 	"15295": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 20
+		"Line": 22
 	},
 	"15296": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 21
+		"Line": 23
 	},
 	"15297": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 22
+		"Line": 24
 	},
 	"15298": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 23
+		"Line": 25
 	},
 	"15299": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 24
+		"Line": 26
 	},
 	"15300": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 25
+		"Line": 27
 	},
 	"15301": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 26
+		"Line": 28
 	},
 	"15302": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 27
+		"Line": 29
 	},
 	"15303": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 28
+		"Line": 30
 	},
 	"15304": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 29
+		"Line": 31
 	},
 	"15305": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 30
+		"Line": 32
 	},
 	"15306": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 31
+		"Line": 33
 	},
 	"15307": {
 		"File": "_test/stackB_di_nopf_aux32_specific/TargetActivity.c",
-		"Line": 32
+		"Line": 34
 	},
 	"15308": {
 		"File": "_test/userprint_dblB_de_tcobs_ua/TargetActivity.c",
