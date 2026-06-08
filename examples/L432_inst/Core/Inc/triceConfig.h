@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define TRICE_LEGACY_RPC_SUPPORT 1
+
 //! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
 #define TRICE_CLEAN 1 // Do not define this at an other place! But you can delete this here.
 
