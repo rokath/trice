@@ -57,6 +57,8 @@ This specification updates the earlier ABC draft to the simplified `trice genera
   - [16.3. -abc=<target> generator tests](#163--abctarget-generator-tests)
   - [16.4. Receive runtime tests](#164-receive-runtime-tests)
   - [16.5. Legacy tests](#165-legacy-tests)
+  - [16.6. Target Code Tests](#166-target-code-tests)
+  - [16.7. Target Code Example](#167-target-code-example)
 - [17. Recommended implementation order](#17-recommended-implementation-order)
 - [18. Open decisions](#18-open-decisions)
 - [19. Non-negotiable constraints](#19-non-negotiable-constraints)
@@ -651,15 +653,64 @@ Applications using ABC on untrusted transports must provide their own trust boun
 
 ### 16.5. Legacy tests
 
-- Existing `triceF` macro behavior is unchanged when `TRICE_RPC == 1`.
-- `triceF` target code is disabled when `TRICE_RPC == 0`.
+- Existing `triceF` macro behavior is unchanged when `TRICE_LEGACY_RPC_SUPPORT == 1`.
+- `triceF` target code is disabled when `TRICE_LEGACY_RPC_SUPPORT == 0`.
 - Existing `trice generate -rpcH -rpcC` behavior is unchanged.
 - ABC generation ignores `F` entries.
+
+### 16.6. Target Code Tests
+
+Extend triceCheck.c for 8, 16, 32 and 64 bit similar to the `F` Trices:
+
+```C
+...
+#if TRICE_ABC_TRANSMIT_SUPPORT == 1
+uint16_t stamp16 = 0xeb61;
+uint32_t stamp32 = 0xc0de3020;
+#endif // #if TRICE_ABC_TRANSMIT_SUPPORT == 1
+...
+#if TRICE_ABC_TRANSMIT_SUPPORT == 1
+        break; case __LINE__: TRICE8_C("info:FunctionNameWa", 0xc0de3020, b8,  sizeof(b8) /sizeof(int8_t) );           //exp: "time:c0de3020default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: TRICE8_C("info:FunctionNameWa", stamp32,    b8,  sizeof(b8) /sizeof(int8_t) );           //exp: "time:c0de3020default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: TRICe8_C("info:FunctionNameWa", 0xeb61,     b8,  sizeof(b8) /sizeof(int8_t) );           //exp: "time:    eb61default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: TRICe8_C("info:FunctionNameWa", stamp16,    b8,  sizeof(b8) /sizeof(int8_t) );           //exp: "time:    eb61default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: TRIce8_C("info:FunctionNameWa",             b8,  sizeof(b8) /sizeof(int8_t) );           //exp: "time:        default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: TRice8C("call:FunctionNameWb", stamp32,     b8,  sizeof(b8) /sizeof(int8_t) );            //exp: "time:c0de3020default: call:FunctionNameWb(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: Trice8C("call:FunctionNameWc", stamp16,     b8,  sizeof(b8) /sizeof(int8_t) );            //exp: "time:    eb61default: call:FunctionNameWc(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: trice8C("call:FunctionNameWd",              b8,  sizeof(b8) /sizeof(int8_t) );            //exp: "time:        default: call:FunctionNameWd(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+#endif // #if TRICE_ABC_TRANSMIT_SUPPORT == 1        
+```
+
+### 16.7. Target Code Example
+
+- Run `trice generate -i demoTIL.json -abc=example`.
+
+Write an `example_handler.c` file with Target code similar to:
+
+```C
+#include "example_abc.h"
+
+int TargetABCHandler(const uint8_t* pReceivedBuffer, int16_t length){
+  ...
+}
+
+void main( void ){
+    // calls TargetABCHandler several times on "received" buffers
+}
+```
+
+The received buffers could be passed statically over a generated file or a TCP connection.
+
+The point is, to compile a target, maybe for many folders in _test and, if possible to execute the code.
+
+To decide: How to achive that kind of tests in a stable way?
+
+Question: The Trice tool, when receiving ABC buffers currently displays them in a specific way. Does it make sense to extend the Trice Tool, that it optionally executes C code via CGO mainly to test the Trice ABC library code and to give an example. 
 
 ## 17. Recommended implementation order
 
 1. Add documentation updates and deprecation wording.
-2. Add `TRICE_ABC_TRANSMIT_SUPPORT`, `TRICE_ABC_RECEIVE_SUPPORT`, and `TRICE_RPC` defaults.
+2. Add `TRICE_ABC_TRANSMIT_SUPPORT`, `TRICE_ABC_RECEIVE_SUPPORT`, and `TRICE_LEGACY_RPC_SUPPORT` defaults.
 3. Add parser recognition for `C` macro families.
 4. Add ABC TIL classification and command-name extraction.
 5. Add no-stamp ABC send macros using existing counted-buffer logic where possible.
@@ -668,28 +719,33 @@ Applications using ABC on untrusted transports must provide their own trust boun
 8. Generate `<target>_abc.h` only when missing.
 9. Always generate `<target>_abc.c` with wrappers and table.
 10. Add direct ABC receive runtime and current-stamp helpers.
-11. Add tests.
-12. Add optional TIL merge/import support later if needed.
+11. Add tests. Add them incremental, means build tests already after each installation step, when it makes sense.
+12. No TIL merge/import support is needed.
 
 ## 18. Open decisions
 
-1. Exact spelling and scope of explicit-ID uppercase `_C` forms.
-2. Exact host display label for ABC stamps; recommended default is `stamp:`.
+1. Exact spelling and scope of explicit-ID uppercase `_C` forms. 
+  - Check the existing proposal.
+2. Exact host display label for ABC stamps; recommended default is `stamp:`. 
+  - Use the `time:` label now. This is a finetuning step, that follows separately. 
 3. Whether the declaration parser should accept `uintN_t*` and `const intN_t*` in addition to canonical `intN_t*`.
-4. Whether `TRICE_RPC` should emit compile-time deprecation warnings when enabled.
+  - Do it the same way as the legacy `...F` definitions.
+4. Whether `TRICE_LEGACY_RPC_SUPPORT` should emit compile-time deprecation warnings when enabled.
+  - No compile-time warnings. The user knows, what he is doing, when setting `#define TRICE_LEGACY_RPC_SUPPORT 1`.
 5. Whether future receive integrations should offer optional queued/deferred processing helpers.
+  - Optional queued/deferred processing helpers are not part of the Trice ABC builkding block. They may be a part of some test/example code.
 
 ## 19. Non-negotiable constraints
 
 - Existing `triceF` macros remain unchanged for the ABC implementation.
 - Existing `trice generate -rpcH -rpcC` behavior remains unchanged initially.
-- Legacy `triceF` target code is gated behind `TRICE_RPC`, default `0`.
+- Legacy `triceF` target code is gated behind `TRICE_LEGACY_RPC_SUPPORT`, default `0`.
 - ABC stamped macros must not rely on `ID(n)` or `Id(n)` for user-supplied stamps.
-- Stamp-only helper names are `TRICE_C_STAMP32` and `TRICE_C_STAMP16`.
+<!-- Stamp-only helper names are `TRICE_C_STAMP32` and `TRICE_C_STAMP16`. -->
 - Primary ABC generator workflow is `trice generate -abc=<target>`.
 - `<target>_abc.h` is generated only when missing and then user-editable.
 - ABC headers use classic include guards, not `#pragma once`.
 - `<target>_abc.c` is generated every run and should be treated as read-only generated code.
 - ABC generation selects only active declarations from `<target>_abc.h`.
-- A declaration without matching TIL ABC ID produces a warning and no table entry.
+- A `<target>_abc.h` declaration without matching TIL ABC ID produces a warning and no table entry.
 - ABC is a primitive, not a full RPC or distributed-systems framework.
