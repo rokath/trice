@@ -108,6 +108,7 @@ jobs:
           set -euo pipefail
           tar -xzf artifacts/trice_tool_linux_amd64.tar.gz -C artifacts
           test -x artifacts/trice_tool_linux_amd64/trice
+          test -x artifacts/trice_tool_linux_amd64/tlog
 
       - name: Verify binary and smoke test
         env:
@@ -117,6 +118,7 @@ jobs:
           set -euo pipefail
           expected_version="${RELEASE_TAG#v}"
           trice=artifacts/trice_tool_linux_amd64/trice
+          tlog=artifacts/trice_tool_linux_amd64/tlog
           version_output="$("$trice" version)"
           printf '%s\n' "$version_output"
           case "$version_output" in
@@ -127,6 +129,16 @@ jobs:
               ;;
           esac
           "$trice" help
+          tlog_version_output="$("$tlog" --version)"
+          printf '%s\n' "$tlog_version_output"
+          case "$tlog_version_output" in
+            *"version=$expected_version"*) ;;
+            *)
+              echo "Linux archive tlog version does not match latest release tag $RELEASE_TAG"
+              exit 1
+              ;;
+          esac
+          "$tlog" help
           output="$("$trice" log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
           printf '%s\n' "$output"
           case "$output" in
@@ -159,6 +171,7 @@ jobs:
           set -euo pipefail
           tar -xzf artifacts/trice_tool_darwin_amd64.tar.gz -C artifacts
           test -x artifacts/trice_tool_darwin_amd64/trice
+          test -x artifacts/trice_tool_darwin_amd64/tlog
 
       - name: Verify binary and smoke test
         env:
@@ -168,6 +181,7 @@ jobs:
           set -euo pipefail
           expected_version="${RELEASE_TAG#v}"
           trice=artifacts/trice_tool_darwin_amd64/trice
+          tlog=artifacts/trice_tool_darwin_amd64/tlog
           version_output="$("$trice" version)"
           printf '%s\n' "$version_output"
           case "$version_output" in
@@ -178,6 +192,16 @@ jobs:
               ;;
           esac
           "$trice" help
+          tlog_version_output="$("$tlog" --version)"
+          printf '%s\n' "$tlog_version_output"
+          case "$tlog_version_output" in
+            *"version=$expected_version"*) ;;
+            *)
+              echo "macOS archive tlog version does not match latest release tag $RELEASE_TAG"
+              exit 1
+              ;;
+          esac
+          "$tlog" help
           output="$("$trice" log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
           printf '%s\n' "$output"
           case "$output" in
@@ -212,6 +236,9 @@ jobs:
           if (-not (Test-Path artifacts/windows/trice_tool_windows_amd64/trice.exe)) {
             throw 'Expected trice.exe was not found in the Windows archive.'
           }
+          if (-not (Test-Path artifacts/windows/trice_tool_windows_amd64/tlog.exe)) {
+            throw 'Expected tlog.exe was not found in the Windows archive.'
+          }
 
       - name: Verify binary and smoke test
         env:
@@ -221,12 +248,19 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $expectedVersion = $env:RELEASE_TAG.TrimStart('v')
           $trice = './artifacts/windows/trice_tool_windows_amd64/trice.exe'
+          $tlog = './artifacts/windows/trice_tool_windows_amd64/tlog.exe'
           $versionOutput = & $trice version
           Write-Output $versionOutput
           if (-not (($versionOutput -join "`n").Contains("version=$expectedVersion"))) {
             throw "Windows archive version does not match latest release tag $env:RELEASE_TAG"
           }
           & $trice help
+          $tlogVersionOutput = & $tlog --version
+          Write-Output $tlogVersionOutput
+          if (-not (($tlogVersionOutput -join "`n").Contains("version=$expectedVersion"))) {
+            throw "Windows archive tlog version does not match latest release tag $env:RELEASE_TAG"
+          }
+          & $tlog help
           $output = & $trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json
           $text = $output -join "`n"
           Write-Output $text
@@ -263,6 +297,7 @@ jobs:
           echo "Installing Debian package: $package"
           sudo dpkg -i "$package"
           test -x /usr/bin/trice
+          test -x /usr/bin/tlog
 
       - name: Verify installed binary and smoke test
         env:
@@ -281,6 +316,16 @@ jobs:
               ;;
           esac
           /usr/bin/trice help
+          tlog_version_output="$(/usr/bin/tlog --version)"
+          printf '%s\n' "$tlog_version_output"
+          case "$tlog_version_output" in
+            *"version=$expected_version"*) ;;
+            *)
+              echo "Debian package tlog version does not match latest release tag $RELEASE_TAG"
+              exit 1
+              ;;
+          esac
+          /usr/bin/tlog help
           output="$(/usr/bin/trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
           printf '%s\n' "$output"
           case "$output" in
@@ -322,6 +367,7 @@ jobs:
           echo "Installing RPM package: $package"
           dnf install -y "$package"
           test -x /usr/bin/trice
+          test -x /usr/bin/tlog
 
       - name: Verify installed binary and smoke test
         env:
@@ -340,6 +386,16 @@ jobs:
               ;;
           esac
           /usr/bin/trice help
+          tlog_version_output="$(/usr/bin/tlog --version)"
+          printf '%s\n' "$tlog_version_output"
+          case "$tlog_version_output" in
+            *"version=$expected_version"*) ;;
+            *)
+              echo "RPM package tlog version does not match latest release tag $RELEASE_TAG"
+              exit 1
+              ;;
+          esac
+          /usr/bin/tlog help
           output="$(/usr/bin/trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
           printf '%s\n' "$output"
           case "$output" in
@@ -381,6 +437,7 @@ jobs:
           echo "Installing APK package: $package"
           apk add --allow-untrusted "$package"
           test -x /usr/bin/trice
+          test -x /usr/bin/tlog
 
       - name: Verify installed binary and smoke test
         env:
@@ -399,6 +456,16 @@ jobs:
               ;;
           esac
           /usr/bin/trice help
+          tlog_version_output="$(/usr/bin/tlog --version)"
+          printf '%s\n' "$tlog_version_output"
+          case "$tlog_version_output" in
+            *"version=$expected_version"*) ;;
+            *)
+              echo "APK package tlog version does not match latest release tag $RELEASE_TAG"
+              exit 1
+              ;;
+          esac
+          /usr/bin/tlog help
           output="$(/usr/bin/trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
           printf '%s\n' "$output"
           case "$output" in
@@ -426,6 +493,7 @@ jobs:
           brew tap rokath/tap
           brew update
           brew install rokath/tap/trice
+          test -x "$(brew --prefix)/bin/tlog"
           version_output="$(trice version)"
           printf '%s\n' "$version_output"
           case "$version_output" in
@@ -436,6 +504,16 @@ jobs:
               ;;
           esac
           trice help
+          tlog_version_output="$(tlog --version)"
+          printf '%s\n' "$tlog_version_output"
+          case "$tlog_version_output" in
+            *"version=$expected_version"*) ;;
+            *)
+              echo "installed Homebrew tlog version does not match latest release tag $RELEASE_TAG"
+              exit 1
+              ;;
+          esac
+          tlog help
 
   audit-target-sources:
     name: Release Audit Target Sources

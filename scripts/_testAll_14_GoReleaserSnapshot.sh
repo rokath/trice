@@ -91,6 +91,8 @@ smoke_test_host_archive() {
   local archive_dir
   local trice_bin
   local trice_name
+  local tlog_bin
+  local tlog_name
   local output
 
   uname_s="$(uname -s)"
@@ -100,14 +102,17 @@ smoke_test_host_archive() {
     Darwin)
       host_os="darwin"
       trice_name="trice"
+      tlog_name="tlog"
       ;;
     Linux)
       host_os="linux"
       trice_name="trice"
+      tlog_name="tlog"
       ;;
     MINGW* | MSYS* | CYGWIN*)
       host_os="windows"
       trice_name="trice.exe"
+      tlog_name="tlog.exe"
       ;;
     *)
       log "SKIP: unsupported host OS for release archive smoke test: $uname_s"
@@ -164,14 +169,25 @@ smoke_test_host_archive() {
   esac
 
   trice_bin="$unpack_dir/$archive_dir/$trice_name"
+  tlog_bin="$unpack_dir/$archive_dir/$tlog_name"
 
   if [ ! -f "$trice_bin" ]; then
     log "FAIL: unpacked host archive does not contain trice binary: $trice_bin"
     exit 1
   fi
 
+  if [ ! -f "$tlog_bin" ]; then
+    log "FAIL: unpacked host archive does not contain tlog binary: $tlog_bin"
+    exit 1
+  fi
+
   if [ "$host_os" != "windows" ] && [ ! -x "$trice_bin" ]; then
     log "FAIL: unpacked host archive does not contain an executable trice binary: $trice_bin"
+    exit 1
+  fi
+
+  if [ "$host_os" != "windows" ] && [ ! -x "$tlog_bin" ]; then
+    log "FAIL: unpacked host archive does not contain an executable tlog binary: $tlog_bin"
     exit 1
   fi
 
@@ -181,8 +197,20 @@ smoke_test_host_archive() {
     exit 1
   }
 
+  output="$("$tlog_bin" --version 2>&1)" || {
+    log "FAIL: smoke test failed: tlog --version"
+    log "$output"
+    exit 1
+  }
+
   output="$("$trice_bin" help 2>&1)" || {
     log "FAIL: smoke test failed: trice help"
+    log "$output"
+    exit 1
+  }
+
+  output="$("$tlog_bin" help 2>&1)" || {
+    log "FAIL: smoke test failed: tlog help"
     log "$output"
     exit 1
   }

@@ -9441,8 +9441,8 @@ In Github are some Actions defined. Some of them get triggered on a `git push` a
   $ bash ./scripts/buildTriceTool.sh # does internal do go install ./cmd/trice/...
   ```
 
-* Afterwards you should find an executable `trice` inside `~/go/bin`.
-* Extend PATH variable with `~/go/bin` **OR** copy the Trice binary from there into a folder of your path.
+* Afterwards you should find executables `trice` and `tlog` inside `~/go/bin`.
+* Extend PATH variable with `~/go/bin` **OR** copy the Trice binaries from there into a folder of your path.
 * Check:
 
   ```bash
@@ -9470,6 +9470,7 @@ In Github are some Actions defined. Some of them get triggered on a `git push` a
 * Hints
   * Use only the main branch. Other branches may be inconsistent.
   * When using [./scripts/buildTriceTool.sh](../scripts/buildTriceTool.sh), the generated Trice image is significant smaller (about 30%), because the build script removes debugging information from the Trice binary. The Trice release images contain this additionally information for a more verbose error reporting, just in case.  
+  * `tlog` is a separate binary for the `trice log` runtime path. It accepts the log flags directly, for example `tlog -port HEX ...`, and release archives/packages ship it next to `trice`.
   * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
   * Use Goreleaser if you wish to create releases on your forked Trice repository.
   * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
@@ -9523,7 +9524,7 @@ $ go install ./cmd/trice/
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
 
-After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binary from there into a folder of your path after creating it with `go install ./cmd/trice/...`. There is now a remommended script `./scripts/buildTriceTool.sh`. Using it, depending on your system you may need to enter `bash ./scripts/buildTriceTool.sh`, includes the actual Trice repository state into the Trice binary, which is shown with `trice version` then - useful in case of issues.
+After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binaries from there into a folder of your path after creating them with `go install ./cmd/trice/... ./cmd/tlog/...`. There is now a remommended script `./scripts/buildTriceTool.sh`. Using it, depending on your system you may need to enter `bash ./scripts/buildTriceTool.sh`, includes the actual Trice repository state into the Trice binaries, which is shown with `trice version` and `tlog --version` then - useful in case of issues.
 
 ### 47.2. <a id="prepare-a-release"></a>Prepare A Release
 
@@ -9560,7 +9561,7 @@ Explanation:
 
 What you should see:
 
-* GoReleaser building all your `builds:` targets from `.goreleaser.yaml`.
+* GoReleaser building all your `builds:` targets from `.goreleaser.yaml`, including the `trice` and `tlog` host binaries.
 * Creating archives in `dist/`.
 * Generating checksums.
 * No attempts to call the GitHub API for a real release.

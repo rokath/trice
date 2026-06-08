@@ -18,7 +18,7 @@ before:
 
 builds:
   #
-  # 1) Universal 64-bit build for ALL platforms:
+  # 1) Universal 64-bit trice build for ALL platforms:
   #    - windows/amd64
   #    - windows/arm64
   #    - linux/amd64
@@ -46,9 +46,33 @@ builds:
         -X main.commit={{ .Commit }}
         -X main.date={{ .Date }}
         -X main.builtBy=goreleaser
+
+  # 1b) Universal 64-bit tlog build for ALL platforms:
+  #     tlog uses the trice log command path directly and is shipped beside
+  #     trice in the same release archives and packages.
+  - id: tlog-64bit
+    main: ./cmd/tlog
+    binary: tlog
+    dir: .
+    goos:
+      - windows
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - >-
+        -s -w
+        -X main.version={{ .Version }}
+        -X main.commit={{ .Commit }}
+        -X main.date={{ .Date }}
+        -X main.builtBy=goreleaser
   
   #
-  # 2) 32-bit build ONLY for Windows and Linux (NO darwin/386)
+  # 2) 32-bit trice build ONLY for Windows and Linux (NO darwin/386)
   #
   - id: trice-32bit   # ID of the build. Defaults to the project name.
     main: ./cmd/trice # Path to main.go file or main package. Default is `.`.
@@ -69,8 +93,28 @@ builds:
         -X main.date={{ .Date }}
         -X main.builtBy=goreleaser
 
+  # 2b) 32-bit tlog build ONLY for Windows and Linux (NO darwin/386)
+  - id: tlog-32bit
+    main: ./cmd/tlog
+    binary: tlog
+    dir: .
+    goos:
+      - windows
+      - linux
+    goarch:
+      - 386
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - >-
+        -s -w
+        -X main.version={{ .Version }}
+        -X main.commit={{ .Commit }}
+        -X main.date={{ .Date }}
+        -X main.builtBy=goreleaser
+
   #
-  # 3) ARMv6/v7 Linux builds (embedded targets)
+  # 3) ARMv6/v7 Linux trice builds (embedded targets)
   #
   - id: trice-arm32   # ID of the build. Defaults to the project name.
     main: ./cmd/trice # Path to main.go file or main package. Default is `.`.
@@ -87,6 +131,28 @@ builds:
       - CGO_ENABLED=0
     ldflags:          # You don't need to set this because GoReleaser sets the three ldflags by default anyway.
       - >-            # But sometimes it's better to be explicit, especially if you want to expand later (e.g., builtBy):
+        -s -w
+        -X main.version={{ .Version }}
+        -X main.commit={{ .Commit }}
+        -X main.date={{ .Date }}
+        -X main.builtBy=goreleaser
+
+  # 3b) ARMv6/v7 Linux tlog builds (embedded targets)
+  - id: tlog-arm32
+    main: ./cmd/tlog
+    binary: tlog
+    dir: .
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - 6
+      - 7
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - >-
         -s -w
         -X main.version={{ .Version }}
         -X main.commit={{ .Commit }}
@@ -145,8 +211,15 @@ archives:
   # snapshots for the full repository at each tag, so the custom assets below do
   # not need to duplicate the complete repo content.
   - id: trice-tool
+    ids:
+      - trice-64bit
+      - tlog-64bit
+      - trice-32bit
+      - tlog-32bit
+      - trice-arm32
+      - tlog-arm32
     # Keep the platform archives intentionally small: only the built host tool
-    # binary belongs here.
+    # binaries belong here.
     #
     # GoReleaser adds README/LICENSE files automatically when "files:" is
     # omitted. This repository intentionally does not want those extras inside
@@ -206,6 +279,7 @@ homebrew_casks:
     name: trice
     binaries:
       - trice
+      - tlog
     repository:
       owner: rokath
       name: homebrew-tap
@@ -229,6 +303,7 @@ nfpms:
   - id: trice-deb
     ids:
       - trice-64bit
+      - tlog-64bit
     formats:
       - deb
     package_name: trice
@@ -248,6 +323,7 @@ nfpms:
   - id: trice-rpm
     ids:
       - trice-64bit
+      - tlog-64bit
     formats:
       - rpm
     package_name: trice
@@ -265,6 +341,7 @@ nfpms:
   - id: trice-apk
     ids:
       - trice-64bit
+      - tlog-64bit
     formats:
       - apk
     package_name: trice
