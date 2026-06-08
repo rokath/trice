@@ -4729,7 +4729,7 @@ TODO: Working example with SEGGER_RTT J-Link and Open OCD
     ```
 
 * If the SD-card write is more effective using 32-bits chunks, consider `TRICE_DEFERRED_AUXILIARY32`, what is recommended also if you use the encryption option.
-  * `TRICE_DEFERRED_AUXILIARY32` is diabled / not implemented yet. It will be added on demand.
+  * `TRICE_DEFERRED_AUXILIARY32` writes whole 32-bit words and pads the last word with zero bytes when needed.
 * There maybe use cases for `TRICE_DIRECT_AUXILIARY8` or `TRICE_DIRECT_AUXILIARY32`, but consider the max write time.
 * Placing the files *til.json* and *li.json* anto the SD-card as well might be meaninjful.
 * To decode *myTriceLogs.bin* later

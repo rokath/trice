@@ -50,22 +50,6 @@ extern "C" {
 #define TRICE_DEFERRED_UARTB 0 //!< TRICE_DEFERRED_UARTB enables a user defined deferred trice write over TRICE_UARTB.
 #endif
 
-#ifndef TRICE_DIRECT_AUXILIARY8
-#define TRICE_DIRECT_AUXILIARY8 0 //!< TRICE_DIRECT_AUXILIARY8 enables a user defined direct trice write.
-#endif
-
-#ifndef TRICE_DEFERRED_AUXILIARY8
-#define TRICE_DEFERRED_AUXILIARY8 0 //!< TRICE_DEFERRED_AUXILIARY8 enables a user defined deferred trice write.
-#endif
-
-#ifndef TRICE_DIRECT_AUXILIARY32
-#define TRICE_DIRECT_AUXILIARY32 0 //!< TRICE_DIRECT_AUXILIARY32 enables a user defineddirect trice write.
-#endif
-
-//  #ifndef TRICE_DEFERRED_AUXILIARY32
-//  #define TRICE_DEFERRED_AUXILIARY32 0 //!< TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice write.
-//  #endif
-
 #ifndef TRICE_LEGACY_RPC_SUPPORT
 #define TRICE_LEGACY_RPC_SUPPORT 0 //!< TRICE_LEGACY_RPC_SUPPORT enables the legacy RPC support with triceF macros and the related trice tool CLI switch -legacyRPCSupport.
 #endif
@@ -343,10 +327,10 @@ extern "C" {
 #define TRICE_DEFERRED_AUXILIARY8 0
 #endif
 
-//  #ifndef TRICE_DEFERRED_AUXILIARY32
-//  //! TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice 32bit word write.
-//  #define TRICE_DEFERRED_AUXILIARY32 0
-//  #endif
+#ifndef TRICE_DEFERRED_AUXILIARY32
+//! TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice 32bit word write.
+#define TRICE_DEFERRED_AUXILIARY32 0
+#endif
 
 #ifndef TRICE_CGO
 //! CGO interface for testing the target code with Go only, do not enable normally. Usage examples can be found in the trice/_test folder.
