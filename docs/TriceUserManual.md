@@ -5030,7 +5030,7 @@ The `triceF` macros were an experimental remote-function-call syntax. They are d
 > trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
 > ```
 > 
-> The Trice tool displays the parameter buffer in the shown manner. There is a [FunctionPointerList Generator](#generating-a-rpc-function-pointer-list), which generates mainly a function pointer list with associated IDs. This list can get part of the > source code of a remote device. Then, when receiving a Trice message, the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
+> The Trice tool displays the parameter buffer in the shown manner. There is a [Generating a RPC Function Pointer List (depreciated)](#generating-a-rpc-function-pointer-list-depreciated), which generates mainly a function pointer list with associated IDs. This list can get part of the > source code of a remote device. Then, when receiving a Trice message, the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
 > 
 > With `#define TRICE_F TRICE16_F` in the project specific _triceConfig.h_ file the user can specify which should be the bitwidth (16 in this example) for `triceF` macros. The default value is 8.
 > 
