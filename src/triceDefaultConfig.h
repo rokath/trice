@@ -50,21 +50,9 @@ extern "C" {
 #define TRICE_DEFERRED_UARTB 0 //!< TRICE_DEFERRED_UARTB enables a user defined deferred trice write over TRICE_UARTB.
 #endif
 
-#ifndef TRICE_DIRECT_AUXILIARY8
-#define TRICE_DIRECT_AUXILIARY8 0 //!< TRICE_DIRECT_AUXILIARY8 enables a user defined direct trice write.
+#ifndef TRICE_LEGACY_RPC_SUPPORT
+#define TRICE_LEGACY_RPC_SUPPORT 0 //!< TRICE_LEGACY_RPC_SUPPORT enables the legacy RPC support with triceF macros and the related trice tool CLI switch -legacyRPCSupport.
 #endif
-
-#ifndef TRICE_DEFERRED_AUXILIARY8
-#define TRICE_DEFERRED_AUXILIARY8 0 //!< TRICE_DEFERRED_AUXILIARY8 enables a user defined deferred trice write.
-#endif
-
-#ifndef TRICE_DIRECT_AUXILIARY32
-#define TRICE_DIRECT_AUXILIARY32 0 //!< TRICE_DIRECT_AUXILIARY32 enables a user defineddirect trice write.
-#endif
-
-//  #ifndef TRICE_DEFERRED_AUXILIARY32
-//  #define TRICE_DEFERRED_AUXILIARY32 0 //!< TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice write.
-//  #endif
 
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
@@ -83,10 +71,12 @@ extern "C" {
 #define TRICE_B TRICE8_B
 #endif
 
+#if TRICE_LEGACY_RPC_SUPPORT == 1
 #ifndef TRICE_F
 //! TRICE_F is a shortcut for TRICE8_F, TRICE16_F, TRICE32_F or TRICE64_F usable in your project.
 #define TRICE_F TRICE8_F
 #endif
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 
 #ifndef TRICE_COMMAND_SIZE_MAX
 //! TRICE_COMMAND_SIZE_MAX is the length limit for command strings to target.
@@ -337,10 +327,10 @@ extern "C" {
 #define TRICE_DEFERRED_AUXILIARY8 0
 #endif
 
-//  #ifndef TRICE_DEFERRED_AUXILIARY32
-//  //! TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice 32bit word write.
-//  #define TRICE_DEFERRED_AUXILIARY32 0
-//  #endif
+#ifndef TRICE_DEFERRED_AUXILIARY32
+//! TRICE_DEFERRED_AUXILIARY32 enables a user defined deferred trice 32bit word write.
+#define TRICE_DEFERRED_AUXILIARY32 0
+#endif
 
 #ifndef TRICE_CGO
 //! CGO interface for testing the target code with Go only, do not enable normally. Usage examples can be found in the trice/_test folder.

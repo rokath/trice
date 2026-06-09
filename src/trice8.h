@@ -78,12 +78,14 @@
 //!  It is usable for showing n 8-bit values.
 #define TRICE8_B TRICE_N
 
+#if TRICE_LEGACY_RPC_SUPPORT == 1
 //! TRICE8_F expects inside pFmt just a string which is assumed to be a remote function name.
 //! \li The trice tool displays the pFmt string followed by n times (value i).
 //! \li The idea behind is to generate an id - function pointer referece list from the generated til.json file to compile it into a remote device and execute the inside pFmt named function remotely.
 //! \li Look for "TRICE8_F example" inside triceCheck.c.
 //!  Look for "TRICE8_F example" inside triceCheck.c.
 #define TRICE8_F TRICE8_B
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 
 #define TRICE_BYTE0(v) ((uint8_t)(v))                       //!< TRICE_BYTE0(v) is the 8-bit value v moved to the LL position in a 32-bit value 0xHH_HL_LH_LL.
 #define TRICE_BYTE1(v) (0x0000FF00 & ((uint32_t)(v) << 8))  //!< TRICE_BYTE1(v) is the 8-bit value v moved to the LH position in a 32-bit value 0xHH_HL_LH_LL.

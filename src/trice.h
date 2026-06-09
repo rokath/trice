@@ -265,6 +265,7 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount);
 void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen);
 void TriceNonBlockingDeferredWrite8Auxiliary(const uint8_t* enc, size_t encLen);
 void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count);
+void TriceNonBlockingDeferredWrite32Auxiliary(const uint32_t* enc, unsigned count);
 void TriceInit(void);
 void TriceLogDiagnosticData(void);
 void TriceLogSeggerDiagnostics(void);
@@ -795,6 +796,8 @@ void trice64B(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice64B(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice64B(int tid, char const* fmt, const void* buf, uint32_t n);
 
+#if TRICE_LEGACY_RPC_SUPPORT == 1
+
 void trice8F(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice8F(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice8F(int tid, char const* fmt, const void* buf, uint32_t n);
@@ -810,6 +813,8 @@ void TRice32F(int tid, char const* fmt, const void* buf, uint32_t n);
 void trice64F(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice64F(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n);
+
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 
 #endif // #ifndef TRICE_N
 

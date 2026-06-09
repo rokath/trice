@@ -1,5 +1,38 @@
 ﻿# Changelog
 
+## <a id='v1.2.5-changes'></a>v1.2.5 Changes (2026-06-09)
+
+### <a id='v1.2.5overview'></a>v1.2.5 Overview
+
+* Trice ABC chapter added to ./docs/TriceUserManual.md
+* ./docs/TriceAbc_Implementation_spec.md added
+* `TRICE_LEGACY_RPC_SUPPORT` switch added to deactivate not needed code per default.
+* minor fix for tlog (`tlog help` does not demand an existing _til.json_ file anymore)
+* Issue [#673](https://github.com/rokath/trice/issues/673) fixed
+* Issue [#674](https://github.com/rokath/trice/issues/674) fixed
+
+### <a id='v1.2.5-git-log'></a>v1.2.5 Git Log
+
+```txt
+ms@PaulPCWin11 MINGW64 ~/repos/trice (wip)
+$ ./scripts/gitLogWithBranches.sh --range v1.2.3..
+*               906fd000 2026-06-09 13:52 [wip                             ] Trice ABC Spec finalized and UM chapter 36 updated
+*               b28e65d7 2026-06-09 13:51 [wip~1                           ] minor fix for tlog
+*               9a0c652f 2026-06-08 17:07 [wip~2                           ] #define TRICE_LEGACY_RPC_SUPPORT 1 added to pass tests
+*               e1a0cb84 2026-06-08 15:43 [wip~3                           ] minor adaption for tests
+*               4b737494 2026-06-08 15:39 [wip~4                           ] Internal link corrected
+*               f40a2582 2026-06-08 15:31 [wip~5                           ] Trice ABC spec wip
+*               b3cfc79a 2026-06-08 15:20 [wip~6                           ] Issue #674 fixed
+*               8696f0f4 2026-06-08 14:06 [wip~7                           ] Issue #673 implemented.
+*               14788d79 2026-06-08 10:54 [wip~8                           ] Some test ideas added and some open questions answered.
+*               c7812420 2026-06-07 23:25 [wip~9                           ] wip until chapter 16
+*               2e8c8a7f 2026-06-07 23:24 [wip~10                          ] TRICE_LEGACY_RPC_SUPPORT switch added
+*               fb3a6e40 2026-06-07 12:13 [wip~11                          ] Trice ABC work in progress (spec)
+*               953d6670 2026-06-06 22:49 [wip~12                          ] Trice ABC - Asynchronous Broadcast Commands chapter rerworked
+*               a46b4566 2026-06-06 21:17 [wip~13                          ] Trice ABC - Asynchronous Broadcast Commands chapter rerworked
+*               a064d4df 2026-06-05 17:47 [wip~14                          ] Trice ABC chapter added to user manual
+*               78e8ecff 2026-06-04 01:21 [wip~15                          ] TriceABC - first thoughts
+```
 
 ## <a id='v1.2.4-changes'></a>v1.2.4 Changes (2026-06-02)
 

@@ -178,7 +178,7 @@
 #error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) // && (TRICE_DEFERRED_AUXILIARY32 == 0)
+#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
 #error configuration: TRICE_DEFERRED_OUTPUT == 1 needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
 #endif
 
@@ -870,6 +870,24 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 	}
 #endif // #if (TRICE_DEFERRED_AUXILIARY8 == 1)
 
+#if (TRICE_DEFERRED_AUXILIARY32 == 1)
+#if defined(TRICE_DEFERRED_AUXILIARY32_MIN_ID) && defined(TRICE_DEFERRED_AUXILIARY32_MAX_ID)
+#if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
+#error configuration: TRICE_MULTI_PACK_MODE cannot support ID routing, consider TRICE_SINGLE_PACK_MODE
+#endif
+	if ((TRICE_DEFERRED_AUXILIARY32_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_AUXILIARY32_MAX_ID))
+#else
+	TRICE_UNUSED(triceID)
+#endif
+	{
+		// The 32-bit auxiliary API writes whole words, so pad the existing
+		// deferred encode buffer to a word boundary before handing it over.
+		size_t encLen4 = (encLen + 3u) & ~(size_t)3u;
+		memset((uint8_t*)enc + encLen, 0, encLen4 - encLen);
+		TriceNonBlockingDeferredWrite32Auxiliary((const uint32_t*)enc, (unsigned)(encLen4 >> 2));
+	}
+#endif // #if (TRICE_DEFERRED_AUXILIARY32 == 1)
+
 #if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 #if defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID) && defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID)
 	if ((TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID))
@@ -1059,6 +1077,8 @@ void TRice64B(int tid, char const* fmt, const void* buf, uint32_t n) {
 }
 #endif // (TRICE_64_BIT_SUPPORT == 1)
 
+#if TRICE_LEGACY_RPC_SUPPORT == 1
+
 void trice8F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_F(id(tid), fmt, buf, n);
 }
@@ -1108,6 +1128,8 @@ void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_F(ID(tid), fmt, buf, n);
 }
 #endif // (TRICE_64_BIT_SUPPORT == 1)
+
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 
 #endif // #ifdef TRICE_N
 

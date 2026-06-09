@@ -7,6 +7,8 @@
 
 void TriceCheckSpecial( int n ) {
 
+#if TRICE_LEGACY_RPC_SUPPORT == 1
+
         static int8_t b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
         static int16_t b16[] = { 0, -1, -2, 0x3344 };
         static int32_t b32[] = { 0, -1, -2, 0x33445555};
@@ -31,6 +33,9 @@ void TriceCheckSpecial( int n ) {
                 break;  case __LINE__: Trice64F("RPC:FunctionNameZc",  b64, sizeof(b64)/sizeof(int64_t) );  //exp: Time:    be16default: RPC:FunctionNameZc(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
                 break;  case __LINE__: trice64F("Rpc:FunctionNameZd",  b64, sizeof(b64)/sizeof(int64_t) );  //exp: Time:        default: Rpc:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
         }
+
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
+
 }
 
 // clang-format on
