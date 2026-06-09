@@ -111,3 +111,52 @@ func TestDoitAcceptsVersionSwitch(t *testing.T) {
 		})
 	}
 }
+
+func TestDoitAcceptsHelpAndVersionWithoutTIL(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+
+	previousArgs := os.Args
+	previousVersion := version
+	previousCommit := commit
+	previousDate := date
+	previousBranch := branch
+	previousGitState := gitState
+	previousGitStatus := gitStatus
+	previousBuiltBy := builtBy
+	t.Cleanup(func() {
+		os.Args = previousArgs
+		version = previousVersion
+		commit = previousCommit
+		date = previousDate
+		branch = previousBranch
+		gitState = previousGitState
+		gitStatus = previousGitStatus
+		builtBy = previousBuiltBy
+	})
+
+	version = "v1.2.3"
+	commit = "abc1234"
+	date = "2026-04-05T23:00:00+02:00"
+	gitState = "clean"
+	builtBy = "unit-test"
+
+	for _, tc := range []struct {
+		name     string
+		osArgs   []string
+		expected string
+	}{
+		{name: "version", osArgs: []string{"tlog", "version"}, expected: "version=v1.2.3"},
+		{name: "ver", osArgs: []string{"tlog", "ver"}, expected: "version=v1.2.3"},
+		{name: "help", osArgs: []string{"tlog", "help"}, expected: "sub-command 'l|log'"},
+		{name: "h", osArgs: []string{"tlog", "h"}, expected: "sub-command 'l|log'"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			args.FlagsInit()
+			os.Args = tc.osArgs
+			var out bytes.Buffer
+			require.NoError(t, doit(&out, fSys))
+
+			assert.Contains(t, out.String(), tc.expected)
+		})
+	}
+}

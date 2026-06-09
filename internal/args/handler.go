@@ -121,8 +121,17 @@ func LogHandler(w io.Writer, fSys *afero.Afero, args []string) error {
 	if len(args) == 0 {
 		args = []string{"tlog"}
 	}
-	if len(args) > 1 && isVersionSwitch(args[1]) {
-		return versionHandler(w, fSys, args[2:])
+	if len(args) > 1 {
+		switch args[1] {
+		case "ver", "version":
+			return versionHandler(w, fSys, args[2:])
+		case "h", "help":
+			return logInfo(w)
+		default:
+			if isVersionSwitch(args[1]) {
+				return versionHandler(w, fSys, args[2:])
+			}
+		}
 	}
 	return runLog(w, fSys, args[1:])
 }
