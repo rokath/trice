@@ -5399,7 +5399,7 @@ int8_t step[] = { -50, 0, 30, 0 };
 Trice8C("cmd:motor_step", stamp16, step, 4);       // four 8-bit payload elements, 16-bit stamp
 ```
 
-The value of `TRICE_SINGLE_MAX_SIZE` limits the maximum payload size.
+On the sending target, the configured Trice output limits bound the maximum emitted payload size. A receive-only ABC target does not need `TRICE_SINGLE_MAX_SIZE`.
 
 ### 36.5. <a id="trice-abc-stamps"></a>Trice ABC stamps
 
@@ -5476,16 +5476,16 @@ If `deviceX_abc.h` does not exist, the generator creates it from all ABC command
 
 #ifndef DEVICEX_ABC_H_
 #define DEVICEX_ABC_H_
-#include <stdint.h>
+#include "triceAbcReceive.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void motor_stop(void);
-void get_power_state(void);
-void set_time(int32_t* p, int cnt);
-void set_pwm(int16_t* p, int cnt);
+void motor_stop(const triceAbcRx_t* rx);
+void get_power_state(const triceAbcRx_t* rx);
+void set_time(const triceAbcRx_t* rx);
+void set_pwm(const triceAbcRx_t* rx);
 
 #ifdef __cplusplus
 }
@@ -5499,14 +5499,14 @@ The user deletes or comments out declarations for commands this target shall ign
 ```c
 #ifndef DEVICEX_ABC_H_
 #define DEVICEX_ABC_H_
-#include <stdint.h>
+#include "triceAbcReceive.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void get_power_state(void);
-void set_time(int32_t* p, int cnt);
+void get_power_state(const triceAbcRx_t* rx);
+void set_time(const triceAbcRx_t* rx);
 
 #ifdef __cplusplus
 }
@@ -5528,16 +5528,14 @@ The selection parser strips C comments but does not evaluate preprocessor condit
 //! Trice generated ABC code - do not edit!
 
 #include "deviceX_abc.h"
-#include "trice.h"
+#include "triceAbcReceive.h"
 
-static void triceAbcCall_get_power_state(void* p, int cnt) {
-    (void)p;
-    (void)cnt;
-    get_power_state();
+static void triceAbcCall_get_power_state(const triceAbcRx_t* rx) {
+    get_power_state(rx);
 }
 
-static void triceAbcCall_set_time(void* p, int cnt) {
-    set_time((int32_t*)p, cnt);
+static void triceAbcCall_set_time(const triceAbcRx_t* rx) {
+    set_time(rx);
 }
 
 const triceAbc_t triceAbc[] = {
@@ -5552,18 +5550,22 @@ const unsigned triceAbcElements = sizeof(triceAbc) / sizeof(triceAbc[0]);
 The application implements the selected handlers in normal source files:
 
 ```c
+#include <stdint.h>
+#include <string.h>
 #include "trice.h"
 #include "deviceX_abc.h"
 
-void get_power_state(void) {
-    uint32_t stamp = 0x87650000u | TriceAbcCurrentStamp16();
+void get_power_state(const triceAbcRx_t* rx) {
+    uint32_t stamp = 0x87650000u | (uint16_t)rx->stamp;
     int32_t value = BoardPowerState();
     TRice32C("rsp:power_state", stamp, &value, 1);
 }
 
-void set_time(int32_t* p, int cnt) {
-    if (cnt == 1) {
-        ClockSetUnixTime((uint32_t)p[0]);
+void set_time(const triceAbcRx_t* rx) {
+    int32_t value;
+    if (rx->payloadBytes == sizeof(value)) {
+        memcpy(&value, rx->payload, sizeof(value));
+        ClockSetUnixTime((uint32_t)value);
     }
 }
 ```
@@ -5592,12 +5594,14 @@ ABC does not require a queue or scheduler. If a handler can execute immediately,
 static volatile int setTimePending;
 static int32_t setTimeValue;
 
-void set_time(int32_t* p, int cnt) {
-    if (cnt != 1) {
-        trice("err:invalid set_time count %d\n", cnt);
+void set_time(const triceAbcRx_t* rx) {
+    int32_t value;
+    if (rx->payloadBytes != sizeof(value)) {
+        trice("err:invalid set_time payload %u\n", (unsigned)rx->payloadBytes);
         return;
     }
-    setTimeValue = p[0];
+    memcpy(&value, rx->payload, sizeof(value));
+    setTimeValue = value;
     setTimePending = 1;
 }
 ```
@@ -5608,17 +5612,17 @@ A background task can then poll the flag and perform the slow or timing-critical
 
 ABC does not define a response protocol. A handler may send zero, one, or more Trice messages as responses.
 
-If an ABC stamp was received, the runtime should make it available while the handler runs. A handler can reuse it in a response:
+If an ABC stamp was received, the runtime passes it in the handler context. A handler can reuse it in a response:
 
 ```c
-void get_power_state(void) {
-    uint32_t stamp = 0x87650000u | TriceAbcCurrentStamp16();
+void get_power_state(const triceAbcRx_t* rx) {
+    uint32_t stamp = 0x87650000u | (uint16_t)rx->stamp;
     int32_t value = BoardPowerState();
     TRice32C("rsp:power_state", stamp, &value, 1);
 }
 ```
 
-The current ABC stamp helper functions return zero outside a running handler. The original sender may collect responses with matching stamps if it wants request/response behavior. ABC itself does not wait, retry, count responses, or decide when enough responses have arrived.
+The original sender may collect responses with matching stamps if it wants request/response behavior. ABC itself does not wait, retry, count responses, or decide when enough responses have arrived.
 
 ### 36.10. <a id="multiple-devices-and-multiple-code-bases"></a>Multiple devices and multiple code bases
 
@@ -5661,13 +5665,13 @@ Receiver selection file after editing:
 #ifndef DEVICEZ_ABC_H_
 #define DEVICEZ_ABC_H_
 
-#include <stdint.h>
+#include "triceAbcReceive.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void get_power_state(void);
+void get_power_state(const triceAbcRx_t* rx);
 
 #ifdef __cplusplus
 }
@@ -5682,8 +5686,8 @@ Receiver implementation:
 #include "trice.h"
 #include "deviceZ_abc.h"
 
-void get_power_state(void) {
-    uint32_t stamp = 0x12340000u | TriceAbcCurrentStamp16();
+void get_power_state(const triceAbcRx_t* rx) {
+    uint32_t stamp = 0x12340000u | (uint16_t)rx->stamp;
     int32_t value = BoardPowerState();
     TRice32C("rsp:power_state", stamp, &value, 1);
 }

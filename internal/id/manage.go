@@ -238,6 +238,11 @@ func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 				fmt.Fprintf(w, "%+v <- Expected format specifier count is 0 but got %d", x, n)
 			}
 			continue
+		case "C":
+			if err := validateTriceFormatSpecifierKinds(x, specs); err != nil {
+				fmt.Fprintf(w, "%+v <- %v", x, err)
+			}
+			continue
 		}
 		if err := validateTriceFormatSpecifierKinds(x, specs); err != nil {
 			fmt.Fprintf(w, "%+v <- %v", x, err)

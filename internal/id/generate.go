@@ -23,12 +23,13 @@ var (
 	GenerateTilCS  bool
 	GenerateRpcH   bool
 	GenerateRpcC   bool
+	GenerateABC    string
 	WriteAllColors bool
 )
 
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
 func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
-	if !GenerateTilH && !GenerateTilC && !GenerateTilCS && !GenerateRpcH && !GenerateRpcC && !WriteAllColors {
+	if !GenerateTilH && !GenerateTilC && !GenerateTilCS && !GenerateRpcH && !GenerateRpcC && GenerateABC == "" && !WriteAllColors {
 		fmt.Fprintln(w, `The "trice generate" command needs at least one parameter. Check "trice help -generate".`)
 		return nil
 	}
@@ -81,6 +82,14 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 		msg.FatalOnErr(ilu.ToFileRpcC(fSys, fnRPC))
 		if Verbose {
 			fmt.Fprintln(w, "generated", fnRPC)
+		}
+	}
+
+	if GenerateABC != "" {
+		msg.FatalOnErr(ilu.ToFilesAbc(w, fSys, GenerateABC))
+		if Verbose {
+			fmt.Fprintln(w, "generated", GenerateABC+"_abc.h")
+			fmt.Fprintln(w, "generated", GenerateABC+"_abc.c")
 		}
 	}
 
@@ -157,8 +166,11 @@ namespace TriceIDList;
 
 func computeValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth, paramCount int) {
 	DefaultTriceBitWidth = strconv.Itoa(defaultBitWidth)
+	if info := abcTypeInfo(t.Type); info.isABC {
+		return t.Type, info.bitWidth, -1
+	}
 	switch t.Type[len(t.Type)-1:] {
-	case "B", "F", "N", "S":
+	case "B", "F", "N", "S", "C":
 		paramCount = -1
 		extType = t.Type
 	default:

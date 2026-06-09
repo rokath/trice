@@ -376,6 +376,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'g|gen|generate': Use for creating colors or support files.
+  -abc string
+        Create or use <target>_abc.h and regenerate <target>_abc.c for Trice ABC receive handling.
   -colors
     	Write all possible colors.
   -i string
@@ -386,9 +388,9 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
     	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
     	 (default "til.json")
   -rpcC
-    	Create a til_rpc.c file.
+        Create a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.
   -rpcH
-    	Create a til_rpc.h file.
+        Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.
   -til string
     	Short for '-idlist'.
     	 (default "til.json")

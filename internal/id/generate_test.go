@@ -354,6 +354,7 @@ func TestSubCmdGenerate(t *testing.T) {
 	previousGenerateTilCS := GenerateTilCS
 	previousGenerateRpcH := GenerateRpcH
 	previousGenerateRpcC := GenerateRpcC
+	previousGenerateABC := GenerateABC
 	previousWriteAllColors := WriteAllColors
 	previousVerbose := Verbose
 	t.Cleanup(func() {
@@ -362,6 +363,7 @@ func TestSubCmdGenerate(t *testing.T) {
 		GenerateTilCS = previousGenerateTilCS
 		GenerateRpcH = previousGenerateRpcH
 		GenerateRpcC = previousGenerateRpcC
+		GenerateABC = previousGenerateABC
 		WriteAllColors = previousWriteAllColors
 		Verbose = previousVerbose
 	})
@@ -377,6 +379,7 @@ func TestSubCmdGenerate(t *testing.T) {
 	GenerateTilCS = false
 	GenerateRpcH = false
 	GenerateRpcC = false
+	GenerateABC = ""
 	WriteAllColors = false
 
 	var w bytes.Buffer
