@@ -5377,24 +5377,26 @@ ABC macros follow the normal Trice capitalization style. The optional number in 
 
 | no stamp   | 16-bit stamp | 32-bit stamp | Payload element width |
 |------------|--------------|--------------|-----------------------|
-| `triceC`   | `TriceC`     | `TRiceC`     | default width         |
+| `triceC`   | `TriceC`     | `TRiceC`     | no payload            |
 | `trice8C`  | `Trice8C`    | `TRice8C`    | 8-bit                 |
 | `trice16C` | `Trice16C`   | `TRice16C`   | 16-bit                |
 | `trice32C` | `Trice32C`   | `TRice32C`   | 32-bit                |
 | `trice64C` | `Trice64C`   | `TRice64C`   | 64-bit                |
 
+For stamped ABC macros, the explicit ABC stamp argument follows the format string and precedes the payload arguments. The first implementation supports no-payload `triceC`/`TriceC`/`TRiceC` forms and width-specific payload forms. A default-width `triceC` payload form is not required.
+
 Use the width-specific forms when a payload is present:
 
 ```c
 triceC("cmd:motor_stop");                         // no payload, no stamp
-TriceC(stamp16, "cmd:get_power_state");           // no payload, 16-bit ABC stamp
-TRiceC(stamp32, "cmd:restart_measurement");       // no payload, 32-bit ABC stamp
+TriceC("cmd:get_power_state", stamp16);           // no payload, 16-bit ABC stamp
+TRiceC("cmd:restart_measurement", stamp32);       // no payload, 32-bit ABC stamp
 
 uint32_t unixTime = 1777777777u;
 trice32C("cmd:set_time", &unixTime, 1);            // one 32-bit payload element, no stamp
 
 int8_t step[] = { -50, 0, 30, 0 };
-Trice8C(stamp16, "cmd:motor_step", step, 4);       // four 8-bit payload elements, 16-bit stamp
+Trice8C("cmd:motor_step", stamp16, step, 4);       // four 8-bit payload elements, 16-bit stamp
 ```
 
 The value of `TRICE_SINGLE_MAX_SIZE` limits the maximum payload size.
@@ -5413,17 +5415,17 @@ Example with device ID and sequence counter:
 
 ```c
 uint32_t stamp32 = ((uint32_t)deviceId << 16) | (sequenceCounter++ & 0xffffu);
-TRiceC(stamp32, "cmd:get_power_state");
+TRiceC("cmd:get_power_state", stamp32);
 ```
 
 If a real time stamp is desired for an ABC message, pass it explicitly:
 
 ```c
-TriceC(TriceStamp16, "cmd:fnA");
-TRiceC(TriceStamp32, "cmd:fnB");
+TriceC("cmd:fnA", TriceStamp16);
+TRiceC("cmd:fnB", TriceStamp32);
 ```
 
-The host-side display should not label ABC stamps as `time:` unless explicitly configured to do so. A label such as `stamp:` is more accurate.
+The host-side display should eventually label ABC stamps as `stamp:` instead of `time:`. During implementation and test migration, older display code may still show the existing time label for the transported stamp field.
 
 ### 36.6. <a id="abc-command-names-and-tags"></a>ABC command names and tags
 
@@ -5472,34 +5474,52 @@ If `deviceX_abc.h` does not exist, the generator creates it from all ABC command
 //! Trice ABC selection file for target deviceX.
 //! Generated once; edit this file to select received ABC commands.
 
-#ifndef DEVICE_X_ABC_H
-#define DEVICE_X_ABC_H
+#ifndef DEVICEX_ABC_H_
+#define DEVICEX_ABC_H_
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void motor_stop(void);
 void get_power_state(void);
 void set_time(int32_t* p, int cnt);
 void set_pwm(int16_t* p, int cnt);
 
-#endif // #ifndef DEVICE_X_ABC_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // DEVICEX_ABC_H_
 ```
 
 The user deletes or comments out declarations for commands this target shall ignore:
 
 ```c
-#ifndef DEVICE_X_ABC_H
-#define DEVICE_X_ABC_H
+#ifndef DEVICEX_ABC_H_
+#define DEVICEX_ABC_H_
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void get_power_state(void);
 void set_time(int32_t* p, int cnt);
 
-#endif // #ifndef DEVICE_X_ABC_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // DEVICEX_ABC_H_
 ```
 
 #### 36.7.2. <a id="later-runs"></a>Later runs
 
 If `deviceX_abc.h` already exists, the generator uses it as input and does not overwrite it. Only active declarations in this file are emitted into `deviceX_abc.c`.
+
+The selection parser strips C comments but does not evaluate preprocessor conditionals. Do not rely on `#if 0` blocks to deselect commands; delete or comment out declarations instead.
 
 `deviceX_abc.c` is always regenerated and should not be edited. The generator may set it read-only after writing it:
 
@@ -5510,23 +5530,23 @@ If `deviceX_abc.h` already exists, the generator uses it as input and does not o
 #include "deviceX_abc.h"
 #include "trice.h"
 
-static void triceABC_get_power_state(void* p, int cnt) {
+static void triceAbcCall_get_power_state(void* p, int cnt) {
     (void)p;
     (void)cnt;
     get_power_state();
 }
 
-static void triceABC_set_time(void* p, int cnt) {
+static void triceAbcCall_set_time(void* p, int cnt) {
     set_time((int32_t*)p, cnt);
 }
 
-const triceABC_t triceABC[] = {
+const triceAbc_t triceAbc[] = {
     /* Trice type */ /* id, bitWidth, function pointer */
-    /*   TriceC   */ { 14236,  0, triceABC_get_power_state },
-    /*  trice32C  */ { 14235, 32, triceABC_set_time },
+    /*   TriceC   */ { 14236,  0, triceAbcCall_get_power_state },
+    /*  trice32C  */ { 14235, 32, triceAbcCall_set_time },
 };
 
-const unsigned triceABCElements = sizeof(triceABC) / sizeof(triceABC[0]);
+const unsigned triceAbcElements = sizeof(triceAbc) / sizeof(triceAbc[0]);
 ```
 
 The application implements the selected handlers in normal source files:
@@ -5536,9 +5556,9 @@ The application implements the selected handlers in normal source files:
 #include "deviceX_abc.h"
 
 void get_power_state(void) {
-    uint32_t stamp = 0x87650000u | triceABCCurrentStamp16();
+    uint32_t stamp = 0x87650000u | TriceAbcCurrentStamp16();
     int32_t value = BoardPowerState();
-    TRice32C(stamp, "rsp:power_state", &value, 1);
+    TRice32C("rsp:power_state", stamp, &value, 1);
 }
 
 void set_time(int32_t* p, int cnt) {
@@ -5554,12 +5574,15 @@ If `deviceX_abc.h` declares a handler for which no matching ABC command exists i
 
 The generated table is only the ID-to-handler selection. How incoming Trice frames reach this table depends on the used transport and decoder.
 
+The receive runtime entry point works after decoding. It receives the Trice ID, stamp selector, stamp value, and payload bytes; framing, transport buffering, and optional decryption belong to the surrounding decoder/integration layer.
+
 The minimal receive logic is:
 
 ```text
 receive Trice frame
 parse ID, optional ABC stamp, and optional payload
-find matching entry in triceABC[]
+call TriceAbcOnReceive() with decoded ID, stamp, and payload
+find matching entry in triceAbc[]
 call the generated wrapper, which calls the selected user handler
 ```
 
@@ -5589,13 +5612,13 @@ If an ABC stamp was received, the runtime should make it available while the han
 
 ```c
 void get_power_state(void) {
-    uint32_t stamp = 0x87650000u | triceABCCurrentStamp16();
+    uint32_t stamp = 0x87650000u | TriceAbcCurrentStamp16();
     int32_t value = BoardPowerState();
-    TRice32C(stamp, "rsp:power_state", &value, 1);
+    TRice32C("rsp:power_state", stamp, &value, 1);
 }
 ```
 
-The original sender may collect responses with matching stamps if it wants request/response behavior. ABC itself does not wait, retry, count responses, or decide when enough responses have arrived.
+The current ABC stamp helper functions return zero outside a running handler. The original sender may collect responses with matching stamps if it wants request/response behavior. ABC itself does not wait, retry, count responses, or decide when enough responses have arrived.
 
 ### 36.10. <a id="multiple-devices-and-multiple-code-bases"></a>Multiple devices and multiple code bases
 
@@ -5621,7 +5644,7 @@ Sender:
 static uint16_t abcSeq16;
 
 void AskPowerState(void) {
-    TriceC(abcSeq16++, "cmd:get_power_state");
+    TriceC("cmd:get_power_state", abcSeq16++);
 }
 ```
 
@@ -5635,14 +5658,22 @@ Receiver selection file after editing:
 
 ```c
 // deviceZ_abc.h
-#ifndef DEVICE_Z_ABC_H
-#define DEVICE_Z_ABC_H
+#ifndef DEVICEZ_ABC_H_
+#define DEVICEZ_ABC_H_
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void get_power_state(void);
 
-#endif // #ifndef DEVICE_Z_ABC_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif // DEVICEZ_ABC_H_
 ```
 
 Receiver implementation:
@@ -5652,9 +5683,9 @@ Receiver implementation:
 #include "deviceZ_abc.h"
 
 void get_power_state(void) {
-    uint32_t stamp = 0x12340000u | triceABCCurrentStamp16();
+    uint32_t stamp = 0x12340000u | TriceAbcCurrentStamp16();
     int32_t value = BoardPowerState();
-    TRice32C(stamp, "rsp:power_state", &value, 1);
+    TRice32C("rsp:power_state", stamp, &value, 1);
 }
 ```
 
@@ -5670,7 +5701,7 @@ Planned transition:
 - mark `triceF` and `-rpcH`/`-rpcC` as deprecated,
 - do not use `triceF` in new ABC examples,
 - do not include `triceF` entries in ABC generation,
-- add a target-side build switch such as `TRICE_RPC`, defaulting to `0`, so legacy `triceF` target code is compiled only when explicitly enabled.
+- compile legacy `triceF` target code only when `TRICE_LEGACY_RPC_SUPPORT` is explicitly set to `1`. The default in `triceDefaultConfig.h` is `0`.
 
 New code should use `triceC`, `trice8C`, `trice16C`, `trice32C`, or `trice64C`.
 
