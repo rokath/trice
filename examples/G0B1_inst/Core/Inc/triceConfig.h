@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #define TRICE_LEGACY_RPC_SUPPORT 1
-
+#define TRICE_ABC_TRANSMIT_SUPPORT 1
 // TRICE_SINGLE_MAX_SIZE is used to truncate long runtime-generated strings, to detect the need for a ring buffer wrap, or to protect against overflow.
 // Limit custom assert messages to a safe size (>104) to avoid truncation
 #define TRICE_SINGLE_MAX_SIZE 256

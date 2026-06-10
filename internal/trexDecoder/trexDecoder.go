@@ -55,9 +55,11 @@ var specialCaseTriceTypes = map[string]struct{}{
 	"TRICES": {}, "TRICEN": {}, "TRICEB": {}, "TRICEF": {},
 	"TRICE8B": {}, "TRICE16B": {}, "TRICE32B": {}, "TRICE64B": {},
 	"TRICE8F": {}, "TRICE16F": {}, "TRICE32F": {}, "TRICE64F": {},
+	"TRICE8C": {}, "TRICE16C": {}, "TRICE32C": {}, "TRICE64C": {},
 	"TRICE_S": {}, "TRICE_N": {}, "TRICE_B": {}, "TRICE_F": {},
 	"TRICE8_B": {}, "TRICE16_B": {}, "TRICE32_B": {}, "TRICE64_B": {},
 	"TRICE8_F": {}, "TRICE16_F": {}, "TRICE32_F": {}, "TRICE64_F": {},
+	"TRICE8_C": {}, "TRICE16_C": {}, "TRICE32_C": {}, "TRICE64_C": {},
 }
 
 func init() {
@@ -748,6 +750,11 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE16B", (*trexDec).trice16B, -1, 0, 0},
 	{"TRICE32B", (*trexDec).trice32B, -1, 0, 0},
 	{"TRICE64B", (*trexDec).trice64B, -1, 0, 0},
+
+	{"TRICE8C", (*trexDec).trice8F, -1, 0, 0},
+	{"TRICE16C", (*trexDec).trice16F, -1, 0, 0},
+	{"TRICE32C", (*trexDec).trice32F, -1, 0, 0},
+	{"TRICE64C", (*trexDec).trice64F, -1, 0, 0},
 }
 
 func (p *trexDec) alignedParamBytes(b []byte, width int) (s []byte, n int, ok bool) {

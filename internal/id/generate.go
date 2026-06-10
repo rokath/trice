@@ -234,6 +234,16 @@ func ConstructFullTriceInfo(origType string, paramCount int) (fullTriceType stri
 			} else {
 				err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
 			}
+		case "C": // TRICE_C has no payload; TRICE8_C and wider variants carry counted ABC payload bytes.
+			if paramCount == 0 {
+				if len(before) == 5 { // no bitwidth
+					fullTriceType = before + "_0"
+				} else {
+					fullTriceType = before + after
+				}
+			} else {
+				err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+			}
 		default:
 			cnt, e := strconv.Atoi(after)
 			if e != nil {
@@ -283,6 +293,18 @@ func ConstructFullTriceInfo(origType string, paramCount int) (fullTriceType stri
 			} else {
 				fullTriceType = before
 			}
+		} else {
+			err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+		}
+	case "C": // triceC carries no payload and behaves like a zero-parameter Trice for display.
+		if paramCount == 0 {
+			fullTriceType = before[:5] + "_0"
+		} else {
+			err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
+		}
+	case "8C", "16C", "32C", "64C": // trice8C and wider ABC forms carry counted payload bytes.
+		if paramCount == 0 {
+			fullTriceType = before
 		} else {
 			err = fmt.Errorf(origType, "has invalid parameter count", paramCount)
 		}
