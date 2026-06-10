@@ -97,6 +97,11 @@ func TestConstructFullTriceInfo(t *testing.T) {
 		{"TRICE_N", 0, ""},
 		{"TRICE_B", 0, ""},
 		{"TRICE_F", 0, "TRICE32F"},
+		{"TRICE_C", 0, "TRICEC"},
+		{"TRICE8_C", 0, "TRICE8C"},
+		{"TRICe16_C", 0, "TRICe16C"},
+		{"TRIce32_C", 0, "TRIce32C"},
+		{"TRICE64_C", 0, "TRICE64C"},
 		{"triceS", 0, ""},
 		{"triceN", 0, ""},
 
@@ -111,6 +116,13 @@ func TestConstructFullTriceInfo(t *testing.T) {
 		{"trice16F", 0, "trice16F"},
 		{"trice32F", 0, "trice32F"},
 		{"trice64F", 0, "trice64F"},
+		{"triceC", 0, "triceC"},
+		{"TriceC", 0, "TriceC"},
+		{"TRiceC", 0, "TRiceC"},
+		{"trice8C", 0, "trice8C"},
+		{"Trice16C", 0, "Trice16C"},
+		{"TRice32C", 0, "TRice32C"},
+		{"trice64C", 0, "trice64C"},
 
 		{"trice", 1, "trice32_1"},
 		{"trice8", 1, "trice8_1"},
@@ -128,6 +140,8 @@ func TestConstructFullTriceInfo(t *testing.T) {
 		{"TRICE_N", 1, "TRICEN"},
 		{"TRICE_B", 1, "TRICE32B"},
 		{"TRICE_F", 1, ""},
+		{"TRICE_C", 1, ""},
+		{"TRICE8_C", 1, ""},
 		{"triceS", 1, "triceS"},
 		{"triceN", 1, "triceN"},
 
@@ -142,6 +156,8 @@ func TestConstructFullTriceInfo(t *testing.T) {
 		{"trice16F", 1, ""},
 		{"trice32F", 1, ""},
 		{"trice64F", 1, ""},
+		{"triceC", 1, ""},
+		{"trice8C", 1, ""},
 
 		{"trice", 2, "trice32_2"},
 		{"trice8", 2, "trice8_2"},
@@ -354,6 +370,7 @@ func TestSubCmdGenerate(t *testing.T) {
 	previousGenerateTilCS := GenerateTilCS
 	previousGenerateRpcH := GenerateRpcH
 	previousGenerateRpcC := GenerateRpcC
+	previousGenerateABC := GenerateABC
 	previousWriteAllColors := WriteAllColors
 	previousVerbose := Verbose
 	t.Cleanup(func() {
@@ -362,6 +379,7 @@ func TestSubCmdGenerate(t *testing.T) {
 		GenerateTilCS = previousGenerateTilCS
 		GenerateRpcH = previousGenerateRpcH
 		GenerateRpcC = previousGenerateRpcC
+		GenerateABC = previousGenerateABC
 		WriteAllColors = previousWriteAllColors
 		Verbose = previousVerbose
 	})
@@ -377,6 +395,7 @@ func TestSubCmdGenerate(t *testing.T) {
 	GenerateTilCS = false
 	GenerateRpcH = false
 	GenerateRpcC = false
+	GenerateABC = ""
 	WriteAllColors = false
 
 	var w bytes.Buffer

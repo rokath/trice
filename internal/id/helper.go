@@ -204,7 +204,7 @@ func ProcessAliases() {
 	suffix := `\b` // Word boundary after macro name
 
 	// Core TRICE pattern (without closing \b)
-	baseTricePattern := `(?i)\bTRICE(?:0|_0|Assert\w*|(?:8|16|32|64)*(?:_*[0-9SNBF]*)*)`
+	baseTricePattern := `(?i)\bTRICE(?:0|_0|Assert\w*|(?:8|16|32|64)*(?:_*[0-9SNBFC]*)*)`
 
 	// Combine static and dynamic aliases
 	merged := append(TriceAliases, TriceSAliases...)
@@ -382,6 +382,9 @@ func (p *idData) join(err error) {
 }
 
 func triceTypeCategory(typeName string) string {
+	if abcTypeInfo(typeName).isABC {
+		return "C"
+	}
 	upper := strings.ToUpper(typeName)
 	if strings.Contains(upper, "ASSERT") {
 		return "Assert"
@@ -408,6 +411,10 @@ func validateTriceFormatSpecifierKinds(t TriceFmt, specs []fmtspec.Spec) error {
 	case "S", "N":
 		if len(specs) == 1 && !isTriceStringFormatSpecifier(specs[0]) {
 			return fmt.Errorf("%v should use a string format specifier", t)
+		}
+	case "C":
+		if len(specs) != 0 {
+			return fmt.Errorf("%v should use a command name without format specifiers", t)
 		}
 	default:
 		if hasFormatSpecifierKind(specs, fmtspec.KindString) {
@@ -549,6 +556,24 @@ func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) 
 		}
 		if cnt != 2 {
 			return fmt.Errorf("line %d %v should have exactly two parameters and not %d", line, t, cnt)
+		}
+	case "C":
+		if err := validateTriceFormatSpecifierKinds(t, specs); err != nil {
+			return fmt.Errorf("line %d %w", line, err)
+		}
+		info := abcTypeInfo(t.Type)
+		if !info.isABC {
+			return fmt.Errorf("line %d %v is not a valid ABC macro type", line, t)
+		}
+		want := 0
+		if info.bitWidth != 0 {
+			want = 2
+		}
+		if info.stampBits != 0 {
+			want++
+		}
+		if cnt != want {
+			return fmt.Errorf("line %d %v should have exactly %d ABC parameter(s) after the format string and not %d", line, t, want, cnt)
 		}
 	default:
 		if category == "Assert" { // matches triceAssert*

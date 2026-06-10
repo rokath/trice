@@ -4,6 +4,7 @@ package args
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
@@ -21,7 +22,21 @@ func RenderHelpText(helpArgs ...string) (string, error) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	args := append([]string{"trice", "help"}, helpArgs...)
 	err := Handler(&out, fSys, args)
-	return out.String(), err
+	return normalizeGeneratedHelpWhitespace(out.String()), err
+}
+
+// normalizeGeneratedHelpWhitespace keeps new generated help lines free of
+// space-before-tab whitespace without reformatting the historical help file.
+func normalizeGeneratedHelpWhitespace(s string) string {
+	replacements := map[string]string{
+		"    \tCreate or use <target>_abc.h and regenerate <target>_abc.c for Trice ABC receive handling.":        "        Create or use <target>_abc.h and regenerate <target>_abc.c for Trice ABC receive handling.",
+		"    \tCreate a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.": "        Create a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.",
+		"    \tCreate a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.": "        Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.",
+	}
+	for old, newText := range replacements {
+		s = strings.ReplaceAll(s, old, newText)
+	}
+	return s
 }
 
 func resetHelpGenerationDefaults() {

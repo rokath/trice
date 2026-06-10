@@ -499,6 +499,10 @@ func TestTriceFunctionStyleConvertersAndTrice0(t *testing.T) {
 	p.pFmt = "plain"
 	n = p.trice0(b, 0, 0)
 	assert.Equal(t, "plain", string(b[:n]))
+
+	p.pFmt = "cmd:plain"
+	n = p.triceC(b, 0, 0)
+	assert.Equal(t, "cmd:plain\n", string(b[:n]))
 }
 
 // TestTriceWordStyleConvertersRejectMisalignedParamSpace verifies that stale
@@ -520,6 +524,9 @@ func TestTriceWordStyleConvertersRejectMisalignedParamSpace(t *testing.T) {
 		{"trice16F", "TRICE16F", "F", p.trice16F},
 		{"trice32F", "TRICE32F", "F", p.trice32F},
 		{"trice64F", "TRICE64F", "F", p.trice64F},
+		{"trice16C", "TRICE16C", "%04x", p.trice16F},
+		{"trice32C", "TRICE32C", "%08x", p.trice32F},
+		{"trice64C", "TRICE64C", "%016x", p.trice64F},
 	}
 
 	for _, tc := range tests {
@@ -662,6 +669,8 @@ func TestPrintTestTableLine(t *testing.T) {
 // TestSpecialCaseHelpers verifies the expected behavior.
 func TestSpecialCaseHelpers(t *testing.T) {
 	assert.True(t, isSpecialCaseTriceType("trice8_b"))
+	assert.True(t, isSpecialCaseTriceType("trice8_c"))
+	assert.True(t, isSpecialCaseTriceType("trice8c"))
 	assert.False(t, isSpecialCaseTriceType("trice16_2"))
 
 	prefix, itemFmt, addNL := splitChannelFormat("CH:%d\\n")
