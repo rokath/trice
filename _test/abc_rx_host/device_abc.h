@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: MIT
-
-// TRICE_INSERT_OFF - Trice parser exclusion marker
+//! \file device_abc.h
+//! Trice ABC selection file for target device.
+//! Generated once; edit this file to select received ABC commands.
 
 #ifndef DEVICE_ABC_H_
 #define DEVICE_ABC_H_
@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 void rx_no_payload(const triceAbcRx_t* rx);
+void rx_i8_bulk(const triceAbcRx_t* rx);
 void rx_i16(const triceAbcRx_t* rx);
 void rx_i32(const triceAbcRx_t* rx);
 void rx_i64(const triceAbcRx_t* rx);

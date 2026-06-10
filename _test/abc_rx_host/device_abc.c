@@ -1,42 +1,17 @@
-// SPDX-License-Identifier: MIT
-
-// TRICE_INSERT_OFF - Trice parser exclusion marker
+//! \file device_abc.c
+//! Trice generated ABC code - do not edit!
 
 #include "device_abc.h"
+#include "triceAbcReceive.h"
 
-// triceAbcCall_rx_no_payload adapts the generated table callback to the local handler.
-static void triceAbcCall_rx_no_payload(const triceAbcRx_t* rx) {
-	rx_no_payload(rx);
-}
-
-// triceAbcCall_rx_i16 adapts the generated table callback to the local handler.
-static void triceAbcCall_rx_i16(const triceAbcRx_t* rx) {
-	rx_i16(rx);
-}
-
-// triceAbcCall_rx_i32 adapts the generated table callback to the local handler.
-static void triceAbcCall_rx_i32(const triceAbcRx_t* rx) {
-	rx_i32(rx);
-}
-
-// triceAbcCall_rx_i64 adapts the generated table callback to the local handler.
-static void triceAbcCall_rx_i64(const triceAbcRx_t* rx) {
-	rx_i64(rx);
-}
-
-// triceAbcCall_rx_nested adapts the generated table callback to the nested-call handler.
-static void triceAbcCall_rx_nested(const triceAbcRx_t* rx) {
-	rx_nested(rx);
-}
-
-//! triceAbc is the generated receive table consumed by TriceAbcOnReceive.
 const triceAbc_t triceAbc[] = {
-	{ 1001u, 0u, triceAbcCall_rx_no_payload },
-	{ 1002u, 16u, triceAbcCall_rx_i16 },
-	{ 1003u, 32u, triceAbcCall_rx_i32 },
-	{ 1004u, 64u, triceAbcCall_rx_i64 },
-	{ 1005u, 0u, triceAbcCall_rx_nested },
+	/* Trice type */  /*   id, bitWidth, function pointer */
+	/* TRICe_C    */ {  1001u,   0u, rx_no_payload },
+	/* TRICE8_C   */ {  1006u,   8u, rx_i8_bulk },
+	/* TRICE16_C  */ {  1002u,  16u, rx_i16 },
+	/* TRIce32_C  */ {  1003u,  32u, rx_i32 },
+	/* Trice64C   */ {  1004u,  64u, rx_i64 },
+	/* TRiceC     */ {  1005u,   0u, rx_nested },
 };
 
-//! triceAbcElements is the generated receive table entry count.
 const unsigned triceAbcElements = sizeof(triceAbc) / sizeof(triceAbc[0]);

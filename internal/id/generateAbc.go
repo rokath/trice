@@ -327,31 +327,20 @@ func writeAbcHeader(fSys *afero.Afero, path, filename, target string, commands [
 	return fSys.WriteFile(path, []byte(b.String()), 0o644)
 }
 
-// writeAbcSource regenerates the read-only wrapper table used by TriceAbcOnReceive.
+// writeAbcSource regenerates the read-only ABC selection table used by TriceAbcOnReceive.
 func writeAbcSource(fSys *afero.Afero, path, filename, headerName string, commands []abcCommand) error {
 	var b strings.Builder
 	fmt.Fprintf(&b, "//! \\file %s\n", filename)
 	b.WriteString("//! Trice generated ABC code - do not edit!\n\n")
 	fmt.Fprintf(&b, "#include %q\n", headerName)
 	b.WriteString("#include \"triceAbcReceive.h\"\n\n")
-	seenWrappers := map[string]bool{}
-	for _, cmd := range commands {
-		key := fmt.Sprintf("%s/%d", cmd.name, cmd.bitWidth)
-		if seenWrappers[key] {
-			continue
-		}
-		fmt.Fprintf(&b, "static void triceAbcCall_%s(const triceAbcRx_t* rx) {\n", cmd.name)
-		fmt.Fprintf(&b, "\t%s(rx);\n", cmd.name)
-		b.WriteString("}\n\n")
-		seenWrappers[key] = true
-	}
 	b.WriteString("const triceAbc_t triceAbc[] = {\n")
 	if len(commands) == 0 {
 		b.WriteString("\t{ 0u, 0u, 0 }\n")
 	} else {
-		b.WriteString("\t/* Trice type */  /* id, bitWidth, function pointer */\n")
+		b.WriteString("\t/* Trice type */  /*   id, bitWidth, function pointer */\n")
 		for _, cmd := range commands {
-			fmt.Fprintf(&b, "\t/* %-8s */ { %du, %du, triceAbcCall_%s },\n", cmd.typeName, cmd.id, cmd.bitWidth, cmd.name)
+			fmt.Fprintf(&b, "\t/* %-10s */ { %5du, %3du, %s },\n", cmd.typeName, cmd.id, cmd.bitWidth, cmd.name)
 		}
 	}
 	b.WriteString("};\n\n")

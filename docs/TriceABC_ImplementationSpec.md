@@ -1979,3 +1979,88 @@ The following items are not required for the first implementation:
 - ABC receive core must be buildable without ABC transmit support, normal Trice output buffers, transfer backends, or `TriceStamp16`/`TriceStamp32` dependencies.
 - ABC receive tests call `TriceAbcOnReceive()` with decoded ID/stamp/payload data; encrypted/framed inbound stream receive is a separate integration layer.
 - ABC is a primitive, not a full RPC or distributed-systems framework.
+
+## 23. <a id="appendix-buffer-based-abc-rx-discussion-result"></a>Appendix: Buffer-based ABC RX discussion result
+
+This appendix captures a later design discussion result. It is appended intentionally without rewriting the earlier sections.
+
+### 23.1. Agreed target direction
+
+The preferred first-class ABC receive API direction is a buffer-based entry point that parses one already decoded Trice binary record directly from a caller-provided buffer:
+
+```c
+int TriceAbcOnReceive(const uint8_t* pBuf, int len);
+```
+
+The return value semantics should be:
+
+- `> 0`: success; this many bytes were consumed from `pBuf`
+- `0`: the record was structurally valid ABC input but the ID was not selected locally in `triceAbc[]`
+- `< 0`: parse or validation error
+
+This allows retry on short buffers in `no package framing` style integrations where not all bytes may have arrived yet.
+
+### 23.2. Intended internal processing order
+
+The preferred parsing/dispatch sequence is:
+
+1. `getSelector(...)`
+2. derive `stampBits` from the selector (`0`, `16`, or `32`)
+3. `getID(...)`
+4. search `id` in `triceAbc[]`; return `0` if not found
+5. get expected `bitWidth` from the found `triceAbc[]` entry
+6. `getStamp(...)`
+7. `getCount(...)`
+8. check `len`; if too small, return a negative error value
+9. fill a stack-local `triceAbcRx_t abc`
+10. call the selected user handler `fn_ptr(&abc)`
+11. return the consumed byte count
+
+The parsing helpers are generic runtime helpers, not generated per target.
+
+### 23.3. Source of bit width
+
+The payload element width is a generated local property and should come from `triceAbc[]`, not from the received buffer.
+
+Therefore a helper such as `triceAbcPayloadElementSize()` is considered unnecessary in this model. The runtime can derive the element size directly from the generated `bitWidth` value, for example with `bitWidth / 8`.
+
+### 23.4. Handler context object
+
+The runtime should fill a stack-local `triceAbcRx_t` instance containing only metadata and a payload pointer:
+
+- `id`
+- `stamp`
+- `stampBits`
+- `bitWidth`
+- `payload`
+- `payloadBytes`
+
+The payload bytes themselves should not be copied into a temporary stack buffer. `abc.payload` points directly into `pBuf`. A handler that needs the data later must copy it on its own side.
+
+### 23.5. Handler signature and generated table
+
+The preferred handler signature is:
+
+```c
+void Handler(const triceAbcRx_t* rx);
+```
+
+With that uniform signature, generator-created wrapper functions are considered unnecessary. The generated dispatch table can point directly to the user handlers.
+
+The generator-owned files should be clearly recognizable as generator output. In particular, `<target>_abc.h` and `<target>_abc.c` in tests should look exactly like normal `trice generate -abc=<target>` results, including their file comments and recognizable generated structure.
+
+The generated table shape is expected to stay simple:
+
+```c
+const triceAbc_t triceAbc[] = {
+    /* TRIce32_C */ { 15374u, 32u, FunctionNameYa }
+};
+
+const unsigned triceAbcElements = sizeof(triceAbc) / sizeof(triceAbc[0]);
+```
+
+### 23.6. Runtime placement
+
+The generic ABC receive runtime should stay separate from the generated `<target>_abc.c` data. The target-specific generated files should provide selection and dispatch data, while the parsing and validation logic should remain shared runtime code.
+
+This separation keeps one fix in one place and still allows "ABC receive only" devices to compile with a small dedicated ABC receive module instead of the larger normal Trice output stack.
