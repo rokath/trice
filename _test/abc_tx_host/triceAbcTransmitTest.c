@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-// TRICE_INSERT_OFF - Trice parser exclusion marker
+// TRICE_INSERT_OFF - Trice parser exclusion marker 
+// This is a test file. It must not get the Trice IDs changed!
 
 #include <string.h>
 
