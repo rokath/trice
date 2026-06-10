@@ -9251,9 +9251,21 @@
 		"Type": "TRIce64_C",
 		"Strg": "info:FunctionNameZa"
 	},
+	"15371": {
+		"Type": "TRIce_C",
+		"Strg": "abc:all:GetState"
+	},
+	"15374": {
+		"Type": "TRIce32_C",
+		"Strg": "info:FunctionNameYa"
+	},
 	"15496": {
 		"Type": "Trice32C",
 		"Strg": "rpc:FunctionNameYc"
+	},
+	"15519": {
+		"Type": "TRIce32_C",
+		"Strg": "info:FunctionNameYa"
 	},
 	"15547": {
 		"Type": "TRICe16_C",
@@ -9275,9 +9287,17 @@
 		"Type": "TRICE64_C",
 		"Strg": "info:FunctionNameZa"
 	},
+	"15618": {
+		"Type": "trice16C",
+		"Strg": "call:FunctionNameXd"
+	},
 	"15644": {
 		"Type": "TRice32C",
 		"Strg": "rpc:FunctionNameYb"
+	},
+	"15647": {
+		"Type": "trice8C",
+		"Strg": "call:FunctionNameWd"
 	},
 	"15650": {
 		"Type": "trice16C",
@@ -9311,9 +9331,25 @@
 		"Type": "trice8C",
 		"Strg": "call:FunctionNameWd"
 	},
+	"15827": {
+		"Type": "trice8C",
+		"Strg": "call:FunctionNameWd"
+	},
 	"15837": {
 		"Type": "trice32C",
 		"Strg": "call:FunctionNameYd"
+	},
+	"15849": {
+		"Type": "TRICe_C",
+		"Strg": "abc:all:GetState"
+	},
+	"15893": {
+		"Type": "trice16C",
+		"Strg": "call:FunctionNameXd"
+	},
+	"15917": {
+		"Type": "TRICE_C",
+		"Strg": "abc:all:GetState"
 	},
 	"15976": {
 		"Type": "TRice16C",
@@ -9322,6 +9358,26 @@
 	"15996": {
 		"Type": "TRIce16_C",
 		"Strg": "info:FunctionNameXa"
+	},
+	"16005": {
+		"Type": "triceC",
+		"Strg": "abc:all:GetState"
+	},
+	"16014": {
+		"Type": "TriceC",
+		"Strg": "abc:all:GetState"
+	},
+	"16089": {
+		"Type": "trice8C",
+		"Strg": "call:FunctionNameWd"
+	},
+	"16098": {
+		"Type": "trice16C",
+		"Strg": "call:FunctionNameXd"
+	},
+	"16110": {
+		"Type": "trice64C",
+		"Strg": "RPC:FunctionNameZd"
 	},
 	"16111": {
 		"Type": "TRIce8_C",
@@ -9334,6 +9390,18 @@
 	"16176": {
 		"Type": "TRICE8_C",
 		"Strg": "info:FunctionNameWa"
+	},
+	"16241": {
+		"Type": "TRiceC",
+		"Strg": "abc:all:GetState"
+	},
+	"16246": {
+		"Type": "TRIce32_C",
+		"Strg": "info:FunctionNameYa"
+	},
+	"16268": {
+		"Type": "trice16C",
+		"Strg": "call:FunctionNameXd"
 	},
 	"16326": {
 		"Type": "trice",

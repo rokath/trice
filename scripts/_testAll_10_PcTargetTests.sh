@@ -186,6 +186,15 @@ main() {
     exit 1
   }
 
+  # triceCheck.c is included by the CGO package through generated_cgoPackage.go
+  # from outside the package directories. The Go build cache can otherwise reuse
+  # an older compiled TriceCheck switch while the expected //exp lines are read
+  # from the freshly edited source file.
+  run_cmd go clean -cache -testcache || {
+    log "FAIL: go clean failed"
+    exit 1
+  }
+
   if [ "$selected" = "quick" ]; then
     run_cmd go test ./be_dblB_de_tcobs_ua/... || {
       log "FAIL: quick PC target tests failed"

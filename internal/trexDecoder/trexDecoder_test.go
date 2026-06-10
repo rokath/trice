@@ -499,6 +499,10 @@ func TestTriceFunctionStyleConvertersAndTrice0(t *testing.T) {
 	p.pFmt = "plain"
 	n = p.trice0(b, 0, 0)
 	assert.Equal(t, "plain", string(b[:n]))
+
+	p.pFmt = "cmd:plain"
+	n = p.triceC(b, 0, 0)
+	assert.Equal(t, "cmd:plain\n", string(b[:n]))
 }
 
 // TestTriceWordStyleConvertersRejectMisalignedParamSpace verifies that stale

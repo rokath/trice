@@ -56,6 +56,19 @@ void TriceCheck(int index) {
     // x0Payload uses ascending bytes so expected output exposes packet boundaries.
     static uint8_t x0Payload[24] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
 #endif
+#if TRICE_ABC_TRANSMIT_SUPPORT == 1
+    static int8_t b8_21[21] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8 };
+    static int8_t b8_22[22] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9 };
+    static int8_t b8_23[23] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10 };
+    static int16_t b16_0[] = { };
+    static int16_t b16_1[] = { 0x3344 };
+    static int16_t b16_2[] = { -2, 0x3344 };
+    static int16_t b16_3[] = { -1, -2, 0x3344 };
+    static int32_t b32_1[] = { 0x33445555};
+    static int32_t b32_2[] = { -2, 0x33445555};
+    static int32_t b32_3[] = { -1, -2, 0x33445555};
+    static int64_t b64_3[] = { -1, -2, 0x3344555566666666 };
+#endif
     static int16_t b16[] = { 0, -1, -2, 0x3344 };
     static int32_t b32[] = { 0, -1, -2, 0x33445555};
     static int64_t b64[4] = { 0, -1, -2, 0x3344555566666666 };
@@ -440,30 +453,47 @@ void TriceCheck(int index) {
         break; case __LINE__: trice64B(" %016x\n", b64, sizeof(b64) /sizeof(int64_t)  );         //exp: "time:        default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666\n"
         break; case __LINE__: trice64B("SIG: %016x\n", b64, sizeof(b64) /sizeof(int64_t)  );     //exp: "time:        default: SIG: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666\n"
 #if TRICE_ABC_TRANSMIT_SUPPORT == 1
+        break; case __LINE__: TRICE_C(iD(0), "abc:all:GetState",  0xc0de1234 );                                         //exp: "time:c0de1234default: abc:all:GetState\n"
+        break; case __LINE__: TRICe_C(iD(0), "abc:all:GetState",      0x6116 );                                         //exp: "time:    6116default: abc:all:GetState\n"
+        break; case __LINE__: TRIce_C(iD(0), "abc:all:GetState"              );                                         //exp: "time:        default: abc:all:GetState\n"
+        break; case __LINE__: TRiceC(        "abc:all:GetState",  0xc0de1234 );                                         //exp: "time:c0de1234default: abc:all:GetState\n"
+        break; case __LINE__: TriceC(        "abc:all:GetState",      0x6116 );                                         //exp: "time:    6116default: abc:all:GetState\n"
+        break; case __LINE__: triceC(        "abc:all:GetState"              );                                         //exp: "time:        default: abc:all:GetState\n"
         break; case __LINE__: TRICE8_C(iD(0), "info:FunctionNameWa",  0xc0de1234, b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:c0de1234default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
         break; case __LINE__: TRICe8_C(iD(0), "info:FunctionNameWa",      0x6116, b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:    6116default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
         break; case __LINE__: TRIce8_C(iD(0), "info:FunctionNameWa",              b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:        default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
-        break; case __LINE__: TRice8C("call:FunctionNameWb",   0xc0de1234, b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:c0de1234default: call:FunctionNameWb(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
-        break; case __LINE__: Trice8C("call:FunctionNameWc",       0x6116, b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:    6116default: call:FunctionNameWc(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
-        break; case __LINE__: trice8C("call:FunctionNameWd",               b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:        default: call:FunctionNameWd(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: TRice8C("call:FunctionNameWb",          0xc0de1234, b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:c0de1234default: call:FunctionNameWb(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: Trice8C("call:FunctionNameWc",              0x6116, b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:    6116default: call:FunctionNameWc(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: trice8C("call:FunctionNameWd",                      b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:        default: call:FunctionNameWd(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
+        break; case __LINE__: trice8C("call:FunctionNameWd",                   b8_23,  sizeof(b8_23) /sizeof(int8_t) ); //exp: "time:        default: call:FunctionNameWd(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)\n"
+        break; case __LINE__: trice8C("call:FunctionNameWd",                   b8_22,  sizeof(b8_22) /sizeof(int8_t) ); //exp: "time:        default: call:FunctionNameWd(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)\n"
+        break; case __LINE__: trice8C("call:FunctionNameWd",                   b8_21,  sizeof(b8_21) /sizeof(int8_t) ); //exp: "time:        default: call:FunctionNameWd(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)\n"
         break; case __LINE__: TRICE16_C(iD(0), "info:FunctionNameXa", 0xc0de1234, b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:c0de1234default: info:FunctionNameXa(0000)(ffff)(fffe)(3344)\n"
         break; case __LINE__: TRICe16_C(iD(0), "info:FunctionNameXa",     0x6116, b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:    6116default: info:FunctionNameXa(0000)(ffff)(fffe)(3344)\n"
         break; case __LINE__: TRIce16_C(iD(0), "info:FunctionNameXa",             b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:        default: info:FunctionNameXa(0000)(ffff)(fffe)(3344)\n"
-        break; case __LINE__: TRice16C("call:FunctionNameXb",  0xc0de1234, b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:c0de1234default: call:FunctionNameXb(0000)(ffff)(fffe)(3344)\n"
-        break; case __LINE__: Trice16C("call:FunctionNameXc",      0x6116, b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:    6116default: call:FunctionNameXc(0000)(ffff)(fffe)(3344)\n"
-        break; case __LINE__: trice16C("call:FunctionNameXd",              b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:        default: call:FunctionNameXd(0000)(ffff)(fffe)(3344)\n"
+        break; case __LINE__: TRice16C("call:FunctionNameXb",         0xc0de1234, b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:c0de1234default: call:FunctionNameXb(0000)(ffff)(fffe)(3344)\n"
+        break; case __LINE__: Trice16C("call:FunctionNameXc",             0x6116, b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:    6116default: call:FunctionNameXc(0000)(ffff)(fffe)(3344)\n"
+        break; case __LINE__: trice16C("call:FunctionNameXd",                 b16_0, sizeof(b16_0)/sizeof(int16_t) );   //exp: "time:        default: call:FunctionNameXd\n"
+        break; case __LINE__: trice16C("call:FunctionNameXd",                 b16_1, sizeof(b16_1)/sizeof(int16_t) );   //exp: "time:        default: call:FunctionNameXd(3344)\n"
+        break; case __LINE__: trice16C("call:FunctionNameXd",                 b16_2, sizeof(b16_2)/sizeof(int16_t) );   //exp: "time:        default: call:FunctionNameXd(fffe)(3344)\n"
+        break; case __LINE__: trice16C("call:FunctionNameXd",                 b16_3, sizeof(b16_3)/sizeof(int16_t) );   //exp: "time:        default: call:FunctionNameXd(ffff)(fffe)(3344)\n"
+        break; case __LINE__: trice16C("call:FunctionNameXd",                     b16, sizeof(b16)/sizeof(int16_t) );   //exp: "time:        default: call:FunctionNameXd(0000)(ffff)(fffe)(3344)\n"
         break; case __LINE__: TRICE32_C(iD(0), "info:FunctionNameYa", 0xc0de1234, b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:c0de1234default: info:FunctionNameYa(00000000)(ffffffff)(fffffffe)(33445555)\n"
         break; case __LINE__: TRICe32_C(iD(0), "info:FunctionNameYa",     0x6116, b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:    6116default: info:FunctionNameYa(00000000)(ffffffff)(fffffffe)(33445555)\n"
+        break; case __LINE__: TRIce32_C(iD(0), "info:FunctionNameYa",           b32_1, sizeof(b32_1)/sizeof(int32_t) ); //exp: "time:        default: info:FunctionNameYa(33445555)\n"
+        break; case __LINE__: TRIce32_C(iD(0), "info:FunctionNameYa",           b32_2, sizeof(b32_2)/sizeof(int32_t) ); //exp: "time:        default: info:FunctionNameYa(fffffffe)(33445555)\n"
+        break; case __LINE__: TRIce32_C(iD(0), "info:FunctionNameYa",           b32_3, sizeof(b32_3)/sizeof(int32_t) ); //exp: "time:        default: info:FunctionNameYa(ffffffff)(fffffffe)(33445555)\n"
         break; case __LINE__: TRIce32_C(iD(0), "info:FunctionNameYa",             b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:        default: info:FunctionNameYa(00000000)(ffffffff)(fffffffe)(33445555)\n"
-        break; case __LINE__: TRice32C("rpc:FunctionNameYb",   0xc0de1234, b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:c0de1234default: rpc:FunctionNameYb(00000000)(ffffffff)(fffffffe)(33445555)\n"
-        break; case __LINE__: Trice32C("rpc:FunctionNameYc",       0x6116, b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:    6116default: rpc:FunctionNameYc(00000000)(ffffffff)(fffffffe)(33445555)\n"
-        break; case __LINE__: trice32C("call:FunctionNameYd",              b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:        default: call:FunctionNameYd(00000000)(ffffffff)(fffffffe)(33445555)\n"
+        break; case __LINE__: TRice32C("rpc:FunctionNameYb",          0xc0de1234, b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:c0de1234default: rpc:FunctionNameYb(00000000)(ffffffff)(fffffffe)(33445555)\n"
+        break; case __LINE__: Trice32C("rpc:FunctionNameYc",              0x6116, b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:    6116default: rpc:FunctionNameYc(00000000)(ffffffff)(fffffffe)(33445555)\n"
+        break; case __LINE__: trice32C("call:FunctionNameYd",                     b32, sizeof(b32)/sizeof(int32_t) );   //exp: "time:        default: call:FunctionNameYd(00000000)(ffffffff)(fffffffe)(33445555)\n"
         break; case __LINE__: TRICE64_C(iD(0), "info:FunctionNameZa", 0xc0de1234, b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:c0de1234default: info:FunctionNameZa(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
         break; case __LINE__: TRICe64_C(iD(0), "info:FunctionNameZa",     0x6116, b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:    6116default: info:FunctionNameZa(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
         break; case __LINE__: TRIce64_C(iD(0), "info:FunctionNameZa",             b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:        default: info:FunctionNameZa(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
-        break; case __LINE__: TRice64C("call:FunctionNameZb",  0xc0de1234, b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:c0de1234default: call:FunctionNameZb(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
-        break; case __LINE__: Trice64C("RPC:FunctionNameZc",       0x6116, b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:    6116default: RPC:FunctionNameZc(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
-        break; case __LINE__: trice64C("RPC:FunctionNameZd",               b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:        default: RPC:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
+        break; case __LINE__: TRice64C("call:FunctionNameZb",         0xc0de1234, b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:c0de1234default: call:FunctionNameZb(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
+        break; case __LINE__: Trice64C("RPC:FunctionNameZc",              0x6116, b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:    6116default: RPC:FunctionNameZc(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
+        break; case __LINE__: trice64C("RPC:FunctionNameZd",                  b64_3, sizeof(b64_3)/sizeof(int64_t) );   //exp: "time:        default: RPC:FunctionNameZd(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
+        break; case __LINE__: trice64C("RPC:FunctionNameZd",                      b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:        default: RPC:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
 #endif // #if TRICE_ABC_TRANSMIT_SUPPORT == 1
 #if TRICE_LEGACY_RPC_SUPPORT == 1
         break; case __LINE__: TRICE8_F(ID(0), "info:FunctionNameWa", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:feed3322default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"

@@ -689,6 +689,7 @@ type triceTypeFn struct {
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE_0", (*trexDec).trice0, 0, 0, 0},
+	{"TRICEC", (*trexDec).triceC, 0, 0, 0},
 	{"TRICE8_1", (*trexDec).unSignedOrSignedOut, 1, 8, 1},
 	{"TRICE8_2", (*trexDec).unSignedOrSignedOut, 2, 8, 2},
 	{"TRICE8_3", (*trexDec).unSignedOrSignedOut, 3, 8, 3},
@@ -955,6 +956,11 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 // trice0 prints the trice format string.
 func (p *trexDec) trice0(b []byte, _ int, _ int) int {
 	return copy(b, fmt.Sprint(p.pFmt))
+}
+
+// triceC prints a no-payload ABC command as one complete output line.
+func (p *trexDec) triceC(b []byte, _ int, _ int) int {
+	return copy(b, fmt.Sprintln(p.pFmt))
 }
 
 // unSignedOrSignedOut prints p.B according to the format string.
