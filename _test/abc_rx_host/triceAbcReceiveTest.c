@@ -261,7 +261,7 @@ int TriceAbcRxHostCheck(int n) {
 	}
 	case 10: {
 		uint8_t payload[130];
-		uint8_t record[136];
+		uint8_t record[140]; // 2 header + 4 stamp + 2 nc + 130 payload = 138, aligned to 4 = 140
 		for (int i = 0; i < (int)sizeof(payload); i++) {
 			payload[i] = (uint8_t)i;
 		}

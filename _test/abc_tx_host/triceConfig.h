@@ -11,6 +11,7 @@ extern "C" {
 
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_ABC_TRANSMIT_SUPPORT 1
+#define TRICE_CYCLE_COUNTER 0 // No Trice library linked, this way we avoid missing TriceCycle.
 
 extern uint32_t abcTxWords[];
 extern uint32_t abcTxLength;
