@@ -9239,6 +9239,26 @@
 		"Type": "Trice",
 		"Strg": "ok!\\n"
 	},
+	"15310": {
+		"Type": "trice8C",
+		"Strg": "call:FunctionNameWd"
+	},
+	"15311": {
+		"Type": "TRIce32_C",
+		"Strg": "info:FunctionNameYa"
+	},
+	"15312": {
+		"Type": "trice64C",
+		"Strg": "RPC:FunctionNameZd"
+	},
+	"15313": {
+		"Type": "trice64C",
+		"Strg": "RPC:FunctionNameZd"
+	},
+	"15314": {
+		"Type": "trice64C",
+		"Strg": "RPC:FunctionNameZd"
+	},
 	"15339": {
 		"Type": "Trice16C",
 		"Strg": "call:FunctionNameXc"
