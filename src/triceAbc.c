@@ -9,7 +9,11 @@
 
 #if TRICE_ABC_RECEIVE_SUPPORT == 1
 
-//! triceAbcReadU16 reads one 16-bit transfer-order value from p.
+//! triceAbcReadU16 reads one 16-bit Trice transfer-order value from p.
+//!
+//! The value is assembled byte-wise, so the code is independent of MCU byte
+//! order and works also for unaligned input data. The byte order used here is
+//! the Trice transfer order, selected by TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN.
 static uint16_t triceAbcReadU16(const uint8_t* p) {
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
 	return (uint16_t)(((uint16_t)p[0] << 8) | (uint16_t)p[1]);
@@ -18,12 +22,22 @@ static uint16_t triceAbcReadU16(const uint8_t* p) {
 #endif
 }
 
-//! triceAbcReadU32 reads one 32-bit transfer-order value from p.
+//! triceAbcReadU32 reads one 32-bit Trice transfer-order value from p.
+//!
+//! The value is assembled byte-wise, so the code is independent of MCU byte
+//! order and works also for unaligned input data. The byte order used here is
+//! the Trice transfer order, selected by TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN.
 static uint32_t triceAbcReadU32(const uint8_t* p) {
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
-	return ((uint32_t)triceAbcReadU16(p) << 16) | (uint32_t)triceAbcReadU16(p + 2);
+	return ((uint32_t)p[0] << 24) |
+	       ((uint32_t)p[1] << 16) |
+	       ((uint32_t)p[2] << 8) |
+	       (uint32_t)p[3];
 #else
-	return (uint32_t)triceAbcReadU16(p) | ((uint32_t)triceAbcReadU16(p + 2) << 16);
+	return ((uint32_t)p[0]) |
+	       ((uint32_t)p[1] << 8) |
+	       ((uint32_t)p[2] << 16) |
+	       ((uint32_t)p[3] << 24);
 #endif
 }
 
