@@ -53,6 +53,85 @@ static const triceAbc_t* triceAbcFind(uint16_t id) {
 
 //! TriceAbcOnReceive parses one decoded Trice record and calls the selected local handler directly.
 int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
+	triceAbcRx_t abc = {0};
+	const triceAbc_t* entry;
+	uint16_t w;
+	int offset = 2;
+
+	if (pBuf == 0 || len < 4) {
+		return TRICE_ABC_RX_E_SHORT;
+	}
+
+	w = triceAbcReadU16(pBuf);
+	abc.id = (uint16_t)(w & 0x3FFFu);
+
+	entry = triceAbcFind(abc.id);
+	if (entry == 0) {
+		return TRICE_ABC_RX_IGNORED;
+	}
+
+	abc.bitWidth = entry->bitWidth;
+
+	switch ((uint8_t)(w >> 14)) { // selector bits 
+	case 1u: // no stamp
+		abc.stampBits = 0u;
+		break;
+
+	case 2u: // 16-bit stamp
+		abc.stampBits = 16u;
+#if TRICE_DOUBLED_16BIT_ID == 1
+		offset += 2;
+#endif
+		if (len < offset + 2) {
+			return TRICE_ABC_RX_E_SHORT;
+		}
+		abc.stamp = (uint32_t)triceAbcReadU16(pBuf + offset);
+		offset += 2;
+		break;
+
+	case 3u: // 32-bit stamp
+		abc.stampBits = 32u;
+		if (len < offset + 4) {
+			return TRICE_ABC_RX_E_SHORT;
+		}
+		abc.stamp = triceAbcReadU32(pBuf + offset);
+		offset += 4;
+		break;
+
+	default:
+		return TRICE_ABC_RX_E_SELECTOR;
+	}
+
+	if (len < offset + 2) {
+		return TRICE_ABC_RX_E_SHORT;
+	}
+
+	w = triceAbcReadU16(pBuf + offset); // nc
+	offset += 2;
+
+	abc.payloadBytes = (w & 0x8000u) ? (uint16_t)(w & 0x7FFFu) : (uint16_t)(w >> 8);
+
+	if (len < offset + (int)abc.payloadBytes) {
+		return TRICE_ABC_RX_E_SHORT;
+	}
+
+	if (abc.payloadBytes != 0u) {
+		if (abc.bitWidth > 8u && (abc.payloadBytes & (uint16_t)((abc.bitWidth >> 3) - 1u)) != 0u) {
+			return TRICE_ABC_RX_E_PAYLOAD;
+		}
+		abc.payload = pBuf + offset;
+	}
+
+	if (entry->fn == 0) {
+		return TRICE_ABC_RX_E_HANDLER;
+	}
+	entry->fn(&abc);
+	return offset + (int)abc.payloadBytes;
+}
+
+/*
+//! TriceAbcOnReceive parses one decoded Trice record and calls the selected local handler directly.
+int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	uint16_t firstWord;
 	uint16_t id;
 	uint16_t payloadBytes;
@@ -142,5 +221,5 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	entry->fn(&abc);
 	return logicalLen;
 }
-
+*/
 #endif // #if TRICE_ABC_RECEIVE_SUPPORT == 1
