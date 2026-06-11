@@ -2,7 +2,7 @@
 
 // TRICE_INSERT_OFF - Trice parser exclusion marker
 
-//! \file triceAbc.c
+//! \file triceAbcReceive.c
 //! \brief Trice ABC receive runtime.
 
 #include "triceAbcReceive.h"
@@ -55,20 +55,6 @@ static int triceAbcPayloadIsValid(uint8_t bitWidth, uint16_t payloadBytes) {
 	}
 }
 
-//! triceAbcConsumedLen returns the logical record length plus optional zero padding up to the next 32-bit boundary.
-static int triceAbcConsumedLen(const uint8_t* pBuf, int len, int logicalLen) {
-	int alignedLen = (logicalLen + 3) & ~3;
-	if (alignedLen > len) {
-		return logicalLen;
-	}
-	for (int i = logicalLen; i < alignedLen; i++) {
-		if (pBuf[i] != 0u) {
-			return logicalLen;
-		}
-	}
-	return alignedLen;
-}
-
 //! TriceAbcOnReceive parses one decoded Trice record and calls the selected local handler directly.
 int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	uint16_t firstWord;
@@ -89,9 +75,17 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	}
 
 	firstWord = triceAbcReadU16(pBuf);
-	selector = (uint8_t)(firstWord >> 14);
 	id = (uint16_t)(firstWord & 0x3FFFu);
 
+	entry = triceAbcFind(id);
+	if (entry == 0) {
+		return TRICE_ABC_RX_IGNORED;
+	}
+	if (entry->fn == 0) {
+		return TRICE_ABC_RX_E_HANDLER;
+	}
+	
+	selector = (uint8_t)(firstWord >> 14);
 	switch (selector) {
 	case 1u:
 		stampBits = 0u;
@@ -114,14 +108,6 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		break;
 	default:
 		return TRICE_ABC_RX_E_SELECTOR;
-	}
-
-	entry = triceAbcFind(id);
-	if (entry == 0) {
-		return TRICE_ABC_RX_IGNORED;
-	}
-	if (entry->fn == 0) {
-		return TRICE_ABC_RX_E_HANDLER;
 	}
 
 	if (len < offset + 2) {
@@ -151,7 +137,7 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	abc.payload = payload;
 	abc.payloadBytes = payloadBytes;
 	entry->fn(&abc);
-	return triceAbcConsumedLen(pBuf, len, logicalLen);
+	return logicalLen;
 }
 
 #endif // #if TRICE_ABC_RECEIVE_SUPPORT == 1
