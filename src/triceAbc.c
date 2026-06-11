@@ -92,6 +92,12 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		break;
 	case 2u:
 		stampBits = 16u;
+		#if TRICE_DOUBLED_16BIT_ID == 1
+		if (len < 8) {
+			return TRICE_ABC_RX_E_SHORT;
+		}
+		offset += 2;
+		#endif // #if TRICE_DOUBLED_16BIT_ID == 1
 		if (len < 6) {
 			return TRICE_ABC_RX_E_SHORT;
 		}
