@@ -37,24 +37,6 @@ static const triceAbc_t* triceAbcFind(uint16_t id) {
 	return 0;
 }
 
-//! triceAbcPayloadIsValid validates payloadBytes against the generated bitWidth.
-static int triceAbcPayloadIsValid(uint8_t bitWidth, uint16_t payloadBytes) {
-	switch (bitWidth) {
-	case 0:
-		return payloadBytes == 0u;
-	case 8:
-		return 1;
-	case 16:
-		return (payloadBytes % 2u) == 0u;
-	case 32:
-		return (payloadBytes % 4u) == 0u;
-	case 64:
-		return (payloadBytes % 8u) == 0u;
-	default:
-		return 0;
-	}
-}
-
 //! TriceAbcOnReceive parses one decoded Trice record and calls the selected local handler directly.
 int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	uint16_t firstWord;
@@ -131,10 +113,11 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	if (logicalLen > len) {
 		return TRICE_ABC_RX_E_SHORT;
 	}
-	if (!triceAbcPayloadIsValid(entry->bitWidth, payloadBytes)) {
-		return (entry->bitWidth == 0u || entry->bitWidth == 8u || entry->bitWidth == 16u || entry->bitWidth == 32u || entry->bitWidth == 64u) ? TRICE_ABC_RX_E_PAYLOAD : TRICE_ABC_RX_E_BIT_WIDTH;
-	}
-
+    if (payloadBytes != 0u && entry->bitWidth > 8u &&
+        (payloadBytes & ((entry->bitWidth >> 3) - 1u)) != 0u) {
+        return TRICE_ABC_RX_E_PAYLOAD;
+    }
+	
 	payload = payloadBytes == 0u ? 0 : (pBuf + offset);
 	abc.id = id;
 	abc.stampBits = stampBits;
