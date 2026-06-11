@@ -16,6 +16,10 @@
 #define TRICE_ABC_RECEIVE_SUPPORT 0
 #endif
 
+#ifndef TRICE_DOUBLED_16BIT_ID
+#define TRICE_DOUBLED_16BIT_ID 0
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
