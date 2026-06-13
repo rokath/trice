@@ -52,8 +52,11 @@ static const triceAbc_t* triceAbcFind(uint16_t id) {
 }
 
 //! TriceAbcOnReceive parses one decoded Trice record and calls the selected local handler directly.
+//! It returns the used or not used logical byte count or a negative error value.
+//! If an entry in triceAbc[] is executed, is not visible in this function signature.
+//! The return values are only used for buffer parsing, to make it easy to parse a byte stream.
 int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
-	triceAbcRx_t abc = {0};
+	triceAbcRx_t abc; // For optimization we not assign {0}.
 	const triceAbc_t* entry;
 	uint16_t w;
 	int offset = 2;
@@ -62,19 +65,13 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		return TRICE_ABC_RX_E_SHORT;
 	}
 
-	w = triceAbcReadU16(pBuf);
+	w = triceAbcReadU16(pBuf); // selector & id
 	abc.id = (uint16_t)(w & 0x3FFFu);
 
-	entry = triceAbcFind(abc.id);
-	if (entry == 0) {
-		return TRICE_ABC_RX_IGNORED;
-	}
-
-	abc.bitWidth = entry->bitWidth;
-
-	switch ((uint8_t)(w >> 14)) { // selector bits 
+	switch (w >> 14) { // selector bits 
 	case 1u: // no stamp
 		abc.stampBits = 0u;
+		abc.stamp = 0;
 		break;
 
 	case 2u: // 16-bit stamp
@@ -85,7 +82,7 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		if (len < offset + 2) {
 			return TRICE_ABC_RX_E_SHORT;
 		}
-		abc.stamp = (uint32_t)triceAbcReadU16(pBuf + offset);
+		abc.stamp = triceAbcReadU16(pBuf + offset);
 		offset += 2;
 		break;
 
@@ -98,128 +95,36 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		offset += 4;
 		break;
 
-	default:
-		return TRICE_ABC_RX_E_SELECTOR;
+	default: // only 0 possible
+#if TRICE_X0_COUNTED_BUFFER_SUPPORT == 1
+		return w; // a counted typeX0 packet
+#else
+		return TRICE_ABC_RX_E_PAYLOAD;
+#endif
 	}
 
 	if (len < offset + 2) {
 		return TRICE_ABC_RX_E_SHORT;
 	}
-
 	w = triceAbcReadU16(pBuf + offset); // nc
 	offset += 2;
-
+	// No cycle counter check here, to keep it simple.
 	abc.payloadBytes = (w & 0x8000u) ? (uint16_t)(w & 0x7FFFu) : (uint16_t)(w >> 8);
-
 	if (len < offset + (int)abc.payloadBytes) {
 		return TRICE_ABC_RX_E_SHORT;
 	}
+	abc.payload = pBuf + offset;
 
-	if (abc.payloadBytes != 0u) {
-		if (abc.bitWidth > 8u && (abc.payloadBytes & (uint16_t)((abc.bitWidth >> 3) - 1u)) != 0u) {
+	entry = triceAbcFind(abc.id);
+	if (entry->fn != 0) { 
+		abc.bitWidth = entry->bitWidth;
+		if (((uint16_t)((abc.bitWidth >> 3) - 1u)) & abc.payloadBytes != 0u) {
 			return TRICE_ABC_RX_E_PAYLOAD;
 		}
-		abc.payload = pBuf + offset;
+		entry->fn(&abc);
 	}
 
-	if (entry->fn == 0) {
-		return TRICE_ABC_RX_E_HANDLER;
-	}
-	entry->fn(&abc);
 	return offset + (int)abc.payloadBytes;
 }
 
-/*
-//! TriceAbcOnReceive parses one decoded Trice record and calls the selected local handler directly.
-int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
-	uint16_t firstWord;
-	uint16_t id;
-	uint16_t payloadBytes;
-	uint16_t nc;
-	uint8_t selector;
-	uint8_t stampBits;
-	uint32_t stamp = 0u;
-	int offset = 2;
-	int logicalLen;
-	const uint8_t* payload;
-	const triceAbc_t* entry;
-	triceAbcRx_t abc;
-
-	if (pBuf == 0 || len < 4) {
-		return TRICE_ABC_RX_E_SHORT;
-	}
-
-	firstWord = triceAbcReadU16(pBuf);
-	id = (uint16_t)(firstWord & 0x3FFFu);
-
-	entry = triceAbcFind(id);
-	if (entry == 0) {
-		return TRICE_ABC_RX_IGNORED;
-	}
-	if (entry->fn == 0) {
-		return TRICE_ABC_RX_E_HANDLER;
-	}
-	
-	selector = (uint8_t)(firstWord >> 14);
-	switch (selector) {
-	case 1u:
-		stampBits = 0u;
-		break;
-	case 2u:
-		stampBits = 16u;
-		#if TRICE_DOUBLED_16BIT_ID == 1
-		if (len < 8) {
-			return TRICE_ABC_RX_E_SHORT;
-		}
-		offset += 2;
-		#endif // #if TRICE_DOUBLED_16BIT_ID == 1
-		if (len < 6) {
-			return TRICE_ABC_RX_E_SHORT;
-		}
-		stamp = (uint32_t)triceAbcReadU16(pBuf + offset);
-		offset += 2;
-		break;
-	case 3u:
-		stampBits = 32u;
-		if (len < 8) {
-			return TRICE_ABC_RX_E_SHORT;
-		}
-		stamp = triceAbcReadU32(pBuf + offset);
-		offset += 4;
-		break;
-	default:
-		return TRICE_ABC_RX_E_SELECTOR;
-	}
-
-	if (len < offset + 2) {
-		return TRICE_ABC_RX_E_SHORT;
-	}
-	nc = triceAbcReadU16(pBuf + offset);
-	offset += 2;
-	if ((nc & 0x8000u) != 0u) {
-		payloadBytes = (uint16_t)(nc & 0x7FFFu);
-	} else {
-		payloadBytes = (uint16_t)(nc >> 8);
-	}
-
-	logicalLen = offset + (int)payloadBytes;
-	if (logicalLen > len) {
-		return TRICE_ABC_RX_E_SHORT;
-	}
-    if (payloadBytes != 0u && entry->bitWidth > 8u &&
-        (payloadBytes & ((entry->bitWidth >> 3) - 1u)) != 0u) {
-        return TRICE_ABC_RX_E_PAYLOAD;
-    }
-	
-	payload = payloadBytes == 0u ? 0 : (pBuf + offset);
-	abc.id = id;
-	abc.stampBits = stampBits;
-	abc.bitWidth = entry->bitWidth;
-	abc.stamp = stamp;
-	abc.payload = payload;
-	abc.payloadBytes = payloadBytes;
-	entry->fn(&abc);
-	return logicalLen;
-}
-*/
 #endif // #if TRICE_ABC_RECEIVE_SUPPORT == 1

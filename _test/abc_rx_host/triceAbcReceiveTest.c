@@ -220,7 +220,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 9999u, 32u, 0x01020304u, 0, 0u, 1);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == TRICE_ABC_RX_IGNORED);
+		rxFailUnless(result == 8);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
