@@ -196,7 +196,7 @@ main() {
   }
 
   if [ "$selected" = "quick" ]; then
-    run_cmd go test ./be_dblB_de_tcobs_ua/... || {
+    run_cmd go test ./abc_rx_host/... ./abc_tx_host/... ./be_dblB_de_tcobs_ua/... || {
       log "FAIL: quick PC target tests failed"
       exit 1
     }

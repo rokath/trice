@@ -171,7 +171,7 @@ void rx_nested(const triceAbcRx_t* rx) {
 	rxFailUnless(rx->stampBits == 32u);
 	rxFailUnless(rx->stamp == 0x11111111u);
 	used = rxBuildAbcRecord(nested, 1001u, 16u, 0x2222u, 0, 0u, 1);
-	rxFailUnless(TriceAbcOnReceive(nested, used) == used);
+	rxFailUnless(TriceAbcOnReceive(nested, used) == 6);
 	rxFailUnless(rx->stampBits == 32u);
 	rxFailUnless(rx->stamp == 0x11111111u);
 }
@@ -181,15 +181,15 @@ int TriceAbcRxHostCheck(int n) {
 	int result;
 	rxReset(n);
 	switch (n) {
-	case 1: {
+	case 1: { // Selected no-payload ABC with 16-bit stamp returns logical length without padding.
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1001u, 16u, 0x0000beefu, 0, 0u, 1);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == used);
+		rxFailUnless(result == 6);
 		rxFailUnless(rxCalls == 1);
 		break;
 	}
-	case 2: {
+	case 2: { // Selected int16 payload ABC with 32-bit stamp dispatches one aligned payload record.
 		int16_t payload[2] = { 123, -456 };
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1002u, 32u, 0x12345678u, payload, (uint16_t)sizeof(payload), 0);
@@ -198,7 +198,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rxCalls == 1);
 		break;
 	}
-	case 3: {
+	case 3: { // Selected int32 payload ABC without stamp dispatches one no-stamp record.
 		int32_t payload[1] = { 0x11223344 };
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
@@ -207,33 +207,33 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rxCalls == 1);
 		break;
 	}
-	case 4: {
+	case 4: { // Selected int64 payload ABC with 16-bit stamp returns logical length without padding.
 		int64_t payload[1] = { (int64_t)0x1122334455667788ll };
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1004u, 16u, 0x8877u, payload, (uint16_t)sizeof(payload), 1);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == used);
+		rxFailUnless(result == 14);
 		rxFailUnless(rxCalls == 1);
 		break;
 	}
-	case 5: {
+	case 5: { // Unknown ABC ID is parsed but ignored without executing a handler.
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 9999u, 32u, 0x01020304u, 0, 0u, 1);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == TRICE_ABC_RX_IGNORED);
+		rxFailUnless(result == 8);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
-	case 6: {
+	case 6: { // Selector 0 is rejected as payload error when counted typeX0 support is disabled.
 		uint8_t record[4];
 		rxPutU16(record, 0x0001u);
 		rxPutU16(record + 2, 0x00c0u);
 		result = TriceAbcOnReceive(record, 4);
-		rxFailUnless(result == TRICE_ABC_RX_E_SELECTOR);
+		rxFailUnless(result == TRICE_ABC_RX_E_PAYLOAD);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
-	case 7: {
+	case 7: { // Misaligned int32 payload size is rejected before handler execution.
 		uint8_t payload[2] = { 1u, 2u };
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
@@ -242,7 +242,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
-	case 8: {
+	case 8: { // Truncated selected record is rejected before handler execution.
 		int16_t payload[2] = { 123, -456 };
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1002u, 32u, 0x12345678u, payload, (uint16_t)sizeof(payload), 0);
@@ -251,7 +251,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
-	case 9: {
+	case 9: { // Nested ABC dispatch executes inner and outer handlers without corrupting outer context.
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1005u, 32u, 0x11111111u, 0, 0u, 0);
 		result = TriceAbcOnReceive(record, used);
@@ -259,14 +259,16 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rxCalls == 2);
 		break;
 	}
-	case 10: {
+	case 10: { // Long-count int8 payload dispatch returns logical length without appended padding.
 		uint8_t payload[130];
-		uint8_t record[140]; // 2 header + 4 stamp + 2 nc + 130 payload = 138, aligned to 4 = 140
+		uint8_t record[140];
+		int used;
 		for (int i = 0; i < (int)sizeof(payload); i++) {
 			payload[i] = (uint8_t)i;
 		}
-		result = rxBuildAbcRecord(record, 1006u, 32u, 0x55667788u, payload, (uint16_t)sizeof(payload), 1);
-		rxFailUnless(TriceAbcOnReceive(record, result) == result);
+		used = rxBuildAbcRecord(record, 1006u, 32u, 0x55667788u, payload, (uint16_t)sizeof(payload), 1);
+		result = TriceAbcOnReceive(record, used);
+		rxFailUnless(result == 138);
 		rxFailUnless(rxCalls == 1);
 		break;
 	}

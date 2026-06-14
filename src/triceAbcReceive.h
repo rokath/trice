@@ -16,6 +16,18 @@
 #define TRICE_ABC_RECEIVE_SUPPORT 0
 #endif
 
+#ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
+#define TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN 0
+#endif
+
+#ifndef TRICE_DOUBLED_16BIT_ID
+#define TRICE_DOUBLED_16BIT_ID 0
+#endif
+
+#ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT
+#define TRICE_X0_COUNTED_BUFFER_SUPPORT 0
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -43,13 +55,8 @@ typedef struct {
 } triceAbc_t;
 
 enum {
-	TRICE_ABC_RX_IGNORED = 0,
-	TRICE_ABC_RX_EXECUTED = 1,
-	TRICE_ABC_RX_E_SHORT = -1,
-	TRICE_ABC_RX_E_SELECTOR = -2,
-	TRICE_ABC_RX_E_BIT_WIDTH = -3,
-	TRICE_ABC_RX_E_PAYLOAD = -4,
-	TRICE_ABC_RX_E_HANDLER = -5,
+	TRICE_ABC_RX_E_SHORT = -1, //!< Not enough bytes in buffer. Try calling TriceAbcOnReceive again, when more bytes available.
+	TRICE_ABC_RX_E_PAYLOAD = -2, //!< Some serious error in buffer interpretation. Discard and try again.
 };
 
 extern const triceAbc_t triceAbc[];

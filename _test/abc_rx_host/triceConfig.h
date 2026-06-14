@@ -9,10 +9,7 @@
 extern "C" {
 #endif
 
-#define TRICE_OFF 1
-#define TRICE_ABC_TRANSMIT_SUPPORT 0
 #define TRICE_ABC_RECEIVE_SUPPORT 1
-#define TRICE_LEGACY_RPC_SUPPORT 0
 
 #ifdef __cplusplus
 }
