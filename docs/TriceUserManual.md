@@ -5321,7 +5321,8 @@ This syntax is supported: `%[flags][width][.precision][length]`
 ## 36. <a id="trice-abc---asynchronous-broadcast-commands"></a>Trice ABC - Asynchronous Broadcast Commands
 
 ```diff
---> WORK IN PROGRESS - NOT USABLE YET ❗
+--> EXPERIMENTAL
++   Tests PASS, so it should work. +
 ```
 
 ### 36.1. <a id="trice-abc-in-one-minute"></a>Trice ABC in one minute
