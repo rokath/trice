@@ -56,7 +56,7 @@ static const triceAbc_t* triceAbcFind(uint16_t id) {
 //! If an entry in triceAbc[] is executed, is not visible in this function signature.
 //! The return values are only used for buffer parsing, to make it easy to parse a byte stream.
 int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
-	triceAbcRx_t abc; // For optimization we not assign {0}.
+	triceAbcRx_t abc = {0};
 	const triceAbc_t* entry;
 	uint16_t w;
 	int offset = 2;
@@ -68,10 +68,10 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	w = triceAbcReadU16(pBuf); // selector & id
 	abc.id = (uint16_t)(w & 0x3FFFu);
 
-	switch (w >> 14) { // selector bits 
+	switch (w >> 14) { // selector bits
 	case 1u: // no stamp
-		abc.stampBits = 0u;
-		abc.stamp = 0;
+		// abc.stampBits is 0u
+		// abc.stamp is 0u
 		break;
 
 	case 2u: // 16-bit stamp
@@ -106,21 +106,39 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	if (len < offset + 2) {
 		return TRICE_ABC_RX_E_SHORT;
 	}
+
 	w = triceAbcReadU16(pBuf + offset); // nc
 	offset += 2;
+
 	// No cycle counter check here, to keep it simple.
 	abc.payloadBytes = (w & 0x8000u) ? (uint16_t)(w & 0x7FFFu) : (uint16_t)(w >> 8);
+
 	if (len < offset + (int)abc.payloadBytes) {
 		return TRICE_ABC_RX_E_SHORT;
 	}
-	abc.payload = pBuf + offset;
+
+	// abc.payload is 0
+	if (abc.payloadBytes != 0u) {
+		abc.payload = pBuf + offset;
+	}
 
 	entry = triceAbcFind(abc.id);
-	if (entry->fn != 0) { 
+	if (entry != 0 && entry->fn != 0) {
 		abc.bitWidth = entry->bitWidth;
-		if (((uint16_t)((abc.bitWidth >> 3) - 1u)) & abc.payloadBytes != 0u) {
-			return TRICE_ABC_RX_E_PAYLOAD;
+
+		if (abc.payloadBytes != 0u) {
+			// Payload with bitWidth 0 is invalid. No-payload records may use bitWidth 0.
+			if (abc.bitWidth == 0u) {
+				return TRICE_ABC_RX_E_PAYLOAD;
+			}
+		
+			// Multi-byte payload elements must be complete elements.
+			if (abc.bitWidth > 8u &&
+			    (abc.payloadBytes & (uint16_t)((abc.bitWidth >> 3) - 1u)) != 0u) {
+				return TRICE_ABC_RX_E_PAYLOAD;
+			}
 		}
+
 		entry->fn(&abc);
 	}
 

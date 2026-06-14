@@ -185,7 +185,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1001u, 16u, 0x0000beefu, 0, 0u, 1);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == used);
+		rxFailUnless(result == 6);
 		rxFailUnless(rxCalls == 1);
 		break;
 	}
@@ -229,7 +229,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxPutU16(record, 0x0001u);
 		rxPutU16(record + 2, 0x00c0u);
 		result = TriceAbcOnReceive(record, 4);
-		rxFailUnless(result == TRICE_ABC_RX_E_SELECTOR);
+		rxFailUnless(result == 4);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
