@@ -123,6 +123,7 @@ This timestamp switch generates the timestamps on the PC only (reception time), 
 	info := `Case insensitive receiver device name: 'serial name|JLINK|STLINK|FILE|FILEBUFFER|TCP4|TCP4BUFFER|DEC|BUFFER|HEX|DUMP.
 The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.
 Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
+See CLI switch -args for details.
 `
 	fsScLog.StringVar(&receiver.Port, "port", "J-LINK", info)           // flag
 	fsScLog.StringVar(&receiver.Port, "p", "J-LINK", "short for -port") // short flag
