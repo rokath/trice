@@ -1,4 +1,4 @@
-# BcSim
+# BcSim - Broadcast Simulator
 
 `BcSim` is a small, standalone C module for Trice broadcast simulations. It
 implements a visible file-backed byte stream that several PC applications can use
