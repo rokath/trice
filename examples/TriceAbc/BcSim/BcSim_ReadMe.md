@@ -148,7 +148,7 @@ That range is later used by `bcSimRead()` to filter the process' own writes.
 
 All devices read the same bus file, so a process would naturally see its own
 writes again. This module does not filter by byte content and does not require
-BC stamps. It filters by bus-file offsets.
+Trice ABC stamps. It filters by bus-file offsets.
 
 When a process writes bytes, the module records the exact file range that was
 appended. Later, while reading, bytes in that range are consumed internally but
