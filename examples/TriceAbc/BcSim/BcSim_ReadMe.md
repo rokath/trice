@@ -70,8 +70,8 @@ The module does not know about:
 
 ```text
 Trice IDs
-BC handler tables
-BC stamps
+Trice ABC handler tables
+Trice ABC stamps
 COBS or TCOBS
 XTEA
 record boundaries
