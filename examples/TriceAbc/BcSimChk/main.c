@@ -16,10 +16,10 @@
  * by bcSimWrite().
  *
  * This check program deliberately writes random byte blocks with random lengths.
- * A real Trice broadcast-command simulation would replace buildRandomPayload() with a tiny
- * BC/TCOBS/COBS/XTEA transmit layer and would feed received bytes into the
- * corresponding decoder before calling the Trice receive runtime. The BcSim module
- * itself remains unchanged because it transports only bytes.
+ * A real protocol demo would replace buildRandomPayload() with its own
+ * byte-producing layer and would feed received bytes into the corresponding
+ * parser. The BcSim module itself remains unchanged because it transports only
+ * bytes.
  */
 
 #include "BcSim.h"

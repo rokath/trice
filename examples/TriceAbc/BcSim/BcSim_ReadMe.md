@@ -1,299 +1,154 @@
-# BcSim - Broadcast Simulator
+# BcSim
 
-`BcSim` is a small, standalone C module for Trice broadcast simulations. It
-implements a visible file-backed byte stream that several PC applications can use
-as a simple broadcast medium.
+`BcSim` is a small, standalone C module for simulating a broadcast byte stream
+with ordinary files. Several PC applications can append bytes to the same bus
+file and can poll the file for bytes appended by other applications.
 
-The package is intentionally split into two directories:
+The module is intentionally protocol-neutral. It does not know message IDs,
+packet boundaries, framing, encryption, source addresses, commands, or handlers. It only transports bytes and optionally writes a
+human-readable traffic log.
+
+## Files
+
+A typical demo using `BcSim` creates these runtime files:
+
+```text
+bc.bus        binary append-only bus file
+bc.log        optional human-readable hex log
+bc.bus.lock/  temporary writer lock directory
+```
+
+`bc.bus` contains exactly the bytes passed to `bcSimWrite()`. No device name,
+status text, length field, time value, or other metadata is inserted into the
+binary bus file.
+
+`bc.log` is only for humans. It can show which application wrote or read which
+bytes, together with an optional status string.
+
+## Directory split
 
 ```text
 BcSim/
     BcSim_config.h
     BcSim.h
     BcSim.c
+    BcSim_ReadMe.md
 
 BcSimChk/
     main.c
     build.sh
-    build.bat
     demo.sh
 ```
 
-`BcSim` is the reusable part. It contains only the byte-stream I/O module and its
-configuration header. It can later be reused for Trice broadcast-command demo applications
-without pulling in the `BcSimChk` example program.
+`BcSim/` is the reusable library part. `BcSimChk/` is only a small check program
+that demonstrates the library with random byte blocks. The check program is not
+needed by applications that reuse `BcSim` as their own byte-stream medium.
 
-`BcSimChk` is only a check and demonstration program. It builds one binary that can be
-started several times with different names.
+## Design
 
-## Design goal
+Each process owns one `BcSim_t` object.
 
-The module exists to make a Trice broadcast-command simulation easy to understand. It avoids
-a TCP hub, UDP multicast, Bluetooth setup, embedded hardware, or board simulator.
-All participating applications share one binary append-only file:
+- `bcSimOpen()` opens a local view of the bus and initializes the read offset to
+  the current end of the bus file.
+- `bcSimWrite()` appends bytes to the bus file and remembers the written file
+  offset range.
+- `bcSimRead()` reads newly appended bytes and filters out ranges written by the
+  same `BcSim_t` object.
+- `bcSimClose()` closes the local view and resets the state.
 
-```text
-bc.bus
-```
+The self-echo filter is based on file offsets, not on byte comparison. This is
+important because two applications may write identical byte sequences, and a
+single application may intentionally write the same bytes more than once.
 
-Every application writes bytes to this file. Every application also polls the
-file size and reads bytes that other applications appended.
+## Writer locking
 
-The important rule is:
+Writers are serialized with an atomically created lock directory. For a bus file
+named `bc.bus`, the lock directory is `bc.bus.lock/`.
 
-```text
-bc.bus contains only the bytes passed to bcSimWrite().
-```
-
-The file does not contain device names, status strings, timestamps, length
-fields, or any other demo metadata. This matters because a later Trice broadcast-command demo
-can put real Trice-compatible bytes into `bc.bus` and inspect the same file with
-a Trice FILE input mode.
-
-Human-readable diagnostics go into a separate file:
+A write operation uses this sequence:
 
 ```text
-bc.log
+create lock directory
+get current bus file size
+append bytes to bus file
+remember own [start,end) range
+append optional TX line to log file
+remove lock directory
 ```
 
-## Layering
-
-`BcSim` is deliberately below Trice and below packet framing:
-
-```text
-bcSimRead/bcSimWrite  ->  shared byte stream over bc.bus
-optional decode layer     ->  none, COBS, TCOBS, XTEA, ...
-Trice decoder / BC RX    ->  the Trice receive runtime
-```
-
-The module does not know about:
-
-```text
-Trice IDs
-Trice ABC handler tables
-Trice ABC stamps
-COBS or TCOBS
-XTEA
-record boundaries
-payload types
-```
-
-It transports only bytes.
-
-## Public API
-
-```c
-int bcSimOpen(BcSim_t* io,
-                const char* busPath,
-                const char* logPath,
-                const char* deviceName);
-
-int bcSimRead(BcSim_t* io,
-                uint8_t* p,
-                size_t max,
-                const char* status);
-
-int bcSimWrite(BcSim_t* io,
-                 const uint8_t* p,
-                 size_t n,
-                 const char* status);
-
-void bcSimClose(BcSim_t* io);
-
-const char* bcSimErrorString(int err);
-```
-
-`status` is optional. It is used only in `bc.log`. It may be `NULL` or an empty
-string.
-
-## Opening a device-side view
-
-`bcSimOpen()` initializes one device-side handle and sets:
-
-```c
-io->readOffset = current_size_of_abc_bus;
-```
-
-This is deliberate. A newly started device joins the live bus and does not replay
-historical traffic. That is the correct default for a normal device.
-
-A special replay or monitor tool can explicitly set:
-
-```c
-io.readOffset = 0;
-```
-
-after `bcSimOpen()`. Normal device programs should not expose this as a casual
-CLI option because historical own messages cannot be recognized after restart.
-The self-echo filter only knows the ranges written by the current process during
-the current run.
-
-## Writing
-
-`bcSimWrite()` appends the given byte sequence unchanged to `bc.bus`:
-
-```c
-bcSimWrite(&io, bytes, byteCount, "tx-0");
-```
-
-The function also remembers the written file-offset range:
-
-```text
-[start, start + byteCount)
-```
-
-That range is later used by `bcSimRead()` to filter the process' own writes.
-
-## Self-echo filtering
-
-All devices read the same bus file, so a process would naturally see its own
-writes again. This module does not filter by byte content and does not require
-Trice ABC stamps. It filters by bus-file offsets.
-
-When a process writes bytes, the module records the exact file range that was
-appended. Later, while reading, bytes in that range are consumed internally but
-not returned to the caller.
-
-This is safer than comparing byte sequences because different devices may send
-identical byte payloads, and because a process' own write is not necessarily the
-next thing it reads.
+Directory creation is used because it is simple and available on common local PC
+filesystems. If several processes try to create the same lock directory, exactly
+one succeeds and the others retry until the timeout expires.
 
 ## Reading
 
-`bcSimRead()` reads newly appended bytes and returns only foreign bytes:
+By default, `bcSimRead()` does not acquire the writer lock. It may therefore see
+partial data while another process is writing. That is intentional for streamlike
+demos: higher protocol layers should be able to buffer incomplete input and
+retry when more bytes arrive.
+
+For deterministic checks, define:
 
 ```c
-uint8_t buf[1024];
-int n = bcSimRead(&io, buf, sizeof(buf), "poll");
+#define BCSIM_READ_USES_LOCK 1
 ```
 
-The returned bytes are not packet-aligned by this module. A call may return a
-partial upper-layer packet or several upper-layer packets. The layer above
-`BcSim` must buffer and decode its selected stream format.
+Then `bcSimRead()` waits for the same lock used by writers.
 
-This is intentional because it is close to real stream transports such as UART,
-TCP, or ordinary files.
+## Log format
 
-## Read locking
+`bc.log` starts with a short header and then uses one line per TX or RX event.
+Offsets and lengths are right-aligned without leading zeroes. Bytes are printed
+as space-separated two-digit lowercase hexadecimal values.
 
-By default, reads do not acquire the writer lock:
-
-```c
-#define BCSIM_READ_USES_LOCK 0
-```
-
-This means a reader may observe bytes while another process is appending. The
-upper framing/decoder layer must handle incomplete data. This is normally the
-best behavior for a stream-oriented demonstration.
-
-For deterministic experiments, read locking can be enabled in
-`BcSim/BcSim_config.h` or via compiler flags:
-
-```sh
-CFLAGS="-DBCSIM_READ_USES_LOCK=1" ./build.sh
-```
-
-## Write locking
-
-Writers are serialized by an atomically created lock directory:
-
-```text
-bc.bus.lock/
-```
-
-The write sequence is:
-
-```text
-1. create bc.bus.lock directory
-2. determine current size of bc.bus
-3. append the byte sequence to bc.bus
-4. remember the own offset range
-5. append a TX line to bc.log
-6. remove bc.bus.lock directory
-```
-
-Creating a directory is used because it is simple and works on local POSIX and
-Windows filesystems. If another process already holds the lock, the writer waits
-for a short configured interval and then tries again.
-
-## Diagnostic log
-
-`bc.log` is optional. It is independent from `bc.bus` and is meant only for
-humans. It contains a short header and one line per logged TX or RX chunk.
-
-Offsets and lengths are decimal and right-aligned. Bytes are hexadecimal and
-keep leading zeros:
+Example:
 
 ```text
 # BcSim traffic log
-# bc.bus is a pure binary byte stream. This text log is diagnostic only.
-# offset and len are decimal values. Bytes are hexadecimal %02x values.
-#   offset  len device       dir status               bytes
-# -------- ---- ------------ --- -------------------- --------------------------------
-         0   11 A            TX  tx-0                 91 60 7b 1a 70 37 4b d7 03 40 9d
-        11   23 B            TX  tx-0                 25 e1 35 0a d5 0d 20 ef ...
-        11   23 A            RX  poll-1               25 e1 35 0a d5 0d 20 ef ...
+# bus file: bc.bus
+# Columns: offset, len, device, direction, status, bytes
+#  offset    len  device            dir  status                  bytes
+# -------  -----  ----------------  ---  ----------------------  ----------------
+      0      12  A                 TX   tx-0                    35 6a 11 8e ...
+     12      12  B                 RX   poll-1                  35 6a 11 8e ...
 ```
 
-The same bus bytes may appear several times as RX lines because every device has
-its own view of the broadcast medium. That is useful for a demonstration: the log
-shows which device saw which bytes.
+## API overview
 
-## Building the check program
+```c
+int bcSimOpen(BcSim_t* io,
+              const char* busPath,
+              const char* logPath,
+              const char* deviceName);
 
-On Linux, macOS, WSL, MSYS2, MinGW Git Bash, or Cygwin:
+int bcSimRead(BcSim_t* io,
+              uint8_t* p,
+              size_t max,
+              const char* status);
 
-```sh
-cd BcSimChk
-./build.sh
+int bcSimWrite(BcSim_t* io,
+               const uint8_t* p,
+               size_t n,
+               const char* status);
+
+void bcSimClose(BcSim_t* io);
 ```
 
-With Microsoft `cl.exe` from a Developer Command Prompt:
+All functions return either a non-negative byte count or a negative `BCSIM_ERR_*`
+value, except `bcSimClose()`, which has no return value.
 
-```bat
-cd BcSimChk
-build.bat
-```
+## Limitations
 
-## Running the check demo
+`BcSim` is a local demonstration transport. It is not a high-performance IPC
+system and not a replacement for a real embedded communication link.
 
-The easiest check is:
+Notable limitations:
 
-```sh
-cd BcSimChk
-./demo.sh
-```
-
-The script builds the check binary, removes old `bc.bus` and `bc.log`, starts
-four instances of the same binary, waits for them to finish, and then prints the
-log and a hex dump of the binary bus file.
-
-Manual run:
-
-```sh
-cd BcSimChk
-rm -f bc.bus bc.log
-rm -rf bc.bus.lock
-./build/bcSimDevice -name A
-./build/bcSimDevice -name B
-./build/bcSimDevice -name C
-```
-
-Each instance sends random byte blocks with random lengths between 4 and 32
-bytes. This keeps the check program generic and avoids looking like a text-chat
-protocol.
-
-## Relation to a future Trice broadcast-command demo
-
-For a real Trice broadcast-command simulation, keep `BcSim` unchanged and replace only the
-check program's random payload generation. The future demo application would
-produce real Trice-compatible bytes, write them through `bcSimWrite()`, read
-foreign bytes through `bcSimRead()`, decode the selected stream format, and
-then call `the Trice receive runtime`.
-
-The important property remains:
-
-```text
-bc.bus is the complete visible byte stream.
-bc.log is only the human-readable side log.
-```
+- The bus file grows until the demo script removes it.
+- The self-echo filter remembers only a finite number of own write ranges.
+- A restarted process cannot recognize byte ranges written by a previous
+  instance of itself.
+- Lock cleanup after a killed writer may require manual removal of the lock
+  directory.
+- Network filesystems may not provide the same atomicity and notification
+  behavior as local filesystems.

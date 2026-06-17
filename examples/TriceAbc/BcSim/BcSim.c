@@ -7,17 +7,17 @@
 /*
  * BcSim.c
  *
- * File-backed byte-stream transport for Trice broadcast simulations.
+ * File-backed byte-stream transport for local broadcast simulations.
  *
  * The design goal is maximum clarity and minimum demo-specific code in the
  * device applications. Several PC processes share one append-only binary file,
  * normally named bc.bus. Each process writes byte chunks to the end of the
  * file and polls the file for bytes appended by other processes.
  *
- * This module deliberately does not know about Trice packet formats. It does
- * not frame records, deframe COBS/TCOBS, decrypt XTEA, decode Trice IDs, or
- * call BC handlers. It only provides a visible byte-stream medium and a small
- * amount of demo convenience:
+ * This module deliberately does not know about packet formats. It does
+ * not frame records, decrypt data, decode message IDs, or call handlers. It
+ * only provides a visible byte-stream medium and a small amount of demo
+ * convenience:
  *
  *   - append-only writes to bc.bus,
  *   - writer serialization by atomic lock directory,

@@ -4,29 +4,23 @@
 /*
  * BcSim.h
  *
- * Small file-backed byte-stream transport for Trice broadcast simulations.
+ * Small file-backed byte-stream transport for local broadcast simulations.
  *
  * Several PC applications share one append-only binary file, usually bc.bus.
  * Each application appends bytes to that file and periodically reads bytes that
  * other applications appended. This models a simple broadcast medium without a
- * network stack, hub process, real embedded hardware, or simulator setup.
+ * network stack, hub process, real hardware, or board simulator setup.
  *
- * This module is intentionally independent from Trice. It does not know Trice
- * IDs, BC handler tables, COBS/TCOBS framing, XTEA encryption, or packet
- * boundaries. It only transports bytes. The intended stack is:
- *
- *   bcSimRead/bcSimWrite  ->  shared byte stream over bc.bus
- *   optional decode layer     ->  none, COBS, TCOBS, XTEA, ...
- *   Trice decoder / BC RX    ->  the Trice receive runtime
+ * BcSim is protocol-neutral. It does not know packet formats, message IDs,
+ * handler tables, framing, encryption, or packet boundaries. It only transports
+ * bytes. Higher layers are responsible for interpreting the byte stream.
  *
  * Important rule:
  *
  *   bc.bus contains exactly and only the bytes passed to bcSimWrite().
  *
- * No device name, status text, length prefix, timestamp, or other demo metadata
- * is inserted into bc.bus. This keeps the file usable as input for tools that
- * understand the selected Trice byte stream format, for example a Trice FILE
- * input mode. Human-readable diagnostics are written to bc.log instead.
+ * No device name, status text, length prefix, time value, or other demo metadata
+ * is inserted into bc.bus. Human-readable diagnostics are written to bc.log.
  */
 
 #include "BcSim_config.h"
@@ -57,10 +51,11 @@ typedef struct {
 } bcSimRange_t;
 
 /*
- * State of one device-side view of the shared bus file.
+ * State of one process-side view of the bus file.
  *
  * The structure is intentionally public and fixed-size. This avoids dynamic
- * allocation and allows advanced demo code to inspect or adjust fields.
+ * allocation and allows advanced demo code to inspect or adjust fields, for
+ * example readOffset in a replay or monitor program.
  */
 typedef struct {
     char busPath[BCSIM_PATH_MAX];
@@ -72,12 +67,12 @@ typedef struct {
      * Current read position in bc.bus.
      *
      * bcSimOpen() initializes this to the current bus file size. Therefore a
-     * newly started device does not replay historical messages by default. It
-     * only receives bytes appended after it joined the demo bus.
+     * newly started process does not replay historical bytes by default. It
+     * only receives bytes appended after it joined the bus.
      *
-     * A special replay/monitor application may set readOffset manually after
-     * bcSimOpen(). Normal device programs should not casually expose such a
-     * mode because historical own messages cannot be recognized after restart.
+     * A special replay/monitor program may set readOffset manually after
+     * bcSimOpen(). Normal participants should not casually expose such a mode
+     * because historical own writes cannot be recognized after restart.
      */
     uint64_t readOffset;
 
@@ -89,9 +84,9 @@ typedef struct {
 } BcSim_t;
 
 /*
- * bcSimOpen initializes one device-side bus handle.
+ * bcSimOpen initializes one process-side bus handle.
  *
- * busPath    Path to the shared binary bus file, for example "bc.bus".
+ * busPath    Path to the binary bus file, for example "bc.bus".
  * logPath    Path to the optional human-readable log file, for example
  *            "bc.log". Pass NULL or an empty string to disable text logging.
  * deviceName Name printed into bc.log. Pass NULL or empty for "?".
@@ -101,41 +96,40 @@ typedef struct {
  * fresh demonstration.
  *
  * readOffset is initialized to the current size of busPath. This is deliberate:
- * a newly started device joins the live bus and does not process old messages.
+ * a newly started participant joins the live bus and does not process old data.
  */
 int bcSimOpen(BcSim_t* io,
-                const char* busPath,
-                const char* logPath,
-                const char* deviceName);
+              const char* busPath,
+              const char* logPath,
+              const char* deviceName);
 
 /*
- * bcSimRead reads newly appended bytes from the shared bus file.
+ * bcSimRead reads newly appended bytes from the bus file.
  *
  * The function returns only bytes written by other processes. Bytes previously
- * appended by this same handle through bcSimWrite() are consumed internally
- * and filtered by bus-file offset. This is the self-echo filter.
+ * appended by this same handle through bcSimWrite() are consumed internally and
+ * filtered by bus-file offset. This is the self-echo filter.
  *
  * The function does not interpret packet boundaries. It may return any positive
- * number of bytes up to max. The layer above this module must buffer and decode
- * its own framing format, for example raw Trice records, COBS/TCOBS frames, or
- * XTEA-protected frames.
+ * number of bytes up to max. The layer above this module must buffer and parse
+ * its own stream format.
  *
- * With the default configuration BCSIM_READ_USES_LOCK == 0, bcSimRead()
- * does not acquire the write lock. This means it may read bytes while another
- * process is appending. That is intentional because it exercises the same
- * incomplete-chunk handling that a real stream transport requires.
+ * With the default configuration BCSIM_READ_USES_LOCK == 0, bcSimRead() does not
+ * acquire the write lock. This means it may read bytes while another process is
+ * appending. That is intentional because it exercises the same incomplete-chunk
+ * handling that a real stream transport requires.
  *
  * status is optional and appears only in bc.log RX lines. It may be NULL or
  * empty. The returned value is the number of bytes copied into p, 0 if no
  * foreign bytes are currently available, or a negative BCSIM_ERR_* value.
  */
 int bcSimRead(BcSim_t* io,
-                uint8_t* p,
-                size_t max,
-                const char* status);
+              uint8_t* p,
+              size_t max,
+              const char* status);
 
 /*
- * bcSimWrite appends exactly n bytes to the shared bus file.
+ * bcSimWrite appends exactly n bytes to the bus file.
  *
  * Writers are serialized with an atomically created lock directory derived from
  * busPath, for example "bc.bus.lock". The function remembers the written
@@ -145,13 +139,13 @@ int bcSimRead(BcSim_t* io,
  * bc.bus receives only p[0..n-1]. The status string and device name are not
  * written to bc.bus; they are used only in bc.log.
  *
- * The function returns n on success, 0 for n == 0, or a negative
- * BCSIM_ERR_* value.
+ * The function returns n on success, 0 for n == 0, or a negative BCSIM_ERR_*
+ * value.
  */
 int bcSimWrite(BcSim_t* io,
-                 const uint8_t* p,
-                 size_t n,
-                 const char* status);
+               const uint8_t* p,
+               size_t n,
+               const char* status);
 
 /*
  * bcSimClose releases local state.

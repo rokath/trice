@@ -5,11 +5,8 @@
  * BcSim_config.h
  *
  * Configuration for the standalone BcSim byte-stream transport.
- *
- * This file is intentionally separate from BcSim.h so the BcSim directory
- * can later be copied into a Trice broadcast-command simulation without pulling in the BcSimChk
- * example program. Keep these values conservative and portable; the module is a
- * demonstration transport, not a high-throughput production IPC layer.
+ * Keep these values conservative and portable. The module is a demonstration
+ * transport, not a high-throughput production IPC layer.
  */
 
 /* Maximum length including the terminating zero for bus, log, and lock paths. */
@@ -40,10 +37,10 @@
 /*
  * If 0, bcSimRead() does not acquire the writer lock. This is the default
  * because upper stream/framing layers should be able to handle incomplete input,
- * as they would have to do for real UART/TCP/file streaming transports.
+ * as they would have to do for real streaming transports.
  *
- * If 1, bcSimRead() acquires the same lock used by bcSimWrite(). This makes
- * the check program more deterministic but is less representative of a stream
+ * If 1, bcSimRead() acquires the same lock used by bcSimWrite(). This makes the
+ * check program more deterministic but is less representative of a stream
  * transport where partial data may become visible.
  */
 #ifndef BCSIM_READ_USES_LOCK
