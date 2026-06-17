@@ -1,6 +1,15 @@
 #if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+/*
+ * macOS hides some C/POSIX declarations unless one of the Darwin feature-test
+ * macros is enabled before including system headers. This keeps snprintf(),
+ * nanosleep(), and related declarations visible for strict C99 builds.
+ */
 #define _DARWIN_C_SOURCE
 #elif !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+/*
+ * On POSIX-like systems request POSIX.1-2008 declarations before including
+ * headers. Windows uses its own API branches below and must not receive this.
+ */
 #define _POSIX_C_SOURCE 200809L
 #endif
 
@@ -10,14 +19,13 @@
  * File-backed byte-stream transport for local broadcast simulations.
  *
  * The design goal is maximum clarity and minimum demo-specific code in the
- * device applications. Several PC processes share one append-only binary file,
- * normally named bc.bus. Each process writes byte chunks to the end of the
+ * participant applications. Several PC processes share one append-only binary
+ * file, normally named bc.bus. Each process writes byte chunks to the end of the
  * file and polls the file for bytes appended by other processes.
  *
- * This module deliberately does not know about packet formats. It does
- * not frame records, decrypt data, decode message IDs, or call handlers. It
- * only provides a visible byte-stream medium and a small amount of demo
- * convenience:
+ * This module deliberately does not know about packet formats. It does not
+ * frame records, decrypt data, decode message IDs, or call handlers. It only
+ * provides a visible byte-stream medium and a small amount of demo convenience:
  *
  *   - append-only writes to bc.bus,
  *   - writer serialization by atomic lock directory,
@@ -41,12 +49,14 @@
 #if defined(_WIN32)
 #include <direct.h>
 #include <windows.h>
+/* Platform adapter: create and remove a directory with Windows C runtime calls. */
 #define BCSIM_MKDIR(path) _mkdir(path)
 #define BCSIM_RMDIR(path) _rmdir(path)
 #else
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+/* Platform adapter: create and remove a directory with POSIX calls. */
 #define BCSIM_MKDIR(path) mkdir(path, 0777)
 #define BCSIM_RMDIR(path) rmdir(path)
 #endif
@@ -54,8 +64,10 @@
 /* Sleep helper used while waiting for the writer lock directory. */
 static void bcSimSleepMs(unsigned ms) {
 #if defined(_WIN32)
+    /* Sleep() takes milliseconds directly. */
     Sleep((DWORD)ms);
 #else
+    /* nanosleep() takes seconds plus nanoseconds. */
     struct timespec ts;
     ts.tv_sec = (time_t)(ms / 1000u);
     ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
@@ -63,7 +75,13 @@ static void bcSimSleepMs(unsigned ms) {
 #endif
 }
 
-/* Copy a user string into a fixed-size field without silent truncation. */
+/*
+ * Copy a user supplied string into a fixed-size field.
+ *
+ * The function rejects truncation instead of silently cutting paths or names.
+ * This makes path mistakes visible during demo setup and keeps all stored
+ * strings guaranteed zero-terminated.
+ */
 static int bcSimCopyString(char* dst, size_t dstSize, const char* src) {
     size_t n;
     if (dst == 0 || dstSize == 0u) {
@@ -80,7 +98,17 @@ static int bcSimCopyString(char* dst, size_t dstSize, const char* src) {
     return BCSIM_OK;
 }
 
-/* Derive "bc.bus.lock" from "bc.bus". */
+/*
+ * Derive the lock-directory name from the bus-file name.
+ *
+ * Example:
+ *
+ *     bc.bus  ->  bc.bus.lock
+ *
+ * Keeping the lock path derived from the bus path avoids an additional public
+ * API parameter and ensures that independent bus files also use independent
+ * locks.
+ */
 static int bcSimMakeLockPath(char* dst, size_t dstSize, const char* busPath) {
     int n;
     if (dst == 0 || dstSize == 0u || busPath == 0 || busPath[0] == 0) {
@@ -93,8 +121,12 @@ static int bcSimMakeLockPath(char* dst, size_t dstSize, const char* busPath) {
     return BCSIM_OK;
 }
 
-
-/* Return the current file size. Missing files are treated as size zero. */
+/*
+ * Return the current file size.
+ *
+ * Missing files are treated as size zero. That lets bcSimOpen() and bcSimRead()
+ * work naturally before the first writer has created the bus file.
+ */
 static int bcSimFileSize(const char* path, uint64_t* size) {
     FILE* f;
     long pos;
@@ -112,6 +144,7 @@ static int bcSimFileSize(const char* path, uint64_t* size) {
         return BCSIM_ERR_IO;
     }
 
+    /* Use fseek/ftell to stay simple and portable for local demo files. */
     if (fseek(f, 0, SEEK_END) != 0) {
         (void)fclose(f);
         return BCSIM_ERR_IO;
@@ -125,7 +158,12 @@ static int bcSimFileSize(const char* path, uint64_t* size) {
     return BCSIM_OK;
 }
 
-/* Create a file if it does not exist. Existing content is preserved. */
+/*
+ * Create a file if it does not exist while preserving existing content.
+ *
+ * Opening in append-binary mode is enough to create a missing local file. No
+ * bytes are written here.
+ */
 static int bcSimTouchFile(const char* path) {
     FILE* f;
     if (path == 0 || path[0] == 0) {
@@ -171,7 +209,13 @@ static int bcSimLock(const BcSim_t* io) {
     }
 }
 
-/* Release the writer lock directory. */
+/*
+ * Release the writer lock directory.
+ *
+ * Only the lock owner should call this function. Failure usually indicates that
+ * the lock directory was removed externally or that the filesystem reported an
+ * unexpected error.
+ */
 static int bcSimUnlock(const BcSim_t* io) {
     if (io == 0 || io->lockPath[0] == 0) {
         return BCSIM_ERR_ARG;
@@ -182,7 +226,12 @@ static int bcSimUnlock(const BcSim_t* io) {
     return BCSIM_OK;
 }
 
-/* Remove self-write ranges that are completely before the current read offset. */
+/*
+ * Remove self-write ranges that are completely before the current read offset.
+ *
+ * Once readOffset has advanced beyond a range, that range can never be needed
+ * again for self-echo filtering and can be removed from the fixed table.
+ */
 static void bcSimPruneOwnRanges(BcSim_t* io) {
     unsigned r = 0u;
     unsigned w = 0u;
@@ -210,7 +259,12 @@ static int bcSimFindOwnRangeAt(const BcSim_t* io, uint64_t offset) {
     return -1;
 }
 
-/* Return the next own-range start after offset, or fileSize if there is none. */
+/*
+ * Return the next own-range start after offset, or fileSize if there is none.
+ *
+ * bcSimRead() uses this to copy one contiguous foreign byte span without running
+ * into the next remembered self-written span.
+ */
 static uint64_t bcSimNextOwnStart(const BcSim_t* io, uint64_t offset, uint64_t fileSize) {
     unsigned i;
     uint64_t next = fileSize;
@@ -222,7 +276,15 @@ static uint64_t bcSimNextOwnStart(const BcSim_t* io, uint64_t offset, uint64_t f
     return next;
 }
 
-/* Remember one self-written bus-file range for later self-echo filtering. */
+/*
+ * Remember one self-written bus-file range for later self-echo filtering.
+ *
+ * The range is recorded before the actual file append. If the later append
+ * fails, the range may remain remembered. This is acceptable for a demo because
+ * the file did not grow into that range; pruning and readOffset movement will
+ * eventually make it irrelevant. Keeping the sequence simple avoids a second
+ * rollback path.
+ */
 static int bcSimRememberOwnRange(BcSim_t* io, uint64_t from, uint64_t to) {
     bcSimPruneOwnRanges(io);
     if (from == to) {
@@ -237,7 +299,12 @@ static int bcSimRememberOwnRange(BcSim_t* io, uint64_t from, uint64_t to) {
     return BCSIM_OK;
 }
 
-/* Write the bc.log header once for a fresh log file. */
+/*
+ * Write the bc.log header once for a fresh log file.
+ *
+ * The header is emitted only when the log file exists but has size zero. This
+ * keeps repeated process starts from producing repeated column descriptions.
+ */
 static int bcSimEnsureLogHeader(const BcSim_t* io) {
     uint64_t size = 0u;
     FILE* f;
@@ -270,7 +337,12 @@ static int bcSimEnsureLogHeader(const BcSim_t* io) {
     return BCSIM_OK;
 }
 
-/* Append one human-readable TX or RX line to bc.log. bc.bus is not touched. */
+/*
+ * Append one human-readable TX or RX line to bc.log.
+ *
+ * The binary bus file is not touched here. The text log exists only to make the
+ * demonstration understandable while keeping the binary bus stream clean.
+ */
 static int bcSimAppendLog(const BcSim_t* io,
                             uint64_t offset,
                             size_t len,
@@ -313,6 +385,7 @@ static int bcSimAppendLog(const BcSim_t* io,
     return BCSIM_OK;
 }
 
+/* Convert a public error code into a stable diagnostic string. */
 const char* bcSimErrorString(int err) {
     switch (err) {
     case BCSIM_OK: return "ok";
@@ -338,8 +411,10 @@ int bcSimOpen(BcSim_t* io,
         return BCSIM_ERR_ARG;
     }
 
+    /* Clear all fields first so every later error leaves a defined structure. */
     memset(io, 0, sizeof(*io));
 
+    /* Store all user supplied paths/names in fixed fields owned by the handle. */
     e = bcSimCopyString(io->busPath, sizeof(io->busPath), busPath);
     if (e != BCSIM_OK) {
         return e;
@@ -358,6 +433,7 @@ int bcSimOpen(BcSim_t* io,
         return e;
     }
 
+    /* Ensure the binary stream file exists without truncating old content. */
     e = bcSimTouchFile(io->busPath);
     if (e != BCSIM_OK) {
         return e;
@@ -385,6 +461,7 @@ int bcSimOpen(BcSim_t* io,
         return e;
     }
 
+    /* Join the live bus at EOF; historical bytes are not replayed by default. */
     io->readOffset = size;
     io->isOpen = 1;
     return BCSIM_OK;
@@ -410,8 +487,9 @@ int bcSimRead(BcSim_t* io,
     }
 
 #if BCSIM_READ_USES_LOCK == 1
+    /* Optional deterministic mode: do not read while a writer is appending. */
     e = bcSimLock(io);
-    if (e != BCSIM_OK) {
+    if (e != 0) {
         return e;
     }
 #endif
@@ -448,7 +526,10 @@ int bcSimRead(BcSim_t* io,
         uint64_t chunkOffset;
         size_t chunkOutStart;
 
+        /* Keep the own-range table small before checking the current offset. */
         bcSimPruneOwnRanges(io);
+
+        /* Consume self-written bytes silently. They stay in bc.bus but are not returned. */
         ownIndex = bcSimFindOwnRangeAt(io, io->readOffset);
         if (ownIndex >= 0) {
             uint64_t skipTo = io->own[ownIndex].to;
@@ -459,6 +540,7 @@ int bcSimRead(BcSim_t* io,
             continue;
         }
 
+        /* Copy only up to the next own range, EOF snapshot, or caller buffer limit. */
         foreignEnd = bcSimNextOwnStart(io, io->readOffset, fileSize);
         want64 = foreignEnd - io->readOffset;
         if (want64 > (uint64_t)(max - out)) {
@@ -534,11 +616,13 @@ int bcSimWrite(BcSim_t* io,
         return 0;
     }
 
+    /* Only writers always lock, so one byte chunk is appended as one contiguous span. */
     e = bcSimLock(io);
     if (e != BCSIM_OK) {
         return e;
     }
 
+    /* The current EOF becomes the start offset for self-echo filtering and logging. */
     e = bcSimFileSize(io->busPath, &start);
     if (e != BCSIM_OK) {
         (void)bcSimUnlock(io);
@@ -578,6 +662,7 @@ int bcSimWrite(BcSim_t* io,
 
 void bcSimClose(BcSim_t* io) {
     if (io != 0) {
+        /* No persistent file handles exist; clearing the state prevents reuse bugs. */
         memset(io, 0, sizeof(*io));
     }
 }

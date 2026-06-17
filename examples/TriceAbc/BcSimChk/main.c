@@ -1,6 +1,8 @@
 #if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+/* Keep C99 builds on macOS from hiding POSIX/Darwin declarations. */
 #define _DARWIN_C_SOURCE
 #elif !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+/* Request POSIX.1-2008 interfaces such as nanosleep() on POSIX-like systems. */
 #define _POSIX_C_SOURCE 200809L
 #endif
 
@@ -35,11 +37,19 @@
 #include <unistd.h>
 #endif
 
+/* Maximum number of bytes read from the bus in one bcSimRead() call. */
 #define DEMO_RX_BUFFER_SIZE 1024u
+
+/* Minimum random payload length written by this check program. */
 #define DEMO_PAYLOAD_MIN 4u
+
+/* Maximum random payload length written by this check program. */
 #define DEMO_PAYLOAD_MAX 32u
+
+/* Temporary status string size used for bc.log entries such as "poll-3". */
 #define DEMO_STATUS_SIZE 64u
 
+/* Sleep for a small number of milliseconds between read/write iterations. */
 static void sleepMs(unsigned ms) {
 #if defined(_WIN32)
     Sleep((DWORD)ms);
@@ -51,6 +61,7 @@ static void sleepMs(unsigned ms) {
 #endif
 }
 
+/* Return a process-specific value so parallel instances use different seeds. */
 static unsigned processIdForSeed(void) {
 #if defined(_WIN32)
     return (unsigned)GetCurrentProcessId();
@@ -59,6 +70,12 @@ static unsigned processIdForSeed(void) {
 #endif
 }
 
+/*
+ * Small FNV-1a style hash for the participant name.
+ *
+ * This is not cryptographic. It only makes the pseudo-random sequence differ
+ * between instances even if they start in the same second.
+ */
 static unsigned nameHash(const char* s) {
     unsigned h = 2166136261u;
     while (s != 0 && *s != 0) {
@@ -68,10 +85,11 @@ static unsigned nameHash(const char* s) {
     return h;
 }
 
+/* Print command-line help. */
 static void usage(const char* exe) {
     printf("Usage: %s -name NAME [options]\n", exe);
     printf("\nOptions:\n");
-    printf("  -bus FILE       Shared binary bus file, default bc.bus\n");
+    printf("  -bus FILE       Binary bus file, default bc.bus\n");
     printf("  -log FILE       Human-readable log file, default bc.log\n");
     printf("  -auto N         Send N random demo payloads, default 5\n");
     printf("  -interval MS    Poll/send interval, default 250\n");
@@ -79,10 +97,16 @@ static void usage(const char* exe) {
     printf("\nExample:\n");
     printf("  %s -name A -auto 4\n", exe);
     printf("\nNotes:\n");
-    printf("  A newly opened device starts reading at the current end of bc.bus.\n");
-    printf("  There is intentionally no -from-start option for normal devices.\n");
+    printf("  A newly opened participant starts reading at the current end of bc.bus.\n");
+    printf("  There is intentionally no -from-start option for normal participants.\n");
 }
 
+/*
+ * Parse a non-negative decimal integer.
+ *
+ * Invalid input falls back to def. Very large values are clamped so accidental
+ * command-line mistakes do not create extremely long demo runs.
+ */
 static int parseInt(const char* s, int def) {
     char* end = 0;
     long v;
@@ -102,6 +126,7 @@ static int parseInt(const char* s, int def) {
     return (int)v;
 }
 
+/* Print bytes in the same two-digit lowercase hexadecimal style used in bc.log. */
 static void printBytesAsHex(const uint8_t* p, int n) {
     int i;
     for (i = 0; i < n; ++i) {
@@ -109,7 +134,12 @@ static void printBytesAsHex(const uint8_t* p, int n) {
     }
 }
 
-/* Build one random byte block with a random length in the inclusive range 4..32. */
+/*
+ * Build one random byte block with a random length in the inclusive range 4..32.
+ *
+ * The payload is intentionally not text. The check program should look like a
+ * byte-stream demonstration, not like a chat application.
+ */
 static int buildRandomPayload(uint8_t* dst, size_t dstSize) {
     size_t len;
     size_t i;
@@ -125,7 +155,13 @@ static int buildRandomPayload(uint8_t* dst, size_t dstSize) {
     return (int)len;
 }
 
-/* Drain all currently available foreign bytes and print them. */
+/*
+ * Drain all currently available foreign bytes and print them.
+ *
+ * bcSimRead() may return fewer bytes than a higher protocol would call a full
+ * message. This check program has no message layer, so it simply prints each
+ * returned byte chunk.
+ */
 static int drainInput(BcSim_t* io, const char* name, const char* status) {
     for (;;) {
         uint8_t rx[DEMO_RX_BUFFER_SIZE];
@@ -153,6 +189,7 @@ int main(int argc, char** argv) {
     BcSim_t io;
     int e;
 
+    /* Parse a deliberately small option set; this is a check program, not a CLI framework. */
     for (i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             usage(argv[0]);
@@ -180,6 +217,7 @@ int main(int argc, char** argv) {
         return 2;
     }
 
+    /* Mix time, process id, and participant name so parallel instances differ. */
     srand((unsigned)time(0) ^ processIdForSeed() ^ nameHash(name));
 
     e = bcSimOpen(&io, busPath, logPath, name);
@@ -199,6 +237,7 @@ int main(int argc, char** argv) {
         uint8_t payload[DEMO_PAYLOAD_MAX];
         int payloadLen;
 
+        /* First poll for foreign bytes so each instance visibly receives traffic. */
         snprintf(status, sizeof(status), "poll-%d", i);
         e = drainInput(&io, name, status);
         if (e < 0) {
@@ -226,6 +265,7 @@ int main(int argc, char** argv) {
         sleepMs((unsigned)intervalMs);
     }
 
+    /* Keep polling briefly so late bytes from other instances become visible. */
     for (i = 0; i < 6; ++i) {
         e = drainInput(&io, name, "final-drain");
         if (e < 0) {

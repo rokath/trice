@@ -3,21 +3,26 @@ set -euo pipefail
 
 # demo.sh
 #
-# Build the BcSimChk example and start four instances of the same binary. They all
-# share bc.bus and bc.log. Each process writes random bytes and receives the
+# Build the BcSimChk example and start four instances of the same binary. They
+# all share bc.bus and bc.log. Each process writes random bytes and receives the
 # bytes written by the other processes. Its own bytes are filtered in
 # bcSimRead() by remembered bus-file offset ranges.
 
+# Run relative to this script so the generated bc.bus and bc.log files stay in
+# BcSimChk/ and do not pollute the repository root.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 ./build.sh
 
+# Select the executable path. Windows-like shells usually build an .exe suffix.
 EXE="./build/bcSimDevice"
 case "$(uname -s 2>/dev/null || echo unknown)" in
   MINGW*|MSYS*|CYGWIN*) EXE="./build/bcSimDevice.exe" ;;
 esac
 
+# Start from a clean demonstration bus. The lock directory is removed as a
+# convenience in case a previous demo was interrupted.
 rm -f bc.bus bc.log
 rm -rf bc.bus.lock
 
@@ -25,11 +30,14 @@ echo "Starting four instances of the same binary."
 echo "Each instance writes random bytes to bc.bus and receives bytes written by the others."
 echo
 
+# Launch the same binary four times with different participant names. The
+# slightly different intervals make interleaving more visible in bc.log.
 "$EXE" -name A -auto 4 -interval 180 & pid_a=$!
 "$EXE" -name B -auto 4 -interval 220 & pid_b=$!
 "$EXE" -name C -auto 4 -interval 260 & pid_c=$!
 "$EXE" -name D -auto 4 -interval 300 & pid_d=$!
 
+# Wait for all participants. If one fails, bash returns a non-zero status.
 wait "$pid_a" "$pid_b" "$pid_c" "$pid_d"
 
 echo "--- bc.log ---"

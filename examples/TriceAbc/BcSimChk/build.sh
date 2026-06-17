@@ -4,18 +4,25 @@ set -euo pipefail
 # build.sh
 #
 # Build the BcSimChk example program against the standalone BcSim directory.
-# This covers Linux, macOS, and Windows environments that provide a Unix-like
-# shell and a C compiler, for example WSL, MSYS2/MinGW, Git Bash with a compiler
-# in PATH, or Cygwin.
+#
+# The script is intentionally small and shell-only so it works in common local
+# developer environments: Linux shells, macOS shells, WSL, MSYS2/MinGW, Git Bash
+# with a compiler in PATH, and Cygwin. Git Bash alone does not guarantee that a
+# compiler exists; the script checks this explicitly and prints a useful error.
 #
 # Override the compiler or flags if needed:
 #
 #   CC=clang CFLAGS="-O0 -g" ./build.sh
 #   CFLAGS="-DBCSIM_READ_USES_LOCK=1" ./build.sh
 
+# Move to the directory containing this script so relative paths below work
+# regardless of the caller's current working directory.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Find a C compiler. Prefer an explicitly supplied CC. Otherwise try common
+# command names in an order that works well on Windows/Git Bash, Linux, macOS,
+# and CI images.
 find_compiler() {
   if [ "${CC:-}" != "" ]; then
     if command -v "$CC" >/dev/null 2>&1; then
@@ -41,8 +48,12 @@ find_compiler() {
 
 CC_BIN="$(find_compiler)"
 EXE="bcSimDevice"
+
+# Baseline flags: C99, useful warnings, optimized demo build, and include path
+# to the protocol-neutral BcSim library directory.
 BASE_CFLAGS=(-std=c99 -Wall -Wextra -pedantic -O2 -I../BcSim)
 
+# Pick the executable suffix and any platform-specific compatibility defines.
 case "$(uname -s 2>/dev/null || echo unknown)" in
   MINGW*|MSYS*|CYGWIN*)
     EXE="bcSimDevice.exe"
@@ -55,8 +66,11 @@ case "$(uname -s 2>/dev/null || echo unknown)" in
     ;;
 esac
 
+# Keep the binary out of the source directory.
 mkdir -p build
 
+# CFLAGS is intentionally expanded as shell words so callers can pass multiple
+# compiler options. This is a small developer script, not a general build system.
 # shellcheck disable=SC2086
 "$CC_BIN" "${BASE_CFLAGS[@]}" ${CFLAGS:-} \
   -o "build/$EXE" \
