@@ -99,12 +99,12 @@ func TestAbcGenerateWorkflow(t *testing.T) {
 	require.NoError(t, til.toFile(FSys.Fs, FnJSON))
 
 	var w bytes.Buffer
-	require.NoError(t, til.ToFilesAbc(&w, FSys, "deviceA"))
+	require.NoError(t, til.ToFilesAbc(&w, FSys, "abc/deviceA"))
 
-	header, err := FSys.ReadFile(Proj + "deviceA_abc.h")
+	header, err := FSys.ReadFile(Proj + "abc/deviceA.h")
 	require.NoError(t, err)
 	headerText := string(header)
-	assert.Contains(t, headerText, "#ifndef DEVICEA_ABC_H_")
+	assert.Contains(t, headerText, "#ifndef DEVICEA_H_")
 	assert.Contains(t, headerText, `#include "triceAbcReceive.h"`)
 	assert.Contains(t, headerText, "void get_power_state(const triceAbcRx_t* rx);")
 	assert.Contains(t, headerText, "void set_pwm(const triceAbcRx_t* rx);")
@@ -112,8 +112,8 @@ func TestAbcGenerateWorkflow(t *testing.T) {
 	assert.NotContains(t, headerText, "legacy_not_abc")
 	assert.NotContains(t, headerText, "__attribute__((weak))")
 
-	editedHeader := `#ifndef DEVICEA_ABC_H_
-#define DEVICEA_ABC_H_
+	editedHeader := `#ifndef DEVICEA_H_
+#define DEVICEA_H_
 
 #include "triceAbcReceive.h"
 
@@ -122,17 +122,17 @@ void get_power_state(const triceAbcRx_t* rx);
 void set_time(const triceAbcRx_t* rx);
 void unknown_local_handler(const triceAbcRx_t* rx);
 
-#endif /* DEVICEA_ABC_H_ */
+#endif /* DEVICEA_H_ */
 `
-	require.NoError(t, FSys.WriteFile(Proj+"deviceA_abc.h", []byte(editedHeader), 0o644))
+	require.NoError(t, FSys.WriteFile(Proj+"abc/deviceA.h", []byte(editedHeader), 0o644))
 	w.Reset()
-	require.NoError(t, til.ToFilesAbc(&w, FSys, "deviceA"))
+	require.NoError(t, til.ToFilesAbc(&w, FSys, "abc/deviceA"))
 
 	assert.Contains(t, w.String(), "unknown_local_handler")
-	source, err := FSys.ReadFile(Proj + "deviceA_abc.c")
+	source, err := FSys.ReadFile(Proj + "abc/deviceA.c")
 	require.NoError(t, err)
 	sourceText := string(source)
-	assert.Contains(t, sourceText, `#include "deviceA_abc.h"`)
+	assert.Contains(t, sourceText, `#include "deviceA.h"`)
 	assert.Contains(t, sourceText, `#include "triceAbcReceive.h"`)
 	assert.NotContains(t, sourceText, "static void triceAbcCall_")
 	assert.Contains(t, sourceText, "{  1001u,   0u, get_power_state }")
@@ -140,7 +140,7 @@ void unknown_local_handler(const triceAbcRx_t* rx);
 	assert.NotContains(t, sourceText, "set_pwm")
 	assert.NotContains(t, sourceText, "legacy_not_abc")
 
-	rereadHeader, err := FSys.ReadFile(Proj + "deviceA_abc.h")
+	rereadHeader, err := FSys.ReadFile(Proj + "abc/deviceA.h")
 	require.NoError(t, err)
 	assert.Equal(t, editedHeader, string(rereadHeader))
 }

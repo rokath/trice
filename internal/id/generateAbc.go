@@ -239,26 +239,55 @@ func stripCComments(s string) string {
 	return string(out)
 }
 
-// ToFilesAbc creates or reads <target>_abc.h and regenerates <target>_abc.c from the TIL.
-func (ilu TriceIDLookUp) ToFilesAbc(w io.Writer, fSys *afero.Afero, target string) error {
-	if target == "" {
+// abcTargetPaths resolves the optional target path relative to baseDir and derives the generated ABC filenames.
+func abcTargetPaths(baseDir, targetSpec string) (dir, target, headerName, sourceName, headerPath, sourcePath string, err error) {
+	if targetSpec == "" {
+		err = fmt.Errorf("missing ABC target name")
+		return
+	}
+	cleaned := filepath.Clean(targetSpec)
+	target = filepath.Base(cleaned)
+	if target == "." || target == string(filepath.Separator) || target == "" {
+		err = fmt.Errorf("missing ABC target name")
+		return
+	}
+	if target == ".." {
+		err = fmt.Errorf("ABC target %q must not resolve to parent directory", targetSpec)
+		return
+	}
+	dir = filepath.Dir(cleaned)
+	if dir == "." {
+		dir = ""
+	}
+	headerName = target + ".h"
+	sourceName = target + ".c"
+	headerPath = filepath.Join(baseDir, dir, headerName)
+	sourcePath = filepath.Join(baseDir, dir, sourceName)
+	return
+}
+
+// ToFilesAbc creates or reads [path/]<target>.h and regenerates [path/]<target>.c from the TIL.
+func (ilu TriceIDLookUp) ToFilesAbc(w io.Writer, fSys *afero.Afero, targetSpec string) error {
+	if targetSpec == "" {
 		return fmt.Errorf("missing ABC target name")
 	}
-	if strings.ContainsAny(target, `/\`) {
-		return fmt.Errorf("ABC target %q must be a filename stem, not a path", target)
+	baseDir := filepath.Dir(FnJSON)
+	if baseDir == "." {
+		baseDir = ""
+	}
+	dir, target, headerName, sourceName, headerPath, sourcePath, err := abcTargetPaths(baseDir, targetSpec)
+	if err != nil {
+		return err
 	}
 	commands, err := ilu.abcCommands()
 	if err != nil {
 		return err
 	}
-	dir := filepath.Dir(FnJSON)
-	if dir == "." {
-		dir = ""
+	if dir != "" {
+		if err := fSys.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
 	}
-	headerName := target + "_abc.h"
-	sourceName := target + "_abc.c"
-	headerPath := filepath.Join(dir, headerName)
-	sourcePath := filepath.Join(dir, sourceName)
 
 	declarations := map[string]abcDeclaration{}
 	if fileExists(fSys, headerPath) {

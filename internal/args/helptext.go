@@ -29,7 +29,7 @@ func RenderHelpText(helpArgs ...string) (string, error) {
 // space-before-tab whitespace without reformatting the historical help file.
 func normalizeGeneratedHelpWhitespace(s string) string {
 	replacements := map[string]string{
-		"    \tCreate or use <target>_abc.h and regenerate <target>_abc.c for Trice ABC receive handling.":        "        Create or use <target>_abc.h and regenerate <target>_abc.c for Trice ABC receive handling.",
+		"    \tCreate or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.": "        Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.",
 		"    \tCreate a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.": "        Create a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.",
 		"    \tCreate a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.": "        Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.",
 	}

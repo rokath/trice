@@ -5454,10 +5454,10 @@ The final command part must be a valid C identifier (without a trailing `\n`!).
 A receiving target selects which ABC commands it handles with one generator command:
 
 ```bash
-trice generate -i til.json -abc=deviceX
+trice generate -i til.json -abc=path/deviceX_abc
 ```
 
-For `-abc=deviceX`, the generator uses two files:
+For `-abc=path/deviceX_abc`, the generator uses two files in `path/`:
 
 ```text
 deviceX_abc.h   // user-editable selection file

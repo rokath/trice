@@ -203,7 +203,7 @@ func generateInit() {
 	fsScGenerate.BoolVar(&id.GenerateTilCS, "tilCS", false, `Create a til.cs file.`)
 	fsScGenerate.BoolVar(&id.GenerateRpcH, "rpcH", false, `Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.`)
 	fsScGenerate.BoolVar(&id.GenerateRpcC, "rpcC", false, `Create a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.`)
-	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use <target>_abc.h and regenerate <target>_abc.c for Trice ABC receive handling.`)
+	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.`)
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
 }
 

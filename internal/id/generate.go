@@ -88,8 +88,14 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 	if GenerateABC != "" {
 		msg.FatalOnErr(ilu.ToFilesAbc(w, fSys, GenerateABC))
 		if Verbose {
-			fmt.Fprintln(w, "generated", GenerateABC+"_abc.h")
-			fmt.Fprintln(w, "generated", GenerateABC+"_abc.c")
+			baseDir := filepath.Dir(FnJSON)
+			if baseDir == "." {
+				baseDir = ""
+			}
+			_, _, _, _, headerPath, sourcePath, err := abcTargetPaths(baseDir, GenerateABC)
+			msg.FatalOnErr(err)
+			fmt.Fprintln(w, "generated", headerPath)
+			fmt.Fprintln(w, "generated", sourcePath)
 		}
 	}
 
