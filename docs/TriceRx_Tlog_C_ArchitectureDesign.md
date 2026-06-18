@@ -28,8 +28,9 @@ Future `tlog` implementation may use C++ internally if that later proves useful,
 - [4. Proposed High-Level Layering](#proposed-high-level-layering)
 - [5. Proposed Core Types](#proposed-core-types)
   - [5.1. triceRx_t](#tricerx_t)
-  - [5.2. triceAbcEntry_t](#triceabcentry_t)
-  - [5.3. triceLogEntry_t](#tricelogentry_t)
+  - [5.2. triceAbcEntry_t type for generated triceAbc[] list](#triceabcentry_t-type-for-generated-triceabc-list)
+  - [5.3. triceLogEntry_t type for derived triceLog[] list](#tricelogentry_t-type-for-derived-tricelog-list)
+  - [5.4. triceLocationEntry_t type for derived triceLocation[] list](#tricelocationentry_t-type-for-derived-tricelocation-list)
 - [6. Proposed Function APIs](#proposed-function-apis)
   - [6.1. Parse one decoded record](#parse-one-decoded-record)
   - [6.2. Resolve ABC metadata](#resolve-abc-metadata)
@@ -242,53 +243,33 @@ A single receive record type should live in `src/triceRx.h`.
 Recommended shape:
 
 ```c
+// triceRx_t is a struct which gets filled during trice rx
 typedef struct triceRx_t {
-    uint16_t id;
-    uint8_t  bitWidth;
-    uint8_t  stampBits;
-    uint32_t stamp;
+    uint16_t id;            // Trice id
+    uint8_t  bitWidth;      // payload bithWidth, 0, 8, 16, 32, 64 or 0xff for unknown. Resolved from triceAbc[] list or til.json.
+    uint8_t  stampBits;     //  `0`, `16`, or `32` valid stamp bits or 0xff for typeX0 Trices.
+    uint32_t stamp;         // usually timestamp for Trice messages, any stamp for Trice ABC messages
+    const uint8_t* payload; // points into the input buffer
+    uint16_t payloadBytes;  // not element count, byte count in nc format (including optinal cycle counter) or counted typeX0 Trices.
 
-    const uint8_t* payload;
-    uint16_t payloadBytes;
+#if TRICE_ABC_RECEIVE_ENABLE == 1
+    void (*fn)(const struct triceRx_t* rx); // abc function handler resolved from generated triceAbc[].
+#endif
 
 #if TRICE_LOG_ENABLE == 1
-    const char* pFmt;
+    const char* pTrice; // Pointer to used Trice macro name.
+    const char* pFmt;   // Trice format string resolved from til.json.
 #endif
 
 #if TRICE_LOG_WITH_LOCATION == 1
-    const char* file;
-    uint32_t line;
+    const char* file; // `file` is name where the Trice statements was used. Resolved from li.json.
+    uint32_t line;    // Source code line in `file` where the Trice statements was used. Resolved from li.json.
 #endif
 
-    void (*fn)(const struct triceRx_t* rx);
 } triceRx_t;
 ```
 
-Notes:
-
-- `bitWidth` is part of the structure but is not filled by the parser.
-- `bitWidth` starts as `TRICE_BIT_WIDTH_UNKNOWN`, recommended value `0xffu`.
-- Normal bit widths are `0`, `8`, `16`, `32`, and `64`.
-- `stampBits` is `0`, `16`, or `32`.
-- `stamp` is normalized to 32-bit storage.
-- `payload` points into the input buffer.
-- `payloadBytes` is byte count, not element count.
-- `pFmt` is present only when log resolution is enabled.
-- `file` and `line` are present only when location resolution is enabled.
-- `fn` is intentionally present even for logging-only use. Since `triceRx_t` is a transient stack/local object and not used in large arrays, the unused pointer is acceptable.
-
-The self-referencing typedef can be written in the compact valid C form:
-
-```c
-typedef struct triceRx_t {
-    /* fields */
-    void (*fn)(const struct triceRx_t* rx);
-} triceRx_t;
-```
-
-This avoids separate names such as `TriceRx` and `triceRx_t`.
-
-### 5.2. <a id="triceabcentry_t"></a>`triceAbcEntry_t`
+### 5.2. <a id="triceabcentry_t-type-for-generated-triceabc-list"></a>`triceAbcEntry_t` type for generated triceAbc[] list
 
 ABC metadata should be generated from `trice generate -abc path/target` and should contain ID, bit width, and function pointer.
 
@@ -296,29 +277,41 @@ ABC metadata should be generated from `trice generate -abc path/target` and shou
 typedef void (*triceFn_t)(const triceRx_t* rx);
 
 typedef struct {
-    uint16_t id;
-    uint8_t bitWidth;
-    triceFn_t fn;
+    uint16_t id;      // Trice id
+    uint8_t bitWidth; // payload bitWith
+    triceFn_t fn;     // Trice ABC 
 } triceAbcEntry_t;
 ```
 
 This type can initially live in a receive/ABC header. Later it may become more general if both log and ABC metadata share a common table shape.
 
-### 5.3. <a id="tricelogentry_t"></a>`triceLogEntry_t`
+### 5.3. <a id="tricelogentry_t-type-for-derived-tricelog-list"></a>`triceLogEntry_t` type for derived `triceLog[]` list
 
-A future log resolver table may contain ID, bit width, and format string:
+A future log resolver table may contain ID, trice name and format string:
 
 ```c
 typedef struct {
-    uint16_t id;
-    uint8_t bitWidth;
-#if TRICE_LOG_ENABLE == 1
-    const char* pFmt;
-#endif
+    uint16_t id;        // Trice id
+    const char* pTrice; // Pointer to used Trice macro name. This influences the pFmt interpretation for logging.
+    const char* pFmt;   // Trice format string resolved from til.json.
 } triceLogEntry_t;
 ```
 
-File/line should not be part of this resolver. A later `triceResolveLocation()` should fill location data from a generated/transformed location table derived from `li.json`.
+The `tricelog[]` list is derivable from `til.json`.
+
+### 5.4. <a id="tricelocationentry_t-type-for-derived-tricelocation-list"></a>`triceLocationEntry_t` type for derived `triceLocation[]` list
+
+A future location resolver table may contain ID, trice name and format string:
+
+```c
+typedef struct {
+    uint16_t id;         // Trice id
+    const char* pFile;   // Pointer to source file name containing the Trice satement.
+    const uint32_t line; // Line number resolved from li.json.
+} triceLogEntry_t;
+```
+
+A later `triceResolveLocation()` should fill location data from a generated/transformed location table derived from `li.json`.
 
 ---
 
@@ -339,7 +332,7 @@ Return value:
 <  0   negative error code
 ```
 
-The function parses exactly one decoded Trice record at `buf[0]`. It does not parse multiple records, does not deframe, does not decrypt, and does not use a TIL table.
+The function parses exactly one decoded Trice record at `buf[0]`. It does not parse multiple records, does not deframe, does not decrypt, and does not use a TIL table. It expects a plain trice binary stream according to the [Trice Binary Encoding](./TriceUserManual.md#binary-encoding)
 
 It fills:
 
