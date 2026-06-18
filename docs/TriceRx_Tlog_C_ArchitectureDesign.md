@@ -28,21 +28,22 @@ Future `tlog` implementation may use C++ internally if that later proves useful,
 - [4. Proposed High-Level Layering](#proposed-high-level-layering)
 - [5. Proposed Core Types](#proposed-core-types)
   - [5.1. triceRx_t](#tricerx_t)
-  - [5.2. triceAbcEntry_t type for generated triceAbc[] list](#triceabcentry_t-type-for-generated-triceabc-list)
-  - [5.3. triceLogEntry_t type for derived triceLog[] list](#tricelogentry_t-type-for-derived-tricelog-list)
-  - [5.4. triceLocationEntry_t type for derived triceLocation[] list](#tricelocationentry_t-type-for-derived-tricelocation-list)
+  - [5.2. triceAbcEntry_t type for generated triceAbc[] list (TRIXERXABCENABLE==1)](#triceabcentry_t-type-for-generated-triceabc-list-trixerxabcenable1)
+  - [5.3. triceLogEntry_t type for derived triceLog[] list (TRICELOGENABLE==1)](#tricelogentry_t-type-for-derived-tricelog-list-tricelogenable1)
+  - [5.4. triceLocationEntry_t type for derived triceLocation[] list (TRICELOCATIONENABLE==1)](#tricelocationentry_t-type-for-derived-tricelocation-list-tricelocationenable1)
 - [6. Proposed Function APIs](#proposed-function-apis)
   - [6.1. Parse one decoded record](#parse-one-decoded-record)
-  - [6.2. Resolve ABC metadata](#resolve-abc-metadata)
-  - [6.3. Resolve log metadata](#resolve-log-metadata)
-  - [6.4. Future location resolver](#future-location-resolver)
+  - [6.2. Resolve ABC metadata (TRIXERXABCENABLE==1)](#resolve-abc-metadata-trixerxabcenable1)
+  - [6.3. Resolve log metadata (TRICELOGENABLE==1)](#resolve-log-metadata-tricelogenable1)
+  - [6.4. Resolve location metadate (TRICELOCATIONENABLE==1)](#resolve-location-metadate-tricelocationenable1)
   - [6.5. Dispatch ABC handler](#dispatch-abc-handler)
 - [7. Configuration Model](#configuration-model)
   - [7.1. Rename ABC-specific support switches](#rename-abc-specific-support-switches)
   - [7.2. Log switches](#log-switches)
   - [7.3. Bit width unknown](#bit-width-unknown)
-  - [7.4. Framing and XTEA receive settings](#framing-and-xtea-receive-settings)
-  - [7.5. Example-specific bus configuration](#example-specific-bus-configuration)
+  - [7.4. Stamp Bits unknown](#stamp-bits--unknown)
+  - [7.5. Framing and XTEA receive settings](#framing-and-xtea-receive-settings)
+  - [7.6. Example-specific bus configuration](#example-specific-bus-configuration)
 - [8. Record Parser Details](#record-parser-details)
   - [8.1. Transfer order](#transfer-order)
   - [8.2. Selector interpretation](#selector-interpretation)
@@ -246,13 +247,14 @@ Recommended shape:
 // triceRx_t is a struct which gets filled during trice rx
 typedef struct triceRx_t {
     uint16_t id;            // Trice id
-    uint8_t  bitWidth;      // payload bithWidth, 0, 8, 16, 32, 64 or 0xff for unknown. Resolved from triceAbc[] list or til.json.
-    uint8_t  stampBits;     //  `0`, `16`, or `32` valid stamp bits or 0xff for typeX0 Trices.
+    uint8_t  bitWidth;      // payload bithWidth, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
+    uint8_t  stampBits;     //  `0`, `16`, or `32` valid stamp bits or 0xffu for typeX0 Trices.
     uint32_t stamp;         // usually timestamp for Trice messages, any stamp for Trice ABC messages
     const uint8_t* payload; // points into the input buffer
-    uint16_t payloadBytes;  // not element count, byte count in nc format (including optinal cycle counter) or counted typeX0 Trices.
+    uint16_t payloadBytes;  // byte count or count typeX0 Trice payload.
+    uint8_t cycleCounter;   // optional part of the nc field
 
-#if TRICE_ABC_RECEIVE_ENABLE == 1
+#if TRIXE_RX_ABC_ENABLE == 1
     void (*fn)(const struct triceRx_t* rx); // abc function handler resolved from generated triceAbc[].
 #endif
 
@@ -261,7 +263,7 @@ typedef struct triceRx_t {
     const char* pFmt;   // Trice format string resolved from til.json.
 #endif
 
-#if TRICE_LOG_WITH_LOCATION == 1
+#if TRICE_LOCATION_ENABLE == 1
     const char* file; // `file` is name where the Trice statements was used. Resolved from li.json.
     uint32_t line;    // Source code line in `file` where the Trice statements was used. Resolved from li.json.
 #endif
@@ -269,7 +271,7 @@ typedef struct triceRx_t {
 } triceRx_t;
 ```
 
-### 5.2. <a id="triceabcentry_t-type-for-generated-triceabc-list"></a>`triceAbcEntry_t` type for generated triceAbc[] list
+### 5.2. <a id="triceabcentry_t-type-for-generated-triceabc-list-trixerxabcenable1"></a>`triceAbcEntry_t` type for generated triceAbc[] list (TRIXE_RX_ABC_ENABLE==1)
 
 ABC metadata should be generated from `trice generate -abc path/target` and should contain ID, bit width, and function pointer.
 
@@ -285,7 +287,7 @@ typedef struct {
 
 This type can initially live in a receive/ABC header. Later it may become more general if both log and ABC metadata share a common table shape.
 
-### 5.3. <a id="tricelogentry_t-type-for-derived-tricelog-list"></a>`triceLogEntry_t` type for derived `triceLog[]` list
+### 5.3. <a id="tricelogentry_t-type-for-derived-tricelog-list-tricelogenable1"></a>`triceLogEntry_t` type for derived `triceLog[]` list (TRICE_LOG_ENABLE==1)
 
 A future log resolver table may contain ID, trice name and format string:
 
@@ -299,7 +301,7 @@ typedef struct {
 
 The `tricelog[]` list is derivable from `til.json`.
 
-### 5.4. <a id="tricelocationentry_t-type-for-derived-tricelocation-list"></a>`triceLocationEntry_t` type for derived `triceLocation[]` list
+### 5.4. <a id="tricelocationentry_t-type-for-derived-tricelocation-list-tricelocationenable1"></a>`triceLocationEntry_t` type for derived `triceLocation[]` list (TRICE_LOCATION_ENABLE==1)
 
 A future location resolver table may contain ID, trice name and format string:
 
@@ -342,21 +344,24 @@ stampBits
 stamp
 payload
 payloadBytes
+cycleCounter
 ```
 
 It initializes or leaves as unknown:
 
 ```text
 bitWidth = TRICE_BIT_WIDTH_UNKNOWN
-fn = NULL
+fn = NULL, if present
+pTrice = NULL, if present
 pFmt = NULL, if present
 file = NULL, if present
 line = 0, if present
+cycleCounter = 0xc0
 ```
 
 Important: `payload` points into `buf`; no payload copy is made.
 
-### 6.2. <a id="resolve-abc-metadata"></a>Resolve ABC metadata
+### 6.2. <a id="resolve-abc-metadata-trixerxabcenable1"></a>Resolve ABC metadata (TRIXE_RX_ABC_ENABLE==1)
 
 ```c
 int triceResolveAbc(triceRx_t* rx, const triceAbcEntry_t* list, size_t count);
@@ -373,7 +378,9 @@ If not found, it should return a non-fatal “not found” code. Unknown IDs are
 
 If `rx->bitWidth` is still `TRICE_BIT_WIDTH_UNKNOWN`, the resolver sets it. If it is already set and differs from the table entry, the resolver returns a bit-width conflict error.
 
-### 6.3. <a id="resolve-log-metadata"></a>Resolve log metadata
+### 6.3. <a id="resolve-log-metadata-tricelogenable1"></a>Resolve log metadata (TRICE_LOG_ENABLE==1)
+
+Not part of the first milestone, but the design should reserve the concept:
 
 ```c
 int triceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count);
@@ -382,15 +389,13 @@ int triceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count);
 The resolver searches for `rx->id`. If found, it fills:
 
 ```text
-rx->bitWidth
-rx->pFmt, if TRICE_LOG_ENABLE == 1
+rx->pTrice; // Pointer to used Trice macro name. This influences the pFmt interpretation for logging.
+rx->pFmt;   // Trice format string resolved from til.json.
 ```
 
-It does not fill file/line.
+The bit-width is implicit coded in pTrice and derived from there. If already assigned, the value must be identical or an error is reported.
 
-The same bit-width conflict rule applies.
-
-### 6.4. <a id="future-location-resolver"></a>Future location resolver
+### 6.4. <a id="resolve-location-metadate-tricelocationenable1"></a>Resolve location metadate (TRICE_LOCATION_ENABLE==1)
 
 Not part of the first milestone, but the design should reserve the concept:
 
@@ -419,6 +424,7 @@ Semantics:
 
 - if `rx == NULL`: error,
 - if `rx->fn == NULL`: ignored/not selected,
+- if `rx->bitWidth == 0xffu`: error
 - if payload length is incompatible with `rx->bitWidth`: error,
 - otherwise call `rx->fn(rx)` and return success.
 
@@ -468,7 +474,9 @@ Example transitional compatibility:
 #endif
 ```
 
-After migration, documentation should prefer only `TRICE_TRANSMIT_SUPPORT` and `TRICE_RECEIVE_SUPPORT`.
+* After migration, documentation should prefer only `TRICE_TRANSMIT_SUPPORT` and `TRICE_RECEIVE_SUPPORT`.
+* To be decided `TRICE_RX_SUPPORT` && `TRICE_TX_SUPPORT`.
+* To be decided `TRICE_RX_ABC_SUPPORT` && `TRICE_TX_ABC_SUPPORT`.
 
 ### 7.2. <a id="log-switches"></a>Log switches
 
@@ -479,16 +487,13 @@ Recommended defaults:
 #define TRICE_LOG_ENABLE 0
 #endif
 
-#ifndef TRICE_LOG_WITH_LOCATION
-#define TRICE_LOG_WITH_LOCATION 0
+#ifndef TRICE_LOCATION_ENABLE
+#define TRICE_LOCATION_ENABLE 0
 #endif
 ```
 
-`TRICE_LOG_ENABLE` controls `pFmt` and log resolver/formatter-related code.
-
-`TRICE_LOG_WITH_LOCATION` controls `file` and `line` fields and location resolution.
-
-Do not use older or ambiguous names such as `TRICE_WITH_FILE_LINE` or `TRICE_RECORD_WITH_LOG_META`.
+* `TRICE_LOG_ENABLE` controls `pTrice`, `pFmt` and log resolver/formatter-related code.
+* `TRICE_LOCATION_ENABLE` controls `file` and `line` fields and location resolution.
 
 ### 7.3. <a id="bit-width-unknown"></a>Bit width unknown
 
@@ -498,7 +503,17 @@ Do not use older or ambiguous names such as `TRICE_WITH_FILE_LINE` or `TRICE_REC
 #endif
 ```
 
-### 7.4. <a id="framing-and-xtea-receive-settings"></a>Framing and XTEA receive settings
+### 7.4. <a id="stamp-bits--unknown"></a>Stamp Bits  unknown
+
+```c
+#ifndef TRICE_STAMP_BITS_UNKNOWN
+#define TRICE_STAMP_BITS_UNKNOWN 0xffu
+#endif
+```
+
+Unknown stamp bits after parsing are signaling typeX0 Trice packages.
+
+### 7.5. <a id="framing-and-xtea-receive-settings"></a>Framing and XTEA receive settings
 
 The existing transmit/output framing settings are named around direct/deferred output. For receive, introduce receive-oriented settings instead of overloading output settings.
 
@@ -516,7 +531,7 @@ Recommended future defaults:
 
 Open naming question: whether to reuse `XTEA_DECRYPT` or introduce `TRICE_RX_XTEA_DECRYPT`. The existing `XTEA_DECRYPT` is already present and can be kept, but a `TRICE_RX_XTEA_DECRYPT` alias would be clearer for the receive pipeline.
 
-### 7.5. <a id="example-specific-bus-configuration"></a>Example-specific bus configuration
+### 7.6. <a id="example-specific-bus-configuration"></a>Example-specific bus configuration
 
 For `examples/TriceAbc`, use node-specific `triceConfig.h` files and a root-level `triceBusConfig.h`.
 
@@ -546,7 +561,7 @@ A node-specific config includes it and sets node capabilities:
 #define TRICE_DIRECT_OUT_FRAMING TRICE_BUS_FRAMING
 ```
 
-`TRICE_CLEAN` should be explicitly present in each node-specific `triceConfig.h`.
+`TRICE_CLEAN` should be explicitly present in each node-specific `triceConfig.h` supporting TRICE_TX.
 
 ---
 
@@ -896,7 +911,7 @@ Compile variants:
 ```text
 TRICE_LOG_ENABLE=0
 TRICE_LOG_ENABLE=1
-TRICE_LOG_ENABLE=1, TRICE_LOG_WITH_LOCATION=1
+TRICE_LOG_ENABLE=1, TRICE_LOCATION_ENABLE=1
 ```
 
 ### 13.3. <a id="abc-dispatch-tests"></a>ABC dispatch tests
@@ -979,7 +994,7 @@ This should be a demo acceptance test, not the first unit test.
 
 1. **Freeze design terms**
    - `TRICE_TRANSMIT_SUPPORT`, `TRICE_RECEIVE_SUPPORT`
-   - `TRICE_LOG_ENABLE`, `TRICE_LOG_WITH_LOCATION`
+   - `TRICE_LOG_ENABLE`, `TRICE_LOCATION_ENABLE`
    - `triceRx_t`
    - `triceParseNextRecord()`
 
