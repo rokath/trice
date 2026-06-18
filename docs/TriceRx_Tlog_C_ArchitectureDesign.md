@@ -279,13 +279,11 @@ ABC metadata should be generated from `trice generate -abc path/target` and shou
 typedef void (*triceFn_t)(const triceRx_t* rx);
 
 typedef struct {
-    uint16_t id;      // Trice id
-    uint8_t bitWidth; // payload bitWith
-    triceFn_t fn;     // Trice ABC 
+    const triceFn_t fn;     // Trice ABC 
+    const uint16_t id;      // Trice id
+    const uint8_t bitWidth; // payload bitWith
 } triceAbcEntry_t;
 ```
-
-This type can initially live in a receive/ABC header. Later it may become more general if both log and ABC metadata share a common table shape.
 
 ### 5.3. <a id="tricelogentry_t-type-for-derived-tricelog-list-tricelogenable1"></a>`triceLogEntry_t` type for derived `triceLog[]` list (TRICE_LOG_ENABLE==1)
 
@@ -293,9 +291,9 @@ A future log resolver table may contain ID, trice name and format string:
 
 ```c
 typedef struct {
-    uint16_t id;        // Trice id
     const char* pTrice; // Pointer to used Trice macro name. This influences the pFmt interpretation for logging.
     const char* pFmt;   // Trice format string resolved from til.json.
+    const uint16_t id;  // Trice id
 } triceLogEntry_t;
 ```
 
@@ -307,9 +305,9 @@ A future location resolver table may contain ID, trice name and format string:
 
 ```c
 typedef struct {
-    uint16_t id;         // Trice id
     const char* pFile;   // Pointer to source file name containing the Trice satement.
-    const uint32_t line; // Line number resolved from li.json.
+    const uint16_t line; // Line number resolved from li.json.
+    const uint16_t id;   // Trice id
 } triceLogEntry_t;
 ```
 
