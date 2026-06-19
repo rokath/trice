@@ -249,11 +249,11 @@ Add these defaults to `triceDefaultConfig.h` or the equivalent default configura
 
 Meaning:
 
-| Switch                            | Meaning                                                |
-|-----------------------------------|--------------------------------------------------------|
-| `TRICE_TX_ABC_SUPPORT == 1` | Enable ABC send macros.                                |
-| `TRICE_RX_ABC_SUPPORT == 1`  | Enable ABC receive runtime types and direct handler dispatch. |
-| `TRICE_LEGACY_RPC_SUPPORT == 1`   | Enable deprecated legacy `triceF` target code.         |
+| Switch                          | Meaning                                                       |
+|---------------------------------|---------------------------------------------------------------|
+| `TRICE_TX_ABC_SUPPORT == 1`     | Enable ABC send macros.                                       |
+| `TRICE_RX_ABC_SUPPORT == 1`     | Enable ABC receive runtime types and direct handler dispatch. |
+| `TRICE_LEGACY_RPC_SUPPORT == 1` | Enable deprecated legacy `triceF` target code.                |
 
 Transmit and receive support are independent. Do not use a single `TRICE_ABC_SUPPORT` switch unless it is only a convenience alias that expands to the two explicit switches.
 
@@ -267,13 +267,13 @@ ABC transmit and ABC receive are independent build profiles. This is an architec
 
 A target may be a command receiver without being a Trice logger or ABC sender. Such a target needs only the pieces required to transform an incoming Trice record into an ABC handler call.
 
-| Build profile              | Required pieces                                                                                                                 | Must not require                                                                                                        |
-|----------------------------|---------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| Normal Trice logging only  | Existing Trice send library and configured output path.                                                                         | ABC receive runtime.                                                                                                    |
-| ABC transmit only          | Existing counted-buffer send path plus `triceC` macros and ABC stamp helpers.                                                   | ABC receive table or receive runtime.                                                                                   |
+| Build profile              | Required pieces                                                                                                               | Must not require                                                                                                                                                              |
+|----------------------------|-------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Normal Trice logging only  | Existing Trice send library and configured output path.                                                                       | ABC receive runtime.                                                                                                                                                          |
+| ABC transmit only          | Existing counted-buffer send path plus `triceC` macros and ABC stamp helpers.                                                 | ABC receive table or receive runtime.                                                                                                                                         |
 | ABC receive core only      | `triceAbcReceive.h`, `TriceAbcOnReceive()`, generated `<target>_abc.c`, user `<target>_abc.h`, and small shared types/macros. | Full `trice.h` include tree, `TRICE_SINGLE_MAX_SIZE`, Trice output buffers, transfer backends, normal Trice send macros, `TriceStamp16`, `TriceStamp32`, ABC transmit macros. |
-| ABC receive with responses | ABC receive core plus whichever Trice/ABC transmit support the application uses for responses.                                  | Built-in response policy.                                                                                               |
-| Legacy `triceF`            | Existing legacy `triceF` target code enabled by `TRICE_LEGACY_RPC_SUPPORT=1`.                                                   | ABC generation or ABC receive runtime.                                                                                  |
+| ABC receive with responses | ABC receive core plus whichever Trice/ABC transmit support the application uses for responses.                                | Built-in response policy.                                                                                                                                                     |
+| Legacy `triceF`            | Existing legacy `triceF` target code enabled by `TRICE_LEGACY_RPC_SUPPORT=1`.                                                 | ABC generation or ABC receive runtime.                                                                                                                                        |
 
 The ABC receive core starts at this interface:
 
@@ -557,13 +557,13 @@ The parser must not interpret the ABC stamp as a Trice payload value.
 
 ### 9.3. <a id="bit-width-and-payload-count"></a>Bit width and payload count
 
-| Macro family                         | Handler declaration                     | bitWidth |
-|--------------------------------------|-----------------------------------------|----------|
-| `triceC` / `TriceC` / `TRiceC`       | `void name(const triceAbcRx_t* rx)`     | 0        |
-| `trice8C` / `Trice8C` / `TRice8C`    | `void name(const triceAbcRx_t* rx)`     | 8        |
-| `trice16C` / `Trice16C` / `TRice16C` | `void name(const triceAbcRx_t* rx)`     | 16       |
-| `trice32C` / `Trice32C` / `TRice32C` | `void name(const triceAbcRx_t* rx)`     | 32       |
-| `trice64C` / `Trice64C` / `TRice64C` | `void name(const triceAbcRx_t* rx)`     | 64       |
+| Macro family                         | Handler declaration                 | bitWidth |
+|--------------------------------------|-------------------------------------|----------|
+| `triceC` / `TriceC` / `TRiceC`       | `void name(const triceAbcRx_t* rx)` | 0        |
+| `trice8C` / `Trice8C` / `TRice8C`    | `void name(const triceAbcRx_t* rx)` | 8        |
+| `trice16C` / `Trice16C` / `TRice16C` | `void name(const triceAbcRx_t* rx)` | 16       |
+| `trice32C` / `Trice32C` / `TRice32C` | `void name(const triceAbcRx_t* rx)` | 32       |
+| `trice64C` / `Trice64C` / `TRice64C` | `void name(const triceAbcRx_t* rx)` | 64       |
 
 Payload length is runtime-sized and passed as bytes in `rx->payloadBytes`. The selected TIL bit width validates that byte length, but the runtime does not convert it to a separate `count` argument.
 
@@ -799,15 +799,15 @@ ABC entries in til.json intersect active declarations in <target>_abc.h
 
 Rules:
 
-| Case                                                                  | Result                                        |
-|-----------------------------------------------------------------------|-----------------------------------------------|
+| Case                                                                            | Result                                        |
+|---------------------------------------------------------------------------------|-----------------------------------------------|
 | TIL ABC command exists and declaration exists with matching context declaration | Emit table entry.                             |
-| Declaration exists but no TIL ABC command exists                      | Warning, no table entry.                      |
-| TIL ABC command exists but no declaration exists                      | Silently ignore.                              |
-| Same command name, same context declaration, multiple IDs              | Emit multiple entries using the same wrapper. |
-| Same command name, different ABC bit width in the TIL                  | Error.                                        |
-| Same ID, different command name or ABC bit width                       | Error.                                        |
-| Invalid command name extracted from ABC format string                 | Error.                                        |
+| Declaration exists but no TIL ABC command exists                                | Warning, no table entry.                      |
+| TIL ABC command exists but no declaration exists                                | Silently ignore.                              |
+| Same command name, same context declaration, multiple IDs                       | Emit multiple entries using the same wrapper. |
+| Same command name, different ABC bit width in the TIL                           | Error.                                        |
+| Same ID, different command name or ABC bit width                                | Error.                                        |
+| Invalid command name extracted from ABC format string                           | Error.                                        |
 
 Deduplicate generated wrappers by command name. Multiple IDs may point to the same wrapper if the command name and ABC bit width are identical.
 
@@ -1496,12 +1496,12 @@ _test/testdata/triceAbcReceiveOnlyTest_abc.c
 
 The first receive runtime is transport-independent. It should be compiled and executed under a small matrix of build configurations to catch accidental dependencies:
 
-| Test package                                                                 | Important defines                                                                | Purpose                                                      |
-|------------------------------------------------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------|
+| Test package                                                                 | Important defines                                                     | Purpose                                                      |
+|------------------------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------|
 | `abc_rx_only_build`                                                          | `TRICE_RX_ABC_SUPPORT=1`, `TRICE_TX_ABC_SUPPORT=0`, no output backend | standalone receive core                                      |
-| `abc_rx_plain`                                                               | `TRICE_RX_ABC_SUPPORT=1`, no XTEA                                           | minimal receive runtime with normal host-test environment    |
-| `abc_rx_xtea_build`                                                          | `TRICE_RX_ABC_SUPPORT=1`, XTEA enabled                                      | receive runtime coexists with encrypted-output configuration |
-| `abc_rx_be_or_reverse` if an existing big-endian/reverse config is available | matching existing endianness defines                                             | compile-time coverage for byte-order variants                |
+| `abc_rx_plain`                                                               | `TRICE_RX_ABC_SUPPORT=1`, no XTEA                                     | minimal receive runtime with normal host-test environment    |
+| `abc_rx_xtea_build`                                                          | `TRICE_RX_ABC_SUPPORT=1`, XTEA enabled                                | receive runtime coexists with encrypted-output configuration |
+| `abc_rx_be_or_reverse` if an existing big-endian/reverse config is available | matching existing endianness defines                                  | compile-time coverage for byte-order variants                |
 
 Expected result for all: the same `TriceAbcReceiveTest(n)` cases return `0`.
 
