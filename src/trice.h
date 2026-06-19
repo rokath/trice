@@ -99,10 +99,7 @@ extern "C" {
 
 // Keep typeX0 output independent from the normal TRICE_OFF and TRICE_CLEAN
 // switches. Without typeX0, TRICE_CLEAN still disables the ordinary backend.
-// The "+ 0" form lets an empty legacy define evaluate as 0 in preprocessor
-// expressions.
-#define TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE (TRICE_X0_COUNTED_BUFFER_SUPPORT + 0)
-#define TRICE_BACKEND_ACTIVE (((TRICE_CLEAN == 0) && (TRICE_OFF == 0)) || (TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1))
+#define TRICE_BACKEND_ACTIVE (((TRICE_CLEAN == 0) && (TRICE_OFF == 0)) || (TRICE_X0_COUNTED_BUFFER_SUPPORT == 1))
 
 #ifndef TRICE_WEAK // user can define TRICE_WEAK for special cases
 #ifdef WEAK

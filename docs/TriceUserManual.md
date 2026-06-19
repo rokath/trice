@@ -2836,10 +2836,10 @@ The shared test configurations that build `triceCheck.c` define:
 
 `src/triceX0.c` is compiled into the CGO test target through the master file `_test/testdata/cgoPackage.go`. Generated `generated_cgoPackage.go` copies are refreshed from that master file by `scripts/_renewIDs_in_examples_and_refresh_test_folder.sh`.
 
-The X0 block in `_test/testdata/triceCheck.c` is guarded by the normalized value macro and intentionally mixes different counted X0 lengths with normal Trices:
+The X0 block in `_test/testdata/triceCheck.c` is guarded by `TRICE_X0_COUNTED_BUFFER_SUPPORT == 1` and intentionally mixes different counted X0 lengths with normal Trices:
 
 ```c
-#if TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1
+#if TRICE_X0_COUNTED_BUFFER_SUPPORT == 1
         break; case __LINE__: triceX0(x0Payload, 0);
         break; case __LINE__: triceX0(x0Payload, 5); trice8B("wr:X0-B: %02x\n", x0Payload, 5);
         break; case __LINE__: triceX0(x0Payload, 2); triceX0(x0Payload + 2, 4); trice("wr:X0 tail\n");
@@ -2855,7 +2855,7 @@ counted:sig:% x\n
 For maintenance, keep these parts aligned:
 
 1. The master CGO file includes `../../src/triceX0.c`.
-2. `triceCheck.c` uses `TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1` as guard.
+2. `triceCheck.c` uses `TRICE_X0_COUNTED_BUFFER_SUPPORT == 1` as guard.
 3. The X0 test block uses different lengths and mixed packages with `trice`, `triceS`, `TriceS`, `trice8B`, `Trice8B` and `TRice8B`.
 4. `_test/.../triceConfig.h` files that build `triceCheck.c` enable `TRICE_X0_COUNTED_BUFFER_SUPPORT`.
 5. `_test` CGO checks set `decoder.TypeX0` to `counted:sig:% x\n`.
