@@ -177,8 +177,8 @@ if [ "$#" -eq 1 ] && [ "$1" = "--x0-matrix" ]; then
   # verification behavior identical to the ordinary example build.
   for off_value in 0 1; do
     for x0_value in 0 1; do
-      echo "x0-matrix: TRICE_OFF=${off_value} TRICE_X0_COUNTED_BUFFER_SUPPORT=${x0_value}"
-      "${SCRIPT_DIR}/build.sh" "TRICE_OFF=${off_value}" "TRICE_X0_COUNTED_BUFFER_SUPPORT=${x0_value}"
+      echo "x0-matrix: TRICE_OFF=${off_value} TRICE_TX_X0_COUNTED_BUFFER_SUPPORT=${x0_value}"
+      "${SCRIPT_DIR}/build.sh" "TRICE_OFF=${off_value}" "TRICE_TX_X0_COUNTED_BUFFER_SUPPORT=${x0_value}"
     done
   done
 

@@ -96,7 +96,7 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		break;
 
 	default: // only 0 possible
-#if TRICE_X0_COUNTED_BUFFER_SUPPORT == 1
+#if TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1
 		return w; // a counted typeX0 packet
 #else
 		return TRICE_ABC_RX_E_PAYLOAD;

@@ -40,7 +40,7 @@ $ ./scripts/gitLogWithBranches.sh --range v1.2.3..
 
 * CLI switch --version added to trice and tlog for more intuitive usage
 * Trice User Manual Chapter Ctrl-C robust use of `trice insert/clean` added
-* Issue [#550](https://github.com/rokath/trice/issues/550) implemented: TRICE_X0_COUNTED_BUFFER_SUPPORT added: The user can now mix its own protocol with trice messages over a single output channel.
+* Issue [#550](https://github.com/rokath/trice/issues/550) implemented: TRICE_TX_X0_COUNTED_BUFFER_SUPPORT added: The user can now mix its own protocol with trice messages over a single output channel.
 * Issue [#587](https://github.com/rokath/trice/issues/587) fixed
 * Issue [#549](https://github.com/rokath/trice/issues/549) fixed
 * Issue [#658](https://github.com/rokath/trice/issues/658) fixed
@@ -64,7 +64,7 @@ ms@Mac trice % ./scripts/gitLogWithBranches.sh --range v1.2.2..
 *               94a804ef 2026-05-31 16:10 [wip~12                          ] formatting changed a bit
 *               b71ecc7d 2026-05-31 16:09 [wip~13                          ] stop markdown-al-in-once creating a ToC automatically
 *               ed3df379 2026-05-27 19:20 [wip~14                          ] typeX0 user packets chapter added
-*               8114c29a 2026-05-27 19:20 [wip~15                          ] TRICE_X0_COUNTED_BUFFER_SUPPORT added to triceX0.c
+*               8114c29a 2026-05-27 19:20 [wip~15                          ] TRICE_TX_X0_COUNTED_BUFFER_SUPPORT added to triceX0.c
 *               56e04cb5 2026-05-27 17:24 [wip~16                          ] link address updated
 *               4129d2fd 2026-05-27 16:38 [wip~17                          ] _userprint... againincluded (renamed)
 *               77626484 2026-05-27 15:41 [wip~18                          ] typeX0 demo implementation (counted buffer) added to Target code

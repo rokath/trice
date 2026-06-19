@@ -2726,7 +2726,7 @@ In the counted mode (default) it writes selector `00`, stores the resulting payl
 For projects or tests that want this helper, define in `triceConfig.h`:
 
 ```c
-#define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1
 ```
 
 A project can also provide its own selector-0 writer. The counted helper is only the reference implementation for the `-typeX0=counted:<format>` use case.
@@ -2736,20 +2736,20 @@ A project can also provide its own selector-0 writer. The counted helper is only
 The counted typeX0 helper is controlled independently from the normal Trice macro switch:
 
 ```c
-#define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1
 ```
 
-When `TRICE_X0_COUNTED_BUFFER_SUPPORT == 1`, the target-side function
+When `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1`, the target-side function
 
 ```c
 void triceX0(const void* buf, uint16_t len);
 ```
 
-is a real function and writes counted selector-0 records into the configured Trice output backend. The project must then compile `src/triceX0.c` together with the other Trice target sources. When `TRICE_X0_COUNTED_BUFFER_SUPPORT == 0`, `triceX0()` is an inline no-op helper and no X0 backend code is needed.
+is a real function and writes counted selector-0 records into the configured Trice output backend. The project must then compile `src/triceX0.c` together with the other Trice target sources. When `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 0`, `triceX0()` is an inline no-op helper and no X0 backend code is needed.
 
 This switch is intentionally independent from `TRICE_OFF`:
 
-| `TRICE_OFF` | `TRICE_X0_COUNTED_BUFFER_SUPPORT` | Setting                                                                 |
+| `TRICE_OFF` | `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT` | Setting                                                                 |
 |-------------|-----------------------------------|-------------------------------------------------------------------------|
 | `== 0`      | `== 0`                            | normal Trice macros are active, `triceX0()` is a no-op                  |
 | `== 0`      | `== 1`                            | normal Trice macros are active, `triceX0()` emits counted X0 records    |
@@ -2758,27 +2758,27 @@ This switch is intentionally independent from `TRICE_OFF`:
 
 The 4th combination is useful for applications that want to use only selector-0 user packets while keeping all normal Trice statements compiled out. The Trice tool can still scan normal Trice statements in the source code for ID maintenance, but the compiler receives no normal Trice output code from them.
 
-`TRICE_CLEAN` is a tool-managed source state and should not be used as an application switch. `trice clean` may set it to `1` to make cleaned source files compile without inserted IDs and without editor warnings; `trice insert` sets it back to `0`. With `TRICE_X0_COUNTED_BUFFER_SUPPORT == 1`, the counted X0 helper is intended to compile in both states. Normal Trice macros remain disabled while `TRICE_CLEAN == 1`, but `triceX0()` stays available as a real function.
+`TRICE_CLEAN` is a tool-managed source state and should not be used as an application switch. `trice clean` may set it to `1` to make cleaned source files compile without inserted IDs and without editor warnings; `trice insert` sets it back to `0`. With `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1`, the counted X0 helper is intended to compile in both states. Normal Trice macros remain disabled while `TRICE_CLEAN == 1`, but `triceX0()` stays available as a real function.
 
 In short:
 
 * `TRICE_OFF` controls normal Trice macro code generation.
 * `TRICE_CLEAN` reflects the insert/clean source state.
-* `TRICE_X0_COUNTED_BUFFER_SUPPORT` controls whether `triceX0()` is a real counted X0 writer.
+* `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT` controls whether `triceX0()` is a real counted X0 writer.
 
 A project configuration that wants counted X0 support and still allows command-line overrides can use:
 
 ```c
-#ifndef TRICE_X0_COUNTED_BUFFER_SUPPORT
-#define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+#ifndef TRICE_TX_X0_COUNTED_BUFFER_SUPPORT
+#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1
 #endif
 ```
 
 Then builds can explicitly test or select the behavior with compiler defines such as:
 
 ```bash
--DTRICE_OFF=1 -DTRICE_X0_COUNTED_BUFFER_SUPPORT=1
--DTRICE_OFF=1 -DTRICE_X0_COUNTED_BUFFER_SUPPORT=0
+-DTRICE_OFF=1 -DTRICE_TX_X0_COUNTED_BUFFER_SUPPORT=1
+-DTRICE_OFF=1 -DTRICE_TX_X0_COUNTED_BUFFER_SUPPORT=0
 ```
 
 #### 19.4.3. <a id="typex0-usage-in-examplesg0b1_inst"></a>`typeX0` Usage in `./examples/G0B1_inst`
@@ -2831,15 +2831,15 @@ The counted X0 path is tested through the existing `_test/testdata/triceCheck.c`
 The shared test configurations that build `triceCheck.c` define:
 
 ```c
-#define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
+#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1
 ```
 
 `src/triceX0.c` is compiled into the CGO test target through the master file `_test/testdata/cgoPackage.go`. Generated `generated_cgoPackage.go` copies are refreshed from that master file by `scripts/_renewIDs_in_examples_and_refresh_test_folder.sh`.
 
-The X0 block in `_test/testdata/triceCheck.c` is guarded by `TRICE_X0_COUNTED_BUFFER_SUPPORT == 1` and intentionally mixes different counted X0 lengths with normal Trices:
+The X0 block in `_test/testdata/triceCheck.c` is guarded by `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1` and intentionally mixes different counted X0 lengths with normal Trices:
 
 ```c
-#if TRICE_X0_COUNTED_BUFFER_SUPPORT == 1
+#if TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1
         break; case __LINE__: triceX0(x0Payload, 0);
         break; case __LINE__: triceX0(x0Payload, 5); trice8B("wr:X0-B: %02x\n", x0Payload, 5);
         break; case __LINE__: triceX0(x0Payload, 2); triceX0(x0Payload + 2, 4); trice("wr:X0 tail\n");
@@ -2855,9 +2855,9 @@ counted:sig:% x\n
 For maintenance, keep these parts aligned:
 
 1. The master CGO file includes `../../src/triceX0.c`.
-2. `triceCheck.c` uses `TRICE_X0_COUNTED_BUFFER_SUPPORT == 1` as guard.
+2. `triceCheck.c` uses `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1` as guard.
 3. The X0 test block uses different lengths and mixed packages with `trice`, `triceS`, `TriceS`, `trice8B`, `Trice8B` and `TRice8B`.
-4. `_test/.../triceConfig.h` files that build `triceCheck.c` enable `TRICE_X0_COUNTED_BUFFER_SUPPORT`.
+4. `_test/.../triceConfig.h` files that build `triceCheck.c` enable `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT`.
 5. `_test` CGO checks set `decoder.TypeX0` to `counted:sig:% x\n`.
 6. The full `_test/` matrix remains the final coverage check.
 
@@ -2867,7 +2867,7 @@ When introducing or changing X0 behavior, a useful implementation sequence is:
 1. Add or adjust the X0 test in one test configuration and verify that it fails for the missing behavior.
 2. Implement or update `-typeX0` in the Go decoder.
 3. Make the single X0 test pass.
-4. Enable `TRICE_X0_COUNTED_BUFFER_SUPPORT` in all relevant `_test/.../triceConfig.h` files.
+4. Enable `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT` in all relevant `_test/.../triceConfig.h` files.
 5. Add or update the shared `decoder.TypeX0` option for all tests using `triceCheck.c`.
 6. Run the full `_test/` matrix.
 -->
