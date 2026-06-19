@@ -12,8 +12,8 @@
 
 #include "triceConfig.h"
 
-#ifndef TRICE_ABC_RECEIVE_SUPPORT
-#define TRICE_ABC_RECEIVE_SUPPORT 0
+#ifndef TRICE_RX_ABC_SUPPORT
+#define TRICE_RX_ABC_SUPPORT 0
 #endif
 
 #ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-#if TRICE_ABC_RECEIVE_SUPPORT == 1
+#if TRICE_RX_ABC_SUPPORT == 1
 
 //! triceAbcRx_t describes one decoded ABC record during handler execution.
 typedef struct {
@@ -65,7 +65,7 @@ extern const unsigned triceAbcElements;
 //! TriceAbcOnReceive parses one decoded Trice record, dispatches selected ABC handlers, and returns the consumed byte count or a status/error value.
 int TriceAbcOnReceive(const uint8_t* pBuf, int len);
 
-#endif // #if TRICE_ABC_RECEIVE_SUPPORT == 1
+#endif // #if TRICE_RX_ABC_SUPPORT == 1
 
 #ifdef __cplusplus
 }

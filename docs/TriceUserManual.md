@@ -5367,7 +5367,7 @@ Enable ABC code in the project-specific _triceConfig.h_ as needed:
 
 ```c
 #define TRICE_TX_ABC_SUPPORT 1 // needed for sending ABC messages
-#define TRICE_ABC_RECEIVE_SUPPORT  1 // needed for receiving/handling ABC messages
+#define TRICE_RX_ABC_SUPPORT  1 // needed for receiving/handling ABC messages
 ```
 
 Sending and receiving are independent. A device may send ABC messages without receiving them, and vice versa.

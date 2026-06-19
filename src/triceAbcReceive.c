@@ -7,7 +7,7 @@
 
 #include "triceAbcReceive.h"
 
-#if TRICE_ABC_RECEIVE_SUPPORT == 1
+#if TRICE_RX_ABC_SUPPORT == 1
 
 //! triceAbcReadU16 reads one 16-bit Trice transfer-order value from p.
 //!
@@ -145,4 +145,4 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	return offset + (int)abc.payloadBytes;
 }
 
-#endif // #if TRICE_ABC_RECEIVE_SUPPORT == 1
+#endif // #if TRICE_RX_ABC_SUPPORT == 1

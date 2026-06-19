@@ -58,8 +58,8 @@ extern "C" {
 #define TRICE_TX_ABC_SUPPORT 0 //!< TRICE_TX_ABC_SUPPORT enables Trice ABC command send macros.
 #endif
 
-#ifndef TRICE_ABC_RECEIVE_SUPPORT
-#define TRICE_ABC_RECEIVE_SUPPORT 0 //!< TRICE_ABC_RECEIVE_SUPPORT enables Trice ABC receive types and direct handler dispatch.
+#ifndef TRICE_RX_ABC_SUPPORT
+#define TRICE_RX_ABC_SUPPORT 0 //!< TRICE_RX_ABC_SUPPORT enables Trice ABC receive types and direct handler dispatch.
 #endif
 
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
