@@ -13,7 +13,6 @@ extern "C" {
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_AUXILIARY32 1
 #define TRICE_CGO 1
-#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1
 #define TRICE_CYCLE_COUNTER 0
 
 //////////////////////////////////////////////////////////////////////////////

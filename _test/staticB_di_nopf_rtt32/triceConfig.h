@@ -13,7 +13,6 @@ extern "C" {
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 #define TRICE_CGO 1
-#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1
 #define TRICE_CYCLE_COUNTER 0
 
 #ifdef __cplusplus
