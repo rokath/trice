@@ -29,7 +29,8 @@ int triceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count) {
             if (e != TRICE_RX_OK) {
                 return e;
             }
-#if TRICE_LOG_ENABLE == 1
+#if TRICE_RX_LOG_ENABLE == 1
+            rx->pTrice = list[i].pTruce;
             rx->pFmt = list[i].pFmt;
 #endif
             return TRICE_RX_OK;

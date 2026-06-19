@@ -21,12 +21,13 @@ void triceRxInit(triceRx_t* rx) {
 
     /* Values resolved later from generated or transformed metadata tables. */
     rx->bitWidth = TRICE_BIT_WIDTH_UNKNOWN;
-#if TRICE_LOG_ENABLE == 1
+#if TRICE_RX_LOG_ENABLE == 1
+    rx->pTrice = 0;
     rx->pFmt = 0;
-#endif
 #if TRICE_LOG_WITH_LOCATION == 1
     rx->file = 0;
     rx->line = 0u;
+#endif
 #endif
     rx->fn = 0;
 }

@@ -18,8 +18,9 @@
 /* One generated or transformed log metadata entry. */
 typedef struct {
     uint16_t id;      /* Record ID this log metadata entry describes. */
-    uint8_t bitWidth; /* Payload element width derived from log metadata. */
-#if TRICE_LOG_ENABLE == 1
+  //uint8_t bitWidth; /* Payload element width derived from log metadata. */
+#if TRICE_RX_LOG_ENABLE == 1
+    const char* pTrice; /* Optional Trica name string pointer for log rendering. */
     const char* pFmt; /* Optional format string pointer for log rendering. */
 #endif
 } triceLogEntry_t;
@@ -27,7 +28,7 @@ typedef struct {
 /*
  * Resolve rx->id against a log metadata list.
  *
- * On success, the function fills rx->bitWidth and, when TRICE_LOG_ENABLE is 1,
+ * On success, the function fills rx->bitWidth and, when TRICE_RX_LOG_ENABLE is 1,
  * rx->pFmt. It deliberately does not resolve file/line information; that is a
  * separate future resolver concern.
  */

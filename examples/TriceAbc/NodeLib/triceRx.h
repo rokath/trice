@@ -21,14 +21,14 @@
  * Default is 0 because the initial TriceAbc node examples focus on command
  * routing and do not need formatted log output inside the node process.
  */
-#ifndef TRICE_LOG_ENABLE
-#define TRICE_LOG_ENABLE 0
+#ifndef TRICE_RX_LOG_ENABLE
+#define TRICE_RX_LOG_ENABLE 0
 #endif
 
 /*
  * Enable source-location metadata fields in triceRx_t.
  *
- * This is intentionally separate from TRICE_LOG_ENABLE. A future location
+ * This is intentionally separate from TRICE_RX_LOG_ENABLE. A future location
  * resolver may use a location index file to fill file and line information.
  */
 #ifndef TRICE_LOG_WITH_LOCATION
@@ -87,9 +87,9 @@ typedef struct triceRx_t {
     /* Number of payload bytes available at payload. Zero means no payload. */
     uint16_t payloadBytes;
 
-#if TRICE_LOG_ENABLE == 1
-    /* Optional format string pointer filled by triceResolveLog(). */
-    const char* pFmt;
+#if TRICE_RX_LOG_ENABLE == 1
+    const char* pTrice; /* Optional Trice name string pointer filled by triceResolveLog(). */    
+    const char* pFmt; /* Optional format string pointer filled by triceResolveLog(). */
 #endif
 
 #if TRICE_LOG_WITH_LOCATION == 1
