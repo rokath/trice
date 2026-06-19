@@ -9,10 +9,10 @@
  * node software-stack level.
  *
  * Only node-specific overrides belong here. Bus-wide settings are included from
- * ../triceBusConfig.h. General defaults stay in the normal Trice default config.
+ * ../triceRxConfig.h. General defaults stay in the normal Trice default config.
  */
 
-#include "../triceBusConfig.h"
+#include "../triceRxConfig.h"
 
 /* Always make the clean/non-clean build mode explicit in demo node configs. */
 #define TRICE_CLEAN 0

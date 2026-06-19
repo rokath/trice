@@ -10,7 +10,7 @@ ABC-specific code lives outside `BcSim`.
 ```text
 TriceAbc/
   ReadMe.md
-  triceBusConfig.h
+  triceRxConfig.h
 
   BcSim/        protocol-neutral file-backed broadcast simulation library
   BcSimChk/     standalone check program for BcSim only
@@ -80,12 +80,12 @@ messages, but that interpretation is outside the Trice ABC layer.
 
 ## Configuration split
 
-`triceBusConfig.h` contains settings that must be identical for all nodes on the
+`triceRxConfig.h` contains settings that must be identical for all nodes on the
 same bus, for example the selected bus framing or later encryption-related
 settings.
 
 Each node has its own `triceConfig.h`. A node-specific config includes
-`../triceBusConfig.h`, sets `TRICE_CLEAN`, and states whether the node uses the
+`../triceRxConfig.h`, sets `TRICE_CLEAN`, and states whether the node uses the
 normal Trice transmit stack and/or the normal Trice receive stack:
 
 ```c
