@@ -5366,7 +5366,7 @@ ABC is **not remote code execution**. It transfers only a Trice ID, optional sta
 Enable ABC code in the project-specific _triceConfig.h_ as needed:
 
 ```c
-#define TRICE_ABC_TRANSMIT_SUPPORT 1 // needed for sending ABC messages
+#define TRICE_TX_ABC_SUPPORT 1 // needed for sending ABC messages
 #define TRICE_ABC_RECEIVE_SUPPORT  1 // needed for receiving/handling ABC messages
 ```
 

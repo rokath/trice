@@ -54,8 +54,8 @@ extern "C" {
 #define TRICE_LEGACY_RPC_SUPPORT 0 //!< TRICE_LEGACY_RPC_SUPPORT enables the legacy RPC support with triceF macros and the related trice tool CLI switch -legacyRPCSupport.
 #endif
 
-#ifndef TRICE_ABC_TRANSMIT_SUPPORT
-#define TRICE_ABC_TRANSMIT_SUPPORT 0 //!< TRICE_ABC_TRANSMIT_SUPPORT enables Trice ABC command send macros.
+#ifndef TRICE_TX_ABC_SUPPORT
+#define TRICE_TX_ABC_SUPPORT 0 //!< TRICE_TX_ABC_SUPPORT enables Trice ABC command send macros.
 #endif
 
 #ifndef TRICE_ABC_RECEIVE_SUPPORT

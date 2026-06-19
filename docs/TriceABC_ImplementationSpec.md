@@ -234,8 +234,8 @@ The generator does not generate weak no-op handlers for ABC.
 Add these defaults to `triceDefaultConfig.h` or the equivalent default configuration layer:
 
 ```c
-#ifndef TRICE_ABC_TRANSMIT_SUPPORT
-#define TRICE_ABC_TRANSMIT_SUPPORT 0
+#ifndef TRICE_TX_ABC_SUPPORT
+#define TRICE_TX_ABC_SUPPORT 0
 #endif
 
 #ifndef TRICE_ABC_RECEIVE_SUPPORT
@@ -251,13 +251,13 @@ Meaning:
 
 | Switch                            | Meaning                                                |
 |-----------------------------------|--------------------------------------------------------|
-| `TRICE_ABC_TRANSMIT_SUPPORT == 1` | Enable ABC send macros.                                |
+| `TRICE_TX_ABC_SUPPORT == 1` | Enable ABC send macros.                                |
 | `TRICE_ABC_RECEIVE_SUPPORT == 1`  | Enable ABC receive runtime types and direct handler dispatch. |
 | `TRICE_LEGACY_RPC_SUPPORT == 1`   | Enable deprecated legacy `triceF` target code.         |
 
 Transmit and receive support are independent. Do not use a single `TRICE_ABC_SUPPORT` switch unless it is only a convenience alias that expands to the two explicit switches.
 
-When `TRICE_ABC_TRANSMIT_SUPPORT == 0`, active target code shall not contain usable ABC send macro implementations. This keeps ABC target code out of builds that do not use it. `TRICE_OFF` and `TRICE_CLEAN` behavior must remain compatible with normal Trice behavior.
+When `TRICE_TX_ABC_SUPPORT == 0`, active target code shall not contain usable ABC send macro implementations. This keeps ABC target code out of builds that do not use it. `TRICE_OFF` and `TRICE_CLEAN` behavior must remain compatible with normal Trice behavior.
 
 When `TRICE_ABC_RECEIVE_SUPPORT == 1`, the ABC receive core shall be buildable without enabling ABC transmit support. It shall also not require normal Trice output buffers, Trice transfer backends, `TriceStamp16`, `TriceStamp32`, UART/RTT output code, or normal `trice()` send macros.
 
@@ -1142,13 +1142,13 @@ Each error must identify the conflicting command name and/or ID.
 
 **Recommended artifact:** add ABC transmit cases to `./_test/testdata/triceCheck.c` if ABC transmit support is enabled in all configurations that scan `triceCheck.c`. If ABC should only run in selected configurations, create a separate `./_test/testdata/triceAbcCheck.c` and a matching CGO helper so non-ABC packages do not collect `//exp:` lines for code that is compiled out.
 
-Do not place `//exp:` ABC lines behind `#if TRICE_ABC_TRANSMIT_SUPPORT == 1` unless the Go expected-result scanner is updated to ignore inactive preprocessor regions. The current scanner reads comments from the source file and does not evaluate C preprocessor conditions.
+Do not place `//exp:` ABC lines behind `#if TRICE_TX_ABC_SUPPORT == 1` unless the Go expected-result scanner is updated to ignore inactive preprocessor regions. The current scanner reads comments from the source file and does not evaluate C preprocessor conditions.
 
-**Recommended first approach:** enable `TRICE_ABC_TRANSMIT_SUPPORT 1` in the CGO target-test configurations that run `triceCheck.c`, then add ABC cases directly to `triceCheck.c`. This gives broad coverage across direct/deferred, stack/static/ring/double buffer, COBS/TCOBS/no framing, and XTEA configurations.
+**Recommended first approach:** enable `TRICE_TX_ABC_SUPPORT 1` in the CGO target-test configurations that run `triceCheck.c`, then add ABC cases directly to `triceCheck.c`. This gives broad coverage across direct/deferred, stack/static/ring/double buffer, COBS/TCOBS/no framing, and XTEA configurations.
 
 **Required config updates:**
 
-- Add `#define TRICE_ABC_TRANSMIT_SUPPORT 1` to every CGO test config that shall execute ABC transmit `//exp:` lines.
+- Add `#define TRICE_TX_ABC_SUPPORT 1` to every CGO test config that shall execute ABC transmit `//exp:` lines.
 - Add `#define TRICE_LEGACY_RPC_SUPPORT 1` only to those CGO configs that still execute legacy `triceF` test lines.
 - Keep at least one build/configuration test where `TRICE_LEGACY_RPC_SUPPORT == 0` proves legacy `triceF` target code is disabled.
 
@@ -1157,7 +1157,7 @@ Do not place `//exp:` ABC lines behind `#if TRICE_ABC_TRANSMIT_SUPPORT == 1` unl
 Example group:
 
 ```c
-#if TRICE_ABC_TRANSMIT_SUPPORT == 1
+#if TRICE_TX_ABC_SUPPORT == 1
 uint16_t abcStamp16 = 0xeb61u;
 uint32_t abcStamp32 = 0xc0de3020u;
 #endif
@@ -1259,7 +1259,7 @@ The exact package name may follow existing `_test` naming conventions. It should
 
 ```c
 #define TRICE_ABC_RECEIVE_SUPPORT 1
-#define TRICE_ABC_TRANSMIT_SUPPORT 0
+#define TRICE_TX_ABC_SUPPORT 0
 #define TRICE_LEGACY_RPC_SUPPORT 0
 ```
 
@@ -1479,7 +1479,7 @@ _test/testdata/triceAbcReceiveOnlyTest_abc.c
 
 ```c
 #define TRICE_ABC_RECEIVE_SUPPORT 1
-#define TRICE_ABC_TRANSMIT_SUPPORT 0
+#define TRICE_TX_ABC_SUPPORT 0
 #define TRICE_LEGACY_RPC_SUPPORT 0
 #define TRICE_OFF 1 /* allowed if needed to suppress unrelated send macros */
 ```
@@ -1498,7 +1498,7 @@ The first receive runtime is transport-independent. It should be compiled and ex
 
 | Test package                                                                 | Important defines                                                                | Purpose                                                      |
 |------------------------------------------------------------------------------|----------------------------------------------------------------------------------|--------------------------------------------------------------|
-| `abc_rx_only_build`                                                          | `TRICE_ABC_RECEIVE_SUPPORT=1`, `TRICE_ABC_TRANSMIT_SUPPORT=0`, no output backend | standalone receive core                                      |
+| `abc_rx_only_build`                                                          | `TRICE_ABC_RECEIVE_SUPPORT=1`, `TRICE_TX_ABC_SUPPORT=0`, no output backend | standalone receive core                                      |
 | `abc_rx_plain`                                                               | `TRICE_ABC_RECEIVE_SUPPORT=1`, no XTEA                                           | minimal receive runtime with normal host-test environment    |
 | `abc_rx_xtea_build`                                                          | `TRICE_ABC_RECEIVE_SUPPORT=1`, XTEA enabled                                      | receive runtime coexists with encrypted-output configuration |
 | `abc_rx_be_or_reverse` if an existing big-endian/reverse config is available | matching existing endianness defines                                             | compile-time coverage for byte-order variants                |
@@ -1895,7 +1895,7 @@ ABC does not need special encryption logic. The sender emits an ABC Trice record
 Example transmit configuration fragment:
 
 ```c
-#define TRICE_ABC_TRANSMIT_SUPPORT 1
+#define TRICE_TX_ABC_SUPPORT 1
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE
 #define TRICE_DEFERRED_XTEA_ENCRYPT 1
@@ -1925,7 +1925,7 @@ This example does not imply inbound encrypted ABC receive. Inbound encrypted rec
 Implement in small steps and add tests after each step.
 
 1. Keep legacy `triceF` / `-rpcH` / `-rpcC` behavior unchanged and add documentation/help deprecation wording.
-2. Add `TRICE_ABC_TRANSMIT_SUPPORT`, `TRICE_ABC_RECEIVE_SUPPORT`, and `TRICE_LEGACY_RPC_SUPPORT` defaults.
+2. Add `TRICE_TX_ABC_SUPPORT`, `TRICE_ABC_RECEIVE_SUPPORT`, and `TRICE_LEGACY_RPC_SUPPORT` defaults.
 3. Gate existing legacy `triceF` target code behind `TRICE_LEGACY_RPC_SUPPORT` without changing legacy generator behavior.
 4. Add parser recognition for ABC macro families and `_C` explicit forms.
 5. Add ABC TIL classification, bit-width detection, stamp-width detection, and command-name extraction.

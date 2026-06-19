@@ -439,7 +439,7 @@ void TriceCheck(int index) {
         break; case __LINE__: Trice64B(" %016x\n", b64, sizeof(b64) /sizeof(int64_t)  );         //exp: "time:    be16default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666\n"
         break; case __LINE__: trice64B(" %016x\n", b64, sizeof(b64) /sizeof(int64_t)  );         //exp: "time:        default:  0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666\n"
         break; case __LINE__: trice64B("SIG: %016x\n", b64, sizeof(b64) /sizeof(int64_t)  );     //exp: "time:        default: SIG: 0000000000000000 ffffffffffffffff fffffffffffffffe 3344555566666666\n"
-#if TRICE_ABC_TRANSMIT_SUPPORT == 1
+#if TRICE_TX_ABC_SUPPORT == 1
         break; case __LINE__: TRICE_C(iD(0), "abc:all:GetState",  0xc0de1234 );                                         //exp: "time:c0de1234default: abc:all:GetState\n"
         break; case __LINE__: TRICe_C(iD(0), "abc:all:GetState",      0x6116 );                                         //exp: "time:    6116default: abc:all:GetState\n"
         break; case __LINE__: TRIce_C(iD(0), "abc:all:GetState"              );                                         //exp: "time:        default: abc:all:GetState\n"
@@ -486,7 +486,7 @@ void TriceCheck(int index) {
         break; case __LINE__: trice64C("RPC:FunctionNameZd",                      b64,                           2 );   //exp: "time:        default: RPC:FunctionNameZd(0000000000000000)(ffffffffffffffff)\n"
         break; case __LINE__: trice64C("RPC:FunctionNameZd",                      b64,                           3 );   //exp: "time:        default: RPC:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)\n"
         break; case __LINE__: trice64C("RPC:FunctionNameZd",                      b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:        default: RPC:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
-#endif // #if TRICE_ABC_TRANSMIT_SUPPORT == 1
+#endif // #if TRICE_TX_ABC_SUPPORT == 1
 #if TRICE_LEGACY_RPC_SUPPORT == 1
         break; case __LINE__: TRICE8_F(ID(0), "info:FunctionNameWa", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:feed3322default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
         break; case __LINE__: TRice8F("call:FunctionNameWb", b8,  sizeof(b8) /sizeof(int8_t) );            //exp: "time:feed3322default: call:FunctionNameWb(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"

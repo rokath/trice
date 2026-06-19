@@ -909,7 +909,7 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 
 #endif
 
-#if TRICE_ABC_TRANSMIT_SUPPORT == 1
+#if TRICE_TX_ABC_SUPPORT == 1
 
 //! TRICE_C_ID32 writes the 32-bit-stamped ABC ID header without fetching TriceStamp32.
 #define TRICE_C_ID32(n) TRICE_PUT16((uint16_t)(0xC000) | (uint16_t)(n));
@@ -1061,7 +1061,7 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 #define TRice64C(tid, pFmt, stamp32, buf, n) TRICE64_C(tid, pFmt, stamp32, buf, n)
 #endif // #if (TRICE_64_BIT_SUPPORT == 1)
 
-#endif // #if TRICE_ABC_TRANSMIT_SUPPORT == 1
+#endif // #if TRICE_TX_ABC_SUPPORT == 1
 
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
