@@ -54,14 +54,6 @@ extern "C" {
 #define TRICE_LEGACY_RPC_SUPPORT 0 //!< TRICE_LEGACY_RPC_SUPPORT enables the legacy RPC support with triceF macros and the related trice tool CLI switch -legacyRPCSupport.
 #endif
 
-#ifndef TRICE_TX_ABC_SUPPORT
-#define TRICE_TX_ABC_SUPPORT 1 //!< TRICE_TX_ABC_SUPPORT enables Trice ABC command send macros. It does not add code unless Trice ABC is used. 
-#endif
-
-#ifndef TRICE_RX_ABC_SUPPORT
-#define TRICE_RX_ABC_SUPPORT 0 //!< TRICE_RX_ABC_SUPPORT enables Trice ABC receive types and direct handler dispatch.
-#endif
-
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING allows to send an ID range of trices directly to an output.
 //! The called output function usually is executed inside an interrupt and should therefore be non-blocking and fast.
@@ -490,8 +482,15 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef __cplusplus
-}
+
+#ifndef TRICE_TX_LOG_SUPPORT
+#define TRICE_TX_LOG_SUPPORT 1 // The device can use Trice statements like `trice( "msg:hello" );` The default is 1.
 #endif
 
-#endif /* TRICE_DEFAULT_CONFIG_H_ */
+#ifndef TRICE_TX_ABC_SUPPORT
+#define TRICE_TX_ABC_SUPPORT 1 // Enables Trice ABC command send macros. It does not add code unless Trice ABC is used. The device can use Trice statements like `trice32C( "cmd:setTime", buf, 1 );`
+#endif
+
+#ifndef TRICE_TX_X0_COUNTED_BUFFER_SUPPORT
+#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1 // The device can use Trice statements like `triceX0( buf, len );` This adds very little code and therefore is enable per default.
+#endif
