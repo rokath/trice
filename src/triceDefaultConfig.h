@@ -400,11 +400,6 @@ extern "C" {
 #define TRICE_64_BIT_SUPPORT 1
 #endif
 
-#ifndef TRICE_TX_X0_COUNTED_BUFFER_SUPPORT
-//! TRICE_TX_X0_COUNTED_BUFFER_SUPPORT enables/disables the counted typeX0 user packet function.
-#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 0
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // Trice time measurement
 // The SYSTICKVAL is not needed by the Trice code. It is only used inside triceCheck.c as example value.
@@ -482,7 +477,6 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef TRICE_TX_LOG_SUPPORT
 #define TRICE_TX_LOG_SUPPORT 1 // The device can use Trice statements like `trice( "msg:hello" );` The default is 1.
 #endif
@@ -494,3 +488,13 @@ extern "C" {
 #ifndef TRICE_TX_X0_COUNTED_BUFFER_SUPPORT
 #define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1 // The device can use Trice statements like `triceX0( buf, len );` This adds very little code and therefore is enable per default.
 #endif
+
+// TRICE_TX_SUPPORT is a derived value signaling, that the Trice transmit stack is needed.
+// It is currenty unused but planned to be able to exclude the TRICE TX stack for TRICE RX - only devices.
+#define TRICE_TX_SUPPORT (TRICE_TX_LOG_SUPPORT | TRICE_TX_ABC_SUPPORT | TRICE_TX_X0_COUNTED_BUFFER_SUPPORT)
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // TRICE_DEFAULT_CONFIG_H_

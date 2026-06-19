@@ -5,7 +5,7 @@
 #ifndef DEVICE_ABC_H_
 #define DEVICE_ABC_H_
 
-#include "triceAbcReceive.h"
+#include "triceRx.h"
 
 #ifdef __cplusplus
 extern "C" {

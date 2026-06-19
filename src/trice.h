@@ -95,7 +95,7 @@ extern "C" {
 
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
-#include "triceAbcReceive.h"
+#include "triceRx.h"
 
 // Keep typeX0 output independent from the normal TRICE_OFF and TRICE_CLEAN
 // switches. Without typeX0, TRICE_CLEAN still disables the ordinary backend.
