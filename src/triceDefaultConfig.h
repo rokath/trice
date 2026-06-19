@@ -55,7 +55,7 @@ extern "C" {
 #endif
 
 #ifndef TRICE_TX_ABC_SUPPORT
-#define TRICE_TX_ABC_SUPPORT 0 //!< TRICE_TX_ABC_SUPPORT enables Trice ABC command send macros.
+#define TRICE_TX_ABC_SUPPORT 1 //!< TRICE_TX_ABC_SUPPORT enables Trice ABC command send macros. It does not add code unless Trice ABC is used. 
 #endif
 
 #ifndef TRICE_RX_ABC_SUPPORT

@@ -10,7 +10,6 @@ extern "C" {
 #endif
 
 #define TRICE_BUFFER TRICE_STACK_BUFFER
-#define TRICE_TX_ABC_SUPPORT 1
 #define TRICE_CYCLE_COUNTER 0 // No Trice library linked, this way we avoid missing TriceCycle.
 
 extern uint32_t abcTxWords[];

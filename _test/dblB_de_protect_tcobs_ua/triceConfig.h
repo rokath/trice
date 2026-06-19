@@ -9,7 +9,6 @@ extern "C" {
 #endif
 
 #define TRICE_LEGACY_RPC_SUPPORT 1
-#define TRICE_TX_ABC_SUPPORT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1                // default
 #define TRICE_DEFERRED_BUFFER_SIZE 512 // especially too small
