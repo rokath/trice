@@ -11,12 +11,12 @@
 extern "C" {
 #endif
 
-void rx_no_payload(const triceAbcRx_t* rx);
-void rx_i8_bulk(const triceAbcRx_t* rx);
-void rx_i16(const triceAbcRx_t* rx);
-void rx_i32(const triceAbcRx_t* rx);
-void rx_i64(const triceAbcRx_t* rx);
-void rx_nested(const triceAbcRx_t* rx);
+void rx_no_payload(const triceRx_t* rx);
+void rx_i8_bulk(const triceRx_t* rx);
+void rx_i16(const triceRx_t* rx);
+void rx_i32(const triceRx_t* rx);
+void rx_i64(const triceRx_t* rx);
+void rx_nested(const triceRx_t* rx);
 
 #ifdef __cplusplus
 }

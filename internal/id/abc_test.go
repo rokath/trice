@@ -106,9 +106,9 @@ func TestAbcGenerateWorkflow(t *testing.T) {
 	headerText := string(header)
 	assert.Contains(t, headerText, "#ifndef DEVICEA_H_")
 	assert.Contains(t, headerText, `#include "triceAbcReceive.h"`)
-	assert.Contains(t, headerText, "void get_power_state(const triceAbcRx_t* rx);")
-	assert.Contains(t, headerText, "void set_pwm(const triceAbcRx_t* rx);")
-	assert.Contains(t, headerText, "void set_time(const triceAbcRx_t* rx);")
+	assert.Contains(t, headerText, "void get_power_state(const triceRx_t* rx);")
+	assert.Contains(t, headerText, "void set_pwm(const triceRx_t* rx);")
+	assert.Contains(t, headerText, "void set_time(const triceRx_t* rx);")
 	assert.NotContains(t, headerText, "legacy_not_abc")
 	assert.NotContains(t, headerText, "__attribute__((weak))")
 
@@ -117,10 +117,10 @@ func TestAbcGenerateWorkflow(t *testing.T) {
 
 #include "triceAbcReceive.h"
 
-void get_power_state(const triceAbcRx_t* rx);
-// void set_pwm(const triceAbcRx_t* rx);
-void set_time(const triceAbcRx_t* rx);
-void unknown_local_handler(const triceAbcRx_t* rx);
+void get_power_state(const triceRx_t* rx);
+// void set_pwm(const triceRx_t* rx);
+void set_time(const triceRx_t* rx);
+void unknown_local_handler(const triceRx_t* rx);
 
 #endif /* DEVICEA_H_ */
 `

@@ -37,7 +37,7 @@ type abcDeclaration struct {
 }
 
 // abcDeclPattern accepts only the public first-version byte-oriented handler signature.
-var abcDeclPattern = regexp.MustCompile(`\bvoid\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*const\s+triceAbcRx_t\s*\*\s*(?:[A-Za-z_][A-Za-z0-9_]*)?\s*\)\s*;`)
+var abcDeclPattern = regexp.MustCompile(`\bvoid\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*const\s+triceRx_t\s*\*\s*(?:[A-Za-z_][A-Za-z0-9_]*)?\s*\)\s*;`)
 
 // abcCommandNamePattern enforces that a command name can become a C function identifier.
 var abcCommandNamePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
@@ -102,7 +102,7 @@ func abcCommandName(format string) (string, error) {
 
 // abcDeclarationText renders the editable target selection prototype for one command.
 func abcDeclarationText(cmd abcCommand) string {
-	return fmt.Sprintf("void %s(const triceAbcRx_t* rx);", cmd.name)
+	return fmt.Sprintf("void %s(const triceRx_t* rx);", cmd.name)
 }
 
 // abcIncludeGuard derives a stable C include guard from the generated header filename.

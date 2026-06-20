@@ -40,33 +40,6 @@ static int triceSetBitWidth(triceRx_t* rx, uint8_t bitWidth) {
 	return (rx->bitWidth == bitWidth) ? TRICE_RX_OK : TRICE_RX_E_BIT_WIDTH_CONFLICT;
 }
 
-void triceRxInit(triceRx_t* rx) {
-	if (rx == 0) {
-		return;
-	}
-
-	rx->id = 0u;
-	rx->bitWidth = TRICE_BIT_WIDTH_UNKNOWN;
-	rx->stampBits = 0u;
-	rx->stamp = 0u;
-	rx->payload = 0;
-	rx->payloadBytes = 0u;
-	rx->cycleCounter = 0u;
-
-#if TRICE_RX_ABC_SUPPORT == 1
-	rx->fn = 0;
-#endif
-
-#if TRICE_RX_LOG_SUPPORT == 1
-	rx->pTrice = 0;
-	rx->pFmt = 0;
-#if TRICE_LOCATION_SUPPORT == 1
-	rx->file = 0;
-	rx->line = 0u;
-#endif
-#endif
-}
-
 int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 	uint16_t firstWord;
 	uint16_t nc;
@@ -152,7 +125,7 @@ int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 
 #if TRICE_RX_ABC_SUPPORT == 1
 
-int triceResolveAbc(triceRx_t* rx, const triceAbcEntry_t* list, size_t count) {
+int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count) {
 	size_t i;
 	int e;
 

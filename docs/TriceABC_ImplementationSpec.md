@@ -559,11 +559,11 @@ The parser must not interpret the ABC stamp as a Trice payload value.
 
 | Macro family                         | Handler declaration                 | bitWidth |
 |--------------------------------------|-------------------------------------|----------|
-| `triceC` / `TriceC` / `TRiceC`       | `void name(const triceAbcRx_t* rx)` | 0        |
-| `trice8C` / `Trice8C` / `TRice8C`    | `void name(const triceAbcRx_t* rx)` | 8        |
-| `trice16C` / `Trice16C` / `TRice16C` | `void name(const triceAbcRx_t* rx)` | 16       |
-| `trice32C` / `Trice32C` / `TRice32C` | `void name(const triceAbcRx_t* rx)` | 32       |
-| `trice64C` / `Trice64C` / `TRice64C` | `void name(const triceAbcRx_t* rx)` | 64       |
+| `triceC` / `TriceC` / `TRiceC`       | `void name(const triceRx_t* rx)` | 0        |
+| `trice8C` / `Trice8C` / `TRice8C`    | `void name(const triceRx_t* rx)` | 8        |
+| `trice16C` / `Trice16C` / `TRice16C` | `void name(const triceRx_t* rx)` | 16       |
+| `trice32C` / `Trice32C` / `TRice32C` | `void name(const triceRx_t* rx)` | 32       |
+| `trice64C` / `Trice64C` / `TRice64C` | `void name(const triceRx_t* rx)` | 64       |
 
 Payload length is runtime-sized and passed as bytes in `rx->payloadBytes`. The selected TIL bit width validates that byte length, but the runtime does not convert it to a separate `count` argument.
 
@@ -632,10 +632,10 @@ Example generated file:
 extern "C" {
 #endif
 
-void motor_stop(const triceAbcRx_t* rx);
-void get_power_state(const triceAbcRx_t* rx);
-void set_time(const triceAbcRx_t* rx);
-void set_pwm(const triceAbcRx_t* rx);
+void motor_stop(const triceRx_t* rx);
+void get_power_state(const triceRx_t* rx);
+void set_time(const triceRx_t* rx);
+void set_pwm(const triceRx_t* rx);
 
 #ifdef __cplusplus
 }
@@ -665,7 +665,7 @@ The selection parser shall strip C comments before looking for declarations:
 ```c
 // void ignored(void);
 /* void also_ignored(void); */
-void selected(const triceAbcRx_t* rx);
+void selected(const triceRx_t* rx);
 ```
 
 The parser is not required to evaluate preprocessor conditionals. Users shall not rely on `#if 0`, `#ifdef`, or similar constructs to deselect ABC handlers in `<target>_abc.h`; use comments or deletion instead.
@@ -675,16 +675,16 @@ The parser is not required to evaluate preprocessor conditionals. Users shall no
 Initial parser support shall handle these canonical forms:
 
 ```c
-void name(const triceAbcRx_t* rx);
+void name(const triceRx_t* rx);
 ```
 
 Whitespace differences should be tolerated:
 
 ```c
-void name ( const triceAbcRx_t * rx ) ;
+void name ( const triceRx_t * rx ) ;
 ```
 
-Canonical generated declarations use `const triceAbcRx_t*`. The receive context contains the selected bit width, stamp information, a byte pointer, and the payload byte length.
+Canonical generated declarations use `const triceRx_t*`. The receive context contains the selected bit width, stamp information, a byte pointer, and the payload byte length.
 
 Do not require support for typed payload declarations such as `intN_t*`, application typedefs, or custom context typedefs in the first implementation. Alternate declaration forms may be added later if needed.
 
@@ -725,14 +725,14 @@ typedef struct {
     uint32_t stamp;        // normalized ABC stamp value
     const uint8_t* payload;
     uint16_t payloadBytes;
-} triceAbcRx_t;
+} triceRx_t;
 
-typedef void (*triceAbcHandler_t)(const triceAbcRx_t* rx);
+typedef void (*triceFn_t)(const triceRx_t* rx);
 
 typedef struct {
     uint16_t id;
     uint8_t bitWidth;  // 0, 8, 16, 32, 64
-    triceAbcHandler_t fn;
+    triceFn_t fn;
 } triceAbc_t;
 
 extern const triceAbc_t triceAbc[];
@@ -752,11 +752,11 @@ Example generated source:
 #include "deviceA_abc.h"
 #include "triceAbcReceive.h"
 
-static void triceAbcCall_get_power_state(const triceAbcRx_t* rx) {
+static void triceAbcCall_get_power_state(const triceRx_t* rx) {
     get_power_state(rx);
 }
 
-static void triceAbcCall_set_time(const triceAbcRx_t* rx) {
+static void triceAbcCall_set_time(const triceRx_t* rx) {
     set_time(rx);
 }
 
@@ -821,7 +821,7 @@ The first receive runtime is direct and minimal:
 
 1. Look up the received Trice ID in `triceAbc[]`.
 2. Validate payload size against the selected handler bit width.
-3. Build a small `triceAbcRx_t` context on the stack.
+3. Build a small `triceRx_t` context on the stack.
 4. Call the generated wrapper immediately with a pointer to that context.
 
 It does not provide a queue, mailbox, scheduler, or automatic deferral. If a transport receives data in a context where handler execution is not appropriate, the integration layer or the user handler must defer work explicitly by copying values and setting flags.
@@ -853,7 +853,7 @@ Expected behavior:
 3. Validate `stampBits` is 0, 16, or 32. Invalid values return `TRICE_ABC_RX_BAD_PAYLOAD`.
 4. Validate `payloadBytes` against `bitWidth`.
 5. If `payloadBytes > 0`, validate `payload != 0`.
-6. Prepare `triceAbcRx_t` with ID, stamp metadata, bit width, payload pointer, and payload byte length.
+6. Prepare `triceRx_t` with ID, stamp metadata, bit width, payload pointer, and payload byte length.
 7. Call the table wrapper.
 8. Return `TRICE_ABC_RX_EXECUTED`.
 
@@ -883,10 +883,10 @@ The Trice tool already has CLI control for Trice endianness. If ABC receive is l
 
 ## 15. <a id="abc-handler-context"></a>ABC handler context
 
-ABC handlers receive all decoded metadata through `triceAbcRx_t`:
+ABC handlers receive all decoded metadata through `triceRx_t`:
 
 ```c
-void set_pwm(const triceAbcRx_t* rx) {
+void set_pwm(const triceRx_t* rx) {
     if (rx == 0 || rx->bitWidth != 16u || rx->payloadBytes != 4u) {
         return;
     }
@@ -1046,9 +1046,9 @@ deviceA_abc.c
 Example expected declarations:
 
 ```c
-void get_power_state(const triceAbcRx_t* rx);
-void set_pwm(const triceAbcRx_t* rx);
-void set_time(const triceAbcRx_t* rx);
+void get_power_state(const triceRx_t* rx);
+void set_pwm(const triceRx_t* rx);
+void set_time(const triceRx_t* rx);
 ```
 
 #### 18.2.2. <a id="later-run-selection-behavior"></a>Later-run selection behavior
@@ -1061,10 +1061,10 @@ void set_time(const triceAbcRx_t* rx);
 
 #include "triceAbcReceive.h"
 
-void get_power_state(const triceAbcRx_t* rx);
-// void set_pwm(const triceAbcRx_t* rx);
-void set_time(const triceAbcRx_t* rx);
-void unknown_local_handler(const triceAbcRx_t* rx);
+void get_power_state(const triceRx_t* rx);
+// void set_pwm(const triceRx_t* rx);
+void set_time(const triceRx_t* rx);
+void unknown_local_handler(const triceRx_t* rx);
 
 #endif /* DEVICEA_ABC_H_ */
 ```
@@ -1097,7 +1097,7 @@ warning: ABC handler 'unknown_local_handler' declared in deviceA_abc.h but no ma
 - include `deviceA_abc.h`,
 - include `triceAbcReceive.h`,
 - generate one wrapper per selected unique command name,
-- use a uniform `triceAbcHandler_t` wrapper signature,
+- use a uniform `triceFn_t` wrapper signature,
 - not store typed handlers directly in the table,
 - emit `const triceAbc_t triceAbc[]`,
 - emit `const unsigned triceAbcElements`,
@@ -1106,11 +1106,11 @@ warning: ABC handler 'unknown_local_handler' declared in deviceA_abc.h but no ma
 Expected selected table shape:
 
 ```c
-static void triceAbcCall_get_power_state(const triceAbcRx_t* rx) {
+static void triceAbcCall_get_power_state(const triceRx_t* rx) {
     get_power_state(rx);
 }
 
-static void triceAbcCall_set_time(const triceAbcRx_t* rx) {
+static void triceAbcCall_set_time(const triceRx_t* rx) {
     set_time(rx);
 }
 
@@ -1275,11 +1275,11 @@ No UART/RTT output configuration is required for the receive runtime itself. The
 
 #include "triceAbcReceive.h"
 
-void ping(const triceAbcRx_t* rx);
-void set_pwm(const triceAbcRx_t* rx);
-void set_time(const triceAbcRx_t* rx);
-void nested_outer(const triceAbcRx_t* rx);
-void nested_inner(const triceAbcRx_t* rx);
+void ping(const triceRx_t* rx);
+void set_pwm(const triceRx_t* rx);
+void set_time(const triceRx_t* rx);
+void nested_outer(const triceRx_t* rx);
+void nested_inner(const triceRx_t* rx);
 
 #endif /* TRICEABCRECEIVETEST_ABC_H_ */
 ```
@@ -1290,23 +1290,23 @@ void nested_inner(const triceAbcRx_t* rx);
 #include "triceAbcReceiveTest_abc.h"
 #include "triceAbcReceive.h"
 
-static void triceAbcCall_ping(const triceAbcRx_t* rx) {
+static void triceAbcCall_ping(const triceRx_t* rx) {
     ping(rx);
 }
 
-static void triceAbcCall_set_pwm(const triceAbcRx_t* rx) {
+static void triceAbcCall_set_pwm(const triceRx_t* rx) {
     set_pwm(rx);
 }
 
-static void triceAbcCall_set_time(const triceAbcRx_t* rx) {
+static void triceAbcCall_set_time(const triceRx_t* rx) {
     set_time(rx);
 }
 
-static void triceAbcCall_nested_outer(const triceAbcRx_t* rx) {
+static void triceAbcCall_nested_outer(const triceRx_t* rx) {
     nested_outer(rx);
 }
 
-static void triceAbcCall_nested_inner(const triceAbcRx_t* rx) {
+static void triceAbcCall_nested_inner(const triceRx_t* rx) {
     nested_inner(rx);
 }
 
@@ -1357,12 +1357,12 @@ static void resetAbcRxTestState(void) {
     outerStampAfterNested = 0;
 }
 
-void ping(const triceAbcRx_t* rx) {
+void ping(const triceRx_t* rx) {
     pingCalls++;
     seenStampBits = rx->stampBits;
 }
 
-void set_pwm(const triceAbcRx_t* rx) {
+void set_pwm(const triceRx_t* rx) {
     setPwmCalls++;
     pwmCnt = (int)(rx->payloadBytes / 2u);
     if (rx->payloadBytes >= 2u) {
@@ -1373,19 +1373,19 @@ void set_pwm(const triceAbcRx_t* rx) {
     seenStamp32 = rx->stamp;
 }
 
-void set_time(const triceAbcRx_t* rx) {
+void set_time(const triceRx_t* rx) {
     setTimeCalls++;
     if (rx->payloadBytes >= 4u) {
         memcpy(&time0, rx->payload, sizeof(time0));
     }
 }
 
-void nested_inner(const triceAbcRx_t* rx) {
+void nested_inner(const triceRx_t* rx) {
     nestedInnerCalls++;
 }
 
-void nested_outer(const triceAbcRx_t* rx) {
-    const triceAbcRx_t* outerRx = rx;
+void nested_outer(const triceRx_t* rx) {
+    const triceRx_t* outerRx = rx;
     nestedOuterCalls++;
     (void)TriceAbcOnReceive(1005u, 32u, 0x22222222u, 0, 0u);
     outerStampAfterNested = outerRx->stamp;
@@ -1655,7 +1655,7 @@ On first run the generator creates `deviceA_abc.h`. The user keeps only commands
 
 #include "triceAbcReceive.h"
 
-void get_power_state(const triceAbcRx_t* rx);
+void get_power_state(const triceRx_t* rx);
 
 #endif /* DEVICEA_ABC_H_ */
 ```
@@ -1677,7 +1677,7 @@ static uint16_t BoardPowerMillivolt(void) {
     return 3710u;
 }
 
-void get_power_state(const triceAbcRx_t* rx) {
+void get_power_state(const triceRx_t* rx) {
     uint32_t requestStamp = rx->stamp;
     uint16_t requestSeq = (uint16_t)requestStamp;
     uint16_t mv = BoardPowerMillivolt();
@@ -1699,7 +1699,7 @@ A device that wants to collect responses selects `power_state` in its own ABC he
 
 #include "triceAbcReceive.h"
 
-void power_state(const triceAbcRx_t* rx);
+void power_state(const triceRx_t* rx);
 
 #endif /* COLLECTOR_ABC_H_ */
 ```
@@ -1722,7 +1722,7 @@ typedef struct {
 static PowerResponse powerResponses[MAX_POWER_RESPONSES];
 static unsigned powerResponseCount;
 
-void power_state(const triceAbcRx_t* rx) {
+void power_state(const triceRx_t* rx) {
     int16_t millivolt;
     if (rx->payloadBytes != sizeof(millivolt) || powerResponseCount >= MAX_POWER_RESPONSES) {
         return;
@@ -1752,7 +1752,7 @@ The first ABC receive runtime calls handlers directly. If the receive integratio
 
 #include "triceAbcReceive.h"
 
-void motor_step(const triceAbcRx_t* rx);
+void motor_step(const triceRx_t* rx);
 
 #endif /* MOTOR_ABC_H_ */
 ```
@@ -1768,7 +1768,7 @@ void motor_step(const triceAbcRx_t* rx);
 static volatile int motorStepPending;
 static int8_t motorStep[4];
 
-void motor_step(const triceAbcRx_t* rx) {
+void motor_step(const triceRx_t* rx) {
     if (rx->payloadBytes != sizeof(motorStep)) {
         return;
     }
@@ -1804,8 +1804,8 @@ This example is both documentation and a template for [Host-native C receive run
 
 #include "triceAbcReceive.h"
 
-void set_pwm(const triceAbcRx_t* rx);
-void ping(const triceAbcRx_t* rx);
+void set_pwm(const triceRx_t* rx);
+void ping(const triceRx_t* rx);
 
 #endif /* TEST_ABC_H_ */
 ```
@@ -1816,11 +1816,11 @@ void ping(const triceAbcRx_t* rx);
 #include "test_abc.h"
 #include "triceAbcReceive.h"
 
-static void triceAbcCall_set_pwm(const triceAbcRx_t* rx) {
+static void triceAbcCall_set_pwm(const triceRx_t* rx) {
     set_pwm(rx);
 }
 
-static void triceAbcCall_ping(const triceAbcRx_t* rx) {
+static void triceAbcCall_ping(const triceRx_t* rx) {
     ping(rx);
 }
 
@@ -1846,7 +1846,7 @@ static int16_t pwm0;
 static uint32_t seenStamp;
 static uint8_t seenStampBits;
 
-void set_pwm(const triceAbcRx_t* rx) {
+void set_pwm(const triceRx_t* rx) {
     if (rx->payloadBytes == 4u) {
         setPwmCalls++;
         memcpy(&pwm0, rx->payload, sizeof(pwm0));
@@ -1855,7 +1855,7 @@ void set_pwm(const triceAbcRx_t* rx) {
     }
 }
 
-void ping(const triceAbcRx_t* rx) {
+void ping(const triceRx_t* rx) {
     pingCalls++;
 }
 
@@ -1938,7 +1938,7 @@ Implement in small steps and add tests after each step.
 12. Add no-stamp ABC send macros using existing counted-buffer logic where possible.
 13. Add stamped ABC send macros using `TRICE_C_STAMP16` and `TRICE_C_STAMP32`.
 14. Add ABC transmit cases to the CGO target-output tests, including at least one XTEA configuration.
-15. Add direct ABC receive runtime with `triceAbcRx_t` handler context.
+15. Add direct ABC receive runtime with `triceRx_t` handler context.
 16. Add host-native receive runtime tests from [Host-native C receive runtime tests](#host-native-c-receive-runtime-tests).
 17. Add the receive-only dependency test from [Receive-only dependency test](#receive-only-dependency-test).
 18. Add the small end-to-end generator/build example test from [End-to-end generator/build example test](#end-to-end-generatorbuild-example-test).
@@ -2012,7 +2012,7 @@ The preferred parsing/dispatch sequence is:
 6. `getStamp(...)`
 7. `getCount(...)`
 8. check `len`; if too small, return a negative error value
-9. fill a stack-local `triceAbcRx_t abc`
+9. fill a stack-local `triceRx_t abc`
 10. call the selected user handler `fn_ptr(&abc)`
 11. return the consumed byte count
 
@@ -2026,7 +2026,7 @@ Therefore a helper such as `triceAbcPayloadElementSize()` is considered unnecess
 
 ### 23.4. Handler context object
 
-The runtime should fill a stack-local `triceAbcRx_t` instance containing only metadata and a payload pointer:
+The runtime should fill a stack-local `triceRx_t` instance containing only metadata and a payload pointer:
 
 - `id`
 - `stamp`
@@ -2042,7 +2042,7 @@ The payload bytes themselves should not be copied into a temporary stack buffer.
 The preferred handler signature is:
 
 ```c
-void Handler(const triceAbcRx_t* rx);
+void Handler(const triceRx_t* rx);
 ```
 
 With that uniform signature, generator-created wrapper functions are considered unnecessary. The generated dispatch table can point directly to the user handlers.

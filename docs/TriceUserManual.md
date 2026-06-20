@@ -5483,10 +5483,10 @@ If `deviceX_abc.h` does not exist, the generator creates it from all ABC command
 extern "C" {
 #endif
 
-void motor_stop(const triceAbcRx_t* rx);
-void get_power_state(const triceAbcRx_t* rx);
-void set_time(const triceAbcRx_t* rx);
-void set_pwm(const triceAbcRx_t* rx);
+void motor_stop(const triceRx_t* rx);
+void get_power_state(const triceRx_t* rx);
+void set_time(const triceRx_t* rx);
+void set_pwm(const triceRx_t* rx);
 
 #ifdef __cplusplus
 }
@@ -5506,8 +5506,8 @@ The user deletes or comments out declarations for commands this target shall ign
 extern "C" {
 #endif
 
-void get_power_state(const triceAbcRx_t* rx);
-void set_time(const triceAbcRx_t* rx);
+void get_power_state(const triceRx_t* rx);
+void set_time(const triceRx_t* rx);
 
 #ifdef __cplusplus
 }
@@ -5531,11 +5531,11 @@ The selection parser strips C comments but does not evaluate preprocessor condit
 #include "deviceX_abc.h"
 #include "triceAbcReceive.h"
 
-static void triceAbcCall_get_power_state(const triceAbcRx_t* rx) {
+static void triceAbcCall_get_power_state(const triceRx_t* rx) {
     get_power_state(rx);
 }
 
-static void triceAbcCall_set_time(const triceAbcRx_t* rx) {
+static void triceAbcCall_set_time(const triceRx_t* rx) {
     set_time(rx);
 }
 
@@ -5556,13 +5556,13 @@ The application implements the selected handlers in normal source files:
 #include "trice.h"
 #include "deviceX_abc.h"
 
-void get_power_state(const triceAbcRx_t* rx) {
+void get_power_state(const triceRx_t* rx) {
     uint32_t stamp = 0x87650000u | (uint16_t)rx->stamp;
     int32_t value = BoardPowerState();
     TRice32C("rsp:power_state", stamp, &value, 1);
 }
 
-void set_time(const triceAbcRx_t* rx) {
+void set_time(const triceRx_t* rx) {
     int32_t value;
     if (rx->payloadBytes == sizeof(value)) {
         memcpy(&value, rx->payload, sizeof(value));
@@ -5593,7 +5593,7 @@ ABC does not require a queue or scheduler. If a handler can execute immediately,
 static volatile int setTimePending;
 static int32_t setTimeValue;
 
-void set_time(const triceAbcRx_t* rx) {
+void set_time(const triceRx_t* rx) {
     int32_t value;
     if (rx->payloadBytes != sizeof(value)) {
         trice("err:invalid set_time payload %u\n", (unsigned)rx->payloadBytes);
@@ -5614,7 +5614,7 @@ ABC does not define a response protocol. A handler may send zero, one, or more T
 If an ABC stamp was received, the runtime passes it in the handler context. A handler can reuse it in a response:
 
 ```c
-void get_power_state(const triceAbcRx_t* rx) {
+void get_power_state(const triceRx_t* rx) {
     uint32_t stamp = 0x87650000u | (uint16_t)rx->stamp;
     int32_t value = BoardPowerState();
     TRice32C("rsp:power_state", stamp, &value, 1);
@@ -5676,7 +5676,7 @@ Receiver selection file for *deviceZ* after editing:
 extern "C" {
 #endif
 
-void get_power_state(const triceAbcRx_t* rx);
+void get_power_state(const triceRx_t* rx);
 
 #ifdef __cplusplus
 }
@@ -5691,7 +5691,7 @@ Receiver implementation:
 #include "trice.h"
 #include "deviceZ_abc.h"
 
-void get_power_state(const triceAbcRx_t* rx) {
+void get_power_state(const triceRx_t* rx) {
     uint32_t stamp = 0x12340000u | (uint16_t)rx->stamp;
     int32_t value = BoardPowerState();
     TRice32C("rsp:power_state", stamp, &value, 1);

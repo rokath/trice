@@ -30,7 +30,7 @@ Future `tlog` implementation may use C++ internally if that later proves useful,
   - [5.1. Example-specific bus configuration](#example-specific-bus-configuration)
 - [6. Proposed Core Types and Function API](#proposed-core-types-and-function-api)
   - [6.1. triceRx_t and triceParseNextRecord when TRIXE_RX_SUPPORT==1](#tricerx_t-and-triceparsenextrecord-when-trixe_rx_support1)
-  - [6.2. triceAbcEntry_t and triceResolveAbc with TRIXE_RX_ABC_SUPPORT==1](#triceabcentry_t-and-triceresolveabc-with-trixe_rx_abc_support1)
+  - [6.2. triceAbc_t and triceResolveAbc with TRIXE_RX_ABC_SUPPORT==1](#triceAbc_t-and-triceresolveabc-with-trixe_rx_abc_support1)
   - [6.3. triceLogEntry_t and triceResolveLog with TRICE_LOG_SUPPORT==1](#tricelogentry_t-and-triceresolvelog-with-trice_log_support1)
 - [7. Record Parser Details](#record-parser-details)
   - [7.1. Transfer order](#transfer-order)
@@ -99,7 +99,7 @@ The `wip` branch already contains several important pieces that should be treate
 
 ### 2.1. <a id="existing-abc-receive-draft"></a>Existing ABC receive draft
 
-`src/triceAbcReceive.h` currently defines `triceAbcRx_t`, `triceAbcHandler_t`, `triceAbc_t`, `triceAbc[]`, `triceAbcElements`, and `TriceAbcOnReceive()` under `TRICE_ABC_RX_SUPPORT`. It is intentionally small and independent from normal Trice output.
+`src/triceAbcReceive.h` currently defines `triceRx_t`, `triceFn_t`, `triceAbc_t`, `triceAbc[]`, `triceAbcElements`, and `TriceAbcOnReceive()` under `TRICE_ABC_RX_SUPPORT`. It is intentionally small and independent from normal Trice output.
 
 `src/triceAbcReceive.c` currently performs several responsibilities in one place:
 
@@ -157,7 +157,7 @@ It may need small shared definitions, transfer-order helpers, optional frame dec
 
 ### 3.3. <a id="use-one-common-receive-record-type"></a>Use one common receive record type
 
-The current ABC-specific `triceAbcRx_t` should be replaced by a more general `triceRx_t`. ABC is one consumer of received Trice records; log output is another. The record parser should not be ABC-specific.
+The current ABC-specific `triceRx_t` should be replaced by a more general `triceRx_t`. ABC is one consumer of received Trice records; log output is another. The record parser should not be ABC-specific.
 
 ### 3.4. <a id="parsing-is-not-resolving"></a>Parsing is not resolving
 
@@ -322,9 +322,9 @@ To parse one decoded record us recommended name and signature:
 int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
 ```
 
-### 6.2. <a id="triceabcentry_t-and-triceresolveabc-with-trixe_rx_abc_support1"></a>`triceAbcEntry_t` and `triceResolveAbc` with `TRIXE_RX_ABC_SUPPORT==1`
+### 6.2. <a id="triceAbc_t-and-triceresolveabc-with-trixe_rx_abc_support1"></a>`triceAbc_t` and `triceResolveAbc` with `TRIXE_RX_ABC_SUPPORT==1`
 
-* `triceAbcEntry_t` is the type for generated triceAbc[] list.
+* `triceAbc_t` is the type for generated triceAbc[] list.
 * ABC metadata should be generated from `trice generate -abc path/target` and should contain ID, bit width, and function pointer.
 
 ```c
@@ -334,7 +334,7 @@ typedef struct {
     const triceFn_t fn;     // Trice ABC 
     const uint16_t id;      // Trice id
     const uint8_t bitWidth; // payload bitWith
-} triceAbcEntry_t;
+} triceAbc_t;
 ```
 
 ```c
@@ -347,7 +347,7 @@ typedef struct {
 //! If it is already set and differs from the table entry, the resolver returns a bit-width conflict error.
 //! 
 //! \retval If not found, it should return a non-fatal “not found” code. Unknown IDs are normal in mixed streams.
-int triceResolveAbc(triceRx_t* rx, const triceAbcEntry_t* list, size_t count);
+int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
 ```
 
 ```c
@@ -487,7 +487,7 @@ Payload byte count is parsed structurally only. Later, `triceDispatchAbc()` or a
 Generated lists are compile-time known, but resolver functions should still take a count:
 
 ```c
-int triceResolveAbc(triceRx_t* rx, const triceAbcEntry_t* list, size_t count);
+int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
 int triceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count);
 ```
 
@@ -553,7 +553,7 @@ Move record parsing out of `TriceAbcOnReceive()` logic. Tests should prove that 
 Add:
 
 ```c
-int triceResolveAbc(triceRx_t* rx, const triceAbcEntry_t* list, size_t count);
+int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
 int triceDispatchAbc(const triceRx_t* rx);
 ```
 
@@ -586,12 +586,12 @@ This wrapper preserves the current direct-dispatch model while moving the archit
 
 ### 9.5. <a id="stage-e-retire-abc-specific-receive-type"></a>Stage E: Retire ABC-specific receive type
 
-Once all generated code and tests use `triceRx_t`, remove or alias `triceAbcRx_t`.
+Once all generated code and tests use `triceRx_t`, remove or alias `triceRx_t`.
 
 Temporary compatibility option:
 
 ```c
-typedef triceRx_t triceAbcRx_t;
+typedef triceRx_t triceRx_t;
 ```
 
 This can ease migration if the generator or examples still use old names.
@@ -939,7 +939,7 @@ Because payload pointers reference the input buffer, delayed processing requires
 
 2. **Transitional ABC compatibility names**
 
-   Decide whether to keep `triceAbcRx_t` as an alias to `triceRx_t` for one transition period.
+   Decide whether to keep `triceRx_t` as an alias to `triceRx_t` for one transition period.
 
 3. **Error code naming**
 
