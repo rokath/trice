@@ -23,6 +23,12 @@
 #define TRICE_LOCATION_SUPPORT 0
 #endif
 
+// TRICE_DEFAULT_PARAMETER_BIT_WIDTH is duplicated here for RX-only builds.
+// Including triceDefaultConfig.h would also pull in transmit-buffer checks.
+#ifndef TRICE_DEFAULT_PARAMETER_BIT_WIDTH
+#define TRICE_DEFAULT_PARAMETER_BIT_WIDTH 32
+#endif
+
 // TRICE_RX_X0_COUNTED_BUFFER_SUPPORT enables parsing counted selector-0 records.
 #ifndef TRICE_RX_X0_COUNTED_BUFFER_SUPPORT
 #define TRICE_RX_X0_COUNTED_BUFFER_SUPPORT 0

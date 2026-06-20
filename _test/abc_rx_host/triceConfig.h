@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #define TRICE_RX_ABC_SUPPORT 1
+#define TRICE_RX_LOG_SUPPORT 1
 
 #ifdef __cplusplus
 }

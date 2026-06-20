@@ -28,49 +28,45 @@ Future `tlog` implementation may use C++ internally if that later proves useful,
 - [4. Proposed High-Level Layering](#proposed-high-level-layering)
 - [5. Proposed Configuration Model (Compiler Switches)](#proposed-configuration-model-compiler-switches)
   - [5.1. Example-specific bus configuration](#example-specific-bus-configuration)
-- [6. Proposed Core Types and Function API](#proposed-core-types-and-function-api)
-  - [6.1. triceRx_t and triceParseNextRecord when TRIXE_RX_SUPPORT==1](#tricerx_t-and-triceparsenextrecord-when-trixe_rx_support1)
-  - [6.2. triceAbc_t and triceResolveAbc with TRIXE_RX_ABC_SUPPORT==1](#triceAbc_t-and-triceresolveabc-with-trixe_rx_abc_support1)
-  - [6.3. triceLogEntry_t and triceResolveLog with TRICE_LOG_SUPPORT==1](#tricelogentry_t-and-triceresolvelog-with-trice_log_support1)
-- [7. Record Parser Details](#record-parser-details)
-  - [7.1. Transfer order](#transfer-order)
-  - [7.2. Selector interpretation](#selector-interpretation)
-  - [7.3. Consumed bytes](#consumed-bytes)
-  - [7.4. Buffer-too-short](#buffer-too-short)
-  - [7.5. Payload validation](#payload-validation)
-- [8. Resolver Details](#resolver-details)
-  - [8.1. Resolver input tables use explicit counts](#resolver-input-tables-use-explicit-counts)
-  - [8.2. Bit-width conflict rule](#bit-width-conflict-rule)
-- [9. Trice ABC Migration Plan](#trice-abc-migration-plan)
-  - [9.1. Stage A: Introduce generic RX types without breaking ABC](#stage-a-introduce-generic-rx-types-without-breaking-abc)
-  - [9.2. Stage B: Extract parsing](#stage-b-extract-parsing)
-  - [9.3. Stage C: Add ABC resolver and dispatcher](#stage-c-add-abc-resolver-and-dispatcher)
-  - [9.4. Stage D: Adapt TriceAbcOnReceive() as compatibility wrapper](#stage-d-adapt-triceabconreceive-as-compatibility-wrapper)
-  - [9.5. Stage E: Retire ABC-specific receive type](#stage-e-retire-abc-specific-receive-type)
-- [10. Future C tlog Architecture](#future-c-tlog-architecture)
-- [11. Example Tree Direction](#example-tree-direction)
-  - [11.1. Node suffixes](#node-suffixes)
-  - [11.2. BcSim remains neutral](#bcsim-remains-neutral)
-- [12. Test Strategy](#test-strategy)
-  - [12.1. Parser unit tests](#parser-unit-tests)
-  - [12.2. Resolver tests](#resolver-tests)
-  - [12.3. ABC dispatch tests](#abc-dispatch-tests)
-  - [12.4. Receive-only dependency test](#receive-only-dependency-test)
-  - [12.5. Existing transmit tests](#existing-transmit-tests)
-  - [12.6. Frame/decrypt tests](#framedecrypt-tests)
-  - [12.7. BcSim tests](#bcsim-tests)
-  - [12.8. End-to-end demo tests](#end-to-end-demo-tests)
-- [13. Recommended Implementation Order](#recommended-implementation-order)
-- [14. Risks and Design Warnings](#risks-and-design-warnings)
-  - [14.1. Risk: doing full C tlog too early](#risk-doing-full-c-tlog-too-early)
-  - [14.2. Risk: coupling RX to TX accidentally](#risk-coupling-rx-to-tx-accidentally)
-  - [14.3. Risk: XTEA compile conditions](#risk-xtea-compile-conditions)
-  - [14.4. Risk: conflating parse and resolve](#risk-conflating-parse-and-resolve)
-  - [14.5. Risk: treating ABC follow-up commands as protocol-level responses](#risk-treating-abc-follow-up-commands-as-protocol-level-responses)
-  - [14.6. Risk: payload lifetime](#risk-payload-lifetime)
-- [15. Open Decisions](#open-decisions)
-- [16. Suggested Near-Term Acceptance Criteria](#suggested-near-term-acceptance-criteria)
-- [17. Short Recommendation](#short-recommendation)
+- [6. Record Parser Details](#record-parser-details)
+  - [6.1. Transfer order](#transfer-order)
+  - [6.2. Selector interpretation](#selector-interpretation)
+  - [6.3. Consumed bytes](#consumed-bytes)
+  - [6.4. Buffer-too-short](#buffer-too-short)
+  - [6.5. Payload validation](#payload-validation)
+- [7. Resolver Details](#resolver-details)
+  - [7.1. Resolver input tables use explicit counts](#resolver-input-tables-use-explicit-counts)
+  - [7.2. Bit-width conflict rule](#bit-width-conflict-rule)
+- [8. Trice ABC Migration Plan](#trice-abc-migration-plan)
+  - [8.1. Stage A: Introduce generic RX types without breaking ABC](#stage-a-introduce-generic-rx-types-without-breaking-abc)
+  - [8.2. Stage B: Extract parsing](#stage-b-extract-parsing)
+  - [8.3. Stage C: Add ABC resolver and dispatcher](#stage-c-add-abc-resolver-and-dispatcher)
+  - [8.4. Stage D: Adapt TriceAbcOnReceive() as compatibility wrapper](#stage-d-adapt-triceabconreceive-as-compatibility-wrapper)
+  - [8.5. Stage E: Retire ABC-specific receive type](#stage-e-retire-abc-specific-receive-type)
+- [9. Future C tlog Architecture](#future-c-tlog-architecture)
+- [10. Example Tree Direction](#example-tree-direction)
+  - [10.1. Node suffixes](#node-suffixes)
+  - [10.2. BcSim remains neutral](#bcsim-remains-neutral)
+- [11. Test Strategy](#test-strategy)
+  - [11.1. Parser unit tests](#parser-unit-tests)
+  - [11.2. Resolver tests](#resolver-tests)
+  - [11.3. ABC dispatch tests](#abc-dispatch-tests)
+  - [11.4. Receive-only dependency test](#receive-only-dependency-test)
+  - [11.5. Existing transmit tests](#existing-transmit-tests)
+  - [11.6. Frame/decrypt tests](#framedecrypt-tests)
+  - [11.7. BcSim tests](#bcsim-tests)
+  - [11.8. End-to-end demo tests](#end-to-end-demo-tests)
+- [12. Recommended Implementation Order](#recommended-implementation-order)
+- [13. Risks and Design Warnings](#risks-and-design-warnings)
+  - [13.1. Risk: doing full C tlog too early](#risk-doing-full-c-tlog-too-early)
+  - [13.2. Risk: coupling RX to TX accidentally](#risk-coupling-rx-to-tx-accidentally)
+  - [13.3. Risk: XTEA compile conditions](#risk-xtea-compile-conditions)
+  - [13.4. Risk: conflating parse and resolve](#risk-conflating-parse-and-resolve)
+  - [13.5. Risk: treating ABC follow-up commands as protocol-level responses](#risk-treating-abc-follow-up-commands-as-protocol-level-responses)
+  - [13.6. Risk: payload lifetime](#risk-payload-lifetime)
+- [14. Open Decisions](#open-decisions)
+- [15. Suggested Near-Term Acceptance Criteria](#suggested-near-term-acceptance-criteria)
+- [16. Short Recommendation](#short-recommendation)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -261,175 +257,13 @@ A node-specific config includes it and sets node capabilities:
 
 ---
 
-## 6. <a id="proposed-core-types-and-function-api"></a>Proposed Core Types and Function API
-
-### 6.1. <a id="tricerx_t-and-triceparsenextrecord-when-trixe_rx_support1"></a>`triceRx_t` and `triceParseNextRecord` when `TRIXE_RX_SUPPORT==1`
-
-A single receive record type should live in `src/triceRx.h`.
-
-Recommended shape:
-
-```c
-// triceRx_t is a struct which gets filled during trice rx
-typedef struct triceRx_t {
-    uint16_t id;            // Trice id
-    uint8_t  bitWidth;      // payload bithWidth, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
-    uint8_t  stampBits;     //  `0`, `16`, or `32` valid stamp bits or 0xffu for typeX0 Trices.
-    uint32_t stamp;         // usually timestamp for Trice messages, any stamp for Trice ABC messages
-    const uint8_t* payload; // points into the input buffer
-    uint16_t payloadBytes;  // byte count or count typeX0 Trice payload.
-    uint8_t cycleCounter;   // optional part of the nc field
-
-#if TRIXE_RX_ABC_SUPPORT == 1
-    void (*fn)(const struct triceRx_t* rx); // abc function handler resolved from generated triceAbc[].
-#endif
-
-#if TRICE_RX_LOG_SUPPORT == 1
-    const char* pTrice; // Pointer to used Trice macro name.
-    const char* pFmt;   // Trice format string resolved from til.json.
-#if TRICE_LOCATION_SUPPORT == 1
-    const char* file; // `file` is name where the Trice statements was used. Resolved from li.json.
-    uint32_t line;    // Source code line in `file` where the Trice statements was used. Resolved from li.json.
-#endif
-#endif
-
-} triceRx_t;
-```
-
-To parse one decoded record us recommended name and signature:
-
-```c
-//! The function parses exactly one decoded Trice record at `buf[0]`. It does not parse multiple records, does not deframe, does not decrypt, //! and does not use a TIL table. It expects a plain trice binary stream according to the [Trice Binary Encoding](./TriceUserManual.//! md#binary-encoding)
-//! 
-//! It fills:
-//!    rx->id
-//!    rx->stampBits
-//!    rx->stamp
-//!    rx->payload - Important: `payload` points into `buf`; no payload copy is made.
-//!    rx->payloadBytes
-//!    rx->cycleCounter
-//! 
-//! It initializes or leaves as unknown:
-//!    rx->bitWidth = TRICE_BIT_WIDTH_UNKNOWN
-//!    rx->fn = NULL, if present
-//!    rx->pTrice = NULL, if present
-//!    rx->pFmt = NULL, if present
-//!    rx->file = NULL, if present
-//!    rx->line = 0, if present
-//! 
-//! \retval >= 0  number of consumed bytes for the next record
-//! \retval <  0  negative error code
-int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
-```
-
-### 6.2. <a id="triceAbc_t-and-triceresolveabc-with-trixe_rx_abc_support1"></a>`triceAbc_t` and `triceResolveAbc` with `TRIXE_RX_ABC_SUPPORT==1`
-
-* `triceAbc_t` is the type for generated triceAbc[] list.
-* ABC metadata should be generated from `trice generate -abc path/target` and should contain ID, bit width, and function pointer.
-
-```c
-typedef void (*triceFn_t)(const triceRx_t* rx);
-
-typedef struct {
-    const triceFn_t fn;     // Trice ABC 
-    const uint16_t id;      // Trice id
-    const uint8_t bitWidth; // payload bitWith
-} triceAbc_t;
-```
-
-```c
-//! Resolve ABC metadata
-//! The resolver searches `list[0..count-1]` for `rx->id`. If found, it fills:
-//!    rx->bitWidth
-//!    rx->fn
-//! 
-//! If `rx->bitWidth` is still `TRICE_BIT_WIDTH_UNKNOWN`, the resolver sets it. 
-//! If it is already set and differs from the table entry, the resolver returns a bit-width conflict error.
-//! 
-//! \retval If not found, it should return a non-fatal “not found” code. Unknown IDs are normal in mixed streams.
-int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
-```
-
-```c
-//! A small helper can dispatch resolved ABC records.
-//! 
-//! Semantics:
-//! \li if `rx == NULL`: error,
-//! \li if `rx->fn == NULL`: ignored/not selected,
-//! \li if `rx->bitWidth == 0xffu`: error
-//! \li if payload length is incompatible with `rx->bitWidth`: error,
-//! \li otherwise call `rx->fn(rx)` and return success.
-int triceDispatchAbc(const triceRx_t* rx);
-```
-
-This separates parsing, resolving, and dispatching. It also makes tests much easier.
-
-### 6.3. <a id="tricelogentry_t-and-triceresolvelog-with-trice_log_support1"></a>`triceLogEntry_t` and `triceResolveLog` with `TRICE_LOG_SUPPORT==1`
-
-* `triceLogEntry_t` is the type for a derived `triceLog[]` list.
-* A future log resolver table may contain ID, trice name and format string:
-
-```c
-typedef struct {
-    const char* pTrice; // Pointer to used Trice name. This influences the pFmt interpretation for logging.
-    const char* pFmt;   // Trice format string resolved from til.json.
-    const uint16_t id;  // Trice id
-} triceLogEntry_t;
-```
-
-The `tricelog[]` list is derivable from `til.json`. It does not carry a bitWidth value. The bitWidth is implicit coded in the Trice name and is determined (and checked if possible) on the fly.
-
-
-Not part of the first milestone, but the design should reserve the concept:
-
-```c
-
-//! The resolver searches for `rx->id`. If found, it fills:
-//!   rx->pTrice; // Pointer to used Trice macro name. This influences the pFmt interpretation for logging.
-//!   rx->pFmt;   // Trice format string resolved from til.json.
-//! 
-//! The bit-width is implicit coded in pTrice and derived from there. 
-//! If already assigned, the value must be identical or an error is reported.
-//! \retval 0 == faund or negative error value
-int triceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count);
-```
-
-<h4>`triceLocationEntry_t` type for derived `triceLocation[]` list whith `TRICE_LOCATION_SUPPORT==1`</h4>
-
-A future location resolver table may contain ID, trice name and format string:
-
-```c
-typedef struct {
-    const char* pFile;   // Pointer to source file name containing the Trice satement.
-    const uint16_t line; // Line number resolved from li.json.
-    const uint16_t id;   // Trice id
-} triceLogEntry_t;
-```
-
-The data source would be generated or transformed from `li.json`. This is orthogonal to ABC and log formatting.
-Line numbers > 65534 are set to 65535 as line number by the generator/transformer.
-
-```c
-//! triceResolveLocation fills location data from a generated/transformed location table derived from `li.json`.
-//!   rx->file
-//!   rx->line
-int triceResolveLocation(triceRx_t* rx, const triceLocationEntry_t* list, size_t count);
-```
-
-`triceResolveLocation` makes only sense when **TRICE_LOG_SUPPORT==1**.
-
-<h4>Dispatch LOG handler (option for tlog fuctionality in C)</h4>
-
-```c
-int triceDispatchLog(const triceRx_t* rx);
-```
 ---
 
-## 7. <a id="record-parser-details"></a>Record Parser Details
+## 6. <a id="record-parser-details"></a>Record Parser Details
 
 `triceParseNextRecord()` should be derived from the current `TriceAbcOnReceive()` parsing behavior, but it should not dispatch handlers.
 
-### 7.1. <a id="transfer-order"></a>Transfer order
+### 6.1. <a id="transfer-order"></a>Transfer order
 
 Use byte-wise reads controlled by `TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN`. Do not cast unaligned pointers to `uint16_t*` or `uint32_t*`.
 
@@ -440,7 +274,7 @@ static uint32_t triceReadU32(const uint8_t* p);
 
 These helpers should be shared between record parser and tests.
 
-### 7.2. <a id="selector-interpretation"></a>Selector interpretation
+### 6.2. <a id="selector-interpretation"></a>Selector interpretation
 
 The first 16-bit word contains selector bits and 14-bit ID. The parser should extract:
 
@@ -460,15 +294,15 @@ Selector behavior:
 
 Selector 0 should remain a deliberate policy point. If typeX0 support is enabled, it may represent counted user packets. If not, it should return a clear unsupported/bad-record code.
 
-### 7.3. <a id="consumed-bytes"></a>Consumed bytes
+### 6.3. <a id="consumed-bytes"></a>Consumed bytes
 
 The parser must return the logical record length. It should not consume alignment padding after a record. Alignment or multi-record stepping is the caller’s responsibility.
 
-### 7.4. <a id="buffer-too-short"></a>Buffer-too-short
+### 6.4. <a id="buffer-too-short"></a>Buffer-too-short
 
 If the buffer does not contain enough bytes for the next complete record, return a negative buffer-too-short code. The caller must keep the current bytes and retry when more data arrives.
 
-### 7.5. <a id="payload-validation"></a>Payload validation
+### 6.5. <a id="payload-validation"></a>Payload validation
 
 The parser itself cannot validate payload alignment against `bitWidth`, because `bitWidth` is unknown until resolution.
 
@@ -480,9 +314,9 @@ Payload byte count is parsed structurally only. Later, `triceDispatchAbc()` or a
 
 ---
 
-## 8. <a id="resolver-details"></a>Resolver Details
+## 7. <a id="resolver-details"></a>Resolver Details
 
-### 8.1. <a id="resolver-input-tables-use-explicit-counts"></a>Resolver input tables use explicit counts
+### 7.1. <a id="resolver-input-tables-use-explicit-counts"></a>Resolver input tables use explicit counts
 
 Generated lists are compile-time known, but resolver functions should still take a count:
 
@@ -499,7 +333,7 @@ Rationale:
 - no reserved dummy ID needed,
 - generator does not need delimiter entries.
 
-### 8.2. <a id="bit-width-conflict-rule"></a>Bit-width conflict rule
+### 7.2. <a id="bit-width-conflict-rule"></a>Bit-width conflict rule
 
 Use a shared helper internally:
 
@@ -524,9 +358,9 @@ This makes it possible to call both ABC and log resolvers on the same record dur
 
 ---
 
-## 9. <a id="trice-abc-migration-plan"></a>Trice ABC Migration Plan
+## 8. <a id="trice-abc-migration-plan"></a>Trice ABC Migration Plan
 
-### 9.1. <a id="stage-a-introduce-generic-rx-types-without-breaking-abc"></a>Stage A: Introduce generic RX types without breaking ABC
+### 8.1. <a id="stage-a-introduce-generic-rx-types-without-breaking-abc"></a>Stage A: Introduce generic RX types without breaking ABC
 
 Add `src/triceRx.h` and `src/triceRx.c` with:
 
@@ -538,7 +372,7 @@ Add `src/triceRx.h` and `src/triceRx.c` with:
 
 At this point, keep `triceAbcReceive.*` as-is except possibly including `triceRx.h` for shared constants.
 
-### 9.2. <a id="stage-b-extract-parsing"></a>Stage B: Extract parsing
+### 8.2. <a id="stage-b-extract-parsing"></a>Stage B: Extract parsing
 
 Add:
 
@@ -548,7 +382,7 @@ int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
 
 Move record parsing out of `TriceAbcOnReceive()` logic. Tests should prove that the new parser returns the same logical lengths and extracted fields as the current ABC receive tests expect.
 
-### 9.3. <a id="stage-c-add-abc-resolver-and-dispatcher"></a>Stage C: Add ABC resolver and dispatcher
+### 8.3. <a id="stage-c-add-abc-resolver-and-dispatcher"></a>Stage C: Add ABC resolver and dispatcher
 
 Add:
 
@@ -563,7 +397,7 @@ Make the generated ABC table use `triceRx_t` handler signature:
 void handler(const triceRx_t* rx);
 ```
 
-### 9.4. <a id="stage-d-adapt-triceabconreceive-as-compatibility-wrapper"></a>Stage D: Adapt `TriceAbcOnReceive()` as compatibility wrapper
+### 8.4. <a id="stage-d-adapt-triceabconreceive-as-compatibility-wrapper"></a>Stage D: Adapt `TriceAbcOnReceive()` as compatibility wrapper
 
 To avoid breaking current tests and users, keep:
 
@@ -584,7 +418,7 @@ return n;
 
 This wrapper preserves the current direct-dispatch model while moving the architecture toward generic RX.
 
-### 9.5. <a id="stage-e-retire-abc-specific-receive-type"></a>Stage E: Retire ABC-specific receive type
+### 8.5. <a id="stage-e-retire-abc-specific-receive-type"></a>Stage E: Retire ABC-specific receive type
 
 Once all generated code and tests use `triceRx_t`, remove or alias `triceRx_t`.
 
@@ -598,7 +432,7 @@ This can ease migration if the generator or examples still use old names.
 
 ---
 
-## 10. <a id="future-c-tlog-architecture"></a>Future C `tlog` Architecture
+## 9. <a id="future-c-tlog-architecture"></a>Future C `tlog` Architecture
 
 A standalone C/C++ `tlog` should reuse the same receive layers:
 
@@ -642,7 +476,7 @@ The C `tlog` formatter should be a separate later effort. It will need:
 
 ---
 
-## 11. <a id="example-tree-direction"></a>Example Tree Direction
+## 10. <a id="example-tree-direction"></a>Example Tree Direction
 
 The current `examples/TriceAbc` tree is an early demonstrator. It should stay useful but not define the core architecture.
 
@@ -694,7 +528,7 @@ N1_tx/N1_tx.c
 
 No `_abc` suffix is needed because the target path already names the generated files.
 
-### 11.1. <a id="node-suffixes"></a>Node suffixes
+### 10.1. <a id="node-suffixes"></a>Node suffixes
 
 Use the suffixes as bus access capabilities only:
 
@@ -710,7 +544,7 @@ Important wording:
 Trice ABC has no protocol-level response concept. Every bus message is an asynchronous broadcast command. A higher application layer may interpret later commands as answers, acknowledgements, or status reports, but that interpretation is outside the Trice ABC layer.
 ```
 
-### 11.2. <a id="bcsim-remains-neutral"></a>BcSim remains neutral
+### 10.2. <a id="bcsim-remains-neutral"></a>BcSim remains neutral
 
 `BcSim` should remain a general broadcast-simulation module. Its README should not mention Trice. `examples/TriceAbc/ReadMe.md` explains how Trice ABC uses it.
 
@@ -726,11 +560,11 @@ abc.bus.lock/
 
 ---
 
-## 12. <a id="test-strategy"></a>Test Strategy
+## 11. <a id="test-strategy"></a>Test Strategy
 
 The implementation must proceed in small testable steps. The test plan should separate transmit tests, record parser tests, resolver tests, ABC dispatch tests, frame/decrypt tests, and future C `tlog` tests.
 
-### 12.1. <a id="parser-unit-tests"></a>Parser unit tests
+### 11.1. <a id="parser-unit-tests"></a>Parser unit tests
 
 Create host-native tests for `triceParseNextRecord()`.
 
@@ -749,7 +583,7 @@ Assertions:
 
 These tests can follow the style of `_test/abc_rx_host`, which already builds C fixtures through Go tests and checks C-side behavior.
 
-### 12.2. <a id="resolver-tests"></a>Resolver tests
+### 11.2. <a id="resolver-tests"></a>Resolver tests
 
 Create C fixture tests with tiny local arrays.
 
@@ -774,7 +608,7 @@ TRICE_LOG_SUPPORT=1
 TRICE_LOG_SUPPORT=1, TRICE_LOCATION_SUPPORT=1
 ```
 
-### 12.3. <a id="abc-dispatch-tests"></a>ABC dispatch tests
+### 11.3. <a id="abc-dispatch-tests"></a>ABC dispatch tests
 
 Adapt the current `_test/abc_rx_host` tests to the new layering.
 
@@ -797,7 +631,7 @@ Keep the current scenario coverage:
 - truncated buffer rejected,
 - nested dispatch does not corrupt the outer stack-local record.
 
-### 12.4. <a id="receive-only-dependency-test"></a>Receive-only dependency test
+### 11.4. <a id="receive-only-dependency-test"></a>Receive-only dependency test
 
 Build a small RX-only test that includes the receive headers and generated ABC metadata but does not link normal Trice transmit/output modules.
 
@@ -808,13 +642,13 @@ This test proves that `TRICE_RX_SUPPORT == 1` does not pull in:
 - UART/RTT transmit backends,
 - `TriceStamp16` / `TriceStamp32` dependencies.
 
-### 12.5. <a id="existing-transmit-tests"></a>Existing transmit tests
+### 11.5. <a id="existing-transmit-tests"></a>Existing transmit tests
 
 Keep the existing `triceCheck.c` / `//exp:` infrastructure for transmit-side behavior. It is already designed to build target-like C code with multiple configurations and compare generated tool output against expected strings.
 
 ABC transmit tests should remain in that framework because they test real target macro output and host decoding together.
 
-### 12.6. <a id="framedecrypt-tests"></a>Frame/decrypt tests
+### 11.6. <a id="framedecrypt-tests"></a>Frame/decrypt tests
 
 Initially, keep frame/decrypt tests separate from `triceParseNextRecord()`.
 
@@ -827,7 +661,7 @@ Suggested sequence:
 
 For XTEA, ensure decrypt support can be compiled in receive-only mode. The current XTEA C file is tied to transmit/backend conditions and may need refactoring before this test can be clean.
 
-### 12.7. <a id="bcsim-tests"></a>BcSim tests
+### 11.7. <a id="bcsim-tests"></a>BcSim tests
 
 BcSim tests should remain protocol-neutral. They should not depend on Trice. They should verify:
 
@@ -838,7 +672,7 @@ BcSim tests should remain protocol-neutral. They should not depend on Trice. The
 - no metadata in the binary bus file,
 - optional read-lock mode.
 
-### 12.8. <a id="end-to-end-demo-tests"></a>End-to-end demo tests
+### 11.8. <a id="end-to-end-demo-tests"></a>End-to-end demo tests
 
 Later, after core parsing and ABC dispatch are stable, an end-to-end example can run:
 
@@ -850,7 +684,7 @@ This should be a demo acceptance test, not the first unit test.
 
 ---
 
-## 13. <a id="recommended-implementation-order"></a>Recommended Implementation Order
+## 12. <a id="recommended-implementation-order"></a>Recommended Implementation Order
 
 1. **Freeze design terms**
    - `TRICE_TX_SUPPORT`, `TRICE_RX_SUPPORT`
@@ -903,35 +737,35 @@ This should be a demo acceptance test, not the first unit test.
 
 ---
 
-## 14. <a id="risks-and-design-warnings"></a>Risks and Design Warnings
+## 13. <a id="risks-and-design-warnings"></a>Risks and Design Warnings
 
-### 14.1. <a id="risk-doing-full-c-tlog-too-early"></a>Risk: doing full C `tlog` too early
+### 13.1. <a id="risk-doing-full-c-tlog-too-early"></a>Risk: doing full C `tlog` too early
 
 A full C `tlog` formatter is much larger than Trice ABC receive. It involves TIL transformation, format parsing, integer/float/string formatting, location data, display policies, and statistics. It should not block the first receive core.
 
-### 14.2. <a id="risk-coupling-rx-to-tx-accidentally"></a>Risk: coupling RX to TX accidentally
+### 13.2. <a id="risk-coupling-rx-to-tx-accidentally"></a>Risk: coupling RX to TX accidentally
 
 This is the main architecture risk. Every new receive file should be tested in a receive-only build. Header includes must be watched carefully. If including `trice.h` pulls in too much, create smaller receive headers.
 
-### 14.3. <a id="risk-xtea-compile-conditions"></a>Risk: XTEA compile conditions
+### 13.3. <a id="risk-xtea-compile-conditions"></a>Risk: XTEA compile conditions
 
 Current XTEA code may be tied to transmit/backend build conditions. Receive-only decrypt needs either refactoring or a separate compile path.
 
-### 14.4. <a id="risk-conflating-parse-and-resolve"></a>Risk: conflating parse and resolve
+### 13.4. <a id="risk-conflating-parse-and-resolve"></a>Risk: conflating parse and resolve
 
 Do not let the parser fill `bitWidth`, `pFmt`, or function pointers. That makes it impossible to reuse the parser for both ABC and logging.
 
-### 14.5. <a id="risk-treating-abc-follow-up-commands-as-protocol-level-responses"></a>Risk: treating ABC follow-up commands as protocol-level responses
+### 13.5. <a id="risk-treating-abc-follow-up-commands-as-protocol-level-responses"></a>Risk: treating ABC follow-up commands as protocol-level responses
 
 Documentation and demos must avoid saying ABC has responses. ABC has only asynchronous broadcast commands. Higher layers may interpret later commands as responses.
 
-### 14.6. <a id="risk-payload-lifetime"></a>Risk: payload lifetime
+### 13.6. <a id="risk-payload-lifetime"></a>Risk: payload lifetime
 
 Because payload pointers reference the input buffer, delayed processing requires user-side copying. This must be documented in API comments and examples.
 
 ---
 
-## 15. <a id="open-decisions"></a>Open Decisions
+## 14. <a id="open-decisions"></a>Open Decisions
 
 1. **Final parser name**
 
@@ -959,7 +793,7 @@ Because payload pointers reference the input buffer, delayed processing requires
 
 ---
 
-## 16. <a id="suggested-near-term-acceptance-criteria"></a>Suggested Near-Term Acceptance Criteria
+## 15. <a id="suggested-near-term-acceptance-criteria"></a>Suggested Near-Term Acceptance Criteria
 
 The first “done” milestone should be smaller than full ABC + tlog:
 
@@ -976,7 +810,7 @@ Once this milestone is reached, adding COBS/TCOBS/XTEA receive integration and t
 
 ---
 
-## 17. <a id="short-recommendation"></a>Short Recommendation
+## 16. <a id="short-recommendation"></a>Short Recommendation
 
 Build the future C receive architecture in this order:
 

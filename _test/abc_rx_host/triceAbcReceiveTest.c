@@ -5,6 +5,17 @@
 
 #include "device_abc.h"
 
+// triceLog is a small generated-table stand-in for testing log resolution
+// without adding another generated fixture file.
+const triceLog_t triceLog[] = {
+	{ "trice", "default:%d", 2001u },
+	{ "TRICe_C", "cmd:no-payload", 2002u },
+	{ "TRICE16_C", "cmd:%d", 2003u },
+};
+
+// triceLogElements mirrors the generated element-count symbol used by runtime wrappers.
+const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
+
 // rxCheckCase selects the expected assertions for the current fixture call.
 static int rxCheckCase;
 
@@ -229,7 +240,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxPutU16(record, 0x0001u);
 		rxPutU16(record + 2, 0x00c0u);
 		result = TriceAbcOnReceive(record, 4);
-		rxFailUnless(result == TRICE_ABC_RX_E_PAYLOAD);
+		rxFailUnless(result == TRICE_RX_E_PAYLOAD);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -238,7 +249,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == TRICE_ABC_RX_E_PAYLOAD);
+		rxFailUnless(result == TRICE_RX_E_PAYLOAD);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -247,7 +258,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1002u, 32u, 0x12345678u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used - 1);
-		rxFailUnless(result == TRICE_ABC_RX_E_SHORT);
+		rxFailUnless(result == TRICE_RX_E_SHORT);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -270,6 +281,64 @@ int TriceAbcRxHostCheck(int n) {
 		result = TriceAbcOnReceive(record, used);
 		rxFailUnless(result == 138);
 		rxFailUnless(rxCalls == 1);
+		break;
+	}
+	case 11: { // Log resolver applies the configured default bit width to no-width log names.
+		int32_t payload[1] = { 0x01020304 };
+		uint8_t record[8];
+		triceRx_t rx;
+		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
+		result = triceParseNextRecord(&rx, record, (size_t)used);
+		rxFailUnless(result == used);
+		rxFailUnless(rx.bitWidth == TRICE_BIT_WIDTH_UNKNOWN);
+		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_OK);
+		rxFailUnless(rx.bitWidth == TRICE_DEFAULT_PARAMETER_BIT_WIDTH);
+		rxFailUnless(rx.pTrice == triceLog[0].pTrice);
+		rxFailUnless(rx.pFmt == triceLog[0].pFmt);
+		rxFailUnless(rxCalls == 0);
+		break;
+	}
+	case 12: { // Log resolver keeps no-width ABC C names payload-free instead of using the default width.
+		uint8_t record[4];
+		triceRx_t rx;
+		int used = rxBuildAbcRecord(record, 2002u, 0u, 0u, 0, 0u, 0);
+		result = triceParseNextRecord(&rx, record, (size_t)used);
+		rxFailUnless(result == used);
+		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_OK);
+		rxFailUnless(rx.bitWidth == 0u);
+		rxFailUnless(rx.payload == 0);
+		rxFailUnless(rx.payloadBytes == 0u);
+		rxFailUnless(rxCalls == 0);
+		break;
+	}
+	case 13: { // Explicit ABC C bit widths still win over the no-width C special case.
+		int16_t payload[2] = { 11, 22 };
+		uint8_t record[8];
+		triceRx_t rx;
+		int used = rxBuildAbcRecord(record, 2003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
+		result = triceParseNextRecord(&rx, record, (size_t)used);
+		rxFailUnless(result == used);
+		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_OK);
+		rxFailUnless(rx.bitWidth == 16u);
+		rxFailUnless(rx.payloadBytes == sizeof(payload));
+		rxFailUnless(rxCalls == 0);
+		break;
+	}
+	case 14: { // TriceLogOnReceive consumes known and unknown log IDs without dispatch side effects.
+		int32_t payload[1] = { 0x55667788 };
+		uint8_t record[8];
+		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
+		result = TriceLogOnReceive(record, used);
+		rxFailUnless(result == used);
+		used = rxBuildAbcRecord(record, 2999u, 0u, 0u, 0, 0u, 0);
+		result = TriceLogOnReceive(record, used);
+		rxFailUnless(result == used);
+		result = TriceLogOnReceive(record, used - 1);
+		rxFailUnless(result == TRICE_RX_E_SHORT);
+		rxFailUnless(rxCalls == 0);
 		break;
 	}
 	default:

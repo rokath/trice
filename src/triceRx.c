@@ -7,6 +7,16 @@
 
 #include "triceRx.h"
 
+#include <string.h>
+
+// triceRxInit clears all optional fields and marks metadata that must be
+// supplied later by an ABC or log resolver. It stays private because callers
+// should receive initialized records only from triceParseNextRecord().
+static void triceRxInit(triceRx_t* rx) {
+	memset(rx, 0, sizeof(*rx));
+	rx->bitWidth = TRICE_BIT_WIDTH_UNKNOWN;
+}
+
 // triceReadU16 reads a transfer-order 16-bit value without assuming alignment.
 static uint16_t triceReadU16(const uint8_t* p) {
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 1
@@ -150,10 +160,10 @@ static int triceValidateAbcPayload(const triceRx_t* rx) {
 	uint8_t widthBytes;
 
 	if (rx->bitWidth == TRICE_BIT_WIDTH_UNKNOWN) {
-		return TRICE_RX_E_RECORD;
+		return TRICE_RX_E_PAYLOAD;
 	}
 	if (rx->payloadBytes != 0u && rx->bitWidth == 0u) {
-		return TRICE_RX_E_RECORD;
+		return TRICE_RX_E_PAYLOAD;
 	}
 	if (rx->bitWidth <= 8u) {
 		return TRICE_RX_OK;
@@ -163,7 +173,7 @@ static int triceValidateAbcPayload(const triceRx_t* rx) {
 	}
 
 	widthBytes = (uint8_t)(rx->bitWidth >> 3);
-	return ((rx->payloadBytes % widthBytes) == 0u) ? TRICE_RX_OK : TRICE_RX_E_RECORD;
+	return ((rx->payloadBytes % widthBytes) == 0u) ? TRICE_RX_OK : TRICE_RX_E_PAYLOAD;
 }
 
 int triceDispatchAbc(const triceRx_t* rx) {
@@ -183,10 +193,10 @@ int triceDispatchAbc(const triceRx_t* rx) {
 	return TRICE_RX_OK;
 }
 
-// triceAbcMapError preserves the compact ABC receive error contract while the
-// generic receive layer keeps more detailed internal error reasons.
+// triceAbcMapError keeps TriceAbcOnReceive compatible with the compact receive
+// error policy: short input consumes no bytes, malformed records are payload errors.
 static int triceAbcMapError(int e) {
-	return (e == TRICE_RX_E_SHORT) ? TRICE_ABC_RX_E_SHORT : TRICE_ABC_RX_E_PAYLOAD;
+	return (e == TRICE_RX_E_SHORT) ? TRICE_RX_E_SHORT : TRICE_RX_E_PAYLOAD;
 }
 
 int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
@@ -195,11 +205,11 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	int e;
 
 	if (pBuf == 0 || len < 4) {
-		return TRICE_ABC_RX_E_SHORT;
+		return TRICE_RX_E_SHORT;
 	}
 
 	used = triceParseNextRecord(&rx, pBuf, (size_t)len);
-	if (used < 0) {
+	if (used <= 0) {
 		return triceAbcMapError(used);
 	}
 
@@ -208,43 +218,66 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		return used;
 	}
 	if (e != TRICE_RX_OK) {
-		return TRICE_ABC_RX_E_PAYLOAD;
+		return TRICE_RX_E_PAYLOAD;
 	}
 
 	e = triceDispatchAbc(&rx);
-	return (e == TRICE_RX_OK || e == TRICE_RX_E_NOT_FOUND) ? used : TRICE_ABC_RX_E_PAYLOAD;
+	return (e == TRICE_RX_OK || e == TRICE_RX_E_NOT_FOUND) ? used : TRICE_RX_E_PAYLOAD;
 }
 
 #endif // #if TRICE_RX_ABC_SUPPORT == 1
 
 #if TRICE_RX_LOG_SUPPORT == 1
 
-// triceBitWidthFromName extracts explicit widths from common Trice macro names.
-// Names without an explicit 8/16/32/64 marker leave bitWidth unresolved.
-static uint8_t triceBitWidthFromName(const char* name) {
-	const char* p = name;
-	if (p == 0) {
-		return TRICE_BIT_WIDTH_UNKNOWN;
-	}
-	while (*p != '\0') {
-		if (p[0] == '8') {
-			return 8u;
-		}
-		if (p[0] == '1' && p[1] == '6') {
-			return 16u;
-		}
-		if (p[0] == '3' && p[1] == '2') {
-			return 32u;
-		}
-		if (p[0] == '6' && p[1] == '4') {
-			return 64u;
-		}
-		++p;
-	}
-	return TRICE_BIT_WIDTH_UNKNOWN;
+// triceStartsWithTrice recognizes the generated TIL type prefix independent of
+// the stamp-encoding letter case. It intentionally checks only "trice" because
+// the suffix carries the bit-width, payload, and type details.
+static int triceStartsWithTrice(const char* name) {
+	return name != 0 &&
+	       (name[0] == 't' || name[0] == 'T') &&
+	       (name[1] == 'r' || name[1] == 'R') &&
+	       (name[2] == 'i' || name[2] == 'I') &&
+	       (name[3] == 'c' || name[3] == 'C') &&
+	       (name[4] == 'e' || name[4] == 'E');
 }
 
-int triceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count) {
+// triceIsAbcNameWithoutWidth detects ABC command names like triceC, TRiceC,
+// TRICE_C, or TRICe_C after the "trice" prefix. These no-width C forms carry
+// no payload, so their width is 0 and must not fall back to the log default.
+static int triceIsAbcNameWithoutWidth(const char* suffix) {
+	return ((suffix[0] == 'C' || suffix[0] == 'c') && suffix[1] == '\0') ||
+	       ((suffix[0] == '_') && (suffix[1] == 'C' || suffix[1] == 'c') && suffix[2] == '\0');
+}
+
+// triceBitWidthFromName derives the payload element width from a generated TIL
+// type name. Explicit 8/16/32/64 suffixes win. Plain log names use the project
+// default parameter width. Plain ABC C names stay width 0 because they have no
+// payload and are not default-width log records.
+static uint8_t triceBitWidthFromName(const char* name) {
+	const char* suffix;
+	if (!triceStartsWithTrice(name)) {
+		return TRICE_BIT_WIDTH_UNKNOWN;
+	}
+	suffix = name + 5;
+	if (suffix[0] == '8') {
+		return 8u;
+	}
+	if (suffix[0] == '1' && suffix[1] == '6') {
+		return 16u;
+	}
+	if (suffix[0] == '3' && suffix[1] == '2') {
+		return 32u;
+	}
+	if (suffix[0] == '6' && suffix[1] == '4') {
+		return 64u;
+	}
+	if (triceIsAbcNameWithoutWidth(suffix)) {
+		return 0u;
+	}
+	return (uint8_t)TRICE_DEFAULT_PARAMETER_BIT_WIDTH;
+}
+
+int triceResolveLog(triceRx_t* rx, const triceLog_t* list, size_t count) {
 	size_t i;
 	uint8_t bitWidth;
 	int e;
@@ -271,7 +304,7 @@ int triceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count) {
 
 #if TRICE_LOCATION_SUPPORT == 1
 
-int triceResolveLocation(triceRx_t* rx, const triceLocationEntry_t* list, size_t count) {
+int triceResolveLocation(triceRx_t* rx, const triceLocation_t* list, size_t count) {
 	size_t i;
 
 	if (rx == 0 || (list == 0 && count != 0u)) {
@@ -294,6 +327,41 @@ int triceDispatchLog(const triceRx_t* rx) {
 		return TRICE_RX_E_ARG;
 	}
 	return (rx->pFmt == 0) ? TRICE_RX_E_NOT_FOUND : TRICE_RX_E_UNSUPPORTED;
+}
+
+int TriceLogOnReceive(const uint8_t* pBuf, int len) {
+	triceRx_t rx;
+	int used;
+	int e;
+
+	if (pBuf == 0 || len < 4) {
+		return TRICE_RX_E_SHORT;
+	}
+
+	used = triceParseNextRecord(&rx, pBuf, (size_t)len);
+	if (used < 0) {
+		return used;
+	}
+
+	e = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+	if (e == TRICE_RX_E_NOT_FOUND) {
+		return used;
+	}
+	if (e != TRICE_RX_OK) {
+		return e;
+	}
+
+#if TRICE_LOCATION_SUPPORT == 1
+	// Location data is optional metadata. Missing location entries must not
+	// prevent consuming a valid log record, but malformed resolver arguments or
+	// future resolver errors should still be visible to the caller.
+	e = triceResolveLocation(&rx, triceLocation, (size_t)triceLocationElements);
+	if (e != TRICE_RX_OK && e != TRICE_RX_E_NOT_FOUND) {
+		return e;
+	}
+#endif
+
+	return used;
 }
 
 #endif // #if TRICE_RX_LOG_SUPPORT == 1
