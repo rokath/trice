@@ -55,12 +55,11 @@ BASE_CFLAGS=(-std=c99 -Wall -Wextra -pedantic -O2 -I../BcSim)
 
 # Pick the executable suffix and any platform-specific compatibility defines.
 case "$(uname -s 2>/dev/null || echo unknown)" in
-  MINGW*|MSYS*|CYGWIN*)
+  MINGW* | MSYS* | CYGWIN*)
     EXE="bcSimDevice.exe"
     BASE_CFLAGS+=(-D_CRT_SECURE_NO_WARNINGS)
     ;;
-  Darwin*|Linux*)
-    ;;
+  Darwin* | Linux*) ;;
   *)
     echo "warning: unknown OS; trying generic POSIX-like build" >&2
     ;;

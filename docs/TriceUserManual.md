@@ -5320,7 +5320,7 @@ This syntax is supported: `%[flags][width][.precision][length]`
 
 ### 35.1. <a id="trice-abc-in-one-minute"></a>Trice ABC in one minute
 
-**Trice ABC** is an optional Trice extension for command-style communication between devices. A receive-only implementation is usable with just the two `triceAbcReceive` [c](../src/triceAbcReceive.c) and [h](../src/triceAbcReceive.h) files and the specific generated `device_abc` [c](../_test/abc_rx_host/device_abc.c) & [h](../_test/abc_rx_host/device_abc.h) pair.
+**Trice ABC** is an optional Trice extension for command-style communication between devices. A receive-only implementation is usable with just the two `triceRx` [c](../src/triceRx.c) and [h](../src/triceRx.h) files and the specific generated `device_abc` [c](../_test/abc_rx_host/device_abc.c) & [h](../_test/abc_rx_host/device_abc.h) pair.
 
 - **Asynchronous**: the sender does not block waiting for receivers or responses.
 - **Broadcast**: the command may be observed by several devices; the sender does not imply exactly one peer.

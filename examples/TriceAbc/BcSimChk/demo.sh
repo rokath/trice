@@ -18,7 +18,7 @@ cd "$SCRIPT_DIR"
 # Select the executable path. Windows-like shells usually build an .exe suffix.
 EXE="./build/bcSimDevice"
 case "$(uname -s 2>/dev/null || echo unknown)" in
-  MINGW*|MSYS*|CYGWIN*) EXE="./build/bcSimDevice.exe" ;;
+  MINGW* | MSYS* | CYGWIN*) EXE="./build/bcSimDevice.exe" ;;
 esac
 
 # Start from a clean demonstration bus. The lock directory is removed as a
@@ -32,10 +32,14 @@ echo
 
 # Launch the same binary four times with different participant names. The
 # slightly different intervals make interleaving more visible in bc.log.
-"$EXE" -name A -auto 4 -interval 180 & pid_a=$!
-"$EXE" -name B -auto 4 -interval 220 & pid_b=$!
-"$EXE" -name C -auto 4 -interval 260 & pid_c=$!
-"$EXE" -name D -auto 4 -interval 300 & pid_d=$!
+"$EXE" -name A -auto 4 -interval 180 &
+pid_a=$!
+"$EXE" -name B -auto 4 -interval 220 &
+pid_b=$!
+"$EXE" -name C -auto 4 -interval 260 &
+pid_c=$!
+"$EXE" -name D -auto 4 -interval 300 &
+pid_d=$!
 
 # Wait for all participants. If one fails, bash returns a non-zero status.
 wait "$pid_a" "$pid_b" "$pid_c" "$pid_d"
