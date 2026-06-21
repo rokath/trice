@@ -34,6 +34,7 @@ package cgot
 // #include "../../src/cobsEncode.c"
 // #include "../../src/tcobsv1Decode.c"
 // #include "../../src/tcobsv1Encode.c"
+// #include "../../src/triceRx.c"
 // #include "../../src/triceX0.c"
 // #include "../testdata/triceCheck.c"
 // #include "../testdata/cgoTrice.c"

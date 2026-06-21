@@ -7,6 +7,8 @@
 
 #include "triceRx.h"
 
+#if TRICE_RX_SUPPORT == 1
+
 #include <string.h>
 
 // triceRxInit clears all optional fields and marks metadata that must be
@@ -365,3 +367,5 @@ int TriceLogOnReceive(const uint8_t* pBuf, int len) {
 }
 
 #endif // #if TRICE_RX_LOG_SUPPORT == 1
+
+#endif // #if TRICE_RX_SUPPORT == 1

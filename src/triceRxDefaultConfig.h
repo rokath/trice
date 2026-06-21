@@ -34,8 +34,9 @@
 #define TRICE_RX_X0_COUNTED_BUFFER_SUPPORT 0
 #endif
 
-// TRICE_RX_SUPPORT is a derived receive-stack presence indicator.
-#undef TRICE_RX_SUPPORT
+#ifdef TRICE_RX_SUPPORT
+#error TRICE_RX_SUPPORT is a derived receive-stack presence indicator
+#endif
 #define TRICE_RX_SUPPORT (TRICE_RX_ABC_SUPPORT | TRICE_RX_LOG_SUPPORT | TRICE_RX_X0_COUNTED_BUFFER_SUPPORT)
 
 // TRICE_RX_FRAMING describes the receive-side byte stream framing policy.

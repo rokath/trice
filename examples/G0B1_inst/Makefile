@@ -90,6 +90,7 @@ C_SOURCES += \
 ../../src/triceRingBuffer.c \
 ../../src/triceStackBuffer.c \
 ../../src/triceStaticBuffer.c \
+../../src/triceRx.c \
 ../../src/triceX0.c \
 ../../src/xtea.c 
 

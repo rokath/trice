@@ -11,6 +11,8 @@
 #include "triceConfig.h"
 #include "triceRxDefaultConfig.h"
 
+#if TRICE_RX_SUPPORT == 1
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -203,5 +205,7 @@ int TriceLogOnReceive(const uint8_t* pBuf, int len);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // #if TRICE_RX_SUPPORT == 1
 
 #endif // TRICE_RX_H_
