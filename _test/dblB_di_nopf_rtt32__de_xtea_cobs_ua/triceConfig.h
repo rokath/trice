@@ -9,7 +9,6 @@ extern "C" {
 #endif
 
 #define TRICE_LEGACY_RPC_SUPPORT 1
-#define TRICE_ABC_TRANSMIT_SUPPORT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_DIRECT_OUTPUT 1 // trice l -p jlink -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0" -showID "deb:%04x" -hs off -pf cobs -d16=true
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
@@ -19,7 +18,6 @@ extern "C" {
 #define TRICE_DEFERRED_UARTA 1
 #define TRICE_UARTA
 #define TRICE_CGO 1
-#define TRICE_X0_COUNTED_BUFFER_SUPPORT 1
 #define TRICE_CYCLE_COUNTER 0
 
 #ifdef __cplusplus

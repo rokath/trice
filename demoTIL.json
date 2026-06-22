@@ -1,4 +1,12 @@
 {
+	"1126": {
+		"Type": "trice",
+		"Strg": "log:from=%u phase=%u\\n"
+	},
+	"1219": {
+		"Type": "trice",
+		"Strg": "log:from=%u phase=%u\\n"
+	},
 	"13000": {
 		"Type": "TRice",
 		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
@@ -9654,5 +9662,105 @@
 	"16383": {
 		"Type": "trice16",
 		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
+	},
+	"1716": {
+		"Type": "triceC",
+		"Strg": "cmd:logState"
+	},
+	"1861": {
+		"Type": "triceS",
+		"Strg": "log:text=%s\\n"
+	},
+	"2034": {
+		"Type": "trice",
+		"Strg": "log:tick=%u\\n"
+	},
+	"3310": {
+		"Type": "trice",
+		"Strg": "log:from=%u phase=%u\\n"
+	},
+	"3578": {
+		"Type": "triceC",
+		"Strg": "cmd:logState"
+	},
+	"3792": {
+		"Type": "trice8C",
+		"Strg": "cmd:setKey"
+	},
+	"3925": {
+		"Type": "trice8C",
+		"Strg": "cmd:setKey"
+	},
+	"4208": {
+		"Type": "triceC",
+		"Strg": "cmd:logState"
+	},
+	"4364": {
+		"Type": "trice",
+		"Strg": "log:tick=%u\\n"
+	},
+	"4470": {
+		"Type": "triceS",
+		"Strg": "log:text=%s\\n"
+	},
+	"4499": {
+		"Type": "trice32C",
+		"Strg": "cmd:divide"
+	},
+	"4557": {
+		"Type": "trice32C",
+		"Strg": "abc:DivideResult"
+	},
+	"4818": {
+		"Type": "triceC",
+		"Strg": "cmd:getLeds"
+	},
+	"5017": {
+		"Type": "triceS",
+		"Strg": "log:text=%s\\n"
+	},
+	"5074": {
+		"Type": "trice",
+		"Strg": "log:tick=%u\\n"
+	},
+	"5150": {
+		"Type": "trice8C",
+		"Strg": "cmd:setLeds"
+	},
+	"5460": {
+		"Type": "trice",
+		"Strg": "log:from=%u phase=%u\\n"
+	},
+	"6278": {
+		"Type": "trice8C",
+		"Strg": "cmd:setLeds"
+	},
+	"6890": {
+		"Type": "trice8C",
+		"Strg": "cmd:setKey"
+	},
+	"6949": {
+		"Type": "trice",
+		"Strg": "log:tick=%u\\n"
+	},
+	"7145": {
+		"Type": "trice8C",
+		"Strg": "abc:LedsState"
+	},
+	"7171": {
+		"Type": "triceC",
+		"Strg": "cmd:getLeds"
+	},
+	"7313": {
+		"Type": "triceC",
+		"Strg": "cmd:getLeds"
+	},
+	"7431": {
+		"Type": "trice8C",
+		"Strg": "cmd:setLeds"
+	},
+	"7615": {
+		"Type": "triceS",
+		"Strg": "log:text=%s\\n"
 	}
 }

@@ -643,7 +643,7 @@ static size_t directXEncode8(void* enc, const void* buf, unsigned len) {
 #endif
 
 	size_t len4 = (lenX + 1 + 3) & ~3;
-	memset(enc + lenX, 0, len4 - lenX);
+	memset(((uint8_t*)enc) + lenX, 0, len4 - lenX);
 	return lenX + 1;
 }
 

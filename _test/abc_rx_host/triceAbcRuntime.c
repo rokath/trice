@@ -3,4 +3,4 @@
 // TRICE_INSERT_OFF - Trice parser exclusion marker
 
 // Include the production runtime in this isolated CGO package with its local triceConfig.h.
-#include "../../src/triceAbcReceive.c"
+#include "../../src/triceRx.c"

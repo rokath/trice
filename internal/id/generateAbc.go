@@ -37,7 +37,7 @@ type abcDeclaration struct {
 }
 
 // abcDeclPattern accepts only the public first-version byte-oriented handler signature.
-var abcDeclPattern = regexp.MustCompile(`\bvoid\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*const\s+triceAbcRx_t\s*\*\s*(?:[A-Za-z_][A-Za-z0-9_]*)?\s*\)\s*;`)
+var abcDeclPattern = regexp.MustCompile(`\bvoid\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*const\s+triceRx_t\s*\*\s*(?:[A-Za-z_][A-Za-z0-9_]*)?\s*\)\s*;`)
 
 // abcCommandNamePattern enforces that a command name can become a C function identifier.
 var abcCommandNamePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
@@ -102,7 +102,7 @@ func abcCommandName(format string) (string, error) {
 
 // abcDeclarationText renders the editable target selection prototype for one command.
 func abcDeclarationText(cmd abcCommand) string {
-	return fmt.Sprintf("void %s(const triceAbcRx_t* rx);", cmd.name)
+	return fmt.Sprintf("void %s(const triceRx_t* rx);", cmd.name)
 }
 
 // abcIncludeGuard derives a stable C include guard from the generated header filename.
@@ -239,26 +239,55 @@ func stripCComments(s string) string {
 	return string(out)
 }
 
-// ToFilesAbc creates or reads <target>_abc.h and regenerates <target>_abc.c from the TIL.
-func (ilu TriceIDLookUp) ToFilesAbc(w io.Writer, fSys *afero.Afero, target string) error {
-	if target == "" {
+// abcTargetPaths resolves the optional target path relative to baseDir and derives the generated ABC filenames.
+func abcTargetPaths(baseDir, targetSpec string) (dir, target, headerName, sourceName, headerPath, sourcePath string, err error) {
+	if targetSpec == "" {
+		err = fmt.Errorf("missing ABC target name")
+		return
+	}
+	cleaned := filepath.Clean(targetSpec)
+	target = filepath.Base(cleaned)
+	if target == "." || target == string(filepath.Separator) || target == "" {
+		err = fmt.Errorf("missing ABC target name")
+		return
+	}
+	if target == ".." {
+		err = fmt.Errorf("ABC target %q must not resolve to parent directory", targetSpec)
+		return
+	}
+	dir = filepath.Dir(cleaned)
+	if dir == "." {
+		dir = ""
+	}
+	headerName = target + ".h"
+	sourceName = target + ".c"
+	headerPath = filepath.Join(baseDir, dir, headerName)
+	sourcePath = filepath.Join(baseDir, dir, sourceName)
+	return
+}
+
+// ToFilesAbc creates or reads [path/]<target>.h and regenerates [path/]<target>.c from the TIL.
+func (ilu TriceIDLookUp) ToFilesAbc(w io.Writer, fSys *afero.Afero, targetSpec string) error {
+	if targetSpec == "" {
 		return fmt.Errorf("missing ABC target name")
 	}
-	if strings.ContainsAny(target, `/\`) {
-		return fmt.Errorf("ABC target %q must be a filename stem, not a path", target)
+	baseDir := filepath.Dir(FnJSON)
+	if baseDir == "." {
+		baseDir = ""
+	}
+	dir, target, headerName, sourceName, headerPath, sourcePath, err := abcTargetPaths(baseDir, targetSpec)
+	if err != nil {
+		return err
 	}
 	commands, err := ilu.abcCommands()
 	if err != nil {
 		return err
 	}
-	dir := filepath.Dir(FnJSON)
-	if dir == "." {
-		dir = ""
+	if dir != "" {
+		if err := fSys.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
 	}
-	headerName := target + "_abc.h"
-	sourceName := target + "_abc.c"
-	headerPath := filepath.Join(dir, headerName)
-	sourcePath := filepath.Join(dir, sourceName)
 
 	declarations := map[string]abcDeclaration{}
 	if fileExists(fSys, headerPath) {
@@ -311,7 +340,7 @@ func writeAbcHeader(fSys *afero.Afero, path, filename, target string, commands [
 	fmt.Fprintf(&b, "//! Trice ABC selection file for target %s.\n", target)
 	b.WriteString("//! Generated once; edit this file to select received ABC commands.\n\n")
 	fmt.Fprintf(&b, "#ifndef %s\n#define %s\n\n", guard, guard)
-	b.WriteString("#include \"triceAbcReceive.h\"\n\n")
+	b.WriteString("#include \"triceRx.h\"\n\n")
 	b.WriteString("#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n")
 	seen := map[string]bool{}
 	for _, cmd := range commands {
@@ -333,7 +362,7 @@ func writeAbcSource(fSys *afero.Afero, path, filename, headerName string, comman
 	fmt.Fprintf(&b, "//! \\file %s\n", filename)
 	b.WriteString("//! Trice generated ABC code - do not edit!\n\n")
 	fmt.Fprintf(&b, "#include %q\n", headerName)
-	b.WriteString("#include \"triceAbcReceive.h\"\n\n")
+	b.WriteString("#include \"triceRx.h\"\n\n")
 	b.WriteString("const triceAbc_t triceAbc[] = {\n")
 	if len(commands) == 0 {
 		b.WriteString("\t{ 0u, 0u, 0 }\n")

@@ -5,6 +5,17 @@
 
 #include "device_abc.h"
 
+// triceLog is a small generated-table stand-in for testing log resolution
+// without adding another generated fixture file.
+const triceLog_t triceLog[] = {
+	{ 2001u, TRICE_DEFAULT_PARAMETER_BIT_WIDTH, 1u, "default:%d" },
+	{ 2002u, 0u, 0u, "cmd:no-payload" },
+	{ 2003u, 16u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "cmd:%d" },
+};
+
+// triceLogElements mirrors the generated element-count symbol used by runtime wrappers.
+const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
+
 // rxCheckCase selects the expected assertions for the current fixture call.
 static int rxCheckCase;
 
@@ -91,7 +102,7 @@ static void rxFailUnless(int condition) {
 }
 
 // rx_no_payload verifies no-payload dispatch and direct stamp context delivery.
-void rx_no_payload(const triceAbcRx_t* rx) {
+void rx_no_payload(const triceRx_t* rx) {
 	rxCalls++;
 	rxFailUnless(rx->id == 1001u);
 	rxFailUnless(rx->bitWidth == 0u);
@@ -104,13 +115,16 @@ void rx_no_payload(const triceAbcRx_t* rx) {
 	} else if (rxCheckCase == 9) {
 		rxFailUnless(rx->stampBits == 16u);
 		rxFailUnless((uint16_t)rx->stamp == 0x2222u);
+	} else if (rxCheckCase == 15) {
+		rxFailUnless(rx->stampBits == 0u);
+		rxFailUnless(rx->stamp == 0u);
 	} else {
 		rxFailures++;
 	}
 }
 
 // rx_i8_bulk verifies the long-count path and byte-granular payload handling.
-void rx_i8_bulk(const triceAbcRx_t* rx) {
+void rx_i8_bulk(const triceRx_t* rx) {
 	rxCalls++;
 	rxFailUnless(rxCheckCase == 10);
 	rxFailUnless(rx->id == 1006u);
@@ -125,7 +139,7 @@ void rx_i8_bulk(const triceAbcRx_t* rx) {
 }
 
 // rx_i16 verifies byte-oriented payload delivery from an intentionally unaligned input pointer.
-void rx_i16(const triceAbcRx_t* rx) {
+void rx_i16(const triceRx_t* rx) {
 	int16_t values[2];
 	memcpy(values, rx->payload, sizeof(values));
 	rxCalls++;
@@ -140,11 +154,11 @@ void rx_i16(const triceAbcRx_t* rx) {
 }
 
 // rx_i32 verifies int32_t payload bytes and no-stamp context.
-void rx_i32(const triceAbcRx_t* rx) {
+void rx_i32(const triceRx_t* rx) {
 	int32_t value;
 	memcpy(&value, rx->payload, sizeof(value));
 	rxCalls++;
-	rxFailUnless(rxCheckCase == 3);
+	rxFailUnless(rxCheckCase == 3 || rxCheckCase == 15);
 	rxFailUnless(rx->stampBits == 0u);
 	rxFailUnless(rx->bitWidth == 32u);
 	rxFailUnless(rx->payloadBytes == sizeof(value));
@@ -152,7 +166,7 @@ void rx_i32(const triceAbcRx_t* rx) {
 }
 
 // rx_i64 verifies the widest first-version ABC payload without typed pointer casts.
-void rx_i64(const triceAbcRx_t* rx) {
+void rx_i64(const triceRx_t* rx) {
 	int64_t value;
 	memcpy(&value, rx->payload, sizeof(value));
 	rxCalls++;
@@ -163,7 +177,7 @@ void rx_i64(const triceAbcRx_t* rx) {
 }
 
 // rx_nested verifies that nested dispatch does not mutate the outer context object.
-void rx_nested(const triceAbcRx_t* rx) {
+void rx_nested(const triceRx_t* rx) {
 	uint8_t nested[8];
 	int used;
 	rxCalls++;
@@ -229,7 +243,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxPutU16(record, 0x0001u);
 		rxPutU16(record + 2, 0x00c0u);
 		result = TriceAbcOnReceive(record, 4);
-		rxFailUnless(result == TRICE_ABC_RX_E_PAYLOAD);
+		rxFailUnless(result == TRICE_RX_E_PAYLOAD);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -238,7 +252,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == TRICE_ABC_RX_E_PAYLOAD);
+		rxFailUnless(result == TRICE_RX_E_PAYLOAD);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -247,7 +261,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1002u, 32u, 0x12345678u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used - 1);
-		rxFailUnless(result == TRICE_ABC_RX_E_SHORT);
+		rxFailUnless(result == TRICE_RX_E_SHORT);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -270,6 +284,95 @@ int TriceAbcRxHostCheck(int n) {
 		result = TriceAbcOnReceive(record, used);
 		rxFailUnless(result == 138);
 		rxFailUnless(rxCalls == 1);
+		break;
+	}
+	case 11: { // Log resolver applies the configured default bit width to no-width log names.
+		int32_t payload[1] = { 0x01020304 };
+		uint8_t record[8];
+		triceRx_t rx;
+		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
+		result = triceParseNextRecord(&rx, record, (size_t)used);
+		rxFailUnless(result == used);
+		rxFailUnless(rx.bitWidth == TRICE_BIT_WIDTH_UNKNOWN);
+		rxFailUnless(rx.paramCount == 0u);
+		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_OK);
+		rxFailUnless(rx.bitWidth == TRICE_DEFAULT_PARAMETER_BIT_WIDTH);
+		rxFailUnless(rx.paramCount == 1u);
+		rxFailUnless(rx.pFmt == triceLog[0].pFmt);
+		rxFailUnless(rxCalls == 0);
+		break;
+	}
+	case 12: { // Log resolver keeps no-width ABC C names payload-free instead of using the default width.
+		uint8_t record[4];
+		triceRx_t rx;
+		int used = rxBuildAbcRecord(record, 2002u, 0u, 0u, 0, 0u, 0);
+		result = triceParseNextRecord(&rx, record, (size_t)used);
+		rxFailUnless(result == used);
+		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_OK);
+		rxFailUnless(rx.bitWidth == 0u);
+		rxFailUnless(rx.paramCount == 0u);
+		rxFailUnless(rx.payload == 0);
+		rxFailUnless(rx.payloadBytes == 0u);
+		result = triceDispatchLog(&rx);
+		rxFailUnless(result == TRICE_RX_E_UNSUPPORTED);
+		rxFailUnless(rxCalls == 0);
+		break;
+	}
+	case 13: { // Explicit log bit widths still win over the no-width default for resolved metadata.
+		int16_t payload[2] = { 11, 22 };
+		uint8_t record[8];
+		triceRx_t rx;
+		int used = rxBuildAbcRecord(record, 2003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
+		result = triceParseNextRecord(&rx, record, (size_t)used);
+		rxFailUnless(result == used);
+		rxFailUnless(rx.paramCount == 0u);
+		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_OK);
+		rxFailUnless(rx.bitWidth == 16u);
+		rxFailUnless(rx.paramCount == TRICE_LOG_PARAM_COUNT_DYNAMIC);
+		rxFailUnless(rx.payloadBytes == sizeof(payload));
+		result = triceDispatchLog(&rx);
+		rxFailUnless(result == TRICE_RX_E_UNSUPPORTED);
+		rxFailUnless(rxCalls == 0);
+		break;
+	}
+	case 14: { // TriceLogOnReceive consumes known and unknown log IDs without dispatch side effects.
+		int32_t payload[1] = { 0x55667788 };
+		uint8_t record[8];
+		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
+		result = TriceLogOnReceive(record, used);
+		rxFailUnless(result == used);
+		used = rxBuildAbcRecord(record, 2999u, 0u, 0u, 0, 0u, 0);
+		result = TriceLogOnReceive(record, used);
+		rxFailUnless(result == used);
+		result = TriceLogOnReceive(record, used - 1);
+		rxFailUnless(result == TRICE_RX_E_SHORT);
+		used = rxBuildAbcRecord(record, 2001u, 0u, 0u, 0, 0u, 0);
+		result = TriceLogOnReceive(record, used);
+		rxFailUnless(result == TRICE_RX_E_PAYLOAD);
+		rxFailUnless(rxCalls == 0);
+		break;
+	}
+	case 15: { // A caller advances through a stream because TriceAbcOnReceive consumes only one record.
+		int32_t payload[1] = { 0x11223344 };
+		uint8_t stream[16];
+		int firstLen;
+		int secondLen;
+		int streamLen;
+
+		firstLen = rxBuildAbcRecord(stream, 1001u, 0u, 0u, 0, 0u, 0);
+		secondLen = rxBuildAbcRecord(stream + firstLen, 1003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
+		streamLen = firstLen + secondLen;
+
+		result = TriceAbcOnReceive(stream, streamLen);
+		rxFailUnless(result == firstLen);
+		rxFailUnless(rxCalls == 1);
+
+		result = TriceAbcOnReceive(stream + firstLen, streamLen - firstLen);
+		rxFailUnless(result == secondLen);
+		rxFailUnless(rxCalls == 2);
 		break;
 	}
 	default:

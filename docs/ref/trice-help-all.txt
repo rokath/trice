@@ -232,6 +232,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Case insensitive receiver device name: 'serial name|JLINK|STLINK|FILE|FILEBUFFER|TCP4|TCP4BUFFER|DEC|BUFFER|HEX|DUMP.
     	The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.
     	Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
+    	See CLI switch -args for details.
     	 (default "J-LINK")
   -prefix string
     	Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'. (default "source: ")
@@ -377,7 +378,7 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'g|gen|generate': Use for creating colors or support files.
   -abc string
-        Create or use <target>_abc.h and regenerate <target>_abc.c for Trice ABC receive handling.
+        Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.
   -colors
     	Write all possible colors.
   -i string
@@ -398,8 +399,6 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
     	Create a til.c file.
   -tilCS
     	Create a til.cs file.
-  -tilH
-    	Create a til.h file.
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.

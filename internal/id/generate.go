@@ -18,7 +18,6 @@ import (
 )
 
 var (
-	GenerateTilH   bool
 	GenerateTilC   bool
 	GenerateTilCS  bool
 	GenerateRpcH   bool
@@ -29,7 +28,7 @@ var (
 
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
 func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
-	if !GenerateTilH && !GenerateTilC && !GenerateTilCS && !GenerateRpcH && !GenerateRpcC && GenerateABC == "" && !WriteAllColors {
+	if !GenerateTilC && !GenerateTilCS && !GenerateRpcH && !GenerateRpcC && GenerateABC == "" && !WriteAllColors {
 		fmt.Fprintln(w, `The "trice generate" command needs at least one parameter. Check "trice help -generate".`)
 		return nil
 	}
@@ -44,14 +43,6 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 	ilu := NewLut(w, fSys, FnJSON) // read til.json
 	fn := strings.TrimSuffix(FnJSON, filepath.Ext(FnJSON))
 	msg.FatalOnErr(err)
-
-	if GenerateTilH {
-		fnH := fn + ".h"
-		msg.FatalOnErr(ToFileTilH(fSys, fnH))
-		if Verbose {
-			fmt.Fprintln(w, "generated", fnH)
-		}
-	}
 
 	if GenerateRpcH {
 		fnRPC := fn + "Rpc.h"
@@ -88,8 +79,14 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 	if GenerateABC != "" {
 		msg.FatalOnErr(ilu.ToFilesAbc(w, fSys, GenerateABC))
 		if Verbose {
-			fmt.Fprintln(w, "generated", GenerateABC+"_abc.h")
-			fmt.Fprintln(w, "generated", GenerateABC+"_abc.c")
+			baseDir := filepath.Dir(FnJSON)
+			if baseDir == "." {
+				baseDir = ""
+			}
+			_, _, _, _, headerPath, sourcePath, err := abcTargetPaths(baseDir, GenerateABC)
+			msg.FatalOnErr(err)
+			fmt.Fprintln(w, "generated", headerPath)
+			fmt.Fprintln(w, "generated", sourcePath)
 		}
 	}
 

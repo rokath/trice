@@ -95,14 +95,11 @@ extern "C" {
 
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
-#include "triceAbcReceive.h"
+#include "triceRx.h"
 
 // Keep typeX0 output independent from the normal TRICE_OFF and TRICE_CLEAN
 // switches. Without typeX0, TRICE_CLEAN still disables the ordinary backend.
-// The "+ 0" form lets an empty legacy define evaluate as 0 in preprocessor
-// expressions.
-#define TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE (TRICE_X0_COUNTED_BUFFER_SUPPORT + 0)
-#define TRICE_BACKEND_ACTIVE (((TRICE_CLEAN == 0) && (TRICE_OFF == 0)) || (TRICE_X0_COUNTED_BUFFER_SUPPORT_VALUE == 1))
+#define TRICE_BACKEND_ACTIVE (((TRICE_CLEAN == 0) && (TRICE_OFF == 0)) || (TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1))
 
 #ifndef TRICE_WEAK // user can define TRICE_WEAK for special cases
 #ifdef WEAK
@@ -912,7 +909,7 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 
 #endif
 
-#if TRICE_ABC_TRANSMIT_SUPPORT == 1
+#if TRICE_TX_ABC_SUPPORT == 1
 
 //! TRICE_C_ID32 writes the 32-bit-stamped ABC ID header without fetching TriceStamp32.
 #define TRICE_C_ID32(n) TRICE_PUT16((uint16_t)(0xC000) | (uint16_t)(n));
@@ -1064,7 +1061,7 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 #define TRice64C(tid, pFmt, stamp32, buf, n) TRICE64_C(tid, pFmt, stamp32, buf, n)
 #endif // #if (TRICE_64_BIT_SUPPORT == 1)
 
-#endif // #if TRICE_ABC_TRANSMIT_SUPPORT == 1
+#endif // #if TRICE_TX_ABC_SUPPORT == 1
 
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value

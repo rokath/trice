@@ -20,3 +20,5 @@ coverage.out
 # It is created locally on demand and in the release workflow,
 # but it is no longer versioned in git.
 docs/TriceUserManual.pdf
+
+examples/**/*.bus
