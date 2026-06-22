@@ -82,6 +82,9 @@ void nodePrintState(const node_t* node, const char* reason);
 /* Print a short LED-only line. */
 void nodePrintLeds(const node_t* node, const char* reason);
 
+/* Sleep helper shared by all demo nodes to keep pacing code in one place. */
+void nodeSleepMs(unsigned ms);
+
 #if TRICE_TX_SUPPORT == 1
 /* Emit one ABC response carrying the current LED mask. */
 void nodeSendLedsState(node_t* node);
@@ -97,14 +100,6 @@ uint8_t nodePayloadU8(const triceRx_t* rx, size_t index);
 /* Read one 32-bit float payload element from a validated ABC record. */
 float nodePayloadFloat32(const triceRx_t* rx, size_t index);
 
-/* Shared demo-side command effects used by the tiny node wrapper functions. */
-void nodeHandleSetLeds(const triceRx_t* rx);
-void nodeHandleGetLeds(const triceRx_t* rx, int answer);
-void nodeHandleSetKey(const triceRx_t* rx);
-void nodeHandleLogState(const triceRx_t* rx);
-void nodeHandleDivide(const triceRx_t* rx, int answer);
-void nodeHandleLedsState(const triceRx_t* rx);
-void nodeHandleDivideResult(const triceRx_t* rx);
 #endif
 
 #ifdef __cplusplus

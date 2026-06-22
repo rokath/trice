@@ -4,24 +4,6 @@
 
 #include <stdio.h>
 
-#if defined(_WIN32)
-#include <windows.h>
-#else
-#include <time.h>
-#endif
-
-/* A small delay between bursts keeps the multi-process output readable. */
-static void sleepMs(unsigned ms) {
-#if defined(_WIN32)
-    Sleep((DWORD)ms);
-#else
-    struct timespec ts;
-    ts.tv_sec = (time_t)(ms / 1000u);
-    ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
-    (void)nanosleep(&ts, 0);
-#endif
-}
-
 /* This node emits a second visible pattern so the shared log stream is varied. */
 static void sendTraffic(unsigned loop) {
     static const char text[] = "N2 sends data";
@@ -71,7 +53,7 @@ int main(void) {
     for (loop = 0u; loop < 8u; ++loop) {
         sendTraffic(loop);
         sendCommand(loop);
-        sleepMs(240u);
+        nodeSleepMs(240u);
     }
 
     nodeClose(&node);

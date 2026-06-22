@@ -21,11 +21,119 @@
 #endif
 
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
+#include <time.h>
+
+#if defined(_WIN32)
+#include <direct.h>
+#include <windows.h>
+#define NODE_MKDIR(path) _mkdir(path)
+#define NODE_RMDIR(path) _rmdir(path)
+#else
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#define NODE_MKDIR(path) mkdir(path, 0777)
+#define NODE_RMDIR(path) rmdir(path)
+#endif
 
 /* The demo uses one process per node, so one process-global current node is enough. */
 static node_t* gNode;
+
+/* Keep one full console line together even when several demo processes print. */
+#define NODE_CONSOLE_LOCK_PATH "abc.console.lock"
+#define NODE_CONSOLE_LINE_MAX 512u
+#define NODE_CONSOLE_LOCK_POLL_MS 10u
+#define NODE_CONSOLE_LOCK_WAIT_MS 2000u
+
+/* Sleep briefly while another demo process owns the console lock. */
+void nodeSleepMs(unsigned ms) {
+#if defined(_WIN32)
+    Sleep((DWORD)ms);
+#else
+    struct timespec ts;
+    ts.tv_sec = (time_t)(ms / 1000u);
+    ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
+    (void)nanosleep(&ts, 0);
+#endif
+}
+
+/*
+ * Serialize terminal writes across all node processes.
+ *
+ * Trice critical sections are process-local and protect target-side shared
+ * state only. The demo needs an additional OS-visible lock because several
+ * independent processes print to one terminal at the same time.
+ */
+static int nodeConsoleLock(void) {
+    unsigned waited = 0u;
+
+    for (;;) {
+        if (NODE_MKDIR(NODE_CONSOLE_LOCK_PATH) == 0) {
+            return 0;
+        }
+        if (errno != EEXIST) {
+            return -1;
+        }
+        if (waited >= NODE_CONSOLE_LOCK_WAIT_MS) {
+            return -1;
+        }
+        nodeSleepMs(NODE_CONSOLE_LOCK_POLL_MS);
+        waited += NODE_CONSOLE_LOCK_POLL_MS;
+    }
+}
+
+/* Release the process-shared console lock again after one whole line is printed. */
+static void nodeConsoleUnlock(void) {
+    (void)NODE_RMDIR(NODE_CONSOLE_LOCK_PATH);
+}
+
+/*
+ * Print exactly one already assembled line.
+ *
+ * Building the complete text before taking the lock keeps the critical section
+ * small and avoids interleaving from helper functions that would otherwise call
+ * printf() several times for one logical output line.
+ */
+static void nodePrintLine(const char* text) {
+    if (text == 0) {
+        return;
+    }
+    if (nodeConsoleLock() == 0) {
+        fputs(text, stdout);
+        fflush(stdout);
+        nodeConsoleUnlock();
+        return;
+    }
+    /* Fallback keeps the demo alive even if the lock directory cannot be used. */
+    fputs(text, stdout);
+    fflush(stdout);
+}
+
+/* Format one complete line first and then print it under the console lock. */
+static void nodePrintLineF(const char* fmt, ...) {
+    char line[NODE_CONSOLE_LINE_MAX];
+    va_list ap;
+    int n;
+
+    if (fmt == 0) {
+        return;
+    }
+    va_start(ap, fmt);
+    n = vsnprintf(line, sizeof(line), fmt, ap);
+    va_end(ap);
+    if (n < 0) {
+        return;
+    }
+    if ((size_t)n >= sizeof(line)) {
+        line[sizeof(line) - 2u] = '\n';
+        line[sizeof(line) - 1u] = 0;
+    }
+    nodePrintLine(line);
+}
 
 void nodeSetCurrent(node_t* node) {
     gNode = node;
@@ -79,11 +187,23 @@ static float nodeReadFloat32(const uint8_t* p) {
     return x.f32;
 }
 
-/* Print bytes in a compact demo-oriented hexadecimal style. */
-static void nodePrintHexBytes(const uint8_t* p, size_t n) {
+/* Format one hexadecimal byte row into the caller supplied line buffer. */
+static void nodeAppendHexBytes(char* dst, size_t dstSize, size_t* pos, const uint8_t* p, size_t n) {
     size_t i;
+
+    if (dst == 0 || dstSize == 0u || pos == 0) {
+        return;
+    }
     for (i = 0u; i < n; ++i) {
-        printf("%s%02x", (i == 0u) ? "" : " ", (unsigned)p[i]);
+        int wrote = snprintf(dst + *pos, dstSize - *pos, "%s%02x", (i == 0u) ? "" : " ", (unsigned)p[i]);
+        if (wrote < 0) {
+            return;
+        }
+        if ((size_t)wrote >= dstSize - *pos) {
+            *pos = dstSize - 1u;
+            return;
+        }
+        *pos += (size_t)wrote;
     }
 }
 
@@ -97,8 +217,7 @@ void nodeSetLeds(node_t* node, uint8_t mask) {
     }
     node->leds = mask;
     nodeMakeLedBar(bar, sizeof(bar), node->leds);
-    printf("%s: leds=%s\n", node->name, bar);
-    fflush(stdout);
+    nodePrintLineF("%s: leds=%s\n", node->name, bar);
 }
 
 void nodeSetKey(node_t* node, const uint8_t* data, size_t len) {
@@ -127,8 +246,7 @@ void nodePrintLeds(const node_t* node, const char* reason) {
         return;
     }
     nodeMakeLedBar(bar, sizeof(bar), node->leds);
-    printf("%s: %s%s\n", node->name, (reason != 0) ? reason : "", bar);
-    fflush(stdout);
+    nodePrintLineF("%s: %s%s\n", node->name, (reason != 0) ? reason : "", bar);
 }
 
 void nodePrintState(const node_t* node, const char* reason) {
@@ -138,12 +256,11 @@ void nodePrintState(const node_t* node, const char* reason) {
         return;
     }
     nodeMakeLedBar(bar, sizeof(bar), node->leds);
-    printf("%s: %skey=%s leds=%s\n",
-           node->name,
-           (reason != 0) ? reason : "",
-           node->key,
-           bar);
-    fflush(stdout);
+    nodePrintLineF("%s: %skey=%s leds=%s\n",
+                   node->name,
+                   (reason != 0) ? reason : "",
+                   node->key,
+                   bar);
 }
 
 int nodeOpen(node_t* node,
@@ -167,8 +284,7 @@ int nodeOpen(node_t* node,
         return e;
     }
     nodeSetCurrent(node);
-    printf("%s: joined abc.bus\n", node->name);
-    fflush(stdout);
+    nodePrintLineF("%s: joined abc.bus\n", node->name);
     return BCSIM_OK;
 }
 
@@ -232,15 +348,15 @@ static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
     }
 
     if (nodeFmtEquals(rx->pFmt, "log:tick=%u\\n", "log:tick=%u\n") && rx->payloadBytes == 4u) {
-        printf("%s: log:tick=%u\n",
-               node->name,
-               (unsigned)nodeReadUnsigned(rx->payload, 4u));
+        nodePrintLineF("%s: log:tick=%u\n",
+                       node->name,
+                       (unsigned)nodeReadUnsigned(rx->payload, 4u));
     } else if (nodeFmtEquals(rx->pFmt, "log:from=%u phase=%u\\n", "log:from=%u phase=%u\n") &&
                rx->payloadBytes == 8u) {
-        printf("%s: log:from=%u phase=%u\n",
-               node->name,
-               (unsigned)nodeReadUnsigned(rx->payload + 0u, 4u),
-               (unsigned)nodeReadUnsigned(rx->payload + 4u, 4u));
+        nodePrintLineF("%s: log:from=%u phase=%u\n",
+                       node->name,
+                       (unsigned)nodeReadUnsigned(rx->payload + 0u, 4u),
+                       (unsigned)nodeReadUnsigned(rx->payload + 4u, 4u));
     } else if (nodeFmtEquals(rx->pFmt, "log:text=%s\\n", "log:text=%s\n")) {
         char text[NODE_KEY_MAX + 1u];
         size_t n = rx->payloadBytes;
@@ -249,25 +365,50 @@ static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
         }
         memcpy(text, rx->payload, n);
         text[n] = 0;
-        printf("%s: log:text=%s\n", node->name, text);
+        nodePrintLineF("%s: log:text=%s\n", node->name, text);
     } else {
-        printf("%s: log:fmt=\"%s\" payload=", node->name, rx->pFmt);
-        nodePrintHexBytes(rx->payload, rx->payloadBytes);
-        printf("\n");
+        char line[NODE_CONSOLE_LINE_MAX];
+        size_t pos = 0u;
+        int wrote = snprintf(line, sizeof(line), "%s: log:fmt=\"%s\" payload=", node->name, rx->pFmt);
+        if (wrote < 0) {
+            return;
+        }
+        if ((size_t)wrote >= sizeof(line)) {
+            line[sizeof(line) - 2u] = '\n';
+            line[sizeof(line) - 1u] = 0;
+            nodePrintLine(line);
+            return;
+        }
+        pos = (size_t)wrote;
+        nodeAppendHexBytes(line, sizeof(line), &pos, rx->payload, rx->payloadBytes);
+        (void)snprintf(line + pos, sizeof(line) - pos, "\n");
+        nodePrintLine(line);
     }
-    fflush(stdout);
 }
 
 #endif /* TRICE_RX_LOG_SUPPORT == 1 */
 
 /* Selector-0 frames are printed separately because they intentionally carry no ID. */
 static void nodePrintX0(const node_t* node, const triceRx_t* rx) {
-    printf("%s: x0 %u bytes: ", node->name, (unsigned)rx->payloadBytes);
-    if (rx->payloadBytes != 0u && rx->payload != 0) {
-        nodePrintHexBytes(rx->payload, rx->payloadBytes);
+    char line[NODE_CONSOLE_LINE_MAX];
+    size_t pos = 0u;
+    int wrote = snprintf(line, sizeof(line), "%s: x0 %u bytes: ", node->name, (unsigned)rx->payloadBytes);
+
+    if (wrote < 0) {
+        return;
     }
-    printf("\n");
-    fflush(stdout);
+    if ((size_t)wrote >= sizeof(line)) {
+        line[sizeof(line) - 2u] = '\n';
+        line[sizeof(line) - 1u] = 0;
+        nodePrintLine(line);
+        return;
+    }
+    pos = (size_t)wrote;
+    if (rx->payloadBytes != 0u && rx->payload != 0) {
+        nodeAppendHexBytes(line, sizeof(line), &pos, rx->payload, rx->payloadBytes);
+    }
+    (void)snprintf(line + pos, sizeof(line) - pos, "\n");
+    nodePrintLine(line);
 }
 
 /* Parse, classify, and dispatch one fully decoded Trice record. */
@@ -277,8 +418,7 @@ static void nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
 
     used = triceParseNextRecord(&rx, record, len);
     if (used <= 0) {
-        printf("%s: rx parse error=%d\n", node->name, used);
-        fflush(stdout);
+        nodePrintLineF("%s: rx parse error=%d\n", node->name, used);
         return;
     }
 
@@ -286,8 +426,7 @@ static void nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
     if (triceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_OK) {
         int e = triceDispatchAbc(&rx);
         if (e != TRICE_RX_OK) {
-            printf("%s: abc dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
-            fflush(stdout);
+            nodePrintLineF("%s: abc dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
         }
         return;
     }
@@ -307,11 +446,10 @@ static void nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
         return;
     }
 
-    printf("%s: ignored id=%u payloadBytes=%u\n",
-           node->name,
-           (unsigned)rx.id,
-           (unsigned)rx.payloadBytes);
-    fflush(stdout);
+    nodePrintLineF("%s: ignored id=%u payloadBytes=%u\n",
+                   node->name,
+                   (unsigned)rx.id,
+                   (unsigned)rx.payloadBytes);
 }
 
 /* Decode one complete COBS frame and feed exactly one Trice record into the classifier. */
@@ -333,8 +471,7 @@ static void nodePushBusByte(node_t* node, uint8_t b) {
         return;
     }
     if (node->streamLen >= sizeof(node->stream)) {
-        printf("%s: rx frame overflow, dropping partial frame\n", node->name);
-        fflush(stdout);
+        nodePrintLineF("%s: rx frame overflow, dropping partial frame\n", node->name);
         node->streamLen = 0u;
         return;
     }
@@ -378,7 +515,14 @@ float nodePayloadFloat32(const triceRx_t* rx, size_t index) {
     return nodeReadFloat32(rx->payload + offset);
 }
 
-void nodeHandleSetLeds(const triceRx_t* rx) {
+/*
+ * ABC handlers are implemented here directly under their generated names.
+ *
+ * The dispatcher already selects by function name, so another wrapper layer in
+ * each node `main.c` would add only repetition. Runtime node role flags decide
+ * whether a handler only updates local state or also answers on the bus.
+ */
+void setLeds(const triceRx_t* rx) {
     node_t* node = nodeCurrent();
     if (node == 0) {
         return;
@@ -386,22 +530,28 @@ void nodeHandleSetLeds(const triceRx_t* rx) {
     nodeSetLeds(node, nodePayloadU8(rx, 0u));
 }
 
-void nodeHandleGetLeds(const triceRx_t* rx, int answer) {
+/*
+ * `getLeds` is broadcast.
+ *
+ * All receive-capable nodes consume the request. Only send-capable nodes emit
+ * the `abc:LedsState` answer, which keeps the role split visible without any
+ * node-local forwarding function.
+ */
+void getLeds(const triceRx_t* rx) {
     node_t* node = nodeCurrent();
     (void)rx;
     if (node == 0) {
         return;
     }
 #if TRICE_TX_SUPPORT == 1
-    if (answer != 0) {
+    if (node->canSend != 0u) {
         nodeSendLedsState(node);
     }
-#else
-    (void)answer;
 #endif
 }
 
-void nodeHandleSetKey(const triceRx_t* rx) {
+/* `setKey` stores one counted byte buffer and prints the updated local state. */
+void setKey(const triceRx_t* rx) {
     node_t* node = nodeCurrent();
     if (node == 0) {
         return;
@@ -410,7 +560,8 @@ void nodeHandleSetKey(const triceRx_t* rx) {
     nodePrintState(node, "");
 }
 
-void nodeHandleLogState(const triceRx_t* rx) {
+/* `logState` intentionally triggers only a local host print and no Trice reply. */
+void logState(const triceRx_t* rx) {
     node_t* node = nodeCurrent();
     (void)rx;
     if (node == 0) {
@@ -419,28 +570,34 @@ void nodeHandleLogState(const triceRx_t* rx) {
     nodePrintState(node, "");
 }
 
-void nodeHandleDivide(const triceRx_t* rx, int answer) {
+/*
+ * `divide` demonstrates request/response traffic with float payload elements.
+ *
+ * Receive-only nodes still consume the command but stop after parsing because
+ * they cannot answer. Division by zero is ignored so the demo stays compact.
+ */
+void divide(const triceRx_t* rx) {
     node_t* node = nodeCurrent();
-    float a;
-    float b;
 
     if (node == 0) {
         return;
     }
-    a = nodePayloadFloat32(rx, 0u);
-    b = nodePayloadFloat32(rx, 1u);
 #if TRICE_TX_SUPPORT == 1
-    if (answer != 0 && b != 0.0f) {
-        nodeSendDivideResult(node, a / b);
+    if (node->canSend != 0u) {
+        float a = nodePayloadFloat32(rx, 0u);
+        float b = nodePayloadFloat32(rx, 1u);
+
+        if (b != 0.0f) {
+            nodeSendDivideResult(node, a / b);
+        }
     }
 #else
-    (void)answer;
-    (void)a;
-    (void)b;
+    (void)rx;
 #endif
 }
 
-void nodeHandleLedsState(const triceRx_t* rx) {
+/* Response records are printed explicitly so the fan-out stays easy to follow. */
+void LedsState(const triceRx_t* rx) {
     node_t* node = nodeCurrent();
     uint8_t mask;
     char bar[11];
@@ -450,17 +607,16 @@ void nodeHandleLedsState(const triceRx_t* rx) {
     }
     mask = nodePayloadU8(rx, 0u);
     nodeMakeLedBar(bar, sizeof(bar), mask);
-    printf("%s: abc:LedsState=%s\n", node->name, bar);
-    fflush(stdout);
+    nodePrintLineF("%s: abc:LedsState=%s\n", node->name, bar);
 }
 
-void nodeHandleDivideResult(const triceRx_t* rx) {
+/* Float answers are shown as plain text because readability matters most here. */
+void DivideResult(const triceRx_t* rx) {
     node_t* node = nodeCurrent();
     if (node == 0) {
         return;
     }
-    printf("%s: abc:DivideResult=%f\n", node->name, (double)nodePayloadFloat32(rx, 0u));
-    fflush(stdout);
+    nodePrintLineF("%s: abc:DivideResult=%f\n", node->name, (double)nodePayloadFloat32(rx, 0u));
 }
 
 #endif /* TRICE_RX_ABC_SUPPORT == 1 */

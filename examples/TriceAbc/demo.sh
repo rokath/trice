@@ -12,6 +12,44 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
+CONSOLE_LOCK_DIR="abc.console.lock"
+CONSOLE_LOCK_POLL_MS=10
+CONSOLE_LOCK_WAIT_LOOPS=200
+
+console_sleep_ms() {
+  local ms="$1"
+  if command -v sleep >/dev/null 2>&1; then
+    sleep "$(awk "BEGIN { printf \"%.3f\", ${ms} / 1000 }")"
+    return
+  fi
+  sleep 1
+}
+
+console_lock() {
+  local waited=0
+  while ! mkdir "${CONSOLE_LOCK_DIR}" 2>/dev/null; do
+    waited=$((waited + 1))
+    if [ "${waited}" -ge "${CONSOLE_LOCK_WAIT_LOOPS}" ]; then
+      return 1
+    fi
+    console_sleep_ms "${CONSOLE_LOCK_POLL_MS}"
+  done
+}
+
+console_unlock() {
+  rmdir "${CONSOLE_LOCK_DIR}" 2>/dev/null || true
+}
+
+console_line() {
+  local text="$1"
+  if console_lock; then
+    printf '%s\n' "${text}"
+    console_unlock
+    return
+  fi
+  printf '%s\n' "${text}"
+}
+
 ./build.sh
 
 EXE_SUFFIX=""
@@ -21,8 +59,9 @@ esac
 
 rm -f abc.bus abc.log
 rm -rf abc.bus.lock
+rm -rf abc.console.lock
 
-echo "start: receive-capable nodes"
+console_line "start: receive-capable nodes"
 ./build/N4_rx${EXE_SUFFIX} &
 pid_n4=$!
 ./build/N5_rx${EXE_SUFFIX} &
@@ -36,7 +75,7 @@ pid_n3=$!
 
 sleep 1
 
-echo "start: transmit-only nodes"
+console_line "start: transmit-only nodes"
 ./build/N1_tx${EXE_SUFFIX} &
 pid_n1=$!
 ./build/N2_tx${EXE_SUFFIX} &
@@ -44,6 +83,6 @@ pid_n2=$!
 
 wait "${pid_n1}" "${pid_n2}" "${pid_n3}" "${pid_n4}" "${pid_n5}" "${pid_n6}" "${pid_n7}"
 
-echo
-echo "--- abc.log ---"
+console_line ""
+console_line "--- abc.log ---"
 cat abc.log

@@ -4,52 +4,6 @@
 
 #include <stdio.h>
 
-#if defined(_WIN32)
-#include <windows.h>
-#else
-#include <time.h>
-#endif
-
-/* This node is another receive-only participant so the broadcast effects are easier to see. */
-void setLeds(const triceRx_t* rx) {
-    nodeHandleSetLeds(rx);
-}
-
-void getLeds(const triceRx_t* rx) {
-    nodeHandleGetLeds(rx, 0);
-}
-
-void setKey(const triceRx_t* rx) {
-    nodeHandleSetKey(rx);
-}
-
-void logState(const triceRx_t* rx) {
-    nodeHandleLogState(rx);
-}
-
-void divide(const triceRx_t* rx) {
-    nodeHandleDivide(rx, 0);
-}
-
-void LedsState(const triceRx_t* rx) {
-    nodeHandleLedsState(rx);
-}
-
-void DivideResult(const triceRx_t* rx) {
-    nodeHandleDivideResult(rx);
-}
-
-static void sleepMs(unsigned ms) {
-#if defined(_WIN32)
-    Sleep((DWORD)ms);
-#else
-    struct timespec ts;
-    ts.tv_sec = (time_t)(ms / 1000u);
-    ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
-    (void)nanosleep(&ts, 0);
-#endif
-}
-
 int main(void) {
     node_t node;
     unsigned loop;
@@ -61,7 +15,7 @@ int main(void) {
 
     for (loop = 0u; loop < 30u; ++loop) {
         (void)nodePoll(&node);
-        sleepMs(130u);
+        nodeSleepMs(130u);
     }
 
     nodeClose(&node);

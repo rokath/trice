@@ -4,24 +4,6 @@
 
 #include <stdio.h>
 
-#if defined(_WIN32)
-#include <windows.h>
-#else
-#include <time.h>
-#endif
-
-/* Sleep helper keeps the demo pacing readable on every supported host OS. */
-static void sleepMs(unsigned ms) {
-#if defined(_WIN32)
-    Sleep((DWORD)ms);
-#else
-    struct timespec ts;
-    ts.tv_sec = (time_t)(ms / 1000u);
-    ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
-    (void)nanosleep(&ts, 0);
-#endif
-}
-
 /* Emit a mix of normal Trices and one counted selector-0 payload. */
 static void sendTraffic(unsigned loop) {
     static const char text[] = "N1 says hi";
@@ -71,7 +53,7 @@ int main(void) {
     for (loop = 0u; loop < 8u; ++loop) {
         sendTraffic(loop);
         sendCommand(loop);
-        sleepMs(180u);
+        nodeSleepMs(180u);
     }
 
     nodeClose(&node);

@@ -4,52 +4,6 @@
 
 #include <stdio.h>
 
-#if defined(_WIN32)
-#include <windows.h>
-#else
-#include <time.h>
-#endif
-
-/* The shared ABC generator derives these handler names from the format strings. */
-void setLeds(const triceRx_t* rx) {
-    nodeHandleSetLeds(rx);
-}
-
-void getLeds(const triceRx_t* rx) {
-    nodeHandleGetLeds(rx, 1);
-}
-
-void setKey(const triceRx_t* rx) {
-    nodeHandleSetKey(rx);
-}
-
-void logState(const triceRx_t* rx) {
-    nodeHandleLogState(rx);
-}
-
-void divide(const triceRx_t* rx) {
-    nodeHandleDivide(rx, 1);
-}
-
-void LedsState(const triceRx_t* rx) {
-    nodeHandleLedsState(rx);
-}
-
-void DivideResult(const triceRx_t* rx) {
-    nodeHandleDivideResult(rx);
-}
-
-static void sleepMs(unsigned ms) {
-#if defined(_WIN32)
-    Sleep((DWORD)ms);
-#else
-    struct timespec ts;
-    ts.tv_sec = (time_t)(ms / 1000u);
-    ts.tv_nsec = (long)((ms % 1000u) * 1000000u);
-    (void)nanosleep(&ts, 0);
-#endif
-}
-
 /* Emit normal log traffic so N6_rx and N7_bi can show TIL-C based decoding. */
 static void sendTraffic(unsigned loop) {
     static const char text[] = "N3 bidirectional";
@@ -108,12 +62,12 @@ int main(void) {
         (void)nodePoll(&node);
         sendTraffic(loop);
         sendCommand(loop);
-        sleepMs(170u);
+        nodeSleepMs(170u);
     }
 
     for (loop = 0u; loop < 6u; ++loop) {
         (void)nodePoll(&node);
-        sleepMs(120u);
+        nodeSleepMs(120u);
     }
 
     nodeClose(&node);
