@@ -340,7 +340,7 @@ func writeAbcHeader(fSys *afero.Afero, path, filename, target string, commands [
 	fmt.Fprintf(&b, "//! Trice ABC selection file for target %s.\n", target)
 	b.WriteString("//! Generated once; edit this file to select received ABC commands.\n\n")
 	fmt.Fprintf(&b, "#ifndef %s\n#define %s\n\n", guard, guard)
-	b.WriteString("#include \"triceAbcReceive.h\"\n\n")
+	b.WriteString("#include \"triceRx.h\"\n\n")
 	b.WriteString("#ifdef __cplusplus\nextern \"C\" {\n#endif\n\n")
 	seen := map[string]bool{}
 	for _, cmd := range commands {
@@ -362,7 +362,7 @@ func writeAbcSource(fSys *afero.Afero, path, filename, headerName string, comman
 	fmt.Fprintf(&b, "//! \\file %s\n", filename)
 	b.WriteString("//! Trice generated ABC code - do not edit!\n\n")
 	fmt.Fprintf(&b, "#include %q\n", headerName)
-	b.WriteString("#include \"triceAbcReceive.h\"\n\n")
+	b.WriteString("#include \"triceRx.h\"\n\n")
 	b.WriteString("const triceAbc_t triceAbc[] = {\n")
 	if len(commands) == 0 {
 		b.WriteString("\t{ 0u, 0u, 0 }\n")

@@ -1,4 +1,12 @@
 {
+	"1126": {
+		"File": "main.c",
+		"Line": 60
+	},
+	"1219": {
+		"File": "main.c",
+		"Line": 32
+	},
 	"13000": {
 		"File": "examples/F030_inst/Core/Src/stm32f0xx_it.c",
 		"Line": 162
@@ -9654,5 +9662,105 @@
 	"16383": {
 		"File": "examples/exampleData/triceLogDiagData.c",
 		"Line": 19
+	},
+	"1716": {
+		"File": "main.c",
+		"Line": 54
+	},
+	"1861": {
+		"File": "main.c",
+		"Line": 61
+	},
+	"2034": {
+		"File": "main.c",
+		"Line": 31
+	},
+	"3310": {
+		"File": "main.c",
+		"Line": 60
+	},
+	"3578": {
+		"File": "main.c",
+		"Line": 51
+	},
+	"3792": {
+		"File": "main.c",
+		"Line": 57
+	},
+	"3925": {
+		"File": "main.c",
+		"Line": 54
+	},
+	"4208": {
+		"File": "main.c",
+		"Line": 86
+	},
+	"4364": {
+		"File": "main.c",
+		"Line": 59
+	},
+	"4470": {
+		"File": "main.c",
+		"Line": 61
+	},
+	"4499": {
+		"File": "main.c",
+		"Line": 91
+	},
+	"4557": {
+		"File": "node.c",
+		"Line": 200
+	},
+	"4818": {
+		"File": "main.c",
+		"Line": 51
+	},
+	"5017": {
+		"File": "main.c",
+		"Line": 33
+	},
+	"5074": {
+		"File": "main.c",
+		"Line": 31
+	},
+	"5150": {
+		"File": "main.c",
+		"Line": 80
+	},
+	"5460": {
+		"File": "main.c",
+		"Line": 32
+	},
+	"6278": {
+		"File": "main.c",
+		"Line": 48
+	},
+	"6890": {
+		"File": "main.c",
+		"Line": 83
+	},
+	"6949": {
+		"File": "main.c",
+		"Line": 59
+	},
+	"7145": {
+		"File": "node.c",
+		"Line": 191
+	},
+	"7171": {
+		"File": "main.c",
+		"Line": 77
+	},
+	"7313": {
+		"File": "main.c",
+		"Line": 57
+	},
+	"7431": {
+		"File": "main.c",
+		"Line": 48
+	},
+	"7615": {
+		"File": "main.c",
+		"Line": 33
 	}
 }

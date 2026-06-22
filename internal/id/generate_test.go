@@ -6,12 +6,32 @@ import (
 	"bytes"
 	"fmt"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestToListTilCEscapesFormatStrings(t *testing.T) {
+	defer Setup(t)()
+
+	til := TriceIDLookUp{
+		1001: {Type: "trice", Strg: "plain=%u"},
+		1002: {Type: "trice", Strg: "quote=\"%s\" path=C:\\temp\\demo\n"},
+	}
+
+	text, err := til.toListTilC("demoTIL.c")
+	require.NoError(t, err)
+	generated := string(text)
+
+	// The generated C source must keep arbitrary Trice format text inside a
+	// valid C string literal. Embedded quotes, backslashes, and newlines are
+	// therefore expected to appear in escaped form inside til.c.
+	assert.Contains(t, generated, `{  1001u,  32u, 1u, "plain=%u" },`)
+	assert.Contains(t, generated, fmt.Sprintf(`{  1002u,  32u, 1u, %s },`, strconv.Quote(til[1002].Strg)))
+}
 
 // Test_computeValues verifies the expected behavior.
 func Test_computeValues(t *testing.T) {

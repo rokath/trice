@@ -105,7 +105,7 @@ func TestAbcGenerateWorkflow(t *testing.T) {
 	require.NoError(t, err)
 	headerText := string(header)
 	assert.Contains(t, headerText, "#ifndef DEVICEA_H_")
-	assert.Contains(t, headerText, `#include "triceAbcReceive.h"`)
+	assert.Contains(t, headerText, `#include "triceRx.h"`)
 	assert.Contains(t, headerText, "void get_power_state(const triceRx_t* rx);")
 	assert.Contains(t, headerText, "void set_pwm(const triceRx_t* rx);")
 	assert.Contains(t, headerText, "void set_time(const triceRx_t* rx);")
@@ -115,7 +115,7 @@ func TestAbcGenerateWorkflow(t *testing.T) {
 	editedHeader := `#ifndef DEVICEA_H_
 #define DEVICEA_H_
 
-#include "triceAbcReceive.h"
+#include "triceRx.h"
 
 void get_power_state(const triceRx_t* rx);
 // void set_pwm(const triceRx_t* rx);
@@ -133,7 +133,7 @@ void unknown_local_handler(const triceRx_t* rx);
 	require.NoError(t, err)
 	sourceText := string(source)
 	assert.Contains(t, sourceText, `#include "deviceA.h"`)
-	assert.Contains(t, sourceText, `#include "triceAbcReceive.h"`)
+	assert.Contains(t, sourceText, `#include "triceRx.h"`)
 	assert.NotContains(t, sourceText, "static void triceAbcCall_")
 	assert.Contains(t, sourceText, "{  1001u,   0u, get_power_state }")
 	assert.Contains(t, sourceText, "{  1003u,  32u, set_time }")

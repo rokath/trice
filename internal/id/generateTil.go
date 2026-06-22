@@ -56,7 +56,11 @@ const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 
 	for id, t := range ilu {
 		extType, bitWidth, paramCount := computeLogValues(t, defaultBitWidth)
-		text = append(text, []byte(fmt.Sprintf(`	/* %10s ( %10s ) */ { %5du, %3du, %s, "%s" },`+"\n", t.Type, extType, id, bitWidth, paramCount, t.Strg))...)
+		// strconv.Quote emits a valid C-compatible double-quoted string literal
+		// for the generated format text. This keeps embedded quotes, backslashes,
+		// tabs, and newlines safe when arbitrary Trice format strings enter til.c.
+		quotedFormat := strconv.Quote(t.Strg)
+		text = append(text, []byte(fmt.Sprintf(`	/* %10s ( %10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat))...)
 	}
 
 	text = append(text, tail...)

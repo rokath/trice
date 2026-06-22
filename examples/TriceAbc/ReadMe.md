@@ -1,9 +1,27 @@
 # Trice ABC examples
 
-This directory is prepared for small host-native examples that show Trice ABC in
-action without requiring several embedded boards. The examples use `BcSim` as a
-file-backed broadcast medium. `BcSim` itself is protocol-neutral; all Trice- and
-ABC-specific code lives outside `BcSim`.
+This directory contains a host-native multi-node Trice ABC demonstration. The
+goal is not to replace the embedded target integration. The goal is to make the
+receive path, the ABC generator output, the compact TIL-C output, and the bus
+behavior visible on one PC with a small and inspectable code base.
+
+`BcSim` stays protocol-neutral. It transports only bytes. All Trice-specific
+framing, parsing, ID resolution, ABC dispatch, and demo behavior live above it
+inside `NodeLib/` and the node `main.c` files.
+
+## Quick start
+
+From this directory:
+
+```sh
+./build.sh
+./demo.sh
+```
+
+The demo script starts the receive-capable nodes first and the pure transmit
+nodes afterwards. This ordering matters because `BcSim` joins the live stream at
+the current end of `abc.bus`. Late joiners intentionally do not replay old bus
+traffic.
 
 ## Folder overview
 
@@ -13,137 +31,213 @@ TriceAbc/
   triceRxConfig.h
 
   BcSim/        protocol-neutral file-backed broadcast simulation library
-  BcSimChk/     standalone check program for BcSim only
+  BcSimChk/     standalone BcSim-only check program
 
-  NodeLib/      common helper code for the Trice ABC node examples
+  NodeLib/      shared host runtime, shared ABC selection file, shared TIL-C file
 
-  N1_tx/        transmit-only node
-  N2_tx/        transmit-only node
-  N3_bi/        bidirectional node
-  N4_rx/        receive-only node
-  N5_rx/        receive-only node
-  N6_rx/        receive-only node
-  N7_bi/        bidirectional node
+  N1_tx/        transmit-only demo node
+  N2_tx/        transmit-only demo node
+  N3_bi/        bidirectional demo node
+  N4_rx/        receive-only demo node
+  N5_rx/        receive-only demo node
+  N6_rx/        receive-only demo node with normal Trice logging
+  N7_bi/        bidirectional demo node with normal Trice logging
 ```
 
-The examples use the repository-level TIL file:
+The shared generator input is the repository-level TIL file:
 
 ```text
 ../../demoTIL.json
 ```
 
-when commands are run from this `examples/TriceAbc` directory.
+## Runtime files
 
-## Bus files
-
-The Trice ABC examples shall use these runtime files in this directory:
+The Trice ABC demo uses these runtime files in this directory:
 
 ```text
-abc.bus        binary bus stream
-abc.log        human-readable traffic log
+abc.bus        binary framed Trice byte stream
+abc.log        human-readable BcSim traffic log
 abc.bus.lock/  temporary writer lock directory
 ```
 
-These names are intentionally different from the `BcSimChk` check program,
-which stays isolated in its own directory and continues to use `bc.bus`,
-`bc.log`, and `bc.bus.lock/`.
+These names are separate from `BcSimChk/` on purpose so both demos can coexist.
 
-## Node suffixes
+## Node roles
 
-The suffixes describe only bus access capability. They do not define protocol
-roles.
+The suffix describes bus capability only:
 
 ```text
-rx  receive-only: receives broadcast commands only; never writes to the broadcast medium
-tx  transmit-only: emits broadcast commands only; does not read from the broadcast medium, so no feedback is possible
-bi  bidirectional: emits and receives broadcast commands
+tx  transmit-only: can send but never reads the bus
+rx  receive-only: can read and execute but never writes the bus
+bi  bidirectional: can send and can receive
 ```
 
-Node overview:
+The current demo roles are:
 
 ```text
-N1_tx  transmit-only: emits broadcast commands only; no feedback is possible
-N2_tx  transmit-only: emits broadcast commands only; no feedback is possible
-N3_bi  bidirectional: emits and receives broadcast commands
-N4_rx  receive-only: receives broadcast commands only; local action only
-N5_rx  receive-only: receives broadcast commands only; local action only
-N6_rx  receive-only: receives broadcast commands only; local action only
-N7_bi  bidirectional: emits and receives broadcast commands
+N1_tx  emits normal Trices, counted typeX0 buffers, and ABC commands
+N2_tx  emits normal Trices, counted typeX0 buffers, and ABC commands
+N3_bi  emits traffic, receives ABC, and can answer over the bus
+N4_rx  receives ABC and executes local actions only
+N5_rx  receives ABC and executes local actions only
+N6_rx  receives ABC, executes local actions, and prints received normal Trices
+N7_bi  emits traffic, receives ABC, answers over the bus, and prints received normal Trices
 ```
 
-## No protocol-level responses
+## Demonstrated commands
 
-Trice ABC has no protocol-level response concept. Every bus message is an
-asynchronous broadcast command. A higher application layer may interpret later
-commands as answers, acknowledgements, status reports, or other follow-up
-messages, but that interpretation is outside the Trice ABC layer.
+The demo intentionally uses a small command set that shows different payload
+shapes and bus semantics:
+
+```text
+cmd:setLeds      payload: one 8-bit LED bit mask
+cmd:getLeds      payload: none
+cmd:setKey       payload: counted 8-bit byte buffer
+cmd:logState     payload: none
+cmd:divide       payload: two 32-bit float values
+
+abc:LedsState    payload: one 8-bit LED bit mask
+abc:DivideResult payload: one 32-bit float value
+```
+
+Important behavior choices:
+
+- `setLeds` updates the local simulated LED bar of every receive-capable node.
+- `getLeds` is a broadcast request. Every other node that can send answers with
+  `abc:LedsState`. Receive-only nodes do not answer because they have no bus
+  transmit capability.
+- `setKey` stores a small byte-string key locally and is useful to show counted
+  8-bit ABC payload transfer.
+- `logState` is only a local `printf` request. It does not emit a Trice or ABC
+  response because the point is to keep the overview readable and to show that
+  ABC can trigger non-Trice side effects.
+- `divide` demonstrates data flowing back over the same bus: a bidirectional
+  node can receive `cmd:divide`, compute locally, and answer with
+  `abc:DivideResult`.
+
+## Normal Trice and typeX0 traffic
+
+The demo does not send only ABC commands. The transmitting nodes also emit:
+
+- normal Trice log messages
+- counted selector-0 `triceX0()` messages
+
+`N6_rx` and `N7_bi` additionally decode and print the normal Trice log traffic
+without location data. The example log printer is intentionally small and
+demo-focused. It uses `triceRx` plus the generated `til.c` metadata but it does
+not try to be a full replacement for the Go `trice log` tool.
+
+Selector-0 counted buffers are shown separately as raw byte payloads. This is
+useful because they intentionally have no Trice ID and therefore no TIL lookup.
+
+## Self echo and display policy
+
+Each process writes to `abc.bus` via `BcSim`. `BcSim` remembers the bus-file
+offset ranges written by that same process and suppresses them on later reads.
+That means:
+
+- a node does not receive its own frames back
+- self-generated logs do not appear in the same node's receive output
+- the demo can show bidirectional behavior without special Trice-stack hacks
+
+This is the reason why the demo can keep the normal Trice transmit path intact.
+The host bridge only replaces the physical output device with `BcSim`.
 
 ## Configuration split
 
-`triceRxConfig.h` contains settings that must be identical for all nodes on the
-same bus, for example the selected bus framing or later encryption-related
-settings.
-
-Each node has its own `triceConfig.h`. A node-specific config includes
-`../triceRxConfig.h`, sets `TRICE_CLEAN`, and states whether the node uses the
-normal Trice transmit stack and/or the normal Trice receive stack:
+`triceRxConfig.h` holds bus-wide choices that must match for every participant.
+The most important one is the framing:
 
 ```c
-#define TRICE_TRANSMIT_SUPPORT 1
-#define TRICE_RECEIVE_SUPPORT  0
+#define TRICE_BUS_FRAMING TRICE_FRAMING_COBS
 ```
 
-The node-specific files intentionally do not repeat unrelated defaults from
-`triceDefaultConfig.h`.
+The node-specific `triceConfig.h` files only describe the local role:
+
+- whether the node has normal TX support
+- whether it has ABC RX support
+- whether it additionally resolves normal Trice log traffic
+- whether host-side `TRICE_CGO` direct output is needed
+
+The node configs intentionally do not repeat unrelated global defaults.
 
 ## Generator workflow
 
-The generator can create node-specific ABC selection and table files with:
+The demo uses one shared generated ABC pair and one shared generated TIL-C file
+inside `NodeLib/`.
+
+Generator steps:
 
 ```sh
-trice generate -abc path/target
+trice generate -i ../../demoTIL.json -abc NodeLib/nodeAbc
+trice generate -i ../../demoTIL.json -tilC
+# move generated ../../demoTIL.c to NodeLib/til.c
 ```
 
-The command writes:
+This yields:
 
 ```text
-path/target.h
-path/target.c
+NodeLib/nodeAbc.h   shared user-owned ABC selection header
+NodeLib/nodeAbc.c   shared generated ABC table
+NodeLib/til.c       shared generated compact log metadata table
 ```
 
-without an `_abc` suffix. Example from this directory:
+`-tilC` currently derives the output file name from the input JSON base name.
+With `../../demoTIL.json` as input the generated file is therefore
+`../../demoTIL.c`. `build.sh` relocates that file to `NodeLib/til.c` so the
+demo can keep a small and predictable local source layout.
 
-```sh
-trice generate -i ../../demoTIL.json -abc N1_tx/N1_tx
-trice generate -i ../../demoTIL.json -abc N2_tx/N2_tx
-trice generate -i ../../demoTIL.json -abc N3_bi/N3_bi
-trice generate -i ../../demoTIL.json -abc N4_rx/N4_rx
-trice generate -i ../../demoTIL.json -abc N5_rx/N5_rx
-trice generate -i ../../demoTIL.json -abc N6_rx/N6_rx
-trice generate -i ../../demoTIL.json -abc N7_bi/N7_bi
-```
+Why one shared ABC pair is enough:
 
-The `.h` file is the editable node selection file. The `.c` file is generated
-from `../../demoTIL.json` and the selected handlers.
+- all receive-capable demo nodes understand the same command vocabulary
+- node-specific behavior is implemented in each `main.c`, not in different
+  command tables
+- nodes that do not actively use a handler can still provide a documented empty
+  implementation
 
-## NodeLib role
+## Shared runtime design
 
-`NodeLib/` contains common helper code for node examples. It is not a replacement
-for the final Trice target library. It exists so the examples can share a small
-receive object type, record parser interface, and resolver interfaces while the
-larger C-side tooling evolves.
-
-The planned processing stack is:
+`NodeLib/` provides the temporary host runtime that glues the generic Trice TX
+and RX pieces together for this demo:
 
 ```text
-BcSim read/write
-  -> selected framing/decryption layer
+normal Trice send macro / triceX0()
+  -> TriceWriteDeviceCgo()
+  -> bcSimWrite()
+  -> abc.bus
+  -> bcSimRead()
+  -> COBS frame collector
   -> triceParseNextRecord()
-  -> triceResolveAbc() and/or triceResolveLog()
-  -> node application handler
+  -> triceResolveAbc() / triceResolveLog()
+  -> node handler or small demo log printer
 ```
 
-`triceParseNextRecord()` parses one already decoded Trice record at the start of
-a byte buffer and returns the number of consumed bytes or a negative error code.
-It does not fill format strings, file/line information, handler pointers, or
-bit width. Resolver functions add metadata by using the parsed ID.
+Design decisions:
+
+- `TriceWriteDeviceCgo()` is used as the host bridge because it lets the normal
+  Trice transmit code stay unchanged.
+- COBS is used because the demo should show explicit framed packets and because
+  the receiver can delimit records with a simple zero-byte scan.
+- `TriceAbcOnReceive()` is not used as the primary demo entry point. The shared
+  runtime parses once and then decides whether a record should be treated as ABC,
+  normal log traffic, counted typeX0, or unknown traffic. That keeps the example
+  readable and avoids double parsing.
+- The receive-side normal log printer is intentionally small. It is based on the
+  generated `til.c` facts and only supports the concrete demo message shapes.
+  That keeps the example understandable while still showing why `til.c` is
+  useful.
+
+## Output style
+
+The demo aims at readable, line-oriented terminal output:
+
+```text
+N4_rx: leds=[**  *   ]
+N6_rx: key=bravo7 leds=[***     ]
+N7_bi: abc:DivideResult=3.140000
+N6_rx: log:tick=4
+N7_bi: x0 5 bytes: 10 11 12 13 14
+```
+
+The LED bar uses `*` for on and space for off. This is deliberately simple, so
+it remains readable when several processes print concurrently.

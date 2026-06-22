@@ -477,6 +477,34 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+//  #ifndef TRICE_TX_LOG_SUPPORT
+//  #define TRICE_TX_LOG_SUPPORT 1 // The device can use Trice statements like `trice( "msg:hello" );` The default is 1.
+//  #endif
+//  
+//  #ifndef TRICE_TX_ABC_SUPPORT
+//  #define TRICE_TX_ABC_SUPPORT 1 // Enables Trice ABC command send macros. It does not add code unless Trice ABC is used. The device can use Trice statements like `trice32C( "cmd:setTime", buf, 1 );`
+//  #endif
+//  
+//  #ifndef TRICE_TX_X0_COUNTED_BUFFER_SUPPORT
+//  #define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1 // The device can use Trice statements like `triceX0( buf, len );` This adds very little code and therefore is enable per default.
+//  #endif
+//  
+//  // TRICE_TX_SUPPORT is a derived value signaling, that the Trice transmit stack is needed.
+//  // It is currenty unused but planned to be able to exclude the TRICE TX stack for TRICE RX - only devices.
+//  #define TRICE_TX_SUPPORT (TRICE_TX_LOG_SUPPORT | TRICE_TX_ABC_SUPPORT | TRICE_TX_X0_COUNTED_BUFFER_SUPPORT)
+
+#if defined TRICE_TX_SUPPORT && TRICE_TX_SUPPORT == 0
+#define TRICE_TX_LOG_SUPPORT 0               // The device canot use Trice statements like `trice( "msg:hello" );`
+#define TRICE_TX_ABC_SUPPORT 0               // Disables Trice ABC command send macros. The device cannot use Trice statements like `trice32C( "cmd:setTime", buf, 1 );`
+#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 0 // The device cannot use Trice statements like `triceX0( buf, len );`
+#endif
+
+#if defined TRICE_TX_SUPPORT && TRICE_TX_SUPPORT == 1
+#define TRICE_TX_LOG_SUPPORT 1               // The device can use Trice statements like `trice( "msg:hello" );`
+#define TRICE_TX_ABC_SUPPORT 1               // Enables Trice ABC command send macros. The device can use Trice statements like `trice32C( "cmd:setTime", buf, 1 );`
+#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1 // The device can use Trice statements like `triceX0( buf, len );`
+#endif
+
 #ifndef TRICE_TX_LOG_SUPPORT
 #define TRICE_TX_LOG_SUPPORT 1 // The device can use Trice statements like `trice( "msg:hello" );` The default is 1.
 #endif
@@ -489,9 +517,10 @@ extern "C" {
 #define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1 // The device can use Trice statements like `triceX0( buf, len );` This adds very little code and therefore is enable per default.
 #endif
 
-// TRICE_TX_SUPPORT is a derived value signaling, that the Trice transmit stack is needed.
-// It is currenty unused but planned to be able to exclude the TRICE TX stack for TRICE RX - only devices.
-#define TRICE_TX_SUPPORT (TRICE_TX_LOG_SUPPORT | TRICE_TX_ABC_SUPPORT | TRICE_TX_X0_COUNTED_BUFFER_SUPPORT)
+#ifndef TRICE_TX_SUPPORT
+#define TRICE_TX_SUPPORT (TRICE_TX_LOG_SUPPORT | TRICE_TX_ABC_SUPPORT | TRICE_TX_X0_COUNTED_BUFFER_SUPPORT) // TRICE_TX_SUPPORT 0 excludes the TRICE TX stack for TRICE RX - only devices.
+#endif
+
 
 #ifdef __cplusplus
 }
