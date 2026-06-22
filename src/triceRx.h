@@ -60,8 +60,8 @@ typedef struct triceRx_t {
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
-    const char* pTrice; // Pointer to used Trice macro name.
-    const char* pFmt;   // Trice format string resolved from til.json.
+    uint8_t paramCount; // Parsed records keep 0 here; log resolution replaces it with a fixed count or TRICE_LOG_PARAM_COUNT_DYNAMIC.
+    const char* pFmt;   // Trice format string resolved from generated TIL metadata.
 #if TRICE_LOCATION_SUPPORT == 1
     const char* file; // `file` is name where the Trice statements was used. Resolved from li.json.
     uint32_t line;    // Source code line in `file` where the Trice statements was used. Resolved from li.json.
@@ -90,7 +90,7 @@ typedef void (*triceFn_t)(const triceRx_t* rx);
 //! \li It initializes or leaves as unknown:
 //! \li   rx->bitWidth = TRICE_BIT_WIDTH_UNKNOWN
 //! \li   rx->fn = NULL, if present
-//! \li   rx->pTrice = NULL, if present
+//! \li   rx->paramCount = 0, if present and not yet resolved
 //! \li   rx->pFmt = NULL, if present
 //! \li   rx->file = NULL, if present
 //! \li   rx->line = 0, if present
@@ -145,25 +145,31 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len);
 
 #if TRICE_RX_LOG_SUPPORT == 1
 
-// triceLog_t is a future log metadata table entry derived from TIL data.
+// TRICE_LOG_PARAM_COUNT_DYNAMIC marks entries whose value count is controlled by
+// the received byte count. Fixed scalar Trices use an exact count in 0..12.
+#define TRICE_LOG_PARAM_COUNT_DYNAMIC ((uint8_t)0xffu)
+
+// triceLog_t is the compact generated log metadata table entry derived from
+// TIL data. bitWidth and paramCount are generated once so the RX code does not
+// parse Trice macro names at runtime.
 typedef struct {
-	const char* pTrice; // Pointer to used Trice macro name. Resolved from til.json.
+	uint16_t id;        // Trice id.
+	uint8_t bitWidth;   // Payload element width: 0, 8, 16, 32, 64, or TRICE_BIT_WIDTH_UNKNOWN.
+	uint8_t paramCount; // Fixed value count or TRICE_LOG_PARAM_COUNT_DYNAMIC for string/buffer/ABC payload.
 	const char* pFmt;   // Trice format string resolved from til.json.
-	uint16_t id;        // Trice id
 } triceLog_t;
 
-extern const triceLog_t triceLog[]; // generated Log resolver table, defined in til.json
-extern const unsigned triceLogElements; // generated Log resolver table element count, defined in til.json, must be equal to triceLocationElements
+extern const triceLog_t triceLog[]; // generated log resolver table, defined in the generated TIL C source.
+extern const unsigned triceLogElements; // generated log resolver table element count, must match triceLocationElements when locations are enabled.
 
 //! \brief triceResolveLog attaches log rendering metadata to a parsed record.
 //! \details The resolver searches for `rx->id`. If found, it fills:
-//! \li   rx->pTrice; // Pointer to used Trice macro name. This influences the pFmt interpretation for logging.
+//! \li   rx->bitWidth
+//! \li   rx->paramCount
 //! \li   rx->pFmt;   // Trice format string resolved from til.json.
 //! 
-//! The bit-width is implicit coded in pTrice and derived from there. 
+//! The bit width and parameter count are generated TIL facts, not parsed from the Trice macro name at runtime.
 //! If already assigned, the value must be identical or an error is reported.
-//! The `tricelog[]` list is derivable from `til.json`. It does not carry a bitWidth value. 
-//! The bitWidth is implicit coded in the Trice name and is determined (and checked if possible) on the fly.
 //! \retval TRICE_RX_OK if found.
 //! \retval TRICE_RX_E_NOT_FOUND if the ID is not in the table.
 int triceResolveLog(triceRx_t* rx, const triceLog_t* list, size_t count);
@@ -192,12 +198,14 @@ int triceResolveLocation(triceRx_t* rx, const triceLocation_t* list, size_t coun
 
 #endif // #if TRICE_LOCATION_SUPPORT == 1
 
-// triceDispatchLog is a placeholder for a future C log formatter entry point.
+// triceDispatchLog validates generated log metadata against the parsed payload.
+// It returns TRICE_RX_E_UNSUPPORTED after successful validation until a C log
+// formatter is added.
 int triceDispatchLog(const triceRx_t* rx);
 
 // TriceLogOnReceive is the log convenience entry point built from the generic
-// parser and generated log resolver table. It returns the consumed record length
-// after parsing and resolving; formatting is intentionally delegated.
+// parser and generated log resolver table. It consumes at most one record and
+// returns its length after parsing, resolving, and payload validation.
 int TriceLogOnReceive(const uint8_t* pBuf, int len);
 
 #endif // #if TRICE_RX_LOG_SUPPORT == 1

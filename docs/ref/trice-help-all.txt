@@ -399,8 +399,6 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
     	Create a til.c file.
   -tilCS
     	Create a til.cs file.
-  -tilH
-    	Create a til.h file.
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.

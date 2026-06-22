@@ -7,7 +7,6 @@ package id
 
 import (
 	"fmt"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -15,38 +14,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-// ToFileTilH generates lang:C header file.
-func ToFileTilH(fSys afero.Fs, fn string) (err error) {
-	fh, err := fSys.Create(fn)
-	msg.FatalOnErr(err)
-	defer func() {
-		err = fh.Close()
-		msg.FatalOnErr(err)
-	}()
-
-	h := []byte(`//! \file ` + fn + `
-//! ///////////////////////////////////////////////////////////////////////////
-
-//! With Trice generated code - do not edit!
-
-#include <stdint.h>
-
-typedef struct{
-	uint16_t id;
-	uint8_t  bitWidth;
-	int16_t  paramCount;
-	char*    formatString;
-} triceFormatStringList_t;
-
-extern const triceFormatStringList_t triceFormatStringList[];
-extern const unsigned triceFormatStringListElements;
-`)
-	_, err = fh.Write(h)
-	msg.FatalOnErr(err)
-	return
-}
-
-// ToFileTilC generates lang:C helpers for a third party tool.
+// ToFileTilC generates a C receive-side log metadata source.
 func (ilu TriceIDLookUp) ToFileTilC(fSys afero.Fs, fn string) (err error) {
 	fh, err := fSys.Create(fn)
 	msg.FatalOnErr(err)
@@ -63,39 +31,85 @@ func (ilu TriceIDLookUp) ToFileTilC(fSys afero.Fs, fn string) (err error) {
 	return
 }
 
-// toListTilC converts lim into C-source byte slice in human-readable form.
+// toListTilC converts ilu into a human-readable C-source byte slice.
 func (ilu TriceIDLookUp) toListTilC(filename string) ([]byte, error) {
-	var (
-		fileNameBody = strings.TrimSuffix(filename, filepath.Ext(filename))
-		text         = []byte(`//! \file ` + filename + `
-//! ///////////////////////////////////////////////////////////////////////////
+	text := []byte(`// File: ` + filename + `
+// Trice generated code - do not edit.
+//
+// triceLog stores compact receive-side facts derived from til.json.
+// bitWidth is generated because it is not present in the binary record.
+// paramCount is exact for scalar Trices; TRICE_LOG_PARAM_COUNT_DYNAMIC means
+// the record byte count controls the number of string, buffer, or ABC values.
 
-//! Trice generated code - do not edit!
+#include "triceRx.h"
 
-#include "` + fileNameBody + `.h"
-
-//! triceFormatStringList contains all trice format strings together with id and parameter information.
-//!
-//! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
-//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md#binary-encoding.
-//! It is recommended to check if both values are matching. A negative paramCount indicates, that its value is unknown at compile time.
-const triceFormatStringList_t triceFormatStringList[] = {
-	/* Trice type (  extended  ) */  //  id, bitWidth, paramCount, format-string
+const triceLog_t triceLog[] = {
+	/* Trice type (  extended  ) */  //     id, bitWidth, paramCount, format-string
 `)
-		tail = []byte(`};
+	tail := []byte(`};
 
-//! triceFormatStringListElements holds the compile time computed count of list elements.
-const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / sizeof(triceFormatStringList_t);
+// triceLogElements is used by the RX resolver to bound the generated table.
+const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 `)
-	)
 	defaultBitWidth, err := strconv.Atoi(DefaultTriceBitWidth)
 	msg.FatalOnErr(err)
 
 	for id, t := range ilu {
-		extType, bitWidth, paramCount := computeValues(t, defaultBitWidth)
-		text = append(text, []byte(fmt.Sprintf(`	/* %10s ( %10s ) */ { %5d, %3d, %2d, "%s" },`+"\n", t.Type, extType, id, bitWidth, paramCount, t.Strg))...)
+		extType, bitWidth, paramCount := computeLogValues(t, defaultBitWidth)
+		text = append(text, []byte(fmt.Sprintf(`	/* %10s ( %10s ) */ { %5du, %3du, %s, "%s" },`+"\n", t.Type, extType, id, bitWidth, paramCount, t.Strg))...)
 	}
 
 	text = append(text, tail...)
 	return text, nil
+}
+
+// computeLogValues prepares the compact C RX table. The uint8_t paramCount
+// cannot use -1, so variable-size payload families use the public sentinel.
+func computeLogValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth int, paramCount string) {
+	DefaultTriceBitWidth = strconv.Itoa(defaultBitWidth)
+	if info := abcTypeInfo(t.Type); info.isABC {
+		if info.bitWidth == 0 {
+			return t.Type, 0, "0u"
+		}
+		return t.Type, info.bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC"
+	}
+	switch triceTypeCategory(t.Type) {
+	case "S", "N":
+		return t.Type, 8, "TRICE_LOG_PARAM_COUNT_DYNAMIC"
+	case "B":
+		extType, bitWidth = logDynamicTypeWidth(t.Type, 1, defaultBitWidth)
+		return extType, bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC"
+	case "F":
+		extType, bitWidth = logDynamicTypeWidth(t.Type, 0, defaultBitWidth)
+		return extType, bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC"
+	default:
+		count := formatSpecifierCount(t.Strg)
+		extType, _ = ConstructFullTriceInfo(t.Type, count)
+		bitWidth = logBitWidthFromType(extType, defaultBitWidth)
+		return extType, bitWidth, fmt.Sprintf("%du", count)
+	}
+}
+
+// logDynamicTypeWidth uses existing macro normalization for buffer-like Trices.
+// If normalization fails, the original type still keeps generation diagnostic
+// value in the comment while the default width preserves historic behavior.
+func logDynamicTypeWidth(typeName string, paramCount int, defaultBitWidth int) (extType string, bitWidth int) {
+	extType, _ = ConstructFullTriceInfo(typeName, paramCount)
+	if extType == "" {
+		extType = typeName
+	}
+	return extType, logBitWidthFromType(extType, defaultBitWidth)
+}
+
+// logBitWidthFromType extracts explicit 8/16/32/64 widths. Types without an
+// explicit width keep the configured default, except ABC no-payload C entries,
+// which are handled before this helper is called.
+func logBitWidthFromType(typeName string, defaultBitWidth int) int {
+	upper := strings.ToUpper(typeName)
+	for _, width := range []int{64, 32, 16, 8} {
+		if strings.Contains(upper, strconv.Itoa(width)) {
+			return width
+		}
+	}
+	return defaultBitWidth
 }

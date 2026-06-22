@@ -198,7 +198,6 @@ func generateInit() {
 	fsScGenerate = flag.NewFlagSet("generate", flag.ExitOnError) // sub-command
 	flagIDList(fsScGenerate)
 	flagVerbosity(fsScGenerate)
-	fsScGenerate.BoolVar(&id.GenerateTilH, "tilH", false, `Create a til.h file.`)
 	fsScGenerate.BoolVar(&id.GenerateTilC, "tilC", false, `Create a til.c file.`)
 	fsScGenerate.BoolVar(&id.GenerateTilCS, "tilCS", false, `Create a til.cs file.`)
 	fsScGenerate.BoolVar(&id.GenerateRpcH, "rpcH", false, `Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.`)

@@ -320,29 +320,48 @@ func TestConstructFullTriceInfo(t *testing.T) {
 	}
 }
 
-// TestGeneratorFileOutputs verifies the expected behavior.
+// TestGeneratorFileOutputs verifies the generated compact TIL C source, the
+// C# helper output, and the legacy RPC helpers in one place.
+//
+// The TIL table below is intentionally mixed:
+//   - plain log records with default and explicit widths,
+//   - string and buffer style records that need dynamic param counts,
+//   - ABC-style C records that must keep zero payload semantics,
+//   - one legacy TRICE_F entry only because the same test still exercises the
+//     deprecated RPC generator path.
 func TestGeneratorFileOutputs(t *testing.T) {
 	defer Setup(t)()
 
 	lu := TriceIDLookUp{
 		1000: {Type: "TRICE", Strg: "msg:%d"},
 		1001: {Type: "TRICE_F", Strg: "rpc:DoThing"},
+		1002: {Type: "triceS", Strg: "msg:%s"},
+		1003: {Type: "triceC", Strg: "cmd:Stop"},
+		1004: {Type: "TRICE8_C", Strg: "cmd:Set"},
+		1005: {Type: "TRICE_B", Strg: "buf:%02x"},
+		1006: {Type: "TRICE32", Strg: "temp:%d"},
+		1007: {Type: "triceN", Strg: "raw:%s"},
 	}
 
-	require.NoError(t, ToFileTilH(FSys, "til.h"))
 	require.NoError(t, lu.ToFileTilC(FSys, "til.c"))
 	require.NoError(t, lu.ToFileTilCSharp(FSys.Fs, "til.cs"))
 	require.NoError(t, lu.ToFileTriceRpcH(FSys.Fs, "tilRpc.h"))
 	require.NoError(t, lu.ToFileRpcC(FSys.Fs, "tilRpc.c"))
 
-	content, err := FSys.ReadFile("til.h")
-	require.NoError(t, err)
-	assert.Contains(t, string(content), "triceFormatStringList_t")
+	assert.False(t, fileExists(FSys, "til.h"))
 
-	content, err = FSys.ReadFile("til.c")
+	content, err := FSys.ReadFile("til.c")
 	require.NoError(t, err)
-	assert.Contains(t, string(content), `#include "til.h"`)
+	assert.Contains(t, string(content), `#include "triceRx.h"`)
+	assert.Contains(t, string(content), "const triceLog_t triceLog[]")
 	assert.Contains(t, string(content), `"msg:%d"`)
+	assert.Contains(t, string(content), `{  1000u,  32u, 1u, "msg:%d" }`)
+	assert.Contains(t, string(content), `{  1002u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "msg:%s" }`)
+	assert.Contains(t, string(content), `{  1003u,   0u, 0u, "cmd:Stop" }`)
+	assert.Contains(t, string(content), `{  1004u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "cmd:Set" }`)
+	assert.Contains(t, string(content), `{  1005u,  32u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "buf:%02x" }`)
+	assert.Contains(t, string(content), `{  1006u,  32u, 1u, "temp:%d" }`)
+	assert.Contains(t, string(content), `{  1007u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "raw:%s" }`)
 
 	content, err = FSys.ReadFile("til.cs")
 	require.NoError(t, err)
@@ -365,7 +384,6 @@ func TestGeneratorFileOutputs(t *testing.T) {
 func TestSubCmdGenerate(t *testing.T) {
 	defer Setup(t)()
 
-	previousGenerateTilH := GenerateTilH
 	previousGenerateTilC := GenerateTilC
 	previousGenerateTilCS := GenerateTilCS
 	previousGenerateRpcH := GenerateRpcH
@@ -374,7 +392,6 @@ func TestSubCmdGenerate(t *testing.T) {
 	previousWriteAllColors := WriteAllColors
 	previousVerbose := Verbose
 	t.Cleanup(func() {
-		GenerateTilH = previousGenerateTilH
 		GenerateTilC = previousGenerateTilC
 		GenerateTilCS = previousGenerateTilCS
 		GenerateRpcH = previousGenerateRpcH
@@ -390,7 +407,6 @@ func TestSubCmdGenerate(t *testing.T) {
 	}
 	require.NoError(t, lu.toFile(FSys.Fs, FnJSON))
 
-	GenerateTilH = false
 	GenerateTilC = false
 	GenerateTilCS = false
 	GenerateRpcH = false
@@ -403,7 +419,6 @@ func TestSubCmdGenerate(t *testing.T) {
 	assert.Contains(t, w.String(), `needs at least one parameter`)
 
 	w.Reset()
-	GenerateTilH = true
 	GenerateTilC = true
 	GenerateTilCS = true
 	GenerateRpcH = true
@@ -412,7 +427,8 @@ func TestSubCmdGenerate(t *testing.T) {
 
 	require.NoError(t, SubCmdGenerate(&w, FSys))
 	base := strings.TrimSuffix(FnJSON, filepath.Ext(FnJSON))
-	for _, fn := range []string{base + ".h", base + ".c", base + ".cs", base + "Rpc.h", base + "Rpc.c"} {
+	assert.False(t, fileExists(FSys, base+".h"))
+	for _, fn := range []string{base + ".c", base + ".cs", base + "Rpc.h", base + "Rpc.c"} {
 		assert.True(t, fileExists(FSys, fn), fn)
 		assert.Contains(t, w.String(), "generated "+fn)
 	}
