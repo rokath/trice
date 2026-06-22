@@ -64,7 +64,9 @@ These names are separate from `BcSimChk/` on purpose so both demos can coexist.
 `NodeLib` additionally uses a temporary `abc.console.lock/` directory to keep
 one terminal line from one process together while several nodes print at once.
 `demo.sh` uses that same lock for its own status lines, so shell messages do not
-cut into node output either.
+cut into node output either. The lock deliberately waits until it becomes free;
+there is no timeout fallback to unlocked terminal writes, because occasional
+waiting is preferable to mixed half-lines.
 
 ## Node roles
 

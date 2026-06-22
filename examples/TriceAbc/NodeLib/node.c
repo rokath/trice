@@ -47,7 +47,6 @@ static node_t* gNode;
 #define NODE_CONSOLE_LOCK_PATH "abc.console.lock"
 #define NODE_CONSOLE_LINE_MAX 512u
 #define NODE_CONSOLE_LOCK_POLL_MS 10u
-#define NODE_CONSOLE_LOCK_WAIT_MS 2000u
 
 /* Sleep briefly while another demo process owns the console lock. */
 void nodeSleepMs(unsigned ms) {
@@ -69,20 +68,22 @@ void nodeSleepMs(unsigned ms) {
  * independent processes print to one terminal at the same time.
  */
 static int nodeConsoleLock(void) {
-    unsigned waited = 0u;
-
     for (;;) {
         if (NODE_MKDIR(NODE_CONSOLE_LOCK_PATH) == 0) {
             return 0;
         }
         if (errno != EEXIST) {
-            return -1;
-        }
-        if (waited >= NODE_CONSOLE_LOCK_WAIT_MS) {
-            return -1;
+            /*
+             * Never fall back to unlocked terminal output.
+             *
+             * Rare lock races are acceptable in a demo, but mixed lines are
+             * not. Retrying preserves readable output even if one lock attempt
+             * sees a transient filesystem-side error.
+             */
+            nodeSleepMs(NODE_CONSOLE_LOCK_POLL_MS);
+            continue;
         }
         nodeSleepMs(NODE_CONSOLE_LOCK_POLL_MS);
-        waited += NODE_CONSOLE_LOCK_POLL_MS;
     }
 }
 
@@ -102,15 +103,10 @@ static void nodePrintLine(const char* text) {
     if (text == 0) {
         return;
     }
-    if (nodeConsoleLock() == 0) {
-        fputs(text, stdout);
-        fflush(stdout);
-        nodeConsoleUnlock();
-        return;
-    }
-    /* Fallback keeps the demo alive even if the lock directory cannot be used. */
+    nodeConsoleLock();
     fputs(text, stdout);
     fflush(stdout);
+    nodeConsoleUnlock();
 }
 
 /* Format one complete line first and then print it under the console lock. */

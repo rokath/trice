@@ -14,7 +14,6 @@ cd "${SCRIPT_DIR}"
 
 CONSOLE_LOCK_DIR="abc.console.lock"
 CONSOLE_LOCK_POLL_MS=10
-CONSOLE_LOCK_WAIT_LOOPS=200
 
 console_sleep_ms() {
   local ms="$1"
@@ -26,12 +25,7 @@ console_sleep_ms() {
 }
 
 console_lock() {
-  local waited=0
   while ! mkdir "${CONSOLE_LOCK_DIR}" 2>/dev/null; do
-    waited=$((waited + 1))
-    if [ "${waited}" -ge "${CONSOLE_LOCK_WAIT_LOOPS}" ]; then
-      return 1
-    fi
     console_sleep_ms "${CONSOLE_LOCK_POLL_MS}"
   done
 }
@@ -42,12 +36,12 @@ console_unlock() {
 
 console_line() {
   local text="$1"
-  if console_lock; then
-    printf '%s\n' "${text}"
-    console_unlock
-    return
-  fi
+  # Block until the shared console lock is available.
+  # An unlocked timeout fallback would reintroduce exactly the mixed lines this
+  # demo is trying to prevent.
+  console_lock
   printf '%s\n' "${text}"
+  console_unlock
 }
 
 ./build.sh
