@@ -10033,22 +10033,10 @@ For the core safety issue, the Trice implementation should still ensure:
 A source file is never left partially written after Ctrl-C, SIGTERM, crash, or write error.
 ```
 
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 48. <a id="scratch-pad"></a>Scratch Pad
 
-```txt
-1) ./examples/TriceABC zeigt nicht die Verwendung von Stamps. Vielleicht ist es sinnvoll noch 2 _bi Nodes hinzuzunehmen. Dann könnte etwas N3_bi commands mit stamps rausschicken und über die Stamps gesteuert werden, ob N7_bi, N8_bi oder N9_bi antwortet, einzeln oder mehrere.
-2) Die Einführung von nodePushByte halte ich für schlechten ineffizienten Code. Wäre nicht direkt nach bcSimRead ein OnAbcReceive und ggf. ein OnLogReceive in einer Loop besser? Vor dem nächsten bcSimRead, könnten Restbytes zum Anfang von chunk verschoben werden. 128 Bytes für chunk erscheint mir knapp, da mehrere Pakete auf einmal einfliegen könnten. Das gute ist: Der Code funktioniert. Aber es ist kein gutes Beispiel wie man es machen sollte/könnte. 
-3) Die Verwendung von /*...*/ Kommentaren verringert die Lesbarkeit genüber //... Kommentaren und sollte nur da wo nötig, etwa in meerzeiligen Makros, erfolgen. 
-4) Auf dem Mac kommt:
-In file included from /Users/th/repos/trice/src/trice.h:193:
-/Users/th/repos/trice/src/triceOn.h:16:102: warning: token pasting of ',' and __VA_ARGS__ is a GNU extension [-Wgnu-zero-variadic-macro-arguments]
-   16 | #define trice(  tid, fmt, ...) TRICE_CONCAT2(trice_,   TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-      |                                                                                                      ^
-Wie kann das silenced werden ohne Code zu ändern.?
-```
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="bottom"></div>

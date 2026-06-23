@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-/* Emit normal log traffic so N6_rx and N7_bi can show TIL-C based decoding. */
+// Emit normal log traffic so N6_rx can show TIL-C based decoding.
 static void sendTraffic(unsigned loop) {
     static const char text[] = "N3 bidirectional";
     uint8_t x0[5];
@@ -20,7 +20,12 @@ static void sendTraffic(unsigned loop) {
     triceX0(x0, (uint16_t)(2u + (loop & 1u)));
 }
 
-/* This node can request status and also demonstrate a divide request/response round trip. */
+// This node sends both broadcast and stamp-routed ABC requests.
+//
+// The low 32-bit stamp bits are used as a responder bitmap in this demo:
+// 0x00000001 -> N7_bi
+// 0x00000002 -> N8_bi
+// 0x00000004 -> N9_bi
 static void sendCommand(unsigned loop) {
     static const uint8_t key[] = { 'n', '3', '-', 'k', 'e', 'y' };
     uint32_t args[2];
@@ -44,6 +49,20 @@ static void sendCommand(unsigned loop) {
         args[1] = aFloat(2.0f);
         trice32C("cmd:divide", args, 2);
         break;
+    case 8u:
+        TRiceC("cmd:getLeds", 0x00000001u);
+        break;
+    case 9u:
+        TRiceC("cmd:getLeds", 0x00000002u);
+        break;
+    case 10u:
+        args[0] = aFloat(9.0f);
+        args[1] = aFloat(3.0f);
+        TRice32C("cmd:divide", 0x00000005u, args, 2);
+        break;
+    case 11u:
+        TRiceC("cmd:getLeds", 0x00000003u);
+        break;
     default:
         break;
     }
@@ -57,6 +76,7 @@ int main(void) {
         fprintf(stderr, "N3_bi: unable to open abc.bus\n");
         return 1;
     }
+    node.replyStampMask = 0u;
 
     for (loop = 0u; loop < 12u; ++loop) {
         (void)nodePoll(&node);
@@ -65,7 +85,7 @@ int main(void) {
         nodeSleepMs(170u);
     }
 
-    for (loop = 0u; loop < 6u; ++loop) {
+    for (loop = 0u; loop < 10u; ++loop) {
         (void)nodePoll(&node);
         nodeSleepMs(120u);
     }

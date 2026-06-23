@@ -2,8 +2,9 @@
 
 This directory contains a host-native multi-node Trice ABC demonstration. The
 goal is not to replace the embedded target integration. The goal is to make the
-receive path, the ABC generator output, the compact TIL-C output, and the bus
-behavior visible on one PC with a small and inspectable code base.
+receive path, the ABC generator output, the compact TIL-C output, the bus
+behavior, and simple ABC stamp routing visible on one PC with a small and
+inspectable code base.
 
 `BcSim` stays protocol-neutral. It transports only bytes. All Trice-specific
 framing, parsing, ID resolution, ABC dispatch, and demo behavior live above it
@@ -41,7 +42,9 @@ TriceAbc/
   N4_rx/        receive-only demo node
   N5_rx/        receive-only demo node
   N6_rx/        receive-only demo node with normal Trice logging
-  N7_bi/        bidirectional demo node with normal Trice logging
+  N7_bi/        bidirectional responder node with normal Trice logging
+  N8_bi/        bidirectional responder node
+  N9_bi/        bidirectional responder node
 ```
 
 The shared generator input is the repository-level TIL file:
@@ -87,7 +90,9 @@ N3_bi  emits traffic, receives ABC, and can answer over the bus
 N4_rx  receives ABC and executes local actions only
 N5_rx  receives ABC and executes local actions only
 N6_rx  receives ABC, executes local actions, and prints received normal Trices
-N7_bi  emits traffic, receives ABC, answers over the bus, and prints received normal Trices
+N7_bi  receives ABC, answers over the bus, and prints received normal Trices
+N8_bi  receives ABC and answers over the bus
+N9_bi  receives ABC and answers over the bus
 ```
 
 ## Demonstrated commands
@@ -120,6 +125,21 @@ Important behavior choices:
 - `divide` demonstrates data flowing back over the same bus: a bidirectional
   node can receive `cmd:divide`, compute locally, and answer with
   `abc:DivideResult`.
+
+## Stamp routing
+
+The demo also uses a deliberately small ABC stamp-routing rule:
+
+- unstamped `getLeds` and `divide` requests keep the original broadcast behavior
+- stamped `getLeds` and `divide` requests use the low stamp bits as a responder bitmap
+- `0x0001` selects `N7_bi`
+- `0x0002` selects `N8_bi`
+- `0x0004` selects `N9_bi`
+
+`N3_bi` sends a few stamped requests so the terminal output shows three simple
+cases: one responder, another single responder, and multiple responders for the
+same request. The response keeps the original stamp width and stamp value so
+the routing decision remains visible on the way back.
 
 ## Normal Trice and typeX0 traffic
 
@@ -218,6 +238,13 @@ normal Trice send macro / triceX0()
   -> node handler or small demo log printer
 ```
 
+One detail is worth calling out explicitly: the stream collector splits only on
+COBS frame delimiters. Inside each decoded frame the runtime then loops over
+logical Trice records and applies the documented 32-bit alignment rule between
+records only when the expected alignment bytes are actually zero. That keeps
+the example close to the real Trice binary rules without falling back to the
+older byte-by-byte receiver style.
+
 Design decisions:
 
 - `TriceWriteDeviceCgo()` is used as the host bridge because it lets the normal
@@ -228,6 +255,10 @@ Design decisions:
   runtime parses once and then decides whether a record should be treated as ABC,
   normal log traffic, counted typeX0, or unknown traffic. That keeps the example
   readable and avoids double parsing.
+- The stream receiver appends each `bcSimRead()` block to a persistent buffer,
+  scans for COBS frame delimiters, and shifts only the incomplete tail forward.
+  This is intentionally closer to a real stream integration than dispatching
+  one byte at a time.
 - The generated ABC handler names such as `setLeds()` and `divide()` are
   implemented once in `NodeLib/node.c`. The node `main.c` files therefore only
   show role-specific traffic generation and polling loops.
