@@ -27,12 +27,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          if git show-ref --verify --quiet refs/remotes/origin/main; then
-            DEFAULT_BRANCH="origin/main"
-          else
-            DEFAULT_BRANCH="origin/master"
-          fi
+          DEFAULT_BRANCH="origin/main"
 
           COMMIT_COUNT="$(git log --since="24 hours ago" --pretty=oneline "${DEFAULT_BRANCH}" | wc -l | tr -d ' ')"
           echo "Commits in last 24h: ${COMMIT_COUNT}"

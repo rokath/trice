@@ -29,13 +29,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          # Determine default branch (main/master). We check remote refs.
-          if git show-ref --verify --quiet refs/remotes/origin/main; then
-            DEFAULT_BRANCH="origin/main"
-          else
-            DEFAULT_BRANCH="origin/master"
-          fi
+          DEFAULT_BRANCH="origin/main"
 
           echo "Default branch assumed: ${DEFAULT_BRANCH}"
 
