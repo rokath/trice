@@ -84,6 +84,8 @@ void nodePrintLeds(const node_t* node, const char* reason);
 // Sleep helper shared by all demo nodes to keep pacing code in one place.
 void nodeSleepMs(unsigned ms);
 
+void nodePrintLineF(const char* fmt, ...);
+
 #if TRICE_TX_SUPPORT == 1
 // Emit one ABC response carrying the current LED mask.
 void nodeSendLedsState(node_t* node);

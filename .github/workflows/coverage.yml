@@ -12,6 +12,10 @@
 name: Go Coverage (PR + Monthly)
 
 on:
+  push:
+    branches:
+      - main
+
   # Run for all PRs targeting any branch
   pull_request:
 

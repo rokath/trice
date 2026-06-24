@@ -133,7 +133,6 @@ void unknown_local_handler(const triceRx_t* rx);
 	require.NoError(t, err)
 	sourceText := string(source)
 	assert.Contains(t, sourceText, `#include "deviceA.h"`)
-	assert.Contains(t, sourceText, `#include "triceRx.h"`)
 	assert.NotContains(t, sourceText, "static void triceAbcCall_")
 	assert.Contains(t, sourceText, "{  1001u,   0u, get_power_state }")
 	assert.Contains(t, sourceText, "{  1003u,  32u, set_time }")

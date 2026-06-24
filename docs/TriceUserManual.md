@@ -326,21 +326,19 @@ details.toc[open] .toc-hide {
   * [34.13. Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
   * [34.14. Format tags prototype specifier examples](#format-tags-prototype-specifier-examples)
 * [35. Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands)
-  * [35.1. Trice ABC in one minute](#trice-abc-in-one-minute)
-  * [35.2. What ABC is not](#what-abc-is-not)
-  * [35.3. Trice ABC macro families](#trice-abc-macro-families)
-  * [35.4. Trice ABC stamps](#trice-abc-stamps)
-  * [35.5. Trice ABC command names and tags](#trice-abc-command-names-and-tags)
-  * [35.6. Selecting received Trice ABC commands](#selecting-received-trice-abc-commands)
-    * [35.6.1. First run](#first-run)
-    * [35.6.2. Later runs](#later-runs)
-  * [35.7. Receiving and handler execution](#receiving-and-handler-execution)
-  * [35.8. Trice ABC responses](#trice-abc-responses)
-  * [35.9. Multiple devices and multiple code bases](#multiple-devices-and-multiple-code-bases)
-  * [35.10. Trice ABC security and trust boundary](#trice-abc-security-and-trust-boundary)
-  * [35.11. Minimal usage sketch](#minimal-usage-sketch)
-  * [35.12. Legacy triceF status](#legacy-tricef-status)
-  * [35.13. Trice ABC summary](#trice-abc-summary)
+  * [35.1. Quick use](#quick-use)
+  * [35.2. ABC macro families](#abc-macro-families)
+  * [35.3. Command names and handler names](#command-names-and-handler-names)
+  * [35.4. Receiver selection and generated table](#receiver-selection-and-generated-table)
+  * [35.5. Receive runtime contract](#receive-runtime-contract)
+  * [35.6. Handler payload handling](#handler-payload-handling)
+  * [35.7. Responses](#responses)
+  * [35.8. What ABC is not](#what-abc-is-not)
+  * [35.9. Example: examples/TriceAbc](#example-examplestriceabc)
+  * [35.10. Host tests](#host-tests)
+  * [35.11. Building RPC-like protocols on top](#building-rpc-like-protocols-on-top)
+  * [35.12. Security boundary](#security-boundary)
+  * [35.13. Summary](#summary-1)
 * [36. Development Environment Setup](#development-environment-setup)
   * [36.1. Common Information](#common-information-1)
   * [36.2. Important to know](#important-to-know)
@@ -481,7 +479,7 @@ details.toc[open] .toc-hide {
   * [47.6. Be careful with current working directory changes](#be-careful-with-current-working-directory-changes)
   * [47.7. Prefer Makefile clean targets when available](#prefer-makefile-clean-targets-when-available)
   * [47.8. Example scripts](#example-scripts)
-  * [47.9. Summary](#summary-1)
+  * [47.9. Summary](#summary-2)
 * [48. Scratch Pad](#scratch-pad)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
@@ -1924,10 +1922,10 @@ Important to know: If the `TRICE_PROTECT` code inhibits the writing into a buffe
 | `trice16B`\|`Trice16B`\|`TRice16B`\|`TRICE16_B` | Is for 16-bit buffer output according to the given format specifier for a 16-bit value.                                                                                                                                                                                                                                       |
 | `trice32B`\|`Trice32B`\|`TRice32B`\|`TRICE32_B` | Is for 32-bit buffer output according to the given format specifier for a 32-bit value.                                                                                                                                                                                                                                       |
 |                                                 | See chapter [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands) for the following lines.                                                                                                                                                                                              |
-| `triceC`  \|`TriceC`  \|`TRiceC`  \|`TRICE_C`   | Is for ABC buffer output according to the given function handler for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_C TRICE8_C`.                                                                                                                                       |
-| `trice8C` \|`Trice8C` \|`TRice8C` \|`TRICE8_C`  | Is for ABC byte buffer output according to the given function handler.                                                                                                                                                                                                                                                  |
-| `trice16C`\|`Trice16C`\|`TRice16C`\|`TRICE16_C` | Is for ABC 16-bit buffer output according to the given function handler for a 16-bit wide buffer.                                                                                                                                                                                                                       |
-| `trice32C`\|`Trice32C`\|`TRice32C`\|`TRICE32_C` | Is for ABC 32-bit buffer output according to the given function handler for a 32-bit wide buffer.                                                                                                                                                                                                                       |
+| `triceC`  \|`TriceC`  \|`TRiceC`  \|`TRICE_C`   | Is for ABC buffer output according to the given function handler for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_C TRICE8_C`.                                                                                                                                             |
+| `trice8C` \|`Trice8C` \|`TRice8C` \|`TRICE8_C`  | Is for ABC byte buffer output according to the given function handler.                                                                                                                                                                                                                                                        |
+| `trice16C`\|`Trice16C`\|`TRice16C`\|`TRICE16_C` | Is for ABC 16-bit buffer output according to the given function handler for a 16-bit wide buffer.                                                                                                                                                                                                                             |
+| `trice32C`\|`Trice32C`\|`TRice32C`\|`TRICE32_C` | Is for ABC 32-bit buffer output according to the given function handler for a 32-bit wide buffer.                                                                                                                                                                                                                             |
 
 ### 13.6. <a id="logfile-viewing"></a>Logfile viewing
 
@@ -2750,11 +2748,11 @@ is a real function and writes counted selector-0 records into the configured Tri
 This switch is intentionally independent from `TRICE_OFF`:
 
 | `TRICE_OFF` | `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT` | Setting                                                                 |
-|-------------|-----------------------------------|-------------------------------------------------------------------------|
-| `== 0`      | `== 0`                            | normal Trice macros are active, `triceX0()` is a no-op                  |
-| `== 0`      | `== 1`                            | normal Trice macros are active, `triceX0()` emits counted X0 records    |
-| `== 1`      | `== 0`                            | normal Trice macros are off, `triceX0()` is a no-op                     |
-| `== 1`      | `== 1`                            | normal Trice macros are off, `triceX0()` still emits counted X0 records |
+|-------------|--------------------------------------|-------------------------------------------------------------------------|
+| `== 0`      | `== 0`                               | normal Trice macros are active, `triceX0()` is a no-op                  |
+| `== 0`      | `== 1`                               | normal Trice macros are active, `triceX0()` emits counted X0 records    |
+| `== 1`      | `== 0`                               | normal Trice macros are off, `triceX0()` is a no-op                     |
+| `== 1`      | `== 1`                               | normal Trice macros are off, `triceX0()` still emits counted X0 records |
 
 The 4th combination is useful for applications that want to use only selector-0 user packets while keeping all normal Trice statements compiled out. The Trice tool can still scan normal Trice statements in the source code for ID maintenance, but the compiler receives no normal Trice output code from them.
 
@@ -5313,68 +5311,132 @@ This syntax is supported: `%[flags][width][.precision][length]`
 
 ## 35. <a id="trice-abc---asynchronous-broadcast-commands"></a>Trice ABC - Asynchronous Broadcast Commands
 
-```diff
---> EXPERIMENTAL
-+   Tests PASS, so it should work. +
+Trice ABC adds command-style communication to normal Trice records. The API is intentionally small and meant as a building block.
+
+ABC means:
+
+- **Asynchronous:** the sender emits a record and continues.
+- **Broadcast:** zero, one, or several receivers may observe the same record.
+- **Commands:** selected receivers may execute locally compiled handlers.
+
+The key idea is the generated ID/function-pointer list on the receiver:
+
+```text
+sender source
+  trice8C("cmd:setLeds", &mask, 1)
+        |
+        | trice insert
+        v
+til.json
+  ID <-> "cmd:setLeds"
+        |
+        | trice generate -i til.json -abc device_abc
+        v
+device_abc.c
+  { ID, 8, setLeds }
+        |
+        | receive runtime
+        v
+triceParseNextRecord() -> triceResolveAbc() -> triceDispatchAbc() -> setLeds(&rx)
 ```
 
-### 35.1. <a id="trice-abc-in-one-minute"></a>Trice ABC in one minute
+Only the Trice ID, optional ABC stamp, and optional payload are transferred. The command string stays in the TIL data and is used during receiver-code generation.
 
-**Trice ABC** is an optional Trice extension for command-style communication between devices. A receive-only implementation is usable with just the two `triceRx` [c](../src/triceRx.c) and [h](../src/triceRx.h) files and the specific generated `device_abc` [c](../_test/abc_rx_host/device_abc.c) & [h](../_test/abc_rx_host/device_abc.h) pair.
+### 35.1. <a id="quick-use"></a>Quick use
 
-- **Asynchronous**: the sender does not block waiting for receivers or responses.
-- **Broadcast**: the command may be observed by several devices; the sender does not imply exactly one peer.
-- **Commands**: the message asks interested receivers to do something.
-
-The name describes the observable behavior, not the implementation. It avoids RPC wording and does not expose implementation details such as function pointers or generated tables. In C macro names, the suffix `C` means Command.
-
-Example usage:
-```C
-    uint16_t stamp = 0x1234;                 // device ID
-    uint32_t myTime = getTime();             // device clock
-    Trice32C("SetTime", stamp, &myTime, 1 ); // asynchronous broadcast command with an 1-element 32-bit buffer
-```
-
-An ABC message is still a normal Trice message: it has a Trice ID, an optional stamp and an optional payload. The difference is its intended meaning. A receiver may treat the Trice ID as a command key and call a locally compiled C handler selected for this target. That is done by automated **code generation** during the receiver build process. The sender does not wait and does not know which devices will react:
-
-```C
-triceC(iD(X), "cmd:get_power_state");
-```
-
-* Sender emits ABC message with ID X and optional payload and:
-  * receiver A: ID X -> handler `get_power_state()`, or no action
-  * receiver B: ID X -> handler `get_power_state()`, or no action
-  * receiver C: ID X -> handler `get_power_state()`, or no action
-
-
-The Trice ID denotes a command name in the shared TIL data, but each target decides locally whether this command is enabled and what the handler implementation does. A handler optionally expects a values buffer and may send no, one or several responses. Such responses are any reaction, ordinary Trice messages and may again be ABC messages.
-
-ABC is deliberately only a building block. It does not implement reliability, addressing, retries, acknowledgements, authorization, quorum logic, routing, discovery, or waiting for responses. Applications can build these policies on top if needed.
-
-### 35.2. <a id="what-abc-is-not"></a>What ABC is not
-
-ABC is **not remote procedure call**. RPC usually implies one addressed callee, a procedure-call model, and often a return value or a future-like response. ABC has no call stack relation, no direct return value, no required reply, and no guarantee that exactly one receiver acts. A user can build an RPC-like protocol on top of ABC, but ABC itself is not RPC.
-
-ABC is **not dispatch in the routing sense**. There is no required central dispatcher that routes one message to one selected receiver. Receivers inspect incoming Trice IDs locally.
-
-ABC is **not publish-only messaging**. Publishing describes that a message is emitted; ABC is action-oriented. The message is intended to be interpretable as a command by interested receivers.
-
-ABC is **not remote code execution**. It transfers only a Trice ID, optional stamp, and optional payload. A receiver can execute only handlers already compiled into its firmware and selected by its local ABC table.
-
-### 35.3. <a id="trice-abc-macro-families"></a>Trice ABC macro families
-
-Enable ABC code in the project-specific _triceConfig.h_ as needed:
+1. Enable sending and/or receiving in `triceConfig.h`:
 
 ```c
-#define TRICE_TX_ABC_SUPPORT 1 // needed for sending ABC messages
-#define TRICE_RX_ABC_SUPPORT  1 // needed for receiving/handling ABC messages
+#define TRICE_TX_ABC_SUPPORT 1 // needed for ABC send macros
+#define TRICE_RX_ABC_SUPPORT 1 // needed for ABC receive/dispatch
 ```
 
-Sending and receiving are independent. A device may send ABC messages without receiving them, and vice versa.
+Sending and receiving are independent. A device may be send-only, receive-only, or both.
 
-ABC macros follow the normal Trice capitalization style. The optional number in the macro name is the payload element width. The capitalization selects whether an ABC stamp is present:
+2. Send a command with an ABC macro:
 
-| no stamp   | 16-bit stamp | 32-bit stamp | Payload element width |
+```c
+#include "trice.h"
+
+void SetLeds(uint8_t mask) {
+    trice8C("cmd:setLeds", &mask, 1);
+}
+```
+
+3. Insert IDs into the sources and TIL file:
+
+```bash
+trice insert -til til.json -li li.json -src ./project_src
+```
+
+4. Generate the receiver selection/header pair and table:
+
+```bash
+trice generate -i til.json -abc ./device_abc
+```
+
+This creates:
+
+```text
+device_abc.h   generated once, then user-owned receiver selection header
+device_abc.c   generated table, regenerated from til.json and device_abc.h
+```
+
+5. Edit `device_abc.h` and keep only the commands this target shall receive:
+
+```c
+#ifndef DEVICE_ABC_H_
+#define DEVICE_ABC_H_
+
+#include "triceRx.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void setLeds(const triceRx_t* rx);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* DEVICE_ABC_H_ */
+```
+
+6. Implement the selected handlers:
+
+```c
+#include <stdint.h>
+#include "device_abc.h"
+
+static uint8_t boardLeds;
+
+void setLeds(const triceRx_t* rx) {
+    if (rx == 0 || rx->payloadBytes != 1u) {
+        return;
+    }
+    boardLeds = rx->payload[0];
+}
+```
+
+7. Feed decoded Trice records to the receive runtime:
+
+```c
+triceRx_t rx;
+int used = triceParseNextRecord(&rx, record, recordLen);
+
+if (used > 0 && triceResolveAbc(&rx, triceAbc, triceAbcElements) == TRICE_RX_OK) {
+    (void)triceDispatchAbc(&rx);
+}
+```
+
+`triceRx` parses already deframed and decrypted Trice records. UART, RTT, file, socket, COBS, TCOBS, and encryption handling stay outside this small receive core.
+
+### 35.2. <a id="abc-macro-families"></a>ABC macro families
+
+The suffix `C` means command. The optional number in the macro name is the payload element width.
+
+| no stamp   | 16-bit stamp | 32-bit stamp | payload element width |
 |------------|--------------|--------------|-----------------------|
 | `triceC`   | `TriceC`     | `TRiceC`     | no payload            |
 | `trice8C`  | `Trice8C`    | `TRice8C`    | 8-bit                 |
@@ -5382,334 +5444,313 @@ ABC macros follow the normal Trice capitalization style. The optional number in 
 | `trice32C` | `Trice32C`   | `TRice32C`   | 32-bit                |
 | `trice64C` | `Trice64C`   | `TRice64C`   | 64-bit                |
 
-For stamped ABC macros, the explicit ABC stamp argument follows the format string and precedes the payload arguments. If normal Trice time stamps needed, `TriceStamp16` and `TriceStamp32` are usable directly. The implementation supports no-payload `triceC`/`TriceC`/`TRiceC` forms and width-specific payload forms. A default-width `triceC` payload form is not required.
-
-Use the width-specific forms when a payload is present:
+Examples:
 
 ```c
-triceC("cmd:motor_stop");                         // no payload, no stamp
-TriceC("cmd:get_power_state", stamp16);           // no payload, 16-bit ABC stamp
-TRiceC("cmd:restart_measurement", stamp32);       // no payload, 32-bit ABC stamp
+triceC("cmd:motorStop"); // no stamp, no value
 
-uint32_t unixTime = 1777777777u;
-trice32C("cmd:set_time", &unixTime, 1);            // one 32-bit payload element, no stamp
+uint16_t seq16 = NextSeq16();
+TriceC("cmd:getLeds", seq16); // 16-bit stamp, no value
 
-int8_t step[] = { -50, 0, 30, 0 };
-Trice8C("cmd:motor_step", stamp16, step, 4);       // four 8-bit payload elements, 16-bit stamp
+uint32_t unixTime = BoardTime();
+trice32C("cmd:setTime", &unixTime, 1); // no stamp, one 32-bit value
+
+int16_t step[] = { -50, 0, 300, 0 };
+TRice16C("cmd:motorStep", 0x12345678, step, 4); // 32-bit stamp, 4 16-bit values
 ```
 
-On the sending target, the configured Trice output limits bound the maximum emitted payload size. A receive-only ABC target does not need `TRICE_SINGLE_MAX_SIZE`.
+For stamped ABC macros, the explicit ABC stamp follows the command string and precedes the payload arguments.
 
-### 35.4. <a id="trice-abc-stamps"></a>Trice ABC stamps
+ABC stamps are application-defined correlation values. They are not automatically generated Trice timestamps. Pass `TriceStamp16` or `TriceStamp32` explicitly if a real timestamp is desired.
 
-Normal `Trice` and `TRice` messages automatically use `TriceStamp16` or `TriceStamp32` from the target configuration. ABC messages do not. For ABC, the stamp is an explicit user-supplied correlation value:
+```c
+TriceC("cmd:sample", TriceStamp16);
+TRiceC("cmd:sample", TriceStamp32);
+```
+
+### 35.3. <a id="command-names-and-handler-names"></a>Command names and handler names
+
+The ABC command name is written where a normal Trice format string would stand. Treat it as a command name, not as a printf format string.
+
+```c
+triceC("cmd:motorStop");
+trice32C("cmd:setTime", &unixTime, 1);
+```
+
+Everything before the last colon is tag/grouping text. The generator uses the part after the last colon as C handler name:
 
 ```text
-ABC stamp = application-defined value transported in the Trice stamp field
+cmd:motorStop       -> motorStop
+cmd:deviceA:sample  -> sample
+abc:LedsState       -> LedsState
 ```
 
-Typical uses are a request number, a response correlation value, a source-device plus sequence value, or an application transaction marker. ABC does not define how the bits are split.
+The prefixes are not ABC addresses. They are useful for readable TIL data, filtering, grouping, and examples.
 
-Example with device ID and sequence counter:
+The final command part must be a valid C identifier. Do not add a trailing newline to ABC command strings.
+
+### 35.4. <a id="receiver-selection-and-generated-table"></a>Receiver selection and generated table
+
+`trice generate -abc` creates a user-owned selection header once. Afterwards the user edits this header to select the commands compiled into that target.
+
+The generator regenerates the C table from the intersection of:
+
+- ABC entries found in `til.json`, and
+- active handler declarations found in `device_abc.h`.
+
+A command present in `til.json` but not declared in `device_abc.h` is ignored by this receiver. A declaration without a matching TIL entry is a build/configuration issue.
+
+Generated `device_abc.c` has the essential shape:
 
 ```c
-uint32_t stamp32 = ((uint32_t)deviceId << 16) | (sequenceCounter++ & 0xffffu);
-TRiceC("cmd:get_power_state", stamp32);
-```
-
-If a real time stamp is desired for an ABC message, pass it explicitly:
-
-```c
-TriceC("cmd:fnA", TriceStamp16);
-TRiceC("cmd:fnB", TriceStamp32);
-```
-
-<!--
-The host-side display should eventually label ABC stamps as `stamp:` instead of `time:`. During implementation and test migration, older display code may still show the existing time label for the transported stamp field.
--->
-
-### 35.5. <a id="trice-abc-command-names-and-tags"></a>Trice ABC command names and tags
-
-The ABC command name is written in the Trice format string position:
-
-```c
-triceC("cmd:motor_stop");
-trice32C("cmd:set_time", &unixTime, 1);
-```
-
-Everything before the last colon is display/filter metadata. The generator uses the part after the last colon as C handler name:
-
-```text
-cmd:motor_stop          -> motor_stop
-cmd:deviceA:motor_step  -> motor_step
-a:b:c:d:e:f             -> f
-```
-
-The prefixes are not ABC addresses. They may still be useful as normal Trice tags for coloring, ID ranges, `-pick`, `-ban`, or human-readable grouping. ABC semantics are determined by the `C` macro family and the Trice ID, not by the tag string.
-
-The final command part must be a valid C identifier (without a trailing `\n`!).
-
-### 35.6. <a id="selecting-received-trice-abc-commands"></a>Selecting received Trice ABC commands
-
-A receiving target selects which ABC commands it handles with one generator command:
-
-```bash
-trice generate -i til.json -abc=path/deviceX_abc
-```
-
-For `-abc=path/deviceX_abc`, the generator uses two files in `path/`:
-
-```text
-deviceX_abc.h   // user-editable selection file
-deviceX_abc.c   // generated table file, recreated each time
-```
-
-`til.json` is the source of truth for existing Trice IDs. `deviceX_abc.h` is the target-local selection.
-
-#### 35.6.1. <a id="first-run"></a>First run
-
-If `deviceX_abc.h` does not exist, the generator creates it from all ABC commands found in the TIL:
-
-```c
-//! \file deviceX_abc.h
-//! Trice ABC selection file for target deviceX.
-//! Generated once; edit this file to select received ABC commands.
-
-#ifndef DEVICEX_ABC_H_
-#define DEVICEX_ABC_H_
-#include "triceRx.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void motor_stop(const triceRx_t* rx);
-void get_power_state(const triceRx_t* rx);
-void set_time(const triceRx_t* rx);
-void set_pwm(const triceRx_t* rx);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // DEVICEX_ABC_H_
-```
-
-The user deletes or comments out declarations for commands this target shall ignore:
-
-```c
-#ifndef DEVICEX_ABC_H_
-#define DEVICEX_ABC_H_
-#include "triceRx.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void get_power_state(const triceRx_t* rx);
-void set_time(const triceRx_t* rx);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // DEVICEX_ABC_H_
-```
-
-#### 35.6.2. <a id="later-runs"></a>Later runs
-
-If `deviceX_abc.h` already exists, the generator uses it as input and does not overwrite it. Only active declarations in this file are emitted into `deviceX_abc.c`.
-
-The selection parser strips C comments but does not evaluate preprocessor conditionals. Do not rely on `#if 0` blocks to deselect commands; delete or comment out declarations instead.
-
-`deviceX_abc.c` is always regenerated and should not be edited. The generator may set it read-only after writing it:
-
-```c
-//! \file deviceX_abc.c
-//! Trice generated ABC code - do not edit!
-
-#include "deviceX_abc.h"
+#include "device_abc.h"
 
 const triceAbc_t triceAbc[] = {
-    /* Trice type */ /* id, bitWidth, function pointer */
-    /*   TriceC   */ { 14236,  0, get_power_state },
-    /*  trice32C  */ { 14235, 32, set_time },
+    /* id, bitWidth, function pointer */
+    { 5150u, 8u, setLeds },
+    { 4818u, 0u, getLeds },
 };
 
 const unsigned triceAbcElements = sizeof(triceAbc) / sizeof(triceAbc[0]);
 ```
 
-The application implements the selected handlers in normal source files:
+Do not edit `device_abc.c`. Implement the selected handlers in normal application code. Missing handler implementations fail as normal linker errors.
+
+### 35.5. <a id="receive-runtime-contract"></a>Receive runtime contract
+
+The common receive API is in `src/triceRx.h` and `src/triceRx.c`.
+
+Use `triceParseNextRecord()` to parse one decoded Trice record. It fills a `triceRx_t`:
 
 ```c
-#include <stdint.h>
-#include <string.h>
-#include "trice.h"
-#include "deviceX_abc.h"
-
-void get_power_state(const triceRx_t* rx) {
-    uint32_t stamp = 0x87650000u | (uint16_t)rx->stamp;
-    int32_t value = BoardPowerState();
-    TRice32C("rsp:power_state", stamp, &value, 1);
-}
-
-void set_time(const triceRx_t* rx) {
-    int32_t value;
-    if (rx->payloadBytes == sizeof(value)) {
-        memcpy(&value, rx->payload, sizeof(value));
-        ClockSetUnixTime((uint32_t)value);
-    }
-}
+uint16_t id;              // Trice ID
+uint8_t  bitWidth;        // payload element width after resolution
+uint8_t  stampBits;       // 0, 16, or 32
+uint32_t stamp;           // application-defined ABC stamp
+const uint8_t* payload;   // points into caller-owned input buffer
+uint16_t payloadBytes;    // payload byte count
 ```
 
-If `deviceX_abc.h` declares a handler for which no matching ABC command exists in `til.json`, the generator prints a warning and omits that declaration from the generated table until a matching TIL entry exists.
+The payload is not copied. Do not store `rx->payload` beyond the lifetime of the input buffer unless the handler copies the data.
 
-### 35.7. <a id="receiving-and-handler-execution"></a>Receiving and handler execution
+`triceResolveAbc()` looks up the parsed ID in the generated `triceAbc[]` table and attaches the resolved bit width and function pointer to `rx`.
 
-The generated table is only the ID-to-handler selection. How incoming Trice frames reach this table depends on the used transport and decoder.
+`triceDispatchAbc()` validates the payload size against the resolved bit width and calls the selected handler. Unknown IDs are normal in mixed streams and can be ignored.
 
-The receive runtime entry point works after decoding. It receives the Trice ID, stamp selector, stamp value, and payload bytes; framing, transport buffering, and optional decryption belong to the surrounding decoder/integration layer.
+For simple one-record receive paths, `TriceAbcOnReceive(pBuf, len)` is available as a convenience wrapper. Stream receivers should usually parse records explicitly, advance by the positive consumed byte count, and decide per record whether it is ABC, normal log traffic, counted typeX0 traffic, or unknown traffic.
 
-The minimal receive logic is:
+### 35.6. <a id="handler-payload-handling"></a>Handler payload handling
 
-* receive Trice frame
-* call `int TriceAbcOnReceive(const uint8_t* pBuf, int len);`
-  * parse ID, optional ABC stamp, and optional payload
-  * find matching entry in triceAbc[]
-  * if found, call the generated wrapper, which calls the selected user handler
+Handlers get only `const triceRx_t*`. Application state must come from normal program context.
 
-ABC does not require a queue or scheduler. If a handler can execute immediately, it may do so. If execution time or context matters, the handler should only copy the parameters, set an application flag, and return:
+Use `rx->bitWidth`, `rx->payloadBytes`, and `rx->payload` to interpret the payload. For multi-byte values, prefer copying from the byte buffer instead of casting the pointer (alignment).
 
 ```c
-static volatile int setTimePending;
-static int32_t setTimeValue;
+#include <string.h>
 
-void set_time(const triceRx_t* rx) {
-    int32_t value;
-    if (rx->payloadBytes != sizeof(value)) {
-        trice("err:invalid set_time payload %u\n", (unsigned)rx->payloadBytes);
+void setTime(const triceRx_t* rx) {
+    uint32_t t;
+
+    if (rx == 0 || rx->bitWidth != 32u || rx->payloadBytes != sizeof(t)) {
         return;
     }
-    memcpy(&value, rx->payload, sizeof(value));
-    setTimeValue = value;
-    setTimePending = 1;
+
+    memcpy(&t, rx->payload, sizeof(t));
+    BoardSetTime(t);
 }
 ```
 
-A background task can then poll the flag and perform the slow or timing-critical work. Applications that need queues, exact-once execution, duplicate detection, or loss-free command counting must implement that policy above ABC.
+Use the configured Trice transfer order consistently if payload values are exchanged between different endian architectures.
 
-### 35.8. <a id="trice-abc-responses"></a>Trice ABC responses
+### 35.7. <a id="responses"></a>Responses
 
-ABC does not define a response protocol. A handler may send zero, one, or more Trice messages as responses.
+ABC has no built-in response model. A handler may send no response, one response, or several responses.
 
-If an ABC stamp was received, the runtime passes it in the handler context. A handler can reuse it in a response:
+A common pattern is:
 
 ```c
-void get_power_state(const triceRx_t* rx) {
-    uint32_t stamp = 0x87650000u | (uint16_t)rx->stamp;
-    int32_t value = BoardPowerState();
-    TRice32C("rsp:power_state", stamp, &value, 1);
-}
+// request
+TriceC("cmd:getLeds", seq16);
+
+// response from interested receiver
+TRice8C("abc:LedsState", responseStamp32, &leds, 1);
 ```
 
-The original sender may collect responses with matching stamps if it wants request/response behavior. ABC itself does not wait, retry, count responses, or decide when enough responses have arrived.
+The response is just another Trice message. It may be a normal log message or another ABC command. Use stamps to correlate responses with requests.
 
-### 35.9. <a id="multiple-devices-and-multiple-code-bases"></a>Multiple devices and multiple code bases
+### 35.8. <a id="what-abc-is-not"></a>What ABC is not
 
-ABC works best when all devices that should understand a command share the same Trice ID for that command. The simplest way is to use one common `til.json` for all involved `trice insert` and `trice generate -abc=<target>` steps.
+ABC is not RPC by itself.
 
-If devices have separate code bases and separate TIL files, the TIL data must be aligned or merged before generating target-specific ABC files. Generated `*_abc.c` files should not be hand-merged. The TIL data is the source of truth.
+ABC does not define:
 
-### 35.10. <a id="trice-abc-security-and-trust-boundary"></a>Trice ABC security and trust boundary
+- addressed delivery,
+- exactly-one receiver semantics,
+- acknowledgements,
+- retries,
+- timeouts,
+- authorization,
+- discovery,
+- routing,
+- quorum logic,
+- waiting for a return value.
 
-ABC receiving allows incoming Trice messages to trigger locally compiled application code. Do not enable ABC receiving on untrusted transports without an application-level trust model.
+Build these policies above ABC when needed.
 
-Possible protections include restricting transports that can feed ABC receive processing, filtering allowed IDs, using authenticated or encrypted links, validating every command payload, and disabling ABC receive support in production builds that do not need it.
+ABC is also not remote code execution. A receiver can execute only handlers already compiled into the firmware and selected by its generated ABC table.
 
-ABC is a command primitive, not an authorization system. With the [Optional XTEA Encryption](#optional-xtea-encryption) a reasonable protection in a cheap way is possible.
+### 35.9. <a id="example-examplestriceabc"></a>Example: `examples/TriceAbc`
 
-### 35.11. <a id="minimal-usage-sketch"></a>Minimal usage sketch
+The host-native demo shows ABC without embedded hardware.
 
-Sender:
-
-```c
-#include "trice.h"
-
-static uint16_t abcSeq16;
-
-void AskPowerState(void) {
-    TriceC("cmd:get_power_state", abcSeq16++);
-}
-```
-
-Receiver setup:
+Run it from the example directory:
 
 ```bash
-trice generate -i til.json -abc=deviceZ
+cd examples/TriceAbc
+./build.sh
+./demo.sh
 ```
 
-The sender, to get an answer also needs to be a receiver:
+The demo uses `BcSim` as a small byte bus. It transports bytes only; the Trice-specific logic is in `NodeLib` and the node programs.
+
+The build script demonstrates the full workflow:
 
 ```bash
-trice generate -i til.json -abc=sender
+trice insert ...
+trice generate -i ../../demoTIL.json -abc NodeLib/nodeAbc
+trice generate -i ../../demoTIL.json -tilC
 ```
 
-Receiver selection file for *deviceZ* after editing:
+It produces:
 
-```c
-// deviceZ_abc.h
-#ifndef DEVICEZ_ABC_H_
-#define DEVICEZ_ABC_H_
-
-#include "triceAbcReceive.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void get_power_state(const triceRx_t* rx);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // DEVICEZ_ABC_H_
+```text
+NodeLib/nodeAbc.h   shared user-owned ABC selection header
+NodeLib/nodeAbc.c   shared generated ABC table
+NodeLib/til.c       compact generated log metadata for normal-log resolving
 ```
 
-Receiver implementation:
+The demo nodes have different roles:
 
-```c
-#include "trice.h"
-#include "deviceZ_abc.h"
+- `N1_tx`, `N2_tx`: send ABC commands.
+- `N3_bi`, `N7_bi`, `N8_bi`, `N9_bi`: send and receive.
+- `N4_rx`, `N5_rx`, `N6_rx`: receive only.
+- `N6_rx` and `N7_bi`: additionally resolve normal Trice log traffic.
 
-void get_power_state(const triceRx_t* rx) {
-    uint32_t stamp = 0x12340000u | (uint16_t)rx->stamp;
-    int32_t value = BoardPowerState();
-    TRice32C("rsp:power_state", stamp, &value, 1);
-}
+The demo commands include:
+
+- `cmd:setLeds`
+- `cmd:getLeds`
+- `cmd:setKey`
+- `cmd:logState`
+- `cmd:divide`
+- `abc:LedsState`
+- `abc:DivideResult`
+
+`cmd:getLeds` and `cmd:divide` show request/response behavior built above ABC. The stamped requests use low stamp bits as a small responder bitmap in the demo. That is application policy, not ABC core behavior.
+
+The shared runtime flow is:
+
+```text
+normal Trice macro / ABC macro
+  -> TriceWriteDevice()
+  -> BcSim byte bus
+  -> COBS frame collector
+  -> triceParseNextRecord()
+  -> triceResolveAbc() / triceResolveLog()
+  -> node handler or demo log printer
 ```
 
-This example uses a 16-bit request stamp and sends a response with a related 32-bit stamp. That is only an application pattern, not built-in ABC behavior.
+The example intentionally parses once and then decides whether the record is ABC, normal log traffic, counted typeX0 traffic, or unknown traffic. This is the recommended style for mixed receive streams.
 
-### 35.12. <a id="legacy-tricef-status"></a>Legacy `triceF` status
+An example log snippet:
 
-The existing `triceF` macros and the `trice generate -rpcH -rpcC` generator path were an experimental remote-function-call syntax. They remain unchanged for compatibility, but new command-style communication should use Trice ABC.
+```txt
+...
+N3_tx: ABC-> cmd:setLeds(0c)
+N6_rx: log:tick=203
+N6_rx: log:from=3 phase=3
+N6_rx: log:text=N3 bidirectional
+N6_rx: x0 3 bytes: 33 34 35
+N6_rx: leds=[  **    ]
+N7_bi: log:tick=203
+N7_bi: log:from=3 phase=3
+N7_bi: log:text=N3 bidirectional
+N7_bi: x0 3 bytes: 33 34 35
+N7_bi: leds=[  **    ]
+N5_rx: x0 3 bytes: 33 34 35
+N5_rx: leds=[  **    ]
+...
+```
 
-Planned transition:
+The broadcast simulation _abc.bus_ log starts with:
 
-- keep existing `triceF` behavior and `-rpcH`/`-rpcC` output unchanged for legacy users,
-- mark `triceF` and `-rpcH`/`-rpcC` as deprecated,
-- do not use `triceF` in new ABC examples,
-- do not include `triceF` entries in ABC generation,
-- compile legacy `triceF` target code only when `TRICE_LEGACY_RPC_SUPPORT` is explicitly set to `1`. The default in `triceDefaultConfig.h` is `0`.
+```txt
+# BcSim traffic log
+# bc.bus is a pure binary byte stream. This text log is diagnostic only.
+# offset and len are decimal values. Bytes are hexadecimal %02x values.
+#   offset  len device       dir status               bytes
+# -------- ---- ------------ --- -------------------- --------------------------------
+         0   10 N3_bi        TX  trice                06 d2 53 c0 04 c8 01 01 01 00
+        10   14 N3_bi        TX  trice                06 54 55 c0 08 03 01 01 01 01 01 01 01 00
+        24   22 N3_bi        TX  trice                15 99 53 c0 10 4e 33 20 62 69 64 69 72 65 63 74 69 6f 6e 61 6c 00
+        46    6 N3_bi        TX  trice                02 02 03 30 31 00
+         0   52 N8_bi        RX  poll                 06 d2 53 c0 04 c8 01 01 01 00 06 54 55 c0 08 03 01 01 01 01 01 01 01 00 15 99 53 c0 10 4e 33 20 62 69 64 69 72 65 63 74 69 6f 6e 61 6c 00 02 02 03 30 31 00
+         0   52 N6_rx        RX  poll                 06 d2 53 c0 04 c8 01 01 01 00 06 54 55 c0 08 03 01 01 01 01 01 01 01 00 15 99 53 c0 10 4e 33 20 62 69 64 69 72 65 63 74 69 6f 6e 61 6c 00 02 02 03 30 31 00
+...
+```
 
-New code should use `triceC`, `trice8C`, `trice16C`, `trice32C`, or `trice64C`.
 
-### 35.13. <a id="trice-abc-summary"></a>Trice ABC summary
+### 35.10. <a id="host-tests"></a>Host tests
 
-ABC turns selected Trice IDs into asynchronous broadcast commands. A receiver may ignore a command, call a selected local handler, or answer with further Trice messages. The sender keeps running and may optionally correlate later responses by using ABC stamps.
+`_test/abc_tx_host` checks the transmit side. It compiles a small C fixture with ABC TX support, emits selected `triceC`, `TriceC`, `TRiceC`, `trice8C`, `trice16C`, and `trice32C` calls, and compares the produced bytes with fixed fixtures. It verifies wire format generation only; it does not use a receiver table.
 
-The deliberately small ABC core consists of: Trice ID, optional ABC stamp, optional payload, target-specific `*_abc.h` selection, generated `*_abc.c` receive table, and user-implemented handlers.
+`_test/abc_rx_host` checks the receive side against the production `src/triceRx.c` runtime and a generated `device_abc` pair. The tests cover selected IDs, unknown IDs, no-payload records, 8/16/32/64-bit payloads, 16/32-bit stamps, malformed payload lengths, truncated records, nested dispatch, long-count payload encoding, log-resolution coexistence, and one-record-at-a-time stream consumption.
+
+Together, these tests document the current ABC boundary: transmit macros create normal Trice records, the generated table maps selected IDs to handlers, and the receive runtime parses/resolves/dispatches one decoded record at a time.
+
+### 35.11. <a id="building-rpc-like-protocols-on-top"></a>Building RPC-like protocols on top
+
+Use ABC as the transport primitive and define the RPC policy in the application.
+
+A minimal RPC-like pattern is:
+
+1. Define request commands, for example `rpc:getValue`. (requester)
+2. Define response commands, for example `rpc:getValueResult`. (a receiver acting as "requester" in a response)
+3. Put a correlation value into the 16-bit or 32-bit ABC stamp.
+4. Encode arguments in the payload.
+5. Let the receiver validate the payload, execute local code, and send a response (`rpc:getValueResult`) with the same or derived stamp.
+6. Let the requester also be an ABC receiver and keep a pending-request table.
+7. Implement timeout, retry, duplicate handling, authorization, and addressing at application level.
+
+For addressed RPC over a broadcast bus, put the destination into the stamp or payload and let non-matching receivers ignore the command. ABC itself still broadcasts the record.
+
+### 35.12. <a id="security-boundary"></a>Security boundary
+
+ABC receiving allows incoming Trice records to trigger selected local application handlers. Do not enable ABC receive processing on untrusted inputs without an application-level trust model.
+
+Typical protections are:
+
+- enable ABC receive only on trusted transports,
+- filter by time to avoid burst attacks,
+- validate every payload,
+- add authentication or encryption around the transport,
+- compile out `TRICE_RX_ABC_SUPPORT` where it is not needed.
+
+### 35.13. <a id="summary-1"></a>Summary
+
+ABC turns selected Trice IDs into asynchronous broadcast commands.
+
+The small core is:
+
+```text
+ABC send macro
+  -> Trice ID in til.json
+  -> generated *_abc.h selection
+  -> generated *_abc.c ID/function-pointer table
+  -> user handler(const triceRx_t* rx)
+```
+
+Everything else, including addressing, responses, reliability, retries, authorization, and RPC semantics, belongs to the application layer above ABC.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -10012,7 +10053,7 @@ G0B1_inst_build_fixed_cwd_cleanup.sh
 
 These scripts are examples for build-wrapper robustness. They do not replace the need for atomic file write-back inside Trice itself.
 
-### 47.9. <a id="summary-1"></a>Summary
+### 47.9. <a id="summary-2"></a>Summary
 
 Recommended practical rules:
 

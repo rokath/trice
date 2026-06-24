@@ -7,6 +7,7 @@ package id
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -18,7 +19,6 @@ import (
 func (ilu TriceIDLookUp) ToFileTilC(fSys afero.Fs, fn string) (err error) {
 	fh, err := fSys.Create(fn)
 	msg.FatalOnErr(err)
-
 	defer func() {
 		err = fh.Close()
 		msg.FatalOnErr(err)
@@ -34,8 +34,9 @@ func (ilu TriceIDLookUp) ToFileTilC(fSys afero.Fs, fn string) (err error) {
 // toListTilC converts ilu into a human-readable C-source byte slice.
 func (ilu TriceIDLookUp) toListTilC(filename string) ([]byte, error) {
 	text := []byte(`// File: ` + filename + `
+
 // Trice generated code - do not edit.
-//
+
 // triceLog stores compact receive-side facts derived from til.json.
 // bitWidth is generated because it is not present in the binary record.
 // paramCount is exact for scalar Trices; TRICE_LOG_PARAM_COUNT_DYNAMIC means
@@ -44,7 +45,7 @@ func (ilu TriceIDLookUp) toListTilC(filename string) ([]byte, error) {
 #include "triceRx.h"
 
 const triceLog_t triceLog[] = {
-	/* Trice type (  extended  ) */  //     id, bitWidth, paramCount, format-string
+	/* Trice type ( extended ) */  /*   id, bitWidth, paramCount, format-string */
 `)
 	tail := []byte(`};
 
@@ -54,17 +55,121 @@ const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 	defaultBitWidth, err := strconv.Atoi(DefaultTriceBitWidth)
 	msg.FatalOnErr(err)
 
-	for id, t := range ilu {
+	ids := make([]int, 0, len(ilu))
+	for id := range ilu {
+		ids = append(ids, int(id))
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		a := ilu[TriceID(ids[i])]
+		b := ilu[TriceID(ids[j])]
+		if a.Strg != b.Strg {
+			return a.Strg < b.Strg
+		}
+		return ids[i] < ids[j]
+	})
+
+	for _, n := range ids {
+		id := TriceID(n)
+		t := ilu[id]
 		extType, bitWidth, paramCount := computeLogValues(t, defaultBitWidth)
-		// strconv.Quote emits a valid C-compatible double-quoted string literal
-		// for the generated format text. This keeps embedded quotes, backslashes,
-		// tabs, and newlines safe when arbitrary Trice format strings enter til.c.
-		quotedFormat := strconv.Quote(t.Strg)
-		text = append(text, []byte(fmt.Sprintf(`	/* %10s ( %10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat))...)
+		quotedFormat := tilCFormatLiteral(t.Strg)
+		text = append(text, []byte(fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat))...)
 	}
 
 	text = append(text, tail...)
 	return text, nil
+}
+
+// tilCFormatLiteral converts the TIL-stored source spelling into a generated C
+// string literal. JSON unmarshalling already consumed JSON escapes, but Strg may
+// still contain C string escapes copied from the original Trice call, such as
+// \n, \r, \" or \\. Those escapes must be interpreted once so rx->pFmt has the
+// same runtime text as the target-side C string literal.
+func tilCFormatLiteral(format string) string {
+	return strconv.Quote(decodeCStringEscapes(format))
+}
+
+// decodeCStringEscapes implements the C string escapes used in Trice format
+// strings. Unknown escape pairs are kept byte-for-byte to avoid silently losing
+// literal backslashes from existing TIL files.
+func decodeCStringEscapes(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+
+	for i := 0; i < len(s); i++ {
+		if s[i] != '\\' || i+1 >= len(s) {
+			b.WriteByte(s[i])
+			continue
+		}
+
+		i++
+		switch s[i] {
+		case 'a':
+			b.WriteByte('\a')
+		case 'b':
+			b.WriteByte('\b')
+		case 'f':
+			b.WriteByte('\f')
+		case 'n':
+			b.WriteByte('\n')
+		case 'r':
+			b.WriteByte('\r')
+		case 't':
+			b.WriteByte('\t')
+		case 'v':
+			b.WriteByte('\v')
+		case '\\':
+			b.WriteByte('\\')
+		case '\'', '"', '?':
+			b.WriteByte(s[i])
+		case '0', '1', '2', '3', '4', '5', '6', '7':
+			value := int(s[i] - '0')
+			for digits := 1; digits < 3 && i+1 < len(s) && isOctalDigit(s[i+1]); digits++ {
+				i++
+				value = value*8 + int(s[i]-'0')
+			}
+			b.WriteByte(byte(value))
+		case 'x':
+			value := 0
+			digits := 0
+			for i+1 < len(s) {
+				digit, ok := hexDigitValue(s[i+1])
+				if !ok {
+					break
+				}
+				i++
+				digits++
+				value = value*16 + digit
+			}
+			if digits == 0 {
+				b.WriteString(`\x`)
+			} else {
+				b.WriteByte(byte(value))
+			}
+		default:
+			b.WriteByte('\\')
+			b.WriteByte(s[i])
+		}
+	}
+
+	return b.String()
+}
+
+func isOctalDigit(c byte) bool {
+	return '0' <= c && c <= '7'
+}
+
+func hexDigitValue(c byte) (int, bool) {
+	switch {
+	case '0' <= c && c <= '9':
+		return int(c - '0'), true
+	case 'a' <= c && c <= 'f':
+		return int(c-'a') + 10, true
+	case 'A' <= c && c <= 'F':
+		return int(c-'A') + 10, true
+	default:
+		return 0, false
+	}
 }
 
 // computeLogValues prepares the compact C RX table. The uint8_t paramCount

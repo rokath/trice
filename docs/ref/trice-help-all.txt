@@ -388,17 +388,11 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
     	The trice ID list file.
     	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
     	 (default "til.json")
-  -rpcC
-        Create a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.
-  -rpcH
-        Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.
   -til string
     	Short for '-idlist'.
     	 (default "til.json")
   -tilC
-    	Create a til.c file.
-  -tilCS
-    	Create a til.cs file.
+    	Create til.c or [path/filename].c. The optional path can be passed as -tilC=path/filename or -tilC path/filename.
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.

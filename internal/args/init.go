@@ -198,10 +198,7 @@ func generateInit() {
 	fsScGenerate = flag.NewFlagSet("generate", flag.ExitOnError) // sub-command
 	flagIDList(fsScGenerate)
 	flagVerbosity(fsScGenerate)
-	fsScGenerate.BoolVar(&id.GenerateTilC, "tilC", false, `Create a til.c file.`)
-	fsScGenerate.BoolVar(&id.GenerateTilCS, "tilCS", false, `Create a til.cs file.`)
-	fsScGenerate.BoolVar(&id.GenerateRpcH, "rpcH", false, `Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.`)
-	fsScGenerate.BoolVar(&id.GenerateRpcC, "rpcC", false, `Create a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.`)
+	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateTilC, Path: &id.GenerateTilCPath}, "tilC", `Create til.c or [path/filename].c. The optional path can be passed as -tilC=path/filename or -tilC path/filename.`)
 	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.`)
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
 }

@@ -361,8 +361,7 @@ func writeAbcSource(fSys *afero.Afero, path, filename, headerName string, comman
 	var b strings.Builder
 	fmt.Fprintf(&b, "//! \\file %s\n", filename)
 	b.WriteString("//! Trice generated ABC code - do not edit!\n\n")
-	fmt.Fprintf(&b, "#include %q\n", headerName)
-	b.WriteString("#include \"triceRx.h\"\n\n")
+	fmt.Fprintf(&b, "#include %q\n\n", headerName)
 	b.WriteString("const triceAbc_t triceAbc[] = {\n")
 	if len(commands) == 0 {
 		b.WriteString("\t{ 0u, 0u, 0 }\n")
