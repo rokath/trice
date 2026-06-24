@@ -69,7 +69,7 @@ func (ilu TriceIDLookUp) newRandomID(w io.Writer, min, max TriceID) (id TriceID)
 	interval := int(max - min + 1)
 	freeIDs := interval - len(ilu)
 	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(ilu)))
-	wrnLimit := interval >> 3 // 12.5%
+	wrnLimit := interval >> 5 // 3.125%
 	msg.InfoOnTrue(freeIDs < wrnLimit, "WARNING: Less than 12.5% IDs free!")
 	if interval <= 0 {
 		log.Fatal(w, "No ID space left:", min, max)

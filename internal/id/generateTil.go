@@ -7,6 +7,7 @@ package id
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -18,7 +19,6 @@ import (
 func (ilu TriceIDLookUp) ToFileTilC(fSys afero.Fs, fn string) (err error) {
 	fh, err := fSys.Create(fn)
 	msg.FatalOnErr(err)
-
 	defer func() {
 		err = fh.Close()
 		msg.FatalOnErr(err)
@@ -34,8 +34,9 @@ func (ilu TriceIDLookUp) ToFileTilC(fSys afero.Fs, fn string) (err error) {
 // toListTilC converts ilu into a human-readable C-source byte slice.
 func (ilu TriceIDLookUp) toListTilC(filename string) ([]byte, error) {
 	text := []byte(`// File: ` + filename + `
+
 // Trice generated code - do not edit.
-//
+
 // triceLog stores compact receive-side facts derived from til.json.
 // bitWidth is generated because it is not present in the binary record.
 // paramCount is exact for scalar Trices; TRICE_LOG_PARAM_COUNT_DYNAMIC means
@@ -44,7 +45,7 @@ func (ilu TriceIDLookUp) toListTilC(filename string) ([]byte, error) {
 #include "triceRx.h"
 
 const triceLog_t triceLog[] = {
-	/* Trice type (  extended  ) */  //     id, bitWidth, paramCount, format-string
+	/* Trice type ( extended ) */  /*   id, bitWidth, paramCount, format-string */
 `)
 	tail := []byte(`};
 
@@ -54,13 +55,28 @@ const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 	defaultBitWidth, err := strconv.Atoi(DefaultTriceBitWidth)
 	msg.FatalOnErr(err)
 
-	for id, t := range ilu {
+	ids := make([]int, 0, len(ilu))
+	for id := range ilu {
+		ids = append(ids, int(id))
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		a := ilu[TriceID(ids[i])]
+		b := ilu[TriceID(ids[j])]
+		if a.Strg != b.Strg {
+			return a.Strg < b.Strg
+		}
+		return ids[i] < ids[j]
+	})
+
+	for _, n := range ids {
+		id := TriceID(n)
+		t := ilu[id]
 		extType, bitWidth, paramCount := computeLogValues(t, defaultBitWidth)
 		// strconv.Quote emits a valid C-compatible double-quoted string literal
 		// for the generated format text. This keeps embedded quotes, backslashes,
 		// tabs, and newlines safe when arbitrary Trice format strings enter til.c.
 		quotedFormat := strconv.Quote(t.Strg)
-		text = append(text, []byte(fmt.Sprintf(`	/* %10s ( %10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat))...)
+		text = append(text, []byte(fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat))...)
 	}
 
 	text = append(text, tail...)

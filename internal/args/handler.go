@@ -73,7 +73,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
 	case "generate":
-		msg.OnErr(fsScGenerate.Parse(subArgs))
+		msg.OnErr(fsScGenerate.Parse(normalizeGenerateArgs(subArgs)))
 		id.CompactSrcs()
 		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
@@ -134,6 +134,19 @@ func LogHandler(w io.Writer, fSys *afero.Afero, args []string) error {
 		}
 	}
 	return runLog(w, fSys, args[1:])
+}
+
+func normalizeGenerateArgs(args []string) []string {
+	out := make([]string, 0, len(args))
+	for i := 0; i < len(args); i++ {
+		if args[i] == "-tilC" && i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+			out = append(out, "-tilC="+args[i+1])
+			i++
+			continue
+		}
+		out = append(out, args[i])
+	}
+	return out
 }
 
 func isVersionSwitch(arg string) bool {

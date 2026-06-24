@@ -18,17 +18,70 @@ import (
 )
 
 var (
-	GenerateTilC   bool
-	GenerateTilCS  bool
-	GenerateRpcH   bool
-	GenerateRpcC   bool
-	GenerateABC    string
-	WriteAllColors bool
+	GenerateTilC     bool
+	GenerateTilCPath string
+	GenerateABC      string
+	WriteAllColors   bool
 )
+
+// OptionalFilenameFlag allows a flag to be used either as a boolean switch or
+// with an optional output path, for example -tilC, -tilC=out/til, or -tilC=out/til.c.
+type OptionalFilenameFlag struct {
+	Enabled *bool
+	Path    *string
+}
+
+func (f OptionalFilenameFlag) String() string {
+	if f.Path == nil {
+		return ""
+	}
+	return *f.Path
+}
+
+func (f OptionalFilenameFlag) Set(value string) error {
+	switch value {
+	case "true":
+		if f.Enabled != nil {
+			*f.Enabled = true
+		}
+		if f.Path != nil {
+			*f.Path = ""
+		}
+	case "false":
+		if f.Enabled != nil {
+			*f.Enabled = false
+		}
+		if f.Path != nil {
+			*f.Path = ""
+		}
+	default:
+		if f.Enabled != nil {
+			*f.Enabled = true
+		}
+		if f.Path != nil {
+			*f.Path = value
+		}
+	}
+	return nil
+}
+
+func (f OptionalFilenameFlag) IsBoolFlag() bool {
+	return true
+}
+
+func TilCOutputPath(target string) string {
+	if target == "" {
+		return "til.c"
+	}
+	if strings.EqualFold(filepath.Ext(target), ".c") {
+		return target
+	}
+	return target + ".c"
+}
 
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
 func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
-	if !GenerateTilC && !GenerateTilCS && !GenerateRpcH && !GenerateRpcC && GenerateABC == "" && !WriteAllColors {
+	if !GenerateTilC && GenerateABC == "" && !WriteAllColors {
 		fmt.Fprintln(w, `The "trice generate" command needs at least one parameter. Check "trice help -generate".`)
 		return nil
 	}
@@ -41,38 +94,16 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 	}
 
 	ilu := NewLut(w, fSys, FnJSON) // read til.json
-	fn := strings.TrimSuffix(FnJSON, filepath.Ext(FnJSON))
 	msg.FatalOnErr(err)
 
-	if GenerateRpcH {
-		fnRPC := fn + "Rpc.h"
-		msg.FatalOnErr(ilu.ToFileTriceRpcH(fSys, fnRPC))
-		if Verbose {
-			fmt.Fprintln(w, "generated", fnRPC)
-		}
-	}
-
 	if GenerateTilC {
-		fnC := fn + ".c"
+		fnC := TilCOutputPath(GenerateTilCPath)
+		if dir := filepath.Dir(fnC); dir != "." && dir != "" {
+			msg.FatalOnErr(fSys.MkdirAll(dir, 0o755))
+		}
 		msg.FatalOnErr(ilu.ToFileTilC(fSys, fnC))
 		if Verbose {
 			fmt.Fprintln(w, "generated", fnC)
-		}
-	}
-
-	if GenerateTilCS {
-		fnCS := fn + ".cs"
-		msg.FatalOnErr(ilu.ToFileTilCSharp(fSys, fnCS))
-		if Verbose {
-			fmt.Fprintln(w, "generated", fnCS)
-		}
-	}
-
-	if GenerateRpcC {
-		fnRPC := fn + "Rpc.c"
-		msg.FatalOnErr(ilu.ToFileRpcC(fSys, fnRPC))
-		if Verbose {
-			fmt.Fprintln(w, "generated", fnRPC)
 		}
 	}
 
