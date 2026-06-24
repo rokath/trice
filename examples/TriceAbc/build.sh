@@ -9,7 +9,7 @@ set -euo pipefail
 # same exact source state:
 # 1. insert IDs into the demo sources,
 # 2. generate the shared ABC and TIL-C helper files,
-# 3. compile the seven demo binaries.
+# 3. compile the nine demo binaries.
 #
 # After a successful insert step the script always runs `trice clean` during
 # cleanup so the demo sources do not remain unnecessarily in inserted form.
@@ -56,7 +56,9 @@ cleanup() {
       -src "${SCRIPT_DIR}/N4_rx" \
       -src "${SCRIPT_DIR}/N5_rx" \
       -src "${SCRIPT_DIR}/N6_rx" \
-      -src "${SCRIPT_DIR}/N7_bi"; then
+      -src "${SCRIPT_DIR}/N7_bi" \
+      -src "${SCRIPT_DIR}/N8_bi" \
+      -src "${SCRIPT_DIR}/N9_bi"; then
       echo "warning: trice clean failed" >&2
       if [ "${status}" -eq 0 ]; then
         status=1
@@ -101,6 +103,10 @@ CC_BIN="$(find_compiler)"
 EXE_SUFFIX=""
 BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -I${ROOT}/src -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim"
 
+if "${CC_BIN}" --version 2>/dev/null | grep -qi clang; then
+  BASE_CFLAGS="${BASE_CFLAGS} -Wno-gnu-zero-variadic-macro-arguments"
+fi
+
 case "$(uname -s 2>/dev/null || echo unknown)" in
   MINGW* | MSYS* | CYGWIN*)
     EXE_SUFFIX=".exe"
@@ -122,7 +128,9 @@ run_trice insert \
   -src "${SCRIPT_DIR}/N4_rx" \
   -src "${SCRIPT_DIR}/N5_rx" \
   -src "${SCRIPT_DIR}/N6_rx" \
-  -src "${SCRIPT_DIR}/N7_bi"
+  -src "${SCRIPT_DIR}/N7_bi" \
+  -src "${SCRIPT_DIR}/N8_bi" \
+  -src "${SCRIPT_DIR}/N9_bi"
 ids_inserted=1
 
 echo "prepare: generate shared NodeLib/nodeAbc.{h,c}"
@@ -204,5 +212,17 @@ build_node N7_bi \
   ${TX_SOURCES} \
   ${RX_SOURCES} \
   "${SCRIPT_DIR}/NodeLib/til.c"
+
+build_node N8_bi \
+  "${SCRIPT_DIR}/N8_bi/main.c" \
+  ${COMMON_NODE_SOURCES} \
+  ${TX_SOURCES} \
+  ${RX_SOURCES}
+
+build_node N9_bi \
+  "${SCRIPT_DIR}/N9_bi/main.c" \
+  ${COMMON_NODE_SOURCES} \
+  ${TX_SOURCES} \
+  ${RX_SOURCES}
 
 echo "built TriceAbc demo binaries in examples/TriceAbc/build/"

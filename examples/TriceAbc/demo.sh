@@ -3,7 +3,7 @@ set -euo pipefail
 
 # demo.sh
 #
-# Build and run the seven TriceAbc demo nodes against one shared BcSim bus.
+# Build and run the nine TriceAbc demo nodes against one shared BcSim bus.
 #
 # Start order matters:
 # - receive-capable nodes first, so they join the live stream before traffic starts
@@ -64,6 +64,10 @@ pid_n5=$!
 pid_n6=$!
 ./build/N7_bi${EXE_SUFFIX} &
 pid_n7=$!
+./build/N8_bi${EXE_SUFFIX} &
+pid_n8=$!
+./build/N9_bi${EXE_SUFFIX} &
+pid_n9=$!
 ./build/N3_bi${EXE_SUFFIX} &
 pid_n3=$!
 
@@ -75,7 +79,7 @@ pid_n1=$!
 ./build/N2_tx${EXE_SUFFIX} &
 pid_n2=$!
 
-wait "${pid_n1}" "${pid_n2}" "${pid_n3}" "${pid_n4}" "${pid_n5}" "${pid_n6}" "${pid_n7}"
+wait "${pid_n1}" "${pid_n2}" "${pid_n3}" "${pid_n4}" "${pid_n5}" "${pid_n6}" "${pid_n7}" "${pid_n8}" "${pid_n9}"
 
 console_line ""
 console_line "--- abc.log ---"

@@ -8487,6 +8487,10 @@
 		"Type": "trice",
 		"Strg": "rd:TRICE_4  %d, %d, %d, %d\\n"
 	},
+	"1512": {
+		"Type": "TRiceC",
+		"Strg": "cmd:getLeds"
+	},
 	"15120": {
 		"Type": "trice",
 		"Strg": "rd:TRICE_5  %d, %d, %d, %d, %d\\n"
@@ -9667,6 +9671,10 @@
 		"Type": "triceC",
 		"Strg": "cmd:logState"
 	},
+	"1737": {
+		"Type": "TRiceC",
+		"Strg": "cmd:getLeds"
+	},
 	"1861": {
 		"Type": "triceS",
 		"Strg": "log:text=%s\\n"
@@ -9675,9 +9683,25 @@
 		"Type": "trice",
 		"Strg": "log:tick=%u\\n"
 	},
+	"2945": {
+		"Type": "trice8C",
+		"Strg": "abc:LedsState"
+	},
+	"2968": {
+		"Type": "TriceC",
+		"Strg": "cmd:getLeds"
+	},
+	"3204": {
+		"Type": "Trice32C",
+		"Strg": "abc:DivideResult"
+	},
 	"3310": {
 		"Type": "trice",
 		"Strg": "log:from=%u phase=%u\\n"
+	},
+	"3448": {
+		"Type": "trice32C",
+		"Strg": "abc:DivideResult"
 	},
 	"3578": {
 		"Type": "triceC",
@@ -9691,6 +9715,10 @@
 		"Type": "trice8C",
 		"Strg": "cmd:setKey"
 	},
+	"3945": {
+		"Type": "TRiceC",
+		"Strg": "cmd:getLeds"
+	},
 	"4208": {
 		"Type": "triceC",
 		"Strg": "cmd:logState"
@@ -9698,6 +9726,10 @@
 	"4364": {
 		"Type": "trice",
 		"Strg": "log:tick=%u\\n"
+	},
+	"4381": {
+		"Type": "TRice8C",
+		"Strg": "abc:LedsState"
 	},
 	"4470": {
 		"Type": "triceS",
@@ -9707,9 +9739,17 @@
 		"Type": "trice32C",
 		"Strg": "cmd:divide"
 	},
+	"4502": {
+		"Type": "TRice32C",
+		"Strg": "abc:DivideResult"
+	},
 	"4557": {
 		"Type": "trice32C",
 		"Strg": "abc:DivideResult"
+	},
+	"4650": {
+		"Type": "TriceC",
+		"Strg": "cmd:getLeds"
 	},
 	"4818": {
 		"Type": "triceC",
@@ -9730,6 +9770,18 @@
 	"5460": {
 		"Type": "trice",
 		"Strg": "log:from=%u phase=%u\\n"
+	},
+	"5642": {
+		"Type": "TRice32C",
+		"Strg": "cmd:divide"
+	},
+	"5749": {
+		"Type": "Trice8C",
+		"Strg": "abc:LedsState"
+	},
+	"6227": {
+		"Type": "TriceC",
+		"Strg": "cmd:getLeds"
 	},
 	"6278": {
 		"Type": "trice8C",

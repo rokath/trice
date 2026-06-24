@@ -5477,7 +5477,7 @@ If `deviceX_abc.h` does not exist, the generator creates it from all ABC command
 
 #ifndef DEVICEX_ABC_H_
 #define DEVICEX_ABC_H_
-#include "triceAbcReceive.h"
+#include "triceRx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -5500,7 +5500,7 @@ The user deletes or comments out declarations for commands this target shall ign
 ```c
 #ifndef DEVICEX_ABC_H_
 #define DEVICEX_ABC_H_
-#include "triceAbcReceive.h"
+#include "triceRx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -5529,20 +5529,11 @@ The selection parser strips C comments but does not evaluate preprocessor condit
 //! Trice generated ABC code - do not edit!
 
 #include "deviceX_abc.h"
-#include "triceAbcReceive.h"
-
-static void triceAbcCall_get_power_state(const triceRx_t* rx) {
-    get_power_state(rx);
-}
-
-static void triceAbcCall_set_time(const triceRx_t* rx) {
-    set_time(rx);
-}
 
 const triceAbc_t triceAbc[] = {
     /* Trice type */ /* id, bitWidth, function pointer */
-    /*   TriceC   */ { 14236,  0, triceAbcCall_get_power_state },
-    /*  trice32C  */ { 14235, 32, triceAbcCall_set_time },
+    /*   TriceC   */ { 14236,  0, get_power_state },
+    /*  trice32C  */ { 14235, 32, set_time },
 };
 
 const unsigned triceAbcElements = sizeof(triceAbc) / sizeof(triceAbc[0]);
@@ -10042,14 +10033,12 @@ For the core safety issue, the Trice implementation should still ensure:
 A source file is never left partially written after Ctrl-C, SIGTERM, crash, or write error.
 ```
 
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 48. <a id="scratch-pad"></a>Scratch Pad
 
-```txt
+*) The TriceABC examples uses COBS framing and acts withaout encryption and is not configurable because its main aim is to show just the TriceABC technique in action.
 
-```
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="bottom"></div>
