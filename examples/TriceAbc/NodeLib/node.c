@@ -328,53 +328,74 @@ void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count)
 
 #if TRICE_RX_LOG_SUPPORT == 1
 
-// The generated TIL strings can contain "\n" text or a literal newline.
-static int nodeFmtEquals(const char* a, const char* b0, const char* b1) {
-    return (a != 0 && ((b0 != 0 && strcmp(a, b0) == 0) || (b1 != 0 && strcmp(a, b1) == 0)));
-}
-
-// The demo log printer intentionally recognizes only the message shapes used below.
 static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
+    char fmt[NODE_CONSOLE_LINE_MAX];
+    uint8_t widthBytes;
+
+    // Need resolved format string.
     if (node == 0 || rx == 0 || rx->pFmt == 0) {
         return;
     }
 
-    if (nodeFmtEquals(rx->pFmt, "log:tick=%u\\n", "log:tick=%u\n") && rx->payloadBytes == 4u) {
-        nodePrintLineF("%s: log:tick=%u\n",
-                       node->name,
-                       (unsigned)nodeReadUnsigned(rx->payload, 4u));
-    } else if (nodeFmtEquals(rx->pFmt, "log:from=%u phase=%u\\n", "log:from=%u phase=%u\n") &&
-               rx->payloadBytes == 8u) {
-        nodePrintLineF("%s: log:from=%u phase=%u\n",
-                       node->name,
-                       (unsigned)nodeReadUnsigned(rx->payload + 0u, 4u),
-                       (unsigned)nodeReadUnsigned(rx->payload + 4u, 4u));
-    } else if (nodeFmtEquals(rx->pFmt, "log:text=%s\\n", "log:text=%s\n")) {
+    // Prefix node name to resolved Trice format.
+    if (snprintf(fmt, sizeof(fmt), "%%s: %s", rx->pFmt) >= (int)sizeof(fmt)) {
+        return;
+    }
+
+    // Dynamic payload is printed as text.
+    if (rx->paramCount == TRICE_LOG_PARAM_COUNT_DYNAMIC) {
         char text[NODE_KEY_MAX + 1u];
         size_t n = rx->payloadBytes;
+
         if (n > NODE_KEY_MAX) {
             n = NODE_KEY_MAX;
         }
-        memcpy(text, rx->payload, n);
+
+        if (n != 0u) {
+            if (rx->payload == 0) {
+                return;
+            }
+            memcpy(text, rx->payload, n);
+        }
+
         text[n] = 0;
-        nodePrintLineF("%s: log:text=%s\n", node->name, text);
-    } else {
-        char line[NODE_CONSOLE_LINE_MAX];
-        size_t pos = 0u;
-        int wrote = snprintf(line, sizeof(line), "%s: log:fmt=\"%s\" payload=", node->name, rx->pFmt);
-        if (wrote < 0) {
-            return;
-        }
-        if ((size_t)wrote >= sizeof(line)) {
-            line[sizeof(line) - 2u] = '\n';
-            line[sizeof(line) - 1u] = 0;
-            nodePrintLine(line);
-            return;
-        }
-        pos = (size_t)wrote;
-        nodeAppendHexBytes(line, sizeof(line), &pos, rx->payload, rx->payloadBytes);
-        (void)snprintf(line + pos, sizeof(line) - pos, "\n");
-        nodePrintLine(line);
+        nodePrintLineF(fmt, node->name, text);
+        return;
+    }
+
+    // Numeric payload uses fixed-width unsigned values.
+    widthBytes = (uint8_t)(rx->bitWidth >> 3);
+
+    if (rx->paramCount != 0u && (rx->payload == 0 || widthBytes == 0u)) {
+        return;
+    }
+
+    // Pass exactly the arguments required by the format.
+    switch (rx->paramCount) {
+    case 0u:
+        nodePrintLineF(fmt, node->name);
+        break;
+
+    case 1u:
+        nodePrintLineF(
+            fmt,
+            node->name,
+            (unsigned)nodeReadUnsigned(rx->payload, widthBytes)
+        );
+        break;
+
+    case 2u:
+        nodePrintLineF(
+            fmt,
+            node->name,
+            (unsigned)nodeReadUnsigned(rx->payload + 0u * widthBytes, widthBytes),
+            (unsigned)nodeReadUnsigned(rx->payload + 1u * widthBytes, widthBytes)
+        );
+        break;
+
+    default:
+        // Demo supports only the used log arities.
+        return;
     }
 }
 

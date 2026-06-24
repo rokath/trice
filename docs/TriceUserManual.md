@@ -10037,6 +10037,8 @@ A source file is never left partially written after Ctrl-C, SIGTERM, crash, or w
 
 ## 48. <a id="scratch-pad"></a>Scratch Pad
 
+*) The TriceABC examples uses COBS framing and acts withaout encryption and is not configurable because its main aim is to show just the TriceABC technique in action.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="bottom"></div>
