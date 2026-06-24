@@ -72,15 +72,104 @@ const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 		id := TriceID(n)
 		t := ilu[id]
 		extType, bitWidth, paramCount := computeLogValues(t, defaultBitWidth)
-		// strconv.Quote emits a valid C-compatible double-quoted string literal
-		// for the generated format text. This keeps embedded quotes, backslashes,
-		// tabs, and newlines safe when arbitrary Trice format strings enter til.c.
-		quotedFormat := strconv.Quote(t.Strg)
+		quotedFormat := tilCFormatLiteral(t.Strg)
 		text = append(text, []byte(fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat))...)
 	}
 
 	text = append(text, tail...)
 	return text, nil
+}
+
+// tilCFormatLiteral converts the TIL-stored source spelling into a generated C
+// string literal. JSON unmarshalling already consumed JSON escapes, but Strg may
+// still contain C string escapes copied from the original Trice call, such as
+// \n, \r, \" or \\. Those escapes must be interpreted once so rx->pFmt has the
+// same runtime text as the target-side C string literal.
+func tilCFormatLiteral(format string) string {
+	return strconv.Quote(decodeCStringEscapes(format))
+}
+
+// decodeCStringEscapes implements the C string escapes used in Trice format
+// strings. Unknown escape pairs are kept byte-for-byte to avoid silently losing
+// literal backslashes from existing TIL files.
+func decodeCStringEscapes(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+
+	for i := 0; i < len(s); i++ {
+		if s[i] != '\\' || i+1 >= len(s) {
+			b.WriteByte(s[i])
+			continue
+		}
+
+		i++
+		switch s[i] {
+		case 'a':
+			b.WriteByte('\a')
+		case 'b':
+			b.WriteByte('\b')
+		case 'f':
+			b.WriteByte('\f')
+		case 'n':
+			b.WriteByte('\n')
+		case 'r':
+			b.WriteByte('\r')
+		case 't':
+			b.WriteByte('\t')
+		case 'v':
+			b.WriteByte('\v')
+		case '\\':
+			b.WriteByte('\\')
+		case '\'', '"', '?':
+			b.WriteByte(s[i])
+		case '0', '1', '2', '3', '4', '5', '6', '7':
+			value := int(s[i] - '0')
+			for digits := 1; digits < 3 && i+1 < len(s) && isOctalDigit(s[i+1]); digits++ {
+				i++
+				value = value*8 + int(s[i]-'0')
+			}
+			b.WriteByte(byte(value))
+		case 'x':
+			value := 0
+			digits := 0
+			for i+1 < len(s) {
+				digit, ok := hexDigitValue(s[i+1])
+				if !ok {
+					break
+				}
+				i++
+				digits++
+				value = value*16 + digit
+			}
+			if digits == 0 {
+				b.WriteString(`\x`)
+			} else {
+				b.WriteByte(byte(value))
+			}
+		default:
+			b.WriteByte('\\')
+			b.WriteByte(s[i])
+		}
+	}
+
+	return b.String()
+}
+
+func isOctalDigit(c byte) bool {
+	return '0' <= c && c <= '7'
+}
+
+func hexDigitValue(c byte) (int, bool) {
+	switch {
+	case '0' <= c && c <= '9':
+		return int(c - '0'), true
+	case 'a' <= c && c <= 'f':
+		return int(c-'a') + 10, true
+	case 'A' <= c && c <= 'F':
+		return int(c-'A') + 10, true
+	default:
+		return 0, false
+	}
 }
 
 // computeLogValues prepares the compact C RX table. The uint8_t paramCount

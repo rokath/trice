@@ -28,15 +28,19 @@ static void sendCommand(unsigned loop) {
     switch (loop & 3u) {
     case 0u:
         trice8C("cmd:setLeds", &leds, 1);
+        nodePrintLineF("N2_tx: ABC-> cmd:setLeds(%02x)\n", leds);
         break;
     case 1u:
         triceC("cmd:logState");
+        nodePrintLineF("N2_tx: ABC-> cmd:logState\n");
         break;
     case 2u:
         trice8C("cmd:setKey", key, sizeof(key));
+        nodePrintLineF("N2_tx: ABC-> cmd:setKey(bravo7)\n");
         break;
     default:
         triceC("cmd:getLeds");
+        nodePrintLineF("N2_tx: ABC-> cmd:getLeds\n");
         break;
     }
 }

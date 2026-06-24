@@ -5662,6 +5662,44 @@ normal Trice macro / ABC macro
 
 The example intentionally parses once and then decides whether the record is ABC, normal log traffic, counted typeX0 traffic, or unknown traffic. This is the recommended style for mixed receive streams.
 
+An example log snippet:
+
+```txt
+...
+N3_tx: ABC-> cmd:setLeds(0c)
+N6_rx: log:tick=203
+N6_rx: log:from=3 phase=3
+N6_rx: log:text=N3 bidirectional
+N6_rx: x0 3 bytes: 33 34 35
+N6_rx: leds=[  **    ]
+N7_bi: log:tick=203
+N7_bi: log:from=3 phase=3
+N7_bi: log:text=N3 bidirectional
+N7_bi: x0 3 bytes: 33 34 35
+N7_bi: leds=[  **    ]
+N5_rx: x0 3 bytes: 33 34 35
+N5_rx: leds=[  **    ]
+...
+```
+
+The broadcast simulation _abc.bus_ log starts with:
+
+```txt
+# BcSim traffic log
+# bc.bus is a pure binary byte stream. This text log is diagnostic only.
+# offset and len are decimal values. Bytes are hexadecimal %02x values.
+#   offset  len device       dir status               bytes
+# -------- ---- ------------ --- -------------------- --------------------------------
+         0   10 N3_bi        TX  trice                06 d2 53 c0 04 c8 01 01 01 00
+        10   14 N3_bi        TX  trice                06 54 55 c0 08 03 01 01 01 01 01 01 01 00
+        24   22 N3_bi        TX  trice                15 99 53 c0 10 4e 33 20 62 69 64 69 72 65 63 74 69 6f 6e 61 6c 00
+        46    6 N3_bi        TX  trice                02 02 03 30 31 00
+         0   52 N8_bi        RX  poll                 06 d2 53 c0 04 c8 01 01 01 00 06 54 55 c0 08 03 01 01 01 01 01 01 01 00 15 99 53 c0 10 4e 33 20 62 69 64 69 72 65 63 74 69 6f 6e 61 6c 00 02 02 03 30 31 00
+         0   52 N6_rx        RX  poll                 06 d2 53 c0 04 c8 01 01 01 00 06 54 55 c0 08 03 01 01 01 01 01 01 01 00 15 99 53 c0 10 4e 33 20 62 69 64 69 72 65 63 74 69 6f 6e 61 6c 00 02 02 03 30 31 00
+...
+```
+
+
 ### 35.10. <a id="host-tests"></a>Host tests
 
 `_test/abc_tx_host` checks the transmit side. It compiles a small C fixture with ABC TX support, emits selected `triceC`, `TriceC`, `TRiceC`, `trice8C`, `trice16C`, and `trice32C` calls, and compares the produced bytes with fixed fixtures. It verifies wire format generation only; it does not use a receiver table.

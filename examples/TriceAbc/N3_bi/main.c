@@ -34,34 +34,43 @@ static void sendCommand(unsigned loop) {
     switch (loop) {
     case 1u:
         triceC("cmd:getLeds");
+        nodePrintLineF("N3_tx: ABC-> cmd:getLeds\n");
         break;
     case 3u:
         trice8C("cmd:setLeds", &leds, 1);
+        nodePrintLineF("N3_tx: ABC-> cmd:setLeds(%02x)\n", leds);
         break;
     case 5u:
         trice8C("cmd:setKey", key, sizeof(key));
+        nodePrintLineF("N3_tx: ABC-> cmd:setKey(n3-key)\n");
         break;
     case 6u:
         triceC("cmd:logState");
+        nodePrintLineF("N3_tx: ABC-> cmd:logState\n");
         break;
     case 7u:
         args[0] = aFloat(6.28f);
         args[1] = aFloat(2.0f);
         trice32C("cmd:divide", args, 2);
+        nodePrintLineF("N3_tx: ABC-> cmd:divide(6.28)(2.0)\n");
         break;
     case 8u:
         TRiceC("cmd:getLeds", 0x00000001u);
+        nodePrintLineF("N3_tx: ABC-> cmd:getLeds(with 32-bit stamp)\n");
         break;
     case 9u:
         TRiceC("cmd:getLeds", 0x00000002u);
+        nodePrintLineF("N3_tx: ABC-> cmd:getLeds(with 32-bit stamp)\n");
         break;
     case 10u:
         args[0] = aFloat(9.0f);
         args[1] = aFloat(3.0f);
         TRice32C("cmd:divide", 0x00000005u, args, 2);
+        nodePrintLineF("N3_tx: ABC-> cmd:divide(with 32-bit stamp)(9.0)(3.0\n", leds);
         break;
     case 11u:
         TRiceC("cmd:getLeds", 0x00000003u);
+        nodePrintLineF("N3_tx: ABC-> cmd:getLeds(with 32-bit stampx)\n");
         break;
     default:
         break;

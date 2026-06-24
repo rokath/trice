@@ -2,7 +2,6 @@
 //! Trice generated ABC code - do not edit!
 
 #include "nodeAbc.h"
-#include "triceRx.h"
 
 const triceAbc_t triceAbc[] = {
 	/* Trice type */  /*   id, bitWidth, function pointer */

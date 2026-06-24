@@ -24,6 +24,7 @@ run_trice() {
     "${TRICE_BIN}" "$@"
     return
   fi
+
   if command -v go >/dev/null 2>&1; then
     (
       cd "${ROOT}"
@@ -31,10 +32,12 @@ run_trice() {
     )
     return
   fi
+
   if command -v trice >/dev/null 2>&1; then
     trice "$@"
     return
   fi
+
   echo "error: neither Go nor a trice binary is available." >&2
   echo "Install Go or run with TRICE_BIN=/path/to/trice." >&2
   exit 1
@@ -42,8 +45,10 @@ run_trice() {
 
 cleanup() {
   local status="${1:-$?}"
+
   trap - EXIT INT TERM
   cd "${SCRIPT_DIR}" >/dev/null 2>&1 || true
+
   if [ "${ids_inserted}" -eq 1 ]; then
     echo "cleanup: trice clean examples/TriceAbc"
     if ! run_trice clean \
@@ -65,6 +70,7 @@ cleanup() {
       fi
     fi
   fi
+
   exit "${status}"
 }
 
@@ -81,12 +87,14 @@ find_compiler() {
     echo "error: CC is set to '$CC', but that compiler was not found." >&2
     return 1
   fi
+
   for c in gcc clang cc; do
     if command -v "$c" >/dev/null 2>&1; then
       printf '%s\n' "$c"
       return 0
     fi
   done
+
   echo "error: no C compiler found in PATH." >&2
   return 1
 }
@@ -94,13 +102,17 @@ find_compiler() {
 build_node() {
   local name="$1"
   shift
+
   echo "build: ${name}"
+
+  # BASE_CFLAGS is intentionally word-split into separate compiler options.
   # shellcheck disable=SC2086
   "${CC_BIN}" ${BASE_CFLAGS:-} -I"${SCRIPT_DIR}/${name}" "$@" -o "build/${name}${EXE_SUFFIX}"
 }
 
 CC_BIN="$(find_compiler)"
 EXE_SUFFIX=""
+
 BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -I${ROOT}/src -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim"
 
 if "${CC_BIN}" --version 2>/dev/null | grep -qi clang; then
@@ -131,6 +143,7 @@ run_trice insert \
   -src "${SCRIPT_DIR}/N7_bi" \
   -src "${SCRIPT_DIR}/N8_bi" \
   -src "${SCRIPT_DIR}/N9_bi"
+
 ids_inserted=1
 
 echo "prepare: generate shared NodeLib/nodeAbc.{h,c}"
@@ -140,38 +153,42 @@ echo "prepare: generate shared NodeLib/nodeAbc.{h,c}"
 )
 
 echo "prepare: generate shared NodeLib/til.c"
-rm -f "${ROOT}/demoTIL.c" "${SCRIPT_DIR}/NodeLib/til.c"
+rm -f "${SCRIPT_DIR}/NodeLib/til.c"
+
 (
   cd "${ROOT}"
-  run_trice generate -i "${ROOT}/demoTIL.json" -tilC
+
+  # Since Issue #680, bare -tilC writes ./til.c. Pass the target path
+  # explicitly so the demo always receives its private NodeLib/til.c.
+  run_trice generate -i "${ROOT}/demoTIL.json" -tilC="examples/TriceAbc/NodeLib/til.c"
 )
-if [ ! -f "${ROOT}/demoTIL.c" ]; then
-  echo "error: expected generated file ${ROOT}/demoTIL.c was not created." >&2
+
+if [ ! -f "${SCRIPT_DIR}/NodeLib/til.c" ]; then
+  echo "error: expected generated file ${SCRIPT_DIR}/NodeLib/til.c was not created." >&2
   exit 1
 fi
-mv "${ROOT}/demoTIL.c" "${SCRIPT_DIR}/NodeLib/til.c"
 
 COMMON_NODE_SOURCES="
-  ${SCRIPT_DIR}/BcSim/BcSim.c
-  ${SCRIPT_DIR}/NodeLib/node.c
+	${SCRIPT_DIR}/BcSim/BcSim.c
+	${SCRIPT_DIR}/NodeLib/node.c
 "
 
 TX_SOURCES="
-  ${ROOT}/src/trice.c
-  ${ROOT}/src/trice8.c
-  ${ROOT}/src/trice16.c
-  ${ROOT}/src/trice32.c
-  ${ROOT}/src/trice64.c
-  ${ROOT}/src/triceStackBuffer.c
-  ${ROOT}/src/triceX0.c
-  ${ROOT}/src/cobsEncode.c
-  ${ROOT}/src/tcobsv1Encode.c
+	${ROOT}/src/trice.c
+	${ROOT}/src/trice8.c
+	${ROOT}/src/trice16.c
+	${ROOT}/src/trice32.c
+	${ROOT}/src/trice64.c
+	${ROOT}/src/triceStackBuffer.c
+	${ROOT}/src/triceX0.c
+	${ROOT}/src/cobsEncode.c
+	${ROOT}/src/tcobsv1Encode.c
 "
 
 RX_SOURCES="
-  ${ROOT}/src/triceRx.c
-  ${ROOT}/src/cobsDecode.c
-  ${SCRIPT_DIR}/NodeLib/nodeAbc.c
+	${ROOT}/src/triceRx.c
+	${ROOT}/src/cobsDecode.c
+	${SCRIPT_DIR}/NodeLib/nodeAbc.c
 "
 
 build_node N1_tx \

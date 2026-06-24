@@ -106,7 +106,7 @@ static void nodePrintLine(const char* text) {
 }
 
 // Format one complete line first and then print it under the console lock.
-static void nodePrintLineF(const char* fmt, ...) {
+void nodePrintLineF(const char* fmt, ...) {
     char line[NODE_CONSOLE_LINE_MAX];
     va_list ap;
     int n;
@@ -459,10 +459,10 @@ static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
         return used;
     }
 
-    nodePrintLineF("%s: ignored id=%u payloadBytes=%u\n",
-                   node->name,
-                   (unsigned)rx.id,
-                   (unsigned)rx.payloadBytes);
+    // nodePrintLineF("%s: ignored id=%u payloadBytes=%u\n",
+    //                node->name,
+    //                (unsigned)rx.id,
+    //                (unsigned)rx.payloadBytes);
     return used;
 }
 
