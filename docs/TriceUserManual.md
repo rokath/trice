@@ -5752,6 +5752,8 @@ ABC send macro
 
 Everything else, including addressing, responses, reliability, retries, authorization, and RPC semantics, belongs to the application layer above ABC.
 
+Using Trice ABC for the same (remote) handler from different devices assigns different IDs to the same handler. This way one can consider a Trice ABC ID as senders address and the activated handler has access over the passed triceRx_t pointer to it. 
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 36. <a id="development-environment-setup"></a>Development Environment Setup

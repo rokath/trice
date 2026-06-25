@@ -34,7 +34,7 @@ static void sendCommand(unsigned loop) {
     switch (loop) {
     case 1u:
         triceC("cmd:getLeds");
-        nodePrintLineF("N3_tx: ABC-> cmd:getLeds\n");
+        nodePrintLineF("N3_tx: ABC-> cmd:getLeds\n"); // log
         break;
     case 3u:
         trice8C("cmd:setLeds", &leds, 1);

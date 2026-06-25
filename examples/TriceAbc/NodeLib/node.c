@@ -297,6 +297,7 @@ void nodeSendLedsState(node_t* node) {
         return;
     }
     trice8C("abc:LedsState", &node->leds, 1);
+    nodePrintLineF("%s: ABC-> abc:LedsState(%02x)\n", node->name, node->leds); // log
 }
 
 void nodeSendDivideResult(node_t* node, float value) {
@@ -306,6 +307,7 @@ void nodeSendDivideResult(node_t* node, float value) {
         return;
     }
     trice32C("abc:DivideResult", &bits, 1);
+    nodePrintLineF("%s: ABC-> abc:DivideResult(%08x)\n", node->name, bits); // log
 }
 
 // Auxiliary direct output is the host bridge for every send-capable demo node.

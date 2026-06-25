@@ -28,7 +28,7 @@ static void sendCommand(unsigned loop) {
     switch (loop & 3u) {
     case 0u:
         trice8C("cmd:setLeds", &leds, 1);
-        nodePrintLineF("N1_tx: ABC-> cmd:setLeds(%02x)\n", leds);
+        nodePrintLineF("N1_tx: ABC-> cmd:setLeds(%02x)\n", leds); // log
         break;
     case 1u:
         triceC("cmd:getLeds");
