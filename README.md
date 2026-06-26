@@ -53,6 +53,7 @@
   - [Encryption](#encryption)
   - [Translation](#translation)
   - [Timing Analysis](#timing-analysis)
+  - [Trice ABC](#trice-abc)
 - [How Trice Works (UART Example)](#how-trice-works-uart-example)
 - [Data Transfer Options](#data-transfer-options)
   - [Implemented Transfer Methods](#implemented-transfer-methods)
@@ -204,6 +205,33 @@ Translate the `til.json` file into **different languages**. Change the language 
 ### Timing Analysis
 
 Trice makes **timing analysis** easy on distributed embedded systems. It supports both host and target timestamps.
+
+### Trice ABC - Asynchronous Broadcast Commands
+
+![Trice ABC overview](./docs/ref/trice_abc_readme_teaser.svg)
+
+**Trice ABC** (*Asynchronous Broadcast Commands*) extends the normal Trice idea from logging to compact command records. A sender emits a normal Trice record, for example:
+
+```c
+trice8C("cmd:setLeds", &mask, 1);
+```
+
+After `trice insert`, the command name is represented by a numeric ID in `til.json`. With `trice generate -abc`, receiver-side dispatch tables are generated, so each receiver can select which command IDs become local handler calls.
+
+The transport still carries only compact binary data:
+
+```text
+ID + optional stamp + optional payload
+```
+
+The command string remains in the TIL data. This keeps ABC small, transport-neutral, and suitable for low-bandwidth links, shared buses, and host-native communication demos.
+
+ABC is intentionally **not** a full RPC layer by itself. Addressing, ACKs, retries, authentication, timeouts, and return-value semantics remain application policy.
+
+See also:
+
+* [Trice ABC in the User Manual](./docs/TriceUserManual.md#trice-abc)
+* [Host-native ABC demo](./examples/TriceAbc)
 
 ## How Trice Works (UART Example)
 
