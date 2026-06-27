@@ -5344,6 +5344,8 @@ Only the Trice ID, optional ABC stamp, and optional payload are transferred. The
 
 ### 35.1. <a id="quick-use"></a>Quick use
 
+![Trice ABC core workflow](./ref/trice_abc_core_workflow2.svg)
+
 1. Enable sending and/or receiving in `triceConfig.h`:
 
 ```c
@@ -5431,6 +5433,10 @@ if (used > 0 && triceResolveAbc(&rx, triceAbc, triceAbcElements) == TRICE_RX_OK)
 ```
 
 `triceRx` parses already deframed and decrypted Trice records. UART, RTT, file, socket, COBS, TCOBS, and encryption handling stay outside this small receive core.
+
+<!--![Trice ABC core workflow](./ref/trice_abc_core_workflow.svg)-->
+
+![Trice ABC core workflow](./ref/trice_abc_core_workflow.png)
 
 ### 35.2. <a id="abc-macro-families"></a>ABC macro families
 
@@ -5611,6 +5617,8 @@ cd examples/TriceAbc
 ./demo.sh
 ```
 
+![Trice ABC host demo bus topology](./ref/trice_abc_demo_bus2.svg)
+
 The demo uses `BcSim` as a small byte bus. It transports bytes only; the Trice-specific logic is in `NodeLib` and the node programs.
 
 The build script demonstrates the full workflow:
@@ -5699,6 +5707,7 @@ The broadcast simulation _abc.bus_ log starts with:
 ...
 ```
 
+![Trice ABC host demo bus topology](./ref/trice_abc_demo_bus.png)
 
 ### 35.10. <a id="host-tests"></a>Host tests
 
@@ -5751,6 +5760,8 @@ ABC send macro
 ```
 
 Everything else, including addressing, responses, reliability, retries, authorization, and RPC semantics, belongs to the application layer above ABC.
+
+Using Trice ABC for the same (remote) handler from different devices assigns different IDs to the same handler. This way one can consider a Trice ABC ID as senders address and the activated handler has access over the passed triceRx_t pointer to it. 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

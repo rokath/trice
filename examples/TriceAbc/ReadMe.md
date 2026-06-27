@@ -228,7 +228,7 @@ and RX pieces together for this demo:
 
 ```text
 normal Trice send macro / triceX0()
-  -> TriceWriteDeviceCgo()
+  -> TriceWriteDevice()
   -> bcSimWrite()
   -> abc.bus
   -> bcSimRead()
@@ -247,7 +247,7 @@ older byte-by-byte receiver style.
 
 Design decisions:
 
-- `TriceWriteDeviceCgo()` is used as the host bridge because it lets the normal
+- `TriceWriteDevice()` is used as the host bridge because it lets the normal
   Trice transmit code stay unchanged.
 - COBS is used because the demo should show explicit framed packets and because
   the receiver can delimit records with a simple zero-byte scan.

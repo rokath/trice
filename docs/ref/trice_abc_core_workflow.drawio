@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-26T12:00:00.000Z" agent="OpenAI" version="24.7.17" type="device">
+  <diagram id="diagram1" name="Trice ABC core workflow">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="Trice ABC: command name → compact record → selected local handler" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#0f172a;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1420" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="First-reader view: the command string stays in TIL data; the transport carries only ID, optional stamp, and optional payload." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="1450" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="&lt;b&gt;Asynchronous&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:13px;color:#475569;&quot;&gt;sender emits a record&lt;br/&gt;and continues immediately&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="110" width="250" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="&lt;b&gt;Broadcast&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:13px;color:#475569;&quot;&gt;zero, one, or many receivers&lt;br/&gt;may observe the same record&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="310" y="110" width="250" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="&lt;b&gt;Commands&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:13px;color:#475569;&quot;&gt;selected receivers run&lt;br/&gt;compiled local handlers&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="580" y="110" width="250" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="&lt;b&gt;ABC is not RPC by itself&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:13px;color:#475569;&quot;&gt;addressing, ACKs, retries, auth, timeouts&lt;br/&gt;and return values are application policy&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5efe6;strokeColor=#f59e0b;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="900" y="110" width="520" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="Build time" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1f2937;" vertex="1" parent="1">
+          <mxGeometry x="40" y="205" width="200" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="&lt;b&gt;&lt;font color=&quot;#1d4ed8&quot;&gt;1&lt;/font&gt; &amp;nbsp; sender source&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;&lt;font face=&quot;monospace&quot;&gt;trice8C(&quot;cmd:setLeds&quot;,&lt;br/&gt;&amp;amp;mask, 1);&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#38bdf8;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="250" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" value="&lt;b&gt;&lt;font color=&quot;#0f766e&quot;&gt;2&lt;/font&gt; &amp;nbsp; trice insert&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;assigns numeric ID&lt;br/&gt;and updates &lt;font face=&quot;monospace&quot;&gt;til.json&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dff0c2;strokeColor=#84cc16;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="240" width="250" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" value="&lt;b&gt;&lt;font color=&quot;#2563eb&quot;&gt;3&lt;/font&gt; &amp;nbsp; til.json&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;&lt;font face=&quot;monospace&quot;&gt;5150 ↔ &quot;cmd:setLeds&quot;&lt;/font&gt;&lt;br/&gt;format/command metadata" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7efbe;strokeColor=#eab308;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="560" y="240" width="250" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="&lt;b&gt;&lt;font color=&quot;#0f766e&quot;&gt;4&lt;/font&gt; &amp;nbsp; trice generate -abc&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;reads &lt;font face=&quot;monospace&quot;&gt;til.json&lt;/font&gt; + selection&lt;br/&gt;writes receiver table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e4f2c8;strokeColor=#84cc16;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="820" y="240" width="250" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="&lt;b&gt;&lt;font color=&quot;#2563eb&quot;&gt;5&lt;/font&gt; &amp;nbsp; receiver build inputs&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;&lt;font face=&quot;monospace&quot;&gt;device_abc.h&lt;/font&gt; // user selection&lt;br/&gt;&lt;font face=&quot;monospace&quot;&gt;device_abc.c&lt;/font&gt; // {ID,width,handler}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#efe7ff;strokeColor=#a78bfa;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="240" width="250" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="9" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="10" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="11" target="12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="17" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="12" target="13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="Runtime" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;fontColor=#1f2937;" vertex="1" parent="1">
+          <mxGeometry x="40" y="385" width="200" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" value="&lt;b&gt;&lt;font color=&quot;#2563eb&quot;&gt;6&lt;/font&gt; &amp;nbsp; sender target&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;ABC macro emits a normal&lt;br/&gt;Trice record with compact ID&lt;br/&gt;and payload data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#38bdf8;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="425" width="280" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="20" value="&lt;b&gt;transport / bus&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;&lt;div style=&quot;text-align:center;&quot;&gt;&lt;span style=&quot;display:inline-block;border:2px solid #60a5fa;border-radius:999px;padding:4px 24px;&quot;&gt;ID&lt;/span&gt; &amp;nbsp;&amp;nbsp; &lt;span style=&quot;display:inline-block;border:2px solid #fb923c;border-radius:999px;padding:4px 20px;&quot;&gt;stamp?&lt;/span&gt; &amp;nbsp;&amp;nbsp; &lt;span style=&quot;display:inline-block;border:2px solid #4ade80;border-radius:999px;padding:4px 18px;&quot;&gt;payload?&lt;/span&gt;&lt;br/&gt;&lt;span style=&quot;font-size:13px;color:#475569;&quot;&gt;No command string is transferred.&lt;/span&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#edf2f7;strokeColor=#94a3b8;strokeWidth=2;fontSize=15;fontColor=#1f2937;fontStyle=1;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="370" y="430" width="380" height="95" as="geometry"/>
+        </mxCell>
+        <mxCell id="21" value="&lt;b&gt;receiver runtime&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0ecff;strokeColor=#a78bfa;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="790" y="405" width="630" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="22" value="&lt;b&gt;parse&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;&lt;font face=&quot;monospace&quot;&gt;triceParse&lt;br/&gt;NextRecord()&lt;/font&gt;&lt;br/&gt;fills &lt;font face=&quot;monospace&quot;&gt;rx&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c4b5fd;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="825" y="458" width="165" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="23" value="&lt;b&gt;resolve&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;&lt;font face=&quot;monospace&quot;&gt;triceResolveAbc()&lt;/font&gt;&lt;br/&gt;ID lookup in table" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c4b5fd;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="458" width="165" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="24" value="&lt;b&gt;dispatch&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;&lt;font face=&quot;monospace&quot;&gt;triceDispatchAbc()&lt;/font&gt;&lt;br/&gt;validates and calls" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#c4b5fd;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1195" y="458" width="185" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="25" value="&lt;b&gt;handler&lt;/b&gt;&lt;br/&gt;&lt;font face=&quot;monospace&quot;&gt;setLeds(&amp;amp;rx)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#22c55e;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="600" width="150" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="26" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="19" target="20">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="27" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="20" target="21">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="28" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="22" target="23">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="29" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="23" target="24">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="30" value="" style="endArrow=block;endFill=1;strokeColor=#4b5563;strokeWidth=2;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="24" target="25">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1290" y="560"/>
+              <mxPoint x="1340" y="560"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="31" value="&lt;b&gt;Boundary to remember&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:13px;color:#475569;&quot;&gt;Unknown IDs are normal in mixed streams; a receiver executes only handlers compiled into its generated ABC table and selected by its header.&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#cbd5e1;strokeWidth=2;fontSize=16;fontColor=#1f2937;fontStyle=1;align=left;verticalAlign=top;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="600" width="1150" height="60" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
