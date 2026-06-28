@@ -47,6 +47,12 @@ static uint32_t triceReadU32(const uint8_t* p) {
 
 // triceSetBitWidth assigns the first resolved width and rejects later conflicts.
 static int triceSetBitWidth(triceRx_t* rx, uint8_t bitWidth) {
+	if((rx->payloadBytes > 0 && bitWidth == 0)
+	 ||(rx->payloadBytes & 7 && bitWidth ==64)
+	 ||(rx->payloadBytes & 3 && bitWidth ==32)
+	 ||(rx->payloadBytes & 1 && bitWidth ==16)){
+		return TRICE_RX_E_PAYLOAD;
+
 	if (rx->bitWidth == TRICE_BIT_WIDTH_UNKNOWN) {
 		rx->bitWidth = bitWidth;
 		return TRICE_RX_OK;
@@ -178,17 +184,18 @@ int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count) {
 int triceDispatchAbc(const triceRx_t* rx) {
 	int e;
 
-	if (rx == 0) {
-		return TRICE_RX_E_ARG;
-	}
-	if (rx->fn == 0) {
-		return TRICE_RX_E_NOT_FOUND;
-	}
+	//  if (rx == 0) {
+	//  	return TRICE_RX_E_ARG;
+	//  }
+	//  if (rx->fn == 0) {
+	//  	return TRICE_RX_E_NOT_FOUND;
+	//  }
 	e = validatePayloadLength(rx);
 	if (e != TRICE_RX_OK) {
 		return e;
 	}
 	rx->fn(rx);
+	rx->executed = 1u;
 	return TRICE_RX_OK;
 }
 
@@ -354,26 +361,52 @@ int TriceLogOnReceive(const uint8_t* pBuf, int len) {
 // Trice Log evaluates rx and emits
 int TriceLog(triceRx_t const* rx){
 
-	e = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
-	if (e == TRICE_RX_E_NOT_FOUND) {
+// Parse, classify, and dispatch one fully decoded Trice record.
+int TriceRxHandleRecord(const uint8_t* record, size_t len) {
+	triceRx_t rx;
+	int used = TriceParseNextRecord(&rx, record, len);
+	if (used <= 0) {
+		// nodePrintLineF("%s: rx parse error=%d\n", node->name, used);
 		return used;
 	}
-	if (e != TRICE_RX_OK) {
-		return e;
-	}
 
-#if TRICE_LOCATION_SUPPORT == 1
-	// Location data is optional metadata. Missing location entries must not
-	// prevent consuming a valid log record, but malformed resolver arguments or
-	// future resolver errors should still be visible to the caller.
-	e = triceResolveLocation(&rx, triceLocation, (size_t)triceLocationElements);
-	if (e != TRICE_RX_OK && e != TRICE_RX_E_NOT_FOUND) {
-		return e;
+#if TRICE_RX_ABC_SUPPORT == 1
+	if (triceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_OK) {
+		e = validatePayloadLength(rx);
+		if (e != TRICE_RX_OK) {
+			return e;
+		}
+		rx->fn(rx);
+		rx->executed = 1u;	
 	}
+	#endif
+//  #if TRICE_RX_ABC_SUPPORT == 1
+//      if (triceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_OK) {
+//          int e = triceDispatchAbc(&rx);
+//          if(e == TRICE_RX_OK) {
+//              executed_or_logged = 1;
+//          }else{
+//              // nodePrintLineF("%s: abc dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
+//          }
+//      }
+//  #endif
+
+#if TRICE_RX_LOG_SUPPORT == 1
+	if( triceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_OK ){
+        int e = triceValidateLogPayload(&rx);
+		if(e == TRICE_RX_OK) {
+		    nodePrintResolvedLog(node, &rx);
+            executed_or_logged = 1;
+        }else{
+            nodePrintLineF("%s: log dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
+        }
+    }
 #endif
 
-	e = triceValidateLogPayload(&rx);
-	return (e == TRICE_RX_E_UNSUPPORTED || e == TRICE_RX_E_NOT_FOUND) ? used : e;	
+	if (rx.stampBits == TRICE_STAMP_BITS_UNKNOWN) {
+		nodePrintX0(node, &rx);
+		executed_or_logged = 1;
+	}	
 }
 
 #endif // #if TRICE_RX_LOG_SUPPORT == 1

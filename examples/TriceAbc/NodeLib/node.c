@@ -652,7 +652,7 @@ int nodePoll(node_t* node) {
 			}
 		}
 
-		memcpy(node->stream + node->streamLen, chunk, (size_t)n);
+		memcpy(node->stream + node->streamLen, chunk, (size_t)n); // append chunk to stream
 		node->streamLen += (size_t)n;
 		nodeProcessStream(node);
 	}

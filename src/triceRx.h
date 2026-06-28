@@ -57,6 +57,7 @@ typedef struct triceRx_t {
 
 #if TRICE_RX_ABC_SUPPORT == 1
 	void (*fn)(const struct triceRx_t* rx); // abc function handler resolved from generated triceAbc[]. ( triceFn_t fn; )
+	uint8_t executed; // 1 if the record was executed, 0 if not
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
@@ -66,6 +67,7 @@ typedef struct triceRx_t {
     const char* file; // `file` is name where the Trice statements was used. Resolved from li.json.
     uint32_t line;    // Source code line in `file` where the Trice statements was used. Resolved from li.json.
 #endif
+	uint8_t logged; // 1 if the record was logged, 0 if not
 #endif
 } triceRx_t;
 
