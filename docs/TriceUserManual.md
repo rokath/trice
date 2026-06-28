@@ -5337,7 +5337,7 @@ device_abc.c
         |
         | receive runtime
         v
-triceParseNextRecord() -> triceResolveAbc() -> triceDispatchAbc() -> setLeds(&rx)
+TriceParseNextRecord() -> triceResolveAbc() -> triceDispatchAbc() -> setLeds(&rx)
 ```
 
 Only the Trice ID, optional ABC stamp, and optional payload are transferred. The command string stays in the TIL data and is used during receiver-code generation.
@@ -5425,7 +5425,7 @@ void setLeds(const triceRx_t* rx) {
 
 ```c
 triceRx_t rx;
-int used = triceParseNextRecord(&rx, record, recordLen);
+int used = TriceParseNextRecord(&rx, record, recordLen);
 
 if (used > 0 && triceResolveAbc(&rx, triceAbc, triceAbcElements) == TRICE_RX_OK) {
     (void)triceDispatchAbc(&rx);
@@ -5526,7 +5526,7 @@ Do not edit `device_abc.c`. Implement the selected handlers in normal applicatio
 
 The common receive API is in `src/triceRx.h` and `src/triceRx.c`.
 
-Use `triceParseNextRecord()` to parse one decoded Trice record. It fills a `triceRx_t`:
+Use `TriceParseNextRecord()` to parse one decoded Trice record. It fills a `triceRx_t`:
 
 ```c
 uint16_t id;              // Trice ID
@@ -5663,7 +5663,7 @@ normal Trice macro / ABC macro
   -> TriceWriteDevice()
   -> BcSim byte bus
   -> COBS frame collector
-  -> triceParseNextRecord()
+  -> TriceParseNextRecord()
   -> triceResolveAbc() / triceResolveLog()
   -> node handler or demo log printer
 ```

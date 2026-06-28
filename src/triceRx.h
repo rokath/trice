@@ -97,7 +97,7 @@ typedef void (*triceFn_t)(const triceRx_t* rx);
 //! 
 //! \retval >  0  number of consumed bytes for the next record
 //! \retval <  0  negative error code
-int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
+int TriceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
 
 #if TRICE_RX_ABC_SUPPORT == 1
 
@@ -146,7 +146,7 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len);
 #if TRICE_RX_LOG_SUPPORT == 1
 
 // TRICE_LOG_PARAM_COUNT_DYNAMIC marks entries whose value count is controlled by
-// the received byte count. Fixed scalar Trices use an exact count in 0..12.
+// the received byte count (specified in nc). Fixed scalar Trices use an exact count in 0..12.
 #define TRICE_LOG_PARAM_COUNT_DYNAMIC ((uint8_t)0xffu)
 
 // triceLog_t is the compact generated log metadata table entry derived from
@@ -197,11 +197,6 @@ extern const unsigned triceLocationElements; // generated Location resolver tabl
 int triceResolveLocation(triceRx_t* rx, const triceLocation_t* list, size_t count);
 
 #endif // #if TRICE_LOCATION_SUPPORT == 1
-
-// triceDispatchLog validates generated log metadata against the parsed payload.
-// It returns TRICE_RX_E_UNSUPPORTED after successful validation until a C log
-// formatter is added.
-int triceDispatchLog(const triceRx_t* rx);
 
 // TriceLogOnReceive is the log convenience entry point built from the generic
 // parser and generated log resolver table. It consumes at most one record and

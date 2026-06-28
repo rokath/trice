@@ -15,7 +15,7 @@
 // supplied later by an ABC or log resolver. `paramCount` stays neutral at 0
 // here because the dynamic log sentinel is resolved metadata, not parse-state.
 // It stays private because callers should receive initialized records only
-// from triceParseNextRecord().
+// from TriceParseNextRecord().
 static void triceRxInit(triceRx_t* rx) {
 	memset(rx, 0, sizeof(*rx));
 	rx->bitWidth = TRICE_BIT_WIDTH_UNKNOWN;
@@ -54,39 +54,19 @@ static int triceSetBitWidth(triceRx_t* rx, uint8_t bitWidth) {
 	return (rx->bitWidth == bitWidth) ? TRICE_RX_OK : TRICE_RX_E_BIT_WIDTH_CONFLICT;
 }
 
-// tricePayloadElementBytes normalizes generated payload widths to bytes once so
-// the ABC and LOG validators do not need duplicate switch logic. Width 0 means
-// "no payload", not "unknown", and therefore has no element size.
-static int tricePayloadElementBytes(uint8_t bitWidth, uint8_t* widthBytes) {
-	if (widthBytes == 0) {
-		return TRICE_RX_E_ARG;
-	}
-	switch (bitWidth) {
-	case 0u:
-	case 8u:
-	case 16u:
-	case 32u:
-	case 64u:
-		*widthBytes = (uint8_t)(bitWidth >> 3);
-		return TRICE_RX_OK;
-	default:
-		return TRICE_RX_E_UNSUPPORTED;
-	}
-}
-
-int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
+int TriceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 	uint16_t firstWord;
 	uint16_t nc;
 	uint8_t selector;
 	size_t offset = 2u;
 
-	if (rx == 0) {
-		return TRICE_RX_E_ARG;
-	}
+	//  if (rx == 0) {
+	//  	return TRICE_RX_E_ARG;
+	//  }
 	triceRxInit(rx);
-	if (buf == 0) {
-		return TRICE_RX_E_ARG;
-	}
+	//  if (buf == 0) {
+	//  	return TRICE_RX_E_ARG;
+	//  }
 	if (len < 2u) {
 		return TRICE_RX_E_SHORT;
 	}
@@ -104,6 +84,7 @@ int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 		rx->payload = (rx->payloadBytes == 0u) ? 0 : (buf + 2u);
 		return (int)(2u + (size_t)rx->payloadBytes);
 #else
+		// Add specific typeXO code here, if not using counted typeX0 format.
 		return TRICE_RX_E_UNSUPPORTED;
 #endif
 	}
@@ -126,7 +107,7 @@ int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 		offset += 2u;
 		break;
 
-	default:
+	default: // 3u
 		rx->stampBits = 32u;
 		if (len < offset + 4u) {
 			return TRICE_RX_E_SHORT;
@@ -157,15 +138,29 @@ int triceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 	return (int)(offset + (size_t)rx->payloadBytes);
 }
 
+// validatePayloadLength cares about payload shape.
+static int validatePayloadLength(const triceRx_t* rx) {
+	if (rx->bitWidth == TRICE_BIT_WIDTH_UNKNOWN) {
+		return TRICE_RX_E_PAYLOAD;
+	}
+	if((rx->payloadBytes > 0 && rx->bitWidth == 0)
+	 ||(rx->payloadBytes & 7 && rx->bitWidth ==64)
+	 ||(rx->payloadBytes & 3 && rx->bitWidth ==32)
+	 ||(rx->payloadBytes & 1 && rx->bitWidth ==16)){
+		return TRICE_RX_E_PAYLOAD;
+	}
+	return TRICE_RX_OK;
+}
+
 #if TRICE_RX_ABC_SUPPORT == 1
 
 int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count) {
 	size_t i;
 	int e;
 
-	if (rx == 0 || (list == 0 && count != 0u)) {
-		return TRICE_RX_E_ARG;
-	}
+	//  if (rx == 0 || (list == 0 && count != 0u)) {
+	//  	return TRICE_RX_E_ARG;
+	//  }
 	for (i = 0u; i < count; ++i) {
 		if (list[i].id == rx->id) {
 			e = triceSetBitWidth(rx, list[i].bitWidth);
@@ -179,25 +174,6 @@ int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count) {
 	return TRICE_RX_E_NOT_FOUND;
 }
 
-// triceValidateAbcPayload rejects records a typed ABC handler cannot interpret.
-// ABC validation only cares about payload shape because the handler signature
-// is already fixed by the generated command table.
-static int triceValidateAbcPayload(const triceRx_t* rx) {
-	uint8_t widthBytes;
-	int e;
-
-	if (rx->bitWidth == TRICE_BIT_WIDTH_UNKNOWN) {
-		return TRICE_RX_E_PAYLOAD;
-	}
-	e = tricePayloadElementBytes(rx->bitWidth, &widthBytes);
-	if (e != TRICE_RX_OK) {
-		return e;
-	}
-	if (widthBytes == 0u) {
-		return (rx->payloadBytes == 0u) ? TRICE_RX_OK : TRICE_RX_E_PAYLOAD;
-	}
-	return ((rx->payloadBytes % widthBytes) == 0u) ? TRICE_RX_OK : TRICE_RX_E_PAYLOAD;
-}
 
 int triceDispatchAbc(const triceRx_t* rx) {
 	int e;
@@ -208,7 +184,7 @@ int triceDispatchAbc(const triceRx_t* rx) {
 	if (rx->fn == 0) {
 		return TRICE_RX_E_NOT_FOUND;
 	}
-	e = triceValidateAbcPayload(rx);
+	e = validatePayloadLength(rx);
 	if (e != TRICE_RX_OK) {
 		return e;
 	}
@@ -225,7 +201,7 @@ int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		return TRICE_RX_E_SHORT;
 	}
 
-	used = triceParseNextRecord(&rx, pBuf, (size_t)len);
+	used = TriceParseNextRecord(&rx, pBuf, (size_t)len);
 	if (used <= 0) {
 		return (used == TRICE_RX_E_SHORT) ? TRICE_RX_E_SHORT : TRICE_RX_E_PAYLOAD;
 	}
@@ -267,31 +243,54 @@ int triceResolveLog(triceRx_t* rx, const triceLog_t* list, size_t count) {
 	return TRICE_RX_E_NOT_FOUND;
 }
 
-// triceValidateLogPayload checks the generated count contract. Fixed counts
-// must match exactly; the sentinel means "record counted", so only width
-// alignment can be checked before a formatter interprets the bytes.
-static int triceValidateLogPayload(const triceRx_t* rx) {
-	uint8_t widthBytes;
-	int e;
+// bitWidthByteCount normalizes generated payload widths to bytes once so
+// the ABC and LOG validators do not need duplicate switch logic. Width 0 means
+// "no payload", not "unknown", and therefore has no element size.
+static int bitWidthByteCount(uint8_t bitWidth, uint8_t* widthBytes) {
+	//  if (widthBytes == 0) {
+	//  	return TRICE_RX_E_ARG;
+	//  }
+	switch (bitWidth) {
+	case 0u:  // -> 0
+	case 8u:  // -> 1
+	case 16u: // -> 2
+	case 32u: // -> 4
+	case 64u: // -> 8
+		*widthBytes = (uint8_t)(bitWidth >> 3);
+		return TRICE_RX_OK;
+	default:
+		return TRICE_RX_E_UNSUPPORTED;
+	}
+}
 
-	if (rx->bitWidth == TRICE_BIT_WIDTH_UNKNOWN) {
-		return TRICE_RX_E_PAYLOAD;
+//
+//! triceValidateLogPayload checks the generated count contract. Fixed counts
+//! must match exactly; the sentinel means "record counted", so only width
+//! alignment can be checked before a formatter interprets the bytes.
+//
+int triceValidateLogPayload(const triceRx_t* rx) {
+	uint8_t widthBytes; // 0, 1, 2, 4, 8
+	//int e;
+
+	if (rx->paramCount != TRICE_LOG_PARAM_COUNT_DYNAMIC) {
+		return validatePayloadLength(rx);
 	}
-	e = tricePayloadElementBytes(rx->bitWidth, &widthBytes);
-	if (e != TRICE_RX_OK) {
-		return e;
-	}
+	
+	//  e = bitWidthByteCount(rx->bitWidth, &widthBytes);
+	//  if (e != TRICE_RX_OK) {
+	//  	return e;
+	//  }
 	if (rx->paramCount == TRICE_LOG_PARAM_COUNT_DYNAMIC) {
-		if (widthBytes == 0u) {
+		if (rx->bitWidth == 0u) {
 			return (rx->payloadBytes == 0u) ? TRICE_RX_OK : TRICE_RX_E_PAYLOAD;
 		}
 		return ((rx->payloadBytes % widthBytes) == 0u) ? TRICE_RX_OK : TRICE_RX_E_PAYLOAD;
 	}
-	if (widthBytes == 0u) {
+	if (rx->bitWidth == 0u) {
 		return (rx->payloadBytes == 0u && rx->paramCount == 0u) ? TRICE_RX_OK : TRICE_RX_E_PAYLOAD;
 	}
 	{
-		uint32_t expectedBytes = (uint32_t)rx->paramCount * (uint32_t)widthBytes;
+		uint32_t expectedBytes = (uint32_t)rx->paramCount * (uint32_t)(rx->bitWidth>>3);
 		return (rx->payloadBytes == expectedBytes) ? TRICE_RX_OK : TRICE_RX_E_PAYLOAD;
 	}
 }
@@ -316,19 +315,6 @@ int triceResolveLocation(triceRx_t* rx, const triceLocation_t* list, size_t coun
 
 #endif // #if TRICE_LOCATION_SUPPORT == 1
 
-int triceDispatchLog(const triceRx_t* rx) {
-	int e;
-
-	if (rx == 0) {
-		return TRICE_RX_E_ARG;
-	}
-	if (rx->pFmt == 0) {
-		return TRICE_RX_E_NOT_FOUND;
-	}
-	e = triceValidateLogPayload(rx);
-	return (e == TRICE_RX_OK) ? TRICE_RX_E_UNSUPPORTED : e;
-}
-
 int TriceLogOnReceive(const uint8_t* pBuf, int len) {
 	triceRx_t rx;
 	int used;
@@ -338,7 +324,7 @@ int TriceLogOnReceive(const uint8_t* pBuf, int len) {
 		return TRICE_RX_E_SHORT;
 	}
 
-	used = triceParseNextRecord(&rx, pBuf, (size_t)len);
+	used = TriceParseNextRecord(&rx, pBuf, (size_t)len);
 	if (used < 0) {
 		return used;
 	}
@@ -361,8 +347,33 @@ int TriceLogOnReceive(const uint8_t* pBuf, int len) {
 	}
 #endif
 
-	e = triceDispatchLog(&rx);
+	e = triceValidateLogPayload(&rx);
 	return (e == TRICE_RX_E_UNSUPPORTED || e == TRICE_RX_E_NOT_FOUND) ? used : e;
+}
+
+// Trice Log evaluates rx and emits
+int TriceLog(triceRx_t const* rx){
+
+	e = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+	if (e == TRICE_RX_E_NOT_FOUND) {
+		return used;
+	}
+	if (e != TRICE_RX_OK) {
+		return e;
+	}
+
+#if TRICE_LOCATION_SUPPORT == 1
+	// Location data is optional metadata. Missing location entries must not
+	// prevent consuming a valid log record, but malformed resolver arguments or
+	// future resolver errors should still be visible to the caller.
+	e = triceResolveLocation(&rx, triceLocation, (size_t)triceLocationElements);
+	if (e != TRICE_RX_OK && e != TRICE_RX_E_NOT_FOUND) {
+		return e;
+	}
+#endif
+
+	e = triceValidateLogPayload(&rx);
+	return (e == TRICE_RX_E_UNSUPPORTED || e == TRICE_RX_E_NOT_FOUND) ? used : e;	
 }
 
 #endif // #if TRICE_RX_LOG_SUPPORT == 1

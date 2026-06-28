@@ -291,7 +291,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		triceRx_t rx;
 		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
-		result = triceParseNextRecord(&rx, record, (size_t)used);
+		result = TriceParseNextRecord(&rx, record, (size_t)used);
 		rxFailUnless(result == used);
 		rxFailUnless(rx.bitWidth == TRICE_BIT_WIDTH_UNKNOWN);
 		rxFailUnless(rx.paramCount == 0u);
@@ -307,7 +307,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[4];
 		triceRx_t rx;
 		int used = rxBuildAbcRecord(record, 2002u, 0u, 0u, 0, 0u, 0);
-		result = triceParseNextRecord(&rx, record, (size_t)used);
+		result = TriceParseNextRecord(&rx, record, (size_t)used);
 		rxFailUnless(result == used);
 		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
 		rxFailUnless(result == TRICE_RX_OK);
@@ -315,7 +315,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rx.paramCount == 0u);
 		rxFailUnless(rx.payload == 0);
 		rxFailUnless(rx.payloadBytes == 0u);
-		result = triceDispatchLog(&rx);
+		result = triceValidateLogPayload(&rx);
 		rxFailUnless(result == TRICE_RX_E_UNSUPPORTED);
 		rxFailUnless(rxCalls == 0);
 		break;
@@ -325,7 +325,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		triceRx_t rx;
 		int used = rxBuildAbcRecord(record, 2003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
-		result = triceParseNextRecord(&rx, record, (size_t)used);
+		result = TriceParseNextRecord(&rx, record, (size_t)used);
 		rxFailUnless(result == used);
 		rxFailUnless(rx.paramCount == 0u);
 		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
@@ -333,7 +333,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rx.bitWidth == 16u);
 		rxFailUnless(rx.paramCount == TRICE_LOG_PARAM_COUNT_DYNAMIC);
 		rxFailUnless(rx.payloadBytes == sizeof(payload));
-		result = triceDispatchLog(&rx);
+		result = triceValidateLogPayload(&rx);
 		rxFailUnless(result == TRICE_RX_E_UNSUPPORTED);
 		rxFailUnless(rxCalls == 0);
 		break;

@@ -16,6 +16,13 @@
 #include "node.h"
 #include "cobs.h"
 
+#if TRICE_RX_SUPPORT == 1
+#include "triceRx.h"
+
+int triceValidateLogPayload(const triceRx_t* rx);
+
+#endif
+
 #if TRICE_RX_ABC_SUPPORT == 1
 #include "nodeAbc.h"
 #endif
@@ -439,47 +446,67 @@ static void nodePrintX0(const node_t* node, const triceRx_t* rx) {
 // Parse, classify, and dispatch one fully decoded Trice record.
 static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
 	triceRx_t rx;
+    int executed_or_logged = 0;
 	int used;
 
-	used = triceParseNextRecord(&rx, record, len);
+	used = TriceParseNextRecord(&rx, record, len);
 	if (used <= 0) {
 		nodePrintLineF("%s: rx parse error=%d\n", node->name, used);
 		return used;
 	}
 
 #if TRICE_RX_ABC_SUPPORT == 1
-	if (triceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_OK) {
-		int e = triceDispatchAbc(&rx);
-		if (e != TRICE_RX_OK) {
-			nodePrintLineF("%s: abc dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
-		}
-		return used;
-	}
+    if (triceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_OK) {
+        int e = triceDispatchAbc(&rx);
+        if(e == TRICE_RX_OK) {
+            executed_or_logged = 1;
+        }else{
+            nodePrintLineF("%s: abc dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
+        }
+    }
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
-	if (node->rxLogEnabled != 0u &&
-		triceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_OK &&
-		triceDispatchLog(&rx) == TRICE_RX_E_UNSUPPORTED) {
-		nodePrintResolvedLog(node, &rx);
-		return used;
-	}
+	if( triceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_OK ){
+        int e = triceValidateLogPayload(&rx);
+		if(e == TRICE_RX_OK) {
+		    nodePrintResolvedLog(node, &rx);
+            executed_or_logged = 1;
+        }else{
+            nodePrintLineF("%s: log dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
+        }
+    }
 #endif
 
 	if (rx.stampBits == TRICE_STAMP_BITS_UNKNOWN) {
 		nodePrintX0(node, &rx);
-		return used;
+		executed_or_logged = 1;
 	}
 
-    char payloadString[100] = {0};
-    for( int i = 0; i < rx.payloadBytes; i++ ){
-        sprintf( payloadString+3*i, " %02x", rx.payload[i] );
-    }
-	nodePrintLineF("%s: ignored id=%u payloadBytes=%u:%s\n",
-		node->name,
-		(unsigned)rx.id,
-		(unsigned)rx.payloadBytes,
-        &payloadString);
+	if( executed_or_logged == 0 ){
+		char line[NODE_CONSOLE_LINE_MAX];
+		size_t pos = 0u;
+		int wrote = snprintf(line, sizeof(line), "%s: ID %u ignored", node->name, (unsigned)rx.id);
+
+		if (wrote < 0) {
+			return used;
+		}
+		if ((size_t)wrote >= sizeof(line)) {
+			line[sizeof(line) - 2u] = '\n';
+			line[sizeof(line) - 1u] = 0;
+			nodePrintLine(line);
+			return used;
+		}
+
+		pos = (size_t)wrote;
+		if (rx.payloadBytes != 0u && rx.payload != 0 && pos + 1u < sizeof(line)) {
+			line[pos++] = ' ';
+			line[pos] = 0;
+			nodeAppendHexBytes(line, sizeof(line), &pos, rx.payload, rx.payloadBytes);
+		}
+		(void)snprintf(line + pos, sizeof(line) - pos, "\n");
+		nodePrintLine(line);
+	}
 	return used;
 }
 
@@ -519,7 +546,7 @@ static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
 
 // Advance from one logical record to the next possible record start.
 //
-// `triceParseNextRecord()` intentionally reports only the logical record size.
+// `TriceParseNextRecord()` intentionally reports only the logical record size.
 // The target-side transport can still append zero padding up to the next
 // 32-bit boundary. The demo consumes that padding only when all expected bytes
 // are actually zero. Otherwise the following byte is treated as the next record
