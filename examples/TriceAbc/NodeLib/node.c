@@ -18,9 +18,6 @@
 
 #if TRICE_RX_SUPPORT == 1
 #include "triceRx.h"
-
-int triceValidateLogPayload(const triceRx_t* rx);
-
 #endif
 
 #if TRICE_RX_ABC_SUPPORT == 1
@@ -449,38 +446,36 @@ static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
     int executed_or_logged = 0;
 	int used;
 
-	used = TriceParseNextRecord(&rx, record, len);
+	used = TriceParseRecord(&rx, record, len);
 	if (used <= 0) {
 		nodePrintLineF("%s: rx parse error=%d\n", node->name, used);
 		return used;
 	}
 
 #if TRICE_RX_ABC_SUPPORT == 1
-    if (triceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_OK) {
-        int e = triceDispatchAbc(&rx);
-        if(e == TRICE_RX_OK) {
-            executed_or_logged = 1;
-        }else{
-            nodePrintLineF("%s: abc dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
-        }
+    if (TriceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
+        // int e = 
+		rx.fn(&rx);
+		//fn_TriceDispatchAbc(&rx);
+			rx.executed = 1;
+        //  if(e == TRICE_RX_RESULT_OK) {
+        //      executed_or_logged = 1;
+        //  }else{
+        //      nodePrintLineF("%s: abc dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
+        //  }
     }
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
-	if( triceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_OK ){
-        int e = triceValidateLogPayload(&rx);
-		if(e == TRICE_RX_OK) {
-		    nodePrintResolvedLog(node, &rx);
-            executed_or_logged = 1;
-        }else{
-            nodePrintLineF("%s: log dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
-        }
+	if( TriceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK ){
+		nodePrintResolvedLog(node, &rx);
+		rx.logged = 1;
     }
 #endif
 
 	if (rx.stampBits == TRICE_STAMP_BITS_UNKNOWN) {
 		nodePrintX0(node, &rx);
-		executed_or_logged = 1;
+		rx.handled = 1;
 	}
 
 	if( executed_or_logged == 0 ){
@@ -546,7 +541,7 @@ static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
 
 // Advance from one logical record to the next possible record start.
 //
-// `TriceParseNextRecord()` intentionally reports only the logical record size.
+// `TriceParseRecord()` intentionally reports only the logical record size.
 // The target-side transport can still append zero padding up to the next
 // 32-bit boundary. The demo consumes that padding only when all expected bytes
 // are actually zero. Otherwise the following byte is treated as the next record

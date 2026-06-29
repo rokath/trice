@@ -237,8 +237,8 @@ normal Trice send macro / triceX0()
   -> abc.bus
   -> bcSimRead()
   -> COBS frame collector
-  -> TriceParseNextRecord()
-  -> triceResolveAbc() / triceResolveLog()
+  -> TriceParseRecord()
+  -> TriceResolveAbc() / TriceResolveLog()
   -> node handler or small demo log printer
 ```
 

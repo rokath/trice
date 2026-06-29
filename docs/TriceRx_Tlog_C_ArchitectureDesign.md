@@ -195,12 +195,12 @@ The future receive stack should be decomposed into the following layers.
 |   - demo node behavior                                         |
 +---------------------------------------------------------------+
 | Resolver layer                                                 |
-|   - triceResolveAbc()                                          |
-|   - triceResolveLog()                                          |
-|   - future triceResolveLocation()                              |
+|   - TriceResolveAbc()                                          |
+|   - TriceResolveLog()                                          |
+|   - future TriceResolveLocation()                              |
 +---------------------------------------------------------------+
 | Record parser                                                  |
-|   - TriceParseNextRecord()                                     |
+|   - TriceParseRecord()                                     |
 |   - parses one decoded Trice record                            |
 +---------------------------------------------------------------+
 | Frame/decrypt layer                                            |
@@ -261,7 +261,7 @@ A node-specific config includes it and sets node capabilities:
 
 ## 6. <a id="record-parser-details"></a>Record Parser Details
 
-`TriceParseNextRecord()` should be derived from the current `TriceAbcOnReceive()` parsing behavior, but it should not dispatch handlers.
+`TriceParseRecord()` should be derived from the current `TriceAbcOnReceive()` parsing behavior, but it should not dispatch handlers.
 
 ### 6.1. <a id="transfer-order"></a>Transfer order
 
@@ -306,7 +306,7 @@ If the buffer does not contain enough bytes for the next complete record, return
 
 The parser itself cannot validate payload alignment against `bitWidth`, because `bitWidth` is unknown until resolution.
 
-Payload byte count is parsed structurally only. Later, `triceDispatchAbc()` or a validation helper checks:
+Payload byte count is parsed structurally only. Later, `TriceDispatchAbc()` or a validation helper checks:
 
 - payload with `bitWidth == 0` is invalid,
 - multi-byte widths require complete elements,
@@ -321,8 +321,8 @@ Payload byte count is parsed structurally only. Later, `triceDispatchAbc()` or a
 Generated lists are compile-time known, but resolver functions should still take a count:
 
 ```c
-int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
-int triceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count);
+int TriceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
+int TriceResolveLog(triceRx_t* rx, const triceLogEntry_t* list, size_t count);
 ```
 
 Rationale:
@@ -377,7 +377,7 @@ At this point, keep `triceAbcReceive.*` as-is except possibly including `triceRx
 Add:
 
 ```c
-int TriceParseNextRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
+int TriceParseRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
 ```
 
 Move record parsing out of `TriceAbcOnReceive()` logic. Tests should prove that the new parser returns the same logical lengths and extracted fields as the current ABC receive tests expect.
@@ -387,8 +387,8 @@ Move record parsing out of `TriceAbcOnReceive()` logic. Tests should prove that 
 Add:
 
 ```c
-int triceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
-int triceDispatchAbc(const triceRx_t* rx);
+int TriceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
+int TriceDispatchAbc(const triceRx_t* rx);
 ```
 
 Make the generated ABC table use `triceRx_t` handler signature:
@@ -409,10 +409,10 @@ but implement it as:
 
 ```c
 triceRx_t rx;
-int n = TriceParseNextRecord(&rx, pBuf, len);
+int n = TriceParseRecord(&rx, pBuf, len);
 if (n < 0) return n;
-if (triceResolveAbc(&rx, triceAbc, triceAbcElements) == TRICE_RX_NOT_FOUND) return n;
-if (triceDispatchAbc(&rx) < 0) return error;
+if (TriceResolveAbc(&rx, triceAbc, triceAbcElements) == TRICE_RX_NOT_FOUND) return n;
+if (TriceDispatchAbc(&rx) < 0) return error;
 return n;
 ```
 
@@ -437,7 +437,7 @@ This can ease migration if the generator or examples still use old names.
 A standalone C/C++ `tlog` should reuse the same receive layers:
 
 ```text
-read source -> frame/decrypt -> TriceParseNextRecord -> triceResolveLog -> formatter
+read source -> frame/decrypt -> TriceParseRecord -> TriceResolveLog -> formatter
 ```
 
 For embedded systems without Go-capable OS support, the application should be able to provide a read function:
@@ -566,7 +566,7 @@ The implementation must proceed in small testable steps. The test plan should se
 
 ### 11.1. <a id="parser-unit-tests"></a>Parser unit tests
 
-Create host-native tests for `TriceParseNextRecord()`.
+Create host-native tests for `TriceParseRecord()`.
 
 Input: decoded Trice record byte buffers.
 
@@ -577,7 +577,7 @@ Assertions:
 - 32-bit stamp record extracts 32-bit stamp,
 - short-count and long-count payload lengths work,
 - returned value is logical consumed length without padding,
-- incomplete buffers return `TRICE_RX_E_SHORT`,
+- incomplete buffers return `TRICE_RX_LEN_TOO_SHORT`,
 - selector 0 behavior matches config,
 - transfer-order big/little variants both pass.
 
@@ -587,14 +587,14 @@ These tests can follow the style of `_test/abc_rx_host`, which already builds C 
 
 Create C fixture tests with tiny local arrays.
 
-`triceResolveAbc()`:
+`TriceResolveAbc()`:
 
 - known ID fills `bitWidth` and `fn`,
 - unknown ID returns not-found and leaves fields unchanged,
 - matching bitWidth after prior log resolve is accepted,
 - conflicting bitWidth is rejected.
 
-`triceResolveLog()`:
+`TriceResolveLog()`:
 
 - known ID fills `bitWidth` and `pFmt` when `TRICE_LOG_SUPPORT == 1`,
 - unknown ID returns not-found,
@@ -615,9 +615,9 @@ Adapt the current `_test/abc_rx_host` tests to the new layering.
 Instead of testing only `TriceAbcOnReceive()`, test:
 
 ```text
-TriceParseNextRecord()
-triceResolveAbc()
-triceDispatchAbc()
+TriceParseRecord()
+TriceResolveAbc()
+TriceDispatchAbc()
 TriceAbcOnReceive() compatibility wrapper
 ```
 
@@ -650,7 +650,7 @@ ABC transmit tests should remain in that framework because they test real target
 
 ### 11.6. <a id="framedecrypt-tests"></a>Frame/decrypt tests
 
-Initially, keep frame/decrypt tests separate from `TriceParseNextRecord()`.
+Initially, keep frame/decrypt tests separate from `TriceParseRecord()`.
 
 Suggested sequence:
 
@@ -677,7 +677,7 @@ BcSim tests should remain protocol-neutral. They should not depend on Trice. The
 Later, after core parsing and ABC dispatch are stable, an end-to-end example can run:
 
 ```text
-BcSim byte stream -> optional TCOBS/XTEA layer -> TriceParseNextRecord -> triceResolveAbc -> dispatch
+BcSim byte stream -> optional TCOBS/XTEA layer -> TriceParseRecord -> TriceResolveAbc -> dispatch
 ```
 
 This should be a demo acceptance test, not the first unit test.
@@ -690,7 +690,7 @@ This should be a demo acceptance test, not the first unit test.
    - `TRICE_TX_SUPPORT`, `TRICE_RX_SUPPORT`
    - `TRICE_RX_LOG_SUPPORT`, `TRICE_LOCATION_SUPPORT`
    - `triceRx_t`
-   - `TriceParseNextRecord()`
+   - `TriceParseRecord()`
 
 2. **Add config defaults**
    - Add new defaults to `triceDefaultConfig.h`.
@@ -700,14 +700,14 @@ This should be a demo acceptance test, not the first unit test.
    - Define `triceRx_t`, error codes, init helper, bit-width helper.
    - No frame decoding yet.
 
-4. **Implement and test `TriceParseNextRecord()`**
+4. **Implement and test `TriceParseRecord()`**
    - Pure record parser.
    - Host-native C tests.
    - Little/big transfer-order variants.
 
 5. **Implement and test resolvers**
-   - `triceResolveAbc()`.
-   - `triceResolveLog()`.
+   - `TriceResolveAbc()`.
+   - `TriceResolveLog()`.
    - Bit-width conflict handling.
 
 6. **Refactor ABC receive**
@@ -769,7 +769,7 @@ Because payload pointers reference the input buffer, delayed processing requires
 
 1. **Final parser name**
 
-   Recommended: `TriceParseNextRecord()`.
+   Recommended: `TriceParseRecord()`.
 
 2. **Transitional ABC compatibility names**
 
@@ -777,7 +777,7 @@ Because payload pointers reference the input buffer, delayed processing requires
 
 3. **Error code naming**
 
-   Define one coherent enum for `TRICE_RX_E_*`, `TRICE_RX_NOT_FOUND`, and bit-width conflict.
+   Define one coherent enum for `TRICE_RX_ERR_*`, `TRICE_RX_NOT_FOUND`, and bit-width conflict.
 
 4. **Receive framing config names**
 
@@ -789,7 +789,7 @@ Because payload pointers reference the input buffer, delayed processing requires
 
 6. **Location resolver timing**
 
-   `triceResolveLocation()` should be postponed until log formatting work begins.
+   `TriceResolveLocation()` should be postponed until log formatting work begins.
 
 ---
 
@@ -798,8 +798,8 @@ Because payload pointers reference the input buffer, delayed processing requires
 The first “done” milestone should be smaller than full ABC + tlog:
 
 - `triceRx_t` exists in `src`.
-- `TriceParseNextRecord()` is tested for stamp variants, payload variants, transfer order, short buffers, and logical length return.
-- `triceResolveAbc()` and `triceResolveLog()` are tested independently.
+- `TriceParseRecord()` is tested for stamp variants, payload variants, transfer order, short buffers, and logical length return.
+- `TriceResolveAbc()` and `TriceResolveLog()` are tested independently.
 - `TriceAbcOnReceive()` is implemented as wrapper over parse/resolve/dispatch.
 - Existing ABC receive host tests still pass.
 - A receive-only build test proves no normal transmit/output dependency.
@@ -816,9 +816,9 @@ Build the future C receive architecture in this order:
 
 ```text
 triceRx_t
-  -> TriceParseNextRecord()
-  -> triceResolveAbc() / triceResolveLog()
-  -> triceDispatchAbc()
+  -> TriceParseRecord()
+  -> TriceResolveAbc() / TriceResolveLog()
+  -> TriceDispatchAbc()
   -> TriceAbcOnReceive() compatibility wrapper
   -> receive-only dependency tests
   -> frame/decrypt integration
