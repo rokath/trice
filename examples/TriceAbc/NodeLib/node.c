@@ -14,15 +14,7 @@
 // code.
 
 #include "node.h"
-#include "cobs.h"
 
-#if TRICE_RX_SUPPORT == 1
-#include "triceRx.h"
-#endif
-
-#if TRICE_RX_ABC_SUPPORT == 1
-#include "nodeAbc.h"
-#endif
 
 #include <ctype.h>
 #include <errno.h>
@@ -43,6 +35,8 @@
 #define NODE_MKDIR(path) mkdir(path, 0777)
 #define NODE_RMDIR(path) rmdir(path)
 #endif
+
+//static void nodePrintX0(const node_t* node, const triceRx_t* rx) ;
 
 // The demo uses one process per node, so one process-global current node is enough.
 static node_t* gNode;
@@ -189,7 +183,7 @@ static float nodeReadFloat32(const uint8_t* p) {
 }
 
 // Format one hexadecimal byte row into the caller supplied line buffer.
-static void nodeAppendHexBytes(char* dst, size_t dstSize, size_t* pos, const uint8_t* p, size_t n) {
+static void appendHexBytes(char* dst, size_t dstSize, size_t* pos, const uint8_t* p, size_t n) {
 	size_t i;
 
 	if (dst == 0 || dstSize == 0u || pos == 0) {
@@ -208,6 +202,7 @@ static void nodeAppendHexBytes(char* dst, size_t dstSize, size_t* pos, const uin
 		*pos += (size_t)wrote;
 	}
 }
+
 #endif // TRICE_RX_SUPPORT == 1
 
 void nodeSetLeds(node_t* node, uint8_t mask) {
@@ -285,6 +280,7 @@ int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rx
 
 	nodeSetCurrent(node);
 	nodePrintLineF("%s: joined abc.bus\n", node->name);
+	fn_TriceHandleTypeX0 = nodePrintX0;
 	return BCSIM_OK;
 }
 
@@ -345,6 +341,7 @@ void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count)
 
 #if TRICE_RX_SUPPORT == 1
 #if TRICE_RX_LOG_SUPPORT == 1
+/*
 static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
 	char fmt[NODE_CONSOLE_LINE_MAX];
 	uint8_t widthBytes;
@@ -414,6 +411,7 @@ static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
 		return;
 	}
 }
+*/
 #endif // TRICE_RX_LOG_SUPPORT == 1
 
 // Selector-0 frames are printed separately because they intentionally carry no ID.
@@ -434,12 +432,17 @@ static void nodePrintX0(const node_t* node, const triceRx_t* rx) {
 
 	pos = (size_t)wrote;
 	if (rx->payloadBytes != 0u && rx->payload != 0) {
-		nodeAppendHexBytes(line, sizeof(line), &pos, rx->payload, rx->payloadBytes);
+		appendHexBytes(line, sizeof(line), &pos, rx->payload, rx->payloadBytes);
 	}
 	(void)snprintf(line + pos, sizeof(line) - pos, "\n");
 	nodePrintLine(line);
 }
 
+//int TriceRxHandleRecord(const uint8_t* record, size_t len); // calls int TriceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count) 
+
+int TriceRxHandleRecord(triceRx_t* rx, const uint8_t* record, size_t len);
+
+/*
 // Parse, classify, and dispatch one fully decoded Trice record.
 static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
 	triceRx_t rx;
@@ -497,13 +500,14 @@ static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
 		if (rx.payloadBytes != 0u && rx.payload != 0 && pos + 1u < sizeof(line)) {
 			line[pos++] = ' ';
 			line[pos] = 0;
-			nodeAppendHexBytes(line, sizeof(line), &pos, rx.payload, rx.payloadBytes);
+			appendHexBytes(line, sizeof(line), &pos, rx.payload, rx.payloadBytes);
 		}
 		(void)snprintf(line + pos, sizeof(line) - pos, "\n");
 		nodePrintLine(line);
 	}
 	return used;
 }
+*/
 
 // Build a short optional stamp suffix for human-readable demo output.
 static const char* nodeStampText(const triceRx_t* rx, char* dst, size_t dstSize) {
@@ -538,7 +542,7 @@ static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
 	return (rx->stamp & node->replyStampMask) != 0u;
 }
 #endif
-
+/*
 // Advance from one logical record to the next possible record start.
 //
 // `TriceParseRecord()` intentionally reports only the logical record size.
@@ -564,6 +568,19 @@ static size_t nodeAdvanceAlignedRecord(const uint8_t* decoded, size_t decodedLen
 	return alignedNext;
 }
 
+static void nodeHandleDecodedRecord(node_t* node, const uint8_t* record, size_t decodedLen) {
+	size_t offset = 0u;
+	while (offset < decodedLen) {
+		int used = nodeHandleRecord(node, record + offset, decodedLen - offset);
+		if (used <= 0) {
+			return;
+		}
+		offset = nodeAdvanceAlignedRecord(node->frame, decodedLen, offset, (size_t)used);
+	}	
+}
+*/
+int TriceHandleDecodedRecord(const uint8_t* record, size_t decodedLen);
+
 // Decode one encoded frame payload and feed all contained Trice records into
 // the classifier.
 //
@@ -572,7 +589,7 @@ static size_t nodeAdvanceAlignedRecord(const uint8_t* decoded, size_t decodedLen
 // frame bytes are exhausted.
 static void nodeHandleEncodedFrame(node_t* node, const uint8_t* frame, size_t frameLen) {
 	size_t decodedLen;
-	size_t offset = 0u;
+	//size_t offset = 0u;
 
 	if (node == 0 || frame == 0 || frameLen == 0u) {
 		return;
@@ -584,13 +601,8 @@ static void nodeHandleEncodedFrame(node_t* node, const uint8_t* frame, size_t fr
 		return;
 	}
 
-	while (offset < decodedLen) {
-		int used = nodeHandleRecord(node, node->frame + offset, decodedLen - offset);
-		if (used <= 0) {
-			return;
-		}
-		offset = nodeAdvanceAlignedRecord(node->frame, decodedLen, offset, (size_t)used);
-	}
+	//nodeHandleDecodedRecord(node, node->frame, decodedLen);
+	TriceHandleDecodedRecord(node->frame, decodedLen);
 }
 
 // Scan the accumulated stream for zero-delimited COBS frames.

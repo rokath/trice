@@ -218,45 +218,84 @@ int TriceResolveLocation(triceRx_t* rx, const triceLocation_t* list, size_t coun
 #endif // #if TRICE_RX_LOG_SUPPORT == 1
 
 #if TRICE_RX_LOG_SUPPORT == 1
-triceFn_t fn_TricePrintLog = 0;
+triceNodeFn_t fn_TricePrintLog = 0;
 #endif
 
 #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
-triceFn_t fn_TriceHandleTypeX0 = 0;
+triceNodeFn_t fn_TriceHandleTypeX0 = 0;
 #endif
+
 
 //! \brief parse, classify, and dispatch one fully decoded Trice record.
 //! \param record data start
 //! \param len record byte count 
-int TriceRxHandleRecord(const uint8_t* record, size_t len) {
-	triceRx_t rx;
-	int used = TriceParseRecord(&rx, record, len);
+//! \retval
+int TriceRxHandleRecord(triceRx_t* rx, const uint8_t* record, size_t len) {
+	int used = TriceParseRecord(rx, record, len);
 	if (used <= 0) {
 		return used; // parse error
 	}
 
 #if TRICE_RX_ABC_SUPPORT == 1
-	if (TriceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
-		rx.fn(&rx);
-		rx.executed = 1u;	
+	if (TriceResolveAbc(rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
+		rx->fn(rx);
+		rx->executed = 1u;	
 	}
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
-	if (fn_TricePrintLog != 0 && TriceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK){
-		fn_TricePrintLog(&rx);
-		rx.logged = 1;
+	if (fn_TricePrintLog != 0 && TriceResolveLog(rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK){
+		fn_TricePrintLog(rx);
+		rx->logged = 1;
 	}
 #endif
 
 #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
-	if (fn_TriceHandleTypeX0 != 0 && rx.stampBits == TRICE_STAMP_BITS_UNKNOWN) {
-		fn_TriceHandleTypeX0(&rx);
-		rx.handled = 1;
+	if (fn_TriceHandleTypeX0 != 0 && rx->stampBits == TRICE_STAMP_BITS_UNKNOWN) {
+		fn_TriceHandleTypeX0(rx);
+		rx->handled = 1;
 	}	
 #endif
 
 	return used;
+}
+
+// Advance from one logical record to the next possible record start.
+//
+// `TriceParseRecord()` intentionally reports only the logical record size.
+// The target-side transport can still append zero padding up to the next
+// 32-bit boundary. The demo consumes that padding only when all expected bytes
+// are actually zero. Otherwise the following byte is treated as the next record
+// start so packed records stay decodable.
+static size_t TriceAdvanceAlignedRecord(const uint8_t* decoded, size_t decodedLen, size_t offset, size_t logicalUsed) {
+	size_t next = offset + logicalUsed;
+	size_t alignedNext = (next + 3u) & ~(size_t)3u;
+	size_t i;
+
+	if (alignedNext > decodedLen) {
+		return next;
+	}
+
+	for (i = next; i < alignedNext; ++i) {
+		if (decoded[i] != 0u) {
+			return next;
+		}
+	}
+
+	return alignedNext;
+}
+
+int TriceHandleDecodedRecord(const uint8_t* record, size_t decodedLen) {
+	size_t offset = 0u;
+	while (offset < decodedLen) {
+		triceRx_t rx;
+		int used = TriceRxHandleRecord(&rx, record + offset, decodedLen - offset);
+		if (used <= 0) {
+			return used; // not enough data or some error
+		}
+		offset = TriceAdvanceAlignedRecord(record, decodedLen, offset, (size_t)used);
+	}
+	return offset;
 }
 
 #endif // #if TRICE_RX_SUPPORT == 1

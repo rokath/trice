@@ -11,7 +11,17 @@
 // surrounding application state must come from elsewhere.
 
 #include "../BcSim/BcSim.h"
+
+#include "triceBusConfig.h"
+#include "triceConfig.h"
+
+#if TRICE_RX_SUPPORT == 1
 #include "triceRx.h"
+#endif
+
+#if TRICE_RX_ABC_SUPPORT == 1
+#include "nodeAbc.h"
+#endif
 
 #if TRICE_TX_SUPPORT == 1
 #include "trice.h"

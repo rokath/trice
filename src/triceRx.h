@@ -12,14 +12,14 @@
 #include "triceRxDefaultConfig.h"
 
 #if TRICE_RX_SUPPORT == 1
-
+#error
 #include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#error
 // TRICE_BIT_WIDTH_UNKNOWN marks records whose payload element width is not
 // known from the byte stream itself. Resolvers may replace it with 0, 8, 16,
 // 32, or 64 when generated metadata identifies the record.
@@ -77,11 +77,15 @@ typedef struct triceRx_t {
 	int handled; // 1 if the record was handled, o if not.
 #endif 
 } triceRx_t;
-
-// triceFn_t is the generated ABC handler signature. But it is also used for log and X0 execution.
+#error
+// triceFn_t is the generated ABC handler signature.
 // The receive record is const during handler execution so nested 
 // dispatch cannot mutate the caller's current record by accident.
 typedef void (*triceFn_t)(const triceRx_t* rx);
+
+// triceNodeFn_t is also used for log and X0 execution.
+//! \param node points to a node specific struct. Use NULL for it if not needed.
+typedef void (*triceNodeFn_t)(void* node, const triceRx_t* rx);
 
 //! \brief parses exactly one already deframed/decrypted Trice record at buf[0].
 //! \details
@@ -193,15 +197,15 @@ int TriceResolveLocation(triceRx_t* rx, const triceLocation_t* list, size_t coun
 
 #endif // #if TRICE_LOCATION_SUPPORT == 1
 
-extern triceFn_t fn_TricePrintLog;
+extern triceNodeFn_t fn_TricePrintLog;
 
 #endif // #if TRICE_RX_LOG_SUPPORT == 1
 
-#if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
+//#if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
+#error
+extern triceNodeFn_t fn_TriceHandleTypeX0;
 
-extern triceFn_t fn_TriceHandleTypeX0;
-
-#endif
+//#endif
 
 #ifdef __cplusplus
 }
