@@ -39,26 +39,30 @@
 #define NODE_RMDIR(path) rmdir(path)
 #endif
 
-static void nodePrintLine(const char* text);
+static void nodePrintLine(const char* text); // Print exactly one already assembled line.
 
 #if TRICE_RX_LOG_SUPPORT == 1
-static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx);
+static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx); // Print one resolved log record.
+
+// Adapter to call nodePrintResolvedLog() with a generic node pointer.
 static void nodePrintResolvedLog_adapter(const void* node, const triceRx_t* rx){
 	nodePrintResolvedLog((const node_t*) node, rx);
 }
 #endif
 
 #if TRICE_RX_SUPPORT == 1
-static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx);
+static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx); // Print one unrecognized ID record.
+
+// Adapter to call nodePrintIgnoredID() with a generic node pointer.
 static void nodePrintIgnoredID_adapter(const void* node, const triceRx_t* rx){
 	nodePrintIgnoredID((const node_t*) node, rx);
 }
 #endif
 
 // Keep one full console line together even when several demo processes print.
-#define NODE_CONSOLE_LOCK_PATH "abc.console.lock"
-#define NODE_CONSOLE_LINE_MAX 512u
-#define NODE_CONSOLE_LOCK_POLL_MS 10u
+#define NODE_CONSOLE_LOCK_PATH "abc.console.lock" // Path to a process-shared lock directory for serializing console output.
+#define NODE_CONSOLE_LINE_MAX 512u // Maximum line length for one complete console output line.
+#define NODE_CONSOLE_LOCK_POLL_MS 10u // Milliseconds to wait before retrying the console lock when another process owns it.
 
 #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
 
@@ -107,6 +111,7 @@ static void nodePrintX0(const node_t* node, const triceRx_t* rx) {
 	nodePrintLine(line);
 }
 
+// Adapter to call nodePrintX0() with a generic node pointer.
 static void nodePrintX0_adapter(const void* node, const triceRx_t* rx){
     nodePrintX0((const node_t*)node, rx);
 }
@@ -254,6 +259,7 @@ static float nodeReadFloat32(const uint8_t* p) {
 
 #endif // TRICE_RX_SUPPORT == 1
 
+// Set the eight demo LED states packed into one byte and print the new state.
 void nodeSetLeds(node_t* node, uint8_t mask) {
 	char bar[11];
 
@@ -266,6 +272,7 @@ void nodeSetLeds(node_t* node, uint8_t mask) {
 	nodePrintLineF("%s: leds=%s\n", node->name, bar);
 }
 
+// Set the eight demo LED states packed into one byte and print the new state.
 void nodeSetKey(node_t* node, const uint8_t* data, size_t len) {
 	size_t i;
 	size_t n;
@@ -287,6 +294,7 @@ void nodeSetKey(node_t* node, const uint8_t* data, size_t len) {
 	node->keyLen = (uint8_t)n;
 }
 
+// Print the current LED states in a compact [** * ] style bar.
 void nodePrintLeds(const node_t* node, const char* reason) {
 	char bar[11];
 
@@ -298,6 +306,7 @@ void nodePrintLeds(const node_t* node, const char* reason) {
 	nodePrintLineF("%s: %s%s\n", node->name, (reason != 0) ? reason : "", bar);
 }
 
+// Print the current LED states and the stored key.
 void nodePrintState(const node_t* node, const char* reason) {
 	char bar[11];
 
@@ -309,6 +318,7 @@ void nodePrintState(const node_t* node, const char* reason) {
 	nodePrintLineF("%s: %skey=%s leds=%s\n", node->name, (reason != 0) ? reason : "", node->key, bar);
 }
 
+// Open one demo node and join the shared abc.bus broadcast medium.
 int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rxLogEnabled) {
 	int e;
 
@@ -342,6 +352,7 @@ int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rx
 	return BCSIM_OK;
 }
 
+// Close one demo node and leave the shared abc.bus broadcast medium.
 void nodeClose(node_t* node) {
 	if (node == 0) {
 		return;
@@ -354,6 +365,7 @@ void nodeClose(node_t* node) {
 }
 
 #if TRICE_TX_SUPPORT == 1
+// Send the current LED states to the shared abc.bus broadcast medium.
 void nodeSendLedsState(node_t* node) {
 	char bar[11];
 
@@ -368,6 +380,7 @@ void nodeSendLedsState(node_t* node) {
 	nodePrintLineF("%s: tx:abc:LedsState %s\n", node->name, bar);
 }
 
+// Send the stored printable key to the shared abc.bus broadcast medium.
 void nodeSendDivideResult(node_t* node, float value) {
 	uint32_t bits = aFloat(value);
 
@@ -484,7 +497,7 @@ static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
 
 #if TRICE_RX_ABC_SUPPORT == 1
     if (TriceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
-		rx.fn(&rx);
+		rx.abcFnHandler(&rx);
 		rx.executed_logged_handled = 0x4;
     }
 #endif
@@ -549,6 +562,7 @@ static void nodeHandleDecodedRecord(node_t* node, const uint8_t* record, size_t 
 #endif // #if NODE_CODE == 1
 
 #if TRICE_RX_SUPPORT == 1
+// Print one unrecognized ID record.
 static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx){
 	char line[NODE_CONSOLE_LINE_MAX];
 	size_t pos = 0u;
@@ -590,11 +604,11 @@ static const char* nodeStampText(const triceRx_t* rx, char* dst, size_t dstSize)
 	return dst;
 }
 
+#if TRICE_TX_SUPPORT == 1
 // The stamp demo uses low-order stamp bits as a responder bitmap.
 //
 // Unstamped requests keep the original broadcast behavior. Stamped requests are
 // answered only by nodes whose `replyStampMask` bit is present in the stamp.
-#if TRICE_TX_SUPPORT == 1
 static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
 	if (node == 0 || rx == 0 || node->canSend == 0u) {
 		return 0;
@@ -669,6 +683,8 @@ static void nodeProcessStream(node_t* node) {
 	}
 }
 
+// Read one or more COBS frames from the shared abc.bus broadcast medium and
+// feed them into the Trice record classifier.
 int nodePoll(node_t* node) {
 	uint8_t chunk[512];
 
@@ -697,6 +713,7 @@ int nodePoll(node_t* node) {
 }
 
 #if TRICE_RX_ABC_SUPPORT == 1
+// Map one payload byte to an unsigned host value.
 uint8_t nodePayloadU8(const triceRx_t* rx, size_t index) {
 	if (rx == 0 || rx->payload == 0 || index >= rx->payloadBytes) {
 		return 0u;
@@ -704,6 +721,7 @@ uint8_t nodePayloadU8(const triceRx_t* rx, size_t index) {
 	return rx->payload[index];
 }
 
+// Map one payload float32 to a host float value.
 float nodePayloadFloat32(const triceRx_t* rx, size_t index) {
 	size_t offset = index * 4u;
 	if (rx == 0 || rx->payload == 0 || offset + 4u > rx->payloadBytes) {
@@ -712,8 +730,8 @@ float nodePayloadFloat32(const triceRx_t* rx, size_t index) {
 	return nodeReadFloat32(rx->payload + offset);
 }
 
-// Send `abc:LedsState` with the same stamp width and stamp value as the request.
 #if TRICE_TX_SUPPORT == 1
+// Send `abc:LedsState` with the same stamp width and stamp value as the request.
 static void nodeSendLedsStateReply(node_t* node, const triceRx_t* rx) {
 	char bar[11];
 	char stamp[32];
@@ -866,9 +884,9 @@ void DivideResult(const triceRx_t* rx) {
 	nodePrintLineF("%s: abc:DivideResult%s value=%f\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), (double)nodePayloadFloat32(rx, 0u));
 }
 #endif // TRICE_RX_ABC_SUPPORT == 1
-#else
-int nodePoll(node_t* node) {
+#else // #if TRICE_RX_SUPPORT == 1
+int nodePoll(node_t* node) { // no RX support, so no Trice record handling is possible
 	(void)node;
 	return 0;
 }
-#endif // TRICE_RX_SUPPORT == 1
+#endif // #else // #if TRICE_RX_SUPPORT == 1

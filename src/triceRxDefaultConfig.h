@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-
 // TRICE_INSERT_OFF - Trice parser exclusion marker
-
 //! \file triceRxDefaultConfig.h
 //! \brief Default configuration values for the Trice receive side.
 
@@ -44,10 +42,10 @@
 #define TRICE_LOCATION_SUPPORT 0
 #endif
 
-// TRICE_RX_FRAMING describes the receive-side byte stream framing policy.
-#ifndef TRICE_RX_FRAMING
-#define TRICE_RX_FRAMING TRICE_FRAMING_TCOBS
-#endif
+// // TRICE_RX_FRAMING describes the receive-side byte stream framing policy.
+// #ifndef TRICE_RX_FRAMING
+// #define TRICE_RX_FRAMING TRICE_FRAMING_TCOBS
+// #endif
 
 // TRICE_DOUBLED_16BIT_ID skips an extra duplicated ID word before 16-bit stamps.
 #ifndef TRICE_DOUBLED_16BIT_ID
