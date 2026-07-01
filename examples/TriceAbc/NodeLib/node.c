@@ -3,8 +3,6 @@
 #define _POSIX_C_SOURCE 200112L
 #endif
 
-#define NODE_CODE 0
-
 // node.c
 //
 // Shared host-side runtime for the TriceAbc demo nodes.
@@ -338,16 +336,16 @@ int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rx
 	}
 
 	nodeSetCurrent(node);
-	nodePrintLineF("%s: joined abc.bus\n", node->name);
+	nodePrintLineF("%s: joined abc.bus, canSend=%d canReceive=%d rxLogEnabled=%d\n", name, canSend, canReceive, rxLogEnabled);
 
 #if TRICE_RX_LOG_SUPPORT == 1
 	fn_TricePrintLog = nodePrintResolvedLog_adapter;
 #endif
 #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
-	fn_TriceHandleTypeX0 = nodePrintX0_adapter;
+	(void)nodePrintX0_adapter; // fn_TriceHandleTypeX0 = nodePrintX0_adapter;
 #endif
 #if TRICE_RX_SUPPORT == 1
-	fn_TricePrintIgnoredID = nodePrintIgnoredID_adapter;
+	(void)nodePrintIgnoredID_adapter; //fn_TricePrintIgnoredID = nodePrintIgnoredID_adapter;
 #endif
 	return BCSIM_OK;
 }
@@ -403,11 +401,11 @@ void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen) {
 	(void)bcSimWrite(&gNode->bus, enc, encLen, "trice");
 }
 
-// The 32-bit auxiliary path is intentionally unused in this demo build.
-void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count) {
-	(void)enc;
-	(void)count;
-}
+//  // The 32-bit auxiliary path is intentionally unused in this demo build.
+//  void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count) {
+//  	(void)enc;
+//  	(void)count;
+//  }
 #endif // TRICE_TX_SUPPORT == 1
 
 #if TRICE_RX_SUPPORT == 1
@@ -483,84 +481,6 @@ static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
 }
 #endif // TRICE_RX_LOG_SUPPORT == 1
 
-#if NODE_CODE == 1
-// Parse, classify, and dispatch one fully decoded Trice record.
-static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
-	triceRx_t rx;
-	int used;
-
-	used = TriceParseRecord(&rx, record, len);
-	if (used <= 0) {
-		nodePrintLineF("%s: rx parse error=%d\n", node->name, used);
-		return used;
-	}
-
-#if TRICE_RX_ABC_SUPPORT == 1
-    if (TriceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
-		rx.abcFnHandler(&rx);
-		rx.executed_logged_handled = 0x4;
-    }
-#endif
-
-#if TRICE_RX_LOG_SUPPORT == 1
-	if( TriceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK ){
-		nodePrintResolvedLog(node, &rx);
-		rx.executed_logged_handled = 0x2;
-    }
-#endif
-
-#if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
-	if (rx.stampBits == TRICE_STAMP_BITS_UNKNOWN) {
-		nodePrintX0(node, &rx);
-		rx.executed_logged_handled = 0x1;
-	}
-#endif
-
-#if TRICE_RX_SUPPORT == 1
-	if( (rx.executed_logged_handled) == 0 ){
-		nodePrintIgnoredID(node, &rx);
-	}
-#endif
-	return used;
-}
-
-// Advance from one logical record to the next possible record start.
-//
-// `TriceParseRecord()` intentionally reports only the logical record size.
-// The target-side transport can still append zero padding up to the next
-// 32-bit boundary. The demo consumes that padding only when all expected bytes
-// are actually zero. Otherwise the following byte is treated as the next record
-// start so packed records stay decodable.
-static size_t nodeAdvanceAlignedRecord(const uint8_t* decoded, size_t decodedLen, size_t offset, size_t logicalUsed) {
-	size_t next = offset + logicalUsed;
-	size_t alignedNext = (next + 3u) & ~(size_t)3u;
-	size_t i;
-
-	if (alignedNext > decodedLen) {
-		return next;
-	}
-
-	for (i = next; i < alignedNext; ++i) {
-		if (decoded[i] != 0u) {
-			return next;
-		}
-	}
-
-	return alignedNext;
-}
-
-static void nodeHandleDecodedRecord(node_t* node, const uint8_t* record, size_t decodedLen) {
-	size_t offset = 0u;
-	while (offset < decodedLen) {
-		int used = nodeHandleRecord(node, record + offset, decodedLen - offset);
-		if (used <= 0) {
-			return;
-		}
-		offset = nodeAdvanceAlignedRecord(node->frame, decodedLen, offset, (size_t)used);
-	}	
-}
-#endif // #if NODE_CODE == 1
-
 #if TRICE_RX_SUPPORT == 1
 // Print one unrecognized ID record.
 static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx){
@@ -631,7 +551,6 @@ static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
 // frame bytes are exhausted.
 static void nodeHandleEncodedFrame(node_t* node, const uint8_t* frame, size_t frameLen) {
 	size_t decodedLen;
-	//size_t offset = 0u;
 
 	if (node == 0 || frame == 0 || frameLen == 0u) {
 		return;
@@ -643,11 +562,7 @@ static void nodeHandleEncodedFrame(node_t* node, const uint8_t* frame, size_t fr
 		return;
 	}
 
-	#if NODE_CODE == 1
-	nodeHandleDecodedRecord(node, node->frame, decodedLen);
-	#else
 	TriceHandleDecodedRecord(node, node->frame, decodedLen);
-	#endif
 }
 
 // Scan the accumulated stream for zero-delimited COBS frames.
@@ -750,7 +665,7 @@ static void nodeSendLedsStateReply(node_t* node, const triceRx_t* rx) {
 
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodeMakeLedBar(bar, sizeof(bar), node->leds);
-	nodePrintLineF("%s: tx:abc:LedsState%s %s\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), bar);
+	nodePrintLineF("%s: tx:abc:LedsState, %s %s\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), bar);
 }
 
 // Send `abc:DivideResult` with the same stamp width and stamp value as the request.
@@ -869,7 +784,7 @@ void LedsState(const triceRx_t* rx) {
 
 	mask = nodePayloadU8(rx, 0u);
 	nodeMakeLedBar(bar, sizeof(bar), mask);
-	nodePrintLineF("%s: abc:LedsState%s %s\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), bar);
+	nodePrintLineF("%s: id=%d, abc:LedsState%s %s\n", node->name, rx->id, nodeStampText(rx, stamp, sizeof(stamp)), bar);
 }
 
 // Float answers are shown as plain text because readability matters most here.
@@ -881,7 +796,7 @@ void DivideResult(const triceRx_t* rx) {
 		return;
 	}
 
-	nodePrintLineF("%s: abc:DivideResult%s value=%f\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), (double)nodePayloadFloat32(rx, 0u));
+	nodePrintLineF("%s: id=%d, abc:DivideResult%s value=%f\n", node->name, rx->id, nodeStampText(rx, stamp, sizeof(stamp)), (double)nodePayloadFloat32(rx, 0u));
 }
 #endif // TRICE_RX_ABC_SUPPORT == 1
 #else // #if TRICE_RX_SUPPORT == 1
