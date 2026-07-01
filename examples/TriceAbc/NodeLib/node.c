@@ -3,6 +3,8 @@
 #define _POSIX_C_SOURCE 200112L
 #endif
 
+#define NODE_CODE 0
+
 // node.c
 //
 // Shared host-side runtime for the TriceAbc demo nodes.
@@ -15,6 +17,7 @@
 
 #include "node.h"
 
+#include "cobs.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -36,15 +39,82 @@
 #define NODE_RMDIR(path) rmdir(path)
 #endif
 
-//static void nodePrintX0(const node_t* node, const triceRx_t* rx) ;
+static void nodePrintLine(const char* text);
 
-// The demo uses one process per node, so one process-global current node is enough.
-static node_t* gNode;
+#if TRICE_RX_LOG_SUPPORT == 1
+static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx);
+static void nodePrintResolvedLog_adapter(const void* node, const triceRx_t* rx){
+	nodePrintResolvedLog((const node_t*) node, rx);
+}
+#endif
+
+#if TRICE_RX_SUPPORT == 1
+static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx);
+static void nodePrintIgnoredID_adapter(const void* node, const triceRx_t* rx){
+	nodePrintIgnoredID((const node_t*) node, rx);
+}
+#endif
 
 // Keep one full console line together even when several demo processes print.
 #define NODE_CONSOLE_LOCK_PATH "abc.console.lock"
 #define NODE_CONSOLE_LINE_MAX 512u
 #define NODE_CONSOLE_LOCK_POLL_MS 10u
+
+#if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
+
+// Format one hexadecimal byte row into the caller supplied line buffer.
+static void appendHexBytes(char* dst, size_t dstSize, size_t* pos, const uint8_t* p, size_t n) {
+	size_t i;
+
+	if (dst == 0 || dstSize == 0u || pos == 0) {
+		return;
+	}
+
+	for (i = 0u; i < n; ++i) {
+		int wrote = snprintf(dst + *pos, dstSize - *pos, "%s%02x", (i == 0u) ? "" : " ", (unsigned)p[i]);
+		if (wrote < 0) {
+			return;
+		}
+		if ((size_t)wrote >= dstSize - *pos) {
+			*pos = dstSize - 1u;
+			return;
+		}
+		*pos += (size_t)wrote;
+	}
+}
+
+// Selector-0 frames are printed separately because they intentionally carry no ID.
+static void nodePrintX0(const node_t* node, const triceRx_t* rx) {
+	char line[NODE_CONSOLE_LINE_MAX];
+	size_t pos = 0u;
+	int wrote = snprintf(line, sizeof(line), "%s: x0 %u bytes: ", node->name, (unsigned)rx->payloadBytes);
+
+	if (wrote < 0) {
+		return;
+	}
+	if ((size_t)wrote >= sizeof(line)) {
+		line[sizeof(line) - 2u] = '\n';
+		line[sizeof(line) - 1u] = 0;
+		nodePrintLine(line);
+		return;
+	}
+
+	pos = (size_t)wrote;
+	if (rx->payloadBytes != 0u && rx->payload != 0) {
+		appendHexBytes(line, sizeof(line), &pos, rx->payload, rx->payloadBytes);
+	}
+	(void)snprintf(line + pos, sizeof(line) - pos, "\n");
+	nodePrintLine(line);
+}
+
+static void nodePrintX0_adapter(const void* node, const triceRx_t* rx){
+    nodePrintX0((const node_t*)node, rx);
+}
+
+#endif // #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
+
+// The demo uses one process per node, so one process-global current node is enough.
+static node_t* gNode;
 
 // Sleep briefly while another demo process owns the console lock.
 void nodeSleepMs(unsigned ms) {
@@ -182,27 +252,6 @@ static float nodeReadFloat32(const uint8_t* p) {
 	return x.f32;
 }
 
-// Format one hexadecimal byte row into the caller supplied line buffer.
-static void appendHexBytes(char* dst, size_t dstSize, size_t* pos, const uint8_t* p, size_t n) {
-	size_t i;
-
-	if (dst == 0 || dstSize == 0u || pos == 0) {
-		return;
-	}
-
-	for (i = 0u; i < n; ++i) {
-		int wrote = snprintf(dst + *pos, dstSize - *pos, "%s%02x", (i == 0u) ? "" : " ", (unsigned)p[i]);
-		if (wrote < 0) {
-			return;
-		}
-		if ((size_t)wrote >= dstSize - *pos) {
-			*pos = dstSize - 1u;
-			return;
-		}
-		*pos += (size_t)wrote;
-	}
-}
-
 #endif // TRICE_RX_SUPPORT == 1
 
 void nodeSetLeds(node_t* node, uint8_t mask) {
@@ -280,7 +329,16 @@ int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rx
 
 	nodeSetCurrent(node);
 	nodePrintLineF("%s: joined abc.bus\n", node->name);
-	fn_TriceHandleTypeX0 = nodePrintX0;
+
+#if TRICE_RX_LOG_SUPPORT == 1
+	fn_TricePrintLog = nodePrintResolvedLog_adapter;
+#endif
+#if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
+	fn_TriceHandleTypeX0 = nodePrintX0_adapter;
+#endif
+#if TRICE_RX_SUPPORT == 1
+	fn_TricePrintIgnoredID = nodePrintIgnoredID_adapter;
+#endif
 	return BCSIM_OK;
 }
 
@@ -341,7 +399,6 @@ void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count)
 
 #if TRICE_RX_SUPPORT == 1
 #if TRICE_RX_LOG_SUPPORT == 1
-/*
 static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
 	char fmt[NODE_CONSOLE_LINE_MAX];
 	uint8_t widthBytes;
@@ -411,42 +468,12 @@ static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
 		return;
 	}
 }
-*/
 #endif // TRICE_RX_LOG_SUPPORT == 1
 
-// Selector-0 frames are printed separately because they intentionally carry no ID.
-static void nodePrintX0(const node_t* node, const triceRx_t* rx) {
-	char line[NODE_CONSOLE_LINE_MAX];
-	size_t pos = 0u;
-	int wrote = snprintf(line, sizeof(line), "%s: x0 %u bytes: ", node->name, (unsigned)rx->payloadBytes);
-
-	if (wrote < 0) {
-		return;
-	}
-	if ((size_t)wrote >= sizeof(line)) {
-		line[sizeof(line) - 2u] = '\n';
-		line[sizeof(line) - 1u] = 0;
-		nodePrintLine(line);
-		return;
-	}
-
-	pos = (size_t)wrote;
-	if (rx->payloadBytes != 0u && rx->payload != 0) {
-		appendHexBytes(line, sizeof(line), &pos, rx->payload, rx->payloadBytes);
-	}
-	(void)snprintf(line + pos, sizeof(line) - pos, "\n");
-	nodePrintLine(line);
-}
-
-//int TriceRxHandleRecord(const uint8_t* record, size_t len); // calls int TriceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count) 
-
-int TriceRxHandleRecord(triceRx_t* rx, const uint8_t* record, size_t len);
-
-/*
+#if NODE_CODE == 1
 // Parse, classify, and dispatch one fully decoded Trice record.
 static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
 	triceRx_t rx;
-    int executed_or_logged = 0;
 	int used;
 
 	used = TriceParseRecord(&rx, record, len);
@@ -457,92 +484,33 @@ static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
 
 #if TRICE_RX_ABC_SUPPORT == 1
     if (TriceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
-        // int e = 
 		rx.fn(&rx);
-		//fn_TriceDispatchAbc(&rx);
-			rx.executed = 1;
-        //  if(e == TRICE_RX_RESULT_OK) {
-        //      executed_or_logged = 1;
-        //  }else{
-        //      nodePrintLineF("%s: abc dispatch error=%d id=%u\n", node->name, e, (unsigned)rx.id);
-        //  }
+		rx.executed_logged_handled = 0x4;
     }
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
 	if( TriceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK ){
 		nodePrintResolvedLog(node, &rx);
-		rx.logged = 1;
+		rx.executed_logged_handled = 0x2;
     }
 #endif
 
+#if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
 	if (rx.stampBits == TRICE_STAMP_BITS_UNKNOWN) {
 		nodePrintX0(node, &rx);
-		rx.handled = 1;
+		rx.executed_logged_handled = 0x1;
 	}
+#endif
 
-	if( executed_or_logged == 0 ){
-		char line[NODE_CONSOLE_LINE_MAX];
-		size_t pos = 0u;
-		int wrote = snprintf(line, sizeof(line), "%s: ID %u ignored", node->name, (unsigned)rx.id);
-
-		if (wrote < 0) {
-			return used;
-		}
-		if ((size_t)wrote >= sizeof(line)) {
-			line[sizeof(line) - 2u] = '\n';
-			line[sizeof(line) - 1u] = 0;
-			nodePrintLine(line);
-			return used;
-		}
-
-		pos = (size_t)wrote;
-		if (rx.payloadBytes != 0u && rx.payload != 0 && pos + 1u < sizeof(line)) {
-			line[pos++] = ' ';
-			line[pos] = 0;
-			appendHexBytes(line, sizeof(line), &pos, rx.payload, rx.payloadBytes);
-		}
-		(void)snprintf(line + pos, sizeof(line) - pos, "\n");
-		nodePrintLine(line);
+#if TRICE_RX_SUPPORT == 1
+	if( (rx.executed_logged_handled) == 0 ){
+		nodePrintIgnoredID(node, &rx);
 	}
+#endif
 	return used;
 }
-*/
 
-// Build a short optional stamp suffix for human-readable demo output.
-static const char* nodeStampText(const triceRx_t* rx, char* dst, size_t dstSize) {
-	if (dst == 0 || dstSize == 0u || rx == 0 || rx->stampBits == 0u || rx->stampBits == TRICE_STAMP_BITS_UNKNOWN) {
-		return "";
-	}
-
-	if (rx->stampBits == 16u) {
-		(void)snprintf(dst, dstSize, " stamp=0x%04x", (unsigned)(rx->stamp & 0xffffu));
-		return dst;
-	}
-
-	(void)snprintf(dst, dstSize, " stamp=0x%08x", (unsigned)rx->stamp);
-	return dst;
-}
-
-// The stamp demo uses low-order stamp bits as a responder bitmap.
-//
-// Unstamped requests keep the original broadcast behavior. Stamped requests are
-// answered only by nodes whose `replyStampMask` bit is present in the stamp.
-#if TRICE_TX_SUPPORT == 1
-static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
-	if (node == 0 || rx == 0 || node->canSend == 0u) {
-		return 0;
-	}
-	if (rx->stampBits == 0u) {
-		return 1;
-	}
-	if (rx->stampBits == TRICE_STAMP_BITS_UNKNOWN || node->replyStampMask == 0u) {
-		return 0;
-	}
-	return (rx->stamp & node->replyStampMask) != 0u;
-}
-#endif
-/*
 // Advance from one logical record to the next possible record start.
 //
 // `TriceParseRecord()` intentionally reports only the logical record size.
@@ -578,8 +546,68 @@ static void nodeHandleDecodedRecord(node_t* node, const uint8_t* record, size_t 
 		offset = nodeAdvanceAlignedRecord(node->frame, decodedLen, offset, (size_t)used);
 	}	
 }
-*/
-int TriceHandleDecodedRecord(const uint8_t* record, size_t decodedLen);
+#endif // #if NODE_CODE == 1
+
+#if TRICE_RX_SUPPORT == 1
+static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx){
+	char line[NODE_CONSOLE_LINE_MAX];
+	size_t pos = 0u;
+	int wrote = snprintf(line, sizeof(line), "%s: ID %u ignored", node->name, (unsigned)rx->id);
+
+	if (wrote < 0) {
+		return;
+	}
+	if ((size_t)wrote >= sizeof(line)) {
+		line[sizeof(line) - 2u] = '\n';
+		line[sizeof(line) - 1u] = 0;
+		nodePrintLine(line);
+		return;
+	}
+
+	pos = (size_t)wrote;
+	if (rx->payloadBytes != 0u && rx->payload != 0 && pos + 1u < sizeof(line)) {
+		line[pos++] = ' ';
+		line[pos] = 0;
+		appendHexBytes(line, sizeof(line), &pos, rx->payload, rx->payloadBytes);
+	}
+	(void)snprintf(line + pos, sizeof(line) - pos, "\n");
+	nodePrintLine(line);
+}
+#endif
+
+// Build a short optional stamp suffix for human-readable demo output.
+static const char* nodeStampText(const triceRx_t* rx, char* dst, size_t dstSize) {
+	if (dst == 0 || dstSize == 0u || rx == 0 || rx->stampBits == 0u || rx->stampBits == TRICE_STAMP_BITS_UNKNOWN) {
+		return "";
+	}
+
+	if (rx->stampBits == 16u) {
+		(void)snprintf(dst, dstSize, " stamp=0x%04x", (unsigned)(rx->stamp & 0xffffu));
+		return dst;
+	}
+
+	(void)snprintf(dst, dstSize, " stamp=0x%08x", (unsigned)rx->stamp);
+	return dst;
+}
+
+// The stamp demo uses low-order stamp bits as a responder bitmap.
+//
+// Unstamped requests keep the original broadcast behavior. Stamped requests are
+// answered only by nodes whose `replyStampMask` bit is present in the stamp.
+#if TRICE_TX_SUPPORT == 1
+static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
+	if (node == 0 || rx == 0 || node->canSend == 0u) {
+		return 0;
+	}
+	if (rx->stampBits == 0u) {
+		return 1;
+	}
+	if (rx->stampBits == TRICE_STAMP_BITS_UNKNOWN || node->replyStampMask == 0u) {
+		return 0;
+	}
+	return (rx->stamp & node->replyStampMask) != 0u;
+}
+#endif
 
 // Decode one encoded frame payload and feed all contained Trice records into
 // the classifier.
@@ -601,8 +629,11 @@ static void nodeHandleEncodedFrame(node_t* node, const uint8_t* frame, size_t fr
 		return;
 	}
 
-	//nodeHandleDecodedRecord(node, node->frame, decodedLen);
-	TriceHandleDecodedRecord(node->frame, decodedLen);
+	#if NODE_CODE == 1
+	nodeHandleDecodedRecord(node, node->frame, decodedLen);
+	#else
+	TriceHandleDecodedRecord(node, node->frame, decodedLen);
+	#endif
 }
 
 // Scan the accumulated stream for zero-delimited COBS frames.

@@ -15,8 +15,7 @@
 #define TRICE_TX_SUPPORT 0
 #define TRICE_RX_ABC_SUPPORT 1
 #define TRICE_RX_LOG_SUPPORT 1
-
-#include "../triceRxConfig.h"
+#define TRICE_RX_X0_COUNTED_BUFFER_SUPPORT 1
 
 /* Always make the clean/non-clean build mode explicit in demo node configs. */
 #define TRICE_CLEAN 1

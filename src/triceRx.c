@@ -227,36 +227,43 @@ triceNodeFn_t fn_TriceHandleTypeX0 = 0;
 
 
 //! \brief parse, classify, and dispatch one fully decoded Trice record.
+//! \param node is a node specific struct. Set it to 0 if not needed.
 //! \param record data start
 //! \param len record byte count 
 //! \retval
-int TriceRxHandleRecord(triceRx_t* rx, const uint8_t* record, size_t len) {
+static int TriceRxHandleRecord(const void* node, triceRx_t* rx, const uint8_t* record, size_t len) {
 	int used = TriceParseRecord(rx, record, len);
 	if (used <= 0) {
 		return used; // parse error
 	}
 
 #if TRICE_RX_ABC_SUPPORT == 1
+	node = node; // avoid [-Wunused-parameter]
 	if (TriceResolveAbc(rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
 		rx->fn(rx);
-		rx->executed = 1u;	
+		rx->executed_logged_handled = 0x4u;	
 	}
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
 	if (fn_TricePrintLog != 0 && TriceResolveLog(rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK){
-		fn_TricePrintLog(rx);
-		rx->logged = 1;
+		fn_TricePrintLog(node, rx);
+		rx->executed_logged_handled = 0x2;
 	}
 #endif
 
 #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
 	if (fn_TriceHandleTypeX0 != 0 && rx->stampBits == TRICE_STAMP_BITS_UNKNOWN) {
-		fn_TriceHandleTypeX0(rx);
-		rx->handled = 1;
+		fn_TriceHandleTypeX0(node, rx);
+		rx->executed_logged_handled = 0x1;
 	}	
 #endif
 
+#if TRICE_RX_SUPPORT == 1
+	if( fn_TricePrintIgnoredID != 0 && rx->executed_logged_handled == 0) {
+		fn_TricePrintIgnoredID(node, rx);
+	}
+#endif
 	return used;
 }
 
@@ -285,11 +292,11 @@ static size_t TriceAdvanceAlignedRecord(const uint8_t* decoded, size_t decodedLe
 	return alignedNext;
 }
 
-int TriceHandleDecodedRecord(const uint8_t* record, size_t decodedLen) {
+int TriceHandleDecodedRecord(const void* node, const uint8_t* record, size_t decodedLen) {
 	size_t offset = 0u;
 	while (offset < decodedLen) {
 		triceRx_t rx;
-		int used = TriceRxHandleRecord(&rx, record + offset, decodedLen - offset);
+		int used = TriceRxHandleRecord(node, &rx, record + offset, decodedLen - offset);
 		if (used <= 0) {
 			return used; // not enough data or some error
 		}
@@ -297,5 +304,7 @@ int TriceHandleDecodedRecord(const uint8_t* record, size_t decodedLen) {
 	}
 	return offset;
 }
+
+triceNodeFn_t fn_TricePrintIgnoredID;
 
 #endif // #if TRICE_RX_SUPPORT == 1

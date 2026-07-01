@@ -12,7 +12,6 @@
 
 #include "../BcSim/BcSim.h"
 
-#include "triceBusConfig.h"
 #include "triceConfig.h"
 
 #if TRICE_RX_SUPPORT == 1
