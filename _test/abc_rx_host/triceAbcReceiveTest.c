@@ -48,6 +48,8 @@ static void rxPutU32(uint8_t* p, uint32_t value) {
 }
 
 //! rxBuildAbcRecord writes one decoded ABC record into pBuf and optionally appends zero padding up to the next 32-bit boundary.
+//! When the receiver expects doubled 16-bit IDs, it emits the extra ID word so
+//! the fixture matches the configured parser layout.
 static int rxBuildAbcRecord(uint8_t* pBuf, uint16_t id, uint8_t stampBits, uint32_t stamp, const void* payload, uint16_t payloadBytes, int appendPadding) {
 	uint16_t head;
 	uint16_t nc;
@@ -62,6 +64,10 @@ static int rxBuildAbcRecord(uint8_t* pBuf, uint16_t id, uint8_t stampBits, uint3
 	rxPutU16(pBuf + offset, head);
 	offset += 2;
 	if (stampBits == 16u) {
+#if TRICE_RX_EXPECT_DOUBLED_ID16 == 1
+		rxPutU16(pBuf + offset, head);
+		offset += 2;
+#endif
 		rxPutU16(pBuf + offset, (uint16_t)stamp);
 		offset += 2;
 	} else if (stampBits == 32u) {
@@ -147,7 +153,7 @@ static int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 		return TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 	}
 
-	rx.fn(&rx);
+	rx.abcFnHandler(&rx);
 	//e = TriceDispatchAbc(&rx);
 	return used; //TRICE_RX_RESULT_OK; // (e == TRICE_RX_RESULT_OK || e == TRICE_RX_ERR_NOT_FOUND) ? used : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 }
@@ -214,7 +220,7 @@ void rx_nested(const triceRx_t* rx) {
 	rxFailUnless(rx->stampBits == 32u);
 	rxFailUnless(rx->stamp == 0x11111111u);
 	used = rxBuildAbcRecord(nested, 1001u, 16u, 0x2222u, 0, 0u, 1);
-	rxFailUnless(TriceAbcOnReceive(nested, used) == 6);
+	rxFailUnless(TriceAbcOnReceive(nested, used) == 8);
 	rxFailUnless(rx->stampBits == 32u);
 	rxFailUnless(rx->stamp == 0x11111111u);
 }
@@ -241,17 +247,13 @@ static int bitWidthByteCount(uint8_t bitWidth, uint8_t* widthBytes) {
 //! alignment can be checked before a formatter interprets the bytes.
 static int triceValidateLogPayload(const triceRx_t* rx) {
 	uint8_t widthBytes; // 0, 1, 2, 4, 8
-	//int e;
+	int e;
 
-	//if (rx->paramCount != TRICE_LOG_PARAM_COUNT_DYNAMIC) {
-	//	return validatePayloadLength(rx);
-	//}
-	
-	//  e = bitWidthByteCount(rx->bitWidth, &widthBytes);
-	//  if (e != TRICE_RX_RESULT_OK) {
-	//  	return e;
-	//  }
 	if (rx->paramCount == TRICE_LOG_PARAM_COUNT_DYNAMIC) {
+		e = bitWidthByteCount(rx->bitWidth, &widthBytes);
+		if (e != TRICE_RX_RESULT_OK) {
+			return e;
+		}
 		if (rx->bitWidth == 0u) {
 			return (rx->payloadBytes == 0u) ? TRICE_RX_RESULT_OK : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 		}
@@ -314,7 +316,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1001u, 16u, 0x0000beefu, 0, 0u, 1);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == 6);
+		rxFailUnless(result == 8);
 		rxFailUnless(rxCalls == 1);
 		break;
 	}
@@ -341,7 +343,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1004u, 16u, 0x8877u, payload, (uint16_t)sizeof(payload), 1);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == 14);
+		rxFailUnless(result == 16);
 		rxFailUnless(rxCalls == 1);
 		break;
 	}
@@ -466,7 +468,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(result == TRICE_RX_LEN_TOO_SHORT);
 		used = rxBuildAbcRecord(record, 2001u, 0u, 0u, 0, 0u, 0);
 		result = TriceLogOnReceive(record, used);
-		rxFailUnless(result == TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH);
+		rxFailUnless(result == TRICE_RX_ERR_PARAM_COUNT_MISMATCH);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
