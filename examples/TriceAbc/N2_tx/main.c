@@ -11,15 +11,15 @@ static void sendTraffic(unsigned loop) {
 
 	/* Show the local TX side because BcSim suppresses self echo on receive. */
 
-	trice("log:node=N2_tx, tick=%u\n", 100u + loop);
+	trice("log:(from node=N2_tx) tick=%u\n", 100u + loop);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N2_tx: TX-> log:tick=%u\n", 100u + loop);
 
-	trice("log:node=N2_tx, from=%u phase=%u\n", 2u, (loop + 1u) & 3u);
+	trice("log:(from node=N2_tx) from=%u phase=%u\n", 2u, (loop + 1u) & 3u);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N2_tx: TX-> log:from=%u phase=%u\n", 2u, (loop + 1u) & 3u);
 	
-	triceS("log:node=N2_tx, text=%s\n", text);
+	triceS("log:(from node=N2_tx) text=%s\n", text);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N2_tx: TX-> log:text=%s\n", text);
 

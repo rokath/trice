@@ -10,6 +10,11 @@ inspectable code base.
 framing, parsing, ID resolution, ABC dispatch, and demo behavior live above it
 inside `NodeLib/` and the node `main.c` files.
 
+Unstamped ABC requests are broadcast requests.
+All bidirectional nodes may answer.
+Therefore several identical-looking LedsState or DivideResult lines can appear.
+The stamp field can be used to restrict or identify replies.
+
 ## Quick start
 
 From this directory:

@@ -11,17 +11,17 @@ static void sendTraffic(unsigned loop) {
 
 	/* Show the local TX side because BcSim suppresses self echo on receive. */
 
-	trice("log:node=N3_bi, tick=%u\n", 200u + loop);
+	trice("log:(from node=N3_bi) tick=%u\n", 200u + loop);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
-	nodePrintLineF("N3_tx: TX-> log:tick=%u\n", 200u + loop);
+	nodePrintLineF("N3_bi: TX-> log:tick=%u\n", 200u + loop);
 
-	trice("log:node=N3_bi, from=%u phase=%u\n", 3u, loop & 3u);
+	trice("log:(from node=N3_bi) from=%u phase=%u\n", 3u, loop & 3u);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
-	nodePrintLineF("N3_tx: TX-> log:from=%u phase=%u\n", 3u, loop & 3u);
+	nodePrintLineF("N3_bi: TX-> log:from=%u phase=%u\n", 3u, loop & 3u);
 
-	triceS("log:node=N3_bi, text=%s\n", text);
+	triceS("log:(from node=N3_bi) text=%s\n", text);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
-	nodePrintLineF("N3_tx: TX-> log:text=%s\n", text);
+	nodePrintLineF("N3_bi: TX-> log:text=%s\n", text);
 
 	for (i = 0u; i < sizeof(x0); ++i) {
 		x0[i] = (uint8_t)(0x30u + loop + i);
@@ -29,7 +29,7 @@ static void sendTraffic(unsigned loop) {
 
 	triceX0(x0, x0Len);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
-	nodePrintLineF("N3_tx: TX-> x0 %u bytes\n", (unsigned)x0Len);
+	nodePrintLineF("N3_bi: TX-> x0 %u bytes\n", (unsigned)x0Len);
 }
 
 // This node sends both broadcast and stamp-routed ABC requests.

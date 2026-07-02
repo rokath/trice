@@ -116,7 +116,7 @@ int TriceParseRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 
 	case 2u:
 		rx->stampBits = 16u;
-#if TRICE_DOUBLED_16BIT_ID == 1
+#if TRICE_RX_EXPECT_DOUBLED_ID16 == 1
 		offset += 2u;
 #endif
 		if (len < offset + 2u) {

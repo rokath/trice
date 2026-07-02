@@ -1,4 +1,12 @@
 {
+	"1071": {
+		"File": "main.c",
+		"Line": 18
+	},
+	"1101": {
+		"File": "main.c",
+		"Line": 18
+	},
 	"1126": {
 		"File": "main.c",
 		"Line": 18
@@ -9363,6 +9371,10 @@
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 483
 	},
+	"1578": {
+		"File": "main.c",
+		"Line": 22
+	},
 	"15815": {
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 454
@@ -9683,6 +9695,10 @@
 		"File": "main.c",
 		"Line": 22
 	},
+	"2001": {
+		"File": "main.c",
+		"Line": 14
+	},
 	"2034": {
 		"File": "main.c",
 		"Line": 14
@@ -9697,7 +9713,7 @@
 	},
 	"2859": {
 		"File": "main.c",
-		"Line": 44
+		"Line": 56
 	},
 	"2945": {
 		"File": "node.c",
@@ -9705,7 +9721,7 @@
 	},
 	"2968": {
 		"File": "main.c",
-		"Line": 50
+		"Line": 62
 	},
 	"3204": {
 		"File": "node.c",
@@ -9769,7 +9785,7 @@
 	},
 	"4650": {
 		"File": "main.c",
-		"Line": 62
+		"Line": 50
 	},
 	"4818": {
 		"File": "main.c",
@@ -9783,6 +9799,10 @@
 		"File": "main.c",
 		"Line": 22
 	},
+	"5054": {
+		"File": "main.c",
+		"Line": 14
+	},
 	"5074": {
 		"File": "main.c",
 		"Line": 14
@@ -9793,7 +9813,7 @@
 	},
 	"5155": {
 		"File": "main.c",
-		"Line": 56
+		"Line": 62
 	},
 	"5460": {
 		"File": "main.c",
@@ -9801,7 +9821,7 @@
 	},
 	"5517": {
 		"File": "main.c",
-		"Line": 62
+		"Line": 56
 	},
 	"5642": {
 		"File": "main.c",
@@ -9813,7 +9833,11 @@
 	},
 	"5768": {
 		"File": "main.c",
-		"Line": 56
+		"Line": 44
+	},
+	"5937": {
+		"File": "main.c",
+		"Line": 14
 	},
 	"6059": {
 		"File": "main.c",
@@ -9831,6 +9855,10 @@
 		"File": "main.c",
 		"Line": 18
 	},
+	"6394": {
+		"File": "main.c",
+		"Line": 22
+	},
 	"6603": {
 		"File": "main.c",
 		"Line": 44
@@ -9838,6 +9866,10 @@
 	"6779": {
 		"File": "main.c",
 		"Line": 18
+	},
+	"6812": {
+		"File": "main.c",
+		"Line": 22
 	},
 	"6890": {
 		"File": "main.c",
@@ -9882,6 +9914,10 @@
 	"7615": {
 		"File": "main.c",
 		"Line": 22
+	},
+	"7672": {
+		"File": "main.c",
+		"Line": 18
 	},
 	"7709": {
 		"File": "main.c",
