@@ -82,5 +82,5 @@ pid_n2=$!
 wait "${pid_n1}" "${pid_n2}" "${pid_n3}" "${pid_n4}" "${pid_n5}" "${pid_n6}" "${pid_n7}" "${pid_n8}" "${pid_n9}"
 
 console_line ""
-console_line "--- abc.log ---"
-cat abc.log
+console_line "See abc.log for the combined output of all nodes."
+#cat abc.log

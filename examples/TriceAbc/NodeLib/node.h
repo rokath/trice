@@ -97,7 +97,7 @@ void nodePrintLineF(const char* fmt, ...);
 
 #if TRICE_TX_SUPPORT == 1
 // Emit one ABC response carrying the current LED mask.
-void nodeSendLedsState(node_t* node);
+// void nodeSendLedsState(node_t* node);
 
 // Emit one ABC response carrying a 32-bit float result value.
 void nodeSendDivideResult(node_t* node, float value);

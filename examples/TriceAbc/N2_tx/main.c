@@ -11,15 +11,15 @@ static void sendTraffic(unsigned loop) {
 
 	/* Show the local TX side because BcSim suppresses self echo on receive. */
 
-	trice("log:tick=%u\n", 100u + loop);
+	trice("log:node=N2_tx, tick=%u\n", 100u + loop);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N2_tx: TX-> log:tick=%u\n", 100u + loop);
 
-	trice("log:from=%u phase=%u\n", 2u, (loop + 1u) & 3u);
+	trice("log:node=N2_tx, from=%u phase=%u\n", 2u, (loop + 1u) & 3u);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N2_tx: TX-> log:from=%u phase=%u\n", 2u, (loop + 1u) & 3u);
-
-	triceS("log:text=%s\n", text);
+	
+	triceS("log:node=N2_tx, text=%s\n", text);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N2_tx: TX-> log:text=%s\n", text);
 
@@ -41,25 +41,25 @@ static void sendCommand(unsigned loop) {
 	
 	switch (loop & 3u) {
 	case 0u:
-		trice8C("cmd:setLeds", &leds, 1);
+		Trice8C("cmd:setLeds", 102, &leds, 1);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N2_tx: ABC-> cmd:setLeds(%02x)\n", leds);
 		break;
 
 	case 1u:
-		triceC("cmd:logState");
+		TriceC("cmd:logState", 102);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N2_tx: ABC-> cmd:logState\n");
 		break;
 
 	case 2u:
-		trice8C("cmd:setKey", key, sizeof(key));
+		Trice8C("cmd:setKey", 102, key, sizeof(key));
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N2_tx: ABC-> cmd:setKey(bravo7)\n");
 		break;
 
 	default:
-		triceC("cmd:getLeds");
+		TriceC("cmd:getLeds", 102);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N2_tx: ABC-> cmd:getLeds\n");
 		break;
@@ -76,8 +76,8 @@ int main(void) {
 	}
 
 	for (loop = 0u; loop < 8u; ++loop) {
-		sendTraffic(loop);
-		sendCommand(loop);
+		sendTraffic(loop); // node=N2_tx
+		sendCommand(loop); // stamp=102
 		nodeSleepMs(240u);
 	}
 

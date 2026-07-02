@@ -364,19 +364,19 @@ void nodeClose(node_t* node) {
 
 #if TRICE_TX_SUPPORT == 1
 // Send the current LED states to the shared abc.bus broadcast medium.
-void nodeSendLedsState(node_t* node) {
-	char bar[11];
-
-	if (node == 0 || node->canSend == 0u) {
-		return;
-	}
-
-	trice8C("abc:LedsState", &node->leds, 1);
-
-	// Demo-only TX trace: show the local sender, not only remote receivers.
-	nodeMakeLedBar(bar, sizeof(bar), node->leds);
-	nodePrintLineF("%s: tx:abc:LedsState %s\n", node->name, bar);
-}
+//  void nodeSendLedsState(node_t* node) {
+//  	char bar[11];
+//  
+//  	if (node == 0 || node->canSend == 0u) {
+//  		return;
+//  	}
+//  
+//  	trice8C("abc:LedsState", &node->leds, 1);
+//  
+//  	// Demo-only TX trace: show the local sender, not only remote receivers.
+//  	nodeMakeLedBar(bar, sizeof(bar), node->leds);
+//  	nodePrintLineF("%s: tx:abc:LedsState %s\n", node->name, bar);
+//  }
 
 // Send the stored printable key to the shared abc.bus broadcast medium.
 void nodeSendDivideResult(node_t* node, float value) {
@@ -401,11 +401,6 @@ void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen) {
 	(void)bcSimWrite(&gNode->bus, enc, encLen, "trice");
 }
 
-//  // The 32-bit auxiliary path is intentionally unused in this demo build.
-//  void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count) {
-//  	(void)enc;
-//  	(void)count;
-//  }
 #endif // TRICE_TX_SUPPORT == 1
 
 #if TRICE_RX_SUPPORT == 1
@@ -649,7 +644,7 @@ float nodePayloadFloat32(const triceRx_t* rx, size_t index) {
 // Send `abc:LedsState` with the same stamp width and stamp value as the request.
 static void nodeSendLedsStateReply(node_t* node, const triceRx_t* rx) {
 	char bar[11];
-	char stamp[32];
+	char stampStr[32];
 
 	if (node == 0 || rx == 0 || node->canSend == 0u) {
 		return;
@@ -665,13 +660,13 @@ static void nodeSendLedsStateReply(node_t* node, const triceRx_t* rx) {
 
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodeMakeLedBar(bar, sizeof(bar), node->leds);
-	nodePrintLineF("%s: tx:abc:LedsState, %s %s\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), bar);
+	nodePrintLineF("%s: tx:abc:LedsState, %s %s\n", node->name, nodeStampText(rx, stampStr, sizeof(stampStr)), bar);
 }
 
 // Send `abc:DivideResult` with the same stamp width and stamp value as the request.
 static void nodeSendDivideResultReply(node_t* node, const triceRx_t* rx, float value) {
 	uint32_t bits = aFloat(value);
-	char stamp[32];
+	char stampStr[32];
 
 	if (node == 0 || rx == 0 || node->canSend == 0u) {
 		return;
@@ -686,7 +681,7 @@ static void nodeSendDivideResultReply(node_t* node, const triceRx_t* rx, float v
 	}
 
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
-	nodePrintLineF("%s: tx:abc:DivideResult%s value=%f\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), (double)value);
+	nodePrintLineF("%s: tx:abc:DivideResult%s value=%f\n", node->name, nodeStampText(rx, stampStr, sizeof(stampStr)), (double)value);
 }
 #endif
 
@@ -708,11 +703,12 @@ void setLeds(const triceRx_t* rx) {
 // `getLeds` is broadcast by default and stamped-routed when a stamp is present.
 void getLeds(const triceRx_t* rx) {
 	node_t* node = nodeCurrent();
+	char stampStr[32];
 
 	if (node == 0) {
 		return;
 	}
-
+	nodePrintLineF("%s: id=%d, abc:getLeds%s\n", node->name, rx->id, nodeStampText(rx, stampStr, sizeof(stampStr)));
 #if TRICE_TX_SUPPORT == 1
 	if (nodeReplyMatchesStamp(node, rx) != 0) {
 		nodeSendLedsStateReply(node, rx);
@@ -753,15 +749,17 @@ void logState(const triceRx_t* rx) {
 // they cannot answer. Division by zero is ignored so the demo stays compact.
 void divide(const triceRx_t* rx) {
 	node_t* node = nodeCurrent();
-
+	
 	if (node == 0) {
 		return;
 	}
 
 #if TRICE_TX_SUPPORT == 1
 	if (nodeReplyMatchesStamp(node, rx) != 0) {
+		char stampStr[32];
 		float a = nodePayloadFloat32(rx, 0u);
 		float b = nodePayloadFloat32(rx, 1u);
+		nodePrintLineF("%s: id=%d, abc:divide%s a=%f b=%f\n", node->name, rx->id, nodeStampText(rx, stampStr, sizeof(stampStr)), (double)a, (double)b);
 		if (b != 0.0f) {
 			nodeSendDivideResultReply(node, rx, a / b);
 		}
@@ -776,7 +774,7 @@ void LedsState(const triceRx_t* rx) {
 	node_t* node = nodeCurrent();
 	uint8_t mask;
 	char bar[11];
-	char stamp[32];
+	char stampStr[32];
 
 	if (node == 0) {
 		return;
@@ -784,19 +782,19 @@ void LedsState(const triceRx_t* rx) {
 
 	mask = nodePayloadU8(rx, 0u);
 	nodeMakeLedBar(bar, sizeof(bar), mask);
-	nodePrintLineF("%s: id=%d, abc:LedsState%s %s\n", node->name, rx->id, nodeStampText(rx, stamp, sizeof(stamp)), bar);
+	nodePrintLineF("%s: id=%d, abc:LedsState%s %s\n", node->name, rx->id, nodeStampText(rx, stampStr, sizeof(stampStr)), bar);
 }
 
 // Float answers are shown as plain text because readability matters most here.
 void DivideResult(const triceRx_t* rx) {
 	node_t* node = nodeCurrent();
-	char stamp[32];
+	char stampStr[32];
 
 	if (node == 0) {
 		return;
 	}
 
-	nodePrintLineF("%s: id=%d, abc:DivideResult%s value=%f\n", node->name, rx->id, nodeStampText(rx, stamp, sizeof(stamp)), (double)nodePayloadFloat32(rx, 0u));
+	nodePrintLineF("%s: id=%d, abc:DivideResult%s value=%f\n", node->name, rx->id, nodeStampText(rx, stampStr, sizeof(stampStr)), (double)nodePayloadFloat32(rx, 0u));
 }
 #endif // TRICE_RX_ABC_SUPPORT == 1
 #else // #if TRICE_RX_SUPPORT == 1

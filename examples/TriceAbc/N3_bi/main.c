@@ -11,15 +11,15 @@ static void sendTraffic(unsigned loop) {
 
 	/* Show the local TX side because BcSim suppresses self echo on receive. */
 
-	trice("log:tick=%u\n", 200u + loop);
+	trice("log:node=N3_bi, tick=%u\n", 200u + loop);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N3_tx: TX-> log:tick=%u\n", 200u + loop);
 
-	trice("log:from=%u phase=%u\n", 3u, loop & 3u);
+	trice("log:node=N3_bi, from=%u phase=%u\n", 3u, loop & 3u);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N3_tx: TX-> log:from=%u phase=%u\n", 3u, loop & 3u);
 
-	triceS("log:text=%s\n", text);
+	triceS("log:node=N3_bi, text=%s\n", text);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N3_tx: TX-> log:text=%s\n", text);
 
@@ -47,25 +47,25 @@ static void sendCommand(unsigned loop) {
 	
 	switch (loop) {
 	case 1u:
-		triceC("cmd:getLeds");
+		TriceC("cmd:getLeds", 103);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:getLeds\n");
 		break;
 
 	case 3u:
-		trice8C("cmd:setLeds", &leds, 1);
+		Trice8C("cmd:setLeds", 103, &leds, 1);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:setLeds(%02x)\n", leds);
 		break;
 
 	case 5u:
-		trice8C("cmd:setKey", key, sizeof(key));
+		Trice8C("cmd:setKey", 103, key, sizeof(key));
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:setKey(n3-key)\n");
 		break;
 
 	case 6u:
-		triceC("cmd:logState");
+		TriceC("cmd:logState", 103);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:logState\n");
 		break;
@@ -73,19 +73,19 @@ static void sendCommand(unsigned loop) {
 	case 7u:
 		args[0] = aFloat(6.28f);
 		args[1] = aFloat(2.0f);
-		trice32C("cmd:divide", args, 2);
+		Trice32C("cmd:divide", 103, args, 2);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:divide(6.28)(2.0)\n");
 		break;
 
 	case 8u:
-		TRiceC("cmd:getLeds", 0x00000001u);
+		TRiceC("cmd:getLeds", 103);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:getLeds(stamp=0x00000001)\n");
 		break;
 
 	case 9u:
-		TRiceC("cmd:getLeds", 0x00000002u);
+		TRiceC("cmd:getLeds", 103);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:getLeds(stamp=0x00000002)\n");
 		break;
@@ -93,13 +93,13 @@ static void sendCommand(unsigned loop) {
 	case 10u:
 		args[0] = aFloat(9.0f);
 		args[1] = aFloat(3.0f);
-		TRice32C("cmd:divide", 0x00000005u, args, 2);
+		Trice32C("cmd:divide", 103, args, 2);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:divide(stamp=0x00000005)(9.0)(3.0)\n");
 		break;
 
 	case 11u:
-		TRiceC("cmd:getLeds", 0x00000003u);
+		TRiceC("cmd:getLeds", 103);
 		// Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N3_tx: ABC-> cmd:getLeds(stamp=0x00000003)\n");
 		break;
@@ -122,8 +122,8 @@ int main(void) {
 
 	for (loop = 0u; loop < 12u; ++loop) {
 		(void)nodePoll(&node);
-		sendTraffic(loop);
-		sendCommand(loop);
+		sendTraffic(loop); // N3_bi
+		sendCommand(loop); // stamp=103
 		nodeSleepMs(170u);
 	}
 
