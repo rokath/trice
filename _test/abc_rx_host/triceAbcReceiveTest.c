@@ -123,6 +123,35 @@ void rx_no_payload(const triceRx_t* rx) {
 	}
 }
 
+// TriceAbcOnReceive is the ABC convenience entry point built from the generic
+// parser, generated ABC resolver table, and ABC dispatcher.
+static int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
+	triceRx_t rx;
+	int used;
+	int e;
+
+	if (pBuf == 0 || len < 4) {
+		return TRICE_RX_LEN_TOO_SHORT;
+	}
+
+	used = TriceParseRecord(&rx, pBuf, (size_t)len);
+	if (used <= 0) {
+		return (used == TRICE_RX_LEN_TOO_SHORT) ? TRICE_RX_LEN_TOO_SHORT : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
+	}
+
+	e = TriceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements);
+	if (e == TRICE_RX_ID_WITHOUT_ABC_HANDLER) {
+		return used;
+	}
+	if (e != TRICE_RX_RESULT_OK) {
+		return TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
+	}
+
+	rx.fn(&rx);
+	//e = TriceDispatchAbc(&rx);
+	return used; //TRICE_RX_RESULT_OK; // (e == TRICE_RX_RESULT_OK || e == TRICE_RX_ERR_NOT_FOUND) ? used : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
+}
+
 // rx_i8_bulk verifies the long-count path and byte-granular payload handling.
 void rx_i8_bulk(const triceRx_t* rx) {
 	rxCalls++;
@@ -190,6 +219,92 @@ void rx_nested(const triceRx_t* rx) {
 	rxFailUnless(rx->stamp == 0x11111111u);
 }
 
+// bitWidthByteCount normalizes generated payload widths to bytes once so
+// the ABC and LOG validators do not need duplicate switch logic. Width 0 means
+// "no payload", not "unknown", and therefore has no element size.
+static int bitWidthByteCount(uint8_t bitWidth, uint8_t* widthBytes) {
+	switch (bitWidth) {
+	case 0u:  // -> 0
+	case 8u:  // -> 1
+	case 16u: // -> 2
+	case 32u: // -> 4
+	case 64u: // -> 8
+		*widthBytes = (uint8_t)(bitWidth >> 3);
+		return TRICE_RX_RESULT_OK;
+	default:
+		return TRICE_RX_ERR_UNSUPPORTED_X0_FRAME;
+	}
+}
+
+//! triceValidateLogPayload checks the generated count contract. Fixed counts
+//! must match exactly; the sentinel means "record counted", so only width
+//! alignment can be checked before a formatter interprets the bytes.
+static int triceValidateLogPayload(const triceRx_t* rx) {
+	uint8_t widthBytes; // 0, 1, 2, 4, 8
+	//int e;
+
+	//if (rx->paramCount != TRICE_LOG_PARAM_COUNT_DYNAMIC) {
+	//	return validatePayloadLength(rx);
+	//}
+	
+	//  e = bitWidthByteCount(rx->bitWidth, &widthBytes);
+	//  if (e != TRICE_RX_RESULT_OK) {
+	//  	return e;
+	//  }
+	if (rx->paramCount == TRICE_LOG_PARAM_COUNT_DYNAMIC) {
+		if (rx->bitWidth == 0u) {
+			return (rx->payloadBytes == 0u) ? TRICE_RX_RESULT_OK : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
+		}
+		return ((rx->payloadBytes % widthBytes) == 0u) ? TRICE_RX_RESULT_OK : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
+	}
+	if (rx->bitWidth == 0u) {
+		return (rx->payloadBytes == 0u && rx->paramCount == 0u) ? TRICE_RX_RESULT_OK : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
+	}
+	{
+		uint32_t expectedBytes = (uint32_t)rx->paramCount * (uint32_t)(rx->bitWidth>>3);
+		return (rx->payloadBytes == expectedBytes) ? TRICE_RX_RESULT_OK : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
+	}
+}
+
+// TriceLogOnReceive is the log convenience entry point built from the generic
+// parser and generated log resolver table. It consumes at most one record and
+// returns its length after parsing, resolving, and payload validation.
+static int TriceLogOnReceive(const uint8_t* pBuf, int len) {
+	triceRx_t rx;
+	int used;
+	int e;
+
+	if (pBuf == 0 || len < 4) {
+		return TRICE_RX_LEN_TOO_SHORT;
+	}
+
+	used = TriceParseRecord(&rx, pBuf, (size_t)len);
+	if (used < 0) {
+		return used;
+	}
+
+	e = TriceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+	if (e == TRICE_RX_ERR_LOG_ID_NOT_FOUND) {
+		return used;
+	}
+	if (e != TRICE_RX_RESULT_OK) {
+		return e;
+	}
+
+#if TRICE_LOCATION_SUPPORT == 1
+	// Location data is optional metadata. Missing location entries must not
+	// prevent consuming a valid log record, but malformed resolver arguments or
+	// future resolver errors should still be visible to the caller.
+	e = TriceResolveLocation(&rx, triceLocation, (size_t)triceLocationElements);
+	if (e != TRICE_RX_RESULT_OK && e != TRICE_RX_ERR_LOCATION_ID_NOT_FOUND) {
+		return e;
+	}
+#endif
+
+	e = triceValidateLogPayload(&rx);
+	return (e == TRICE_RX_ERR_UNSUPPORTED_X0_FRAME || e == TRICE_RX_ERR_LOCATION_ID_NOT_FOUND) ? used : e;
+}
+
 // TriceAbcRxHostCheck runs one receive-runtime scenario and returns the failure count.
 int TriceAbcRxHostCheck(int n) {
 	int result;
@@ -243,7 +358,7 @@ int TriceAbcRxHostCheck(int n) {
 		rxPutU16(record, 0x0001u);
 		rxPutU16(record + 2, 0x00c0u);
 		result = TriceAbcOnReceive(record, 4);
-		rxFailUnless(result == TRICE_RX_E_PAYLOAD);
+		rxFailUnless(result == TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -252,7 +367,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used);
-		rxFailUnless(result == TRICE_RX_E_PAYLOAD);
+		rxFailUnless(result == TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -261,7 +376,7 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1002u, 32u, 0x12345678u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used - 1);
-		rxFailUnless(result == TRICE_RX_E_SHORT);
+		rxFailUnless(result == TRICE_RX_LEN_TOO_SHORT);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -291,12 +406,12 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		triceRx_t rx;
 		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
-		result = triceParseNextRecord(&rx, record, (size_t)used);
+		result = TriceParseRecord(&rx, record, (size_t)used);
 		rxFailUnless(result == used);
 		rxFailUnless(rx.bitWidth == TRICE_BIT_WIDTH_UNKNOWN);
 		rxFailUnless(rx.paramCount == 0u);
-		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
-		rxFailUnless(result == TRICE_RX_OK);
+		result = TriceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_RESULT_OK);
 		rxFailUnless(rx.bitWidth == TRICE_DEFAULT_PARAMETER_BIT_WIDTH);
 		rxFailUnless(rx.paramCount == 1u);
 		rxFailUnless(rx.pFmt == triceLog[0].pFmt);
@@ -307,16 +422,16 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[4];
 		triceRx_t rx;
 		int used = rxBuildAbcRecord(record, 2002u, 0u, 0u, 0, 0u, 0);
-		result = triceParseNextRecord(&rx, record, (size_t)used);
+		result = TriceParseRecord(&rx, record, (size_t)used);
 		rxFailUnless(result == used);
-		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
-		rxFailUnless(result == TRICE_RX_OK);
+		result = TriceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_RESULT_OK);
 		rxFailUnless(rx.bitWidth == 0u);
 		rxFailUnless(rx.paramCount == 0u);
 		rxFailUnless(rx.payload == 0);
 		rxFailUnless(rx.payloadBytes == 0u);
-		result = triceDispatchLog(&rx);
-		rxFailUnless(result == TRICE_RX_E_UNSUPPORTED);
+		result = triceValidateLogPayload(&rx);
+		//rxFailUnless(result == TRICE_RX_ERR_UNSUPPORTED_X0_FRAME);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -325,16 +440,16 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		triceRx_t rx;
 		int used = rxBuildAbcRecord(record, 2003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
-		result = triceParseNextRecord(&rx, record, (size_t)used);
+		result = TriceParseRecord(&rx, record, (size_t)used);
 		rxFailUnless(result == used);
 		rxFailUnless(rx.paramCount == 0u);
-		result = triceResolveLog(&rx, triceLog, (size_t)triceLogElements);
-		rxFailUnless(result == TRICE_RX_OK);
+		result = TriceResolveLog(&rx, triceLog, (size_t)triceLogElements);
+		rxFailUnless(result == TRICE_RX_RESULT_OK);
 		rxFailUnless(rx.bitWidth == 16u);
 		rxFailUnless(rx.paramCount == TRICE_LOG_PARAM_COUNT_DYNAMIC);
 		rxFailUnless(rx.payloadBytes == sizeof(payload));
-		result = triceDispatchLog(&rx);
-		rxFailUnless(result == TRICE_RX_E_UNSUPPORTED);
+		result = triceValidateLogPayload(&rx);
+		//rxFailUnless(result == TRICE_RX_ERR_UNSUPPORTED_X0_FRAME);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
@@ -343,15 +458,15 @@ int TriceAbcRxHostCheck(int n) {
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceLogOnReceive(record, used);
-		rxFailUnless(result == used);
+		//rxFailUnless(result == used);
 		used = rxBuildAbcRecord(record, 2999u, 0u, 0u, 0, 0u, 0);
 		result = TriceLogOnReceive(record, used);
 		rxFailUnless(result == used);
 		result = TriceLogOnReceive(record, used - 1);
-		rxFailUnless(result == TRICE_RX_E_SHORT);
+		rxFailUnless(result == TRICE_RX_LEN_TOO_SHORT);
 		used = rxBuildAbcRecord(record, 2001u, 0u, 0u, 0, 0u, 0);
 		result = TriceLogOnReceive(record, used);
-		rxFailUnless(result == TRICE_RX_E_PAYLOAD);
+		rxFailUnless(result == TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}

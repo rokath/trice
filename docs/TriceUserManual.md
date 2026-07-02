@@ -5337,7 +5337,7 @@ device_abc.c
         |
         | receive runtime
         v
-triceParseNextRecord() -> triceResolveAbc() -> triceDispatchAbc() -> setLeds(&rx)
+TriceParseRecord() -> TriceResolveAbc() -> TriceDispatchAbc() -> setLeds(&rx)
 ```
 
 Only the Trice ID, optional ABC stamp, and optional payload are transferred. The command string stays in the TIL data and is used during receiver-code generation.
@@ -5425,10 +5425,10 @@ void setLeds(const triceRx_t* rx) {
 
 ```c
 triceRx_t rx;
-int used = triceParseNextRecord(&rx, record, recordLen);
+int used = TriceParseRecord(&rx, record, recordLen);
 
-if (used > 0 && triceResolveAbc(&rx, triceAbc, triceAbcElements) == TRICE_RX_OK) {
-    (void)triceDispatchAbc(&rx);
+if (used > 0 && TriceResolveAbc(&rx, triceAbc, triceAbcElements) == TRICE_RX_RESULT_OK) {
+    (void)TriceDispatchAbc(&rx);
 }
 ```
 
@@ -5526,7 +5526,7 @@ Do not edit `device_abc.c`. Implement the selected handlers in normal applicatio
 
 The common receive API is in `src/triceRx.h` and `src/triceRx.c`.
 
-Use `triceParseNextRecord()` to parse one decoded Trice record. It fills a `triceRx_t`:
+Use `TriceParseRecord()` to parse one decoded Trice record. It fills a `triceRx_t`:
 
 ```c
 uint16_t id;              // Trice ID
@@ -5539,9 +5539,9 @@ uint16_t payloadBytes;    // payload byte count
 
 The payload is not copied. Do not store `rx->payload` beyond the lifetime of the input buffer unless the handler copies the data.
 
-`triceResolveAbc()` looks up the parsed ID in the generated `triceAbc[]` table and attaches the resolved bit width and function pointer to `rx`.
+`TriceResolveAbc()` looks up the parsed ID in the generated `triceAbc[]` table and attaches the resolved bit width and function pointer to `rx`.
 
-`triceDispatchAbc()` validates the payload size against the resolved bit width and calls the selected handler. Unknown IDs are normal in mixed streams and can be ignored.
+`TriceDispatchAbc()` validates the payload size against the resolved bit width and calls the selected handler. Unknown IDs are normal in mixed streams and can be ignored.
 
 For simple one-record receive paths, `TriceAbcOnReceive(pBuf, len)` is available as a convenience wrapper. Stream receivers should usually parse records explicitly, advance by the positive consumed byte count, and decide per record whether it is ABC, normal log traffic, counted typeX0 traffic, or unknown traffic.
 
@@ -5663,8 +5663,8 @@ normal Trice macro / ABC macro
   -> TriceWriteDevice()
   -> BcSim byte bus
   -> COBS frame collector
-  -> triceParseNextRecord()
-  -> triceResolveAbc() / triceResolveLog()
+  -> TriceParseRecord()
+  -> TriceResolveAbc() / TriceResolveLog()
   -> node handler or demo log printer
 ```
 

@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-
 // TRICE_INSERT_OFF - Trice parser exclusion marker
-
 //! \file triceRxDefaultConfig.h
 //! \brief Default configuration values for the Trice receive side.
 
@@ -44,14 +42,17 @@
 #define TRICE_LOCATION_SUPPORT 0
 #endif
 
-// TRICE_RX_FRAMING describes the receive-side byte stream framing policy.
-#ifndef TRICE_RX_FRAMING
-#define TRICE_RX_FRAMING TRICE_FRAMING_TCOBS
-#endif
+// // TRICE_RX_FRAMING describes the receive-side byte stream framing policy.
+// #ifndef TRICE_RX_FRAMING
+// #define TRICE_RX_FRAMING TRICE_FRAMING_TCOBS
+// #endif
 
-// TRICE_DOUBLED_16BIT_ID skips an extra duplicated ID word before 16-bit stamps.
-#ifndef TRICE_DOUBLED_16BIT_ID
-#define TRICE_DOUBLED_16BIT_ID 0
+// TRICE_RX_EXPECT_DOUBLED_ID16 skips an extra duplicated ID word before 16-bit stamps.
+#ifndef TRICE_RX_EXPECT_DOUBLED_ID16
+//! Trice Id()/TRICE_C_ID16 currently encode 16-bit stamped records as:
+//!   ID16 | ID16 | STAMP16 | NC | PAYLOAD
+//! Therefore the ABC demo receiver must skip the duplicated second ID16 word.
+#define TRICE_RX_EXPECT_DOUBLED_ID16 1
 #endif
 
 // TRICE_DEFAULT_PARAMETER_BIT_WIDTH is duplicated here for RX-only builds.

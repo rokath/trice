@@ -1,4 +1,12 @@
 {
+	"1071": {
+		"Type": "trice",
+		"Strg": "log:(from node=N3_bi) from=%u phase=%u\\n"
+	},
+	"1101": {
+		"Type": "trice",
+		"Strg": "log:(from node=N1_tx) from=%u phase=%u\\n"
+	},
 	"1126": {
 		"Type": "trice",
 		"Strg": "log:from=%u phase=%u\\n"
@@ -7607,6 +7615,10 @@
 		"Type": "TRICE32_12",
 		"Strg": "tst:TRICE32_12 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"1490": {
+		"Type": "Trice32C",
+		"Strg": "cmd:divide"
+	},
 	"14900": {
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32    %t %b %x %X %d %u %o %O %p %e %f %g\\n"
@@ -9359,6 +9371,10 @@
 		"Type": "Trice64C",
 		"Strg": "RPC:FunctionNameZc"
 	},
+	"1578": {
+		"Type": "triceS",
+		"Strg": "log:(from node=N2_tx) text=%s\\n"
+	},
 	"15815": {
 		"Type": "trice8C",
 		"Strg": "call:FunctionNameWd"
@@ -9679,9 +9695,25 @@
 		"Type": "triceS",
 		"Strg": "log:text=%s\\n"
 	},
+	"2001": {
+		"Type": "trice",
+		"Strg": "log:(from node=N3_bi) tick=%u\\n"
+	},
 	"2034": {
 		"Type": "trice",
 		"Strg": "log:tick=%u\\n"
+	},
+	"2100": {
+		"Type": "trice",
+		"Strg": "log:node=N1_tx, from=%u phase=%u\\n"
+	},
+	"2261": {
+		"Type": "TriceC",
+		"Strg": "cmd:logState"
+	},
+	"2859": {
+		"Type": "Trice8C",
+		"Strg": "cmd:setLeds"
 	},
 	"2945": {
 		"Type": "trice8C",
@@ -9719,6 +9751,10 @@
 		"Type": "TRiceC",
 		"Strg": "cmd:getLeds"
 	},
+	"4017": {
+		"Type": "trice",
+		"Strg": "log:node=N3_bi, tick=%u\\n"
+	},
 	"4208": {
 		"Type": "triceC",
 		"Strg": "cmd:logState"
@@ -9755,9 +9791,17 @@
 		"Type": "triceC",
 		"Strg": "cmd:getLeds"
 	},
+	"4972": {
+		"Type": "triceS",
+		"Strg": "log:node=N2_tx, text=%s\\n"
+	},
 	"5017": {
 		"Type": "triceS",
 		"Strg": "log:text=%s\\n"
+	},
+	"5054": {
+		"Type": "trice",
+		"Strg": "log:(from node=N1_tx) tick=%u\\n"
 	},
 	"5074": {
 		"Type": "trice",
@@ -9767,9 +9811,17 @@
 		"Type": "trice8C",
 		"Strg": "cmd:setLeds"
 	},
+	"5155": {
+		"Type": "Trice8C",
+		"Strg": "cmd:setKey"
+	},
 	"5460": {
 		"Type": "trice",
 		"Strg": "log:from=%u phase=%u\\n"
+	},
+	"5517": {
+		"Type": "Trice8C",
+		"Strg": "cmd:setKey"
 	},
 	"5642": {
 		"Type": "TRice32C",
@@ -9779,6 +9831,18 @@
 		"Type": "Trice8C",
 		"Strg": "abc:LedsState"
 	},
+	"5768": {
+		"Type": "Trice8C",
+		"Strg": "cmd:setLeds"
+	},
+	"5937": {
+		"Type": "trice",
+		"Strg": "log:(from node=N2_tx) tick=%u\\n"
+	},
+	"6059": {
+		"Type": "Trice32C",
+		"Strg": "cmd:divide"
+	},
 	"6227": {
 		"Type": "TriceC",
 		"Strg": "cmd:getLeds"
@@ -9787,6 +9851,26 @@
 		"Type": "trice8C",
 		"Strg": "cmd:setLeds"
 	},
+	"6365": {
+		"Type": "trice",
+		"Strg": "log:node=N2_tx, from=%u phase=%u\\n"
+	},
+	"6394": {
+		"Type": "triceS",
+		"Strg": "log:(from node=N3_bi) text=%s\\n"
+	},
+	"6603": {
+		"Type": "Trice8C",
+		"Strg": "cmd:setLeds"
+	},
+	"6779": {
+		"Type": "trice",
+		"Strg": "log:node=N3_bi, from=%u phase=%u\\n"
+	},
+	"6812": {
+		"Type": "triceS",
+		"Strg": "log:(from node=N1_tx) text=%s\\n"
+	},
 	"6890": {
 		"Type": "trice8C",
 		"Strg": "cmd:setKey"
@@ -9794,6 +9878,14 @@
 	"6949": {
 		"Type": "trice",
 		"Strg": "log:tick=%u\\n"
+	},
+	"6962": {
+		"Type": "trice",
+		"Strg": "log:node=N2_tx, tick=%u\\n"
+	},
+	"7084": {
+		"Type": "TriceC",
+		"Strg": "cmd:logState"
 	},
 	"7145": {
 		"Type": "trice8C",
@@ -9807,12 +9899,32 @@
 		"Type": "triceC",
 		"Strg": "cmd:getLeds"
 	},
+	"7383": {
+		"Type": "Trice8C",
+		"Strg": "cmd:setKey"
+	},
 	"7431": {
 		"Type": "trice8C",
 		"Strg": "cmd:setLeds"
 	},
+	"7522": {
+		"Type": "TriceC",
+		"Strg": "cmd:logState"
+	},
 	"7615": {
 		"Type": "triceS",
 		"Strg": "log:text=%s\\n"
+	},
+	"7672": {
+		"Type": "trice",
+		"Strg": "log:(from node=N2_tx) from=%u phase=%u\\n"
+	},
+	"7709": {
+		"Type": "triceS",
+		"Strg": "log:node=N3_bi, text=%s\\n"
+	},
+	"7794": {
+		"Type": "trice",
+		"Strg": "log:node=N1_tx, tick=%u\\n"
 	}
 }

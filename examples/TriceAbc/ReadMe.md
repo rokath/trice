@@ -10,6 +10,11 @@ inspectable code base.
 framing, parsing, ID resolution, ABC dispatch, and demo behavior live above it
 inside `NodeLib/` and the node `main.c` files.
 
+Unstamped ABC requests are broadcast requests.
+All bidirectional nodes may answer.
+Therefore several identical-looking LedsState or DivideResult lines can appear.
+The stamp field can be used to restrict or identify replies.
+
 ## Quick start
 
 From this directory:
@@ -153,6 +158,10 @@ without location data. The example log printer is intentionally small and
 demo-focused. It uses `triceRx` plus the generated `til.c` metadata but it does
 not try to be a full replacement for the Go `trice log` tool.
 
+ABC records are executed by ID. Commands do not need extra names in the demo
+output. Nodes without log output enabled fall back to `ID n ignored ...` for
+records they do not execute.
+
 Selector-0 counted buffers are shown separately as raw byte payloads. This is
 useful because they intentionally have no Trice ID and therefore no TIL lookup.
 
@@ -233,8 +242,8 @@ normal Trice send macro / triceX0()
   -> abc.bus
   -> bcSimRead()
   -> COBS frame collector
-  -> triceParseNextRecord()
-  -> triceResolveAbc() / triceResolveLog()
+  -> TriceParseRecord()
+  -> TriceResolveAbc() / TriceResolveLog()
   -> node handler or small demo log printer
 ```
 

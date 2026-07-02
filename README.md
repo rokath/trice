@@ -230,7 +230,7 @@ ABC is intentionally **not** a full RPC layer by itself. Addressing, ACKs, retri
 
 See also:
 
-* [Trice ABC in the User Manual](./docs/TriceUserManual.md#trice-abc)
+* [Trice ABC in the User Manual](./docs/TriceUserManual.md#trice-abc---asynchronous-broadcast-commands)
 * [Host-native ABC demo](./examples/TriceAbc)
 
 ## <a id="how-trice-works-uart-example"></a>How Trice Works (UART Example)

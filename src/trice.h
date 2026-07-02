@@ -753,7 +753,7 @@ extern uint32_t* TriceBufferWritePosition;
 //! ...                        <- buffer
 //! cLen-3 cLen-2 cLen-1 cLen  <- buffer ending with maybe 1-3 undetermined padding bytes
 //
-// todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
+// todo: for some reason this macro is not working well with name len instead of len_, probably when injected len as value.
 //
 #define TRICE_N(tid, pFmt, buf, n)                                                                                                           \
 	do {                                                                                                                                     \
