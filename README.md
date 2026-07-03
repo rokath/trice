@@ -45,7 +45,7 @@
   - [How it works](#how-it-works)
   - [Result](#result)
   - [Two Parts of Trice](#two-parts-of-trice)
-- [Quickstart: First RTT Log with J-Link](#quickstart-first-rtt-log-with-j-link)
+- [Quickstarts](#quickstarts)
 - [When to Use Trice](#when-to-use-trice)
   - [Logging and Debugging](#logging-and-debugging)
   - [Data Compression](#data-compression)
@@ -119,61 +119,13 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ***Ready to use:*** [Start with Trice](./docs/TriceUserManual.md#start-with-trice)
 
-## <a id="quickstart-first-rtt-log-with-j-link"></a>Quickstart: First RTT Log with J-Link
+## <a id="quickstarts"></a>Quickstarts
 
 ![Trice log icon](./docs/ref/trice_log_icon_128x128.png)
 
-Install the `trice` tool. Use a [latest release binary](https://github.com/rokath/trice/releases/latest) and put it into your `PATH`.
-
-For a first setup, SEGGER RTT is usually fastest: it needs no MCU-specific UART driver and works via J-Link. Install the SEGGER J-Link software package so `JLinkRTTLogger` is in `PATH`.
-
-1. Add the complete [`src`](./src) folder to your target project unchanged and add `./src` to the compiler include path.
-2. Create a project-specific `triceConfig.h` file with this minimal direct RTT configuration:
-
-```c
-#define TRICE_DIRECT_OUTPUT 1
-#define TRICE_BUFFER TRICE_STACK_BUFFER
-#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
-```
-
-3. Add Trice to your code, for example in `main.c`:
-
-```c
-#include "trice.h"
-
-int main(void) {
-    TriceInit(); // RTT-specific
-    // ... system init
-    trice("Hello world!\n");
-    // ...
-}
-```
-
-4. Create empty `til.json` and `li.json` files in your project root and run `trice insert -src ./` before compiling. This assigns IDs to your `trice(...)` calls and fills both JSON files.
-5. Build and flash your target.
-6. Start logging with your device name (add `-v` for details)
-
-```bash
-trice log -p JLINK -args "-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -prefix off -hs off -d16 -i ./til.json -li ./li.json
-```
-
-Or use the file-based RTT logger workflow manually:
-
-**Terminal 1** (remove any old log file and create the file):
-
-```bash
-rm -f ./temp/trice.bin
-touch ./temp/trice.bin
-JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
-```
-
-**Terminal 2**:
-
-```bash
-trice log -p FILE -args ./temp/trice.bin -pf none -prefix off -hs off -d16 -ts ms -i ./til.json -li ./li.json
-```
-
-For more setup details, see [Start with Trice](./docs/TriceUserManual.md#start-with-trice), [Configuration file triceConfig.h](./docs/TriceUserManual.md#configuration-file-triceconfig.h), and [Trice over RTT](./docs/TriceUserManual.md#trice-over-rtt).
+* [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](./docs/TriceUserManual.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit)
+* [Quickstart: SEGGER RTT direct mode with J-Link](./docs/TriceUserManual.md#quickstart-segger-rtt-direct-mode-with-j-link)
+* [Quickstart: UART or USB-VCOM deferred output](./docs/TriceUserManual.md#quickstart-uart-or-usb-vcom-deferred-output)
 
 ## <a id="when-to-use-trice"></a>When to Use Trice
 
