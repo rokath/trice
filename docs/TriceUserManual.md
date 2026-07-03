@@ -1659,7 +1659,7 @@ Application shape:
 int main(void) {
     BoardInit();
     UartInit();
-    TriceInit();
+    TriceInit(); // normally only needed when SEGGER_RTT is used. Otherwise it is an empty function.
 
     trice("boot\n");
 
