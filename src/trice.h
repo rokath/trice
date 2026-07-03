@@ -409,6 +409,9 @@ extern uint32_t* TriceBufferWritePosition;
 // #undef tsLH
 // #undef tsLL
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Endianess detection
+/*
 #if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)
 
 // https://github.com/rokath/trice/pull/505
@@ -441,6 +444,49 @@ extern uint32_t* TriceBufferWritePosition;
 #endif // __BYTE_ORDER__
 
 #endif // __STDC_VERSION__
+*/
+
+#ifndef TRICE_MCU_IS_BIG_ENDIAN
+
+#if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)
+
+// https://github.com/rokath/trice/pull/505
+
+//! Try C23 endian macros first, if they are actually available.
+//! They are defined by <stdbit.h>, but many embedded toolchains do not
+//! provide them yet even when compiling in a C2x/C23-like mode.
+#if defined(__STDC_ENDIAN_NATIVE__) && defined(__STDC_ENDIAN_LITTLE__) && (__STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__)
+
+#define TRICE_MCU_IS_BIG_ENDIAN 0
+
+#elif defined(__STDC_ENDIAN_NATIVE__) && defined(__STDC_ENDIAN_BIG__) && (__STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_BIG__)
+
+#define TRICE_MCU_IS_BIG_ENDIAN 1
+
+//! Try compiler/endian macros next.
+#elif (defined(BYTE_ORDER) && defined(ORDER_LITTLE_ENDIAN) && (BYTE_ORDER == ORDER_LITTLE_ENDIAN)) || \
+      (defined(__BYTE_ORDER) && defined(__ORDER_LITTLE_ENDIAN) && (__BYTE_ORDER == __ORDER_LITTLE_ENDIAN)) || \
+      (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
+
+#define TRICE_MCU_IS_BIG_ENDIAN 0
+
+#elif (defined(BYTE_ORDER) && defined(ORDER_BIG_ENDIAN) && (BYTE_ORDER == ORDER_BIG_ENDIAN)) || \
+      (defined(__BYTE_ORDER) && defined(__ORDER_BIG_ENDIAN) && (__BYTE_ORDER == __ORDER_BIG_ENDIAN)) || \
+      (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
+
+#define TRICE_MCU_IS_BIG_ENDIAN 1
+
+#else // #if defined(__STDC_ENDIAN_NATIVE__) && defined(__STDC_ENDIAN_LITTLE__) && (__STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__)
+
+#error Byte order not supported or not detected. Set TRICE_MCU_IS_BIG_ENDIAN to 0 or 1 in triceConfig.h.
+
+#endif // #else #if defined(__STDC_ENDIAN_NATIVE__) && defined(__STDC_ENDIAN_LITTLE__) && (__STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__)
+
+#endif // #if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)	
+
+#endif // TRICE_MCU_IS_BIG_ENDIAN
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == TRICE_MCU_IS_BIG_ENDIAN
 
