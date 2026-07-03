@@ -26,6 +26,14 @@ static int Test_TRiceAssertOrReturnValue(int flag);
 
 // clang-format off
 
+// This test file intentionally contains a huge generated switch.
+// GCC may warn that it uses faster switch lowering for many cases.
+// Suppress this test-only optimization diagnostic locally.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdisabled-optimization"
+#endif
+
 void TriceCheck(int index); // Avoid noise with option -Wmissing-prototypes.
 
 //! TriceCheck performs trice code sequence n. TriceCheck writes out all types of trices with fixed values for testing
@@ -2665,6 +2673,10 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
     }
 #endif // #else // #ifdef TRICE_CHECK_MIN
 }
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
 // clang-format on
 

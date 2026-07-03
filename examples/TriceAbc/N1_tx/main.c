@@ -11,15 +11,15 @@ static void sendTraffic(unsigned loop) {
 
 	/* Show the local TX side because BcSim suppresses self echo on receive. */
 
-	trice("log:tick=%u\n", loop);
+	trice("log:(from node=N1_tx) tick=%u\n", loop);
     // Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N1_tx: TX-> log:tick=%u\n", loop);
 
-	trice("log:from=%u phase=%u\n", 1u, loop & 3u);
+	trice("log:(from node=N1_tx) from=%u phase=%u\n", 1u, loop & 3u);
     // Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N1_tx: TX-> log:from=%u phase=%u\n", 1u, loop & 3u);
 
-	triceS("log:text=%s\n", text);
+	triceS("log:(from node=N1_tx) text=%s\n", text);
     // Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N1_tx: TX-> log:text=%s\n", text);
 
@@ -41,25 +41,25 @@ static void sendCommand(unsigned loop) {
 
 	switch (loop & 3u) {
 	case 0u:
-		trice8C("cmd:setLeds", &leds, 1);
+		Trice8C("cmd:setLeds", 101, &leds, 1);
         // Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N1_tx: ABC-> cmd:setLeds(%02x)\n", leds);
 		break;
 
 	case 1u:
-		triceC("cmd:getLeds");
+		TriceC("cmd:getLeds", 101);
         // Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N1_tx: ABC-> cmd:getLeds\n");
 		break;
 
 	case 2u:
-		triceC("cmd:logState");
+		TriceC("cmd:logState", 101);
         // Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N1_tx: ABC-> cmd:logState\n");
 		break;
 
 	default:
-		trice8C("cmd:setKey", key, sizeof(key));
+		Trice8C("cmd:setKey", 101, key, sizeof(key));
         // Demo-only TX trace: make ABC replies visible at the sender as well.
 		nodePrintLineF("N1_tx: ABC-> cmd:setKey(alpha)\n");
 		break;
@@ -76,8 +76,8 @@ int main(void) {
 	}
 
 	for (loop = 0u; loop < 8u; ++loop) {
-		sendTraffic(loop);
-		sendCommand(loop);
+		sendTraffic(loop); // stamp=101
+		sendCommand(loop); // stamp=101
 		nodeSleepMs(180u);
 	}
 

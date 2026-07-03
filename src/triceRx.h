@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-
 // TRICE_INSERT_OFF - Trice parser exclusion marker
-
 //! \file triceRx.h
 //! \brief Common Trice receive record parser and resolver API.
 
@@ -59,7 +57,7 @@ typedef struct triceRx_t {
     uint8_t cycleCounter;   // optional part of the nc field
 
 #if TRICE_RX_ABC_SUPPORT == 1
-	void (*fn)(const struct triceRx_t* rx); // abc function handler resolved from generated triceAbc[]. ( triceFn_t fn; )
+	void (*abcFnHandler)(const struct triceRx_t* rx); // abc function handler resolved from generated triceAbc[]. ( triceFn_t fn; )
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
@@ -96,7 +94,7 @@ typedef void (*triceNodeFn_t)(const void* node, const triceRx_t* rx);
 //! \li   rx->cycleCounter
 //! \li It initializes:
 //! \li   rx->bitWidth = TRICE_BIT_WIDTH_UNKNOWN (will be set after TriceResolve...)
-//! \li   rx->fn = NULL, if present
+//! \li   rx->abcFnHandler = NULL, if present
 //! \li   rx->paramCount = 0, as not yet resolved
 //! \li   rx->pFmt = NULL, if present
 //! \li   rx->file = NULL, if present
@@ -203,6 +201,10 @@ extern triceNodeFn_t fn_TriceHandleTypeX0;
 extern triceNodeFn_t fn_TricePrintIgnoredID;
 #endif
 
+//! \brief Parses, classifies, and dispatches one fully decoded Trice record.
+//! \details It calls the generated ABC handler, the log resolver, or the X0 handler
+//! depending on the parsed record and the enabled features. It parses and handles
+//! record by record, on the expected deframed/decrypted data.
 int TriceHandleDecodedRecord(const void* node, const uint8_t* record, size_t decodedLen);
 
 #ifdef __cplusplus

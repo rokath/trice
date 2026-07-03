@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-
 // TRICE_INSERT_OFF - Trice parser exclusion marker
-
 //! \file triceRx.c
 //! \brief Common Trice receive record parser and metadata resolvers.
 
@@ -118,7 +116,7 @@ int TriceParseRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 
 	case 2u:
 		rx->stampBits = 16u;
-#if TRICE_DOUBLED_16BIT_ID == 1
+#if TRICE_RX_EXPECT_DOUBLED_ID16 == 1
 		offset += 2u;
 #endif
 		if (len < offset + 2u) {
@@ -171,7 +169,7 @@ int TriceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count) {
 			if (e != TRICE_RX_RESULT_OK) {
 				return e;
 			}
-			rx->fn = list[i].fn;
+			rx->abcFnHandler = list[i].fn;
 			return TRICE_RX_RESULT_OK;
 		}
 	}
@@ -225,7 +223,6 @@ triceNodeFn_t fn_TricePrintLog = 0;
 triceNodeFn_t fn_TriceHandleTypeX0 = 0;
 #endif
 
-
 //! \brief parse, classify, and dispatch one fully decoded Trice record.
 //! \param node is a node specific struct. Set it to 0 if not needed.
 //! \param record data start
@@ -238,9 +235,9 @@ static int TriceRxHandleRecord(const void* node, triceRx_t* rx, const uint8_t* r
 	}
 
 #if TRICE_RX_ABC_SUPPORT == 1
-	node = node; // avoid [-Wunused-parameter]
+	(void)node; // avoid [-Wunused-parameter]
 	if (TriceResolveAbc(rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
-		rx->fn(rx);
+		rx->abcFnHandler(rx);
 		rx->executed_logged_handled = 0x4u;	
 	}
 #endif

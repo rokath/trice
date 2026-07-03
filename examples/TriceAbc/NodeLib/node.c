@@ -3,8 +3,6 @@
 #define _POSIX_C_SOURCE 200112L
 #endif
 
-#define NODE_CODE 0
-
 // node.c
 //
 // Shared host-side runtime for the TriceAbc demo nodes.
@@ -39,26 +37,30 @@
 #define NODE_RMDIR(path) rmdir(path)
 #endif
 
-static void nodePrintLine(const char* text);
+static void nodePrintLine(const char* text); // Print exactly one already assembled line.
 
 #if TRICE_RX_LOG_SUPPORT == 1
-static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx);
+static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx); // Print one resolved log record.
+
+// Adapter to call nodePrintResolvedLog() with a generic node pointer.
 static void nodePrintResolvedLog_adapter(const void* node, const triceRx_t* rx){
 	nodePrintResolvedLog((const node_t*) node, rx);
 }
 #endif
 
 #if TRICE_RX_SUPPORT == 1
-static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx);
+static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx); // Print one unrecognized ID record.
+
+// Adapter to call nodePrintIgnoredID() with a generic node pointer.
 static void nodePrintIgnoredID_adapter(const void* node, const triceRx_t* rx){
 	nodePrintIgnoredID((const node_t*) node, rx);
 }
 #endif
 
 // Keep one full console line together even when several demo processes print.
-#define NODE_CONSOLE_LOCK_PATH "abc.console.lock"
-#define NODE_CONSOLE_LINE_MAX 512u
-#define NODE_CONSOLE_LOCK_POLL_MS 10u
+#define NODE_CONSOLE_LOCK_PATH "abc.console.lock" // Path to a process-shared lock directory for serializing console output.
+#define NODE_CONSOLE_LINE_MAX 512u // Maximum line length for one complete console output line.
+#define NODE_CONSOLE_LOCK_POLL_MS 10u // Milliseconds to wait before retrying the console lock when another process owns it.
 
 #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
 
@@ -107,6 +109,7 @@ static void nodePrintX0(const node_t* node, const triceRx_t* rx) {
 	nodePrintLine(line);
 }
 
+// Adapter to call nodePrintX0() with a generic node pointer.
 static void nodePrintX0_adapter(const void* node, const triceRx_t* rx){
     nodePrintX0((const node_t*)node, rx);
 }
@@ -254,6 +257,7 @@ static float nodeReadFloat32(const uint8_t* p) {
 
 #endif // TRICE_RX_SUPPORT == 1
 
+// Set the eight demo LED states packed into one byte and print the new state.
 void nodeSetLeds(node_t* node, uint8_t mask) {
 	char bar[11];
 
@@ -266,6 +270,7 @@ void nodeSetLeds(node_t* node, uint8_t mask) {
 	nodePrintLineF("%s: leds=%s\n", node->name, bar);
 }
 
+// Set the eight demo LED states packed into one byte and print the new state.
 void nodeSetKey(node_t* node, const uint8_t* data, size_t len) {
 	size_t i;
 	size_t n;
@@ -287,6 +292,7 @@ void nodeSetKey(node_t* node, const uint8_t* data, size_t len) {
 	node->keyLen = (uint8_t)n;
 }
 
+// Print the current LED states in a compact [** * ] style bar.
 void nodePrintLeds(const node_t* node, const char* reason) {
 	char bar[11];
 
@@ -298,6 +304,7 @@ void nodePrintLeds(const node_t* node, const char* reason) {
 	nodePrintLineF("%s: %s%s\n", node->name, (reason != 0) ? reason : "", bar);
 }
 
+// Print the current LED states and the stored key.
 void nodePrintState(const node_t* node, const char* reason) {
 	char bar[11];
 
@@ -309,6 +316,7 @@ void nodePrintState(const node_t* node, const char* reason) {
 	nodePrintLineF("%s: %skey=%s leds=%s\n", node->name, (reason != 0) ? reason : "", node->key, bar);
 }
 
+// Open one demo node and join the shared abc.bus broadcast medium.
 int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rxLogEnabled) {
 	int e;
 
@@ -328,20 +336,21 @@ int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rx
 	}
 
 	nodeSetCurrent(node);
-	nodePrintLineF("%s: joined abc.bus\n", node->name);
+	nodePrintLineF("%s: joined abc.bus, canSend=%d canReceive=%d rxLogEnabled=%d\n", name, canSend, canReceive, rxLogEnabled);
 
 #if TRICE_RX_LOG_SUPPORT == 1
 	fn_TricePrintLog = nodePrintResolvedLog_adapter;
 #endif
 #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
-	fn_TriceHandleTypeX0 = nodePrintX0_adapter;
+	(void)nodePrintX0_adapter; // fn_TriceHandleTypeX0 = nodePrintX0_adapter;
 #endif
 #if TRICE_RX_SUPPORT == 1
-	fn_TricePrintIgnoredID = nodePrintIgnoredID_adapter;
+	(void)nodePrintIgnoredID_adapter; //fn_TricePrintIgnoredID = nodePrintIgnoredID_adapter;
 #endif
 	return BCSIM_OK;
 }
 
+// Close one demo node and leave the shared abc.bus broadcast medium.
 void nodeClose(node_t* node) {
 	if (node == 0) {
 		return;
@@ -354,20 +363,22 @@ void nodeClose(node_t* node) {
 }
 
 #if TRICE_TX_SUPPORT == 1
-void nodeSendLedsState(node_t* node) {
-	char bar[11];
+// Send the current LED states to the shared abc.bus broadcast medium.
+//  void nodeSendLedsState(node_t* node) {
+//  	char bar[11];
+//  
+//  	if (node == 0 || node->canSend == 0u) {
+//  		return;
+//  	}
+//  
+//  	trice8C("abc:LedsState", &node->leds, 1);
+//  
+//  	// Demo-only TX trace: show the local sender, not only remote receivers.
+//  	nodeMakeLedBar(bar, sizeof(bar), node->leds);
+//  	nodePrintLineF("%s: tx:abc:LedsState %s\n", node->name, bar);
+//  }
 
-	if (node == 0 || node->canSend == 0u) {
-		return;
-	}
-
-	trice8C("abc:LedsState", &node->leds, 1);
-
-	// Demo-only TX trace: show the local sender, not only remote receivers.
-	nodeMakeLedBar(bar, sizeof(bar), node->leds);
-	nodePrintLineF("%s: tx:abc:LedsState %s\n", node->name, bar);
-}
-
+// Send the stored printable key to the shared abc.bus broadcast medium.
 void nodeSendDivideResult(node_t* node, float value) {
 	uint32_t bits = aFloat(value);
 
@@ -390,11 +401,6 @@ void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen) {
 	(void)bcSimWrite(&gNode->bus, enc, encLen, "trice");
 }
 
-// The 32-bit auxiliary path is intentionally unused in this demo build.
-void TriceNonBlockingDirectWrite32Auxiliary(const uint32_t* enc, unsigned count) {
-	(void)enc;
-	(void)count;
-}
 #endif // TRICE_TX_SUPPORT == 1
 
 #if TRICE_RX_SUPPORT == 1
@@ -470,85 +476,8 @@ static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx) {
 }
 #endif // TRICE_RX_LOG_SUPPORT == 1
 
-#if NODE_CODE == 1
-// Parse, classify, and dispatch one fully decoded Trice record.
-static int nodeHandleRecord(node_t* node, const uint8_t* record, size_t len) {
-	triceRx_t rx;
-	int used;
-
-	used = TriceParseRecord(&rx, record, len);
-	if (used <= 0) {
-		nodePrintLineF("%s: rx parse error=%d\n", node->name, used);
-		return used;
-	}
-
-#if TRICE_RX_ABC_SUPPORT == 1
-    if (TriceResolveAbc(&rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
-		rx.fn(&rx);
-		rx.executed_logged_handled = 0x4;
-    }
-#endif
-
-#if TRICE_RX_LOG_SUPPORT == 1
-	if( TriceResolveLog(&rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK ){
-		nodePrintResolvedLog(node, &rx);
-		rx.executed_logged_handled = 0x2;
-    }
-#endif
-
-#if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 1
-	if (rx.stampBits == TRICE_STAMP_BITS_UNKNOWN) {
-		nodePrintX0(node, &rx);
-		rx.executed_logged_handled = 0x1;
-	}
-#endif
-
 #if TRICE_RX_SUPPORT == 1
-	if( (rx.executed_logged_handled) == 0 ){
-		nodePrintIgnoredID(node, &rx);
-	}
-#endif
-	return used;
-}
-
-// Advance from one logical record to the next possible record start.
-//
-// `TriceParseRecord()` intentionally reports only the logical record size.
-// The target-side transport can still append zero padding up to the next
-// 32-bit boundary. The demo consumes that padding only when all expected bytes
-// are actually zero. Otherwise the following byte is treated as the next record
-// start so packed records stay decodable.
-static size_t nodeAdvanceAlignedRecord(const uint8_t* decoded, size_t decodedLen, size_t offset, size_t logicalUsed) {
-	size_t next = offset + logicalUsed;
-	size_t alignedNext = (next + 3u) & ~(size_t)3u;
-	size_t i;
-
-	if (alignedNext > decodedLen) {
-		return next;
-	}
-
-	for (i = next; i < alignedNext; ++i) {
-		if (decoded[i] != 0u) {
-			return next;
-		}
-	}
-
-	return alignedNext;
-}
-
-static void nodeHandleDecodedRecord(node_t* node, const uint8_t* record, size_t decodedLen) {
-	size_t offset = 0u;
-	while (offset < decodedLen) {
-		int used = nodeHandleRecord(node, record + offset, decodedLen - offset);
-		if (used <= 0) {
-			return;
-		}
-		offset = nodeAdvanceAlignedRecord(node->frame, decodedLen, offset, (size_t)used);
-	}	
-}
-#endif // #if NODE_CODE == 1
-
-#if TRICE_RX_SUPPORT == 1
+// Print one unrecognized ID record.
 static void nodePrintIgnoredID(const node_t* node, const triceRx_t* rx){
 	char line[NODE_CONSOLE_LINE_MAX];
 	size_t pos = 0u;
@@ -590,11 +519,11 @@ static const char* nodeStampText(const triceRx_t* rx, char* dst, size_t dstSize)
 	return dst;
 }
 
+#if TRICE_TX_SUPPORT == 1
 // The stamp demo uses low-order stamp bits as a responder bitmap.
 //
 // Unstamped requests keep the original broadcast behavior. Stamped requests are
 // answered only by nodes whose `replyStampMask` bit is present in the stamp.
-#if TRICE_TX_SUPPORT == 1
 static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
 	if (node == 0 || rx == 0 || node->canSend == 0u) {
 		return 0;
@@ -617,7 +546,6 @@ static int nodeReplyMatchesStamp(const node_t* node, const triceRx_t* rx) {
 // frame bytes are exhausted.
 static void nodeHandleEncodedFrame(node_t* node, const uint8_t* frame, size_t frameLen) {
 	size_t decodedLen;
-	//size_t offset = 0u;
 
 	if (node == 0 || frame == 0 || frameLen == 0u) {
 		return;
@@ -629,11 +557,7 @@ static void nodeHandleEncodedFrame(node_t* node, const uint8_t* frame, size_t fr
 		return;
 	}
 
-	#if NODE_CODE == 1
-	nodeHandleDecodedRecord(node, node->frame, decodedLen);
-	#else
 	TriceHandleDecodedRecord(node, node->frame, decodedLen);
-	#endif
 }
 
 // Scan the accumulated stream for zero-delimited COBS frames.
@@ -669,6 +593,8 @@ static void nodeProcessStream(node_t* node) {
 	}
 }
 
+// Read one or more COBS frames from the shared abc.bus broadcast medium and
+// feed them into the Trice record classifier.
 int nodePoll(node_t* node) {
 	uint8_t chunk[512];
 
@@ -697,6 +623,7 @@ int nodePoll(node_t* node) {
 }
 
 #if TRICE_RX_ABC_SUPPORT == 1
+// Map one payload byte to an unsigned host value.
 uint8_t nodePayloadU8(const triceRx_t* rx, size_t index) {
 	if (rx == 0 || rx->payload == 0 || index >= rx->payloadBytes) {
 		return 0u;
@@ -704,6 +631,7 @@ uint8_t nodePayloadU8(const triceRx_t* rx, size_t index) {
 	return rx->payload[index];
 }
 
+// Map one payload float32 to a host float value.
 float nodePayloadFloat32(const triceRx_t* rx, size_t index) {
 	size_t offset = index * 4u;
 	if (rx == 0 || rx->payload == 0 || offset + 4u > rx->payloadBytes) {
@@ -712,11 +640,11 @@ float nodePayloadFloat32(const triceRx_t* rx, size_t index) {
 	return nodeReadFloat32(rx->payload + offset);
 }
 
-// Send `abc:LedsState` with the same stamp width and stamp value as the request.
 #if TRICE_TX_SUPPORT == 1
+// Send `abc:LedsState` with the same stamp width and stamp value as the request.
 static void nodeSendLedsStateReply(node_t* node, const triceRx_t* rx) {
 	char bar[11];
-	char stamp[32];
+	char stampStr[32];
 
 	if (node == 0 || rx == 0 || node->canSend == 0u) {
 		return;
@@ -732,13 +660,13 @@ static void nodeSendLedsStateReply(node_t* node, const triceRx_t* rx) {
 
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodeMakeLedBar(bar, sizeof(bar), node->leds);
-	nodePrintLineF("%s: tx:abc:LedsState%s %s\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), bar);
+	nodePrintLineF("%s: tx:abc:LedsState, %s %s\n", node->name, nodeStampText(rx, stampStr, sizeof(stampStr)), bar);
 }
 
 // Send `abc:DivideResult` with the same stamp width and stamp value as the request.
 static void nodeSendDivideResultReply(node_t* node, const triceRx_t* rx, float value) {
 	uint32_t bits = aFloat(value);
-	char stamp[32];
+	char stampStr[32];
 
 	if (node == 0 || rx == 0 || node->canSend == 0u) {
 		return;
@@ -753,7 +681,7 @@ static void nodeSendDivideResultReply(node_t* node, const triceRx_t* rx, float v
 	}
 
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
-	nodePrintLineF("%s: tx:abc:DivideResult%s value=%f\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), (double)value);
+	nodePrintLineF("%s: tx:abc:DivideResult%s value=%f\n", node->name, nodeStampText(rx, stampStr, sizeof(stampStr)), (double)value);
 }
 #endif
 
@@ -775,11 +703,12 @@ void setLeds(const triceRx_t* rx) {
 // `getLeds` is broadcast by default and stamped-routed when a stamp is present.
 void getLeds(const triceRx_t* rx) {
 	node_t* node = nodeCurrent();
+	char stampStr[32];
 
 	if (node == 0) {
 		return;
 	}
-
+	nodePrintLineF("%s: id=%d, abc:getLeds%s\n", node->name, rx->id, nodeStampText(rx, stampStr, sizeof(stampStr)));
 #if TRICE_TX_SUPPORT == 1
 	if (nodeReplyMatchesStamp(node, rx) != 0) {
 		nodeSendLedsStateReply(node, rx);
@@ -820,15 +749,17 @@ void logState(const triceRx_t* rx) {
 // they cannot answer. Division by zero is ignored so the demo stays compact.
 void divide(const triceRx_t* rx) {
 	node_t* node = nodeCurrent();
-
+	
 	if (node == 0) {
 		return;
 	}
 
 #if TRICE_TX_SUPPORT == 1
 	if (nodeReplyMatchesStamp(node, rx) != 0) {
+		char stampStr[32];
 		float a = nodePayloadFloat32(rx, 0u);
 		float b = nodePayloadFloat32(rx, 1u);
+		nodePrintLineF("%s: id=%d, abc:divide%s a=%f b=%f\n", node->name, rx->id, nodeStampText(rx, stampStr, sizeof(stampStr)), (double)a, (double)b);
 		if (b != 0.0f) {
 			nodeSendDivideResultReply(node, rx, a / b);
 		}
@@ -843,7 +774,7 @@ void LedsState(const triceRx_t* rx) {
 	node_t* node = nodeCurrent();
 	uint8_t mask;
 	char bar[11];
-	char stamp[32];
+	char stampStr[32];
 
 	if (node == 0) {
 		return;
@@ -851,24 +782,24 @@ void LedsState(const triceRx_t* rx) {
 
 	mask = nodePayloadU8(rx, 0u);
 	nodeMakeLedBar(bar, sizeof(bar), mask);
-	nodePrintLineF("%s: abc:LedsState%s %s\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), bar);
+	nodePrintLineF("%s: id=%d, abc:LedsState%s %s\n", node->name, rx->id, nodeStampText(rx, stampStr, sizeof(stampStr)), bar);
 }
 
 // Float answers are shown as plain text because readability matters most here.
 void DivideResult(const triceRx_t* rx) {
 	node_t* node = nodeCurrent();
-	char stamp[32];
+	char stampStr[32];
 
 	if (node == 0) {
 		return;
 	}
 
-	nodePrintLineF("%s: abc:DivideResult%s value=%f\n", node->name, nodeStampText(rx, stamp, sizeof(stamp)), (double)nodePayloadFloat32(rx, 0u));
+	nodePrintLineF("%s: id=%d, abc:DivideResult%s value=%f\n", node->name, rx->id, nodeStampText(rx, stampStr, sizeof(stampStr)), (double)nodePayloadFloat32(rx, 0u));
 }
 #endif // TRICE_RX_ABC_SUPPORT == 1
-#else
-int nodePoll(node_t* node) {
+#else // #if TRICE_RX_SUPPORT == 1
+int nodePoll(node_t* node) { // no RX support, so no Trice record handling is possible
 	(void)node;
 	return 0;
 }
-#endif // TRICE_RX_SUPPORT == 1
+#endif // #else // #if TRICE_RX_SUPPORT == 1

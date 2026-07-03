@@ -133,7 +133,13 @@ exclude = [
   # Coveralls intermittently answers with HTTP 503 for the project landing page
   # and badge although both links are intentionally used in README.md.
   "^https://coveralls\\.io/github/rokath/trice\\?branch=main$",
-  "^https://coveralls\\.io/repos/github/rokath/trice/badge\\.svg\\?branch=main$"
+  "^https://coveralls\\.io/repos/github/rokath/trice/badge\\.svg\\?branch=main$",
+
+  # Go Report Card is useful as a human-facing README badge/report, but it
+  # intermittently times out for automated link checks although the URLs are
+  # valid in normal browser use.
+  "^https://goreportcard\\.com/report/github\\.com/rokath/trice$",
+  "^https://goreportcard\\.com/badge/github\\.com/rokath/trice$"
 ]
 
 
