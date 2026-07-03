@@ -45,7 +45,7 @@
   - [How it works](#how-it-works)
   - [Result](#result)
   - [Two Parts of Trice](#two-parts-of-trice)
-- [Quickstarts](#quickstarts)
+- [Quickstart: choose your first path](#quickstart-choose-your-first-path)
 - [When to Use Trice](#when-to-use-trice)
   - [Logging and Debugging](#logging-and-debugging)
   - [Data Compression](#data-compression)
@@ -119,13 +119,22 @@ Instead of formatting and storing strings on the target, Trice encodes log messa
 
 ***Ready to use:*** [Start with Trice](./docs/TriceUserManual.md#start-with-trice)
 
-## <a id="quickstarts"></a>Quickstarts
+## <a id="quickstart-choose-your-first-path"></a>Quickstart: choose your first path 
 
 ![Trice log icon](./docs/ref/trice_log_icon_128x128.png)
 
-* [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](./docs/TriceUserManual.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit)
-* [Quickstart: SEGGER RTT direct mode with J-Link](./docs/TriceUserManual.md#quickstart-segger-rtt-direct-mode-with-j-link)
-* [Quickstart: UART or USB-VCOM deferred output](./docs/TriceUserManual.md#quickstart-uart-or-usb-vcom-deferred-output)
+The fastest way to evaluate Trice is to start with one proven transport path, not with every feature at once.
+
+* Your project already has a non-blocking byte writer, DMA TX queue, USB CDC writer, socket writer, or file writer:
+  * [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](./docs/TriceUserManual.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit)
+* You have a SEGGER J-Link and want the least target-porting work:
+  * [Quickstart: SEGGER RTT direct mode with J-Link](./docs/TriceUserManual.md#quickstart-segger-rtt-direct-mode-with-j-link)
+* You want a normal UART or USB virtual COM port:
+  * [Quickstart: UART or USB-VCOM deferred output](./docs/TriceUserManual.md#quickstart-uart-or-usb-vcom-deferred-output)
+* You want to inspect complete STM32 example projects:
+  * [Example projects](./docs/TriceUserManual.md#example-projects-without-and-with-trice-instrumentation)
+
+For most existing projects, the **existing byte writer** path is the least disruptive first integration: Trice writes framed binary data into your already-tested output function.
 
 ## <a id="when-to-use-trice"></a>When to Use Trice
 

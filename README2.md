@@ -35,19 +35,6 @@ This keeps format strings out of the target image, reduces transfer bandwidth, a
 - **Long-term field decoding** - keep the matching `til.json` to decode old binary logs later.
 - **Portable tooling** - the host tool is written in Go and runs on common desktop platforms.
 
-## Quickstart: choose your first path
-
-The fastest way to evaluate Trice is to start with one proven transport path, not with every feature at once.
-
-| Situation | Recommended start |
-| --- | --- |
-| Your project already has a non-blocking byte writer, DMA TX queue, USB CDC writer, socket writer, or file writer | [Existing byte writer quickstart](./docs/TriceUserManualExtension.md#quickstart-existing-byte-writer) |
-| You have a SEGGER J-Link and want the least target-porting work | [SEGGER RTT direct quickstart](./docs/TriceUserManualExtension.md#quickstart-segger-rtt-direct) |
-| You want a normal UART or USB virtual COM port | [Deferred UART/VCOM quickstart](./docs/TriceUserManualExtension.md#quickstart-uart-vcom-deferred) |
-| You want to inspect complete STM32 example projects | [Example projects](./docs/TriceUserManual.md#example-projects-without-and-with-trice-instrumentation) |
-
-For most existing projects, the **existing byte writer** path is the least disruptive first integration: Trice writes framed binary data into your already-tested output function.
-
 ## The normal workflow
 
 1. Add the Trice target sources from [`src/`](./src) to your firmware project.
