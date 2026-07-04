@@ -133,7 +133,7 @@ For team projects, define this policy early and keep `til.json` under control li
 * **[Long-term field decoding](./docs/TriceUserManual.md#versions-and-variants-trice-stability)** – decode logs from older firmware any newer til.json.
 * **[Easy Migration](./docs/TriceUserManual.md#trice-and-legacy-user-code)** – reuse existing `printf`-style code with minimal changes via the `-alias` option
 * **Portable tooling** - the host tool is written in Go and runs on common desktop platforms.
-* **[➕ More Features](./docs/TriceUserManual.md#trice-features-(overview))** – flexible logging, transport options, and tooling.
+* **[➕ More Features](./docs/TriceUserManual.md#trice-features-overview)** – flexible logging, transport options, and tooling.
 * **Fully documented**: [Trice User Manual](./docs/TriceUserManual.md)
 
 ## <a id="two-parts-of-trice"></a>Two Parts of Trice
