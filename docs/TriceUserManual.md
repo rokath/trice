@@ -1625,7 +1625,7 @@ Direct RTT is excellent for lab development because the target writes to RTT mem
 
 #### 6.2.8. <a id="when-this-path-is-not-ideal"></a>When this path is not ideal
 
-It depends on J-Link/RTT infrastructure. If that hardware or closed host tooling is a blocker, start with the [existing byte writer quickstart](#quickstart-existing-byte-writer) or a UART/VCOM deferred path.
+It depends on J-Link/RTT infrastructure. If that hardware or closed host tooling is a blocker, start with the [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit)or a UART/VCOM deferred path.
 
 <a id="quickstart-uart-vcom-deferred"></a>
 
@@ -1682,7 +1682,7 @@ On Linux/macOS:
 trice log -p /dev/ttyACM0 -baud 921600 -i ./til.json -li ./li.json
 ```
 
-For a quick first success, the [existing byte writer quickstart](#quickstart-existing-byte-writer) may be easier if your project already has a working serial or USB write function.
+For a quick first success, the [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) may be easier if your project already has a working serial or USB write function.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
