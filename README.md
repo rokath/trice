@@ -80,7 +80,8 @@ You can choose how visible those IDs are in your workflow:
 - run `trice clean` after the build,
 - use the Trice cache to avoid needless rebuilds of unchanged files.
 
-For team projects, define this policy early and keep `til.json` under control like any other build artifact needed for field diagnostics. See [ID workflow notes](./docs/TriceUserManualExtension.md#id-workflow-notes) and [Trice ID management](./docs/TriceUserManual.md#trice-id-management).
+For team projects, define this policy early and keep `til.json` under control like any other build artifact needed for field diagnostics.
+See [Trice ID management](./docs/TriceUserManual.md#trice-id-management).
 
 ---
 
@@ -264,8 +265,6 @@ A practical rule:
 - Start with **deferred auxiliary 8-bit output** when your project already has a write function.
 - Use **deferred ring buffer** for a balanced RAM/speed setup.
 - Use **deferred double buffer** when minimizing the target-side log-call cost is more important than RAM.
-
-See [mode and transport selection](./docs/TriceUserManualExtension.md#mode-and-transport-selection) for more detail.
 
 #### Direct mode
 
@@ -738,7 +737,7 @@ Potential future work includes:
 
 ## Legacy code integration notes
 
-Existing manual coverage: See [Trice and legacy User Code](.docs/TriceUserManual.md#trice-and-legacy-user-code), including separate physical output, manual adaptation, print wrapping/framing, and aliases.
+Existing manual coverage: See [Trice and legacy User Code](./docs/TriceUserManual.md#trice-and-legacy-user-code), including separate physical output, manual adaptation, print wrapping/framing, and aliases.
 
 Existing projects do not have to migrate all logs at once.
 
