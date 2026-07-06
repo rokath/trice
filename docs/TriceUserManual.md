@@ -10393,59 +10393,7 @@ A source file is never left partially written after Ctrl-C, SIGTERM, crash, or w
 
 ## 49. <a id="scratch-pad"></a>Scratch Pad
 
-*) The TriceABC examples uses COBS framing and acts withaout encryption and is not configurable because its main aim is to show just the TriceABC technique in action.
-
-1) Du schreibst "keep the matching til.json to decode old binary logs later." Das ist richtig, aber das Besondere an Trice ist, dass mit dem neuesten til.json File auch alle älteren binaries decodiert werden können. Man muss nicht das "matching til.json" haben, sondern nur eines was nicht älter ist als das vorliegende Binary. Ich finde, das ist ein entscheidender Vorteil.
-
-
-
-2) Sollte nicht die Alias Option erwähnt werden, die es erlaubt, legacy User Code weitgehend unverändert zu benutzen?
-
-
-
-3) Warum hast Du unter Related tools and approaches keine Links mehr? Es soll für Leser doch einfach andere Tools genauert anzusehen, oder?
-
-
-
-4) Das Trice Girl ist weg. Warum? Sollte nicht jedes OSS Projekt ein Maskottchen haben?
-
-
-
-5) Die Zeile  "🅃🅁ace 🄸d's for 🄲 🄴mbedded" weist auf die Namensbedeutung hin. Was daran ist nicht gut?
-
-
-
-6) Du hast die Badges reduziert. Was ist falsch an den einzelnen  Badges? Insbesondere downloads? Warum dann Go report?
-
-
-
-7) "Trice is a low-overhead logging and tracing system for embedded C/C++ firmware." schreibst Du. Da würde ich schon aufhören zu lesen und denken: Noch ein "schneller" Logger. Sollte man das Key-Feature nicht am Anfang mehr betonen?
-
-
-
-8) Warum hast Du das Bild ./docs/ref/life0.gif herausgenommen? Es zeigt doch sofort, dass auf dem PC normale Logs zu sehen sind. 
-
-
-
-9) Die Advanced capabilities sind gut aufgehoben in einem Abschnitt, sollten aber mit Links versehen sein, damit User schnell die Dokustellen finden.
-
-
-
-10) Sollte auf die Erweiterbarkeit zum Structured Logging verwiesen werden? Im TriceUserManual.md gibt es  daszu eine Spezifikation als Draft.
-
-
-
-11) Die verlinkten Key-Benefits fehlen. Warum?
-
-
-
-
-
-
-
-
-
-
+*) The TriceABC examples uses COBS framing and acts without encryption and it is not simple configurable because its main aim is to show just the TriceABC technique in action.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

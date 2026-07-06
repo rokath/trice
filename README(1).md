@@ -1,10 +1,6 @@
-# Trice - Trace IDs for Embedded C/C++ 
+# Trice - Trace IDs for Embedded C/C++
 
 > **Trice** = **TR**ace **I**Ds for **C**/**C++** in **E**mbedded systems.
-
-[View GitHub Pages](https://rokath.github.io/trice/)
-
-<a id="top"> </a>
 
 [![License](https://img.shields.io/github/license/rokath/trice)](./LICENSE.md)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice)
@@ -24,61 +20,38 @@ Use Trice when normal `printf` logging is too slow, too large, too intrusive for
 
 ---
 
-<!-- mdtoc off 
-## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
-<!-- mdtoc on 
----
-
-![License](https://img.shields.io/github/license/rokath/trice) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest) ![Downloads](https://img.shields.io/github/downloads/rokath/trice/total) ![GitHub issues](https://img.shields.io/github/issues/rokath/trice) [![TRICE Library CI (Nightly Full)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml) 
-<!--
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) ![Go Version](https://img.shields.io/github/go-mod/go-version/rokath/trice)  [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice) [![Coverage](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice?branch=main) 
-[![Go Reference](https://pkg.go.dev/badge/github.com/rokath/trice.svg)](https://pkg.go.dev/github.com/rokath/trice) 
-[![Go Coverage (PR + Monthly)](https://github.com/rokath/trice/actions/workflows/coverage.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/coverage.yml) 
-[![Clang-Format Check](https://github.com/rokath/trice/actions/workflows/clang-format.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/clang-format.yml) 
-[![TRICE Library CI (Nightly Quick)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml) 
-[![Mark stale issues and pull requests](https://github.com/rokath/trice/actions/workflows/stale.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/stale.yml) 
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rokath/trice) 
-[![CodeQL](https://github.com/rokath/trice/actions/workflows/codeql.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/codeql.yml) 
-![GitHub watchers](https://img.shields.io/github/watchers/rokath/trice?label=watch) 
-[![test](https://github.com/shogo82148/actions-goveralls/workflows/_test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice) 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser) 
-[![Sponsor rokath](https://github.com/sponsors/rokath/button)](https://github.com/sponsors/rokath)
-
--->
-
-*Log in a trice — with Trice, even from **↯ interrupt handlers** in less than 1 µs ❗*
-
-![ ](./docs/ref/life0.gif) <!-- ([S>G](https://www.screentogif.com/)) -->
-
-**Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)
-
-<!-- mdtoc -->
-<!-- numbering=false min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
-<!-- /mdtoc -->
-
 ## What is Trice?
 
-**Trice** is under the hood an ID-based (ultra-low-overhead) logging framework for embedded C/C++. It provides printf-like usability with only a few (down to 6!) CPU cycles per log call, making logging practical even when used from interrupt handlers in real-time firmware systems.
+Trice gives embedded firmware a fast logging path with a familiar source-code style:
 
-Trice is designed for systems where traditional logging is too slow, too large, or not safe to use in interrupt or real-time contexts.
+```c
+trice("boot\n");
+trice("adc=%d mV\n", adc_mV);
+```
 
-Trice replaces/re-assigns legacy `printf` logging in embedded C/C++ systems with a much faster and more efficient approach.
-
-Instead of formatting and storing strings on the target, Trice encodes log messages as compact IDs and keeps the actual strings on the host. This reduces runtime overhead, memory usage, and data transfer size.
-
+Instead of formatting strings on the target, Trice stores the human-readable text on the host and transfers compact binary records from the target.
+This reduces target FLASH usage, transfer bandwidth, log files and log-call execution time.
 
 ## How it works
 
-* The target device sends only IDs and data.
-* The host reconstructs the original messages using the Trice ID list.
-* At build time, Trice assigns each log message a compact ID while the user source code stays unchanged - an ID is inserted temporarily just for the compiler run.
+1. Write `trice(...)` calls in firmware code.
+2. Run `trice insert` before compilation.
+3. The compiler sees stable numeric IDs.
+4. The target emits compact binary Trice records.
+5. The PC tool decodes them with the matching `til.json`.
 
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary><strong style="font-size: 1.00em;">What about source code modification?</strong><span style="font-size: 0.66em;">(click to expand)</span></summary>
+A typical source-level idea is:
 
----
+```diff
+- printf("Temperature: %d C\n", t);
++ trice("Temperature: %d C\n", t);
+```
 
-Trice assigns IDs by processing source files with `trice insert`. A call such as this:
+<details>
+<summary>What about source code modification?</summary>
+
+Trice assigns IDs by processing source files with `trice insert`.
+A call such as this:
 
 ```c
 trice("boot\n");
@@ -98,68 +71,21 @@ You can choose how visible those IDs are in your workflow:
 - run `trice clean` after the build,
 - use the Trice cache to avoid needless rebuilds of unchanged files.
 
-For team projects, define this policy early and keep `til.json` under control like any other build artifact needed for field diagnostics.
+For team projects, define this policy early and treat `til.json` like any other build artifact needed for field diagnostics.
 See [Trice ID management](./docs/TriceUserManual.md#trice-id-management).
 
----
-
 </details>
 
-## Key Benefits
+## Key benefits
 
-* **[Good for interrupts and timing work](./docs/TriceUserManual.md#trice-speed)**: Needs only a few CPU cycles in the most optimized configurations.
-* **[Smaller Binaries](./docs/TriceUserManual.md#trice-memory-needs)**: Format strings are kept in `til.json`, not in target FLASH.
-* **Minimal log data streams**: A Trice message is one 32-bit value plus optional runtime user values.
-* **[Long-term field decoding](./docs/TriceUserManual.md#versions-and-variants-trice-stability)** – decode logs from older firmware any newer til.json.
-* **[Easy Migration](./docs/TriceUserManual.md#trice-and-legacy-user-code)** – reuse existing `printf`-style code with minimal changes via the `-alias` option
-* **Portable tooling** - the host tool is written in Go and runs on common desktop platforms.
-* **[➕ More Features](./docs/TriceUserManual.md#trice-features-overview)** – flexible logging, transport options, and tooling.
-* **Fully documented**: [Trice User Manual](./docs/TriceUserManual.md)
+- **Very low target overhead** - down to a few CPU cycles in optimized configurations; see [Trice Speed](./docs/TriceUserManual.md#trice-speed).
+- **No target-side formatting** - format strings stay in `til.json`, not in target FLASH.
+- **Compact transfer** - records contain an ID plus optional timestamp and runtime values; see [Minimal Transfer Bytes Amount](./docs/TriceUserManual.md#minimal-transfer-bytes-amount).
+- **Field-log decoding** - keep the matching `til.json` to decode binary logs from released firmware later.
+- **Existing transport friendly** - UART, RTT, TCP/UDP, files, or your own non-blocking byte writer.
+- **Portable host tool** - written in Go and available as release binaries or buildable from source.
 
-## Two Parts of Trice
-
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary><strong style="font-size: 1.00em;">C code macros</strong><span style="font-size: 0.66em;">(click to expand)</span></summary>
-
-Provide a familiar `printf`-like interface at the application level, but internally send just ID and values instead of full format strings. The Trice tool maps these IDs back to readable text.
-
----
-
-</details>
-
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary><strong style="font-size: 1.00em;">Trice tool</strong><span style="font-size: 0.66em;">(click to expand)</span></summary>
-
-Manages and displays the logs
-   - Written in [Go](https://go.dev/) - works on all platforms that Go supports
-   - You can also build your own tool to receive Trice packages, replace IDs with text, and display the output
-
----
-
-</details>
-
-## Quickstart: choose your first path 
-
-![Trice log icon](./docs/ref/trice_log_icon_128x128.png)
-
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary>(click to expand)</span></summary>
-
-The fastest way to evaluate Trice is to start with one proven transport path, not with every feature at once.
-
-| Situation | Start here |
-|---|---|
-| Your project already has a non-blocking byte writer, DMA TX queue, USB CDC writer, socket writer, pipe, or file writer | [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](./docs/TriceUserManual.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) |
-| You have a SEGGER J-Link and want the least target-porting work | [Quickstart: SEGGER RTT direct mode with J-Link](./docs/TriceUserManual.md#quickstart-segger-rtt-direct-mode-with-j-link) |
-| You want a normal UART or USB virtual COM port | [Quickstart: UART or USB-VCOM deferred output](./docs/TriceUserManual.md#quickstart-uart-or-usb-vcom-deferred-output) |
-| You want to inspect complete STM32 example projects | [Example projects](./docs/TriceUserManual.md#example-projects-without-and-with-trice-instrumentation) |
-
-For most existing projects, the **existing byte writer** path is the least disruptive first integration: Trice writes framed binary data into your already-tested output function.
-
-### Which Mode Should You Use?
-
-- **For development:** Direct mode with SEGGER_RTT is recommended
-- **For most use cases:** Deferred mode with TRICE_BUFFER == TRICE_RING_BUFFER (uses less RAM) in TRICE_MULTI_PACK_MODE (transfers less data)
+## Quickstart: choose your first path
 
 The fastest way to evaluate Trice is to start with one proven transport path, not with every feature at once.
 
@@ -172,9 +98,20 @@ The fastest way to evaluate Trice is to start with one proven transport path, no
 
 For most existing projects, the **existing byte writer** path is the least disruptive first integration: Trice writes framed binary data into an output function your project already owns.
 
----
+## Which mode should you start with?
 
-</details>
+| Mode / path | Use when |
+|---|---|
+| **Deferred auxiliary 8-bit** | You already have a non-blocking byte writer. This is usually the most universal first integration. |
+| **Direct SEGGER RTT** | You have J-Link/RTT and want a fast interactive lab setup. |
+| **Deferred UART / USB-VCOM** | Your board exposes a serial path and you want a conventional PC input stream. |
+| **Deferred ring buffer** | You want a balanced default for RAM usage and runtime behavior. |
+| **Deferred double buffer** | You want the shortest target-side log-call path and can spend more RAM. |
+
+Direct mode writes each record immediately to the selected backend.
+Deferred mode writes first into a target buffer; `TriceTransfer()` sends later.
+
+---
 
 ## Details and advanced topics
 
@@ -676,5 +613,3 @@ Additional generated comparison material:
 - [Logging & Tracing Solutions for Embedded Systems (generated 2026-02-16)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html) - longer generated overview of the broader tool landscape
 
 </details>
-
-<p align="right">(<a href="#top">back to top</a>)</p>
