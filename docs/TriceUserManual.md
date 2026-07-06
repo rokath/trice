@@ -6141,7 +6141,7 @@ git config --global user.name "Your Name"
 
 #### 37.4.3. <a id="vs-code"></a>VS Code
 
-* Download VS Code from https://code.visualstudio.com/download.
+* Download VS Code from https://code.visualstudio.com/.
 * Install VS Code (adapt to downloaded version) and start it inside the Trice folder:
 
     ```bash
@@ -9075,7 +9075,7 @@ This guide explains how to install and configure OpenCommit on Windows step by s
 * Before installing OpenCommit, make sure you have:
   * Git installed 👉 Download and install from https://git-scm.com/download/win
 * Verify installation by running in PowerShell or CMD: `git --version`
-* Node.js and npm (Node Package Manager) installed 👉 Download from https://nodejs.org (LTS version recommended).
+* Node.js and npm (Node Package Manager) installed 👉 Download from https://nodejs.org/en (LTS version recommended).
   * Verify:
 
   ```bash
