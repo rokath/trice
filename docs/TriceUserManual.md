@@ -1625,7 +1625,7 @@ Direct RTT is excellent for lab development because the target writes to RTT mem
 
 #### 6.2.8. <a id="when-this-path-is-not-ideal"></a>When this path is not ideal
 
-It depends on J-Link/RTT infrastructure. If that hardware or closed host tooling is a blocker, start with the [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit)or a UART/VCOM deferred path.
+It depends on J-Link/RTT infrastructure. If that hardware or closed host tooling is a blocker, start with the [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) or a UART/VCOM deferred path.
 
 <a id="quickstart-uart-vcom-deferred"></a>
 
