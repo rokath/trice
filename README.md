@@ -24,61 +24,49 @@ Use Trice when normal `printf` logging is too slow, too large, too intrusive for
 
 ---
 
-<!-- mdtoc off 
-## ![TriceGirlS.png](docs/ref/TriceGirl-167x222.png) *Hi, I am Trice.*
-<!-- mdtoc on 
----
-
-![License](https://img.shields.io/github/license/rokath/trice) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice) ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest) ![Downloads](https://img.shields.io/github/downloads/rokath/trice/total) ![GitHub issues](https://img.shields.io/github/issues/rokath/trice) [![TRICE Library CI (Nightly Full)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml) 
-<!--
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) ![Go Version](https://img.shields.io/github/go-mod/go-version/rokath/trice)  [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice) [![Coverage](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice?branch=main) 
-[![Go Reference](https://pkg.go.dev/badge/github.com/rokath/trice.svg)](https://pkg.go.dev/github.com/rokath/trice) 
-[![Go Coverage (PR + Monthly)](https://github.com/rokath/trice/actions/workflows/coverage.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/coverage.yml) 
-[![Clang-Format Check](https://github.com/rokath/trice/actions/workflows/clang-format.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/clang-format.yml) 
-[![TRICE Library CI (Nightly Quick)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci.yml) 
-[![Mark stale issues and pull requests](https://github.com/rokath/trice/actions/workflows/stale.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/stale.yml) 
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rokath/trice) 
-[![CodeQL](https://github.com/rokath/trice/actions/workflows/codeql.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/codeql.yml) 
-![GitHub watchers](https://img.shields.io/github/watchers/rokath/trice?label=watch) 
-[![test](https://github.com/shogo82148/actions-goveralls/workflows/_test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice) 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser) 
-[![Sponsor rokath](https://github.com/sponsors/rokath/button)](https://github.com/sponsors/rokath)
-
--->
-
-*Log in a trice — with Trice, even from **↯ interrupt handlers** in less than 1 µs ❗*
+*Log in a trice — with Trice, even from **↯ interrupt handlers** in a few CPU clocks only❗*
 
 ![ ](./docs/ref/life0.gif) <!-- ([S>G](https://www.screentogif.com/)) -->
 
 **Trice User Manual:** [GitHub](./docs/TriceUserManual.md) • [GH Pages](https://rokath.github.io/trice/docs/TriceUserManual.html) • [PDF](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)
 
-<!-- mdtoc -->
-<!-- numbering=false min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
-<!-- /mdtoc -->
+## Details and advanced topics
 
-## What is Trice?
+### Basics
 
-**Trice** is under the hood an ID-based (ultra-low-overhead) logging framework for embedded C/C++. It provides printf-like usability with only a few (down to 6!) CPU cycles per log call, making logging practical even when used from interrupt handlers in real-time firmware systems.
+<details><summary>What is Trice?</summary>
 
-Trice is designed for systems where traditional logging is too slow, too large, or not safe to use in interrupt or real-time contexts.
+Trice gives embedded firmware a fast logging path with a familiar source-code style:
 
-Trice replaces/re-assigns legacy `printf` logging in embedded C/C++ systems with a much faster and more efficient approach.
+```c
+trice("boot\n");
+trice("adc=%d mV\n", adc_mV);
+```
 
-Instead of formatting and storing strings on the target, Trice encodes log messages as compact IDs and keeps the actual strings on the host. This reduces runtime overhead, memory usage, and data transfer size.
+Instead of formatting strings on the target, Trice stores the human-readable text on the host and transfers compact binary records from the target.
+This reduces target FLASH usage, transfer bandwidth, log files and log-call execution time.
+</details>
 
+<details><summary>How it works</summary>
 
-## How it works
+1. Write `trice(...)` calls in firmware code.
+2. Run `trice insert` before compilation.
+3. The compiler sees stable numeric IDs.
+4. The target emits compact binary Trice records.
+5. The PC tool decodes them with the matching `til.json`.
 
-* The target device sends only IDs and data.
-* The host reconstructs the original messages using the Trice ID list.
-* At build time, Trice assigns each log message a compact ID while the user source code stays unchanged - an ID is inserted temporarily just for the compiler run.
+A typical source-level idea is:
 
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary><strong style="font-size: 1.00em;">What about source code modification?</strong><span style="font-size: 0.66em;">(click to expand)</span></summary>
+```diff
+- printf("Temperature: %d C\n", t);
++ trice("Temperature: %d C\n", t);
+```
+</details>
 
----
+<details><summary>What about source code modification?</summary>
 
-Trice assigns IDs by processing source files with `trice insert`. A call such as this:
+Trice assigns IDs by processing source files with `trice insert`.
+A call such as this:
 
 ```c
 trice("boot\n");
@@ -98,68 +86,26 @@ You can choose how visible those IDs are in your workflow:
 - run `trice clean` after the build,
 - use the Trice cache to avoid needless rebuilds of unchanged files.
 
-For team projects, define this policy early and keep `til.json` under control like any other build artifact needed for field diagnostics.
+For team projects, define this policy early and treat `til.json` like any other build artifact needed for field diagnostics.
 See [Trice ID management](./docs/TriceUserManual.md#trice-id-management).
-
----
 
 </details>
 
-## Key Benefits
+<details><summary>Key benefits</summary>
 
-* **[Good for interrupts and timing work](./docs/TriceUserManual.md#trice-speed)**: Needs only a few CPU cycles in the most optimized configurations.
-* **[Smaller Binaries](./docs/TriceUserManual.md#trice-memory-needs)**: Format strings are kept in `til.json`, not in target FLASH.
-* **Minimal log data streams**: A Trice message is one 32-bit value plus optional runtime user values.
-* **[Long-term field decoding](./docs/TriceUserManual.md#versions-and-variants-trice-stability)** – decode logs from older firmware any newer til.json.
 * **[Easy Migration](./docs/TriceUserManual.md#trice-and-legacy-user-code)** – reuse existing `printf`-style code with minimal changes via the `-alias` option
+* **[Long-term field decoding](./docs/TriceUserManual.md#versions-and-variants-trice-stability)** – decode logs from older firmware any newer til.json.
+* **[Smaller Binaries](./docs/TriceUserManual.md#trice-memory-needs)**: Format strings are kept in `til.json`, not in target FLASH.
+* **Very low target overhead** - down to a few CPU cycles in optimized configurations; see [Trice Speed](./docs/TriceUserManual.md#trice-speed).
+* **Transport friendly** - UART, RTT, TCP/UDP, files, or your own non-blocking byte writer.
+* **Minimal log data streams** - A Trice message is one 32-bit value plus optional runtime user values. See [Minimal Transfer Bytes Amount](./docs/TriceUserManual.md#minimal-transfer-bytes-amount). Useful to reduce heavy log amounts.
 * **Portable tooling** - the host tool is written in Go and runs on common desktop platforms.
 * **[➕ More Features](./docs/TriceUserManual.md#trice-features-overview)** – flexible logging, transport options, and tooling.
 * **Fully documented**: [Trice User Manual](./docs/TriceUserManual.md)
 
-## Two Parts of Trice
-
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary><strong style="font-size: 1.00em;">C code macros</strong><span style="font-size: 0.66em;">(click to expand)</span></summary>
-
-Provide a familiar `printf`-like interface at the application level, but internally send just ID and values instead of full format strings. The Trice tool maps these IDs back to readable text.
-
----
-
 </details>
 
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary><strong style="font-size: 1.00em;">Trice tool</strong><span style="font-size: 0.66em;">(click to expand)</span></summary>
-
-Manages and displays the logs
-   - Written in [Go](https://go.dev/) - works on all platforms that Go supports
-   - You can also build your own tool to receive Trice packages, replace IDs with text, and display the output
-
----
-
-</details>
-
-## Quickstart: choose your first path 
-
-![Trice log icon](./docs/ref/trice_log_icon_128x128.png)
-
-<details markdown="1"> <!-- parse this block as markdown -->
-<summary>(click to expand)</span></summary>
-
-The fastest way to evaluate Trice is to start with one proven transport path, not with every feature at once.
-
-| Situation | Start here |
-|---|---|
-| Your project already has a non-blocking byte writer, DMA TX queue, USB CDC writer, socket writer, pipe, or file writer | [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](./docs/TriceUserManual.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) |
-| You have a SEGGER J-Link and want the least target-porting work | [Quickstart: SEGGER RTT direct mode with J-Link](./docs/TriceUserManual.md#quickstart-segger-rtt-direct-mode-with-j-link) |
-| You want a normal UART or USB virtual COM port | [Quickstart: UART or USB-VCOM deferred output](./docs/TriceUserManual.md#quickstart-uart-or-usb-vcom-deferred-output) |
-| You want to inspect complete STM32 example projects | [Example projects](./docs/TriceUserManual.md#example-projects-without-and-with-trice-instrumentation) |
-
-For most existing projects, the **existing byte writer** path is the least disruptive first integration: Trice writes framed binary data into your already-tested output function.
-
-### Which Mode Should You Use?
-
-- **For development:** Direct mode with SEGGER_RTT is recommended
-- **For most use cases:** Deferred mode with TRICE_BUFFER == TRICE_RING_BUFFER (uses less RAM) in TRICE_MULTI_PACK_MODE (transfers less data)
+<details><summary>Quickstart: choose your first path</summary>
 
 The fastest way to evaluate Trice is to start with one proven transport path, not with every feature at once.
 
@@ -171,17 +117,25 @@ The fastest way to evaluate Trice is to start with one proven transport path, no
 | You want to inspect complete STM32 example projects | [Example projects](./docs/TriceUserManual.md#example-projects-without-and-with-trice-instrumentation) |
 
 For most existing projects, the **existing byte writer** path is the least disruptive first integration: Trice writes framed binary data into an output function your project already owns.
-
----
-
 </details>
 
-## Details and advanced topics
+<details><summary>Which mode should you start with?</summary>
+
+| Mode / path | Use when |
+|---|---|
+| **Deferred auxiliary 8-bit** | You already have a non-blocking byte writer. This is usually the most universal first integration. |
+| **Direct SEGGER RTT** | You have J-Link/RTT and want a fast interactive lab setup. |
+| **Deferred UART / USB-VCOM** | Your board exposes a serial path and you want a conventional PC input stream. |
+| **Deferred ring buffer** | You want a balanced default for RAM usage and runtime behavior. |
+| **Deferred double buffer** | You want the shortest target-side log-call path and can spend more RAM. |
+
+Direct mode writes each record immediately to the selected backend.
+Deferred mode writes first into a target buffer; `TriceTransfer()` sends later.
+</details>
 
 ### Integration workflow
 
-<details>
-<summary>Two parts of Trice</summary>
+<details><summary>Two parts of Trice</summary>
 
 Trice has two cooperating parts:
 
@@ -193,8 +147,7 @@ You can also build your own receiver that reads Trice packages, maps IDs to form
 
 </details>
 
-<details>
-<summary>Files: <code>til.json</code>, <code>li.json</code>, and binary logs</summary>
+<details><summary>Files: <code>til.json</code>, <code>li.json</code>, and binary logs</summary>
 
 | File | Purpose | Keep? |
 |---|---|---|
@@ -207,8 +160,7 @@ The repository example file is [demoTIL.json](./demoTIL.json).
 
 </details>
 
-<details>
-<summary>Three common ID workflows</summary>
+<details><summary>Three common ID workflows</summary>
 
 **Keep IDs in source** - good for small projects and maximum robustness.
 
@@ -239,8 +191,7 @@ If other tools also rewrite source files, such as formatters or code generators,
 
 </details>
 
-<details>
-<summary>Normal workflow</summary>
+<details><summary>Normal workflow</summary>
 
 1. Add the Trice target sources from [`src/`](./src) to your firmware project.
 2. Add a project-specific `triceConfig.h`.
@@ -285,8 +236,7 @@ trice log -p /dev/ttyACM0 -baud 921600 -i ./til.json -li ./li.json
 
 </details>
 
-<details>
-<summary>Legacy code integration</summary>
+<details><summary>Legacy code integration</summary>
 
 Existing projects do not have to migrate all logs at once.
 Common strategies:
@@ -311,8 +261,7 @@ See [Trice and legacy User Code](./docs/TriceUserManual.md#trice-and-legacy-user
 
 ### Runtime modes and output paths
 
-<details>
-<summary>Direct mode and deferred mode</summary>
+<details><summary>Direct mode and deferred mode</summary>
 
 | Mode | What happens during the log call | Good for |
 |---|---|---|
@@ -331,8 +280,7 @@ Deferred mode avoids this during the log call, but you must call `TriceTransfer(
 
 </details>
 
-<details>
-<summary>Buffer choice</summary>
+<details><summary>Buffer choice</summary>
 
 | Buffer | Typical use | Trade-off |
 |---|---|---|
@@ -345,8 +293,7 @@ See [Trice Speed](./docs/TriceUserManual.md#trice-speed) and [Trice memory needs
 
 </details>
 
-<details>
-<summary>Auxiliary hooks</summary>
+<details><summary>Auxiliary hooks</summary>
 
 Auxiliary hooks are useful when the project already owns the physical transport.
 They can write Trice binary data to an SD card, flash partition, UART/USB queue, socket, pipe, file, or other byte sink.
@@ -363,8 +310,7 @@ See [Writing the Trice logs into an SD-card or a user-specific output](./docs/Tr
 
 </details>
 
-<details>
-<summary>Data transfer options</summary>
+<details><summary>Data transfer options</summary>
 
 Implemented transfer methods include:
 
@@ -378,8 +324,7 @@ Start with a supported path first; optimize transport later.
 
 </details>
 
-<details>
-<summary>Display server for multiple targets</summary>
+<details><summary>Display server for multiple targets</summary>
 
 `trice ds` can act as a display server.
 Multiple `trice log` instances can send completed log lines to one display server so several targets appear in one combined output.
@@ -396,8 +341,7 @@ See [Logging Over a Display Server](./docs/TriceUserManual.md#logging-over-a-dis
 
 ### Features beyond basic logging
 
-<details>
-<summary>FLASH and bandwidth reduction</summary>
+<details><summary>FLASH and bandwidth reduction</summary>
 
 Replacing format strings with IDs at compile time acts like compression for target FLASH and transferred log data.
 A typical Trice record can be only a few bytes plus parameters, independent of the human-readable format-string length.
@@ -410,8 +354,7 @@ See also:
 
 </details>
 
-<details>
-<summary>Field logs and diagnostics</summary>
+<details><summary>Field logs and diagnostics</summary>
 
 Trice can be used as a fast `printf`-debugging replacement and as a compact logging system for field diagnostics.
 The target emits short binary records; the host produces the readable log later.
@@ -421,8 +364,7 @@ Optionally store project-specific `til.json` and `li.json` together with firmwar
 
 </details>
 
-<details>
-<summary>Storing Trice logs in FLASH, SD-card, or files</summary>
+<details><summary>Storing Trice logs in FLASH, SD-card, or files</summary>
 
 Trice binary logs can be written to FLASH, SD-card, a file, or another project-specific output for later analysis.
 This can be useful when a target is not permanently connected to a PC.
@@ -431,8 +373,7 @@ See [Writing the Trice logs into an SD-card or a user-specific output](./docs/Tr
 
 </details>
 
-<details>
-<summary>Encryption</summary>
+<details><summary>Encryption</summary>
 
 Trice supports optional XTEA encryption for transport packets.
 This can be useful when field logs should only be readable with the matching key and ID list.
@@ -442,8 +383,7 @@ See [Optional XTEA encryption](./docs/TriceUserManual.md#optional-xtea-encryptio
 
 </details>
 
-<details>
-<summary>Host-side wording and translation</summary>
+<details><summary>Host-side wording and translation</summary>
 
 Because the target sends IDs and values, the host-side `til.json` can map an ID to different text as long as the ID and parameter format remain compatible.
 This allows host-side wording changes or language variants without changing the target binary.
@@ -452,8 +392,7 @@ See [Switch the language without changing a bit inside the target code](./docs/T
 
 </details>
 
-<details>
-<summary>Timing analysis</summary>
+<details><summary>Timing analysis</summary>
 
 Trice supports host and target timestamps and can help with distributed timing analysis, interrupt timing, and observing target behavior without stopping firmware in a debugger.
 
@@ -466,8 +405,7 @@ See:
 
 </details>
 
-<details>
-<summary>Trice ABC - Asynchronous Broadcast Commands</summary>
+<details><summary>Trice ABC - Asynchronous Broadcast Commands</summary>
 
 **Trice ABC** extends the normal Trice idea from logging to compact command records.
 
@@ -489,8 +427,7 @@ See [Trice ABC in the User Manual](./docs/TriceUserManual.md#trice-abc---asynchr
 
 </details>
 
-<details>
-<summary>UART example diagram</summary>
+<details><summary>UART example diagram</summary>
 
 This simplified [draw.io](https://github.com/jgraph/drawio) diagram shows how Trice works over a UART-style path.
 Read the detailed explanation in [How it works - the main idea](./docs/TriceUserManual.md#how-it-works---the-main-idea).
@@ -499,8 +436,7 @@ Read the detailed explanation in [How it works - the main idea](./docs/TriceUser
 
 </details>
 
-<details>
-<summary>Routing different ID ranges to different outputs</summary>
+<details><summary>Routing different ID ranges to different outputs</summary>
 
 Trice can route different ID ranges or tagged messages to different outputs depending on configuration.
 See the User Manual for the current configuration details and examples.
@@ -509,8 +445,7 @@ See the User Manual for the current configuration details and examples.
 
 ### Project information
 
-<details>
-<summary>Installation</summary>
+<details><summary>Installation</summary>
 
 Use one of these options:
 
@@ -537,8 +472,7 @@ trice help -log
 
 </details>
 
-<details>
-<summary>Documentation and examples</summary>
+<details><summary>Documentation and examples</summary>
 
 - [Trice User Manual](./docs/TriceUserManual.md)
 - [GitHub Pages documentation](https://rokath.github.io/trice/docs/TriceUserManual.html)
@@ -550,8 +484,7 @@ trice help -log
 
 </details>
 
-<details>
-<summary>Development setup and debugging</summary>
+<details><summary>Development setup and debugging</summary>
 
 The example projects show Trice integration with VS Code, Makefiles, Clang/GCC, STM32 projects, RTT, and UART-style output.
 Use bare/instrumented project pairs to inspect the minimal integration diff.
@@ -564,8 +497,7 @@ See [Development Environment Setup](./docs/TriceUserManual.md#development-enviro
 
 </details>
 
-<details>
-<summary>Trice cache</summary>
+<details><summary>Trice cache</summary>
 
 The Trice cache avoids unnecessary rebuilds when using `trice insert` and `trice clean` around the build.
 It keeps cached inserted and cleaned copies of unchanged files.
@@ -590,12 +522,13 @@ See [Trice Cache for Compilation Speed](./docs/TriceUserManual.md#trice-cache-fo
 
 </details>
 
-<details>
-<summary>Project status</summary>
+<details><summary>Project status</summary>
 
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice?branch=main)
+[![CodeQL](https://github.com/rokath/trice/actions/workflows/codeql.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/codeql.yml) 
+![GitHub watchers](https://img.shields.io/github/watchers/rokath/trice?label=watch) 
 
 Trice is usable today and actively maintained.
 Use the latest release or the `main` branch when building from source.
@@ -605,8 +538,7 @@ Contributions are welcome: examples, platform recipes, transport backends, docum
 
 </details>
 
-<details>
-<summary>Future ideas</summary>
+<details><summary>Future ideas</summary>
 
 Potential future work includes:
 
@@ -617,8 +549,7 @@ Potential future work includes:
 
 </details>
 
-<details>
-<summary>Support the project</summary>
+<details><summary>Support the project</summary>
 
 - Star this project if it helps you.
 - Contribute examples, fixes, documentation, or platform recipes.
@@ -633,8 +564,7 @@ Support options:
 
 </details>
 
-<details>
-<summary>Similar projects</summary>
+<details><summary>Similar projects</summary>
 
 Trice overlaps with several logging, tracing, and tokenization approaches, but it targets a specific niche: compact `printf`-like logging for embedded C/C++ with host-side ID decoding.
 
@@ -667,8 +597,6 @@ Trice overlaps with several logging, tracing, and tokenization approaches, but i
 - [Zephyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 - Rust `defmt`
 - project-specific binary loggers.
-
-<!-- - [Metal Serial Library](https://github.com/metal-ci/_test/tree/master/doc/metal.serial.md) -->
 
 Additional generated comparison material:
 
