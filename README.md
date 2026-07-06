@@ -109,13 +109,13 @@ See [Trice ID management](./docs/TriceUserManual.md#trice-id-management).
 <details><summary>Key benefits</summary>
 
 * **[Easy Migration](./docs/TriceUserManual.md#trice-and-legacy-user-code)** – reuse existing `printf`-style code with minimal changes via the `-alias` option
-* **[Long-term field decoding](./docs/TriceUserManual.md#versions-and-variants-trice-stability)** – decode logs from any released firmware with the one accumulated `til.json`.
+* **[Long-term field decoding](./docs/TriceUserManual.md#versions-and-variants-trice-stability)** – decode logs from released firmware when the matching or accumulated `til.json` is preserved.
 * **[Reduced target FLASH](./docs/TriceUserManual.md#trice-memory-needs)** - format strings are kept in `til.json`, not in the target image.
 * **Very low target overhead** - down to a few CPU cycles in optimized configurations; see [Trice Speed](./docs/TriceUserManual.md#trice-speed).
 * **Transport friendly** - UART, RTT, TCP/UDP, files, or your own non-blocking byte writer.
-* **Minimal log data streams** - A Trice message is one 32-bit value plus optional runtime user values. See [Compact transfer](./docs/TriceUserManual.md#minimal-transfer-bytes-amount) – a Trice record contains one 32-bit ID plus optional runtime values, reducing bandwidth and log-file size.
+* **[Compact transfer](./docs/TriceUserManual.md#minimal-transfer-bytes-amount)** – a Trice record contains one 32-bit ID plus optional runtime values, reducing bandwidth and log-file size.
 * **Portable tooling** - the host tool is written in Go and runs on common desktop platforms.
-* **Further features** like encryption, timestamps, flexible logging, transport options, tooling are described [here](./docs/TriceUserManual.md#trice-features-overview).
+* **Further features** - like encryption, timestamps, flexible logging, transport options and tooling are described [here](./docs/TriceUserManual.md#trice-features-overview).
 * **Fully documented**: [Trice User Manual](./docs/TriceUserManual.md)
 
 </details>
@@ -560,7 +560,6 @@ Support options:
 - [Become a Sponsor with your GitHub account](https://github.com/sponsors/rokath/)
 - <a href="https://buymeacoffee.com/rokath" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="30" width="120"></a>
 - <a href="https://www.paypal.com/paypalme/rolfkarlthomas"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" alt="PayPal" height="40" width="120"></a>
-
 
 </details>
 
