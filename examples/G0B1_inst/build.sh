@@ -266,6 +266,12 @@ source "${ROOT}/scripts/_setup_build_environment.sh"
 # Ensure we build from the example directory, where the Makefile is expected.
 cd "${SCRIPT_DIR}"
 
+# Command-line defines passed through TRICE_FLAGS change the preprocessor result.
+# Make does not automatically know that all affected objects must be rebuilt
+# when only TRICE_FLAGS changes. Avoid linking stale objects from a previous
+# matrix entry.
+make clean
+
 # We translate here with inserted IDs in the normal case, and without inserted IDs
 # in the TRICE_OFF=1 case. In both cases, we expect no warnings.
 make ${MAKE_JOBS} TRICE_FLAGS="${flags}" gcc

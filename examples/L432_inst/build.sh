@@ -199,6 +199,12 @@ source "${ROOT}/scripts/_setup_build_environment.sh"
 # Ensure we build from the example directory, where the Makefile is expected.
 cd "${SCRIPT_DIR}"
 
+# Command-line defines passed through TRICE_FLAGS change the preprocessor result.
+# Make does not automatically know that all affected objects must be rebuilt
+# when only TRICE_FLAGS changes. Avoid linking stale objects from a previous
+# matrix entry.
+make clean
+
 # Preserve make's exit code explicitly.
 #
 # We temporarily disable `set -e` only around make. Otherwise a failing make
