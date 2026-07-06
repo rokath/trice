@@ -103,7 +103,7 @@ details.toc[open] .toc-hide {
     * [5.9.3. Trice Checks](#trice-checks)
     * [5.9.4. Communication Ports](#communication-ports)
     * [5.9.5. Target Code Overview](#target-code-overview)
-    * [5.9.6. User Code Adaption](#user-code-adaption)
+    * [5.9.6. User Code Adaptation](#user-code-adaptation)
     * [5.9.7. Limitations](#limitations)
     * [5.9.8. Trice (Time) Stamps](#trice-time-stamps)
     * [5.9.9. Trice Parameter Bit Widths](#trice-parameter-bit-widths)
@@ -156,7 +156,7 @@ details.toc[open] .toc-hide {
     * [12.2.7. TCP4 input](#tcp4-input)
     * [12.2.8. UDP4 input](#udp4-input)
     * [12.2.9. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
-    * [12.2.10. Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
+    * [12.2.10. Explore and modify tags and their colors](#explore-and-modify-tags-and-their-colors)
     * [12.2.11. Location Information](#location-information)
 * [13. Limitations](#limitations-1)
   * [13.1. Permanent Limitations](#permanent-limitations)
@@ -330,22 +330,21 @@ details.toc[open] .toc-hide {
   * [35.6. Runtime Generated 0-terminated Strings Transfer with triceS](#runtime-generated-0-terminated-strings-transfer-with-trices)
   * [35.7. Runtime Generated counted Strings Transfer with triceN](#runtime-generated-counted-strings-transfer-with--tricen)
   * [35.8. Runtime Generated Buffer Transfer with triceB](#runtime-generated-buffer-transfer-with-triceb)
-  * [35.9. Remote function call syntax support with triceF (depreciated)](#remote-function-call-syntax-support-with-tricef-depreciated)
-  * [35.10. Extended format specifier possibilities](#extended-format-specifier-possibilities)
-    * [35.10.1. Trice format specifier](#trice-format-specifier)
-    * [35.10.2. Length modifier support](#length-modifier-support)
-    * [35.10.3. Overview Table](#overview-table)
-  * [35.11. Unsupported printf format features](#unsupported-printf-format-features)
-    * [35.11.1. Dynamic field width with *](#dynamic-field-width-with-)
-    * [35.11.2. Dynamic precision with *](#dynamic-precision-with-)
-    * [35.11.3. Dynamic width and precision together](#dynamic-width-and-precision-together)
-    * [35.11.4. Wide character and wide string formats: %lc and %ls](#wide-character-and-wide-string-formats-lc-and-ls)
-    * [35.11.5. The special %n conversion specifier](#the-special-n-conversion-specifier)
-    * [35.11.6. Security implications of %n](#security-implications-of-n)
-    * [35.11.7. Why Trice does not support %n](#why-trice-does-not-support-n)
-  * [35.12. UTF-8 Support](#utf-8-support)
-  * [35.13. Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
-  * [35.14. Format tags prototype specifier examples](#format-tags-prototype-specifier-examples)
+  * [35.9. Extended format specifier possibilities](#extended-format-specifier-possibilities)
+    * [35.9.1. Trice format specifier](#trice-format-specifier)
+    * [35.9.2. Length modifier support](#length-modifier-support)
+    * [35.9.3. Overview Table](#overview-table)
+  * [35.10. Unsupported printf format features](#unsupported-printf-format-features)
+    * [35.10.1. Dynamic field width with *](#dynamic-field-width-with-)
+    * [35.10.2. Dynamic precision with *](#dynamic-precision-with-)
+    * [35.10.3. Dynamic width and precision together](#dynamic-width-and-precision-together)
+    * [35.10.4. Wide character and wide string formats: %lc and %ls](#wide-character-and-wide-string-formats-lc-and-ls)
+    * [35.10.5. The special %n conversion specifier](#the-special-n-conversion-specifier)
+    * [35.10.6. Security implications of %n](#security-implications-of-n)
+    * [35.10.7. Why Trice does not support %n](#why-trice-does-not-support-n)
+  * [35.11. UTF-8 Support](#utf-8-support)
+  * [35.12. Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
+  * [35.13. Format tags prototype specifier examples](#format-tags-prototype-specifier-examples)
 * [36. Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands)
   * [36.1. Quick use](#quick-use)
   * [36.2. ABC macro families](#abc-macro-families)
@@ -366,7 +365,7 @@ details.toc[open] .toc-hide {
   * [37.3. Animation](#animation)
   * [37.4. Setup Linux PC - Example with Debian12 - KDE Desktop](#setup-linux-pc---example-with-debian12---kde-desktop)
     * [37.4.1. Basic setup](#basic-setup)
-    * [37.4.2. Github](#github)
+    * [37.4.2. GitHub](#github)
     * [37.4.3. VS Code](#vs-code)
     * [37.4.4. Go](#go)
     * [37.4.5. Gitkraken (or other GUI for git)](#gitkraken-or-other-gui-for-git)
@@ -404,7 +403,6 @@ details.toc[open] .toc-hide {
   * [39.2. C-Code](#c-code)
   * [39.3. C#-Code](#c-code-1)
   * [39.4. Generating a Trice ABC Function Pointer List](#generating-a-trice-abc-function-pointer-list)
-  * [39.5. Generating a RPC Function Pointer List (depreciated)](#generating-a-rpc-function-pointer-list-depreciated)
 * [40. Testing the Trice Library C-Code for the Target](#testing-the-trice-library-c-code-for-the-target)
   * [40.1. General info](#general-info)
   * [40.2. How to run the tests](#how-to-run-the-tests)
@@ -429,9 +427,9 @@ details.toc[open] .toc-hide {
   * [42.4. Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings](#possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings)
 * [43. Trice And Legacy User Code](#trice-and-legacy-user-code)
   * [43.1. Legacy User Code Option Separate Physical Output Channel](#legacy-user-code-option-separate-physical-output-channel)
-  * [43.2. Legacy User Code Option Trice Adaption Edits](#legacy-user-code-option-trice-adaption-edits)
+  * [43.2. Legacy User Code Option Trice Adaptation Edits](#legacy-user-code-option-trice-adaptation-edits)
   * [43.3. Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
-  * [43.4. Legacy User Code Option Trice Aliases Adaption](#legacy-user-code-option-trice-aliases-adaption)
+  * [43.4. Legacy User Code Option Trice Aliases Adaptation](#legacy-user-code-option-trice-aliases-adaptation)
     * [43.4.1. PR533 Doc](#pr533-doc)
     * [43.4.2. PR533 Summary](#pr533-summary)
     * [43.4.3. PR533 Motivation](#pr533-motivation)
@@ -477,7 +475,7 @@ details.toc[open] .toc-hide {
     * [46.2.12. GitHub Action shfmt.yml - Ensure Consistent Shell Scripts Formatting](#github-action-shfmtyml---ensure-consistent-shell-scripts-formatting)
     * [46.2.13. GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-staleyml---automatic-stale-issue-handling)
     * [46.2.14. GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting)
-    * [46.2.15. Github Action pages.yml - Creates The Trice Github Pages](#github-action-pagesyml---creates-the-trice-github-pages)
+    * [46.2.15. GitHub Action pages.yml - Creates The Trice GitHub Pages](#github-action-pagesyml---creates-the-trice-github-pages)
   * [46.3. Trice User Manual Maintenance (or any *.md file)](#trice-user-manual-maintenance-or-any-md-file)
   * [46.4. Cleaning the Sources](#cleaning-the-sources)
 * [47. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
@@ -850,9 +848,9 @@ Do not use TRICE_CLEAN for disabling Trice macros. The *triceConfig.h* line `#de
 
 ### 4.21. <a id="trice-generator"></a>Trice Generator
 
-The Trice tool is able to generate colors or code to support various tasks. One interesting option is the Remote Procedure Call support, allowing RPC usage in a network of embedded devices.
+The Trice tool is able to generate colors or code to support various tasks. One interesting option is the **A**synchronous **B**roadcast **C**ommand support, allowing ABC usage in a network of embedded devices.
 
-Read chapter [Trice Generate](#trice-generate) or type:
+Read chapter [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands) or type:
 
 ```bash
 trice help -generate
@@ -1202,7 +1200,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-#### 5.9.6. <a id="user-code-adaption"></a>User Code Adaptation
+#### 5.9.6. <a id="user-code-adaptation"></a>User Code Adaptation
 
 * Replace all strings `puts` with the string `trice`, when the string follows immediately. For runtime generated strings see `triceS`.
 * Replace all strings `printf` with the string `trice`, when the format string follows immediately.
@@ -2061,7 +2059,7 @@ Sometimes it is handy to stimulate the target during development. For that a 2nd
 
 ![./ref/UARTCommandAnimation.gif](./ref/UARTCommandAnimation.gif)
 
-#### 12.2.10. <a id="explpore-and-modify-tags-and-their-colors"></a>Explore and modify tags and their colors
+#### 12.2.10. <a id="explore-and-modify-tags-and-their-colors"></a>Explore and modify tags and their colors
 
 See chapter [Trice Tags and Color](#trice-tags-and-color).
 
@@ -5302,10 +5300,11 @@ triceS( "Name: %12s, ",  n ); triceS( "Family: %s, ", f ); trice( "Birthday %2u-
 
  If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
-### 35.9. <a id="remote-function-call-syntax-support-with-tricef-depreciated"></a>Remote function call syntax support with triceF (deprecated)
+<!--
+### Remote function call syntax support with triceF (deprecated)
 
 ```diff
---> Do not use `triceF` family macros for new projects! 
+-> Do not use `triceF` family macros for new projects! 
 ```
 The `triceF` macros were an experimental remote-function-call syntax. They are deprecated and should not be used for new designs. New command-style communication between devices should use [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands).
 
@@ -5336,19 +5335,20 @@ The `triceF` macros were an experimental remote-function-call syntax. They are d
 > * Future extensions are possible:
 >   * `triceD( "dump:32", addr, 160 );` -> The Trice tool dumps in 32 byte rows.
 >   * An appropriate syntax is needed.
+-->
 
-### 35.10. <a id="extended-format-specifier-possibilities"></a>Extended format specifier possibilities
+### 35.9. <a id="extended-format-specifier-possibilities"></a>Extended format specifier possibilities
 
 * Because the format string is interpreted by the Trice tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable.
 
-#### 35.10.1. <a id="trice-format-specifier"></a>Trice format specifier
+#### 35.9.1. <a id="trice-format-specifier"></a>Trice format specifier
 
 * The Trice macros are used in **C** code.
 * The format strings are interpreted by the Trice tool, which is written in **Go**.
 * The **C** and **Go** format specifier are not equal but similar.
 * Therefore, a **T**rice adaption is internally performed.
 
-#### 35.10.2. <a id="length-modifier-support"></a>Length modifier support
+#### 35.9.2. <a id="length-modifier-support"></a>Length modifier support
 
 * Trice now accepts the common C length modifiers `hh`, `h`, `l`, `ll`, `j`, `z`, `t`, and `L` together with the corresponding supported conversion specifiers.
 * This is useful for ordinary Trice macros as well as for buffer macros such as `TRICE8_B`, `TRICE16_B`, `TRICE32_B`, and `TRICE64_B`.
@@ -5362,7 +5362,7 @@ The `triceF` macros were an experimental remote-function-call syntax. They are d
 * The normalization keeps flags, field width, and precision. Only the C length modifier itself is removed from the host side working copy.
 * Invalid combinations are not legalized by Trice. For example, `%LX` is not treated as a valid integer format because `L` belongs to floating-point conversions such as `%Lf`, not to `%X`.
 
-#### 35.10.3. <a id="overview-table"></a>Overview Table
+#### 35.9.3. <a id="overview-table"></a>Overview Table
 
 | Format Specifier Type                                           | C | Go | T | (T =Trice) \| remark                                                        |
 |-----------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------|
@@ -5403,7 +5403,7 @@ The `triceF` macros were an experimental remote-function-call syntax. They are d
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-### 35.11. <a id="unsupported-printf-format-features"></a>Unsupported `printf` format features
+### 35.10. <a id="unsupported-printf-format-features"></a>Unsupported `printf` format features
 
 Trice supports the common `printf`-style format specifiers used for embedded logging. Some less common `printf` features are intentionally not supported yet, because they do not fit well into the current lightweight Trice argument handling model or because they introduce side effects that are unsuitable for logging.
 
@@ -5414,7 +5414,7 @@ This mainly concerns:
 * wide character and wide string formats such as `%lc` and `%ls`
 * the `%n` conversion specifier
 
-#### 35.11.1. <a id="dynamic-field-width-with-"></a>Dynamic field width with `*`
+#### 35.10.1. <a id="dynamic-field-width-with-"></a>Dynamic field width with `*`
 
 In standard `printf`, a field width can either be fixed inside the format string or supplied dynamically.
 
@@ -5444,7 +5444,7 @@ printf("%10d", value);
 
 A negative dynamic width has a special meaning and implies left-aligned output, similar to the `-` flag.
 
-#### 35.11.2. <a id="dynamic-precision-with-"></a>Dynamic precision with `*`
+#### 35.10.2. <a id="dynamic-precision-with-"></a>Dynamic precision with `*`
 
 The same principle exists for precision.
 
@@ -5466,7 +5466,7 @@ Again, the `*` consumes an additional `int` argument. For strings this is often 
 printf("%.*s", maxLen, text);
 ```
 
-#### 35.11.3. <a id="dynamic-width-and-precision-together"></a>Dynamic width and precision together
+#### 35.10.3. <a id="dynamic-width-and-precision-together"></a>Dynamic width and precision together
 
 Both dynamic field width and dynamic precision can be used in the same conversion:
 
@@ -5488,7 +5488,7 @@ Trice is designed so that a format string usually maps to a compact and predicta
 
 For that reason, Trice currently does not support these forms. Supporting them correctly would require the Trice format analysis to count and encode the hidden width and precision arguments in addition to the visible value arguments.
 
-#### 35.11.4. <a id="wide-character-and-wide-string-formats-lc-and-ls"></a>Wide character and wide string formats: `%lc` and `%ls`
+#### 35.10.4. <a id="wide-character-and-wide-string-formats-lc-and-ls"></a>Wide character and wide string formats: `%lc` and `%ls`
 
 The `%lc` and `%ls` conversions are valid C `printf` forms for wide character and wide string data.
 
@@ -5509,7 +5509,7 @@ Therefore, simply removing the `l` and treating `%lc` like `%c` or `%ls` like `%
 
 For that reason, Trice currently does not support `%lc` and `%ls`. Proper support would require extra target-side type or encoding information so that the host can decode the transported data in an unambiguous and portable way.
 
-#### 35.11.5. <a id="the-special-n-conversion-specifier"></a>The special `%n` conversion specifier
+#### 35.10.5. <a id="the-special-n-conversion-specifier"></a>The special `%n` conversion specifier
 
 The `%n` specifier is fundamentally different from ordinary `printf` conversions.
 
@@ -5551,7 +5551,7 @@ printf("%lln", &ll);  // long long *
 
 This means `%n` is not a pure logging conversion. It has a side effect because it writes to memory.
 
-#### 35.11.6. <a id="security-implications-of-n"></a>Security implications of `%n`
+#### 35.10.6. <a id="security-implications-of-n"></a>Security implications of `%n`
 
 The `%n` specifier is also relevant for format-string security.
 
@@ -5571,7 +5571,7 @@ printf("%s", userInput);
 
 Because `%n` writes to memory and is strongly associated with format-string vulnerabilities, many coding standards and safety-oriented code bases discourage or forbid it.
 
-#### 35.11.7. <a id="why-trice-does-not-support-n"></a>Why Trice does not support `%n`
+#### 35.10.7. <a id="why-trice-does-not-support-n"></a>Why Trice does not support `%n`
 
 Trice is a logging and tracing system. Its purpose is to transfer compact log information from the target to the host, where it is decoded into readable text.
 
@@ -5588,7 +5588,7 @@ For these reasons, Trice currently does not support `%n`.
 
 This is intentional. Trice log statements should describe data to be logged, not modify application memory as a side effect of formatting.
 
-### 35.12. <a id="utf-8-support"></a>UTF-8 Support
+### 35.11. <a id="utf-8-support"></a>UTF-8 Support
 
 This is gratis, if you edit your source files containing the format strings in UTF-8:
 
@@ -5596,11 +5596,11 @@ This is gratis, if you edit your source files containing the format strings in U
 
 The target does not even "know" about that, because it gets only the Trice IDs.
 
-### 35.13. <a id="switch-the-language-without-changing-a-bit-inside-the-target-code"></a>Switch the language without changing a bit inside the target code
+### 35.12. <a id="switch-the-language-without-changing-a-bit-inside-the-target-code"></a>Switch the language without changing a bit inside the target code
 
 Once the [til.json](../demoTIL.json) list is done the user can translate it in any language and exchanging the list switches to another language. This is nowadays a simple AI agent task.
 
-### 35.14. <a id="format-tags-prototype-specifier-examples"></a>Format tags prototype specifier examples
+### 35.13. <a id="format-tags-prototype-specifier-examples"></a>Format tags prototype specifier examples
 
 This syntax is supported: `%[flags][width][.precision][length]`
 
@@ -7233,10 +7233,11 @@ trice generate -i til.json -abc=deviceX
 
 This creates `deviceX_abc.h` if it does not exist, otherwise uses it as the user-edited selection input. It always regenerates `deviceX_abc.c` from `til.json` and the active declarations in `deviceX_abc.h`. For the workflow and examples see [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands).
 
-### 39.5. <a id="generating-a-rpc-function-pointer-list-depreciated"></a>Generating an RPC Function Pointer List (deprecated)
+<!--
+### Generating an RPC Function Pointer List (deprecated)
 
 ```diff
---> Do not use for new projects!
+-> Do not use for new projects!
 ```
 
 This was an experimental implementation and will be removed in the future. Use `trice generate -abc=<device>` instead. See [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands).
@@ -7347,6 +7348,7 @@ This was an experimental implementation and will be removed in the future. Use `
 > ```
 > 
 > Assume a project with several devices. You can add these 2 files to all targets and if a special target should execute any functions, simply implement them. These functions on their own can execute other Trice statements to transmit results. If a client > executes an RPC function this way, the request is transmitted with the Trice speed. Several target devices (servers) can receive and respond and the client can wait for the first or some of them. That server receiving and client waiting functionality is not > part of the Trice library. 
+-->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -8154,7 +8156,7 @@ When it comes to use legacy sources together with Trice, there are several ways 
 
 * The legacy user code output drives a terminal app and the Trice output feeds the Trice binary data into the Trice tool.
 
-### 43.2. <a id="legacy-user-code-option-trice-adaption-edits"></a>Legacy User Code Option Trice Adaptation Edits
+### 43.2. <a id="legacy-user-code-option-trice-adaptation-edits"></a>Legacy User Code Option Trice Adaptation Edits
 
 *Advantages:*
 
@@ -8201,7 +8203,7 @@ The Trice binary encoding uses states 1, 2, 3 of the 4 states, the 2 [Binary Enc
 
 If the Trice library and the user print both write to the same output, an easy modification would be, to prepend the user print output with a 2-byte count as long its size is < 16383, so that the 2 most significant bits are zero. Additionally, the this way counted buffer needs the same buffer framing as the Trice binary data.
 
-### 43.4. <a id="legacy-user-code-option-trice-aliases-adaption"></a>Legacy User Code Option Trice Aliases Adaptation
+### 43.4. <a id="legacy-user-code-option-trice-aliases-adaptation"></a>Legacy User Code Option Trice Aliases Adaptation
 
 > **Trice >= v1.1 feature**, see also accepted pull requests [\#533](https://github.com/rokath/trice/pull/533) and [\#536](https://github.com/rokath/trice/pull/536)
 
