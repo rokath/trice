@@ -33,7 +33,7 @@ format = "detailed"
 
 # Limit total parallel link checks. Lychee v0.22 does not support per-host
 # concurrency limits, so this is the portable way to reduce burstiness.
-max_concurrency = 16
+max_concurrency = 4
 
 # Per-request timeout in seconds.
 # Consider increasing if you see frequent timeouts on vendor sites.

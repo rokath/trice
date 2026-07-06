@@ -12,7 +12,7 @@
 [![TRICE Library CI (Nightly Full)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml)
 
 <img align="right" src="docs/ref/TriceGirl-167x222.png" width="115" alt="Trice project mascot"><br>
-<em>Hi, I am Trice.</em>
+_Hi, I am Trice._
 
 **Trice** is a compact ID-based logging framework for embedded C/C++.
 Firmware code uses `printf`-like calls, but the target sends only small binary records: an ID plus optional runtime values.

@@ -549,7 +549,7 @@ Replacing a `printf` library, the [Trice target source code](../src) occupies 1-
 #define TRICE_UARTA USART2
 ```
 
-The open-source Trice PC tool is executable on all [Go](https://golang.org) platforms, at least:
+The open-source Trice PC tool is executable on all [Go](https://go.dev) platforms, at least:
 
 * [x] Linux
 * [x] macOS
@@ -571,11 +571,11 @@ In the future other ports are possible:
 
 Developing firmware means to deal also with interrupts and often with timing. How do you check, if an interrupt occurred? OK, increment a counter and display it in a background loop with some printf-like function. What about time measurement? Set a digital output to 1 and 0 and connect a measurement device. Once, developing software for a real-time image processing device, I had no clue where in detail the processing time exploded when the image quality got bad. A spare analog output with a video interrupt synced oscilloscope gave me the needed information, after I changed the analog output on several points in my algorithm. But, hey guys, I want to deal with my programming tasks and do not like all this hassle connecting wires and steer into instruments.
 
-A `printf` is so cool on a PC, developing software there. But an embedded device often cannot use it for performance reasons. My very first attempt was writing the format string `.const` offset together with its values in a FIFO during a log statement and to do the `printf` it in the background. But that is compiler specific. OK the full string address is better but needs buffer space. [Zephyr](https://docs.zephyrproject.org) for example does something like that calling it "deferred logging".
+A `printf` is so cool on a PC, developing software there. But an embedded device often cannot use it for performance reasons. My very first attempt was writing the format string `.const` offset together with its values in a FIFO during a log statement and to do the `printf` it in the background. But that is compiler specific. OK the full string address is better but needs buffer space. [Zephyr](https://docs.zephyrproject.org/latest/) for example does something like that calling it "deferred logging".
 
 Then, one day I had the idea to compute short checksums for the format strings in a pre-compile step and to use them as ID in a list together with the format strings. That was a step forward but needed to write a supporting PC program. I did that in C++ in the assumption to get it better done that way. Finally, it worked, but I hated my PC code, as I dislike C++ now because of all its nuts and bolts to handle, accompanied by missing libraries on the next PC. The tool usability was also unhandy and therefore error prone and the need became clear for a full automated solution. Also, what is, if 2 different format strings accidentally generate the same short checksum? There was a way around, but an ID based message filtering will never be possible that way.
 
-The need became clear for controllable IDs and management options. And there was [Go](https://golang.org) now, an as-fast-as-**C** language, easy to learn, promising high programming efficiency and portability. It would be interesting to try it out on a real PC project.
+The need became clear for controllable IDs and management options. And there was [Go](https://go.dev) now, an as-fast-as-**C** language, easy to learn, promising high programming efficiency and portability. It would be interesting to try it out on a real PC project.
 
 Trying to add tags in form of partial Trice macro names was blowing up the header code amount and was a too rigid design. Which are the right tags? One lucky day I came to the conclusion to handle tags just as format string parts like `"debug:Here we are!\n"` and getting rid of them in the target code this way also giving the user [freedom](../internal/emitter/lineTransformerANSI.go) to invent any tags.
 
@@ -9560,7 +9560,7 @@ These files are not executed; they simply inform GitHub how certain workflows be
   > 
   > File [.clang-format](../.clang-format)
   > 
-  > *Contributor: [Sazerac4](https://github.com/Sazerac4)*
+  > *Contributor: @Sazerac4*
   > 
   > Sazerac4 commented Aug 29, 2024:
   > I have a code formatter when I make changes to my application but I would like to keep the style of the library when modifying.
@@ -9599,21 +9599,21 @@ These files are not executed; they simply inform GitHub how certain workflows be
   > 
   > File [.clang-format-ignore](../.clang-format-ignore):
   > 
-  > *Contributor: [Sazerac4](https://github.com/Sazerac4)*
+  > *Contributor: @Sazerac4*
   > 
   > Sazerac4 commented Aug 30, 2024:
   > I have added .clang-format-ignore to ignore formatting for specific files
   > 
   > File [.editorconfig](../.editorconfig):
   > 
-  > *Contributor: [Sazerac4](https://github.com/Sazerac4)*
+  > *Contributor: @Sazerac4*
   > 
   > The`.editorconfig` file allows to better identify the basic style for every files. (endline, charset, ...). It is a file accepted by a wide list of IDEs and editors : [link](https://editorconfig.org/#file-format-details)
   > This addition is motivated by forgetting the end of line in the .gitattributes file.
   > 
   > File [.gitattributes](../.gitattributes)
   > 
-  > *Contributor: [Sazerac4](https://github.com/Sazerac4)*
+  > *Contributor: @Sazerac4*
   > 
   > With the`.gitattributes` file avoid problems with "diff" and end of lines. [Here](https://www.aleksandrhovhannisyan.com/blog/crlf-vs-lf-normalizing-line-endings-in-git/) is an article that presents the problem.
   > 
