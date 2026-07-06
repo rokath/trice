@@ -150,13 +150,14 @@ details.toc[open] .toc-hide {
     * [12.2.1. Automated pre-build insert command example](#automated-pre-build-insert-command-example)
     * [12.2.2. Some Log examples](#some-log-examples)
     * [12.2.3. Logging over a display server](#logging-over-a-display-server)
-    * [12.2.4. Binary Logfile](#binary-logfile)
-    * [12.2.5. TCP4 output](#tcp4-output)
-    * [12.2.6. TCP4 input](#tcp4-input)
-    * [12.2.7. UDP4 input](#udp4-input)
-    * [12.2.8. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
-    * [12.2.9. Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
-    * [12.2.10. Location Information](#location-information)
+    * [12.2.4. Logfile output](#logfile-output)
+    * [12.2.5. Binary Logfile](#binary-logfile)
+    * [12.2.6. TCP4 output](#tcp4-output)
+    * [12.2.7. TCP4 input](#tcp4-input)
+    * [12.2.8. UDP4 input](#udp4-input)
+    * [12.2.9. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
+    * [12.2.10. Explpore and modify tags and their colors](#explpore-and-modify-tags-and-their-colors)
+    * [12.2.11. Location Information](#location-information)
 * [13. Limitations](#limitations-1)
   * [13.1. Permanent Limitations](#permanent-limitations)
     * [13.1.1. Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
@@ -173,8 +174,9 @@ details.toc[open] .toc-hide {
   * [14.6. Logfile viewing](#logfile-viewing)
   * [14.7. Using the Trice tool with 3rd party tools](#using-the-trice-tool-with-3rd-party-tools)
   * [14.8. Several targets at the same time](#several-targets-at-the-same-time)
-  * [14.9. TRICESTACKBUFFER could cause stack overflow with -o0 optimization](#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization)
-  * [14.10. Cycle Counter](#cycle-counter)
+  * [14.9. Executing go test -race -count 100 ./...](#executing-go-test--race--count-100-)
+  * [14.10. TRICESTACKBUFFER could cause stack overflow with -o0 optimization](#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization)
+  * [14.11. Cycle Counter](#cycle-counter)
 * [15. Switching Trice ON and OFF](#switching-trice-on-and-off)
   * [15.1. Target side compile-time Trice On-Off](#target-side-compile-time--trice-on-off)
   * [15.2. Host side Trice On-Off](#host-side-trice-on-off)
@@ -1983,7 +1985,7 @@ The IP address and port are free selectable. Using a display server, allows to w
 
 A local Trice instance sends Trice messages to a display server only, when a log line is complete (if consisting of several Trices). By using the CLI switches `-prefix` and `-suffix` you can decorate the loglines target specific to distinguish them in the output window(s).
 
-##13.2.4. Logfile output
+#### 12.2.4. <a id="logfile-output"></a>Logfile output
 
 ```bash
 trice l -p COM3 -logfile auto
@@ -1999,7 +2001,7 @@ This creates a new logfile `trice.log` on first start and appends to it on each 
 
 Logfiles are text files one can see with 3rd party tools. Example: `cat trice.log`. They contain also the PC reception timestamps if where enabled.
 
-#### 12.2.4. <a id="binary-logfile"></a>Binary Logfile
+#### 12.2.5. <a id="binary-logfile"></a>Binary Logfile
 
 ```bash
 trice l -p COM3 -binaryLogfile auto
@@ -2019,7 +2021,7 @@ Binary logfiles are handy in the field for long data recordings.
 
 When using RTT, the data are exchanged over a file interface. These binary logfiles are stored in the project [./temp] folder and accessible for later view: `trice l -p FILEBUFFER -args ./temp/logfileName.bin`. Of course the host timestamps are the playing time then.
 
-#### 12.2.5. <a id="tcp4-output"></a>TCP4 output
+#### 12.2.6. <a id="tcp4-output"></a>TCP4 output
 
 ```bash
 trice l -p COM3 -tcp 127.0.0.1:23
@@ -2030,7 +2032,7 @@ This additionally sends Trice output to a 3rd party TCP listener, for example li
 ![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
 ![./ref/Putty.PNG](./ref/Putty.PNG)
 
-#### 12.2.6. <a id="tcp4-input"></a>TCP4 input
+#### 12.2.7. <a id="tcp4-input"></a>TCP4 input
 
 ```bash
 trice l -p TCP4 -args "192.168.2.3:45678"
@@ -2038,7 +2040,7 @@ trice l -p TCP4 -args "192.168.2.3:45678"
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
 
-#### 12.2.7. <a id="udp4-input"></a>UDP4 input
+#### 12.2.8. <a id="udp4-input"></a>UDP4 input
 
 The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
 
@@ -2053,17 +2055,17 @@ To receive Trice logs over IPv4 UDP, use the -port UDP4 option. By default, it l
 
 trice log -p UDP4
 
-#### 12.2.8. <a id="stimulate-target-with-a-user-command-over-uart"></a>Stimulate target with a user command over UART
+#### 12.2.9. <a id="stimulate-target-with-a-user-command-over-uart"></a>Stimulate target with a user command over UART
 
 Sometimes it is handy to stimulate the target during development. For that a 2nd screen is helpful what is possible using the display server option:
 
 ![./ref/UARTCommandAnimation.gif](./ref/UARTCommandAnimation.gif)
 
-#### 12.2.9. <a id="explpore-and-modify-tags-and-their-colors"></a>Explpore and modify tags and their colors
+#### 12.2.10. <a id="explpore-and-modify-tags-and-their-colors"></a>Explpore and modify tags and their colors
 
 See chapter [Trice Tags and Color](#trice-tags-and-color).
 
-#### 12.2.10. <a id="location-information"></a>Location Information
+#### 12.2.11. <a id="location-information"></a>Location Information
 
 When running  `trice insert`, a file `li.json` is created, what you can control with the `-li|locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves as an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuild with each compilation, when `trice i` is a prebuild step. When `trice clean` is used, the file `li.json` should go into the version management too to secure that identical trices get the same ID back.
 
@@ -2247,15 +2249,15 @@ Parallel output as logfile, TCP or binary logfile is possible. See examples abov
 
 You can connect each target over its transmit channel with an own Trice instance and integrate all transmissions line by line in an additional Trice instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
 
-<!-- _### Executing `go test -race -count 100 ./...`-->
+### 14.9. <a id="executing-go-test--race--count-100-"></a>Executing `go test -race -count 100 ./...`
 
 The C-code is executed during some tests. Prerequisite is an installed GCC.
 
-### 14.9. <a id="tricestackbuffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
+### 14.10. <a id="tricestackbuffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
-### 14.10. <a id="cycle-counter"></a>Cycle Counter
+### 14.11. <a id="cycle-counter"></a>Cycle Counter
 
 * The trice tool expects the first cycle counter to start with 0xC0 (=192). If the target is already running and you connect the trice tool then, the first message is marked with "CYCLE: ? not equal expected value 192 - adjusting. Now 1 CycleEvents".
 * If the target is resetted asynchronous, the trice tool receives a cycle counter 192. Most probably the last cycle counter was not 191, so this triggers also a message  with "CYCLE: 192 not equal expected value ?- adjusting. Now n CycleEvents".
@@ -5596,7 +5598,7 @@ The target does not even "know" about that, because it gets only the Trice IDs.
 
 ### 35.13. <a id="switch-the-language-without-changing-a-bit-inside-the-target-code"></a>Switch the language without changing a bit inside the target code
 
-Once the [til.json](../demoTIL.json) list is done the user can translate it in any language and exchanging the list switches to another language.
+Once the [til.json](../demoTIL.json) list is done the user can translate it in any language and exchanging the list switches to another language. This is nowadays a simple AI agent task.
 
 ### 35.14. <a id="format-tags-prototype-specifier-examples"></a>Format tags prototype specifier examples
 
